@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270687AbRHJXhw>; Fri, 10 Aug 2001 19:37:52 -0400
+	id <S270688AbRHJXvX>; Fri, 10 Aug 2001 19:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270688AbRHJXhm>; Fri, 10 Aug 2001 19:37:42 -0400
-Received: from zero.tech9.net ([209.61.188.187]:24840 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S270687AbRHJXha>;
-	Fri, 10 Aug 2001 19:37:30 -0400
-Subject: Re: [PATCH] 2.4.7-ac11: Updated emu10k1 driver
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S270690AbRHJXvO>; Fri, 10 Aug 2001 19:51:14 -0400
+Received: from eriador.apana.org.au ([203.14.152.116]:12296 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S270688AbRHJXu6>; Fri, 10 Aug 2001 19:50:58 -0400
+Date: Sat, 11 Aug 2001 09:50:51 +1000
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15VLkF-0001rJ-00@the-village.bc.nu>
-In-Reply-To: <E15VLkF-0001rJ-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 10 Aug 2001 19:38:28 -0400
-Message-Id: <997486712.688.37.camel@phantasy>
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+Message-ID: <20010811095051.A28624@gondor.apana.org.au>
+In-Reply-To: <Pine.LNX.4.33.0108101557180.1048-100000@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108101557180.1048-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.18i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Aug 2001 00:31:11 +0100, Alan Cox wrote:
-> > The "maintainer" is listed as Creative.  They have not updated anything
-> > in a year (in the kernel tree; their CVS tree gets frequent updates).
+On Fri, Aug 10, 2001 at 03:58:02PM -0700, Linus Torvalds wrote:
 > 
-> I've kind of assumed Rui was maintainer for a long time now. Creative seem
-> to have basically ditched it and run
+> Besides, does the reboot system call actually get the BKL? I don't think
+> it should need it..
 
-I didn't know this.  The MAINTAINERS file lists Creative and gives what
-looks like a generic email address, although I know not to trust that
-file.  Perhaps it should be updated.
+Actually, the machine in question turned out to be UP :)
 
-I would not mind being a liason between the Creative Open Source
-development and the official kernel -- creating and forwarding patches
-and so forth, but I am not really involved in the drivers development.
+However, it does have RAID 1 and the notifier call chain stuff looks like
+a killer to me since it leads to do_md_stop.
 
-I just want to keep a driver I use up to date.
-
+Perhaps we need a RESTART3 that restarts without notifying?
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

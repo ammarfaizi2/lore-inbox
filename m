@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261683AbTCNK54>; Fri, 14 Mar 2003 05:57:56 -0500
+	id <S261697AbTCNLEi>; Fri, 14 Mar 2003 06:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261697AbTCNK54>; Fri, 14 Mar 2003 05:57:56 -0500
-Received: from divine.city.tvnet.hu ([195.38.100.154]:26995 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S261683AbTCNK5z>; Fri, 14 Mar 2003 05:57:55 -0500
-Date: Fri, 14 Mar 2003 12:02:24 +0100 (MET)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
-In-Reply-To: <3E71A838.9020306@aitel.hist.no>
-Message-ID: <Pine.LNX.4.30.0303141113330.25220-100000@divine.city.tvnet.hu>
+	id <S261715AbTCNLEi>; Fri, 14 Mar 2003 06:04:38 -0500
+Received: from web40610.mail.yahoo.com ([66.218.78.147]:37980 "HELO
+	web40610.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261697AbTCNLEh>; Fri, 14 Mar 2003 06:04:37 -0500
+Message-ID: <20030314111503.2792.qmail@web40610.mail.yahoo.com>
+Date: Fri, 14 Mar 2003 12:15:03 +0100 (CET)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Panic with 2.5.64-mm
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello
 
-On Fri, 14 Mar 2003, Helge Hafting wrote:
+Kernel 2.5.64 with mm patches dies with "kernel panic,
+killing interrupt handler" when ejecting cdrom 
+(with eject /dev/hdc). 
 
-> The problem is that several offsets will fit into this.  Going
-> backwards
+System is duron 700 Mhz with via kt133 cipset and 
+radeon ve video card. 
 
-You never ever go backwards. It's impossible. You always go ahead.
-Even if you want to disassemble backwards you go ahead. How? You start
-earlier but you must do it in a very limited times (compared to the
-number of variations going backwards) with different offsets.
+I didn't had time to copy the panic message but if 
+you can't reproduce it (for me is 100% reproductible)
+i'll send it to you. Programs and glibc are the same 
+as in linux/Documentation/Changes or newer.
 
-> > 	2) has something to do with the C source code
-> And how do you plan on achieving that?  This one is
 
-Manual investigation. I don't expect the kernel starts dumping the
-"before code" at the correct instruction boundary even if Jonathan's
-idea/code sounds brilliant to do so (I didn't check it).
+I'll try tomorrow to send the full Panic message to you.
 
-What I tried to ask is purely just reading and dumping some bytes
-before EIP also for postmortem analyses. That's all, nothing
-complicated.
+Bye
+Calin
 
-	Szaka
 
+=====
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

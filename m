@@ -1,144 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265580AbUBBCzx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 21:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265583AbUBBCzw
+	id S265583AbUBBDM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 22:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbUBBDM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 21:55:52 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:38555 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265580AbUBBCzt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 21:55:49 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 1 Feb 2004 18:55:50 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Daniel Jacobowitz <dan@debian.org>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Roland McGrath <roland@redhat.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: More waitpid issues with CLONE_DETACHED/CLONE_THREAD
-In-Reply-To: <Pine.LNX.4.44.0402011840130.12618-100000@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.44.0402011854560.12618-100000@bigblue.dev.mdolabs.com>
+	Sun, 1 Feb 2004 22:12:29 -0500
+Received: from champagne.comp.nus.edu.sg ([137.132.80.90]:21253 "EHLO
+	champagne.comp.nus.edu.sg") by vger.kernel.org with ESMTP
+	id S265583AbUBBDM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 22:12:28 -0500
+Date: Mon, 2 Feb 2004 11:14:00 +0800 (SGT)
+From: Lai Zit Seng <lzs@comp.nus.edu.sg>
+X-X-Sender: lzs@localhost.localdomain
+To: Warren Togami <wtogami@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Trouble with Cisco Airo MPI350 and kernel-2.6.1+
+In-Reply-To: <401D6FD8.2040406@redhat.com>
+Message-ID: <Pine.LNX.4.44.0402021106000.23974-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Feb 2004, Davide Libenzi wrote:
+On Sun, 1 Feb 2004, Warren Togami wrote:
 
-> > That may be (though I don't think so) but it reproduces without
-> > PTRACE_KILL too.  Try the attached, which just replaced PTRACE_KILL
-> > with PTRACE_CONT/tkill(pid, SIGKILL).  Still get zombies.  I haven't
-> > tried reproducing entirely without ptrace yet.
+> Are these many errors normal?
 > 
-> Here w/out ptrace works as advertised.
+> [root@ibmlaptop etc]# iwconfig eth1
+> Warning: Driver for device eth1 has been compiled with version 16
+> of Wireless Extension, while this program is using version 15.
+> Some things may be broken...
+> 
+> eth1      IEEE 802.11-DS  ESSID:"apophis"  Nickname:"ibmlaptop"
+>            Mode:Managed  Frequency:2.412GHz  Access Point: 00:0C:41:75:D4:02
+>            Bit Rate:11Mb/s   Tx-Power=20 dBm   Sensitivity=0/0
+>            Retry limit:16   RTS thr:off   Fragment thr:off
+>            Encryption key:****-****-**   Security mode:open
+>            Power Management:off
+>            Link Quality:30/0  Signal level:-70 dBm  Noise level:-98 dBm
+>            Rx invalid nwid:59  Rx invalid crypt:0  Rx invalid frag:0
+>            Tx excessive retries:1  Invalid misc:4900   Missed beacon:3
 
-Yes, even for something that uses tkill() :-)
+It seems like if you have bunch of rx invalid nwids... it could be due to 
+interference from another wireless network in the area?
 
+Regards,
 
-- Davide
-
-
-
-
-/* -DBUG to kill the parent before the child -> hang.  */
-/* -DNOTHREAD to us fork instead of clone.  */
-
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <signal.h>
-#include <sched.h>
-#include <errno.h>
-#include <sys/wait.h>
-
-
-int stack_one[8192], stack_two[8192];
-int fds1[2], fds2[2];
-
-
-int thread_func_two()
-{
-
-	fprintf(stdout, "Thread 2: ppid = %d\n", getppid());
-	while (1) {
-		sleep (1);
-		fprintf(stdout, "Thread 2: ppid = %d\n", getppid());
-	}
-}
-
-int thread_func_one()
-{
-	int ret;
-
-	fprintf(stdout, "Thread 1\n");
-
-	read(fds1[0], &ret, sizeof(int));
-
-	fprintf(stdout, "Thread 1 cloning\n");
-
-	ret = clone (thread_func_two, stack_two + 8192,
-#ifdef NOTHREAD
-		     SIGCHLD,
-#else
-		     CLONE_DETACHED | CLONE_THREAD | CLONE_SIGHAND | CLONE_VM | CLONE_FS,
-#endif
-		     NULL);
-
-	fprintf(stdout, "child2 = %d\n", ret);
-
-	write(fds2[1], &ret, sizeof(int));
-
-	fprintf(stdout, "Thread 1 sleeping\n");
-	while (1)
-		sleep (1);
-}
-
-int main()
-{
-	int ret, wstat, child, child2;
-
-	if (pipe(fds1) < 0 || pipe(fds2)) {
-		perror("pipe");
-		return 1;
-	}
-
-	child = fork();
-	if (child == 0)
-		return thread_func_one();
-
-	fprintf(stdout, "child = %d\n", child);
-
-	write(fds1[1], &child, sizeof(int));
-	read(fds2[0], &child2, sizeof(int));
-
-	fprintf(stdout, "parent got child2 = %d\n", child2);
-
-#ifndef BUG
-	syscall(SYS_tkill, child2, SIGKILL);
-	ret = waitpid (child2, &wstat, __WALL);
-	fprintf(stdout, "waitpid(%d) = %d (%s)\n", child2, ret,
-		ret < 0 ? strerror(errno): "Success");
-#endif
-
-	syscall(SYS_tkill, child, SIGKILL);
-	ret = waitpid (child, &wstat, __WALL);
-	fprintf(stdout, "waitpid(%d) = %d (%s)\n", child, ret,
-		ret < 0 ? strerror(errno): "Success");
-
-#ifdef BUG
-	sleep(2);
-
-	syscall(SYS_tkill, child2, SIGKILL);
-	ret = waitpid (child2, &wstat, __WALL);
-	fprintf(stdout, "waitpid(%d) = %d (%s)\n", child2, ret,
-		ret < 0 ? strerror(errno): "Success");
-#endif
-
-	return 0;
-}
-
-
+.lzs
 

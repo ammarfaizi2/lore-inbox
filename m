@@ -1,49 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbUAAUuh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:50:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbUAAUti
+	id S265488AbUAAVdo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 16:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbUAAUsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:49:38 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:16933 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264922AbUAAUDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:03:39 -0500
-Date: Thu, 1 Jan 2004 21:03:36 +0100
-Message-Id: <200401012003.i01K3aVj031938@callisto.of.borg>
+	Thu, 1 Jan 2004 15:48:32 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:26438 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264913AbUAAUDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:03:31 -0500
+Date: Thu, 1 Jan 2004 21:03:29 +0100
+Message-Id: <200401012003.i01K3Tc1031907@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 384] NCR53C9x SCSI inline
+Subject: [PATCH 379] Amiga core C99
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NCR53C9x SCSI: Kill bogus inline
+Amiga core: Use C99 struct initializers
 
---- linux-2.6.0/drivers/scsi/NCR53C9x.h	2003-06-15 09:38:35.000000000 +0200
-+++ linux-m68k-2.6.0/drivers/scsi/NCR53C9x.h	2003-11-23 21:05:59.000000000 +0100
-@@ -652,8 +652,7 @@
+--- linux-2.6.0/arch/m68k/amiga/chipram.c	2003-03-25 10:06:07.000000000 +0100
++++ linux-m68k-2.6.0/arch/m68k/amiga/chipram.c	2003-11-23 17:06:58.000000000 +0100
+@@ -19,7 +19,9 @@
+ 
+ unsigned long amiga_chip_size;
+ 
+-static struct resource chipram_res = { "Chip RAM", CHIP_PHYSADDR };
++static struct resource chipram_res = {
++    .name = "Chip RAM", .start = CHIP_PHYSADDR
++};
+ static unsigned long chipavail;
  
  
- /* External functions */
--extern inline void esp_cmd(struct NCR_ESP *esp, struct ESP_regs *eregs,
--			   unchar cmd);
-+extern void esp_cmd(struct NCR_ESP *esp, struct ESP_regs *eregs, unchar cmd);
- extern struct NCR_ESP *esp_allocate(Scsi_Host_Template *, void *);
- extern void esp_deallocate(struct NCR_ESP *);
- extern void esp_release(void);
---- linux-2.6.0/drivers/scsi/mac_esp.c	2003-10-20 23:12:46.000000000 +0200
-+++ linux-m68k-2.6.0/drivers/scsi/mac_esp.c	2003-11-23 21:07:26.000000000 +0100
-@@ -46,7 +46,7 @@
- #define mac_turnon_irq(x)	mac_enable_irq(x)
- #define mac_turnoff_irq(x)	mac_disable_irq(x)
+--- linux-2.6.0/arch/m68k/amiga/config.c	2003-11-08 19:36:09.000000000 +0100
++++ linux-m68k-2.6.0/arch/m68k/amiga/config.c	2003-11-23 17:07:47.000000000 +0100
+@@ -121,14 +123,22 @@
+ static struct {
+     struct resource _ciab, _ciaa, _custom, _kickstart;
+ } mb_resources = {
+-    ._ciab =		{ "CIA B", 0x00bfd000, 0x00bfdfff },
+-    ._ciaa =		{ "CIA A", 0x00bfe000, 0x00bfefff },
+-    ._custom =		{ "Custom I/O", 0x00dff000, 0x00dfffff },
+-    ._kickstart =	{ "Kickstart ROM", 0x00f80000, 0x00ffffff }
++    ._ciab = {
++	.name = "CIA B", .start = 0x00bfd000, .end = 0x00bfdfff
++    },
++    ._ciaa = {
++	.name = "CIA A", .start = 0x00bfe000, .end = 0x00bfefff
++    },
++    ._custom = {
++	.name = "Custom I/O", .start = 0x00dff000, .end = 0x00dfffff
++    },
++    ._kickstart = {
++	.name = "Kickstart ROM", .start = 0x00f80000, .end = 0x00ffffff
++    }
+ };
  
--extern inline void esp_handle(struct NCR_ESP *esp);
-+extern void esp_handle(struct NCR_ESP *esp);
- extern void mac_esp_intr(int irq, void *dev_id, struct pt_regs *pregs);
+ static struct resource rtc_resource = {
+-    NULL, 0x00dc0000, 0x00dcffff
++    .start = 0x00dc0000, .end = 0x00dcffff
+ };
  
- static int  dma_bytes_sent(struct NCR_ESP * esp, int fifo_count);
+ static struct resource ram_resource[NUM_MEMINFO];
+@@ -495,7 +506,7 @@
+ 							  struct pt_regs *))
+ {
+ 	static struct resource sched_res = {
+-	    "timer", 0x00bfd400, 0x00bfd5ff,
++	    .name = "timer", .start = 0x00bfd400, .end = 0x00bfd5ff,
+ 	};
+ 	jiffy_ticks = (amiga_eclock+HZ/2)/HZ;
+ 
+@@ -798,7 +813,7 @@
+ 
+ static void amiga_savekmsg_init(void)
+ {
+-    static struct resource debug_res = { "Debug" };
++    static struct resource debug_res = { .name = "Debug" };
+ 
+     savekmsg = amiga_chip_alloc_res(SAVEKMSG_MAXMEM, &debug_res);
+     savekmsg->magic1 = SAVEKMSG_MAGIC1;
 
 Gr{oetje,eeting}s,
 

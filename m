@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbTI3J0v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 05:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbTI3J0v
+	id S261245AbTI3JRd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 05:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbTI3JRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 05:26:51 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:54283 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S261236AbTI3J0t convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 05:26:49 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Subject: Re: irq 12: nobody cared! (2.6.0-test6)
-Date: Tue, 30 Sep 2003 11:23:34 +0200
-User-Agent: KMail/1.5.3
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.44.0309290947230.9442-100000@math.ut.ee> <200309300935.18997.arekm@pld-linux.org> <200309301104.52810.schlicht@uni-mannheim.de>
-In-Reply-To: <200309301104.52810.schlicht@uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309301123.34546.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+	Tue, 30 Sep 2003 05:17:33 -0400
+Received: from pub237.cambridge.redhat.com ([213.86.99.237]:53198 "EHLO
+	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S261245AbTI3JRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 05:17:32 -0400
+Subject: Re: RFC: [2.6 patch] disallow modular IPv6
+From: David Woodhouse <dwmw2@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bunk@fs.tum.de, acme@conectiva.com.br, netdev@oss.sgi.com,
+       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1064913241.21551.69.camel@hades.cambridge.redhat.com>
+References: <20030928225941.GW15338@fs.tum.de>
+	 <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de>
+	 <20030929220916.19c9c90d.davem@redhat.com>
+	 <1064903562.6154.160.camel@imladris.demon.co.uk>
+	 <20030930000302.3e1bf8bb.davem@redhat.com>
+	 <1064907572.21551.31.camel@hades.cambridge.redhat.com>
+	 <20030930010855.095c2c35.davem@redhat.com>
+	 <1064910398.21551.41.camel@hades.cambridge.redhat.com>
+	 <20030930013025.697c786e.davem@redhat.com>
+	 <1064911360.21551.49.camel@hades.cambridge.redhat.com>
+	 <20030930015125.5de36d97.davem@redhat.com>
+	 <1064913241.21551.69.camel@hades.cambridge.redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1064913445.21551.72.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Tue, 30 Sep 2003 10:17:26 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 of September 2003 11:04, Thomas Schlichter wrote:
+On Tue, 2003-09-30 at 10:14 +0100, David Woodhouse wrote:
+>  ∃ configuration option CONFIG_xxx :
+> Changing CONFIG_xxx from 'n' to 'y' may change the resulting vmlinux.
+> Changing CONFIG_xxx from 'n' to 'm' should not do so.
 
-> Seems like the attached patch from Wim Van Sebroeck could help you...
-Not really: http://www.ussg.iu.edu/hypermail/linux/kernel/0309.1/0428.html
-
->    Thomas Schlichter
+Bah. s/∃/∀/ of course. I should set up key bindings rather than having
+to cut and paste with a mouse and insufficient caffeine :)
 
 -- 
-Arkadiusz Mi�kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+dwmw2
 

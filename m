@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUFMUma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUFMVEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUFMUma (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 16:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUFMUm3
+	id S261162AbUFMVEL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 17:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUFMVEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 16:42:29 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:45711 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S261159AbUFMUm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 16:42:28 -0400
-Subject: Re: sys_close undefined on x86_64
-From: John Stebbins <john@stebbins.name>
-Reply-To: john@stebbins.name
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040613002814.GC29873@kroah.com>
-References: <1087085478.7036.13.camel@Homer>
-	 <20040613002814.GC29873@kroah.com>
-Content-Type: text/plain
-Organization: Home
-Message-Id: <1087159346.2961.5.camel@Homer>
+	Sun, 13 Jun 2004 17:04:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5505 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261162AbUFMVEI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 17:04:08 -0400
+Date: Sun, 13 Jun 2004 18:04:00 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org, Ryan Underwood <nemesis-lists@icequake.net>,
+       Willy Tarreau <willy@w.ods.org>
+Subject: Re: Request: Netmos support in parport_serial for 2.4.27
+Message-ID: <20040613210400.GA4684@logos.cnet>
+References: <20040613111949.GB6564@dbz.icequake.net> <20040613123950.GA3332@logos.cnet> <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 13 Jun 2004 13:42:26 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the pointer.  I hadn't heard about the firmware download
-subsystem.  I just had a look.  Seems to be just the thing needed here.
-There are other people actively working on this module, so maybe I can
-get it done by just suggesting it to them :->
-
-John
-
-On Sat, 2004-06-12 at 17:28, Greg KH wrote:
-> On Sat, Jun 12, 2004 at 05:11:18PM -0700, John Stebbins wrote:
-> > 
-> > insmod fails with sys_close undefined message when attempting to load
-> > the module.
+On Sun, Jun 13, 2004 at 10:30:35PM +0200, Jesper Juhl wrote:
+> On Sun, 13 Jun 2004, Marcelo Tosatti wrote:
 > 
-> Why would a kernel module want to call sys_close directly?  If it's for
-> firmware loading, the module needs to be ported to use the firmware
-> download subsystem.
+> > n Sun, Jun 13, 2004 at 06:19:49AM -0500, Ryan Underwood wrote:
+> > >
+> > > Hi,
+> > >
+> > > There's been a patch floating around for a while now to add Netmos
+> > > support to parport_serial.  It has been submitted numerous times but it
+> > > seems that nobody notices it. :)
+> > >
+> > > Can it be reviewed for inclusion before 2.4.27?  I have a few systems
+> > > with these cards and it would be very nice to have them up to snuff.
+> > >
+> > > The patch against 2.4.20 can be found here:
+> > > http://winterwolf.co.uk/linuxsw
+> >
+> > Hi Ryan,
+> >
+> > Care to submit the patch inlined in another email message?
+> >
 > 
-> Good luck,
-> 
-> greg k-h
+> Here are the original patches from http://winterwolf.co.uk/linuxsw
+> An attempt of mine to update them for 2.4.27-pre5 can be found elsewhere
+> in this thread.
 
+Ok, someone sent me this patch already but did not I merge it,
+for no good reason. Even Tim ACked.
+
+I'll apply it, thanks.

@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319589AbSIHKK5>; Sun, 8 Sep 2002 06:10:57 -0400
+	id <S319590AbSIHKWj>; Sun, 8 Sep 2002 06:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319590AbSIHKK5>; Sun, 8 Sep 2002 06:10:57 -0400
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:53647 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S319589AbSIHKK4>; Sun, 8 Sep 2002 06:10:56 -0400
-Date: Sun, 8 Sep 2002 12:38:41 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@mwaikambo.name>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-In-Reply-To: <Pine.LNX.4.44.0209080957410.17502-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0209081218150.1096-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319591AbSIHKWj>; Sun, 8 Sep 2002 06:22:39 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:5134 "EHLO
+	ns.higherplane.net") by vger.kernel.org with ESMTP
+	id <S319590AbSIHKWi>; Sun, 8 Sep 2002 06:22:38 -0400
+Date: Sun, 8 Sep 2002 20:31:14 +1000
+From: john slee <indigoid@higherplane.net>
+To: boot-messages@rameria.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: I'm collecting linux boot messages. Care to send me some?
+Message-ID: <20020908103114.GL10820@higherplane.net>
+References: <20020904125815.K781@nightmaster.csn.tu-chemnitz.de> <20020904185708.M781@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020904185708.M781@nightmaster.csn.tu-chemnitz.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Sep 2002, Ingo Molnar wrote:
-
-> if we didnt disable the IRQ line then an additional interrupt would be
-> triggered when [*] is done.
+On Wed, Sep 04, 2002 at 06:57:08PM +0200, Ingo Oeser wrote:
+> On Wed, Sep 04, 2002 at 12:58:15PM +0200, I wrote:
+> > I collected already some interesting boot messages posted here.
+> > 
+> > Now I want more ;-)
+> > 
+> > Care to help? Then read on.
 > 
-> it could perhaps be handled the following way:
+> These boots should come from WORKING boots. 
 > 
-> 	disable IRQ line
-> 	ack APIC
-> 	-> call handler
-> 	    while (work_left) {
-> 		ack interrupt on the card            [*]
-> 		enable IRQ line			     [**]
-> 		[... full processing ...]
-> 	    }
-> 
-> so after [**] is done we could accept new interrupts, and the amount of
-> time we keep the irq line disabled should be small. Obviously this means
-> driver level changes.
+> Buggy boots with lots of warnings and errors give a bad picture
+> of Linux and my collection is intended to do the opposite.
 
-Ok that definitely would allow for more interrupts to get through, i was 
-working on the basis that handlers with SA_INTERRUPT set would allow for 
-for that reenable. About the driver level changes, would this be in regard 
-to a device with ISR_INPROGRESS triggering an interrupt and thus have one 
-pending? In that case couldn't we avoid touching the driver and increment 
-a pending counter on that particular handler?
+the openbsd people request (or used to, havent installed openbsd lately)
+that you 'dmesg | mail dmesg@openbsd.org' after installation.
 
-> an additional nit even for edge-triggered interrupts: synchronize_irq()  
-> needs to be aware of the new bit on SMP, now that IRQ_PENDING is not
-> showing the true 'pending' state anymore. But it's doable. Basically
-> IRQ_PENDING would be gone completely, and replaced by a more complex set
-> of bits in the action struct. In the normal unshared case it should be
-> almost as efficient as the IRQ_PENDING bit.
-> 
-> in fact i'd suggest to also add a desc->pending counter in addition to the
-> per-action flag, to make it cheaper to determine whether there are any
-> pending handlers on the chain.
+linux has way too many users for this to be workable but i would imagine
+that they collect some interesting data from it.
 
-Gotcha
+j.
 
-> also some other code needs to be updated as well to be aware of the
-> changed pending-semantics: enable_irq() and probe_irq_on().
-
-I'll have a look at those too.
-
-Thanks,
-	Zwane
 -- 
-function.linuxpower.ca
-
-
+toyota power: http://indigoid.net/

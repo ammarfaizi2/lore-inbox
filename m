@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280120AbRJaJab>; Wed, 31 Oct 2001 04:30:31 -0500
+	id <S280122AbRJaJ3V>; Wed, 31 Oct 2001 04:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280126AbRJaJaV>; Wed, 31 Oct 2001 04:30:21 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:39648 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S280125AbRJaJaG>; Wed, 31 Oct 2001 04:30:06 -0500
-Date: Wed, 31 Oct 2001 10:30:42 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S280121AbRJaJ3L>; Wed, 31 Oct 2001 04:29:11 -0500
+Received: from 87.ppp1-6.hob.worldonline.dk ([212.54.87.215]:46464 "EHLO
+	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S280120AbRJaJ3E>; Wed, 31 Oct 2001 04:29:04 -0500
+Date: Wed, 31 Oct 2001 10:29:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.14-pre6
-Message-ID: <20011031103042.A27388@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com>
+Message-ID: <20011031102911.F5111@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com> <3BDFBFF5.9F54B938@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Oct 31, 2001 at 12:00:00AM -0800
+In-Reply-To: <3BDFBFF5.9F54B938@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 12:00:00AM -0800, Linus Torvalds wrote:
+On Wed, Oct 31 2001, Andrew Morton wrote:
+> Linus Torvalds wrote:
+> > 
+> > If you have a pet peeve about the VM, now is the time to speak
+> > up.
+> >
+> 
+> I'm peeved by the request queue changes.
 
+I was too. However it didn't seem to make too much of a difference in
+real life, I guess your test cases shows a bit differently.
 
-> In fact, I'd _really_ like to know of any VM loads that show bad
-> behaviour. If you have a pet peeve about the VM, now is the time to speak
-> up. Because otherwise I think I'm done.
+> Appended here is a program which creates 100,000 small files.
+> Using ext2 on -pre5.  We see how long it takes to run
+> 
+> 	(make-many-files ; sync)
+> 
+> For several values of queue_nr_requests:
+> 
+> queue_nr_requests:	128	8192	32768
+> execution time:		4:43	3:25	3:20
+> 
+> Almost all of the execution time is in the `sync'.
+> 
+> This is on a disk with a 2 meg cache which does pretty aggressive
+> write-behind.  I expect the difference would be worse with a disk
+> which doesn't help so much.
+> 
+> By restricting the number of requests in flight to 128 we're
+> giving new requests only a very small chance of getting merged with
+> an existing request.  More seeking.
+> 
+> OK, not an interesting workload.  But I suspect that there are real
+> workloads which will be bitten by this.
+> 
+> Why is the queue length so tiny now?  Latency?  If so, couldn't this
+> be addressed by giving reads higher priority versus writes?
 
-The Google case comes to mind. And we should be good for google!
-
-Regards,
-
-bert
+Should be possible. Try for yourself. When you do your 100,000 small
+file tes with 8k or more of requests, how is interactive feel of other
+programs accessing the same spindle? Play around with the READ and WRITE
+intial elevator sequence numbers, repeat :-)
 
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Jens Axboe
+

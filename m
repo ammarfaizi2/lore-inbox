@@ -1,88 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbVCPONz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVCPOV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbVCPONz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 09:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVCPONz
+	id S261249AbVCPOV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 09:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVCPOV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:13:55 -0500
-Received: from alog0570.analogic.com ([208.224.223.107]:47320 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262596AbVCPONw
+	Wed, 16 Mar 2005 09:21:27 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:57277 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261249AbVCPOVW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:13:52 -0500
-Date: Wed, 16 Mar 2005 09:11:46 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Ian Campbell <ijc@hellion.org.uk>
-cc: Tom Felker <tfelker2@uiuc.edu>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bogus buffer length check in linux-2.6.11  read()
-In-Reply-To: <1110979800.3057.69.camel@icampbell-debian>
-Message-ID: <Pine.LNX.4.61.0503160848420.16718@chaos.analogic.com>
-References: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com> 
- <200503152056.16287.tfelker2@uiuc.edu>  <Pine.LNX.4.61.0503160724120.16304@chaos.analogic.com>
- <1110979800.3057.69.camel@icampbell-debian>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 16 Mar 2005 09:21:22 -0500
+Message-ID: <423840DE.2050509@drzeus.cx>
+Date: Wed, 16 Mar 2005 15:21:18 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-6781-1110982967-0001-2"
+To: LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH][MMC] Power cycle (round 2)
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Mar 2005, Ian Campbell wrote:
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
->
-> On Wed, 2005-03-16 at 07:29 -0500, linux-os wrote:
->
->> This means that the read() is no longer perfectly happy
->> to corrupt all of the user's memory which is the defacto
->> correct response for a bad buffer as shown. Instead, some
->> added "check in software" claims to prevent this, but
->> is wrong anyway because it can't possibly know how much
->> data area is available.
->
-> The manpage for read(2) that I've got says
->
->       EFAULT buf is outside your accessible address space.
->
-> which is exactly what it would appear
->        if (unlikely(!access_ok(VERIFY_WRITE, buf, count)))
->                return -EFAULT;
-> checks for. Assuming this is the check you are bitching about -- you
-> could be a little more precise if you are going to complain about stuff.
->
-> Ian.
+--=_hades.drzeus.cx-6781-1110982967-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
+I didn't get any response from you the last time I submitted this so I'm
+going to nag you some more ;)
 
-I don't know how much more precise I could have been. I show the
-code that will cause the observed condition. I explain that this
-condition is new, that it doesn't correspond to the previous
-behavior.
+This patch is vital for one of my MMC cards. The only other way I've
+found to get it working is by changing the OCR. And that would cause
+problems on other controllers so it was not an option.
 
-Never before was some buffer checked for length before some data
-was written to it. The EFAULT is supposed to occur IFF a write
-attempt occurs outside the caller's accessible address space.
-This used to be done by hardware during the write to user-space.
-This had zero impact upon performance. Now there is some
-software added that adds CPU cycles, subtracts performance,
-and cannot possibly do anything useful.
+The patch is rather well tested with over 500 downloads and no reported
+problems. Just to keep everyone happy the default is still 'no' for
+Kconfig but I personally would think a 'yes' would be better.
 
-Also, the code was written to show the problem. The code
-is not designed to be an example of good coding practice.
+Rgds
+Pierre
 
-The actual problem observed with the new kernel was
-when some legacy code used gets() instead of fgets().
-The call returned immediately with an EFAULT because
-the 'C' runtime library put some value that the kernel
-didn't 'like' (4096 bytes) in the subsequent read.
+--=_hades.drzeus.cx-6781-1110982967-0001-2
+Content-Type: text/x-patch; name="mmc-powercycle.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc-powercycle.patch"
 
-This is code for which there are no sources available
-and it is required to be used, cannot be replaced,
-cannot be thrown away and costs about US$ 10,000
-from a company that is no longer in business.
+Index: linux-wbsd/drivers/mmc/mmc.c
+===================================================================
+--- linux-wbsd/drivers/mmc/mmc.c	(revision 72)
++++ linux-wbsd/drivers/mmc/mmc.c	(working copy)
+@@ -666,13 +666,26 @@
+ 		host->ocr = mmc_select_voltage(host, ocr);
+ 
+ 		/*
+-		 * Since we're changing the OCR value, we seem to
+-		 * need to tell some cards to go back to the idle
+-		 * state.  We wait 1ms to give cards time to
+-		 * respond.
++		 * Some cards shut down when receiving an OCR of
++		 * zero. But since they send their mask before
++		 * shutting down we can still calculate a correct
++		 * voltage. To get them back to life we need to
++		 * cycle power.
++		 *
++		 * When changing OCR values we also need to put
++		 * the cards in idle state.
+ 		 */
+ 		if (host->ocr)
++		{
++
++#ifdef CONFIG_MMC_POWERCYCLE
++			mmc_power_off(host);
++			mmc_delay(100);
++			mmc_power_up(host);
++#endif /* CONFIG_MMC_POWERCYCLE */
++
+ 			mmc_idle_cards(host);
++		}
+ 	} else {
+ 		host->ios.bus_mode = MMC_BUSMODE_OPENDRAIN;
+ 		host->ios.clock = host->f_min;
+Index: linux-wbsd/drivers/mmc/Kconfig
+===================================================================
+--- linux-wbsd/drivers/mmc/Kconfig	(revision 95)
++++ linux-wbsd/drivers/mmc/Kconfig	(revision 96)
+@@ -19,6 +19,18 @@
+ 	  This is an option for use by developers; most people should
+ 	  say N here.  This enables MMC core and driver debugging.
+ 
++config MMC_POWERCYCLE
++	bool "Reboot cards after scan (EXPERIMENTAL)"
++	depends on MMC != n && EXPERIMENTAL
++	default n
++	help
++	  Some cards to not follow the MMC spec. fully and shut down
++	  during init. Enable this option to reboot the card after
++	  the initial scan.
++	  
++	  Most people should say N here. If you happen to have a card
++	  that isn't detected then try enabling this option.
++
+ config MMC_BLOCK
+ 	tristate "MMC block device driver"
+ 	depends on MMC
 
-Somebody's arbitrary and capricious addition of spook
-code destroyed an application's functionality.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--=_hades.drzeus.cx-6781-1110982967-0001-2--

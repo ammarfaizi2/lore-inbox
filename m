@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbTIEHwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 03:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTIEHwb
+	id S262321AbTIEINf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 04:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTIEINf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 03:52:31 -0400
-Received: from [139.30.44.2] ([139.30.44.2]:45767 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S261625AbTIEHwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 03:52:30 -0400
-Date: Fri, 5 Sep 2003 09:51:59 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: john stultz <johnstul@us.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Dave H <haveblue@us.ibm.com>
-Subject: Re: [RFC] NR_CPUS=8 on a 32 cpu box
-In-Reply-To: <1062725220.1307.1562.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.33.0309050943240.15467-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Sep 2003 04:13:35 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:4749 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262321AbTIEINd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 04:13:33 -0400
+Subject: Re: Question: monolitic_clock, timer_{tsc,hpet} and CPUFREQ
+From: john stultz <johnstul@us.ibm.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200309042214.28179.dtor_core@ameritech.net>
+References: <200309042214.28179.dtor_core@ameritech.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062749594.5809.7.camel@laptop.cornchips.homelinux.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Sep 2003 01:13:14 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	if (num_processors > NR_CPUS){
-> +		printk(KERN_WARNING "NR_CPUS limit of %i reached. Cannot boot CPU(apicid 0x%d).\n", NR_CPUS, m->mpc_apicid);
+On Thu, 2003-09-04 at 20:14, Dmitry Torokhov wrote:
+> I noticed that although timer_tsc registers cpufreq notifier to detect
+> frequency changes and adjust cpu_khz it does not set cyc2ns_scale. Is
+> monotonic clocks supposed to be also accurate?
 
-I'm no expert in this field at all, but doesnt this need to check for '>=' ?
+You are correct, without adjusting the cyc2ns_scale value
+monotonic_clock() will not be accurate on freq changing hardware.  
 
-Also, the code following the check could get some reordering for
-readability. How about the following:
 
---- linux-2.6.0-test4/arch/i386/kernel/mpparse.c.orig	Fri Sep  5 09:40:07 2003
-+++ linux-2.6.0-test4/arch/i386/kernel/mpparse.c	Fri Sep  5 09:50:11 2003
-@@ -167,15 +167,18 @@
- 		boot_cpu_logical_apicid = apicid;
- 	}
+> Will something like this suffice for timer_tsc (compiled, not yet booted):
+> 
+> --- 2.6.0-test4/arch/i386/kernel/timers/timer_tsc.c	2003-08-26 21:56:19.000000000 -0500
+> +++ linux-2.6.0-test4/arch/i386/kernel/timers/timer_tsc.c	2003-09-04 22:08:27.000000000 -0500
+> @@ -315,6 +315,7 @@
+>  		if (use_tsc) {
+>  			fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_ref, freq->new, ref_freq);
+>  			cpu_khz = cpufreq_scale(cpu_khz_ref, ref_freq, freq->new);
+> +			set_cyc2ns_scale(cpu_khz/1000);
+>  		}
+>  #endif
+>  	}
 
--	num_processors++;
--
- 	if (MAX_APICS - m->mpc_apicid <= 0) {
- 		printk(KERN_WARNING "Processor #%d INVALID. (Max ID: %d).\n",
- 			m->mpc_apicid, MAX_APICS);
--		--num_processors;
- 		return;
- 	}
- 	ver = m->mpc_apicver;
-+
-+	if (num_processors >= NR_CPUS){
-+		printk(KERN_WARNING "NR_CPUS limit of %i reached. Cannot boot CPU(apicid 0x%d).\n", NR_CPUS, m->mpc_apicid);
-+		return;
-+	}
-+	num_processors++;
+Looks fine to me. Although I don't have any cpufreq enabled hardware, so
+I'm unable to test this (main cause I never added it myself). 
 
- 	tmp = apicid_to_cpu_present(apicid);
- 	physids_or(phys_cpu_present_map, phys_cpu_present_map, tmp);
+thanks
+-john
 
-Tim
 

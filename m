@@ -1,35 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272384AbTGYXcV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 19:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272386AbTGYXcV
+	id S272387AbTGYXiR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 19:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272388AbTGYXiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 19:32:21 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43904
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S272384AbTGYXcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 19:32:21 -0400
-Subject: Re: Sound recording problems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pablo Baena <pbaena@uol.com.ar>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1059158899.1116.29.camel@hal>
-References: <1059158899.1116.29.camel@hal>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059176605.1204.16.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 25 Jul 2003 19:38:17 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:52381 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S272387AbTGYXiP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 19:38:15 -0400
+Date: Sat, 26 Jul 2003 01:53:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, schierlm@gmx.de,
+       linux-kernel@vger.kernel.org, pavel@suse.cz
+Subject: Re: touchpad doesn't work under 2.6.0-test1-ac2
+Message-ID: <20030725235318.GA1102@ucw.cz>
+References: <82F70261D3A@vcnet.vc.cvut.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Jul 2003 00:43:25 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <82F70261D3A@vcnet.vc.cvut.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-25 at 19:48, Pablo Baena wrote:
-> I'll focus on my actual configuration, so I can debug the problem. I
-> have a SB16 Awe ISA, and I tried the OSS drivers with 2.6.0-test1.
-> I have a VIAC686 motherboard, with a K7 650Mhz processor.
+On Fri, Jul 25, 2003 at 02:16:25AM +0200, Petr Vandrovec wrote:
 
-Right now you need the ALSA drivers for recording on VIA. Fixing the
-OSS one is down on the todo list somewhere but nobody has tackled it
+> > For proper Synaptics support an XFree86 driver is available (get it at
+> > http://w1.894.telia.com/~u89404340/touchpad/index.html). This will allow
+> > for full support, including gesture recongition. Passthrough support for
+> 
+> I do not use XFree. I'm using 1600x1200 radeonfb consoles.
 
+gpm support is on the way. Until it's available, you can use
+'psmouse_noext=1' on the kernel or module command line to bring the
+synaptics touchpad to standard PS/2 mouse mode. Then it'll work with gpm
+without any changes. Don't expect advanced
+multitap/scrolling/palmdetection, then, though.
+
+> > Support for touchpads is nonexistent in mousedev.c, it only supports
+> > mice, digitizers and touchscreens. Just adding an entry to the device
+> > table is futile, you'd need much much more than that.
+> 
+> What's difference between touchscreen and touchpad? Both use absolute
+> directions, and rest are just buttons... As I need working gpm, without 
+> mousedev support Synaptics mode is of no use for me.
+
+Touchscreen is overlaid over a screen. The cursor follows the finger
+position exactly. This is the sale for digitizers, except a cursor is
+replaced by a pen. Touchpads are completely different - the finger
+motion is relativized and then summed up again, so instead of the cursor
+following the finger position, it moves in the direction the finger
+moves.
+
+As an example, imagine touching the touchscreen in the lower left corner and
+moving it to the upper right. You end up with the cursor in the upper
+right corner. Now tap the lower left corner again, and the cursor moves
+there immediately. This is the behavior mousedev supports.
+
+While with a touchpad, you'll first see the cursor moving towards the
+upper right corner, but not reaching it. Now after tapping the lower
+left corner again, the cursor stays in position and can be moved further
+...
+
+See the difference?
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

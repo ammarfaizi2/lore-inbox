@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269243AbUHZRTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269245AbUHZRwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269243AbUHZRTc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 13:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbUHZRSw
+	id S269245AbUHZRwz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 13:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUHZQed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 13:18:52 -0400
-Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:43202 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S269269AbUHZRIz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 13:08:55 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reiser 4
-Date: Thu, 26 Aug 2004 14:08:46 -0300
-User-Agent: KMail/1.7
-Cc: "Rodrigo FGV" <rodrigof@bifgv.com.br>
-References: <006601c48bad$00c4b130$0700a8c0@ti10>
-In-Reply-To: <006601c48bad$00c4b130$0700a8c0@ti10>
+	Thu, 26 Aug 2004 12:34:33 -0400
+Received: from mail2.srv.poptel.org.uk ([213.55.4.14]:25608 "HELO
+	mail2.srv.poptel.org.uk") by vger.kernel.org with SMTP
+	id S269191AbUHZQ3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 12:29:55 -0400
+Message-ID: <412E0F91.7000508@phonecoop.coop>
+Date: Thu, 26 Aug 2004 17:28:01 +0100
+From: Alan Jenkins <sourcejedi@phonecoop.coop>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: cdrecord alternatives: libburn
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408261408.46998.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rodrigo FGV wrote:
-> how i convert reiser3.6 to reiser4. 
+People on the list have recently expressed dissatisfaction with cdrecord 
+and its development process, and IIRC one person appeared to volunteer 
+to prototype an alternative (I couldn't find the original 
+email/author).  I found a project just now which may be of interest: 
+http://icculus.org/burn/.  It is obviouslly not as well-known and 
+developed as cdrecord. 
 
-Backup. Reformat. Restore.
-
-> this update is safe??? 
-
-Dunno. Many people is using it, so I guess it is.
-
-> the reiser4 have any critical bug?? 
-
-Doesn't like 4KSTACKS :(
-
-> anyone recommend this update??? 
-
-Hans does ;)
-And I would if it compiled with 4KSTACKS.
-
-Best Regards,
-Norberto
+Hope this email doesn't raise the noise/signal ratio on LKML too much

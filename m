@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262366AbSJVJio>; Tue, 22 Oct 2002 05:38:44 -0400
+	id <S262387AbSJVJnO>; Tue, 22 Oct 2002 05:43:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262370AbSJVJio>; Tue, 22 Oct 2002 05:38:44 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49079 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262366AbSJVJin>; Tue, 22 Oct 2002 05:38:43 -0400
-Subject: Re: NatSemi Geode improvement
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hiroshi Miura <miura@da-cha.org>
-Cc: davej@suse.de, hpa@zytor.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021022001248.3F70A117B00@triton2>
-References: <20021017171217.4749211782A@triton2>
-	<1035209178.27318.118.camel@irongate.swansea.linux.org.uk> 
-	<20021022001248.3F70A117B00@triton2>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 11:00:51 +0100
-Message-Id: <1035280851.31917.29.camel@irongate.swansea.linux.org.uk>
+	id <S262389AbSJVJnO>; Tue, 22 Oct 2002 05:43:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23980 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262387AbSJVJnN>;
+	Tue, 22 Oct 2002 05:43:13 -0400
+Date: Tue, 22 Oct 2002 11:49:11 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Suparna Bhattacharya <suparna@sparklet.in.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
+Message-ID: <20021022094911.GE30597@suse.de>
+References: <200210211016.g9LAG5J21214@nakedeye.aparity.com> <20021021172112.C14993@sgi.com> <pan.2002.10.22.20.35.36.992053.2611@sparklet.in.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2002.10.22.20.35.36.992053.2611@sparklet.in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 01:12, Hiroshi Miura wrote:
-> It means that mmio must map to over 1GB area or disable this feature.
+On Tue, Oct 22 2002, Suparna Bhattacharya wrote:
+> On Mon, 21 Oct 2002 19:43:20 +0530, Christoph Hellwig wrote:
+> 
+> 
+> >> +
+> >> +	if ((dump_bio = kmalloc(sizeof(struct bio), GFP_KERNEL)) == NULL) { +
+> >> 	DUMP_PRINTF("Cannot allocate bio\n"); +		retval = -ENOMEM;
+> >> +		goto err2;
+> >> +	}
+> > 
+> > Shouldn't you use the generic bio allocator?
+> > 
+> 
+> Not sure that this should come from the bio mempool. Objects
+> allocated from the mem pool are expected to be released back to
+> the pool within a reasonable period (after i/o is done), which is
+> not quite the case here.
+> 
+> Dump preallocates the bio early when configured and holds on to 
+> it all through the time the system is up (avoids allocs at 
+> actual dump time). Doesn't seem like the right thing to hold
+> on to a bio mempool element that long.
 
-You need to think about bus mastering devices as well. With re-ordering
-enabled you may confuse bus master hardware by writing fields in the
-wrong order (as the PCI device sees it).
+Definitely, one must not use the bio pool for long term allocations.
 
-This is not a big problem. On the winchip we avoid this by using locked
-operations at the end of each of the PCI DMA mapping functions.  I think
-all that is needed is to also define CONFIG_X86_OOSTORE for a Geode
-target. The kernel will then generate
-
-		lock; addl $0, 0(%%esp)
-
-to force write ordering where it might be essential, and if OOSTORE is
-defined we can safely turn on the speed up.
-
-
-
-
-
+-- 
+Jens Axboe
 

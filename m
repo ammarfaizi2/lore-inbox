@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277926AbRJIT1d>; Tue, 9 Oct 2001 15:27:33 -0400
+	id <S277924AbRJIT1y>; Tue, 9 Oct 2001 15:27:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277925AbRJIT1X>; Tue, 9 Oct 2001 15:27:23 -0400
-Received: from web10302.mail.yahoo.com ([216.136.130.80]:4363 "HELO
-	web10302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277924AbRJIT1H>; Tue, 9 Oct 2001 15:27:07 -0400
-Message-ID: <20011009192737.75104.qmail@web10302.mail.yahoo.com>
-Date: Tue, 9 Oct 2001 20:27:37 +0100 (BST)
-From: "=?iso-8859-1?q?J.D.=20Hood?=" <jdthood@yahoo.co.uk>
-Subject: devfs filesystem naming conventions?
-To: linux-kernel@vger.kernel.org
+	id <S277925AbRJIT1p>; Tue, 9 Oct 2001 15:27:45 -0400
+Received: from nsd.mandrakesoft.com ([216.71.84.35]:49172 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S277924AbRJIT1b>; Tue, 9 Oct 2001 15:27:31 -0400
+Date: Tue, 9 Oct 2001 14:27:46 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Rui Sousa <rui.p.m.sousa@clix.pt>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        emu10k1-devel@opensource.creative.com
+Subject: Re: [Emu10k1-devel] Re: Emu10k1 driver update
+In-Reply-To: <Pine.LNX.4.33.0110092100040.3012-100000@sophia-sousar2.nice.mindspeed.com>
+Message-ID: <Pine.LNX.3.96.1011009142129.9171H-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apart from the device types described in Richard Gooch's
-FAQ, are there naming conventions for devfs devices?
-If so, what are they, or where can I find them?
+On Tue, 9 Oct 2001, Rui Sousa wrote:
+> On Tue, 9 Oct 2001, Jeff Garzik wrote:
+> From what I see doing locking with a spinlock is quite tricky.
+> 
+>  codec->read_mixer = ac97_read_mixer;  //can be called holding spinlock
+>  codec->write_mixer = ac97_write_mixer; //can be called holding spinlock
+>  codec->recmask_io = ac97_recmask_io;
+>  codec->mixer_ioctl = ac97_mixer_ioctl; //in general can't be called
+> holding spinlock
+> 
+> and ac97_mixer_ioctl() itself calls ac97_read/write_mixer().
+> 
+> A semaphore on the mixer device open function would do just fine If I
+> didn't had an interrupt handler also touching the ac97_codec...
 
---
-Thomas Hood
+Yep, that's how the via audio problem was solved, with a mixer
+semaphore.  Having your interrupt handler touch ac97_codec definitely
+complicates things beyond that simple solution, though.  If your only
+concern is the intr handler you could create a dont-touch-ac97-in-intr
+flag, and set that flag (only) via spin_lock_irq.  Then you don't
+have to stay inside a spinlock the entire time.
 
-____________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
-or your free @yahoo.ie address at http://mail.yahoo.ie
+	Jeff
+
+
+

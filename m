@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262995AbRFKNuo>; Mon, 11 Jun 2001 09:50:44 -0400
+	id <S263078AbRFKODq>; Mon, 11 Jun 2001 10:03:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263078AbRFKNuf>; Mon, 11 Jun 2001 09:50:35 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:13030 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262995AbRFKNuT>;
-	Mon, 11 Jun 2001 09:50:19 -0400
-Message-ID: <3B24CC80.D880510@mandrakesoft.com>
-Date: Mon, 11 Jun 2001 09:49:52 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Russell King <rmk@arm.linux.org.uk>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-In-Reply-To: <3B23A4BB.7B4567A3@mandrakesoft.com>
-		<20010610093838.A13074@flint.arm.linux.org.uk>
-		<Pine.LNX.4.33.0106101201490.9384-100000@toomuch.toronto.redhat.com>
-		<20010610173419.B13164@flint.arm.linux.org.uk>
-		<15140.5762.589629.252904@pizda.ninka.net>
-		<3B24C185.824EBBE0@uow.edu.au> <15140.51018.942446.320621@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S264547AbRFKODf>; Mon, 11 Jun 2001 10:03:35 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:50194 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S263078AbRFKOD2>;
+	Mon, 11 Jun 2001 10:03:28 -0400
+Date: Mon, 11 Jun 2001 16:03:30 +0200
+From: sebastien person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: netif_start_queue
+Message-Id: <20010611160330.42083f1e.sebastien.person@sycomore.fr>
+X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Andrew Morton writes:
->  > It'd need to be callable from interrupt context - otherwise
->  > each device/driver which has link status change interrupts
->  > will need to implement some form of interrupt->process context
->  > trick.
-> 
-> Well, we could make the netif_carrier_*() implementation do the
-> "interrupt->process context" trick.
-> 
-> Jamal can feel free to post what he has.
+hi,
 
-If we have any problems with context we can always use schedule_task()
+I'm trying to port a ethernet device from 2.2 to 2.4. whith the new way of
+dealing with dev->tbusy and dev->start (e.g. by using netif_startqueue for
+example) I've understand that the netif_start_queue call put a flag that
+telling
+the device isn't busy but I can't found when does the start flag is set .
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+I've read somewhere that it is set when the open function return, but I
+haven't
+found where is the matching code.
+
+In 2.4, must we always check if the device is busy or started, or it is
+upper
+layer work ?
+
+Thanks
+
+nb : Is somebody have buy the Linux Device driver book 2nd edition ? and
+does it
+deal about porting 2.2 to 2.4 driver ?
+
+sebastien person

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131906AbQLQCgf>; Sat, 16 Dec 2000 21:36:35 -0500
+	id <S131863AbQLQCoq>; Sat, 16 Dec 2000 21:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131936AbQLQCgZ>; Sat, 16 Dec 2000 21:36:25 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:28942 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131906AbQLQCgJ>; Sat, 16 Dec 2000 21:36:09 -0500
-Date: Sat, 16 Dec 2000 20:05:24 -0600
-To: Joe deBlaquiere <jadb@redhat.com>
-Cc: Werner Almesberger <Werner.Almesberger@epfl.ch>, ferret@phonewave.net,
-        Alexander Viro <viro@math.psu.edu>, LA Walsh <law@sgi.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linus's include file strategy redux
-Message-ID: <20001216200524.O3199@cadcamlab.org>
-In-Reply-To: <20001215152137.K599@almesberger.net> <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org> <20001215184644.R573@almesberger.net> <3A3A7F25.2050203@redhat.com> <20001215222707.T573@almesberger.net> <3A3AA21F.4060100@redhat.com> <20001216165037.K3199@cadcamlab.org> <3A3C0311.2060205@redhat.com>
-Mime-Version: 1.0
+	id <S131936AbQLQCof>; Sat, 16 Dec 2000 21:44:35 -0500
+Received: from [195.163.91.180] ([195.163.91.180]:15886 "EHLO frontpartner.com")
+	by vger.kernel.org with ESMTP id <S131863AbQLQCo0>;
+	Sat, 16 Dec 2000 21:44:26 -0500
+Message-ID: <3A3C2116.46C60CDE@linux.se>
+Date: Sun, 17 Dec 2000 03:12:38 +0100
+From: Mathias Wiklander <eastbay@linux.se>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: aic7xxx
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A3C0311.2060205@redhat.com>; from jadb@redhat.com on Sat, Dec 16, 2000 at 06:04:33PM -0600
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-[Joe deBlaquiere]
-> Last I recall you have to at least have newlib around to get through
-> the build process of gcc. libgcc doesn't affect the kernel but you
-> can't do 'make install' without building it.
+I have problem using my scsi card. It is an Adaptec 2940 (SCSI2). When
+ever I try to load it as a module or if I compile it in the kernel I get
+the folowing error messages. The last 4 messages repeats for ever. The
+problem is on 3 diffrent machines. Anyone who know what it can be and
+how to fix it. 
 
-Hmmm.  I do not recall needing newlib or anything like it, last time I
-built a cross-gcc+binutils.  Perhaps it depends on the target arch.  If
-you pick one where the libgcc math functions haven't all been written
-yet, you're probably right.
+/Eastbay
 
-Peter
+(scsi0) <Adaptec AHA-294X SCSI host adapter> found at PCI 0/19/0
+(scsi0) Narrow Channel, SCSI ID=7, 16/255 SCBs
+(scsi0) Cables present (Int-50 NO, Ext-50 NO)
+(scsi0) Downloading sequencer code... 415 instructions downloaded
+scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.2.1/5.2.0
+       <Adaptec AHA-294X SCSI host adapter>
+scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 0,
+lun 0 Inquiry 00 00 00 ff 00 
+SCSI host 0 abort (pid 0) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
+SCSI bus is being reset for host 0 channel 0.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

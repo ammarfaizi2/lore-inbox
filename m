@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262501AbTJTKXI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 06:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbTJTKXI
+	id S262573AbTJTKwT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 06:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJTKwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 06:23:08 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:11245 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262501AbTJTKXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 06:23:05 -0400
-Message-ID: <0c1101c396f4$00bfeaf0$24ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: <linux-kernel@vger.kernel.org>
-Subject: RH7.3 can't compile 2.6.0-test8
-Date: Mon, 20 Oct 2003 19:21:51 +0900
+	Mon, 20 Oct 2003 06:52:18 -0400
+Received: from mail1.cc.huji.ac.il ([132.64.1.17]:49883 "EHLO
+	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S262573AbTJTKwQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 06:52:16 -0400
+Message-ID: <3F93BCCB.1050406@mscc.huji.ac.il>
+Date: Mon, 20 Oct 2003 12:45:31 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030906
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+To: rob@landley.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Wow.  Suspend to disk works for me in test8. :)
+References: <200310200225.11367.rob@landley.net>
+In-Reply-To: <200310200225.11367.rob@landley.net>
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I understand that Red Hat's GCC is nonstandard, but this still surprised me.
-In the "make" output below, the word エラー means error.
+Rob Landley wrote:
+
+>Good grief.  It worked.
+>
+>echo -n disk > /sys/power/state
+>
+How long does it take to do suspend to disk?
+
+>
+>No special preparations, no funky scripts, I didn't even have to unload any 
+>modules or feed strange command line options to grub.  It just... worked.  
+>(Even the network connection came back up. :)
+>
+>Congratulations.
+>
+>Rob
+>
+>P.S.  (I am breathlessly waiting for my newly resumed system to panic on me, 
+>but so far... :)
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
 
-fs/proc/array.c: In function `proc_pid_stat':
-fs/proc/array.c:398: Unrecognizable insn:
-(insn/i 1332 1672 1666 (parallel[
-            (set (reg:SI 0 eax)
-                (asm_operands ("") ("=a") 0[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (set (reg:SI 1 edx)
-                (asm_operands ("") ("=d") 1[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (clobber (reg:QI 19 dirflag))
-            (clobber (reg:QI 18 fpsr))
-            (clobber (reg:QI 17 flags))
-        ] ) -1 (insn_list 1326 (nil))
-    (nil))
-fs/proc/array.c:398: confused by earlier errors, bailing out
-make[2]: *** [fs/proc/array.o] エラー 1
-make[1]: *** [fs/proc] エラー 2
-make: *** [fs] エラー 2
-[ndiamond@c1pc40 linux-2.6.0-test8]$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
-[ndiamond@c1pc40 linux-2.6.0-test8]$ rpm -qa binutils
-binutils-2.11.93.0.2-11
+-- 
+Liviu Voicu
+Assistant Programmer and network support
+Computation Center, Mount Scopus
+Hebrew University of Jerusalem
+Tel: 972(2)-5881253
+E-mail: "Liviu Voicu"<pacman@mscc.huji.ac.il>
+
+/**
+ * cat /usr/src/linux/arch/i386/boot/bzImage > /dev/dsp
+ * ( and the voice of God will be heard! )
+ *
+ */
+
+Click here to see my GPG signature:
+----------------------------------
+	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
+
 

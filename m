@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130516AbRCUC3r>; Tue, 20 Mar 2001 21:29:47 -0500
+	id <S131063AbRCUDKy>; Tue, 20 Mar 2001 22:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131063AbRCUC3g>; Tue, 20 Mar 2001 21:29:36 -0500
-Received: from rmx195-mta.mail.com ([165.251.48.42]:56826 "EHLO
-	rmx195-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S130516AbRCUC32>; Tue, 20 Mar 2001 21:29:28 -0500
-Message-ID: <382436856.985141648588.JavaMail.root@web584-mc>
-Date: Tue, 20 Mar 2001 21:27:28 -0500 (EST)
-From: Lee Chin <leechin@mail.com>
-To: linux-kernel@vger.kernel.org
-Subject: socket close problems
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 63.206.124.79
+	id <S131140AbRCUDKn>; Tue, 20 Mar 2001 22:10:43 -0500
+Received: from blount.mail.mindspring.net ([207.69.200.226]:61476 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S131063AbRCUDKj>; Tue, 20 Mar 2001 22:10:39 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jeff Lightfoot <jeffml@pobox.com>
+Reply-To: jeffml@pobox.com
+To: jgarzik@mandrakesoft.com (Jeff Garzik), "Manuel A. McLure" <mmt@unify.com>
+Subject: Re: NETDEV WATCHDOG: eth0: transmit timed out on LNE100TX 4.0, kernel2.4.2-ac11 and earlier.
+Date: Tue, 20 Mar 2001 20:09:45 -0700
+X-Mailer: KMail [version 1.2]
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C134@pcmailsrv1.sac.unify.com> <3AB7CFF1.FFC17E31@mandrakesoft.com>
+In-Reply-To: <3AB7CFF1.FFC17E31@mandrakesoft.com>
+MIME-Version: 1.0
+Message-Id: <01032020094500.03835@earth>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-On linux I have the following problem:
-I accept connections from client sockets, read the request and send data
-back and close the socket.
+On Tuesday 20 March 2001 14:58, Jeff Garzik wrote:
+> > With all the above kernel revisions/drivers, my network card
+> > hangs at random (sometimes within minutes, other times it takes
+> > days). To restart it I need to do an ifdown/ifup cycle and it
+> > will work fine until the next hang. I upgraded to 2.4.2-ac11
+> > because of the documented tulip fixes, but after a few days got
+> > this again. The error log shows:
+>
+> In Alan Cox terms, that's a long time ago :)
+>
+> Can you please try 2.4.2-ac20?  It includes fixes specifically for
+> this problem.
 
-After a while, I run out of file descriptors... and when I run netstat, all
-my connections to the clients are in state CLOSING...  and I know the client
-has received all the data and disconnected too.
+I started having the same problem with my LNE100TX and switched it 
+out with another LNE100TX and had the same problem.  Figured it was 
+my BP6 SMP motherboard and ordered a new computer. Doh. :-)
 
-What could I be doing wrong?  The socket is set obtained via the accept
-system call.  I set the socket to non blocking via fcntl and use
-SO_REUSEADDR via setsockopt... and after using the socket for read and
-write, I simply call shutdown followed by a close
+Using 2.4.2-ac20.
+Current LNE100TX having problems (other is different Rev):
+  Lite-On Communications Inc LNE100TX (rev 20)
 
-Thanks
-Lee
-
-
-______________________________________________
-FREE Personalized Email at Mail.com
-Sign up at http://www.mail.com/?sr=signup
+The first card would get "unexpected IRQ trap at vector d0" before 
+dying whereas the second one didn't give that indication.  It would 
+just freeze and the traditional "NETDEV WATCHDOG: eth0: transmit 
+timed out" message.

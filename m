@@ -1,53 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271829AbTGXX4O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 19:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271831AbTGXX4O
+	id S271824AbTGXXzM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 19:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271832AbTGXXzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 19:56:14 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:38095 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S271829AbTGXX4J (ORCPT
+	Thu, 24 Jul 2003 19:55:11 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:6595 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S271824AbTGXXzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 19:56:09 -0400
-Date: Fri, 25 Jul 2003 02:11:15 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, schierlm@gmx.de,
-       linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: touchpad doesn't work under 2.6.0-test1-ac2
-Message-ID: <20030725001115.GA30327@ucw.cz>
-References: <bXg8.4Wg.1@gated-at.bofh.it> <S270097AbTGXUNM/20030724201313Z+7864@vger.kernel.org> <20030724212416.GA18141@vana.vc.cvut.cz> <20030724225745.GA434@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030724225745.GA434@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
+	Thu, 24 Jul 2003 19:55:02 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: James Simmons <jsimmons@infradead.org>
+Date: Fri, 25 Jul 2003 02:09:58 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: How is info->cmap supposed to work?
+Cc: linux-kernel@vger.kernel.org, <linux-fbdev-devel@lists.sourceforge.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <82F553B0EAD@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 12:57:45AM +0200, Pavel Machek wrote:
-
+On 25 Jul 03 at 1:04, James Simmons wrote:
+> 
 > Hi!
+
+Finally ;-) I just posted on lk that nobody answered...
+  
+> > (1) FBIOGETCMAP calls fb_copy_cmap(&info->cmap, &cmap, 0);
+> >     Should not it use last argument of '2', as &cmap points
+> >     to the userspace? It looks to me like that anybody can
+> >     overwrite kernel currently... Only positive side is that
+> >     there is no way to control info->cmap contents (see (2)),
+> >     so you can only crash kernel with random code, you cannot 
+> >     stuff some malicious code there.
 > 
-> > This all happens on Compaq EVO N800C. I strongly believe that we need a
-> > build time option for disabling Synaptics detection, or at least input_synaptics=0
-> > runtime option, until it can work at least as well as it works like ps/2
-> > device.
+> I think I posted something about that some time ago and I didn't here 
+> anything. Looking at the code I realized that yeap its broke. Its strange
+> that both fb_set_cmap and fb_copy_cmap can get data from userland. I would
+> think that we either have fb_set_cmap just set the video hardware or 
+> have fb_set_cmap be able to grab data from userland and fb_copy_cmap send 
+> data to userland. 
+
+It looks reasonable.
+
+> > (2) FBIOPUTCMAP calls fb_set_cmap, which in turn calls
+> >     fb_setcolreg. 
 > 
-> Agreed, I even send a patch to vojtech, he said he is going to apply
-> it and I have not heard about that patch after that...
+> True.
+> 
+> >     FBIOGETCMAP copies cmap entries from
+> >     info->cmap (after fixing (1)). Does it mean that
+> >     fb_setcolreg has to fill info->cmap itself? 
+> 
+> No. At present all the drivers initialize a default cmap. Then it
+> doesn't matter which function gets called first. 
 
-For proper Synaptics support an XFree86 driver is available (get it at
-http://w1.894.telia.com/~u89404340/touchpad/index.html). This will allow
-for full support, including gesture recongition. Passthrough support for
-enabling the touchpoint or external mice chained to the Synaptics pad is
-pending in my patch queue and will be merged as soon as I return from
-Ottawa.
+Problem is that if you do FBIOPUTCMAP to change (say) entry #0,
+FBIOGETCMAP will retrieve default value of entry #0 instead of value
+you just set with FBIOPUTCMAP, unless driver updates its info->cmap
+itself... 
 
-Support for touchpads is nonexistent in mousedev.c, it only supports
-mice, digitizers and touchscreens. Just adding an entry to the device
-tableis futile, you'd need much much more than that.
+> > Is not it
+> >     a bit ugly? And fb_set_cmap documentation is incorrect:
+> >     kspc == 0 means copy from userspace, while
+> >     kspc != 0 means copy "local", inside kernel-space. Documentation
+> >     says that 0 is local, while 1 is get_user.
+> 
+> :-( I have to look to see if that has been around for a while. I have a 
+> feeling it has been.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+2.4.x does same. But I do not think that it is excuse ;-)
+ 
+> The reason for the driver initalizing the default cmap is because 
+> we don't know how big the actual colormap will be. I don't know if 
+> the generic method of setting to color map to 2^bpp until above 8 bpp 
+> mode in which case we only set 16 colors will always work. Perhaps we 
+> could just set the cmap.len field and have the upper layer just generate 
+> from that.
+
+Ok, then there is a problem - as nothing in matroxfb uses info->cmap,
+I did not saw any need to initialize it. I'll fix it.
+                                                            Petr
+                                                            
+

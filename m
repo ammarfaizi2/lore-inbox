@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130390AbRBCROy>; Sat, 3 Feb 2001 12:14:54 -0500
+	id <S129109AbRBCRgX>; Sat, 3 Feb 2001 12:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130244AbRBCROo>; Sat, 3 Feb 2001 12:14:44 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:5895 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130417AbRBCROi>; Sat, 3 Feb 2001 12:14:38 -0500
-Date: Sat, 3 Feb 2001 17:14:20 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Alan Cox <alan@redhat.com>
-cc: Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
-        Jan Kasprzak <kas@informatics.muni.cz>, <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>,
-        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
+	id <S129964AbRBCRgO>; Sat, 3 Feb 2001 12:36:14 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:9235 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129109AbRBCRgA>;
+	Sat, 3 Feb 2001 12:36:00 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200102031733.f13HXUo463110@saturn.cs.uml.edu>
 Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-In-Reply-To: <200102022213.f12MDCR27812@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.30.0102031713060.14268-100000@imladris.demon.co.uk>
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Sat, 3 Feb 2001 12:33:29 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), reiser@namesys.com (Hans Reiser),
+        mason@suse.com (Chris Mason), kas@informatics.muni.cz (Jan Kasprzak),
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        yura@yura.polnet.botik.ru (Yury Yu. Rupasov)
+In-Reply-To: <Pine.LNX.4.30.0102031713060.14268-100000@imladris.demon.co.uk> from "David Woodhouse" at Feb 03, 2001 05:14:20 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, Alan Cox wrote:
+David Woodhouse writes:
 
-> if [ -e /bin/rpm ]; then
->         X=`rpm -q gcc`
->         if [ "$X" = "gcc-2.96-54" ]; then
->                 echo "*** GCC 2.96-54 will miscompile Reiserfs. Please update your compiler"
->                 echo "See http://www.redhat.com/support/errata/RHBA-2000-132.html"
->                 exit 255
->         fi
-> fi
+>  -a "$CC" = "gcc"
 
- -a "$CC" = "gcc"
-
--- 
-dwmw2
-
-
+Not worth it; they should upgrade the local gcc too.
+If anything, they are getting a reminder that they need.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

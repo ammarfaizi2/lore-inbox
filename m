@@ -1,106 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVCVUbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVCVUbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVCVUbV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 15:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCVU3B
+	id S261950AbVCVUbU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 15:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVCVU3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 15:29:01 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:17284 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261937AbVCVUXh (ORCPT
+	Tue, 22 Mar 2005 15:29:30 -0500
+Received: from mail.dif.dk ([193.138.115.101]:5044 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261759AbVCVU1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 15:23:37 -0500
-Date: Tue, 22 Mar 2005 21:23:30 +0100 (MET)
-Message-Id: <200503222023.j2MKNUfE011646@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.4.30-rc1] v10 of gcc4 fixes (solves X crash on x86_64)
+	Tue, 22 Mar 2005 15:27:30 -0500
+Date: Tue, 22 Mar 2005 21:29:12 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steve French <smfrench@austin.rr.com>
+Cc: Steven French <sfrench@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH][6/6] cifs: readdir.c cleanup - whitespace final bits (aka
+ part 4)
+Message-ID: <Pine.LNX.4.62.0503222126500.2683@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Mar 2005 17:26:27 +0100 (MET), I wrote:
->Here is a new set of patches to allow gcc-4.0 (20050312)
->to compile the 2.4.30-rc1 kernel.
-...
-> The only known problem is
->that the X server segfaults during PCI probing on x86-64. I'm
->currently debugging that.
 
-Problem solved. There was a bug in x86_64's sys_iopl() which
-allowed the compiler to not perform certain side-effects.
-The bug was fixed in 2.6.9, as part of a big calling convention
-change for all system calls that took a struct pt_regs parameter
-on the stack.
+This patch deals with a few remaining whitespace changes the first 3 
+patches forgot. Primarily breaking up a few >80col lines were forgotten by 
+the previous ones.
 
-v10 of the gcc4 fixes for 2.4.30-rc1 is now available in
-<http://www.csd.uu.se/~mikpe/linux/patches/2.4/>.
-An incremental diff for the sys_iopl() fix is included below.
 
-/Mikael
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-diff -rupN linux-2.4.30-rc1.gcc4-fixes-v9/arch/x86_64/ia32/ia32entry.S linux-2.4.30-rc1.gcc4-fixes-v10/arch/x86_64/ia32/ia32entry.S
---- linux-2.4.30-rc1.gcc4-fixes-v9/arch/x86_64/ia32/ia32entry.S	2005-01-19 18:00:53.000000000 +0100
-+++ linux-2.4.30-rc1.gcc4-fixes-v10/arch/x86_64/ia32/ia32entry.S	2005-03-22 21:00:17.000000000 +0100
-@@ -113,9 +113,18 @@ quiet_ni_syscall:
- 	PTREGSCALL stub32_fork, sys32_fork
- 	PTREGSCALL stub32_clone, sys32_clone
- 	PTREGSCALL stub32_vfork, sys32_vfork
--	PTREGSCALL stub32_iopl, sys_iopl
- 	PTREGSCALL stub32_rt_sigsuspend, sys_rt_sigsuspend
+--- linux-2.6.12-rc1-mm1/fs/cifs/readdir.c.with_patch5	2005-03-22 20:46:41.000000000 +0100
++++ linux-2.6.12-rc1-mm1/fs/cifs/readdir.c	2005-03-22 20:51:10.000000000 +0100
+@@ -472,7 +472,7 @@ static int find_cifs_entry(const int xid
+ 		kfree(cifsFile->search_resume_name);
+ 		cifsFile->search_resume_name = NULL;
+ 		if (cifsFile->srch_inf.ntwrk_buf_start) {
+-			cFYI(1, ("freeing SMB ff cache buf on search rewind")); 
++			cFYI(1, ("freeing SMB ff cache buf on search rewind"));
+ 			cifs_buf_release(cifsFile->srch_inf.ntwrk_buf_start);
+ 		}
+ 		rc = initiate_cifs_search(xid, file);
+@@ -497,10 +497,11 @@ static int find_cifs_entry(const int xid
+ 		int i;
+ 		char *current_entry;
+ 		char *end_of_smb = cifsFile->srch_inf.ntwrk_buf_start + 
+-			smbCalcSize((struct smb_hdr *)cifsFile->srch_inf.ntwrk_buf_start);
++			smbCalcSize((struct smb_hdr *)
++				    cifsFile->srch_inf.ntwrk_buf_start);
+ 		/* dump_cifs_file_struct(file,"found entry in fce "); */
+-		first_entry_in_buffer = cifsFile->srch_inf.index_of_last_entry -
+-			cifsFile->srch_inf.entries_in_buffer;
++		first_entry_in_buffer = cifsFile->srch_inf.index_of_last_entry
++					- cifsFile->srch_inf.entries_in_buffer;
+ 		pos_in_buf = index_to_find - first_entry_in_buffer;
+ 		cFYI(1, ("found entry - pos_in_buf %d", pos_in_buf)); 
+ 		current_entry = cifsFile->srch_inf.srch_entries_start;
+@@ -519,11 +520,12 @@ static int find_cifs_entry(const int xid
+ 				cFYI(1, ("Entry is ..")); /* BB removeme BB */
+ 				/* continue; */
+ 			}
+-			current_entry = nxt_dir_entry(current_entry, end_of_smb);
++			current_entry = nxt_dir_entry(current_entry,
++						      end_of_smb);
+ 		}
+ 		if ((current_entry == NULL) && (i < pos_in_buf)) {
+-   /* BB removeme BB */	cERROR(1, ("reached end of buf searching for pos in buf"
+-				   " %d index to find %lld rc %d",
++   /* BB removeme BB */	cERROR(1, ("reached end of buf searching for pos in "
++				   "buf %d index to find %lld rc %d",
+ 				   pos_in_buf, index_to_find, rc));
+ 		}
+ 		rc = 0;
+@@ -538,7 +540,8 @@ static int find_cifs_entry(const int xid
+ 			 "beyond last entry"));
+ 		*num_to_ret = 0;
+ 	} else
+-		*num_to_ret = cifsFile->srch_inf.entries_in_buffer - pos_in_buf;
++		*num_to_ret = cifsFile->srch_inf.entries_in_buffer -
++			      pos_in_buf;
+ 	/* dump_cifs_file_struct(file, "end fce "); */
  
-+	.macro PTREGSCALL3 label, func, arg
-+	.globl \label
-+\label:
-+	leaq \func(%rip),%rax
-+	leaq -ARGOFFSET+8(%rsp),\arg	/* 8 for return address */
-+	jmp  ia32_ptregs_common	
-+	.endm
-+
-+	PTREGSCALL3 stub32_iopl, sys_iopl, %rsi
-+
- ENTRY(ia32_ptregs_common)
- 	popq %r11
- 	SAVE_REST
-diff -rupN linux-2.4.30-rc1.gcc4-fixes-v9/arch/x86_64/kernel/entry.S linux-2.4.30-rc1.gcc4-fixes-v10/arch/x86_64/kernel/entry.S
---- linux-2.4.30-rc1.gcc4-fixes-v9/arch/x86_64/kernel/entry.S	2003-11-29 00:28:11.000000000 +0100
-+++ linux-2.4.30-rc1.gcc4-fixes-v10/arch/x86_64/kernel/entry.S	2005-03-22 21:00:17.000000000 +0100
-@@ -249,7 +249,16 @@ intret_signal_test:		
- 	PTREGSCALL stub_vfork, sys_vfork
- 	PTREGSCALL stub_rt_sigsuspend, sys_rt_sigsuspend
- 	PTREGSCALL stub_sigaltstack, sys_sigaltstack
--	PTREGSCALL stub_iopl, sys_iopl
-+
-+	.macro PTREGSCALL3 label,func,arg
-+	.globl \label
-+\label:
-+	leaq	\func(%rip),%rax
-+	leaq    -ARGOFFSET+8(%rsp),\arg /* 8 for return address */
-+	jmp	ptregscall_common
-+	.endm
-+
-+	PTREGSCALL3 stub_iopl, sys_iopl, %rsi
- 
- ENTRY(ptregscall_common)
- 	popq %r11
-diff -rupN linux-2.4.30-rc1.gcc4-fixes-v9/arch/x86_64/kernel/ioport.c linux-2.4.30-rc1.gcc4-fixes-v10/arch/x86_64/kernel/ioport.c
---- linux-2.4.30-rc1.gcc4-fixes-v9/arch/x86_64/kernel/ioport.c	2003-11-29 00:28:11.000000000 +0100
-+++ linux-2.4.30-rc1.gcc4-fixes-v10/arch/x86_64/kernel/ioport.c	2005-03-22 21:00:17.000000000 +0100
-@@ -81,9 +81,9 @@ asmlinkage long sys_ioperm(unsigned long
-  * code.
-  */
- 
--asmlinkage long sys_iopl(unsigned int level, struct pt_regs regs)
-+asmlinkage long sys_iopl(unsigned int level, struct pt_regs *regs)
- {
--	unsigned int old = (regs.eflags >> 12) & 3;
-+	unsigned int old = (regs->eflags >> 12) & 3;
- 
- 	if (level > 3)
- 		return -EINVAL;
-@@ -92,6 +92,6 @@ asmlinkage long sys_iopl(unsigned int le
- 		if (!capable(CAP_SYS_RAWIO))
- 			return -EPERM;
- 	}
--	regs.eflags = (regs.eflags & 0xffffffffffffcfff) | (level << 12);
-+	regs->eflags = (regs->eflags &~ 0x3000UL) | (level << 12);
- 	return 0;
- }
+ 	return rc;
+@@ -828,12 +831,13 @@ int cifs_readdir(struct file *file, void
+ 		cFYI(1, ("loop through %d times filling dir for net buf %p",
+ 			 num_to_fill,cifsFile->srch_inf.ntwrk_buf_start));
+ 		end_of_smb = cifsFile->srch_inf.ntwrk_buf_start +
+-			smbCalcSize((struct smb_hdr *)cifsFile->srch_inf.ntwrk_buf_start);
++			smbCalcSize((struct smb_hdr *)
++				    cifsFile->srch_inf.ntwrk_buf_start);
+ 		tmp_buf = kmalloc(NAME_MAX + 1, GFP_KERNEL);
+ 		for (i = 0; (i < num_to_fill) && (rc == 0); i++) {
+ 			if (current_entry == NULL) {
+-	/* BB removeme BB */	cERROR(1, ("beyond end of smb with num to fill "
+-					   "%d i %d", num_to_fill,i));
++	/* BB removeme BB */	cERROR(1, ("beyond end of smb with num to "
++					   "fill %d i %d", num_to_fill, i));
+ 				break;
+ 			}
+ 			/* if ((!(cifs_sb->mnt_cifs_flags &
+
+
+

@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268900AbRHWQlg>; Thu, 23 Aug 2001 12:41:36 -0400
+	id <S268974AbRHWQw2>; Thu, 23 Aug 2001 12:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269067AbRHWQlR>; Thu, 23 Aug 2001 12:41:17 -0400
-Received: from web9307.mail.yahoo.com ([216.136.129.56]:34057 "HELO
-	web9307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S268926AbRHWQlF>; Thu, 23 Aug 2001 12:41:05 -0400
-Message-ID: <20010823164120.37497.qmail@web9307.mail.yahoo.com>
-Date: Thu, 23 Aug 2001 09:41:20 -0700 (PDT)
-From: John paul R <jpr200012@yahoo.com>
-Subject: Re: dell inspiron 8000 eepro100 problems
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3B84B818.6F7E7139@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S269081AbRHWQwH>; Thu, 23 Aug 2001 12:52:07 -0400
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:40322 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S268974AbRHWQwC>;
+	Thu, 23 Aug 2001 12:52:02 -0400
+Message-Id: <200108231653.f7NGrOl32250@www.2ka.mipt.ru>
+Date: Thu, 23 Aug 2001 20:56:02 +0400
+From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] this patch add a possibility to add a random offset to the stack on exec.
+In-Reply-To: <E15ZttT-0003kI-00@the-village.bc.nu>
+In-Reply-To: <200108230130.f7N1Uol14698@www.2ka.mipt.ru>
+	<E15ZttT-0003kI-00@the-village.bc.nu>
+Reply-To: johnpol@2ka.mipt.ru
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.9; i686)
+Organization: MIPT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
---- Arjan van de Ven <arjanv@redhat.com> wrote:
-> Matt_Domsch@Dell.com wrote:
-> > 
-> > > i'm using 2.4.9 and have had a problem since 2.2
-> > > kernels along with all versions of 2.4. i am
-> having a
-> > > problem with 2 laptops, both are dell inspiron
-> 8000
-> > > that have intel 82557 mini-pci nic in them. i
-> get no
-> > 
-> > <Not official support>
-> > 
-> > Is the "sleep mode bit" set on the NIC?  Please
-> try Donald Becker's
-> > eepro100-diag.c program, located at
-> > ftp://ftp.scyld.com/pub/diag/eepro100-diag.c, and
-> use the -G -w -w -w flags
-> > to clear that bit if running it first says that
-> the sleep bit is enabled.
-> > This may help.
+On Thu, 23 Aug 2001 13:47:31 +0100 (BST)
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-i tried this last night - still same problem (sleep
-was enabled originally)
+>> "Add a possibility to add a random offset to the stack on exec. This
+makes
+>> it slightly harder to write generic buffer overflows. This doesn't
+really
+>> give any real security, but it raises the bar for script-kiddies and
+it's
+>> really cheap."
 
-> 
-> It won't for the suspend case; the bios just forgets
-> to re-enable the 
-> PCI bridge to and the eepro100 card itself during
-> resume. I have a patch 
-> to work around this and will clean it up enough for
-> it to be acceptable 
-> for the mainstream kernel.
+AC> Its so slight its useless, and the randomness makes it hard to verify
+AC> you
+AC> fixed a problem. Remember once an exploit appears a box will get
+scanned
+AC> hundreds of times - someone will get the right offset 8)
 
-just to note i don't suspend when this happens (or
-ever really).
+You want to tell, that running 2 process one directky after another( like
+exploits do),
+and esp will be the same, even with random addition? It's impossible.
 
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+But i quite understand your position in this question :(.
+
+AC> There is another good reason for offseting stacks within the page -
+AC> especially the kernel stacks which is to avoid things like each apache
+AC> task sleeping with wait queues on the same cache colour
+
+---
+WBR. //s0mbre

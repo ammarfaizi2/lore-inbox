@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTHSHWw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 03:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTHSHWw
+	id S262273AbTHSHZs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 03:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTHSHZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 03:22:52 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:42675 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S262116AbTHSHWv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 03:22:51 -0400
-Subject: RE: [SOLVED] RE: 2.6.0-test3 latest bk hangs when enabling IO-APIC
-From: Stian Jordet <liste@jordet.nu>
-To: "Brown, Len" <len.brown@intel.com>
+	Tue, 19 Aug 2003 03:25:48 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:37504 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262273AbTHSHZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 03:25:47 -0400
+Date: Tue, 19 Aug 2003 08:37:31 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200308190737.h7J7bVaa000623@81-2-122-30.bradfords.org.uk>
+To: herbert@13thfloor.at
+Subject: Re: [OT] Documentation for PC Architecture
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC78@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC78@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Message-Id: <1061277778.3952.2.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 19 Aug 2003 09:22:58 +0200
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tir, 19.08.2003 kl. 03.15 skrev Brown, Len:
-> CONFIG_ACPI_HT is mostly just an alias for CONFIG_ACPI_BOOT -- the early
-> boot part of ACPI without the run-time events included in the full ACPI
-> implementation.  Unless I screwed up the config dependencies, it should
-> be impossible to enable the full CONFIG_ACPI without including
-> CONFIG_ACPI_HT.
+> > I've done some tests with a simple kernel which I wrote: all that region 
+> > (except video memory at 0xb8000) results "read only"...
+>
+> because it is usually designated as rom area, which naturally
+> is read only ... 
 
-Hmm. I just ran "make oldconfig" and when I got the question about
-"CONFIG_ACPI_HT" I just chose no, since I don't have HT. When I _now_
-look at it with "make menuconfig" I ofcourse see that without the first,
-I never get the latter one, but that was really non-obvious. But thanks
-:)
+On some boards I've seen, there is 384K onboard for ROM shadowing
+purposes, and when only 128K is actually used, (as it is in a lot of
+configurations), the other 256K is available as system memory.
 
-Best regards,
-Stian
+However, this on-board 256K is only remapped when you have 8 MB RAM or
+less on the board.  So with 8 MB the board reports 8448K of RAM, but
+with 16 MB, it only reports 16384K.  In that case 256K of real RAM is,
+indeed, lost.
 
+John.

@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271095AbRIAS2t>; Sat, 1 Sep 2001 14:28:49 -0400
+	id <S270958AbRIAS1j>; Sat, 1 Sep 2001 14:27:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271105AbRIAS2j>; Sat, 1 Sep 2001 14:28:39 -0400
-Received: from tantalophile.demon.co.uk ([193.237.65.219]:9088 "EHLO
-	kushida.degree2.com") by vger.kernel.org with ESMTP
-	id <S271095AbRIAS2W>; Sat, 1 Sep 2001 14:28:22 -0400
-Date: Sat, 1 Sep 2001 19:22:42 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: "David S . Miller" <davem@redhat.com>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Excessive TCP retransmits over lossless, high latency link
-Message-ID: <20010901192242.A2714@thefinal.cern.ch>
-In-Reply-To: <20010901181729.A2204@thefinal.cern.ch> <20010901194141.44617@colin.muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010901194141.44617@colin.muc.de>; from ak@muc.de on Sat, Sep 01, 2001 at 07:41:41PM +0200
+	id <S271095AbRIAS1a>; Sat, 1 Sep 2001 14:27:30 -0400
+Received: from colorfullife.com ([216.156.138.34]:34822 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S270958AbRIAS1R>;
+	Sat, 1 Sep 2001 14:27:17 -0400
+Message-ID: <3B912895.B1635495@colorfullife.com>
+Date: Sat, 01 Sep 2001 20:27:33 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-ac1 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Nuno Miguel Fernandes Sucena Almeida <slug@aeminium.org>
+CC: linux-kernel@vger.kernel.org
+Subject: natsemi.c (linux 2.4.9) - Something Wicked happened! 18000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Sat, Sep 01, 2001 at 07:17:29PM +0200, Jamie Lokier wrote:
-> > The appended "tcpdump -i ppp0 -n" trace shows an excessive number of
-> > retransmits from the remote POP server.  The retransmits are triggered
-> > by excessive duplicate ACKs from the local client.  By excessive, I mean
-> > lots of retransmits of the same data.
-> 
-> The duplicate ACKs should not cause any retransmits (unless the sender
-> is badly broken), because they contain a high enough ACK number.
+ 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-We are receiving frames with sequence number <= the ACK we're sending.
+> After
+> installing the driver module for this card and connecting with a
+> cross-cable to another card (tested with 10Mbps 3com509 and 100Mbps
+> IntelPro) after the first ping a get the error:
+Which compiler do you use?
+gcc-2.95-1 is known to miscompile the current linux driver, and at least
+one 2.95-2 prerelease snapshot.
 
-When the remote end receives those ACKs, it is seeing a series of
-duplicate ACKs for data it sent about 5 frames ago.  So of course it
-retransmits the data starting from 5 frames ago.  As it receives a whole
-series of the same duplicate ACK, it retransmits from the same place
-each time.
+egcs-1.1.2 and gcc-2.96-85 are ok.
 
-I don't see what is broken about the remote end in this case.
+I've just stress tested the driver from 2.4.9 - no problems at all. 9
+MB/s receive, 7 MB/s send with Cyrix 6x68L 120MHz.
 
-> The problem is really that a TCP sender cannot recover from a too short RTT 
-> estimate; if the RTT is longer and it doesn't get any acks it'll assume 
-> packet loss and never has a chance to find out about the longer RTT, because
-> that only works with new ACKs. 
-> 
-> The standard initial RTT is 3 seconds; but your RTT is 5.2s. 
+I have a workaround, but probably upgrading gcc is the better solution.
 
-Actually, 5.2s is the most common packet interarrival time.  The RTT is
-more like 23s!
-
-> What you can do is to change the initial RTT on the sender side. On Linux
-> it can be done with the "irtt" option of route or the equivalent one of
-> iproute2. Most other OS have a similar way to configure the IRTT. 
-
-Unfortunately I cannot change the IRTT on my ISP's mail server, or for
-that matter on anyone's web server.
-
-Are you saying that the IRTT must be larger than the actual RTT, and the
-estimates can only go down?  I thought IRTT was a rough guess and it
-was expected to go either up or down.
-
--- Jamie
+--
+	Manfred

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261313AbSKBSHY>; Sat, 2 Nov 2002 13:07:24 -0500
+	id <S261386AbSKBSt1>; Sat, 2 Nov 2002 13:49:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSKBSHY>; Sat, 2 Nov 2002 13:07:24 -0500
-Received: from packet.digeo.com ([12.110.80.53]:30900 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261313AbSKBSHX>;
-	Sat, 2 Nov 2002 13:07:23 -0500
-Message-ID: <3DC415DA.29D22E92@digeo.com>
-Date: Sat, 02 Nov 2002 10:13:46 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Akira Tsukamoto <at541@columbia.edu>
-CC: linux-kernel@vger.kernel.org, Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [PATCH] 2/2 2.5.45 cleanup & add original copy_ro/from_user
-References: <3DC3A9C0.7979C276@digeo.com> <20021102060423.032A.AT541@columbia.edu>
+	id <S261390AbSKBSt1>; Sat, 2 Nov 2002 13:49:27 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:10506 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S261386AbSKBStZ>; Sat, 2 Nov 2002 13:49:25 -0500
+Date: Sat, 2 Nov 2002 15:55:08 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: What's left over.
+Message-ID: <20021102185508.GF27926@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	"Matt D. Robinson" <yakker@aparity.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+References: <1036157313.12693.15.camel@irongate.swansea.linux.org.uk> <Pine.LNX.3.96.1021101235904.29692B-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2002 18:13:47.0124 (UTC) FILETIME=[9632AB40:01C2829B]
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1021101235904.29692B-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akira Tsukamoto wrote:
+Em Sat, Nov 02, 2002 at 12:00:18AM -0500, Bill Davidsen escreveu:
+> On 1 Nov 2002, Alan Cox wrote:
 > 
-> On Sat, 02 Nov 2002 02:32:32 -0800
-> Andrew Morton <akpm@digeo.com> mentioned:
+> > On Fri, 2002-11-01 at 06:36, Linus Torvalds wrote:
+> > > This never works. Be honest. Nobody takes out features, they are stuck 
+> > > once they get in. 
+> > 
+> > Linus I've asked a couple of times about killing sound/oss off now ALSA
+> > is integrated 8) While you are on the rant how about that ;)
 > 
-> > Akira Tsukamoto wrote:
-> > >
-> > But you've inlined them again.  Your patches increase my kernel
-> > size by 17 kbytes, which is larger than my entire Layer 1 instruction
-> > cache!
-> 
-> It is because I was working on this patch based on 2.5.44 :)
-> 
-> As Andi mentioned, how about selecting if OCNFIG_SAMLL is defined?
+> Good point, that continues to disprove the theory that having one thing in
+> the kernel prevents development of a similar feature.
 
-Well you could make it dependent on CONFIG_SLOW_KERNEL ;)
+SPX was also removed (hey, it never worked anyway) and probably econet and
+ATM will be removed as well if nobody jumps to fix it (I mean net/atm, not
+drivers/atm, but I'm not sure the later will be useful without the former).
 
-It's an act of faith - we have no benchmarks on this.  But it
-goes like this:
-
-- subroutine calls are fast
-- cache misses are slow
-- kernel has no right to be evicting user code from the CPU cache
-- smaller is faster
-- inlining to the point of increasing code size is probably wrong
+- Arnaldo

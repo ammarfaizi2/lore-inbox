@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268890AbUIQQ04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269017AbUIQQfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268890AbUIQQ04 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268968AbUIQQYf
+	id S269017AbUIQQfe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbUIQQa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 12:24:35 -0400
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:30147 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S269023AbUIQQUS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 12:20:18 -0400
-Date: Sat, 18 Sep 2004 01:20:10 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: fixed vr41xx serial
-Message-Id: <20040918012010.10a3c4bc.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Fri, 17 Sep 2004 12:30:58 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:48080 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S269026AbUIQQaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 12:30:24 -0400
+Message-Id: <200409171630.i8HGUF92007463@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: journal aborted, system read-only 
+In-Reply-To: Your message of "Thu, 16 Sep 2004 09:36:01 EDT."
+             <200409160936.01539.gene.heskett@verizon.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <200409121128.39947.gene.heskett@verizon.net> <1095088378.2765.18.camel@sisko.scot.redhat.com> <200409160634.i8G6YhOR008893@turing-police.cc.vt.edu>
+            <200409160936.01539.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-835704746P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 17 Sep 2004 12:30:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UPF_RESOURCES isn't used now.
+--==_Exmh_-835704746P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+On Thu, 16 Sep 2004 09:36:01 EDT, Gene Heskett said:
 
-diff -urN -X dontdiff a-orig/arch/mips/vr41xx/common/serial.c a/arch/mips/vr41xx/common/serial.c
---- a-orig/arch/mips/vr41xx/common/serial.c	Mon Sep 13 14:32:26 2004
-+++ a/arch/mips/vr41xx/common/serial.c	Sat Sep 18 01:10:23 2004
-@@ -115,7 +115,7 @@
- 	port.line = vr41xx_serial_ports;
- 	port.uartclk = SIU_BASE_BAUD * 16;
- 	port.irq = SIU_IRQ;
--	port.flags = UPF_RESOURCES | UPF_BOOT_AUTOCONF | UPF_SKIP_TEST;
-+	port.flags = UPF_BOOT_AUTOCONF | UPF_SKIP_TEST;
- 	switch (current_cpu_data.cputype) {
- 	case CPU_VR4111:
- 	case CPU_VR4121:
-@@ -160,7 +160,7 @@
- 	port.line = vr41xx_serial_ports;
- 	port.uartclk = DSIU_BASE_BAUD * 16;
- 	port.irq = DSIU_IRQ;
--	port.flags = UPF_RESOURCES | UPF_BOOT_AUTOCONF | UPF_SKIP_TEST;
-+	port.flags = UPF_BOOT_AUTOCONF | UPF_SKIP_TEST;
- 	port.mapbase = DSIU_BASE;
- 	port.regshift = 0;
- 	port.iotype = UPIO_MEM;
+> >This happened about 4 minutes into a 'tar cf - | (cd && tar xf -)'
+> > pipeline to clone a work copy of the -rc1-mm5 source tree (it got
+> > about 408M through the 543M before it blew up)....
+> 
+> Humm, it happened to me while amdump was running, and amdump uses tar.
+> My tar version is 1.13-25.
+
+I don't think "tar" is anything more than an enabler here - it's just that on
+my laptop it's one of the more abusive things I can do to the file system (especially
+when source and dest directories are on the same file system).  I've had the problem
+pop up while reading down my e-mail, which is another "lots of little files" scenario
+(500+ lines of procmailrc, passing stuff to/from spamassassin, and storing in the
+MH "one message per file" format)....
+
+I'm about to start building -rc2-mm1 - I'm probably going to liberally sprinkle some
+strategic printk's so we have a chance of flushing out why it's failing...
+
+--==_Exmh_-835704746P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBSxEWcC3lWbTT17ARAlM4AKC8Vrh96Md9qfl4zVpqLwRX79e/gQCfR8cG
+oCp02V72OQia3m7PvNcmZdY=
+=uxUi
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-835704746P--

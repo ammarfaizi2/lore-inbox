@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268033AbRHBEKC>; Thu, 2 Aug 2001 00:10:02 -0400
+	id <S268696AbRHBEfq>; Thu, 2 Aug 2001 00:35:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268675AbRHBEJw>; Thu, 2 Aug 2001 00:09:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27401 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268033AbRHBEJg>; Thu, 2 Aug 2001 00:09:36 -0400
-Date: Thu, 2 Aug 2001 01:09:39 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Ivan Kalvatchev <iive@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: tmpfs trash the system
-In-Reply-To: <20010801184538.25407.qmail@web13605.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L.0108020107580.5582-100000@duckman.distro.conectiva>
+	id <S268705AbRHBEf0>; Thu, 2 Aug 2001 00:35:26 -0400
+Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:40462 "EHLO
+	benatar.snurgle.org") by vger.kernel.org with ESMTP
+	id <S268696AbRHBEfW>; Thu, 2 Aug 2001 00:35:22 -0400
+Date: Thu, 2 Aug 2001 00:34:54 -0400 (EDT)
+From: William T Wilson <fluffy@snurgle.org>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP possible with AMD CPUs?
+In-Reply-To: <20010801161005.B784@sventech.com>
+Message-ID: <Pine.LNX.4.21.0108020032330.944-100000@benatar.snurgle.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Ivan Kalvatchev wrote:
+On Wed, 1 Aug 2001, Johannes Erdfelt wrote:
 
-> mount tmpfs /mnt/tmp -o tmpfs
-> dd if=/dev/zero if=/mnt/tmp/test
+> I don't know if this was true to begin with, but I know that SMP AMD
+> systems use the APIC SMP scheme Intel defined and uses.
 
-So you let tmpfs fill up all memory and swap...
+Is this really true?  I seem to remember that there was very little
+difference between OPIC and APIC in the first place, but AMD could not use
+APIC because of licensing problems.
 
-mount -t tmpfs -o nr_blocks=<SIZE> none /mnt/tmp
-
-Where <SIZE> is the maximum size of tmpfs, in pages.
-
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Since Athlons cannot use the same motherboards as Intel (unlike the K6-2)
+and AMD makes the SMP chipsets for Athlon, why would they possibly want to
+use APIC when they could more easily and cheaply use OPIC?
 

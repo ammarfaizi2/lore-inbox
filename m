@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264719AbTFATxm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 15:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264720AbTFATxm
+	id S264720AbTFAT4t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 15:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264721AbTFAT4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 15:53:42 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:8071 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264719AbTFATxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 15:53:41 -0400
-Date: Sun, 1 Jun 2003 13:07:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
-Message-Id: <20030601130704.5f3cc1a8.akpm@digeo.com>
-In-Reply-To: <1054488992.1722.42.camel@iso-8590-lx.zeusinc.com>
-References: <1054441433.1722.33.camel@iso-8590-lx.zeusinc.com>
-	<20030531214520.5b7facf4.akpm@digeo.com>
-	<1054488992.1722.42.camel@iso-8590-lx.zeusinc.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Jun 2003 20:07:04.0870 (UTC) FILETIME=[5F21A460:01C32879]
+	Sun, 1 Jun 2003 15:56:49 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:23563 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264720AbTFAT4s convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 15:56:48 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: warning: process 'update' used the obsolete bdflush...
+Date: Sun, 1 Jun 2003 22:09:05 +0200
+User-Agent: KMail/1.5.2
+References: <1B8F41EC-934B-11D7-B416-00039346F142@mac.com> <1054495899.943.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1054495899.943.2.camel@teapot.felipe-alfaro.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200306012209.05634.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Sightler <ttsig@tuxyturvy.com> wrote:
->
-> On Sun, 2003-06-01 at 00:45, Andrew Morton wrote:
-> > Tom Sightler <ttsig@tuxyturvy.com> wrote:
-> > >
-> > > I simply reniced this process to -10 and
-> > >  everything started working fine.  Upon looking a little further it
-> > >  seemed that the kernel was dynamically boosting the priority of the
-> > >  process much higher than it probably should be, in the end, not leaving
-> > >  enough CPU for playing the sounds without skipping.
-> > 
-> > Yes, it seems that too many real-world applications are accidentally
-> > triggering this problem.
-> > 
-> > Could you please run an strace of the boosted process, find out what it is
-> > doing to get itself boosted in this manner?  Wait until things are in
-> > steady state and the process is boosted, then run `strace -tt <pid>' so we
-> > see the timing info.
-> 
-> The strace was quite large so I have uploaded it to
-> http://tuxyturvy.com/strace-pluginserver.gz
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Seems to be doing lots of small reads and writes.  Maybe to a pipe.  What
-is the system context switch rate while this is happening?  From `vmstat
-1'?
+On Sunday 01 June 2003 21:31, Felipe Alfaro Solana wrote:
+> "update" is not a program, but a kernel daemon that was superseded by
+> pdflush in 2.5 kernels. I just can't remember right know what caused
+> that warning, but it's similar to the SO_BSDCOMPAT warning that is
+> triggered when running bind.
+
+calling syscall bdflush() triggers this warning.
+this syscall is obsolete.
+Things can now be done through /proc/sys/vm
+
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 22:07:21 up  2:53,  3 users,  load average: 1.00, 1.07, 1.06
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+2l1hoxoigfggmSgRApnXAJkBfQw8CBVaUmJRuCNGA/8oZOAPygCfYREJ
+sHauLAtZZfbcbAC+P9OL3BE=
+=zBAB
+-----END PGP SIGNATURE-----
 

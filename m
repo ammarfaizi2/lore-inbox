@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbTCRGPU>; Tue, 18 Mar 2003 01:15:20 -0500
+	id <S262184AbTCRG01>; Tue, 18 Mar 2003 01:26:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262172AbTCRGPU>; Tue, 18 Mar 2003 01:15:20 -0500
-Received: from curry.ceng.metu.edu.tr ([144.122.171.200]:27288 "EHLO
-	curry.ceng.metu.edu.tr") by vger.kernel.org with ESMTP
-	id <S262170AbTCRGPT>; Tue, 18 Mar 2003 01:15:19 -0500
-Message-ID: <3E76BCA9.3060902@ceng.metu.edu.tr>
-Date: Tue, 18 Mar 2003 08:28:57 +0200
-From: Mehmet Ersan TOPALOGLU <mersan@ceng.metu.edu.tr>
-Reply-To: mersan@ceng.metu.edu.tr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: process resident in memory
-Content-Type: text/plain; charset=ISO-8859-9; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262186AbTCRG01>; Tue, 18 Mar 2003 01:26:27 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:42407 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S262184AbTCRG00>; Tue, 18 Mar 2003 01:26:26 -0500
+Date: Tue, 18 Mar 2003 18:35:02 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [PATCH] Don't refill pcp lists during SWSUSP.
+In-reply-to: <20030317222018.5c7f7a56.akpm@digeo.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1047969302.2309.16.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1047945372.1714.19.camel@laptop-linux.cunninghams>
+ <20030317160556.4efc880f.akpm@digeo.com>
+ <1047965222.2430.3.camel@laptop-linux.cunninghams>
+ <20030317222018.5c7f7a56.akpm@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am a newbie in kernel programming.
-And am sorry if something related previously asked.
-I wonder if it is possible to following situation is possible or not.
+On Tue, 2003-03-18 at 18:20, Andrew Morton wrote:
+> Nigel Cunningham <ncunningham@clear.net.nz> wrote:
+> > I said I was going to use dynamically allocated bitmaps instead of page
+> > flags. Do you mind if I do use pageflags after all (at least for the
+> > moment)? I've used one in the generate_free_page_map patch, and need one
+> > more to mark pages which will be saved in another pageset.
+> > 
+> 
+> I think it'd be best to avoid using more flags if poss.  We are getting
+> short, and designing for this now is probably less trauma than going
+> through and redoing your stuff later.
 
-let say i have a user process p1.
-p1 does some malloc, and file i/o etc
-i initiate it during boot time.
-it stays resident in memory as if kernel it self (??)
-and its priority is very very high
+Okay. I'll add the dynamic bitmap code and redo the previous patch.
+
+Regards,
+
+Nigel
 
 -- 
-- mersan
-     mersan@ceng.metu.edu.tr
-     mersan@metu.edu.tr
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
 
-	LIFE WORTH LIVING WITHOUT YOU?
+Be diligent to present yourself approved to God as a workman who does
+not need to be ashamed, handling accurately the word of truth.
+	-- 2 Timothy 2:14, NASB.
 

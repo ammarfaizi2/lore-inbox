@@ -1,81 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266982AbTATVFt>; Mon, 20 Jan 2003 16:05:49 -0500
+	id <S266886AbTATVIq>; Mon, 20 Jan 2003 16:08:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266979AbTATVFs>; Mon, 20 Jan 2003 16:05:48 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:54153 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S266972AbTATVFr> convert rfc822-to-8bit; Mon, 20 Jan 2003 16:05:47 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <adilger@clusterfs.com>
-CC: <david.lang@digitalinsight.com>, <dana.lacoste@peregrine.com>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Mon, 20 Jan 2003 13:14:47 -0800
-In-Reply-To: <20030120134831.Q1594@schatzie.adilger.int>
-Subject: Re: Is the BitKeeper network protocol documented?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030120211449.AAA797@shell.webmaster.com@whenever>
+	id <S266924AbTATVIq>; Mon, 20 Jan 2003 16:08:46 -0500
+Received: from [209.178.208.101] ([209.178.208.101]:41745 "HELO
+	lserver.ddiworldwide.com") by vger.kernel.org with SMTP
+	id <S266886AbTATVIo>; Mon, 20 Jan 2003 16:08:44 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Frank R Callaghan <f.callaghan@ieee.org>
+Reply-To: f.callaghan@ieee.org
+To: linux-kernel@vger.kernel.org
+Subject: Oops from 2.4.20
+Date: Mon, 20 Jan 2003 16:16:10 -0500
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301201616.10301.f.callaghan@ieee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jan 2003 13:48:31 -0700, Andreas Dilger wrote:
+Hi All,
 
->So, let's say that CVS is the "preferred form" of the Linux kernel
->source code, because it is freely available.  If BK has everything 
->in it that CVS does, and also information that is not even POSSIBLE 
->to store in CVS (i.e. ChangeSet information which links a bunch of 
->individual file changes and comments into a single change entity) 
->what happens then?  If you had never put the kernel into BK, that 
->information wouldn't exist at all, yet
->it is not possible to extract it without resorting to some 
->source-of-all- evil
->tool like BK (I hope everyone reading here understands the sarcasm,
->but the fact that I have to annotate it makes me believe some people 
->will not).
+I'm new here so please be patient, I have an SC520 based PC104 board
+that has been running 2.4.19 + rtai 24.1.10 with no problems, I have just
+switched to 2.4.20 and have encountered an Oops when loading rtai.o module -
+I know your saying it must be rtai but, I have looked at the rtai patch diffs
+and there are no changes but line offsets ! I have compiled everything on my
+i686 workstation and it all works fine !?
 
-	If CVS is the "preferred form", then it is CVS you must distribute. 
-What other tools provide what other information is irrelevant. The 
-GPL is quite clear that the preferred form of the source for making 
-modifications is what you must distribute.
+The ksymoops output follows:
 
->The fact that BK is used creates information which WOULD NOT HAVE
->EXISTED
->had BK not existed.  In fact, until BK was in use by Linus, not even
->basic
->CVS checkin comments existed, so the metadata was in a format called
->linux-kernel mbox (if that).  So, the use of a tool like BK makes
->more data
->available, but people cannot be worse off than when the kernel was
->shipped
->as a tarball and periodic patches.  For the sake of those people who
->don't
->or can't use BK, just pretend BK doesn't exist and they will not be
->any
->worse off than a year ago.
+[root@plinux rtlinux]# ksymoops -k ksyms -o /lib/modules/2.4.20-rthal5 -m 
+/boot/System.map-2.4.20-rthal5 Ooops.file
+ksymoops 2.4.1 on i686 2.4.18-rthal5.  Options used
+     -V (default)
+     -k ksyms (specified)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-rthal5 (specified)
+     -m /boot/System.map-2.4.20-rthal5 (specified)
 
-	The GPL doesn't care about whether you're better off or worse off. 
-The GPL just says you have to distribute the source in its preferred 
-form for making modifications.
+Warning (compare_ksyms_lsmod): module vmnet is in lsmod but not in ksyms, 
+probably no symbols exported
+Error (compare_ksyms_lsmod): module rtai is in ksyms but not in lsmod
+Warning (compare_maps): mismatch on symbol locked_cpus  , rtai says c1974ce0, 
+/lib/modules/2.4.20-rthal5/rtai/rtai.o says c19754c0.  Ignoring 
+/lib/modules/2.4.20-rthal5/rtai/rtai.o entry
+Warning (compare_maps): mismatch on symbol rtai_proc_root  , rtai says 
+c1974de8, /lib/modules/2.4.20-rthal5/rtai/rtai.o says c19755c8.  Ignoring 
+/lib/modules/2.4.20-rthal5/rtai/rtai.o entry
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+c197398a
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c197398a>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: 00000000   ebx: 00000000   ecx: c0268b04   edx: 00000040
+esi: c1977160   edi: c1977260   ebp: c19772e0   esp: c0f79f08
+ds: 0018   es: 0018   ss: 0018
+Process insmod (pid: 65, stackpage=c0f79000)
+Stack: c1971000 00000000 00000000 080bee00 c1977260 00000010 000000c0 c0268b04
+       c19771e0 c0114765 00000000 c0c0b000 00003e00 c0c0c000 00000060 ffffffea
+       00000004 c0041460 00000060 c024a980 c1971060 000087a8 00000000 00000000
+Call Trace:    [<c1977260>] [<c19771e0>] [<c0114765>] [<c1971060>] 
+[<c0108ca3>]
+Code: 8b 00 8a 00 3c 49 75 2e a1 24 a0 24 c0 8b 4c 24 14 8b 04 88
 
->>I submit that it is impossible to comply with the GPL and
->>distribute
->>binaries if the preferred form of a work for the purposes of making
->>modifications to it is in a proprietary file format. This is
->>tantamount to encrypting the source.
+>>EIP; c197398a <[rtai]init_module+24a/2f0>   <=====
+Trace; c1977260 <global+6a0/????>
+Trace; c19771e0 <global+620/????>
+Trace; c0114765 <sys_init_module+5b5/670>
+Trace; c1971060 <[rtai]my_cs+0/10>
+Trace; c0108ca3 <system_call+33/40>
+Code;  c197398a <[rtai]init_module+24a/2f0>
+00000000 <_EIP>:
+Code;  c197398a <[rtai]init_module+24a/2f0>   <=====
+   0:   8b 00                     mov    (%eax),%eax   <=====
+Code;  c197398c <[rtai]init_module+24c/2f0>
+   2:   8a 00                     mov    (%eax),%al
+Code;  c197398e <[rtai]init_module+24e/2f0>
+   4:   3c 49                     cmp    $0x49,%al
+Code;  c1973990 <[rtai]init_module+250/2f0>
+   6:   75 2e                     jne    36 <_EIP+0x36> c19739c0 
+<[rtai]init_module+280/2f0>
+Code;  c1973992 <[rtai]init_module+252/2f0>
+   8:   a1 24 a0 24 c0            mov    0xc024a024,%eax
+Code;  c1973997 <[rtai]init_module+257/2f0>
+   d:   8b 4c 24 14               mov    0x14(%esp,1),%ecx
+Code;  c197399b <[rtai]init_module+25b/2f0>
+  11:   8b 04 88                  mov    (%eax,%ecx,4),%eax
 
->Sure, except BK isn't a proprietary file format (see GNU CSSC and or
->some
->Perl scripts reported on this list), so the issue is purely
->hypothetical.
 
-	It sounds like you and I are in violent agreement. But it's not 
-purely hypothetical -- there are GPL projects today that keep their 
-source in proprietary file formats. (For example, many of the ones 
-using Visual C++.)
-
-	DS
 
 

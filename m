@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbRLLKsr>; Wed, 12 Dec 2001 05:48:47 -0500
+	id <S274875AbRLLLBj>; Wed, 12 Dec 2001 06:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277713AbRLLKsi>; Wed, 12 Dec 2001 05:48:38 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:46765 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S274862AbRLLKsX>; Wed, 12 Dec 2001 05:48:23 -0500
-From: "Alex Riesen" <riesen@synopsys.COM>
-To: "Anton Altaparmakov" <aia21@cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: iproute2
-Date: Wed, 12 Dec 2001 11:48:12 +0100
-Message-ID: <HKEMJNBMMEMMAEHPEBGNIEGCCBAA.riesen@synopsys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S277653AbRLLLBU>; Wed, 12 Dec 2001 06:01:20 -0500
+Received: from ns.suse.de ([213.95.15.193]:16646 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S274875AbRLLLBS>;
+	Wed, 12 Dec 2001 06:01:18 -0500
+Date: Wed, 12 Dec 2001 12:01:17 +0100
+From: Stefan Reinauer <stepan@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT?] SuSe kernel
+Message-ID: <20011212120117.A29895@suse.de>
+In-Reply-To: <20011211193048.A22075@pcmaftoul.esrf.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011211193048.A22075@pcmaftoul.esrf.fr>
+User-Agent: Mutt/1.3.22.1i
+X-OS: Linux 2.4.13 ia64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i've just downloaded iproute2-2.4.7-now-ss010824.tar.gz.
-But the 'ip' utility from the archive doesn't work with
-my 2.4.17-pre6. Netlink is compiled in (no emulation device),
-and opening the socket succeeds. But all requests (sendto's
-in libnetlink) to the driver get ECONNREFUSED.
-I tried 'ip link show'.
-Did i got an incorrect tarball or the thing is really broken?
-Btw where the contemporary iproute2 package can be found?
+* Samuel Maftoul <maftoul@esrf.fr> [011211 19:30]:
+> In SuSe's kernel there is a nice feature but I cannot  found where is
+> the code that does it and so I cannot play with it 8-).
+> The thing I'm talking about is grpahical boot + graphical first console.
+> I glanced at include/asm-i386/linux_logo.h but it doesn't differ.
+> Can someone help me ?
+>         Sam
 
--alex
+The boot splash patch I made for SuSE allows you to use any jpg picture
+as a background console. You can define the text area freely on this
+picture.
+
+Have a look at http://www.suse.de/~stepan/bootsplash/ to find the latest
+patches. Currently they only apply against a kernel already patched with
+bootlogo version patch by Gerard Sharp <gsharp@ihug.co.nz> (this patch can
+be downloaded from above location, too)
+
+Any ideas/bug reports are welcome!
+
+Best regards,
+  Stefan Reinauer
+
+-- 
+Ok 

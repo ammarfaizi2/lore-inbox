@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264643AbSKDCmw>; Sun, 3 Nov 2002 21:42:52 -0500
+	id <S264630AbSKDCsl>; Sun, 3 Nov 2002 21:48:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264672AbSKDCmw>; Sun, 3 Nov 2002 21:42:52 -0500
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:20913 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S264643AbSKDCmu>; Sun, 3 Nov 2002 21:42:50 -0500
-Date: Sun, 3 Nov 2002 21:49:10 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       davej@suse.de
-Subject: Re: Filesystem Capabilities in 2.6?
-Message-ID: <20021104024910.GA14849@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-	Theodore Ts'o <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-	davej@suse.de
-References: <87y98bxygd.fsf@goat.bogus.local> <Pine.LNX.4.44.0211021754180.2300-100000@home.transmeta.com>
+	id <S264633AbSKDCsl>; Sun, 3 Nov 2002 21:48:41 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:40576 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S264630AbSKDCsk>; Sun, 3 Nov 2002 21:48:40 -0500
+Date: Mon, 4 Nov 2002 13:54:59 +1100
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.45 / boottime oops (pnp bios I think)
+Message-ID: <20021104025458.GA3088@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211021754180.2300-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 06:03:12PM -0800, Linus Torvalds wrote:
-> The reason I like directory entries as opposed to inodes is that if you
-> work this way, you can actually give different people _different_
-> capabilities for the same program.  You don't need to have two different
-> installs, you can have one install and two different links to it.
+When I unselect PNP BIOS the kernel boots fine. With it I get the
+oops below. Please note that it was typed out manually and that that was
+all that I could get as I could not scroll up or down in any way.
 
-For several years, I have had only one suid root binary on my system.
-All other 'setuid' applications are simply symlinks to this binary.
+The PC is a Gateway laptop.
 
-$ ls -l /bin/ping*
-lrwxrwxrwx    1 root     root           14 Nov 18  2001 /bin/ping -> /usr/bin/super
--rwxr-xr-x    1 root     root        15244 Nov 18  2001 /bin/ping.suid
+If you need more info, please holler.
 
-There is a a nice configuration file that is used to decide whether to
-use suid or setgid, which parts of the environment to drop/keep. And all
-of this based on the user, the time and any other conditions I would
-like to enforce.
+CPU:	0
+EIP:	0088:[<0000922d>]	Not tainted
+EFLAGS:	00010046
+EIP is at E Using_Versions+0x992c/0xc01172bf
+eax: 00000040	ebx: 00009bd1	ecx: 00150000	edx: 00000005
+esi: 0000c1b1	edi: 00000000	ebp: cffa1e0c	esp: cffa1db8
+ds: 0090   es: 00a0   ss: 0068
+Process swapper (pid: 1, threadinfo=cffa0000 task:c129e040)
+Stack: c1f60090 9bd10005 c1d03032 c1940003 0a110011 0018c157 x1449bcb 0000c130
+       c11b9bca 0000c109 00030000 1e0c0000 1dfecffa 9bb2cffa 00000000 00180000
+       03010015 x7110000 02f8bc81 be12bcfc bdc70300 c776bdef 000001d0 1e84db40
+Call Trace:
+ [<c012ed0e>] cache_alloc_refill+0x1fa/0x260
+ [<c015143e>] inode_init_once+0x10a/0x110
+ [<c012f104>] kmem_cache_alloc+0xbc/0xc8
+ [<c027217c>] __pnp_bios_get_dev_node+0x120/0x17c
+ [<c0210000>] uart_shutdown+0x6c/0xc4
+ [<c02721ee>] pnp_bios_get_dev_node+0x16/034
+ [<c010508b>] init+0x33/0x188
+ [<c0105058>] init+0x0/0x188
+ [<c01054f9>] kernel_thread_helper+0x5/0xc
 
-Now super does not (yet) support capabilities. But it shouldn't be too
-hard to modify it so that it forks, drops capabilities, (possibly change
-the euid to the original user?) and exec the actual binary.
+Code:  Bad EIP value.
+ <0>Kernel panic: Attempted to kill init
 
-Jan
-
+-- 
+        All people are equal,
+        But some are more equal then others.
+            - George W. Bush Jr, President of the United States
+              September 21, 2002 (Abridged version of security speech)

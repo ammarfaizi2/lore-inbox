@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTKMOo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 09:44:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTKMOo4
+	id S264304AbTKMOrl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 09:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTKMOrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 09:44:56 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:16107 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S264301AbTKMOoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 09:44:54 -0500
-Date: Thu, 13 Nov 2003 09:44:54 -0500
-To: linux-kernel@vger.kernel.org,
-       Arch Users Mailing List <gnu-arch-users@gnu.org>
-Subject: Re: kernel.bkbits.net off the air
-Message-ID: <20031113144454.GA2502@delft.aura.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Arch Users Mailing List <gnu-arch-users@gnu.org>
-References: <87r80c5sqp.wl@drakkar.ibe.miee.ru>
+	Thu, 13 Nov 2003 09:47:41 -0500
+Received: from ns.suse.de ([195.135.220.2]:8378 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264304AbTKMOrk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 09:47:40 -0500
+Date: Thu, 13 Nov 2003 15:47:38 +0100
+From: Michael Schroeder <mls@suse.de>
+To: Tim Kelsey <mn@midnet.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9-mm3 initrd strangeness
+Message-ID: <20031113144738.GA18329@suse.de>
+References: <20031113135245.128ec5e0.mn@midnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87r80c5sqp.wl@drakkar.ibe.miee.ru>
-User-Agent: Mutt/1.5.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+In-Reply-To: <20031113135245.128ec5e0.mn@midnet.co.uk>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 2048G/BBC5057B
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 13, 2003 at 03:59:42PM +0300, Samium Gromoff wrote:
-> Okay, folks. Now i propose to go further than that.
+On Thu, Nov 13, 2003 at 01:52:45PM +0000, Tim Kelsey wrote:
+> I am experiencing problems with 2.6.0-test9-mm3 and initrd ramdisks
+> I have support for ramdisks and initrd compiled directly into the kernel and have an initrd image gzipped and placed in /boot called initrd-crypt.gz
 > 
-> I hope that Larry recognises that at some point the linux kernel community
-> _will_ switch to a free software alternative.
+> When booting off a 2.4.22 kernel the image is loaded and linuxrc is executed perfectly but with a 2.6.0-test9-mm3 kernel i get the following msg at boot time
 > 
-> I think we should have a better choice than the lossy bk->cvs.
+> 	RAMDISK: Compressed image found at block 0
+> 	RAMDISK: incomplete Write (-1 != 32768) 4194304
 > 
-> I propose we as a whole ask Larry to create a bk->arch gateway _not_ via cvs
-> but directly, and therefore using all the extended metadata possible.
+> Any comments, advice, opinions greatly appreciated also if someone could explain what those numbers actually mean i would be very grateful 
 
-I appreciate Arch and am actually using it for some things, and can't
-give an educated opinion on BK as I have never used it.
+Seems like your ramdisk is full, the default size is 4096k.
+Change the CONFIG_BLK_DEV_RAM_SIZE parameter or boot with
+ramdisk_size=<value>.
 
-But this is just ridiculous.
+Cheers,
+  Michael.
 
-First of all, there always serious pain in switching. Whatever free
-alternative is provided better be _a lot_ better compared to what is
-currently used. And although Arch might be more in-line with the
-political goals of many developers, frankly I don't believe Arch is
-technologically there yet.
-
-But then asking Larry to implement a gateway seems to be the plan of the
-century. Hey why doesn't Larry help out with the Arch or SVN effort
-while he's at it? How would you react if ClearCase started demanding
-that Arch/SVN/CVS developers should implement a one-directional
-gateway to their software to make it easier for people to migrate.
-
-Jan
-
+-- 
+Michael Schroeder                                   mls@suse.de
+main(_){while(_=~getchar())putchar(~_-1/(~(_|32)/13*2-11)*13);}

@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUCVECS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 23:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUCVECS
+	id S261671AbUCVEAO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 23:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUCVEAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 23:02:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44192 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261672AbUCVECQ (ORCPT
+	Sun, 21 Mar 2004 23:00:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45221 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261671AbUCVEAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 23:02:16 -0500
-Date: Sun, 21 Mar 2004 23:02:03 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-cc: Andrea Arcangeli <andrea@suse.de>, <akpm@osdl.org>, <torvalds@osdl.org>,
-       <hugh@veritas.com>, <mbligh@aracnet.com>, <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
- fix
-In-Reply-To: <Pine.LNX.4.58.0403212241120.8267@rust.engin.umich.edu>
-Message-ID: <Pine.LNX.4.44.0403212258530.20045-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Mar 2004 23:00:09 -0500
+Date: Sun, 21 Mar 2004 19:57:07 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] error value for opening block devices
+Message-Id: <20040321195707.14a5a0f8.rddunlap@osdl.org>
+In-Reply-To: <405C195B.10004@redhat.com>
+References: <405C195B.10004@redhat.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Mar 2004, Rajesh Venkatasubramanian wrote:
+On Sat, 20 Mar 2004 02:13:47 -0800 Ulrich Drepper wrote:
 
-> > what about the cost of a tree rebalance, is that O(log(N)) like with the
-> > rbtrees?
-> 
-> Currently the tree is not balanced, so the tree can be totally skewed
-> in some corner cases. However, the maximum height of the tree can be
-> only 2 * BITS_PER_LONG.
+| Opening a non-existing block device currently yields an ENXIO error.
+| Doing the same for char devices produces the correct error ENODEV.
+| 
+| The attached patch fixes the symptoms.  Somebody with more knowledge
+| will have to decide whether there are any negative side effects.
 
-Fair enough for a radix tree.  Andrea, remember that page
-tables don't need to be balanced either, for obvious reasons ;)
+(now that this is merged...)
 
-> Moreover, I have added an optimization to increase the maximum height
-> of the tree on demand. The tree height is controlled by keeping track
-> of the maximum file offset mapped. If the number of bits required to
-> represent the maximum file offset is B, then the height of the tree
-> can be only 2 * B.
+Isn't this going in the wrong direction, or am I just
+mis-interpreting SUSv3?
 
-Nice touch.  That should really help keep the cost of the
-prio_tree down in the common case.
+Compare LSB bugzilla #115:
+http://bugs.linuxbase.org/show_bug.cgi?id=115
 
-Your stuff is so much nicer than the kb-trees I was thinking
-about a year or two ago ... ;)
+open - open a file
+
+...
+
+ERRORS
+
+[ENXIO]
+O_NONBLOCK is set, the named file is a FIFO, O_WRONLY is set, and
+no process has the file open for reading.
+
+[ENXIO]
+The named file is a character special or block special file, and
+the device associated with this special file does not exist.
 
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+(Note:  ENODEV is not listed as a possible return value.)
 
+--
+~Randy
+"You can't do anything without having to do something else first."
+-- Belefant's Law

@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbUL0WZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbUL0WrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbUL0WZb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 17:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUL0WZa
+	id S261557AbUL0WrX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 17:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUL0WrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 17:25:30 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:27299
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261641AbUL0WZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 17:25:10 -0500
-Date: Mon, 27 Dec 2004 14:23:50 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Patrick McHardy <kaber@trash.net>
-Cc: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: PATCH: kmalloc packet slab
-Message-Id: <20041227142350.1cf444fe.davem@davemloft.net>
-In-Reply-To: <41D043AC.2070203@trash.net>
-References: <1104156983.20944.25.camel@localhost.localdomain>
-	<41D043AC.2070203@trash.net>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 27 Dec 2004 17:47:22 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:26129 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261557AbUL0WrR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 17:47:17 -0500
+Date: Mon, 27 Dec 2004 23:48:33 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Georg Prenner <georg.prenner@aon.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make errors (make clean, make menuconfig) make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+Message-ID: <20041227224833.GA8206@mars.ravnborg.org>
+Mail-Followup-To: Georg Prenner <georg.prenner@aon.at>,
+	linux-kernel@vger.kernel.org
+References: <41D08472.6010404@aon.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D08472.6010404@aon.at>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Dec 2004 18:17:32 +0100
-Patrick McHardy <kaber@trash.net> wrote:
-
-> Alan Cox wrote:
-> > The networking world runs in 1514 byte packets pretty much all the time.
-> > This adds a 1620 byte slab for such objects and is one of the internally
-> > generated Red Hat patches we use on things like Fedora Core 3. Original:
-> > Arjan van de Ven.
-> > 
-> > Signed-off-by: Alan Cox <alan@redhat.com>
+On Mon, Dec 27, 2004 at 10:53:54PM +0100, Georg Prenner wrote:
+> Hi
 > 
-> Why 1620 bytes ? Most drivers allocate packet_size + 2 bytes.
-> dev_alloc_skb adds another 16 bytes, finally alloc_skb adds
-> sizeof(struct skb_shared_info). So we get:
+> I am having a problem when executing "make menuconfig" on my fresh 
+> extracted 2.6.10 kernel.
 > 
-> (32bit): 1514b + 2b + 16b + 160b = 1692b
-> (64bit): 1514b + 2b + 16b + 312b = 1844b
+> The error message is like this:
 > 
-> On paths using alloc_skb instead of dev_alloc_skb it's 16 bytes
-> less, but 1620 bytes is still too small for full-sized packets.
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+> make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+> .
+> .
+> .
+> .
+> .
+> .
+> .
+> I can only stop this neverending message with Strg+C and then it goes on 
+> like this:
+> make[85]: *** [menuconfig] Interrupt
+> make[84]: *** wait: No child processes.  Stop.
+> make[84]: *** Waiting for unfinished jobs....
+> make[84]: *** wait: No child processes.  Stop.
+> make[83]: *** [menuconfig] Error 2
+> make[82]: *** [menuconfig] Interrupt
+> make[81]: *** [menuconfig] Interrupt
+> ..
+> .
+> .
+> 
+> All other Versions of Kernels work perfectly, I use Make 3.80, and my 
+> distro is slackware 10.0.
+> 
+> Please help me i can't find anything usefull on the WEB.
 
-Absolutely, there is no way this patch actually helps for
-full sized frames.  Another thing in the above equations is
-that on output you have to add in MAX_TCP_HEADER which is
-128 + MAX_HEADER. MAX_HEADER is variable sized based upon
-which link layer support is built into the kernel.
+Try executing make in the directory where you extract the source -
+and not in the symlinked directory.
 
-Even on input, many ethernet device drivers add in their
-own amounts to the size for DMA and cache-line alignment.
+You need to untar the source first because kbuild has overwritten
+your Makefile.
 
-So this special slab would never be used on output even
-if it got the base equations correct.
-
-If we are really going to do something like this, it should
-be calculated properly and be determined per-interface
-type as netdevs are registered.
-
-Special casing ethernet is just rediculious.
+	Sam

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQKDRpa>; Sat, 4 Nov 2000 12:45:30 -0500
+	id <S129151AbQKDRqi>; Sat, 4 Nov 2000 12:46:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129095AbQKDRpK>; Sat, 4 Nov 2000 12:45:10 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:47885 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129057AbQKDRpE>; Sat, 4 Nov 2000 12:45:04 -0500
-Date: 04 Nov 2000 13:37:00 +0200
+	id <S129132AbQKDRqa>; Sat, 4 Nov 2000 12:46:30 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:61198 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129258AbQKDRoz>; Sat, 4 Nov 2000 12:44:55 -0500
+Date: 04 Nov 2000 14:24:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <7pChuFhmw-B@khms.westfalen.de>
-In-Reply-To: <E13rRk1-0001ut-00@the-village.bc.nu>
+Message-ID: <7pChupdXw-B@khms.westfalen.de>
+In-Reply-To: <20001102212124.A15054@gruyere.muc.suse.de>
 Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
 X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <3A01D6D1.44BD66FE@Rikers.org> <E13rRk1-0001ut-00@the-village.bc.nu>
+In-Reply-To: <3A01B8BB.A17FE178@Rikers.org> <200011020011.QAA20585@pizda.ninka.net> <8tqcng$d8p$1@cesium.transmeta.com> <3A01B8BB.A17FE178@Rikers.org> <20001102212124.A15054@gruyere.muc.suse.de>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 02.11.00 in <E13rRk1-0001ut-00@the-village.bc.nu>:
+ak@suse.de (Andi Kleen)  wrote on 02.11.00 in <20001102212124.A15054@gruyere.muc.suse.de>:
 
-> > How can I insure that the largest possible amount of my efforts benefit
-> > the community at large? Hopefully this will make it easier to move to
-> > C99 or any other future compiler porting project.
->
-> The asm I dont know - its a hard problem.
+> again with a different syntax than gcc [I guess it would have been too easy
+> to just use the gcc syntax]
 
-Anyone interested in looking at the asm problem, the Free Pascal Compiler  
-(GPL) seems to be able to read several different Pascal inline asm  
-variants and translate them into several different output asm variants,  
-but only for Intel code. That should at least give some hints about the  
-problem.
+One of the big problems in C99 was that there was nobody on the committee  
+who really understood gcc well, so the committee had problems using gcc  
+solutions given that nobody would be able to really describe them.
+
+And the reason no such expert was there was that the FSF didn't send  
+anyone, because they seem to think standards tend to ignore what they want  
+to do.
+
+It's a classic vicious circle.
 
 MfG Kai
 -

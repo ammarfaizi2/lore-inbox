@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289939AbSAOPdj>; Tue, 15 Jan 2002 10:33:39 -0500
+	id <S289973AbSAOPf3>; Tue, 15 Jan 2002 10:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289968AbSAOPdT>; Tue, 15 Jan 2002 10:33:19 -0500
-Received: from moutng0.kundenserver.de ([212.227.126.170]:60926 "EHLO
-	moutng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S289939AbSAOPdN>; Tue, 15 Jan 2002 10:33:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: LISA GmbH
-To: Nikita Danilov <Nikita@Namesys.COM>
-Subject: Re: [BUG] symlink problem with knfsd and reiserfs
-Date: Tue, 15 Jan 2002 16:32:12 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: trond.myklebust@fys.uio.no, Neil Brown <neilb@cse.unsw.edu.au>,
-        linux-kernel@vger.kernel.org,
-        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de> <15428.6953.453942.415989@charged.uio.no> <15428.14268.730698.637522@laputa.namesys.com>
-In-Reply-To: <15428.14268.730698.637522@laputa.namesys.com>
+	id <S289974AbSAOPfU>; Tue, 15 Jan 2002 10:35:20 -0500
+Received: from waste.org ([209.173.204.2]:65230 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S289973AbSAOPfC>;
+	Tue, 15 Jan 2002 10:35:02 -0500
+Date: Tue, 15 Jan 2002 09:34:37 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Rob Landley <landley@trommello.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away? 
+In-Reply-To: <5641.1011094503@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0201150924130.25491-100000@waste.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020115153224.5B55513E2@shrek.lisa.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 15. January 2002 15:07, Nikita Danilov wrote:
-> Trond Myklebust writes:
->  > >>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
->  >      > In syslog, this message appears: Jan 15 00:21:03 elfe kernel:
->  >      > nfs_refresh_inode: inode 50066 mode changed, 0100664 to 0120777
->  >
->  > The error is basically telling you that ReiserFS filehandles are being
->  > reused by the server. Doesn't Reiser provide a generation count to
->  > guard against this sort of thing?
+On Tue, 15 Jan 2002, Keith Owens wrote:
+
+> On Mon, 14 Jan 2002 09:19:01 -0500,
+> Rob Landley <landley@trommello.org> wrote:
+> >How much of the build process for the initramfs will be integrated with the
+> >kernel build?  Since the kernel won't boot without a matching initramfs, I
+> >take it that some kind of initramfs will be a kernel build target now?
+> >
+> >There's been a lot of talk about having the source for a mini-libc (uclibc,
+> >dietlibc, some combo) in the kernel tree, and other people saying we should
+> >just grab the binary for build purposes.  The most obvious model I can think
+> >of for klibc staying seperate from the kernel is the user-space
+> >pcmcia/cardbus hotplug stuff, but that DID get integrated into the kernel.
+> >
+> >The klibc source/binary debate still seems to be ongoing, but apart from
+> >that, will the build process for initramfs be part of the kernel build or not?
 >
-> Yes, inode->i_generation is stored in the file handle:
-> fs/reiserfs/inode.c:reiserfs_dentry_to_fh().
+> I am in two minds about this (but I am at one with my duality).  Part
+> of me says that users will want to tweak the initramfs process and they
+> may want to use different versions of klibc, so klibc and building
+> initramfs should be outside the kernel build.  Another part says that
+> users have to build initramfs before doing the install so initramfs and
+> klibc should be part of kbuild.
 >
-> Hans-Peter, what version of NFS are you using and have you remounted
-> clients after upgrading to the newer kernel?
+> It will probably end up with klibc as part of the kernel tarball
+> supported by kbuild.  Generating initramfs will be done by a script,
+> kbuild will supply a sample but users can copy and change the sample to
+> suit their own requirements.
 
-I can reproduce it with 2.4.5, 6, 13-ac7, 18-pre3 with and without Trond's
-NFS-ALL patches applied. I don't understand your question, but testing this
-implied several reboots of the server and some dozen reboots on the client.
+Better yet, we should do away with all install targets beyond assembling
+the bootable images and provide sample install scripts in /scripts. Most
+of it is already at odds with the distro's install and the remainder
+becomes a maintenance issue with initramfs. Distro folks are going to be
+working on initramfs-libc for their boot disks anyway and will undoubted
+want to tweak such stuff greatly. Let's include Viro's
+minimal-userspace-boot.c in scripts along with a
+build-minimal-initramfs.sh and leave it at that.
 
-The lm_sensors build reproduced it pretty stable (with a few exceptions,
-and on different commands of the range ar, gcc and ln)
-Test is pretty simple: clean make of lm_sensors almost all the time 
-triggers it. If not, just rm lib/libsensors* and make again. This
-created certainly stale files lib/libsensors.so|lib/libsensors.so.1
-from within the client. You can only get rid of them by rebooting or
-removing them on the server.
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
->  > My 'fix' just solves the immediate problem of the wrong file mode. It
->  > does not solve the problems of data corruption that can occur when the
->  > client is incapable of distinguishing the 'old' and 'new' files that
->  > share the same filehandle.
->
-> This requires i_generation overflow (modulo bug in reiserfs).
-
-Please, try to reproduce it, and let us know, if you can reproduce it.
-
->  > Cheers,
->  >   Trond
->
-> Nikita.
-
-Cheers,
-  Hans-Peter

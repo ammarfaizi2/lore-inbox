@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129778AbQL0UYY>; Wed, 27 Dec 2000 15:24:24 -0500
+	id <S130120AbQL0UfK>; Wed, 27 Dec 2000 15:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130120AbQL0UYE>; Wed, 27 Dec 2000 15:24:04 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:59723 "EHLO
+	id <S130315AbQL0UfA>; Wed, 27 Dec 2000 15:35:00 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:27468 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129778AbQL0UYC>; Wed, 27 Dec 2000 15:24:02 -0500
-Date: Wed, 27 Dec 2000 20:53:36 +0100
+	id <S130120AbQL0Uev>; Wed, 27 Dec 2000 15:34:51 -0500
+Date: Wed, 27 Dec 2000 21:04:26 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: "Todd M. Roy" <toddroy@softhome.net>
+To: schwidefsky@de.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: lvm 0.8 to 0.9 conversion?
-Message-ID: <20001227205336.A10446@athlon.random>
-In-Reply-To: <3A45192F.8C149F93@softhome.net>
+Subject: Re: plug problem in linux-2.4.0-test11
+Message-ID: <20001227210426.B10446@athlon.random>
+In-Reply-To: <C12569A6.00425037.00@d12mta07.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3A45192F.8C149F93@softhome.net>; from toddroy@softhome.net on Sat, Dec 23, 2000 at 04:29:19PM -0500
+In-Reply-To: <C12569A6.00425037.00@d12mta07.de.ibm.com>; from schwidefsky@de.ibm.com on Wed, Nov 29, 2000 at 12:56:44PM +0100
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 23, 2000 at 04:29:19PM -0500, Todd M. Roy wrote:
-> group is visible, and you just told meit should be, then I can just
-> copy volumes over under test13-pre3 and destroy and recreate the
-> first volume group.
 
-Is it possible you had a snapshot in the volume group when you started
-lvm 0.9 the first time? snapshots are not persistent on pre3 so it doesn't make
-sense to left them before rebooting the kernel, and maybe lvmtools 0.9 doesn't
-cope correctly with non persistent snapshot created by 0.8 driver (trivial to
-temporarly workaround, just delete any snapshot volume before using 0.9 lvm :).
+On Wed, Nov 29, 2000 at 12:56:44PM +0100, schwidefsky@de.ibm.com wrote:
+> 
+> 
+> Hi,
+> I experienced disk hangs with linux-2.4.0-test11 on S/390 and after
+> some debugging I found the cause. It the new method of unplugging
+> block devices that doesn't go along with the S/390 disk driver:
+> 
+> /*
+>  * remove the plug and let it rip..
+>  */
+> static inline void __generic_unplug_device(request_queue_t *q)
+> {
+>         if (!list_empty(&q->queue_head)) {
+>                 q->plugged = 0;
+>                 q->request_fn(q);
+>         }
+> }
+> 
+> The story goes like this: at start the request queue was empty but
+> the disk driver was still working on an older, already dequeued
+> request. Someone plugged the device (q->plugged = 1 && queue on
+> tq_disk). Then a new request arrived and the unplugging was
+> started. But before __generic_unplug_device was reached the
+> outstanding request finished. The bottom half of the S/390 disk
+> drivers always checks for queued requests after an interrupt,
+> starts the first and dequeues some of the requests on the
+> request queue to put them on its internal queue. You could argue
+> that it shouldn't dequeue request if q->plugged == 1. On the other
+
+Yes I argue exactly that ;). That's a bug in the driver. For example if the
+driver is an headactive device (q->headactive == 1) then the bug will also
+corrupt memory (probably it isn't an headactive device because you said it
+moves the request into its private lists). Otherwise it only forbids the
+elevator to merge requests and optimze seeks away.
+
+I think right behaviour of the blkdev layer is to BUG() if the driver eats
+requests while the device is plugged.
 
 Andrea
 -

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbTKPTBP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 14:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTKPTBP
+	id S263142AbTKPTIh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 14:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbTKPTIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 14:01:15 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:25827 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S263130AbTKPTBO
+	Sun, 16 Nov 2003 14:08:37 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:30354 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP id S263142AbTKPTIg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 14:01:14 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] 2.6.0-test9 - document elevator= parameter
-Date: Sun, 16 Nov 2003 14:01:11 -0500
-User-Agent: KMail/1.5.1
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, linux-kernel@vger.kernel.org
-References: <200311160259.hAG2x4La006117@turing-police.cc.vt.edu> <200311161233.05347.gene.heskett@verizon.net> <200311161826.hAGIQELa030180@turing-police.cc.vt.edu>
-In-Reply-To: <200311161826.hAGIQELa030180@turing-police.cc.vt.edu>
+	Sun, 16 Nov 2003 14:08:36 -0500
+Date: 16 Nov 2003 18:31:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: voss@seehuhn.de
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8xzs6cPHw-B@khms.westfalen.de>
+In-Reply-To: <20031113184506.GA602@seehuhn.de>
+Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
+X-Mailer: CrossPoint v3.12d.kh12 R/C435
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311161401.11089.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.12.17] at Sun, 16 Nov 2003 13:01:12 -0600
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <20031113184506.GA602@seehuhn.de>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 November 2003 13:26, Valdis.Kletnieks@vt.edu wrote:
->On Sun, 16 Nov 2003 12:33:05 EST, Gene Heskett said:
->> since I'm running a test9-mm3 kernel, where might i find a
->> discussion of this scheduler?
+voss@seehuhn.de (Jochen Voss)  wrote on 13.11.03 in <20031113184506.GA602@seehuhn.de>:
+
+> With SMP and ACPI enabled I get the following kernel
+> boot messages
+
+> but later-on the following messages appear:
 >
->Well, all the source is in drivers/block/cfq-iosched.c and here's
->Jens Axboe explaining it:
->
->http://marc.theaimsgroup.com/?l=linux-kernel&m=104495457606855&w=2
+>     No local APIC present or hardware disabled
 
-Thanks.  It almost sounds a little tongue in cheek, but then makes a 
-lot of sense.  Just for giggles, I'll set up another entry in 
-grub.conf that uses it & give it a try.
+>     Local APIC not detected. Using dummy APIC emulation.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+Hmmm ... are you sure you didn't confuse ACPI with APIC?
 
+MfG Kai

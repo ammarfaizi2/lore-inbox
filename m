@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312736AbSCVQA2>; Fri, 22 Mar 2002 11:00:28 -0500
+	id <S312738AbSCVQDS>; Fri, 22 Mar 2002 11:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312738AbSCVQAK>; Fri, 22 Mar 2002 11:00:10 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:11392 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S312736AbSCVP75>; Fri, 22 Mar 2002 10:59:57 -0500
-Date: Fri, 22 Mar 2002 11:00:20 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: FPU problems in VM86
-Message-ID: <Pine.LNX.3.95.1020322105208.1346A-100000@chaos.analogic.com>
+	id <S312739AbSCVQDJ>; Fri, 22 Mar 2002 11:03:09 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:9486 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S312738AbSCVQCy>;
+	Fri, 22 Mar 2002 11:02:54 -0500
+Date: Fri, 22 Mar 2002 17:02:55 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Oleg Drokin <green@namesys.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: oops at boot with 2.5.7 and i810 (reiserFS related?)
+In-Reply-To: <20020322085128.B6792@namesys.com>
+Message-ID: <Pine.LNX.4.44.0203221702380.12514-100000@Expansa.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My previous message showed that a test program won't work
-in VM86 anymore.
-
-This is a "simplication" of the program that shows it's a problem
-using the FPU:
+Thanx,
+it works ;)
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <malloc.h>
-#include <math.h>
+On Fri, 22 Mar 2002, Oleg Drokin wrote:
 
-#define MAX_FLOAT 0x2000
-
-int main(int args, char *argv[])
-{
-    double *x, *y;
-    size_t i;
-    if((x = (double *) malloc(MAX_FLOAT * sizeof(double))) == NULL)
-        exit(1);
-    for(;;)
-    {
-        y = x;
-        for(i = 0; i < MAX_FLOAT; i++)
-        {
-            fprintf(stderr, "About to perform cos()\n");
-            *y++ = cos((double) rand());
-            fprintf(stderr, "Okay that time...\n");
-        }
-    }
-    return 1;
-}
----------------------------
-
-This shows that it runs for a few hundred cycles before generating
-an OOPS. The failure seems to occur during some kind of disk access
-although I am not sure. Basically, it will run until something
-makes my SCSI disk(s) active. The OOPs is not logged (don't know
-why), so it's not a chicken-egg problem.
-
-Things that do not use the FPU unit in VM86 work fine. I can compile
-DOS BIOS source-code which uses a lot of DOS-based tools. Everything
-works as expected. However, any attempt to use the FPU fails. Also
-the OOPs is different each time. Same code, same static DOS, but,
-the OOPs shows different errors every time, even seg-faults.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+> Hello!
+>
+> On Thu, Mar 21, 2002 at 06:41:49PM +0100, Luigi Genoni wrote:
+>
+> > It seems that a lot of users had oops mounting reiserFS with 2.5.6, but
+> > then a patch fixed that. Now I think this patch is in 2.5.7, (it should),
+> > but there are other changes i think to reiserFS code. So i have other
+> > oopses.
+>
+> reiserfs in 2.5.6-pre3 to 2.5.7 have a bug that prevent it from mounting
+> usual filesystems (filesystems with relocated journals still works,
+> but I doubt much people use that).
+>
+> > I think this could be a proof of a reiserFS bug.
+>
+> Sure.
+>
+> > If people at namesys need it (maybe they already know this, and have a
+> > patch to try), tomorrow i will post the oop mounting
+> > reiserFS.
+>
+> No need for that. See attached patch that I am posting in response to
+> any such report (so just looking in archives first might help you faster).
+>
+> Bye,
+>     Oleg
+>
 

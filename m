@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272882AbRJJUtp>; Wed, 10 Oct 2001 16:49:45 -0400
+	id <S274530AbRJJUxP>; Wed, 10 Oct 2001 16:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274530AbRJJUtf>; Wed, 10 Oct 2001 16:49:35 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:5522 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S272882AbRJJUtX>;
-	Wed, 10 Oct 2001 16:49:23 -0400
-Date: Wed, 10 Oct 2001 13:46:34 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Paul Larson <plars@austin.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11 APIC problems
-Message-ID: <1994214429.1002721594@mbligh.des.sequent.com>
-In-Reply-To: <1002727820.29151.21.camel@plars.austin.ibm.com>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S274989AbRJJUxH>; Wed, 10 Oct 2001 16:53:07 -0400
+Received: from zeke.inet.com ([199.171.211.198]:27896 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S274530AbRJJUwu>;
+	Wed, 10 Oct 2001 16:52:50 -0400
+Message-ID: <3BC4B534.65194553@inet.com>
+Date: Wed, 10 Oct 2001 15:53:08 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Till Immanuel Patzschke <tip@internetwork-ag.de>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] kernel vs user memory (how to get more kernel mem)
+In-Reply-To: <3BC4B011.C61C8AB2@internetwork-ag.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  So, I tried inserting the die() like you said without console serial.  I
->  got pagefulls of dumps and pretty soon it rebooted itself.  So, I logged
->  to the serial console again on the next reboot to capture the output. 
->  Looks like we got the "APIC error" message in the log too.  It's a
->  really long log so I attached it rather than putting it inline.
+Till Immanuel Patzschke wrote:
+> 
+> Hi,
+> 
+> another simple (?) question - sorry for asking.  There seems to be some
+> (fixed?) ratio user ./. kernel memory.  How do I change the amount of kernel
+> memory.  I got a reply telling the std ratio is 3:1 - where/how do I change it?
+> Thanks for the help,
 
-Ick. You need to disable the repeated interrupt. Try this instead of
-the die:
+Very carefully, and with architecture-specific concerns.
+There are some #defines you will probably need to study:
+PAGE_OFFSET
+TASK_SIZE
+and probably others...
+in at least the ARM architecture, ioremap is also a concern with
+VMALLOC_START and VMALLOC_END
 
-cli();
- __asm__ __volatile__ ("hlt");
+Someone else may have a pat answer just to get the job done, though.
 
-And if it makes a huge logfile again, just mail the first bit .... I don't
-care about huge emails, but others on lkml probably do ;-)
+HTH,
 
-M.
-
-PS. Nor do I care what the die says, I just want to stop the processor.
-I want to know what it was doing just before the smp_error_interrupt.
-There are more elegant solutions around to stop repeated APIC errors,
-but this should be OK for debug.
+Eli
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

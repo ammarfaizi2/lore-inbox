@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTKYGgK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 01:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTKYGgK
+	id S262055AbTKYGwu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 01:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTKYGwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 01:36:10 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:11781
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262048AbTKYGgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 01:36:08 -0500
-Date: Mon, 24 Nov 2003 22:36:02 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: OOps! was: 2.6.0-test9-mm5
-Message-ID: <20031125063602.GA1329@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20031121121116.61db0160.akpm@osdl.org> <20031124225527.GB1343@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311241840380.8180@montezuma.fsmlabs.com> <20031124235807.GA1586@mis-mike-wstn.matchmail.com> <20031125003658.GA1342@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311242013270.1859@montezuma.fsmlabs.com> <20031125051018.GA1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250033170.4230@montezuma.fsmlabs.com> <20031125054709.GC1331@mis-mike-wstn.matchmail.com> <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Nov 2003 01:52:50 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:33820 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262055AbTKYGwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 01:52:49 -0500
+From: Jos Hulzink <josh@stack.nl>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
+Date: Tue, 25 Nov 2003 07:55:07 +0000
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <20031124222652.16351.qmail@web40910.mail.yahoo.com> <Pine.LNX.4.58.0311241429330.15101@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0311241429330.15101@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311250755.07577.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 12:54:49AM -0500, Zwane Mwaikambo wrote:
-> On Mon, 24 Nov 2003, Mike Fedyk wrote:
-> 
-> > On Tue, Nov 25, 2003 at 12:33:47AM -0500, Zwane Mwaikambo wrote:
-> > > Indeed it looks PnPBIOS related, i'll await your other tests.
-> >
-> > Ok, I'll get started compiling up some kernels.
-> >
-> > Am I right in thinking that the pnpbios patches are in a series, where I
-> > should revert 4, then 3, etc?
-> 
-> Yes, that should do it. Whenever in doubt you can always refer to;
+On Monday 24 Nov 2003 22:32, Linus Torvalds wrote:
+> Basically, there's something strange going on, which _seems_ to be memory
+> corruption, and seems to correlate reasonable well (but not 100%) with
+> CONFIG_PREEMPT.
+>
+> It's actually unlikely to be preemption itself that is broken: it's much
+> more likely that some driver or other subsystem is broken, and preempt is
+> just better at triggering it by making some race conditions much easier to
+> see due to bigger windows for them to happen.
+>
+> The problem is finding enough of a pattern to the reports to make sense of
+> what seems to be the common thread. A lot of people use preemption without
+> any trouble.
 
-Took a quick look at the patches, and since they don't modify the same parts
-of the same files, I'm backing them out in order of patch size.
+Maybe brute force is the best way to deal with this nasty one ? I'm thinking: 
+It must be rather easy to make a tool that takes a .config file and an 
+argument "This kernel seems in trouble Yes / No". If an option is enabled, 
+and this kernel config crashes, you increase the likelihood of that option 
+(i.e. you increment a counter). If an option is enabled, and this kernel 
+doesn't crash. you decrement a counter. In the end, you'll end with 
+statistics about which kernel option is likely to cause problems.
 
-Reverted pnp-fix-2:
-Still OOpses.
+Jos
 
-What do you want to bet that it's the smallest one? ;)

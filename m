@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274359AbRITH5f>; Thu, 20 Sep 2001 03:57:35 -0400
+	id <S274360AbRITIBF>; Thu, 20 Sep 2001 04:01:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274358AbRITH5P>; Thu, 20 Sep 2001 03:57:15 -0400
-Received: from 211-174-51-118.kidc.net ([211.174.51.118]:65292 "EHLO
-	mail.wowlinux.com") by vger.kernel.org with ESMTP
-	id <S274357AbRITH5N>; Thu, 20 Sep 2001 03:57:13 -0400
-Message-Id: <200109200757.f8K7vTr30542@mail.wowlinux.com>
-Content-Type: text/plain;
-  charset="euc-kr"
-From: Kim Yong Il <nalabi@formail.org>
-Reply-To: nalabi@formail.org
-To: linux-kernel@vger.kernel.org
-Subject: Max hdd size?
-Date: Thu, 20 Sep 2001 16:57:38 +0900
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S274361AbRITIAz>; Thu, 20 Sep 2001 04:00:55 -0400
+Received: from t2.redhat.com ([199.183.24.243]:56817 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S274360AbRITIAu>; Thu, 20 Sep 2001 04:00:50 -0400
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: David Howells <dhowells@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Ulrich.Weigand@de.ibm.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Deadlock on the mm->mmap_sem 
+In-Reply-To: Message from Andrea Arcangeli <andrea@suse.de> 
+   of "Thu, 20 Sep 2001 09:19:54 +0200." <20010920091954.B4332@athlon.random> 
+Date: Thu, 20 Sep 2001 09:01:13 +0100
+Message-ID: <8929.1000972873@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux support max hdd size???
 
--- 
-즐거운 하루 되세요.
-nalabi@formail.org
+Andrea Arcangeli <andrea@suse.de> wrote:
+> the process doesn't need to lock multiple mm_structs at the same time.
 
+fork, ptrace, /proc/pid/mem, /proc/pid/maps
+
+All have to be able to lock two process's mm_structs simultaneously, even if
+it's indirectly through copy_to_user() or copy_from_user().
+
+David

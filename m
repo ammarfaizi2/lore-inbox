@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284309AbRLMMhb>; Thu, 13 Dec 2001 07:37:31 -0500
+	id <S284017AbRLMMyw>; Thu, 13 Dec 2001 07:54:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284307AbRLMMhV>; Thu, 13 Dec 2001 07:37:21 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:34688 "HELO fargo")
-	by vger.kernel.org with SMTP id <S284010AbRLMMhH> convert rfc822-to-8bit;
-	Thu, 13 Dec 2001 07:37:07 -0500
-From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
-Date: Thu, 13 Dec 2001 13:36:32 +0100 (CET)
-X-X-Sender: <huma@fargo>
-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <raul@viadomus.com>
-cc: <davidge@jazzfree.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with 2.4.16
-In-Reply-To: <E16ERh1-0000CY-00@DervishD.viadomus.com>
-Message-ID: <Pine.LNX.4.33.0112131335320.553-100000@fargo>
+	id <S284020AbRLMMyn>; Thu, 13 Dec 2001 07:54:43 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:40208 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S284017AbRLMMyb>; Thu, 13 Dec 2001 07:54:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: pivot_root and initrd kernel panic woes
+Date: Thu, 13 Dec 2001 12:53:05 -0200
+X-Mailer: KMail [version 1.2]
+Cc: Joy Almacen <joy@empexis.com>, wa@almesberger.net,
+        linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>
+In-Reply-To: <Pine.GSO.4.21.0112130319160.19281-100000@weyl.math.psu.edu> <01121311222003.01849@manta>
+In-Reply-To: <01121311222003.01849@manta>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-Id: <01121312530500.01833@manta>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi ;),
-
-> >I get this oops executing the configure script from the wget package.
+On Thursday 13 December 2001 11:22, vda wrote:
+> On Thursday 13 December 2001 06:19, Alexander Viro wrote:
+> > On Thu, 13 Dec 2001, vda wrote:
+> > > BTW, don't go for 2.4x, x>10. initrd is broken there and is still
+> > > unfixed.
+> >
+> > Bullshit.
 >
->     I have the very same kernel and I've configured the very same
-> 'wget' without problems. Try to deactivate swap and see whether that
-> solves the problem.
+> I have a slackware initrd (minix) which is booting fine with 2.4.10
+> but fails to boot with 2.4.12 and later (same .config, same bootloader,
+> same hardware, same AC voltage in the wall outlet, time of day differs by
+> 1 minute), so it might be true :-)
+>
+> I have a report of romfs initrd with same symptoms. ext2 initrd OTOH
+> boots fine.
 
-Thanks, but it doesn't solve the problem. Still getting the oops :(
+You can dl and try to load this minix initrd from
+http://port.imtp.ilyichevsk.odessa.ua/linux/vda/minix.gz
 
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
-
-
+If you can do that, please tell me exact kernel version, what bootloader you 
+use and send your .config, I'll try it here.
+--
+vda

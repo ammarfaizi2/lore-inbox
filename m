@@ -1,64 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318022AbSGWKqy>; Tue, 23 Jul 2002 06:46:54 -0400
+	id <S318025AbSGWLCh>; Tue, 23 Jul 2002 07:02:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318025AbSGWKqy>; Tue, 23 Jul 2002 06:46:54 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:24742 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S318022AbSGWKqx>;
-	Tue, 23 Jul 2002 06:46:53 -0400
-Date: Tue, 23 Jul 2002 12:49:56 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200207231049.MAA16464@harpo.it.uu.se>
-To: romieu@cogenit.fr, support@promise.com.tw
-Subject: Re: [PATCH] 2.4.19-rc2-ac2 pdc202xx.c update
-Cc: hanky@promise.com.tw, linux-kernel@vger.kernel.org
+	id <S318026AbSGWLCh>; Tue, 23 Jul 2002 07:02:37 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:36046 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S318025AbSGWLCg>; Tue, 23 Jul 2002 07:02:36 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Info <arling@sniip.ru>
+Date: Tue, 23 Jul 2002 21:05:33 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15677.14461.517606.906118@notabene.cse.unsw.edu.au>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: Fwd: NFS locking/acess bug in 2.4.19-rc3
+In-Reply-To: message from Trond Myklebust on Tuesday July 23
+References: <200207231236.37768.trond.myklebust@fys.uio.no>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002 09:19:15 +0200, Francois Romieu wrote:
->support <support@promise.com.tw> :
->> We think there is no problems, Acturally it is
->> 
->> if (speed == XFER_UDMA_2) {
->>         OUT_BYTE((thold + adj), indexreg);
->>         OUT_BYTE((IN_BYTE(datareg) & 0x7f), datareg);
->> }
->> 
->> So,
->> if (speed == XFER_UDMA_2)
->>         set_2regs(thold, (IN_BYTE(datareg) & 0x7f));
+> 
+> Subject: NFS locking/acess bug in 2.4.19-rc3
+> Date: Tue, 23 Jul 2002 14:31:45 +0400
+> To: trond.myklebust@fys.uio.no
+> Cc: linux-kernel@vger.kernel.org
+> 
+> Description of situation.
+> 
+> NFS server with public file system, export whith options (rw,
+> map_daemon, all_squash, anonuid=99, anonguid=99).
 
-The problem is a common one for complex statement-like macros.
-You have a macro M consisting of (in this case) two statements
-S1 and S2: "#define M S1; S2". Now consider what happens when
-M is used in non-block context, i.e. not as a top-level
-statement between { and } but rather in e.g. the true branch
-of an if-statement:
+I cannot reproduce your problem,  behaviour and code seem correct to
+me.
 
-	if (condition)
-		M;
+I am suspicious of the "map_daemon" option.
+This is not valid for the Kernel NFS server and would not be accepted
+by the nfs-utils package.
+Are you perhaps using the user-space nfs server (some times called
+"nfs-server")?
 
-which after preprocessing becomes
+If so, you should know that:
+  The behaviour of the user-space nfs server would not be affect
+    (greatly) by the kernel version that you are running
+  That server is completely unsupported (as far as I know).
 
-	if (condition)
-		S1; S2;
+If you are using the  kernel based server, please show me:
+  cat /etc/exports
+  cat /proc/fs/nfs/exports
 
-However, indentation doesn't matter, only grouping does, so this
-USE of the macro really is
+and I will try harder to reproduce the problem.
 
-	if (condition)
-		S1;
-	S2;
+NeilBrown
 
-Now do you see? The macro body was broken up, and the second statement
-is now executed unconditionally.
-
-The traditional approach is to write the body of a complex macro as a
-do { ... } while(0) statement (i.e. #define M do { S1; S2; } while(0))
-since this turns the macro body into a single unbreakable statement
-which is safe to use in any context where a statement may occur.
-
-Simply wrapping the macro body with a pair of braces { } doesn't work
-in all contexts; the do{...}while(0) idiom does.
-
-/Mikael
+> 
+> Both server and client boxes runs under 2.4.19-rc3.
+> 
+> Problem:
+> 
+> When client create catalog in NFS, it normally creates with
+> uid=99 guid=99 (i.e. "nobody") and access rwXr-Xr-X.
+> 
+> This catalog normally deleted by client too.
+> 
+> But attempting of write file into created catalog from the same
+> client failed: "acess denied". File writing is possible only if
+> "write" privilegies to this catalog is given to "others", i.e.
+> after "chmod "o+w" <catalogname>".
+> 
+> Analogical situation with files: text editor normally creates
+> new file ("save as"), but acess denied to re-writing the
+> existant file.
+> 
+> It's wrong behavior.
+> 
+> On previous kernel version (pre10) NFS server/clients with the
+> same tuning works normally, no access problems detected.
+> 
+> Bug is application-indepedent and detected both under under KDE
+> and MidNight Commander.
+> 
+> --
+> Best regards,
+> George
+> 
+> -------------------------------------------------------

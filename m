@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUFPKBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266234AbUFPKls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266233AbUFPKBn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 06:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUFPKBn
+	id S266234AbUFPKls (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 06:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUFPKls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 06:01:43 -0400
-Received: from barclay.balt.net ([195.14.162.78]:65253 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S266233AbUFPKBe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 06:01:34 -0400
-Date: Wed, 16 Jun 2004 12:58:05 +0300
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.7 (stty rows 50 columns 140 reports : No such device or address)
-Message-ID: <20040616095805.GC14936@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+	Wed, 16 Jun 2004 06:41:48 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:39893 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266234AbUFPKlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 06:41:36 -0400
+Subject: Re: ld segfault at end of 2.6.6 compile
+From: Geoff Mishkin <gmishkin@acs.bu.edu>
+Reply-To: gmishkin@bu.edu
+To: linux-kernel@vger.kernel.org
+Cc: Harald Dunkel <harald.dunkel@t-online.de>
+In-Reply-To: <40CFE50D.10308@t-online.de>
+References: <1087352698.8671.23.camel@amsa>  <40CFE50D.10308@t-online.de>
+Content-Type: text/plain
+Message-Id: <1087382494.8675.32.camel@amsa>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 16 Jun 2004 06:41:35 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Compaq N800 EVO notebook with a radeonfb enabled - stty failes to
-adjust terminal size. strace log attached. Under 2.6.5/2.6.6 it used to
-work. 
+I couldn't find exactly what I was looking for in the BIOS utility (IBM
+ThinkPad T42), but I turned on Diagnostics mode and the RAM check, so at
+boot it checked the RAM, which all turned out okay.
 
-relevant part:
+Still having the problem, though.
 
-open("/dev/vc/1", O_RDONLY|O_NONBLOCK|O_LARGEFILE) = 3
-fcntl64(3, F_GETFL)                     = 0x8800 (flags
-O_RDONLY|O_NONBLOCK|O_LARGEFILE)
-fcntl64(3, F_SETFL, O_RDONLY|O_LARGEFILE) = 0
-ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo
-...}) = 0
-ioctl(3, TIOCGWINSZ, {ws_row=65, ws_col=175, ws_xpixel=0, ws_ypixel=0})
-= 0
-ioctl(3, TIOCSWINSZ, {ws_row=50, ws_col=175, ws_xpixel=0, ws_ypixel=0})
-= -1 ENXIO (No such device or address)
-write(2, "/bin/stty: ", 11)             = 11
-write(2, "/dev/vc/1", 9)                = 9
-open("/usr/share/locale/locale.alias", O_RDONLY) = 4
+			--Geoff Mishkin <gmishkin@bu.edu>
 
 
-it makes no difference when doing :
+On Wed, 2004-06-16 at 02:13, Harald Dunkel wrote:
+> Geoff Mishkin wrote:
+> > I'm getting the
+> > 
+> > make: *** [.tmp_vmlinux1] Error 139
+> > 
+> > problem with kernel 2.6.6.  It works fine on one of my computer, but not
+> > the other.
+> > 
+> > The full line is
+> > 
+> > ld -m elf_i386  -T arch/i386/kernel/vmlinux.lds.s
+> > arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
+> > --start-group  usr/built-in.o arch/i386/kernel/built-in.o 
+> > arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
+> > kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
+> > security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
+> > lib/built-in.o  arch/i386/lib/built-in.o  drivers/built-in.o 
+> > sound/built-in.o  arch/i386/pci/built-in.o  arch/i386/power/built-in.o 
+> > net/built-in.o --end-group  -o .tmp_vmlinux1
+> > make: *** [.tmp_vmlinux1] Error 139
+> > 
+> 
+> Error 139 is a SEGV somewhere in a subprocess. Linker errors
+> like this might be an indicator for problems with your physical
+> memory.
+> 
+> My suggestion would be to enter your PC's BIOS setup at boot
+> time and verify the RAM access timing. Maybe it was set too
+> optimistic.
+> 
+> 
+> Good luck
+> 
+> Harri
 
-stty rows 50 columns 140 
-or
-stty rows 50 columns 140 -F /dev/vc/1 ... 
-
-Exactly same error.
-
-BR

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293125AbSCEXSO>; Tue, 5 Mar 2002 18:18:14 -0500
+	id <S293151AbSCEXUE>; Tue, 5 Mar 2002 18:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293151AbSCEXSF>; Tue, 5 Mar 2002 18:18:05 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:26498 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293125AbSCEXRw>; Tue, 5 Mar 2002 18:17:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Date: Tue, 5 Mar 2002 18:16:57 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0203051433400.1475-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.44.0203051433400.1475-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020305231747.5F95B3FE06@smtp.linux.ibm.com>
+	id <S293155AbSCEXTy>; Tue, 5 Mar 2002 18:19:54 -0500
+Received: from monk.debian.net ([216.185.54.61]:26292 "EHLO monk.verbum.org")
+	by vger.kernel.org with ESMTP id <S293151AbSCEXTm>;
+	Tue, 5 Mar 2002 18:19:42 -0500
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+	BitKeeper by Linux Maintainers
+From: Colin Walters <walters@verbum.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
+In-Reply-To: <20020305230143.GB5538@matchmail.com>
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org>
+	<20020305154147.A6211@vger.timpanogas.org>
+	<1015368059.25841.12.camel@space-ghost> 
+	<20020305230143.GB5538@matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 05 Mar 2002 18:19:13 -0500
+Message-Id: <1015370353.25855.21.camel@space-ghost>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 March 2002 05:39 pm, Davide Libenzi wrote:
-> On Tue, 5 Mar 2002, Rusty Russell wrote:
-> > +	pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
-> > +
-> > +	/* Must be "naturally" aligned, and not on page boundary. */
-> > +	if ((pos_in_page % __alignof__(atomic_t)) != 0
-> > +	    || pos_in_page + sizeof(atomic_t) > PAGE_SIZE)
-> > +		return -EINVAL;
->
-> How can this :
->
-> 	(pos_in_page % __alignof__(atomic_t)) != 0
->
-> to be false, and together this :
->
-> 	pos_in_page + sizeof(atomic_t) > PAGE_SIZE
->
-> to be true ?
-> This is enough :
->
-> 	if ((pos_in_page % __alignof__(atomic_t)) != 0)
->
->
+On Tue, 2002-03-05 at 18:01, Mike Fedyk wrote:
+> Use is another way of advocacy.  When you start using something, you get
+> used to it, 
 
-I believe not all machine have  alignof  == sizeof
->
->
-> - Davide
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Sure. 
 
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+> and when you talk to others, you end up advocating it because
+> it's what you're used to, and probably other options aren't as good (to you).
+
+There is a difference between advocating something personally, and
+advocating it in one's official capacity as the maintainer of a
+project.  It is the latter "official" sense which the petition is
+against.
+
+> IIRC, bitkeeper, is open source.  It just doesn't have a free license.  I
+> could be wrong(I haven't checked).  If I am, someone will say so...
+
+You are wrong.
+
+http://www.mit.edu/afs/athena/user/x/i/xiphmont/Public/critique.html
+

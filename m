@@ -1,92 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbSLUSWT>; Sat, 21 Dec 2002 13:22:19 -0500
+	id <S262812AbSLUScT>; Sat, 21 Dec 2002 13:32:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262901AbSLUSWT>; Sat, 21 Dec 2002 13:22:19 -0500
-Received: from virgo.i-cable.com ([203.83.111.75]:27302 "HELO
-	virgo.i-cable.com") by vger.kernel.org with SMTP id <S262826AbSLUSWS>;
-	Sat, 21 Dec 2002 13:22:18 -0500
-From: "Sampson Fung" <sampson@attglobal.net>
-To: "'John Bradford'" <john@grabjohn.com>,
-       "'Sampson Fung'" <sampson.fung@attglobal.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: How to help new comers trying the v2.5x series kernels.
-Date: Sun, 22 Dec 2002 02:30:13 +0800
-Message-ID: <000b01c2a91f$01324ff0$0100a8c0@noelpc>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <200212211816.gBLIG3NV000880@darkstar.example.net>
-Importance: Normal
+	id <S262813AbSLUScT>; Sat, 21 Dec 2002 13:32:19 -0500
+Received: from dsl-213-023-066-023.arcor-ip.net ([213.23.66.23]:20620 "EHLO
+	neon.pearbough.net") by vger.kernel.org with ESMTP
+	id <S262812AbSLUScS>; Sat, 21 Dec 2002 13:32:18 -0500
+Date: Sat, 21 Dec 2002 19:39:04 +0100
+From: axel@pearbough.net
+To: linux-kernel@vger.kernel.org
+Cc: davej@codemonkey.org.uk
+Subject: Build error (2.5.52): undefined reference to `agp_generic_agp_3_0_enable'
+Message-ID: <20021221183904.GA18166@neon.pearbough.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Organization: pearbough.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Compilation of 2.5.52bk6 fails due to the following error :
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of John Bradford
-> Sent: Sunday, December 22, 2002 2:08 AM
-> To: Sampson Fung
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: How to help new comers trying the v2.5x series kernels.
-> 
-> 
-> > From v2.5.49 up, I can only test the compiled kernel, if it 
-> compiles 
-> > at all, with modules disabled completely. Of course, I have to say 
-> > that I do not try much before v2.5.49.
-> > 
-> > I think new comers, myselft included, can make use of standard 
-> > templates of kernel .config file.
-> 
-> Try a minimal configuration, or the default one, (which is 
-> whatever Linus uses).  Avoid modular IDE for now.
-> 
-Where is the default .config?  I am eager to have a try.
+ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
+arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o
+arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
+arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
+fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o
+lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
+arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+drivers/built-in.o: In function `via_kt400_enable':
+drivers/built-in.o(.init.text+0x4e4f): undefined reference to
+`agp_generic_agp_3_0_enable'
 
-> > First of all, "standard templates" are tested that they will be 
-> > compiled without problem. They should be able to boot.
-> > They should have a working "framework" of "modules", for 
-> example, lsmod
-> > works without any problem.  (And any other "required" 
-> modutils as well)
-> > They shuold supports further kernel compile. (With small incremental
-> > changes to the base "standard template").
-> 
-> Sounds like an excellent job for a new kernel hacker to take on board
-> - why not make the standard templates yourself, and post them 
-> to the list for each 2.5.x tree.  It *would* be quite useful, 
-> and save a lot of developers' time, for example, it would 
-> stop a lot of people complaining about modular IDE.
-> 
+Concerning config options:
 
-I can post my config as I am using common hardware config.
-But I cannot make the "framework" of "modules" working for me.
+CONFIG_AGP=y
+# CONFIG_AGP3 is not set
+CONFIG_AGP_VIA=y
 
-> > Then I can try to compile my lan card as modules.
-> > Then try to compile my SCSI card, etc, etc.
-> > 
-> > Does similar "standard templates" exist already?
-> 
-> No.
-> 
-> > Where can I search for known bugs centrally, so that I can 
-> help myself 
-> > as much as possible?
-> 
-> * The mailing list archives
-> * Kernel Bugzilla
-> * (hopefully in a week or so) my new bug database which I am currently
->   writing.
-> 
-> John.
-
-Sampson
-
-
+Best regards,
+Axel Siebenwirth

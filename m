@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317283AbSHAWgT>; Thu, 1 Aug 2002 18:36:19 -0400
+	id <S317299AbSHAWhb>; Thu, 1 Aug 2002 18:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317287AbSHAWgT>; Thu, 1 Aug 2002 18:36:19 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6129 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317283AbSHAWgS>;
-	Thu, 1 Aug 2002 18:36:18 -0400
-Date: Thu, 1 Aug 2002 18:39:37 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: martin@dalecki.de
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-In-Reply-To: <3D49B29D.1090702@evision.ag>
-Message-ID: <Pine.GSO.4.21.0208011836490.12627-100000@weyl.math.psu.edu>
+	id <S317300AbSHAWhb>; Thu, 1 Aug 2002 18:37:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62993 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317299AbSHAWha>; Thu, 1 Aug 2002 18:37:30 -0400
+Date: Thu, 1 Aug 2002 15:40:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Roman Zippel <zippel@linux-m68k.org>, David Howells <dhowells@redhat.com>,
+       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: manipulating sigmask from filesystems and drivers 
+In-Reply-To: <11294.1028240971@redhat.com>
+Message-ID: <Pine.LNX.4.33.0208011538220.1277-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Thu, 1 Aug 2002, David Woodhouse wrote:
+> 
+> torvalds@transmeta.com said:
+> >  Any regular file IO is supposed to give you the full result. 
+> 
+> read(2) is permitted to return -EINTR.
 
-On Fri, 2 Aug 2002, Marcin Dalecki wrote:
+It is _not_ allowed to do that for regular UNIX filesystems.
 
-> > I'd like to apologize to Ingo, his changes were completely innocent.
-> > Problem was triggered by Al's 'block device size cleanups' (currently
-> > cset 1.403.160.5 on bkbits).
-> > 
-> > Before this change, my system was using 4KB block size when reading
-> > from /dev/hdc1, because of blk_size[][] (which is in 1kB units) of this 
-> > partition was multiple of 2, and so i_size % 4096 was 0.  But after
-> > Al's change partition size is read from gendisk, and not from blk_size,
-> > and gendisk partition size is in 512 bytes units: and, as you can
-> > probably guess, now my partition had i_size % 4096 == 512, and so only
-> > 512 byte block size was choosen. And with 512 bytes block size my
-> > harddisk refuses to cooperate.
+It is allowed to return it for things like pipes, sockets, etc, and for 
+filesystems that do not have UNIX behaviour.
 
-Uh-oh...
+> Regular file I/O through the page cache is inherently restartable, anyway, 
+> as long as you're careful about fpos.
 
-Let me see if I got it straight:
+It's not the kernel side that is not restartable. It's the _user_ side. 
+There is 30 _years_ of history on this, and there are programs that have 
+been programmed to follow the existing documentation.
 
-a) your disk doesn't work with half-Kb requests
-b) you have a partition with odd number of sectors
-c) hardsect_size is set to half-Kb
-d) old code worked since it rounded size to multiple of kilobyte.
+And the existing documentation says that if you return a partial read from 
+a normal file, that means EOF for that file.
 
-Correct?
+You may not like it, but that doesn't make it less so. Linux has UNIX 
+semantics for read(). Linux is not a research project where we change 
+fundamental semantics just because we don't like it. That's final.
+
+		Linus
 

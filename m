@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269807AbUJMUGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269805AbUJMUKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269807AbUJMUGW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 16:06:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269789AbUJMUGV
+	id S269805AbUJMUKW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 16:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269806AbUJMUKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 16:06:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7076 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269803AbUJMUEn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 16:04:43 -0400
-Message-ID: <416D8A4E.5030106@pobox.com>
-Date: Wed, 13 Oct 2004 16:04:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Wed, 13 Oct 2004 16:10:22 -0400
+Received: from danga.com ([66.150.15.140]:45189 "EHLO danga.com")
+	by vger.kernel.org with ESMTP id S269789AbUJMUJs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 16:09:48 -0400
+Date: Wed, 13 Oct 2004 13:09:47 -0700 (PDT)
+From: Brad Fitzpatrick <brad@danga.com>
+X-X-Sender: bradfitz@danga.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.6.9-rc4, dual Opteron, NUMA, 8GB
+In-Reply-To: <416D8999.7080102@pobox.com>
+Message-ID: <Pine.LNX.4.58.0410131302190.31327@danga.com>
+References: <Pine.LNX.4.58.0410131204580.31327@danga.com> <416D8999.7080102@pobox.com>
 MIME-Version: 1.0
-To: Mark Lord <lsml@rtr.ca>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-References: <4161A06D.8010601@rtr.ca> <4165B233.9080405@rtr.ca>
-In-Reply-To: <4165B233.9080405@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> On a related note..
-> 
-> In the longer term, I'd like Jeff & I to get together and agree
-> upon some interface changes in libata to make it easier for this
-> driver (and others) to share more of the code dealing with
-> the emulation of non-data SCSI commands like INQUIRY and friends.
-> 
-> Right now that's not as easy as it could be, due to the specialized
-> libata struct parameters required, but I think it could be harmonized.
+On Wed, 13 Oct 2004, Jeff Garzik wrote:
 
-I recall this but don't see it in my inbox anymore... did I adequately 
-respond?
+> Brad Fitzpatrick wrote:
+> > I'm reporting an oops.  Details follow.
+> >
+> > I have two of these machines.  I will happily be anybody's guinea pig
+> > to debug this.  (more details, access to machine, try patches, kernels...)
+> > Machines aren't in production.
+> >
+> > - Brad
+> >
+> >
+> > Kernel:  2.6.9-rc4 vanilla (.config below)
+> >
+> > Hardware:  IBM eServer 325, Dual Opteron 8GB ram (more info below)
+> >
+> > Pre-crash and crash:
+> >
+> > a1:~# mke2fs /dev/mapper/raid10-data
+> > mke2fs 1.35 (28-Feb-2004)
+> > Filesystem label=
+> > OS type: Linux
+> > Block size=4096 (log=2)
+> > Fragment size=4096 (log=2)
+> > 25608192 inodes, 51200000 blocks
+> > 2560000 blocks (5.00%) reserved for the super user
+> > First data block=0
+> > 1563 block groups
+> > 32768 blocks per group, 32768 fragments per group
+> > 16384 inodes per group
+> > Superblock backups stored on blocks:
+> >         32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+> >         4096000, 7962624, 11239424, 20480000, 23887872
+> >
+> > Writing inode tables: 1091/1563
+> > Message from syslogd@localhost at Wed Oct 13 11:46:01 2004 ...
+> > localhost kernel: Oops: 0000 [1] SMP
+> >
+> > Message from syslogd@localhost at Wed Oct 13 11:46:01 2004 ...
+> > localhost kernel: CR2: 0000000000001770
+>
+>
+> What's your block device configuration?  What block devices are sitting
+> on top of what other block devices?
 
-The easy answer is always:  send patches.  that's the best way to 
-illustrate your design, and the quickest way to get the changes you want 
-into the kernel.
+/dev/mapper/raid10-data is a LV taking 200GB of a 280GB VG ("raid10") with
+a single PV in it:  /dev/sdb1 -- ips driver, IBM ServeRAID 6M card,
+representing a RAID 10 atop 8 SCSI disks.
 
-	Jeff
+I just made a new kernel without NUMA and made a filesystem on /dev/sdb1
+directly instead of using LVM and it worked fine, if not a little slowly.
 
+Now that I know it /can/ work, I'll try and narrow down whose fault it is:
+NUMA or LVM.
 
-
+- Brad

@@ -1,35 +1,44 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S161168AbQHIB3M>; Tue, 8 Aug 2000 21:29:12 -0400
-Received: by vger.rutgers.edu id <S160317AbQHIB2t>; Tue, 8 Aug 2000 21:28:49 -0400
-Received: from dnai-216-15-53-162.cust.dnai.com ([216.15.53.162]:64093 "EHLO exchange.ensim.com") by vger.rutgers.edu with ESMTP id <S161141AbQHIB0u>; Tue, 8 Aug 2000 21:26:50 -0400
-From: Borislav Deianov <borislav@ensim.com>
-Date: Tue, 8 Aug 2000 18:51:40 -0700
-To: jmcneil@interland.com
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: Lottery Scheduling?
-Message-ID: <20000808185140.A32214@aero.ensim.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S161111AbQHJRrs>; Thu, 10 Aug 2000 13:47:48 -0400
+Received: by vger.rutgers.edu id <S161027AbQHJRqx>; Thu, 10 Aug 2000 13:46:53 -0400
+Received: from chia.umiacs.umd.edu ([128.8.120.111]:46601 "EHLO chia.umiacs.umd.edu") by vger.rutgers.edu with ESMTP id <S160780AbQHJRpA>; Thu, 10 Aug 2000 13:45:00 -0400
+Date: Thu, 10 Aug 2000 14:11:01 -0400 (EDT)
+From: ADAM Sulmicki <adam@cfar.umd.edu>
+To: linux-kernel@vger.rutgers.edu
+Subject: [ot] machine independent protection from stack-smashing attack (fwd)
+Message-ID: <Pine.GSO.4.21.0008101410010.18252-100000@chia.umiacs.umd.edu>
+X-WEB: http://www.eax.com
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi Jeff,
 
-In article <A49466227BF7D311BB6900508B92D72AFD2221@MSX1> you wrote:
-> Has there been any effort to impliment a lottery scheduler (or something of
-> the sort) under Linux?  I've searched on the web but wasn't able to find
-> anything.  I've been working on my own, but don't see any reason to reinvent
-> the wheel here, I'm sure it's been done before, probably better than I could
-> do.
+Not quite related to kernel development per see, but I though,
+nevertheless it would be of interest to many folks here.
 
-Have a look at http://fairsched.sourceforge.net. This is a fair
-scheduler, it allows you to do hierarchical weighted CPU allocation.
-Rik van Riel also wrote one, perhaps closer to what you describe, get
-it from http://www.surriel.com/patches/ .
+-- 
+Adam
+http://www.eax.com	The Supreme Headquarters of the 32 bit registers
 
-Regards,
-Borislav
+---------- Forwarded message ----------
+Date: Wed, 9 Aug 2000 18:59:49 +0900
+From: Hiroaki Etoh <ETOH@JP.IBM.COM>
+To: BUGTRAQ@SECURITYFOCUS.COM
+Subject: machine independent protection from stack-smashing attack
+
+I have been investigating a machine-independent change to GCC that
+would generate code to protect applications from stack-smashing attacks.
+The main characteristics are low performance overhead of the protection
+code, protecting against different varieties of stack-smashing attacks,
+and supporting various processors. A research report is ready on
+the web (http://www.trl.ibm.co.jp/projects/security/propolice).
+
+I would like some feedback whether it is worth pursuing getting it
+assigned to the FSF for inclusion in GCC.
+
+---
+Hiroaki Etoh,  Tokyo Research Laboratory, IBM Japan
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

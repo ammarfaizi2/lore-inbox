@@ -1,346 +1,270 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbULIPNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbULIPRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbULIPNf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 10:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbULIPN1
+	id S261522AbULIPRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 10:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULIPRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 10:13:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19145 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261521AbULIPJ3 (ORCPT
+	Thu, 9 Dec 2004 10:17:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19913 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261522AbULIPJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 10:09:29 -0500
-Date: Thu, 9 Dec 2004 15:08:58 GMT
-Message-Id: <200412091508.iB9F8wlM027545@warthog.cambridge.redhat.com>
+	Thu, 9 Dec 2004 10:09:30 -0500
+Date: Thu, 9 Dec 2004 15:08:55 GMT
 From: dhowells@redhat.com
 To: akpm@osdl.org, davidm@snapgear.com, gerg@snapgear.com, wli@holomorphy.com
 cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: [PATCH 2/5] NOMMU: High-order page management overhaul
-In-Reply-To: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
-References: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
+Subject: [PATCH 1/5] NOMMU: MM cleanups
+Message-ID: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch overhauls high-order page handling.
+Let me try these again, this time with the To: line correct...
 
- (1) A new bit flag PG_compound_slave has been added. This is used to mark the
-     second+ subpages of a compound page, thus making get_page() and
-     put_page() able to determine the need to perform weird stuff quickly.
+The attached patch does some cleaning up of the MM code preparatory to
+overhauling the high-order page handling:
 
-     This could be changed to do horribly things with the page count or to
-     abuse the page->lru member instead of eating another page flag.
+ (1) Trailing spaces have been cleaned up on lines in page_alloc.c and
+     bootmem.c.
 
- (2) Compound page metadata is now always set on compound pages when allocating
-     and checked when freeing. This metadata is mostly as it was before:
+ (2) bootmem.c now has a separate path to release pages to the main allocator
+     that bypasses many of the checks performed on struct pages.
 
-	- PG_compound is set on all subpages
-	- PG_compound_slave is set on all but the first subpage <--- [1]
-	- page[1].index holds the compound page order
-	- page[1...N-1].private points to page[0]. <--- [2]
-	- page[1].mapping may hold a destructor function for put_page()
+ (3) __pagevec_free() has moved to swap.c with all the other pagevec
+     functions.
 
-     This is now done in prep_new_page().
-
-     [1] New metadata addition
-     [2] Page private is no longer modified on page[0]
-
- (3) __page_first() is now provided to find the first page of any page set
-     (even single page sets).
-
- (4) A new config option ENHANCED_COMPOUND_PAGES is now available. This is
-     only set on !MMU or HUGETLB_PAGE. It causes __page_first() to dereference
-     page->private if PG_compound_slave is set.
-
- (5) __GFP_COMP is required to request a compound page. This is asserted by the
-     slab allocator when it allocates a page. The flag is ignored for any
-     single-page allocation.
-
- (6) compound_page_order() is now available. This will indicate the order of a
-     compound page. It says that high-order arrays of single pages are order 0.
-
-     Since it is now trivial to work out the order of any page, free_pages()
-     and co could all lose their order arguments.
-
- (7) bad_page() now prints more information, including information about more
-     pages in the case of a compound page.
-
- (8) prep_compound_page() and destroy_compound_page() have been absorbed.
-
- (9) A lot more unlikely() clauses have been inserted in the free page
-     checking functions.
-
-(10) The !MMU bits have all gone from page_alloc.c.
-
-(11) There's now a page destructor prototype and a function to set the
-     destructor on compound pages.
-
-(12) Two functions are now provided in page_alloc.c to dissociate high-order or
-     compound pages into pages of a smaller order.
-
-Note: I've changed my patch such that high-order pages aren't always marked
-compound now. This has reverted to being contingent on the __GFP_COMP flag
-being passed to __alloc_pages(). The slab allocator now always supplies this
-flag.
+ (4) put_page() has moved to page_alloc.c with all the other related
+     functions. This could be relegated to a separate file, but since there
+     are many other conditionals in page_alloc.c, what's the point?
 
 Signed-Off-By: dhowells@redhat.com
 ---
-diffstat compound-2610rc2mm3-3.diff
- include/linux/mm.h         |   69 ++++++--
- include/linux/page-flags.h |    6 
- init/Kconfig               |   13 +
- mm/hugetlb.c               |    4 
- mm/page_alloc.c            |  388 ++++++++++++++++++++++++++++-----------------
- mm/slab.c                  |    2 
- 6 files changed, 323 insertions(+), 159 deletions(-)
+diffstat mmcleanup-2610rc2mm3.diff
+ bootmem.c    |   35 ++++++++-------
+ internal.h   |    3 -
+ page_alloc.c |  136 +++++++++++++++++++++++++++++++++++++----------------------
+ swap.c       |   29 +++---------
+ 4 files changed, 116 insertions(+), 87 deletions(-)
 
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/include/linux/mm.h linux-2.6.10-rc2-mm3-shmem/include/linux/mm.h
---- linux-2.6.10-rc2-mm3-mmcleanup/include/linux/mm.h	2004-11-22 10:54:16.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/include/linux/mm.h	2004-12-08 16:52:24.000000000 +0000
-@@ -227,6 +227,12 @@ typedef unsigned long page_flags_t;
-  * it to keep track of whatever it is we are using the page for at the
-  * moment. Note that we have no way to track which tasks are using
-  * a page.
-+ *
-+ * Any high-order page allocation has all the pages marked PG_compound. The
-+ * first page of such a block holds the block's usage count and control
-+ * data. The second page holds the order in its index member and a destructor
-+ * function pointer in its mapping member. In enhanced compound page mode, the
-+ * second+ pages have their private pointers pointing at the first page.
-  */
- struct page {
- 	page_flags_t flags;		/* Atomic flags, some possibly
-@@ -314,45 +320,76 @@ struct page {
-  */
- #define get_page_testone(p)	atomic_inc_and_test(&(p)->_count)
+diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/bootmem.c linux-2.6.10-rc2-mm3-mmcleanup/mm/bootmem.c
+--- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/bootmem.c	2004-11-22 10:54:17.000000000 +0000
++++ linux-2.6.10-rc2-mm3-mmcleanup/mm/bootmem.c	2004-11-23 15:32:12.964968405 +0000
+@@ -89,7 +89,7 @@ static void __init reserve_bootmem_core(
+ 	 * fully reserved.
+ 	 */
+ 	unsigned long sidx = (addr - bdata->node_boot_start)/PAGE_SIZE;
+-	unsigned long eidx = (addr + size - bdata->node_boot_start + 
++	unsigned long eidx = (addr + size - bdata->node_boot_start +
+ 							PAGE_SIZE-1)/PAGE_SIZE;
+ 	unsigned long end = (addr + size + PAGE_SIZE-1)/PAGE_SIZE;
  
--#define set_page_count(p,v) 	atomic_set(&(p)->_count, v - 1)
-+#define set_page_count(p,v) 	atomic_set(&(p)->_count, (v) - 1)
- #define __put_page(p)		atomic_dec(&(p)->_count)
+@@ -174,7 +174,7 @@ __alloc_bootmem_core(struct bootmem_data
+ 	 * We try to allocate bootmem pages above 'goal'
+ 	 * first, then we try to allocate lower pages.
+ 	 */
+-	if (goal && (goal >= bdata->node_boot_start) && 
++	if (goal && (goal >= bdata->node_boot_start) &&
+ 	    ((goal >> PAGE_SHIFT) < bdata->node_low_pfn)) {
+ 		preferred = goal - bdata->node_boot_start;
  
- extern void FASTCALL(__page_cache_release(struct page *));
+@@ -264,7 +264,7 @@ static unsigned long __init free_all_boo
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long i, count, total = 0;
+ 	unsigned long idx;
+-	unsigned long *map; 
++	unsigned long *map;
+ 	int gofast = 0;
  
--#ifdef CONFIG_HUGETLB_PAGE
--
--static inline int page_count(struct page *p)
-+static inline struct page *page_head(struct page *page)
- {
--	if (PageCompound(p))
--		p = (struct page *)p->private;
--	return atomic_read(&(p)->_count) + 1;
-+#ifdef CONFIG_ENHANCED_COMPOUND_PAGES
-+	if (unlikely(PageCompoundSlave(page)))
-+		page = (struct page *) page->private;
-+#endif
-+	return page;
- }
- 
--static inline void get_page(struct page *page)
-+static inline unsigned compound_page_order(struct page *page)
- {
--	if (unlikely(PageCompound(page)))
--		page = (struct page *)page->private;
--	atomic_inc(&page->_count);
-+	unsigned order = 0;
+ 	BUG_ON(!bdata->node_bootmem_map);
+@@ -274,55 +274,59 @@ static unsigned long __init free_all_boo
+ 	page = virt_to_page(phys_to_virt(bdata->node_boot_start));
+ 	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
+ 	map = bdata->node_bootmem_map;
 +
-+	if (unlikely(PageCompound(page))) {
-+		page = page_head(page);
-+		order = page[1].index;
-+	}
-+	return order;
- }
- 
--void put_page(struct page *page);
-+extern void split_compound_page(struct page *page, unsigned new_order);
-+extern void split_highorder_page(struct page *page, unsigned new_order,
-+				 unsigned old_order);
- 
--#else		/* CONFIG_HUGETLB_PAGE */
-+typedef void (*page_dtor_t)(struct page *);
- 
--#define page_count(p)		(atomic_read(&(p)->_count) + 1)
-+static inline page_dtor_t page_dtor(struct page *page)
-+{
-+	page_dtor_t dtor = NULL;
+ 	/* Check physaddr is O(LOG2(BITS_PER_LONG)) page aligned */
+ 	if (bdata->node_boot_start == 0 ||
+ 	    ffs(bdata->node_boot_start) - PAGE_SHIFT > ffs(BITS_PER_LONG))
+ 		gofast = 1;
 +
-+	if (unlikely(PageCompound(page))) {
-+		page = page_head(page);
-+		dtor = (page_dtor_t) page[1].mapping;
-+	}
-+	return dtor;
-+}
+ 	for (i = 0; i < idx; ) {
+ 		unsigned long v = ~map[i / BITS_PER_LONG];
 +
-+static inline void set_page_dtor(struct page *page, page_dtor_t dtor)
-+{
-+	BUG_ON(!PageCompound(page));
-+	BUG_ON(PageCompoundSlave(page));
-+	page[1].mapping = (void *) dtor;
-+}
+ 		if (gofast && v == ~0UL) {
+ 			int j, order;
+ 
+ 			count += BITS_PER_LONG;
+ 			__ClearPageReserved(page);
+ 			order = ffs(BITS_PER_LONG) - 1;
+-			set_page_refs(page, order);
+ 			for (j = 1; j < BITS_PER_LONG; j++) {
+ 				if (j + 16 < BITS_PER_LONG)
+ 					prefetchw(page + j + 16);
+ 				__ClearPageReserved(page + j);
+ 			}
+-			__free_pages(page, order);
++			__free_pages_bootmem(page, order);
+ 			i += BITS_PER_LONG;
+ 			page += BITS_PER_LONG;
 +
-+static inline int page_count(struct page *page)
-+{
-+	page = page_head(page);
-+	return atomic_read(&page->_count) + 1;
-+}
- 
- static inline void get_page(struct page *page)
- {
-+	page = page_head(page);
- 	atomic_inc(&page->_count);
- }
- 
-+#ifdef CONFIG_ENHANCED_COMPOUND_PAGES
-+extern fastcall void put_page(struct page *page);
-+#else
- static inline void put_page(struct page *page)
- {
- 	if (!PageReserved(page) && put_page_testzero(page))
- 		__page_cache_release(page);
- }
--
--#endif		/* CONFIG_HUGETLB_PAGE */
-+#endif /* CONFIG_COMPOUND_PAGE */
- 
- /*
-  * Multiple processes may "see" the same page. E.g. for untouched
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/include/linux/page-flags.h linux-2.6.10-rc2-mm3-shmem/include/linux/page-flags.h
---- linux-2.6.10-rc2-mm3-mmcleanup/include/linux/page-flags.h	2004-11-22 10:54:16.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/include/linux/page-flags.h	2004-11-22 11:45:09.000000000 +0000
-@@ -78,6 +78,7 @@
- #define PG_sharedpolicy         19      /* Page was allocated for a file
- 					   mapping using a shared_policy */
- 
-+#define PG_compound_slave	20	/* second+ page of a compound page */
- 
- /*
-  * Global page accounting.  One instance per CPU.  Only unsigned longs are
-@@ -294,6 +295,11 @@ extern unsigned long __read_page_state(u
- #define PageCompound(page)	test_bit(PG_compound, &(page)->flags)
- #define SetPageCompound(page)	set_bit(PG_compound, &(page)->flags)
- #define ClearPageCompound(page)	clear_bit(PG_compound, &(page)->flags)
-+#define __ClearPageCompound(page)	__clear_bit(PG_compound, &(page)->flags)
+ 		} else if (v) {
+ 			unsigned long m;
+ 			for (m = 1; m && i < idx; m<<=1, page++, i++) {
+ 				if (v & m) {
+ 					count++;
+ 					__ClearPageReserved(page);
+-					set_page_refs(page, 0);
+-					__free_page(page);
++					__free_pages_bootmem(page, 0);
+ 				}
+ 			}
 +
-+#define PageCompoundSlave(page)		test_bit(PG_compound_slave, &(page)->flags)
-+#define SetPageCompoundSlave(page)	set_bit(PG_compound_slave, &(page)->flags)
-+#define ClearPageCompoundSlave(page)	clear_bit(PG_compound_slave, &(page)->flags)
- 
- #define PageSharedPolicy(page)      test_bit(PG_sharedpolicy, &(page)->flags)
- #define SetPageSharedPolicy(page)   set_bit(PG_sharedpolicy, &(page)->flags)
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/init/Kconfig linux-2.6.10-rc2-mm3-shmem/init/Kconfig
---- linux-2.6.10-rc2-mm3-mmcleanup/init/Kconfig	2004-11-22 10:54:17.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/init/Kconfig	2004-12-01 17:07:36.000000000 +0000
-@@ -380,6 +380,19 @@ config TINY_SHMEM
- 	default !SHMEM
- 	bool
- 
-+config ENHANCED_COMPOUND_PAGES
-+	bool
-+	default HUGETLB_PAGE || !MMU
-+	help
-+
-+	  Enhance management of high-order pages by pointing the 2nd+ pages at
-+	  the first. get_page() and put_page() then use the usage count on the
-+	  first page to manage all the pages in the block.
-+
-+	  This is used when it might be necessary to access the intermediate
-+	  pages of a block, such as ptrace() might under nommu of hugetlb
-+	  conditions.
-+
- menu "Loadable module support"
- 
- config MODULES
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/hugetlb.c linux-2.6.10-rc2-mm3-shmem/mm/hugetlb.c
---- linux-2.6.10-rc2-mm3-mmcleanup/mm/hugetlb.c	2004-11-22 10:54:18.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/mm/hugetlb.c	2004-12-01 15:37:59.000000000 +0000
-@@ -67,7 +67,7 @@ void free_huge_page(struct page *page)
- 	BUG_ON(page_count(page));
- 
- 	INIT_LIST_HEAD(&page->lru);
--	page[1].mapping = NULL;
-+	set_page_dtor(page, NULL);
- 
- 	spin_lock(&hugetlb_lock);
- 	enqueue_huge_page(page);
-@@ -87,7 +87,7 @@ struct page *alloc_huge_page(void)
+ 		} else {
+-			i+=BITS_PER_LONG;
++			i += BITS_PER_LONG;
+ 			page += BITS_PER_LONG;
+ 		}
  	}
- 	spin_unlock(&hugetlb_lock);
- 	set_page_count(page, 1);
--	page[1].mapping = (void *)free_huge_page;
-+	set_page_dtor(page, free_huge_page);
- 	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
- 		clear_highpage(&page[i]);
- 	return page;
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c linux-2.6.10-rc2-mm3-shmem/mm/page_alloc.c
---- linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c	2004-11-23 16:13:04.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/mm/page_alloc.c	2004-12-02 14:02:37.000000000 +0000
-@@ -80,15 +80,61 @@ static int bad_range(struct zone *zone, 
- 	return 0;
+ 	total += count;
+ 
+ 	/*
+-	 * Now free the allocator bitmap itself, it's not
+-	 * needed anymore:
++	 * Now free the allocator bitmap itself, it's not needed anymore:
+ 	 */
+ 	page = virt_to_page(bdata->node_bootmem_map);
+-	count = 0;
+-	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
+-		count++;
++
++	count = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
++	count = ((count / 8) + PAGE_SIZE - 1) >> PAGE_SHIFT;
++
++	for (i = count; i > 0; i--) {
+ 		__ClearPageReserved(page);
+-		set_page_count(page, 1);
+-		__free_page(page);
++		__free_pages_bootmem(page, 0);
++		page++;
+ 	}
+ 	total += count;
+ 	bdata->node_bootmem_map = NULL;
+@@ -402,4 +406,3 @@ void * __init __alloc_bootmem_node (pg_d
+ 
+ 	return __alloc_bootmem(size, align, goal);
+ }
+-
+diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/internal.h linux-2.6.10-rc2-mm3-mmcleanup/mm/internal.h
+--- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/internal.h	2004-11-22 10:54:18.000000000 +0000
++++ linux-2.6.10-rc2-mm3-mmcleanup/mm/internal.h	2004-11-23 15:31:55.601409553 +0000
+@@ -10,4 +10,5 @@
+  */
+ 
+ /* page_alloc.c */
+-extern void set_page_refs(struct page *page, int order);
++extern void fastcall free_hot_cold_page(struct page *page, int cold);
++extern fastcall void __init __free_pages_bootmem(struct page *page, unsigned int order);
+diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/page_alloc.c linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c
+--- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/page_alloc.c	2004-11-22 10:54:18.000000000 +0000
++++ linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c	2004-11-23 16:13:04.184628888 +0000
+@@ -103,6 +103,23 @@ static void bad_page(const char *functio
+ 	tainted |= TAINT_BAD_PAGE;
  }
  
--static void bad_page(const char *function, struct page *page)
-+static inline void __bad_page(struct page *page)
- {
--	printk(KERN_EMERG "Bad page state at %s (in process '%s', page %p)\n",
--		function, current->comm, page);
--	printk(KERN_EMERG "flags:0x%0*lx mapping:%p mapcount:%d count:%d\n",
--		(int)(2*sizeof(page_flags_t)), (unsigned long)page->flags,
--		page->mapping, page_mapcount(page), page_count(page));
-+	const char *fmt;
++void set_page_refs(struct page *page, int order)
++{
++#ifdef CONFIG_MMU
++	set_page_count(page, 1);
++#else
++	int i;
 +
-+	if (sizeof(void *) == 4)
-+		fmt = KERN_EMERG "%08lx %p %08x %p %8x %8x %8lx %8lx\n";
-+	else
-+		fmt = KERN_EMERG "%016lx %p %08x %p %8x %8x %16lx %16lx\n";
-+
-+	printk(fmt,
-+	       page_to_pfn(page),
-+	       page,
-+	       (unsigned) page->flags,
-+	       page->mapping, page_mapcount(page), page_count(page),
-+	       page->index, page->private);
++	/*
++	 * We need to reference all the pages for this order, otherwise if
++	 * anyone accesses one of the pages with (get/put) it will be freed.
++	 * - eg: access_process_vm()
++	 */
++	for (i = 0; i < (1 << order); i++)
++		set_page_count(page + i, 1);
++#endif /* CONFIG_MMU */
 +}
 +
-+static void bad_page(const char *function, struct page *page,
-+		     struct page *page0, int order)
+ #ifndef CONFIG_HUGETLB_PAGE
+ #define prep_compound_page(page, order) do { } while (0)
+ #define destroy_compound_page(page, order) do { } while (0)
+@@ -167,11 +184,13 @@ static void destroy_compound_page(struct
+  * zone->lock is already acquired when we use these.
+  * So, we don't need atomic page->flags operations here.
+  */
+-static inline unsigned long page_order(struct page *page) {
++static inline unsigned long page_order(struct page *page)
 +{
-+	printk(KERN_EMERG "\n");
-+	printk(KERN_EMERG
-+	       "Bad page state at %s (in process '%s', order %d)\n",
-+	       function, current->comm, order);
+ 	return page->private;
+ }
+ 
+-static inline void set_page_order(struct page *page, int order) {
++static inline void set_page_order(struct page *page, int order)
++{
+ 	page->private = order;
+ 	__SetPagePrivate(page);
+ }
+@@ -217,10 +236,10 @@ static inline int page_is_buddy(struct p
+  * free pages of length of (1 << order) and marked with PG_Private.Page's
+  * order is recorded in page->private field.
+  * So when we are allocating or freeing one, we can derive the state of the
+- * other.  That is, if we allocate a small block, and both were   
+- * free, the remainder of the region must be split into blocks.   
++ * other.  That is, if we allocate a small block, and both were
++ * free, the remainder of the region must be split into blocks.
+  * If a block is freed, and its buddy is also free, then this
+- * triggers coalescing into a block of larger size.            
++ * triggers coalescing into a block of larger size.
+  *
+  * -- wli
+  */
+@@ -286,7 +305,7 @@ static inline void free_pages_check(cons
+ }
+ 
+ /*
+- * Frees a list of pages. 
++ * Frees a list of pages.
+  * Assumes all pages on list are in same zone, and of same order.
+  * count is the number of pages to free, or 0 for all on the list.
+  *
+@@ -337,10 +356,33 @@ void __free_pages_ok(struct page *page, 
+ 	for (i = 0 ; i < (1 << order) ; ++i)
+ 		free_pages_check(__FUNCTION__, page + i);
+ 	list_add(&page->lru, &list);
+-	kernel_map_pages(page, 1<<order, 0);
++	kernel_map_pages(page, 1 << order, 0);
+ 	free_pages_bulk(page_zone(page), 1, &list, order);
+ }
+ 
++/*
++ * permit the bootmem allocator to evade page validation on high-order frees
++ */
++fastcall void __init __free_pages_bootmem(struct page *page, unsigned int order)
++{
++	set_page_refs(page, order);
++	set_page_count(page, 0);
 +
-+	if (sizeof(void *) == 4) {
-+		printk(KERN_EMERG
-+		       "PFN      PAGE*    FLAGS    MAPPING  MAPCOUNT COUNT    INDEX    PRIVATE\n");
-+		printk(KERN_EMERG
-+		       "======== ======== ======== ======== ======== ======== ======== ========\n");
-+	}
-+	else {
-+		printk(KERN_EMERG
-+		       "PFN              PAGE*            FLAGS    MAPPING          MAPCOUNT COUNT    INDEX            PRIVATE\n");
-+		printk(KERN_EMERG
-+		       "================ ================ ======== ================ ======== ======== ================ ================\n");
-+	}
-+
-+	/* print extra details on a compound page */
-+	if (PageCompound(page0)) {
-+		__bad_page(page0);
-+		__bad_page(page0 + 1);
-+
-+		if (page > page0 + 1) {
-+			if (page > page0 + 2)
-+				printk(KERN_EMERG "...\n");
-+			__bad_page(page);
-+		}
++	if (order == 0) {
++		free_hot_cold_page(page, 0);
 +	} else {
-+		__bad_page(page);
++		LIST_HEAD(list);
++
++		arch_free_page(page, order);
++
++		mod_page_state(pgfree, 1 << order);
++
++		list_add(&page->lru, &list);
++		kernel_map_pages(page, 1 << order, 0);
++		free_pages_bulk(page_zone(page), 1, &list, order);
 +	}
++}
 +
- 	printk(KERN_EMERG "Backtrace:\n");
- 	dump_stack();
-+
- 	printk(KERN_EMERG "Trying to fix it up, but a reboot is needed\n");
- 	page->flags &= ~(1 << PG_private	|
- 			1 << PG_locked	|
-@@ -103,82 +149,6 @@ static void bad_page(const char *functio
- 	tainted |= TAINT_BAD_PAGE;
+ 
+ /*
+  * The order of subdivision here is critical for the IO subsystem.
+@@ -374,23 +416,6 @@ expand(struct zone *zone, struct page *p
+ 	return page;
  }
  
 -void set_page_refs(struct page *page, int order)
@@ -360,427 +284,226 @@ diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c linux-2.6.10-rc2-mm3-s
 -#endif /* CONFIG_MMU */
 -}
 -
--#ifndef CONFIG_HUGETLB_PAGE
--#define prep_compound_page(page, order) do { } while (0)
--#define destroy_compound_page(page, order) do { } while (0)
--#else
--/*
-- * Higher-order pages are called "compound pages".  They are structured thusly:
-- *
-- * The first PAGE_SIZE page is called the "head page".
-- *
-- * The remaining PAGE_SIZE pages are called "tail pages".
-- *
-- * All pages have PG_compound set.  All pages have their ->private pointing at
-- * the head page (even the head page has this).
-- *
-- * The first tail page's ->mapping, if non-zero, holds the address of the
-- * compound page's put_page() function.
-- *
-- * The order of the allocation is stored in the first tail page's ->index
-- * This is only for debug at present.  This usage means that zero-order pages
-- * may not be compound.
-- */
--static void prep_compound_page(struct page *page, unsigned long order)
--{
--	int i;
--	int nr_pages = 1 << order;
--
--	page[1].mapping = NULL;
--	page[1].index = order;
--	for (i = 0; i < nr_pages; i++) {
--		struct page *p = page + i;
--
--		SetPageCompound(p);
--		p->private = (unsigned long)page;
--	}
--}
--
--static void destroy_compound_page(struct page *page, unsigned long order)
--{
--	int i;
--	int nr_pages = 1 << order;
--
--	if (!PageCompound(page))
--		return;
--
--	if (page[1].index != order)
--		bad_page(__FUNCTION__, page);
--
--	for (i = 0; i < nr_pages; i++) {
--		struct page *p = page + i;
--
--		if (!PageCompound(p))
--			bad_page(__FUNCTION__, page);
--		if (p->private != (unsigned long)page)
--			bad_page(__FUNCTION__, page);
--		ClearPageCompound(p);
--	}
--}
--#endif		/* CONFIG_HUGETLB_PAGE */
--
- /*
-  * function for dealing with page's order in buddy system.
-  * zone->lock is already acquired when we use these.
-@@ -201,6 +171,11 @@ static inline void rmv_page_order(struct
- 	page->private = 0;
- }
- 
-+static inline void set_page_refs(struct page *page, int order)
-+{
-+	set_page_count(page, 1);
-+}
-+
- /*
-  * This function checks whether a page is free && is the buddy
-  * we can do coalesce a page and its buddy if
-@@ -221,6 +196,93 @@ static inline int page_is_buddy(struct p
- }
- 
- /*
-+ * validate a page that's being handed back for recycling
-+ */
-+static
-+void free_pages_check_compound(const char *function, struct page *page, int order)
-+{
-+	struct page *xpage;
-+	int i;
-+
-+	xpage = page;
-+
-+	if (unlikely(order == 0 ||
-+		     PageCompoundSlave(page)
-+		     ))
-+		goto badpage;
-+
-+	xpage++;
-+	if (unlikely(xpage->index != order))
-+		goto badpage;
-+
-+	for (i = (1 << order) - 1; i > 0; i--) {
-+		if (unlikely(!PageCompound(xpage) ||
-+			     !PageCompoundSlave(xpage) ||
-+			     (xpage->flags & (
-+				     1 << PG_lru	|
-+				     1 << PG_private	|
-+				     1 << PG_locked	|
-+				     1 << PG_active	|
-+				     1 << PG_reclaim	|
-+				     1 << PG_slab	|
-+				     1 << PG_swapcache	|
-+				     1 << PG_writeback
-+				     )) ||
-+			     page_count(xpage) != 0 ||
-+			     page_mapped(xpage) ||
-+			     xpage->mapping != NULL ||
-+			     xpage->private != (unsigned long) page
-+			     ))
-+			goto badpage;
-+
-+		if (PageDirty(xpage))
-+			ClearPageDirty(xpage);
-+		xpage++;
-+	}
-+
-+	return;
-+
-+ badpage:
-+	bad_page(function, xpage, page, order);
-+	return;
-+}
-+
-+static inline
-+void free_pages_check(const char *function, struct page *page, int order)
-+{
-+	if (unlikely(
-+		page_mapped(page) ||
-+		page->mapping != NULL ||
-+		page_count(page) != 0 ||
-+		(page->flags & (
-+			1 << PG_lru	|
-+			1 << PG_private |
-+			1 << PG_locked	|
-+			1 << PG_active	|
-+			1 << PG_reclaim	|
-+			1 << PG_slab	|
-+			1 << PG_swapcache |
-+			1 << PG_writeback ))
-+		))
-+		goto badpage;
-+
-+	/* check that compound pages are correctly assembled */
-+	if (unlikely(PageCompound(page)))
-+		free_pages_check_compound(function, page, order);
-+	else if (unlikely(order > 0))
-+		goto badpage;
-+
-+	if (PageDirty(page))
-+		ClearPageDirty(page);
-+
-+	return;
-+
-+ badpage:
-+	bad_page(function, page, page, order);
-+	return;
-+}
-+
-+/*
-  * Freeing function for a buddy system allocator.
-  *
-  * The concept of a buddy system is to maintain direct-mapped table
-@@ -251,8 +313,14 @@ static inline void __free_pages_bulk (st
- 	struct page *coalesced;
- 	int order_size = 1 << order;
- 
--	if (unlikely(order))
--		destroy_compound_page(page, order);
-+	if (unlikely(PageCompound(page))) {
-+		struct page *xpage = page;
-+		int i;
-+
-+		for (i = (1 << order); i > 0; i--)
-+			(xpage++)->flags &=
-+				~(1 << PG_compound | 1 << PG_compound_slave);
-+	}
- 
- 	page_idx = page - base;
- 
-@@ -285,25 +353,6 @@ static inline void __free_pages_bulk (st
- 	zone->free_area[order].nr_free++;
- }
- 
--static inline void free_pages_check(const char *function, struct page *page)
--{
--	if (	page_mapped(page) ||
--		page->mapping != NULL ||
--		page_count(page) != 0 ||
--		(page->flags & (
--			1 << PG_lru	|
--			1 << PG_private |
--			1 << PG_locked	|
--			1 << PG_active	|
--			1 << PG_reclaim	|
--			1 << PG_slab	|
--			1 << PG_swapcache |
--			1 << PG_writeback )))
--		bad_page(function, page);
--	if (PageDirty(page))
--		ClearPageDirty(page);
--}
--
- /*
-  * Frees a list of pages.
-  * Assumes all pages on list are in same zone, and of same order.
-@@ -341,20 +390,12 @@ free_pages_bulk(struct zone *zone, int c
- void __free_pages_ok(struct page *page, unsigned int order)
- {
- 	LIST_HEAD(list);
--	int i;
- 
- 	arch_free_page(page, order);
- 
- 	mod_page_state(pgfree, 1 << order);
- 
--#ifndef CONFIG_MMU
--	if (order > 0)
--		for (i = 1 ; i < (1 << order) ; ++i)
--			__put_page(page + i);
--#endif
--
--	for (i = 0 ; i < (1 << order) ; ++i)
--		free_pages_check(__FUNCTION__, page + i);
-+	free_pages_check(__FUNCTION__, page, order);
- 	list_add(&page->lru, &list);
- 	kernel_map_pages(page, 1 << order, 0);
- 	free_pages_bulk(page_zone(page), 1, &list, order);
-@@ -419,25 +460,57 @@ expand(struct zone *zone, struct page *p
  /*
   * This page is about to be returned from the page allocator
   */
--static void prep_new_page(struct page *page, int order)
-+static void prep_new_page(struct page *page, unsigned int gfp_mask, int order,
-+			  int check)
- {
--	if (page->mapping || page_mapped(page) ||
--	    (page->flags & (
--			1 << PG_private	|
--			1 << PG_locked	|
--			1 << PG_lru	|
--			1 << PG_active	|
--			1 << PG_dirty	|
--			1 << PG_reclaim	|
--			1 << PG_swapcache |
--			1 << PG_writeback )))
--		bad_page(__FUNCTION__, page);
-+	page_flags_t pgflags = page->flags;
-+
-+	/* check the struct page hasn't become corrupted */
-+	if (check) {
-+		if (page->mapping || page_mapped(page) ||
-+		    (pgflags & (
-+			    1 << PG_private	|
-+			    1 << PG_locked	|
-+			    1 << PG_lru	|
-+			    1 << PG_active	|
-+			    1 << PG_dirty	|
-+			    1 << PG_reclaim	|
-+			    1 << PG_swapcache |
-+			    1 << PG_writeback |
-+			    1 << PG_compound |
-+			    1 << PG_compound_slave)))
-+			bad_page(__FUNCTION__, page, page, order);
-+	}
-+
-+	pgflags &= ~(1 << PG_uptodate | 1 << PG_error |
-+		     1 << PG_referenced | 1 << PG_arch_1 |
-+		     1 << PG_checked | 1 << PG_mappedtodisk);
- 
--	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
--			1 << PG_referenced | 1 << PG_arch_1 |
--			1 << PG_checked | 1 << PG_mappedtodisk);
- 	page->private = 0;
-+
-+	/* set the refcount on the page */
+@@ -415,7 +440,7 @@ static void prep_new_page(struct page *p
  	set_page_refs(page, order);
+ }
+ 
+-/* 
++/*
+  * Do the hard work of removing an element from the buddy allocator.
+  * Call me with the zone->lock already held.
+  */
+@@ -441,19 +466,19 @@ static struct page *__rmqueue(struct zon
+ 	return NULL;
+ }
+ 
+-/* 
++/*
+  * Obtain a specified number of elements from the buddy allocator, all under
+  * a single hold of the lock, for efficiency.  Add them to the supplied list.
+  * Returns the number of new pages which were placed at *list.
+  */
+-static int rmqueue_bulk(struct zone *zone, unsigned int order, 
++static int rmqueue_bulk(struct zone *zone, unsigned int order,
+ 			unsigned long count, struct list_head *list)
+ {
+ 	unsigned long flags;
+ 	int i;
+ 	int allocated = 0;
+ 	struct page *page;
+-	
 +
-+	/* if requested, mark a high-order allocation as being a compound page
-+	 * and store high-order page metadata on the second page */
-+	if (order > 0 && gfp_mask & __GFP_COMP) {
-+		struct page *xpage;
-+		int i;
+ 	spin_lock_irqsave(&zone->lock, flags);
+ 	for (i = 0; i < count; ++i) {
+ 		page = __rmqueue(zone, order);
+@@ -517,9 +542,9 @@ void drain_local_pages(void)
+ {
+ 	unsigned long flags;
+ 
+-	local_irq_save(flags);	
++	local_irq_save(flags);
+ 	__drain_pages(smp_processor_id());
+-	local_irq_restore(flags);	
++	local_irq_restore(flags);
+ }
+ #endif /* CONFIG_PM */
+ 
+@@ -552,8 +577,7 @@ static void zone_statistics(struct zonel
+ /*
+  * Free a 0-order page
+  */
+-static void FASTCALL(free_hot_cold_page(struct page *page, int cold));
+-static void fastcall free_hot_cold_page(struct page *page, int cold)
++void fastcall free_hot_cold_page(struct page *page, int cold)
+ {
+ 	struct zone *zone = page_zone(page);
+ 	struct per_cpu_pages *pcp;
+@@ -580,7 +604,7 @@ void fastcall free_hot_page(struct page 
+ {
+ 	free_hot_cold_page(page, 0);
+ }
+-	
 +
-+		pgflags |= 1 << PG_compound;
+ void fastcall free_cold_page(struct page *page)
+ {
+ 	free_hot_cold_page(page, 1);
+@@ -957,14 +981,6 @@ fastcall unsigned long get_zeroed_page(u
+ 
+ EXPORT_SYMBOL(get_zeroed_page);
+ 
+-void __pagevec_free(struct pagevec *pvec)
+-{
+-	int i = pagevec_count(pvec);
+-
+-	while (--i >= 0)
+-		free_hot_cold_page(pvec->pages[i], pvec->cold);
+-}
+-
+ fastcall void __free_pages(struct page *page, unsigned int order)
+ {
+ 	if (!PageReserved(page) && put_page_testzero(page)) {
+@@ -987,6 +1003,26 @@ fastcall void free_pages(unsigned long a
+ 
+ EXPORT_SYMBOL(free_pages);
+ 
++#ifdef CONFIG_HUGETLB_PAGE
 +
-+		page[1].index = order;
-+		page[1].mapping = NULL; /* no destructor yet */
++void put_page(struct page *page)
++{
++	if (unlikely(PageCompound(page))) {
++		page = (struct page *)page->private;
++		if (put_page_testzero(page)) {
++			void (*dtor)(struct page *page);
 +
-+		xpage = page + 1;
-+		for (i = (1 << order) - 1; i > 0; i--) {
-+			xpage->flags |= 1 << PG_compound | 1 << PG_compound_slave;
-+			xpage->private = (unsigned long) page;
-+			xpage++;
++			dtor = (void (*)(struct page *))page[1].mapping;
++			(*dtor)(page);
 +		}
++		return;
 +	}
++	if (!PageReserved(page) && put_page_testzero(page))
++		__page_cache_release(page);
++}
++EXPORT_SYMBOL(put_page);
++#endif
 +
-+	page->flags = pgflags;
+ /*
+  * Total amount of free (allocatable) RAM:
+  */
+@@ -1498,7 +1534,7 @@ static void __init build_zonelists(pg_da
+  			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
+  		for (node = 0; node < local_node; node++)
+  			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
+- 
++
+ 		zonelist->zones[j] = NULL;
+ 	}
+ }
+@@ -1636,7 +1672,7 @@ static void __init free_area_init_core(s
+ 	pgdat->nr_zones = 0;
+ 	init_waitqueue_head(&pgdat->kswapd_wait);
+ 	pgdat->kswapd_max_order = 0;
+-	
++
+ 	for (j = 0; j < MAX_NR_ZONES; j++) {
+ 		struct zone *zone = pgdat->node_zones + j;
+ 		unsigned long size, realsize;
+@@ -1798,7 +1834,7 @@ static void frag_stop(struct seq_file *m
+ {
+ }
+ 
+-/* 
++/*
+  * This walks the free areas for each zone.
+  */
+ static int frag_show(struct seq_file *m, void *arg)
+@@ -2038,8 +2074,8 @@ static void setup_per_zone_protection(vo
  }
  
  /*
-@@ -589,7 +662,7 @@ void fastcall free_hot_cold_page(struct 
- 	inc_page_state(pgfree);
- 	if (PageAnon(page))
- 		page->mapping = NULL;
--	free_pages_check(__FUNCTION__, page);
-+	free_pages_check(__FUNCTION__, page, 0);
- 	pcp = &zone->pageset[get_cpu()].pcp[cold];
- 	local_irq_save(flags);
- 	if (pcp->count >= pcp->high)
-@@ -708,11 +781,11 @@ perthread_pages_alloc(void)
+- * setup_per_zone_pages_min - called when min_free_kbytes changes.  Ensures 
+- *	that the pages_{min,low,high} values for each zone are set correctly 
++ * setup_per_zone_pages_min - called when min_free_kbytes changes.  Ensures
++ *	that the pages_{min,low,high} values for each zone are set correctly
+  *	with respect to min_free_kbytes.
   */
+ static void setup_per_zone_pages_min(void)
+@@ -2073,10 +2109,10 @@ static void setup_per_zone_pages_min(voi
+ 				min_pages = 128;
+ 			zone->pages_min = min_pages;
+ 		} else {
+-			/* if it's a lowmem zone, reserve a number of pages 
++			/* if it's a lowmem zone, reserve a number of pages
+ 			 * proportionate to the zone's size.
+ 			 */
+-			zone->pages_min = (pages_min * zone->present_pages) / 
++			zone->pages_min = (pages_min * zone->present_pages) /
+ 			                   lowmem_pages;
+ 		}
  
- static struct page *
--buffered_rmqueue(struct zone *zone, int order, int gfp_flags)
-+buffered_rmqueue(struct zone *zone, int order, unsigned int gfp_mask)
+@@ -2132,11 +2168,11 @@ static int __init init_per_zone_pages_mi
+ module_init(init_per_zone_pages_min)
+ 
+ /*
+- * min_free_kbytes_sysctl_handler - just a wrapper around proc_dointvec() so 
++ * min_free_kbytes_sysctl_handler - just a wrapper around proc_dointvec() so
+  *	that we can call two helper functions whenever min_free_kbytes
+  *	changes.
+  */
+-int min_free_kbytes_sysctl_handler(ctl_table *table, int write, 
++int min_free_kbytes_sysctl_handler(ctl_table *table, int write,
+ 		struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
  {
- 	unsigned long flags;
- 	struct page *page = NULL;
--	int cold = !!(gfp_flags & __GFP_COLD);
-+	int cold = !!(gfp_mask & __GFP_COLD);
+ 	proc_dointvec(table, write, file, buffer, length, ppos);
+diff -uNrp /warthog/kernels/linux-2.6.10-rc2-mm3/mm/swap.c linux-2.6.10-rc2-mm3-mmcleanup/mm/swap.c
+--- /warthog/kernels/linux-2.6.10-rc2-mm3/mm/swap.c	2004-11-22 10:54:18.000000000 +0000
++++ linux-2.6.10-rc2-mm3-mmcleanup/mm/swap.c	2004-11-23 15:31:55.602409470 +0000
+@@ -30,30 +30,11 @@
+ #include <linux/cpu.h>
+ #include <linux/notifier.h>
+ #include <linux/init.h>
++#include "internal.h"
  
- 	if (order == 0) {
- 		struct per_cpu_pages *pcp;
-@@ -740,9 +813,7 @@ buffered_rmqueue(struct zone *zone, int 
- 	if (page != NULL) {
- 		BUG_ON(bad_range(zone, page));
- 		mod_page_state_zone(zone, pgalloc, 1 << order);
--		prep_new_page(page, order);
--		if (order && (gfp_flags & __GFP_COMP))
--			prep_compound_page(page, order);
-+		prep_new_page(page, gfp_mask, order, 1);
- 	}
- 	return page;
- }
-@@ -1003,23 +1074,24 @@ fastcall void free_pages(unsigned long a
- 
- EXPORT_SYMBOL(free_pages);
+ /* How many pages do we try to swap or page in/out together? */
+ int page_cluster;
  
 -#ifdef CONFIG_HUGETLB_PAGE
 -
 -void put_page(struct page *page)
-+#ifdef CONFIG_ENHANCED_COMPOUND_PAGES
-+fastcall void put_page(struct page *page)
- {
- 	if (unlikely(PageCompound(page))) {
+-{
+-	if (unlikely(PageCompound(page))) {
 -		page = (struct page *)page->private;
-+		page = (struct page *) page->private;
- 		if (put_page_testzero(page)) {
+-		if (put_page_testzero(page)) {
 -			void (*dtor)(struct page *page);
-+			page_dtor_t dtor;
- 
+-
 -			dtor = (void (*)(struct page *))page[1].mapping;
-+			dtor = (page_dtor_t) page[1].mapping;
- 			(*dtor)(page);
- 		}
- 		return;
- 	}
+-			(*dtor)(page);
+-		}
+-		return;
+-	}
 -	if (!PageReserved(page) && put_page_testzero(page))
-+
-+	if (likely(!PageReserved(page)) && put_page_testzero(page))
- 		__page_cache_release(page);
+-		__page_cache_release(page);
+-}
+-EXPORT_SYMBOL(put_page);
+-#endif
+-
+ /*
+  * Writeback is about to end against a page which has been marked for immediate
+  * reclaim.  If it still appears to be reclaimable, move it to the tail of the
+@@ -242,6 +223,14 @@ void release_pages(struct page **pages, 
+ 	pagevec_free(&pages_to_free);
  }
-+
- EXPORT_SYMBOL(put_page);
- #endif
  
-@@ -2258,3 +2330,39 @@ void *__init alloc_large_system_hash(con
- 
- 	return table;
- }
-+
-+/*
-+ * split a compound page into an array of smaller chunks of a given order
-+ */
-+void split_compound_page(struct page *page, unsigned new_order)
++void __pagevec_free(struct pagevec *pvec)
 +{
-+	unsigned old_order, loop, stop, step;
++	int i = pagevec_count(pvec);
 +
-+	old_order = compound_page_order(page);
-+	if (old_order != new_order) {
-+		BUG_ON(old_order < new_order);
-+
-+		stop = 1 << old_order;
-+		step = 1 << new_order;
-+		for (loop = 0; loop < stop; loop += step)
-+			prep_new_page(page + loop, __GFP_COMP, new_order, 0);
-+	}
++	while (--i >= 0)
++		free_hot_cold_page(pvec->pages[i], pvec->cold);
 +}
 +
-+/*
-+ * split a high-order page into an array of smaller chunks of a given order
-+ */
-+void split_highorder_page(struct page *page, unsigned new_order,
-+			  unsigned old_order)
-+{
-+	unsigned loop, stop, step;
-+
-+	if (old_order != new_order) {
-+		BUG_ON(old_order < new_order);
-+
-+		stop = 1 << old_order;
-+		step = 1 << new_order;
-+		for (loop = 0; loop < stop; loop += step)
-+			prep_new_page(page + loop, 0, new_order, 0);
-+	}
-+}
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/slab.c linux-2.6.10-rc2-mm3-shmem/mm/slab.c
---- linux-2.6.10-rc2-mm3-mmcleanup/mm/slab.c	2004-11-22 10:54:18.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/mm/slab.c	2004-12-01 15:49:28.000000000 +0000
-@@ -873,7 +873,7 @@ static void *kmem_getpages(kmem_cache_t 
- 	void *addr;
- 	int i;
- 
--	flags |= cachep->gfpflags;
-+	flags |= cachep->gfpflags | __GFP_COMP;
- 	if (likely(nodeid == -1)) {
- 		addr = (void*)__get_free_pages(flags, cachep->gfporder);
- 		if (!addr)
+ /*
+  * The pages which we're about to release may be in the deferred lru-addition
+  * queues.  That would prevent them from really being freed right now.  That's

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265093AbTANTVZ>; Tue, 14 Jan 2003 14:21:25 -0500
+	id <S264950AbTANT04>; Tue, 14 Jan 2003 14:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265095AbTANTVZ>; Tue, 14 Jan 2003 14:21:25 -0500
-Received: from findaloan-online.cc ([216.209.85.42]:16134 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S265093AbTANTVY>;
-	Tue, 14 Jan 2003 14:21:24 -0500
-Date: Tue, 14 Jan 2003 14:37:58 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Richard Stallman <rms@gnu.org>
-Cc: randall@uph.com, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030114193758.GB15412@mark.mielke.cc>
-References: <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8Q-0004k6-00@fencepost.gnu.org> <20030108115327.GA5020@gnuppy.monkey.org> <E18WlrH-0000NO-00@fencepost.gnu.org> <20030110101043.A19070@uph.com> <E18Xghf-0004GP-00@fencepost.gnu.org> <20030112125849.A28266@uph.com> <E18YJvF-0007rd-00@fencepost.gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18YJvF-0007rd-00@fencepost.gnu.org>
-User-Agent: Mutt/1.4i
+	id <S264983AbTANT04>; Tue, 14 Jan 2003 14:26:56 -0500
+Received: from h-64-105-35-14.SNVACAID.covad.net ([64.105.35.14]:12167 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S264950AbTANT0z>; Tue, 14 Jan 2003 14:26:55 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 14 Jan 2003 11:35:42 -0800
+Message-Id: <200301141935.LAA00806@adam.yggdrasil.com>
+To: felix-linuxkernel@fefe.de, linux-kernel@vger.kernel.org
+Subject: Re: usb broken in 2.5?
+Cc: greg@kroah.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 12:47:37AM -0500, Richard Stallman wrote:
->     Before this whole naming fiasco started, I was a strong supporter of GNU
->     software.  I am not any longer because of *your* actions, Richard.  I am
->     still and plan to remain a strong supporter of free software.. but I
->     don't feel affiliated with the FSF any more.  And that's a pity.
-> It's not a pity, it's an injustice.  People have led you to disregard
-> our work and say the job was done by others; you condemn us when we
-> say we did it, and now you say you will shun us for it.
+Greg KH wrote:
+>On Tue, Jan 14, 2003 at 03:44:35AM +0100, Felix von Leitner wrote:
+>> In 2.5.57 USB does not work. [...]
 
-The job *was* done by many others. You don't respect this.
+>This sounds like the old iterrupt routing problem that ACPI causes at
+>times, and not a USB problem (the interrupts aren't getting to the
+>controller, nothing the USB controller can do about that...)
 
-mark
+	In case it helps you to know this, I'm looking into a similar
+problem in 2.5.57-58 which may be related to what you (Felix) are
+reporting.
 
-P.S. Every time you strip out the names of the people that you quote, I
-     have found your practice disrespectful. I don't *know* who wrote
-     the quote you make above. Therefore, I do not know whose reputation
-     has improved in my eyes, if only, because they share my opinion
-     regarding you. Please retain the names of the people you quote.
+	For some reason that I haven't figured out, USB keyboard and
+mouse that are recognized in 2.5.56 are not recognized by 2.5.57 or
+2.5.58, even though lsusb sees them.  This is the case on the two
+different systems that I tried (with a different keyboard and
+a different mouse).
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+	There were no changes to drivers/acpi between 2.5.56 and
+2.5.57, and booting with acpi=off does not eliminate this problem.
+There were few changes to usb between 2.5.56 and 2.5.57.  So, I
+suspect that USB no longer working is a side-effect of some other
+change.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 

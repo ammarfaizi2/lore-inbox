@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261345AbSIWTST>; Mon, 23 Sep 2002 15:18:19 -0400
+	id <S261357AbSIWUR2>; Mon, 23 Sep 2002 16:17:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261344AbSIWTRa>; Mon, 23 Sep 2002 15:17:30 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21768 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261340AbSIWTQ5>; Mon, 23 Sep 2002 15:16:57 -0400
-Date: Mon, 23 Sep 2002 15:14:38 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Peter Waechtler <pwaechtler@mac.com>
-cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-       ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <4FBEDDB0-CEEB-11D6-8873-00039387C942@mac.com>
-Message-ID: <Pine.LNX.3.96.1020923150331.13351A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261358AbSIWUR2>; Mon, 23 Sep 2002 16:17:28 -0400
+Received: from pc-80-195-34-180-ed.blueyonder.co.uk ([80.195.34.180]:6278 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S261357AbSIWUR1>; Mon, 23 Sep 2002 16:17:27 -0400
+Date: Mon, 23 Sep 2002 21:22:22 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@digeo.com>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] EXT3 vs EXT2 results with rmap14a and testing with contest 0.34
+Message-ID: <20020923212222.S11682@redhat.com>
+References: <200209182118.12701.spstarr@sh0n.net> <3D896F73.5D1265B5@digeo.com> <20020923200337.L11682@redhat.com> <200209231600.03978.spstarr@sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209231600.03978.spstarr@sh0n.net>; from spstarr@sh0n.net on Mon, Sep 23, 2002 at 04:00:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Sep 2002, Peter Waechtler wrote:
+Hi,
 
-> Am Montag den, 23. September 2002, um 12:05, schrieb Bill Davidsen:
-> 
-> > On Sun, 22 Sep 2002, Larry McVoy wrote:
-> >
-> >> On Sun, Sep 22, 2002 at 08:55:39PM +0200, Peter Waechtler wrote:
-> >>> AIX and Irix deploy M:N - I guess for a good reason: it's more
-> >>> flexible and combine both approaches with easy runtime tuning if
-> >>> the app happens to run on SMP (the uncommon case).
-> >>
-> >> No, AIX and IRIX do it that way because their processes are so bloated
-> >> that it would be unthinkable to do a 1:1 model.
-> >
-> > And BSD? And Solaris?
-> 
-> Don't know. I don't have access to all those Unices. I could try FreeBSD.
-
-At your convenience.
+On Mon, Sep 23, 2002 at 04:00:03PM -0400, Shawn Starr wrote:
  
-> According to http://www.kegel.com/c10k.html  Sun is moving to 1:1
-> and FreeBSD still believes in M:N
+> Which branch of the kernel is this going into? an -ac branch or 2.5 bk?
 
-Sun is total news to me, "moving to" may be in Solaris 9, Sol8 seems to
-still be N:M. BSD is as I thought.
-> 
-> MacOSX 10.1 does not support PROCESS_SHARED locks, tried that 5 minutes 
-> ago.
+Ext3 CVS, but I'll also make a clean, broken-down patchset for
+2.4.19 bk. 
 
-Thank you for the effort. Hum, that's a bit of a surprise, at least to me. 
+In fact, the only reason it's not in ext3 cvs already is because it's
+such a pain keeping discrete broken-down patches separate using a form
+of SCM like bk or cvs; having decent scripts to track multiple patches
+in a working source tree just works a lot better for one developer
+when it comes to merging stuff upstream.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Cheers,
+ Stephen

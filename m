@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbVCDB4C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVCDBrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262688AbVCDB4C (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 20:56:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbVCDBzy
+	id S262705AbVCDBrY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 20:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVCDBpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 20:55:54 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61582 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262688AbVCDBwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 20:52:33 -0500
+	Thu, 3 Mar 2005 20:45:16 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:58071 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262729AbVCDADl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 19:03:41 -0500
 Subject: Re: RFD: Kernel release numbering
-From: Lee Revell <rlrevell@joe-job.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, vonbrand@inf.utfsm.cl,
-       jgarzik@pobox.com, davem@davemloft.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20050303152825.08e7e4c6.akpm@osdl.org>
-References: <200503031644.j23Gi0Eh011165@laptop11.inf.utfsm.cl>
-	 <Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
-	 <20050303152825.08e7e4c6.akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>, jgarzik@pobox.com, torvalds@osdl.org,
+       davem@davemloft.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050303151752.00527ae7.akpm@osdl.org>
+References: <42268749.4010504@pobox.com>
+	 <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com>
+	 <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net>
+	 <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com>
+	 <4226CA7E.4090905@pobox.com>
+	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+	 <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com>
+	 <20050303151752.00527ae7.akpm@osdl.org>
 Content-Type: text/plain
-Date: Thu, 03 Mar 2005 20:52:28 -0500
-Message-Id: <1109901148.4224.10.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1109894511.21781.73.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 04 Mar 2005 00:01:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-03 at 15:28 -0800, Andrew Morton wrote:
-> Subject: [Bugme-new] [Bug 4282] New: ALSA driver in Linux 2.6.11 causes a kernel panic when loading the EMU10K1 driver
+On Iau, 2005-03-03 at 23:17, Andrew Morton wrote:
+> Ideally, the 2.6.x.y maintainer wouldn't need any particular kernel
+> development skills - it's just patchmonkeying the things which maintainers
+> send him.
 
-Um... this one is highly suspect.  Myself and others have been doing a
-lot of work on this driver lately, and have unloaded and reloaded it
-hundreds and hundreds of times, and no one on the ALSA lists ever
-reported this problem.  If this was real I really think we would have
-heard of it a month ago.  The bug reporter did not even provide a
-backtrace.
+I would disagree, and I suspect anyone else who has maintained a distro
+stable kernel would likewise. It needs one or more people who know who
+to ask about stuff, are careful, have a good grounding in bug spotting,
+races, common mistakes and know roughly how all the kernel works.
+Maintainers aren't very good at it in general and they don't see
+overlaps between areas very well.
 
-Lee 
+Realistically you have to do stuff like read each Linus checkin and
+classify it.
+
+Al Viro is probably the perfect 2.6.x.y maintainer but I doubt he'd want
+to do it.
 

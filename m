@@ -1,64 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266205AbUFIWzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUFIW6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266205AbUFIWzp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 18:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266202AbUFIWzo
+	id S266200AbUFIW6X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 18:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266192AbUFIW6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 18:55:44 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:46038 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266178AbUFIWz1 (ORCPT
+	Wed, 9 Jun 2004 18:58:23 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:20449 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266200AbUFIW6V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 18:55:27 -0400
-Date: Wed, 9 Jun 2004 15:55:10 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.7-rc3-mm1] perfctr cpumask cleanup
-Message-Id: <20040609155510.3ad48776.pj@sgi.com>
-In-Reply-To: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
-References: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 9 Jun 2004 18:58:21 -0400
+Date: Thu, 10 Jun 2004 08:58:12 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [STACK] >3k call path in xfs
+Message-ID: <20040610085812.G1230161@wobbly.melbourne.sgi.com>
+References: <20040609122647.GF21168@wohnheim.fh-wedel.de> <20040609131049.GN21168@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040609131049.GN21168@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Wed, Jun 09, 2004 at 03:10:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Or ... pushing the point further ... one _could_ remove the old_mask as
-well.  However I think this makes the code less clear, even if it does
-save a stack copy of a cpumask_t.  So I'm of mixed feelings on this
-patch, edging slightly toward negative.  Same utter lack of testing as
-the previous patch.
+On Wed, Jun 09, 2004 at 03:10:49PM +0200, J?rn Engel wrote:
+> And since I don't like bounces, how about this patch?
+> 
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+This was fixed awhile back, try a more recent kernel.
 
-Index: 2.6.7-rc3-mm1/drivers/perfctr/virtual.c
-===================================================================
---- 2.6.7-rc3-mm1.orig/drivers/perfctr/virtual.c	2004-06-09 15:38:32.000000000 -0700
-+++ 2.6.7-rc3-mm1/drivers/perfctr/virtual.c	2004-06-09 15:53:06.000000000 -0700
-@@ -403,14 +403,14 @@
- 		return -EFAULT;
- 
- 	if (control.cpu_control.nractrs || control.cpu_control.nrictrs) {
--		cpumask_t old_mask, new_mask;
-+		cpumask_t new_mask;
- 
--		old_mask = tsk->cpus_allowed;
--		cpus_andnot(new_mask, old_mask, perfctr_cpus_forbidden_mask);
-+		cpus_andnot(new_mask, tsk->cpus_allowed,
-+						perfctr_cpus_forbidden_mask);
- 
- 		if (cpus_empty(new_mask))
- 			return -EINVAL;
--		if (!cpus_equal(new_mask, old_mask))
-+		if (!cpus_equal(tsk->cpus_allowed, new_mask))
- 			set_cpus_allowed(tsk, new_mask);
- 	}
- 
-
+cheers.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Nathan

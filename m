@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312581AbSEDMML>; Sat, 4 May 2002 08:12:11 -0400
+	id <S312590AbSEDMPr>; Sat, 4 May 2002 08:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312582AbSEDMMK>; Sat, 4 May 2002 08:12:10 -0400
-Received: from ns.suse.de ([213.95.15.193]:27914 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312581AbSEDMMH>;
-	Sat, 4 May 2002 08:12:07 -0400
-Date: Sat, 4 May 2002 14:12:07 +0200
-From: Dave Jones <davej@suse.de>
-To: Christian Neumair <christian-neumair@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GNU/linux 2.5.14 (?)
-Message-ID: <20020504141207.J30500@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Christian Neumair <christian-neumair@web.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200205041207.g44C72X30485@mailgate5.cinetic.de>
+	id <S312600AbSEDMPq>; Sat, 4 May 2002 08:15:46 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:20490 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S312590AbSEDMPo>; Sat, 4 May 2002 08:15:44 -0400
+Date: Sat, 4 May 2002 14:15:30 +0200
+From: tomas szepe <kala@pinerecords.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild 2.5 release 2.4
+Message-ID: <20020504121529.GA20335@louise.pinerecords.com>
+In-Reply-To: <20020504113954.GB20042@louise.pinerecords.com> <23922.1020513619@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 12 days, 6:39)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 04, 2002 at 02:07:02PM +0200, Christian Neumair wrote:
- > The following entangles me:
- > Although kernelnewbies.org/status tells me that some features are merged in the 2.4.14 release i can't find it on kernel.org.
- > Please clear me up :-)
+> >Or even worse, suppose $KBUILD_OBJTREE gets reset to some weird
+> >value by accident and my whole home dir goes bye bye upon make
+> >mrproper?
+> <sarcasm>
+> Suppose cp gets aliased to rm -rf / by accident and my entire system
+> goes bye bye upon cp?
+> </sarcasm>
 
-2.4.15 != 2.5.15
+Hmm, I don't think this analogy will do -- working with aliases involving
+fileutils as root is a way straight to hell, and hardly anyone ever walks
+it. With kbuild-2.5, however, I have to set $KBUILD_OBJTREE every time
+I want to build a kernel with objects out of the source dir -- and hey,
+is there a single person on this list who's never made a typo on the
+command line?
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+I don't know how to properly emphasize that this *is* asking for problems,
+but still I'd be surprised if I were the only one scared by files not
+connected to the build getting erased on make mrproper. Hello, anyone? :)
+
+Would it be complicated to only kill the files the build knows it had
+created?
+
+
+-Tomas

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263290AbTDCGDX>; Thu, 3 Apr 2003 01:03:23 -0500
+	id <S263285AbTDCGJ4>; Thu, 3 Apr 2003 01:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263293AbTDCGDW>; Thu, 3 Apr 2003 01:03:22 -0500
-Received: from ns.conceptual.net.au ([203.190.192.15]:13474 "EHLO
-	conceptual.net.au") by vger.kernel.org with ESMTP
-	id <S263290AbTDCGDV>; Thu, 3 Apr 2003 01:03:21 -0500
-Message-ID: <3E8BD075.1000709@seme.com.au>
-Date: Thu, 03 Apr 2003 14:11:01 +0800
-From: Brad Campbell <brad@seme.com.au>
-User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
+	id <S263287AbTDCGJ4>; Thu, 3 Apr 2003 01:09:56 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:2762 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S263285AbTDCGJz>; Thu, 3 Apr 2003 01:09:55 -0500
+Message-ID: <3E8BD2D9.8050002@attbi.com>
+Date: Thu, 03 Apr 2003 01:21:13 -0500
+From: Albert Cranford <ac9410@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org
-Subject: Re: Synaptics Touchpad loses sync 2.5.66
-References: <3E8BCB4F.5080900@seme.com.au> <20030403060618.GA28432@triplehelix.org>
-In-Reply-To: <20030403060618.GA28432@triplehelix.org>
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] More i2c driver changes for 2.5.66
+References: <1049328958830@kroah.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SFilter: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kwan wrote:
-> On Thu, Apr 03, 2003 at 01:49:03PM +0800, Brad Campbell wrote:
+I read the thread concerning the removal of proc.c & proc.h
+but hope that this does not go to Linus until the interface
+between i2c & sensors to application is somewhat defined.
+
+At the moment we have a sysctl API used by sensors, video and
+other i2c kernel applications that is working.
+Our desire to switch the sensors to sysfs interface should not
+break other applications.  At least until we have a model/api
+to propose to these other drivers.
+
+In my personal home systems I use it87 driver and have been
+somewhat successful in switching to sysfs.  A big blocking
+point is there is no application to read/set/monitor the
+driver, so it is basically unverified.  I would hate to
+put other i2c applications in the same boat.
+Your thoughts?
+Albert
+
+Greg KH wrote:
+> ChangeSet 1.977.29.8, 2003/04/02 11:45:21-08:00, greg@kroah.com
 > 
->>Under X 4.2.0 (Happened under 4.1.x also) the Touchpad loses sync quite 
->>frequently causing the mouse to go haywire, jumping all over the screen 
->>and sending button presses that I have not made.
->>The exact same configuration works perfectly under 2.4.x
-> 
-> 
-> I talked about this problem on LKML around 2.5.59.
-
-Ahh, that was about when I subscribed, I must have just missed it.
-
-> If you use an ACPI battery monitor (I notice you are on a laptop and
-> you have ACPI enabled), there is a lot of Bad Mojo (TM) in psmouse.c
-> at the moment. Just don't use it if you have a synaptics touchpad, and
-> things should work out immediately.
-
-Well that was interesting.. I started X, told the battery monitor not to 
-start on X startup, stopped X and re-started it, and the machine totaly 
-hard locked. No Alt-Sysrq, no external ping.. no nothing..
-
-After a hard re-boot, I can confirm that not running the ACPI battery 
-monitor solves (works around) the problem. Problem being I now have no 
-idea when my battery is going to die :p)
-
-Thanks for the quick response.
-
--- 
-Brad....
-  /"\
-  \ /     ASCII RIBBON CAMPAIGN
-   X      AGAINST HTML MAIL
-  / \
+> i2c: remove proc and sysctl code from i2c-proc as it is no longer used.
+>
 

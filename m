@@ -1,179 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271006AbRHODLC>; Tue, 14 Aug 2001 23:11:02 -0400
+	id <S271011AbRHODRW>; Tue, 14 Aug 2001 23:17:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271008AbRHODKx>; Tue, 14 Aug 2001 23:10:53 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:26632 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S271006AbRHODKf>; Tue, 14 Aug 2001 23:10:35 -0400
-Date: Tue, 14 Aug 2001 23:10:36 -0400 (EDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] starfire driver update for 2.4.8+
-Message-ID: <Pine.LNX.4.33.0108142303110.26973-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271010AbRHODRM>; Tue, 14 Aug 2001 23:17:12 -0400
+Received: from ma-northadams1a-359.bur.adelphia.net ([24.52.175.103]:53768
+	"EHLO ma-northadams1a-359.bur.adelphia.net") by vger.kernel.org
+	with ESMTP id <S271008AbRHODRA>; Tue, 14 Aug 2001 23:17:00 -0400
+Date: Tue, 14 Aug 2001 12:29:55 -0400
+From: Eric Buddington <eric@sparrow.bur.adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: VM (runaway kswapd) improvement 32Mb/120Mb 2.4.7-ac10 -> 2.4.8-ac4
+Message-ID: <20010814122955.Q607@sparrow.bur.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+FWIW, my Omnibook 4100 (PII) with 32Mb RAM and 120Mb swap had some
+trouble with frequent bursts of 98% system time and high kswapd CPU
+usage under 2.4.7-ac10 while compiling the kernel and running festival
+(memory-intensive speech synthesizer).
 
-Primarily fixed in this update:
+Currently, with 2.4.8-ac4, everything is just swell. Thanks to whoever
+did the tweaking.
 
-- some initialization timing problems that could lock up a machine under
-  the wrong circumstances
-
-- two interrupt mask definitions that could cause bogus messages to be 
-  logged even when everything was functioning normally
-
-On the side, it moves the includes before the first point that actually 
-needs them, and removes the reference to Donald Becker's site for updates.
-
-Please apply.
-
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
---------------------------------
---- ../linux-2.4/drivers/net/starfire.c	Tue Aug 14 22:29:08 2001
-+++ linux-2.4/drivers/net/starfire.c	Tue Aug 14 22:55:42 2001
-@@ -89,13 +89,29 @@
- 	- Initialize the TxMode register properly
- 	- Don't dereference dev->priv after freeing it
- 
-+	LK1.3.4 (Ion Badulescu)
-+	- Fixed initialization timing problems
-+	- Fixed interrupt mask definitions
-+
- TODO:
- 	- implement tx_timeout() properly
- */
- 
- #define DRV_NAME	"starfire"
--#define DRV_VERSION	"1.03+LK1.3.3"
--#define DRV_RELDATE	"July 05, 2001"
-+#define DRV_VERSION	"1.03+LK1.3.4"
-+#define DRV_RELDATE	"August 14, 2001"
-+
-+#include <linux/version.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/pci.h>
-+#include <linux/netdevice.h>
-+#include <linux/etherdevice.h>
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <asm/processor.h>		/* Processor type for cache alignment. */
-+#include <asm/uaccess.h>
-+#include <asm/io.h>
- 
- /*
-  * Adaptec's license for their Novell drivers (which is where I got the
-@@ -124,6 +140,10 @@
- #define ZEROCOPY
- #endif
- 
-+#ifdef HAS_FIRMWARE
-+#include "starfire_firmware.h"
-+#endif /* HAS_FIRMWARE */
-+
- /* The user-configurable values.
-    These may be modified when a driver module is loaded.*/
- 
-@@ -196,22 +216,6 @@
- #define skb_first_frag_len(skb)	(skb->len)
- #endif /* not ZEROCOPY */
- 
--#include <linux/version.h>
--#include <linux/module.h>
--#include <linux/kernel.h>
--#include <linux/pci.h>
--#include <linux/netdevice.h>
--#include <linux/etherdevice.h>
--#include <linux/init.h>
--#include <linux/delay.h>
--#include <asm/processor.h>		/* Processor type for cache alignment. */
--#include <asm/uaccess.h>
--#include <asm/io.h>
--
--#ifdef HAS_FIRMWARE
--#include "starfire_firmware.h"
--#endif /* HAS_FIRMWARE */
--
- /* 2.2.x compatibility code */
- #if LINUX_VERSION_CODE < 0x20300
- 
-@@ -242,7 +246,6 @@
- /* These identify the driver base version and may not be removed. */
- static char version[] __devinitdata =
- KERN_INFO "starfire.c:v1.03 7/26/2000  Written by Donald Becker <becker@scyld.com>\n"
--KERN_INFO " Updates and info at http://www.scyld.com/network/starfire.html\n"
- KERN_INFO " (unofficial 2.2/2.4 kernel port, version " DRV_VERSION ", " DRV_RELDATE ")\n";
- 
- MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
-@@ -417,7 +420,7 @@
- 	/* not quite bits */
- 	IntrRxDone=IntrRxQ2Done | IntrRxQ1Done,
- 	IntrRxEmpty=IntrRxDescQ1Low | IntrRxDescQ2Low,
--	IntrNormalMask=0xf0, IntrAbnormalMask=0x3f0e,
-+	IntrNormalMask=0xff00, IntrAbnormalMask=0x3ff00fe,
- };
- 
- /* Bits in the RxFilterMode register. */
-@@ -656,10 +659,7 @@
- 
- #ifdef ZEROCOPY
- 	/* Starfire can do SG and TCP/UDP checksumming */
--	dev->features |= NETIF_F_SG;
--#ifdef HAS_FIRMWARE
--	dev->features |= NETIF_F_IP_CSUM;
--#endif /* HAS_FIRMWARE */
-+	dev->features |= NETIF_F_SG | NETIF_F_IP_CSUM;
- #endif /* ZEROCOPY */
- 
- 	/* Serial EEPROM reads are hidden by the hardware. */
-@@ -745,7 +745,7 @@
- 		int mii_status;
- 		for (phy = 0; phy < 32 && phy_idx < PHY_CNT; phy++) {
- 			mdio_write(dev, phy, MII_BMCR, BMCR_RESET);
--			udelay(500);
-+			mdelay(100);
- 			boguscnt = 1000;
- 			while (--boguscnt > 0)
- 				if ((mdio_read(dev, phy, MII_BMCR) & BMCR_RESET) == 0)
-@@ -768,6 +768,14 @@
- 		np->phy_cnt = phy_idx;
- 	}
- 
-+#ifdef ZEROCOPY
-+	printk(KERN_INFO "%s: scatter-gather and hardware TCP cksumming enabled.\n",
-+	       dev->name,
-+#else  /* not ZEROCOPY */
-+	printk(KERN_INFO "%s: scatter-gather and hardware TCP cksumming disabled.\n",
-+	       dev->name);
-+#endif /* not ZEROCOPY */
-+
- 	return 0;
- 
- err_out_cleardev:
-@@ -931,6 +939,7 @@
- 	/* Configure the PCI bus bursts and FIFO thresholds. */
- 	np->tx_mode = 0x0C04;		/* modified when link is up. */
- 	writel(0x8000 | np->tx_mode, ioaddr + TxMode);
-+	udelay(1000);
- 	writel(np->tx_mode, ioaddr + TxMode);
- 	np->tx_threshold = 4;
- 	writel(np->tx_threshold, ioaddr + TxThreshold);
-@@ -1546,6 +1561,7 @@
- 		if (np->tx_mode != new_tx_mode) {
- 			np->tx_mode = new_tx_mode;
- 			writel(np->tx_mode | 0x8000, ioaddr + TxMode);
-+			udelay(1000);
- 			writel(np->tx_mode, ioaddr + TxMode);
- 		}
- 	} else {
-
+-Eric

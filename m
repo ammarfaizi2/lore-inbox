@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266456AbUFZVvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUFZVyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266456AbUFZVvs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 17:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUFZVvs
+	id S266457AbUFZVyX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 17:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266458AbUFZVyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 17:51:48 -0400
-Received: from mta02.tie.cl ([200.50.96.211]:28587 "EHLO webmail.tie.cl")
-	by vger.kernel.org with ESMTP id S266456AbUFZVvr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 17:51:47 -0400
-Message-ID: <40C9A71D002356F0@mta02.tie.cl> (added by postmaster@tie.cl)
-Reply-To: "Fdo Areces" <cristovive@adsl.tie.cl>
-From: "Fdo Areces" <cristovive@adsl.tie.cl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Bendiciones y un gran  =?ISO-8859-1?Q?=20d=EDa?= para ti junto a Dios
-Date: Sat, 26 Jun 2004 17:51:49 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Sat, 26 Jun 2004 17:54:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33445 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266457AbUFZVyW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 17:54:22 -0400
+Date: Sat, 26 Jun 2004 22:54:21 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: mj@ucw.cz, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pciutils: Support for MSI-X capability
+Message-ID: <20040626215421.GA26262@parcelfarce.linux.theplanet.co.uk>
+References: <52y8mayzdy.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52y8mayzdy.fsf@topspin.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 26, 2004 at 10:58:49AM -0700, Roland Dreier wrote:
+> Hi, here is a patch to pciutils that adds parsing of MSI-X capability
+> entries.  With this patch, an MSI-X capability will be dumped with -v as
 
-Si aceptas a Dios y a  su hijo Jesús el Cristo, entonces visita esta página
-www.enelnombredecristo.com
-Lee su mensaje y  que Dios te bendiga.
+Thanks for doing this, Roland.  I was going to get to it in a few days.
+Unfortunately, it's going to conflict in a few textual ways with one or
+two of the [RFC] patches I posted.
 
-Un abrazo
-Fernando Areces
+Martin, how can we make this easiest for you?  Do you want to merge
+Roland's fully-fledged MSI-X patch and put out a new -test release that
+I can send half-baked PCI-E patches against until everybody's happy with
+the outcome?
 
-Pd: esto no es religión, es solo un mensaje real.
-Gracias
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

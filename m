@@ -1,118 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263899AbTA0WNB>; Mon, 27 Jan 2003 17:13:01 -0500
+	id <S267321AbTA0WW3>; Mon, 27 Jan 2003 17:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbTA0WNA>; Mon, 27 Jan 2003 17:13:00 -0500
-Received: from very.disjunkt.com ([195.167.192.238]:40363 "EHLO disjunkt.com")
-	by vger.kernel.org with ESMTP id <S263899AbTA0WMv> convert rfc822-to-8bit;
-	Mon, 27 Jan 2003 17:12:51 -0500
-Date: Mon, 27 Jan 2003 23:21:37 +0100 (CET)
-From: Jean-Daniel Pauget <jd@disjunkt.com>
-X-X-Sender: jd@mint
-To: lkml <linux-kernel@vger.kernel.org>
-cc: Tom Winkler <tom@qwws.net>
-Subject: Re: poor IDE performance on ASUS P4PE with WD800JB
-In-Reply-To: <Pine.LNX.3.96.1030127162113.27928A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.51.0301272308431.466@mint>
-References: <Pine.LNX.3.96.1030127162113.27928A-100000@gatekeeper.tmr.com>
+	id <S267322AbTA0WW3>; Mon, 27 Jan 2003 17:22:29 -0500
+Received: from [192.58.209.91] ([192.58.209.91]:19684 "HELO handhelds.org")
+	by vger.kernel.org with SMTP id <S267321AbTA0WW2>;
+	Mon, 27 Jan 2003 17:22:28 -0500
+From: George France <france@handhelds.org>
+To: linux-kernel@vger.kernel.org
+Subject: [Patch] Trivial  video/sis/sis_main.c fix for Alpha Arch 2.4.20-pre3
+Date: Mon, 27 Jan 2003 17:31:36 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: thomas@winischhofer.net, Richard Henderson <rth@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Message-Id: <03012717313600.20518@shadowfax.middleearth>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings,
 
-    I'm using some maxtor on the same motherboard and I had to struggle a
-    bit before getting some decent perf, basically I kept only the minimum
-    IDE,ATA.. drivers in my kernel, for my P4PE it's the Intel PIIXn and
-    also the PIIXn tuning option.
-    I also added idebus=66 in my command-line kernel option...
-    I disabled the Promise Raid controller in the bios that was responsible
-    for some 2.4.20 kernels to hang at detection (?)
+A trivial little patch, I have been using for the Alpha Architecture since Linux
+2.4.0.
 
-    now I get this :
-
-# hdparm -tT /dev/hda
-
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.30 seconds =426.67 MB/sec
- Timing buffered disk reads:  64 MB in  1.38 seconds = 46.38 MB/sec
-
-# hdparm -I /dev/hda
-
-/dev/hda:
-
-non-removable ATA device, with non-removable media
-        Model Number:           Maxtor 6Y120P0
-        Serial Number:          Y40FKPWE
-        Firmware Revision:      YAR41VW0
-Standards:
-        Supported: 1 2 3 4 5 6 7
-        Likely used: 7
-Configuration:
-        Logical         max     current
-        cylinders       16383   16383
-        heads           16      16
-        sectors/track   63      63
-        bytes/track:    0               (obsolete)
-        bytes/sector:   0               (obsolete)
-        current sector capacity: 16514064
-        LBA user addressable sectors = 240121728
-Capabilities:
-        LBA, IORDY(can be disabled)
-        Buffer size: 7936.0kB   ECC bytes: 57   Queue depth: 1
-        Standby timer values: spec'd by standard, no device specific
-minimum
-        r/w multiple sector transfer: Max = 16  Current = 16
-        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 udma6
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4
-             Cycle time: no flow control=120ns  IORDY flow control=120ns
-Commands/features:
-        Enabled Supported:
-           *    NOP cmd
-           *    READ BUFFER cmd
-           *    WRITE BUFFER cmd
-           *    Host Protected Area feature set
-           *    look-ahead
-           *    write cache
-           *    Power Management feature set
-                Security Mode feature set
-                SMART feature set
-                SET MAX security extension
-                Advanced Power Management feature set
-           *    DOWNLOAD MICROCODE cmd
-Security:
-        Master password revision code = 65534
-                supported
-        not     enabled
-        not     locked
-        not     frozen
-        not     expired: security count
-        not     supported: enhanced erase
-HW reset results:
-        CBLID- above Vih
-        Device num = 0 determined by the jumper
-Checksum: correct
+Best Regards,
 
 
-this disk seems equivalent to your western digital.
+--George
+
+----------  Forwarded Message  ----------
+Subject: sis patch
+Date: Fri, 24 Jan 2003 18:41:30 -0500
+From: "France, George (LKG)" <george.france2@hp.com>
+To: <france@handhelds.org>
 
 
-my lspci :
+--- linux/drivers/video/sis/sis_main.c-orig	Fri Jan 24 17:57:30 2003
++++ linux/drivers/video/sis/sis_main.c	Fri Jan 24 17:57:52 2003
+@@ -41,7 +41,9 @@
+ #include <linux/sisfb.h>
 
-00:00.0 Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge (rev 02)
-00:01.0 PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 82)
-00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio (rev 02)
-01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti4200] (rev a3)
-02:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-02:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+ #include <asm/io.h>
++#ifdef CONFIG_MTRR
+ #include <asm/mtrr.h>
++#endif
 
-a lot of device don't appear here because I disabled them whilst looking
-for what is causing my maching to hang once every three days...
+ #include <video/fbcon.h>
+ #include <video/fbcon-cfb8.h>
 
---
-Quand les plombs pêtent : « Ðïsjüñ£t.¢¤× »
+-------------------------------------------------------

@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVADAu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVADAdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbVADAu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVADAqR
+	id S262029AbVADAdO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVADAaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:46:17 -0500
-Received: from mail.tmr.com ([216.238.38.203]:19213 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262005AbVADAma (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:42:30 -0500
-Date: Mon, 3 Jan 2005 19:02:04 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, "Theodore Ts'o" <tytso@mit.edu>,
-       Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7 
-In-Reply-To: <Pine.LNX.4.61.0501032232060.3529@dragon.hygekrogen.localhost>
-Message-ID: <Pine.LNX.3.96.1050103190042.30038F-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Jan 2005 19:30:05 -0500
+Received: from jubilee.implode.net ([64.40.108.188]:21378 "EHLO
+	jubilee.implode.net") by vger.kernel.org with ESMTP id S262044AbVADA1y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:27:54 -0500
+Date: Mon, 3 Jan 2005 16:27:49 -0800
+From: John Wong <kernel@implode.net>
+To: Joel Cant <lkml@linuxmod.co.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Promise IDE DMA issue
+Message-ID: <20050104002749.GA10025@gambit.implode.net>
+References: <20050102173704.GA14056@gambit.implode.net> <41D9885B.9090304@pobox.com> <20050103215250.GA9409@gambit.implode.net> <41D9C5C2.5010606@linuxmod.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D9C5C2.5010606@linuxmod.co.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jan 2005, Jesper Juhl wrote:
-
-> On Mon, 3 Jan 2005, Horst von Brand wrote:
+On Mon, Jan 03, 2005 at 10:22:58PM +0000, Joel Cant wrote:
+> John Wong wrote:
 > 
-> > "Theodore Ts'o" <tytso@mit.edu> said:
+> >Latest 1.009 BIOS flashed last night.  I'll try out some BIOS settings, 
+> >but the settings work fine with Windows XP.  That's why I think it could 
+> >be something with the driver.  This is with the PDC202XX_NEW on kernel 
+> >2.6.10  The DMA timeout happens sporadically, but as of yet, has yet to
+> >reoccur.  The change from 1.008 to 1.009 mentions nothing about the
+> >Promide IDE.  
+> >
+> >John
+> >
+> >On Mon, Jan 03, 2005 at 01:00:59PM -0500, Jeff Garzik wrote:
 > > 
-> > [...]
-> > 
-> > > The real key, as always, is getting users to download and test a
-> > > release.  So another approach might be to shorten the time between
-> > > 2.6.x and 2.6.x+1 releases, so as to recreate more testing points,
-> > > without training people to wait for -bk1, -bk2, -rc1, etc. before
-> > > trying out the kernel code.  This is the model that we used with the
-> > > 2.3.x series, where the time between releases was often quite short.
-> > > That worked fairly well, but we stopped doing it when the introduction
-> > > of BitKeeper eliminated the developer synch-up problem.  But perhaps
-> > > we've gone too far between 2.6.x releases, and should shorten the time
-> > > in order to force more testing.  
-> > 
-> > Is there any estimate of the number of daily-straight-from-BK users? I'm
-> > one, haven't seen any trouble (thus silent up to here).
+> >
+> >>John Wong wrote:
+> >>   
+> >>
+> >>>I recently upgraded fron a nVidia nForce2 MCP-T based A7NX-DX
+> >>>motherboard to an A8V DX, Via K8T800 Pro.  Now occassionally, I get 
+> >>>DMA issues on a drive attached to a Promise 133 TX2 controller (20269).
+> >>>     
+> >>>
+> >>I would try fiddling with BIOS settings, and make sure you have the 
+> >>latest BIOS.
+> >>
+> >>	Jeff
+> >>
+> >>
+> >>
+> >>
+> >>   
+> >>
+> Sounds simlar to the problems i'm having with the channels resetting 
+> under heavy load, and then fudging DMA, and i'm not the only one havign 
+> these issues, seems its a common problem with these cards, not sure if 
+> theres been some slight changes in the chip itself or wether there is a 
+> fault with the kernel driver, as you say, it seems that the problem does 
+> not occour under windows.
 > 
-> I'm another. Every morning when I turn on my machine I grab the latest 
-> -bk, build it with my usual config, install that kernel and reboot, then 
-> use that as my "kernel of the day". I do this on both my home and work 
-> box (well, the work box only does this on mondays) and I've had very 
-> little trouble so far.
+> Joel
 
-Somewhere there is a pawn shop with only one big brass ball, and I know
-where the other two are...
+Before my motherboard upgrade, the Promise 133TX2 used to be a 100TX2.  
+I didn't have this problem then, but then, I also had more PCI buses 
+then according to the outputs of lspci.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+The DMA problem does only appear to happen with me under load as well,
+torrenting to one drive, and probably updatedb on another.
 
+John

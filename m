@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbTEILbi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 07:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTEILbh
+	id S262459AbTEILaY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 07:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbTEILaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 07:31:37 -0400
-Received: from gate.perex.cz ([194.212.165.105]:34053 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S262479AbTEILb3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 07:31:29 -0400
-Date: Fri, 9 May 2003 13:43:20 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Christoph Hellwig <hch@lst.de>
-Cc: "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       "torvalds@transmeta.com" <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove unused funcion proc_mknod
-In-Reply-To: <20030505213004.B24006@lst.de>
-Message-ID: <Pine.LNX.4.44.0305091336060.1237-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 May 2003 07:30:24 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:65494 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262459AbTEILaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 07:30:21 -0400
+Date: Fri, 9 May 2003 12:42:48 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Roland McGrath <roland@redhat.com>
+Cc: Andrew Morton <akpm@digeo.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+Message-ID: <20030509114248.GA19959@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@digeo.com>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <20030509021921.166f82fc.akpm@digeo.com> <200305091043.h49Ah7Z24822@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305091043.h49Ah7Z24822@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 May 2003, Christoph Hellwig wrote:
+On Fri, May 09, 2003 at 03:43:07AM -0700, Roland McGrath wrote:
+ > Here's an updated version of the patch.  Since the support for 386s without
+ > WP support seems to be gone, I shaved an instruction here and there by not
+ > passing the read/write flag to the helper function.  
 
-> On Mon, May 05, 2003 at 08:22:48PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > manually.  IOW, removal of proc_mknod() won't solve anything.  The
-> > real question is whether we should allow device nodes on procfs.
-> > If we should not allow them, ALSA needs API changes.  If we should,
-> > it'd be better to have creation of such nodes explicit (and if ALSA
-> > keeps doing that, it should switch to calling proc_mknod()).
-> 
-> We shouldn't.  It's very bad style.  And it seems ALSA also registers a
-> chardev and devfs entries for that stuff.
-> 
-> Jaroslav, can we just drop that junk or is it still used by userland.
-> And if yes how long will it take to get an alsa-libs release out to
-> not rely on it?
+should still be supported. this cset - 
+http://linus.bkbits.net:8080/linux-2.5/cset@1.1078.1.24
+rejigged how the WP test is done.
 
-alsa-lib doesn't rely on it at all. The devices in /dev/snd/ might be 
-created in these ways:
-
-1) static - using the mknod command
-2) using devfs
-3) link /dev/snd to /proc/asound/dev
-
-We prefered the third solution because we were changing heavily the device
-minor numbers in the past. We can remove the proc dynamic device creating
-from our code now. I agree, this code should not be in the kernel tree.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+		Dave
 

@@ -1,112 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbTH2U2b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 16:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTH2U2a
+	id S262083AbTH2UNE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 16:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbTH2UIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 16:28:30 -0400
-Received: from gondola.steamballoon.com ([209.151.1.130]:43414 "EHLO
-	gondola.steamballoon.com") by vger.kernel.org with ESMTP
-	id S263525AbTH2U1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 16:27:09 -0400
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-From: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6Hnsd6hNa7SzogzMkv8J"
-Message-Id: <1062188787.4062.21.camel@elenuial.steamballoon.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 29 Aug 2003 16:26:28 -0400
+	Fri, 29 Aug 2003 16:08:39 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:23265 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262020AbTH2UHk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 16:07:40 -0400
+Message-ID: <3F4FB2DC.50006@terra.com.br>
+Date: Fri, 29 Aug 2003 17:09:00 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: netfilter-devel@lists.netfilter.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: [PATCH 2/9] Remove unneeded linux/version.h from net/ipv4/netfilter/ip_conntrack_standalone
+Content-Type: multipart/mixed;
+ boundary="------------030207070504020807030206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030207070504020807030206
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---=-6Hnsd6hNa7SzogzMkv8J
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+	Based on Randy's modified checkversion.pl script.
 
-Ran it on a few systems here.
+	Compile fine against 2.6.0-test4.
 
-Corel NetWinder (275MHz StrongARM)
-Test separation: 4096 bytes: FAIL - cache not coherent
-Test separation: 8192 bytes: FAIL - cache not coherent
-Test separation: 16384 bytes: FAIL - cache not coherent
-Test separation: 32768 bytes: FAIL - cache not coherent
-Test separation: 65536 bytes: FAIL - cache not coherent
-Test separation: 131072 bytes: FAIL - cache not coherent
-Test separation: 262144 bytes: FAIL - cache not coherent
-Test separation: 524288 bytes: FAIL - cache not coherent
-Test separation: 1048576 bytes: FAIL - cache not coherent
-Test separation: 2097152 bytes: FAIL - cache not coherent
-Test separation: 4194304 bytes: FAIL - cache not coherent
-Test separation: 8388608 bytes: FAIL - cache not coherent
-Test separation: 16777216 bytes: FAIL - cache not coherent
-VM page alias coherency test: failed; will use copy buffers instead
+	Please consider applying.
 
-cat /proc/cpuinfo
-Processor       : StrongARM-110 rev 3 (v4l)
-BogoMIPS        : 185.95
-Features        : swp half 26bit fastmult
-=20
-Hardware        : Rebel-NetWinder
-Revision        : 52ff
-Serial          : 00000000000008bf
+	Cheers,
 
+Felipe
 
+--------------030207070504020807030206
+Content-Type: text/plain;
+ name="ip_conntrack_standalone.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ip_conntrack_standalone.patch"
 
-HP zx6000 (2xItanium 2)
-time ./test
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
-                                                                           =
-    =20
-real    0m7.455s
-user    0m7.412s
-sys     0m0.040s
+--- linux-2.6.0-test4/net/ipv4/netfilter/ip_conntrack_standalone.c.orig	Fri Aug 29 16:44:23 2003
++++ linux-2.6.0-test4/net/ipv4/netfilter/ip_conntrack_standalone.c	Fri Aug 29 16:44:28 2003
+@@ -14,7 +14,6 @@
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
+ #include <linux/proc_fs.h>
+-#include <linux/version.h>
+ #include <net/checksum.h>
+ 
+ #define ASSERT_READ_LOCK(x) MUST_BE_READ_LOCKED(&ip_conntrack_lock)
 
-cat /proc/cpuinfo
-processor  : 0
-vendor     : GenuineIntel
-arch       : IA-64
-family     : Itanium 2
-model      : 0
-revision   : 7
-archrev    : 0
-features   : branchlong
-cpu number : 0
-cpu regs   : 4
-cpu MHz    : 900.000000
-itc MHz    : 900.000000
-BogoMIPS   : 1346.37
-
-
-
-
-
---=-6Hnsd6hNa7SzogzMkv8J
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/T7bwqJaxCwvMzfwRAmzeAJ9rcMyEm0f+ulKxCqDRJ2/i+Bz+ZgCgtJMy
-+bcx6vSEXnDICrldz0ki+zE=
-=o47r
------END PGP SIGNATURE-----
-
---=-6Hnsd6hNa7SzogzMkv8J--
+--------------030207070504020807030206--
 

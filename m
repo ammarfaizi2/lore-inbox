@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUH0PPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUH0PPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265978AbUH0PPP (ORCPT <rfc822;willy@w.ods.org>);
+	id S265996AbUH0PPP (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 27 Aug 2004 11:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUH0POf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUH0POQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 11:14:35 -0400
-Received: from fire.osdl.org ([65.172.181.4]:48003 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S266137AbUH0PNa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 11:13:30 -0400
-Subject: 2 New compile/sparse warnings (nightly build)
-From: John Cherry <cherry@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1093619350.2467.17.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 27 Aug 2004 08:09:10 -0700
+	Fri, 27 Aug 2004 11:14:16 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:50898 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S266133AbUH0PNP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 11:13:15 -0400
+Date: Fri, 27 Aug 2004 17:15:20 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <1888171711.20040827171520@tnonline.net>
+To: Rik van Riel <riel@redhat.com>
+CC: Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
+       <jamie@shareable.org>, <christophe@saout.de>,
+       <vda@port.imtp.ilyichevsk.odessa.ua>, <christer@weinigel.se>,
+       <akpm@osdl.org>, <wichert@wiggy.net>, <jra@samba.org>, <hch@lst.de>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <flx@namesys.com>, <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
+References: <412EEB75.1030401@namesys.com>
+ <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary:
-   New warnings = 2
-   Fixed warnings = 8
+> On Fri, 27 Aug 2004, Hans Reiser wrote:
 
-New warnings:
--------------
-drivers/usb/gadget/inode.c:587:19: warning: Using plain integer as NULL
-pointer
+>> Why are you guys even considering going to any pain at all to distort
+>> semantics for the sake of backup?  tar is easy, we'll fix it and send in
+>> a patch. 
 
-drivers/usb/gadget/inode.c:706:47: warning: Using plain integer as NULL
-pointer
+> It's not as easy as you make it out, and not just because
+> there are a few dozen backup programs that need fixing.
 
-Fixed warnings:
----------------
-drivers/char/ipmi/ipmi_poweroff.c:427:56: warning: Using plain integer
-as NULL pointer
+> The problem is more fundamental than that.  Some of the
+> file streams proposed need to be backed up, while others
+> are alternative presentations of the file, which should
+> not be backed up.
 
-drivers/scsi/fdomain.c:767: warning: `check_region' is deprecated
-(declared at include/linux/ioport.h:121)
+  No, not really. This is a user decision and should be options in the
+  backup  software.  I don't think it is up to the kernel, filesystem,
+  or  the  OS  in  general to decide what information the user want to
+  retain or not.
 
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:746:14: warning: cast to non-scalar
+> Currently I see no way to distinguish between the stuff
+> that should be backed up and the stuff that shouldn't.
 
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:747:14: warning: cast to non-scalar
+> That problem needs to be resolved before we can even start
+> thinking about fixing archivers...
 
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
-drivers/scsi/wd7000.c:748:14: warning: cast to non-scalar
+  The  archivers  should,  as  I  said,  allow  the user to choose. It
+  shouldn't be automatic. Default, should IMO be to store everything.
 
-include/linux/usb.h:892:21: warning: shift too big for type (40)
-
-net/ipv4/netfilter/ip_conntrack_proto_sctp.c:69:5: warning: Using plain
-integer as NULL pointer
-
-net/sunrpc/auth_gss/gss_spkm3_seal.c:129:16: warning: Using plain
-integer as NULL pointer
-
+  ~S
 
 

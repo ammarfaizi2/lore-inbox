@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbQJ0Qps>; Fri, 27 Oct 2000 12:45:48 -0400
+	id <S129681AbQJ0Q0X>; Fri, 27 Oct 2000 12:26:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129958AbQJ0Qpi>; Fri, 27 Oct 2000 12:45:38 -0400
-Received: from mail.perfectionlearning.com ([207.177.35.146]:28412 "EHLO
-	catbert.desm.plconline.com") by vger.kernel.org with ESMTP
-	id <S129842AbQJ0QpV>; Fri, 27 Oct 2000 12:45:21 -0400
-Date: Fri, 27 Oct 2000 11:31:52 -0500 (CDT)
-From: David Weis <djweis@sjdjweis.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: GPL Question
-In-Reply-To: <39F9AF0E.70406@triad.rr.com>
-Message-ID: <Pine.LNX.4.10.10010271130550.23907-100000@catbert.desm.plconline.com>
+	id <S129747AbQJ0Q0N>; Fri, 27 Oct 2000 12:26:13 -0400
+Received: from kanga.kvack.org ([209.82.47.3]:43022 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S129681AbQJ0QZ4>;
+	Fri, 27 Oct 2000 12:25:56 -0400
+Date: Fri, 27 Oct 2000 12:24:39 -0400 (EDT)
+From: <kernel@kvack.org>
+To: David Weinehall <tao@acc.umu.se>
+cc: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test9 + LFS
+In-Reply-To: <20001027181505.A2074@khan.acc.umu.se>
+Message-ID: <Pine.LNX.3.96.1001027122341.27457B-100000@kanga.kvack.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 27 Oct 2000, David Weinehall wrote:
 
+> On Fri, Oct 27, 2000 at 12:19:54PM -0400, Wakko Warner wrote:
 
-On Fri, 27 Oct 2000, Jason Wohlgemuth wrote:
+> > That I do not know.  it's v 2.1.99  that came with debian in the past
+> > week or so
+> 
+> Then it's compiled against the v2.2 kernel headers.
 
-> Now, if a module is loaded that registers a set of functions that have 
-> increased functionality compared to the original functions, if that 
-> modules is not based off GPL'd code, must the source code of that module 
-> be released under the GPL?
+That explains why LFS isn't working then.  I strongly suggest that the
+Debian glibc maintainers compile against 2.4 kernel headers or patch their
+2.2 kernel headers to include the LFS stubs.
 
-It would probably follow GPL, but it's pretty slimy. I won't buy it.
-
-david
-
--- 
-David Weis                | "Great spirits will always encounter violent
-djweis@sjdjweis.com       | opposition from mediocre minds" - Einstein
-http://www.sjdjweis.com/  |
+		-ben
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

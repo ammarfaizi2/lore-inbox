@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbTK3Nfe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 08:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbTK3Nfe
+	id S264601AbTK3Npk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 08:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbTK3Npj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 08:35:34 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:9702 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261500AbTK3Nfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 08:35:32 -0500
-Date: Sun, 30 Nov 2003 14:35:27 +0100 (MET)
-From: Sebastiaan <S.Breedveld@ewi.tudelft.nl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: S.Breedveld@ewi.tudelft.nl, <linux-kernel@vger.kernel.org>
-Subject: Re: PowerMac floppy (SWIM-3) doesn't compile
-In-Reply-To: <200311301125.hAUBPRC4029084@harpo.it.uu.se>
-Message-ID: <Pine.GHP.4.44.0311301430150.29980-100000@elektron.its.tudelft.nl>
+	Sun, 30 Nov 2003 08:45:39 -0500
+Received: from fep21-0.kolumbus.fi ([193.229.0.48]:46026 "EHLO
+	fep21-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S264601AbTK3Npg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 08:45:36 -0500
+Date: Sun, 30 Nov 2003 13:44:44 +0200 (MET DST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+X-X-Sender: szaka@ua178d119.elisa.omakaista.fi
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Sven Luther <sven.luther@wanadoo.fr>, Andrew Clausen <clausen@gnu.org>,
+       Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
+Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+In-Reply-To: <20031129124116.GB5372@win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0311292228030.3608@ua178d119.elisa.omakaista.fi>
+References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl>
+ <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi>
+ <20031129091843.GA2430@iliana> <20031129124116.GB5372@win.tue.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, 30 Nov 2003, Mikael Pettersson wrote:
+On Sat, 29 Nov 2003, Andries Brouwer wrote:
 
-> On Sun, 30 Nov 2003 10:19:07 +0100 (MET), Sebastiaan <S.Breedveld@ewi.tudelft.nl> wrote:
-> >I am trying to build the 2.6.0-test11 kernel for my PowerMac 7300/166, but
-> >the floppy controller doesn't want to compile. I have:
->
-> Known problem. Has been reported several times, but the PPC
-> maintainers haven't bothered merging the fix yet.
->
-> I'm using the patch below since the 2.5.7x kernels.
-> (Paul Mackerras' 2.4 swim3 rework forward-ported to 2.5 by me.)
-> There's also an "official" powermac tree somewhere which
-> includes some swim3 patch, but I don't know if it's the same
-> as this one.
->
-Thanks, the patch works fine :).
+> You see, saving the logical partitions is not enough - these sectors
+> are spread out over the disk, and there used to be something else
+> where these sectors are written. 
 
-> As for the boot problem you reported, please try a newer gcc
-> like 3.2.3 or 3.3.2. I had lots of wierd problems with 2.95.3
-> and the 2.4 kernels on ppc before I switched to gcc-3.x.x.
->
-I have upgraded to 3.3.2 but the problem remains.
+Yes but fdisk, cfdisk and parted doesn't have this feature either. Those
+are what people use most often from the command line for interactive
+partitioning (use the right tool for the job).
+                                                                                                                            
+Saving the table with sfdisk is the best but imperfect workaround. sfdisk
+can't know what steps will be done later on with a different partitioning
+tool. 
 
-Thanks,
-Sebastiaan
+But at least its data should be enough to diagnose problems in the other
+partitioning tools.
 
-
---
-
-English written by Dutch people is easily recognized by the improper use of 'In principle ...'
-
-The software box said 'Requires Windows 95 or better', so I installed Linux.
-
-Als Pacman in de jaren '80 de kinderen zo had be?nvloed zouden nu veel jongeren rondrennen
-in donkere zalen terwijl ze pillen eten en luisteren naar monotone electronische muziek.
-(Kristian Wilson, Nintendo, 1989)
-
-
+	Szaka

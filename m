@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267489AbTBFSFW>; Thu, 6 Feb 2003 13:05:22 -0500
+	id <S267487AbTBFSML>; Thu, 6 Feb 2003 13:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267488AbTBFSFW>; Thu, 6 Feb 2003 13:05:22 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:18311 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S267476AbTBFSFT>;
-	Thu, 6 Feb 2003 13:05:19 -0500
-Date: Thu, 6 Feb 2003 19:15:11 +0100 (CET)
-From: Stephan van Hienen <raid@a2000.nu>
-To: "Peter L. Ashford" <ashford@sdsc.edu>
-cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Promise FastTrak TX4 losing interrupts (with apic mode)
-In-Reply-To: <Pine.GSO.4.30.0302060728320.15885-100000@multivac.sdsc.edu>
-Message-ID: <Pine.LNX.4.53.0302061913210.17629@ddx.a2000.nu>
-References: <Pine.GSO.4.30.0302060728320.15885-100000@multivac.sdsc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267496AbTBFSML>; Thu, 6 Feb 2003 13:12:11 -0500
+Received: from linux3.contactor.se ([193.15.23.23]:37339 "EHLO
+	linux3.contactor.se") by vger.kernel.org with ESMTP
+	id <S267487AbTBFSMK>; Thu, 6 Feb 2003 13:12:10 -0500
+Date: Thu, 6 Feb 2003 19:21:31 +0100
+From: =?iso-8859-1?Q?Bj=F6rn?= Stenberg <bjorn@haxx.se>
+To: Olaf Hering <olh@suse.de>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21pre: ide_fix_driveid unresolved in usb-storage
+Message-ID: <20030206182131.GB15140@linux3.contactor.se>
+References: <20030206175221.GA3072@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030206175221.GA3072@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Feb 2003, Peter L. Ashford wrote:
+Olaf Hering wrote:
+> drivers/usb/storage/isd200.c calls ide_fix_driveid()
+> This function is only available when CONFIG_IDE is active.
 
-> I just saw, and fixed, a very similar problem last night (lost interrupts,
-> but partition table was eventually read).  The system was a dual Xeon on a
-> P4DP6.  The Promise card was an Ultra100TX2.  The OS was RedHat 7.3.
->
-> The fix was to increase the bus master time for the PCI slot in the BIOS.
-> This was also tried under SuSE 8.1, where it did NOT work.
+I know. I submitted a patch for this in September 2002:
 
-ultra100tx2 / ultra66 cards work ok in the machines i tested it in (and
-also the onboard fasttrak100 on the xeon server (intel mainbord))
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=103305998718432&w=2
 
+...which was rejected "until people make up their minds" about how ide_fix_driveid() should be implemented in various architectures:
+
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=103310439026491&w=2
+
+I've been meaning to remind Matt and Greg about this issue.
+
+-- 
+Björn (not subscribed to lkml)

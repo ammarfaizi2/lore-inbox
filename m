@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263954AbSKCWEt>; Sun, 3 Nov 2002 17:04:49 -0500
+	id <S263544AbSKCWCe>; Sun, 3 Nov 2002 17:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263960AbSKCWEs>; Sun, 3 Nov 2002 17:04:48 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:43403 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S263954AbSKCWEn>; Sun, 3 Nov 2002 17:04:43 -0500
-Date: Sun, 3 Nov 2002 23:11:04 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Htree ate my hard drive, was: post-halloween 0.2
-Message-ID: <20021103221104.GB1107@admingilde.org>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20021030171149.GA15007@suse.de> <200210310727.52636.baldrick@wanadoo.fr>
+	id <S263571AbSKCWCe>; Sun, 3 Nov 2002 17:02:34 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47378 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263544AbSKCWCd>; Sun, 3 Nov 2002 17:02:33 -0500
+Date: Sun, 3 Nov 2002 23:09:04 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: benh@kernel.crashing.org, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: don't eat ide disks
+Message-ID: <20021103220904.GE28704@atrey.karlin.mff.cuni.cz>
+References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com> <20021103145735.14872@smtp.wanadoo.fr> <1036340733.29642.41.camel@irongate.swansea.linux.org.uk> <20021103201251.GE27271@elf.ucw.cz> <1036359207.30629.31.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200210310727.52636.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1036359207.30629.31.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---GID0FwUMdk1T2AWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > 		Throw out the pages we can evict
+> > 
+> > ...DMA from disk may be still running here...
+> 
+> Only if a request is still active and therfore the queue is not
+> quiesced
+> 
 
-hi :)
 
-after testing htree support, i ran into similar problems:
+How do I quiesce a queue? Is it ll_rw_blk stuff?
 
-booted 2.5, tune2fs -O dir_index on all filesystems,
-umounted home
-fscked -D home, mounted home, all is well...
-rebooted into 2.4.19 and everything is still fine
+> 
+> > ...and at resume you find out that your memory is not consistent
+> > because DMA was still running when you were doing copy.
+> 
+> I can see how that can be a problem for some other things but not block
+> devices.
 
-then i got a 'maximum mount count reached' on / while booting 2.4
-on fscking, it optimized some directories.
-afterwards i had some files missing all over the root fs
+You are probably right that for ide disk quiescing a queue is enough,
+but nothing prevents block device to do some DMA just for fun. Also I
+want to spindown on suspend (andre wanted that, to flush caches), so I
+guess that the patch is quite good as-is....
 
-after removing dir_index all files were there again
+						Pavel
 
-lately my / got checked again, and fsck complained about some
-hashed directory entries on a fs without dir_index...
-i had to press return several times but did not run into problems...
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.
-			Benjamin Franklin  (1706 - 1790)
-
---GID0FwUMdk1T2AWN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE9xZ74j/Eaxd/oD7IRAms6AJ950h4CWHYR9UA0Xcb0Vh56qVo2AwCfegbL
-DNCm2aDcVFcr3jb4NLwYu9w=
-=NtMf
------END PGP SIGNATURE-----
-
---GID0FwUMdk1T2AWN--
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

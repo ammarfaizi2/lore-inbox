@@ -1,59 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUHEAAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUHEACZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbUHEAAX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 20:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbUHEAAX
+	id S267522AbUHEACZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 20:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267523AbUHEACZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 20:00:23 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:16516 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267518AbUHEAAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 20:00:20 -0400
-Date: Wed, 04 Aug 2004 16:59:39 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
-       Rick Lindsley <ricklind@us.ibm.com>
-cc: kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.8-rc2-mm2 performance improvements (scheduler?)
-Message-ID: <239380000.1091663979@flay>
-In-Reply-To: <411174C6.2020109@bigpond.net.au>
-References: <6560000.1091632215@[10.10.2.4]> <7480000.1091632378@[10.10.2.4]> <20040804122414.4f8649df.akpm@osdl.org> <411174C6.2020109@bigpond.net.au>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Wed, 4 Aug 2004 20:02:25 -0400
+Received: from web12823.mail.yahoo.com ([216.136.174.204]:45449 "HELO
+	web12823.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267522AbUHEACF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 20:02:05 -0400
+Message-ID: <20040805000205.53959.qmail@web12823.mail.yahoo.com>
+Date: Wed, 4 Aug 2004 17:02:05 -0700 (PDT)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: Re: [VM PATCH 2.6.8-rc1] Prevent excessive scanning of lower zone
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040722220701.7de4c31f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: multipart/mixed; boundary="0-559835686-1091664125=:51903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Thursday, August 05, 2004 09:44:06 +1000 Peter Williams <pwil3058@bigpond.net.au> wrote:
+--0-559835686-1091664125=:51903
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-> Andrew Morton wrote:
->> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
->> 
->>> SDET 8  (see disclaimer)
->>>                            Throughput    Std. Dev
->>>                     2.6.7       100.0%         0.2%
->>>                 2.6.8-rc2       100.2%         1.0%
->>>             2.6.8-rc2-mm2       117.4%         0.9%
->>> 
->>> SDET 16  (see disclaimer)
->>>                            Throughput    Std. Dev
->>>                     2.6.7       100.0%         0.3%
->>>                 2.6.8-rc2        99.5%         0.3%
->>>             2.6.8-rc2-mm2       118.5%         0.6%
->> 
->> 
->> hum, interesting.  Can Con's changes affect the inter-node and inter-cpu
->> balancing decisions, or is this all due to caching effects, reduced context
->> switching etc?
+Hi Andrew,
+
+--- Andrew Morton <akpm@osdl.org> wrote:
+
+> Shantanu Goel <sgoel01@yahoo.com> wrote:
+> >
+> > I emailed this a few weeks back to the list but it
+> > seems to have gotten lost...
 > 
-> One candidate for the cause of this improvement is the replacement of the active/expired array mechanism with a single array.  I believe that one of the short comings of the active/expired array mechanism is that it can lead to excessive queuing (possibly even starvation) of tasks that aren't considered "interactive".
+> It came through.  I was unable to reproduce the
+> disproportional scanning
+> rate on almost exactly the same setup, so I parked
+> the problem for a while.
+> 
+> I do agree with the analysis though.  The problem
+> _could_ occur.  I dunno
+> why it happens for you and not for me...
+> 
 
-Rick showed me schedstats graphs of the two ... it seems to have lower
-latency, does less rebalancing, fewer pull_tasks, etc, etc. Everything
-looks better ... he'll send them out soon, I think (hint, hint).
+Actually, the analysis turned out to be not entirely
+correct.  I think I have identified the offending
+code.  Please see attached patch.  It makes kswapd()
+skip zones which contain greater than "pages_high"
+pages.
 
-M.
+Machine setup is the same as before.
+2x2.0Ghz Xeon w/HT, memory 256M (manually pegged).
+I see this lopsided lower zone scanning on a dual
+Opteron machine as well.
 
+Attached are the kernbench results for stock 2.6.8-rc1
+and 2.6.8-rc1 with patch.
+
+Thanks,
+Shantanu
+
+
+		
+__________________________________
+Do you Yahoo!?
+Y! Messenger - Communicate in real time. Download now. 
+http://messenger.yahoo.com
+--0-559835686-1091664125=:51903
+Content-Type: application/octet-stream; name="vm.patch"
+Content-Transfer-Encoding: base64
+Content-Description: vm.patch
+Content-Disposition: attachment; filename="vm.patch"
+
+LS0tIC5vcmlnL21tL3Ztc2Nhbi5jCTIwMDQtMDgtMDQgMTk6NTY6NDEuMDAw
+MDAwMDAwIC0wNDAwCisrKyAyLjYuOC1yYzEtdm1maXgvbW0vdm1zY2FuLmMJ
+MjAwNC0wOC0wNCAxODo0NTo0NC4wMDAwMDAwMDAgLTA0MDAKQEAgLTEwMzcs
+OCArMTAzNyw5IEBACiAJCQkJY29udGludWU7CiAKIAkJCWlmIChucl9wYWdl
+cyA9PSAwKSB7CS8qIE5vdCBzb2Z0d2FyZSBzdXNwZW5kICovCi0JCQkJaWYg
+KHpvbmUtPmZyZWVfcGFnZXMgPD0gem9uZS0+cGFnZXNfaGlnaCkKLQkJCQkJ
+YWxsX3pvbmVzX29rID0gMDsKKwkJCQlpZiAoem9uZS0+ZnJlZV9wYWdlcyA+
+IHpvbmUtPnBhZ2VzX2hpZ2gpCisJCQkJCWNvbnRpbnVlOworCQkJCWFsbF96
+b25lc19vayA9IDA7CiAJCQl9CiAJCQl6b25lLT50ZW1wX3ByaW9yaXR5ID0g
+cHJpb3JpdHk7CiAJCQlpZiAoem9uZS0+cHJldl9wcmlvcml0eSA+IHByaW9y
+aXR5KQo=
+
+--0-559835686-1091664125=:51903
+Content-Type: application/octet-stream; name="kb-2.6.8-rc1"
+Content-Transfer-Encoding: base64
+Content-Description: kb-2.6.8-rc1
+Content-Disposition: attachment; filename="kb-2.6.8-rc1"
+
+NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
+ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
+ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
+aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
+dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
+V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
+cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
+Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
+bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
+IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
+UnVuOgpFbGFwc2VkIFRpbWUgMjE2LjgzOApVc2VyIFRpbWUgNjg3LjIyNApT
+eXN0ZW0gVGltZSA2NS4wMjgKUGVyY2VudCBDUFUgMzQ2LjgKQ29udGV4dCBT
+d2l0Y2hlcyA1OTQzNC40ClNsZWVwcyA0OTE0OAoKLS0tLQpwZ2ZhdWx0ICAg
+ICAgICAgICAgICAgICAgICAgICAzMjMxOTQ2OApwZ2ZyZWUgICAgICAgICAg
+ICAgICAgICAgICAgICAyMDYwMjUxNApwZ2FsbG9jX25vcm1hbCAgICAgICAg
+ICAgICAgICAxOTk3ODQxNApwZ3JlZmlsbF9ub3JtYWwgICAgICAgICAgICAg
+ICA1NzIxMjU2CnBncGdvdXQgICAgICAgICAgICAgICAgICAgICAgIDI1Mjc5
+MjgKcGdwZ2luICAgICAgICAgICAgICAgICAgICAgICAgMTc5MzcyOApwZ2Rl
+YWN0aXZhdGUgICAgICAgICAgICAgICAgICAxMzAzMzExCnBncmVmaWxsX2Rt
+YSAgICAgICAgICAgICAgICAgIDc2MjMyOApwZ2FsbG9jX2RtYSAgICAgICAg
+ICAgICAgICAgICA2MjUyNDQKcGdzY2FuX2tzd2FwZF9ub3JtYWwgICAgICAg
+ICAgNTk5NTExCnBnc3RlYWxfbm9ybWFsICAgICAgICAgICAgICAgIDUxMzIx
+OQpwc3dwb3V0ICAgICAgICAgICAgICAgICAgICAgICA1MDkwNDMKcGdyb3Rh
+dGVkICAgICAgICAgICAgICAgICAgICAgNTA1NjczCnBnc2Nhbl9kaXJlY3Rf
+bm9ybWFsICAgICAgICAgIDQ2NDg3MQpwZ2FjdGl2YXRlICAgICAgICAgICAg
+ICAgICAgICA0MTQ5MTcKcGdzY2FuX2tzd2FwZF9kbWEgICAgICAgICAgICAg
+MzczNTYzCmtzd2FwZF9zdGVhbCAgICAgICAgICAgICAgICAgIDM0MjM1Mwpz
+bGFic19zY2FubmVkICAgICAgICAgICAgICAgICAyNjc0MjkKcHN3cGluICAg
+ICAgICAgICAgICAgICAgICAgICAgMjIxOTY3CnBnc2Nhbl9kaXJlY3RfZG1h
+ICAgICAgICAgICAgIDE3MzgwNgpwZ3N0ZWFsX2RtYSAgICAgICAgICAgICAg
+ICAgICAxMjY4MjgKcGdtYWpmYXVsdCAgICAgICAgICAgICAgICAgICAgOTEy
+MDEKYWxsb2NzdGFsbCAgICAgICAgICAgICAgICAgICAgNjQwMgpucl9kaXJ0
+eSAgICAgICAgICAgICAgICAgICAgICA2MzQzCnBhZ2VvdXRydW4gICAgICAg
+ICAgICAgICAgICAgIDIyNjQKa3N3YXBkX2lub2Rlc3RlYWwgICAgICAgICAg
+ICAgMTUxNwpucl9zbGFiICAgICAgICAgICAgICAgICAgICAgICA5MjAKcGdp
+bm9kZXN0ZWFsICAgICAgICAgICAgICAgICAgODQ5Cm5yX3BhZ2VfdGFibGVf
+cGFnZXMgICAgICAgICAgIDMKcGdzdGVhbF9oaWdoICAgICAgICAgICAgICAg
+ICAgMApwZ2FsbG9jX2hpZ2ggICAgICAgICAgICAgICAgICAwCnBnc2Nhbl9r
+c3dhcGRfaGlnaCAgICAgICAgICAgIDAKcGdzY2FuX2RpcmVjdF9oaWdoICAg
+ICAgICAgICAgMApwZ3JlZmlsbF9oaWdoICAgICAgICAgICAgICAgICAwCm5y
+X3Vuc3RhYmxlICAgICAgICAgICAgICAgICAgIDAKbnJfd3JpdGViYWNrICAg
+ICAgICAgICAgICAgICAgMApucl9tYXBwZWQgICAgICAgICAgICAgICAgICAg
+ICAtNTkwMAo=
+
+--0-559835686-1091664125=:51903
+Content-Type: application/octet-stream; name="kb-2.6.8-rc1-vmfix-latest10"
+Content-Transfer-Encoding: base64
+Content-Description: kb-2.6.8-rc1-vmfix-latest10
+Content-Disposition: attachment; filename="kb-2.6.8-rc1-vmfix-latest10"
+
+NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
+ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
+ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
+aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
+dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
+V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
+cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
+Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
+bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
+IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
+UnVuOgpFbGFwc2VkIFRpbWUgMjA5LjY2ClVzZXIgVGltZSA2ODkuODEKU3lz
+dGVtIFRpbWUgNjUuNjIyClBlcmNlbnQgQ1BVIDM2MApDb250ZXh0IFN3aXRj
+aGVzIDU5Nzk2LjIKU2xlZXBzIDQ3MDgxLjYKCi0tLS0KcGdmYXVsdCAgICAg
+ICAgICAgICAgICAgICAgICAgMzIyNDgzODgKcGdmcmVlICAgICAgICAgICAg
+ICAgICAgICAgICAgMjA2NjEwODMKcGdhbGxvY19ub3JtYWwgICAgICAgICAg
+ICAgICAgMjAxMzMyNTIKcGdyZWZpbGxfbm9ybWFsICAgICAgICAgICAgICAg
+NjM4NzM3NQpwZ3Bnb3V0ICAgICAgICAgICAgICAgICAgICAgICAyMTE1NTIw
+CnBncGdpbiAgICAgICAgICAgICAgICAgICAgICAgIDE4OTk3NzIKcGdkZWFj
+dGl2YXRlICAgICAgICAgICAgICAgICAgMTMxMTA0OQpwZ3NjYW5fa3N3YXBk
+X25vcm1hbCAgICAgICAgICA2Nzg4NzYKcGdzdGVhbF9ub3JtYWwgICAgICAg
+ICAgICAgICAgNjI4NTQ3CnBnc2Nhbl9kaXJlY3Rfbm9ybWFsICAgICAgICAg
+IDYxMDczMQpwZ2FsbG9jX2RtYSAgICAgICAgICAgICAgICAgICA1MTU0MzUK
+cGdhY3RpdmF0ZSAgICAgICAgICAgICAgICAgICAgNDMwMTY2CnBzd3BvdXQg
+ICAgICAgICAgICAgICAgICAgICAgIDQwNTU3NwpwZ3JvdGF0ZWQgICAgICAg
+ICAgICAgICAgICAgICA0MDM2MTQKcGdyZWZpbGxfZG1hICAgICAgICAgICAg
+ICAgICAgNDAwNjU2Cmtzd2FwZF9zdGVhbCAgICAgICAgICAgICAgICAgIDMx
+Njc3NApzbGFic19zY2FubmVkICAgICAgICAgICAgICAgICAyOTAzNjYKcHN3
+cGluICAgICAgICAgICAgICAgICAgICAgICAgMjEzNTY1CnBnbWFqZmF1bHQg
+ICAgICAgICAgICAgICAgICAgIDg1ODI5CnBnc2Nhbl9kaXJlY3RfZG1hICAg
+ICAgICAgICAgIDU5MTQyCnBnc3RlYWxfZG1hICAgICAgICAgICAgICAgICAg
+IDIyNjE1CmFsbG9jc3RhbGwgICAgICAgICAgICAgICAgICAgIDczMjEKbnJf
+ZGlydHkgICAgICAgICAgICAgICAgICAgICAgNjA2NApwYWdlb3V0cnVuICAg
+ICAgICAgICAgICAgICAgICAyNzMxCmtzd2FwZF9pbm9kZXN0ZWFsICAgICAg
+ICAgICAgIDMxOApwZ2lub2Rlc3RlYWwgICAgICAgICAgICAgICAgICAxOTEK
+bnJfcGFnZV90YWJsZV9wYWdlcyAgICAgICAgICAgMwpwZ3N0ZWFsX2hpZ2gg
+ICAgICAgICAgICAgICAgICAwCnBnYWxsb2NfaGlnaCAgICAgICAgICAgICAg
+ICAgIDAKcGdzY2FuX2tzd2FwZF9oaWdoICAgICAgICAgICAgMApwZ3NjYW5f
+a3N3YXBkX2RtYSAgICAgICAgICAgICAwCnBnc2Nhbl9kaXJlY3RfaGlnaCAg
+ICAgICAgICAgIDAKcGdyZWZpbGxfaGlnaCAgICAgICAgICAgICAgICAgMApu
+cl91bnN0YWJsZSAgICAgICAgICAgICAgICAgICAwCm5yX3dyaXRlYmFjayAg
+ICAgICAgICAgICAgICAgIDAKbnJfc2xhYiAgICAgICAgICAgICAgICAgICAg
+ICAgLTI5MQpucl9tYXBwZWQgICAgICAgICAgICAgICAgICAgICAtOTk5MAo=
+
+
+--0-559835686-1091664125=:51903--

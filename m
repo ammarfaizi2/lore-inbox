@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263304AbUFXAoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263324AbUFXAyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbUFXAoc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 20:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUFXAoc
+	id S263324AbUFXAyx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 20:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbUFXAyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 20:44:32 -0400
-Received: from web51806.mail.yahoo.com ([206.190.38.237]:18362 "HELO
-	web51806.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263304AbUFXAo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 20:44:29 -0400
-Message-ID: <20040624004429.76093.qmail@web51806.mail.yahoo.com>
-Date: Wed, 23 Jun 2004 17:44:29 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: slow performance w/patch-2.6.7-mjb1
-To: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1945190000.1088003081@[10.10.2.4]>
+	Wed, 23 Jun 2004 20:54:53 -0400
+Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:32236 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263324AbUFXAyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 20:54:52 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16602.9814.700745.300562@wombat.chubb.wattle.id.au>
+Date: Thu, 24 Jun 2004 10:54:46 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: linux-kernel@vger.kernel.org
+CC: Andrey Panin <pazke@donpac.ru>
+Subject: Moving per-arch IRQ handling code into common directories
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin et al:
 
-Here is a litle bit more information:
-2.6.7-mjb1 w/4G split enabled:
-44.91user 56.95system 1:46.30elapsed 95%CPU
-(0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+6907875minor)pagefaults
-0swaps
+Hi Folks,
+  Inside each arch-specific kernel/irq.c, there's a comment something like, 
+  /* (mostly architecture independent, will move to kernel/irq.c in 2.5.) */
 
-
-2.6.7-mjb1 w/4G disabled enabled:
-30.71user 34.56system 1:11.29elapsed 91%CPU
-(0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (21major+6907525minor)pagefaults
-0swaps
-
-Clearly something is wrong.  This is making headers
-which does a lot of spawning of bash shells and ln -s
-different files and some minor dependancy makes.
-
-Any help understanding what is happending here would
-be greatly appreciated!
-
-Thanks!
-Phy
+This obviously hasn't happened, even though there was a patch by
+Andrey Panin floating about around a year ago.  Is there some
+fundamental objection to consolidating the IRQ handling as far as
+possible, or was it just that the patch didn't get high enough profile?
 
 
---- "Martin J. Bligh" <mbligh@aracnet.com> wrote:
-> > So I configed with your patch just the basics and
-> get
-> > similar times that I do with 2.6.7 virigin and
-> 2.4.21.
-> >  However, as soon as I enable 4G split, the rt
-> > increases by ~35s (out of 1m45s compared to
-> 1m10s). 
-> > Do you know if this is in line w/expectations?  Is
-> > there anyway to reduce this?
-> 
-> Syscalls, etc will definitely be slower ... but it's
-> not normally
-> that severe ... what's the workload? And how much of
-> hte increase
-> is systime vs user time? (use /usr/bin/time, not the
-> shell builtin)
-> 
-> M.
-> 
-> 
-> 
-> 
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262309AbRERN3m>; Fri, 18 May 2001 09:29:42 -0400
+	id <S262315AbRERNjn>; Fri, 18 May 2001 09:39:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262311AbRERN3c>; Fri, 18 May 2001 09:29:32 -0400
-Received: from [203.237.41.6] ([203.237.41.6]:13953 "EHLO bellini.kjist.ac.kr")
-	by vger.kernel.org with ESMTP id <S262309AbRERN3Y>;
-	Fri, 18 May 2001 09:29:24 -0400
-Message-ID: <3B05232F.8C49D2A5@kjist.ac.kr>
-Date: Fri, 18 May 2001 22:27:11 +0900
-From: "G. Hugh Song" <ghsong@kjist.ac.kr>
-Organization: KJIST, Dept of Info. & Commun.
-X-Mailer: Mozilla 4.75 [ko] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, ko
+	id <S262316AbRERNjd>; Fri, 18 May 2001 09:39:33 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:58019 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S262315AbRERNjY>; Fri, 18 May 2001 09:39:24 -0400
+To: linux-kernel@vger.kernel.org
+Subject: APIC, AMD-K6/2 -mcpu=586...
+From: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: 18 May 2001 09:38:01 -0400
+Message-ID: <m2u22ibww6.fsf@sympatico.ca>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
 MIME-Version: 1.0
-To: ja@ssi.bg, linux-kernel@vger.kernel.org
-Subject: NETDEV WATCHDOG (Re: locked 3c905B with 2.4.5pre2)
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: locked 3c905B with 2.4.5pre2
-> 
-> From: Julian Anastasov (ja@ssi.bg)
-> Date: Thu May 17 2001 - 04:22:15 EST
-> 
->    * Next message: Karsten Keil: "Re: patch-2.2.19.gz"
->    * Previous message: David Wilson: "RE: FW: I think I've found a serious bug in AMD Athlon page_alloc.c routines, where do I mail the developer(s) ?"
->    * In reply to: Andrew Morton: "Re: locked 3c905B with 2.4.5pre2"
->    * Messages sorted by: [ date ] [ thread ] [ subject ] [ author ]
-> 
->   ------------------------------------------------------------------------
-> 
->         Hello,
-> 
-> On Thu, 17 May 2001, Andrew Morton wrote:
-> 
-> > > eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
-> >
-> > This is a failure of the APIC interrupt controller in
-> > the 2.4 kernel. You'll need to boot your kernel with
-> > the `noapic' LILO option. Or run -ac kernels, which
-> > have a software workaround which fixes the problem.
-> 
->         Yes, it seems noapic solved the problem with the lockup :(
-> 
-> > Rumour has it that the APIC fix will be merged into Linus' tree
-> > very soon. It needs to be - one of the more important ethernet
-> > drivers is basically unviable on x86 SMP in 2.4.
-> 
->         Agreed :) The performance sucks without apic.
-> 
-> Regards
-> 
-> --
-> Julian Anastasov <ja@ssi.bg>
-> -
-I used to get NETDEV WATCHDOG eth0:timeout error on 
-Alpha SMP, too, with the tulip card.  Definitely, Alpha
-has nothing to do with the x86 APIC.  Since then, I switched to
-3C905B.
 
-I suspect that NETDEV WATCHDOG error covers a broad class of 
-network errors.
+Hello,
 
-Does anyone know more about this?
+I have the 2.4.4 distribution from kernel.org. 
 
-Thank you
+ "http://www.kernel.org/pub/linux/kernel/v2.4/"
 
--- 
-G. Hugh Song
+I have a Mandrake system and selected the AMD processors and APIC
+option.  The egcs-2.91.66 compiler with -mcpu=586.  It appears that
+the structure alignment of the floating point registers was not
+correct under this configuration.  This code was being compiled and
+a linker error produced.
+
+	if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
+/*  printk("WJP: value is %x.\n", 
+       offsetof(struct task_struct, thread.i387.fxsave) & 15); */
+/*  	  while(1); */
+		extern void __buggy_fxsr_alignment(void);
+		__buggy_fxsr_alignment();
+	}
+
+The alignment was to 8 bytes instead of 16.  I added some padding to
+the thread structure to produce an alignment of 16 and the code
+compiled and seemed to work fine; I used it for a few days.
+
+[in processor.h]
+/* floating point info */
+/*          unsigned char wjpDummy[8]; */
+	union i387_union	i387;
+
+
+I did not see any mention of this in the archives [but the volume of
+mailings is large... which I may be contributing to].  I recompiled
+without the padding and APIC support and everything seems to be fine,
+but _VERY_ slow.  Is this change ok locally?  Has it been addressed 
+in a patch?
+
+regards,
+Bill Pringlemeir.
+
+
+
+

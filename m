@@ -1,137 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264308AbRFDPHN>; Mon, 4 Jun 2001 11:07:13 -0400
+	id <S264203AbRFDLUL>; Mon, 4 Jun 2001 07:20:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264304AbRFDOz1>; Mon, 4 Jun 2001 10:55:27 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:42471 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S263733AbRFDOzP>; Mon, 4 Jun 2001 10:55:15 -0400
+	id <S264202AbRFDLUA>; Mon, 4 Jun 2001 07:20:00 -0400
+Received: from 209.102.21.2 ([209.102.21.2]:16913 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S264201AbRFDLTx>;
+	Mon, 4 Jun 2001 07:19:53 -0400
+Message-ID: <3B1B353A.CCD03B34@goingware.com>
+Date: Mon, 04 Jun 2001 07:14:02 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: IDE Driver 05042001 / 2.2.19  /proc display problems?
-Date: Mon, 4 Jun 2001 14:55:13 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9fg7gh$avm$1@forge.intermeta.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 991666513 31023 212.34.181.4 (4 Jun 2001 14:55:13 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 4 Jun 2001 14:55:13 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Subject: tulip works in 2.4.5 on Compaq Presario 1800T (was broken)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+With a number of previous kernel versions, the tulip driver would not
+work with the digital DS21143 ethernet controller that comes bundled
+with the Compaq Presario 1800T laptop.
 
-I have a P200MMX System based on the VIA 82Cxxxx Chipset. The box
-works fine and stable.
+Fortunately, the de4x5 driver would work with it, however the situation
+was confusing because the config doc supplied for the de4x5 driver
+doesn't mention that it supports tulip chips now also, while the tulip
+driver claimed that it should work.  Further if one compiled both into
+the kernel, the tulip driver would initialize first and claim control of
+the chip and prevent the de4x5 from working.
 
-I run a custom built 2.2.19 kernel which contains the ide.05042001 driver
-with the following settings (only the IMHO relevant):
+I hadn't tried the tulip driver on my laptop for a few kernel versions
+so I don't know when it started working.  But it works now, with 2.4.5. 
+de4x5 also works.  So you can use either one.
 
-CONFIG_BLK_DEV_IDEDISK=m
-CONFIG_IDEDISK_STROKE=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_IDEDMA_NEW_DRIVE_LISTINGS=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDE_CHIPSETS=y
+Curiously, when I first installed Linux on my laptop, I think it was
+Slackware 4.0, I couldn't get any driver to work, but I got a
+development version of the author's site, and it worked OK in a 2.2
+kernel.  But later versions that were actually rolled into the kernel
+didn't work.
 
+I have a page about linux on my Compaq Presario 1800T at
 
-The system tells me at boot time:
+http://www.goingware.com/laptop/linux/
 
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt82c586a (rev 27) IDE UDMA33 controller on pci00:07.1
-    ide0: BM-DMA at 0xfcf0-0xfcf7, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xfcf8-0xfcff, BIOS settings: hdc:pio, hdd:pio
-hda: IBM-DTLA-307060, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: IBM-DTLA-307060, 58644MB w/1916kB Cache, CHS=7943/240/63, UDMA(33)
+I've gotten quite a few emails from confused 1800T owners in the time
+I've had that page up, I think this will make things much easier.
 
-so the disk is (as far as I can understand) activated in UDMA(33).
+Regards,
 
-The /proc/ide/hda/settings seems to underline this:
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
 
-name                    value           min             max             mode
-----                    -----           ---             ---             ----
-bios_cyl                7943            0               65535           rw
-bios_head               240             0               255             rw
-bios_sect               63              0               63              rw
-io_32bit                1               0               3               rw
-unmaskirq               1               0               1               rw
-using_dma               1               0               1               rw
-
-but the VIA driver tells me (/proc/ide/via):
-
-% cat /proc/ide/via 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.20
-South Bridge:                       VIA vt82c586a
-Revision:                           ISA 0x27 IDE 0x6
-BM-DMA base:                        0xfcf1
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            1ws
-Master Write Cycle IRDY:            1ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:              yes                 yes
-Post Write Buffer:            yes                 yes
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:        PIO       PIO       PIO       PIO
-Address Setup:       30ns      90ns      90ns      90ns
-Cmd Active:          90ns      90ns     480ns     480ns
-Cmd Recovery:        30ns      30ns     480ns     480ns
-Data Active:         90ns     180ns     180ns     180ns
-Data Recovery:       30ns     450ns     450ns     450ns
-Cycle Time:          60ns     630ns     630ns     630ns
-Transfer Rate:   33.0MB/s   3.1MB/s   3.1MB/s   3.1MB/s
-
-Transfer Mode:  PIO ???
-
-The timing and the Transfer Rate seem to suggest, that this is just a
-display error. (The disk also 'feels' fast; much faster than with the
-stock 2.2.19-6.2.1 kernel from RedHat)
-
-hdparm also suggests DMA:
-
-% hdparm -i /dev/hda
-/dev/hda:
-
- Model=IBM-DTLA-307060, FwRev=TX8OA50C, SerialNo=YQDYQFP3181
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
- CurCHS=17475/15/63, CurSects=-78446341, LBA=yes, LBAsects=120103200
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5 
- Drive Supports : Reserved : ATA-2 ATA-3 ATA-4 ATA-5 
- Kernel Drive Geometry LogicalCHS=7943/240/63 PhysicalCHS=127093/15/63
-
-So is this simply a display bug or do I have to worry?
-
-	Regards
-		Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+   Tilting at Windmills for a Better Tomorrow.

@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265141AbUHNUYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265224AbUHNU2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265141AbUHNUYm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 16:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHNUYm
+	id S265224AbUHNU2b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 16:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUHNU2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 16:24:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40629 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265141AbUHNUXs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 16:23:48 -0400
-Date: Sat, 14 Aug 2004 21:23:43 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Chris Wright <chrisw@osdl.org>
-Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, neilb@cse.unsw.edu.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][LIBFS] Move transaction file ops into libfs + cleanup (update)
-Message-ID: <20040814202343.GA12308@parcelfarce.linux.theplanet.co.uk>
-References: <Xine.LNX.4.44.0408131157350.23262-100000@dhcp83-76.boston.redhat.com> <Xine.LNX.4.44.0408141231300.27007-100000@dhcp83-76.boston.redhat.com> <20040814125501.U1973@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040814125501.U1973@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+	Sat, 14 Aug 2004 16:28:31 -0400
+Received: from mail6.centrum.cz ([213.29.7.198]:54477 "EHLO mail6.centrum.cz")
+	by vger.kernel.org with ESMTP id S265224AbUHNU23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 16:28:29 -0400
+Date: Sat, 14 Aug 2004 22:10:01 +0200
+From: "Jakub Vana" <gugux@centrum.cz>
+To: <alan@lxorguk.ukuu.org.uk>, <gugux@centrum.cz>
+Cc: <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
+X-Mailer: Centrum Mail 1.0
+MIME-Version: 1.0
+X-Priority: 3
+Subject: Re: x86 - Realmode BIOS and Code calling module
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20040814201009Z2097246-29041+54787@mail.centrum.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 14, 2004 at 12:55:01PM -0700, Chris Wright wrote:
-> Looks nice. I didn't realize you were working on this consolidation too.
-> I cooked up a similar patch.  In this case the user loads its inode
-> specific write_ops on open, then just uses the generic helpers.  I also
-> fully serialized all write/read transactions per inode.  It's lightly
-> tested.  If there's anything you like in there, feel free to use it.
+______________________________________________________________
+> Od: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Komu: Jakub Vana <gugux@centrum.cz>
+> CC: vojtech@suse.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Datum: Fri, 13 Aug 2004 22:54:24 +0100
+> Pøedmìt: Re: x86 - Realmode BIOS and Code calling module
+>
+> On Gwe, 2004-08-13 at 15:36, Jakub Vana wrote:
+> > But when running in LRMI there are same problems, aren't ?
+> 
+> vm86 mode running in user space faults I/O port accesses if you wish so
+> you can decode them and re-run them through the kernel PCI layer as for
+> example Xorg does.
+> 
+> Alan
 
-This is *wrong*.
+I understand. I see that this code is not neaded for majority of Linux users so I will not annoy you. But I'll upload it somewhere on net in hope that there can be found some minority users that
+  will see it useful maybe for it's easy usage.
 
-First of all, it ties you to ->i_ino values.  Which is OK on a specific
-fs, but not in a generic helper functions.
 
-What's more, there is no point in any extra structures here - you are
-getting a file-specific method anyway, so you make it ->write() (which
-is where behaviour differs) instead of ->open().  Which kills the
-need of callbacks.
+To Alan & Vojtech:
+It was nice to meat you. And I hope to see your's mails again in future when I'll work on my next Kernel projects.
 
-As a general rule, it's better to provide several helpers and let the
-users of interface call them rather than trying to fit everything into
-callbacks, flags, etc.
+To Alan:
+Let me congratulate to your saint's day if you celebrate it today like in my country.
 
-Consider for instance a driver that wants one such request/reply file.
-With your scheme it will have to declare two functions - foo_write_op()
-and foo_open(), the latter being a boilerplate _and_ declare (for fsck
-knows what reason) a single-element array so that foo_open() could pass
-array - file->f_dentry->d_inode->i_ino, only to compensate for use of
-->i_ino in your helper.
 
-Lots of glue for no good reason _and_ a new function type to deal with.
-As opposed to one function (foo_write()) that is a normal instance of
-->write() and is actually smaller than your foo_write_op() + foo_open().
-No arrays, no magic, no boilerplate code...
+Jakub
+
+
+
+--------------------
+Pøipravte se! Je tu ¹kola. Nav¹tivte vèas Palác Flóra. Od 20.srpna do 5.záøí probíhá v Paláci Flóra speciální trh ¹kolních potøeb. http://user.centrum.cz/redir.php?url=http://www.palacflora.com
+
+
+

@@ -1,66 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUIAITu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUIAIVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUIAITu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 04:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUIAITt
+	id S263001AbUIAIVC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 04:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUIAIUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 04:19:49 -0400
-Received: from main.gmane.org ([80.91.224.249]:16334 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263001AbUIAIRy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 04:17:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Paul Ionescu <i_p_a_u_l@yahoo.com>
-Subject: Re: Linux 2.6.8.1-ac1
-Date: Wed, 01 Sep 2004 11:17:45 +0300
-Message-ID: <pan.2004.09.01.08.17.41.824046@yahoo.com>
-References: <20040831170839.GA18799@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 194.196.100.133
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+	Wed, 1 Sep 2004 04:20:48 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:19664 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S263024AbUIAISP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 04:18:15 -0400
+Date: Wed, 1 Sep 2004 10:17:50 +0200 (DFT)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@isabelle.frec.bull.fr
+To: greg@kroah.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Possible race in sysfs_read_file() and sysfs_write_file()
+Message-ID: <Pine.A41.4.53.0409010924250.122970@isabelle.frec.bull.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
 
-I will try this patch on an IBM T41 Thinkpad, and I am interested in its
-IDE Hotplug functionality.
-Will I be able to swap IDE devices in my ultrabay without using "idectl 1
-rescan" (using this patch only) ?
-Do I need any other special tool for ide hotswapping in this case?
-Or should I wait for IDE hotplug at the device level ?
+Hello,
 
-Thanks,
-Paul
+I think there is a possibility for two threads from a single process to
+race in sysfs_read_file() if they call read() on the same file at the same
+time.
 
-On Tue, 31 Aug 2004 13:08:39 -0400, Alan Cox wrote:
+Supposing no read() has been done on this file previously, the two threads
+could end allocating each a new page in fill_read_buffer() for
+buffer->page, and one of these pages would be lost forever.
 
-> I've posted up a 2.6.8.1-ac1. This is mostly aimed at people wanting to
-> try the newer IDE stuff while I work on feeding it to Bartlomiej.
-> 
-> http://www.kernel.org/pub/linux/kernel/people/alan/2.6/linux-2.6/2.6.8.1/..
-> 
-> Change summary for Linux 2.6.8.1-ac1 versus 2.6.8.1
-> 
-> [ * = submitted to maintainer, + = submitted but needs more work ]
-> 
-> *	Fix crash on boot or nonworking keyboard driver		(Alan Cox)
-> 		with E750x based systems in SMP
-> *	Fix timing violation in i8042 driver code		(Alan Cox) *	Allow 3% slack
-> for root in strict overcommit		(Alan Cox) *	Add support for 16byte (GPRS)
-> pcmcia serial cards	(Alan Cox) *	Reformat buslogic ready for real fixing		
-> (indent) *	Support VLAN on 3c59x/3c90x hardware		(Stefan de Konkink) *
-> Serial ATA reporting of ATA errors for real diagnostics	(Alan Cox) +	Fix
-> IDE locking, /proc races and other uglies		(Alan Cox) +	Initial IT8212 IDE
-> driver				(Alan Cox) +	IDE hotplug (controller level)				(Alan Cox) +	Fix
-> IDE disk crash on bad geometry			(Alan Cox) +	Fix mishandling of pure LBA
-> devices			(Alan Cox) +	Fix problems with non-decoded slaves			(Alan Cox) -
-> Fix failure to handle large drives on ALi controllers	(Alan Cox)
-> 	| Lost from 2.4-ac to 2.6.
-> -	Initial code working at making jiffies removal easier	(Alan Cox)
+The same applies to write().
+
+This patch adds a semaphore in struct sysfs_buffer to fix this issue.
+
+Now it should be sufficient, to fix this memory leak, to protect only the
+call to get_zeroed_page() in fill_read_buffer() with the semaphore.
+
+Instead, this patch holds the semaphore during the whole
+sysfs_read_file().
+
+The reason is that there is also a risk, with the current code, of having
+one thread in flush_read_buffer() while the another is in
+fill_read_buffer()/ops->show(), and then maybe read()  returning garbage.
+
+This is more likely to happen actually if two threads call write() at the
+same time with different data, with one thread using the data of the
+buffer->page in ops->store(), and another thread overwriting that data in
+fill_write_buffer(), thus maybe having ops->store() using corrupted data.
+
+Of course in this case, the multithreaded application is broken and should
+not expect a correct kernel behaviour... so maybe only protection around
+get_zeroed_page() is needed.
+
+	Simon.
+
+This patch is against 2.6.9-rc1-mm2.
 
 
+Signed-off-by: Simon Derr <simon.derr@bull.net>
+
+Index: 269mm2kdb/fs/sysfs/file.c
+===================================================================
+--- 269mm2kdb.orig/fs/sysfs/file.c	2004-08-31 11:29:16.000000000 +0200
++++ 269mm2kdb/fs/sysfs/file.c	2004-09-01 10:00:57.582251616 +0200
+@@ -6,6 +6,7 @@
+ #include <linux/dnotify.h>
+ #include <linux/kobject.h>
+ #include <asm/uaccess.h>
++#include <asm/semaphore.h>
+
+ #include "sysfs.h"
+
+@@ -53,6 +54,7 @@
+ 	loff_t			pos;
+ 	char			* page;
+ 	struct sysfs_ops	* ops;
++	struct semaphore	sem;
+ };
+
+
+@@ -140,13 +142,17 @@
+ 	struct sysfs_buffer * buffer = file->private_data;
+ 	ssize_t retval = 0;
+
++	down(&buffer->sem);
+ 	if (!*ppos) {
+ 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+-			return retval;
++			goto out;
+ 	}
+ 	pr_debug("%s: count = %d, ppos = %lld, buf = %s\n",
+ 		 __FUNCTION__,count,*ppos,buffer->page);
+-	return flush_read_buffer(buffer,buf,count,ppos);
++	retval = flush_read_buffer(buffer,buf,count,ppos);
++out:
++	up(&buffer->sem);
++	return retval;
+ }
+
+
+@@ -220,11 +226,13 @@
+ {
+ 	struct sysfs_buffer * buffer = file->private_data;
+
++	down(&buffer->sem);
+ 	count = fill_write_buffer(buffer,buf,count);
+ 	if (count > 0)
+ 		count = flush_write_buffer(file->f_dentry,buffer,count);
+ 	if (count > 0)
+ 		*ppos += count;
++	up(&buffer->sem);
+ 	return count;
+ }
+
+@@ -287,6 +295,7 @@
+ 	buffer = kmalloc(sizeof(struct sysfs_buffer),GFP_KERNEL);
+ 	if (buffer) {
+ 		memset(buffer,0,sizeof(struct sysfs_buffer));
++		init_MUTEX(&buffer->sem);
+ 		buffer->ops = ops;
+ 		file->private_data = buffer;
+ 	} else

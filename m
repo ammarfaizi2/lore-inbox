@@ -1,114 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbULKC0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbULKC2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbULKC0e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 21:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbULKC0d
+	id S261912AbULKC2J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 21:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbULKC2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 21:26:33 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:52865 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261911AbULKC03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 21:26:29 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>
-In-Reply-To: <20041210111105.GB6855@elte.hu>
-References: <32950.192.168.1.5.1102529664.squirrel@192.168.1.5>
-	 <1102532625.25841.327.camel@localhost.localdomain>
-	 <32788.192.168.1.5.1102541960.squirrel@192.168.1.5>
-	 <1102543904.25841.356.camel@localhost.localdomain>
-	 <20041209093211.GC14516@elte.hu> <20041209131317.GA31573@elte.hu>
-	 <1102602829.25841.393.camel@localhost.localdomain>
-	 <1102619992.3882.9.camel@localhost.localdomain>
-	 <20041209221021.GF14194@elte.hu>
-	 <1102659089.3236.11.camel@localhost.localdomain>
-	 <20041210111105.GB6855@elte.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Fri, 10 Dec 2004 21:26:13 -0500
-Message-Id: <1102731973.3228.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Fri, 10 Dec 2004 21:28:08 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:56837 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261912AbULKC2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 21:28:02 -0500
+To: Greg KH <greg@kroah.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <20041210005055.GA17822@kroah.com>
+	<200412101729.01155.david-b@pacbell.net>
+	<20041211013930.GB12846@kroah.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 10 Dec 2004 18:26:49 -0800
+In-Reply-To: <20041211013930.GB12846@kroah.com> (Greg KH's message of "Fri,
+ 10 Dec 2004 17:39:30 -0800")
+Message-ID: <52is797eom.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [linux-usb-devel] [RFC PATCH] debugfs - yet another in-kernel
+ file system
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 11 Dec 2004 02:26:49.0974 (UTC) FILETIME=[DE9D1960:01C4DF28]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-10 at 12:11 +0100, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > Second, my ethernet doesn't work, and it really seems to be some kind
-> > of interrupt trouble.  It sends out ARPs but doesn't see them come
-> > back, and it also doesn't seem to know that it sent them out. I get
-> > the following:
-> > 
+    Greg> I considered adding a kobject as a paramater to the debugfs
+    Greg> interface.  The file created would be equal to the path that
+    Greg> the kobject has.  Would that work for you?
 
-<snip>
+I'd really prefer this to be optional at least.  Somethings it's nice
+to use kobjects for, but creating hierarchies of subdirectories is not
+really one of them.
 
-> > I'll hack on it some more.
-> 
-> yeah, please check this - you are the first one to report this issue.
-
-Hi Ingo,  I found the problem! and I now know why John Cooper didn't
-have this problem too.  I have CONFIG_PCI_MSI defined. I don't know why,
-I must have seen the option a while ago and said to myself "That looks
-cool, lets try it". Since I started with the config file of the vanilla
-kernel with your rt patches, it was still on. 
-
-Anyways, what is happening is that the io_apic code is mapping irqs to
-vectors, and your code didn't account for it. So here's my patch.
-
-Index: arch/i386/kernel/io_apic.c
-===================================================================
---- arch/i386/kernel/io_apic.c	(revision 18)
-+++ arch/i386/kernel/io_apic.c	(working copy)
-@@ -1942,12 +1942,14 @@
- 
- static void end_level_ioapic_irq(unsigned int irq)
- {
-+#ifndef CONFIG_PCI_MSI
- 	if (!(irq_desc[irq].status & (IRQ_DISABLED | IRQ_INPROGRESS)) &&
- 							irq_desc[irq].action)
-+#endif
- 		unmask_IO_APIC_irq(irq);
- }
- 
--#else /* !CONFIG_PREEMPT_HARDIRQS || !CONFIG_SMP */
-+#else /* !CONFIG_PREEMPT_HARDIRQS */
- 
- static void mask_and_ack_level_ioapic_irq(unsigned int irq)
- {
-@@ -2035,7 +2037,11 @@
- {
- 	int irq = vector_to_irq(vector);
- 
--	end_level_ioapic_irq(irq);
-+#if defined(CONFIG_PREEMPT_HARDIRQS)
-+	if (!(irq_desc[vector].status & (IRQ_DISABLED | IRQ_INPROGRESS)) &&
-+							irq_desc[vector].action)
-+#endif
-+		end_level_ioapic_irq(irq);
- }
- 
- static void enable_level_ioapic_vector(unsigned int vector)
-
-
-
---------------------
-
-I also removed the comment "!CONFIG_SMP" since it really wasn't correct.
-So I can get back to looking at other things.  This also may explain why
-my system would hang with my usb printer attached (the usb interrupts
-were vectored too).  I'll plug my printer back in and see if it works
-now. I'll let you know if I have any more problems.
-
-Thanks,
-
--- Steve
-
+ - R.

@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310233AbSCFWiI>; Wed, 6 Mar 2002 17:38:08 -0500
+	id <S310223AbSCFWl2>; Wed, 6 Mar 2002 17:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310228AbSCFWh7>; Wed, 6 Mar 2002 17:37:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44039 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292752AbSCFWho>; Wed, 6 Mar 2002 17:37:44 -0500
-Subject: Re: Support for sectorsizes > 4KB ?
-To: R.Oehler@GDAmbH.com (Ralf Oehler)
-Date: Wed, 6 Mar 2002 22:53:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-scsi@vger.kernel.org (Scsi)
-In-Reply-To: <XFMail.20020306084829.R.Oehler@GDAmbH.com> from "Ralf Oehler" at Mar 06, 2002 08:48:29 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310227AbSCFWlS>; Wed, 6 Mar 2002 17:41:18 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:14343 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S310223AbSCFWlB>; Wed, 6 Mar 2002 17:41:01 -0500
+Date: Wed, 6 Mar 2002 14:40:42 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Paul Mundt <lethal@chaoticdreams.org>
+cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  March 6, 2002
+In-Reply-To: <20020306124100.A18620@ChaoticDreams.ORG>
+Message-ID: <Pine.LNX.4.10.10203061439320.12924-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ikHN-0008T9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In the not-so-far future there will occure MO media on the market with
-> 40 to 120 Gigabytes of capacity and sectorsizes of 8 KB and maybe more.
-> It's called "UDO" technology.
-> 
-> Is there any way to support block devices with sectors larger than 4KB =
-> ?
+On Wed, 6 Mar 2002, Paul Mundt wrote:
 
-The scsi layer itself doesn't mind, but the page caches do. Once your
-block size exceeds the page size you hit a wall of memory fragmentation
-issues. Given that M/O media is relatively slow I'd be inclined to say
-write an sd like driver (smo or similar) which does reblocking and also
-knows a bit more about other M/O drive properties.
+> On Wed, Mar 06, 2002 at 12:07:14PM -0800, James Simmons wrote:
+> > As for the framebuffer stuff that can also be synced for the most part.
+> > At present I'm working on new soft accels to replace that fbcon-cfb* mess.
+> > The one thing missing is a universal cursor api. I purposed one but
+> > nothing happened. Its not urgent yet anyways.
+> > 
+> If this stuff is being cleaned up, I still have a large chunk of fixes locally
+> in my tree that need to be pushed up to linuxconsole CVS. Is the linuxconsole
+> stuff going to be synced up all at once, or is still going to be progressive?
+> If it's progressive, I'd still like to get my stuff cleaned up before pushing
+> it into CVS..
 
-Alan
+It will be progressive. Just watch out for the recent updates in CVS.
+
+
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
+
+

@@ -1,107 +1,527 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267626AbTA1RpV>; Tue, 28 Jan 2003 12:45:21 -0500
+	id <S267625AbTA1Rnx>; Tue, 28 Jan 2003 12:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267438AbTA1RpU>; Tue, 28 Jan 2003 12:45:20 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29313
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267626AbTA1RpP>; Tue, 28 Jan 2003 12:45:15 -0500
-Subject: Re: OOPS in read_cd... what to do?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andreas Henriksson <andreas@fjortis.info>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030128125119.GA31590@foo>
-References: <Pine.GSO.4.33.0301270937370.18209-100000@Amps.coe.neu.edu>
-	 <3E355D1F.1080007@didntduck.org>  <20030128125119.GA31590@foo>
-Content-Type: multipart/mixed; boundary="=-FlkPV5FgQMbwaznC71yl"
+	id <S267626AbTA1Rnx>; Tue, 28 Jan 2003 12:43:53 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:19781 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S267625AbTA1Rnd>; Tue, 28 Jan 2003 12:43:33 -0500
+Subject: Permission to use atomic code under LGPL
+From: Christian Fredrik Kalager Schaller <Uraeus@linuxrising.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-sZrg2mRLgCtwubZJ8Z2K"
 Organization: 
-Message-Id: <1043779710.24849.8.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1043776362.2939.14.camel@thebox>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 28 Jan 2003 18:48:31 +0000
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 28 Jan 2003 18:52:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-FlkPV5FgQMbwaznC71yl
+--=-sZrg2mRLgCtwubZJ8Z2K
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
+Hi,
+I am with the GStreamer project (www.gstreamer.net). We did a small
+license audit the other day and discovered we included some code from
+the kernel. GStreamer uses the LGPL so this is a problem for us. 
 
-> 1. load module.
-> 	#modprobe e2100
-> 	e2100.c: Presently autoprobing (not recommended) for a single card.
-> 	e2100.c:v1.01 7/21/94 Donald Becker (becker@cesdis.gsfc.nasa.gov)
-> 	 00 00 1D 0A 72 AB, IRQ 15, secandary media, memory @ 0xd0000
-> (I can supply io=0x380 to get rid of the warning message, but there will
-> be no real difference. I'm not really sure this is the correct value,
-> but last time I tried this I did look at the jumpers and used the right
-> value, thats when I noticed the oops. A weird thing btw. It didn't
-> happen when there also was a ne2000-compatible isa-card used at the same
-> time, then it just refused to send any traffic.)
-> 
-> 2. configure and up the interface, then send traffic using the
-> interface.
-> (ping some.remote.ip ... pinging myself works fine, but I guess it's
-> because the driver isn't involved there)
+The code in question is the atomic code and is included in our
+sourcefile below. Do the person(s) in question responsible for this code
+mind if we re-license it under the LGPL? 
 
-Try this
+We will of course add comments in the code stating its origin with
+copyrights etc.
 
+I am not subscribed to the list so if anyone has objections to this
+relicensing of this particular piece of code, please CC me any
+responses.
 
+Sincerely,
+Christian
 
---=-FlkPV5FgQMbwaznC71yl
-Content-Disposition: inline; filename=a1
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=a1; charset=UTF-8
+-- 
+Christian Fredrik Kalager Schaller <Uraeus@linuxrising.org>
 
---- drivers/net/e2100.c~	2003-01-28 18:38:21.000000000 +0000
-+++ drivers/net/e2100.c	2003-01-28 18:38:21.000000000 +0000
-@@ -77,7 +77,7 @@
- {
- 	/* This is a little weird: set the shared memory window by doing a
- 	   read.  The low address bits specify the starting page. */
--	readb(mem_base+start_page);
-+	isa_readb(mem_base+start_page);
- 	inb(port + E21_MEM_ENABLE);
- 	outb(E21_MEM_ON, port + E21_MEM_ENABLE + E21_MEM_ON);
- }
-@@ -306,9 +306,9 @@
-=20
- #ifdef notdef
- 	/* Officially this is what we are doing, but the readl() is faster */
--	memcpy_fromio(hdr, shared_mem, sizeof(struct e8390_pkt_hdr));
-+	isa_memcpy_fromio(hdr, shared_mem, sizeof(struct e8390_pkt_hdr));
- #else
--	((unsigned int*)hdr)[0] =3D readl(shared_mem);
-+	((unsigned int*)hdr)[0] =3D isa_readl(shared_mem);
- #endif
-=20
- 	/* Turn off memory access: we would need to reprogram the window anyway. =
-*/
-@@ -328,7 +328,7 @@
- 	mem_on(ioaddr, shared_mem, (ring_offset>>8));
-=20
- 	/* Packet is always in one chunk -- we can copy + cksum. */
--	eth_io_copy_and_sum(skb, dev->mem_start + (ring_offset & 0xff), count, 0)=
-;
-+	isa_eth_io_copy_and_sum(skb, dev->mem_start + (ring_offset & 0xff), count=
-, 0);
-=20
- 	mem_off(ioaddr);
- }
-@@ -342,10 +342,10 @@
-=20
- 	/* Set the shared memory window start by doing a read, with the low addre=
-ss
- 	   bits specifying the starting page. */
--	readb(shared_mem + start_page);
-+	isa_readb(shared_mem + start_page);
- 	mem_on(ioaddr, shared_mem, start_page);
-=20
--	memcpy_toio(shared_mem, buf, count);
-+	isa_memcpy_toio(shared_mem, buf, count);
- 	mem_off(ioaddr);
- }
-=20
+--=-sZrg2mRLgCtwubZJ8Z2K
+Content-Disposition: attachment; filename=gstatomic_impl.h
+Content-Type: text/x-c-header; name=gstatomic_impl.h; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
---=-FlkPV5FgQMbwaznC71yl--
+/* GStreamer
+ * Copyright (C) <1999> Erik Walthinsen <omega@cse.ogi.edu>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#ifndef __GST_ATOMIC_IMPL_H__
+#define __GST_ATOMIC_IMPL_H__
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <glib.h>
+#include "gstatomic.h"
+#include "gstmacros.h"
+
+G_BEGIN_DECLS
+
+#if defined (GST_CAN_INLINE) || defined (__GST_ATOMIC_C__)
+  
+/***** Intel x86 *****/
+#if defined (HAVE_CPU_I386) && defined(__GNUC__)
+
+#ifdef GST_CONFIG_NO_SMP
+#define SMP_LOCK ""
+#else
+#define SMP_LOCK "lock ; "
+#endif
+
+GST_INLINE_FUNC void 	gst_atomic_int_init 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC void 	gst_atomic_int_destroy 	(GstAtomicInt *aint) { } 
+GST_INLINE_FUNC void 	gst_atomic_int_set 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC gint 	gst_atomic_int_read 	(GstAtomicInt *aint) { return aint->counter; }
+
+GST_INLINE_FUNC void 
+gst_atomic_int_add (GstAtomicInt *aint, gint val)
+{
+  __asm__ __volatile__(
+    SMP_LOCK "addl %1,%0"
+      :"=m" (aint->counter)
+      :"ir" (val), "m" (aint->counter));
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_inc (GstAtomicInt *aint)
+{
+  __asm__ __volatile__(
+    SMP_LOCK "incl %0"
+      :"=m" (aint->counter)
+      :"m" (aint->counter));
+}
+
+GST_INLINE_FUNC gboolean
+gst_atomic_int_dec_and_test (GstAtomicInt *aint)
+{
+  guchar res;
+
+  __asm__ __volatile__(
+    SMP_LOCK "decl %0; sete %1"
+      :"=m" (aint->counter), "=qm" (res)
+      :"m" (aint->counter) : "memory");
+
+  return res != 0;
+}
+
+/***** PowerPC *****/
+#elif defined (HAVE_CPU_PPC) && defined(__GNUC__)
+
+#ifdef GST_CONFIG_NO_SMP
+#define SMP_SYNC        ""
+#define SMP_ISYNC
+#else
+#define SMP_SYNC        "sync"
+#define SMP_ISYNC       "\n\tisync"
+#endif
+
+/* Erratum #77 on the 405 means we need a sync or dcbt before every stwcx.
+ * The old ATOMIC_SYNC_FIX covered some but not all of this.
+ */
+#ifdef GST_CONFIG_IBM405_ERR77
+#define PPC405_ERR77(ra,rb)     "dcbt " #ra "," #rb ";"
+#else
+#define PPC405_ERR77(ra,rb)
+#endif
+
+GST_INLINE_FUNC void 	gst_atomic_int_init 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC void 	gst_atomic_int_destroy 	(GstAtomicInt *aint) { } 
+GST_INLINE_FUNC void 	gst_atomic_int_set 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC gint 	gst_atomic_int_read 	(GstAtomicInt *aint) { return aint->counter; }
+
+GST_INLINE_FUNC void 
+gst_atomic_int_add (GstAtomicInt *aint, gint val)
+{
+  int t;
+
+  __asm__ __volatile__(
+    "1:     lwarx   %0,0,%3         # atomic_add\n\
+            add     %0,%2,%0\n"
+            PPC405_ERR77(0,%3)
+    "       stwcx.  %0,0,%3 \n\
+            bne-    1b"
+      : "=&r" (t), "=m" (aint->counter)
+      : "r" (val), "r" (&aint->counter), "m" (aint->counter)
+      : "cc");
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_inc (GstAtomicInt *aint)
+{
+  int t;
+
+  __asm__ __volatile__(
+    "1:     lwarx   %0,0,%2         # atomic_inc\n\
+            addic   %0,%0,1\n"
+            PPC405_ERR77(0,%2)
+    "       stwcx.  %0,0,%2 \n\
+            bne-    1b"
+      : "=&r" (t), "=m" (aint->counter)
+      : "r" (&aint->counter), "m" (aint->counter)
+      : "cc");
+}
+
+GST_INLINE_FUNC gboolean
+gst_atomic_int_dec_and_test (GstAtomicInt *aint)
+{
+  int t;
+
+  __asm__ __volatile__(
+    "1:     lwarx   %0,0,%1         # atomic_dec_return\n\
+            addic   %0,%0,-1\n"
+            PPC405_ERR77(0,%1)
+    "       stwcx.  %0,0,%1\n\
+            bne-    1b"
+            SMP_ISYNC
+      : "=&r" (t)
+      : "r" (&aint->counter)
+      : "cc", "memory");
+
+  return t == 0;
+}
+
+/***** DEC[/Compaq/HP?/Intel?] Alpha *****/
+#elif defined(HAVE_CPU_ALPHA) && defined(__GNUC__)
+
+GST_INLINE_FUNC void 	gst_atomic_int_init 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC void 	gst_atomic_int_destroy 	(GstAtomicInt *aint) { } 
+GST_INLINE_FUNC void 	gst_atomic_int_set 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC gint 	gst_atomic_int_read 	(GstAtomicInt *aint) { return aint->counter; }
+
+GST_INLINE_FUNC void 
+gst_atomic_int_add (GstAtomicInt *aint, gint val)
+{
+  unsigned long temp;
+
+  __asm__ __volatile__(
+    "1:     ldl_l %0,%1\n"
+    "       addl %0,%2,%0\n"
+    "       stl_c %0,%1\n"
+    "       beq %0,2f\n"
+    ".subsection 2\n"
+    "2:     br 1b\n"
+    ".previous"
+      :"=&r" (temp), "=m" (aint->counter)
+      :"Ir" (val), "m" (aint->counter));
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_inc (GstAtomicInt *aint)
+{
+  gst_atomic_int_add (aint, 1);
+}
+
+GST_INLINE_FUNC gboolean
+gst_atomic_int_dec_and_test (GstAtomicInt *aint)
+{
+  long temp, result;
+  int val = 1;
+  __asm__ __volatile__(
+    "1:     ldl_l %0,%1\n"
+    "       subl %0,%3,%2\n"
+    "       subl %0,%3,%0\n"
+    "       stl_c %0,%1\n"
+    "       beq %0,2f\n"
+    "       mb\n"
+    ".subsection 2\n"
+    "2:     br 1b\n"
+    ".previous"
+      :"=&r" (temp), "=m" (aint->counter), "=&r" (result)
+      :"Ir" (val), "m" (aint->counter) : "memory");
+
+  return result == 0;
+}
+
+/***** Sun SPARC *****/
+#elif defined(HAVE_CPU_SPARC) && defined(__GNUC__)
+
+GST_INLINE_FUNC void 	gst_atomic_int_destroy 	(GstAtomicInt *aint) { } 
+
+#ifdef GST_CONFIG_NO_SMP
+GST_INLINE_FUNC void 	gst_atomic_int_init 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC void 	gst_atomic_int_set 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC gint 	gst_atomic_int_read 	(GstAtomicInt *aint) { return aint->counter; }
+#else
+GST_INLINE_FUNC void 	gst_atomic_int_init 	(GstAtomicInt *aint, gint val) { aint->counter = (val<<8); }
+GST_INLINE_FUNC void 	gst_atomic_int_set 	(GstAtomicInt *aint, gint val) { aint->counter = (val<<8); }
+
+/*
+ * For SMP the trick is you embed the spin lock byte within
+ * the word, use the low byte so signedness is easily retained
+ * via a quick arithmetic shift.  It looks like this:
+ *
+ *      ----------------------------------------
+ *      | signed 24-bit counter value |  lock  |  atomic_t
+ *      ----------------------------------------
+ *       31                          8 7      0
+ */
+GST_INLINE_FUNC gint
+gst_atomic_int_read (GstAtomicInt *aint) 
+{ 
+  int ret = aint->counter;
+
+  while (ret & 0xff)
+    ret = aint->counter;
+
+  return ret >> 8;
+}
+#endif /* GST_CONFIG_NO_SMP */
+
+GST_INLINE_FUNC void 
+gst_atomic_int_add (GstAtomicInt *aint, gint val)
+{
+  register volatile int *ptr asm ("g1");
+  register int increment asm ("g2");
+
+  ptr = &aint->counter;
+  increment = val;
+
+  __asm__ __volatile__(
+    "mov    %%o7, %%g4\n\t"
+    "call   ___atomic_add\n\t"
+    " add   %%o7, 8, %%o7\n"
+      : "=&r" (increment)
+      : "0" (increment), "r" (ptr)
+      : "g3", "g4", "g7", "memory", "cc");
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_inc (GstAtomicInt *aint)
+{
+  gst_atomic_int_add (aint, 1);
+}
+
+GST_INLINE_FUNC gboolean
+gst_atomic_int_dec_and_test (GstAtomicInt *aint)
+{
+  register volatile int *ptr asm ("g1");
+  register int increment asm ("g2");
+
+  ptr = &aint->counter;
+  increment = val;
+
+  __asm__ __volatile__(
+    "mov    %%o7, %%g4\n\t"
+    "call   ___atomic_sub\n\t"
+    " add   %%o7, 8, %%o7\n"
+      : "=&r" (increment)
+      : "0" (increment), "r" (ptr)
+      : "g3", "g4", "g7", "memory", "cc");
+
+  return increment == 0;
+}
+
+/***** MIPS *****/
+#elif defined(HAVE_CPU_MIPS) && defined(__GNUC__)
+
+GST_INLINE_FUNC void 	gst_atomic_int_init 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC void 	gst_atomic_int_destroy 	(GstAtomicInt *aint) { } 
+GST_INLINE_FUNC void 	gst_atomic_int_set 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC gint 	gst_atomic_int_read 	(GstAtomicInt *aint) { return aint->counter; }
+
+/* this only works on MIPS II and better */
+GST_INLINE_FUNC void 
+gst_atomic_int_add (GstAtomicInt *aint, gint val)
+{
+  unsigned long temp;
+
+  __asm__ __volatile__(
+    "1:   ll      %0, %1      # atomic_add\n"
+    "     addu    %0, %2                  \n"
+    "     sc      %0, %1                  \n"
+    "     beqz    %0, 1b                  \n"
+      : "=&r" (temp), "=m" (aint->counter)
+      : "Ir" (val), "m" (aint->counter));
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_inc (GstAtomicInt *aint)
+{
+  gst_atomic_int_add (aint, 1);
+}
+
+GST_INLINE_FUNC gboolean
+gst_atomic_int_dec_and_test (GstAtomicInt *aint)
+{
+  unsigned long temp, result;
+  int val = 1;
+
+  __asm__ __volatile__(
+    ".set push                                   \n"
+    ".set noreorder           # atomic_sub_return\n"
+    "1:   ll    %1, %2                           \n"
+    "     subu  %0, %1, %3                       \n"
+    "     sc    %0, %2                           \n"
+    "     beqz  %0, 1b                           \n"
+    "     subu  %0, %1, %3                       \n"
+    ".set pop                                    \n"
+      : "=&r" (result), "=&r" (temp), "=m" (aint->counter)
+      : "Ir" (val), "m" (aint->counter)
+      : "memory");
+
+  return result == 0;
+}
+
+/***** S/390 *****/
+#elif defined(HAVE_CPU_S390) && defined(__GNUC__)
+
+GST_INLINE_FUNC void 	gst_atomic_int_init 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC void 	gst_atomic_int_destroy 	(GstAtomicInt *aint) { } 
+GST_INLINE_FUNC void 	gst_atomic_int_set 	(GstAtomicInt *aint, gint val) { aint->counter = val; }
+GST_INLINE_FUNC gint 	gst_atomic_int_read 	(GstAtomicInt *aint) { return aint->counter; }
+
+#define __CS_LOOP(old_val, new_val, ptr, op_val, op_string)             \
+        __asm__ __volatile__("   l     %0,0(%3)\n"                      \
+                             "0: lr    %1,%0\n"                         \
+                             op_string "  %1,%4\n"                      \
+                             "   cs    %0,%1,0(%3)\n"                   \
+                             "   jl    0b"                              \
+                             : "=&d" (old_val), "=&d" (new_val),        \
+                               "+m" (((atomic_t *)(ptr))->counter)      \
+                             : "a" (ptr), "d" (op_val) : "cc" );
+
+GST_INLINE_FUNC void 
+gst_atomic_int_add (GstAtomicInt *aint, gint val)
+{
+  int old_val, new_val;
+  __CS_LOOP(old_val, new_val, aint, val, "ar");
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_inc (GstAtomicInt *aint)
+{
+  int old_val, new_val;
+  __CS_LOOP(old_val, new_val, aint, 1, "ar");
+}
+
+GST_INLINE_FUNC gboolean
+gst_atomic_int_dec_and_test (GstAtomicInt *aint)
+{
+  int old_val, new_val;
+  __CS_LOOP(old_val, new_val, aint, 1, "sr");
+  return new_val == 0;
+}
+
+#else 
+#warning consider putting your architecture specific atomic implementations here
+
+/*
+ * generic implementation
+ */
+GST_INLINE_FUNC void
+gst_atomic_int_init (GstAtomicInt *aint, gint val)
+{
+  aint->counter = val;
+  aint->lock = g_mutex_new ();
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_destroy (GstAtomicInt *aint)
+{
+  g_mutex_free (aint->lock);
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_set (GstAtomicInt *aint, gint val)
+{
+  g_mutex_lock (aint->lock);
+  aint->counter = val;
+  g_mutex_unlock (aint->lock);
+}
+
+GST_INLINE_FUNC gint
+gst_atomic_int_read (GstAtomicInt *aint)
+{
+  gint res;
+
+  g_mutex_lock (aint->lock);
+  res = aint->counter;
+  g_mutex_unlock (aint->lock);
+
+  return res;
+}
+
+GST_INLINE_FUNC void 
+gst_atomic_int_add (GstAtomicInt *aint, gint val)
+{
+  g_mutex_lock (aint->lock);
+  aint->counter += val;
+  g_mutex_unlock (aint->lock);
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_inc (GstAtomicInt *aint)
+{
+  g_mutex_lock (aint->lock);
+  aint->counter++;
+  g_mutex_unlock (aint->lock);
+}
+
+GST_INLINE_FUNC gboolean
+gst_atomic_int_dec_and_test (GstAtomicInt *aint)
+{
+  gboolean res;
+  
+  g_mutex_lock (aint->lock);
+  aint->counter--;
+  res = (aint->counter == 0);
+  g_mutex_unlock (aint->lock);
+
+  return res;
+}
+
+#endif 
+/*
+ * common functions
+ */ 
+GST_INLINE_FUNC GstAtomicInt*
+gst_atomic_int_new (gint val)
+{
+  GstAtomicInt *aint;
+
+  aint = g_new0 (GstAtomicInt, 1);
+  gst_atomic_int_init (aint, val);
+
+  return aint;
+}
+
+GST_INLINE_FUNC void
+gst_atomic_int_free (GstAtomicInt *aint)
+{
+  gst_atomic_int_destroy (aint);
+  g_free (aint);
+}
+
+#endif /* defined (GST_CAN_INLINE) || defined (__GST_TRASH_STACK_C__)*/
+
+G_END_DECLS
+
+#endif /*  __GST_ATOMIC_IMPL_H__ */
+
+--=-sZrg2mRLgCtwubZJ8Z2K--
+

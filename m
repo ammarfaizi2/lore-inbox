@@ -1,100 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262748AbTCJIck>; Mon, 10 Mar 2003 03:32:40 -0500
+	id <S262753AbTCJId6>; Mon, 10 Mar 2003 03:33:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262749AbTCJIck>; Mon, 10 Mar 2003 03:32:40 -0500
-Received: from AMarseille-201-1-1-111.abo.wanadoo.fr ([193.252.38.111]:12327
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262748AbTCJIci>; Mon, 10 Mar 2003 03:32:38 -0500
-Subject: Re: [patch] oprofile for ppc
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Segher Boessenkool <segher@koffie.nl>, oprofile-list@lists.sourceforge.net,
-       linuxppc-dev@lists.linuxppc.org, o.oppitz@web.de, afleming@motorola.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1047277876.2012.360.camel@cube>
-References: <200303070929.h279TGTu031828@saturn.cs.uml.edu>
-	 <1047032003.12206.5.camel@zion.wanadoo.fr> <1047061862.1900.67.camel@cube>
-	 <1047136206.12202.85.camel@zion.wanadoo.fr>  <3E6C0B93.5040205@koffie.nl>
-	 <1047277876.2012.360.camel@cube>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047285780.19211.15.camel@zion.wanadoo.fr>
+	id <S262754AbTCJId6>; Mon, 10 Mar 2003 03:33:58 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:2820 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262753AbTCJIde>;
+	Mon, 10 Mar 2003 03:33:34 -0500
+Date: Sun, 9 Mar 2003 23:16:24 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Fix mem= options
+Message-ID: <20030309221624.GA26517@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 10 Mar 2003 09:43:00 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-10 at 07:31, Albert Cahalan wrote:
-> On Sun, 2003-03-09 at 22:50, Segher Boessenkool wrote:
-> > Benjamin Herrenschmidt wrote:
-> 
-> >> Beware though that some G4s have a nasty bug that
-> >> prevents using the performance counter interrupt
-> >> (and the thermal interrupt as well).
-> >
-> > MPC7400 version 1.2 and lower have this problem.
-> 
-> MPC7410 you mean, right? Are those early revisions
-> even popular?
-> 
-> I'm wondering if the MPC7400 is also affected.
-> The MPC7400 has some significant differences.
-> The pipeline length changed.
+Hi!
 
-7400 and 7410 are quite similar. I had the problem on
-my old G4 which is a 7400 (I don't have it any more so
-I can't tell you about the CPU rev).
+HPA told me bootloaders need to parse mem=, so we should invent other
+option for stuff like mem=exactmap. Please apply,
+								Pavel
 
-> >> The problem is that if any of those fall at the same
-> >> time as the DEC interrupt, the CPU messes up it's
-> >> internal state and you lose SRR0/SRR1, which means
-> >> you can't recover from the exception.
-> >
-> > But the worst that happens is that you lose that
-> > process, isn't it?  Not all that big a problem,
-> > esp. since the window in which this can happen is
-> > very small.
-> 
-> I think you'd get an infinite loop of either
-> the decrementer or performance monitor. That's
-> mostly fixable by checking for the condition and
-> killing the affected process, but that process
-> could be one of the ones built into the kernel.
+--- clean/arch/i386/kernel/setup.c	2003-03-06 23:25:14.000000000 +0100
++++ linux/arch/i386/kernel/setup.c	2003-03-08 00:18:21.000000000 +0100
+@@ -527,6 +527,9 @@
+ 		 * to <mem>, overriding the bios size.
+ 		 * "mem=XXX[KkmM]@XXX[KkmM]" defines a memory region from
+ 		 * <start> to <start>+<mem>, overriding the bios size.
++		 *
++		 * HPA tells me bootloaders need to parse mem=, so no new
++		 * option should be mem=
+ 		 */
+ 		if (c == ' ' && !memcmp(from, "mem=", 4)) {
+ 			if (to != command_line)
+@@ -535,8 +538,24 @@
+ 				from += 9+4;
+ 				clear_bit(X86_FEATURE_PSE, boot_cpu_data.x86_capability);
+ 				disable_pse = 1;
+-			} else if (!memcmp(from+4, "exactmap", 8)) {
+-				from += 8+4;
++			} else {
++				/* If the user specifies memory size, we
++				 * limit the BIOS-provided memory map to
++				 * that size. exactmap can be used to specify
++				 * the exact map. mem=number can be used to
++				 * trim the existing memory map.
++				 */
++				unsigned long long start_at, mem_size;
++ 
++				mem_size = memparse(from+4, &from);
++			}
++		}
++
++		if (c == ' ' && !memcmp(from, "memmap=", 7)) {
++			if (to != command_line)
++				to--;
++			if (!memcmp(from+7, "exactmap", 8)) {
++				from += 8+7;
+ 				e820.nr_map = 0;
+ 				userdef = 1;
+ 			} else {
+@@ -548,7 +567,7 @@
+ 				 */
+ 				unsigned long long start_at, mem_size;
+  
+-				mem_size = memparse(from+4, &from);
++				mem_size = memparse(from+7, &from);
+ 				if (*from == '@') {
+ 					start_at = memparse(from+1, &from);
+ 					add_memory_region(start_at, mem_size, E820_RAM);
 
-You can lose the kernel state as well
-
-> So the use of oprofile comes down to a choice:
-> 
-> a. Ignore the problem.
->    rare crashes
-
-Not that rare as soon as you increase the interrupt frequency
-
-> b. The decrementer goes much faster for profiling.
->    high overhead, awkwardness in non-time measurement
-
-The overhead of a single DEC interrupt isn't _that_ high
-
-> c. The performance monitor is used for clock ticks.
->    hard choices about sharing or frequency
-> 
-> Besides the obvious use of core cycles to generate
-> a clock tick out of the performance monitor, there
-> is the tbsel field in MMCR0. That has some strange
-> frequency choices. On a system with a 100 MHz bus,
-> it looks like one gets:
-> 
-> 12.5 MHz, 49 kHz, 3 kHz, 191 Hz
-> 
-> So 3 kHz it is. That's 1526 Hz on a 50 MHz bus,
-> or 6104 Hz on a 200 MHz bus. This is enough to
-> get a 1000 Hz jiffies with reasonable jitter on
-> most machines, and a very good 100 Hz for user apps.
-> 
-> 
-> ** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
 -- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291778AbSBNQo1>; Thu, 14 Feb 2002 11:44:27 -0500
+	id <S291782AbSBNQrr>; Thu, 14 Feb 2002 11:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291784AbSBNQoS>; Thu, 14 Feb 2002 11:44:18 -0500
-Received: from [216.80.8.1] ([216.80.8.1]:8712 "HELO mercury.prairiegroup.com")
-	by vger.kernel.org with SMTP id <S291781AbSBNQnG>;
-	Thu, 14 Feb 2002 11:43:06 -0500
-Message-ID: <3C6BE8F4.9010608@mcwhorter.org>
-Date: Thu, 14 Feb 2002 10:42:28 -0600
-From: Martin McWhorter <martin@mcwhorter.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [boog] make xconfig broke in 2.5.5pre1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291781AbSBNQrV>; Thu, 14 Feb 2002 11:47:21 -0500
+Received: from ns.suse.de ([213.95.15.193]:11789 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291784AbSBNQrC>;
+	Thu, 14 Feb 2002 11:47:02 -0500
+To: Michael Sinz <msinz@wgate.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Core dump file control
+In-Reply-To: <3C6BE18F.7B849129@wgate.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Feb 2002 17:37:46 +0100
+In-Reply-To: Michael Sinz's message of "14 Feb 2002 17:15:32 +0100"
+Message-ID: <p73lmdw10kl.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was reported in the 2.5.5pre1 thread but I think it got lost in the 
-shuffle. So here we go again...
+Michael Sinz <msinz@wgate.com> writes:
+> 
+> This then causes core dumps to be of the format:
+> 
+>         /coredumps/whale.sinz.org-badprogram-13917.core
 
-Martin
+I had something like this for a long time on my todo list. The idea
+was to set core_name_format to the name of a named pipe and have an 
+daemon on the other end that logs backtraces to syslogd (something a 
+bit like dr.watson) 
+Only problem is that it won't handle parallel coredumps very well
+without some additional (deadlock prone) global locking or alternatively 
+support AF_UNIX stream sockets too that have the concept of multiple 
+streams over a single name. 
 
-[root@m_mcwhorter linux-2.5.5-p1]# make xconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.5.5-p1/scripts'
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-sound/Config.in: 22: incorrect argument
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.5.5-p1/scripts'
-make: *** [xconfig] Error 2
-[root@m_mcwhorter linux-2.5.5-p1]#
-
+-Andi

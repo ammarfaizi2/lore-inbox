@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbTDOLhO (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 07:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbTDOLhO 
+	id S261177AbTDOLqZ (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 07:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbTDOLqY 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 07:37:14 -0400
-Received: from dnvrdslgw14poolC198.dnvr.uswest.net ([63.228.86.198]:14425 "EHLO
-	q.dyndns.org") by vger.kernel.org with ESMTP id S261206AbTDOLhN 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 07:37:13 -0400
-Date: Tue, 15 Apr 2003 05:49:19 -0600 (MDT)
-From: Benson Chow <blc+lkml@q.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: ac97, alc101+kt8235 sound
-Message-ID: <Pine.LNX.4.44.0304150537330.28926-100000@q.dyndns.org>
+	Tue, 15 Apr 2003 07:46:24 -0400
+Received: from smtp1.wanadoo.fr ([193.252.22.25]:61826 "EHLO
+	mwinf0604.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261177AbTDOLqY (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 07:46:24 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: BUGed to death
+Date: Tue, 15 Apr 2003 13:57:32 +0200
+User-Agent: KMail/1.5.1
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <80690000.1050351598@flay> <200304142310.05110.baldrick@wanadoo.fr> <20030414211740.GB11160@suse.de>
+In-Reply-To: <20030414211740.GB11160@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304151357.32819.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess this ac97 stuff is pretty confusing.
+> Right, BUG_ON was added later (possibly for the purpose of
+> marking unlikely branches).  I see your point now about gcc
+> not recognising branches which are going to be unlikely, but
+> whether or not it should is questionable IMO.
 
-Anyway, my motherboard has a kt8235 southbridge and an ALC101 AC97
-decoder.  I read in some posting to hack the ALC101 into the
-drivers/sound/ac97_codec.c with something like this:
+It is questionable.  Since even in core kernel code there are
+many places with
+	if (cond)
+		BUG();
+rather than
+	BUG_ON(cond);
+it may be worth seeing if converting them makes a difference
+(increases code size though).
 
-        {0x414C4730, "ALC101",             &null_ops},
+Ciao,
 
-and then use the via82cxxx_audio driver.  It didn't do anything.  So, I
-tried hacking the PCI device number in via82cxxx_audio.c by changing
-
-static struct pci_device_id via_pci_tbl[] __initdata = {
-        { PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5,
-          PCI_ANY_ID, PCI_ANY_ID, },
-        { 0, }
-};
-
-to
-
-static struct pci_device_id via_pci_tbl[] __initdata = {
-        { PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_5,
-          PCI_ANY_ID, PCI_ANY_ID, },
-        { 0, }
-};
-
-hoping that these via chips were pretty close.  Unfortunately no, it
-still doesn't work.  It did, however, find the AC97 codec fine (I added
-some printk's), but no sound is produced.  Any ideas on how to get this
-vt8235-based motherboard sound working?  (and ALSA-0.9.2 seems to do
-nothing but segfault it seems.)
-
-Running the 2.4.20 kernel on an ecs p4vxasd2+ board (yeah, I know...)
-
-Thanks,
-
--bc
-
-WARNING: All HTML emails get deleted.  DO NOT SEND HTML MAIL.
-
+Duncan.

@@ -1,90 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316709AbSGHCCT>; Sun, 7 Jul 2002 22:02:19 -0400
+	id <S316723AbSGHCMF>; Sun, 7 Jul 2002 22:12:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316723AbSGHCCS>; Sun, 7 Jul 2002 22:02:18 -0400
-Received: from p0013.as-l042.contactel.cz ([194.108.237.13]:2688 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S316709AbSGHCCR>;
-	Sun, 7 Jul 2002 22:02:17 -0400
-Date: Mon, 8 Jul 2002 04:04:56 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Martin Dalecki <dalecki@evision-ventures.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: IDE94 lockup on lock_page or __wait_on_buffer
-Message-ID: <20020708020456.GA1144@ppc.vc.cvut.cz>
-References: <Pine.LNX.4.44.0207071922350.1441-100000@linux-box.realnet.co.sz> <Pine.SOL.4.30.0207071915310.1945-200000@mion.elka.pw.edu.pl>
+	id <S316728AbSGHCME>; Sun, 7 Jul 2002 22:12:04 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:6927 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316723AbSGHCME>;
+	Sun, 7 Jul 2002 22:12:04 -0400
+Date: Sun, 7 Jul 2002 19:12:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+Message-ID: <20020708021228.GA19336@kroah.com>
+References: <Pine.LNX.4.44.0207071551180.10105-100000@hawkeye.luckynet.adm> <3D28C3F0.7010506@us.ibm.com> <20020707235114.GE18298@kroah.com> <3D28D7A9.5010409@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0207071915310.1945-200000@mion.elka.pw.edu.pl>
+In-Reply-To: <3D28D7A9.5010409@us.ibm.com>
 User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 10 Jun 2002 00:24:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 07:27:18PM +0200, Bartlomiej Zolnierkiewicz wrote:
+On Sun, Jul 07, 2002 at 05:07:05PM -0700, Dave Hansen wrote:
 > 
-> Do you realise that 2.5.25 have IDE 93 and it should be fixed in IDE 96.
+> You are taking this example way too seriously.  Thunder wanted an 
+> example and I grabbed the first one that I saw (I created it in the 
+> last hour).  I showed you how I arrived at it, just a quick grepping. 
+>  It wan't a real patch, only a quick little example snippet.
+
+I know that, you're taking my response way too seriously :)
+I just showed the typical response to one of your posts, you just picked
+the wrong example, or maybe any USB example you could have picked would
+have evicted much the same response :)
+
+> >	- even if you remove the BKL from this code, what have you
+> >	  achieved?  A faster kernel?  A very tiny bit smaller kernel,
+> >	  yes, but not any faster overall.  This is not on _any_
+> >	  critical path.
 > 
-> BTW: know problem with 96 is broken ide_timer_expiry().
-> Attached IDE 98 (or not) prepatch should fix it.
+> How many times do I have to say it?  We're going around in circles 
+> here.  I _know_ that it isn't on a critical path, or saving a large 
+> quantity of program text.  I just think that it is better than it was 
+> before.
 
-Hello,
-  there is something wrong with IDE94 :-( I'm starring at this problem for
-6 hours, but I still cannot explain that. After applying IDE94 and
-simple booting with:
+So you agree with me?  Good.  I know you think the code is better than
+it was before, but beauty is in the eye of the beholder, or in this
+case, the eye of the people that fully understand the code :)
 
-Linux init=/bin/bash
-# bash < /dev/tty2 > /dev/tty2 2>&1 &
-<change to vt2>
-# dd if=/dev/hdg of=/dev/null bs=4k
-<change back to vt1>
-# df
+If nothing else, I hope you will think twice before sending off your
+next BKL removel patch in a subsystem that you haven't fully tested or
+understood.  That's the point I keep trying to get across here.
 
-system deadlocks. Call stack is either (when dd locks)
+thanks,
 
-__lock_page
-lock_page
-filemap_nopage  (first call to lock_page, at line 1550)
-do_no_page
-handle_mm_fault
-do_page_fault
-error_code
-
-or (when bash dies while trying to start df)
-
-__wait_on_buffer
-__bread_slow
-__getblk
-ext2_get_inode
-ext2_read_inode
-ext2_lookup
-real_lookup
-do_lookup
-link_path_walk
-path_lookup
-__user_walk
-vfs_stat
-sys_stat64
-syscall_call
-
-Probably IDE messes its request queue and forgets to execute some requests,
-or what's going on...
-
-None of running processes (2x bash, dd, keventd, 
-ksoftirqd...) is executing IDE code when the deadlock happens. IDE channel
-in question is dead after deadlock occurs (hdparm -d 0 /dev/hde says 
-channel busy after some timeout).
-
-Kernel is up, non-preemptible, running on 1GHz Athlon, 
-one UDMA100 IDE (hde) and one UDMA33 IDE (hdg) connected to pdc20265, 512MB 
-RAM. I did not notice any problem while using this patch for last 7 days 
-on 450MHz PIII, two UDMA33 IDE connected to PIIX4, 640MB RAM.
-
-Problem occurs even with latest ide-98-pre.
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
-
-
+greg k-h

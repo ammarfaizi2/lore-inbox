@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263242AbUJ2Cv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262922AbUJ1XMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263242AbUJ2Cv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 22:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUJ2CoI
+	id S262922AbUJ1XMT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 19:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbUJ1XJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 22:44:08 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:6634 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263136AbUJ2Ck7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 22:40:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:subject:mime-version:content-type:content-transfer-encoding;
-        b=OvWmR0SG0raPrlK6gbf4Cwx/OmrJ6lmg9MJXDhi/Ex+aTEZ8RtvYpwCPs8cQGUbYSVs5CRaZimZn9fHqv28gtNFyPrLMIImYpKjnhVgkkj2yd5Zj2/dDxlHB7Baz/mbCGvlDzHCntDFcPrNt6V1KYE8vuRXsE+aWnXp+kmKSgmM=
-Message-ID: <c855509804102819402e31f958@mail.gmail.com>
-Date: Thu, 28 Oct 2004 19:40:58 -0700
-From: Hitech Recruit <hitech.recruit@gmail.com>
-Reply-To: Hitech Recruit <hitech.recruit@gmail.com>
-Subject: [Job] Senior Software Engineer - Linux Kernel (Silicon Valley)
+	Thu, 28 Oct 2004 19:09:05 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59153 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261589AbUJ1XHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:07:07 -0400
+Date: Fri, 29 Oct 2004 01:06:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Dillow <dave@thedillows.org>
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/typhoon.c: remove an unused function
+Message-ID: <20041028230629.GY3207@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-We are currently working on an immediate opening for a Linux Kernel
-Engineer in Silicon Valley.  If interested, please reply to
-hitech.recruit@gmail.com .  If not, please pass the word around. Thx.
+The patch below removes an unused function from drivers/net/typhoon.c
 
-_________________________________
 
-Senior Software Engineer - Linux Kernel
+diffstat output:
+ drivers/net/typhoon.c |    8 --------
+ 1 files changed, 8 deletions(-)
 
-Our client is developing best of breed remote office solutions that
-unify multiple services, such as routing, firewall, intrusion
-detection, virtual private networking, and directing and filtering
-content into a single, resilient, and highly manageable platform.
 
-Furthermore our client's solution meets customer needs for managing
-remote office networks rather than the remote device, while minimizing
-capital and operational expenses in providing high quality broadband
-services to remote sites.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Role:
+- --- linux-2.6.10-rc1-mm1-full/drivers/net/typhoon.c.old	2004-10-28 23:21:30.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/net/typhoon.c	2004-10-28 23:21:44.000000000 +0200
+@@ -372,14 +372,6 @@
+ 	typhoon_inc_index(index, count, TXLO_ENTRIES);
+ }
+ 
+- -static inline void
+- -typhoon_inc_rx_index(u32 *index, const int count)
+- -{
+- -	/* sizeof(struct rx_desc) != sizeof(struct cmd_desc) */
+- -	*index += count * sizeof(struct rx_desc);
+- -	*index %= RX_ENTRIES * sizeof(struct rx_desc);
+- -}
+- -
+ static int
+ typhoon_reset(void __iomem *ioaddr, int wait_type)
+ {
 
-Currently seeking an accomplished individual to take on a prominent
-role in the development of our embedded Linux platform. They are
-looking for someone with a deep understanding of the Linux kernel and
-internals, is actively involved in the open source development
-community, and can provide effective technical leadership.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-This role will suit candidates who enjoy a wide variety of challenges
-and technologies.  Key to success is your motivation, a dynamic
-approach, and desire to see results.
-
-Requirements:
-
-- BSCS 
-- + 8 yrs development experience with 3+ yrs Linux
-- Extensive Linux Kernel experience. Deep expertise in - design,
-implementation & ongoing dev roadmap of Linux Kernel.
-- Design, implement enhancements to kernel & OS features. Evaluate
-system performance on variety h/w platforms under various workloads.
-- Track, evaluate & integrate dev from open source community.
+iD8DBQFBgXt1mfzqmE8StAARAkWAAJ0dshTZ/dXqh+UdamvhZCzGA6cqvQCggWQf
+JtBs+VjssQpn02lnVV9MhmA=
+=6yW2
+-----END PGP SIGNATURE-----

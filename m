@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267510AbUHJQKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267542AbUHJQNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267510AbUHJQKW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267505AbUHJQKA
+	id S267542AbUHJQNG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267531AbUHJQLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:10:00 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:9677 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267508AbUHJQGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:06:41 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1092148392.5818.6.camel@mindpipe>
-References: <1092082920.5761.266.camel@cube>
-	 <cone.1092092365.461905.29067.502@pc.kolivas.org>
-	 <1092099669.5759.283.camel@cube>  <yw1xisbrflws.fsf@kth.se>
-	 <1092148392.5818.6.camel@mindpipe>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092150252.16885.28.camel@localhost.localdomain>
+	Tue, 10 Aug 2004 12:11:54 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:33550 "EHLO
+	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S267490AbUHJQJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:09:57 -0400
+Date: Tue, 10 Aug 2004 11:09:17 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss update [5/8] PCI ID fix for cciss based SATA hba
+Message-ID: <20040810160917.GE19909@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 10 Aug 2004 16:04:14 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-08-10 at 15:33, Lee Revell wrote:
-> I hate to derail a good flame-fest, but this would be extremely useful,
-> for more than burning CDs.  Anytime you are dealing with a SCHED_FIFO
-> process a bug can lock the machine, this would be useful for hacking
-> jackd for example.
-> 
-> If someone wants to code this up I and the other people on jackit-devel
-> would gladly test it.
 
-How much is this actually needed and how much is it just a user
-debugging method problem. Having done real time stuff on VMS (save
-the tears) we always had a policy that one serial console was a shell
-at highest priority and nobody ever used that one top priority.
+Patch 5 of 8
 
-That gave you an emergency control channel.
+This patch fixes the vendor ID for our cciss based SATA controller due
+out later this year. It also adds the new PCI ID to pci_ids.h
+Applies to 2.6.8-rc4. Please apply patches in order.
 
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burNp lx268-rc3-p004/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
+--- lx268-rc3-p004/drivers/block/cciss.c	2004-08-05 11:16:03.000000000 -0500
++++ lx268-rc3/drivers/block/cciss.c	2004-08-05 14:16:11.567565016 -0500
+@@ -46,14 +46,14 @@
+ #include <linux/completion.h>
+ 
+ #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "Compaq CISS Driver (v 2.6.2)"
++#define DRIVER_NAME "HP CISS Driver (v 2.6.2)"
+ #define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,2)
+ 
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Hewlett-Packard Company");
+ MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version 2.6.2");
+ MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"
+-			" SA6i");
++			" SA6i V100");
+ MODULE_LICENSE("GPL");
+ 
+ #include "cciss_cmd.h"
+@@ -82,7 +82,7 @@ const struct pci_device_id cciss_pci_dev
+ 		0x0E11, 0x4091, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
+ 		0x0E11, 0x409E, 0, 0, 0},
+-	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
++	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISS,
+ 		0x103C, 0x3211, 0, 0, 0},
+ 	{0,}
+ };
+diff -burNp lx268-rc3-p004/include/linux/pci_ids.h lx268-rc3/include/linux/pci_ids.h
+--- lx268-rc3-p004/include/linux/pci_ids.h	2004-08-05 09:56:00.000000000 -0500
++++ lx268-rc3/include/linux/pci_ids.h	2004-08-05 14:16:33.841178912 -0500
+@@ -670,6 +670,7 @@
+ #define PCI_DEVICE_ID_HP_SX1000_IOC	0x127c
+ #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
+ #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
++#define PCI_DEVICE_ID_HP_CISS		0x3211
+ 
+ #define PCI_VENDOR_ID_PCTECH		0x1042
+ #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000

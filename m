@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbREOW7s>; Tue, 15 May 2001 18:59:48 -0400
+	id <S261690AbREOXC6>; Tue, 15 May 2001 19:02:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261688AbREOW7i>; Tue, 15 May 2001 18:59:38 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:65285 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261687AbREOW72>; Tue, 15 May 2001 18:59:28 -0400
-Subject: Re: megaraid problems
-To: grocha@geeksimplex.org (Gabriel Rocha)
-Date: Tue, 15 May 2001 23:55:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010515184932.H29363@dandelion.darkorb.net> from "Gabriel Rocha" at May 15, 2001 06:49:32 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S261688AbREOXCs>; Tue, 15 May 2001 19:02:48 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:35076 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S261692AbREOXCd>;
+	Tue, 15 May 2001 19:02:33 -0400
+Date: Tue, 15 May 2001 16:02:32 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: PATCH: export linux_logo_bw for hgafb.c
+Message-ID: <20010515160232.A19573@lucon.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14znjK-0003HX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	it refuses to show any drives and i cant get the management
-> 	software to work. so my question is this:
-> 		has anyone with this card gotten it to work under linux
-> 		2.4.4-acX? if so, how?
+Here is a patch for 2.4.4. linux_logo_bw is used in hgafb.c, which
+can be compiled as a module. But linux_logo_bw is not exported.
 
-Mine works. In fact the 2.4.4ac source tree currently lives on it.
+
+H.J.
+---
+--- linux-2.4.4-ac9/drivers/video/fbcon.c.mod	Tue May 15 15:39:17 2001
++++ linux-2.4.4-ac9/drivers/video/fbcon.c	Tue May 15 15:40:18 2001
+@@ -2495,3 +2495,4 @@ EXPORT_SYMBOL(fbcon_redraw_bmove);
+ EXPORT_SYMBOL(fbcon_redraw_clear);
+ EXPORT_SYMBOL(fbcon_dummy);
+ EXPORT_SYMBOL(fb_con);
++EXPORT_SYMBOL(linux_logo_bw);

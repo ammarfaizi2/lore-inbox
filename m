@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbUCPVmV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:42:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUCPVmV
+	id S261707AbUCPVn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUCPVmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:42:21 -0500
-Received: from pop.gmx.net ([213.165.64.20]:12184 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261719AbUCPVmU (ORCPT
+	Tue, 16 Mar 2004 16:42:43 -0500
+Received: from hell.org.pl ([212.244.218.42]:8455 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S261725AbUCPVmf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:42:20 -0500
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: NVIDIA and 2.6.4?
-Date: Tue, 16 Mar 2004 22:55:51 +0100
-User-Agent: KMail/1.6.1
-References: <405082A2.5040304@blueyonder.co.uk> <200403162149.41018.dominik.karall@gmx.net> <200403162119.i2GLJ9uY014711@turing-police.cc.vt.edu>
-In-Reply-To: <200403162119.i2GLJ9uY014711@turing-police.cc.vt.edu>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 16 Mar 2004 16:42:35 -0500
+Date: Tue, 16 Mar 2004 22:42:39 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: johnstul@us.ibm.com, dtor_core@ameritech.net
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] X86_PM_TIMER: /proc/cpuinfo doesn't get updated
+Message-ID: <20040316214239.GA28289@hell.org.pl>
+Mail-Followup-To: johnstul@us.ibm.com, dtor_core@ameritech.net,
+	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20040316182257.GA2734@dreamland.darkstar.lan> <20040316194805.GC20014@picchio.gall.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403162255.52087.dominik.karall@gmx.net>
+In-Reply-To: <20040316194805.GC20014@picchio.gall.it>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 March 2004 22:19, you wrote:
-> On Tue, 16 Mar 2004 21:49:40 +0100, Dominik Karall <dominik.karall@gmx.net>  
-said:
-> > can you let me know how to compile the nvidia drivers for 4KSTACK? cause
-> > in the 2.6.5-rc1-mm1 is no more option to deactivate 4KSTACK.
->
-> Get the 2.6.5-rc1-mm1-broken-out.tar.bz2, untar it, then
->
-> patch -p1 -R < broken-out/4k-stacks-always-on.patch
->
-> Yes, the *right* thing would be for NVidia to fix the binary.  However,
-> this is a lot more expedient than waiting. :)
+Thus wrote Daniele Venzano:
+> > I have a notebook with an Athlon-M CPU. I tried linux 2.6.4 with
+> > CONFIG_X86_PM_TIMER=y and I noticed that /proc/cpuinfo doesn't get
+> > updated when I switch frequency (via sysfs, using powernow-k7). The is
+> > issue seems cosmetic only, CPU frequency changes (watching
+> > temperature/battery life).
+> I can confirm, I'm seeing the same behavior. Please note that the
+> bogomips count gets updated, it's only the frequency that doesn't
+> change.
 
-thx, works now with 8k stack size :)
+Same here with a P4-M, follow-up to John and Dmitry.
+Best regards,
 
-greets
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

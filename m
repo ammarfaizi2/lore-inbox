@@ -1,43 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269776AbUJGKHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUJGKMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269776AbUJGKHu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 06:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUJGKHt
+	id S267370AbUJGKMk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 06:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269777AbUJGKMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 06:07:49 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:38801 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S269777AbUJGKHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 06:07:34 -0400
-Date: Thu, 7 Oct 2004 05:07:26 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Martijn Sipkema <martijn@entmoot.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-In-Reply-To: <021b01c4ac59$cbe92ea0$161b14ac@boromir>
-Message-ID: <Pine.LNX.4.58.0410070506400.1194@gradall.private.brainfood.com>
-References: <4164CB02.2030607@kegel.com> <20041007080414.GA28999@outpost.ds9a.nl>
- <Pine.LNX.4.58.0410070328010.1194@gradall.private.brainfood.com>
- <021b01c4ac59$cbe92ea0$161b14ac@boromir>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Oct 2004 06:12:40 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:3968 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S267370AbUJGKKv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 06:10:51 -0400
+Date: Thu, 7 Oct 2004 12:10:48 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Sanders <sandersn@btinternet.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm3
+Message-ID: <20041007121048.7953314f@phoebee>
+In-Reply-To: <20041007025007.77ec1a44.akpm@osdl.org>
+References: <20041007015139.6f5b833b.akpm@osdl.org>
+	<200410071041.20723.sandersn@btinternet.com>
+	<20041007025007.77ec1a44.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__7_Oct_2004_12_10_48_+0200_z/Cdl4cyN_wvnBjR"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, Martijn Sipkema wrote:
+--Signature=_Thu__7_Oct_2004_12_10_48_+0200_z/Cdl4cyN_wvnBjR
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-> > > It does not matter - this behaviour should not be depended upon. There are
-> > > lots of other reasons why a packet might in fact not be available, kernels
-> > > are allowed to drop UDP packets at will.
-> >
-> > I've been lurking and reading this thread with great interest.  I had been
-> > leaning towards thinking the kernel was wrong, until I read this email.
-> >
-> > This is a very excellent point.
->
-> No, it isn't. If the kernel drops a UDP packet, select() should not return
-> indicating available data.
+On Thu, 7 Oct 2004 02:50:07 -0700
+Andrew Morton <akpm@osdl.org> bubbled:
 
-The kernel can drop a packet after select() returns, and before read() is
-called.  That's the whole point of *U*DP.
+> Nick Sanders <sandersn@btinternet.com> wrote:
+> >
+> > On Thursday 07 October 2004 09:51, Andrew Morton wrote:
+> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6
+> >  >.9-rc3-mm3/
+> >  >
+> > 
+> >  I get the following oops when booting and it also stops kde
+> >  (artswrapper) from starting with the same call trace. USB seems to
+> >  be working which is good.
+> 
+> Could you please do
+> 
+> 
+> cd /usr/src/linux
+> wget
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
+> patch -R -p1 < optimize-profile-path-slightly.patch
+> 
+> and retest?
+
+Oops gone! And plaympeg plays my mp3 bootup sound. Great!
+
+But that sttupid nvidia driver still does not work.
+
+
+-- 
+MyExcuse:
+Stubborn processes
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature=_Thu__7_Oct_2004_12_10_48_+0200_z/Cdl4cyN_wvnBjR
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBZRYqmjLYGS7fcG0RAsLxAJ4l0eBfkdNn16UV6h7C1QVmFhYsKACdG4jK
+sSQAGuGAD/xiMx8h0x3tK+c=
+=q5lk
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__7_Oct_2004_12_10_48_+0200_z/Cdl4cyN_wvnBjR--

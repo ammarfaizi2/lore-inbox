@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbTEJX74 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 19:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbTEJX74
+	id S264535AbTEKAXC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 20:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTEKAXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 19:59:56 -0400
-Received: from lakemtao03.cox.net ([68.1.17.242]:42191 "EHLO
-	lakemtao03.cox.net") by vger.kernel.org with ESMTP id S264530AbTEJX7z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 19:59:55 -0400
-Message-ID: <3EBD9560.8060504@cox.net>
-Date: Sat, 10 May 2003 19:12:16 -0500
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Ford <david+powerix@blue-labs.org>
-CC: Norbert Wolff <norbert_wolff@t-online.de>, Andy Pfiffer <andyp@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [RFC] devfs [was Re: ALSA busted in 2.5.69]
-References: <fa.j6n4o02.sl813a@ifi.uio.no>	<fa.juutvqv.1inovpj@ifi.uio.no>	<3EBBF00D.8040108@hotmail.com>	<1052507530.15922.37.camel@andyp.pdx.osdl.net> <20030510080440.3446cc96.norbert_wolff@t-online.de> <3EBD8941.7070403@blue-labs.org>
-In-Reply-To: <3EBD8941.7070403@blue-labs.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 10 May 2003 20:23:02 -0400
+Received: from [211.167.76.68] ([211.167.76.68]:60388 "HELO soulinfo")
+	by vger.kernel.org with SMTP id S264535AbTEKAXB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 20:23:01 -0400
+Date: Sun, 11 May 2003 08:28:59 +0800
+From: hugang <hugang@soulinfo.com>
+To: tom@qwws.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.96] SWSUSP - resume fails
+Message-Id: <20030511082859.269dda4f.hugang@soulinfo.com>
+In-Reply-To: <200305102254.05895.tom@qwws.net>
+References: <200305102254.05895.tom@qwws.net>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+ =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= tom@qwws.net
+ =?ISO-8859-1?Q?=B3=AD=CB=CD=A3=BA:?= linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
-> Shrug :)
-> 
-> I use devfs, all is magic.  All is [nearly always] correct.
+On Sat, 10 May 2003 22:54:05 +0200
+Tom Winkler <tom@qwws.net> (by way of Tom Winkler <tom@qwws.net>) wrote:
 
-Are there any compatibility issues in 2.4 while using devfs under 2.5? 
-I'm looking into it, but I'd like to hear that there are no problems 
-before I jump into using it.
-I would love to hear comments from anyone using devfs. Good or bad.
+>  Trace; c024a243 <eepro100_resume+d3/100>
+>  Trace; c01ea6d6 <pci_pm_resume_device+26/30>
+>  Trace; c01ea80b <pci_pm_resume_bus+2b/70>
+>  Trace; c01ea838 <pci_pm_resume_bus+58/70>
+>  Trace; c01ea953 <pci_pm_resume+33/50>
+>  Trace; c01ea9b5 <pci_pm_callback+45/50>
+>  Trace; c022605b <agp_power+1b/30>
+>  Trace; c012eb81 <pm_send+71/a0>
 
-Thanks,
-David
+Try this
+1) before resume run ifconfig eth0 down; modprobe -r eepro100;
+2) after resume run modprobe eepro100; ifconfig eth0 up;
 
+
+-- 
+Hu Gang / Steve
+Email        : huagng@soulinfo.com, steve@soulinfo.com
+GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
+http://soulinfo.com/~hugang/HuGang.asc
+ICQ#         : 205800361
+Registered Linux User : 204016

@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266887AbUHVN0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266894AbUHVNba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266887AbUHVN0c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 09:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUHVN0c
+	id S266894AbUHVNba (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 09:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUHVNba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 09:26:32 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:21171 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S266887AbUHVN03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 09:26:29 -0400
-From: Karl Vogel <karl.vogel@seagha.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.8.1: swap storm of death
-Date: Sun, 22 Aug 2004 15:27:10 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 22 Aug 2004 09:31:30 -0400
+Received: from mx-00.sil.at ([62.116.68.196]:3090 "EHLO mx-00.sil.at")
+	by vger.kernel.org with ESMTP id S266894AbUHVNb1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 09:31:27 -0400
+Subject: Re: Nonotify 0.3.2 (A simple dnotify replacement)
+From: nf <nf2@scheinwelt.at>
+Reply-To: nf2@scheinwelt.at
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1ByrTz-00003r-8U@localhost>
+References: <2vRn8-1D3-9@gated-at.bofh.it>  <E1ByrTz-00003r-8U@localhost>
+Content-Type: text/plain
+Message-Id: <1093181664.4542.47.camel@lilota.lamp.priv>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-2mdk 
+Date: Sun, 22 Aug 2004 15:34:24 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408221527.10303.karl.vogel@seagha.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can bring down my box by running a program that does a calloc() of 512Mb 
-(which is the size of my RAM). The box starts to heavily swap and never 
-recovers from it. The process that calloc's the memory gets OOM killed (which 
-is also strange as I have 1Gb free swap).
+On Sun, 2004-08-22 at 14:29, Pascal Schmidt wrote:
+> On Sun, 22 Aug 2004 05:40:06 +0200, you wrote in linux.kernel:
+> 
+> > 2) The /dev/nonotify device:
+> >
+> > /dev/nonotify has the only purpose to offer a special stat() call via
+> > ioctl to read the contents_mtime field of directories (together with
+> > atime, mtime, ctime). The client has to set the 'filename' field of the
+> > 'nonotify_stat' structure and receives the four timespec fields updated
+> > via ioctl.
+> 
+> A lot of people here (Linus, for instance) frown on ioctl() interfaces.
+> They're hard to do right in 32/64bit compat layers, for example. How
+> about using a syscall interface instead?
 
-After the OOM kill, the shell where I started the calloc() program is alive 
-but very slow. The box continues to swap and the other processes remain dead.
+Nonotify uses ioctl mainly for 'pragmatical' reasons. A syscall would be
+technically better - that's for sure, actually it was my initial idea to
+use one (or to change the stat-call).
 
-To gather some more statistics, I did the following:
+But i didn't want to bother people with asking to assign me a
+syscall-number before even knowing if they like my idea. And changing it
+to use a syscall lateron would be no problem at all from the concept of
+nonotify.
 
-- start 'vmstat 1|tee vmstat.txt' in 1 VT session.
-- run expunge (= program that does calloc(512Mb)) in another VT.
+Also - as a kernel newbie - i didn't find any good documentation how to
+add my own syscall into the kernel. I just wanted to get nonotify
+working as an 'optional patch', without changing tons of files.
 
-The box freezes for some time. After a while expunge is OOM killed, the vmstat 
-on the other VT remains dead. A ping over the network is still possible and I 
-can still start programs on the expunge VT, albeit it is slow as the disk is 
-still thrashing.
+But you could help me if you have a look at my ioctl function. I'm using
+a structure which contains a char* pointer and four timespec fields. Do
+you know if this causes problems with 32/64bit compatibility.
+
+Thanks,
+
+Norbert
 
 
 
-The diagnostics can be found here:
 
-* Kernel .config
-  http://users.telenet.be/kvogel/config.txt
 
-* expunge program
-  http://users.telenet.be/kvogel/expunge.c
 
-* vmstat 1  output while executing expunge (this freezes)
-  http://users.telenet.be/kvogel/vmstat.txt
 
-* vmstat in expunge VT after the OOM kill
-  http://users.telenet.be/kvogel/vmstat-after-kill.txt
 
-* /proc/slabinfo after OOM kill
-  http://users.telenet.be/kvogel/slab.txt
 
-* swapon -s
-Filename                                Type            Size    Used    
-Priority
-/dev/hda3                               partition       1044216 0       -1
 
-* Kernel boot line:
-       kernel /vmlinuz-2.6.8.1 ro root=/dev/compat/root elevator=cfq 
-voluntary-preempt=3 preempt=1
 
-Kernel was patched with voluntary-preempt-2.6.8.1-P7
-syslogd & klogd weren't running and 'dmesg -n 1' was done beforehand.
 
 
 

@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264339AbUDOQ6I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 12:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264353AbUDOQ6I
+	id S264348AbUDORDi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbUDORDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 12:58:08 -0400
-Received: from mail3.codesense.com ([213.132.104.154]:1170 "EHLO
-	mail3.codesense.com") by vger.kernel.org with ESMTP id S264339AbUDOQ6C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 12:58:02 -0400
-Subject: Re: Failing back to INSANE timesource :) Time stopped today.
-From: Niclas Gustafsson <niclas.gustafsson@codesense.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.55.0404151633100.17365@jurand.ds.pg.gda.pl>
-References: <1081416100.6425.45.camel@gmg.codesense.com>
-	 <1081465114.4705.4.camel@cog.beaverton.ibm.com>
-	 <1081932857.17234.37.camel@gmg.codesense.com>
-	 <Pine.LNX.4.55.0404151633100.17365@jurand.ds.pg.gda.pl>
-Content-Type: text/plain
-Message-Id: <1082048278.17234.144.camel@gmg.codesense.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 15 Apr 2004 18:57:59 +0200
+	Thu, 15 Apr 2004 13:03:38 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:36573 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264356AbUDORDh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 13:03:37 -0400
+Date: Thu, 15 Apr 2004 10:14:51 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+Message-ID: <178970000.1082049291@flay>
+In-Reply-To: <Pine.LNX.4.44.0404151752210.9569-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0404151752210.9569-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello and thanks,
-
-I've compiled and deployed a kernel with the patch below.
-I'm about to start some more tests on the machine - it's going to be
-interesting to see how it works out, I'll let you know.
-
-
-Cheers,
-
-Niclas
-  
-
-tor 2004-04-15 klockan 16.47 skrev Maciej W. Rozycki:
-> On Wed, 14 Apr 2004, Niclas Gustafsson wrote:
+>> > Any ideas how we might handle latency from vmtruncate (and
+>> > try_to_unmap) if using prio_tree with i_shared_lock spinlock?
+>> 
+>> I've been thinking about that. My rough plan is to go wild, naked and lockless.
+>> If we arrange things in the correct order, new entries onto the list would
 > 
-> > Watching the /proc/interrupts with 10s apart after the "stop".
-> > 
-> > [root@s151 root]# more /proc/interrupts
-> >            CPU0
-> >   0:   66413955  local-APIC-edge  timer
-> [...]
-> > LOC:   67355837
-> > ERR:          0
-> > MIS:          0
-> > [root@s151 root]# more /proc/interrupts
-> >            CPU0
-> >   0:   66413955  local-APIC-edge  timer
-> [...]
-> > LOC:   67379568
-> > ERR:          0
-> > MIS:          0
-> 
->  This may be because buggy SMM firmware messes with the 8259A (configured
-> for a transparent mode -- yes that rare "local-APIC-edge" mode is tricky
-> ;-) ) insanely.  You've written this is an IBM box previously -- this 
-> would be no surprise.  The following patch should help -- I think it's 
-> already included in the -mm series.
+> It's quite easy if there's a list - though I'm not that eager to go wild,
+> naked and lockless with you!  But what if there's a prio_tree?
+
+I still think my list-of-lists patch fixes the original problem, and is
+simpler ... I'll try to get it updated, and sent out.
+
+M.,
 

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSFEIS5>; Wed, 5 Jun 2002 04:18:57 -0400
+	id <S313563AbSFEIb5>; Wed, 5 Jun 2002 04:31:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSFEIS4>; Wed, 5 Jun 2002 04:18:56 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:18686 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S313508AbSFEIS4>; Wed, 5 Jun 2002 04:18:56 -0400
-Date: Wed, 5 Jun 2002 10:18:52 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Keith Owens <kaos@ocs.com.au>, <greg@kroah.com>,
-        Johannes Erdfelt <johannes@erdfelt.com>
-cc: Joseph Pingenot <trelane@digitasaru.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Build error on 2.5.20 under unstable debian 
-In-Reply-To: <23055.1023262706@kao2.melbourne.sgi.com>
-Message-ID: <Pine.NEB.4.44.0206050958190.9994-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S313687AbSFEIb4>; Wed, 5 Jun 2002 04:31:56 -0400
+Received: from cm16094.red.mundo-r.com ([213.60.16.94]:55204 "EHLO demo.mitica")
+	by vger.kernel.org with ESMTP id <S313563AbSFEIb4>;
+	Wed, 5 Jun 2002 04:31:56 -0400
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Problem with IDE in 2.4.19-pre10
+X-Url: http://people.mandrakesoft.com/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+Date: 05 Jun 2002 10:38:44 +0200
+Message-ID: <m2n0uaunl7.fsf@demo.mitica>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jun 2002, Keith Owens wrote:
 
->...
-> R_386_32 is an ELF relocation type for ix86 binaries.  It means that
-> uhci-hcd.c has code that refers to a function defined as __exit.  The
-> only such function is uhci_hcd_cleanup but I cannot see where it is
-> being referenced.  The USB people should be able to track this one
-> down.
+Hi
+        first of all, I am using gcc-3.1 & compiling with -Os, problem
+        can be related to the compiler (trying to reproduce with and
+        older compiler and -O2).
 
-uhci_stop is __devexit but the pointer to it doesn't use __devexit_p.
-The fix is simple:
+I got this backtrace:
 
---- drivers/usb/host/uhci-hcd.c.old	Wed Jun  5 09:59:00 2002
-+++ drivers/usb/host/uhci-hcd.c	Wed Jun  5 10:13:09 2002
-@@ -2515,7 +2515,7 @@
- 	suspend:		uhci_suspend,
- 	resume:			uhci_resume,
- #endif
--	stop:			uhci_stop,
-+	stop:			__devexit_p(uhci_stop),
+It looks as if bh->b_end_io() got corrupt for some strange reason.
+Have you had any problems with 2.4.19-pre10 running cerberus or other
+heavy tests?
 
- 	hcd_alloc:		uhci_hcd_alloc,
- 	hcd_free:		uhci_hcd_free,
+Later, Juan.
 
-cu
-Adrian
+[1]kdb> bt                                                                      
+    EBP       EIP         Function(args)                                        
+0x00000001 0xc0680001 <unknown>+0xc0680001 (0xd4b7d94c, 0x1)                    
+                               kernel <unknown> 0x0 0x0 0x0                     
+           0xc018cea1 end_that_request_first+0x3b (0xe7dc50c4, 0x1, 0xc03b00ec) 
+                               kernel .text 0xc0100000 0xc018ce66 0xc018cf1c    
+           0xc019cef1 ide_end_request+0x41                                      
+                               kernel .text 0xc0100000 0xc019ceb0 0xc019cf4e    
+           0xc01a99a6 ide_dma_intr+0x74                                         
+                               kernel .text 0xc0100000 0xc01a9932 0xc01a99ca
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
-
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

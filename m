@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261535AbRE0TK4>; Sun, 27 May 2001 15:10:56 -0400
+	id <S261561AbRE0TQR>; Sun, 27 May 2001 15:16:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbRE0TKq>; Sun, 27 May 2001 15:10:46 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:47368 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S261535AbRE0TKh>;
-	Sun, 27 May 2001 15:10:37 -0400
-Date: Sun, 27 May 2001 21:08:51 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "David S. Miller" <davem@redhat.com>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, <arjanv@redhat.com>
-Subject: Re: [patch] softirq-2.4.5-A1
-In-Reply-To: <20010527191249.I676@athlon.random>
-Message-ID: <Pine.LNX.4.33.0105272106340.5852-100000@localhost.localdomain>
+	id <S261576AbRE0TQH>; Sun, 27 May 2001 15:16:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:43914 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261561AbRE0TPy>;
+	Sun, 27 May 2001 15:15:54 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15121.21054.657593.830199@pizda.ninka.net>
+Date: Sun, 27 May 2001 12:15:10 -0700 (PDT)
+To: <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [patch] softirq-2.4.5-B0
+In-Reply-To: <Pine.LNX.4.33.0105271020310.1667-200000@localhost.localdomain>
+In-Reply-To: <15120.16986.610478.279574@pizda.ninka.net>
+	<Pine.LNX.4.33.0105271020310.1667-200000@localhost.localdomain>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 27 May 2001, Andrea Arcangeli wrote:
+Ingo Molnar writes:
+ > the bug/misbehavior causing bad latencies turned out to be the following:
+ > if a hardirq triggers a softirq, but syscall-level code on the same CPU
+ > disabled local bhs via local_bh_disable(), then we 'miss' the execution of
+ > the softirq, until the next IRQ. (or next direct call to do_softirq()).
 
-> an irq that could mark the softirq active under entry.S will also run
-> do_softirq itself before iret to entry.S. [...]
+Hooray, some sanity in this thread finally :-)
 
-yep.
+Yes, this makes perfect sense, this is indeed what can happen.
 
-> [...] If the softirq remains active after an irq it it because it was
-> marked active again under do_softirq and ksoftirq is the way to go for
-> fixing that case I think.
+ > the attached softirq-2.4.5-B0 patch fixes this problem by calling
+ > do_softirq()  from local_bh_enable() [if the bh count is 0, to avoid
+ > recursion].
 
-i took at look at your ksoftirq stuff yesterday, and i think it's
-completely unnecessery and adds serious overhead to softirq handling. The
-whole point of softirqs is to have maximum scalability and no
-serialization. Why did you add ksoftirqd, would you mind explaining it?
+Yikes!  I do not like this fix.
 
-	Ingo
+I'd rather local_bh_enable() not become a more heavy primitive.
+
+I know, in one respect it makes sense because it parallels how
+hardware interrupts work, but not this thing is a function call
+instead of a counter bump :-(
+
+Any other ideas how to zap this?
+
+Later,
+David S. Miller
+davem@redhat.com
 

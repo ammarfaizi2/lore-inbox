@@ -1,97 +1,146 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131120AbQKIU55>; Thu, 9 Nov 2000 15:57:57 -0500
+	id <S131287AbQKIVA1>; Thu, 9 Nov 2000 16:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131176AbQKIU5i>; Thu, 9 Nov 2000 15:57:38 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8833 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131120AbQKIU5b>; Thu, 9 Nov 2000 15:57:31 -0500
-Date: Thu, 9 Nov 2000 15:57:08 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Brian Gerst <bgerst@didntduck.org>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Module open() problems, Linux 2.4.0
-In-Reply-To: <3A0B08A4.38A37F1F@mandrakesoft.com>
-Message-ID: <Pine.LNX.3.95.1001109154744.16836A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131286AbQKIVAR>; Thu, 9 Nov 2000 16:00:17 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:20999 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S131212AbQKIVAC>; Thu, 9 Nov 2000 16:00:02 -0500
+From: miquels@cistron.nl (Miquel van Smoorenburg)
+Subject: Re: Linux 2.2.18pre20 MEGARAID hang
+Date: 9 Nov 2000 20:59:59 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <8uf38f$3e9$1@enterprise.cistron.net>
+In-Reply-To: <Pine.LNX.4.21.0011091230530.9750-300000@eurus.scripps.edu>
+X-Trace: enterprise.cistron.net 973803599 3529 195.64.65.201 (9 Nov 2000 20:59:59 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Nov 2000, Jeff Garzik wrote:
+In article <Pine.LNX.4.21.0011091230530.9750-300000@eurus.scripps.edu>,
+Brian Marsden  <marsden@scripps.edu> wrote:
+>2.2.18pre20 (still) hangs on boot when it gets to the part where it
+>detects the MEGARAID card. 
 
-> "Richard B. Johnson" wrote:
-> > 
-> > On Thu, 9 Nov 2000, Brian Gerst wrote:
-> > 
-> > > "Richard B. Johnson" wrote:
-> > > >
-> > > > `lsmod` shows that a device is open twice when using Linux-2.4.0-test9
-> > > > when, in fact, it has been opened only once.
-> > > >
-> > 
-> > > >
-> > > > When the module is closed, the use-count goes to zero as expected.
-> > > > However, a single open() causes the use-count to be 2.
-> > >
-> > > This is harmless.  It is caused by a try_inc_mod_count(module) in the
-> > > function calling device_open(), which is the proper way for module
-> > > locking to be handled when not holding the BKL.  You can keep the
-> > > MOD_INC_USE_COUNT in the device driver for compatability with 2.2.
-> > >
-> > >                               Brian Gerst
-> > 
-> > This may be, as you say, "harmless". It is, however, a bug. The
-> > reporting must be correct or large complex systems can't be
-> > developed or maintained.
-> > 
-> > I had two persons, working nearly a week, trying to find out
-> > what one of over 200 processes had a device open when only
-> > one was supposed to have it opened. --Err we have to check
-> > our work here. The fact that something "works" is not
-> > sufficient.
-> 
-> There is NO guarantee that module use count == device open count.  Never
-> has been, AFAIK.  It just happens to work out that way on a lot of
-> pre-2.4 code.
-> 
-> The kernel is free to bump the module reference count up and down as it
-> pleases.  For example, if a driver creates a kernel thread, that will
-> increase its module usage count by one, for the duration of the kernel
-> thread's lifetime.
-> 
-> The only rule is that you cannot unload a module until its use count it
-> zero.  
-> 
-> 	Jeff
-> 
+Hmm, I got a patch from AMI that fixed it for me for 2.2.18pre18.
+That patch wasn't applied as-is, though Alan said a megaraid fix was
+applied to 2.2.18pre19. I didn't have a chance to test pre19 or pre20
+yet, though, since I can only test it on a production machine that
+now runs OK with pre18+fix, the test machine lays on someones desk
+in a lot of parts at the moment ;)
 
-I suppose. Look at what you just stated! This means that a reported
-value is now worthless.
+Anyway. Here's a patch that ``upgrades'' the 2.2.18pre20 megaraid.c
+to the 2.2.18pre18 + AMI patch version that I have. Please let
+us know if it makes any difference.
 
-To restate, somebody decided that we didn't need this reported value
-anymore. Therefore, it is okay to make it worthless.
+[and, if you can, and this patch works, try to remove parts of the
+ patch until you find exactly what it is that makes it work]
 
-I don't agree. The De-facto standard has been that the module usage
-count is equal to the open count. This became the standard because
-of a long established history.
-
-This is one of the tools we use to verify that an entire system
-is functioning properly. Now, somebody decided that I didn't need
-this tool.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+--- linux-2.2.18pre20/drivers/scsi/megaraid.c	Thu Nov  9 14:35:23 2000
++++ linux-2.2.18pre18-mega/drivers/scsi/megaraid.c	Thu Nov  9 21:49:50 2000
+@@ -9,7 +9,7 @@
+  *              as published by the Free Software Foundation; either version
+  *              2 of the License, or (at your option) any later version.
+  *
+- * Version : 1b08b
++ * Version : v1.11a
+  * 
+  * Description: Linux device driver for AMI MegaRAID controller
+  *
+@@ -179,7 +179,9 @@
+  *	I)  Version number changed from 1.10c to 1.11
+  *  II)	DCMD_WRITE_CONFIG(0x0D) command in the driver changed from 
+  *  	scatter/gather list mode to direct pointer mode.. 
+- * 
++ *
++ * Version 1.11a
++ *	Initlization bug fixed
+  * BUGS:
+  *     Some older 2.1 kernels (eg. 2.1.90) have a bug in pci.c that
+  *     fails to detect the controller as a pci device on the system.
+@@ -194,7 +196,7 @@
+ #define CRLFSTR "\n"
+ #define IOCTL_CMD_NEW  0x81
+ 
+-#define MEGARAID_VERSION "v1.11 (Aug 23, 2000)" 
++#define MEGARAID_VERSION "v1.11a (Oct 24, 2000)" 
+ #define MEGARAID_IOCTL_VERSION 108
+ 
+ #include <linux/config.h>
+@@ -1842,8 +1844,8 @@
+   while ((pdev = pci_find_device (pciVendor, pciDev, pdev))) {
+ 
+ #ifdef DELL_MODIFICATION 
+-    if (pci_enable_device(pdev))
+-    	continue;
++    if (pci_enable_device(pdev))
++    	continue;
+ #endif	
+     pciBus = pdev->bus->number;
+     pciDevFun = pdev->devfn;
+@@ -1889,7 +1891,11 @@
+ 				"megaraid: to protect your data, please upgrade your firmware to version\n"
+ 				"megaraid: 3.10 or later, available from the Dell Technical Support web\n"
+ 				"megaraid: site at\n"
++#ifdef DELL_MODIFICATION 
+ 				"http://support.dell.com/us/en/filelib/download/index.asp?fileid=2940\n");
++#else				
++				"http://support.dell.com/us/en/filelib/download/index.asp?fileid=2489\n");
++#endif				
+ 			continue;
+ 			}
+ 		}
+@@ -1914,16 +1920,32 @@
+     megaIrq  = pdev->irq;
+ #else
+ 
+-    megaBase = pci_resource_start (pdev, 0);
++#ifdef DELL_MODIFICATION  
++    megaBase = pci_resource_start (pdev, 0);
++#else
++    megaBase = pdev->resource[0].start;
++#endif	
+     megaIrq  = pdev->irq;
+ #endif
+ 
+     pciIdx++;
+ 
+-    if (flag & BOARD_QUARTZ)
+-       megaBase = (long) ioremap (megaBase, 128);
+-    else
+-       megaBase += 0x10;
++#ifdef DELL_MODIFICATION 
++    if (flag & BOARD_QUARTZ)
++       megaBase = (long) ioremap (megaBase, 128);
++    else
++       megaBase += 0x10;
++#else
++    if (flag & BOARD_QUARTZ) {
++
++      megaBase &= PCI_BASE_ADDRESS_MEM_MASK;
++      megaBase = (long) ioremap (megaBase, 128);
++    }
++    else {
++      megaBase &= PCI_BASE_ADDRESS_IO_MASK;
++      megaBase += 0x10;
++    }
++#endif
+ 
+     /* Initialize SCSI Host structure */
+     host = scsi_register (pHostTmpl, sizeof (mega_host_config));
+@@ -2087,8 +2109,7 @@
+ 	  remove_proc_entry("config", megaCfg->controller_proc_dir_entry);
+ 	  remove_proc_entry("mailbox", megaCfg->controller_proc_dir_entry);
+           for (i = 0; i < numCtlrs; i++) {
+-                char buf[12];
+-                memset(buf,0,12);
++                char buf[12] ={0};
+ 		sprintf(buf,"%d",i);
+           	remove_proc_entry(buf,mega_proc_dir_entry);
+ 	 }
+-- 
+People get the operating system they deserve.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

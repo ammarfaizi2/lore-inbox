@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264139AbTE0ViZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTE0ViZ
+	id S264188AbTE0VjN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTE0VjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:38:25 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:53232 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S264139AbTE0ViY
+	Tue, 27 May 2003 17:39:12 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:22729 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264188AbTE0VjD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:38:24 -0400
-Date: Tue, 27 May 2003 23:51:18 +0200
-From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: linux-kernel@vger.kernel.org
-Cc: Vojtech Pavlik <vojtech@suse.cz>
-Subject: 2.4.21-rc5 - drivers/ide/pci/via82cxxx.c (PCI_DEVICE_ID_VIA_8237)
-Message-ID: <20030527215118.GA30616@deimos.one.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Tue, 27 May 2003 17:39:03 -0400
+Date: Tue, 27 May 2003 14:51:54 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@hpce.nec.com>
+cc: Andi Kleen <ak@suse.de>, LSE <lse-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Node affine NUMA scheduler extension
+Message-ID: <2640000.1054072312@[10.10.2.4]>
+In-Reply-To: <200305272328.27269.efocht@hpce.nec.com>
+References: <200305271031.55554.efocht@hpce.nec.com> <200305271154.52608.efocht@hpce.nec.com> <10090000.1054049930@[10.10.2.4]> <200305272328.27269.efocht@hpce.nec.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: 1 will be enough!
-X-GG: 88988
-X-ICQ: 59367544
-X-JID: deimos@jabber.gda.pl
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.21-rc4, up  3:29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Erich Focht <efocht@hpce.nec.com> wrote (on Tuesday, May 27, 2003 23:28:27 +0200):
 
-With new -rc5 there is, something like add new:
-{ "vt8237",     PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 |
-VIA_BAD_AST },
+> On Tuesday 27 May 2003 17:38, Martin J. Bligh wrote:
+>> > Interesting observation, I didn't make it when I tried the lazy
+>> > homenode (quite a while ago). But I was focusing on MPI jobs. So what
+>> > if we add a condition to CAN_MIGRATE which disables the cache affinity
+>> > before the first load balance?
+> ...
+>> 
+>> It'd be nice not to require user intervention here ... is it OK to
+>> set CAN_MIGRATE for all clone operations?
+> 
+> Do you think of something like:
+> 
+># define CAN_MIGRATE_TASK(p,rq,this_cpu)				\
+> 	(HOMENODE_UNSET(p) &&					\ //<--
+> 	 (jiffies - (p)->last_run > cache_decay_ticks) &&	\
+> 		!task_running(rq, p) &&				\
+> 		((p)->cpus_allowed & (1UL << (this_cpu))))
+> 
+> 	curr = curr->prev;
+> 
+> 	if (!CAN_MIGRATE_TASK(tmp, busiest, this_cpu) 
+> 	    || !numa_should_migrate(tmp, busiest, this_cpu)) {
+> 		if (curr != head)
+> 			goto skip_queue;
+> 		idx++;
+> 		goto skip_bitmap;
+> 	}
+> 	if (HOMENODE_UNSET(tmp))				//<--
+> 		set_task_node(tmp,cpu_to_node(this_cpu));	//<--
+> 	pull_task(busiest, array, tmp, this_rq, this_cpu);
+> 	if (!idle && --imbalance) {
+> 	...
+> 
+> ?
+> Guess this would help a bit for multithreaded jobs. Chosing the
+> homenode more carefully here would be pretty expensive.
 
-This is not correct.
+My first instinct is that #define'ing CAN_MIGRATE_TASK in the midst
+of a function needs to die a horrible death ;-) But you didn't start
+that one, so other than that ...
 
-After make bzImage I have:
+My instinct would tell me the first expression should be ||, not &&
+but I'm not 100% sure. And is this restricted to just clones? Doesn't
+seem to be, unless that's implicit in homenode_unset?
 
-(...)
-make[4]: Entering directory `/usr/src/linux-2.4.20/drivers/ide/pci'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe
--mpreferred-stack-boundary=2 -march=athlon  -I../ -nostdinc -iwithprefix
-include -DKBUILD_BASENAME=via82cxxx  -c -o via82cxxx.o via82cxxx.c
-via82cxxx.c:78: `PCI_DEVICE_ID_VIA_8237' undeclared here (not in a function)
-via82cxxx.c:78: initializer element is not constant
-via82cxxx.c:78: (near initialization for `via_isa_bridges[0].id')
-via82cxxx.c:78: initializer element is not constant
-via82cxxx.c:78: (near initialization for `via_isa_bridges[0]')
-(...)
+M.
 
-So, you better live it in / FUTURE_BRIDGES / like it was before or something
-;-)
 
-P.S. It works, but I don't know if it supose to be that:
 
-#ifdef FUTURE_BRIDGES
-        { "vt8237",     PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
-#endif
-
-Take care.
-
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #

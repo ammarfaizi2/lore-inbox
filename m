@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280798AbRKBS54>; Fri, 2 Nov 2001 13:57:56 -0500
+	id <S280788AbRKBS7I>; Fri, 2 Nov 2001 13:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280781AbRKBS4Z>; Fri, 2 Nov 2001 13:56:25 -0500
-Received: from aloha.egartech.com ([62.118.81.133]:26895 "HELO
-	mx02.egartech.com") by vger.kernel.org with SMTP id <S280795AbRKBSzQ>;
-	Fri, 2 Nov 2001 13:55:16 -0500
-Message-ID: <3BE2DBA9.847AA3C0@egartech.com>
-Date: Fri, 02 Nov 2001 20:45:13 +0300
-From: Kirill Ratkin <kratkin@egartech.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
+	id <S280781AbRKBS6A>; Fri, 2 Nov 2001 13:58:00 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:51592 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S280795AbRKBS4Z>; Fri, 2 Nov 2001 13:56:25 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Sven Heinicke <sven@research.nj.nec.com>, linux-kernel@vger.kernel.org
+Subject: Re: Google's mm problem - not reproduced on 2.4.13
+Date: Fri, 2 Nov 2001 19:57:31 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Ben Smith <ben@google.com>, Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>
+In-Reply-To: <E15yzlQ-00021P-00@starship.berlin> <20011102181005Z16039-4784+415@humbolt.nl.linux.org> <15330.60050.705170.566887@abasin.nj.nec.com>
+In-Reply-To: <15330.60050.705170.566887@abasin.nj.nec.com>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA->USB
-In-Reply-To: <3BE29AC3.DEB4B31A@egartech.com> <3BE2CC18.976C2A9B@osdl.org> <3BE2D20C.3F7E7817@egartech.com> <3BE2D2F9.B9058C81@osdl.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2001 17:42:52.0604 (UTC) FILETIME=[CC0A9FC0:01C163C5]
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011102185618Z16039-4784+435@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" wrote:
+On November 2, 2001 07:48 pm, Sven Heinicke wrote:
+>  > Not freeing the memory is expected and normal.  The previously-mlocked file 
+>  > data remains cached in that memory, and even though it's not free, it's 
+>  > 'easily freeable' so there's no smoking gun there.  The reason the memory is 
+>  > freed on umount is, there's no possibility that that file data can be 
+>  > referenced again and it makes sense to free it up immediately.
 > 
-> Kirill Ratkin wrote:
-> >
-> > "Randy.Dunlap" wrote:
-> > >
-> > > Kirill Ratkin wrote:
-> > > >
-> > > > Do somebody make driver for subject device now!?
-> > >
-> > > Do you have a web page reference for the subject device?
-> > No, It isn't finished yet. I thought may be somebody have made it
-> > already.
-> >
-> > >
-> > > The usb-ohci driver has been known to work with PCMCIA/USB OHCI
-> > > cards.
-> 
-> Do you mean that you are working on a PCMCIA (CardBus I hope ?)
-> to USB card and want to know if it will work with Linux?
-> 
-> Is it OHCI- or UHCI- or ECHI-based (USB controller)?
+> That cool and all, but how to I free up the memory w/o umounting the
+> partition?
 
-I have device (see description below) and I started to find
-documentation for it now (I'd like to write driver of it for education
-goals). And I ask because may be somebody wrote it already and there
-isn't necessary to write same one.
+You don't, that's the mm's job.  It tries to do it at the last minute, when
+it's sure the memory is needed for something more important.
 
---->>>---
-? For PC, Notebook and MAC Powerbook ? Adds two USB ports into your
-notebook
-computer for instant multiple USB device connections ? Built in driver
-support from Apple and
-Microsoft PC : Windows 98 , Windows 98 SE, Windows ME, Windows 2000 Mac
-: OS 8.6 or
-later ? Compliant with USB Specification, Version 1.1 ? Compliant with
-OpenHCI
-Specification, Revision 1.0a ? Chip set: Opti chip ? Regulatory
-approval(s): FCC Class B & CE
-? Version: v1.0 
----<<<---
+> Also, I just tried 2.4.14-pre7.  It acted the same way as 2.4.13 does,
+> requiring the reset key to continue.
 
-> 
-> Or are you just interested in using one?
-> 
-> ~Randy
+--
+Daniel

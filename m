@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbULPUku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbULPUpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbULPUku (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 15:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbULPUj2
+	id S261983AbULPUpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 15:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbULPUpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 15:39:28 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:46727 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262013AbULPUie
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 15:38:34 -0500
-Message-ID: <41C1F20E.2030903@zytor.com>
-Date: Thu, 16 Dec 2004 20:37:34 +0000
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en, sv
+	Thu, 16 Dec 2004 15:45:16 -0500
+Received: from [218.238.178.235] ([218.238.178.235]:40459 "HELO sansad.nic.in")
+	by vger.kernel.org with SMTP id S261983AbULPUoz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 15:44:55 -0500
+Message-ID: <fd7401c4e3b2$2c677a8a$314766c7@sansad.nic.in>
+From: "Robbie Capps" <capps_82@uol.com.ar>
+To: linux-kernel@vger.kernel.org
+Subject: Order Royal Replica Watches Online
+Date: Thu, 16 Dec 2004 16:02:36 -0500
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What if?
-References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>	 <1101976424l.5095l.0l@werewolf.able.es>	 <1101984361.28965.10.camel@tara.firmix.at>	 <cpkc5i$84f$1@terminus.zytor.com>  <1102972125l.7475l.0l@werewolf.able.es>	 <1103158646.3585.35.camel@localhost.localdomain>	 <41C0F67D.4000506@zytor.com> <1103203426.3804.16.camel@localhost.localdomain>
-In-Reply-To: <1103203426.3804.16.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2004-12-16 at 02:44, H. Peter Anvin wrote:
-> 
->>Yes, but there is also no really big deal compiling C code with a C++ 
->>compiler.  Yes, it was a disaster in 0.99.14, but that was 10 years ago.
-> 
-> 
-> g++ is still much slower. We don't know how many bugs it would show up
-> in the compiler and tools either, especially on embedded platforms.
-> Finally the current kernel won't go through a C++ compiler because we
-> use variables like "new" quite often.
+Get the Finest Rolex Watch Replica!
 
--Dnew=_New, problem solved.
+We only sell premium watches. There's no battery in these replicas just
+like the real ones since they charge themselves as you move. The second hand
+moves JUST like the real ones, too. These original watches sell in stores
+for thousands of dollars. We sell them for much less. 
 
-I'm not in any way advocating compiling with g++ exclusively, but it 
-would be nice to be *able to* for bugchecking.  It would be an 
-interesting experiment, of nothing else.  I suspect it'd require some 
-minor code tweaks and turn up a small handful of bugs right off the bat.
+- Replicated to the Smallest Detail
+- 98% Perfectly Accurate Markings 
+- Signature Green Sticker w/ Serial Number on Watch Back
+- Magnified Quickset Date
+- Includes all Proper Markings
 
-	-hpa
+Visit us: http://www.vanai.com/rep/rolx/
+
+All orders placed before December 20th will be at your door before
+New Years Eve!
+
+No thanks: http://www.vanai.com/z.php
 

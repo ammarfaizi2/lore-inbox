@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSDJLiP>; Wed, 10 Apr 2002 07:38:15 -0400
+	id <S312859AbSDJLjc>; Wed, 10 Apr 2002 07:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312610AbSDJLiO>; Wed, 10 Apr 2002 07:38:14 -0400
-Received: from smtp02.web.de ([217.72.192.151]:47902 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S312601AbSDJLiO>;
-	Wed, 10 Apr 2002 07:38:14 -0400
-Message-ID: <3CB42401.2080007@web.de>
-Date: Wed, 10 Apr 2002 13:37:37 +0200
-From: Todor Todorov <ttodorov@web.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020403
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S312834AbSDJLjc>; Wed, 10 Apr 2002 07:39:32 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:52376 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S312610AbSDJLja>; Wed, 10 Apr 2002 07:39:30 -0400
+Date: Wed, 10 Apr 2002 13:39:27 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
 To: "Udo A. Steinberg" <reality@delusion.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.8-pre3 linking error
+Message-ID: <20020410113927.GE28413@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	"Udo A. Steinberg" <reality@delusion.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <3CB418B7.BB5CFEB9@delusion.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Udo A. Steinberg wrote:
+On Wed, Apr 10, 2002 at 12:49:27PM +0200, Udo A. Steinberg wrote:
 
->Hi,
->
->2.5.8-pre3 fails to link here:
->
->init/main.o: In function `start_kernel':
->init/main.o(.text.init+0x681): undefined reference to `setup_per_cpu_areas'
->
->-Udo.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-As you could see a few lines above setup_per_cpu_areas gets defined only 
-of CONFIG_SMP is set. So find the line in the function start_kernel in 
-init/main.c ( about line #320 IIRC ) where setup_per_cpu_areas gets 
-called and put #ifdef CONFIG_SMP and #endif around it.
+> 2.5.8-pre3 fails to link here:
+> 
+> init/main.o: In function `start_kernel':
+> init/main.o(.text.init+0x681): undefined reference to `setup_per_cpu_areas'
+> 
 
-Cheers,
-Todor
+Apply this:
 
+===== init/main.c 1.39 vs edited =====
+--- 1.39/init/main.c	Fri Mar 15 15:01:31 2002
++++ edited/init/main.c	Wed Apr 10 10:35:38 2002
+@@ -271,6 +271,10 @@
+ #define smp_init()	do { } while (0)
+ #endif
+ 
++static inline void setup_per_cpu_areas(void)
++{
++}
++
+ #else
+ 
+ #ifdef __GENERIC_PER_CPU
+
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

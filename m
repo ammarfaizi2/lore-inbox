@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVDEWlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVDEW6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbVDEWlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 18:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVDEWlZ
+	id S261895AbVDEW6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 18:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVDEW6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 18:41:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18318 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261880AbVDEWlX (ORCPT
+	Tue, 5 Apr 2005 18:58:38 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:62413 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261895AbVDEW6f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 18:41:23 -0400
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       hifumi.hisashi@lab.ntt.co.jp, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050330115946.GA7331@logos.cnet>
-References: <20050326162801.GA20729@logos.cnet>
-	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
-	 <16968.40186.628410.152511@cse.unsw.edu.au>
-	 <20050329215207.GE5018@logos.cnet>
-	 <16970.9679.874919.876412@cse.unsw.edu.au>
-	 <20050330115946.GA7331@logos.cnet>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
+	Tue, 5 Apr 2005 18:58:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=fL14Kq15kKnyBOGT/ZOx2dHZxAVUcbRsQzLf+E32DqfzLOMnOnT5B8cKF6ieqD3k8FOCPdgtJmlpa/OdBRmY5jw44avxB5IrXyHPflaEKnJYT3QdIqP4Qc/ftWfSJBps7cBrdFdd/vPNy1/lR2Cw60xAtIenqkXSSN/G2Ehw1Uw=
+Message-ID: <2a0fbc59050405155815666e8d@mail.gmail.com>
+Date: Wed, 6 Apr 2005 00:58:34 +0200
+From: Julien Wajsberg <julien.wajsberg@gmail.com>
+Reply-To: Julien Wajsberg <julien.wajsberg@gmail.com>
+To: linux-os@analogic.com
+Subject: Re: How's the nforce4 support in Linux?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0504050957400.15886@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 05 Apr 2005 23:40:57 +0100
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+	 <2a0fbc5905040506422fbf6356@mail.gmail.com>
+	 <Pine.LNX.4.61.0504050957400.15886@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 2005-03-30 at 12:59, Marcelo Tosatti wrote:
-
-> > I'm not certain that this is right, but it seems possible and would
-> > explain the symptoms.  Maybe Stephen or Andrew could comments?
+On Apr 5, 2005 4:10 PM, Richard B. Johnson <linux-os@analogic.com> wrote:
+> On Tue, 5 Apr 2005, Julien Wajsberg wrote:
 > 
-> Andrew, Stephen?
-
-Sorry, was offline for a week last week; I'll try to look at this more
-closely tomorrow.  Checking the buffer_uptodate() without either a
-refcount or a lock certainly looks unsafe at first glance.
-
-There are lots of ways to pin the bh in that particular bit of the
-code.  The important thing will be to do so without causing leaks if
-we're truly finished with the buffer after this flush.
-
-
-> > If some of the write succeeded and some failed, then I believe the
-> > correct behaviour is to return the number of bytes that succeeded.
-> > However this change to the return status (remember the above patch is
-> > a reversal) causes any failure to over-ride any success. This, I
-> > think, is wrong.
+> > On Mar 26, 2005 12:59 AM, Julien Wajsberg <julien.wajsberg@gmail.com> wrote:
+> >> I own an Asus A8N-Sli motherboard with the Nforce4-Sli chipset, and I
+> >> experiment the following problem :
+> >>
+> >> Mar 25 22:42:55 evenflow kernel: hda: dma_timer_expiry: dma status == 0x60
+> >> Mar 25 22:42:55 evenflow kernel: hda: DMA timeout retry
+> >> Mar 25 22:42:55 evenflow kernel: hda: timeout waiting for DMA
+> >> Mar 25 22:42:55 evenflow kernel: hda: status error: status=0x58 {
+> >> DriveReady SeekComplete DataRequest }
+> >> Mar 25 22:42:55 evenflow kernel:
+> >> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
+> >> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
+> >> Mar 25 22:42:55 evenflow kernel: hda: status timeout: status=0xd0 { Busy }
+> >> Mar 25 22:42:55 evenflow kernel:
+> >> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
+> >> Mar 25 22:42:55 evenflow kernel: hdb: DMA disabled
+>                                       ^^^^^^^^^^^^^^^^^
+> >> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
+> >>
+> >> Of course, if I disable DMA with hdparm, this problem disappear.. but
+> >> it isn't a long-term solution ;-)
+> >>
 > 
-> Yeap, that part also looks wrong.
+> The long-term solution is to replace either the drive, cable, or the
+> motherboard that can't do DMA.
+It's a recent drive that did ultra DMA on another motherboard, and a
+recent motherboard with a cable that did ultra DMA before.It was ultra
+DMA2 on this old motherboard, but it still was ultra DMA.
 
-Certainly it's normal for a short read/write to imply either error or
-EOF, without the error necessarily needing to be returned explicitly. 
-I'm not convinced that the Singleunix language actually requires that,
-but it seems the most obvious and consistent behaviour.
+> A bad DMA operation can write data
+> anywhere (right into the middle of the kernel). There isn't
+> anything software can do about it. Software sets up the
+> controller for a DMA operation, then waits for an interrupt
+> that tells it has completed or failed. Software can retry failed
+> operations until software gets destroyed by the hardware, but
+> there isn't anything else that can be done.
+> 
+> The fact that disabling DMA makes the problem(s) go away is
+> proof that it isn't a software problem. There are flash-RAM
+> devices that emulate IDE drives. Most of these can't do DMA
+> and the IDE driver doesn't accept that fact. That is a known
+> bug. One needs to use hdparm to tell it to stop trying to
+> use DMA. In your case, the driver stopped using DMA when
+> it found out that it didn't work. There is no bug.
 
---Stephen
+In my case, the driver stopped for hdb, that is my dvd-burner/player.
+It did nothing for hda or hdc, I had to disable DMA myself.
 
+
+Will I have to install Windows XP to prove ultra DMA works correctly
+on this setup ? I really don't hope...
+
+-- 
+Julien

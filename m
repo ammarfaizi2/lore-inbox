@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266588AbRGLU6p>; Thu, 12 Jul 2001 16:58:45 -0400
+	id <S266587AbRGLVEY>; Thu, 12 Jul 2001 17:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266587AbRGLU6e>; Thu, 12 Jul 2001 16:58:34 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:23812 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266582AbRGLU60>;
-	Thu, 12 Jul 2001 16:58:26 -0400
-Date: Mon, 9 Jul 2001 12:17:38 +0000
+	id <S266595AbRGLVEO>; Thu, 12 Jul 2001 17:04:14 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:27908 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266587AbRGLVEB>;
+	Thu, 12 Jul 2001 17:04:01 -0400
+Date: Mon, 9 Jul 2001 12:02:44 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Dan Maas <dmaas@dcine.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: VM Requirement Document - v0.0
-Message-ID: <20010709121736.B39@toy.ucw.cz>
-In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <fa.e66agbv.hn0u1v@ifi.uio.no> <002501c104f4/mnt/sendme701a8c0@morph>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Pavel Machek <pavel@suse.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-mips@oss.sgi.com
+Subject: Re: [ANNOUNCE] Secondary mips tree.
+Message-ID: <20010709120243.A39@toy.ucw.cz>
+In-Reply-To: <20010630145732.E255@toy.ucw.cz> <Pine.LNX.4.10.10107081059580.22673-100000@transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <002501c104f4/mnt/sendme701a8c0@morph>; from dmaas@dcine.com on Wed, Jul 04, 2001 at 09:49:43PM -0400
+In-Reply-To: <Pine.LNX.4.10.10107081059580.22673-100000@transvirtual.com>; from jsimmons@transvirtual.com on Sun, Jul 08, 2001 at 11:32:31AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Getting the user's "interactive" programs loaded back
-> > in afterwards is a separate, much more difficult problem
-> > IMHO, but no doubt still has a reasonable solution.
+> > >  	We have started a secondary tree for linux mips. This tree will
+> > > be to SGI mips tree as Alan Cox's tree is to linus branch. We will test
+> > > and play with "experimental patches" and then in time hand them off to the
+> > > main branch Ralf Baechle maintains. Also one of the main reasons for this
+> > > branch was to unite several of the mips trees into one place. Anyones
+> > > patches (if good) are welcomed. The site is 
+> > 
+> > Do you want to "eat" linux-vr tree? linux-vr list is dead and there's no
+> > (or not much) development in its CVS (at 240t7 :-()
 > 
-> Possibly stupid suggestion... Maybe the interactive/GUI programs should wake
-> up once in a while and touch a couple of their pages? Go too far with this
-> and you'll just get in the way of performance, but I don't think it would
-> hurt to have processes waking up every couple of minutes and touching glibc,
-> libqt, libgtk, etc so they stay hot in memory... A very slow incremental
-> "caress" of the address space could eliminate the
-> "I-just-logged-in-this-morning-and-dammit-everything-has-been-paged-out"
-> problem.
+> Yes. We are reworking the VR code and placing it into our tree. 
 
-Ugh... Ouch.... Ugly, indeed.
+Good. I should definitely take a look. [Do you care about vr4130 or about
+tx3912, too?]
 
-What you might want to do is 
+> > > We also have a mailing list which instructions are on the SF page on how
+> > > to join. Thank you. 
+> > 
+> > Is it ok to be used as linux-vr list?
+> 
+> I have no problem with it. VR is apart of the mips developement we are
+> doing. Also we do alot of IT 8172 and au1000 devleopement as well. Plus
+> some early work for the cobalt cube is being done. I will finish the cube 
+> now that we have a pretty generic pci code layer that is shared amoung
+> many boards.
 
-while true; do 
-cat /usr/lib/libc* > /dev/null; sleep 1m
-cat /usr/lib/qt* > /dev/null; sleep 1m
-...
-done
-
-running on your system...
-
+Seems like there's one more mailinglist for me to read. Ook.
+								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271664AbRIGKNq>; Fri, 7 Sep 2001 06:13:46 -0400
+	id <S271673AbRIGK26>; Fri, 7 Sep 2001 06:28:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271665AbRIGKNh>; Fri, 7 Sep 2001 06:13:37 -0400
-Received: from t2.redhat.com ([199.183.24.243]:59130 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S271664AbRIGKNT>; Fri, 7 Sep 2001 06:13:19 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.GSO.4.33.0109062315490.1190-100000@sweetums.bluetronic.net> 
-In-Reply-To: <Pine.GSO.4.33.0109062315490.1190-100000@sweetums.bluetronic.net> 
-To: Ricky Beam <jfbeam@bluetopia.net>
-Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: MTD and Adapter ROMs 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 07 Sep 2001 11:13:32 +0100
-Message-ID: <7118.999857612@redhat.com>
+	id <S271674AbRIGK2r>; Fri, 7 Sep 2001 06:28:47 -0400
+Received: from [202.54.26.114] ([202.54.26.114]:41738 "EHLO
+	asura.bits-pilani.ac.in") by vger.kernel.org with ESMTP
+	id <S271673AbRIGK2m>; Fri, 7 Sep 2001 06:28:42 -0400
+Date: Fri, 7 Sep 2001 16:01:08 +0530 (IST)
+From: Raghav <f1997527@bits-pilani.ac.in>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.2 And IPv6
+Message-ID: <Pine.LNX.4.33.0109071557470.20053-100000@prithvi.bits-pilani.ac.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am an engineering student from India. So please, let the reply
+little descriptive.
 
-jfbeam@bluetopia.net said:
-> Has anyone tried adapting any of the MTD code to allow read/write
-> access to adapter EEPROMs like the netboot ROM on some network cards
-> -- or more to the point, HPT adapter cards? 
+I recently upgraded to RedHat Linux 7.1, that comes with Kernel 2.4.2, In
+that I could find any option for IPv6 support in the Kernel module
+recompilation part.
 
-Should be relatively simple if you just provide the appropriate 'map' 
-driver to access the flash and set the Vpp line when asked.
+Is it already IPv6 enabled ?, 'cause there were apps (ping, telnet) that
+were already v6-enabled. So do I need to recompile for v6 support, In that
+case-How? Or is it already v6-enabled...
 
-See drivers/mtd/maps/l440gx.c in my tree.
-
-There's also the code at http://www.freiburg.linux.de/~stepan/bios/
-which possibly ought to be merged with the MTD code.
-
---
-dwmw2
-
+Raghavan T V
 

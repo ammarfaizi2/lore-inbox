@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbUK0ICD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbUK0IDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbUK0ICD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 03:02:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUK0ICD
+	id S261157AbUK0IDo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 03:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUK0IDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 03:02:03 -0500
-Received: from main.gmane.org ([80.91.229.2]:1997 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261155AbUK0IB7 (ORCPT
+	Sat, 27 Nov 2004 03:03:44 -0500
+Received: from mail.charite.de ([160.45.207.131]:61614 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S261158AbUK0IDa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 03:01:59 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 27 Nov 2004 03:03:30 -0500
+Date: Sat, 27 Nov 2004 09:03:29 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
 To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
-Date: Sat, 27 Nov 2004 01:00:59 -0800
-Message-ID: <m2fz2vfyyc.fsf@tnuctip.rychter.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	<1101298112.5805.330.camel@desktop.cunninghams>
-	<20041125233243.GB2909@elf.ucw.cz>
-	<1101427035.27250.161.camel@desktop.cunninghams>
+Subject: Re: Out of memory, but no OOM Killer? (2.6.9-ac11)
+Message-ID: <20041127080329.GU30987@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20041126224722.GK30987@charite.de> <41A7C2CA.1030008@yahoo.com.au> <20041127003353.GQ30987@charite.de> <41A7D3EF.3030002@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 66-27-68-14.san.rr.com
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.5 (chestnut, linux)
-Cancel-Lock: sha1:C/Z5s8blf9L1xBOgC8SZ3KLrq54=
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41A7D3EF.3030002@yahoo.com.au>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Nigel" == Nigel Cunningham <ncunningham@linuxmail.org>:
- Nigel> Hi.
- Nigel> On Fri, 2004-11-26 at 10:32, Pavel Machek wrote:
-[...]
- >> Plus kernel now actually expects user interaction to solve problems
- >> during boot. No, no.
+* Nick Piggin <nickpiggin@yahoo.com.au>:
 
- Nigel> You want your cake and to eat it too? :> We don't want to warn
- Nigel> the user before they shoot themselves in the foot, but not
- Nigel> loudly enough that they can't help notice and choose to do
- Nigel> something before the damage is done?
+> >I see. rsync requested a big chunk of memory, but failed due to the
+> >fragmentation of free memory? my "sar" output shows lots of free memory and
+> >lots of unused swap:
+> >
+> 
+> Basically, yes. Well not *exactly* rsync - your network drivers. I guess
+> rsync is showing up in process context most often because that is the
+> process causing most of the network activity.
 
-You're forgetting that Pavel's idea of user interaction is via BUG_ON()
-and panic(). That's obviously "cleaner", "less ugly", and "smaller".
+At that time, yes.
 
-Sorry, can't help being sarcastic after watching the tone of some of
-these exchanges, particularly comments from pedestals that are being
-made so often. I find it rather sad.
+> Yep, it looks like fragmentation is indeed the problem here. See you have
+> a lot of memory that is able to be reclaimed, but the failing allocations
+> themselves can't reclaim any of it because they are happening from
+> interrupts. What they should be doing is telling `kswapd` to start freeing
+> memory for them - however this currently doesn't happen properly for
+> allocations which are order greater than 0.
+> 
+> Fortunately that is usually not a big problem, but as you have seen, it
+> can be. Anyway, expect 2.6.10 to be better (ie. good enough), and 2.6.11
+> should have even more complete fixes.
 
---J.
+Aha.
 
+> OK that should be fine. If you should upgrade to a 2.6.10 or later kernel,
+> put this value back to the default, and report further problems if they
+> occur.
+
+I just set it "for now"
+
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262023AbSIYQhy>; Wed, 25 Sep 2002 12:37:54 -0400
+	id <S262024AbSIYQlF>; Wed, 25 Sep 2002 12:41:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262024AbSIYQhy>; Wed, 25 Sep 2002 12:37:54 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:45708 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S262023AbSIYQhy>;
-	Wed, 25 Sep 2002 12:37:54 -0400
-Date: Wed, 25 Sep 2002 09:44:41 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: devicefs & sleep support for IDE
-In-Reply-To: <20020923212411.GA19391@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.44.0209250927500.966-100000@cherise.pdx.osdl.net>
+	id <S262025AbSIYQlF>; Wed, 25 Sep 2002 12:41:05 -0400
+Received: from tantale.fifi.org ([216.27.190.146]:14724 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id <S262024AbSIYQlE>;
+	Wed, 25 Sep 2002 12:41:04 -0400
+To: James Stevenson <james@stev.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19: oops in ide-scsi
+References: <87n0q8tcs8.fsf@ceramic.fifi.org>
+	<1032891985.2035.1.camel@god.stev.org>
+	<87smzzksri.fsf@ceramic.fifi.org>
+	<1032903706.2445.4.camel@god.stev.org>
+From: Philippe Troin <phil@fifi.org>
+Date: 25 Sep 2002 09:46:13 -0700
+In-Reply-To: <1032903706.2445.4.camel@god.stev.org>
+Message-ID: <87adm6kofe.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Stevenson <james@stev.org> writes:
 
-> Questions: is it possible that in hwif_register you don't need to
-> initialize parent?
+> On Tue, 2002-09-24 at 22:00, Philippe Troin wrote:
+> > James Stevenson <james@stev.org> writes:
+> > 
+> > > Hi
+> > > 
+> > > i am glad somebody else sees the same crash as me the
+> > > request Q gets set to NULL for some reson then tries to
+> > > increment a stats counter in the null pointer.
+> > > i know what the bug is i just dont know how to fix it :>
+> > 
+> > I'm not sure which Q you're talking about.
+> > Is that rq (in idescsi_pc_intr())?
+> 
+> the crash happens on
+> 
+> if (status & ERR_STAT)
+> 	rq->errors++;
+> 
+> because 
+> struct request *rq = pc->rq;
+> is NULL
 
-Actually, looking at it again, the struct device in hwif_t should probably 
-go away. We should initialize the parent device to the struct device in 
-the struct pci_dev of the controller; at least for PCI controllers.
+Have you tried changing it to:
 
-For non-PCI controllers, is there anything else that describes the 
-controller besides hwif_t ?
+        if (status & ERR_STAT && rq)
+        	rq->errors++;
 
-> Where is device_put of hwif->gendev? I miss it.
+The code is going to return anyways, and rq is only used here on this
+path.
 
-There is none (yet), as there is no driver attached to it. If we remove it 
-in favor of the PCI device, then we get it in the pci driver for the 
-controller; and we'd need one for non-PCI controllers.
+BTW, can you reproduce the oops at will? I can't :-(
 
-> Ouch. There are actually two devices in struct gendisk. I choosed
-> disk_dev. Was it right?
-
-Yes. The other one: 
-
-	struct device *driverfs_dev;
-
-was from the SCSI people. I think they had good intentions, but I'm not 
-sure what they were doing in several places (including here).
-
-
-	-pat
-
+Phil.

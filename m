@@ -1,62 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbTLQGz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 01:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbTLQGz5
+	id S263697AbTLQHSf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 02:18:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTLQHSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 01:55:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47299 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263646AbTLQGzz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 01:55:55 -0500
-Message-ID: <3FDFFDEC.7090109@pobox.com>
-Date: Wed, 17 Dec 2003 01:55:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Vladimir Kondratiev <vladimir.kondratiev@intel.com>, arjanv@redhat.com,
-       Gabriel Paubert <paubert@iram.es>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
-Subject: Re: PCI Express support for 2.4 kernel
-References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com>  <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>  <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com> <Pine.LNX.4.58.0312151154480.1631@home.osdl.org> <3FDEDC77.9010203@intel.com> <Pine.LNX.4.58.0312160844110.1599@home.osdl.org> <3FDFF81F.7040309@intel.com> <Pine.LNX.4.58.0312162240040.8541@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312162240040.8541@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Dec 2003 02:18:35 -0500
+Received: from smarty.dreamhost.com ([66.33.216.24]:32417 "EHLO
+	smarty.dreamhost.com") by vger.kernel.org with ESMTP
+	id S263697AbTLQHSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 02:18:33 -0500
+Date: Wed, 17 Dec 2003 02:18:29 -0500
+From: "Daniel Richard G." <skunk@iskunk.org>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br, torvalds@osdl.org
+Subject: [PATCH] include/asm-i386/byteorder.h: ANSI mode fixes
+Message-ID: <20031217071829.GA30851@midnight>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> So if this will only matter for PCI-X drivers and not for discovery etc, I
-> wonder if it wouldn't make sense to have this as a totally separate
-> function? Instead of trying to make the existing "pci_config_xxxx()" 
-> stuff work with PCI-X, wouldn't it be nicer to have the driver just map 
-> its config space on probe?
+This header file uses `inline' where it should use `__inline__', `asm'
+where it should use `__asm__'. GCC with -ansi barfs if it sees these
+keywords without the double underscores. Headaches for the KDE folks:
 
-Not a bad idea...  After posting yesterday on this thread, I had the 
-thought:  Just like PCI has readl() and sbus has sbus_readl(), why not 
-pciex_cfg_readl() ?
+	http://bugs.kde.org/show_bug.cgi?id=67269
+	http://bugs.kde.org/show_bug.cgi?id=70100
 
-Any PCI-Ex drivers would obviously _know_ they are PCI Ex, and they 
-could communicate that by virtue of simply using new functions.  Older 
-drivers for older hardware would use the old API and not care... 
-Further, PCI-Ex operations are already basically readl/writel anyway, so 
-going through the forest of pci_cfg_ops pointers and such would just add 
-needless layering.
+(Note that the header already uses __inline__ and __asm__ for the most
+part---this patch addresses the three remaining exceptions.)
+
+Patch applies equally against latest 2.4.23(bk12) and 2.6.0-test11(bk12)
+revs; the header file is identical in both.
+
+Please Cc: me on any replies.
 
 
-> You could do it with just ioremap(), but you'd really want to abstract it 
-> out a bit, and have a "[un]map_pcix_config()" function?
+--------BEGIN PATCH--------
+--- include/asm-i386/byteorder.h.orig	2003-12-17 01:19:49.000000000 -0500
++++ include/asm-i386/byteorder.h	2003-12-17 01:20:37.000000000 -0500
+@@ -35,7 +35,7 @@
+ }
+ 
+ 
+-static inline __u64 ___arch__swab64(__u64 val) 
++static __inline__ __u64 ___arch__swab64(__u64 val) 
+ { 
+ 	union { 
+ 		struct { __u32 a,b; } s;
+@@ -43,13 +43,13 @@
+ 	} v;
+ 	v.u = val;
+ #ifdef CONFIG_X86_BSWAP
+-	asm("bswapl %0 ; bswapl %1 ; xchgl %0,%1" 
+-	    : "=r" (v.s.a), "=r" (v.s.b) 
+-	    : "0" (v.s.a), "1" (v.s.b)); 
++	__asm__("bswapl %0 ; bswapl %1 ; xchgl %0,%1" 
++	        : "=r" (v.s.a), "=r" (v.s.b) 
++	        : "0" (v.s.a), "1" (v.s.b)); 
+ #else
+-   v.s.a = ___arch__swab32(v.s.a); 
++	v.s.a = ___arch__swab32(v.s.a); 
+ 	v.s.b = ___arch__swab32(v.s.b); 
+-	asm("xchgl %0,%1" : "=r" (v.s.a), "=r" (v.s.b) : "0" (v.s.a), "1" (v.s.b));
++	__asm__("xchgl %0,%1" : "=r" (v.s.a), "=r" (v.s.b) : "0" (v.s.a), "1" (v.s.b));
+ #endif
+ 	return v.u;	
+ } 
+--------END PATCH--------
 
-Why not just work within the existing API? 
-pci_{enable,disable}_device() seems fairly appropriate, as that's a 
-quite clear signal of the bounds within which the driver must work.
 
-pci_enable_device() is already defined as "the PCI device's resources 
-may not be available before <this> point."
-
-	Jeff
+--Danny
 
 
+-- 
+NAME   = Daniel Richard G.       ##  Remember, skunks       _\|/_  meef?
+EMAIL1 = skunk@iskunk.org        ##  don't smell bad---    (/o|o\) /
+EMAIL2 = skunk@alum.mit.edu      ##  it's the people who   < (^),>
+WWW    = http://www.******.org/  ##  annoy them that do!    /   \

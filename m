@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266745AbUHCR2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUHCRaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266745AbUHCR2d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 13:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266751AbUHCR2d
+	id S266756AbUHCRaD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 13:30:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUHCRaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 13:28:33 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:21393 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S266745AbUHCR2b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 13:28:31 -0400
-Message-ID: <410FCB3A.9000401@tlinx.org>
-Date: Tue, 03 Aug 2004 10:28:26 -0700
-From: L A Walsh <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
-References: <410F481C.9090408@bio.ifi.lmu.de> <64bf.410f9d6f.62af@altium.nl> <410FA44F.1020804@bio.ifi.lmu.de>
-In-Reply-To: <410FA44F.1020804@bio.ifi.lmu.de>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Aug 2004 13:30:03 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:28939 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S266756AbUHCR3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 13:29:51 -0400
+Date: Tue, 3 Aug 2004 14:14:33 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
+To: Lei Yang <leiyang@nec-labs.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       kernelnewbies <kernelnewbies@nl.linux.org>
+Subject: Re: Problem installing cloop
+Message-ID: <20040803171433.GC925@lorien.prodam>
+Mail-Followup-To: Lei Yang <leiyang@nec-labs.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kernelnewbies <kernelnewbies@nl.linux.org>
+References: <1091563549.5487.62.camel@bijar.nec-labs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091563549.5487.62.camel@bijar.nec-labs.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe I'm missing something, but in the 2.6 series, wasn't the ability
-to mount subdirectories with different options, also, added?  Would
-it be possible to export and mount /dev with rw options to a specific
-client?
 
-Or, more radical, if the roots of the clients end up being mounted RW
-eventually anyway, why not specify 'rw' in the lilo option?  It's not
-like it is a local filesystem that may be corrupt where one should
-boot from it RO until it is checked...
+ Hi Lei,
 
-But I've never tried either approach, so it's really only an 
-idea/possibility.
+Em Tue, Aug 03, 2004 at 01:05:50PM -0700, Lei Yang escreveu:
 
-Hope something works....the booting with a local initrd seems like it
-would be a pain...
+| I was trying to get
+| cloop-2.0.1 built and installed on a SuSe 9.1 box with kernel version
+| 2.6.5 . I followed all the instructions in    
+| http://www.knopper.net/download/knoppix/cloop.README
 
-good luck,
-Linda
+ Well, I did a cleanup in the cloop code, merged it in 2.6.7, and
+enabled it in Kconfig:
 
-Frank Steiner wrote:
+ The patch is here:
 
-> Dick Streefland wrote:
->
->> Frank Steiner <fsteiner-mail@bio.ifi.lmu.de> wrote:
->> | Or is there any other way to get an initial console or
->> | output any messages from an init script if one boots via nfsroot
->> | and  / (and thus, /dev) is only exported read-only from the
->> | server?
->>
->> You can boot with a ramdisk as root, initialized with an initrd, and
->> then perform all NFS mounts manually in the init script. You can use
->> pivot_root to switch to an NFS root to get rid of the ramdisk.
->
->
-> I'm hoping for an easier solution, because it's a lot of work just
-> to get the console messages onto the screen. But maybe I have to go
-> through this :-)
->
->
->
+http://www.telecentros.sp.gov.br/capitulino/patches/linux/2.6/cloop/2.6.7/
+
+ I did it for another project some weeks ago, sorry for not posting
+it here before (But, as far as I can remember, I sent it to knopper).
+
+PS: Its a patch again't the kernel, you will have to get the standard
+tools from knopper page.
+
+ Hope it helps,
+
+-- 
+Luiz Fernando N. Capitulino
+<http://www.telecentros.sp.gov.br>

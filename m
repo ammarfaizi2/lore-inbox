@@ -1,125 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264273AbUDSDgt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 23:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUDSDgs
+	id S264272AbUDSDtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 23:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbUDSDtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 23:36:48 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:64985 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264273AbUDSDg3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 23:36:29 -0400
-Subject: [PATCH] Use workqueue for call_usermodehelper
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Content-Type: text/plain
-Message-Id: <1082345766.30154.13.camel@bach>
+	Sun, 18 Apr 2004 23:49:32 -0400
+Received: from unthought.net ([212.97.129.88]:53157 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S264272AbUDSDta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 23:49:30 -0400
+Date: Mon, 19 Apr 2004 05:49:29 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Remi Colinet <remi.colinet@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Questions : disk partition re-reading
+Message-ID: <20040419034928.GH30687@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Remi Colinet <remi.colinet@free.fr>, linux-kernel@vger.kernel.org
+References: <4082819E.10106@free.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 19 Apr 2004 13:36:06 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4082819E.10106@free.fr>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Vatsa, this should solve your NUMA+HOTPLUG_CPU deadlock too, I think ]
+On Sun, Apr 18, 2004 at 03:24:46PM +0200, Remi Colinet wrote:
+> Hi,
+> 
+> I have 2 questions about disk partitioning under linux 2.6.x :
+> 
+> 1/ Is it possible to alter a disk partition of a used disk and beeing 
+> able to use the modified partition without having to reboot the box?
 
-This uses the create_singlethread_workqueue() function presented in the
-last patch, although it could just as easily use create_workqueue().
+Not if you want to use DOS partition tables, no.  But read on.
 
-Name: call_usermodehelper To Use Own Workqueue
-Status: Tested on 2.6.6-rc1-bk3
-Depends: Misc/workqueue-singlethread.patch.gz
+> 2/ Is it possible to delete a disk partition without having the 
+> partition numbers changed?
 
-call_usermodehelper uses keventd to create a thread, guaranteeing a
-nice, clean kernel thread.  Unfortunately, there is a case where
-call_usermodehelper is called with &bus->subsys.rwsem held (via
-bus_add_driver()), but keventd could be running bus_add_device(),
-which is blocked on the same lock.  The result is deadlock, and it
-comes from using keventd for both.
+Yes. fdisk will do this.  But read on  :)
 
-In this case, it can be fixed by using a completely independent thread
-for call_usermodehelper, or an independent workqueue.  Workqueues have
-the infrastructure we need, so we use one.
 
-Move EXPORT_SYMBOL while we're there, too.
+Look into LVM.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .23049-linux-2.6.6-rc1-bk2/kernel/kmod.c .23049-linux-2.6.6-rc1-bk2.updated/kernel/kmod.c
---- .23049-linux-2.6.6-rc1-bk2/kernel/kmod.c	2004-04-15 16:06:55.000000000 +1000
-+++ .23049-linux-2.6.6-rc1-bk2.updated/kernel/kmod.c	2004-04-18 14:34:18.000000000 +1000
-@@ -35,11 +35,13 @@
- #include <linux/security.h>
- #include <linux/mount.h>
- #include <linux/kernel.h>
-+#include <linux/init.h>
- #include <asm/uaccess.h>
- 
- extern int max_threads;
- 
- #ifdef CONFIG_KMOD
-+static struct workqueue_struct *khelper_wq;
- 
- /*
- 	modprobe_path is set via /proc/sys.
-@@ -109,6 +111,7 @@ int request_module(const char *fmt, ...)
- 	atomic_dec(&kmod_concurrent);
- 	return ret;
- }
-+EXPORT_SYMBOL(request_module);
- #endif /* CONFIG_KMOD */
- 
- #ifdef CONFIG_HOTPLUG
-@@ -197,9 +200,7 @@ static int wait_for_helper(void *data)
- 	return 0;
- }
- 
--/*
-- * This is run by keventd.
-- */
-+/* This is run by khelper thread  */
- static void __call_usermodehelper(void *data)
- {
- 	struct subprocess_info *sub_info = data;
-@@ -249,26 +250,22 @@ int call_usermodehelper(char *path, char
- 	};
- 	DECLARE_WORK(work, __call_usermodehelper, &sub_info);
- 
--	if (system_state != SYSTEM_RUNNING)
-+	if (!khelper_wq)
- 		return -EBUSY;
- 
- 	if (path[0] == '\0')
--		goto out;
-+		return 0;
- 
--	if (current_is_keventd()) {
--		/* We can't wait on keventd! */
--		__call_usermodehelper(&sub_info);
--	} else {
--		schedule_work(&work);
--		wait_for_completion(&done);
--	}
--out:
-+	queue_work(khelper_wq, &work);
-+	wait_for_completion(&done);
- 	return sub_info.retval;
- }
--
- EXPORT_SYMBOL(call_usermodehelper);
- 
--#ifdef CONFIG_KMOD
--EXPORT_SYMBOL(request_module);
--#endif
--
-+static __init int usermodehelper_init(void)
-+{
-+	khelper_wq = create_singlethread_workqueue("khelper");
-+	BUG_ON(!khelper_wq);
-+	return 0;
-+}
-+__initcall(usermodehelper_init);
+Really, it solves all the silly problems with partition tables like:
+1) requiring reboot after changing table on root disk
+2) partition fragmentation
+3) partition number limiting
+4) the inability to partition SW-RAID devices
+5) etc...
 
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+And then it adds some real niceties; like being able to span a
+"parition" (logical volume) over multiple physical disks, and very
+easily adding extra storage (extra disks) into your "storage pool"
+(volume group).
+
+Currently, the various distro installers aren't particularly good at (or
+even able to) install on LVM - this is changing (the next debian release
+seems to be able to do this - dunno about others yet), but this is
+currently the only problem that I've seen with LVM.
+
+At home I have a small / on hda1, then I put hda2 (spanning the rest of
+hda) into LVM. So, all other filesystems are created on LVM, and I never
+need to mock around with the partition table. Works nicely.  This setup
+(LVM on top of partition tables) saved me the trouble of figuring out
+how to create an initrd properly, but I know others who mount / from LVM
+so it's indeed possible.  But for an existing setup like yours, maybe
+it's easier to keep / on the partition table and just put the "rest" in
+LVM.
+
+And it's not that hard to work with; there's an excellent HOWTO on the
+topic. Once you figure out "physical volume", "volume group" and
+"logical volume", you know enough to use it.
+
+
+ / jakob
 

@@ -1,37 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261883AbUB1RHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 12:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbUB1RHE
+	id S261888AbUB1RJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 12:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUB1RJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 12:07:04 -0500
-Received: from smtp.terra.es ([213.4.129.129]:39077 "EHLO tsmtp2.mail.isp")
-	by vger.kernel.org with ESMTP id S261883AbUB1RHC convert rfc822-to-8bit
+	Sat, 28 Feb 2004 12:09:25 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:6672 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S261888AbUB1RJE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 12:07:02 -0500
-Date: Sat, 28 Feb 2004 18:05:24 +0100
-From: Diego Calleja <grundig@teleline.es>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-rc1 oops on HPFS filesystem file rename
-Message-Id: <20040228180524.6e879839.grundig@teleline.es>
-In-Reply-To: <20040228114225.GC16357@parcelfarce.linux.theplanet.co.uk>
-References: <20040228110403.GC557@maurice.stee.nl>
-	<20040228114225.GC16357@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sat, 28 Feb 2004 12:09:04 -0500
+Date: Sat, 28 Feb 2004 12:09:00 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Michael Frank <mhf@linuxmail.org>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Question about (or bug in?) the kobject implementation
+In-Reply-To: <opr32kuku54evsfm@smtp.pacific.net.th>
+Message-ID: <Pine.LNX.4.44L0.0402281201260.15169-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sat, 28 Feb 2004 11:42:25 +0000 viro@parcelfarce.linux.theplanet.co.uk escribió:
+On Sat, 28 Feb 2004, Michael Frank wrote:
 
-> Fix follows.  That, BTW, means that *nobody* had ever tried to use hpfs
-> r/w since 2.5.3-pre3.
+> On Fri, 27 Feb 2004 23:02:34 -0500 (EST), Alan Stern <stern@rowland.harvard.edu> wrote:
+> >
+> > This really is a programming error.  It means that kobject_get() has been
+> > passed a possibly stale pointer.  Ipso facto, the call to kobject_put()
+> > that decremented the refcount to 0 was made too early, while there were
+> > still active pointers to the kobject floating around.
+> >
+> > It's impossible to prevent people from making programming errors or
+> > dereferencing stale pointers.  It doesn't matter _what_ code you put in
+> > kobject_get() -- it will crash when given a pointer to a kobject whose
+> > cleanup routine has already run and deallocated the storage.
+> >
+> > The best you can do is call people's attention to such errors and fail the
+> > operation gracefully whenever possible (i.e., when it doesn't generate an
+> > addressing error).  My personal choice would be to change kobject_get() as
+> > follows:
+> >
+> > struct kobject * kobject_get(struct kobject * kobj)
+> > {
+> > 	if (kobj) {
+> > 		if (atomic_read(&kobj->refcount) == 0) {
+> > 			WARN_ON(1);
+> > 			return NULL;
+> > 		}
+> > 		atomic_inc(&kobj->refcount);
+> > 	}
+> > 	return kobj;
+> > }
+> >
+> > I think that's about the best you can do.
+> 
+> This is too ugly :-(
 
-Not true, it seems that at least one person tried it:
-http://bugme.osdl.org/show_bug.cgi?id=1964
+It's cleaner than your proposal below.  It's not so different from the
+code that's there now.  And it does what that code _ought_ to do, namely, 
+return a NULL pointer when the kobject is no longer available.
 
+> > And what's the answer to A'?
+> 
+> The weakness is really in that the refcount is stored dynamically.
+> 
+> What about a new struct to hold the pointer to the kobj and it's refcount:
+> 
+> struct kobjectref {
+> 	struct kobject *kobj;
+> 	int refcount;
+> };
+> ...
+> 
+> struct kobjectref rkobj;
 
-Diego Calleja
+Since kobjects are allocated dynamically, you will have to allocate 
+kobjectrefs dynamically as well.
+
+> Using refkobj eliminates all problems as the pointer to the refcount can't
+> be invalid.
+
+Only until you deallocate the kobjectref.  And when you do, you then face
+exactly the same set of problems: pointers to the kobjectref will become
+stale.  If you don't ever deallocate kobjectrefs then you have a memory
+leak.  So this proposal doesn't solve anything, it just adds an extra
+layer of indirection.
+
+Alan Stern
+

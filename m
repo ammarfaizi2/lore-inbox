@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbULaMYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbULaM2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbULaMYv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 07:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbULaMYv
+	id S261878AbULaM2r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 07:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbULaM2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 07:24:51 -0500
-Received: from cpanel15.fuitadnet.com ([67.15.40.5]:33686 "EHLO
-	cpanel15.fuitadnet.com") by vger.kernel.org with ESMTP
-	id S261873AbULaMYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 07:24:48 -0500
-Subject: CONGRATULATION YOU HAVE WON $5.5 MILLION 
-From: thelotter <tony_smith@caramail.com>
-X-Priority: 3 (Normal)
-Mime-Version: 1.0
+	Fri, 31 Dec 2004 07:28:47 -0500
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:30693 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261878AbULaM2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 07:28:45 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: waiting 10s before mounting root filesystem?
+To: Jesper Juhl <juhl-lkml@dif.dk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>,
+       Andrew Morton <akpm@osdl.org>
+Reply-To: 7eggert@gmx.de
+Date: Fri, 31 Dec 2004 13:33:01 +0100
+References: <fa.nc4oh06.1j1872e@ifi.uio.no> <fa.nalafoa.1ih25aa@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: RLSP Mailer
-Message-Id: <E1CkKrL-0003PH-1H@cpanel15.fuitadnet.com>
-Date: Fri, 31 Dec 2004 05:22:19 -0600
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cpanel15.fuitadnet.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32156 657] / [47 12]
-X-AntiAbuse: Sender Address Domain - cpanel15.fuitadnet.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-To: unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1CkLxl-0000XG-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Juhl wrote:
 
-ATTN: WINNER
+> I agree with you that reducing screen clutter is a good thing. How about
+> something like this that waits for 10+ seconds so even slow devices have a
+> chance to get up but also does some primitive ratelimiting on the messages
+> by only printing one every 3 seconds (but still attempting to mount every
+> 1 sec) ?
 
+a) Print every 4 seconds, this will replace one division by a bit-test:
+... int retries = 32 ...
+... if (! (retries & 0x3)) /* is a multiple of 4 */ ...
 
- REF Nº: TLOT/33372452560/04
- BATCH Nº: 24/AIS7632/BUK
- DATED 31st DECEMBER 2004.
+I choose 32 because I saw SCSI controlers taking an enormous amount of time
+until detecting all devices. Maybe it's still too low for bus 7 id 15, but
+I'd wait for someone to complain.
 
+b) I saw no benefit from using 'short' instead of 'int' when I did a small
+test (with uudecoding on i386) some time ago, but I could make the
+resulting code be smaller and use less memory accesses by introducing some
+temporary ints to hold the chars I was operating upon. Are there contrary
+experiences that lead to using 'short' here?
 
- This is a final notice on your Lottery Award in the "C" category of the Computer Ballot System of
-selection. As the Claims Coordinatorof  the Netherlands Loteria, you are advised to contact your claims agent to  finalise
-claims process and remittance of funds to you.
+c) This patch will sleep for a second after the last try before it
+continues to panic. It's OK for me, but maybe there is a better way of
+doing this.
 
- Contact Claims Agent:
- Mrs. SOFIE ARABELLA
- First Atlantic Processing Center
- Email: sofie_arabella@caramail.com
- Foreign Service Director.
+@ Andrew Morton:
 
-I want to categorically state that there will be no further extension  of deadline for any winner who is
-unable to finalise further claims procedures  before the deadline date of  20th January, 2005, as such funds will be automatically tagged as unclaimed an d returned for the next sweepstake  Winners are to immediately
-request for the  certificate of claims as soon as claims process is completed. Be advised that most
-payments have been approved, and authorisation will only be based on your response within the next 72
-working hours from now.
-
-General Note:You are to keep all winning details away from the general public to avoid fraudulent claim from
-a third party, any breach of  confidentiality by direct/indirect exposure of winning
-details/information  will lead to an irreversible  disqualification.We hope to speedily process all
-winnings, and remitt funds to you within 7 business days after the finalisation of claims with attached 
-agent/foreign service director.In order to avoid unnecessary delays and  complications, please include
-phone  number, date of birth, reference/batch number for verification, in every correspondence regarding your
-claims processing.
-
-Furthermore, should there be any change in youraddress, do inform your claims agent as soon as
-possible.
-
- Congratulations once again from all members of our staff and thanks  for being part of our promotions
-program.
-
- Best Regards,
- Mr. Tony Smith
- [CLAIMS CORODINATOR]
-
-
-**************************************************
- Contact claims agent directly for further
-process and collection of sofie_arabella@caramail.com
-
-
-
-
-___________________________________________________________________________
-Mail sent from WebMail service at PHP-Nuke Powered Site
-- http://yoursite.com
+The patch with a timeout is needed because the machine might be on a
+remote location and rebooted using lilo's once-only feature. An automatic
+reset after the panic will bring it back.

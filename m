@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267493AbUHPJQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267486AbUHPJSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267493AbUHPJQO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 05:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267489AbUHPJPy
+	id S267486AbUHPJSw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 05:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267490AbUHPJSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 05:15:54 -0400
-Received: from pD9E39390.dip.t-dialin.net ([217.227.147.144]:54034 "EHLO
-	pro01.local.promotion-ie.de") by vger.kernel.org with ESMTP
-	id S267487AbUHPJPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 05:15:43 -0400
-From: alex@local.promotion-ie.de
-Subject: [PATCH] Re: acpi shutdown problem on SMP (tyan tiger mp, athlon)
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <1092376617.8529.13.camel@pro30.local.promotion-ie.de>
-References: <1092376617.8529.13.camel@pro30.local.promotion-ie.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092647783.8494.4.camel@pro30.local.promotion-ie.de>
+	Mon, 16 Aug 2004 05:18:52 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:16901 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267486AbUHPJRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 05:17:36 -0400
+Date: Mon, 16 Aug 2004 10:17:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20040816101732.A9150@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Airlie <airlied@linux.ie>, torvalds@osdl.org,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org> <Pine.LNX.4.58.0408160038320.9944@skynet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 11:16:23 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0408160038320.9944@skynet>; from airlied@linux.ie on Mon, Aug 16, 2004 at 12:40:43AM +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Mon, Aug 16, 2004 at 12:40:43AM +0100, Dave Airlie wrote:
+> Probably should say PCI APIs properly, it now does enable/disable devices
+> and registers the DRM as owning the memory regions, does proper PCI
+> probing .. in cases where the fb is loaded on the card already it falls
+> back to the old ways (evil direct register writing.. ), this change will
+> stop you loading the fb driver adter the drm driver but this shouldn't be
+> a common case at all..
 
-This patch fixes poweroff on my Tyan Tiger S2460 - AMP 760 MP mainboard.
-I also test ist on my UP ACPI systems and none broke.
-
-Please verify if it breaks poweroff on other systems.
-
-Alexander
-
-diff -u -r -N linux-2.6.8.1/drivers/acpi/hardware/hwsleep.c
-linux-2.6.8.1-acpifix/drivers/acpi/hardware/hwsleep.c
---- linux-2.6.8.1/drivers/acpi/hardware/hwsleep.c	2004-08-16
-09:53:05.000000000 +0200
-+++ linux-2.6.8.1-acpifix/drivers/acpi/hardware/hwsleep.c	2004-08-16
-10:00:41.257905209 +0200
-@@ -284,6 +284,11 @@
- 		if (ACPI_FAILURE (status)) {
- 			return_ACPI_STATUS (status);
- 		}
-+	} else {
-+		status = acpi_hw_clear_acpi_status (ACPI_MTX_DO_NOT_LOCK);
-+		if (ACPI_FAILURE (status)) {
-+		return_ACPI_STATUS (status);
-+		}
- 	}
- 
- 	/*
-
-Am Fr, den 13.08.2004 schrieb Alexander Rauth um 7:56:
-> this problem first appeared in vanilla-2.6.2 and is still present in
-> vanilla-2.6.8-rc4 (vanilla-2.6.1 worked fine)
-> 
-> on shutdown the disks spin down, the VGA switches to powersave, but the
-> cpu-fans and the power-supply won't power down.
+Eeek, doing different styles of probing is even worse than what you did
+before.  Please revert to pci_find_device() util you havea proper common
+driver ready.
 

@@ -1,113 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVBGR5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVBGSCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVBGR5M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 12:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVBGR5M
+	id S261212AbVBGSCS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 13:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVBGSCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 12:57:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:51370 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261211AbVBGR4w (ORCPT
+	Mon, 7 Feb 2005 13:02:18 -0500
+Received: from [128.8.126.38] ([128.8.126.38]:63494 "EHLO www.missl.cs.umd.edu")
+	by vger.kernel.org with ESMTP id S261212AbVBGSCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 12:56:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=PkeohgsGUZ3/iqVJbBTN54U0p4GkuiIHpFNjwJ7I3hF5HQKNSqKt7a9I+BVhP7fsufA+CAolQSUtpRh8fQsUzueorBN73ULOlptMqSenyX28/Nq097rcWAnMpqTUNEQSxpzl2oXp0r8QpRyxIed3ytSyaFmCsBi6fbCosaHUAdk=
-Message-ID: <d4b3852050207095647c74baa@mail.gmail.com>
-Date: Mon, 7 Feb 2005 18:56:50 +0100
-From: Mikkel Krautz <krautz@gmail.com>
-Reply-To: Mikkel Krautz <krautz@gmail.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-In-Reply-To: <d4b385205020709515d579934@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050207154424.GB4742@omnipotens.localhost>
-	 <20050207174303.GA3113@ucw.cz>
-	 <d4b385205020709515d579934@mail.gmail.com>
+	Mon, 7 Feb 2005 13:02:15 -0500
+Date: Mon, 7 Feb 2005 13:04:22 -0500 (EST)
+From: Adam Sulmicki <adam@cfar.umd.edu>
+X-X-Sender: adam@www.missl.cs.umd.edu
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+cc: Paulo Marques <pmarques@grupopie.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Machek <pavel@ucw.cz>, Jon Smirl <jonsmirl@gmail.com>,
+       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Li-Ta Lo <ollie@lanl.gov>
+Subject: Re: [RFC] Reliable video POSTing on resume
+In-Reply-To: <42077CFD.7030607@gmx.net>
+Message-ID: <Pine.BSF.4.62.0502071259500.26868@www.missl.cs.umd.edu>
+References: <e796392205020221387d4d8562@mail.gmail.com>  <420217DB.709@gmx.net>
+ <4202A972.1070003@gmx.net>  <20050203225410.GB1110@elf.ucw.cz> 
+ <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net> 
+ <1107485504.5727.35.camel@desktop.cunninghams>  <9e4733910502032318460f2c0c@mail.gmail.com>
+  <20050204074454.GB1086@elf.ucw.cz>  <9e473391050204093837bc50d3@mail.gmail.com>
+  <20050205093550.GC1158@elf.ucw.cz> <1107695583.14847.167.camel@localhost.localdomain>
+ <Pine.BSF.4.62.0502062107000.26868@www.missl.cs.umd.edu> <42077AC4.5030103@grupopie.com>
+ <42077CFD.7030607@gmx.net>
+X-WEB: http://www.eax.com
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I now realise that my way of doing this only sets
-hid_mousepoll_interval to the latest-plugged-in mouse's polling
-interval.
+On Mon, 7 Feb 2005, Carl-Daniel Hailfinger wrote:
 
-How should I handle this? Just remove the line, and keep the "0 feature"?
-
-Thanks,
-Mikkel
-
-
-On Mon, 7 Feb 2005 18:51:46 +0100, Mikkel Krautz <krautz@gmail.com> wrote:
-> Are you talking about the following line?
-> 
-> +               else
-> +                       hid_mousepoll_interval = interval;
-> 
-> If so, I put it there, to fill a tiny gap, i felt was missing.
-> 
-> If no parameter is passed, hid_mousepoll_interval is obviously 0.
-> 
-> If a user, who doesn't pass the parameter to usbhid, reads
-> '/sys/module/usbhid/parameters/mousepoll', the answer would be "0",
-> which is incorrect, no?
-> 
-> Thanks,
-> Mikkel
-> 
-> On Mon, 7 Feb 2005 18:43:03 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Mon, Feb 07, 2005 at 04:44:24PM +0100, Mikkel Krautz wrote:
-> > > And, here's an updated version of hid-core.c:
-> > >
-> > > Signed-off-by: Mikkel Krautz <krautz@gmail.com>
-> > > ---
-> > > --- clean/drivers/usb/input/hid-core.c
-> > > +++ dirty/drivers/usb/input/hid-core.c
-> > > @@ -37,13 +37,20 @@
-> > >   * Version Information
-> > >   */
-> > >
-> > > -#define DRIVER_VERSION "v2.0"
-> > > +#define DRIVER_VERSION "v2.01"
-> > >  #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
-> > >  #define DRIVER_DESC "USB HID core driver"
-> > >  #define DRIVER_LICENSE "GPL"
-> > >
-> > >  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
-> > >                               "Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
-> > > +/*
-> > > + * Module parameters.
-> > > + */
-> > > +
-> > > +static unsigned int hid_mousepoll_interval;
-> > > +module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
-> > > +MODULE_PARM_DESC(mousepoll, "Polling interval of mice");
-> > >
-> > >  /*
-> > >   * Register a new report for a device.
-> > > @@ -1695,6 +1702,12 @@
-> > >               if (dev->speed == USB_SPEED_HIGH)
-> > >                       interval = 1 << (interval - 1);
-> > >
-> > > +             /* Change the polling interval of mice. */
-> > > +             if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
-> > > +                     interval = hid_mousepoll_interval;
-> > > +             else
-> > > +                     hid_mousepoll_interval = interval;
-> >
-> > This line is trying to achieve what?
-> >
-> > > +
-> > >               if (endpoint->bEndpointAddress & USB_DIR_IN) {
-> > >                       if (hid->urbin)
-> > >                               continue;
-> > >
-> > >
-> >
-> > --
-> > Vojtech Pavlik
-> > SuSE Labs, SuSE CR
-> >
+> And how many competing implementations of video helpers/emulation code
+> do we have now?
 >
+> - scitechsoft emu
+> - linuxbios emu
+> - etc. (I surely forgot some)
+
+just a minor nit-pick. "linuxbios" is not an "emulator" but drop-in 
+replacement for commerical bios (on motherboards that are supported).
+
+ 	http://www.linuxbios.org/
+
+I belive Paulo Marques and Li-Ta Lo expands linuxbios with the emulator to 
+run the VIDEOBIOS contained in it, but, it just an add on.

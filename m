@@ -1,21 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130690AbQKIU2d>; Thu, 9 Nov 2000 15:28:33 -0500
+	id <S129566AbQKIUaN>; Thu, 9 Nov 2000 15:30:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131143AbQKIU2X>; Thu, 9 Nov 2000 15:28:23 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:38930 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130690AbQKIU2L>;
-	Thu, 9 Nov 2000 15:28:11 -0500
-Message-ID: <3A0B08A4.38A37F1F@mandrakesoft.com>
-Date: Thu, 09 Nov 2000 15:27:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+	id <S131143AbQKIUaD>; Thu, 9 Nov 2000 15:30:03 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:26126 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S130788AbQKIU3p>; Thu, 9 Nov 2000 15:29:45 -0500
+Message-ID: <3A0B08B9.BE18B538@didntduck.org>
+Date: Thu, 09 Nov 2000 15:27:37 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: root@chaos.analogic.com
-CC: Brian Gerst <bgerst@didntduck.org>,
-        Linux kernel <linux-kernel@vger.kernel.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Module open() problems, Linux 2.4.0
 In-Reply-To: <Pine.LNX.3.95.1001109150621.15404A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
@@ -54,25 +52,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > our work here. The fact that something "works" is not
 > sufficient.
 
-There is NO guarantee that module use count == device open count.  Never
-has been, AFAIK.  It just happens to work out that way on a lot of
-pre-2.4 code.
+It is not a bug.  The only values that matter are zero and non-zero.  As
+long as the refcounting is symmetric, it all comes out in the wash. 
+Remove the MOD_{INC,DEC}_USE_COUNT from your driver if it bothers you
+that much and you don't care about 2.2 compatability.
 
-The kernel is free to bump the module reference count up and down as it
-pleases.  For example, if a driver creates a kernel thread, that will
-increase its module usage count by one, for the duration of the kernel
-thread's lifetime.
+--
 
-The only rule is that you cannot unload a module until its use count it
-zero.  
-
-	Jeff
-
-
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

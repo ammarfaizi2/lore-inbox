@@ -1,78 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbUDARI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 12:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbUDARI0
+	id S262932AbUDARKp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 12:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUDARKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 12:08:26 -0500
-Received: from gprs212-217.eurotel.cz ([160.218.212.217]:8832 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262977AbUDARIV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 12:08:21 -0500
-Date: Thu, 1 Apr 2004 19:08:08 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: andrea@suse.de, kernel list <linux-kernel@vger.kernel.org>
-Subject: Properly stop kernel threads on aic7xxx
-Message-ID: <20040401170808.GA696@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Apr 2004 12:10:44 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:265 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262932AbUDARKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 12:10:35 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: disable-cap-mlock
+Date: Thu, 1 Apr 2004 19:11:15 +0200
+User-Agent: KMail/1.6.1
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com
+References: <20040401135920.GF18585@dualathlon.random> <20040401164825.GD791@holomorphy.com> <20040401165952.GM18585@dualathlon.random>
+In-Reply-To: <20040401165952.GM18585@dualathlon.random>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200404011911.15953@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thursday 01 April 2004 18:59, Andrea Arcangeli wrote:
 
-This is totally untested patch that should make aic7xxx one step
-closer to working with software suspend... Plus it kills ugly #if in
-the process.
-								Pavel 
+Hi Andrea, Bill,
 
---- tmp/linux/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-03-11 18:11:12.000000000 +0100
-+++ linux/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-04-01 19:01:29.000000000 +0200
-@@ -2581,17 +2581,8 @@
- 	 * Complete thread creation.
- 	 */
- 	lock_kernel();
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,60)
--	/*
--	 * Don't care about any signals.
--	 */
--	siginitsetinv(&current->blocked, 0);
--
--	daemonize();
--	sprintf(current->comm, "ahd_dv_%d", ahd->unit);
--#else
- 	daemonize("ahd_dv_%d", ahd->unit);
--#endif
-+	current->flags |= PF_IOTHREAD;
- 	unlock_kernel();
- 
- 	while (1) {
---- tmp/linux/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-03-11 18:11:12.000000000 +0100
-+++ linux/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-04-01 19:01:08.000000000 +0200
-@@ -2286,17 +2286,8 @@
- 	 * Complete thread creation.
- 	 */
- 	lock_kernel();
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--	/*
--	 * Don't care about any signals.
--	 */
--	siginitsetinv(&current->blocked, 0);
--
--	daemonize();
--	sprintf(current->comm, "ahc_dv_%d", ahc->unit);
--#else
- 	daemonize("ahc_dv_%d", ahc->unit);
--#endif
-+	current->flags |= PF_IOTHREAD;
- 	unlock_kernel();
- 
- 	while (1) {
+> > Something like this would have the minor advantage of zero core impact.
+> > Testbooted only. vs. 2.6.5-rc3-mm4
 
+Cool!
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+> I certainly like this too (despite it's more complicated but it might
+> avoid us to have to add further sysctl in the future), Andrew what do
+> you prefer to merge? I don't mind either ways.
+
+I'd vote for caps via sysctl.
+
+ciao, Marc

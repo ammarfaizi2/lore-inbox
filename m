@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUDXHIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbUDXH1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUDXHIw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 03:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUDXHIw
+	id S262020AbUDXH1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 03:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUDXH1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 03:08:52 -0400
-Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:14260 "EHLO
-	firestar.foogod.com") by vger.kernel.org with ESMTP id S261358AbUDXHIu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 03:08:50 -0400
-Message-ID: <59785.64.139.3.221.1082790505.squirrel@www.foogod.com>
-Date: Sat, 24 Apr 2004 00:08:25 -0700 (PDT)
-Subject: Re: [Linux-fbdev-devel] [PATCH] neofb patches
-From: "Alex Stewart" <alex@foogod.com>
-To: <rddunlap@osdl.org>
-In-Reply-To: <20040423201536.6aefe7ad.rddunlap@osdl.org>
-References: <56202.64.139.3.221.1082702638.squirrel@www.foogod.com>
-        <Pine.LNX.4.44.0404232241260.5826-100000@phoenix.infradead.org>
-        <20040423201536.6aefe7ad.rddunlap@osdl.org>
-X-Priority: 3
-Importance: Normal
-Cc: <jsimmons@infradead.org>, <alex@foogod.com>,
-       <linux-fbdev-devel@lists.sourceforge.net>, <geert@linux-m68k.org>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.11)
+	Sat, 24 Apr 2004 03:27:42 -0400
+Received: from zasran.com ([198.144.206.234]:17024 "EHLO zasran.com")
+	by vger.kernel.org with ESMTP id S262020AbUDXH1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 03:27:40 -0400
+Message-ID: <408A16EB.30208@bigfoot.com>
+Date: Sat, 24 Apr 2004 00:27:39 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+References: <40853060.2060508@bigfoot.com> <200404202326.24409.kim@holviala.com>
+In-Reply-To: <200404202326.24409.kim@holviala.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | http://phoenix.infradead.org:~/jsimmons/neofb.diff.gz
-> |
-> | This is against the latest kernel.
->
-> Hi James,
->
-> I think it would help a bit if someone could load
-> http://phoenix.infradead.org/~jsimmons/ in a web browser
-> and be able to see a list of files/patches/etc there
-> instead of having to know an exact file name to grab.
+Kim Holviala wrote:
+> On Tuesday 20 April 2004 17:14, Erik Steffl wrote:
+> 
+> 
+>>   it looks that after update to 2.6.5 kernel (debian source package but
+>>I guess it would be the same with stock 2.6.5) the mouse wheel and side
+>>button on Logitech Cordless MouseMan Wheel mouse do not work.
+> 
+> 
+> Try my patch for 2.6.5: http://lkml.org/lkml/2004/4/20/10
+> 
+> Build psmouse into a module (for easier testing) and insert it with the proto 
+> parameter. I'd say "modprobe psmouse proto=exps" works for you, but you might 
+> want to try imps and ps2pp too. The reason I wrote the patch in the first 
+> place was that a lot of PS/2 Logitech mice refused to work (and yes, exps 
+> works for me and others)....
 
-Well, since he only seems to have one patch available at any given time,
-this doesn't seem like that big a deal to me, personally..  I was,
-however, thinking of suggesting that it might be easier to keep track of
-things if there were some sort of version numbers or datestamps or
-something in the filename so somebody can tell that this "neofb.diff.gz"
-is actually a different patch from the "neofb.diff.gz" that was in exactly
-the same place yesterday..
+   didn't help, I still see (without X running):
 
--alex
+8, 0, 0 any button down
+9, 0, 0 left button up
+12, 0, 0 wheel up, sidebutton up
+10, 0, 0 right button up
 
+8, 0, 0 wheel rotation (any direction)
 
+except of some protocols (IIRC ps2pp, bare, genps) ignore wheel 
+completely. is there any way to verify which protocol the mouse is 
+using? modprobe -v printed different messages for each protocol so I 
+think that worked (it said Generic Explorer etc.)
+
+   I tried: exps, imps, ps2pp, bare, genps
+
+   any ideas?
+
+   the mouse says: Cordless MouseMan Wheel (Logitech), it has left/right 
+buttonss, wheel that can be pushed or rotated and a side button, not 
+sure how to better identify it. With 2.4 kernels it used to work with X 
+using protocol MouseManPlusPS/2.
+
+	erik

@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130396AbQLNPrn>; Thu, 14 Dec 2000 10:47:43 -0500
+	id <S132099AbQLNPxY>; Thu, 14 Dec 2000 10:53:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132099AbQLNPrd>; Thu, 14 Dec 2000 10:47:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59666 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130396AbQLNPrZ>;
-	Thu, 14 Dec 2000 10:47:25 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012141516.eBEFG5B06658@flint.arm.linux.org.uk>
-Subject: Physical memory addresses/PCI memory addresses/io_remap_page_range/etc
-To: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-Date: Thu, 14 Dec 2000 15:16:04 +0000 (GMT)
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S132399AbQLNPxN>; Thu, 14 Dec 2000 10:53:13 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:14098 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S132099AbQLNPxJ>; Thu, 14 Dec 2000 10:53:09 -0500
+Message-ID: <3A38F204.879CBAB2@evision-ventures.com>
+Date: Thu, 14 Dec 2000 17:15:00 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+        shirsch@adelphia.net, linux-kernel@vger.kernel.org
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released
+In-Reply-To: <200012141510.eBEFAls48989@aslan.scsiguy.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Justin T. Gibbs" wrote:
+> 
+> >
+> >What's wrong with current? It's perfectly fine, since it's the main data
+> >context entity you are working with during it's usage... Just remember
+> >it as
+> >CURRENT MAIN PROBLEM the kernel is struggling with at time.
+> 
+> What's wrong with the aic7xxx driver storing the "user", "goal", and
+> "current" transfer negotiation settings for a device in a structure
+> with fields by those names?  Nothing save the fact that "current" is
+> a #define in linux.
+> 
+> Anyway, I've said my peace.  The driver will properly work around
+> the namespace problem.
 
-I'm looking at a frame buffer driver, and I'm getting a little confused...
-
-To remove any confusion (since I know that people get confused with the
-terminology here), here is how I define these addresses:
-
-  virtual space    - address space that the kernel runs in
-  physical space   - address space that the CPU sits in
-  PCI memory space - memory address space that the PCI peripherals sit in
-
-Many, if not all ARM architectures have physical address 0 different from
-PCI memory address 0.
-
-According to include/linux/fb.h, fb drivers should place a physical address
-into "fix.smem_start" and "fix.mmio_start", which can then be passed to
-io_remap_page_range.
-
-However, many drivers (eg, Matrox Millenium) place the PCI memory space
-address here (obtained from pci_resource_start), and this tends to cause
-things to fail on ARM machines.
-
-If we were to change (where possible) the PCI memory space such that it did
-tie up with the physical address, then we loose the ability to use vgacon
-consoles, which in turn means that there would have to be fbcon drivers for
-a lot more PCI VGA cards in the kernel (since vgacon needs to access the usual
-PCI memory address 0xb8000).
-
-The questions (that I would like someone authoritive on this to answer)
-are:
-
-1. Should pci_resource_start be returning the PCI memory space address or
-   a physical memory space address?
-
-2. Should io_remap_page_range take a PCI memory space address or a physical
-   memory space address?
-
-3. Do we need a macro to convert PCI memory space addresses to physical
-   memory space addresses?
-
-4. What does this mean for ioremap?  (currently, on ARM, ioremap takes
-   PCI memory space addresses, not a physical memory address, which makes
-   the physmap MTD driver technically broken).
-
-Help!
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Just save space and call it curr instead ;-).
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267141AbSLDWkr>; Wed, 4 Dec 2002 17:40:47 -0500
+	id <S267148AbSLDWp1>; Wed, 4 Dec 2002 17:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267142AbSLDWkr>; Wed, 4 Dec 2002 17:40:47 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12778 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267141AbSLDWkq>; Wed, 4 Dec 2002 17:40:46 -0500
-Date: Wed, 4 Dec 2002 23:48:06 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "White, Charles" <Charles.White@hp.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.20 cciss  patch 01 - adds support for the SA641, SA642 and SA6400 controllers.
-Message-ID: <20021204224806.GJ2544@fs.tum.de>
-References: <A2C35BB97A9A384CA2816D24522A53BB03991726@cceexc18.americas.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB03991726@cceexc18.americas.cpqcorp.net>
-User-Agent: Mutt/1.4i
+	id <S267149AbSLDWp0>; Wed, 4 Dec 2002 17:45:26 -0500
+Received: from grebe.mail.pas.earthlink.net ([207.217.120.46]:31876 "EHLO
+	grebe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267148AbSLDWp0>; Wed, 4 Dec 2002 17:45:26 -0500
+Date: Wed, 4 Dec 2002 15:44:44 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
+In-Reply-To: <1038947910.1040.29.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0212041542400.1533-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 04:23:37PM -0600, White, Charles wrote:
 
->...
-> --- linux-2.4.20.orig/drivers/block/cciss.c	Thu Nov 28 18:53:12 2002
-> +++ linux-2.4.20.cciss_p01/drivers/block/cciss.c	Wed Dec  4
-> 15:09:39 2002
-> @@ -56,6 +56,11 @@
->  #include "cciss.h"
->  #include <linux/cciss_ioctl.h>
->  
-> +/* remove when PCI_DEVICE_ID_COMPAQ_CCISSC is in pci_ids.h */
-> +#ifndef PCI_DEVICE_ID_COMPAQ_CCISSC
-> +#define PCI_DEVICE_ID_COMPAQ_CCISSC 0x46
-> +#endif
-> +
->...
+> Here's a preliminary and highly unpolished patch for saving and
+> restoring the initial vga state.
 
-Why doesn't your patch include it into pci_ids.h?
+Totally awesome!!! About a year ago I also manged to do this while working
+on the ruby linuxconsole project. I'm glad to see it resurrected again!!!!
+Looking at the code I see both of us have the same ideas.
 
-cu
-Adrian
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+James Simmons  [jsimmons@users.sf.net] 	                ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
 

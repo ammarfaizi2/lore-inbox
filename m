@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbUKLUut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbUKLUzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbUKLUut (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 15:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbUKLUut
+	id S262615AbUKLUzY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 15:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbUKLUzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 15:50:49 -0500
-Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:30665 "EHLO
-	ash.lnxi.com") by vger.kernel.org with ESMTP id S262611AbUKLUul
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 15:50:41 -0500
-Subject: Re: [PATCH] gen_init_cpio-slink_pipe_sock
-From: Thayne Harbaugh <tharbaugh@lnxi.com>
-Reply-To: tharbaugh@lnxi.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, klibc@zytor.com, akpm@digeo.com,
-       azarah@nosferatu.za.org
-In-Reply-To: <41952022.1050607@pobox.com>
-References: <1100290509.3171.8.camel@tubarao>  <41952022.1050607@pobox.com>
-Content-Type: text/plain
-Organization: Linux Networx
-Date: Fri, 12 Nov 2004 13:27:25 -0700
-Message-Id: <1100291245.3171.14.camel@tubarao>
+	Fri, 12 Nov 2004 15:55:23 -0500
+Received: from colo.lackof.org ([198.49.126.79]:61125 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262615AbUKLUzL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 15:55:11 -0500
+Date: Fri, 12 Nov 2004 13:55:09 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Michael Chan <mchan@broadcom.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, greg@kroah.com,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+Subject: Re: [PATCH] pci-mmconfig fix for 2.6.9
+Message-ID: <20041112205509.GB8828@colo.lackof.org>
+References: <B1508D50A0692F42B217C22C02D84972020F3C9C@NT-IRVA-0741.brcm.ad.broadcom.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B1508D50A0692F42B217C22C02D84972020F3C9C@NT-IRVA-0741.brcm.ad.broadcom.com>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-12 at 15:42 -0500, Jeff Garzik wrote:
-> Thayne Harbaugh wrote:
-> > diff -ur linux-2.6.10-rc1.orig/drivers/block/Kconfig linux-2.6.10-rc1/drivers/block/Kconfig
-> > --- linux-2.6.10-rc1.orig/drivers/block/Kconfig	2004-11-12 11:03:52.657108248 -0700
-> > +++ linux-2.6.10-rc1/drivers/block/Kconfig	2004-11-12 11:07:28.458301480 -0700
-> > @@ -363,10 +363,14 @@
-> >  	    file <name> <location> <mode> <uid> <gid>
-> >  	    dir <name> <mode> <uid> <gid>
-> >  	    nod <name> <mode> <uid> <gid> <dev_type> <maj> <min>
-> > +	    slink <name> <target> <mode> <uid> <gid>
-> > +	    pipe <name> <mode> <uid> <gid>
-> > +	    sock <name> <mode> <uid> <gid>
-> >  
-> >  	  Where:
-> > -	    <name>      name of the file/dir/nod in the archive
-> > +	    <name>      name of the file/dir/nod/etc in the archive
-> >  	    <location>  location of the file in the current filesystem
-> > +	    <target>    link target
-> >  	    <mode>      mode/permissions of the file
-> >  	    <uid>       user id (0=root)
-> >  	    <gid>       group id (0=root)
+On Fri, Nov 12, 2004 at 11:23:06AM -0800, Michael Chan wrote:
+> Hi Grant,
 > 
-> This info should get moved out of Kconfig, and into a Documentation/* 
-> text file somewhere.
+> I think it is well documented that config cycles are non-posted in PCI,
+> PCIX, and PCI Express specs as you pointed out. The only ambiguity is
+> whether the mmconfig memory cycle from the CPU to the chipset is posted
+> or not.
 
-It's actually redundant with the gen_init_cpio help output.  It could be
-removed from the Kconfig and put in Documentation/early-userspace/README
-if someone still wants it someplace other than the gen_init_cpio help
-output.
+sorry - I was wrongly assuming mmconfig has to follow the same
+semantics as config since it's intended as a replacement.
 
-> > +/*
-> > + * Original work by Jeff Garzick
-> 
-> Please spell my last name correctly :)
+In short, the ECN answers Andi's question with "Yes" - thanks for
+pointing it out.
+For those who don't want to read the whole ECN, bits of it below.
 
-I did - you're the one that spells it incorrectly! B^)
+>  The Implementation Note in the MMCONFIG ECN from pcisig (link
+> below) allows the mmconfig write cycle to be posted, meaning mmconfig
+> write cycle can complete before the real config write cycle completes.
 
-Makes me wonder how I got your email correct since I typed that from
-memory . . ..
+Yes. I found it on page 5 of PciEx_ECN_MMCONFIG_040217.pdf.
+AFAICT, this section only applies to "systems that implement a
+processor-architecture-specific firmware interface standard".
+e.g. ia64 SAL calls.
 
--- 
-Thayne Harbaugh
-Linux Networx
+> That's why we needed confirmations from chipset engineers.
 
+Well, Intel confirmed existing chipset comply with this bit of the ECN:
+| For systems that are PC-compatible, or that do not implement a
+| processor-architecture-specific firmware interface standard that
+| allows access to the Configuration Space, the enhanced configuration
+| access mechanism is required as defined in this section.
+....
+| The system hardware must provide a method for the system software
+| to guarantee that a write transaction using the enhanced configuration
+| access mechanism is completed by the completer before system software
+| execution continues.
+
+
+> http://www.pcisig.com/specifications/pciexpress/specifications/specifica
+> tions
+
+I assumed this one was meant:
+http://www.pcisig.com/specifications/pciexpress/PciEx_ECN_MMCONFIG_040217.pdf
+
+thanks,
+grant

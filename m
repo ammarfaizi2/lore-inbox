@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262103AbRENOfl>; Mon, 14 May 2001 10:35:41 -0400
+	id <S262090AbRENOcL>; Mon, 14 May 2001 10:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262105AbRENOfb>; Mon, 14 May 2001 10:35:31 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:62944 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262103AbRENOfP>; Mon, 14 May 2001 10:35:15 -0400
-Message-Id: <5.1.0.14.2.20010514153419.00a7cec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 14 May 2001 15:35:22 +0100
-To: Linus Torwalds <torvalds@transmeta.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH] 2.4.5-pre1: tiny NLS include fix
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.3.96.1010514152513.13662A-200000@libra.cus.cam.ac
- .uk>
+	id <S262105AbRENOcB>; Mon, 14 May 2001 10:32:01 -0400
+Received: from tux.gsfc.nasa.gov ([128.183.191.134]:1177 "EHLO
+	tux.gsfc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S262090AbRENObt>; Mon, 14 May 2001 10:31:49 -0400
+Date: Mon, 14 May 2001 10:31:48 -0400
+From: John Kodis <kodis@mail630.gsfc.nasa.gov>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Not a typewriter
+Message-ID: <20010514103148.B9532@tux.gsfc.nasa.gov>
+Mail-Followup-To: John Kodis <kodis@mail630.gsfc.nasa.gov>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <mharris@opensourceadvocate.org> <200105140103.f4E13U3r010249@sleipnir.valparaiso.cl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200105140103.f4E13U3r010249@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Sun, May 13, 2001 at 09:03:30PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 15:30 14/05/01, Anton Altaparmakov wrote:
->Please apply attached patch. It puts a #ifndef;#define;#endif block around
->the contents of linux/include/linux to allow for multiple #includes of
+On Sun, May 13, 2001 at 09:03:30PM -0400, Horst von Brand wrote:
 
-s#linux/include/linux#linux/include/linux/nls.h#
+> The old C compiler/old Unix linker guaranteed 6 chars in an external symbol
+> name only, and C functions got an underscore prepended: _creat. I guess
+> this is the reason for this wart. As to why 6 chars only, I'd guess some
+> data structure in the linker was laid out that way. Machines had a few
+> dozen Kbs of RAM then, space was precious.
 
-Anton
-
-><linux/nls.h>.
->
->Best regards,
->
->         Anton
->--
->Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
->Linux NTFS maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
->ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
->
->--- linux/include/linux/nls.h.old       Mon May 14 15:20:16 2001
->+++ linux/include/linux/nls.h   Mon May 14 15:24:41 2001
->@@ -1,3 +1,6 @@
->+#ifndef _LINUX_NLS_H
->+#define _LINUX_NLS_H
->+
->  #include <linux/init.h>
->
->  /* unicode character */
->@@ -28,3 +31,6 @@
->  extern int utf8_mbstowcs(wchar_t *, const __u8 *, int);
->  extern int utf8_wctomb(__u8 *, wchar_t, int);
->  extern int utf8_wcstombs(__u8 *, const wchar_t *, int);
->+
->+#endif /* _LINUX_NLS_H */
->+
+I recall that RSX-11 and a few other series of early DEC operating
+systems stored linker symbols in a "RAD50" encoding scheme which
+allowed 6 chararacters to be crammed into a 32-bit "long word".  I
+suspect that this is where the limitation originated.
 
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+John Kodis <kodis@acm.org>
+Phone: 301-286-7376

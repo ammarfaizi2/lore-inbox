@@ -1,96 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261371AbTBSRJb>; Wed, 19 Feb 2003 12:09:31 -0500
+	id <S268945AbTBSRSI>; Wed, 19 Feb 2003 12:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbTBSRJb>; Wed, 19 Feb 2003 12:09:31 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:32708 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261371AbTBSRJa>; Wed, 19 Feb 2003 12:09:30 -0500
-Date: Wed, 19 Feb 2003 09:19:29 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@digeo.com>
-Subject: Strange performance change 59 -> 61/62
-Message-ID: <40400000.1045675169@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268949AbTBSRSI>; Wed, 19 Feb 2003 12:18:08 -0500
+Received: from happy.phnet.fi ([62.165.128.129]:20639 "HELO happy.phnet.fi")
+	by vger.kernel.org with SMTP id <S268945AbTBSRSH>;
+	Wed, 19 Feb 2003 12:18:07 -0500
+Message-ID: <3E53BEA0.8000808@sci.fi>
+Date: Wed, 19 Feb 2003 19:28:00 +0200
+From: Janne Heikkinen <jamse@sci.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 oopses with OSS/munmap
+References: <3E532DE8.1080303@sci.fi>
+In-Reply-To: <3E532DE8.1080303@sci.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm comparing 59-mjb6 to 61-mjb1 and notice some strange performance
-differences that I can't explain ... not a big drop, but odd.
-Only changes in -mjb during that switchover were to drop the merged stuff
-and add:
+Janne Heikkinen wrote:
 
-+ sighand_locking
-+ percpu_loadavg 
-+ irq_affinity
-+ kirq_clustered_fix
+> When trying to to use mmap with OSS with kernel version 2.4.20, 
+> program causes oops
+> when munmapping takes place (either when calling munmap directly or 
+> when program is
+> terminating).  
 
-However, all but percpu_loadavg are just bugfixes, and I tested 
-percpu_loadavg seperately (see below). Moreover, the profile differences
-don't seem related.
+I looked into it more carefully and most of the time I don't actually 
+get oops but system
+just goes unstable. It is allways second time when program is run when 
+this hang with
+munmap() happens.
 
-Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
-                                   Elapsed        User      System         CPU
-                   2.5.59-mjb6       45.55      564.83      110.03     1481.00
-           2.5.59-mjb6-cpuload       45.72      563.63      110.80     1474.67
-                   2.5.61-mjb1       45.55      563.99      112.96     1485.50
-                   2.5.62-mjb1       45.81      564.41      112.76     1478.00
+Program that causes this maps DMA buffer with mmap, uses SNDCTL_DSP_GETIPTR
+ioctl() after select()  and then copies data from mmap'd buffer into 
+another buffer. Everything
+goes fine until munmap().
 
-Kernbench-16: (make -j N vmlinux, where N = 16 x num_cpus)
-                                   Elapsed        User      System         CPU
-                   2.5.59-mjb6       46.59      568.81      131.97     1503.67
-           2.5.59-mjb6-cpuload       46.60      567.42      132.19     1502.67
-                   2.5.61-mjb1       46.91      568.71      138.26     1506.33
-                   2.5.62-mjb1       47.21      569.17      139.55     1500.67
+It seems to be exactly the same problem that Paul Forgey had run into 
+and wrote
+about in January with subject "oss bug introduced since 2.4.18?".
 
-Note the increase in systime. Diffprofile shows:
-
-Most of the changes kind of look dcache releated, but I have the same
-exact dcache patches in both trees (with sunrpc fixes) ... is anyone
-familiar with the pattern below, and might be able to see what's 
-causing this?
-
-Thanks,
-
-M.
-
-2.5.59-mjb6 -> 2.5.61-mjb1 (+ worse in 61, - better)
-
-1562 .text.lock.file_table
-583 dentry_open
-551 get_empty_filp
-479 __mark_inode_dirty
-274 __down
-162 atomic_dec_and_lock
-162 __fput
-159 page_remove_rmap
-148 page_add_rmap
-122 vma_merge
-97 current_kernel_time
-93 file_move
-92 do_no_page
-81 do_schedule
-72 find_get_page
-68 dput
-62 can_vma_merge_after
-54 __copy_to_user_ll
-...
--58 sys_brk
--69 fd_install
--70 __copy_from_user_ll
--86 do_lookup
--205 do_generic_mapping_read
--219 do_anonymous_page
--248 file_ra_state_init
--256 vfs_read
--308 path_lookup
--309 d_lookup
--506 vm_enough_memory
--1796 total
--4472 default_idle
+Janne Heikkinen
 

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129737AbRAEVIb>; Fri, 5 Jan 2001 16:08:31 -0500
+	id <S131248AbRAEVJF>; Fri, 5 Jan 2001 16:09:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129561AbRAEVIV>; Fri, 5 Jan 2001 16:08:21 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:29457 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129538AbRAEVIL>; Fri, 5 Jan 2001 16:08:11 -0500
-Date: Fri, 05 Jan 2001 16:08:05 -0500
-From: Chris Mason <mason@suse.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-Message-ID: <993160000.978728885@tiny>
-In-Reply-To: <Pine.LNX.4.21.0101051630150.2882-100000@freak.distro.conectiva>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+	id <S129538AbRAEVIW>; Fri, 5 Jan 2001 16:08:22 -0500
+Received: from pop3.web.de ([212.227.116.81]:55302 "HELO smtp.web.de")
+	by vger.kernel.org with SMTP id <S129267AbRAEVIC>;
+	Fri, 5 Jan 2001 16:08:02 -0500
+From: Gregor Essers <gregor.essers@web.de>
+Date: Fri, 5 Jan 2001 22:07:21 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: bug of Nvidia (0.9.5) Drivers in 2.4 Kernel Enviroment
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <01010522072100.03671@saintx.saintx.de>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From the pre9 relaese to the final of the 2.4 Kernel i become this Errors, 
+can someone help me or have someone an idea what this mean ??.
+
+I will build this with the src.rpm from Nvidia with the spec file 
+
+In file included from nv.c:52:
+nv.h:131: warning: #warning This driver is not officially supported on 
+post-2.2 
+kernels
+nv.c: In function `nv_lock_pages':
+nv.c:556: warning: implicit declaration of function `mem_map_inc_count'
+nv.c: In function `nv_unlock_pages':
+nv.c:583: warning: implicit declaration of function `mem_map_dec_count'
+nv.c: At top level:
+nv.c:853: unknown field `unmap' specified in initializer
+nv.c:853: warning: initialization from incompatible pointer type
+make: *** [nv.o] Fehler 1
+Bad exit status from /var/tmp/rpm-tmp.37085 (%build)
 
 
-On Friday, January 05, 2001 04:32:50 PM -0200 Marcelo Tosatti
-<marcelo@conectiva.com.br> wrote:
- 
->> > I think we want to remove flush_dirty_buffers() from bdflush. 
->> > 
->> 
->> Whoops.  If bdflush doesn't balance the dirty list, who does?
-> 
-> Who marks buffers dirty. 
-> 
-> Linus changed mark_buffer_dirty() to use flush_dirty_buffers() in case
-> there are too many dirty buffers.
-> 
 
-Yes, but mark_buffer_dirty only ends up calling flush_dirty_buffers when
-balance_dirty_state returns 1.  This means the only people balancing are
-the procs (not some async daemon), and the writing only starts when we are
-over the hard dirty limit.
+My System Config : 
 
--chris
+AMD Durom 700
+256MB of Ram 
+15,2 IBM HDD
+Geforce2 MX 32 MB Graphics-Card 
+Epox ep8kta+ Mainboard
 
+
+
+
+Thanks
+
+Gregor Essers
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

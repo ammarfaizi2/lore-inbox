@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVCGN4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVCGOAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVCGN4H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 08:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVCGN4H
+	id S261177AbVCGOAM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 09:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVCGOAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 08:56:07 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:62374 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261164AbVCGNz5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 08:55:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=e66QhPaZ4BvPgupziiqW856QDaxJsfnpkAxrBq4BfkVrDOCnzqvK/N+vuInZ9kvdz9XxrvruIAiSvI0QSRmsyrZmijkzWjWjOkfov394BKjkNICWQXbW6hQpMFMrLXo3IMIu2GvD0C0Td63pLJOlBwN39WLjuGaGv+S0z7Bu4HU=
-Message-ID: <d120d500050307055522415fb3@mail.gmail.com>
-Date: Mon, 7 Mar 2005 08:55:56 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Henrik Persson <root@fulhack.info>
-Subject: Re: Touchpad "tapping" changes in 2.6.11?
-Cc: dtor@mail.ru, linux-kernel@vger.kernel.org
-In-Reply-To: <422C539A.4040407@fulhack.info>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Mar 2005 09:00:12 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:2521 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S261177AbVCGOAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 09:00:08 -0500
+MIME-Version: 1.0
+Date: Mon,  7 Mar 2005 15:00:04 +0100
+To: linux-kernel@vger.kernel.org
+X-UMS: email
+X-Mailer: TOI Kommunikationscenter V5-0PL2
+Subject: Error message during boot: module ide-detect not found
+From: "RG.Schneider@t-online.de" <RG.Schneider@t-online.de>
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <422C539A.4040407@fulhack.info>
+Message-ID: <1D8ImC-2I5bqS0@cmpmail05.bbul.t-online.de>
+X-ID: ZqKr9mZYYe3FyxSGWnDpuVbd3Kw-x5M7Z9MzKs35G4f2f8ZicqsnEW@t-dialin.net
+X-TOI-MSGID: 35218dde-2680-469f-a1c8-7b301c70c4f9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Mar 2005 14:14:02 +0100, Henrik Persson <root@fulhack.info> wrote:
-> Hi there.
-> 
-> I noticed that the ALPS driver was added to 2.6.11, a thing that alot of
-> people probably like, but since my touchpad (Acer Aspire 1300XV) worked
-> perfectly before (like, 2.6.10) and now the ALPS driver disables
-> 'hardware tapping', wich makes it hard to tap. I commented out the
-> disable-tapping bits in alps.c and now it's working like a charm again.
-> 
+Hello,
+when booting a 2.6 kernel of a Debian distribution (Sarge) I always get
+the above error message. Additionally, the ide chipset is
+not detected and hard disc and ide - cdrom drives are not available.
 
-Hi,
+In '/etc/modules' , 'ide-detect' is listed. When I change this to
+'ide-generic', everything is fine.
 
-Could you please try 2.6.11-mm1. It has bunch of Peter Osterlund's
-patches that shoudl improve the situation with tapping.
+This might be a problem of Debian distribution ( Sarge ) or more general
+??
 
-> Maybe the hardware tapping-thing should be configurable via some boot or
-> config option?
-> 
+/RalfS
 
-After all quirks are worked out I think tapping will be controlled via
-mousedev.tap_time parameter when using legacy interfaces
-(dev/input/mouseX) and Peter's X driver when using native event
-interface.
 
--- 
-Dmitry

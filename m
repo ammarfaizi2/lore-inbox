@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315784AbSGAQXU>; Mon, 1 Jul 2002 12:23:20 -0400
+	id <S315758AbSGAQW3>; Mon, 1 Jul 2002 12:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315794AbSGAQXT>; Mon, 1 Jul 2002 12:23:19 -0400
-Received: from gra-vd1.iram.es ([150.214.224.250]:17081 "EHLO gra-vd1.iram.es")
-	by vger.kernel.org with ESMTP id <S315784AbSGAQXQ>;
-	Mon, 1 Jul 2002 12:23:16 -0400
-Message-ID: <3D208283.7010106@iram.es>
-Date: Mon, 01 Jul 2002 18:25:39 +0200
-From: Gabriel Paubert <paubert@iram.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.0.0) Gecko/20020531
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: willy tarreau <wtarreau@yahoo.fr>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
-References: <200207010858.g618wdT17736@Port.imtp.ilyichevsk.odessa.ua> <20020701130327.38962.qmail@web20506.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315784AbSGAQW2>; Mon, 1 Jul 2002 12:22:28 -0400
+Received: from ns.suse.de ([213.95.15.193]:53764 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315758AbSGAQW1>;
+	Mon, 1 Jul 2002 12:22:27 -0400
+Date: Mon, 1 Jul 2002 18:24:55 +0200
+From: Hubert Mantel <mantel@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
+Message-ID: <20020701162452.GL18550@suse.de>
+References: <mailman.1025521441.28343.linux-kernel2news@redhat.com> <200207011516.g61FGnP20648@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207011516.g61FGnP20648@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
+Organization: SuSE Linux AG, Nuernberg, Germany
+X-Operating-System: SuSE Linux - Kernel 2.4.18-4GB
+X-GPG-Key: 1024D/B0DFF780
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-willy tarreau wrote:
-> Hello Denis,
-> 
-> 
->>This code is performance critical.
->>With this in mind,
-> 
-> 
-> Yes and no. In fact, I first wanted to code some
-> parts in assembler because GCC is sub-optimal
-> on bit-fields calculations. But then, I realized that
-> I could save, say 10 cycles, while the trap costs
-> about 400 cycles.
-> 
-> 
->>+static void *modrm_address(struct pt_regs *regs,
->>unsigned char **from, char w, char bit32,
->>w seems to be unused
-> 
-> 
-> Well, you're right, it's not used anymore. It was
-> used to check if the instruction applies to a byte
-> or a word.
-> 
-> 
->>Why? i86 can do unaligned accesses:
->>	offset = *(u32*)(*from); *from += 4;
-> 
-> 
-> that's simply because I'm not sure if the kernel
-> runs with AC flag on or off. I quickly checked
-> that it's OK from userland.
+Hi,
 
-AC is only checked when running at CPL==3, i.e.,
-you'll never get an alignment trap in the kernel.
+On Mon, Jul 01, Pete Zaitcev wrote:
 
-	Gabriel
+> At the very minimum I would like to see all distros, and
+> especially SuSE (because of Vojtech) to stop shipping usbkbd.o.
 
+Mandelbrot:~ # zgrep CONFIG_USB_KBD /proc/config.gz 
+# CONFIG_USB_KBD is not set
 
+> -- Pete
+                                                                  -o)
+    Hubert Mantel              Goodbye, dots...                   /\\
+                                                                 _\_v
 

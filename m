@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289032AbSAIVqi>; Wed, 9 Jan 2002 16:46:38 -0500
+	id <S289034AbSAIVvS>; Wed, 9 Jan 2002 16:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289033AbSAIVqb>; Wed, 9 Jan 2002 16:46:31 -0500
-Received: from 24-163-106-43.he2.cox.rr.com ([24.163.106.43]:19404 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S289032AbSAIVqR>;
-	Wed, 9 Jan 2002 16:46:17 -0500
-Date: Wed, 9 Jan 2002 16:46:37 -0500
-Subject: Re: 2.4.8 fs corruption and subsequent fs problems with links
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v480)
-Cc: linux-kernel@vger.kernel.org
-To: "B. Wehrle" <bwehrle@u.washington.edu>
-From: Anthony DeRobertis <asd@suespammers.org>
-In-Reply-To: <3C3C2686.52491F7@u.washington.edu>
-Message-Id: <5B9AA50E-054A-11D6-91AF-00039355CFA6@suespammers.org>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.480)
+	id <S289033AbSAIVvI>; Wed, 9 Jan 2002 16:51:08 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:14347 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289036AbSAIVu7>; Wed, 9 Jan 2002 16:50:59 -0500
+Date: Wed, 9 Jan 2002 22:50:54 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Simple local DOS
+Message-ID: <20020109215054.GB15080@emma1.emma.line.org>
+Reply-To: nonexistent@localhost.emma.line.org
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C3C74F7.FE41CD0E@uni-mb.si>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3C3C74F7.FE41CD0E@uni-mb.si>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 09 Jan 2002, David Balazic wrote:
 
-On Wednesday, January 9, 2002, at 06:16 AM, B. Wehrle wrote:
+> 
+> log in on some virtual terminal, then run the following line
+> in a bourne type shell, like bash :
+> 
+> X 2>&1 | less
+> 
+> A reboot "fixes" it. We want to reach windows level quality on desktop
+> after all, don't we ?
 
-> Using debugfs I can see that the file thinks it holds inode 0!
-> The only way to fix the problem is to wipe out XFree86.0.log using the
-> kill command in debugfs (using / mounted RO).
-
-Do you do a fsck -f after debugfs? Is it still good then?
-
-Oh, yeh, and do you have a backup? Now might be the time....
-
+You can also fix that by a remote login, chvt, or by just not piping X
+output into interactive programs. tail -f is a viable workaround -- and
+all this is off-topic on linux-kernel, it's your own dumbness that makes
+you do these things. Better run kdm, gdm or xdm or something and you're
+not having this problem.

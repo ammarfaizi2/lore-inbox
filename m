@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268000AbTBRUcx>; Tue, 18 Feb 2003 15:32:53 -0500
+	id <S268028AbTBRUg1>; Tue, 18 Feb 2003 15:36:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268001AbTBRUcx>; Tue, 18 Feb 2003 15:32:53 -0500
-Received: from main.gmane.org ([80.91.224.249]:33752 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S268000AbTBRUcw>;
-	Tue, 18 Feb 2003 15:32:52 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: David Wuertele <dave-gnus@bfnet.com>
-Subject: Re: how to interactively break gdb debugging kernel over serial?
-Date: Tue, 18 Feb 2003 12:37:29 -0800
-Organization: Berkeley Fluent Network
-Message-ID: <m38ywd72ba.fsf@bfnet.com>
-References: <20030214234557.GC13336@doc.pdx.osdl.net> <m38ywia054.fsf@bfnet.com>
- <3E4F3A40.3090502@mvista.com>
+	id <S268029AbTBRUg1>; Tue, 18 Feb 2003 15:36:27 -0500
+Received: from newpeace.netnation.com ([204.174.223.7]:8579 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S268028AbTBRUg0>; Tue, 18 Feb 2003 15:36:26 -0500
+Date: Tue, 18 Feb 2003 12:46:27 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Robbert Kouprie <robbert@radium.jvb.tudelft.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-pre4] IDE hangs box after timeout
+Message-ID: <20030218204627.GA28379@netnation.com>
+References: <Pine.LNX.4.44.0302181257260.16107-100000@radium.jvb.tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2 (i686-pc-linux-gnu)
-Cancel-Lock: sha1:vXhHcgRjdbO7LaaKarVNjYvOqGk=
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302181257260.16107-100000@radium.jvb.tudelft.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I'm debugging the kernel with gdb over a serial port.  Breakpoints and
->> stepping through code works great, except for the fact that once the
->> kernel is running, I can't seem to use Control-C to stop it.  Is there
->> a keypress or other interactive way to break a running kernel?
->> Thanks,
->> Dave
+On Tue, Feb 18, 2003 at 01:25:40PM +0100, Robbert Kouprie wrote:
 
-george> There are a great number of kgdb patches in the wild.  You
-george> would help us out a lot if you were to name the one you are
-george> using.
+> I encountered the same problem on a system with just one PDC20269, 2
+> drives attached to it, and 2 drives attached onboard. This system has an
+> Enermax 430W power supply, and I would think this was enough for a pentium
+> 3, 3 PCI cards and 4 disks.
+> 
+> Kernels older than 2.4.18 don't have LBA48 support, so would restrict the
+> 20269 in its use. I also encountered the problem with kernel 2.4.17 +
+> Andre Hedrick's IDE patch, though. Also with 2.4.18/19 and various 2.4.20
+> -pre and -ac versions upto 2.4.20-rc1-ac4. Testing 2.4.21-pre4-ac4 now.
+> 
+> > I had to use a number of power splitters which are, of course, cheap
+> > and thus unreliable, and occasionally a few drives will fall off of
+> > the bus.
+> 
+> I don't use power splitters as this power supply has enough connectors.
 
-Here's the output from gdb --version:
+Well, I just threw an Enermax EG465P in there along with a dual 350W
+redundant supply, and I still had to use about four splitters. O:)
+The box has 20 drives and about 10 80mm fans in it, so splitters
+were definitely a problem for me.
 
-GNU gdb Red Hat Linux (5.1.90CVS-5)
-Copyright 2002 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for details.
-This GDB was configured as "i386-redhat-linux".
+> > hda: dma_timer_expiry: dma status == 0x21
+> > hda: timeout waiting for DMA
+> > hda: timeout waiting for DMA
+> > hda: (__ide_dma_test_irq) called while not waiting
+> 
+> I see the exact same message.
 
-Does that help?
+Every time this message occurred, a reboot would show one or more drives
+missing in the BIOS scan.  I would open the case, jiggle some wires,
+reboot again, and the drives would be back.  Since I've replaced the
+supply so that I have many more connectors (and four splitters), it seems
+to now be reliable (though it needs to run a bit longer to be sure).
 
-Thanks,
-Dave
+Anyway, it seemed to me like the problem was triggered by hardware
+issues, but maybe not.  Both cases should be handled gracefully, but
+currently don't seem to be.
 
+Simon-
+
+[        Simon Kirby        ][        Network Operations        ]
+[     sim@netnation.com     ][     NetNation Communications     ]
+[  Opinions expressed are not necessarily those of my employer. ]

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVAUFuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVAUFwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVAUFuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 00:50:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVAUFuP
+	id S262276AbVAUFwi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 00:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVAUFwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 00:50:15 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:31825
+	Fri, 21 Jan 2005 00:52:38 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:35921
 	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262275AbVAUFtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 00:49:17 -0500
-Date: Fri, 21 Jan 2005 06:49:16 +0100
+	id S262276AbVAUFtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 00:49:45 -0500
+Date: Fri, 21 Jan 2005 06:49:45 +0100
 From: Andrea Arcangeli <andrea@suse.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Nick Piggin <npiggin@novell.com>
-Subject: OOM fixes 2/5
-Message-ID: <20050121054916.GB12647@dualathlon.random>
-References: <20050121054840.GA12647@dualathlon.random>
+Subject: OOM fixes 3/5
+Message-ID: <20050121054945.GC12647@dualathlon.random>
+References: <20050121054840.GA12647@dualathlon.random> <20050121054916.GB12647@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050121054840.GA12647@dualathlon.random>
+In-Reply-To: <20050121054916.GB12647@dualathlon.random>
 X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
 X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
@@ -30,349 +30,428 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Andrea Arcangeli <andrea@suse.de>
-Subject: keep balance between different classzones
+Subject: fix several oom killer bugs, most important avoid spurious oom kills
+ badness algorithm tweaked by Thomas Gleixner to deal with fork bombs
 
-This is the forward port to 2.6 of the lowmem_reserved algorithm I
-invented in 2.4.1*, merged in 2.4.2x already and needed to fix workloads
-like google (especially without swap) on x86 with >1G of ram, but it's
-needed in all sort of workloads with lots of ram on x86, it's also
-needed on x86-64 for dma allocations. This brings 2.6 in sync with
-latest 2.4.2x.
+This is the core of the oom-killer fixes I developed partly taking the
+idea from Thomas's patches of getting feedback from the exit path, plus
+I moved the oom killer into page_alloc.c as it should to be able to
+check the watermarks before killing more stuff. This also tweaks the
+badness to take thread bombs more into account (that change to badness
+is from Thomas, from my part I'd rather rewrite badness from scratch
+instead, but that's an orthgonal issue ;). With this applied the oom
+killer is very sane, no more 5 sec waits and suprious oom kills.
 
 Signed-off-by: Andrea Arcangeli <andrea@suse.de>
 
---- mainline-2/include/linux/mmzone.h.orig	2005-01-15 20:45:00.000000000 +0100
-+++ mainline-2/include/linux/mmzone.h	2005-01-21 05:55:28.644869648 +0100
-@@ -112,18 +112,14 @@ struct zone {
- 	unsigned long		free_pages;
- 	unsigned long		pages_min, pages_low, pages_high;
- 	/*
--	 * protection[] is a pre-calculated number of extra pages that must be
--	 * available in a zone in order for __alloc_pages() to allocate memory
--	 * from the zone. i.e., for a GFP_KERNEL alloc of "order" there must
--	 * be "(1<<order) + protection[ZONE_NORMAL]" free pages in the zone
--	 * for us to choose to allocate the page from that zone.
--	 *
--	 * It uses both min_free_kbytes and sysctl_lower_zone_protection.
--	 * The protection values are recalculated if either of these values
--	 * change.  The array elements are in zonelist order:
--	 *	[0] == GFP_DMA, [1] == GFP_KERNEL, [2] == GFP_HIGHMEM.
-+	 * We don't know if the memory that we're going to allocate will be freeable
-+	 * or/and it will be released eventually, so to avoid totally wasting several
-+	 * GB of ram we must reserve some of the lower zone memory (otherwise we risk
-+	 * to run OOM on the lower zones despite there's tons of freeable ram
-+	 * on the higher zones). This array is recalculated at runtime if the
-+	 * sysctl_lowmem_reserve_ratio sysctl changes.
- 	 */
--	unsigned long		protection[MAX_NR_ZONES];
-+	unsigned long		lowmem_reserve[MAX_NR_ZONES];
- 
- 	struct per_cpu_pageset	pageset[NR_CPUS];
- 
-@@ -368,7 +364,8 @@ struct ctl_table;
- struct file;
- int min_free_kbytes_sysctl_handler(struct ctl_table *, int, struct file *, 
- 					void __user *, size_t *, loff_t *);
--int lower_zone_protection_sysctl_handler(struct ctl_table *, int, struct file *,
-+extern int sysctl_lowmem_reserve_ratio[MAX_NR_ZONES-1];
-+int lowmem_reserve_ratio_sysctl_handler(struct ctl_table *, int, struct file *,
- 					void __user *, size_t *, loff_t *);
- 
- #include <linux/topology.h>
---- mainline-2/include/linux/sysctl.h.orig	2005-01-15 20:45:00.000000000 +0100
-+++ mainline-2/include/linux/sysctl.h	2005-01-21 05:55:28.646869344 +0100
-@@ -160,7 +160,7 @@ enum
- 	VM_PAGEBUF=17,		/* struct: Control pagebuf parameters */
- 	VM_HUGETLB_PAGES=18,	/* int: Number of available Huge Pages */
- 	VM_SWAPPINESS=19,	/* Tendency to steal mapped memory */
--	VM_LOWER_ZONE_PROTECTION=20,/* Amount of protection of lower zones */
-+	VM_LOWMEM_RESERVE_RATIO=20,/* reservation ratio for lower memory zones */
- 	VM_MIN_FREE_KBYTES=21,	/* Minimum free kilobytes to maintain */
- 	VM_MAX_MAP_COUNT=22,	/* int: Maximum number of mmaps/address-space */
- 	VM_LAPTOP_MODE=23,	/* vm laptop mode */
---- mainline-2/kernel/sysctl.c.orig	2005-01-15 20:45:00.000000000 +0100
-+++ mainline-2/kernel/sysctl.c	2005-01-21 05:55:28.648869040 +0100
-@@ -61,7 +61,6 @@ extern int core_uses_pid;
- extern char core_pattern[];
- extern int cad_pid;
- extern int pid_max;
--extern int sysctl_lower_zone_protection;
- extern int min_free_kbytes;
- extern int printk_ratelimit_jiffies;
- extern int printk_ratelimit_burst;
-@@ -745,14 +744,13 @@ static ctl_table vm_table[] = {
- 	 },
+--- mainline-2/include/linux/sched.h	2005-01-20 18:27:45.000000000 +0100
++++ mainline-3/include/linux/sched.h	2005-01-21 06:01:08.585190864 +0100
+@@ -615,6 +615,11 @@ struct task_struct {
+ 	struct key *thread_keyring;	/* keyring private to this thread */
  #endif
- 	{
--		.ctl_name	= VM_LOWER_ZONE_PROTECTION,
--		.procname	= "lower_zone_protection",
--		.data		= &sysctl_lower_zone_protection,
--		.maxlen		= sizeof(sysctl_lower_zone_protection),
-+		.ctl_name	= VM_LOWMEM_RESERVE_RATIO,
-+		.procname	= "lowmem_reserve_ratio",
-+		.data		= &sysctl_lowmem_reserve_ratio,
-+		.maxlen		= sizeof(sysctl_lowmem_reserve_ratio),
- 		.mode		= 0644,
--		.proc_handler	= &lower_zone_protection_sysctl_handler,
-+		.proc_handler	= &lowmem_reserve_ratio_sysctl_handler,
- 		.strategy	= &sysctl_intvec,
--		.extra1		= &zero,
- 	},
- 	{
- 		.ctl_name	= VM_MIN_FREE_KBYTES,
---- mainline-2/mm/page_alloc.c.orig	2005-01-15 20:45:00.000000000 +0100
-+++ mainline-2/mm/page_alloc.c	2005-01-21 05:58:53.338751448 +0100
-@@ -44,7 +44,15 @@ struct pglist_data *pgdat_list;
- unsigned long totalram_pages;
- unsigned long totalhigh_pages;
- long nr_swap_pages;
--int sysctl_lower_zone_protection = 0;
-+/*
-+ * results with 256, 32 in the lowmem_reserve sysctl:
-+ *	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
-+ *	1G machine -> (16M dma, 784M normal, 224M high)
-+ *	NORMAL allocation will leave 784M/256 of ram reserved in the ZONE_DMA
-+ *	HIGHMEM allocation will leave 224M/32 of ram reserved in ZONE_NORMAL
-+ *	HIGHMEM allocation will (224M+784M)/256 of ram reserved in ZONE_DMA
-+ */
-+int sysctl_lowmem_reserve_ratio[MAX_NR_ZONES-1] = { 256, 32 };
- 
- EXPORT_SYMBOL(totalram_pages);
- EXPORT_SYMBOL(nr_swap_pages);
-@@ -654,7 +662,7 @@ buffered_rmqueue(struct zone *zone, int 
-  * of the allocation.
-  */
- int zone_watermark_ok(struct zone *z, int order, unsigned long mark,
--		int alloc_type, int can_try_harder, int gfp_high)
-+		      int classzone_idx, int can_try_harder, int gfp_high)
- {
- 	/* free_pages my go negative - that's OK */
- 	long min = mark, free_pages = z->free_pages - (1 << order) + 1;
-@@ -665,7 +673,7 @@ int zone_watermark_ok(struct zone *z, in
- 	if (can_try_harder)
- 		min -= min / 4;
- 
--	if (free_pages <= min + z->protection[alloc_type])
-+	if (free_pages <= min + z->lowmem_reserve[classzone_idx])
- 		return 0;
- 	for (o = 0; o < order; o++) {
- 		/* At the next order, this order's pages become unavailable */
-@@ -682,19 +690,6 @@ int zone_watermark_ok(struct zone *z, in
- 
  /*
-  * This is the 'heart' of the zoned buddy allocator.
-- *
-- * Herein lies the mysterious "incremental min".  That's the
-- *
-- *	local_low = z->pages_low;
-- *	min += local_low;
-- *
-- * thing.  The intent here is to provide additional protection to low zones for
-- * allocation requests which _could_ use higher zones.  So a GFP_HIGHMEM
-- * request is not allowed to dip as deeply into the normal zone as a GFP_KERNEL
-- * request.  This preserves additional space in those lower zones for requests
-- * which really do need memory from those zones.  It means that on a decent
-- * sized machine, GFP_HIGHMEM and GFP_KERNEL requests basically leave the DMA
-- * zone untouched.
++ * All archs should support atomic ops with
++ * 1 byte granularity.
++ */
++	unsigned char memdie;
++/*
+  * Must be changed atomically so it shouldn't be
+  * be a shareable bitflag.
   */
- struct page * fastcall
- __alloc_pages(unsigned int gfp_mask, unsigned int order,
-@@ -706,7 +701,7 @@ __alloc_pages(unsigned int gfp_mask, uns
- 	struct reclaim_state reclaim_state;
- 	struct task_struct *p = current;
- 	int i;
--	int alloc_type;
-+	int classzone_idx;
- 	int do_retry;
- 	int can_try_harder;
+@@ -736,8 +741,7 @@ do { if (atomic_dec_and_test(&(tsk)->usa
+ #define PF_DUMPCORE	0x00000200	/* dumped core */
+ #define PF_SIGNALED	0x00000400	/* killed by a signal */
+ #define PF_MEMALLOC	0x00000800	/* Allocating memory */
+-#define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
+-#define PF_FLUSHER	0x00002000	/* responsible for disk writeback */
++#define PF_FLUSHER	0x00001000	/* responsible for disk writeback */
  
-@@ -726,13 +721,13 @@ __alloc_pages(unsigned int gfp_mask, uns
+ #define PF_FREEZE	0x00004000	/* this task is being frozen for suspend now */
+ #define PF_NOFREEZE	0x00008000	/* this thread should not be frozen */
+--- mainline-2/mm/oom_kill.c	2005-01-20 18:26:30.000000000 +0100
++++ mainline-3/mm/oom_kill.c	2005-01-21 06:14:00.290873768 +0100
+@@ -45,18 +45,30 @@
+ unsigned long badness(struct task_struct *p, unsigned long uptime)
+ {
+ 	unsigned long points, cpu_time, run_time, s;
++	struct list_head *tsk;
+ 
+ 	if (!p->mm)
+ 		return 0;
+ 
+-	if (p->flags & PF_MEMDIE)
+-		return 0;
+ 	/*
+ 	 * The memory size of the process is the basis for the badness.
+ 	 */
+ 	points = p->mm->total_vm;
+ 
+ 	/*
++	 * Processes which fork a lot of child processes are likely 
++	 * a good choice. We add the vmsize of the childs if they
++	 * have an own mm. This prevents forking servers to flood the
++	 * machine with an endless amount of childs
++	 */
++	list_for_each(tsk, &p->children) {
++		struct task_struct *chld;
++		chld = list_entry(tsk, struct task_struct, sibling);
++		if (chld->mm != p->mm && chld->mm)
++			points += chld->mm->total_vm;
++	}
++
++	/*
+ 	 * CPU time is in tens of seconds and run time is in thousands
+          * of seconds. There is no particular reason for this other than
+          * that it turned out to work very well in practice.
+@@ -132,14 +144,24 @@ static struct task_struct * select_bad_p
+ 
+ 	do_posix_clock_monotonic_gettime(&uptime);
+ 	do_each_thread(g, p)
+-		if (p->pid) {
+-			unsigned long points = badness(p, uptime.tv_sec);
+-			if (points > maxpoints) {
++		/* skip the init task with pid == 1 */
++		if (p->pid > 1) {
++			unsigned long points;
++
++			/*
++			 * This is in the process of releasing memory so wait it
++			 * to finish before killing some other task by mistake.
++			 */
++			if ((p->memdie || (p->flags & PF_EXITING)) && !(p->flags & PF_DEAD))
++				return ERR_PTR(-1UL);
++			if (p->flags & PF_SWAPOFF)
++				return p;
++
++			points = badness(p, uptime.tv_sec);
++			if (points > maxpoints || !chosen) {
+ 				chosen = p;
+ 				maxpoints = points;
+ 			}
+-			if (p->flags & PF_SWAPOFF)
+-				return p;
+ 		}
+ 	while_each_thread(g, p);
+ 	return chosen;
+@@ -152,6 +174,12 @@ static struct task_struct * select_bad_p
+  */
+ static void __oom_kill_task(task_t *p)
+ {
++	if (p->pid == 1) {
++		WARN_ON(1);
++		printk(KERN_WARNING "tried to kill init!\n");
++		return;
++	}
++
+ 	task_lock(p);
+ 	if (!p->mm || p->mm == &init_mm) {
+ 		WARN_ON(1);
+@@ -168,7 +196,7 @@ static void __oom_kill_task(task_t *p)
+ 	 * exit() and clear out its resources quickly...
+ 	 */
+ 	p->time_slice = HZ;
+-	p->flags |= PF_MEMALLOC | PF_MEMDIE;
++	p->memdie = 1;
+ 
+ 	/* This process has hardware access, be more careful. */
+ 	if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO)) {
+@@ -181,12 +209,45 @@ static void __oom_kill_task(task_t *p)
+ static struct mm_struct *oom_kill_task(task_t *p)
+ {
+ 	struct mm_struct *mm = get_task_mm(p);
+-	if (!mm || mm == &init_mm)
++	task_t * g, * q;
++
++	if (!mm)
  		return NULL;
++	if (mm == &init_mm) {
++		mmput(mm);
++		return NULL;
++	}
++
+ 	__oom_kill_task(p);
++	/*
++	 * kill all processes that share the ->mm (i.e. all threads),
++	 * but are in a different thread group
++	 */
++	do_each_thread(g, q)
++		if (q->mm == mm && q->tgid != p->tgid)
++			__oom_kill_task(q);
++	while_each_thread(g, q);
++
+ 	return mm;
+ }
+ 
++static struct mm_struct *oom_kill_process(task_t *p)
++{
++ 	struct mm_struct *mm;
++	struct task_struct *c;
++	struct list_head *tsk;
++
++	/* Try to kill a child first */
++	list_for_each(tsk, &p->children) {
++		c = list_entry(tsk, struct task_struct, sibling);
++		if (c->mm == p->mm)
++			continue;
++		mm = oom_kill_task(c);
++		if (mm)
++			return mm;
++	}
++	return oom_kill_task(p);
++}
+ 
+ /**
+  * oom_kill - kill the "best" process when we run out of memory
+@@ -196,117 +257,40 @@ static struct mm_struct *oom_kill_task(t
+  * OR try to be smart about which process to kill. Note that we
+  * don't have to be perfect here, we just have to be good.
+  */
+-static void oom_kill(void)
++void out_of_memory(int gfp_mask)
+ {
+-	struct mm_struct *mm;
+-	struct task_struct *g, *p, *q;
+-	
++	struct mm_struct *mm = NULL;
++	task_t * p;
++
+ 	read_lock(&tasklist_lock);
+ retry:
+ 	p = select_bad_process();
+ 
++	if (PTR_ERR(p) == -1UL)
++		goto out;
++
+ 	/* Found nothing?!?! Either we hang forever, or we panic. */
+ 	if (!p) {
++		read_unlock(&tasklist_lock);
+ 		show_free_areas();
+ 		panic("Out of memory and no killable processes...\n");
  	}
  
--	alloc_type = zone_idx(zones[0]);
-+	classzone_idx = zone_idx(zones[0]);
+-	mm = oom_kill_task(p);
+-	if (!mm)
+-		goto retry;
+-	/*
+-	 * kill all processes that share the ->mm (i.e. all threads),
+-	 * but are in a different thread group
+-	 */
+-	do_each_thread(g, q)
+-		if (q->mm == mm && q->tgid != p->tgid)
+-			__oom_kill_task(q);
+-	while_each_thread(g, q);
+-	if (!p->mm)
+-		printk(KERN_INFO "Fixed up OOM kill of mm-less task\n");
+-	read_unlock(&tasklist_lock);
+-	mmput(mm);
+-
+-	/*
+-	 * Make kswapd go out of the way, so "p" has a good chance of
+-	 * killing itself before someone else gets the chance to ask
+-	 * for more memory.
+-	 */
+-	yield();
+-	return;
+-}
+-
+-/**
+- * out_of_memory - is the system out of memory?
+- */
+-void out_of_memory(int gfp_mask)
+-{
+-	/*
+-	 * oom_lock protects out_of_memory()'s static variables.
+-	 * It's a global lock; this is not performance-critical.
+-	 */
+-	static DEFINE_SPINLOCK(oom_lock);
+-	static unsigned long first, last, count, lastkill;
+-	unsigned long now, since;
+-
+-	spin_lock(&oom_lock);
+-	now = jiffies;
+-	since = now - last;
+-	last = now;
+-
+-	/*
+-	 * If it's been a long time since last failure,
+-	 * we're not oom.
+-	 */
+-	if (since > 5*HZ)
+-		goto reset;
+-
+-	/*
+-	 * If we haven't tried for at least one second,
+-	 * we're not really oom.
+-	 */
+-	since = now - first;
+-	if (since < HZ)
+-		goto out_unlock;
+-
+-	/*
+-	 * If we have gotten only a few failures,
+-	 * we're not really oom. 
+-	 */
+-	if (++count < 10)
+-		goto out_unlock;
+-
+-	/*
+-	 * If we just killed a process, wait a while
+-	 * to give that task a chance to exit. This
+-	 * avoids killing multiple processes needlessly.
+-	 */
+-	since = now - lastkill;
+-	if (since < HZ*5)
+-		goto out_unlock;
+-
+-	/*
+-	 * Ok, really out of memory. Kill something.
+-	 */
+-	lastkill = now;
+-
+ 	printk("oom-killer: gfp_mask=0x%x\n", gfp_mask);
+ 	show_free_areas();
++	mm = oom_kill_process(p);
++	if (!mm)
++		goto retry;
  
+-	/* oom_kill() sleeps */
+-	spin_unlock(&oom_lock);
+-	oom_kill();
+-	spin_lock(&oom_lock);
++ out:
++	read_unlock(&tasklist_lock);
++	if (mm)
++		mmput(mm);
+ 
+-reset:
+ 	/*
+-	 * We dropped the lock above, so check to be sure the variable
+-	 * first only ever increases to prevent false OOM's.
++	 * Give "p" a good chance of killing itself before we
++	 * retry to allocate memory.
+ 	 */
+-	if (time_after(now, first))
+-		first = now;
+-	count = 0;
+-
+-out_unlock:
+-	spin_unlock(&oom_lock);
++	__set_current_state(TASK_INTERRUPTIBLE);
++	schedule_timeout(1);
+ }
+--- mainline-2/mm/page_alloc.c	2005-01-21 05:58:53.338751448 +0100
++++ mainline-3/mm/page_alloc.c	2005-01-21 06:09:43.068977440 +0100
+@@ -704,6 +704,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 	int classzone_idx;
+ 	int do_retry;
+ 	int can_try_harder;
++	int did_some_progress;
+ 
+ 	might_sleep_if(wait);
+ 
+@@ -723,6 +724,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 
+ 	classzone_idx = zone_idx(zones[0]);
+ 
++ restart:
  	/* Go through the zonelist once, looking for a zone with enough free */
  	for (i = 0; (z = zones[i]) != NULL; i++) {
  
- 		if (!zone_watermark_ok(z, order, z->pages_low,
--				alloc_type, 0, 0))
-+				       classzone_idx, 0, 0))
- 			continue;
- 
- 		page = buffered_rmqueue(z, order, gfp_mask);
-@@ -749,8 +744,8 @@ __alloc_pages(unsigned int gfp_mask, uns
- 	 */
- 	for (i = 0; (z = zones[i]) != NULL; i++) {
- 		if (!zone_watermark_ok(z, order, z->pages_min,
--				alloc_type, can_try_harder,
--				gfp_mask & __GFP_HIGH))
-+				       classzone_idx, can_try_harder,
-+				       gfp_mask & __GFP_HIGH))
- 			continue;
- 
- 		page = buffered_rmqueue(z, order, gfp_mask);
-@@ -787,8 +782,8 @@ rebalance:
- 	/* go through the zonelist yet one more time */
- 	for (i = 0; (z = zones[i]) != NULL; i++) {
- 		if (!zone_watermark_ok(z, order, z->pages_min,
--				alloc_type, can_try_harder,
--				gfp_mask & __GFP_HIGH))
-+				       classzone_idx, can_try_harder,
-+				       gfp_mask & __GFP_HIGH))
- 			continue;
- 
- 		page = buffered_rmqueue(z, order, gfp_mask);
-@@ -1198,9 +1193,9 @@ void show_free_areas(void)
- 			zone->pages_scanned,
- 			(zone->all_unreclaimable ? "yes" : "no")
- 			);
--		printk("protections[]:");
-+		printk("lowmem_reserve[]:");
- 		for (i = 0; i < MAX_NR_ZONES; i++)
--			printk(" %lu", zone->protection[i]);
-+			printk(" %lu", zone->lowmem_reserve[i]);
- 		printk("\n");
+@@ -754,7 +756,7 @@ __alloc_pages(unsigned int gfp_mask, uns
  	}
  
-@@ -1872,87 +1867,29 @@ void __init page_alloc_init(void)
- 	hotcpu_notifier(page_alloc_cpu_notify, 0);
- }
+ 	/* This allocation should allow future memory freeing. */
+-	if ((p->flags & (PF_MEMALLOC | PF_MEMDIE)) && !in_interrupt()) {
++	if (((p->flags & PF_MEMALLOC) || p->memdie) && !in_interrupt()) {
+ 		/* go through the zonelist yet again, ignoring mins */
+ 		for (i = 0; (z = zones[i]) != NULL; i++) {
+ 			page = buffered_rmqueue(z, order, gfp_mask);
+@@ -769,26 +771,56 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 		goto nopage;
  
--static unsigned long higherzone_val(struct zone *z, int max_zone,
--					int alloc_type)
--{
--	int z_idx = zone_idx(z);
--	struct zone *higherzone;
--	unsigned long pages;
--
--	/* there is no higher zone to get a contribution from */
--	if (z_idx == MAX_NR_ZONES-1)
--		return 0;
--
--	higherzone = &z->zone_pgdat->node_zones[z_idx+1];
--
--	/* We always start with the higher zone's protection value */
--	pages = higherzone->protection[alloc_type];
--
--	/*
--	 * We get a lower-zone-protection contribution only if there are
--	 * pages in the higher zone and if we're not the highest zone
--	 * in the current zonelist.  e.g., never happens for GFP_DMA. Happens
--	 * only for ZONE_DMA in a GFP_KERNEL allocation and happens for ZONE_DMA
--	 * and ZONE_NORMAL for a GFP_HIGHMEM allocation.
--	 */
--	if (higherzone->present_pages && z_idx < alloc_type)
--		pages += higherzone->pages_low * sysctl_lower_zone_protection;
--
--	return pages;
--}
--
- /*
-- * setup_per_zone_protection - called whenver min_free_kbytes or
-- *	sysctl_lower_zone_protection changes.  Ensures that each zone
-- *	has a correct pages_protected value, so an adequate number of
-+ * setup_per_zone_lowmem_reserve - called whenever
-+ *	sysctl_lower_zone_reserve_ratio changes.  Ensures that each zone
-+ *	has a correct pages reserved value, so an adequate number of
-  *	pages are left in the zone after a successful __alloc_pages().
-- *
-- *	This algorithm is way confusing.  I tries to keep the same behavior
-- *	as we had with the incremental min iterative algorithm.
-  */
--static void setup_per_zone_protection(void)
-+static void setup_per_zone_lowmem_reserve(void)
- {
- 	struct pglist_data *pgdat;
--	struct zone *zones, *zone;
--	int max_zone;
--	int i, j;
-+	int j, idx;
+ rebalance:
++	cond_resched();
++
+ 	/* We now go into synchronous reclaim */
+ 	p->flags |= PF_MEMALLOC;
+ 	reclaim_state.reclaimed_slab = 0;
+ 	p->reclaim_state = &reclaim_state;
  
- 	for_each_pgdat(pgdat) {
--		zones = pgdat->node_zones;
-+		for (j = 0; j < MAX_NR_ZONES; j++) {
-+			struct zone * zone = pgdat->node_zones + j;
-+			unsigned long present_pages = zone->present_pages;
+-	try_to_free_pages(zones, gfp_mask, order);
++	did_some_progress = try_to_free_pages(zones, gfp_mask, order);
  
--		for (i = 0, max_zone = 0; i < MAX_NR_ZONES; i++)
--			if (zones[i].present_pages)
--				max_zone = i;
-+			zone->lowmem_reserve[j] = 0;
+ 	p->reclaim_state = NULL;
+ 	p->flags &= ~PF_MEMALLOC;
  
--		/*
--		 * For each of the different allocation types:
--		 * GFP_DMA -> GFP_KERNEL -> GFP_HIGHMEM
--		 */
--		for (i = 0; i < GFP_ZONETYPES; i++) {
--			/*
--			 * For each of the zones:
--			 * ZONE_HIGHMEM -> ZONE_NORMAL -> ZONE_DMA
--			 */
--			for (j = MAX_NR_ZONES-1; j >= 0; j--) {
--				zone = &zones[j];
-+			for (idx = j-1; idx >= 0; idx--) {
-+				struct zone * lower_zone = pgdat->node_zones + idx;
+-	/* go through the zonelist yet one more time */
+-	for (i = 0; (z = zones[i]) != NULL; i++) {
+-		if (!zone_watermark_ok(z, order, z->pages_min,
+-				       classzone_idx, can_try_harder,
+-				       gfp_mask & __GFP_HIGH))
+-			continue;
++	cond_resched();
  
--				/*
--				 * We never protect zones that don't have memory
--				 * in them (j>max_zone) or zones that aren't in
--				 * the zonelists for a certain type of
--				 * allocation (j>=i).  We have to assign these
--				 * to zero because the lower zones take
--				 * contributions from the higher zones.
--				 */
--				if (j > max_zone || j >= i) {
--					zone->protection[i] = 0;
--					continue;
--				}
--				/*
--				 * The contribution of the next higher zone
--				 */
--				zone->protection[i] = higherzone_val(zone,
--								max_zone, i);
-+				lower_zone->lowmem_reserve[j] = present_pages / sysctl_lowmem_reserve_ratio[idx];
-+				present_pages += lower_zone->present_pages;
- 			}
- 		}
+-		page = buffered_rmqueue(z, order, gfp_mask);
+-		if (page)
+-			goto got_pg;
++	if (likely(did_some_progress)) {
++		/*
++		 * Go through the zonelist yet one more time, keep
++		 * very high watermark here, this is only to catch
++		 * a parallel oom killing, we must fail if we're still
++		 * under heavy pressure.
++		 */
++		for (i = 0; (z = zones[i]) != NULL; i++) {
++			if (!zone_watermark_ok(z, order, z->pages_min,
++					       classzone_idx, can_try_harder,
++					       gfp_mask & __GFP_HIGH))
++				continue;
++
++			page = buffered_rmqueue(z, order, gfp_mask);
++			if (page)
++				goto got_pg;
++		}
++	} else if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY)) {
++		/*
++		 * Go through the zonelist yet one more time, keep
++		 * very high watermark here, this is only to catch
++		 * a parallel oom killing, we must fail if we're still
++		 * under heavy pressure.
++		 */
++		for (i = 0; (z = zones[i]) != NULL; i++) {
++			if (!zone_watermark_ok(z, order, z->pages_high,
++					       classzone_idx, 0, 0))
++				continue;
++
++			page = buffered_rmqueue(z, order, gfp_mask);
++			if (page)
++				goto got_pg;
++		}
++
++		out_of_memory(gfp_mask);
++		goto restart;
  	}
-@@ -2047,7 +1984,7 @@ static int __init init_per_zone_pages_mi
- 	if (min_free_kbytes > 65536)
- 		min_free_kbytes = 65536;
- 	setup_per_zone_pages_min();
--	setup_per_zone_protection();
-+	setup_per_zone_lowmem_reserve();
- 	return 0;
- }
- module_init(init_per_zone_pages_min)
-@@ -2062,20 +1999,23 @@ int min_free_kbytes_sysctl_handler(ctl_t
- {
- 	proc_dointvec(table, write, file, buffer, length, ppos);
- 	setup_per_zone_pages_min();
--	setup_per_zone_protection();
- 	return 0;
+ 
+ 	/*
+--- mainline-2/mm/swap_state.c	2005-01-04 01:13:30.000000000 +0100
++++ mainline-3/mm/swap_state.c	2005-01-21 06:01:11.181796120 +0100
+@@ -59,6 +59,8 @@ void show_swap_cache_info(void)
+ 		swap_cache_info.add_total, swap_cache_info.del_total,
+ 		swap_cache_info.find_success, swap_cache_info.find_total,
+ 		swap_cache_info.noent_race, swap_cache_info.exist_race);
++	printk("Free swap  = %lukB\n", nr_swap_pages << (PAGE_SHIFT - 10));
++	printk("Total swap = %lukB\n", total_swap_pages << (PAGE_SHIFT - 10));
  }
  
  /*
-- * lower_zone_protection_sysctl_handler - just a wrapper around
-- *	proc_dointvec() so that we can call setup_per_zone_protection()
-- *	whenever sysctl_lower_zone_protection changes.
-+ * lowmem_reserve_ratio_sysctl_handler - just a wrapper around
-+ *	proc_dointvec() so that we can call setup_per_zone_lowmem_reserve()
-+ *	whenever sysctl_lowmem_reserve_ratio changes.
-+ *
-+ * The reserve ratio obviously has absolutely no relation with the
-+ * pages_min watermarks. The lowmem reserve ratio can only make sense
-+ * if in function of the boot time zone sizes.
-  */
--int lower_zone_protection_sysctl_handler(ctl_table *table, int write,
-+int lowmem_reserve_ratio_sysctl_handler(ctl_table *table, int write,
- 		 struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
- {
- 	proc_dointvec_minmax(table, write, file, buffer, length, ppos);
--	setup_per_zone_protection();
-+	setup_per_zone_lowmem_reserve();
- 	return 0;
- }
- 
+--- mainline-2/mm/vmscan.c	2005-01-20 18:20:10.000000000 +0100
++++ mainline-3/mm/vmscan.c	2005-01-21 06:01:11.189794904 +0100
+@@ -937,8 +937,6 @@ int try_to_free_pages(struct zone **zone
+ 		if (sc.nr_scanned && priority < DEF_PRIORITY - 2)
+ 			blk_congestion_wait(WRITE, HZ/10);
+ 	}
+-	if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY))
+-		out_of_memory(gfp_mask);
+ out:
+ 	for (i = 0; zones[i] != 0; i++)
+ 		zones[i]->prev_priority = zones[i]->temp_priority;

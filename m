@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUG1VX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUG1V0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbUG1VX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUG1VXH
+	id S264717AbUG1V0H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 17:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUG1VYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:23:07 -0400
-Received: from opersys.com ([64.40.108.71]:20996 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S264097AbUG1VWV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:22:21 -0400
-Message-ID: <41081771.1010307@opersys.com>
-Date: Wed, 28 Jul 2004 17:15:29 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Scott Wood <scott@timesys.com>, Ingo Molnar <mingo@elte.hu>,
+	Wed, 28 Jul 2004 17:24:15 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:26131 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S264097AbUG1VXX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 17:23:23 -0400
+Date: Wed, 28 Jul 2004 14:23:14 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Scott Wood <scott@timesys.com>, linux-kernel@vger.kernel.org,
        "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Manas Saksena <manas.saksena@timesys.com>,
-       Philippe Gerum <rpm@xenomai.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
+       Manas Saksena <manas.saksena@timesys.com>, Bill Huey <bhuey@lnxw.com>
 Subject: Re: [patch] IRQ threads
-References: <20040727225040.GA4370@yoda.timesys>	 <4107CA18.4060204@opersys.com> <1091039327.747.26.camel@mindpipe>	 <4107FA93.3030801@opersys.com> <1091043218.766.10.camel@mindpipe>	 <41080540.9040401@opersys.com> <1091046954.791.27.camel@mindpipe>
-In-Reply-To: <1091046954.791.27.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040728212314.GB7167@nietzsche.lynx.com>
+References: <20040727225040.GA4370@yoda.timesys> <20040728062722.GA15283@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728062722.GA15283@elte.hu>
+User-Agent: Mutt/1.5.6+20040722i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Lee Revell wrote:
-> No, of course not.  But please be more specific than 'everything I've
-> seen from TimeSys is crap, I have talked to some of their clients who
-> had $FOO problem'.  Your complaint was so general as to not be
-> refutable.
-
-I didn't say their stuff was crap. I said that "__My__ experience with
-clients ...". IOW, I'm talking about cases where I was called on by
-customers of mine who were using "stuff" (i.e. threaded int handlers
-and mutexed-locks), and in practice I have found that the only entity
-who could service this was the one that provided my clients with said
-kernel. And from my point of view, this is indeed "abysmal" because
-the whole point of using Linux is to be able to service your car at
-any retailer.
-
-You are correct in stating that the lack of details made the argument
-hard to defend against, but I had a very nasty choice in writing this:
-a) Either give enough detail, in which case my clients' confidentiality
-would be in question.
-b) Or shut up and let this go unanswered on the LKML.
-
-> I could not agree more.  Your original post had a strong ad hominem
-> flavor, which was my objection.  Of course you are free to attack
-> anything at any time, on its technical merits, this is what engineers
-> do.
+On Wed, Jul 28, 2004 at 08:27:22AM +0200, Ingo Molnar wrote:
+> this is an incorrect change, just grep for in_interrupt() in
+> linux/drivers/ ...
 > 
-> I am interested in RT as well, I did not mean to imply that I don't find
-> it a valid topic for discussion on LKML, but you have to admit that your
-> post bordered on a troll.
+> I agree with the concept of using multiple threads for interrupts - i'll
+> add that to the voluntary-preempt patch too. This is an essential
+> feature to prioritize interrupts.
 
-I can see that it could be intrepreted as such. But keep in mind that I
-was replying to Scott's _public_ posting of TimeSys' patch. IOW, there's
-no way that I could claim that there would be lock-in in the future if
-the patch did indeed make it in the kernel. The past tense was used on
-purpose, and TimeSys have been very up-front about their intent of
-getting this into the mainline.
+That way I picture the problem permits those threads to migration across
+CPUs and therefore kill interrupt performance from cache thrashing. Do
+you have a solution for that ? I like the way you're doing it now with
+irqd() in that it's CPU-local, but as you know it's not priority sensitive.
+ 
+> what do you think about making the i8259A's interrupt priorities
+> configurable? (a'la rtirq patch) Does it make any sense, given how early
+> we mask the source irq and ack the interrupt controller [hence giving
+> all other interrupts a fair chance to arrive ASAP]?
+> 
+> Bernhard Kuhn's rtirq patch is for IO-APIC/APICs, but i think the
+> latency issues could be equally well fixed by not keeping the local APIC
+> un-ACK-ed during level triggered irqs, but doing the mask & ack thing.
+> This will be slightly slower but should make them both redirectable and
+> more symmetric and fair.
 
-My real argument was best summarized in the second paragraph, and what
-I'm saying is that these approaches make the kernel's dynamic behavior
-extremely complicated. And while they do contribute to making the
-kernel's response time faster, they do not provided hard-rt, which is
-what everyone is trying to get in the end anyway (either intentionally
-or unintentionally.)
+I think it's pretty complementary to what's going on, but it's also driven
+by application demand, how it could possibly hook into the scheduler or
+something else like that. There isn't a clear precedence for how to use
+something like this potentially. LynxOS doesn't have priorities above
+interrupt priorities, that mask interrupts somehow, but are folks that need
+that kind of stuff and could certainly be added in a relatively trivial
+manner.
 
-With that, let me respond to Bill's discussion on signle vs. N kernels
-as that thread is the most likely to be fruitfull. I hope you'll agree.
+My answer would be something like yes it's needed, but not now.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+bill
 

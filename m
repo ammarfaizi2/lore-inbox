@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272575AbTHBKxb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 06:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272572AbTHBKxb
+	id S272570AbTHBK7R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 06:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272572AbTHBK7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 06:53:31 -0400
-Received: from us02smtp1.synopsys.com ([198.182.60.75]:38340 "EHLO
-	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S272575AbTHBKxa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 06:53:30 -0400
-Message-ID: <3F2B9823.7010503@Synopsys.COM>
-Date: Sat, 02 Aug 2003 12:53:23 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2: crash in reiserfs at shutdown
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 2 Aug 2003 06:59:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51941 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272570AbTHBK7Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 06:59:16 -0400
+Date: Sat, 2 Aug 2003 04:00:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [1/2] random: SMP locking
+Message-Id: <20030802040015.0fcafda2.akpm@osdl.org>
+In-Reply-To: <20030802042445.GD22824@waste.org>
+References: <20030802042445.GD22824@waste.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Oliver Xymoron <oxymoron@waste.org> wrote:
+>
+> This patch adds locking for SMP. Apparently Willy never managed to
+> revive his laptop with his version so I revived mine.
 
-I get a reproducable system crash in reiserfs at shutdown
-time, when my external USB disk is going to be unmounted.
+hrm.  I'm a random ignoramus.   I'll look it over...
 
-Final words are
+Are you really sure that all the decisions about where to use spin_lock()
+vs spin_lock_irq() vs spin_lock_irqsave() are correct?  They are
+non-obvious.
 
-	kernel BUG at fs/reiserfs/prints.c: 339
+> @@ -1619,18 +1660,23 @@
+>  		if (!capable(CAP_SYS_ADMIN))
+>  			return -EPERM;
+>  		p = (int *) arg;
+> +		spin_lock(&random_state->lock);
+>  		ent_count = random_state->entropy_count;
+>  		if (put_user(ent_count, p++) ||
+>  		    get_user(size, p) ||
+>  		    put_user(random_state->poolinfo.poolwords, p++))
 
-plus a lot of more lines. If I umount the disk at normal
-runtime, then there is no problem.
-
-I would be glad to help to get this fixed, but before I
-manually write down all the other lines: Is anybody
-interested in this? Or is this a well known problem?
-
-
-Regards
-
-Harri
+Cannot perform userspace access while holding a lock - a pagefault could
+occur, perform IO, schedule away and the same CPU tries to take the same
+lock via a different process.
 

@@ -1,27 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUJYV3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbUJYPOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbUJYV3N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUJYV0X
+	id S261892AbUJYPOm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUJYPNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:26:23 -0400
-Received: from whale.slt.lk ([203.115.0.14]:29684 "EHLO whale.slt.lk")
-	by vger.kernel.org with ESMTP id S262117AbUJYVV4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:21:56 -0400
-Date: Tue, 26 Oct 2004 03:16:15 +0600 (GMT)
-Message-Id: <200410252116.i9PLGFc0022620@whale.slt.lk>
-From: "Lori Hopper" <savoringcounterflow@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: IS EVERYTH||NG OK? 
+	Mon, 25 Oct 2004 11:13:44 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:54540 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261892AbUJYO7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 10:59:24 -0400
+Date: Mon, 25 Oct 2004 15:59:17 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mike Waychison <michael.waychison@sun.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Subject: Re: [PATCH 3/28] VFS: Move expiry into vfs
+Message-ID: <20041025145917.GA1492@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mike Waychison <michael.waychison@sun.com>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	raven@themaw.net
+References: <10987151702831@sun.com> <10987152003432@sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <10987152003432@sun.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://Vl|aggar_C0O000de|ne_____.......and___mO0O00re
-http://VI1aggar_C0O0O0delne_Xana|x_.......and___m00O0Ore
-http://V|Iaggar_C000O0de1ne_Xanalx_Va1|um_.......and___mO000Ore
+On Mon, Oct 25, 2004 at 10:40:00AM -0400, Mike Waychison wrote:
+> This patch moves the recently added expiry functionality directly into the
+> VFS layer.  Doing this gives us a couple advantages:
+> 
+>   - Allows for configurable timeouts using a single consolidated timer
+>   - Keeps filesystems from having to each implement their own expiry logic
+>   - Provides a generic interface that can be used for _any_ filesystem, as
+>     desired by user applications and/or the system admninistrator.
+> 
+> This patch implements expiry by having the VFS recursively register work to
+> do.  Checks are done for expiry every 1 second, so expiry is configurable to
+> that granularity.
 
-PlEASE CI|CK HERE http://asheville.tellbb.com/as#sauerkraut
+The expiry timer should only run as long as there are filesystems registered
+for expiry.
+

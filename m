@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279142AbRJWA3G>; Mon, 22 Oct 2001 20:29:06 -0400
+	id <S279152AbRJWAjQ>; Mon, 22 Oct 2001 20:39:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279143AbRJWA25>; Mon, 22 Oct 2001 20:28:57 -0400
-Received: from air-1.osdl.org ([65.201.151.5]:33548 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S279142AbRJWA2k>;
-	Mon, 22 Oct 2001 20:28:40 -0400
-Date: Mon, 22 Oct 2001 17:29:04 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@osdlab.pdx.osdl.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pavel Machek <pavel@Elf.ucw.cz>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] New Driver Model for 2.5
-In-Reply-To: <E15vpU0-00045L-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110221726140.25103-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279153AbRJWAjG>; Mon, 22 Oct 2001 20:39:06 -0400
+Received: from [194.252.70.162] ([194.252.70.162]:61446 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S279152AbRJWAi7>;
+	Mon, 22 Oct 2001 20:38:59 -0400
+Date: Tue, 23 Oct 2001 03:38:47 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: government/politics/whatever discussions
+Message-ID: <20011023033847.I24643@mea-ext.zmailer.org>
+In-Reply-To: <3BD48CF5.FF5C4688@idcomm.com> <Pine.LNX.4.33.0110230203320.31211-100000@Expansa.sns.it> <20011022.172042.88473549.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011022.172042.88473549.davem@redhat.com>; from davem@redhat.com on Mon, Oct 22, 2001 at 05:20:42PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 22, 2001 at 05:20:42PM -0700, David S. Miller wrote:
+....
+> I'm asking everyone nicely to abide by this request.  Matti and I
+> really don't want to have to be assholes and start black holing people
+> who can't keep their postings on-topic.
 
-On Tue, 23 Oct 2001, Alan Cox wrote:
+     Blocking some discussion topic (Subject substring) is the ultimate
+     penalty I am willing to impose -- and have imposed couple times
+     over the years.
 
-> > 	/* Now tell them to stop I/O and save their state */
-> > 	device_suspend(3, SUSPEND_SAVE_STATE);
->
-> I'd very much like this one to be two pass, with the second pass occuring
-> after interrupts are disabled. There are some horrible cases to try and
-> handle otherwise (like devices that like to jam the irq line high).
+     Folks,   while DaveM and myself are hard to tempt to be censors,
+     even that can happen...   Please, don't tempt us.
 
-I forgot to mention to disable interrupts after the SUSPEND_NOTIFY call.
-The idea is to allocate all memory in the first pass, disable interrupts,
-then save state. Would that work? Or, should some of the state saving take
-place with interrupts enabled?
+> Franks a lot,
+> David S. Miller
+> davem@redhat.com
 
-
-> Ditto on return from suspend where some devices also like to float the irq
-> high as you take them over (eg USB on my Palmax). From comments Ben made
-> ages back I believe ppc has similar issues if not worse
-
-Yes, the resume sequence is broken into two stages:
-
-	device_resume(RESUME_POWER_ON);
-
-	/* enable interrupts */
-
-	device_resume(RESUME_RESTORE_STATE);
-
-Do you see a need to break it up further?
-
-	-pat
-
-
+/Matti Aarnio

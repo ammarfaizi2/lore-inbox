@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUHCIMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUHCIVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUHCIMp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 04:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHCIMp
+	id S263815AbUHCIVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 04:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUHCIVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 04:12:45 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:18670 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S265230AbUHCIMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 04:12:34 -0400
-Date: Tue, 3 Aug 2004 10:11:34 +0200
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] 2.6.8-rc2-mm2 with usb and input problems
-Message-ID: <20040803081134.GA13745@gamma.logic.tuwien.ac.at>
-References: <20040802162845.GA24725@gamma.logic.tuwien.ac.at> <200408021003.42090.david-b@pacbell.net> <20040802171325.GA26949@gamma.logic.tuwien.ac.at>
+	Tue, 3 Aug 2004 04:21:12 -0400
+Received: from adsl-68-95-0-242.dsl.rcsntx.swbell.net ([68.95.0.242]:58241
+	"EHLO arion.soze.net") by vger.kernel.org with ESMTP
+	id S263815AbUHCIVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 04:21:11 -0400
+Date: Tue, 3 Aug 2004 08:21:00 +0000
+From: Justin Guyett <justin@soze.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Hibbard.Smith@nasdaq.com
+Subject: Re: 2.6 mainline i2o issues with adaptec raid
+Message-ID: <20040803082100.GA2818@arion.soze.net>
+References: <20040803050223.GB2295@arion.soze.net> <20040802230931.04c0769d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040802171325.GA26949@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+In-Reply-To: <20040802230931.04c0769d.akpm@osdl.org>
+X-PGP-Fingerprint: 9AE2 9FC3 D98B 9AE2 EE83  15CC 9C7D 1925 4568 5243
+X-Hashcash: 0:040803:akpm@osdl.org:8c3078ed707dc95bf8cda216
+X-Hashcash: 0:040803:linux-kernel@vger.kernel.org:adb1dbc347d225785501e1d8
+X-Hashcash: 0:040803:hibbard.smith@nasdaq.com:c2c945d3b8296a564469669a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David, hi lists!
+On 2004-08-02T23:09:31-0700, Andrew Morton wrote:
+> Justin Guyett <justin-lkml@soze.net> wrote:
+> >
+> >  I just started toying with an adaptec i2o card, an Adaptec 2110s, and
+> >  for random reads and writes bonnie++ shows that the i2o driver is
+> >  somewhat slower than the dpt_i2o driver.
+> 
+> By reading your .config I was able to divine that you're running some 2.6
+> kernel ;)
 
-(Taking Andrew and Dmitry off private email, this concerns only usb I
-guess)
+I knew I forgot something.
 
-On Mon, 02 Aug 2004, preining wrote:
-> > > - USB deadlocking
-> > >   USB is still deadlocky, quite often process hang in D+ state.
-> > 
-> > So what does alt-sysrq-t show you about those processes?
+> There's an i2o rewrite in
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm2/2.6.8-rc2-mm2.gz
+> - testing of that would be appreciated.
 
-Ok, I turned off hotplug, started it by hand and found what is making
-the troubles:
+Upon booting 2.6.8-rc2-mm:
 
-First, it is cups, when trying the backend usb/canon/epson accessing the
-usb subsystem. So I turned this of.
+ devfs_mk_dir: invalid argument.<6> i2o/hda: i2o/hda1 i2o/hda2 i2o/hda3
+i2o/hda4 < i2o/hda5 i2o/hda6 i2o/hda7 i2o/hda8 >
 
-Then I tried lsusb, which hang, here is what sysrq-t says:
-lsusb         D C0158CDC     0  3942   3849                     (NOTLB)
-d648cef4 00200086 c1621800 c0158cdc 00000000 08088000 d39ce300 00000001 
-       6e50f578 00000028 d427a7f4 df4cf824 00200296 d648c000 d427a650 c02d3f5f 
-       df4cf82c 00000001 d427a650 c0118cf9 df4cf82c df4cf82c d687fd40 e08e0798 
-Call Trace:
- [<c0158cdc>] link_path_walk+0xa1f/0xd4e
- [<c02d3f5f>] __down+0x8b/0x116
- [<c0118cf9>] default_wake_function+0x0/0xc
- [<e08e0798>] usbdev_open+0x54/0xfa [usbcore]
- [<c02d4144>] __down_failed+0x8/0xc
- [<e08e26ba>] .text.lock.devio+0x5/0xff [usbcore]
- [<c014ba8b>] filp_open+0x4c/0x4e
- [<c014c62d>] vfs_read+0xa9/0xf5
- [<c014c846>] sys_read+0x38/0x59
- [<c0105e4f>] syscall_call+0x7/0xb
-
-Does this help you. lsusb is in D+ state.
-
-SOmething similar happened when I tried to remove usbhid, or anything
-else related to usb.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-HOGGESTON (n.)
-The action of overshaking a pair of dice in a cup in the mistaken
-belief that this will affect the eventual outcome in your favour and
-not irritate everyone else.
-			--- Douglas Adams, The Meaning of Liff

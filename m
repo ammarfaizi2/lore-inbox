@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262231AbRERB4k>; Thu, 17 May 2001 21:56:40 -0400
+	id <S262233AbRERCAJ>; Thu, 17 May 2001 22:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262232AbRERB4U>; Thu, 17 May 2001 21:56:20 -0400
-Received: from [142.176.139.106] ([142.176.139.106]:39433 "EHLO ve1drg.com")
-	by vger.kernel.org with ESMTP id <S262231AbRERB4J>;
-	Thu, 17 May 2001 21:56:09 -0400
-Date: Thu, 17 May 2001 22:56:07 -0300 (ADT)
-From: Ted Gervais <ve1drg@ve1drg.com>
-To: linux-kernel@vger.kernel.org
-Subject: rtl8139 - kernel 2.4.3
-Message-ID: <Pine.LNX.4.21.0105172254060.7428-100000@ve1drg.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262232AbRERB7u>; Thu, 17 May 2001 21:59:50 -0400
+Received: from ns1.SuSE.com ([202.58.118.2]:9996 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S262233AbRERB7q>;
+	Thu, 17 May 2001 21:59:46 -0400
+Date: Thu, 17 May 2001 18:59:41 -0700
+From: Mads Martin =?iso-8859-1?Q?J=F8rgensen?= <mmj@suse.com>
+To: Bill Nottingham <notting@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac11
+Message-ID: <20010517185941.K776@suse.com>
+In-Reply-To: <E150XLO-0006NY-00@the-village.bc.nu> <20010517214700.A15306@nostromo.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010517214700.A15306@nostromo.devel.redhat.com>; from notting@redhat.com on Thu, May 17, 2001 at 09:47:00PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Bill Nottingham <notting@redhat.com> [May 17. 2001 18:55]:
+> (catching up...)
+> 
+> Alan Cox (alan@lxorguk.ukuu.org.uk) said: 
+> > 2.4.4-ac9
+> ...
+> > o	Further tulip updates				(Jeff Garzik)
+> ...
+> > 2.4.4-ac8
+> > o	Tulip driver updates				(Jeff Garzik)
+> 
+> These updates (sorry, haven't tracked down which of the two) conspire to
+> break the tulip on my ia64, it's a:
 
-I get the following when ftping from one workstation to another.
-Using kernel 2.4.3 and Redhat7.1:
+You should try the newest driver from:
 
-Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
-Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
-Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
-Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
-Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
-Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
-eth0: Out-of-sync dirty pointer, 456 vs. 462.
-Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
-Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
-Assertion failed! tp->tx_info[entry].skb == NULL,8139too.c,rtl8139_start_xmit,line=1676
-Assertion failed! tp->tx_info[entry].mapping == 0,8139too.c,rtl8139_start_xmit,line=1677
+http://sourceforge.net/projects/tulip/
 
-
-Is there a fix for this?  Kernel 2.4.4 is worse. It gives me a 'kernel
-panic'..  doing the same ftp transfer between workstations.
-
----
-The mosquito is the state bird of New Jersey.
-                -- Andy Warhol
-                
-Ted Gervais <ve1drg@ve1drg.com>
-44.135.34.201 linux.ve1drg.ampr.org
-
-
+-- 
+Mads Martin Joergensen, http://mmj.dk
+"Why make things difficult, when it is possible to make them cryptic and
+totally illogic, with just a little bit more effort."
+                                -- A. P. J.

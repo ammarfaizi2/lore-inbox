@@ -1,74 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317466AbSHHLRM>; Thu, 8 Aug 2002 07:17:12 -0400
+	id <S317450AbSHHL1Y>; Thu, 8 Aug 2002 07:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317468AbSHHLRL>; Thu, 8 Aug 2002 07:17:11 -0400
-Received: from Mix-Bordeaux-202-3-168.abo.wanadoo.fr ([193.250.211.168]:384
-	"HELO laurent.hivet") by vger.kernel.org with SMTP
-	id <S317466AbSHHLRK>; Thu, 8 Aug 2002 07:17:10 -0400
-Date: Thu, 8 Aug 2002 13:26:44 +0200 (CEST)
-From: "laurent.hivet" <laurent@wanadoo.fr>
-X-X-Sender: <laurent@suzy.luce>
-To: <linux-kernel@vger.kernel.org>
-Subject: fbcon.c with 1024 x 768 linux_logo.h
-Message-ID: <Pine.LNX.4.33L2.0208081325230.6802-100000@suzy.luce>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317457AbSHHL1Y>; Thu, 8 Aug 2002 07:27:24 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:38922 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S317450AbSHHL1W>; Thu, 8 Aug 2002 07:27:22 -0400
+Date: Thu, 8 Aug 2002 15:30:42 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Grant Grundler <grundler@dsl2.external.hp.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: PCI<->PCI bridges, transparent resource fix
+Message-ID: <20020808153042.B14158@jurassic.park.msu.ru>
+References: <20020807055456.61265482A@dsl2.external.hp.com> <20020806210220.24665@192.168.4.1> <benh@kernel.crashing.org> <20020807183025.BCB65482A@dsl2.external.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020807183025.BCB65482A@dsl2.external.hp.com>; from grundler@dsl2.external.hp.com on Wed, Aug 07, 2002 at 12:30:25PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Wed, Aug 07, 2002 at 12:30:25PM -0600, Grant Grundler wrote:
+> Send me a patch for 2.4.19 and I'll try it on the laptop.
 
-i'm a very newbie to kernel mailing list for reporting bug.
+Appended - please do.
 
-I use kernel 2.4.19, on SMP pentium III (2 cpu).
+> Ivan wrote:
+> | ...subtractive decoding bridge _MUST_ have bit 0 in the ProgIf set to 1.
+> 
+> It sounds easy to check at the top and in that case DTRT.
+> The "else" parts of later resource checks can go away.
 
-I get a panic kernel after booting and before inint script.
+Exactly.
 
-I used fblogo-0.4 to get a nice image at startup. I replaced
-include/linux/linux_logo.h, and modified fbcon.c with LOGO_H 768 and
-LOGO_W 1024.
+> What you suggest implies the bridge waits for someone else to "claim"
+> the transaction and I'm not convinced PCI spec would allow that.
 
-With previous kernel (2.4.16 ??) not pb.
+It allows that as a matter of fact.
 
-i decided to use Dan_Boals@Phoenix.com patch:
+> Performance would certainly suffer if that were the case.
 
---- 2.4.19/drivers/video/fbcon.c	Mon Jun 24 16:00:12 2002
-+++ 2.4.19/drivers/video/fbcon.c	Mon Jun 24 15:26:18 2002
-@@ -688,21 +688,22 @@
-     	    	scr_memcpyw(r + step, r, conp->vc_size_row);
-     	    	r -= old_cols;
-     	    }
-     	    if (!save) {
- 	    	conp->vc_y += logo_lines;
-     		conp->vc_pos += logo_lines * conp->vc_size_row;
-     	    }
-     	}
-     	scr_memsetw((unsigned short *)conp->vc_origin,
- 		    conp->vc_video_erase_char,
--		    conp->vc_size_row * logo_lines);
-+		    old_cols * logo_lines);
+Sure, performance sucks, and there are other bad side effects,
+like impossibility of the peer-to-peer DMA behind such bridge.
+
+Ivan.
+
+--- linux/drivers/pci/pci.c~	Fri Jun 28 14:46:21 2002
++++ linux/drivers/pci/pci.c	Thu Aug  8 14:57:25 2002
+@@ -1073,6 +1073,14 @@ void __devinit pci_read_bridge_bases(str
+ 	if (!dev)		/* It's a host bus, nothing to read */
+ 		return;
+ 
++	if (dev->class & 1) {
++		printk("Subtractive decoding bridge %s -"
++			" assuming transparent\n", dev->name);
++		for(i = 0; i < 3; i++)
++			child->resource[i] = child->parent->resource[i];
++		return;
++	}
 +
-     }
-
-     /*
-      *  ++guenther: console.c:vc_allocate() relies on initializing
-      *  vc_{cols,rows}, but we must not set those if we are only
-      *  resizing the console.
-      */
-     if (init) {
- 	conp->vc_cols = nr_cols;
- 	conp->vc_rows = nr_rows;
-
-and now all work fine !!
-
-Can someone (maintener but who ?) can verify if this patch is ok and apply
-it to fbcon.c in official stable (2.4.x) kernel tree ?
-
-Best Regards.
-
-Laurent HIVET
-
-laurent.hivet@wanadoo.fr
-
-
+ 	for(i=0; i<3; i++)
+ 		child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
+ 
+@@ -1095,13 +1103,6 @@ void __devinit pci_read_bridge_bases(str
+ 		res->start = base;
+ 		res->end = limit + 0xfff;
+ 		res->name = child->name;
+-	} else {
+-		/*
+-		 * Ugh. We don't know enough about this bridge. Just assume
+-		 * that it's entirely transparent.
+-		 */
+-		printk(KERN_ERR "Unknown bridge resource %d: assuming transparent\n", 0);
+-		child->resource[0] = child->parent->resource[0];
+ 	}
+ 
+ 	res = child->resource[1];
+@@ -1114,10 +1115,6 @@ void __devinit pci_read_bridge_bases(str
+ 		res->start = base;
+ 		res->end = limit + 0xfffff;
+ 		res->name = child->name;
+-	} else {
+-		/* See comment above. Same thing */
+-		printk(KERN_ERR "Unknown bridge resource %d: assuming transparent\n", 1);
+-		child->resource[1] = child->parent->resource[1];
+ 	}
+ 
+ 	res = child->resource[2];
+@@ -1145,10 +1142,6 @@ void __devinit pci_read_bridge_bases(str
+ 		res->start = base;
+ 		res->end = limit + 0xfffff;
+ 		res->name = child->name;
+-	} else {
+-		/* See comments above */
+-		printk(KERN_ERR "Unknown bridge resource %d: assuming transparent\n", 2);
+-		child->resource[2] = child->parent->resource[2];
+ 	}
+ }
+ 

@@ -1,147 +1,255 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbUKVSfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbUKVSpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbUKVSfv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 13:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUKVSeV
+	id S262288AbUKVSpM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 13:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbUKVSn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 13:34:21 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:17600 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262318AbUKVSdR
+	Mon, 22 Nov 2004 13:43:27 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:16373 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262306AbUKVSkv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 13:33:17 -0500
-Subject: Re: [PATCH 2/5] selinux: adds a private inode operation
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       James Morris <jmorris@redhat.com>
-In-Reply-To: <41A22A2D.1000708@suse.com>
-References: <20041121001318.GC979@locomotive.unixthugs.org>
-	 <1101145050.18273.68.camel@moss-spartans.epoch.ncsc.mil>
-	 <41A22A2D.1000708@suse.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1101148090.18273.94.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 22 Nov 2004 13:28:10 -0500
+	Mon, 22 Nov 2004 13:40:51 -0500
+Message-ID: <41A232AD.6050802@mvista.com>
+Date: Mon, 22 Nov 2004 11:40:45 -0700
+From: "Mark A. Greer" <mgreer@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH][PPC32] Marvell host bridge support (mv64x60)
+References: <419E6900.5070001@mvista.com> <20041119155854.02af2174.akpm@osdl.org>
+In-Reply-To: <20041119155854.02af2174.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-22 at 13:04, Jeff Mahoney wrote:
-> Yes, you're right. The isec->initialized check means that code never
-> gets executed.
+Andrew Morton wrote:
 
-Ok.  How about the untested diff below relative to your patch?  It
-removes the unnecessary code, replaces the unused inherits flag field
-(legacy from earlier code) with a private flag field, does not set the
-SID in selinux_inode_mark_private (leaving it with the unlabeled SID,
-which will ensure that we notice it if it ever reaches a SELinux
-permission check), and modifies SELinux permission checking functions
-and post_create() to test for the private flag and skip SELinux
-processing in that case.  Note that this means that reiserfs should be
-able to use the VFS helpers if desired without interference by SELinux
-when accessing these private inodes.
+>"Mark A. Greer" <mgreer@mvista.com> wrote:
+>  
+>
+>>This patch adds core support for a line of host bridges from Marvell 
+>>(formerly Galileo).  This code has been tested with a GT64260a, 
+>>GT64260b, MV64360, and MV64460.  Patches for platforms that use these 
+>>bridges will be sent separately.
+>>
+>>    
+>>
+>
+>Shouldn't these guys:
+>
+>
+>+       u32     cpu2mem_tab[MV64x60_CPU2MEM_WINDOWS][2] = {
+>+                       { MV64x60_CPU2MEM_0_BASE, MV64x60_CPU2MEM_0_SIZE },
+>+                       { MV64x60_CPU2MEM_1_BASE, MV64x60_CPU2MEM_1_SIZE },
+>+                       { MV64x60_CPU2MEM_2_BASE, MV64x60_CPU2MEM_2_SIZE },
+>+                       { MV64x60_CPU2MEM_3_BASE, MV64x60_CPU2MEM_3_SIZE }
+>+       };
+>+       u32     com2mem_tab[MV64x60_CPU2MEM_WINDOWS][2] = {
+>+                       { MV64360_MPSC2MEM_0_BASE, MV64360_MPSC2MEM_0_SIZE },
+>+                       { MV64360_MPSC2MEM_1_BASE, MV64360_MPSC2MEM_1_SIZE },
+>+                       { MV64360_MPSC2MEM_2_BASE, MV64360_MPSC2MEM_2_SIZE },
+>+                       { MV64360_MPSC2MEM_3_BASE, MV64360_MPSC2MEM_3_SIZE }
+>+       };
+>+       u32     dram_selects[MV64x60_CPU2MEM_WINDOWS] = { 0xe, 0xd, 0xb, 0x7 };
+>
+>be static, and maybe __devinitdata?  Right now, the CPU has to populate
+>them by hand at runtime.
+>
 
-diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/hooks.c linux-2.6/security/selinux/hooks.c
---- linux-2.6.10-rc2-mm3/security/selinux/hooks.c	2004-11-22 08:30:49.000000000 -0500
-+++ linux-2.6/security/selinux/hooks.c	2004-11-22 13:20:08.510714592 -0500
-@@ -737,15 +736,6 @@ static int inode_doinit_with_dentry(stru
- 	if (isec->initialized)
- 		goto out;
- 
--	if (opt_dentry && opt_dentry->d_parent && opt_dentry->d_parent->d_inode) {
--		struct inode_security_struct *pisec = opt_dentry->d_parent->d_inode->i_security;
--		if (pisec->inherit) {
--			isec->sid = pisec->sid;
--			isec->initialized = 1;
--			goto out;
--		}
--	}
--
- 	down(&isec->sem);
- 	hold_sem = 1;
- 	if (isec->initialized)
-@@ -983,6 +973,9 @@ int inode_has_perm(struct task_struct *t
- 	tsec = tsk->security;
- 	isec = inode->i_security;
- 
-+	if (isec->private)
-+		return 0;
-+
- 	if (!adp) {
- 		adp = &ad;
- 		AVC_AUDIT_DATA_INIT(&ad, FS);
-@@ -1064,6 +1057,9 @@ static int may_create(struct inode *dir,
- 	dsec = dir->i_security;
- 	sbsec = dir->i_sb->s_security;
- 
-+	if (dsec->private)
-+		return 0;
-+
- 	AVC_AUDIT_DATA_INIT(&ad, FS);
- 	ad.u.fs.dentry = dentry;
- 
-@@ -1111,6 +1107,9 @@ static int may_link(struct inode *dir,
- 	dsec = dir->i_security;
- 	isec = dentry->d_inode->i_security;
- 
-+	if (dsec->private)
-+		return 0;
-+
- 	AVC_AUDIT_DATA_INIT(&ad, FS);
- 	ad.u.fs.dentry = dentry;
- 
-@@ -1157,6 +1156,9 @@ static inline int may_rename(struct inod
- 	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
- 	new_dsec = new_dir->i_security;
- 
-+	if (old_dsec->private)
-+		return 0;
-+
- 	AVC_AUDIT_DATA_INIT(&ad, FS);
- 
- 	ad.u.fs.dentry = old_dentry;
-@@ -1292,7 +1294,10 @@ static int post_create(struct inode *dir
- 	dsec = dir->i_security;
- 	sbsec = dir->i_sb->s_security;
- 
-+	if (dsec->private)
-+		return 0;
-+
- 	inode = dentry->d_inode;
- 	if (!inode) {
- 		/* Some file system types (e.g. NFS) may not instantiate
+Yes.  I'll fix that.
 
-@@ -2379,9 +2384,8 @@ static void selinux_inode_mark_private(s
- {
- 	struct inode_security_struct *isec = inode->i_security;
- 
--	isec->sid = SECINITSID_KERNEL;
-+	isec->private = 1;
- 	isec->initialized = 1;
--	isec->inherit = 1;
- }
- 
- /* file security operations */
+>
+>+wait_for_ownership(int chan)
+>+{
+>+	int	i;
+>+
+>+	for (i=0; i<MAX_TX_WAIT; i++) {
+>+		if ((MV64x60_REG_READ(sdma_regs[chan].sdcm) &
+>+				SDMA_SDCM_TXD) == 0)
+>+			break;
+>+
+>+		udelay(1000);
+>
+>ow, big busywait.  Can't use a sleep in here?  I guess not :(
+>
 
-diff -X /home/sds/dontdiff -rup linux-2.6.10-rc2-mm3/security/selinux/include/objsec.h linux-2.6/security/selinux/include/objsec.h
---- linux-2.6.10-rc2-mm3/security/selinux/include/objsec.h	2004-11-22 08:30:49.000000000 -0500
-+++ linux-2.6/security/selinux/include/objsec.h	2004-11-22 13:00:22.418028088 -0500
-@@ -45,7 +45,7 @@ struct inode_security_struct {
- 	u16 sclass;       /* security class of this object */
- 	unsigned char initialized;     /* initialization flag */
- 	struct semaphore sem;
--	unsigned char inherit;         /* inherit SID from parent entry */
-+       unsigned char private;         /* private file, skip checks */
- };
- 
- struct file_security_struct {
+This code is in the ppc bootwrapper which is glue code to get the
+hardware (and bd_info, etc.) from whatever state the f/w left it in into
+something the kernel can work with.  IOW, its not in the kernel and
+there is no sleep mechanism...or even a thread/process entity to put to
+sleep.
+
+>+ * arch/ppc/boot/simple/mv64x60_tty.c
+>
+>hm.  Normally we put arch-specific drivers like this into drivers/serial
+>and do the appropriate Kconfig work.  Is there a reason why this serial
+>driver is buried under arch/ppc?
+>
+
+It isn't a part of the kernel so I don't think it belongs in
+drivers/serial.  This particular serial driver is required for cmd_line
+editing when booting a zImage.
+
+>+#include "../../../../drivers/serial/mpsc_defs.h"
+>
+>erk.
+>
+
+Ah, yeah, I'll fix that too :)
+
+>
+>+struct mv64x60_rx_desc {
+>+	volatile u16 bufsize;
+>+	volatile u16 bytecnt;
+>+	volatile u32 cmd_stat;
+>+	volatile u32 next_desc_ptr;
+>+	volatile u32 buffer;
+>+};
+>+
+>+struct mv64x60_tx_desc {
+>+	volatile u16 bytecnt;
+>+	volatile u16 shadow;
+>+	volatile u32 cmd_stat;
+>+	volatile u32 next_desc_ptr;
+>+	volatile u32 buffer;
+>+};
+>
+>Do these need to be volatile?  If so, it indicates that the driver is doing
+>something wrong.
+>
+
+I didn't spend much time looking at this code.  I'll clean it up.
+
+>
+>+gt64260_register_hdlrs(void)
+>+{
+>+	/* Register CPU interface error interrupt handler */
+>+	request_irq(MV64x60_IRQ_CPU_ERR, gt64260_cpu_error_int_handler,
+>+		    SA_INTERRUPT, CPU_INTR_STR, 0);
+>
+>request_irq() can fail.
+>
+
+OK.
+
+>+int
+>+mv64360_get_irq(struct pt_regs *regs)
+>+{
+>+	int irq;
+>+	int irq_gpp;
+>+
+>+#ifdef CONFIG_SMP
+>+	/*
+>+	 * Second CPU gets only doorbell (message) interrupts.
+>+	 * The doorbell interrupt is BIT28 in the main interrupt low cause reg.
+>+	 */
+>+	int cpu_nr = smp_processor_id();
+>
+>This function has no callers, so I am unable to determine whether it is
+>called from non-preemptible code.  If it is called from preemptible code
+>then that smp_processor_id() is buggy, because you can switch CPUs at any
+>time.
+>
+
+Its called via ppc_md.get_irq() (see arch/ppc/kernel/irq.c:do_IRQ()).
+ppc_md.get_irq is set up in the platform files.
+
+>+static struct platform_device mpsc_shared_device = { /* Shared device */
+>+	.name		= MPSC_SHARED_NAME,
+>+	.id		= 0,
+>+	.num_resources	= ARRAY_SIZE(mv64x60_mpsc_shared_resources),
+>+	.resource	= mv64x60_mpsc_shared_resources,
+>+	.dev = {
+>+		.driver_data = (void *)&mv64x60_mpsc_shared_pd_dd,
+>+	},
+>+};
+>
+>The cast to void* is unnecessary.
+>
+
+OK.
+
+>+	(void)mv64x60_setup_for_chip(&bh);
+>
+>how come you always stick that (void) in there?
+>
+
+I did that b/c the routine returns an 'int' but I'm ignoring it.  I
+probably shouldn't be ignoring it...
+
+>
+>+mv64x60_config_cpu2mem_windows(struct mv64x60_handle *bh,
+>+	struct mv64x60_setup_info *si,
+>+	u32 mem_windows[MV64x60_CPU2MEM_WINDOWS][2])
+>+{
+>+	u32	i, win;
+>+	u32	prot_tab[] = {
+>+			MV64x60_CPU_PROT_0_WIN, MV64x60_CPU_PROT_1_WIN,
+>+			MV64x60_CPU_PROT_2_WIN, MV64x60_CPU_PROT_3_WIN
+>+		};
+>+	u32	cpu_snoop_tab[] = {
+>+			MV64x60_CPU_SNOOP_0_WIN, MV64x60_CPU_SNOOP_1_WIN,
+>+			MV64x60_CPU_SNOOP_2_WIN, MV64x60_CPU_SNOOP_3_WIN
+>+		};
+>
+>static initialisation?
+>
+
+Yep.
+
+>
+>+mv64x60_config_cpu2pci_windows(struct mv64x60_handle *bh,
+>+	struct mv64x60_pci_info *pi, u32 bus)
+>+{
+>+	int	i;
+>+	u32	win_tab[2][4] = {
+>+			{ MV64x60_CPU2PCI0_IO_WIN, MV64x60_CPU2PCI0_MEM_0_WIN,
+>+			  MV64x60_CPU2PCI0_MEM_1_WIN,
+>+			  MV64x60_CPU2PCI0_MEM_2_WIN },
+>+			{ MV64x60_CPU2PCI1_IO_WIN, MV64x60_CPU2PCI1_MEM_0_WIN,
+>+			  MV64x60_CPU2PCI1_MEM_1_WIN,
+>+			  MV64x60_CPU2PCI1_MEM_2_WIN },
+>+		};
+>+	u32	remap_tab[2][4] = {
+>+			{ MV64x60_CPU2PCI0_IO_REMAP_WIN,
+>+			  MV64x60_CPU2PCI0_MEM_0_REMAP_WIN,
+>+			  MV64x60_CPU2PCI0_MEM_1_REMAP_WIN,
+>+			  MV64x60_CPU2PCI0_MEM_2_REMAP_WIN },
+>+			{ MV64x60_CPU2PCI1_IO_REMAP_WIN,
+>+			  MV64x60_CPU2PCI1_MEM_0_REMAP_WIN,
+>+			  MV64x60_CPU2PCI1_MEM_1_REMAP_WIN,
+>+			  MV64x60_CPU2PCI1_MEM_2_REMAP_WIN }
+>+		};
+>+
+>
+>ditto
+>
+>
+>+mv64x60_config_pci2mem_windows(struct mv64x60_handle *bh,
+>
+>and here
+>
+>+mv64360_set_pci2mem_window(struct pci_controller *hose, u32 bus, u32 window,
+>
+>and here
+>
+>+mv64360_config_io2mem_windows(struct mv64x60_handle *bh,
+>
+>and here
+
+Yes, several times.  I'll fix it.
+
+>
+>Anyway, I'll stick this as-is in -mm.  Feel free to send an incremental
+>patch, or a replacement.
+>
+
+Thanks for the feedback.  I'll clean it up & resend.
+
+Mark
 
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 

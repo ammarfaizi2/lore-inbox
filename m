@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315744AbSECXJD>; Fri, 3 May 2002 19:09:03 -0400
+	id <S315746AbSECXK7>; Fri, 3 May 2002 19:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315743AbSECXJC>; Fri, 3 May 2002 19:09:02 -0400
-Received: from c9mailgw04.amadis.com ([216.163.188.202]:42765 "EHLO
-	C9Mailgw04.amadis.com") by vger.kernel.org with ESMTP
-	id <S315741AbSECXJB>; Fri, 3 May 2002 19:09:01 -0400
-Date: Fri, 3 May 2002 19:08:09 -0400
-From: Jason Giglio <jgiglio@vt.edu>
+	id <S315745AbSECXK6>; Fri, 3 May 2002 19:10:58 -0400
+Received: from precia.cinet.co.jp ([210.166.75.133]:21888 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S315746AbSECXK5>; Fri, 3 May 2002 19:10:57 -0400
+Message-ID: <3CD31883.E41E0DFA@cinet.co.jp>
+Date: Sat, 04 May 2002 08:08:51 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.79C-ja  [ja/Vine] (X11; U; Linux 2.5.13-pc98smp i686)
+X-Accept-Language: ja, en-US, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: bradlist@bradm.net
-Subject: 3ware 7810 and Tyan 2462 Tiger MP lockup
-Message-Id: <20020503190809.7cb8c052.jgiglio@vt.edu>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH] 2.5.13 IDE PIO mode Fix
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bradley McLean had posted a while back (3/30/02) about problems with 3ware 7810 cards and Tyan Tiger MP.  He had indicated that updating his drivers and changing a PCI riser card around fixed the problem.
+I found this bug in 2.5.10 first. And caused ext2 FS corruption.
+We are porting Linux to PC-9801 architecture (made by NEC Japan).
+It has PIO ONLY IDE I/F. So please check PIO mode too.
+# Our porting status - 2.2.x/2.4.x done and updating. 2.5.x partial.
 
-I have recently encountered the problem with the newest drivers and no PCI riser cards.  It only seems to happen when using XFS, and when directly accessing the 3ware card through /dev/sda.  The symptoms are the same, hard lockup, no ping, no nothing, during heavy I/O. An added twist is that the file system is very corrupt upon rebooting.
-
-I have sent a message to the XFS list, but I thought I'd drop a note in here that the problem is still persisting, since it is not likely a problem in XFS proper that is causing the initial lockup, considering that others had the problem with any file system previously.  It was suggested by Alan Cox that this may be an APIC issue, it happened for me with or without noapic specified.
-
-Please CC me on replies to list.  
-
-Thanks,
-Jason
-
->From: Bradley McLean (bradlist@bradm.net)
->Subject: Hard hang on 3Ware7850, Dual AthlonMP, Tyan2462
-
->I've been following the various discussions of athlon MP problems. We too have systems that consistently hard lock up.
->Running RH7.2 with kernel.org kernels, versions 2.4.17, 2.4.18,
->or 2.4.18 plus the IO-APIC patch posted for 2.4.19pre3.
->Using the latest (release 7.4, driver version 19) 3ware code. Tyan 2462, 3.5 GB
->(2) AMD MP1900+
->(6) WB1200JB Symptoms:  Either under heavy read, or heavy write, system locks up.  No ping, no keyboard.
+diff -urN linux-2.5.10/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
+--- linux-2.5.10/drivers/ide/ide-taskfile.c    Wed Apr 24 16:15:19 2002
++++ linux/drivers/ide/ide-taskfile.c  Fri Apr 26 15:44:42 2002
+@@ -202,7 +202,7 @@
+                        ata_write_slow(drive, buffer, wcount);
+                else
+ #endif
+-                       ata_write_16(drive, buffer, wcount<<1);
++                       ata_write_16(drive, buffer, wcount);
+        }
+ }

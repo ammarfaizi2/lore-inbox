@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263010AbTCWKdO>; Sun, 23 Mar 2003 05:33:14 -0500
+	id <S263014AbTCWKiK>; Sun, 23 Mar 2003 05:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263013AbTCWKdO>; Sun, 23 Mar 2003 05:33:14 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:10991 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S263010AbTCWKdN>; Sun, 23 Mar 2003 05:33:13 -0500
-Subject: Re: 2.4+ptrace exploit fix breaks root's ability to strace
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: "Lists (lst)" <linux@lapd.cj.edu.ro>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.51L0.0303231225070.15290@lapd.cj.edu.ro>
-References: <20030322103121.A16994@flint.arm.linux.org.uk>
-	 <1048345130.8912.9.camel@irongate.swansea.linux.org.uk>
-	 <Pine.LNX.4.51L0.0303231225070.15290@lapd.cj.edu.ro>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y1etykm1sZ9zi0JGKEOB"
-Organization: Red Hat, Inc.
-Message-Id: <1048416233.1499.1.camel@laptop.fenrus.com>
+	id <S263015AbTCWKiK>; Sun, 23 Mar 2003 05:38:10 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:16873 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263014AbTCWKiI>;
+	Sun, 23 Mar 2003 05:38:08 -0500
+Date: Sun, 23 Mar 2003 11:49:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE todo list
+Message-ID: <20030323104916.GI837@suse.de>
+References: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 23 Mar 2003 11:43:53 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 22 2003, Alan Cox wrote:
+> -	Finish verifying 256 sector I/O or larger on LBA48
+> 	[How to handle change dynamically on hotplug ?]
 
---=-y1etykm1sZ9zi0JGKEOB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That is basically impossible. How are you going to handle the case where
+you have a queue full of 256 request writes, and the plugged in disk
+chokes on them? And insolvable unless you start setting aside requests
+simply for this purpose. Also breaks the pseudo atomic segments that a
+single request represents. This is just way beyond ugly...
 
-On Sun, 2003-03-23 at 11:31, Lists (lst) wrote:
-> On Sat, 22 Mar 2003, Alan Cox wrote:
->=20
-> > On Sat, 2003-03-22 at 10:31, Russell King wrote:
-> > > Are the authors of the ptrace patch aware that, in addition to closin=
-g the
-> > > hole, the "fix" also prevents a ptrace-capable task (eg, strace start=
-ed by
-> > > root) from ptracing user threads?
-> >=20
-> > Its an unintended side effect, nobody has sent a patch to fix it yet.
->=20
-> Hi,
->=20
-> mlafon send a patch to the list:
+This is a generic problem of course, and the typical answer is to go by
+the rules of the lowest common denominator if hot plug can cause you
+queue limits to be violated (may be other problems than simply max
+sector count).
 
-uid =3D=3D 0 is the wrong test
+-- 
+Jens Axboe
 
---=-y1etykm1sZ9zi0JGKEOB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+fY/pxULwo51rQBIRAnnxAJ0fr2qQkU+Ar7BP1yLNH7DVpjdFPgCgo5Og
-VDFeZVWN5b7dWNoosDTD66Q=
-=zMtP
------END PGP SIGNATURE-----
-
---=-y1etykm1sZ9zi0JGKEOB--

@@ -1,16 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271845AbRI2WrD>; Sat, 29 Sep 2001 18:47:03 -0400
+	id <S271906AbRI2Wuw>; Sat, 29 Sep 2001 18:50:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271857AbRI2Wqx>; Sat, 29 Sep 2001 18:46:53 -0400
-Received: from mx9.port.ru ([194.67.57.19]:44465 "EHLO mx9.port.ru")
-	by vger.kernel.org with ESMTP id <S271845AbRI2Wqk>;
-	Sat, 29 Sep 2001 18:46:40 -0400
+	id <S271910AbRI2Wum>; Sat, 29 Sep 2001 18:50:42 -0400
+Received: from mx6.port.ru ([194.67.57.16]:25107 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S271906AbRI2Wu3>;
+	Sat, 29 Sep 2001 18:50:29 -0400
 From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109300309.f8U39aH26230@vegae.deep.net>
-Subject: LKML webarchive - better one exist (fwd)
-To: linux-kernel@vger.kernel.org
-Date: Sun, 30 Sep 2001 07:09:34 +0400 (MSD)
+Message-Id: <200109300313.f8U3DND26460@vegae.deep.net>
+Subject: Re: FIX YOUR TIMEZONE SETUP!
+To: matti.aarnio@zmailer.org (Matti Aarnio)
+Date: Sun, 30 Sep 2001 07:13:21 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010921163053.L11046@mea-ext.zmailer.org> from "Matti Aarnio" at Sep 21, 2001 04:30:53 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -18,22 +20,30 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"  root wrote:"
->From root Mon Sep 24 00:29:14 2001
-Subject: LKML webarchive - better one exist
-To: webmaster@kernel.org
-Date: Mon, 24 Sep 2001 00:29:14 +0000 (Local time zone must be set--see zic manual page)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
-Content-Length: 450       
-
-          Hello there, time has come i think to update the link for
-    the lkml web archive. Since uwsg one is somewhat too laggy for me
-    i switched quite long ago to http://marc.theaimsgroup.com/?l=linux-kernel
-       The strong side of this archive is the intelligent sorting scheme
-    (it places updated threads to the top), and the fact that it lags
-    for around 5 minutes, while uwsg one once lagged for a week...
-
-Cheers, Samium Gromoff
-
-
+"  Matti Aarnio wrote:"
+> 
+>    Lots of systems are rejecting email destined to them
+>    with oversize Date: header.
+> 
+> From:   Samium Gromoff <_deepfire@mail.ru>
+> Message-Id: <200109211613.f8LGDXX02210@vegae.deep.net>
+> Subject: Time for reiserfslib
+> To:     reiser@namesys.com
+> Date:   Fri, 21 Sep 2001 16:13:32 +0000 (Local time zone must be set--see zic manual page)
+> Cc:     monstr@namesys.com, linux-kernel@vger.kernel.org
+> X-Mailer: ELM [version 2.5 PL6]
+> 
+>    If you don't fix that problem right away, then latter
+>    today I will just block any, and all messages with
+>    header containing text:   "Local time zone must be set"
+> 
+> Your friendly  vger.kernel.org  postmaster who usually has no
+> bad things to say about people or their software...
+> 
+     Matti, i`m sorry of this... i just now realised why my mailserver
+  was "dead" for 2 weeks - it just changed IP and i was unable to get your
+  mail, so that i fixed the timezone only recently...
+     I know its hard to write individual letters to each who is making mistakes
+  on this list, so i apologize very very much...
+     
+thanks, Samium Gromoff

@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268100AbUIPO34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268104AbUIPOhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268100AbUIPO34 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 10:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268104AbUIPO34
+	id S268104AbUIPOhi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 10:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUIPOhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 10:29:56 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41906 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268100AbUIPO3h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:29:37 -0400
-Date: Thu, 16 Sep 2004 07:28:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 2/2
-Message-ID: <20040916142847.GA32352@kroah.com>
-References: <1095332331.3855.161.camel@laptop.cunninghams>
+	Thu, 16 Sep 2004 10:37:38 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:4749 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S268104AbUIPObu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 10:31:50 -0400
+Date: Thu, 16 Sep 2004 16:26:38 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, an.li.wang@intel.com
+Subject: Re: truncate shows non zero data beyond the end of the inode with MAP_SHARED
+Message-ID: <20040916142638.GW15426@dualathlon.random>
+References: <20040915122920.GA4454@dualathlon.random> <20040915210106.GX9106@holomorphy.com> <20040915145524.079a8694.akpm@osdl.org> <20040915220016.GC9106@holomorphy.com> <20040915220819.GF15426@dualathlon.random> <4149539D.9070001@hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095332331.3855.161.camel@laptop.cunninghams>
+In-Reply-To: <4149539D.9070001@hist.no>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 08:58:51PM +1000, Nigel Cunningham wrote:
-> 
-> This simple helper adds support for finding a class given its name. I
-> use this to locate the frame buffer drivers and move them to the
-> keep-alive tree while suspending other drivers.
-> 
-> +struct class * class_find(char * name)
-> +{
-> +	struct class * this_class;
-> +
-> +	if (!name)
-> +		return NULL;
-> +
-> +	list_for_each_entry(this_class, &class_subsys.kset.list, subsys.kset.kobj.entry) {
-> +		if (!(strcmp(this_class->name, name)))
-> +			return this_class;
-> +	}
-> +
-> +	return NULL;
-> +}
+On Thu, Sep 16, 2004 at 10:49:33AM +0200, Helge Hafting wrote:
+> Could this "garbage" possibly be confidential data?
 
-Ick, no.  I've been over this before with the fb people, and am not going
-to accept this patch (nevermind that it's broken...)  See the lkml
-archives for more info on why I don't like this.
+I don't buy much in this theory.
 
-thanks,
+> I.e. one user repeatedly makes and mmaps a 1-byte file,
+> extends it to 4k, and looks at the 4095 bytes of "garbage".
+> Maybe he finds some "interesting stuff" when someone else's
+> confidential file just got dropped from pagecache
+> so he could mmap this 1-byte file?
 
-greg k-h
+the old data got flushed below the i_size anyways, it sounds very
+strange that confidential data is present only over the i_size and not
+below the i_size, and if this guy has confidential data below the i_size
+then it'd better memset the whole page. And in theory nobody should touch
+the data over the i_size even if mmap allows to map it.

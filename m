@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268596AbUHLPxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268595AbUHLPz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268596AbUHLPxA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 11:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268597AbUHLPxA
+	id S268595AbUHLPz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 11:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268598AbUHLPz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 11:53:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:24999 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268596AbUHLPwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 11:52:53 -0400
-Message-ID: <411B91B9.6020200@suse.de>
-Date: Thu, 12 Aug 2004 17:50:17 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
-       Thomas Renninger <trenn@suse.de>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: Allow userspace do something special on overtemp
-References: <20040811085326.GA11765@elf.ucw.cz>	<1092323945.5028.177.camel@dhcppc4> <20040812081634.532e3fc7.rddunlap@osdl.org>
-In-Reply-To: <20040812081634.532e3fc7.rddunlap@osdl.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 11:55:26 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:30147 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S268595AbUHLPzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 11:55:22 -0400
+Message-Id: <200408121656.i7CGu8JA002731@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] 2.6.8-rc4-mm1 - UML fixes 
+In-Reply-To: Your message of "Wed, 11 Aug 2004 23:50:47 PDT."
+             <20040812065047.GG11200@holomorphy.com> 
+References: <200408120415.i7C4FWJd010494@ccure.user-mode-linux.org> <20040812033012.GE11200@holomorphy.com> <200408120541.i7C5fIJd010913@ccure.user-mode-linux.org>  <20040812065047.GG11200@holomorphy.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Aug 2004 12:56:08 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On 12 Aug 2004 11:19:05 -0400 Len Brown wrote:
-> 
-> | Simpler to delete the usermode call and rely on the (flexible)
-> | acpid event, yes?
-> | 
-> |  thermal.c |   29 +----------------------------
-> |  1 files changed, 1 insertion(+), 28 deletions(-)
-> 
-> a.  Yes, it should be more flexible than just 'overtemp'.
-> 
-> b.  For userspace, there are:
-> 
-> acpid -  http://sourceforge.net/projects/acpid/
-> 
-> acpi tools, like ospmd (by Andy Grover) - in CVS at
->   http://sourceforge.net/projects/acpi/
-> 
-> What others are there?
+wli@holomorphy.com said:
+> This might confuse CONFIG_DEBUG_PAGEALLOC, which uses THREAD_SIZE to
+> detect the end of the kernel stack in store_stackinfo() in mm/slab.c
+> and kstack_end() in include/linux/sched.h, and the sizing heuristic
+> for max_threads in fork_init().
 
-powersaved - http://forge.novell.com/modules/xfmod/project/?powersave
-handles APM, ACPI and cpufreq
--- 
-seife
+I think it's OK.  UML isn't lying about its stack size, just that snippet of
+code is misleading.
 
-"Any ideas, John?"
-"Well, surrounding thems out."
+> Also, how is this meant to interoperate with CONFIG_KERNEL_STACK_ORDER?
+>  It seems to ignore the setting from the config option. 
+
+I'm going to fix that.  For this patch I just did the quickest thing and 
+reverted back to what was there before.
+
+				Jeff
+

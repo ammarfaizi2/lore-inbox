@@ -1,66 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282120AbRKWLII>; Fri, 23 Nov 2001 06:08:08 -0500
+	id <S282111AbRKWLWv>; Fri, 23 Nov 2001 06:22:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282121AbRKWLH6>; Fri, 23 Nov 2001 06:07:58 -0500
-Received: from mail.terraempresas.com.br ([200.177.96.20]:47889 "EHLO
-	mail.terraempresas.com.br") by vger.kernel.org with ESMTP
-	id <S282120AbRKWLHu>; Fri, 23 Nov 2001 06:07:50 -0500
-Message-ID: <002801c1740f$7372f650$1300a8c0@marcelo>
-From: "Marcelo Borges Ribeiro" <marcelo@datacom-telematica.com.br>
-To: "Jeff Chua" <jchua@fedex.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.42.0111231034330.15987-100000@boston.corp.fedex.com>
-Subject: Re: Filesize limit on SMBFS
-Date: Fri, 23 Nov 2001 09:10:24 -0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282123AbRKWLWl>; Fri, 23 Nov 2001 06:22:41 -0500
+Received: from ATuileries-103-2-2-113.abo.wanadoo.fr ([217.128.34.113]:9460
+	"EHLO boo.taktile.com") by vger.kernel.org with ESMTP
+	id <S282111AbRKWLWc>; Fri, 23 Nov 2001 06:22:32 -0500
+Date: Fri, 23 Nov 2001 12:09:50 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.15 compile problem on PPC
+Message-ID: <20011123120950.A27067@boo.taktile.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+From: matthieu foillard <matthieu@taktile.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have fat32 partition, but the problem isn´t the size of partition it is
-8GB. The problem is that if you want to
-create a cpio backup of a linux system 3.5GB (I did that to reformat a ext2
-to a reiserfs) to an available fat32 space, in my case the backup size is
-allways 2GB and when I tried to extract back I saw "unexpected end of file".
-So I thought it was that famous kernel limitation of 2GB under any kind of
-partition, but i was informed that fat has this limitation too. So the
-kernel may suport files bigger than 2GB (I really don´t know, I just know
-that in my case with fat32 it did not and I saw this too with some oracle
-databases that could not be used when they grow and reach 2GB, may be a
-library problem too).
+do you know what's wrong with this ?
+thanks.
 
-That´s all.
------ Original Message -----
-From: "Jeff Chua" <jchua@fedex.com>
-To: "Andreas Dilger" <adilger@turbolabs.com>
-Cc: "Marcelo Borges Ribeiro" <marcelo@datacom-telematica.com.br>; "Tyler
-BIRD" <birdty@uvsc.edu>; <linux-kernel@vger.kernel.org>
-Sent: Friday, November 23, 2001 12:35 AM
-Subject: Re: Filesize limit on SMBFS
-
-
-> On Thu, 22 Nov 2001, Andreas Dilger wrote:
->
-> > VFAT does have a 2GB limit, AFAIK, but I could be wrong.
->
-> Use "mkdosfs -F32" or use msdos fdisk,format to get >2GB.
->
-> I'm using 3GB for VFAT partition.
->
-> Jeff.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+make[2]: Leaving directory `/usr/src/linux/arch/ppc/xmon'
+ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic arch/ppc/kernel/head.o init/main.o init/version.o \
+  --start-group \
+  arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/ppc/xmon/x.o \
+  drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pcmcia/pcmcia.o drivers/net/wireless/wireless_net.o drivers/macintosh/macintosh.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
+  net/network.o \
+  /usr/src/linux/lib/lib.a \
+  --end-group \
+  -o vmlinux
+  kernel/kernel.o: In function `show_task':
+  kernel/kernel.o(.text+0x17e0): undefined reference to `show_trace_task'
+  kernel/kernel.o(.text+0x17e0): relocation truncated to fit: R_PPC_REL24 show_trace_task
+  make[1]: *** [vmlinux] Erreur 1

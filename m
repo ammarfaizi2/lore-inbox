@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265342AbSKEXRR>; Tue, 5 Nov 2002 18:17:17 -0500
+	id <S265333AbSKEXNe>; Tue, 5 Nov 2002 18:13:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265343AbSKEXRR>; Tue, 5 Nov 2002 18:17:17 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:37902 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S265342AbSKEXRQ>; Tue, 5 Nov 2002 18:17:16 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: ps performance sucks
-Date: Tue, 5 Nov 2002 23:23:14 +0000 (UTC)
-Organization: Cistron
-Message-ID: <aq9jt2$k7h$1@ncc1701.cistron.net>
-References: <Pine.LNX.4.44L.0211052045550.3411-100000@imladris.surriel.com> <1036536496.777.57.camel@phantasy>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1036538594 20721 62.216.29.67 (5 Nov 2002 23:23:14 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S265334AbSKEXNd>; Tue, 5 Nov 2002 18:13:33 -0500
+Received: from packet.digeo.com ([12.110.80.53]:5539 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265333AbSKEXNc>;
+	Tue, 5 Nov 2002 18:13:32 -0500
+Message-ID: <3DC8521F.47270896@digeo.com>
+Date: Tue, 05 Nov 2002 15:19:59 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: 2.5.46: SCSI and/or ReiserFS v3.6 broken? Kernel panic
+References: <200211060006.10425.Dieter.Nuetzel@hamburg.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 05 Nov 2002 23:19:59.0844 (UTC) FILETIME=[DC6E8240:01C28521]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1036536496.777.57.camel@phantasy>,
-Robert Love  <rml@tech9.net> wrote:
->On Tue, 2002-11-05 at 17:46, Rik van Riel wrote:
->
->> On Tue, 5 Nov 2002, Albert D. Cahalan wrote:
->> 
->> > (tough luck if you're using some other ps)
->> 
->> Why do your procps mails always contain more references to
->> procps 2 than to your own version ?
->> 
->> What is your obsession with procps 2 ?
->
->Because he forked procps and cannot get over it.
+Dieter Nützel wrote:
+> 
+> VFS: Cannot open root device "803" or 08:03
+> Please append a correct "root=" boot option
+> Kernel panic: VFS: unable to mount root fs on 08:03
+> 
 
-For the record, I'm using Alberts procps (using Debian), I have
-no idea what the code looks like, but it has a very high
-useability factor. No idea why everybody keeps flaming Albert
-for doing a good job.
+That was happening to me yesterday as well.  After a bit
+of poking around and recompiling, it mysteriously went away.
 
-Mike.
+The same has happened about ten times over the past few months,
+and rebuilding the world makes it go away.  On ext3.
 
+Something is definitely fishy.  It's unhelpful that it cures
+itself just as you get geared up to fix it.
+
+Does a full rebuild fix it for you?

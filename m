@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129604AbRAVASw>; Sun, 21 Jan 2001 19:18:52 -0500
+	id <S131330AbRAVAWe>; Sun, 21 Jan 2001 19:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131330AbRAVASm>; Sun, 21 Jan 2001 19:18:42 -0500
-Received: from quechua.inka.de ([212.227.14.2]:40242 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S129604AbRAVAS1>;
-	Sun, 21 Jan 2001 19:18:27 -0500
-From: Bernd Eckenfels <inka-user@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - filesystem corruption on soft RAID5 in 2.4.0+
-Message-Id: <E14KUgh-0000kk-00@sites.inka.de>
-Date: Mon, 22 Jan 2001 01:18:23 +0100
+	id <S131387AbRAVAWY>; Sun, 21 Jan 2001 19:22:24 -0500
+Received: from p160.as-l001.contactel.cz ([212.65.194.160]:13440 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S131330AbRAVAWN>;
+	Sun, 21 Jan 2001 19:22:13 -0500
+Date: Mon, 22 Jan 2001 01:18:51 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: f5ibh <f5ibh@db0bm.ampr.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: display problem with matroxfb
+Message-ID: <20010122011851.D1152@ppc.vc.cvut.cz>
+In-Reply-To: <200101211448.PAA07015@db0bm.ampr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200101211448.PAA07015@db0bm.ampr.org>; from f5ibh@db0bm.ampr.org on Sun, Jan 21, 2001 at 03:48:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <14955.19182.663691.194031@notabene.cse.unsw.edu.au> you wrote:
-> There have been assorted reports of filesystem corruption on raid5 in
-> 2.4.0, and I have finally got a patch - see below.
-> I don't know if it addresses everybody's problems, but it fixed a very
-> really problem that is very reproducable.
+On Sun, Jan 21, 2001 at 03:48:44PM +0100, f5ibh wrote:
+> Hi !
+> 
+> I've a matrox mystique with 8Mb RAM.
+> I've a problem when I use matroxfb instead vesafb.
+> If I enable CONFIG_FB_VESA, I get the nice logo and all is right for me.
+> If I enable CONFIG_FB_MATROX, the beginning of each line is in the middle
+> of the screen and the cursor position does not match the prompt position.
+> Nevetheless, the screen is 'readable' (no garbage). I've read the files
+> in ../Documentation/fb and the Framebuffer-HOWTO.
 
-Do you know if it is safe with 2.4.0 kernels to swap on degraded soft raids?
-On the debian-devel list there is a discussion. Currently Debisn Systems to
-not do swap-on on boot if a raid partition is resyncing.
+Are you sure that you did not enabled both vesafb and matroxfb? They cannot
+work together. Also, does this happen only in 8bpp mode, or does this
+happen in other color depths too?
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-Greetings
-Bernd
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

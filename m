@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUF3IEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266584AbUF3IMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266324AbUF3IEt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 04:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266583AbUF3IEt
+	id S266584AbUF3IMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 04:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266583AbUF3IMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 04:04:49 -0400
-Received: from mail.szintezis.hu ([195.56.253.241]:61230 "HELO
-	hold.szintezis.hu") by vger.kernel.org with SMTP id S266324AbUF3IEp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 04:04:45 -0400
-Subject: Re: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
-From: Debi Janos <debi.janos@freemail.hu>
-To: John Heffner <jheffner@psc.edu>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, shemminger@osdl.org
-In-Reply-To: <Pine.NEB.4.33.0406291729500.11034-100000@dexter.psc.edu>
-References: <Pine.NEB.4.33.0406291729500.11034-100000@dexter.psc.edu>
-Content-Type: text/plain; charset=ISO-8859-2
-Message-Id: <1088582682.911.7.camel@alderaan.trey.hu>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 30 Jun 2004 10:04:52 +0200
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 30 Jun 2004 08:04:43.0904 (UTC) FILETIME=[E7125000:01C45E78]
+	Wed, 30 Jun 2004 04:12:13 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:1518 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S266584AbUF3IMK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 04:12:10 -0400
+To: davidm@hpl.hp.com
+Cc: arjanv@redhat.com, Jeff Garzik <jgarzik@pobox.com>,
+       Terence Ripperda <tripperda@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 32-bit dma allocations on 64-bit platforms
+References: <20040623183535.GV827@hygelac> <40D9D7BA.7020702@pobox.com>
+	<16605.1055.383447.805653@napali.hpl.hp.com>
+	<1088234187.2805.3.camel@laptop.fenrus.com>
+	<16609.2168.754171.270072@napali.hpl.hp.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 30 Jun 2004 04:00:00 -0400
+In-Reply-To: <16609.2168.754171.270072@napali.hpl.hp.com>
+Message-ID: <yq07jtp4gsf.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2004-06-29, k keltezéssel 23:36-kor John Heffner ezt írta:
+>>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
 
-> Sigh.  I ran in to this problem a year or so ago and it was a broken
-> firewall that was mangling the TCP window scale option.  I think the
-> firewall was an OpenBSD machine, and I was told the problem went away with
-> an upgrade.  I'm curious what they're running here.
-> 
-> The boundary 3 is special because it causes SWS avoidance to break.
-> 
->   -John
+>>>>> On Sat, 26 Jun 2004 09:16:27 +0200, Arjan van de Ven <arjanv@redhat.com> said:
+Arjan> the real solution is an iommu of course, but the highmem
+Arjan> solution has quite some merit too..... I know you disagree with
+Arjan> me on that one though.
 
-hmm. interesting. my server sits behind an openbsd packet filter... , but the gentoo's machines uses iptables firewall...
+David> Yes, some merits and some faults.  The real solution is iommu
+David> or 64-bit capable devices.  Interesting that graphics
+David> controllers should be last to get 64-bit DMA capability,
+David> considering how much more complex they are than disk
+David> controllers or NICs.
 
+You found a 64 bit capable sound card yet? ;-)
 
+Cheers,
+Jes

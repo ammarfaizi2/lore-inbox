@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264467AbTDPSRS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 14:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTDPSRS
+	id S264289AbTDPSQP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 14:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTDPSQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 14:17:18 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:36329 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264467AbTDPSRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 14:17:17 -0400
+	Wed, 16 Apr 2003 14:16:15 -0400
+Received: from 213-4-13-153.uc.nombres.ttd.es ([213.4.13.153]:29189 "HELO
+	small.felipe-alfaro.com") by vger.kernel.org with SMTP
+	id S264289AbTDPSQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 14:16:14 -0400
 Subject: Re: rh9 and 2.5 kernel difficulties
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+From: Felipe Alfaro Solana <yo@felipe-alfaro.com>
 To: Dave Mehler <dmehler26@woh.rr.com>
 Cc: LKML <linux-kernel@vger.kernel.org>
 In-Reply-To: <003b01c3043c$0876ad10$0200a8c0@satellite>
 References: <003b01c3043c$0876ad10$0200a8c0@satellite>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1050517736.598.12.camel@teapot.felipe-alfaro.com>
+Message-Id: <1050517678.598.10.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 16 Apr 2003 20:28:56 +0200
+Date: 16 Apr 2003 20:27:58 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -43,10 +43,11 @@ forever.
 
 Have you tried with the latest BitKeeper (-bk) snapshot available from
 http://www.kernel.org? Also, try disabling ACPI and APIC to see if it
-helps.
-
--- 
-Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-Linux Registered User #287198
+helps..
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,106 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265359AbUFVUBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUFVT2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265359AbUFVUBf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbUFVTdJ
+	id S265041AbUFVT2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 15:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265107AbUFVSH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:33:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16027 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265484AbUFVTYB
+	Tue, 22 Jun 2004 14:07:26 -0400
+Received: from mail.kroah.org ([65.200.24.183]:30901 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265052AbUFVRnT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:24:01 -0400
-To: torvalds@osdl.org
-Subject: [PATCH] (7/9) symlink patchkit (against -bk current)
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1Bcqs8-0003xg-RH@www.linux.org.uk>
-From: viro@www.linux.org.uk
-Date: Tue, 22 Jun 2004 20:23:56 +0100
+	Tue, 22 Jun 2004 13:43:19 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.7
+In-Reply-To: <1087926109433@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Tue, 22 Jun 2004 10:41:49 -0700
+Message-Id: <10879261093697@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        shm switched (it almost belongs to SL3, but it does some extra
-stuff after the link traversal).
+ChangeSet 1.1722.89.46, 2004/06/03 09:48:45-07:00, greg@kroah.com
 
-diff -urN RC7-bk5-xfs/mm/shmem.c RC7-bk5-shm/mm/shmem.c
---- RC7-bk5-xfs/mm/shmem.c	Wed Jun 16 10:26:30 2004
-+++ RC7-bk5-shm/mm/shmem.c	Tue Jun 22 15:13:11 2004
-@@ -40,6 +40,7 @@
- #include <linux/security.h>
- #include <linux/swapops.h>
- #include <linux/mempolicy.h>
-+#include <linux/namei.h>
+Add basic sysfs support for raw devices
+
+This is needed by people who use udev and want raw devices.
+SuSE is shipping with this patch.
+
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/char/raw.c |   25 ++++++++++++++++++++++++-
+ 1 files changed, 24 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/char/raw.c b/drivers/char/raw.c
+--- a/drivers/char/raw.c	Tue Jun 22 09:49:10 2004
++++ b/drivers/char/raw.c	Tue Jun 22 09:49:10 2004
+@@ -18,6 +18,7 @@
+ #include <linux/capability.h>
+ #include <linux/uio.h>
+ #include <linux/cdev.h>
++#include <linux/device.h>
+ 
  #include <asm/uaccess.h>
- #include <asm/div64.h>
- #include <asm/pgtable.h>
-@@ -1676,51 +1677,45 @@
- 	return 0;
+ 
+@@ -26,6 +27,7 @@
+ 	int inuse;
+ };
+ 
++static struct class_simple *raw_class;
+ static struct raw_device_data raw_devices[MAX_RAW_MINORS];
+ static DECLARE_MUTEX(raw_mutex);
+ static struct file_operations raw_ctl_fops;	     /* forward declaration */
+@@ -123,6 +125,13 @@
+ 	return ioctl_by_bdev(bdev, command, arg);
  }
  
--static int shmem_readlink_inline(struct dentry *dentry, char __user *buffer, int buflen)
--{
--	return vfs_readlink(dentry, buffer, buflen, (const char *)SHMEM_I(dentry->d_inode));
--}
--
- static int shmem_follow_link_inline(struct dentry *dentry, struct nameidata *nd)
- {
--	return vfs_follow_link(nd, (const char *)SHMEM_I(dentry->d_inode));
-+	nd_set_link(nd, (char *)SHMEM_I(dentry->d_inode));
-+	return 0;
- }
- 
--static int shmem_readlink(struct dentry *dentry, char __user *buffer, int buflen)
-+static int shmem_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	struct page *page = NULL;
- 	int res = shmem_getpage(dentry->d_inode, 0, &page, SGP_READ, NULL);
--	if (res)
--		return res;
--	res = vfs_readlink(dentry, buffer, buflen, kmap(page));
--	kunmap(page);
--	mark_page_accessed(page);
--	page_cache_release(page);
--	return res;
-+	nd_set_link(nd, res ? ERR_PTR(res) : kmap(page));
-+	return 0;
- }
- 
--static int shmem_follow_link(struct dentry *dentry, struct nameidata *nd)
-+static void shmem_put_link(struct dentry *dentry, struct nameidata *nd)
- {
--	struct page *page = NULL;
--	int res = shmem_getpage(dentry->d_inode, 0, &page, SGP_READ, NULL);
--	if (res)
--		return res;
--	res = vfs_follow_link(nd, kmap(page));
--	kunmap(page);
--	mark_page_accessed(page);
--	page_cache_release(page);
--	return res;
-+	if (!IS_ERR(nd_get_link(nd))) {
-+		struct page *page;
++static void bind_device(struct raw_config_request rq)
++{
++	class_simple_device_remove(MKDEV(RAW_MAJOR, rq.raw_minor));
++	class_simple_device_add(raw_class, MKDEV(RAW_MAJOR, rq.raw_minor),
++				      NULL, "raw%d", rq.raw_minor);
++}
 +
-+		page = find_get_page(dentry->d_inode->i_mapping, 0);
-+		if (!page)
-+			BUG();
-+		kunmap(page);
-+		mark_page_accessed(page);
-+		page_cache_release(page);
-+		page_cache_release(page);
+ /*
+  * Deal with ioctls against the raw-device control interface, to bind
+  * and unbind other raw devices.
+@@ -191,12 +200,15 @@
+ 			if (rq.block_major == 0 && rq.block_minor == 0) {
+ 				/* unbind */
+ 				rawdev->binding = NULL;
++				class_simple_device_remove(MKDEV(RAW_MAJOR, rq.raw_minor));
+ 			} else {
+ 				rawdev->binding = bdget(dev);
+ 				if (rawdev->binding == NULL)
+ 					err = -ENOMEM;
+-				else
++				else {
+ 					__module_get(THIS_MODULE);
++					bind_device(rq);
++					}
+ 			}
+ 			up(&raw_mutex);
+ 		} else {
+@@ -287,6 +299,15 @@
+ 		goto error;
+ 	}
+ 
++	raw_class = class_simple_create(THIS_MODULE, "raw");
++	if (IS_ERR(raw_class)) {
++		printk(KERN_ERR "Error creating raw class.\n");
++		cdev_del(&raw_cdev);
++		unregister_chrdev_region(dev, MAX_RAW_MINORS);
++		goto error;
 +	}
++	class_simple_device_add(raw_class, MKDEV(RAW_MAJOR, 0), NULL, "rawctl");
++
+ 	devfs_mk_cdev(MKDEV(RAW_MAJOR, 0),
+ 		      S_IFCHR | S_IRUGO | S_IWUGO,
+ 		      "raw/rawctl");
+@@ -309,6 +330,8 @@
+ 		devfs_remove("raw/raw%d", i);
+ 	devfs_remove("raw/rawctl");
+ 	devfs_remove("raw");
++	class_simple_device_remove(MKDEV(RAW_MAJOR, 0));
++	class_simple_destroy(raw_class);
+ 	cdev_del(&raw_cdev);
+ 	unregister_chrdev_region(MKDEV(RAW_MAJOR, 0), MAX_RAW_MINORS);
  }
- 
- static struct inode_operations shmem_symlink_inline_operations = {
--	.readlink	= shmem_readlink_inline,
-+	.readlink	= generic_readlink,
- 	.follow_link	= shmem_follow_link_inline,
- };
- 
- static struct inode_operations shmem_symlink_inode_operations = {
- 	.truncate	= shmem_truncate,
--	.readlink	= shmem_readlink,
-+	.readlink	= generic_readlink,
- 	.follow_link	= shmem_follow_link,
-+	.put_link	= shmem_put_link,
- };
- 
- static int shmem_parse_options(char *options, int *mode, uid_t *uid, gid_t *gid, unsigned long *blocks, unsigned long *inodes)
+

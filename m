@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264617AbTANPjL>; Tue, 14 Jan 2003 10:39:11 -0500
+	id <S264628AbTANPmV>; Tue, 14 Jan 2003 10:42:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbTANPjL>; Tue, 14 Jan 2003 10:39:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15115 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id <S264010AbTANPjJ>;
-	Tue, 14 Jan 2003 10:39:09 -0500
-Date: Tue, 14 Jan 2003 09:48:00 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: rodrigobaroni@yahoo.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Docs to a beginner
-Message-Id: <20030114094800.325359fb.reynolds@redhat.com>
-In-Reply-To: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
-References: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
-Organization: Red Hat GLS
-X-Mailer: Sylpheed version 0.8.8cvs5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7
- lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss
- of all files and data!
+	id <S264630AbTANPmU>; Tue, 14 Jan 2003 10:42:20 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:4872 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S264628AbTANPmO>; Tue, 14 Jan 2003 10:42:14 -0500
+Message-Id: <200301141551.h0EFp1602455@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "David S. Miller" <davem@redhat.com>
+cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK-2.5] Update the generic DMA API to take GFP_ flags on 
+In-Reply-To: Message from "David S. Miller" <davem@redhat.com> 
+   of "Tue, 14 Jan 2003 07:30:23 PST." <20030114.073023.89921980.davem@redhat.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 14 Jan 2003 10:51:01 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Overcoming an impressive lethargy, "Rodrigo F. Baroni"
-<rodrigobaroni@yahoo.com.br> scribbled:
+davem@redhat.com said:
+> Now what about the corollary, a platform that needs to sleep to setup
+> the cpu mapings in a race-free manner? 
 
->      I'm a computer science grad student, and I would
->  like to know some suggestions about links, docs and
->  books to start study the kernel linux, if wouldn't
->  bother anyone.
+This one is the big bug bear.  The DMA-mapping.txt doc says 
+pci_alloc_consistent "may be called in interrupt context".  Thus if the 
+dma_alloc with GFP_ATOMIC uses the same code path, it should be safe.  
+However, there are indications that pci_alloc_consistent wasn't interrupt safe 
+on certain platforms (see other email re PA-RISC).
 
-Start with Bovet and Cesati's "Understanding The Linux Kernel, 2nd Edition":
+In any event, we're no worse off than we were with the pci_ API.  Passing in 
+the flags will hopefully allow us to create GFP_ATOMIC safe paths in the arch 
+implementations which look iffy.
 
-	http://www.oreilly.com/catalog/linuxkernel2/
+James
 
-Cheers!
+

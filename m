@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131789AbRBAVTN>; Thu, 1 Feb 2001 16:19:13 -0500
+	id <S131851AbRBAVTD>; Thu, 1 Feb 2001 16:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131873AbRBAVTD>; Thu, 1 Feb 2001 16:19:03 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:11278 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S131789AbRBAVS4>; Thu, 1 Feb 2001 16:18:56 -0500
-Message-Id: <200102012117.f11LHiF21938@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Steve Lord <lord@sgi.com>, "Stephen C . Tweedie" <sct@redhat.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains 
-In-Reply-To: Message from Christoph Hellwig <hch@caldera.de> 
-   of "Thu, 01 Feb 2001 21:59:24 +0100." <20010201215924.A17509@caldera.de> 
-Date: Thu, 01 Feb 2001 15:17:44 -0600
-From: Steve Lord <lord@sgi.com>
+	id <S131847AbRBAVSx>; Thu, 1 Feb 2001 16:18:53 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:2564 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131789AbRBAVSt>;
+	Thu, 1 Feb 2001 16:18:49 -0500
+Message-ID: <20010201103620.A121@bug.ucw.cz>
+Date: Thu, 1 Feb 2001 10:36:20 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: ACPI breaks maestro
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE61C@orsmsx35.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE61C@orsmsx35.jf.intel.com>; from Grover, Andrew on Wed, Jan 31, 2001 at 02:20:44PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Feb 01, 2001 at 02:56:47PM -0600, Steve Lord wrote:
-> > And if you are writing to a striped volume via a filesystem which can do
-> > it's own I/O clustering, e.g. I throw 500 pages at LVM in one go and LVM
-> > is striped on 64K boundaries.
+Hi!
+
+> Do maestro and acpi share an interrupt on your machine?
+
+No.
+
+
+...and problem went away. Now I have both maestro and ACPI, and
+maestro works. It did not... Strange.
+
+> If so, is maestro's ISR ever getting called? Is ACPI's ISR
+> (drivers/acpi/events/evsci.c acpi_ev_sci_handler()) getting called and
+> reporting them handled when it shouldn't?
 > 
-> But usually I want to have pages 0-63, 128-191, etc together, because they ar
-> e
-> contingous on disk, or?
-
-I was just giving an example of how kiobufs might need splitting up more often
-than you think, crossing a stripe boundary is one obvious case. Yes you do
-want to keep the pages which are contiguous on disk together, but you will
-often get requests which cover multiple stripes, otherwise you don't really
-get much out of stripes and may as well just concatenate drives.
-
-Ideally the file is striped across the various disks in the volume, and one
-large write (direct or from the cache) gets scattered across the disks. All
-the I/O's run in parallel (and on different controllers if you have the 
-budget).
-
-Steve
-
+> Thanks -- Regards -- Andy
 > 
-> 	Christoph
+> > From: Pavel Machek [mailto:pavel@suse.cz]
 > 
-> -- 
-> Of course it doesn't work. We've performed a software upgrade.
+> > With acpi support turned on, maestro does not work. Turn acpi off, and
+> > maestro is working, again.
 
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

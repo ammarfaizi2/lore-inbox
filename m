@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVCVIbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVCVIeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262556AbVCVIbm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 03:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbVCVIbm
+	id S262568AbVCVIeP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 03:34:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbVCVIeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 03:31:42 -0500
-Received: from dwdmx2.dwd.de ([141.38.3.197]:34832 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id S262556AbVCVIbc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 03:31:32 -0500
-Date: Tue, 22 Mar 2005 08:31:20 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@diagnostix.dwd.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
-       "Moore, Eric  Dean" <emoore@lsil.com>
-Subject: Re: Fusion-MPT much faster as module
-In-Reply-To: <20050321152723.4b86dc3a.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0503220813290.17195@diagnostix.dwd.de>
-References: <Pine.LNX.4.61.0503081327560.28812@praktifix.dwd.de>
- <20050321152723.4b86dc3a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 22 Mar 2005 03:34:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60838 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262564AbVCVId4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 03:33:56 -0500
+Subject: Re: mmap/munmap bug
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hayim Shaul <hayim@post.tau.ac.il>
+Cc: Gleb Natapov <gleb@minantech.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0503221015500.10609@nova.cs.tau.ac.il>
+References: <Pine.LNX.4.61.0503211731430.9160@nova.cs.tau.ac.il>
+	 <1111430042.6952.70.camel@laptopd505.fenrus.org>
+	 <20050322075658.GA32445@minantech.com>
+	 <1111478733.7096.36.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0503221015500.10609@nova.cs.tau.ac.il>
+Content-Type: text/plain
+Date: Tue, 22 Mar 2005 09:33:49 +0100
+Message-Id: <1111480429.7096.47.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, Andrew Morton wrote:
+On Tue, 2005-03-22 at 10:23 +0200, Hayim Shaul wrote:
+> >> Does it support zero copy not only for send but also for receive? Can we
+> >> receive packets directly to userspace buffers?
+> >
+> > that it can't currently, but without some major protocol stack rework
+> > that's not going to be easy. If you want to help do that work,
+> > excellent! Be sure to contact the people on net-dev mailinglist since
+> > they are the ones having looked at this previously.
+> 
+> My case is simpler, as the application I attend it to is similar to a NAT. 
+> A packet comes in, a little alternation of the headers and off it goes 
+> again. So there's no TCP-stack or anything.
+> 
+> What I thought of doing, is map the skbuff to user-space. Have the 
+> user-application alter the headers. Send the (same) skbuff from 
+> kernel-space.
+> 
+> Does there exist anything equivalent?
 
-> Holger Kiehl <Holger.Kiehl@dwd.de> wrote:
->>
->> Hello
->>
->> On a four CPU Opteron compiling the Fusion-MPT as module gives much better
->> performance when compiling it in, here some bonnie++ results:
->>
->> Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
->>                      -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
->> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
->> compiled in  15872M 38366 71  65602  22 18348   4 53276 84  57947   7 905.4   2
->> module       15872M 51246 96 204914  70 57236  14 59779 96 264171  33 923.0   2
->>
->> This happens with 2.6.10, 2.6.11 and 2.6.11-bk2. Controller is a
->> Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI.
->>
->> Why is there such a large difference?
->>
->
-> Holger, this problem remains unresolved, does it not?  Have you done any
-> more experimentation?
->
-No. For now I just leave it as module.
+yes; netfilter has facilities for this actually afaik.
+tcpdump also uses something like this (but only in one direction), it
+mmaps some ringbuffer with incomming packets.
 
-> I must say that something funny seems to be happening here.  I have two
-> MPT-based Dell machines, neither of which is using a modular driver:
->
->
-> akpm:/usr/src/25> 0 hdparm -t /dev/sda
->
-> /dev/sda:
-> Timing buffered disk reads:  64 MB in  5.00 seconds = 12.80 MB/sec
->
-Got the same result when compiled in, always between 12 and 13 MB/s. As
-module it is approx. 75 MB/s.
 
-Hope that LSI Logic will find the problem.
-
-Another question I have is there a way in what SCSI mode (320, 160, etc)
-Fusion-MPT is running? Could not find anything in proc or dmesg. Adaptec
-has the following information in dmesg (and more in proc):
-
-    (scsi1:A:0): 320.000MB/s transfers (160.000MHz DT|IU|QAS, 16bit)
-
-Or has the Fusion-MPT some other tool to show this information?
-
-Holger

@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbUDCOKr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 09:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUDCOKr
+	id S261772AbUDCOLe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 09:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUDCOL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 09:10:47 -0500
-Received: from fep03.tuttopmi.it ([212.131.248.106]:5322 "EHLO
-	fep03-svc.flexmail.it") by vger.kernel.org with ESMTP
-	id S261746AbUDCOKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 09:10:46 -0500
-Date: Sat, 3 Apr 2004 16:16:05 +0200
-From: Elisabetta Galli <brainfs@tin.it>
-To: linux-kernel@vger.kernel.org
-Message-Id: <20040403161605.665e1a47.brainfs@tin.it>
-Reply-To: brainfs@tin.it
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Sat, 3 Apr 2004 09:11:27 -0500
+Received: from mail.shareable.org ([81.29.64.88]:46998 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261745AbUDCOLY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 09:11:24 -0500
+Date: Sat, 3 Apr 2004 15:11:12 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Tim Connors <tconnors+linuxkernel1080972247@astro.swin.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: solved (was Re: xterm scrolling speed - scheduling weirdness in 	2.6 ?!)
+Message-ID: <20040403141112.GD4706@mail.shareable.org>
+References: <1073227359.6075.284.camel@nosferatu.lan> <20040104225827.39142.qmail@web40613.mail.yahoo.com> <20040104233312.GA649@alpha.home.local> <20040104234703.GY1882@matchmail.com> <1073296227.8535.34.camel@tiger> <1080930132.1720.38.camel@localhost> <slrn-0.9.7.4-9426-9838-200404031530-tc@hexane.ssi.swin.edu.au> <slrn-0.9.7.4-25410-10302-200404031604-tc@hexane.ssi.swin.edu.au>
 Mime-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.254.1
-X-SA-Exim-Mail-From: brainfs@tin.it
-Subject: SiS 964 serial ata on Asus P4S800D problems
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.0 (built Tue, 16 Mar 2004 19:40:56 +0100)
-X-SA-Exim-Scanned: Yes (on mfa.master)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <slrn-0.9.7.4-25410-10302-200404031604-tc@hexane.ssi.swin.edu.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+Tim Connors wrote:
+> So this is much like the xterm situation - 2 CPU chewing things,
+> interacting with a third short lived low CPU job (ls or some
+> wwwoffle fork) that the other two are relying on (mozilla and xterm
+> directly, X indirectly)
+> 
+> This is my reason for not thinking this is an xterm bug. The scheduler
+> looks inherently fragile.
 
-I'm trying to set up a raid array using two Maxtor DMaxPlus 6Y080M0
-Sata, kernel 2.4.25 with libata 2.4.25-16 including support for Sis 964
-chipset by Uwe Koziolek / Jeff Garzik.
+It looks like scheduler fragility to me too.
 
-Although Bios recognizes the disks during the post, the kernel doesn't
-see them and gives out this message:
+I see the same with Gnome Terminal.  Most of the time, ls or cat are
+fast, with jump scrolling.  But occasionally they are much slower.
 
-SCSI subsystem driver Revision: 1.00
-libata version 1.02 loaded.
-PCI: Found IRQ 10 for device 00:05.0
-ata1: SATA max UDMA/133 cmd 0xEFF0 ctl 0xEFE6 bmdma 0xEF90 irq 10
-ata2: SATA max UDMA/133 cmd 0xEFA8 ctl 0xEFE2 bmdma 0xEF98 irq 10
-ata1: no device found (phy stat 5dfdfffe)
-ata1: thread exiting
-i8253 count too high! resetting..
-ata2: no device found (phy stat 0094108a)
-ata2: thread exiting
-scsi0 : sata_sis
-scsi1 : sata_sis
-i8253 count too high! resetting..
+There are two stable scheduling modes here - rapid switching with a
+few characters moved, or slow switching with lots of characters moved.
 
-Could it be a problem with the libata patch? Any suggestions?
+We'd like the former to decay spontaneously to the latter, quickly.
 
-Thank you.
+I like the observation that the terminal program can solve this
+problem by introducing a short delay after receiving a few bytes.
+However, that's not feasible for X itself, which must draw things very
+soon after receiving the commands so that animations are smooth when
+that's intended, which happens when a client deliberately sleeps
+rather than being preempted by having just sent a command to X.
 
-Elisa
+I think the problem is that the scheduler is aggressively preempting a
+task which has just written through a pipe/terminal/socket, when the
+task at the other end becomes ready to run as a result.
+
+If the writing task is still runnable, usually you want the writing
+task to continue for a little while more.  The scheduler is getting
+that right most times on my box with ls+Gnome Terminal+X, but
+occasionally gets stuck in a mode where it consistently gets it wrong
+until all the programs become idle again.  Then it recovers.
+This mode is quite rare, once every few days.
+
+> To help you work out my datapoint in relation to someone elses, my box
+> is a 500MHz AMD KII, now running 2.6.4. The video card is in no way
+> accelarated (crappy old nvidia card), so X likes to chew CPU easily.
+
+Dual Athlon 1500 MHz, Matrox Millenium video card.
+
+-- Jamie

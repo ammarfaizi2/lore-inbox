@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287842AbSABPQQ>; Wed, 2 Jan 2002 10:16:16 -0500
+	id <S287841AbSABPVR>; Wed, 2 Jan 2002 10:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287841AbSABPQG>; Wed, 2 Jan 2002 10:16:06 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:1922
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287837AbSABPP6>; Wed, 2 Jan 2002 10:15:58 -0500
-Date: Wed, 2 Jan 2002 10:03:11 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: David Relson <relson@osagesoftware.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Rodland <arodland@noln.com>
-Subject: Re: CML2 funkiness
-Message-ID: <20020102100311.A7819@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	David Relson <relson@osagesoftware.com>,
-	linux-kernel@vger.kernel.org, Andrew Rodland <arodland@noln.com>
-In-Reply-To: <200201010217.g012H2d00406@lists.us.dell.com> <web-54668623@admin.nni.com> <4.3.2.7.2.20020102100856.00e78f00@mail.osagesoftware.com>
+	id <S287847AbSABPVI>; Wed, 2 Jan 2002 10:21:08 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:56593 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S287846AbSABPUv>;
+	Wed, 2 Jan 2002 10:20:51 -0500
+Date: Wed, 2 Jan 2002 16:20:39 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jos? Luis Domingo L?pez <jdomingo@internautas.org>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: ATA RAID-0 FYI-Did the Impossible.
+Message-Id: <20020102162039.47398c2a.skraw@ithnet.com>
+In-Reply-To: <20011231190845.GB6585@localhost>
+In-Reply-To: <Pine.LNX.4.10.10112310558030.4280-100000@master.linux-ide.org>
+	<20011231181104.199b8f23.skraw@ithnet.com>
+	<20011231190845.GB6585@localhost>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4.3.2.7.2.20020102100856.00e78f00@mail.osagesoftware.com>; from relson@osagesoftware.com on Wed, Jan 02, 2002 at 10:10:42AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Relson <relson@osagesoftware.com>:
->  From past testing of CML2 I know it uses file config.out as its 
-> "memory".  Looking in it, I didn't see any CONFIG symbols for these symbols.
+On Mon, 31 Dec 2001 20:08:45 +0100
+José Luis Domingo López  <jdomingo@internautas.org> wrote:
+
+> On Monday, 31 December 2001, at 18:11:04 +0100,
+> Stephan von Krawczynski wrote:
 > 
-> There's definitely something here for Eric to fix!
+> > Andre, please give us some URL for the patch(es), so we all can try it
+> > ourselves, every person with a successful try will probably be one of your
+> > supporters. Is this applyable to 2.4?
+> > 
+> Maybe this is what Andre is talking about:
+> http://www.linuxdiskcert.org
+> 
+> Applies cleanly to 2.4.17, by the way.
 
-I'm on it.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+I tried on top of 2.4.17 on a pretty standard IDE setup (IBM 20 G, ATA 66, VIA
+chipset) and have no measureable performance difference. But I guess it
+couldn't have been expected in such an environment. Would be interesting to
+hear tests from more complex setups.
 
-Live free or die; death is not the worst of evils.
-	-- General George Stark.
+Regards,
+Stephan
+
+

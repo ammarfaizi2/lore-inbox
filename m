@@ -1,84 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317559AbSGORqP>; Mon, 15 Jul 2002 13:46:15 -0400
+	id <S317560AbSGORrM>; Mon, 15 Jul 2002 13:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317560AbSGORqO>; Mon, 15 Jul 2002 13:46:14 -0400
-Received: from ep09.kernel.pl ([212.87.11.162]:35496 "EHLO ep09.kernel.pl")
-	by vger.kernel.org with ESMTP id <S317559AbSGORqK>;
-	Mon, 15 Jul 2002 13:46:10 -0400
-Message-ID: <000b01c22c28$05cd9bb0$0201a8c0@witek>
-From: =?iso-8859-2?Q?Witek_Kr=EAcicki?= <adasi@kernel.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: [BUG 2.5.11-25] mremap hang
-Date: Mon, 15 Jul 2002 19:49:51 +0200
+	id <S317561AbSGORrL>; Mon, 15 Jul 2002 13:47:11 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:4001 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317560AbSGORrF>;
+	Mon, 15 Jul 2002 13:47:05 -0400
+Message-ID: <3D330AEF.3070105@us.ibm.com>
+Date: Mon, 15 Jul 2002 10:48:31 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Martin Bligh <mjbligh@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch[ Simple Topology API
+References: <3D2F75D7.3060105@us.ibm.com.suse.lists.linux.kernel> <3D2F9521.96D7080B@zip.com.au.suse.lists.linux.kernel> <p73ofdbv1a4.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 2.5.11 (at least, never tested earlier kernels) meine liebe RPM-updater
-Poldek is not working. I've sent posts to lkml without any response. This is
-decoded output from sysrq-t. Strace shows that poldek hangs on mremap().
-Blagam zrobcie cos bo to idzie sie powiesic, nie moge nawet normalnie
-pracowac. Dunno where the bug is, it's fully repeatable, anyone with PLD can
-make it :)
+Andi Kleen wrote:
+> Andrew Morton <akpm@zip.com.au> writes:
+>>AFAIK, the interested parties with this and the memory binding API are
+>>ia32-NUMA, ia64, PPC, some MIPS and x86-64-soon.  It would be helpful
+>>if the owners of those platforms could review this work and say "yes,
+>>this is something we can use and build upon".  Have they done that?
+> 
+> Comment from the x86-64 side: 
+> 
+> Current x86-64 NUMA essentially has no 'nodes', just each CPU has
+> local memory that is slightly faster than remote memory. This means
+> the node number would be always identical to the CPU number. As long
+> as the API provides it's ok for me. Just the node concept will not be
+> very useful on that platform. memblk will also be identity mapped to
+> node/cpu.
+> 
+> Some way to tell user space about memory affinity seems to be useful,
+> but...
+That shouldn't be a problem at all.  Since each architecture is responsible for 
+defining the 5 main topology functions, you could do this:
 
+#define _cpu_to_node(cpu)	(cpu)
+#define _memblk_to_node(memblk)	(memblk)
+#define _node_to_node(node)	(node)
+#define _node_to_cpu(node)	(node)
+#define _node_to_memblk(node)	(node)
 
-<cut>
-ksymoops 2.4.4 on i686 2.5.25.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.25/ (default)
-     -m /boot/System.map-2.5.25-1.1 (specified)
+> General comment:
+> 
+> I don't see what the application should do with the memblk concept
+> currently. Just knowing about it doesn't seem too useful. 
+> Surely it needs some way to allocate memory in a specific memblk to be useful?
+> Also doesn't it need to know how much memory is available in each memblk?
+> (otherwise I don't see how it could do any useful partitioning)
+For that, you need to look at the Memory Binding API that I sent out moments 
+after this patch...  It builds on top of this infrastructure to allow binding 
+processes to individual memory blocks or groups of memory blocks.
 
-Warning (expand_objects): object
-/lib/modules/2.5.25-1.1/kernel/fs/ext2/ext2.o for module ext2 has changed
-since load
-Warning (expand_objects): object
-/lib/modules/2.5.25-1.1/kernel/drivers/ide/ide-disk.o for module ide-disk
-has changed since load
-Warning (expand_objects): object
-/lib/modules/2.5.25-1.1/kernel/drivers/ide/ide-mod.o for module ide-mod has
-changed since load
-poldek        D C1791E30     0  3452      1          3453   605 (NOTLB)
-Using defaults from ksymoops -t elf32-i386 -a i386
-Call Trace: [<c016ee45>] [<c011051f>] [<c0110034>] [<c013023f>] [<c0130022>]
-   [<c0125ff6>] [<c012606b>] [<c0124c5b>] [<c01088bc>] [<c012b9bc>]
-[<c012bb39>]
-   [<c012c0df>] [<c012c22e>] [<c010872b>]
-Warning (Oops_read): Code line not seen, dumping what data is available
+Cheers!
 
-Proc;  poldek
->>EIP; c1791e30 <_end+14d9264/20551434>   <=====
-Trace; c016ee45 <rwsem_down_read_failed+115/138>
-Trace; c011051f <.text.lock.fault+7/78>
-Trace; c0110034 <do_page_fault+0/4e4>
-Trace; c013023f <__alloc_pages+47/1a0>
-Trace; c0130022 <_alloc_pages+16/18>
-Trace; c0125ff6 <do_anonymous_page+18a/1c4>
-Trace; c012606b <do_no_page+3b/2dc>
-Trace; c0124c5b <zap_pmd_range+3f/50>
-Trace; c01088bc <error_code+34/40>
-Trace; c012b9bc <move_one_page+2c/17c>
-Trace; c012bb39 <move_page_tables+2d/7c>
-Trace; c012c0df <do_mremap+557/658>
-Trace; c012c22e <sys_mremap+4e/6f>
-Trace; c010872b <syscall_call+7/b>
+-Matt
 
-
-4 warnings issued.  Results may not be reliable.
-
-</cut>
-
-Witek Krecicki
-
+> 
+> -Andi
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

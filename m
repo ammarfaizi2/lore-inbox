@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316397AbSFZDaP>; Tue, 25 Jun 2002 23:30:15 -0400
+	id <S316194AbSFZDr4>; Tue, 25 Jun 2002 23:47:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316390AbSFZDaO>; Tue, 25 Jun 2002 23:30:14 -0400
-Received: from [212.163.132.67] ([212.163.132.67]:22291 "HELO mail.ru")
-	by vger.kernel.org with SMTP id <S316372AbSFZDaN>;
-	Tue, 25 Jun 2002 23:30:13 -0400
-From: Your friend <hxlcqx@mail.ru>
-Subject: =?ISO-8859-1?Q?=E7=C4=C5?= =?ISO-8859-1?Q?=C9=D3=CB=C1=D4=D8?= =?ISO-8859-1?Q?=D0=CF=C4=D2=D5=C7=D5?= =?ISO-8859-1?Q?=C9=CC=C9?= =?ISO-8859-1?Q?=C4=D2=D5=C7=C1?=
-Reply-To: hxlcqx@mail.ru
-X-Priority: 3
-X-MSMail-Priority: Normal
-Organization: Good Mail Inc
-X-Mailer: Microsoft Outlook Express 4.72.3110.5
+	id <S316195AbSFZDrz>; Tue, 25 Jun 2002 23:47:55 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:60176 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S316194AbSFZDrz>; Tue, 25 Jun 2002 23:47:55 -0400
+Date: Tue, 25 Jun 2002 20:47:47 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Austin Gonyou <austin@digitalroadkill.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Urgent, Please respond - Re: max_scsi_luns and 2.4.19-pre10.
+Message-ID: <20020625204747.D26789@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Austin Gonyou <austin@digitalroadkill.net>,
+	linux-kernel@vger.kernel.org
+References: <1025052385.19462.5.camel@UberGeek> <1025056235.19779.4.camel@UberGeek> <20020625194806.C26789@pegasys.ws> <1025060739.20340.6.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="koi8-r"
-Date: Wed, 26 Jun 2002 06:29:58 -0700
-Message-Id: <20020626033013Z316372-22020+10599@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1025060739.20340.6.camel@UberGeek>; from austin@digitalroadkill.net on Tue, Jun 25, 2002 at 10:05:39PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Здравствуйте!
+On Tue, Jun 25, 2002 at 10:05:39PM -0500, Austin Gonyou wrote:
+> On Tue, 2002-06-25 at 21:48, jw schultz wrote:
+> > I'm no expert on this bit but look in
+> > drivers/scsi/scsi_scan.c for CONFIG_SCSI_MULTI_LUN 
+> > 
+> > #ifdef CONFIG_SCSI_MULTI_LUN
+> > static int max_scsi_luns = 8;
+> > #else
+> > static int max_scsi_luns = 1;
+> > #endif
+> 
+> This is, but there seems to be something more fundamental here. I'm
+> using the -aa patches, and the static int max_scsi_luns = 8; is actually
+> static int max_scsi_luns = MAX_SCSI_LUNS;
+> 
+> where above is: #define MAX_SCSI_LUNS 0xFFFFFFFF; 
+> but I'm not sure if this syntax is 0xFFFFFFFF == 8 or 2^n. 
+>
+> To me, it seems like 8. I'm using pre10-aa2, I'm going to try pre10-aa4
+> as well, but if I must I'm going to hard-code the kernel bits I need I
+> supposed to make static int max_scsi_luns = MAX_SCSI_LUNS; into static
+> int max_scsi_luns = 16; to ensure it works at the level I need. 
+> 
 
-Где искать подругу или друга, мужа или жену, у нас или в США, Канаде и т.д.? Как познакомиться в Инете?
+I don't have -aa but that is -1.  I would suggest a bit of
+greping.
 
-Недавно открылся новый и пока абсолютно бесплатный интернациональный сервер знакомств
-http://www.cool-date.net/ . Направление - интернациональные знакомства. Хотя можно найти пару и в своем городе на Родине.
-Для желающих найти мужа или жену из "развитых капиталистических" стран, это - настоящий подарок. 
+I seriously doubt changing it to 16 would cause data
+corruption.  It will either work or not.  If it doesn't you
+will crash on boot/init.
 
-А для желающих найти пару недалеко от дома - "Добро пожаловать на сайт знакомств "LoveCity.Ru"
-Если Вам одиноко, скучно, а Вы хотите приятно провести время в хорошей компании, то этот сайт для Вас!
-Анекдоты, куча пикантных фото, он-лайн игры, приколы и многое другое...   http://www.lovecity.ru/
 
-Обращайтесь, мы с удовольствием ответим на все Ваши вопросы. 
-E-mail: Date@toast.com
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Удачи Вам и успехов!
- 
-Данная рассылка произведена в соответствии с частью 4 статьи 29 Конституции России. 
-Ваш адрес был получен из открытых источников и используется для единичной доставки сообщения. В случае нежелания получать коммерческие предложения, ответьте на это письмо с пометкой в Теме "REMOVE". 
-Ваш e-mail будет удален из базы.
+		Remember Cernan and Schmitt

@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUH1Qak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267417AbUH1QeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267416AbUH1Qak (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267413AbUH1QZp
+	id S267417AbUH1QeP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUH1Qbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:25:45 -0400
-Received: from dsl092-149-163.wdc2.dsl.speakeasy.net ([66.92.149.163]:61450
-	"EHLO localhost") by vger.kernel.org with ESMTP id S267389AbUH1QXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:23:15 -0400
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-From: Brian Beattie <beattie@beattie-home.net>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Kenneth Lavrsen <kenneth@lavrsen.dk>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1093628062.15313.11.camel@gonzales>
-References: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
-	 <1093628062.15313.11.camel@gonzales>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1093629262.2812.2.camel@kokopelli>
+	Sat, 28 Aug 2004 12:31:39 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:65493 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267486AbUH1Q0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:26:40 -0400
+Date: Sat, 28 Aug 2004 18:26:34 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch][1/3] ipc/ BUG -> BUG_ON conversions
+Message-ID: <20040828162633.GG12772@fs.tum.de>
+References: <20040828151137.GA12772@fs.tum.de> <20040828151544.GB12772@fs.tum.de> <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 28 Aug 2004 12:22:51 -0400
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-27 at 13:34, Xavier Bestel wrote:
-> Le ven 27/08/2004 à 18:26, Kenneth Lavrsen a écrit :
+On Sat, Aug 28, 2004 at 12:05:10PM -0400, Kyle Moffett wrote:
+> On Aug 28, 2004, at 11:15, Adrian Bunk wrote:
+> >The patch below does BUG -> BUG_ON conversions in ipc/ .
+> >--- linux-2.6.9-rc1-mm1-full-3.4/ipc/shm.c.old	2004-08-28 
+> >15:55:28.000000000 +0200
+> >+++ linux-2.6.9-rc1-mm1-full-3.4/ipc/shm.c	2004-08-28 
+> >16:02:56.000000000 +0200
+> >@@ -86,8 +86,7 @@
+> > static inline void shm_inc (int id) {
+> > 	struct shmid_kernel *shp;
+> >
+> >-	if(!(shp = shm_lock(id)))
+> >-		BUG();
+> >+	BUG_ON(!(shp = shm_lock(id)));
 > 
-> > My name is Kenneth Lavrsen. I maintain the open source project Motion.
-> > Probably half of the users of Motion - and there are 1000s of them will 
-> > soon realise that next time they download a Kernel their camera will no 
-> > longer work.
-> [...]
-> > I personally have 8 such cameras worth a fortune in working action and as a 
-> > Linux user I am so disappointed and angry with the way that the maintainers 
-> > (or is it in reality a single individual with too much power?) are 
-> > threating me and the many other Linux users.
+> This won't work:
 > 
-> If you value a working binary driver more than anything else, have you
-> considered switching over to a proprietary OS including said driver ?
+> With debugging mode:
+> if (unlikely(!(shp = shm_lock(id)))) BUG();
 > 
+> Without debugging mode:
+> do { } while(0)
 
-One can also point out, that his current kernel will continue to work
-and support those cameras.
+Where in 2.6.9-rc1-mm1 is this "Without debugging mode" defined?
 
-> Bitching won't get you very far, obviously.
-> 
-> 	Xav
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Anything you put in BUG_ON() must *NOT* have side effects.
+>...
+
+I'd have said exactly the same some time ago, but I was convinced by 
+Arjan that if done correctly, a BUG_ON() with side effects is possible  
+with no extra cost even if you want to make BUG configurably do nothing.
+
+cu
+Adrian
+
 -- 
-Brian Beattie   LFS12947 | "Honor isn't about making the right choices.
-beattie@beattie-home.net | It's about dealing with the consequences."
-www.beattie-home.net     | -- Midori Koto
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

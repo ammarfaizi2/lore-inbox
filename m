@@ -1,153 +1,291 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbTI1KrL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 06:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTI1KrK
+	id S262359AbTI1Kn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 06:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbTI1Kn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 06:47:10 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:460 "EHLO
+	Sun, 28 Sep 2003 06:43:28 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:63691 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262364AbTI1KrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 06:47:03 -0400
-Date: Sun, 28 Sep 2003 12:46:55 +0200
+	id S262359AbTI1KnV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 06:43:21 -0400
+Date: Sun, 28 Sep 2003 12:43:12 +0200
 From: Tomas Szepe <szepe@pinerecords.com>
 To: "Brown, Len" <len.brown@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: HT not working by default since 2.4.22
-Message-ID: <20030928104654.GB9770@louise.pinerecords.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE0CC870C@hdsmsx402.hd.intel.com> <20030928104312.GA9770@louise.pinerecords.com>
+Message-ID: <20030928104312.GA9770@louise.pinerecords.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC870C@hdsmsx402.hd.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="W/nzBZO5zC0uMSeA"
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20030928104312.GA9770@louise.pinerecords.com>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC870C@hdsmsx402.hd.intel.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-> > > Hmm, I happen to know of a system that fails to detect the 
-> > > sibling CPU(s) with CONFIG_ACPI_HT_ONLY set, whereas w/o it
-> > > "all fine running's."
-> > > 
-> > > Is this a bug?
+> > Hmm, I happen to know of a system that fails to detect the 
+> > sibling CPU(s) with CONFIG_ACPI_HT_ONLY set, whereas w/o it
+> > "all fine running's."
 > > 
-> > Yes, could you file it on bugzilla.org Power management/acpi?
+> > Is this a bug?
 > 
-> It seems 2.4.23-pre5 can't enable the sibling CPU even with
-> full ACPI enabled on this system...  .config attached,
-> relevant parts of dmesg follow:
+> Yes, could you file it on bugzilla.org Power management/acpi?
 
-Forgot to attach the .config, sorry.
+It seems 2.4.23-pre5 can't enable the sibling CPU even with
+full ACPI enabled on this system...  .config attached,
+relevant parts of dmesg follow:
+
+(The kernels I was talking about previously were 2.4.22-ac*.)
+
+Compaq ProLiant ML350 G3 detected: force use of acpi=ht
+ACPI: RSDP (v000 COMPAQ                                    ) @ 0x000f4f70
+ACPI: RSDT (v001 COMPAQ D14      0x00000002 Ò 0x0000162e) @ 0x2fffa000
+ACPI: FADT (v001 COMPAQ D14      0x00000002 Ò 0x0000162e) @ 0x2fffa040
+ACPI: MADT (v001 COMPAQ 00000083 0x00000002 Ò 0x0000162e) @ 0x2fffa100
+ACPI: SPCR (v001 COMPAQ SPCRRBSU 0x00000001 Ò 0x0000162e) @ 0x2fffa1c0
+ACPI: DSDT (v001 COMPAQ     DSDT 0x00000001 MSFT 0x0100000b) @ 0x00000000
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] disabled)
+ACPI: LAPIC (acpi_id[0x02] lapic_id[0x02] disabled)
+ACPI: LAPIC (acpi_id[0x04] lapic_id[0x04] disabled)
+ACPI: LAPIC (acpi_id[0x06] lapic_id[0x06] enabled)
+Processor #6 Pentium 4(tm) XEON(tm) APIC version 20
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] disabled)
+ACPI: LAPIC (acpi_id[0x03] lapic_id[0x03] disabled)
+ACPI: LAPIC (acpi_id[0x05] lapic_id[0x05] disabled)
+ACPI: LAPIC (acpi_id[0x07] lapic_id[0x07] enabled)
+Processor #7 Pentium 4(tm) XEON(tm) APIC version 20
+ACPI: LAPIC_NMI (acpi_id[0xff] polarity[0x0] trigger[0x0] lint[0x1])
+Using ACPI for processor (LAPIC) configuration information
+Intel MultiProcessor Specification v1.4
+    Virtual Wire compatibility mode.
+OEM ID: COMPAQ   Product ID: PROLIANT     APIC at: 0xFEE00000
+I/O APIC #2 Version 17 at 0xFEC00000.
+I/O APIC #3 Version 17 at 0xFEC01000.
+I/O APIC #4 Version 17 at 0xFEC02000.
+I/O APIC #5 Version 17 at 0xFEC03000.
+Enabling APIC mode: Flat.	Using 4 I/O APICs
+Processors: 2
+Kernel command line: root=/dev/md0 rw vga=normal
+Initializing CPU#0
+Detected 1993.588 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 3971.48 BogoMIPS
+Memory: 774560k/786408k available (1819k kernel code, 11460k reserved, 436k data, 288k init, 0k highmem)
+Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Inode cache hash table entries: 65536 (order: 7, 524288 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 65536 (order: 6, 262144 bytes)
+Page-cache hash table entries: 262144 (order: 8, 1048576 bytes)
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 512K
+CPU: Physical Processor ID: 3
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: bfebfbff 00000000 00000000 00000000
+CPU:             Common caps: bfebfbff 00000000 00000000 00000000
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 512K
+CPU: Physical Processor ID: 3
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: bfebfbff 00000000 00000000 00000000
+CPU:             Common caps: bfebfbff 00000000 00000000 00000000
+CPU0: Intel(R) Xeon(TM) CPU 2.00GHz stepping 07
+per-CPU timeslice cutoff: 1462.63 usecs.
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Error: only one processor found.
+WARNING: No sibling found for CPU 0.
+ENABLING IO-APIC IRQs
+Setting 2 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
+Setting 3 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 3 ... ok.
+Setting 4 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 4 ... ok.
+Setting 5 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 5 ... ok.
+init IO_APIC IRQs
+ IO-APIC (apicid-pin) 2-0, 3-0, 3-1, 3-2, 3-3, 3-4, 3-5, 3-6, 3-7, 3-8, 3-9, 3-10, 3-11, 3-12, 3-13, 3-14, 3-15, 4-0, 4-1, 4-2, 4-3, 4-4, 4-5, 4-6, 4-7, 4-8, 4-9, 4-10, 4-11, 4-12, 4-13, 4-14, 4-15, 5-0, 5-1, 5-2, 5-3, 5-4, 5-5, 5-6, 5-7, 5-8, 5-9, 5-10, 5-11, 5-12, 5-13, 5-14, 5-15 not connected.
+..TIMER: vector=0x31 pin1=2 pin2=0
+number of MP IRQ sources: 16.
+number of IO-APIC #2 registers: 16.
+number of IO-APIC #3 registers: 16.
+number of IO-APIC #4 registers: 16.
+number of IO-APIC #5 registers: 16.
+testing the IO APIC.......................
+
+IO APIC #2......
+.... register #00: 02000000
+.......    : physical APIC id: 02
+.......    : Delivery Type: 0
+.......    : LTS          : 0
+.... register #01: 000F0011
+.......     : max redirection entries: 000F
+.......     : PRQ implemented: 0
+.......     : IO APIC version: 0011
+.... register #02: 02000000
+.......     : arbitration: 02
+.... IRQ redirection table:
+ NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+ 00 000 00  1    0    0   0   0    0    0    00
+ 01 001 01  0    0    0   0   0    1    1    39
+ 02 001 01  0    0    0   0   0    1    1    31
+ 03 001 01  1    1    0   1   0    1    1    41
+ 04 001 01  0    0    0   0   0    1    1    49
+ 05 001 01  1    1    0   1   0    1    1    51
+ 06 001 01  0    0    0   0   0    1    1    59
+ 07 001 01  0    0    0   0   0    1    1    61
+ 08 001 01  0    0    0   0   0    1    1    69
+ 09 001 01  1    1    0   1   0    1    1    71
+ 0a 001 01  1    1    0   1   0    1    1    79
+ 0b 001 01  1    1    0   1   0    1    1    81
+ 0c 001 01  0    0    0   0   0    1    1    89
+ 0d 001 01  0    0    0   0   0    1    1    91
+ 0e 001 01  0    0    0   0   0    1    1    99
+ 0f 001 01  0    0    0   0   0    1    1    A1
+
+IO APIC #3......
+.... register #00: 03000000
+.......    : physical APIC id: 03
+.......    : Delivery Type: 0
+.......    : LTS          : 0
+.... register #01: 000F0011
+.......     : max redirection entries: 000F
+.......     : PRQ implemented: 0
+.......     : IO APIC version: 0011
+.... register #02: 03000000
+.......     : arbitration: 03
+.... IRQ redirection table:
+ NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+ 00 000 00  1    0    0   0   0    0    0    00
+ 01 000 00  1    0    0   0   0    0    0    00
+ 02 000 00  1    0    0   0   0    0    0    00
+ 03 000 00  1    0    0   0   0    0    0    00
+ 04 000 00  1    0    0   0   0    0    0    00
+ 05 000 00  1    0    0   0   0    0    0    00
+ 06 000 00  1    0    0   0   0    0    0    00
+ 07 000 00  1    0    0   0   0    0    0    00
+ 08 000 00  1    0    0   0   0    0    0    00
+ 09 000 00  1    0    0   0   0    0    0    00
+ 0a 000 00  1    0    0   0   0    0    0    00
+ 0b 000 00  1    0    0   0   0    0    0    00
+ 0c 000 00  1    0    0   0   0    0    0    00
+ 0d 000 00  1    0    0   0   0    0    0    00
+ 0e 000 00  1    0    0   0   0    0    0    00
+ 0f 000 00  1    0    0   0   0    0    0    00
+
+IO APIC #4......
+.... register #00: 04000000
+.......    : physical APIC id: 04
+.......    : Delivery Type: 0
+.......    : LTS          : 0
+.... register #01: 000F0011
+.......     : max redirection entries: 000F
+.......     : PRQ implemented: 0
+.......     : IO APIC version: 0011
+.... register #02: 04000000
+.......     : arbitration: 04
+.... IRQ redirection table:
+ NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+ 00 000 00  1    0    0   0   0    0    0    00
+ 01 000 00  1    0    0   0   0    0    0    00
+ 02 000 00  1    0    0   0   0    0    0    00
+ 03 000 00  1    0    0   0   0    0    0    00
+ 04 000 00  1    0    0   0   0    0    0    00
+ 05 000 00  1    0    0   0   0    0    0    00
+ 06 000 00  1    0    0   0   0    0    0    00
+ 07 000 00  1    0    0   0   0    0    0    00
+ 08 000 00  1    0    0   0   0    0    0    00
+ 09 000 00  1    0    0   0   0    0    0    00
+ 0a 000 00  1    0    0   0   0    0    0    00
+ 0b 000 00  1    0    0   0   0    0    0    00
+ 0c 000 00  1    0    0   0   0    0    0    00
+ 0d 000 00  1    0    0   0   0    0    0    00
+ 0e 000 00  1    0    0   0   0    0    0    00
+ 0f 000 00  1    0    0   0   0    0    0    00
+
+IO APIC #5......
+.... register #00: 05000000
+.......    : physical APIC id: 05
+.......    : Delivery Type: 0
+.......    : LTS          : 0
+.... register #01: 000F0011
+.......     : max redirection entries: 000F
+.......     : PRQ implemented: 0
+.......     : IO APIC version: 0011
+.... register #02: 05000000
+.......     : arbitration: 05
+.... IRQ redirection table:
+ NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+ 00 000 00  1    0    0   0   0    0    0    00
+ 01 000 00  1    0    0   0   0    0    0    00
+ 02 000 00  1    0    0   0   0    0    0    00
+ 03 000 00  1    0    0   0   0    0    0    00
+ 04 000 00  1    0    0   0   0    0    0    00
+ 05 000 00  1    0    0   0   0    0    0    00
+ 06 000 00  1    0    0   0   0    0    0    00
+ 07 000 00  1    0    0   0   0    0    0    00
+ 08 000 00  1    0    0   0   0    0    0    00
+ 09 000 00  1    0    0   0   0    0    0    00
+ 0a 000 00  1    0    0   0   0    0    0    00
+ 0b 000 00  1    0    0   0   0    0    0    00
+ 0c 000 00  1    0    0   0   0    0    0    00
+ 0d 000 00  1    0    0   0   0    0    0    00
+ 0e 000 00  1    0    0   0   0    0    0    00
+ 0f 000 00  1    0    0   0   0    0    0    00
+IRQ to pin mappings:
+IRQ0 -> 0:2
+IRQ1 -> 0:1
+IRQ3 -> 0:3
+IRQ4 -> 0:4
+IRQ5 -> 0:5
+IRQ6 -> 0:6
+IRQ7 -> 0:7
+IRQ8 -> 0:8
+IRQ9 -> 0:9
+IRQ10 -> 0:10
+IRQ11 -> 0:11
+IRQ12 -> 0:12
+IRQ13 -> 0:13
+IRQ14 -> 0:14
+IRQ15 -> 0:15
+.................................... done.
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1993.4372 MHz.
+..... host bus clock speed is 99.6718 MHz.
+cpu: 0, clocks: 996718, slice: 498359
+CPU0<T0:996704,T1:498336,D:9,S:498359,C:996718>
+Waiting on wait_init_idle (map = 0x0)
+All processors have done init_idle
+ACPI: Subsystem revision 20030916
+ACPI: Interpreter disabled.
+PCI: PCI BIOS revision 2.10 entry at 0xf0094, last bus=5
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: ACPI tables contain no PCI IRQ routing entries
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 00:0f.1
+PCI: Device 00:00 not found by BIOS
+PCI: Device 00:01 not found by BIOS
+PCI: Device 00:02 not found by BIOS
+PCI: Device 00:78 not found by BIOS
+PCI: Device 00:7b not found by BIOS
+PCI: Device 00:88 not found by BIOS
+PCI: Device 00:8a not found by BIOS
+Linux NET4.0 for Linux 2.4
+...
 
 -- 
 Tomas Szepe <szepe@pinerecords.com>
-
---W/nzBZO5zC0uMSeA
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename="config.gz"
-Content-Transfer-Encoding: base64
-
-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
-j+r98OlInbj9ytP2jHq5bvl/AD+rr4pSAAA=
-
---W/nzBZO5zC0uMSeA--

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSESQ3L>; Sun, 19 May 2002 12:29:11 -0400
+	id <S314646AbSESQrV>; Sun, 19 May 2002 12:47:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314548AbSESQ3K>; Sun, 19 May 2002 12:29:10 -0400
-Received: from servidor.unam.mx ([132.248.10.1]:29342 "EHLO servidor.unam.mx")
-	by vger.kernel.org with ESMTP id <S314514AbSESQ27>;
-	Sun, 19 May 2002 12:28:59 -0400
-Subject: Re: Problem with swap partition.
-From: David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>
-To: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <p04320406b90d7b6ecba5@[192.168.3.11]>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 19 May 2002 11:42:24 -0500
-Message-Id: <1021826546.2430.10.camel@hikaru>
+	id <S314670AbSESQrV>; Sun, 19 May 2002 12:47:21 -0400
+Received: from ns.suse.de ([213.95.15.193]:35334 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314646AbSESQrU>;
+	Sun, 19 May 2002 12:47:20 -0400
+Date: Sun, 19 May 2002 18:47:20 +0200
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: nVidia NIC/IDE/something support?
+Message-ID: <20020519184720.J15417@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205191514.g4JFEsV13608@mail.pronto.tv> <E179T6e-0003x5-00@the-village.bc.nu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-05-19 at 10:56, Christian Jaeger wrote:
-> At 11:04 Uhr -0500 19.05.2002, David Eduardo Gomez Noguera wrote:
-> >The 3'rd partition is a Linux Swap,
-> >/dev/hdc3         77401     77545     73080   82  Linux swap
-> 
->           ^^
-> 
-> >but swapon -a gives
-> >swapon: /dev/hdc5: Invalid argument
-> 
->                   ^^
-> 
-> What about correct /etc/fstab entries? :)
-> 
-> BTW you have done a mkswap on the swap partition, did you?
-> 
+On Sun, May 19, 2002 at 05:00:24PM +0100, Alan Cox wrote:
+ > > I just bought this Asus board, A7N266-VM, with nVidia IDE, LAN and god knows 
+ > > chipset. Linux doesn't understand it, and I really want it... Any plans of 
+ > > supporting this? See below for /proc/pci output.
+ > 
+ > Depends if Nvidia want to be helpful. The audio is now supported (someone
+ > was able to deduce that it was a clone of the intel one). For the ethernet
+ > you might want to try random things that expect that much mmio and I/O 
+ > space until you find what they licensed if its not their own
 
-God, am i stupid.
-
-sorry about the mail.
-
-(i had only make swap partitions once like two years ago, and forgot
-about them)
+In 2.5 the amd74xx.c ide driver has an entry to support the nforce IDE
+too, so it looks like quite a bit of the chipset could be variants of
+existing components.
 
 -- 
-ICQ: 15605359 Bicho
-                                  =^..^=
-First, they ignore you. Then they laugh at you. Then they fight you.
-Then you win. Mahatma Gandhi.
--------------------------------気検体の一致------------------------------------
-暑さ寒さも彼岸まで。
-恋にししょうなし。恋はしあんの他。
-アン アン アン とっても大好き
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,23 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136097AbRECDtD>; Wed, 2 May 2001 23:49:03 -0400
+	id <S136037AbRECEFf>; Thu, 3 May 2001 00:05:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136094AbRECDsx>; Wed, 2 May 2001 23:48:53 -0400
-Received: from cr845378-a.rchrd1.on.wave.home.com ([24.157.76.7]:29304 "EHLO
-	mielke.cc") by vger.kernel.org with ESMTP id <S136084AbRECDsr>;
-	Wed, 2 May 2001 23:48:47 -0400
+	id <S136084AbRECEF0>; Thu, 3 May 2001 00:05:26 -0400
+Received: from cr845378-a.rchrd1.on.wave.home.com ([24.157.76.7]:48504 "EHLO
+	mielke.cc") by vger.kernel.org with ESMTP id <S136037AbRECEFN>;
+	Thu, 3 May 2001 00:05:13 -0400
+Date: Thu, 3 May 2001 00:03:39 -0400 (EDT)
+From: Dave Mielke <dave@mielke.cc>
+To: "Linux Kernel (mailing list)" <linux-kernel@vger.kernel.org>
+Subject: Swap space deallocation speed. (fwd)
+Message-ID: <Pine.LNX.4.30.0105030001060.22875-200000@dave.private.mielke.cc>
+MIME-Version: 1.0
+Content-Type: MULTIPART/Mixed; BOUNDARY="-1463811584-1375844607-988859735=:22875"
+Content-ID: <Pine.LNX.4.30.0105030001110.22875@dave.private.mielke.cc>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+---1463811584-1375844607-988859735=:22875
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.30.0105030001111.22875@dave.private.mielke.cc>
+
+Please excuse my resending this request for help. I'd first sent it to the old
+address for the kernel mailing list (@vger.rutgers.edu). I then tried bouncing
+that message to the right address, but that, too, had its problems. I believe
+I'm finally doing it correctly.
+---------- Forwarded message ----------
 Date: Wed, 2 May 2001 23:15:35 -0400 (EDT)
 From: Dave Mielke <dave@mielke.cc>
 To: "Linux Kernel (mailing list)" <linux-kernel@vger.rutgers.edu>
 Subject: Swap space deallocation speed.
-Message-ID: <Pine.LNX.4.30.0105022257040.22875-200000@dave.private.mielke.cc>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811584-1375844607-988859735=:22875"
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
----1463811584-1375844607-988859735=:22875
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 Ever since I've upgraded to the 2.2.17-14 i386 kernel as provided by RedHat,
 I've had several hard crashes. One allowed "/var/log/messages" to be synced, so
@@ -58,11 +74,11 @@ Phone: 1-613-726-0014 | Ottawa, Ontario   | Word of God. Please contact me
 EMail: dave@mielke.cc | Canada  K2A 1H7   | if you're concerned about Hell.
 
 ---1463811584-1375844607-988859735=:22875
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="crash.log"
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="crash.log"
 Content-Transfer-Encoding: BASE64
 Content-ID: <Pine.LNX.4.30.0105022315350.22875@dave.private.mielke.cc>
 Content-Description: 
-Content-Disposition: attachment; filename="crash.log"
+Content-Disposition: ATTACHMENT; FILENAME="crash.log"
 
 QXByIDE2IDExOjIzOjA2IGRhdmUga2VybmVsOiBVbmFibGUgdG8gaGFuZGxl
 IGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAw
@@ -96,4 +112,3 @@ bGwrNTIvNTZdICANCkFwciAxNiAxMToyMzowNiBkYXZlIGtlcm5lbDogQ29k
 ZTogZjYgNDYgMjQgMDEgNzQgNDkgOGIgNGMgMjQgNWMgMzkgNGUgMTQgNzUg
 NDAgOGIgNGMgMjQgNTggOGIgIA0K
 ---1463811584-1375844607-988859735=:22875--
-

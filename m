@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270050AbRHMJao>; Mon, 13 Aug 2001 05:30:44 -0400
+	id <S270036AbRHMJbe>; Mon, 13 Aug 2001 05:31:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270042AbRHMJaf>; Mon, 13 Aug 2001 05:30:35 -0400
-Received: from NS.iNES.RO ([193.230.220.1]:37610 "EHLO smtp.ines.ro")
-	by vger.kernel.org with ESMTP id <S270028AbRHMJaY>;
-	Mon, 13 Aug 2001 05:30:24 -0400
-Date: Mon, 13 Aug 2001 12:30:38 +0300 (EEST)
-From: Andrei Ivanov <andrei.ivanov@ines.ro>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: AC'97 Audio -- what driver?
-In-Reply-To: <Pine.LNX.4.33.0108131722190.1555-100000@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.30.0108131229290.30560-100000@webdev.ines.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270042AbRHMJbZ>; Mon, 13 Aug 2001 05:31:25 -0400
+Received: from staff.cs.usyd.edu.au ([129.78.8.1]:48084 "helo
+	staff.cs.usyd.edu.au") by vger.kernel.org with SMTP
+	id <S270036AbRHMJbF>; Mon, 13 Aug 2001 05:31:05 -0400
+Date: Mon, 13 Aug 2001 19:29:32 +1100
+From: bruce@cs.usyd.edu.au (Bruce Janson)
+Subject: ptrace(), fork(), sleep(), exit(), SIGCHLD
+To: linux-kernel@vger.kernel.org
+Message-Id: <20010813093116Z270036-761+611@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Jeff Chua wrote:
+Hi,
+    The following program behaves incorrectly when traced:
 
->
-> /proc/pci says ...
->
->   Bus  0, device  31, function  5:
->     Multimedia audio controller: Intel Corporation 82801BA(M) AC'97 Audio
-> (rev 2).
->       IRQ 11.
->       I/O at 0xdc00 [0xdcff].
->       I/O at 0xd800 [0xd83f].
->
->
-> Is there a sound driver for this?
->
+  $ uname -a
+  Linux dependo 2.4.2-2 #1 Sun Apr 8 19:37:14 EDT 2001 i686 unknown
+  $ cc -v
+  Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+  gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
+  $ strace -V
+  strace -- version 4.2
+  $ cat t.c
+  main()
+  {
+  	switch (fork())
+  	{
+  	case -1:
+  		write(2, "fork\n", 5);
+  		break;
+  
+  	case 0:
+  		usleep(1000000);
+  		break;
+  
+  	default:
+  		if (usleep(5000000) == -1)
+  			write(2, "wrong\n", 6);
+  		break;
+  	}
+  
+  	exit(0);
+  }
+  $ cc t.c
+  $ time ./a.out
+  
+  real    0m5.011s
+  user    0m0.000s
+  sys     0m0.000s
+  $ time strace -o /dev/null ./a.out
+  wrong
+  
+  real    0m1.025s
+  user    0m0.010s
+  sys     0m0.010s
+  $ 
 
-Use -> Intel ICH (i8xx) audio support.
+The problem appears to be that, when traced, the child process' exit()
+interrupts the parent's usleep() with a SIGCHLD, the latter returning EINTR.
+It also fails in the same way under Linux 2.2.16 and 2.2.19.
 
-
+What am I missing?

@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270573AbTGNMdm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270619AbTGNMcV
+	id S265182AbTGNNzA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270675AbTGNNx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:32:21 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:16768 "EHLO phoebee")
-	by vger.kernel.org with ESMTP id S270602AbTGNMSf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:18:35 -0400
-Date: Mon, 14 Jul 2003 14:33:20 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: linux-kernel@vger.kernel.org
-Subject: [QUESTION] 2.6.0-test1 + nvidia 4363 driver
-Message-Id: <20030714143320.1f6707a5.martin.zwickel@technotrend.de>
-Organization: TechnoTrend AG
-X-Mailer: Sylpheed version 0.9.0claws93 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
+	Mon, 14 Jul 2003 09:53:26 -0400
+Received: from mail.telpin.com.ar ([200.43.18.243]:30151 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S270620AbTGNNsZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:48:25 -0400
+Date: Mon, 14 Jul 2003 11:03:50 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: netdev@oss.sgi.com
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] IPVS' Kconfig LBLC and LBLCR configuration typo
+Message-ID: <20030714140350.GB1389@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	netdev@oss.sgi.com, linux-net@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.,+Tl4JF/W'(A3q"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (mail)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.,+Tl4JF/W'(A3q
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
 Hi there!
 
-Anybody got a working patch for nvidia  with the 2.6.0-test1 kernel?
-The 2.5 doesn't work for the 2.6.
+The following patch fixes what looks like a typo in ipvs' Kconfig
+(net/ipv4/ipvs/Kconfig).
 
-Regards,
-Martin
+Both the IP_VS_LBLC and IP_VS_LBLCR schedulings have the same tristate
+line (well, not the same, IP_VS_LBLCR's has a 'g' missing at the end):
 
--- 
-MyExcuse:
-runaway cat on system.
+tristate "locality-based least-connection with replication scheduling"
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
+But it looks like LBLC should be "locality-based least-connection
+scheduling" and LBLCR "locality-based least-connection with replication
+scheduling".
 
-TechnoTrend AG <http://www.technotrend.de>
 
---=.,+Tl4JF/W'(A3q
-Content-Type: application/pgp-signature
+Thanks,
+		Alberto
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/EqMTmjLYGS7fcG0RAoKcAJ9USqheA1Vw2Ofkzm8471YEOGTAqACfZJUD
-GyJ3mlpgFR6PgKK9QmdF3cI=
-=dUD8
------END PGP SIGNATURE-----
+--- Kconfig.orig	2003-07-14 10:32:06.000000000 -0300
++++ Kconfig	2003-07-14 10:32:57.000000000 -0300
+@@ -147,7 +147,7 @@
+ 	  unsure, say N.
+ 
+ config	IP_VS_LBLC
+-	tristate "locality-based least-connection with replication scheduling"
++	tristate "locality-based least-connection scheduling"
+         depends on IP_VS
+ 	---help---
+ 	  The locality-based least-connection scheduling algorithm is for
+@@ -163,7 +163,7 @@
+ 	  unsure, say N.
+ 
+ config  IP_VS_LBLCR
+-	tristate "locality-based least-connection with replication schedulin"
++	tristate "locality-based least-connection with replication scheduling"
+         depends on IP_VS
+ 	---help---
+ 	  The locality-based least-connection with replication scheduling
 
---=.,+Tl4JF/W'(A3q--
+
+

@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313205AbSDOUZ1>; Mon, 15 Apr 2002 16:25:27 -0400
+	id <S313217AbSDOUgh>; Mon, 15 Apr 2002 16:36:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313206AbSDOUZ1>; Mon, 15 Apr 2002 16:25:27 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:19973
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S313205AbSDOUZZ>; Mon, 15 Apr 2002 16:25:25 -0400
-Date: Mon, 15 Apr 2002 13:18:09 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Rex Tsai <chihchun@kalug.linux.org.tw>
-cc: linux-kernel@vger.kernel.org, Andy Jeffries <lkml@andyjeffries.co.uk>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: HPT372A with DMA support ?
-In-Reply-To: <Pine.LNX.4.10.10204151854270.25849-100000@kalug>
-Message-ID: <Pine.LNX.4.10.10204151317360.1699-100000@master.linux-ide.org>
+	id <S313220AbSDOUgg>; Mon, 15 Apr 2002 16:36:36 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:52731 "HELO
+	egghead.curl.com") by vger.kernel.org with SMTP id <S313217AbSDOUgf>;
+	Mon, 15 Apr 2002 16:36:35 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: link() security
+In-Reply-To: <20020415143641.A46232@hiwaay.net> <a9fb6v$d2f$1@cesium.transmeta.com>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 15 Apr 2002 16:36:36 -0400
+Message-ID: <s5g3cxwk8bv.fsf@egghead.curl.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-Thanks, I missed that message.
-I have a 372 but not tested it yet.
+> > Funny that news server authors realized that storing messages in files
+> > by themselves is a bad idea, while at the same time mail server authors
+> > realized that storing messages together in a single file is a bad idea.
+> > Which one is right?  Both?  Neither?
+> > 
+> 
+> It depends on your access patterns.  Newer news server use what I
+> would classify as custom filesystems (which is what binary databases
+> are, by and large) rather than "single files."
 
-Cheer,
+Exactly.  Although I would go farther.
 
-On Mon, 15 Apr 2002, Rex Tsai wrote:
+I would not be at all surprised if a traditional news spool worked
+just fine on a "real" high-performance file system; i.e., one whose
+lookup/creat/unlink was not linear in the number of directory entries.
+I wonder how well an old-fashioned news spool would perform on XFS,
+for instance.
 
-> 
-> Hi, I have a HighPoint RocketRAID 133 with HPT372A chipset. 
-> (firmware revision is 2.31)
-> 
-> My currect kernel version is 2.4.19-pre5-ac3, this version contains 
-> HighPoint "366", "366",  "368", "370", "370A", "372", "374" support.
-> 
-> When booting with this kernel I get "hde lost interrupt",  I tried
-> hacking the ide drivers myself a little. Now, it works without DMA
-> support, I submit my patch to linux kernel mailing list. here is the
-> patch http://marc.theaimsgroup.com/?l=linux-kernel&m=101848841720406&w=2
-> 
-> I still trying to improve on DMA support. Can you offer me 
-> any help ? ex. data sheet, manual, driver source code, etc ? 
-> 
-> Best Regards, 
-> Rex Tsai, <chihchun_at_kalug.linux.org.tw>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+"One file per message" has many advantages, both for news and for
+mail.  The biggest advantage is conceptual simplicity.  It is really
+nice when you can use traditional Unix tools (like grep, mv, rm) to
+fix things when they break.  Because they always break, sooner or
+later.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Sure, you may wind up with 50,000 files in one directory.  But I would
+rather rely on the filesystem wizards to deal with that than switch to
+some obscure custom database format.  Maybe that's just me...
 
+ - Pat

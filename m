@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266387AbRGBGwj>; Mon, 2 Jul 2001 02:52:39 -0400
+	id <S266389AbRGBHIt>; Mon, 2 Jul 2001 03:08:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266388AbRGBGw3>; Mon, 2 Jul 2001 02:52:29 -0400
-Received: from femail5.sdc1.sfba.home.com ([24.0.95.85]:51883 "EHLO
-	femail5.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S266387AbRGBGwX>; Mon, 2 Jul 2001 02:52:23 -0400
-Message-Id: <5.1.0.14.2.20010702064958.00aae850@mail.abac.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 02 Jul 2001 06:53:11 -0700
-To: Marius Nita <marius@pdx.edu>
-From: Android <android@abac.com>
-Subject: Re: Uncle Sam Wants YOU!
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010701153250.A7939@pdx.edu>
-In-Reply-To: <20010701130151.A10989@ChaoticDreams.ORG>
- <3B3F5F5C.40907@lycosmail.com>
- <20010701130151.A10989@ChaoticDreams.ORG>
+	id <S266391AbRGBHIi>; Mon, 2 Jul 2001 03:08:38 -0400
+Received: from nic.lth.se ([130.235.20.3]:30867 "EHLO nic.lth.se")
+	by vger.kernel.org with ESMTP id <S266389AbRGBHI2>;
+	Mon, 2 Jul 2001 03:08:28 -0400
+Date: Mon, 2 Jul 2001 09:08:21 +0200
+From: Jakob Borg <jakob@borg.pp.se>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: USB Keyboard errors with 2.4.5-ac
+Message-ID: <20010702090821.A3084@borg.pp.se>
+In-Reply-To: <3B3CBA86.355500A@inet.com> <20010630194835.A730@borg.pp.se> <20010701233942.D22232@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010701233942.D22232@kroah.com>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux narayan 2.4.5 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 01, 2001 at 11:39:42PM -0700, Greg KH wrote:
+> On Sat, Jun 30, 2001 at 07:48:36PM +0200, Jakob Borg wrote:
+> > You are using an SMP kernel. In my experience, nothing USB works with an SMP
+> > kernel >2.4.3.
+> 
+> Hm, that's a pretty vague statement :)
+> I'm happily running USB on a few SMP machines around here.  What are the
+> problems that you are having?
 
->_I_ think it's childish to claim the above. You _may_ have a choice, yes, but
->is that choice equal or fair? Microsoft has infected both the user area as
->much as the business/work area. If you want to purchase a PC because your
->computer just fried and you want to finish a paper or something, but you
->_want_ to use KOffice on Linux, and you don't care for Windows/Word
->whatsoever, what are the chances that if you run down to the computer store
->your "choices" will be Windows/Word, _period_! You'll then have to make sure
->that none of the hardware in it is Software driven-like winmodems-and that
->it's supported by Linux (or whatever OS you prefer). Almost all computers out
->there (from well-known compianies) ship with winmodems. How is that a choice?
->You have a choice to waste $70 on a harware modem, when someone who uses
->Windows doesn't?
->
->--
->    Marius Nita
+Well, the problems I have (had; I'll get to that) are:
 
-I'm not about to defend MicroSoft, but I will say this:
-When it comes to getting PC's, the best solution is to build your own.
-You pick the parts you want, you choose the software to install.
-This way you are sure to get a standard machine, and you get the
-original CD's and manuals that make up the software.
-Of course, the best bet in that area is to just download Linux from your
-favorite FTP site and not worry about spending money on Microsoft products.
+* Hard lockup whenever you try to access an USB audio device
+* Sudden reboot sometimes when streaming video from an USB webcam.
 
-                      -- Ted
+The first problem appeared in 2.4.3 and only on SMP, but I know work around
+that by using the alternate UHCI driver which seems to work well so far. The
+second problem persists, but that is probably just a bug in the camera
+driver. Nevertheless, all USB devices I tried on { SMP, kernel >2.4.3,
+non-alternate UHCI driver } failed, so my statement was correct. :)
 
+Since the alternate UHCI driver works I am satisified, but perhaps someone
+interested in the normal driver should look into what happened between 2.4.3
+and 2.4.4.
 
+//jb

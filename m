@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264366AbUAHMAO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 07:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUAHMAO
+	id S264372AbUAHMF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 07:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbUAHMF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 07:00:14 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:40858 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S264366AbUAHMAJ (ORCPT
+	Thu, 8 Jan 2004 07:05:56 -0500
+Received: from mail1.drkw.com ([62.129.121.35]:7879 "EHLO mail1.drkw.com")
+	by vger.kernel.org with ESMTP id S264372AbUAHMFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 07:00:09 -0500
-Date: Thu, 8 Jan 2004 13:00:08 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: blockfile access patterns logging
-Message-ID: <20040108120008.GA7415@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, axboe@suse.de,
-	linux-kernel@vger.kernel.org
+	Thu, 8 Jan 2004 07:05:53 -0500
+From: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
+To: linux-kernel@vger.kernel.org
+Subject: SIS 648FX AGP fixed - but clarification needed
+Content-Type: text/plain
+Message-Id: <1073563512.502.66.camel@cobra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Date: Thu, 08 Jan 2004 12:05:12 +0000
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: Oliver.Heilmann@drkw.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens,
+I have an SIS 648FX in a notebook computer with an ATI Radeon9600 (M10)
+AGP card. AGP did not work so I had a look and found that ATTBASE had
+moved to caps + 0x18, AGPCTRL needed to be set and that there was a
+weird delay after the bridge has been enabled(see below). Things work
+now.
 
-For some time I've wanted to log exactly what linux is reading and writing
-from my harddisk - for a variety of reasons. The current reason is that my
-very idle laptop writes to disk every once in a while (or reads, I don't
-know).
+I would like to put my fix into a proper patch but am still unclear on
+the following points:
 
-Now, conceptually this should not be very hard, but I'd like to ask your
-thoughts on where I might insert some crude logging? There are lots of
-places that might be better or worse for some reason.
+1. According to sis_agp_device_ids the 648 chipset is supported. Does
+this mean that the "plain" 648 is actually supported and my "FX"
+iteration is so fundamentally different (even thought is has the same
+device id).
 
-I'd love to be as close to the physical block device as possible, short of
-rewriting actual IDE drivers.
+2. Once the agpEnable bit is set in the bridge's cmd register the config
+space of the master is completely screwed up for a while. Trying to
+configure/enable the master during that period mostly crashes the
+system. Waiting does the trick. (Annoyingly, simply waiting for the
+master to become readable again is not good enough, one still needs to
+wait longer for things to become stable). None of the other chipsets
+seem to need this. Can anybody explain? Perhaps I missed something? If
+there is no other way and I do have to stick with the delay, then I
+suppose it would not be a good idea to polute the generic agp_enable
+with it?!
 
-Any tips? Or is this idea crazy?
+Oliver
 
-Thanks!
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Oliver Heilmann <oliver.heilmann@drkw.com>
+
+
+--------------------------------------------------------------------------------
+The information contained herein is confidential and is intended solely for the
+addressee. Access by any other party is unauthorised without the express 
+written permission of the sender. If you are not the intended recipient, please 
+contact the sender either via the company switchboard on +44 (0)20 7623 8000, or
+via e-mail return. If you have received this e-mail in error or wish to read our
+e-mail disclaimer statement and monitoring policy, please refer to 
+http://www.drkw.com/disc/email/ or contact the sender.
+--------------------------------------------------------------------------------
+

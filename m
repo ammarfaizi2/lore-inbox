@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319623AbSH3RJj>; Fri, 30 Aug 2002 13:09:39 -0400
+	id <S319627AbSH3RUV>; Fri, 30 Aug 2002 13:20:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319624AbSH3RJj>; Fri, 30 Aug 2002 13:09:39 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:33482 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S319623AbSH3RJi>;
-	Fri, 30 Aug 2002 13:09:38 -0400
-Date: Fri, 30 Aug 2002 19:16:27 +0200 (CEST)
+	id <S319628AbSH3RUV>; Fri, 30 Aug 2002 13:20:21 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:27107 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319627AbSH3RUU>;
+	Fri, 30 Aug 2002 13:20:20 -0400
+Date: Fri, 30 Aug 2002 19:28:03 +0200 (CEST)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
 Subject: Re: [patch] scheduler fixes, 2.5.32-BK
-In-Reply-To: <Pine.LNX.4.44.0208301902570.527-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208301910430.821-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0208301012480.2163-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208301916370.910-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-we used to have the global semaphore_lock - which, if used separately from
-the waitqueue lock, indeed can cause the unuse of the semaphore structure
-before the spin_unlock in wakeup() completes.
+On Fri, 30 Aug 2002, Linus Torvalds wrote:
 
-but since 2.5.25 or so we use the semaphore waitqueue's spinlock for
-semaphore locking - this also neatly solves the semaphore-unuse problem.  
-Four architectures, sparc, ia64, arm and x86-64 still use the global
-semaphore_lock, but the other 13 architectures use the waitqueue spinlock
-already.
+> So why couldn't this happen? This is what used to happen before, I don't
+> see that consolidating the spinlock had any impact at all.
+> 
+> 	CPU #0						CPU #1
+> 
+> 	down()						up()
+> 
+> 		lock decl (negative)
+> 		__down()				lock incl
+> 			spinlock()			__up()
+> 			atomic_add_negative()
+> 				success - break
+> 			spinunlock();
+> 		}					wake_up()
+> 	return - semaphore is now invalid		spin_lock()
+> 
+> 							BOOM!
 
-(unless there's something else i missed.)
+hm, indeed, you are right - completions are the only safe method.
+
+i'm starting to wonder whether it's possible at all (theoretically) to
+have a mutex design which has the current semaphore implementation's good
+fastpath properties, but could also be used on stack.
 
 	Ingo
-
 

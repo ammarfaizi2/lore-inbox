@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131562AbRC0UeA>; Tue, 27 Mar 2001 15:34:00 -0500
+	id <S131579AbRC0UtU>; Tue, 27 Mar 2001 15:49:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131563AbRC0Udu>; Tue, 27 Mar 2001 15:33:50 -0500
-Received: from scooby-s1.lineone.net ([194.75.152.224]:45287 "EHLO
-	scooby.lineone.net") by vger.kernel.org with ESMTP
-	id <S131562AbRC0Udo>; Tue, 27 Mar 2001 15:33:44 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Alan.Cox@linux.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19: Bad #include's in drivers/char/toshiba.c 
-In-Reply-To: Message from Horst von Brand <vonbrand@inf.utfsm.cl> 
-   of "Tue, 27 Mar 2001 14:17:58 EDT." <200103271817.f2RIHwRe014238@tigger.valparaiso.cl> 
-In-Reply-To: <200103271817.f2RIHwRe014238@tigger.valparaiso.cl> 
-Mime-Version: 1.0
+	id <S131573AbRC0UtK>; Tue, 27 Mar 2001 15:49:10 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:39685 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131579AbRC0Usw>; Tue, 27 Mar 2001 15:48:52 -0500
+Message-ID: <3AC0FCB5.1F7AC0EF@t-online.de>
+Date: Tue, 27 Mar 2001 22:48:53 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: James Simmons <jsimmons@linux-fbdev.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: mouse problems in 2.4.2 -> lost byte
+In-Reply-To: <Pine.LNX.4.31.0103271226140.847-100000@linux.local>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Mar 2001 21:32:40 +0100
-From: Jonathan Buzzard <jonathan@buzzard.org.uk>
-Message-Id: <E14i08u-0001HW-00@happy.buzzard.org.uk>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Simmons wrote:
+> 
+> >This is easily explained: some byte of the mouse protocol was lost.
+> >(Some mouse protocols are even designed to allow
+> >easy resync/recovery by fixed bit patterns!)
+> >
+> >Write an intelligent mouse driver for XFree86 to compensate for
+> >lost bytes.
+> 
+> Or write a kernel input device driver. In fact I probable have a mouse
+> driver for you. 
+
+Where can I get your driver?
 
 
-vonbrand@inf.utfsm.cl said:
-> The build fails here for lack of "toshiba.h". Changing that to
-> <linux/toshiba.h> gets the build through. While at it, I fixed some
-> "#include<..." (no ' ' before the '<'), which may be right but look
-> ugly IMVHO. 
+>        What kind of mouse do you have? Then set your X config to
+> have the following:
+> 
+> Section "Pointer"
+>             Protocol    "ImPS/2"
+>             Device      "/dev/input/mice"
 
-Apologies to all for that. I have been a bit of a dunderhead. I spotted the
-mistake originally while checking the patch. Did the patch again, and promptly
-sent the wrong one to Alan.
-
-JAB.
-
--- 
-Jonathan A. Buzzard                 Email: jonathan@buzzard.org.uk
-Northumberland, United Kingdom.       Tel: +44(0)1661-832195
-
-
-
--- 
-Jonathan A. Buzzard                 Email: jonathan@buzzard.org.uk
-Northumberland, United Kingdom.       Tel: +44(0)1661-832195
-
-
+What is better in using /dev/input/mice than /dev/psaux
+on this problem exactly?

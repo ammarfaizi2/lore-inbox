@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUHJJtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUHJJvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbUHJJtF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 05:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUHJJtF
+	id S263971AbUHJJvA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 05:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbUHJJuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:49:05 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:14227 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263778AbUHJJsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:48:11 -0400
-Date: Tue, 10 Aug 2004 11:48:11 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
-       schilling@fokus.fraunhofer.de, axboe@suse.de
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040810094811.GI10361@merlin.emma.line.org>
-Mail-Followup-To: Albert Cahalan <albert@users.sf.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
-	schilling@fokus.fraunhofer.de, axboe@suse.de
-References: <1092082920.5761.266.camel@cube>
+	Tue, 10 Aug 2004 05:50:44 -0400
+Received: from cantor.suse.de ([195.135.220.2]:54221 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263818AbUHJJuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 05:50:23 -0400
+Date: Tue, 10 Aug 2004 09:28:24 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rik van Riel <riel@redhat.com>, davidsen@tmr.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
+Message-ID: <20040810072824.GA12445@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+	davidsen@tmr.com, linux-kernel@vger.kernel.org
+References: <411299D4.5060001@tmr.com> <Pine.LNX.4.44.0408051647440.8229-100000@dhcp83-102.boston.redhat.com> <20040805142019.712c678a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1092082920.5761.266.camel@cube>
+In-Reply-To: <20040805142019.712c678a.akpm@osdl.org>
+X-Operating-System: Linux 2.6.7-0-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 09 Aug 2004, Albert Cahalan wrote:
 
-> Shall we rip the printk() calls out of the kernel? Many
-> of them are weird. They might confuse the end users.
-> 
-> Joerg:
->    "WARNING: Cannot do mlockall(2).\n"
->    "WARNING: This causes a high risk for buffer underruns.\n"
-> Fixed:
->    "Warning: You don't have permission to lock memory.\n"
->    "         If the computer is not idle, the CD may be ruined.\n"
-> 
-> Joerg:
->    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
->    "WARNING: This causes a high risk for buffer underruns.\n"
-> Fixed:
->    "Warning: You don't have permission to hog the CPU.\n"
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-"hog" certainly is not the right word here, but let's not discuss
-application warnings on word level here.
+On Thu, Aug 05, 2004 at 02:20:19PM -0700, Andrew Morton wrote:
+> It might not be.  We could come up with some dopey per-process flag,
+> inherited across fork which means "invalidate each file's pagecache when I
+> close it". =20
 
->    "         If the computer is not idle, the CD may be ruined.\n"
+Currently, we don't even have a way to explicitly drop page cache
+for a file or filesystem except for umounting it.=20
+In the old buffer cache days, BLKFLSBUF would have done it, but
+that's pretty much without any effect nowadays.
 
-The warning still needs to contain a technical information that the end
-user can report to the support or maintainer. Jörg's warning isn't all
-too bad only the user may not know what a buffer underrun actually
-means, so another line of explanation, a recommendation to retry with
-increased (root) privileges and preferably another 10 s delay would iron
-this out.
+So maybe you want to add the ioctl as well.
+It would be useful for doagnostics and benchmarking as well.
 
-Note that while the burn-proof/just-link feature allows the drive to
-pick up writing but it comes at a price, a few dozen pits/lands are
-hosed for every time this feature gets used, so it's best to avoid
-interrupting the write stream.
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
+SUSE LINUX AG / Novell, Nuernberg, DE               Director SUSE Labs
 
-One of Jörg's goals appears to let his application do the best possible
-job without such micro gaps, and that deserves all support he can get.
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-That the DMA, ide-scsi, interfaces and naming issues can't be settled is
-sad and it appears as though the naming and it seems these issues cannot
-be discussed separately for some reason.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
--- 
-Matthias Andree
+iD8DBQFBGHkYxmLh6hyYd04RAszZAJ92F0DJwabWbsy5jMBvvEYfXXvm+gCfQVUl
+H3WynyugGhXij0tLRrwRsZM=
+=12DF
+-----END PGP SIGNATURE-----
 
-NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+--vtzGhvizbBRQ85DL--

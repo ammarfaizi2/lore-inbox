@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281504AbRKRWcV>; Sun, 18 Nov 2001 17:32:21 -0500
+	id <S281480AbRKRW2V>; Sun, 18 Nov 2001 17:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281490AbRKRWcB>; Sun, 18 Nov 2001 17:32:01 -0500
-Received: from PSI.MIT.EDU ([18.77.0.154]:13446 "EHLO psi.mit.edu")
-	by vger.kernel.org with ESMTP id <S281560AbRKRWbx>;
-	Sun, 18 Nov 2001 17:31:53 -0500
-Date: Sun, 18 Nov 2001 17:31:57 -0500 (EST)
-From: Taylan Akdogan <akdogan@mit.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: RTC: max(periodic_freq)>64 for users
-In-Reply-To: <Pine.LNX.4.21.0008281517070.6239-100000@psi.mit.edu>
-Message-ID: <Pine.LNX.4.33.0111181709420.26843-100000@psi.mit.edu>
+	id <S281490AbRKRW2M>; Sun, 18 Nov 2001 17:28:12 -0500
+Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:46378 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S281480AbRKRW2C>; Sun, 18 Nov 2001 17:28:02 -0500
+Message-ID: <053d01c1707e$8c941630$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: <linux-kernel@vger.kernel.org>, "war" <war@starband.net>,
+        <stilgar2k@wanadoo.fr>
+In-Reply-To: <fa.inl6g6v.1mmbp4@ifi.uio.no> <fa.heevhav.sjs8an@ifi.uio.no>
+Subject: Re: Swap
+Date: Sun, 18 Nov 2001 17:15:36 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> >Yep. There's a reason for that: the kernel is *ALWAYS*
+> >able to swap pages out to disk - even without "swap space".
+> >Disabling swapspace simply forces the kernel to swap out
+> >more code, since it cannot swap out any data.
+>
+> Sure ??? Where ?? What disk space uses it to swap pages to ?
 
-Don't you think the maximum periodic_freq of RTC for
-un-privileged users is too small for today's computers, which is
-only 64Hz? Yes, there may be still 386s out somewhere, but just
-because of those we shouldn't suffer. And, I don't believe that
-there are multiuser 386 systems which are open to a wide public
-in where there may be UNKNOWN evil users. After all, it is
-possible to determine the maximum allowed frequency by using CPU
-frequency. Ex:
+The executables and binaries on your regular filesystems... Even with no
+swap space, the kernel can "page out" (i.e. drop from memory) read-only file
+mappings, since they can always be reloaded from disk if needed.
 
-  F < 100 MHz        max=64
-  F = [100,500] MHz  max=1024
-  F > 500 MHz        max=8192
+In other words, there is still a big difference between running without swap
+space, and having every program do an mlockall() (which *really* forces all
+pages to be permanently resident in RAM).
 
-Or, anything like this which makes sense... It may be very useful
-for applications which require better time precision then the
-fixed 100 Hz ticks.
+Still, it puzzles me why a system with no swap space would appear to be more
+responsive than one with swap (assuming their working sets are quite a bit
+smaller than total amount of RAM)... Can you do a controlled test somehow,
+to rule out any sort of placebo effect?
 
-Best regards,
-Taylan
-
-PS: On 533MHz PIII, 8192Hz is nothing, not even noticeable. On, 
-1.5GHz P4 the overhead is zero for all practical purposes. I can 
-provide quantitative numbers for these, if needed.
-
----=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=---
-Taylan Akdogan              Massachusetts Institute of Technology
-akdogan@mit.edu                             Department of Physics
----=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=---
+Regards,
+Dan
 

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316845AbSGVMmc>; Mon, 22 Jul 2002 08:42:32 -0400
+	id <S316437AbSGVGJS>; Mon, 22 Jul 2002 02:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316848AbSGVMmc>; Mon, 22 Jul 2002 08:42:32 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:23503 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S316845AbSGVMmc>; Mon, 22 Jul 2002 08:42:32 -0400
-Date: Mon, 22 Jul 2002 13:45:40 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Szakacsits Szabolcs <szaka@sienet.hu>, Adrian Bunk <bunk@fs.tum.de>,
-       Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] strict VM overcommit
-In-Reply-To: <1027342809.31782.28.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.21.0207221332040.1034-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316446AbSGVGJS>; Mon, 22 Jul 2002 02:09:18 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:18882 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316437AbSGVGJR>;
+	Mon, 22 Jul 2002 02:09:17 -0400
+Date: Mon, 22 Jul 2002 08:11:54 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Mike Galbraith <efault@gmx.de>, Tomas Szepe <szepe@pinerecords.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
+Message-ID: <20020722081154.A15428@ucw.cz>
+References: <5.1.0.14.2.20020721085320.00b962b0@pop.gmx.net> <Pine.LNX.4.44.0207210130020.3309-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0207210130020.3309-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Sun, Jul 21, 2002 at 01:31:40AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jul 2002, Alan Cox wrote:
+On Sun, Jul 21, 2002 at 01:31:40AM -0600, Thunder from the hill wrote:
+
+> On Sun, 21 Jul 2002, Mike Galbraith wrote:
+> > Since I know spit about IDE/ATA/ATAPI/SCSI, I'll keep my mouth shut and
+> > leave judgement/"voting" to those who fully understand the technical issues.
 > 
-> Lets put this bluntly. Your swapdisk is losing sectors left right and
-> centre. You propose a system where the kernel says "sorry might cause an
-> OOM" and I lose everything as the disk goes down. Letting the admin set
-> policy means I can swapoff, maybe lose a program or two to OOM but not
-> lose the entire system in the process.
-> 
-> Its quite clear that being able to override the kernels assumptions
-> about what is right are sensible. It always has been
+> You probably shouldn't. Technical decisions should be made by technicians, 
+> but decisions about the technicians should be made by the human resources 
+> dept., and since we claim to be a constitutional monarchy, we might try 
+> out a democratic decision...
 
-Suggested compromise: swapoff (in loose overcommit-permitted mode)
-should always swap off as much as it can, a small margin short of
-causing OOM, but should then give up with ENOMEM (leaving the whole
-swap area available again, for consistency).  Seeing its failure,
-the admin can then choose processes to kill (overriding the kernel's
-assumptions about what is right to kill), and try swapoff again.
+I usually don't use words like this, but can you just shut up?
 
-At present it never gives up: I do intend to fix that.
+I mean - if Bartek, or me, or whoever, wanted to be the 2.5 IDE king
+now, I'm sure Martin would pass the thorny crown quite happily.
 
-In strict no-overcommit mode, it should probably decide in advance
-whether to embark on swapping off: I think you suggested that
-earlier in the thread, that it's acceptable to switch overcommit
-mode temporarily to achieve whichever behaviour is desirable?
+When noone else says that, I'm very impressed about where the IDE code
+got from before Martin started. And after talking to him at the Kernel
+Workshop I must say he has a very good vision where he's heading to.
 
-Hugh
+The only problem that pisses of a lot of people is that he just spews
+patches at his own rate, not synchronized with Linus, so that Martin's
+latest 'stable' doesn't usually match Linus's releases.
 
+Now that the most aggresive changes are behind us, I believe things will
+go a tad smoother ...
+
+Anyway, I guess I should just shut up and go back to fixing that SiS IDE
+driver, too ...
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268128AbUHKRlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268134AbUHKRvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268128AbUHKRlq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUHKRlq
+	id S268134AbUHKRvN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268135AbUHKRvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:41:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2539 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268128AbUHKRlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:41:44 -0400
-Date: Wed, 11 Aug 2004 10:19:23 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: phillip@lougher.demon.co.uk, leiyang@nec-labs.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compression algorithm in cloop
-Message-Id: <20040811101923.6a95215e.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.60.0408111918120.23115@alpha.polcom.net>
-References: <411A4D34.6000104@lougher.demon.co.uk>
-	<Pine.LNX.4.60.0408111918120.23115@alpha.polcom.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 11 Aug 2004 13:51:13 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:231 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S268134AbUHKRvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:51:11 -0400
+Date: Wed, 11 Aug 2004 19:51:09 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040811175109.GJ10100@louise.pinerecords.com>
+References: <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org> <20040811170208.GG10100@louise.pinerecords.com> <20040811181142.A30309@infradead.org> <20040811172222.GI10100@louise.pinerecords.com> <20040811184148.A30660@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811184148.A30660@infradead.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Aug 2004 19:21:50 +0200 (CEST) Grzegorz Kulewski wrote:
+On Aug-11 2004, Wed, 18:41 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
-| On Wed, 11 Aug 2004, Phillip Lougher wrote:
-| 
-| >> Where should I start from? Really a newbie to this,
-| >> appreciate any comments and suggestions!!
-| >
-| > There has been discussion on this list before about adding
-| > bzip2 support to the kernel.  Do a search on the list for this.
-| 
-| Long, long ago there was something called e2compr. They had bzip2 in the 
-| kernel. I remember 40 seconds mc start time on disk compressed with bzip2 
-| on i486-DX 40 MHz... :-)
+> On Wed, Aug 11, 2004 at 07:22:22PM +0200, Tomas Szepe wrote:
+> > And btw, mails to hch@infradead.org bounce.
+> 
+> not for just about everyone else on the planet :)
 
-still at
-  http://e2compr.sourceforge.net/
+$ telnet pentafluge.infradead.org 25
+Trying 2002:d592:9a28::1...
+Trying 213.146.154.40...
+Connected to pentafluge.infradead.org.
+Escape character is '^]'.
+220-pentafluge.infradead.org ESMTP Exim 4.33 Wed, 11 Aug 2004 18:47:44 +0100
+220 Be gentle with me
+ehlo pinerecords.com
+250-pentafluge.infradead.org Hello louise.pinerecords.com [213.168.176.16]
+250-SIZE 52428800
+250-8BITMIME
+250-ETRN
+250-EXPN
+250-STARTTLS
+250 HELP
+expn hch@infradead.org
+550 Administrative prohibition
+mail from: szepe@pinerecords.com
+250 OK
+rcpt to: hch@infradead.org
+550-Verification failed for <szepe@pinerecords.com>
+550-(result of earlier verification reused).
+550 Sender verify failed
 
---
-~Randy
+I for one don't call this a properly configured mail system.

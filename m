@@ -1,68 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVBGBVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVBGBVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVBGBVX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 20:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVBGBVX
+	id S261312AbVBGBVN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 20:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBGBVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 20:21:23 -0500
-Received: from smtp818.mail.sc5.yahoo.com ([66.163.170.4]:47215 "HELO
-	smtp818.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261317AbVBGBVP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 20:21:15 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.de>
-Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
-Date: Sun, 6 Feb 2005 20:21:13 -0500
-User-Agent: KMail/1.7.2
-Cc: David Fries <dfries@mail.win.org>, linux-kernel@vger.kernel.org
-References: <20041123212813.GA3196@spacedout.fries.net> <d120d500050201072413193c62@mail.gmail.com> <20050206131241.GA19564@ucw.cz>
-In-Reply-To: <20050206131241.GA19564@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 6 Feb 2005 20:21:13 -0500
+Received: from almesberger.net ([63.105.73.238]:35079 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261312AbVBGBVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 20:21:05 -0500
+Date: Sun, 6 Feb 2005 22:20:26 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Carl Spalletta <cspalletta@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: Linux-tracecalls, a clarification
+Message-ID: <20050206222026.A25338@almesberger.net>
+References: <200501192037.j0JKbpuA008501@laptop11.inf.utfsm.cl> <20050121204422.85137.qmail@web53808.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502062021.13726.dtor_core@ameritech.net>
+In-Reply-To: <20050121204422.85137.qmail@web53808.mail.yahoo.com>; from cspalletta@yahoo.com on Fri, Jan 21, 2005 at 12:44:22PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 February 2005 08:12, Vojtech Pavlik wrote:
-> On Tue, Feb 01, 2005 at 10:24:39AM -0500, Dmitry Torokhov wrote:
-> > On Tue, 1 Feb 2005 08:52:15 -0600, David Fries <dfries@mail.win.org> wrote:
-> > > Currently a blocking read, select, or poll call will not return if a
-> > > joystick device is unplugged.  This patch allows them to return.
-> > > 
-> > ...
-> > > static unsigned int joydev_poll(struct file *file, poll_table *wait)
-> > > {
-> > > +       int mask = 0;
-> > >        struct joydev_list *list = file->private_data;
-> > >        poll_wait(file, &list->joydev->wait, wait);
-> > > -       if (list->head != list->tail || list->startup < list->joydev->nabs + list->joydev->nkey)
-> > > -               return POLLIN | POLLRDNORM;
-> > > -       return 0;
-> > > +       if(!list->joydev->exist)
-> > > +               mask |= POLLERR;
-> > 
-> > Probably need POLLHUP in addition (or instead of POLLERR).
-> > 
-> > >        if (joydev->open)
-> > > +       {
-> > >                input_close_device(handle);
-> > > +               wake_up_interruptible(&joydev->wait);
-> > > +       }
-> > >        else
-> > > +       {
-> > >                joydev_free(joydev);
-> > > +       }
-> > 
-> > Opening braces should go on the same line as the statement (if (...) {).
->  
-> How about this patch?
+Carl Spalletta wrote:
+> +    #The name of an operations structure member, wrongly interpreted by
+> +    #cscope as the name of an actual function - it should be ignored,
+> +    #since it has been confused by cscope with the name of some actual
+> +    #caller. HOWEVER the callbacks are found anyway, under their actual names.
+> +    #and if any function pointed to by a callback is part of a chain to
+> +    #our initial target it _will_ be found, the same as any other caller.
 
-Looks fine now. Hmm, wait a sec... Don't we also need kill_fasync calls in
-disconnect routines as well?
+Hmm, but it doesn't seem to follow function pointers anyway. Example:
+
+http://www.linuxrd.com/~carl/cgi-bin/lnxtc.pl?file=fs/jbd/transaction.c&func=do_get_write_access
+
+should contain, among many others, this call chain:
+
+fs/read_write.c:sys_read
+  fs/read_write.c:vfs_read
+    fs/ext3/file.c:ext3_file_operations.read =
+    fs/read_write.c:do_sync_read
+      fs/ext3/file.c:ext3_file_operations.aio_read =
+      mm/filemap.c:generic_file_aio_read
+        mm/filemap.c:__generic_file_aio_read
+          include/linux/fs.h:do_generic_file_read
+            mm/filemap.c:do_generic_mapping_read
+              include/linux/fs.h:file_accessed
+                include/linux/fs.h:touch_atime
+                  fs/inode.c:update_atime
+                    include/linux/fs.h:mark_inode_dirty_sync
+                      fs/fs-writeback.c:__mark_inode_dirty
+                        fs/ext3/super.c:ext3_sops.dirty_inode =
+                        fs/ext3/inode.c:ext3_dirty_inode
+                          include/linux/ext3_jbd.h:ext3_journal_get_write_access
+                            fs/jbd/transaction.c:journal_get_write_access
+                              fs/jbd/transaction.c:do_get_write_access
+
+Note the three functions pointers that were used in this. This kind
+of construct is extremely common in the kernel, and it's usually the
+main source of confusion that will actually make one want to use a
+call chain discovery tool.
+
+I see that you're handling inline functions correctly.
+
+Another thing that seems to be missing are macros. E.g. this query
+
+http://www.linuxrd.com/~carl/cgi-bin/lnxtc.pl?file=include/linux/seqlock.h&func=seqcount_init
+
+should probably have found the reference in fs.h (it's somewhat
+obscured by #ifdefs, so, depending on how your tree was set up,
+the response may actually be correct). Also, this query should have
+returned something:
+
+http://www.linuxrd.com/~carl/cgi-bin/lnxtc.pl?file=include/linux/blkdev.h&func=blk_queue_plugged
+
+Since the call trees fan out very quickly (in either direction), I
+think an interactive browser that lets you select which branch(es)
+to follow (while remembering the chain you've already visited) would
+be more useful than a huge dump that may require significant
+post-processing.
+
+It would also be nice to be able to go both ways, from called to
+caller, and from caller to called. Again, the tricky bit here are
+the function pointers.
+
+I think that a tool that can handle the most common idioms found in
+the kernel would be very useful.
+
+- Werner
 
 -- 
-Dmitry
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

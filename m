@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289119AbSA3L43>; Wed, 30 Jan 2002 06:56:29 -0500
+	id <S289118AbSA3Ly2>; Wed, 30 Jan 2002 06:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289124AbSA3L4T>; Wed, 30 Jan 2002 06:56:19 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:57482 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S289119AbSA3L4H>; Wed, 30 Jan 2002 06:56:07 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Wed, 30 Jan 2002 11:56:05 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a38n0l$78k$1@forge.intermeta.de>
-In-Reply-To: <200201292332.g0TNWwU21215@snark.thyrsus.com> <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1012391765 32095 212.34.181.4 (30 Jan 2002 11:56:05 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 30 Jan 2002 11:56:05 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S289119AbSA3LyS>; Wed, 30 Jan 2002 06:54:18 -0500
+Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:8599 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S289118AbSA3LyH>; Wed, 30 Jan 2002 06:54:07 -0500
+To: garzik@havoc.gtf.org, raul@viadomus.com
+Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Message-Id: <E16VtWb-0002kV-00@DervishD.viadomus.com>
+Date: Wed, 30 Jan 2002 13:07:37 +0100
+From: DervishD <raul@viadomus.com>
+Reply-To: DervishD <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+    Hi Jeff :)
 
->> Andre Hedrick, Eric Raymond, Rik van Riel, Michael Elizabeth Chastain, Axel
->> Boldt...
+>>     Given the number of user-space apps that needs ioctl definitions
+>> and things like those (that are supposed not to change easily), those
+>> definitions should go in user-includable headers... IMHO.
+>> 
+>>     Fortunately, we have some of them in libc headers now.
+>The policy is, never ever include kernel headers from userspace.
 
->NONE of those are in the ten-twenty people group.
+    I know, but sometimes it is just impossible (when they aren't
+appropriate glibc headers, for example). In fact, all this question
+arose because I'm coding an 'ioctl' command line interface, so you
+can send any 'documented' ioctl to any device. And, since I'm going
+to start with block devices, I need linux/fs.h.
 
->How many people do you think fits in a small group? Hint. It sure isn't
->all 300 on the maintainers list.
+    The problem is that I don't want to copy the definitions I need
+from linux/fs.h, because this will lead to problems if those
+definitions change. Anyway this is not an issue, because by changing
+the running kernel those definitions in fact may not be valid...
 
-Can you tell us, who the people in your peer group are? That would
-make sending patches much easier.
+    Resuming: I don't know how properly address this problem.
 
-	Regards
-		Henning
+>Your libc should provide a "sanitized" version of the kernel headers,
+>which is completely separate from any kernel sources.
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+    I suppose that those headers will contain definitions not subject
+to change, won't they? But I don't know if I can consider the ioctl
+constants as not subject to change (they should be permanent, though).
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+>So, any problems should be reported to your libc maintainer :)
+
+    Well, I try... I can even try to make the sanitized header myself
+and pray for it to be included in next glibc revision :)
+
+    Thanks :)
+    Raúl

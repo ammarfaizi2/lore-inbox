@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbUCHVhH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 16:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUCHVf4
+	id S261298AbUCHVfd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 16:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUCHVfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 16:35:56 -0500
-Received: from smtp.nildram.co.uk ([195.112.4.54]:49677 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S261262AbUCHVfV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 16:35:21 -0500
-Message-ID: <404CE5B1.5020304@phekda.gotadsl.co.uk>
-Date: Mon, 08 Mar 2004 21:29:21 +0000
-From: Richard Dawe <rich@phekda.gotadsl.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031031
-X-Accept-Language: en, de, fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Richard Dawe <rich@phekda.gotadsl.co.uk>
-Subject: Linux 2.6.4-rc2: Documentation/Changes: procps URL
-Content-Type: multipart/mixed;
- boundary="------------080602080505070506020303"
+	Mon, 8 Mar 2004 16:35:06 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:53475 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261262AbUCHVdw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 16:33:52 -0500
+Date: Mon, 8 Mar 2004 13:33:38 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Grigor Gatchev <grigor@serdica.org>
+Cc: mfedyk@matchmail.com, christer@weinigel.se, linux-kernel@vger.kernel.org
+Subject: Re: A Layered Kernel: Proposal
+Message-Id: <20040308133338.3837fbf7.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.44.0403081311020.21912-100000@lugburz.zadnik.org>
+References: <404BE46F.1000000@matchmail.com>
+	<Pine.LNX.4.44.0403081311020.21912-100000@lugburz.zadnik.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080602080505070506020303
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> While coding, think coding. While designing, think designing. Design comes
+> before coding; otherwise you design while coding, and produce a mess.
 
-[ I tried sending to chris.ricker@genetics.utah.edu, as directed, but it 
-bounced. Hence this mail to lkml. ]
+You are describing, roughly, the waterfall model of software development.
 
-Hello.
+Linux kernel work is closer to something resembling the prototype
+and/or spiral model.
 
-Attached is a patch to add a URL for the procps home page to
-Documentation/Changes in Linux 2.6.4-rc2.
+See further explanations of these terms, for instance, at:
 
-Bye, Rich =]
+  http://model.mercuryinteractive.com/references/models/
 
-PS: I don't subscribe to lkml, so please CC me on replies.
+But, in any case, Linux kernel work _does_ have a rather extensively
+articulated development model which we find is working rather well,
+thank-you.  For all I know, this methodology was defined by some
+traumatic event at the birth of Linus - whatever - seems to work.
+
+When in Rome, do as the Romans.  And especially don't be surprised
+at being pushed aside if you protest that we aren't behaving as the
+French.
 
 -- 
-Richard Dawe [ http://homepages.nildram.co.uk/~phekda/richdawe/ ]
-
-"You can't evaluate a man by logic alone."
-    -- McCoy, "I, Mudd", Star Trek
-
-
---------------080602080505070506020303
-Content-Type: text/plain;
- name="linux-2.6.4-rc2-changes-procps.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.4-rc2-changes-procps.diff"
-
---- linux-2.6.4-rc2/Documentation/Changes.orig	2004-03-08 21:08:37.000000000 +0000
-+++ linux-2.6.4-rc2/Documentation/Changes	2004-03-08 21:10:39.000000000 +0000
-@@ -349,9 +349,13 @@ Pcmcia-cs
- o  <ftp://pcmcia-cs.sourceforge.net/pub/pcmcia-cs/pcmcia-cs-3.1.21.tar.gz>
- 
- Quota-tools
------------
-+-----------
- o  <http://sourceforge.net/projects/linuxquota/>
- 
-+Procps
-+------
-+o  <http://procps.sourceforge.net/>
-+
- Jade
- ----
- o  <ftp://ftp.jclark.com/pub/jade/jade-1.2.1.tar.gz>
-
-
---------------080602080505070506020303--
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

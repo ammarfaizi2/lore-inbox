@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbTEZWpI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 18:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTEZWpI
+	id S262356AbTEZWtE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 18:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbTEZWtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 18:45:08 -0400
-Received: from pop.gmx.net ([213.165.65.60]:33525 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262275AbTEZWoB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 18:44:01 -0400
-Message-ID: <3ED29BC3.104@gmx.net>
-Date: Tue, 27 May 2003 00:57:07 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: drivers/ide/pci/pdc202xx_old.c
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 26 May 2003 18:49:04 -0400
+Received: from uldns1.unil.ch ([130.223.8.20]:41363 "EHLO uldns1.unil.ch")
+	by vger.kernel.org with ESMTP id S262356AbTEZWtC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 18:49:02 -0400
+Date: Tue, 27 May 2003 00:38:03 +0200
+From: Gregoire Favre <greg@magma.unil.ch>
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xfs don't compil in linux-2.5 BK
+Message-ID: <20030526223803.GB14954@magma.unil.ch>
+References: <20030526193136.GB10276@magma.unil.ch> <1053986469.3754.6.camel@nalesnik.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1053986469.3754.6.camel@nalesnik.localhost>
+User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello IDE gurus,
+On Mon, May 26, 2003 at 11:01:12PM +0100, Grzegorz Jaskiewicz wrote:
 
-is the following #if 0 in drivers/ide/pci/pdc202xx_old.c intentional?
-What makes me worried about the code is that it looks like somebody
-wanted to clean up the code for splitoff of pdc202xx_new.c and confused
-the two files.
-Either the code is really not needed and can be ripped out or it is
-needed and was overlooked.
+> looks like LINUX_VERSION_CODE is not defined
+> try this (as 2.5.69 > than 2.5.9)
 
-drivers/ide/pci/pdc202xx_old.c:719
-        /*
-         * software reset -  this is required because the bios
-         * will set UDMA timing on if the hdd supports it. The
-         * user may want to turn udma off. A bug in the pdc20262
-         * is that it cannot handle a downgrade in timing from
-         * UDMA to DMA. Disk accesses after issuing a set
-         * feature command will result in errors. A software
-         * reset leaves the timing registers intact,
-         * but resets the drives.
-         */
-#if 0
-        if ((dev->device == PCI_DEVICE_ID_PROMISE_20267) ||
-            (dev->device == PCI_DEVICE_ID_PROMISE_20265) ||
-            (dev->device == PCI_DEVICE_ID_PROMISE_20263) ||
-            (dev->device == PCI_DEVICE_ID_PROMISE_20262)) {
-                unsigned long high_16   = pci_resource_start(dev, 4);
-                byte udma_speed_flag    = inb(high_16 + 0x001f);
-                outb(udma_speed_flag | 0x10, high_16 + 0x001f);
-                mdelay(100);
-                outb(udma_speed_flag & ~0x10, high_16 + 0x001f);
-                mdelay(2000);   /* 2 seconds ?! */
-        }
+Well, maybe BK is not for me:
 
-#endif
+greg@greg:linux >make dep && make bzImage && make modules && sudo make modules_install
+*** Warning: make dep is unnecessary now.
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
+  CHK     include/linux/compile.h
+dnsdomainname: Unknown host
+  CC      fs/xfs/pagebuf/page_buf.o
+In file included from fs/xfs/pagebuf/page_buf.c:65:
+fs/xfs/pagebuf/page_buf_internal.h:46:24: operator '<' has no left operand
+fs/xfs/pagebuf/page_buf_internal.h:51:24: operator '<' has no left operand
+make[2]: *** [fs/xfs/pagebuf/page_buf.o] Error 1
+make[1]: *** [fs/xfs] Error 2
+make: *** [fs] Error 2
+Exit 2
 
+Thank you very much,
 
-Thoughts? Comments?
-
-Carl-Daniel
-
+	Grégoire
+__________________________________________________________________
+http://www-ima.unil.ch/greg ICQ:16624071 mailto:greg@magma.unil.ch

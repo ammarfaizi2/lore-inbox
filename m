@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVCGQDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVCGQHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVCGQDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 11:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVCGQDY
+	id S261811AbVCGQHG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 11:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVCGQHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 11:03:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24001 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261806AbVCGQDU (ORCPT
+	Mon, 7 Mar 2005 11:07:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40899 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261811AbVCGQHB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 11:03:20 -0500
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jan Kara <jack@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050307145007.GB27051@atrey.karlin.mff.cuni.cz>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050304160451.4c33919c.akpm@osdl.org>
-	 <20050307145007.GB27051@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110211318.15117.129.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 07 Mar 2005 16:01:59 +0000
+	Mon, 7 Mar 2005 11:07:01 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <E1D8KPt-00058Y-00@dorka.pomaz.szeredi.hu> 
+References: <E1D8KPt-00058Y-00@dorka.pomaz.szeredi.hu>  <E1D8K3T-00056q-00@dorka.pomaz.szeredi.hu> <20050307041047.59c24dec.akpm@osdl.org> <20050307034747.4c6e7277.akpm@osdl.org> <20050307033734.5cc75183.akpm@osdl.org> <20050303123448.462c56cd.akpm@osdl.org> <20050302135146.2248c7e5.akpm@osdl.org> <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <13767.1109857095@redhat.com> <9268.1110194624@redhat.com> <9741.1110195784@redhat.com> <9947.1110196314@redhat.com> <22447.1110204304@redhat.com> <24382.1110210081@redhat.com> 
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, torvalds@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Mon, 07 Mar 2005 16:06:43 +0000
+Message-ID: <24862.1110211603@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Miklos Szeredi <miklos@szeredi.hu> wrote:
 
-On Mon, 2005-03-07 at 14:50, Jan Kara wrote:
+> > It shouldn't silently break... It will refuse to compile. I renamed
+> > "memory_backed" to "capabilities".
+> 
+> This will silently break:
+> 
+> static struct backing_dev_info my_bdi = {
+>        .ra_pages = MY_RA,
+>        .unplug_io_fn = default_unplug_io_fn,
+> };
 
->   I believe the other places should be safe (mostly by luck) as the
-> caller has made sure that __journal_remove_journal_head() won't do
-> anything (e.g. set b_transaction, b_next_transaction or such).
+Sorry, yes. Obvious. Ugh. Andrew Morton suggested flipping the logic, and
+although it was in conjunction with turning the concepts into bitfields, it
+still stands here.
 
-Right; I've been looking through all the journal_put_journal_head()
-callers and most of the instances are places like journal_get_*_access,
-which imply that the jh is still on a list.  The problem is races
-against places like journal_unmap_buffer() where we can be removing the
-bh from those lists as soon as we've lost the journal lock.  
-
-> Anyway it doesn't seem too safe to me...
-
-Quite.
-
-I think I agree with Andrew here --- the only real solution is to make
-sure that whenever anybody is clearing jh->b_transaction, they protect
-themselves against journal_put_journal_head() by either elevating
-j_count, or taking the jbd_lock_bh_journal_head() lock.
-
-The current stop-gap may actually work, but I'd be more comfortable with
-a robust scheme in place.
-
---Stephen
-
+David

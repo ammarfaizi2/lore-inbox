@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265267AbUFAXRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265282AbUFAXYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265267AbUFAXRM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 19:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUFAXRM
+	id S265282AbUFAXYu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 19:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUFAXYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 19:17:12 -0400
-Received: from quechua.inka.de ([193.197.184.2]:12433 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S265267AbUFAXRI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 19:17:08 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <200406012000.i51K0vor019011@turing-police.cc.vt.edu>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BVIVG-0003wL-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Wed, 02 Jun 2004 01:17:06 +0200
+	Tue, 1 Jun 2004 19:24:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57486 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265282AbUFAXYt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 19:24:49 -0400
+Message-ID: <40BD1032.604@pobox.com>
+Date: Tue, 01 Jun 2004 19:24:34 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael De Nil <michael@flex-it.be>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Promise PDC20378 Raid Accelerator
+References: <Pine.LNX.4.56.0406012040380.6191@lisa.flex-it.be>
+In-Reply-To: <Pine.LNX.4.56.0406012040380.6191@lisa.flex-it.be>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200406012000.i51K0vor019011@turing-police.cc.vt.edu> you wrote:
-> out (unlike some, I don't mind if Mozilla or OpenOffice end up out on
-> disk after extended inactivity - but if my window manager gets swapped
-> out, I get peeved when focus-follows-mouse doesn't and my typing goes
-> into the wrong window or some such... ;)
+Michael De Nil wrote:
+> Can someone tell me if I will be able to run 2 SATA discs on a raid1 with
+> this chip, and if yes, what driver you would prefer? I am a litle bit
+> afraid for using non-stable drivers... ;)
 
-Yes but: your wm is so  often used/activated it will not get swaped  out. 
-But if your mouse passes over mozilla and tries to focus it, then you will
-feel the pain of a swapped-out x program.
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+The all-open-source solution...  Linux "md" raid, and Linux SATA drivers :)
+
+	Jeff
+
+

@@ -1,61 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVCCBp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVCBXeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVCCBp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVCCB1w
+	id S261303AbVCBXeM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVCBX0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:27:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48349 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261415AbVCCB1Y (ORCPT
+	Wed, 2 Mar 2005 18:26:55 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64468 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261358AbVCBXZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:27:24 -0500
-Date: Wed, 2 Mar 2005 20:27:07 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, jgarzik@pobox.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
+	Wed, 2 Mar 2005 18:25:29 -0500
+Message-ID: <42264B91.9090505@osdl.org>
+Date: Wed, 02 Mar 2005 15:26:09 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>, torvalds@osdl.org
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303012707.GK10124@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-	jgarzik@pobox.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org> <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net> <20050303011151.GJ10124@redhat.com> <20050302172049.72a0037f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050302172049.72a0037f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <422643F0.8050603@utah-nac.org>
+In-Reply-To: <422643F0.8050603@utah-nac.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 05:20:49PM -0800, Andrew Morton wrote:
- > Dave Jones <davej@redhat.com> wrote:
- > >
- > > So what was broken with the 2.6.8.1 type of 'hotfix kernel' release ?
- > 
- > That's an alternative, of course.
- > 
- > But that _is_ a branch, and does need active forward- and (mainly)
- > backward-porting work.
- > 
- > There's nothing wrong with it per-se, but it becomes a "stabilised version
- > of the kernel.org tree" or even a "production version of the kernel.org
- > tree".  In other words it's somewhere on the line between the mainline
- > kernel.org tree and a distribution.  How far along that line should it
- > be positioned?
+Jeff V. Merkey wrote:
+> 
+> __Stable__ would be a good thing. The entire 2.6 development has been a 
+> disaster from
+> a stability viewpoint. I have to maintain a huge tree of patches in 
+> order to ship appliance
+> builds due to the lack of stability for 2.6. I think that the even 
+> number releases will take longer but it's worth the wait.
+> 
+> Jeff
 
-In an ideal world, we'd see a single 'y' release of 2.6.x.y, but if x+1 takes
-too long to be released, bits of x+1 should also appear in x.y+1
-The only question in my mind is 'how critical does a bug have to be to
-justify a .y release.  Once a new 'x' release comes out, the previous x.y
-would likely no longer get any further fixes (unless someone decides the
-new 'x' sucked so bad).
+Linus's release cycle estimate might be optimistic.  :)
 
-Linus using bitkeeper should actually remove most of the pain from this
-multiple branch thing though. If fixes alternatively get checked into x.y
-and new development goes into x+1, x+1 could do a daily pull of x.y
-Thus saving the having to check in fixes to two seperate branches.
-(which really really sucks under some SCMs).
+I'm seeing lots more bug reports recently than I care to see.  :(
 
-		Dave
+> Linus Torvalds wrote:
+> 
+>> This is an idea that has been brewing for some time: Andrew has mentioned
+>> it a couple of times, I've talked to some people about it, and today 
+>> Davem
+>> sent a suggestion along similar lines to me for 2.6.12.
+>>
+>> Namely that we could adopt the even/odd numbering scheme that we used 
+>> to do on a minor number basis, and instead of dropping it entirely 
+>> like we did, we could have just moved it to the release number, as an 
+>> indication of what was the intent of the release.
+>>
+>> The problem with major development trees like 2.4.x vs 2.5.x was that 
+>> the release cycles were too long, and that people hated the back- and 
+>> forward-porting. That said, it did serve a purpose - people kind of 
+>> knew where they stood, even though we always ended up having to have 
+>> big changes in the stable tree too, just to keep up with a changing 
+>> landscape.
+>>
+>> So the suggestion on the table would be to go back to even/odd, but do 
+>> it at the "micro-level" of single releases, rather than make it a two- 
+>> or three-year release cycle.
+>>
+>> In this setup, all kernels would still be _stable_, in the sense that we
+>> don't anticipate any real breakage (if we end up having to rip up so much
+>> basic stuff that we have to break anything, we'd go back to the 2.7.x 
+>> kind
+>> of numbering scheme). So we should fear odd releases, but track them, 
+>> to make sure that they are good (if you don't track them, and problems 
+>> won't be fixed in the even version either)
+>>
+>> But we'd basically have stricter concerns for an even release, and in
+>> particular the plan would be that the diff files would alternate between
+>> bigger ones (the 2.6.10->11 full diff was almost 5MB) and smaller ones (a
+>> 2.6.11->12 release would be a "stability only" thing, and hopefully the
+>> diff file would be much smaller).
+>>
+>> We'd still do the -rcX candidates as we go along in either case, so as 
+>> a user you wouldn't even _need_ to know, but the numbering would be a 
+>> rough guide to intentions. Ie I'd expect that distributions would 
+>> always try to base their stuff off a 2.6.<even> release.
+>>
+>> It seems like a sensible approach, and it's not like the 2.4.x vs 2.5.x
+>> kind of even/odd thing didn't _work_, the problems really were an 
+>> issue of
+>> too big granularity making it hard for user and developers alike. So I 
+>> see
+>> this as a tweak of the "let's drop the notion althogether for now"  
+>> decision, and just modify it to "even/odd is meaningful at all levels".
+>>
+>> In other words, we'd have an increasing level of instability with an 
+>> odd release number, depending on how long-term the instability is.
+>>
+>> - 2.6.<even>: even at all levels, aim for having had minimally 
+>> intrusive   patches leading up to it (timeframe: a week or two)
+>>
+>> with the odd numbers going like:
+>>
+>> - 2.6.<odd>: still a stable kernel, but accept bigger changes leading 
+>> up   to it (timeframe: a month or two).
+>> - 2.<odd>.x: aim for big changes that may destabilize the kernel for   
+>> several releases (timeframe: a year or two)
+>> - <odd>.x.x: Linus went crazy, broke absolutely _everything_, and rewrote
+>>   the kernel to be a microkernel using a special message-passing 
+>> version   of Visual Basic. (timeframe: "we expect that he will be 
+>> released from   the mental institution in a decade or two").
+>>
+>> The reason I put a shorter timeframe on the "all-even" kernel is 
+>> because I
+>> don't want developers to be too itchy and sitting on stuff for too 
+>> long if
+>> they did something slightly bigger. In theory, the longer the better
+>> there, but in practice this release numbering is still nothing but a hint
+>> of the _intent_ of the developers - it's still not a guarantee of "we
+>> fixed all bugs", and anybody who expects that (and tries to avoid all 
+>> odd release entirely) is just setting himself up for not testing - and 
+>> thus bugs.
+>>
+>> Comments?
 
+
+-- 
+~Randy

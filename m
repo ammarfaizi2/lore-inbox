@@ -1,71 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUADCKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 21:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264927AbUADCKK
+	id S264452AbUADCNH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 21:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUADCNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 21:10:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:65217 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264903AbUADCKF (ORCPT
+	Sat, 3 Jan 2004 21:13:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:61644 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264452AbUADCNC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 21:10:05 -0500
-Date: Sat, 3 Jan 2004 18:09:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <20040104000840.A3625@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.58.0401031802420.2162@home.osdl.org>
-References: <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net>
- <1072970573.3975.3.camel@fur> <20040101164831.A2431@pclin040.win.tue.nl>
- <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org>
- <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org>
- <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
- <20040104000840.A3625@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 3 Jan 2004 21:13:02 -0500
+Date: Sun, 4 Jan 2004 02:12:46 +0000
+From: Dave Jones <davej@redhat.com>
+To: Srihari Vijayaraghavan <harisri@bigpond.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: agpgart issue on 2.6.1-rc1-bk3 (x86-64)
+Message-ID: <20040104021246.GB10650@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Srihari Vijayaraghavan <harisri@bigpond.com>,
+	linux-kernel@vger.kernel.org
+References: <200401041228.22987.harisri@bigpond.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401041228.22987.harisri@bigpond.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 04, 2004 at 12:28:22PM +1100, Srihari Vijayaraghavan wrote:
+ > Hello,
+ > 
+ > I see this message in the 2.6.1-rc3-bk3 kernel log:
+ > agpgart: Detected AGP bridge 0
+ > agpgart: Too many northbridges for AGP
+ > 
+ > This results in <100 FPS in glxgears, and I am unable to play the tuxracer 
+ > game :-). With 2.6.0-x8664-1 however I get 450 FPS (approx), and all was 
+ > well.
+ > 
+ > Upon applying this patch (making it identical to 2.6.0-x86-64 that is):
+ > --- 2.6.1-rc1-bk3/drivers/char/agp/amd64-agp.c.orig     2004-01-04 
+ > 01:06:20.000000000 +1100
+ > +++ 2.6.1-rc1-bk3/drivers/char/agp/amd64-agp.c  2004-01-04 01:06:50.000000000 
+ > +1100
+ > @@ -16,11 +16,7 @@
+ >  #include "agp.h"
+ > 
+ >  /* Will need to be increased if AMD64 ever goes >8-way. */
+ > -#ifdef CONFIG_SMP
+ >  #define MAX_HAMMER_GARTS   8
+ > -#else
+ > -#define MAX_HAMMER_GARTS   1
+ > -#endif
+
+Wrong fix.  Amongst another bunch of AGP fixes going to Linus/Andrew
+on Monday is the following..
+
+(Andi also sent me another amd64 update, which I'll merge before
+ pushing Linuswards)
 
 
-On Sun, 4 Jan 2004, Andries Brouwer wrote:
-> 
-> Empty talk. This is not about finding and fixing bugs.
-> We know very precisely what properties the NFS protocol has.
-> Now one can have a system that works as well as possible with NFS.
-> And one can have a worse system.
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/agp/amd64-agp.c linux-2.5/drivers/char/agp/amd64-agp.c
+--- bk-linus/drivers/char/agp/amd64-agp.c	2003-10-17 20:53:49.000000000 +0100
++++ linux-2.5/drivers/char/agp/amd64-agp.c	2003-12-02 02:05:32.000000000 +0000
+@@ -357,11 +356,18 @@ static __devinit int cache_nbs (struct p
+ 		}
+ 		hammers[i++] = loop_dev;
+ 		nr_garts = i;
+-		if (i == MAX_HAMMER_GARTS) { 
++#ifdef CONFIG_SMP
++		if (i > MAX_HAMMER_GARTS) { 
+ 			printk(KERN_INFO PFX "Too many northbridges for AGP\n");
+ 			return -1;
+ 		}
++#else
++		/* Uniprocessor case, return after finding first bridge.
++		   (There may be more, but in UP, we don't care). */
++		return 0;
++#endif
+ 	}
++
+ 	return i == 0 ? -1 : 0;
+ }
+ 
 
-Oh, things can be _much_ worse than /dev over NFS. 
-
-You don't seem to realize what I men with "not enumerable".
-
-With NFS, you could have some strange per-mount device number mapping etc, 
-and it wouldn't need to be all that complicated.
-
-But if you start considering network-attached storage (as in "disks over
-IP", not as in "samba"), the problem is that you fundamentally cannot
-enumerate the things on a kernel level. EVER. There is no way to do
-automatic discovery, because the bus fundamentally isn't enumerable. It
-isn't even _repeatable_, ie if you do broadcast "tell me what disks
-exists", the results won't be ordered some way.
-
-In other words, the device numbers that eventually get attached to these 
-disks (however the discovery ends up working - with the sysadmin 
-explicitly mentioning them, or with some kind of broadcast protocol) 
-simply WILL NOT NECESSARILY be the same across reboots. 
-
-And there just _isn't_ any way to make them the same or to "describe" the 
-storage in any integer of any finite length. It has nothing to do with 
-32-bit vs 64-bit vs 1024-bit.
-
-Once you accept that fact, you should accept the fact that device numbers 
-not only have no meaning, they literally have no permanence across reboots 
-either.
-
-Yes, the common case is permanent. What I'm saying is that the common case 
-_cannot_ be the generic case. 
-
-		Linus
+ 
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

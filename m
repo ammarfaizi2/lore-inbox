@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317012AbSG1Shn>; Sun, 28 Jul 2002 14:37:43 -0400
+	id <S317096AbSG1Sqq>; Sun, 28 Jul 2002 14:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317022AbSG1Shn>; Sun, 28 Jul 2002 14:37:43 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:50108 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317012AbSG1Shm>;
-	Sun, 28 Jul 2002 14:37:42 -0400
-Date: Sun, 28 Jul 2002 20:40:51 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard ONLY functions in 2.5.27 with local APIC on for UP
-Message-ID: <20020728204051.A15238@ucw.cz>
-References: <20020720222905.GA15288@outpost.ds9a.nl>
+	id <S317101AbSG1Sqp>; Sun, 28 Jul 2002 14:46:45 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:55797 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317096AbSG1Sqo>; Sun, 28 Jul 2002 14:46:44 -0400
+Subject: Re: n_tty.c driver patch (semantic and performance correction) (a
+	ll recent versions)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: rwhite@pobox.com
+Cc: Andries Brouwer <aebr@win.tue.nl>, Russell King <rmk@arm.linux.org.uk>,
+       Ed Vance <EdV@macrolink.com>, "'Theodore Tso'" <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+In-Reply-To: <200207271934.27102.rwhite@pobox.com>
+References: <11E89240C407D311958800A0C9ACF7D13A789A@EXCHANGE>
+	<200207271507.56873.rwhite@pobox.com> <20020727232129.GA26742@win.tue.nl> 
+	<200207271934.27102.rwhite@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 Jul 2002 21:04:36 +0100
+Message-Id: <1027886676.790.5.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020720222905.GA15288@outpost.ds9a.nl>; from ahu@ds9a.nl on Sun, Jul 21, 2002 at 12:29:05AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 21, 2002 at 12:29:05AM +0200, bert hubert wrote:
-> Vojtech, list,
+On Sun, 2002-07-28 at 03:34, Robert White wrote:
+> Having virtually every user on the planet realize this and just set VMIN == 1 
+> is an fairly telling indicator.
 > 
-> I find that my keyboard only works if I turn on the local APIC on UP on my
-> laptop. The only clue I see scrolling past is something about 'AT keyboard
-> timeout, not present?'. I don't have my nullmodem cable handy to check it
-> out further.
-> 
-> I do see it talking about interrupt 1 and IO 0x60. I've also compiled it
-> with the SERIO debugging setting and ATKBD debugging on, but I still don't
-> see anything useful.
-> 
-> Every once in a while it would say 'unknown scancode from keybord set 0,
-> 0x2' and then some more numbers. I feel bad that I can't be anymore specific
-> right now.
-> 
-> If you want me to do some more checking, let me know, and I'll hook up the
-> serial.
+> Repeatedly calling the kernel to assemble an input buffer which is necessary 
+> if VMIN ==1, is dumb.
 
-Can you check with 2.5.29? Several bugs in the keyboard support were
-fixed.
+VMIN was basically invented for communication protocols when you know
+the block length that should arrive within a given timeout. Its pretty
+much essential on old old boxes and was very important for
+interrupt/context switch reduction when doing block transfers. In that
+world the read blocks or in O_NDELAY returns -EAGAIN (0 in old SYS5)
+until the data block is big enough to warrant its copying. Similarly
+poll has no business saying data is ready until a large enough block is.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+When talking to a human setting VMIN > 1 makes no sense anyway. In fact
+nowdays it makes even less sense than it did before because of the use
+of UTF8 encodings for unicode characters.
+
+

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135915AbREFX1A>; Sun, 6 May 2001 19:27:00 -0400
+	id <S135924AbREGAPn>; Sun, 6 May 2001 20:15:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135917AbREFX0v>; Sun, 6 May 2001 19:26:51 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:21755
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S135915AbREFX0f>; Sun, 6 May 2001 19:26:35 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Rick Hohensee <humbubba@smarty.smart.net>, linux-kernel@vger.kernel.org
-Subject: Re: inserting a Forth-like language into the Linux kernel
-Date: Sun, 6 May 2001 18:24:45 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <200105060357.XAA29873@smarty.smart.net>
-In-Reply-To: <200105060357.XAA29873@smarty.smart.net>
+	id <S135936AbREGAPd>; Sun, 6 May 2001 20:15:33 -0400
+Received: from fepF.post.tele.dk ([195.41.46.135]:21146 "EHLO
+	fepF.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S135924AbREGAP3>; Sun, 6 May 2001 20:15:29 -0400
+From: "Svenning Soerensen" <svenning@post5.tele.dk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ipsec@freeswan.org>
+Subject: RE: Problem with PMTU discovery on ICMP packets
+Date: Mon, 7 May 2001 02:19:02 +0200
+Message-ID: <016e01c0d68b$51da19a0$1400a8c0@sss.intermate.com>
 MIME-Version: 1.0
-Message-Id: <01050618263300.10132@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+In-Reply-To: <15092.31381.395563.889405@pizda.ninka.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 05 May 2001, Rick Hohensee wrote:
->kspamd/H3sm is now making continuous writes to tty1 from an 
->in-kernel thread. It was locking on a write to /dev/console by
->init, so I made /dev/console a plain file. This is after 
->hollowing out sys_syslog to be a null routine, and various 
->other minor destruction.
->
->I am now typing at you on tty4 or so while the kernel itself 
->sends an endless stream of d's to tty1. It will scroll-lock 
->and un-scroll-lock, which is how I can tell it's not just a 
->static screen of d's.
->
->I don't know about H1 S&M, but the ability to open a tty
->normally directly into kernelspace may prove popular, particularly 
->with a Forth on that tty in that kernelspace. Persons with actual 
->kernel clue may want to look at allowing /dev/console users and 
->an in-kernel tty user to play nice. For my purposes I'll do without 
->a real /dev/console and syslogging for now. 
->
->Now I get to find out how many worlds of trouble I didn't foresee
->in _reading_ a tty from the kernel :o)
->
->If someone knows of another example of interpreter-like behavior 
->directly in a unix in-kernel thread I'd like to know about it.  
+> From: David S. Miller [mailto:davem@redhat.com]
 
-Only in reference to allowing for virus infection of the kernel.
+> But I first want to know the real story behind this reboot anomaly.
+> Then we will fix any new bug we discover, and apply the icmp patch as
+> well.
 
-It isn't a good idea.
+I've done a bit more testing. The behaviour doesn't change across reboots.
+Instead, it seems to be the case that:
+If the packet fits within the MTU of the outgoing interface, DF is set.
+If the packet doesn't fit, and thus gets fragmented, DF is clear on all
+fragments.
+Does this make sense?
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
+I think the reason it looked like it changed across reboots might be caused
+by the fact that it was influenced by a FreeS/WAN tunnel, which, after a
+reboot, didn't always get started successfully.
+If the tunnel was down, the packets (2 kB pings) would go out eth0 fragmented
+and with DF clear.
+If the tunnel was up, they would get routed through the ipsec0 interface
+(with a MTU of 16kB) unfragmented and with DF set.
 
-Any opinions expressed are solely my own.
+In the latter (normal) case, after arrival and decapsulation at the endpoint
+of the tunnel, the packet is doomed because it needs fragmentation to travel
+further, but DF is set.
+
+
+Svenning

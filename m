@@ -1,92 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264812AbTFBRmq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 13:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264814AbTFBRmq
+	id S264814AbTFBRnM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 13:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264816AbTFBRnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 13:42:46 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:44508 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S264812AbTFBRmp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 13:42:45 -0400
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function
-	declarations.
-From: Steven Cole <elenstev@mesatop.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+	Mon, 2 Jun 2003 13:43:12 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:64149 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264814AbTFBRnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 13:43:11 -0400
+Date: Mon, 2 Jun 2003 19:56:13 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Steven Cole <elenstev@mesatop.com>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
        Juan Quintela <quintela@mandrakesoft.com>,
        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030602173450.GD9312@conectiva.com.br>
-References: <Pine.LNX.4.44.0306020856450.19910-100000@home.transmeta.com>
-	 <1054571980.3751.141.camel@spc9.esa.lanl.gov>
-	 <20030602173450.GD9312@conectiva.com.br>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054576546.3751.146.camel@spc9.esa.lanl.gov>
+Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
+Message-ID: <20030602175613.GE679@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44.0306020856450.19910-100000@home.transmeta.com> <1054571980.3751.141.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 02 Jun 2003 11:55:47 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1054571980.3751.141.camel@spc9.esa.lanl.gov>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 11:34, Arnaldo Carvalho de Melo wrote:
-> Em Mon, Jun 02, 2003 at 10:39:41AM -0600, Steven Cole escreveu:
-> > On Mon, 2003-06-02 at 09:59, Linus Torvalds wrote:
-> > > On 2 Jun 2003, Juan Quintela wrote:
-> > > > 
-> > > > /**
-> > > >  * foo - <put something there>
-> > > >  * @bar: number of frobnicators
-> > > >  * @baz: self-larting on or off
-> > > >  * @userdata: pointer to arbitrary userdata to be registered
-> > > >  *
-> > > >  * Description: Please, fix me
-> > > >  */
-> > > > int foo(long bar, long baz)
-> > > > {
-> > > > ...
-> > > > 
-> > > > Looks like a better alternative to me.
-> > > 
-> > > Hey, if somebody were to send me a patch (hint hint), I'd happily apply 
-> > > it.
-> > > 
-> > > 		Linus
-> > 
-> > I sent this last night as an example, except now the function
-> > declaration is not wrapped.  How is this?
-> > 
-> > Steven
-> > 
-> > --- linux/lib/zlib_inflate/inftrees.c.orig	Mon Jun  2 10:15:29 2003
-> > +++ linux/lib/zlib_inflate/inftrees.c	Mon Jun  2 10:16:47 2003
-> > @@ -288,14 +288,16 @@
-> >    return y != 0 && g != 1 ? Z_BUF_ERROR : Z_OK;
-> > +int zlib_inflate_trees_bits(uIntf *c, uIntf *bb, inflate_huft * FAR *tb, inflate_huft *hp, z_streamp z)
-> >  {
-> >    int r;
-> >    uInt hn = 0;          /* hufts used in space */
+On Mon, 2 June 2003 10:39:41 -0600, Steven Cole wrote:
 > 
-> I do it like this:
-> 
-> 
-> int zlib_inflate_trees_bits(uIntf *c, uIntf *bb, inflate_huft * FAR *tb,
-> 			    inflate_huft *hp, z_streamp z)
-> 
-> - Arnaldo
+> I sent this last night as an example, except now the function
+> declaration is not wrapped.  How is this?
 
-For zlib, here is a worst case, with three choices, and there may be
-others since style is quite a matter of taste.
+Good.  Would be even better if the long line were wrapped.
 
-local int huft_build(uIntf *b, uInt n, uInt s, const uIntf *d, const uIntf *e,
-		     inflate_huft * FAR *t, uIntf *m, inflate_huft *hp, uInt *hn, uIntf *v)
+Jörn
 
-local int huft_build(uIntf *b, uInt n, uInt s, const uIntf *d, const uIntf *e,
-	inflate_huft * FAR *t, uIntf *m, inflate_huft *hp, uInt *hn, uIntf *v)
-
-local int huft_build(uIntf *b, uInt n, uInt s, const uIntf *d, const uIntf *e, inflate_huft * FAR *t, uIntf *m, inflate_huft *hp, uInt *hn, uIntf *v)
-
-Steven
-
-
+-- 
+Do not stop an army on its way home.
+-- Sun Tzu

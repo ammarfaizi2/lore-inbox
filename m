@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315806AbSEEBNP>; Sat, 4 May 2002 21:13:15 -0400
+	id <S315794AbSEEBTA>; Sat, 4 May 2002 21:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315810AbSEEBNN>; Sat, 4 May 2002 21:13:13 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:36874 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315806AbSEEBNL>; Sat, 4 May 2002 21:13:11 -0400
-Message-ID: <3CD47872.30104@evision-ventures.com>
-Date: Sun, 05 May 2002 02:10:26 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org, tomita@cinet.co.jp, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.13 IDE PIO mode Fix
-In-Reply-To: <UTC200205041015.g44AFIV16086.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S315797AbSEEBS7>; Sat, 4 May 2002 21:18:59 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15100
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S315794AbSEEBS6>; Sat, 4 May 2002 21:18:58 -0400
+Date: Sat, 4 May 2002 18:18:55 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: IO stats in /proc/partitions
+Message-ID: <20020505011855.GC2392@matchmail.com>
+Mail-Followup-To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020504213534.GA3034@louise.pinerecords.com> <Pine.LNX.4.33.0205041805240.11514-100000@shell1.aracnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Andries.Brouwer@cwi.nl napisa³:
->     I found this bug in 2.5.10 first. And caused ext2 FS corruption.
->     We are porting Linux to PC-9801 architecture (made by NEC Japan).
->     It has PIO ONLY IDE I/F. So please check PIO mode too.
->     # Our porting status - 2.2.x/2.4.x done and updating. 2.5.x partial.
+On Sat, May 04, 2002 at 06:08:58PM -0700, M. Edward (Ed) Borasky wrote:
+> On Sat, 4 May 2002, Tomas Szepe wrote:
 > 
->     diff -urN linux-2.5.10/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
->     --- linux-2.5.10/drivers/ide/ide-taskfile.c    Wed Apr 24 16:15:19 2002
->     +++ linux/drivers/ide/ide-taskfile.c  Fri Apr 26 15:44:42 2002
->     @@ -202,7 +202,7 @@
->                             ata_write_slow(drive, buffer, wcount);
->                     else
->      #endif
->     -                       ata_write_16(drive, buffer, wcount<<1);
->     +                       ata_write_16(drive, buffer, wcount);
->             }
->      }
+> > But hey, you've suffered thru it, which, guess what, makes you the
+> > perfect candidate to have the honor of writing the docs!
 > 
-> Excellent!
+> The person who made the "design" decisions and implemented the code is
+> responsible for documenting it. At least that's what *I* was taught 40
+> years ago when I learned to program a computer.
 
-Thank you for confirmations. This even streamlines the code to what
-it was intendid to be.
+True, but we don't know if the code designer is still around to do so either.
 
-BTW.> The next thing I plan to break is host chips initialization,
-since Jens introduced several additional ide_dma_action_t fields
-for no good reaons... I decided to remove them all as next... :-).
-
+By doing the code tracing yourself you are in a better position to submit
+informed documentation patches.  This won't help the designer's habbits any,
+but it'll help others in the position that you were in before you did the
+tracing...

@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbUK1STu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUK1SWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbUK1STu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 13:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbUK1STu
+	id S261551AbUK1SWF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 13:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbUK1SWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 13:19:50 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13328 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261548AbUK1ST3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 13:19:29 -0500
-Date: Sun, 28 Nov 2004 18:19:25 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: typeof(dev->power.saved_state)
-Message-ID: <20041128181925.B18354@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Sun, 28 Nov 2004 13:22:05 -0500
+Received: from neopsis.com ([213.239.204.14]:47530 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S261551AbUK1SVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 13:21:51 -0500
+Message-ID: <41AA17A8.5040403@dbservice.com>
+Date: Sun, 28 Nov 2004 19:23:36 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, ecki-news2004-05@lina.inka.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem with ioctl command TCGETS
+References: <E1CYMI9-0005PL-00@calista.eckenfels.6bone.ka-ip.net> <E1CYN7z-0001bZ-00@dorka.pomaz.szeredi.hu> <20041128121800.GZ26051@parcelfarce.linux.theplanet.co.uk> <E1CYODw-0001jf-00@dorka.pomaz.szeredi.hu> <20041128124847.GA26051@parcelfarce.linux.theplanet.co.uk> <E1CYOXh-0001nn-00@dorka.pomaz.szeredi.hu> <20041128130319.GB26051@parcelfarce.linux.theplanet.co.uk> <41A9E0FB.8030001@dbservice.com> <20041128152756.GL26051@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041128152756.GL26051@parcelfarce.linux.theplanet.co.uk>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/arm/common/sa1111.c: In function `sa1111_suspend':
-arch/arm/common/sa1111.c:816: warning: assignment from incompatible pointer type
+Al Viro wrote:
+> On Sun, Nov 28, 2004 at 03:30:19PM +0100, Tomas Carnecky wrote:
+> 
+>>You mean.. like nvidia?
+>>/dev/nvidiactl
+>>/dev/nvidia0
+>>/dev/nvidia1
+>>/dev/nvidia2
+>>and do read/write on /dev/nvidiactl (instead on ioctl)?
+> 
+> 
+> Really depends on situation - in some cases that's the obvious clean
+> variant, in some you might want something more specific.
 
-This is a rather annoying, and IMHO pointless warning.  First
-question: what is the reasoning for using an array of unsigned
-bytes here?  Are we expecting to power manage devices which only
-have byte wide registers?
+The 'good' thing on ioctl is that _every_ device supports that. It
+doesn't matter which device you open, each one supports ioctl.
+Now if each driver cooks up it's own replacement.. and everyone
+knows that developers don't really like to document their code.. :/
 
-In reality, devices have half-word and word sized registers as
-well, which means that dev->power.saved_state actually points to
-device specific data (or even device driver specific data) for
-the device.  As such, it makes far more sense for this to be
-a 'void *'.
+Was there ever a thread on lkml about a ioctl replacement? I'd
+really like to read about proposals, so far everyone talks only about
+replacing it... but no one wants to say how _exactly_.
 
-I'd rather not go around the ARM kernel tree adding pointless
-casts to 'u8 *' and back again because the wrong type for this
-was picked in the structure definition, so here's a patch which
-changes this to void *.
+tom
 
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
-
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/include/linux/pm.h linux/include/linux/pm.h
---- orig/include/linux/pm.h	Mon Nov 15 09:17:10 2004
-+++ linux/include/linux/pm.h	Sun Nov 28 18:15:57 2004
-@@ -226,7 +226,7 @@ struct dev_pm_info {
- 	u32			power_state;
- #ifdef	CONFIG_PM
- 	u32			prev_state;
--	u8			* saved_state;
-+	void			* saved_state;
- 	atomic_t		pm_users;
- 	struct device		* pm_parent;
- 	struct list_head	entry;
-
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

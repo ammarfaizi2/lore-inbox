@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbULHH3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbULHH36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbULHH3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbULHH3P
+	id S262054AbULHH36 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 02:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbULHH34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:29:15 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:29066 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262058AbULHH2S (ORCPT
+	Wed, 8 Dec 2004 02:29:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:3493 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262054AbULHH1R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:28:18 -0500
-To: linux-kernel@vger.kernel.org
-cc: Ian.Pratt@cl.cam.ac.uk, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org
-Subject: Xen VMM patch set - take 4
-Date: Wed, 08 Dec 2004 07:28:16 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CbwFE-0006PZ-00@mta1.cl.cam.ac.uk>
+	Wed, 8 Dec 2004 02:27:17 -0500
+Date: Wed, 8 Dec 2004 08:26:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Time sliced CFQ io scheduler
+Message-ID: <20041208072616.GD19522@suse.de>
+References: <20041202114836.6b2e8d3f.akpm@osdl.org> <20041202195232.GA26695@suse.de> <20041208003736.GD16322@dualathlon.random> <1102467253.8095.10.camel@npiggin-nld.site> <20041208013732.GF16322@dualathlon.random> <20041207180033.6699425b.akpm@osdl.org> <20041208065534.GF3035@suse.de> <1102489719.8095.56.camel@npiggin-nld.site> <20041208071141.GB19522@suse.de> <1102490389.8095.69.camel@npiggin-nld.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102490389.8095.69.camel@npiggin-nld.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 08 2004, Nick Piggin wrote:
+> On Wed, 2004-12-08 at 08:11 +0100, Jens Axboe wrote:
+> > On Wed, Dec 08 2004, Nick Piggin wrote:
+> > > On Wed, 2004-12-08 at 07:55 +0100, Jens Axboe wrote:
+> 
+> > > > Currently I think the time sliced cfq is the best all around. There's
+> > > > still a few kinks to be shaken out, but generally I think the concept is
+> > > > sounder than AS.
+> > > > 
+> > > 
+> > > But aren't you basically unconditionally allowing a 4ms idle time after
+> > > reads? The complexity of AS (other than all the work we had to do to get
+> > > the block layer to cope with it), is getting it to turn off at (mostly)
+> > > the right times. Other than that, it is basically the deadline
+> > > scheduler.
+> > 
+> > Yes, the concept is similar and there will be time wasting currently.
+> > I've got some cases covered that AS doesn't, and there are definitely
+> > some the other way around as well.
+> > 
+> 
+> Oh? What have you got covered that AS doesn't? (I'm only reading the
+> patch itself, which isn't trivial to follow).
 
-We've sync'ed up with the head of the Xen repository, and also brought
-the patch up to 2.6.10-rc3
+You are only thinking in terms of single process characteristics like
+will it exit and think times, the inter-process characteristics are very
+hap hazard. You might find the applied code easier to read, I think.
 
-The patches are pretty much identical to the take 3 set, which people
-seemed to be pretty happy with.
+> > If you have any test cases/programs, I'd like to see them.
+> > 
+> 
+> Hmm, damn. Lots of stuff. I guess some of the notable ones that I've
+> had trouble with are OraSim (Oracle might give you a copy), Andrew's
+> patch scripts when applying a stack of patches, pgbench... can't
+> really remember any others off the top of my head.
 
-To get a working arch xen system you need the following set of
-patches:
+The patch scripts case is interesting, last night (when committing other
+patches) I was thinking I should try and bench that today. It has a good
+mix of reads and writes.
 
- 1. add ptep_establish_new to make va available
- 2. return code for arch_free_page
- 3. runtime disable of VT console
- 4. HAS_ARCH_DEV_MEM enables Xen to use own /dev/mem definition
- 5. split free_irq into teardown_irq
- 6. alloc_skb_from_cache	(already accepted by Dave Miller)
+There's still lots of tuning in the pipe line. As I wrote originally,
+this was basically just a quick hack that I was surprised did so well
+:-) It has grown a little since then and I think the concept is really
+sound, so I'll continue to work on it.
 
-The actual new architecture, arch xen, is too big to post to the list,
-so here's a link:
- http://www.cl.cam.ac.uk/netos/xen/downloads/arch-xen.patch
+> I've got a small set of basic test programs that are similar to the
+> sort of tests you've been running in this thread as well.
 
-Likewise for the virtual block, network, and console drivers:
- http://www.cl.cam.ac.uk/netos/xen/downloads/drivers-xen.patch
+Ok
 
-Arch xen will be maintained by myself, Keir Fraser, Christian Limpach
-and Steve hand. 
+-- 
+Jens Axboe
 
-Cheers,
-Ian

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130788AbQKKNuy>; Sat, 11 Nov 2000 08:50:54 -0500
+	id <S130791AbQKKNvC>; Sat, 11 Nov 2000 08:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130648AbQKKNun>; Sat, 11 Nov 2000 08:50:43 -0500
+	id <S130801AbQKKNun>; Sat, 11 Nov 2000 08:50:43 -0500
 Received: from limes.hometree.net ([194.231.17.49]:26912 "EHLO
 	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S130785AbQKKNua>; Sat, 11 Nov 2000 08:50:30 -0500
+	id <S130767AbQKKNu3>; Sat, 11 Nov 2000 08:50:29 -0500
 To: linux-kernel@vger.kernel.org
-Date: Sat, 11 Nov 2000 13:45:38 +0000 (UTC)
+Date: Sat, 11 Nov 2000 13:29:03 +0000 (UTC)
 From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <8ujii2$1st$1@forge.tanstaafl.de>
+Message-ID: <8ujhiv$1ps$1@forge.tanstaafl.de>
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <3A0C7139.DDD81E67@timpanogas.org>, <Pine.LNX.4.30.0011101719440.19584-100000@back40.badlands.lexington.ibm.com>
+In-Reply-To: <3A0C5EDC.3F30BE9C@timpanogas.org>, <20001110151232.A16552@sendmail.com>
 Reply-To: hps@tanstaafl.de
-Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cowboy@vnet.ibm.com (Richard A Nelson) writes:
+sendmail+ca@sendmail.org (Claus Assmann) writes:
 
->I have several boxen running sendmail with fair to moderate loading -
->they even occasionally don't accept mail... and thats good, as it lets
->the system catch up with its current load.  As soon as things stabalize,
->sendmail again accepts connections - you *do* have MX entries don't you?
+>> Sending a 50 MB file is OK here. So it's not a TCP/IP bug. 
 
-% dig timpanogas.com mx
-[...]
-timpanogas.com.         1D IN MX        10 mail.timpanogas.com.
+>Ok, hopefully this reaches everyone who has been "involved"
+>by Jeff into this "problem".
 
+So it is _once_ _again_ a Jeff "I have no clue but I know Linux-Kernel
+list is cheaper than tech support or a real admin, but my real problem
+sits on the chair in front of the display" Merkey problem.
 
-No. He _is_ clueless with a big mouth as the regular readers of LKM
-already know.
-
-"and it's all either the fault of other people or the kernel". 
+This makes me puke. Again and again.
 
 	Regards
 		Henning
-
-
-
 
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer

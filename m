@@ -1,51 +1,97 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311856AbSD2OPr>; Mon, 29 Apr 2002 10:15:47 -0400
+	id <S312316AbSD2OUd>; Mon, 29 Apr 2002 10:20:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312119AbSD2OPq>; Mon, 29 Apr 2002 10:15:46 -0400
-Received: from 213-96-224-204.uc.nombres.ttd.es ([213.96.224.204]:42765 "EHLO
-	manty.net") by vger.kernel.org with ESMTP id <S311856AbSD2OPp>;
-	Mon, 29 Apr 2002 10:15:45 -0400
-Date: Mon, 29 Apr 2002 16:15:43 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcnet32 on 2.4.18 doesn't init on IBM rs/6000 B50 (powerpc)
-Message-ID: <20020429141543.GA3374@man.beta.es>
-In-Reply-To: <20020425220402.GA3654@man.beta.es> <20020425221519.GA13245@krispykreme> <20020428153253.GA2924@man.beta.es> <20020428230707.GG17500@krispykreme>
+	id <S312332AbSD2OUc>; Mon, 29 Apr 2002 10:20:32 -0400
+Received: from elin.scali.no ([62.70.89.10]:36879 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S312316AbSD2OUb>;
+	Mon, 29 Apr 2002 10:20:31 -0400
+Subject: Re: Possible bug with UDP and SO_REUSEADDR.
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020429103823.AAA26425@shell.webmaster.com@whenever>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 29 Apr 2002 16:20:29 +0200
+Message-Id: <1020090029.22027.121.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you send me the version of OF you are using? You should be able to get
-> it off the bootup splash screen or by doing lsprop /proc/device-tree/openprom.
-> Do you get any errors in dmesg when the card stuffs up?
+On Mon, 2002-04-29 at 12:38, David Schwartz wrote:
+> 
+> >However, I still can't see any *practical* use of having one program
+> >(me) bind the port, deliberately share it, and another program (you)
+> >coming along and want to share it, and then all unicast datagrams are
+> >passed to you. Not If I haven't subscribed to any multicast addresses,
+> >and no one is sending bcasts, there is no point of me being alive.
+> >
+> >Can you come up with a real life situation where this make sense?
+> 
+> 	Absolutely. This is actually used in cases where you have a 'default' 
+> handler for a protocol that is built into a larger program but want to keep 
+> the option to 'override' it with a program with more sophisticated behavior 
+> from time to time. In this case, the last socket should get all the data 
+> until it goes away.
+> 
+> 	DS
+> 
 
-Umm, I don't have that lsprop installed, let's see if this is enough:
+First of all since we're in agreement that the current behavior is NOT a
+bug, this discussion is pretty pointless, however I getting worked up.
 
-cat /proc/device-tree/openprom/ibm,fw-vernum_encoded
-TCP00032
-cat /proc/device-tree/openprom/ibm,loc-code
-P1
-cat /proc/device-tree/openprom/model
-IBM,TCP00032
-cat /proc/device-tree/openprom/name
-openprom
+In all fairness, I've a colleague that did an implementation of TCPIP a
+decade ago, and his in agreement in that the current logic this is the
+way implementations worked. Thus we're less likely to break things
+leaving this they way they are. 
 
-> One thing to watch out for with the RS/6000 OF is that it wont reply
-> to ARP messages during a TFTP load. If you are trying to load a
-> big image you need to arp -s <hostname> <hw_addr>.
+However you logic is broken.
+First of all, I asked for a case where it make sense, not where it's
+moronically been done so. If you review your own argument:
 
-Ah, that could be it, yes.
+> That's why if you mean to share, you should share the actual socket 
+> descriptor rather than trying to reference the same transport endpoint
+> with two different sockets.
 
-But this doesn't explain the problem we are having with the card under linux
-once we boot from the net ;-)
+The program that want to "override" shall connect the first on a
+AF_UNIX, get the descriptor and be told not to read from the UDP socket
+until the AF_UNIX socket to the overrider is broken/disconnected.
 
-Thanks again!
+Since according to Stevens, what happen here is implementation specific,
+the "overriding" you describe is non-portable.
 
-Regards...
+If you look at you other argument: 
+>        NO. When you set the SO_REUSEADDR, you are telling the 
+> kernel that you intend to share your port with *someone*, but not who.
+> The kernel has no way to know that two processes that bind to the same
+> UDP port with SO_REUSEADDR  are the two that were intended to 
+> cooperate with each other. For all it knows, one is a foo intended to
+> cooperate with other foo's and the other is a bar intended to 
+> cooperate with other bar's.
+
+The logical deduction from this is that you should never, ever, use bind
+to the same address for unicast since the kernel don't have the
+sufficient information to route the datagram correctly. I *COULD* agree
+to that it should be illegal to duplicate bind to an address.
+
+Trouble is now that is actually legal...
+
+TJ
+ 
+> 
+> 
+> 
 -- 
-Manty/BestiaTester -> http://manty.net
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

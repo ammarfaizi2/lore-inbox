@@ -1,91 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281835AbRLKQ0i>; Tue, 11 Dec 2001 11:26:38 -0500
+	id <S281779AbRLKQ3S>; Tue, 11 Dec 2001 11:29:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281772AbRLKQ03>; Tue, 11 Dec 2001 11:26:29 -0500
-Received: from newyork.ethz.ch ([129.132.189.66]:4617 "EHLO phys.ethz.ch")
-	by vger.kernel.org with ESMTP id <S281835AbRLKQ0K> convert rfc822-to-8bit;
-	Tue, 11 Dec 2001 11:26:10 -0500
-Date: Tue, 11 Dec 2001 17:26:06 +0100 (CET)
-From: Tobias Vancura <tvancura@phys.ethz.ch>
-Reply-To: Tobias Vancura <tvancura@phys.ethz.ch>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Tobias Vancura <tvancura@solid.phys.ethz.ch>
-Subject: "bad special flag" on Vaio PCG-Z600NE (ide.c)
-Message-ID: <Pine.LNX.4.21.0112111723190.1418-100000@bermuda.ethz.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S281823AbRLKQ3I>; Tue, 11 Dec 2001 11:29:08 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:48345 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S281779AbRLKQ26>; Tue, 11 Dec 2001 11:28:58 -0500
+Subject: Re: Scsi problems in 2.5.1-pre9
+From: Paul Larson <plars@austin.ibm.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011211161959.GA13498@suse.de>
+In-Reply-To: <1008065277.25964.5.camel@plars.austin.ibm.com>
+	<20011211160543.GZ13498@suse.de>  <20011211161959.GA13498@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14 (Preview Release)
+Date: 11 Dec 2001 10:34:27 +0000
+Message-Id: <1008066868.25964.8.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2001-12-11 at 16:19, Jens Axboe wrote:
 
-
-Hello everybody
-
-I get the following error message when I plug the PCMCIA CDROM
-drive into my brother's Vaio PCG-Z600NE:
-
-Dec 11 14:58:54 grisu kernel: hde: bad special flag: 0x03
-
-The kernel I am running is 2.4.16. The CDROM actually works,
-but I have this error message which I don't understand. The whole
-excerpt from /var/log/messages is:
-
-here I plug in the PCMCIA card:
-
-Dec 11 14:58:51 grisu cardmgr[283]: socket 0: Ninja ATA
-Dec 11 14:58:51 grisu cardmgr[283]: executing: 'modprobe ide-cs'
-Dec 11 14:58:54 grisu kernel: hde: TOSHIBA CD-ROM XM-7002Bc, ATAPI
-CD/DVD-ROM drive
-Dec 11 14:58:54 grisu kernel: ide2 at 0x180-0x187,0x386 on irq 3
-Dec 11 14:58:54 grisu kernel: ide_cs: hde: Vcc = 5.0, Vpp = 0.0
-Dec 11 14:58:54 grisu cardmgr[283]: executing: './ide start hde'
-Dec 11 14:58:54 grisu kernel: hde: bad special flag: 0x03
-
-here the PCMCIA is removed:
-
-Dec 11 14:59:03 grisu kernel: ide2: unexpected interrupt, status=0xff,
-count=4
-Dec 11 14:59:03 grisu cardmgr[283]: executing: './ide stop hde'
-Dec 11 14:59:03 grisu modprobe: modprobe: Can't locate module
-block-major-33
-Dec 11 14:59:03 grisu cardmgr[283]: + open() failed: Device not configured
-Dec 11 14:59:03 grisu cardmgr[283]: executing: 'modprobe -r ide-cs'
-
-I guess the "unexpected interrupt" is okay, because who should
-expect the PCMCIA card to be removed. The "Can't locate module
-block-major-33" isn't that important either, I guess, I have to
-see how I can fix that.
-
-The line with the special flag is generated at line 1080 in
-the file drivers/ide/ide.c within the function 
-
-static ide_startstop_t do_special (ide_drive_t *drive)
-
-I do not understand the code there and it does not seem to matter
-anyway. The function returns "ide_stopped" and all that is done
-is that a local variable "special_t *s" is set to "s->all =
-0;" and the printk command is issued.
-
-Could any comment on this?
-
-Thank you very much,
-
-Tobias
-
-P.S.: I tried to mail the maintainer of IDE, Andre Hedrik, but I
-did not get an answer from <andre@linux-ide.org> and
-<andre@suse.com> does not exist anymore.
-
-
--- 
-Tobias Vancura				Email: tvancura@phys.ethz.ch
-Solid State Physics Laboratory		Phone: +41-(0)1-633 3767
-HPF C 13				Fax:   +41-(0)1-633 1146
-ETH Zürich				
-CH - 8093 Zurich/Switzerland
-
-
-
+> It seems to affect all SCSI drivers with CLUSTERING enabled. Don't worry
+> about data consistency btw, the above is a warning only (the right
+> segment count is used).
+So... this isn't a problem that my machine was locked up, I couldn't log
+in, or break out of the hung process, and it came back in an
+inconsistant state?
 

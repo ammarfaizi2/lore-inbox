@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132755AbRC2PsW>; Thu, 29 Mar 2001 10:48:22 -0500
+	id <S132756AbRC2PvW>; Thu, 29 Mar 2001 10:51:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132756AbRC2PsM>; Thu, 29 Mar 2001 10:48:12 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:50421 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S132755AbRC2PsF>; Thu, 29 Mar 2001 10:48:05 -0500
-Date: Thu, 29 Mar 2001 10:47:10 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: opl3sa2 in 2.4.2 on Toshiba Tecra 8000
-Message-ID: <20010329104710.A18159@devserv.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <01032910124007.00454@neo>
-Mime-Version: 1.0
+	id <S132762AbRC2PvN>; Thu, 29 Mar 2001 10:51:13 -0500
+Received: from diver.doc.ic.ac.uk ([146.169.1.47]:48905 "EHLO
+	diver.doc.ic.ac.uk") by vger.kernel.org with ESMTP
+	id <S132756AbRC2PvD>; Thu, 29 Mar 2001 10:51:03 -0500
+To: robert@mpe.mpg.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Solved with MTRR was: ISSUE: very slow (factor 100) 4-way 16GByte server, with 2.4.2
+In-Reply-To: <200103291534.f2TFYr700338@robert2.mpe-garching.mpg.de>
+From: David Wragg <dpw@doc.ic.ac.uk>
+Date: 29 Mar 2001 15:50:09 +0000
+In-Reply-To: Robert Suetterlin's message of "Thu, 29 Mar 2001 17:34:53 +0200"
+Message-ID: <y7r1yrgy3pq.fsf@sytry.doc.ic.ac.uk>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01032910124007.00454@neo>; from k@ailis.de on Thu, Mar 29, 2001 at 10:12:40AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Klaus Reimer (k@ailis.de) said: 
-> 2001-03-29 10:02:50.054774500 {kern|info} kernel: ad1848/cs4248 codec driver 
-> Copyright (C) by Hannu Savolainen 1993-1996
-> 2001-03-29 10:02:50.070692500 {kern|notice} kernel: opl3sa2: No cards found
-> 2001-03-29 10:02:50.070703500 {kern|notice} kernel: opl3sa2: 0 PnP card(s) 
-> found.
+Robert Suetterlin <sutter@robert2.mpe-garching.mpg.de> writes:
+> 2. I was not allowed to do `base=0 size=0x400000000
+> type=write-back`, because of the overlap with the memory range at
+> base=0x0fb000000. 
 
-Add 'isapnp=0' to the end of the options in your modules.conf.
-I *believe* this is fixed in a later kernel (2.4.3pre or 2.4.2ac).
+/proc/mtrr does allow overlapping regions in some cases, but the
+conditions turned out to be stricter than I remembered.  You have to
+create the enclosing range first, which makes the facility useless in
+this case (perhaps in all potentially useful cases).
 
-Bill
+> So what I do is only disable 3-7, and then
+> base=0x400000000 size=0x400000000.
+
+Yes, that solution should be safe.
+

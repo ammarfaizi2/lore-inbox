@@ -1,104 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263137AbVBCQpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbVBCQu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbVBCQpI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 11:45:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVBCQpI
+	id S262562AbVBCQu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 11:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVBCQu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 11:45:08 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:14746 "EHLO
-	postbox.bitmover.com") by vger.kernel.org with ESMTP
-	id S263680AbVBCQlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 11:41:10 -0500
-Date: Wed, 2 Feb 2005 19:34:59 -0800
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050203033459.GA29409@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org
-References: <20050202155403.GE3117@crusoe.alcove-fr> <200502030028.j130SNU9004640@terminus.zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502030028.j130SNU9004640@terminus.zytor.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+	Thu, 3 Feb 2005 11:50:27 -0500
+Received: from netblock-66-218-40-30.dslextreme.com ([66.218.40.30]:7626 "EHLO
+	mail.lowrydigital.com") by vger.kernel.org with ESMTP
+	id S263405AbVBCQtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 11:49:42 -0500
+Mime-Version: 1.0 (Apple Message framework v619.2)
+In-Reply-To: <E1CwY6U-0003p6-00@calista.eckenfels.6bone.ka-ip.net>
+References: <E1CwY6U-0003p6-00@calista.eckenfels.6bone.ka-ip.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <1e90ea5b2039243539df074d7bc9a658@lowrydigital.com>
+Content-Transfer-Encoding: 7bit
+From: Ian Godin <Ian.Godin@lowrydigital.com>
+Subject: Re: Drive performance bottleneck
+Date: Thu, 3 Feb 2005 08:49:42 -0800
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Thanks for the forward, Peter, I would have missed this).
+On Feb 2, 2005, at 7:56 PM, Bernd Eckenfels wrote:
 
-Intel has very kindly donated one of their high end boxes and that's
-what is running bkbits.net these days.  We could run the exporter there
-pretty much as often as you want.  Send some love to Intel, this box is
-way more stable than the previous bkbits.net.  Len Brown made it happen.
+> In article <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com> you 
+> wrote:
+>>  Below is an oprofile (truncated) of (the same) dd running on 
+>> /dev/sdb.
+>
+> do  you also have the oprofile of the sg_dd handy?
+>
+> Greetings
+> Bernd
+>
 
-As Peter said, we do exports from Linus' tree every 24 hours.  I can
-think of two things that we could do which might be useful to the non BK
-users: export more frequently (pretty questionable in my mind but it's
-no big deal to bump it up to twice or whatever) and/or export other trees
-(far more interesting in my mind).
+   Just ran it on the sg_dd (using /dev/sg1):
 
-We can always use more hardware if someone is looking to donate but
-we can also afford to buy what we need.  Our biggest ongoing cost in
-supporting you these days is our internet connection, that's running
-about $11K/year for the portion that is exclusively yours.  Fear not,
-we get marketing value from providing that so it's no problem, we'll
-keep doing it.  A question though, is anyone feeling like we need to
-allocate more bandwidth or is that enough?  You guys currently keep a
-T1 line pretty much filled 24x7, we can add another one or bump it up
-to a T3 if really need to do so.
+CPU: P4 / Xeon, speed 3402.13 MHz (estimated)
+Counted GLOBAL_POWER_EVENTS events (time during which processor is not 
+stopped) with a unit mask of 0x01 (mandatory) count 10
+0000
+samples  %        symbol name
+2145136  89.7474  __copy_to_user_ll
+64720     2.7077  lock_kernel
+17883     0.7482  mark_offset_tsc
+16212     0.6783  page_address
+8091      0.3385  schedule
+5380      0.2251  timer_interrupt
+5314      0.2223  _spin_lock
+5311      0.2222  mwait_idle
+4034      0.1688  sysenter_past_esp
+3569      0.1493  do_anonymous_page
+3530      0.1477  apic_timer_interrupt
+3368      0.1409  _spin_lock_irqsave
+3150      0.1318  sg_read_xfer
+3043      0.1273  kmem_cache_alloc
+2590      0.1084  find_busiest_group
+2553      0.1068  scheduler_tick
+2319      0.0970  __copy_from_user_ll
+2299      0.0962  sg_ioctl
+2131      0.0892  irq_entries_start
+1905      0.0797  sys_ioctl
+1773      0.0742  copy_page_range
+1678      0.0702  fget
+1648      0.0689  __switch_to
+1648      0.0689  scsi_block_when_processing_errors
+1632      0.0683  sg_start_req
+1569      0.0656  increment_tail
+1511      0.0632  try_to_wake_up
+1506      0.0630  update_one_process
+1454      0.0608  fput
+1397      0.0584  do_gettimeofday
+1396      0.0584  zap_pte_range
+1371      0.0574  recalc_task_prio
+1357      0.0568  sched_clock
+1352      0.0566  sg_link_reserve
+1282      0.0536  __elv_add_request
+1229      0.0514  kmap_atomic
+1195      0.0500  page_fault
 
-We're always looking for more ways to help you (or more properly said:
-more ways to be perceived as helping) so let us know what you would like.
-In Bk or out of it.  Is BK/Web good enough?  Need something?  Let us
-know.
+   Oddly enough it appears to also be copying to user space...
 
-Cheers,
+      Ian.
 
---lm
-
-
-On Wed, Feb 02, 2005 at 04:28:23PM -0800, H. Peter Anvin wrote:
-> Followup to:  <20050202155403.GE3117@crusoe.alcove-fr>
-> By author:    Stelian Pop <stelian@popies.net>
-> In newsgroup: linux.dev.kernel
-> >
-> > Hi,
-> > 
-> > I've played lately a bit with Subversion and used it for managing
-> > the kernel sources, using Larry McVoy's bk2cvs bridge and Ben Collins'
-> > bkcvs2svn conversion script.
-> > 
-> > Since there is little information on the web on how to properly
-> > set up a SVN repository and use it for tracking the latest kernel
-> > tree, I wrote a small howto (modeled after the bk kernel howto)
-> > in case it can be useful for other people too.
-> > 
-> > Feel free to comment on it (but let's not start a new BK flamewar
-> > or SVN bashing session please). If there is enough interest I'll
-> > submit a patch to include this in the kernel Documentation/ 
-> > directory.
-> > 
-> > I've put it also on my web page along with the necessary scripts:
-> > 	http://popies.net/svn-kernel/
-> > 
-> > And now a question to Larry and whoever else is involved in the
-> > bkcvs mirror on kernel.org: what is the periodicity of the CVS
-> > repository update ? 
-> > 
-> 
-> Currently it's nightly.  Larry has offered to run it more often if
-> someone can provide a dedicated fast machine to run it on.  (Larry: is
-> it a matter of memory or of CPU or both?  If nothing else we should
-> have the old kernel.org server, dual P3/1133 with 6 GB RAM, coming
-> free soon.)
-> 
-> Please let me know if there is something that should be put on
-> kernel.org; we can host repositories there of course.
-> 
-> 	-hpa
-
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

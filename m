@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130642AbRBLPWB>; Mon, 12 Feb 2001 10:22:01 -0500
+	id <S130174AbRBLP0M>; Mon, 12 Feb 2001 10:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130682AbRBLPVv>; Mon, 12 Feb 2001 10:21:51 -0500
-Received: from cse.unl.edu ([129.93.33.1]:39237 "EHLO cse.unl.edu")
-	by vger.kernel.org with ESMTP id <S130642AbRBLPVn>;
-	Mon, 12 Feb 2001 10:21:43 -0500
-Date: Mon, 12 Feb 2001 09:21:39 -0600
-From: Ben Rush <brush@cse.unl.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Error Communicating With Module
-Message-ID: <Pine.SGI.4.05.10102120911460.4669542-100000@cse.unl.edu>
+	id <S130655AbRBLP0C>; Mon, 12 Feb 2001 10:26:02 -0500
+Received: from srv01s4.cas.org ([134.243.50.9]:61600 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S130174AbRBLPZ4>;
+	Mon, 12 Feb 2001 10:25:56 -0500
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200102121525.KAA16906@mah21awu.cas.org>
+Subject: Re: lkml subject line
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Mon, 12 Feb 2001 10:25:47 -0500 (EST)
+Cc: dwguest@win.tue.nl (Guest section DW),
+        matti.aarnio@zmailer.org (Matti Aarnio),
+        g.liakhovetski@ragingbull.com (Guennadi Liakhovetski),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <6195.981991148@redhat.com> from "David Woodhouse" at Feb 12, 2001 03:19:08 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, first of all I must tell you that I do not belong to this
-mailing list as of yet, so, please respond to me via brush@cse.unl.edu.
-Thank you very much in advance!
+> 
+> 
+> dwguest@win.tue.nl said:
+> >  There are advantages: distinguish personal messages from mailing list
+> > messages, and distinguish between different mailing lists. And
+> > disadvantages - maybe only one: sacrificing valuable Subject: line
+> > space. 
+> 
+> The advantages can all be gained without that disadvantage by just learning 
+> to filter mail on other headers instead of the subject line.
 
-	My problem is as follows: 
+Assuming your mail reader can do that (and no, I can't change my mail
+reader).
 
-	I have added a variable named bens_variable to ksyms.c as follows: 
-
-	extern int bens_variable=10; 
-
-	I have then exported the variable in ksyms.c as follows: 
-
-	EXPORT_SYMBOL(bens_variable); 
-
-	I then recompiled the kernel as bzImage and everything went
-perfectly fine. I then wrote a module for that particular kernel which
-is simple and looks as follows: 
-
-	#define MODULE
-	#define __KERNEL__
-	#include <linux/module.h>
-
-	int init_module(void){
-		printk(bens_variable); 
-		return 0; 
-	}
-	
-	void cleanup_module(void){
-		printk("<1>Module Unloaded\n"); 
-	}
-
-	But, of course, whenever I try and compile the module to load it
-using gcc it tells me that bens_variable is undefined - which makes sense,
-however I don't see how I can compile this without typing in 
-
-	extern int bens_variable; 
-
-	again. How do I get my module to compile and print out the value
-of bens_variable as defined within ksyms.c? 
-
-	Again, please respond to me via brush@cse.unl.edu. Thanks again in
-advance!!!
-
-	~Ben
-	brush@cse.unl.edu
-
-	******************************************************
-		    Benjamin Rush (brush@cse.unl.edu)
-			http://cse.unl.edu/~brush/
-		  Undergradute Computer Scientist @ UNL
-	*******************************************************
-
-
+/Mike
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

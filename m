@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281495AbRKHJ4e>; Thu, 8 Nov 2001 04:56:34 -0500
+	id <S281503AbRKHKFy>; Thu, 8 Nov 2001 05:05:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281496AbRKHJ4Y>; Thu, 8 Nov 2001 04:56:24 -0500
-Received: from relay.datanet.hu ([194.149.0.156]:12355 "HELO relay.datanet.hu")
-	by vger.kernel.org with SMTP id <S281495AbRKHJ4M>;
-	Thu, 8 Nov 2001 04:56:12 -0500
-From: "Bakonyi Ferenc" <fero@sztalker.hu>
-Organization: =?ISO-8859-1?Q?=3D=3FISO-8859-2=3FQ=3FDatakart=5FGeod=82zia=5FKFT.=3F=3D?=
+	id <S281501AbRKHKFo>; Thu, 8 Nov 2001 05:05:44 -0500
+Received: from mail.spylog.com ([194.67.35.220]:28839 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S281497AbRKHKFh>;
+	Thu, 8 Nov 2001 05:05:37 -0500
+Date: Thu, 8 Nov 2001 13:05:30 +0300
+From: Andrey Nekrasov <andy@spylog.ru>
 To: linux-kernel@vger.kernel.org
-Date: Thu, 8 Nov 2001 10:55:33 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: isa_* problems (hgafb is broken since 2.4.13)
-Message-ID: <3BEA64AF.18141.2926868D@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Subject: {bug} tcp v4 hash - 2.4.14pre6aa1
+Message-ID: <20011108130530.A1006@spylog.ru>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-	Hi!
+ kernel 2.4.14pre6aa1, web server apache 1.3.20
 
-Calls for isa_memset_io() and isa_writeb() in hga_clear_screen() and 
-hga_show_logo() make garbage and bad things since 2.4.13. (Unable to 
-handle kernel paging request at virtual address...)
-Anybody experiencing problems may want to revert changes made in 
-2.4.13. It solves the problem.
+...
+Nov  8 00:21:14 emerald kernel: sending pkt_too_big to self
+Nov  8 12:19:43 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:23:01 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:24:08 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:25:27 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:26:27 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:26:55 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:28:28 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:30:04 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:30:35 emerald last message repeated 4 times
+Nov  8 12:31:05 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+Nov  8 12:32:14 emerald kernel: KERNEL: assertion (sk->pprev==NULL) failed at
+tcp_ipv4.c(345):__tcp_v4_hash
+N
 
-I have two questions about asm-i386/io.h:
-1. Why #define __ISA_IO_base ((char *)(PAGE_OFFSET)) ?
-2. Why not #define __ISA_IO_base ((char *)0) ? 
+ and server dead.
 
-Regards:
-	Ferenc Bakonyi
+-- 
+bye.
+Andrey Nekrasov, SpyLOG.

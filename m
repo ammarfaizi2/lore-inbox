@@ -1,64 +1,189 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288422AbSA2CZj>; Mon, 28 Jan 2002 21:25:39 -0500
+	id <S288411AbSA2Caa>; Mon, 28 Jan 2002 21:30:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288531AbSA2CZa>; Mon, 28 Jan 2002 21:25:30 -0500
-Received: from nat.overture.com ([208.50.18.5]:29118 "EHLO
-	tiresias.corp.go2.com") by vger.kernel.org with ESMTP
-	id <S288422AbSA2CZP>; Mon, 28 Jan 2002 21:25:15 -0500
-Message-ID: <3C560804.C68BC6F4@overture.com>
-Date: Mon, 28 Jan 2002 18:25:08 -0800
-From: Xeno <xeno@overture.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.4: NFS client kmapping across I/O
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288566AbSA2CaW>; Mon, 28 Jan 2002 21:30:22 -0500
+Received: from sombre.2ka.mipt.ru ([194.85.82.77]:8576 "EHLO
+	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
+	id <S288531AbSA2CaJ>; Mon, 28 Jan 2002 21:30:09 -0500
+Date: Tue, 29 Jan 2002 05:29:39 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] scsi uodate to remove io_request_lock
+Message-Id: <20020129052939.2648bc14.johnpol@2ka.mipt.ru>
+In-Reply-To: <Pine.LNX.4.33.0201281745350.10600-100000@penguin.transmeta.com>
+In-Reply-To: <20020129043528.47f020a7.johnpol@2ka.mipt.ru>
+	<Pine.LNX.4.33.0201281745350.10600-100000@penguin.transmeta.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Tue__29_Jan_2002_05:29:39_+0300_082e2fa8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond, thanks for the excellent fattr race fix.  I'm sorry I haven't
-been able to give feedback until now, things got busy for a while.  I
-have not yet had a chance to run your fixes, but after studying them I
-believe that they will resolve the race nicely, especially with the use
-of nfs_inode_lock in the recent NFS_ALL experimental patches.  FWIW.
+This is a multi-part message in MIME format.
 
-Now I also have time to mention the other NFS client issue we ran into
-recently, I have not found mention of it on the mailing lists.  The NFS
-client is kmapping pages for the duration of reads from and writes to
-the server.  This creates a scaling limitation, especially under
-CONFIG_HIGHMEM64G and i386 where there are only 512 entries in the
-highmem kmap table.  Under I/O load, it is easy to fill up the table,
-hanging all processes that need to map highmem pages a substantial
-fraction of the time.
+--Multipart_Tue__29_Jan_2002_05:29:39_+0300_082e2fa8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Before 2.4.15, it is particularly bad, nfs_flushd locks up the kernel
-under I/O load.  My testcase was to copy 12 100M files from one NFS
-server to another, it was very reliable at producing the lockup right
-away.  nfs_flushd fills up the kmap table as it sends out requests, then
-blocks waiting for another kmap entry to free up.  But it is running in
-rpciod, so rpciod is blocked and cannot process any responses to the
-requests.  No kmap entries are ever freed once the table fills up.  In
-this state, the machine pings and responds to SysRq on the serial port,
-but just about everything else hangs.
+On Mon, 28 Jan 2002 17:46:49 -0800 (PST)
+Linus Torvalds <torvalds@transmeta.com> wrote:
 
-It looks like nfs_flushd was turned off in 2.4.15, that is the
-workaround I have applied to our machines.  I have also limited the
-number of requests across all NFS servers to LAST_PKMAP-64, to leave
-some kmap entries available for non-NFS use.  It is not an ideal
-workaround, though, it artificially limits I/O to multiple servers. 
-I've thought about bumping up LAST_PKMAP to increase the size of the
-highmem kmap table, but the table looks like it was designed to be
-small.
+> Can you re-do the diff against your previous diff, I've already applied
+> it to my tree..
 
-I've also thought about pushing the kmaps and kunmaps down into the RPC
-layer, so the pages are only mapped while data is copied to or from
-them, not while waiting for the network.  That would be more work, but
-it looks doable, so I wanted to run the problem and the approach by you
-knowledgeable folks while I'm waiting for hardware to free up for kernel
-hacking.
+It was simple cleanup.
 
-Thanks,
-Xeno
+Thanks.
+
+> 		Linus
+
+	Evgeniy Polyakov ( s0mbre ).
+
+--Multipart_Tue__29_Jan_2002_05:29:39_+0300_082e2fa8
+Content-Type: application/octet-stream;
+ name="diff_against_diff.diff"
+Content-Disposition: attachment;
+ filename="diff_against_diff.diff"
+Content-Transfer-Encoding: base64
+
+LS0tIC9MaW51eC9teV9jb2RlL215X2tlcm5lbF9wYXRjaGVzL19fc2NzaS5kaWZmCVR1ZSBKYW4g
+MjkgMDU6MTQ6MzkgMjAwMgorKysgL0xpbnV4L215X2NvZGUvbXlfa2VybmVsX3BhdGNoZXMvc2Nz
+aS5kaWZmCVR1ZSBKYW4gMjkgMDU6MDk6MDYgMjAwMgpAQCAtMSw1ICsxLDMgQEAKLU9ubHkgaW4g
+Li9kcml2ZXJzL3Njc2kvOiAuZGVwZW5kCi1Pbmx5IGluIC4vZHJpdmVycy9zY3NpLzogLmhvc3Rz
+LmMuc3dwCiBkaWZmIC11ciAuL2RyaXZlcnMvc2NzaS8zdy14eHh4LmMgLi9kcml2ZXJzL3Njc2kv
+M3cteHh4eC5jCiAtLS0gLi9kcml2ZXJzL3Njc2kvM3cteHh4eC5jCU1vbiBKYW4gMjggMTM6NDU6
+MzMgMjAwMgogKysrIC4vZHJpdmVycy9zY3NpLzN3LXh4eHguYwlNb24gSmFuIDI4IDEzOjQ3OjMz
+IDIwMDIKQEAgLTU1LDcgKzUzLDYgQEAKICAKICAJc3Bpbl9sb2NrKCZ0d19kZXYtPnR3X2xvY2sp
+OwogIAl0d19kZXYtPm51bV9yZXNldHMrKzsKLU9ubHkgaW4gLi9kcml2ZXJzL3Njc2kvOiAzdy14
+eHh4LmN+CiBkaWZmIC11ciAuL2RyaXZlcnMvc2NzaS81M2M3LDh4eC5jIC4vZHJpdmVycy9zY3Np
+LzUzYzcsOHh4LmMKIC0tLSAuL2RyaXZlcnMvc2NzaS81M2M3LDh4eC5jCU1vbiBKYW4gMjggMTM6
+NDU6MzMgMjAwMgogKysrIC4vZHJpdmVycy9zY3NpLzUzYzcsOHh4LmMJTW9uIEphbiAyOCAxMzoy
+ODoxNyAyMDAyCkBAIC00NzcsNyArNDc0LDYgQEAKICB9CiAgCiAgaW50IGFoYTE3NDBfcXVldWVj
+b21tYW5kKFNjc2lfQ21uZCAqIFNDcG50LCB2b2lkICgqZG9uZSkoU2NzaV9DbW5kICopKQotT25s
+eSBpbiAuL2RyaXZlcnMvc2NzaS9haWM3eHh4OiAuZGVwZW5kCiBkaWZmIC11ciAuL2RyaXZlcnMv
+c2NzaS9hdHA4NzB1LmMgLi9kcml2ZXJzL3Njc2kvYXRwODcwdS5jCiAtLS0gLi9kcml2ZXJzL3Nj
+c2kvYXRwODcwdS5jCU1vbiBKYW4gMjggMTM6NDU6MzMgMjAwMgogKysrIC4vZHJpdmVycy9zY3Np
+L2F0cDg3MHUuYwlNb24gSmFuIDI4IDEzOjM2OjQ2IDIwMDIKQEAgLTEwMzUsMTAgKzEwMzEsMTAg
+QEAKIC0jZGVmaW5lIEdEVEhfVU5MT0NLX1NDU0lfRE9ORShmbGFncykgICAgc3Bpbl91bmxvY2tf
+aXJxcmVzdG9yZSgmaW9fcmVxdWVzdF9sb2NrLGZsYWdzKQogLSNkZWZpbmUgR0RUSF9MT0NLX1ND
+U0lfRE9DTUQoKSAgICAgICAgICBzcGluX2xvY2tfaXJxKCZpb19yZXF1ZXN0X2xvY2spCiAtI2Rl
+ZmluZSBHRFRIX1VOTE9DS19TQ1NJX0RPQ01EKCkgICAgICAgIHNwaW5fdW5sb2NrX2lycSgmaW9f
+cmVxdWVzdF9sb2NrKQotKyNkZWZpbmUgR0RUSF9MT0NLX1NDU0lfRE9ORShkZXYsIGZsYWdzKSAg
+ICAgIHNwaW5fbG9ja19pcnFzYXZlKCgoc3RydWN0IFNjc2lfSG9zdCAqKWRldi0+aG9zdF9sb2Nr
+KSxmbGFncykKLSsjZGVmaW5lIEdEVEhfVU5MT0NLX1NDU0lfRE9ORShmbGFncykgICAgc3Bpbl91
+bmxvY2tfaXJxcmVzdG9yZSgoKHN0cnVjdCBTY3NpX0hvc3QgKilkZXYtPmhvc3RfbG9jayksZmxh
+Z3MpCi0rI2RlZmluZSBHRFRIX0xPQ0tfU0NTSV9ET0NNRChkZXYpICAgICAgICAgIHNwaW5fbG9j
+a19pcnEoKChzdHJ1Y3QgU2NzaV9Ib3N0ICopZGV2LT5ob3N0X2xvY2spKQotKyNkZWZpbmUgR0RU
+SF9VTkxPQ0tfU0NTSV9ET0NNRChkZXYpICAgICAgICBzcGluX3VubG9ja19pcnEoKChzdHJ1Y3Qg
+U2NzaV9Ib3N0ICopZGV2LT5ob3N0X2xvY2spKQorKyNkZWZpbmUgR0RUSF9MT0NLX1NDU0lfRE9O
+RShkZXYsIGZsYWdzKSAgICAgIHNwaW5fbG9ja19pcnFzYXZlKGRldi0+aG9zdF9sb2NrLGZsYWdz
+KQorKyNkZWZpbmUgR0RUSF9VTkxPQ0tfU0NTSV9ET05FKGZsYWdzKSAgICBzcGluX3VubG9ja19p
+cnFyZXN0b3JlKGRldi0+aG9zdF9sb2NrLGZsYWdzKQorKyNkZWZpbmUgR0RUSF9MT0NLX1NDU0lf
+RE9DTUQoZGV2KSAgICAgICAgICBzcGluX2xvY2tfaXJxKGRldi0+aG9zdF9sb2NrKQorKyNkZWZp
+bmUgR0RUSF9VTkxPQ0tfU0NTSV9ET0NNRChkZXYpICAgICAgICBzcGluX3VubG9ja19pcnEoZGV2
+LT5ob3N0X2xvY2spCiAgI2Vsc2UKICAjZGVmaW5lIEdEVEhfSU5JVF9MT0NLX0hBKGhhKSAgICAg
+ICAgICAgZG8ge30gd2hpbGUgKDApCiAgI2RlZmluZSBHRFRIX0xPQ0tfSEEoaGEsZmxhZ3MpICAg
+ICAgICAgIGRvIHtzYXZlX2ZsYWdzKGZsYWdzKTsgY2xpKCk7fSB3aGlsZSAoMCkKQEAgLTEwOTEs
+OCArMTA4Nyw4IEBACiAgCiAtI2RlZmluZSBJQk1MT0NLIHNwaW5fbG9ja19pcnFzYXZlKCZpb19y
+ZXF1ZXN0X2xvY2ssIGZsYWdzKTsKIC0jZGVmaW5lIElCTVVOTE9DSyBzcGluX3VubG9ja19pcnFy
+ZXN0b3JlKCZpb19yZXF1ZXN0X2xvY2ssIGZsYWdzKTsKLSsjZGVmaW5lIElCTUxPQ0soZGV2KSBz
+cGluX2xvY2tfaXJxc2F2ZSgoKHN0cnVjdCBTY3NpX0hvc3QgKilkZXYpLT5ob3N0X2xvY2ssIGZs
+YWdzKTsKLSsjZGVmaW5lIElCTVVOTE9DSyhkZXYpIHNwaW5fdW5sb2NrX2lycXJlc3RvcmUoKChz
+dHJ1Y3QgU2NzaV9Ib3N0ICopZGV2KS0+aG9zdF9sb2NrLCBmbGFncyk7CisrI2RlZmluZSBJQk1M
+T0NLKGRldikgc3Bpbl9sb2NrX2lycXNhdmUoZGV2LT5ob3N0X2xvY2ssIGZsYWdzKTsKKysjZGVm
+aW5lIElCTVVOTE9DSyhkZXYpIHNwaW5fdW5sb2NrX2lycXJlc3RvcmUoZGV2LT5ob3N0X2xvY2ss
+IGZsYWdzKTsKICAKICAvKiBkcml2ZXIgY29uZmlndXJhdGlvbiAqLwogICNkZWZpbmUgSU1fTUFY
+X0hPU1RTICAgICA4IC8qIG1heGltdW0gbnVtYmVyIG9mIGhvc3QgYWRhcHRlcnMgKi8KQEAgLTE3
+ODMsMTAgKzE3NzksMTAgQEAKIC0jZGVmaW5lIElPX1VOTE9DSyhob3N0KSBzcGluX3VubG9ja19p
+cnFyZXN0b3JlKCYoaG9zdCktPmhvc3RfbG9jayxpb19mbGFncykKIC0jZGVmaW5lIElPX0xPQ0tf
+SVJRKGhvc3QpIHNwaW5fbG9ja19pcnEoJihob3N0KS0+aG9zdF9sb2NrKQogLSNkZWZpbmUgSU9f
+VU5MT0NLX0lSUShob3N0KSBzcGluX3VubG9ja19pcnEoJihob3N0KS0+aG9zdF9sb2NrKQotKyNk
+ZWZpbmUgSU9fTE9DSyhob3N0KSBzcGluX2xvY2tfaXJxc2F2ZSgoaG9zdCktPmhvc3RfbG9jayxp
+b19mbGFncykKLSsjZGVmaW5lIElPX1VOTE9DSyhob3N0KSBzcGluX3VubG9ja19pcnFyZXN0b3Jl
+KChob3N0KS0+aG9zdF9sb2NrLGlvX2ZsYWdzKQotKyNkZWZpbmUgSU9fTE9DS19JUlEoaG9zdCkg
+c3Bpbl9sb2NrX2lycSgoaG9zdCktPmhvc3RfbG9jaykKLSsjZGVmaW5lIElPX1VOTE9DS19JUlEo
+aG9zdCkgc3Bpbl91bmxvY2tfaXJxKChob3N0KS0+aG9zdF9sb2NrKQorKyNkZWZpbmUgSU9fTE9D
+Syhob3N0KSBzcGluX2xvY2tfaXJxc2F2ZShob3N0LT5ob3N0X2xvY2ssaW9fZmxhZ3MpCisrI2Rl
+ZmluZSBJT19VTkxPQ0soaG9zdCkgc3Bpbl91bmxvY2tfaXJxcmVzdG9yZShob3N0LT5ob3N0X2xv
+Y2ssaW9fZmxhZ3MpCisrI2RlZmluZSBJT19MT0NLX0lSUShob3N0KSBzcGluX2xvY2tfaXJxKGhv
+c3QtPmhvc3RfbG9jaykKKysjZGVmaW5lIElPX1VOTE9DS19JUlEoaG9zdCkgc3Bpbl91bmxvY2tf
+aXJxKGhvc3QtPmhvc3RfbG9jaykKICAKICAjZGVmaW5lIHF1ZXVlX3Rhc2tfaXJxKGEsYikgICAg
+IHF1ZXVlX3Rhc2soYSxiKQogICNkZWZpbmUgcXVldWVfdGFza19pcnFfb2ZmKGEsYikgcXVldWVf
+dGFzayhhLGIpCkBAIC0xOTMxLDcgKzE5MjcsNiBAQAogIG91dDo7CiAgCX0KICAvKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgot
+T25seSBpbiAuL2RyaXZlcnMvc2NzaS9wY21jaWE6IC5kZXBlbmQKIGRpZmYgLXVyIC4vZHJpdmVy
+cy9zY3NpL3BwYS5jIC4vZHJpdmVycy9zY3NpL3BwYS5jCiAtLS0gLi9kcml2ZXJzL3Njc2kvcHBh
+LmMJTW9uIEphbiAyOCAxMzo0NTozNCAyMDAyCiArKysgLi9kcml2ZXJzL3Njc2kvcHBhLmMJTW9u
+IEphbiAyOCAxMzoyOToyMiAyMDAyCkBAIC0yMjUyLDcgKzIyNDcsNiBAQAogIAkJCQl7CiAgCQkJ
+CQlyZXN0b3JlX2ZsYWdzKGZsYWdzKTsKICAJCQkJCXByaW50ayhLRVJOX0VSUiAic3ltNTNjNDE2
+OiBVbmFibGUgdG8gYXNzaWduIElSUSAlZFxuIiwgaG9zdHNbaV0uaXJxKTsKLU9ubHkgaW4gLi9k
+cml2ZXJzL3Njc2kvc3ltNTNjOHh4XzI6IC5kZXBlbmQKIGRpZmYgLXVyIC4vZHJpdmVycy9zY3Np
+L3N5bTUzYzh4eF9jb21tLmggLi9kcml2ZXJzL3Njc2kvc3ltNTNjOHh4X2NvbW0uaAogLS0tIC4v
+ZHJpdmVycy9zY3NpL3N5bTUzYzh4eF9jb21tLmgJTW9uIEphbiAyOCAxMzo0NTozNCAyMDAyCiAr
+KysgLi9kcml2ZXJzL3Njc2kvc3ltNTNjOHh4X2NvbW0uaAlNb24gSmFuIDI4IDEzOjQxOjQ0IDIw
+MDIK
+
+--Multipart_Tue__29_Jan_2002_05:29:39_+0300_082e2fa8
+Content-Type: application/octet-stream;
+ name="against_tree_with_previous_patch_applied.diff"
+Content-Disposition: attachment;
+ filename="against_tree_with_previous_patch_applied.diff"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXIgLi9kcml2ZXJzL3Njc2kvZ2R0aC5jIC4vZHJpdmVycy9zY3NpL2dkdGguYwotLS0g
+Li9kcml2ZXJzL3Njc2kvZ2R0aC5jCVR1ZSBKYW4gMjkgMDU6Mjc6MDIgMjAwMgorKysgLi9kcml2
+ZXJzL3Njc2kvZ2R0aC5jCVR1ZSBKYW4gMjkgMDU6Mjc6MzMgMjAwMgpAQCAtNjI5LDEwICs2Mjks
+MTAgQEAKICNkZWZpbmUgR0RUSF9MT0NLX0hBKGhhLGZsYWdzKSAgICAgICAgICBzcGluX2xvY2tf
+aXJxc2F2ZSgmKGhhKS0+c21wX2xvY2ssZmxhZ3MpCiAjZGVmaW5lIEdEVEhfVU5MT0NLX0hBKGhh
+LGZsYWdzKSAgICAgICAgc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmKGhhKS0+c21wX2xvY2ssZmxh
+Z3MpCiAKLSNkZWZpbmUgR0RUSF9MT0NLX1NDU0lfRE9ORShkZXYsIGZsYWdzKSAgICAgIHNwaW5f
+bG9ja19pcnFzYXZlKCgoc3RydWN0IFNjc2lfSG9zdCAqKWRldi0+aG9zdF9sb2NrKSxmbGFncykK
+LSNkZWZpbmUgR0RUSF9VTkxPQ0tfU0NTSV9ET05FKGZsYWdzKSAgICBzcGluX3VubG9ja19pcnFy
+ZXN0b3JlKCgoc3RydWN0IFNjc2lfSG9zdCAqKWRldi0+aG9zdF9sb2NrKSxmbGFncykKLSNkZWZp
+bmUgR0RUSF9MT0NLX1NDU0lfRE9DTUQoZGV2KSAgICAgICAgICBzcGluX2xvY2tfaXJxKCgoc3Ry
+dWN0IFNjc2lfSG9zdCAqKWRldi0+aG9zdF9sb2NrKSkKLSNkZWZpbmUgR0RUSF9VTkxPQ0tfU0NT
+SV9ET0NNRChkZXYpICAgICAgICBzcGluX3VubG9ja19pcnEoKChzdHJ1Y3QgU2NzaV9Ib3N0ICop
+ZGV2LT5ob3N0X2xvY2spKQorI2RlZmluZSBHRFRIX0xPQ0tfU0NTSV9ET05FKGRldiwgZmxhZ3Mp
+ICAgICAgc3Bpbl9sb2NrX2lycXNhdmUoZGV2LT5ob3N0X2xvY2ssZmxhZ3MpCisjZGVmaW5lIEdE
+VEhfVU5MT0NLX1NDU0lfRE9ORShmbGFncykgICAgc3Bpbl91bmxvY2tfaXJxcmVzdG9yZShkZXYt
+Pmhvc3RfbG9jayxmbGFncykKKyNkZWZpbmUgR0RUSF9MT0NLX1NDU0lfRE9DTUQoZGV2KSAgICAg
+ICAgICBzcGluX2xvY2tfaXJxKGRldi0+aG9zdF9sb2NrKQorI2RlZmluZSBHRFRIX1VOTE9DS19T
+Q1NJX0RPQ01EKGRldikgICAgICAgIHNwaW5fdW5sb2NrX2lycShkZXYtPmhvc3RfbG9jaykKICNl
+bHNlCiAjZGVmaW5lIEdEVEhfSU5JVF9MT0NLX0hBKGhhKSAgICAgICAgICAgZG8ge30gd2hpbGUg
+KDApCiAjZGVmaW5lIEdEVEhfTE9DS19IQShoYSxmbGFncykgICAgICAgICAgZG8ge3NhdmVfZmxh
+Z3MoZmxhZ3MpOyBjbGkoKTt9IHdoaWxlICgwKQpkaWZmIC11ciAuL2RyaXZlcnMvc2NzaS9pYm1t
+Y2EuYyAuL2RyaXZlcnMvc2NzaS9pYm1tY2EuYwotLS0gLi9kcml2ZXJzL3Njc2kvaWJtbWNhLmMJ
+VHVlIEphbiAyOSAwNToyNzowMiAyMDAyCisrKyAuL2RyaXZlcnMvc2NzaS9pYm1tY2EuYwlUdWUg
+SmFuIDI5IDA1OjI3OjMzIDIwMDIKQEAgLTQxLDggKzQxLDggQEAKIC8qIGN1cnJlbnQgdmVyc2lv
+biBvZiB0aGlzIGRyaXZlci1zb3VyY2U6ICovCiAjZGVmaW5lIElCTU1DQV9TQ1NJX0RSSVZFUl9W
+RVJTSU9OICI0LjBiIgogCi0jZGVmaW5lIElCTUxPQ0soZGV2KSBzcGluX2xvY2tfaXJxc2F2ZSgo
+KHN0cnVjdCBTY3NpX0hvc3QgKilkZXYpLT5ob3N0X2xvY2ssIGZsYWdzKTsKLSNkZWZpbmUgSUJN
+VU5MT0NLKGRldikgc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgoKHN0cnVjdCBTY3NpX0hvc3QgKilk
+ZXYpLT5ob3N0X2xvY2ssIGZsYWdzKTsKKyNkZWZpbmUgSUJNTE9DSyhkZXYpIHNwaW5fbG9ja19p
+cnFzYXZlKGRldi0+aG9zdF9sb2NrLCBmbGFncyk7CisjZGVmaW5lIElCTVVOTE9DSyhkZXYpIHNw
+aW5fdW5sb2NrX2lycXJlc3RvcmUoZGV2LT5ob3N0X2xvY2ssIGZsYWdzKTsKIAogLyogZHJpdmVy
+IGNvbmZpZ3VyYXRpb24gKi8KICNkZWZpbmUgSU1fTUFYX0hPU1RTICAgICA4IC8qIG1heGltdW0g
+bnVtYmVyIG9mIGhvc3QgYWRhcHRlcnMgKi8KZGlmZiAtdXIgLi9kcml2ZXJzL3Njc2kvbWVnYXJh
+aWQuYyAuL2RyaXZlcnMvc2NzaS9tZWdhcmFpZC5jCi0tLSAuL2RyaXZlcnMvc2NzaS9tZWdhcmFp
+ZC5jCVR1ZSBKYW4gMjkgMDU6Mjc6MDIgMjAwMgorKysgLi9kcml2ZXJzL3Njc2kvbWVnYXJhaWQu
+YwlUdWUgSmFuIDI5IDA1OjI3OjMzIDIwMDIKQEAgLTU4NiwxMCArNTg2LDEwIEBACiAjZGVmaW5l
+IERSSVZFUl9MT0NLKHApCiAjZGVmaW5lIERSSVZFUl9VTkxPQ0socCkKICNkZWZpbmUgSU9fTE9D
+S19UIHVuc2lnbmVkIGxvbmcgaW9fZmxhZ3MgPSAwCi0jZGVmaW5lIElPX0xPQ0soaG9zdCkgc3Bp
+bl9sb2NrX2lycXNhdmUoKGhvc3QpLT5ob3N0X2xvY2ssaW9fZmxhZ3MpCi0jZGVmaW5lIElPX1VO
+TE9DSyhob3N0KSBzcGluX3VubG9ja19pcnFyZXN0b3JlKChob3N0KS0+aG9zdF9sb2NrLGlvX2Zs
+YWdzKQotI2RlZmluZSBJT19MT0NLX0lSUShob3N0KSBzcGluX2xvY2tfaXJxKChob3N0KS0+aG9z
+dF9sb2NrKQotI2RlZmluZSBJT19VTkxPQ0tfSVJRKGhvc3QpIHNwaW5fdW5sb2NrX2lycSgoaG9z
+dCktPmhvc3RfbG9jaykKKyNkZWZpbmUgSU9fTE9DSyhob3N0KSBzcGluX2xvY2tfaXJxc2F2ZSho
+b3N0LT5ob3N0X2xvY2ssaW9fZmxhZ3MpCisjZGVmaW5lIElPX1VOTE9DSyhob3N0KSBzcGluX3Vu
+bG9ja19pcnFyZXN0b3JlKGhvc3QtPmhvc3RfbG9jayxpb19mbGFncykKKyNkZWZpbmUgSU9fTE9D
+S19JUlEoaG9zdCkgc3Bpbl9sb2NrX2lycShob3N0LT5ob3N0X2xvY2spCisjZGVmaW5lIElPX1VO
+TE9DS19JUlEoaG9zdCkgc3Bpbl91bmxvY2tfaXJxKGhvc3QtPmhvc3RfbG9jaykKIAogI2RlZmlu
+ZSBxdWV1ZV90YXNrX2lycShhLGIpICAgICBxdWV1ZV90YXNrKGEsYikKICNkZWZpbmUgcXVldWVf
+dGFza19pcnFfb2ZmKGEsYikgcXVldWVfdGFzayhhLGIpCg==
+
+--Multipart_Tue__29_Jan_2002_05:29:39_+0300_082e2fa8--

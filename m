@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262678AbREVR3G>; Tue, 22 May 2001 13:29:06 -0400
+	id <S262680AbREVRbR>; Tue, 22 May 2001 13:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262681AbREVR24>; Tue, 22 May 2001 13:28:56 -0400
-Received: from waste.org ([209.173.204.2]:9010 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S262678AbREVR2t>;
-	Tue, 22 May 2001 13:28:49 -0400
-Date: Tue, 22 May 2001 12:30:13 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <Pine.GSO.4.21.0105221209130.15685-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.30.0105221143300.19818-100000@waste.org>
+	id <S262686AbREVRbG>; Tue, 22 May 2001 13:31:06 -0400
+Received: from [213.166.15.20] ([213.166.15.20]:42254 "EHLO
+	mailth4.byworkwise.com") by vger.kernel.org with ESMTP
+	id <S262680AbREVRa6>; Tue, 22 May 2001 13:30:58 -0400
+Message-ID: <3B0AA22D.EDFA4F9A@FreeNet.co.uk>
+Date: Tue, 22 May 2001 18:30:21 +0100
+From: Sid Boyce <sidb@FreeNet.co.uk>
+Reply-To: sidb@FreeNet.co.uk
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Strange italics with -ac kernels
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001, Alexander Viro wrote:
-
-> On Tue, 22 May 2001, Oliver Xymoron wrote:
->
-> > Because foo_ is a throwback to the days when C compilers had a single
-> > namespace for all structure elements, not a readability aid. If you need
-> > foo_ to know what type of structure you're futzing with, you need to name
-> > your variables better.
->
-> Not always. If the thing is used all over the tree, it'd better be
-> greppable. I hate the foo->de stuff - it's not localized and it's
-> impossible to grep for.
-
-I'd like to say the compiler will happily find it for you, but the
-kernel's mostly conditionally compiled..
-
-Have you tried something like:
-
- find -type f | xargs grep -A100 'struct_name' | grep -e '\belement\b'
-
-Obviously not a fix, but possibly helpful.
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
-
-
+	In KDE and sometimes also seen in netscape, I get displays in italics
+which I don't in any non-ac kernels. All KDE menus now show up in
+discontinuous italics that are not really readable. I'm using
+XFree86-4.0.3, KDE-2.1.1 and an NVidia 32Meg TNT2 M64 card, but I've had
+the same with much earlier 2.4.x-ac kernels using a VOODO 3 card.
+	Any ideas ?
+Regards
+-- 
+Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
+Linux only shop.. Tel. 44-121 422 0375

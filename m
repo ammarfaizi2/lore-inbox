@@ -1,24 +1,26 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S263883AbTCVV2G>; Sat, 22 Mar 2003 16:28:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S263880AbTCVV2G>; Sat, 22 Mar 2003 16:28:06 -0500
-Received: from pc1-port3-3-cust71.cos2.cable.ntl.com ([81.102.120.71]:46608 "HELO 81.102.120.71") by vger.kernel.org with SMTP id <S263873AbTCVV2F>; Sat, 22 Mar 2003 16:28:05 -0500
-Illegal-Object: Syntax error in From: address found on vger.kernel.org: From:	synthobserver@yahoo.com<nklxsynthobserver@yahoo.com> ^-missing end of mailbox
-From: <nklxsynthobserver@yahoo.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S261997AbTCVXpD>; Sat, 22 Mar 2003 18:45:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S262178AbTCVXpD>; Sat, 22 Mar 2003 18:45:03 -0500
+Received: from [66.220.24.141] ([66.220.24.141]:58264 "EHLO router.dns-core.com") by vger.kernel.org with ESMTP id <S261997AbTCVXpC>; Sat, 22 Mar 2003 18:45:02 -0500
 To: linux-kernel@vger.kernel.org
-Subject: as a fan of Depeche Mode...
-Illegal-Object: Syntax error in Sender: address found on vger.kernel.org: Sender:	synthobserver@yahoo.com<nklxsynthobserver@yahoo.com> ^-missing end of mailbox
+Subject: online-casino.ath.cx
+From: "Friend" <john666662003@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: online-casino
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Sat, 22 Mar 2003 13:38:55 -0800
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Message-Id: <20030322212805Z263873-25575+35329@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Sun, 23 Mar 2003 00:33:29 +0100
+Reply-To: "Friend" <john666662003@yahoo.com>
+Message-Id: <E18wsqL-0006p0-00@router.dns-core.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - router.dns-core.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [99 99]
+X-AntiAbuse: Sender Address Domain - router.dns-core.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 X-Envelope-To: </home/ralf/ralf> (uid 501)
 Original-Recipient: rfc822;ralf@linux-mips.org
 
-As a fan of Depeche Mode, I thought you might like to see this.
-
-http://www.redflag.org/news.htm
-
-Enjoy!
+Want play online casino? Visit http://online-casino.ath.cx

@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269173AbUI3UdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269240AbUI3UgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269173AbUI3UdW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269240AbUI3UcK
+	id S269240AbUI3UgT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269494AbUI3UfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:32:10 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:40816 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269173AbUI3Ua2
+	Thu, 30 Sep 2004 16:35:16 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:37016 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S269474AbUI3UcT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:30:28 -0400
-Subject: Re: Serial driver hangs
-From: Paul Fulghum <paulkf@microgate.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
-	<roland.cassebohm@VisionSystems.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1096574739.1938.142.camel@deimos.microgate.com>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de>
-	 <200409291607.07493.roland.cassebohm@visionsystems.de>
-	 <1096467951.1964.22.camel@deimos.microgate.com>
-	 <200409301816.44649.roland.cassebohm@visionsystems.de>
-	 <1096571398.1938.112.camel@deimos.microgate.com>
-	 <1096569273.19487.46.camel@localhost.localdomain>
-	 <1096573912.1938.136.camel@deimos.microgate.com>
-	 <20040930205922.F5892@flint.arm.linux.org.uk>
-	 <1096574739.1938.142.camel@deimos.microgate.com>
-Content-Type: text/plain
-Message-Id: <1096576200.1938.154.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 30 Sep 2004 15:30:01 -0500
+	Thu, 30 Sep 2004 16:32:19 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9-rc3
+Date: Thu, 30 Sep 2004 16:32:17 -0400
+User-Agent: KMail/1.7
+Cc: Bill Davidsen <davidsen@tmr.com>
+References: <pan.2004.09.30.04.53.05.120184@trippelsdorf.net> <200409300102.07373.gene.heskett@verizon.net> <cjhkfk$6bv$3@gatekeeper.tmr.com>
+In-Reply-To: <cjhkfk$6bv$3@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409301632.17792.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.8.60] at Thu, 30 Sep 2004 15:32:18 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-30 at 15:05, Paul Fulghum wrote:
-> My statement of 'most drivers' is wrong.
-> I should have said 'some drivers'
-> including 2.4 serial.c and the 8250/serial of 2.6
+On Thursday 30 September 2004 14:58, Bill Davidsen wrote:
+>Gene Heskett wrote:
+>> On Thursday 30 September 2004 00:53, Markus T. wrote:
+>>># bzcat patch-2.6.9-rc3.bz2 | patch -p1
+>>>...
+>>>patching file fs/nfs/file.c
+>>>Hunk #2 FAILED at 74.
+>>>Hunk #3 FAILED at 91.
+>>>2 out of 11 hunks FAILED -- saving rejects to file
+>>> fs/nfs/file.c.rej ...
+>>>
+>>>___
+>>>Markus
+>>
+>> And thats one of the reasons I never dl the bz2 version.
+>>
+>> You should have started with a fresh unpack of 2.6.8, not 2.6.8.1
+>> I just checked my scrollback and there is no such error here.
+>
+>Are you saying that he patched against the wrong kernel source
+> because he pulled the bz2 patch? How do you make that leap? The gz
+> patch does the same thing against the wrong source.
 
-Specifically it is the use of this code fragment
-in the ISR of serial.c (2.4) and the various
-drivers in driver/serial of 2.6:
-
-if (unlikely(tty->flip.count >= TTY_FLIPBUF_SIZE)) {
-	tty->flip.work.func((void *)tty);
-	if (tty->flip.count >= TTY_FLIPBUF_SIZE)
-		return; // if TTY_DONT_FLIP is set
-}
-
-in 2.4 it is
-
-if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
-	tty->flip.tqueue.routine((void *) tty);
-	if (tty->flip.count >= TTY_FLIPBUF_SIZE)
-		return;		// if TTY_DONT_FLIP is set
-}
-
-tty->flip.work.func and tty->flip.tqueue.routine
-are set to flush_to_ldisc()
+True, but my recommendation to use the .gz version is based on some 
+pretty frustrating experiences encountered when using the .bz2 
+versions that I haven't encountered with the .gz versions.  See my 
+other, now a bit late reply to Clemens.  I was trying to hit both 
+birds with one rock so to speak.
 
 -- 
-Paul Fulghum
-paulkf@microgate.com
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.26% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

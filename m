@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262843AbREVVgh>; Tue, 22 May 2001 17:36:37 -0400
+	id <S262847AbREVVjr>; Tue, 22 May 2001 17:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262847AbREVVg1>; Tue, 22 May 2001 17:36:27 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:7343 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262843AbREVVgT>;
-	Tue, 22 May 2001 17:36:19 -0400
-Date: Tue, 22 May 2001 23:35:42 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105222135.XAA78936.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, dalecki@evision-ventures.com
-Subject: Re: [PATCH] struct char_device
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
+	id <S262848AbREVVjh>; Tue, 22 May 2001 17:39:37 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:13201 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S262847AbREVVjU>;
+	Tue, 22 May 2001 17:39:20 -0400
+Message-Id: <m152Jn6-000Oh3C@amadeus.home.nl>
+Date: Tue, 22 May 2001 22:34:08 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: ionut@moisil.cs.columbia.edu (Ion Badulescu)
+Subject: Re: Xircom RealPort versus 3COM 3C3FEM656C
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105222118.f4MLISL01588@moisil.badula.org>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
+In article <200105222118.f4MLISL01588@moisil.badula.org> you wrote:
+> On Tue, 22 May 2001 20:10:41 +0100 (BST), Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> I fully agree with you.
+>> Before you give up on the xircom thing, try the -ac kernel and set the box
+>> up to use xircom_cb not xircom_tulip_cb
+>> 
+>> That might help a lot
 
-Good.
+> It doesn't, it still performs poorly with any of the three available
+> drivers -- xircom_cb, xircom_tulip_cb, and tulip_cb (from the pcmcia package):
 
-Unfortunately I do not fully agree with you.
+> * Rx gets only about 1.8Mbit/s on a 100Base-TX network with any of the three
+> * Tx gets 80+Mb/s with xircom_tulip_cb and tulip_cb, and less than 30Mb/s
+>  with xircom_cb.
 
-> Most of the places where there kernel is passing kdev_t
-> would be entierly satisfied with only the knowlendge of
-> the minor number.
+This sounds like a bug I have heard before: some switches don't work with
+the xircom card (well, our drivers for it) when doing full duplex.
+Could you try the latest driver from 
 
-My kdev_t is a pointer to a structure with device data
-and device operations. Among the operations a routine
-that produces a name. Among the data, in the case of a
-block device, the size, and the sectorsize, ..
+http://people.redhat.com/arjanv
 
-A minor gives no name, and no data.
+which forces the card to half-duplex? 
+I manage to get 8Mbyte/sec with it without any problems.
 
-Linus' minor is 20-bit if I recall correctly.
-My minor is 32-bit. Neither of the two can be
-used to index arrays.
+Greetings,
+   Arjan van de Ven
 
-Andries
+
+

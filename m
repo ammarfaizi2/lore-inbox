@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265363AbUAJT4P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 14:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265365AbUAJT4P
+	id S265433AbUAJUG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 15:06:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265434AbUAJUG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 14:56:15 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:26537 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265363AbUAJTzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 14:55:35 -0500
-Date: Sat, 10 Jan 2004 20:55:31 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Do not use synaptics extensions by default
-Message-ID: <20040110195531.GD22654@ucw.cz>
-References: <20040110175930.GA1749@elf.ucw.cz> <20040110193039.GA22654@ucw.cz> <20040110194420.GA1212@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040110194420.GA1212@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
+	Sat, 10 Jan 2004 15:06:28 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:58568 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265433AbUAJUG0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 15:06:26 -0500
+Date: Sat, 10 Jan 2004 17:58:18 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24 SMP lockups
+Message-ID: <Pine.LNX.4.58L.0401101758010.1310@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 08:44:20PM +0100, Pavel Machek wrote:
 
-> I'm setting it to PSMOUSE_IMEX, that's just below PSMOUSE_SYNAPTICS:
-> 
-> #define PSMOUSE_PS2             1
-> #define PSMOUSE_PS2PP           2
-> #define PSMOUSE_PS2TPP          3
-> #define PSMOUSE_GENPS           4
-> #define PSMOUSE_IMPS            5
-> #define PSMOUSE_IMEX            6
-> #define PSMOUSE_SYNAPTICS       7
-> 
-> That should turn off just synaptics, no? 
+---------- Forwarded message ----------
+Date: Sat, 10 Jan 2004 17:32:55 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Simon Kirby <sim@netnation.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.4.24 SMP lockups
 
-No. The numbers are arbitrary.
 
-> Okay, so how to do this properly? Synaptics driver with "mouse
-> emulation" is not usable (tap-to-click is critical), and I want to be
-> able to boot 2.4...
 
-Well, if you need to boot both 2.6 and 2.4 _and_ need to use gpm and X
-in parallel _and_ need tap-to-click in both gpm and X, then you have to
-use the kernel command line parameter and put your synaptics into legacy
-mode.
+On Fri, 9 Jan 2004, Simon Kirby wrote:
 
-Or, the very nice thing to do would be to port the XFree86 driver to
-GPM, so that GPM can understand the event protocol as well.
+> 'lo all,
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Hi Simon,
+
+> We've had about 6 cases of this now, across 4 separate boxes.  Since
+> upgrading to 2.4.24, our SMP web server boxes (both Intel and AMD
+> hardware) are randomly blowing up.  This may have happened on 2.4.23 as
+> well, but they weren't really running long enough to tell.  2.4.22 was
+> fine.  GCC 3.3.3.
+>
+> These boxes are all dual CPU, and the failure case shows up suddenly with
+> no warning.  Sysreq-P works, but only reports from one CPU no matter how
+> many times I try.  In normal operation, every machine distributes all
+> IRQs across both CPUs, and Sysreq-P reports from both CPUs.
+>
+> Mapping the EIP reported by Sysreq-P to symbols shows that the responding
+> CPU is spinning on a spinlock (so far I have seen .text.lock.fcntl,
+> .text.lock.sched, .text.lock.locks, and .text.lock.inode), which I assume
+> is being held by the other (dead) CPU.
+
+This sounds like a deadlock. I wonder why the NMI watchdog is not
+triggering.
+
+> Even on boxes with nmi_watchdog=1, nothing is reported from the NMI
+> watchdog.
+
+Can you share all available SysRQ-P output for the locked CPU ? SysRQ-T if
+possible, too.
+
+Can you please describe the hardware in more detail. Is there any common
+hardware used in these boxes?
+

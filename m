@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUHDVlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUHDVnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267450AbUHDVlS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 17:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUHDVkt
+	id S267452AbUHDVnX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 17:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUHDVld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 17:40:49 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:44894 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267446AbUHDVdc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 17:33:32 -0400
-Date: Wed, 4 Aug 2004 23:34:54 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       Rick Lindsley <ricklind@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc2-mm2, schedstat-2.6.8-rc2-mm2-A4.patch
-Message-ID: <20040804213454.GA7661@mars.ravnborg.org>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>, kernel@kolivas.org,
-	linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20040804122414.4f8649df.akpm@osdl.org> <211490000.1091648060@flay> <20040804212658.GA26023@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040804212658.GA26023@elte.hu>
-User-Agent: Mutt/1.5.6i
+	Wed, 4 Aug 2004 17:41:33 -0400
+Received: from home.geizhals.at ([213.229.14.34]:7300 "EHLO
+	morework.geizhals.at") by vger.kernel.org with ESMTP
+	id S267443AbUHDVkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 17:40:13 -0400
+Message-ID: <4111577A.9010901@geizhals.at>
+Date: Wed, 04 Aug 2004 23:39:06 +0200
+From: "Marinos J. Yannikos" <mjy@geizhals.at>
+User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7 SATA (SCSI emulation) sw-raid1 - lockup when 1 drive is removed
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 11:26:58PM +0200, Ingo Molnar wrote:
- 
-> I fixed a number of cleanliness items, readying this patch for a
-> mainline merge:
-> 
->  - added kernel/Kconfig.debug for generic debug options (such as 
->    schedstat) and removed tons of debug options from various arch
->    Kconfig's, instead of adding a boatload of new SCHEDSTAT entries. 
->    This felt good.
+Hi,
 
-Randy Dunlap has posted a patch for this several times.
-This has seen some review so the preferred starting point.
+A box with a stock 2.6.7 kernel using the Promise SX4 controller 
+(CONFIG_SCSI_SATA_SX4, i.e. libata driver) locks up completely when one 
+of the 2 drives in a raid 1 configuration is removed. I believe this is 
+not how raid 1 is supposed to work. ;-) swap was initially on the drive 
+   I removed only (/dev/sdb2), but I also tested this with swap on a 
+raid volume (/dev/md2 = /dev/sdb2 + /dev/sdc2)- the effect is exactly 
+the same in both cases.
 
-	Sam
+The last message seen is: "ata1 DMA timeout", then the console stops 
+working. dmesg output and config.gz available at: 
+http://stuff.geizhals.at/misc/2004-08-04/
+
+Perhaps there is a work-around or this issue can be resolved quickly 
+before one of the drives actually dies...
+
+Regards,
+  Marinos
+-- 
+Dipl.-Ing. Marinos Yannikos, CEO
+Preisvergleich Internet Services AG
+Obere Donaustrasse 63, A-1020 Wien
+Tel./Fax: (+431) 5811609-52/-55

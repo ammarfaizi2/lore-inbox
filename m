@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291026AbSAaL7z>; Thu, 31 Jan 2002 06:59:55 -0500
+	id <S291028AbSAaMDp>; Thu, 31 Jan 2002 07:03:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291032AbSAaL7o>; Thu, 31 Jan 2002 06:59:44 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:35236
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S291026AbSAaL7c>; Thu, 31 Jan 2002 06:59:32 -0500
-Date: Thu, 31 Jan 2002 07:06:49 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Ro0tSiEgE <ro0tsiege@bjstuff.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel -- GCC Version
-Message-ID: <20020131070649.A29290@animx.eu.org>
-In-Reply-To: <055301c1a9f3$af5f73e0$ed00000a@citrix.bjstuff.com> <20020130203726.B28451@animx.eu.org> <E16W7MR-0000KN-00@starship.berlin>
+	id <S291030AbSAaMDf>; Thu, 31 Jan 2002 07:03:35 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:49162 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S291029AbSAaMDV>;
+	Thu, 31 Jan 2002 07:03:21 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Cc: World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: Your message of "Thu, 31 Jan 2002 03:58:10 CDT."
+             <20020131035810.B3284@havoc.gtf.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <E16W7MR-0000KN-00@starship.berlin>; from Daniel Phillips on Thu, Jan 31, 2002 at 03:54:03AM +0100
+Date: Thu, 31 Jan 2002 23:03:07 +1100
+Message-ID: <11985.1012478587@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I've looked on kernel.org, in the kernel sources, it its not really clear,
-> > > from what I would see. If someone could tell me exactly what are the best
-> > > and/or what Linus uses versions of gcc, etc. for compiling the different
-> > > kernels? (2.0/2.2/2.4/2.5) Thanks!
-> > 
-> > I don't recommend gcc 3.0 for kernel compiles as I had problems with it on
-> > the system I tried it on.
-> 
-> What problem exactly?  I've had zero problems in the last 5 months.
+On Thu, 31 Jan 2002 03:58:10 -0500, 
+Jeff Garzik <garzik@havoc.gtf.org> wrote:
+>On Thu, Jan 31, 2002 at 06:52:55PM +1100, Keith Owens wrote:
+>You are missing a huge point.
+>	You:	"Look Ma, nothing breaks!"
+>	Ma sez: "It's supposed to, silly"
 
-I did get tons of warnings when compiling (I would assume everyone else
-did).  But I ignored those since it says "this is obsolete"
+Hypocrisy, Jeff.  In your previous mail you complained that kbuild 2.5
+was not ready to go in.  When I point out that not only is it ready but
+it can go in without breaking the existing code, then you complain that
+I am not breaking anything.  Make up your mind.
 
-After booting, I had so many ECC errors (I don't recall if they were
-correctable or not) that I had to give up on it.
+>Cleanup does not occur if cruft lives on as "backwards compatibility."
+>You simply promote further bitrot and discontinuity.
 
-Unless debian messedup the 3.0.3 compile it didn't work for me.
+The old code does not live on indefinitely, it gets removed as soon as
+kbuild 2.5 is deemed stable.  Four weeks, tops.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+>Let's see if I have this right:
+>* You want completely duplicate build and config systems in the kernel,
+>  with all the accompanying headaches for maintainers.
+
+Only for as long as it takes to prove that kbuild 2.5 is ready.
+
+>* You want to introduce a new system but don't give a shit about 2.5.
+
+I have given up trying to get patches into 2.5.  The Linus black hole
+swallows them all.
+

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290208AbSAORoR>; Tue, 15 Jan 2002 12:44:17 -0500
+	id <S290210AbSAORqH>; Tue, 15 Jan 2002 12:46:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290209AbSAORoJ>; Tue, 15 Jan 2002 12:44:09 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:36995 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S290208AbSAORn6>; Tue, 15 Jan 2002 12:43:58 -0500
-Message-ID: <005901c19dec$59a89e30$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Why not "attach" patches?
-Date: Tue, 15 Jan 2002 18:44:58 +0100
+	id <S290209AbSAORp7>; Tue, 15 Jan 2002 12:45:59 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:28218 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S290211AbSAORpv>;
+	Tue, 15 Jan 2002 12:45:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 15 Jan 2002 18:49:09 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201150023040.21289-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.33.0201150023040.21289-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16QXhu-0000wl-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why do many of you not _attach_ patches instead of merging them with the
-mail? It's so much cleaner and easier to have a "xxx-yyy.patch" file
-attached to the mail which can be saved in an appropriate directory. Also,
-the whitespace is always retained that way.
+On January 15, 2002 06:26 am, Mark Hahn wrote:
+> > than the task's float, the completion time of the schedule as a whole will be 
+> > delayed.  This is no different for a computer than it is for a group of 
+> > people, it is still a scheduling problem.  Delaying any random task risks 
+> 
+> it is quite different.  with computers, there are often STRONG benefits
+> to clustering, batching, chunking, piggybacking, whatever you want to call it.
 
-OTOH I don't have very deep knowledge of "diff" and "patch", so maybe I have
-missed something here...
+It's no different.
 
- _____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+> it's simply not the case that eager scheduling is always optimal.
 
-- ABIT BP6(RU) - 2xCeleron 400 - 128MB/PC100/C2 Acer
-- Maxtor 10/5400/U33 HPT P/M - Seagate 6/5400/U33 HPT S/M
-- 2xDE-530TX - 1xTulip - Linux 2.4.17+ide+preempt
+Correct, however as far as simple, useful heuristics goes, it's not so easy
+to beat.  Note that I did mention resource limitations.
 
+   "For project schedules 'earlist completion' is the name of the 
+   game, within bounds of available resources."
 
+--
+Daniel

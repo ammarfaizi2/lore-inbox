@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132465AbRDUDJc>; Fri, 20 Apr 2001 23:09:32 -0400
+	id <S132468AbRDUDlJ>; Fri, 20 Apr 2001 23:41:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132468AbRDUDJW>; Fri, 20 Apr 2001 23:09:22 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:54283 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S132465AbRDUDJE>;
-	Fri, 20 Apr 2001 23:09:04 -0400
-Message-ID: <3AE0F999.BA288768@mountain.net>
-Date: Fri, 20 Apr 2001 23:08:09 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+	id <S132473AbRDUDlA>; Fri, 20 Apr 2001 23:41:00 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:35880 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S132468AbRDUDkq>; Fri, 20 Apr 2001 23:40:46 -0400
+Message-ID: <3AE0F1F9.7020704@kalifornia.com>
+Date: Fri, 20 Apr 2001 19:35:37 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.8.1+) Gecko/20010416
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone 
- paying attention?
-In-Reply-To: <20010420085148.V13403@opus.bloom.county> <Pine.LNX.4.33.0104201206250.12186-100000@xanadu.home> <20010420125005.B8086@thyrsus.com> <20010420200859.B5510@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+To: Wayne.Brown@altec.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Current status of NTFS support
+In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Cc: trimmed]
+Wayne.Brown@altec.com wrote:
 
-Russell King wrote:
-> 
-[...]
-> 
-> Generally it seems like diff needs to produce one more line of context, and
-> most of these problems will go away.  Yes, there will still be the odd
-> problem, so then it becomes the "how much do you crank the setting" problem.
 >
- 
-$ diff -6 ...
-will give 6 lines of context. patch will understand the output without any
-extra help.
+>Where does write support for NTFS stand at the moment?  I noticed that it's
+>still marked "Dangerous" in the kernel configuration.  This is important to me
+>because it looks like I'll have to start using it next week.  My office laptop
+>is going to be "upgraded" from Windows 98 to 2000.  Of course, I hardly ever
+>boot into Windows any more since installing a Linux partition last year.  But
+>our corporate email standard forces me to use Lotus Notes, which I run under
+>Wine.   The Notes executables and databases are installed on my Windows
+>partition.  The upgrade, though, will involve wiping the hard drive, allocating
+>the whole drive to a single NTFS partition, and reinstalling Notes after
+>installing Windows 2000 .  That means bye-bye FAT32 partition and hello NTFS.  I
+>can't mount it read-only because I'll still have to update my Notes databases
+>from Linux.  So how risky is this?
+>
+>Also, I'll have to recreate my Linux partitions after the upgrade.  Does anyone
+>know if FIPS can split a partition safely that was created under Windows
+>2000/NT?  It worked fine for Windows 98, but I'm a little worried about what
+>might happen if I try to use it on an NTFS partition.
+>
+>I'd appreciate any advice or help anyone can give me.  There's just no way I can
+>stand going back to using anything but Linux for my daily work.
+>
 
-Cheers,
-Tom
+Why not just use FAT?  Windows2k supports it . . .
 
 -- 
-The Daemons lurk and are dumb. -- Emerson
+Three things are certain:
+Death, taxes, and lost data
+Guess which has occurred.
+- - - - - - - - - - - - - - - - - - - -
+Patched Micro$oft servers are secure today . . . but tomorrow is another story!
+
+
+

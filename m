@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266290AbRGLWki>; Thu, 12 Jul 2001 18:40:38 -0400
+	id <S266400AbRGLWrT>; Thu, 12 Jul 2001 18:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266400AbRGLWk2>; Thu, 12 Jul 2001 18:40:28 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:28691 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S266290AbRGLWkO>;
-	Thu, 12 Jul 2001 18:40:14 -0400
-Message-ID: <938F7F15145BD311AECE00508B7152DB034C48C0@vts007.vertis.nl>
-From: Rolf Fokkens <FokkensR@vertis.nl>
-To: "'Mark Hahn'" <hahn@coffee.psychology.mcmaster.ca>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel 2.4.6: Why doesn't mprotect () check ulimit/rlim?
-Date: Fri, 13 Jul 2001 00:39:23 +0200
+	id <S266416AbRGLWrJ>; Thu, 12 Jul 2001 18:47:09 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:51984 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S266400AbRGLWq6>; Thu, 12 Jul 2001 18:46:58 -0400
+Date: Thu, 12 Jul 2001 22:46:55 +0000 (GMT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: ognen@gene.pbi.nrc.ca
+cc: linux-kernel@vger.kernel.org
+Subject: Re: strange 2.4.x behavior on a dual-celeron machine
+In-Reply-To: <Pine.LNX.4.30.0107121622030.2802-100000@gene.pbi.nrc.ca>
+Message-ID: <Pine.LNX.4.10.10107122241290.3018-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd expect the same and strace may have missed the preceding mmap. However
-/proc/<PID>/maps shows all the mprotect results. Before the mprotect call
-the memory doesn't show up in /proc/<PID>/maps which makes me the think
-there hasen't been a prior mmap, brk or whatever.
+> eventually grinds to a halt after a new 2.4.2 (2.4.5 and 2.4.6 also)
+> kernel was installed. Worked fine with 2.2.x
 
------Original Message-----
-From: Mark Hahn [mailto:hahn@coffee.psychology.mcmaster.ca]
-Sent: Friday, July 13, 2001 12:14 AM
-To: Rolf Fokkens
-Subject: Re: Kernel 2.4.6: Why doesn't mprotect () check ulimit/rlim?
+2.2 merely ignores APIC errors.  that doesn't mean they don't happen...
 
+> ..... CPU clock speed is 551.2507 MHz.
+> ..... host bus clock speed is 100.2273 MHz.
 
-> While trying to restrict Oracle's memory claims I tried a strace while
-> making Oracle claim huge amounts of memory. It appears that Oracle claims
-> all it's memory by calling mprotect, which (unlike brk ()) doesn't check
-> rlim.
+naughty, naughty.  
+I've never known any dual FSB100-overclocked celeron machine to run stably.
 
-afaik, mprotect only modifies page protection; it doesn't allocate.
-it's the preceeding mmap that should check limits.
+> APIC error on CPU0: 00(08)
+
+read as "apic hardware detected a corrupt inter-processor message
+and automatically retried it".  unfortunately, the checksum is weak,
+so with even a modest stream of such errors, there will be uncaught ones.
+
+also, this covered in the kernel FAQ.
+
+regards, mark hahn.
+

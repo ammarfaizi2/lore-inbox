@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131079AbRAPMgc>; Tue, 16 Jan 2001 07:36:32 -0500
+	id <S131401AbRAPMiC>; Tue, 16 Jan 2001 07:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131063AbRAPMgW>; Tue, 16 Jan 2001 07:36:22 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:20497 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130159AbRAPMgG>;
-	Tue, 16 Jan 2001 07:36:06 -0500
-Date: Tue, 16 Jan 2001 13:33:44 +0100 (CET)
+	id <S131403AbRAPMhw>; Tue, 16 Jan 2001 07:37:52 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:20753 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131401AbRAPMhi>;
+	Tue, 16 Jan 2001 07:37:38 -0500
+Date: Tue, 16 Jan 2001 13:37:11 +0100 (CET)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: <mingo@elte.hu>
-To: Peter Samuelson <peter@cadcamlab.org>
+To: Felix von Leitner <leitner@convergence.de>
 Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: O_ANY  [was: Re: 'native files', 'object fingerprints' [was:
- sendpath()]]
-In-Reply-To: <20010116061342.C12650@cadcamlab.org>
-Message-ID: <Pine.LNX.4.30.0101161329230.947-100000@elte.hu>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <20010116114018.A28720@convergence.de>
+Message-ID: <Pine.LNX.4.30.0101161334380.947-100000@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 16 Jan 2001, Peter Samuelson wrote:
+On Tue, 16 Jan 2001, Felix von Leitner wrote:
 
-> [Ingo Molnar]
-> > - probably the most radical solution is what i suggested, to
-> > completely avoid the unique-mapping of file structures to an integer
-> > range, and use the address of the file structure (and some cookies)
-> > as an identification.
->
-> Careful, these must cast to non-negative integers, without clashing.
+> I don't know how Linux does it, but returning the first free file
+> descriptor can be implemented as O(1) operation.
 
-if you read my (radical) proposal, the identification is based on a kernel
-pointer and a 256-bit random integer. So non-negative integers are not
-needed. (file-IO system-calls would be modified to detect if 'Unix file
-descriptors' or pointers to 'native file descriptors' are passed to them,
-so this is truly radical.)
+only if special allocation patters are assumed. Otherwise it cannot be a
+generic O(1) solution. The first-free rule adds an implicit ordering to
+the file descriptor space, and this order cannot be maintained in an O(1)
+way. Linux can allocate up to a million file descriptors.
 
 	Ingo
 

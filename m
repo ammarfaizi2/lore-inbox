@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262774AbSI1Kmf>; Sat, 28 Sep 2002 06:42:35 -0400
+	id <S262777AbSI1KuL>; Sat, 28 Sep 2002 06:50:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262777AbSI1Kmf>; Sat, 28 Sep 2002 06:42:35 -0400
-Received: from AGrenoble-101-1-6-49.abo.wanadoo.fr ([80.11.197.49]:26021 "EHLO
-	elessar.linux-site.net") by vger.kernel.org with ESMTP
-	id <S262774AbSI1Kme>; Sat, 28 Sep 2002 06:42:34 -0400
-Message-ID: <3D958C32.7080506@wanadoo.fr>
-Date: Sat, 28 Sep 2002 13:02:10 +0200
-From: FD Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, fr
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
+	id <S262778AbSI1KuL>; Sat, 28 Sep 2002 06:50:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48282 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262777AbSI1KuK>;
+	Sat, 28 Sep 2002 06:50:10 -0400
+Date: Sat, 28 Sep 2002 03:48:58 -0700 (PDT)
+Message-Id: <20020928.034858.50238837.davem@redhat.com>
+To: stilgar2k@wanadoo.fr
 Cc: felix.seeger@gmx.de, linux-kernel@vger.kernel.org
 Subject: Re: System very unstable
-References: <200209281155.32668.felix.seeger@gmx.de>	<20020928.025900.58828001.davem@redhat.com>	<200209281233.21897.felix.seeger@gmx.de> <20020928.033510.40857147.davem@redhat.com>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D958C32.7080506@wanadoo.fr>
+References: <200209281233.21897.felix.seeger@gmx.de>
+	<20020928.033510.40857147.davem@redhat.com>
+	<3D958C32.7080506@wanadoo.fr>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+   From: FD Cami <stilgar2k@wanadoo.fr>
+   Date: Sat, 28 Sep 2002 13:02:10 +0200
 
-David S. Miller wrote:
-|    From: Felix Seeger <felix.seeger@gmx.de>
-|    Date: Sat, 28 Sep 2002 12:33:21 +0200
-|
-|    What card is good (performance for games and
-|    a acceptable licenze for kernel developers)?
-|
-| ATI Radeon is pretty fast and all except the very latest chips have
-| opensource drivers.
+   Could you recommend a specific chipset that works well,
+   2D and 3D-wise ?
+   
+   I use a G450, it has excellent driver support but the 3D is
+   a bit... lacking.
 
-Could you recommend a specific chipset that works well,
-2D and 3D-wise ?
-
-I use a G450, it has excellent driver support but the 3D is
-a bit... lacking.
-
-
-- --
-
-F. CAMI
-- ----------------------------------------------------------
-~ "To disable the Internet to save EMI and Disney is the
-moral equivalent of burning down the library of Alexandria
-to ensure the livelihood of monastic scribes."
-~              - John Ippolito (Guggenheim)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE9lYwyuBGY13rZQM8RApBCAJ0Q/lteUi86iZzGk7bcEgSfmQMqDwCgqBLj
-o9wG7N1l9EXYrl7ogMB5mtY=
-=jZ/u
------END PGP SIGNATURE-----
-
+All of the Radeon's blow the G450 out of the water.
+I clear 140+ fps easily on quake3 with my Radeon R100 QD
+(Radeon 64 DDR)

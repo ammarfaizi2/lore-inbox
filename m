@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUHWUYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267503AbUHWUYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267344AbUHWUYU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 16:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267503AbUHWUYP
+	id S267503AbUHWUYV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUHWUX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:24:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57785 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267344AbUHWTmS (ORCPT
+	Mon, 23 Aug 2004 16:23:59 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:2277 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S267503AbUHWTm2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 15:42:18 -0400
-Date: Mon, 23 Aug 2004 21:43:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
-Message-ID: <20040823194330.GA6539@elte.hu>
-References: <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu> <20040821140501.GA4189@elte.hu> <1093160993.817.46.camel@krustophenia.net> <1093282713.826.13.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093282713.826.13.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 23 Aug 2004 15:42:28 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] [broken?] Add MSI support to e1000
+Date: Mon, 23 Aug 2004 12:41:36 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E50240619DA25@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] [broken?] Add MSI support to e1000
+Thread-Index: AcSJR6O1FNuvxeX3RhqNsDZ9iFnUdgAAKZow
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Andi Kleen" <ak@muc.de>, "Roland Dreier" <roland@topspin.com>
+Cc: <linux-kernel@vger.kernel.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 23 Aug 2004 19:41:39.0134 (UTC) FILETIME=[35328DE0:01C48949]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday, August 23, 2004 Andi Kleen wrote:
+>There seems to be something wrong with the MSI code in the kernel.
+>I tried to add MSI support to the s2io driver on x86-64, but it just
+didn't
+>work (/proc/interrupts still displayed IO-APIC mode). I haven't 
+>investigated in detail yet though.
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Would you please tell me whether the MSI enable bit of the MSI
+capability 
+structure of the s2io device is set or not after successfully calling 
+pci_enable_msi()?
 
-> to file a bug report.  Traces can be found here:
-> 
-> http://krustophenia.net/2.6.8.1-P7
-
-re the skb latencies: Mark H Johnson managed to reduce net-input
-latencies by decreasing /proc/sys/net/core/netdev_max_backlog to 8 -
-could you try this, does it help? (you could try an even more extreme
-setting like 4.)
-
-	Ingo
+Thanks,
+Long

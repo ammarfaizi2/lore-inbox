@@ -1,56 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbTABJtd>; Thu, 2 Jan 2003 04:49:33 -0500
+	id <S261330AbTABJqF>; Thu, 2 Jan 2003 04:46:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbTABJtd>; Thu, 2 Jan 2003 04:49:33 -0500
-Received: from vaak.stack.nl ([131.155.140.140]:65040 "EHLO mailhost.stack.nl")
-	by vger.kernel.org with ESMTP id <S261305AbTABJtc>;
-	Thu, 2 Jan 2003 04:49:32 -0500
-Date: Thu, 2 Jan 2003 10:57:54 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Mark Rutherford <mark@justirc.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <Pine.LNX.4.50L.0301011931240.2429-100000@imladris.surriel.com>
-Message-ID: <20030102104612.V63864-100000@toad.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261874AbTABJqF>; Thu, 2 Jan 2003 04:46:05 -0500
+Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:1809 "EHLO
+	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S261330AbTABJqE>; Thu, 2 Jan 2003 04:46:04 -0500
+Date: Thu, 2 Jan 2003 09:55:01 +0000
+To: Kevin Corry <corry@ecn.purdue.edu>
+Cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>, dm-devel@sistina.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dm.c : Check memory allocations
+Message-ID: <20030102095501.GB2677@reti>
+References: <20021230105114.GB2703@reti> <200212311622.gBVGMS5R028448@shay.ecn.purdue.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212311622.gBVGMS5R028448@shay.ecn.purdue.edu>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jan 2003, Rik van Riel wrote:
+On Tue, Dec 31, 2002 at 11:22:28AM -0500, Kevin Corry wrote:
+> > 
+> > On Fri, Dec 27, 2002 at 04:55:31PM -0500, Kevin Corry wrote:
+> > > Check memory allocations when cloning bio's.
+> > 
+> > Rejected, clone_bio() cannot fail since it's allocating from a mempool
+> > with __GFP_WAIT set.
+> > 
+> > - Joe
+> 
+> Hmm. Yep. I must have mistaken GFP_NOIO for GFP_ATOMIC.
+> 
+> But based on that reasoning, shouldn't the bio_alloc() call
+> in split_bvec() always return a valid bio, and hence make the
+> checks in split_bvec() and __clone_and_map() unnecessary?
 
-> On Wed, 1 Jan 2003, Mark Rutherford wrote:
->
-> > I would LOVE to see Nvidia open source,
-> > We cannot force our ideas on a company, all they will do is turn and walk away.
-> > We can show them our way, if they like it, good. if not, we tried.
->
-> Nvidia is a smart company, otherwise they wouldn't be in
-> business today.  I'm sure they'll switch to the GPL only
-> once it will be in their advantage to do so and no sooner.
->
-> When would it be an advantage for them ?
->
-> The moment there is a GPL graphics library (at the right
-> system level, of course) that's so good Nvidia won't be
-> able to resist using that library could be such a moment.
->
-> A new project for Hell.Surfers ? ;)
+y, I was mistakenly under the impression that bio_alloc could fail
+during the allocation of the bvec.  I'll add the following patch.
 
-Mr Surfers has already showed up at the KGI development team, but as I
-think his attitude doesn't quite fit in the team, I have not encouraged
-him to help.
+- Joe
 
-But yes, there is a GPL graphics kernel module / library (KGI & GGI) that
-should run on linux and any BSD real soon now. The Radeon and Matrox
-drivers are in place, already. The 3D accelleration framework is in place,
-but the GGI GL implementation is not yet existing.
 
-For those who want to take a look: the website (www.kgi-project.org) is
-outdated, we lost contact with the maintainer :( Please take a look at the
-kgi-wip project at sourceforge (CVS only) and at irc.openprojects.net #kgi
+--- diff/drivers/md/dm.c	2002-12-30 11:40:30.000000000 +0000
++++ source/drivers/md/dm.c	2003-01-02 09:51:07.000000000 +0000
+@@ -347,18 +347,15 @@
+ 	struct bio_vec *bv = bio->bi_io_vec + idx;
+ 
+ 	clone = bio_alloc(GFP_NOIO, 1);
++	memcpy(clone->bi_io_vec, bv, sizeof(*bv));
+ 
+-	if (clone) {
+-		memcpy(clone->bi_io_vec, bv, sizeof(*bv));
+-
+-		clone->bi_sector = sector;
+-		clone->bi_bdev = bio->bi_bdev;
+-		clone->bi_rw = bio->bi_rw;
+-		clone->bi_vcnt = 1;
+-		clone->bi_size = to_bytes(len);
+-		clone->bi_io_vec->bv_offset = offset;
+-		clone->bi_io_vec->bv_len = clone->bi_size;
+-	}
++	clone->bi_sector = sector;
++	clone->bi_bdev = bio->bi_bdev;
++	clone->bi_rw = bio->bi_rw;
++	clone->bi_vcnt = 1;
++	clone->bi_size = to_bytes(len);
++	clone->bi_io_vec->bv_offset = offset;
++	clone->bi_io_vec->bv_len = clone->bi_size;
+ 
+ 	return clone;
+ }
+@@ -432,11 +429,6 @@
+ 
+ 		clone = split_bvec(bio, ci->sector, ci->idx,
+ 				   bv->bv_offset, max);
+-		if (!clone) {
+-			dec_pending(ci->io, -ENOMEM);
+-			return;
+-		}
+-
+ 		__map_bio(ti, clone, ci->io);
+ 
+ 		ci->sector += max;
+@@ -446,11 +438,6 @@
+ 		len = to_sector(bv->bv_len) - max;
+ 		clone = split_bvec(bio, ci->sector, ci->idx,
+ 				   bv->bv_offset + to_bytes(max), len);
+-		if (!clone) {
+-			dec_pending(ci->io, -ENOMEM);
+-			return;
+-		}
+-
+ 		__map_bio(ti, clone, ci->io);
+ 
+ 		ci->sector += len;
 
-Jos
 

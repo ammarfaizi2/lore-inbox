@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318081AbSGMAur>; Fri, 12 Jul 2002 20:50:47 -0400
+	id <S318087AbSGMBHc>; Fri, 12 Jul 2002 21:07:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318080AbSGMAuq>; Fri, 12 Jul 2002 20:50:46 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:15040 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S318081AbSGMAuY>;
-	Fri, 12 Jul 2002 20:50:24 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200207130050.EAA32540@sex.inr.ac.ru>
+	id <S318088AbSGMBHb>; Fri, 12 Jul 2002 21:07:31 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:29948 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318087AbSGMBHa>; Fri, 12 Jul 2002 21:07:30 -0400
 Subject: Re: 64 bit netdev stats counter
-To: davem@redhat.COM (David S. Miller)
-Date: Sat, 13 Jul 2002 04:50:18 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020712.145835.91443486.davem@redhat.com> from "David S. Miller" at Jul 13, 2 02:15:01 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3D2F58A7.6CC58590@nortelnetworks.com>
+References: <1026503694.26819.4.camel@dell_ss3.pdx.osdl.net>
+	<Pine.GSO.4.33L.0207121628100.19313-100000@unix2.cc.ksu.edu> 
+	<20020712.145835.91443486.davem@redhat.com>
+	<1026516053.9958.33.camel@irongate.swansea.linux.org.uk> 
+	<3D2F58A7.6CC58590@nortelnetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 Jul 2002 03:18:53 +0100
+Message-Id: <1026526733.9958.67.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 2002-07-12 at 23:31, Chris Friesen wrote:
+> 
+> Isn't this the same as 32-bit counters on a machine that doesn't do atomic
+> 32-bit ops?  Although in that case you could only be 2^16 off...
 
-> 32-bit values aren't atomic either, what is the issue?
-...
-> output "incl MEM" or similar for net_stats->counter++, since
-> it lacks the 'lock;' prefix it is not atomic.
-
-The issue is that this does not matter, all the updates to counters
-are serialized by driver logic in any case.
-
-The counters were atomic wrt _read_ i.e. read used to produce valid result
-rather than a garbage. We have discussed this some time ago, someone
-proposed to use pair of 32bit numbers and prohibiting direct read,
-fetching  the result with a macro sort of
-
-	  do {
-	     result_lo = lo;
-	     result_hi = hi;
-	  } while (lo != result_lo);
-
-or something similar. Well, plus some barriers when/if needed.
-
-Honestly, I do not feel any enthusiasm about doing this in kernel.
-Some small bit of useless work each packet, some minor waste of memory,
-some minor crap in code... All this is not essential, but does not cause any
-enthisiasm yet. :-)
-
-Alexey
+Yes but we don't happen to have any of those I care about 8)
 

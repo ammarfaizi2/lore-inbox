@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbTE1V1e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 17:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTE1V1e
+	id S261169AbTE1Vhs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 17:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbTE1Vhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 17:27:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21135 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261166AbTE1V1d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 17:27:33 -0400
-Date: Wed, 28 May 2003 22:40:47 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Matthew Harrell 
-	<mharrell-dated-1054589229.f149f8@bittwiddlers.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ppp problems in 2.5.69-bk14 - devfs related?
-Message-ID: <20030528214047.GE14138@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0305211051100.22168-100000@bad-sports.com> <20030528125503.GA2745@bittwiddlers.com> <20030528212708.GA11432@bittwiddlers.com>
+	Wed, 28 May 2003 17:37:48 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:64365 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261169AbTE1Vhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 17:37:48 -0400
+Date: Wed, 28 May 2003 14:48:39 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: must-fix list, v5
+Message-Id: <20030528144839.47efdc4f.akpm@digeo.com>
+In-Reply-To: <20030526093717.GC642@zaurus.ucw.cz>
+References: <20030521152255.4aa32fba.akpm@digeo.com>
+	<20030521152334.4b04c5c9.akpm@digeo.com>
+	<20030526093717.GC642@zaurus.ucw.cz>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030528212708.GA11432@bittwiddlers.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 May 2003 21:51:04.0166 (UTC) FILETIME=[3C63A860:01C32563]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 05:27:08PM -0400, Matthew Harrell wrote:
+Pavel Machek <pavel@suse.cz> wrote:
+>
+> Hi!
 > 
-> My oops output is just marginally different under 2.5.70-bk2.
-> Unfortunately, I don't seem to have a /proc/ksyms so I don't know what
-> to point ksymoops to.  I can make this one happen over and over by
-> just running pppd.  It does not kill the system but it does make it
-> rather unuseable.
+> I guess "ioctl32 emulation should be shared
+> accross architectures" should go on the
+> list...
 
-Fsck knows why devfs_mk_cdev() fails, but what follows that is obvious -
-int __init ppp_init(void)
-{
-        int err;
+Noted, thanks.
 
-        printk(KERN_INFO "PPP generic driver version " PPP_VERSION "\n");
-        err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);
-        if (!err) {
-                err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
-                                S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
-        }
+> (and I have patches but Linus ignores
+> them... would it be okay to merge them
+> through you?)
 
-        if (err)
-                printk(KERN_ERR "failed to register PPP device (%d)\n", err);
-        return err;
-}
-clearly leaves device registered after failed insmod.  open() afterwards
-happily finds the device and dies on attempt to do anything with it
-(the module is not there, pointers go to hell knows where).
+This is a bit like "arch/foo/kernel/irq.c should be common code".  The
+patch exists, but is late, intrusive and only a cleanup.
 
-I'd suggest to change that to
-	err = devfs_mk_cdev(...)
-	if (!err) {
-		err = register_chrdev(...)
-		if (!err)
-			return 0;
-		devfs_remove(...)
-	}
-	printk(...)
-	return err;
+However I think experience teaches us that we should push ahead with
+changes like this because not doing it creates more aggregate pain than
+doing it.
 
-That will _not_ solve the devfs problem, whatever it is, but it will make sure
-that any errors are handled correctly.
-	
+So yes, please send me your latest and we'll try to get it underway.
+

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129061AbQKFFt3>; Mon, 6 Nov 2000 00:49:29 -0500
+	id <S129034AbQKFGJe>; Mon, 6 Nov 2000 01:09:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129165AbQKFFtU>; Mon, 6 Nov 2000 00:49:20 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:36448 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129061AbQKFFtB>; Mon, 6 Nov 2000 00:49:01 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@linuxia64.org, linux-vm@vm.marist.edu
-Subject: Announce: ksymoops 2.3.5 is available
-Mime-Version: 1.0
+	id <S129044AbQKFGJY>; Mon, 6 Nov 2000 01:09:24 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:1552 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129034AbQKFGJL>; Mon, 6 Nov 2000 01:09:11 -0500
+Message-ID: <3A064B01.E8DCC9E3@egu.schule.ulm.de>
+Date: Mon, 06 Nov 2000 07:09:05 +0100
+From: Steffen Moser <moser@egu.schule.ulm.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: "ip_dynaddr" broken in 2.4.0-test10
+In-Reply-To: <3A064279.30960692@egu.schule.ulm.de> <200011060522.VAA23103@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Nov 2000 16:47:34 +1100
-Message-ID: <4943.973489654@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mirror at ftp://ftp.**.kernel.org/pub/linux/utils/kernel/ksymoops/v2.3
-           replace '**' with your favourite local kernel.org mirror.
+Hello,
 
-ksymoops-2.3.5.tar.gz		Source tarball, includes RPM spec file
-ksymoops-2.3.5-1.src.rpm	As above, in SRPM format
-ksymoops-2.3.5-1.i386.rpm	Compiled with egcs-2.91.66, glibc 2.1.2
-patch-ksymoops-2.3.5.gz		Patch from 2.3.4.
+thank you for your fast answer!
 
-Changelog extract
+"David S. Miller" wrote:
 
-	* Handle SGI kdb initial report.
-	* Static link against libbfd, libiberty to stop version problems.
-	  Suggested by HJ Lu.
-	* Add BUG to printed text.
-	* Add wait_on_irq lines to printed text.
-	* Handle weak references that have been resolved.
-	* Support for IA64.
-	* Add mandir to spec file.
+> Does this fix it?
+> 
+> echo "1" >/proc/sys/net/ipv4/ip_nonlocal_bind
 
-	Ross Patterson <Ross.Patterson@CA.Com>
- 	* Recognize s390 kernel PSW and registers.
- 	* Don't try to decode s390 user PSW and registers.
- 	* Set default target and architecture on recognition of i370 or s390
- 	  kernel PSW (ala Oops_set_eip()).
+I tried this - but no success. The problem persists...
 
+Bye,
+Steffen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

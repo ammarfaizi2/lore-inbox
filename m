@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbTD2X4M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 19:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbTD2X4L
+	id S262050AbTD3AO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 20:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbTD3AO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 19:56:11 -0400
-Received: from dp.samba.org ([66.70.73.150]:4304 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261923AbTD2X4L (ORCPT
+	Tue, 29 Apr 2003 20:14:27 -0400
+Received: from main.gmane.org ([80.91.224.249]:63111 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262050AbTD3AOZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 19:56:11 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Apr 2003 20:14:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicholas Wourms <nwourms@myrealbox.com>
+Subject: Re: 2.4.21-rc1-ac2 Promise IDE DMA won't work
+Date: Tue, 29 Apr 2003 20:21:39 -0400
+Message-ID: <3EAF1713.7000009@myrealbox.com>
+References: <Pine.LNX.4.10.10304291301150.20264-100000@master.linux-ide.org> <200304291841.38501.tabris@sbcglobal.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16047.5071.134659.883564@nanango.paulus.ozlabs.org>
-Date: Wed, 30 Apr 2003 10:07:43 +1000 (EST)
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Late -rc2 
-In-Reply-To: <Pine.LNX.4.53L.0304291816450.15908@freak.distro.conectiva>
-References: <Pine.LNX.4.53L.0304291816450.15908@freak.distro.conectiva>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+X-Complaints-To: usenet@main.gmane.org
+Cc: alan@lxorguk.ukuu.org.uk
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.74.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti writes:
-
-> I thought I would be able to release -rc2 sooner, but due to the
-> some issues (mostly the ptrace issue discussed here) it got a bit late.
+Tabris wrote:
+> On Tuesday 29 April 2003 04:15 pm, Andre Hedrick wrote:
 > 
-> I hope to have it out tomorrow.
+>>The Promise chipset use a second DMA engine at offset 0x24 respective
+>>of the channel.  Mixing an ATA and ATAPI on that channel is almost
+>>impossible to make the corner cases work.  Next, if there us a 48-bit
+>>ATA plus ATAPI on the channel popping between the two enignes does
+>>not look sane at all because one has to swithc the location of the
+>>hwif->sgtable.
+> 
+> 
+> Ok... moved the HDDs from the VIA secondary to the PDC primary (tried 
+> moving both, but it seems that ide=reverse doesn't work), and the 
+> CD-R/W to the VIA secondary.
+> 
+> good news, regular reads seem to use the DMA engine. bad news, CDDA 
+> ripping (using cdparanoia) does not.
+> 
+> is this a known issue? (i thought that CDDA ripping had been fixed)
+> 
 
-Have you fixed drivers/video/Config.in?  I just did a pull from
-bk://linux.bkbits.net/linux-2.4 and it still had the typo in the
-statement for setting CONFIG_FBCON_CFB8.
+Have you tried Andrew Morton's ide-cd dma patch?  It seems to have 
+worked well for me, at least.  A summary of what it does is included at 
+the top of the patch.
 
-On the PPC side, there is a 1-line compile fix for
-arch/ppc/kernel/ppc_ksyms.c that we need (including <asm/div64.h>),
-plus I have an update for the defconfigs.
+http://www.zipworld.com.au/~akpm/linux/patches/2.4/2.4.20/ide-akpm.patch
 
-Paul.
+Perhaps Alan might considier it for the -rc2 ac patch?
+
+Cheers,
+Nicholas
+
+

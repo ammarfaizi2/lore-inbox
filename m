@@ -1,53 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUITMC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUITMIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266333AbUITMC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 08:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUITMC7
+	id S266344AbUITMIR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 08:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUITMIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 08:02:59 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:15016 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S266333AbUITMCz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 08:02:55 -0400
-Date: Mon, 20 Sep 2004 14:02:54 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Olaf Hering <olh@suse.de>
-cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-In-Reply-To: <20040920115032.GA21631@suse.de>
-Message-ID: <Pine.LNX.4.61.0409201357540.877@scrub.home>
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de>
- <Pine.LNX.4.61.0409201220200.3460@scrub.home> <20040920105618.GB24928@suse.de>
- <Pine.LNX.4.61.0409201311050.3460@scrub.home> <20040920112607.GA19073@suse.de>
- <Pine.LNX.4.61.0409201331320.3460@scrub.home> <20040920115032.GA21631@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Sep 2004 08:08:17 -0400
+Received: from grendel.firewall.com ([66.28.58.176]:11927 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S266344AbUITMIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 08:08:12 -0400
+Date: Mon, 20 Sep 2004 14:08:05 +0200
+From: Marek Habersack <grendel@caudium.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel BUG() triggerred by Tux
+Message-ID: <20040920120805.GB4545@beowulf.thanes.org>
+Reply-To: grendel@caudium.net
+References: <20040915185230.GA4502@beowulf.thanes.org> <20040916220938.GB752@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Fba/0zbH8Xs+Fj9o"
+Content-Disposition: inline
+In-Reply-To: <20040916220938.GB752@MAIL.13thfloor.at>
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 20 Sep 2004, Olaf Hering wrote:
+--Fba/0zbH8Xs+Fj9o
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > $ mount -oloop image /mnt
-> > 
-> > vs
-> > 
-> > $ losetup image /dev/loop0
-> > $ mount /dev/loop0 /mnt
-> > 
-> > What should umount do, when called with /mnt?
-> 
-> I have /dev/loop0 in /proc/mounts, umount does nothing wrong here.
+On Fri, Sep 17, 2004 at 12:09:38AM +0200, Herbert Poetzl scribbled:
+> On Wed, Sep 15, 2004 at 08:52:30PM +0200, Marek Habersack wrote:
+> > Hello,
+> >=20
+> >   I realize that this question might be out of topic for this list, but
+> > since I've already tried to get help from the Tux mailing list and had =
+no
+> > response, I'm hoping I will find some guidance here. The bug can be
+> > triggerred very easily by installing and using the demo4.c module shipp=
+ed
+> > with the tux userland (tested with the 3 last versions of the Tux patch=
+ for
+> > both 2.4 and the 2.6 kernels). BUG() gets called when the request is
+> > redirected by Tux to the userland server and _after_ the latter handles=
+ the
+> > connection and delivers the content to the browser. Here's the message:
+> >=20
+> > Sep 15 12:39:30 quantum kernel: ------------[ cut here ]------------
+> > Sep 15 12:39:30 quantum kernel: kernel BUG at fs/inode.c:1098!
+> 						~~~~~~~~~~~~~~~
+> check what's at this location in your kernel source
+> this will probably provide information what went
+> wrong there ...
+That was the first thing I did, here's the code:
 
-What exactly is that "nothing wrong"?
+        if (inode->i_state & I_CLEAR)
+                BUG();
 
-> > Relying on any specifc ordering in /proc/mounts is broken.
-> 
-> Thats most likely true.  You could bind mount a mtab file.
-> This specific case is tricky.
+And the inode of the file tux is trying to close is indeed cleared before.
+Tux's tux_close() routine implements basically what sys_close does and the
+error happens when filp_close calls fput on the file structure passed from
+tux_close. Replacing the tux version of sys_close with a call to the latter
+gives the same effect, so the error is either before the code or after that,
+but I'm still quite lost in all the filesystem code...
 
-This is a rather common case and IMO it can expect a clean solution.
+thanks for help,
 
-bye, Roman
+marek
+
+--Fba/0zbH8Xs+Fj9o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBTsglq3909GIf5uoRAjaGAKCAVjHkTwiN1txGzsdYZ/Jq1J5SSQCcD8m1
+rNMSXd5K3eiwtEwdbOa5JsM=
+=sUkf
+-----END PGP SIGNATURE-----
+
+--Fba/0zbH8Xs+Fj9o--

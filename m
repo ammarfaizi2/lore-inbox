@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUD3BCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263670AbUD3BDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUD3BCP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 21:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263670AbUD3BCP
+	id S263670AbUD3BDH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 21:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUD3BDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 21:02:15 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:6410 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261234AbUD3BCO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 21:02:14 -0400
-Date: Thu, 29 Apr 2004 17:54:42 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: adi@hexapodia.org, vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au,
-       jgarzik@pobox.com, brettspamacct@fastclick.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-Id: <20040429175442.4059b57f.pj@sgi.com>
-In-Reply-To: <20040429173223.3ea4d0c5.akpm@osdl.org>
-References: <40904A84.2030307@yahoo.com.au>
-	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	<20040429133613.791f9f9b.pj@sgi.com>
-	<20040429141947.1ff81104.akpm@osdl.org>
-	<20040429143403.35a7a550.pj@sgi.com>
-	<20040429145725.267ea7b8.akpm@osdl.org>
-	<20040430000408.GA29096@hexapodia.org>
-	<20040429173223.3ea4d0c5.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 29 Apr 2004 21:03:07 -0400
+Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:8867 "EHLO
+	finwe.eu.org") by vger.kernel.org with ESMTP id S263670AbUD3BDB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 21:03:01 -0400
+Date: Fri, 30 Apr 2004 03:05:52 +0200
+From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.6-rc3
+Message-ID: <20040430010552.GA10323@finwe.eu.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org> <20040429170111.GA24184@finwe.eu.org> <20040429173218.GA2199@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040429173218.GA2199@mars.ravnborg.org>
+Organization: Kreatorzy Kreacji Bialej
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> fadvise(POSIX_FADV_DONTNEED) is ideal for this.
+Sam Ravnborg wrote:
 
-Perhaps ... perhaps not.
+> > CC [M]  drivers/char/agp/frontend.o
+> > CC [M]  drivers/char/agp/generic.o
+> > make[3]: *** No rule to make target `drivers/char/agp/isoch.s', needed
+> > by `drivers/char/agp/isoch.o'.
+> 
+> It cannot find the file: isoch.c
 
-Just as the knobs "only reclaim pagecache" and "reclaim vfs caches
-harder" had too big a scope (system-wide), using fadvise might have too
-small a scope (currently cached pages of current task only).
+Well, yes..
 
-If his background daemon is some shell script, say, that uses 'cat' to
-generate the i/o to the other spindle, then he probably wants to be
-marking that daemon job "don't let this entire job eat my pagecache",
-not rebuilding a hacked up cat command with added POSIX_FADV_DONTNEED
-calls every megabyte.
+> Did you do a recursive check-out before building the kernel?
+> It's in my tree here.
 
-CKRM to the rescue ... ??
+I thought it was because last patch applied, when in fact it was because
+of coping kernel tree to my own directory before I applied it...
+
+-rw-r-----    1 root     root        13235 2004-04-04 06:38 isoch.c
+       ^
+
+Anyway false alarm, sorry...
+
+bye
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Jacek Kawa

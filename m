@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282654AbRLBBeY>; Sat, 1 Dec 2001 20:34:24 -0500
+	id <S282652AbRLBB2n>; Sat, 1 Dec 2001 20:28:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282655AbRLBBeO>; Sat, 1 Dec 2001 20:34:14 -0500
-Received: from AFontenayssB-103-1-2-9.abo.wanadoo.fr ([193.253.44.9]:60952
-	"EHLO emeraude") by vger.kernel.org with ESMTP id <S282654AbRLBBeI>;
-	Sat, 1 Dec 2001 20:34:08 -0500
-Date: Sun, 2 Dec 2001 02:31:45 +0100
-From: Stephane Jourdois <stephane@tuxfinder.org>
-To: Jeff Merkey <jmerkey@timpanogas.org>
-Cc: J Sloan <jjs@pobox.com>, Charles-Edouard Ruault <ce@ruault.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: File system Corruption with 2.4.16
-Message-ID: <20011202023145.A1628@emeraude.kwisatz.net>
-Reply-To: stephane@tuxfinder.org
-In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com> <3C095B0B.7EA478C1@ruault.com> <003601c17ac2$7a8dec10$f5976dcf@nwfs> <3C096DB3.204CE41C@pobox.com> <001e01c17acb$a44b69c0$f5976dcf@nwfs>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <001e01c17acb$a44b69c0$f5976dcf@nwfs>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.17-pre2
-X-Send-From: emeraude
+	id <S282654AbRLBB2f>; Sat, 1 Dec 2001 20:28:35 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:9763 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S282652AbRLBB2T>;
+	Sat, 1 Dec 2001 20:28:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: SENDMAIL Ages to start !!!!!
+Date: Sun, 2 Dec 2001 01:29:13 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH01SMTP01fVwcdZ0000059be@smtp.netcabo.pt>
+X-OriginalArrivalTime: 02 Dec 2001 01:27:33.0870 (UTC) FILETIME=[848CF0E0:01C17AD0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 01, 2001 at 05:52:39PM -0700, Jeff Merkey wrote:
-> ----- Original Message ----- From: "J Sloan" <jjs@pobox.com>
-> > Just to be positive, can you reproduce the problem without nwfs?
-> Yes. The problem shows up on ext2 partitions only.
-I destroyed a  hard  disk  yesterday  with  2.4.16,  using  ext3.  A  heavy load
-(compiling The gimp and several other things)  and everything came bad, symlinks
-didn't work... (for exemple ln -s linux-2.4.17-pre2  linux did a link from linux
-to linux either using linux-2.4.17-pre2 and /usr/src/linux-2.4.17-pre2.
-> I see this lockup when I have more than  one file system mounted at a time. It
-> does not happen when only a single  volume (superblock) has been mounted, only
-> with multiples. Ditto the ext2 corruption. It only shows up when more than one
-> superblock is active.
-I had only one partition mounted at the moment (/dev/hda1 on / type ext3)
+I am having some prblems with sendmail since the second time i booted linux.
 
-Just in case : debian sid, gcc 2.95.4, everything up to date.
+I have linux for about 2 months now and i just now understood that my send 
+mail deamon takes too long to start.
 
+this is the log message that appeard when i upgraded linux red hat 7.1 to 7.2 
+for the first time:
 
-We're living in a dangerous world, since 2.4.10...
+( firstboot after installing )
 
-Ciao,
+Nov 18 09:48:04 localhost sendmail[1031]: alias database /etc/aliases rebuilt 
+by root
+Nov 18 09:48:04 localhost sendmail[1031]: /etc/aliases: 42 aliases, longest 
+10 bytes, 432 bytes total
+Nov 18 09:48:04 localhost sendmail[1043]: starting daemon (8.11.6): 
+SMTP+queueing@01:00:00
+Nov 18 09:53:11 localhost sendmail[1675]: fAI9rAX01675: from=root, size=186, 
+class=0, nrcpts=1, msgid=<200111180953.fAI9rAX01675@localhost.localdomain>, 
+relay=root@localhost
+Nov 18 09:53:11 localhost sendmail[1679]: fAI9rAX01675: to=root, ctladdr=root 
+(0/0), delay=00:00:01, xdelay=00:00:00, mailer=local, pri=30186, dsn=2.0.0, 
+stat=Sent
+Nov 18 10:06:18 localhost sendmail[22560]: fAIA6H722560: from=root, size=241, 
+class=0, nrcpts=1, msgid=<200111181006.fAIA6H722560@localhost.localdomain>, 
+relay=root@localhost
+Nov 18 10:06:18 localhost sendmail[22560]: fAIA6H722560: to=root, 
+ctladdr=root (0/0), delay=00:00:01, xdelay=00:00:00, mailer=loc
 
---
- ///  Stephane Jourdois        	/"\  ASCII RIBBON CAMPAIGN \\\
-(((    Ingénieur développement 	\ /    AGAINST HTML MAIL    )))
- \\\   6, av. de la Belle Image	 X                         ///
-  \\\  94440 Marolles en Brie  	/ \    +33 6 8643 3085    ///
+no problems this time, send mail started smoothly and quickly!!!!!!!!
+
+Well, the first thing i did when i loged in was to configure my hostname and 
+network devices.
+
+So i changed my hostname to: AstinusGod, i added this host and it's network 
+ip to the hostname table and so on!!!
+
+since then look:
+
+send mail takes ages to start and it keeps these kinda error messages in the 
+log  files:
+
+Dec  2 00:56:04 AstinusGod sendmail[9808]: My unqualified host name 
+(AstinusGod) unknown; sleeping for retry
+Dec  2 00:57:12 AstinusGod sendmail[9808]: unable to qualify my own domain 
+name (AstinusGod) -- using short name
+Dec  2 00:57:12 AstinusGod sendmail[9808]: fB20vCX09808: from=root, size=230, 
+class=0, nrcpts=1, msgid=<200112020057.fB20vCX09808@AstinusGod>, 
+relay=root@localhost
+Dec  2 00:57:12 AstinusGod sendmail[9808]: fB20vCX09808: to=root, 
+ctladdr=root (0/0), delay=00:00:00, xdelay=00:00:00, mailer=local, pri=30230, 
+dsn=2.0.0, stat=Sent
+
+I don't know what to do.... to solve this problem....
+
+i figure that if i change my hostname to localhost again, and if i remove the 
+ip entries i entered... it may be solved.. but i don't want that, just want 
+sendmail to recognize them!!!!!
+
+plz somebody help!!
+
+regards, Astinus

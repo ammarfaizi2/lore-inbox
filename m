@@ -1,40 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262493AbTCRP4n>; Tue, 18 Mar 2003 10:56:43 -0500
+	id <S262523AbTCRQFl>; Tue, 18 Mar 2003 11:05:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262494AbTCRP4n>; Tue, 18 Mar 2003 10:56:43 -0500
-Received: from angband.namesys.com ([212.16.7.85]:42141 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S262493AbTCRP4l>; Tue, 18 Mar 2003 10:56:41 -0500
-Date: Tue, 18 Mar 2003 19:07:33 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-       neilb@cse.unsw.edu.au
-Subject: Re: kernel nfsd
-Message-ID: <20030318190733.A29438@namesys.com>
-References: <20030318155731.1f60a55a.skraw@ithnet.com> <15991.15327.29584.246688@charged.uio.no> <20030318164204.03eb683f.skraw@ithnet.com>
+	id <S262531AbTCRQFl>; Tue, 18 Mar 2003 11:05:41 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:61188 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S262523AbTCRQFf>; Tue, 18 Mar 2003 11:05:35 -0500
+Subject: Re: [patch] NUMAQ subarchification
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: colpatch@us.ibm.com
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3E767D45.6020308@us.ibm.com>
+References: <1047676332.5409.374.camel@mulgrave>
+	<3E7284CA.6010907@us.ibm.com> <3E7285E7.8080802@us.ibm.com>
+	<247240000.1047693951@flay>  <3E767D45.6020308@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Mar 2003 11:16:20 -0500
+Message-Id: <1048004181.2210.53.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030318164204.03eb683f.skraw@ithnet.com>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 2003-03-17 at 20:58, Matthew Dobson wrote:
+> 
+> I'm inclined to agree with Martin on this one.  The useless code 
+> duplication is outright stupidity.  Makefile hackery would work, as 
+> would James' suggestion of #include'ing the .c files.  I tend to agree 
+> with his assessment of that as the least of evils.  But until we have a 
+> good way of falling back to mach-default for .c files, I'm going to 
+> leave the one (relatively) small .c file in arch/i386/kernel.  It will 
+> be trivial to move it later, and for now it sits nicely next to it's 
+> kin: arch/i386/kernel/numaq.c.
 
-On Tue, Mar 18, 2003 at 04:42:04PM +0100, Stephan von Krawczynski wrote:
+There are five hooks in setup.c (since I assume SUMMIT isn't MCA),
+amounting to about 20 lines of code in all.  There is no extra code in
+the hooks which doesn't serve a purpose to the rest of the subarch
+implementations.
 
-> > The comment in the code just above the printk() reads
-> >                 /* Now that IS odd.  I wonder what it means... */
-> > Looks like you and Neil (and possibly the ReiserFS team) might want to
-> > have a chat...
-> I'm all for it. Who has a glue? I have in fact tons of these messages, it's a
-> pretty large nfs server.
+I also notice there's some summit code that *should* be in an arch hook:
 
-What is the typical usage pattern for files whose names are printed?
-Are they created/deleted often by multiple clients/processes by any chance?
+> diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.65-vanilla/arch/i386/kernel/setup.c linux-2.5.65-summit_pcimap/arch/i386/kernel/setup.c
+> --- linux-2.5.65-vanilla/arch/i386/kernel/setup.c	Mon Mar 17 13:44:05 2003
+> +++ linux-2.5.65-summit_pcimap/arch/i386/kernel/setup.c	Mon Mar 17 17:34:03 2003
+> @@ -939,6 +939,9 @@
+>  	if (smp_found_config)
+>  		get_smp_config();
+>  #endif
+> +#ifdef CONFIG_X86_SUMMIT
+> +	setup_summit();
+> +#endif
+>  
+>  	register_memory(max_low_pfn);
+>  
+> --- linux-2.5.65-vanilla/include/asm-i386/mpspec.h	Mon Mar 17 13:43:37 2003
+> +++ linux-2.5.65-summit_pcimap/include/asm-i386/mpspec.h	Mon Mar 17 17:34:03 2003
+> @@ -222,6 +222,10 @@
+>  extern int pic_mode;
+>  extern int using_apic_timer;
+>  
+> +#ifdef CONFIG_X86_SUMMIT
+> +extern void setup_summit (void);
+> +#endif
+> +
 
-Bye,
-    Oleg
+which is already there waiting for you to use it.
+
+As I've already pointed out, the summit topology.c file should be split
+out from the default one and the #ifdef CONFIG_NUMA removed.
+
+All in all, properly done, there would be very little code duplication
+even for something as PC like as the summit.
+
+If I read correctly between the whines, the real issue is that subarch
+is used to support things that vary from uniquely oddball to extremely
+weird and are all ancient and highly unlikely ever to be found in
+nature.  IBM, understandably, doesn't want its brand new and expensive
+summit lumped with such company.
+
+I'm not the gatekeeper of code purity in arch/i386/kernel, so if you can
+convince Linus, he'll probably take it.  However, if you could come up
+with a cogent technical argument why you can't use the subarch (or
+modify it for your needs), it would probably be helpful.  Not wanting to
+duplicate 15 lines of code isn't really that convincing...
+
+James
+
+

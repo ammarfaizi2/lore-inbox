@@ -1,86 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUJGK4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269785AbUJGLII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267333AbUJGK4q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 06:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269793AbUJGK4q
+	id S269785AbUJGLII (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 07:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269793AbUJGLII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 06:56:46 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:10896 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267333AbUJGK4e
+	Thu, 7 Oct 2004 07:08:08 -0400
+Received: from boxa.alphawave.net ([207.218.5.130]:2441 "EHLO
+	box.alphawave.net") by vger.kernel.org with ESMTP id S269785AbUJGLIA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 06:56:34 -0400
-Message-Id: <200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-cc: colpatch@us.ibm.com, mbligh@aracnet.com, Simon.Derr@bull.net,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement 
-In-reply-to: Your message of "Thu, 07 Oct 2004 01:51:07 PDT."
-             <20041007015107.53d191d4.pj@sgi.com> 
-Date: Thu, 07 Oct 2004 03:53:21 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Thu, 7 Oct 2004 07:08:00 -0400
+Date: Thu, 7 Oct 2004 12:08:02 +0100
+From: Nick Craig-Wood <nick@craig-wood.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] new serial flow control
+Message-ID: <20041007110802.GA1594@craig-wood.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > I don't see what non-exclusive cpusets buys us.
-    
-    One can nest them, overlap them, and duplicate them ;)
-    
-    For example, we could do the following:
+Stuart MacDonald <stuartm@connecttech.com> wrote:
+>  From: Alan Cox
+> > On Mer, 2004-10-06 at 08:38, Samuel Thibault wrote:
+> > > No: CRTSCTS is a one-signal-for-each-way flow control: each
+> > > side of the link tells whether it can receive data. CTVB is a
+> > > two-signals-for-only-one-way flow control: the device tells when it
+> > > wants to send data, the PC acknowledges that, and then one frame of
+> > > data can pass.
+> > 
+> > This sounds a lot like RS485 and some other related stuff. I need to
+> > poke my pet async guru and find out if they are the same thing. If so
+> > that would be useful.
+> 
+>  RS485 is a driver-transparent electrical interface.
 
-Once you have the exclusive set in your example, wouldn't the existing
-functionality of CKRM provide you all the functionality the other
-non-exclusive sets require?
+Yes, in theory!  In practice it isn't quite transparent due to
+tristating.
 
-Seems to me, we need a way to *restrict use* of certain resources
-(exclusive) and a way to *share use* of certain resources (non-exclusive.)
-CKRM does the latter right now, I believe, but not the former. (Does
-CKRM support sharing hierarchies as in the dept/group/individual example
-you used?)
+These are the 4 main types of serial interface that I use regularly
+RS232, RS422, RS485 4-Wire and RS485 2-Wire.
 
-What about this model:
+RS232 we all know and love - 12 V signalling etc
 
-    * All exclusive sets exist at the "top level" (non-overlapping,
-      non-hierarchical) and each is represented by a separate sched_domain
-      hierarchy suitable for the hardware used to create the cpuset.
-      I can't imagine anything more than an academic use for nested
-      exclusive sets.
+RS422 is RS232 with a different electrical interface, ie 5V
+differential (2 wires per signal, eg rx+, rx- etc)
 
-    * All non-exclusive sets are rooted at the "top level" but may
-      subdivide their range as needed in a tree fashion (multiple levels
-      if desired).  Right now I believe this functionality could be
-      provided by CKRM.
+RS485 4-Wire is like RS422 but the bus has the potential to go
+tri-state.  In a bus with only one master, the master can just
+transmit all the time and all the slaves will listen.  However if you
+want to be a slave or have multiple masters it is necessary for you to
+tristate the bus.
 
-Observations:
+RS485 2-Wire is like RS485 4-Wire except the transmit and receive
+lines are combined into rx_tx+ and rx_tx-.  In this kind of bus it is
+essential everyone tristates the line after transmitting.
 
-    * There is no current mechanism to create exclusive sets; cpus_allowed
-      alone won't cut it.  A combination of Matt's patch plus Paul's
-      code could probably resolve this.
+For the RS485 busses there needs to be some way of telling the serial
+interface hardware that you want the bus to be tristate.  This is
+typically done with DTR (which isn't used for RS485 busses), DTR=1
+means untristate the bus and DTR=0 means tristate it.
 
-    * There is no clear policy on how to amiably create an exclusive set.
-      The main problem is what to do with the tasks already there.
-      I'd suggest they get forcibly moved.  If their current cpus_allowed
-      mask does not allow them to move, then if they are a user process
-      they are killed.  If they are a system process and cannot be
-      moved, they stay and gain squatter's rights in the newly created
-      exclusive set.
+When used like this timing is very critical - you must de-assert DTR
+as soon as the serial character has left the serial UART.  This is
+difficult to do exactly in user-space.  Alternatively you can use a
+specialist serial interface which will do it for you.
 
-    * Interrupts are not under consideration right now. They land where
-      they land, and this may affect exclusive sets.  If this is a
-      problem, for now, you simply lay out your hardware and exclusive
-      sets more intelligently.
+In practice for our applications we use RS485 in master mode which
+requires no difficult control.  When we have to do RS485 in 2-Wire
+mode we transmit a character and block our application to wait for it
+to come back then de-assert RTS.  Thats nasty though and would be much
+better done in the serial driver, where you get an interrupt at
+exactly the moment the tx fifo is empty.
 
-    * Memory allocation has a tendency and preference, but no hard policy
-      with regards to where it comes from.  A task which starts on one
-      part of the system but moves to another may have all its memory
-      allocated relatively far away.  In unusual cases, it may acquire
-      remote memory because that's all that's left.  A memory allocation
-      policy similar to cpus_allowed might be needed. (Martin?)
+>  Unfortunately the half-duplex and master-slave(s) arrangements
+>  require some sort of token passing to know when they can
+>  successfully transmit.
 
-    * If we provide a means for creating exclusive sets, I haven't heard
-      a good reason why CKRM can't manage this.
+It does.  Its usually done with a packet protocol and addresses.
 
-Rick
+>  This is usually handled by the apps in some manner, although it's
+>  often wanted to be handled by the serial driver. This could be one
+>  method of signalling, but isn't sufficient to show RS485 operation.
+
+The tristating above should be done in the driver if possible.  The
+packet protocol etc should be done in the application.
+
+The flow control method described by the OP doesn't sound exactly like
+RS485, but the timing constraints of waggling RTS are exactly the
+same.
+
+-- 
+Nick Craig-Wood <nick@craig-wood.com> -- http://www.craig-wood.com/nick

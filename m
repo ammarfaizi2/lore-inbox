@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270420AbTGVVYM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 17:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270823AbTGVVYM
+	id S270886AbTGVVa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 17:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270889AbTGVVa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 17:24:12 -0400
-Received: from werbeagentur-aufwind.com ([217.160.128.76]:55764 "EHLO
-	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
-	id S270420AbTGVVYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 17:24:08 -0400
-Subject: Re: [RFC] File backed target for device-mapper
-From: Christophe Saout <christophe@saout.de>
-To: dm-devel@sistina.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1058908659.17049.9.camel@chtephan.cs.pocnet.net>
-References: <1058908659.17049.9.camel@chtephan.cs.pocnet.net>
-Content-Type: text/plain
-Message-Id: <1058909948.17049.12.camel@chtephan.cs.pocnet.net>
+	Tue, 22 Jul 2003 17:30:56 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42001
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270886AbTGVVax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 17:30:53 -0400
+Date: Tue, 22 Jul 2003 14:45:57 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: different behaviour with badblocks on 2.6.0-test1-mm1-07int
+Message-ID: <20030722214557.GE1176@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030722214253.GD1176@matchmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 22 Jul 2003 23:39:09 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722214253.GD1176@matchmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Di, 2003-07-22 um 23.17 schrieb Christophe Saout:
-
-> I just wrote a dm target uses a file as backend instead of another block
-> device.
+On Tue, Jul 22, 2003 at 02:42:53PM -0700, Mike Fedyk wrote:
+> Hi,
 > 
-> It's heavily based on the linux 2.5 loop device (so it uses the inode
-> operation sendfile for read operations and the address space operations
-> prepare_write and commit_write for write operations).
+> I was testing a hard drive with badblocks (from the e2fsprogs-1.34) on the
+> 2.6.0-test1-mm1-07int (with Con's scheduler patch), and I noticed in vmstat
+> and gkrellm that during the write passes there are reads on the same drive
+> when there should only be writes.
+> 
+> I tried stracing badblocks, but all it showed was write() calls, and vmstat
+> and gkrellm showed reads only, so it modified the behaviour.
+> 
+> Has anyone else seen this?
+> 
+> ii  e2fsprogs             1.33+1.34-WIP-2003.05 The EXT2 file system
+> utilities and libraries                  
+> 
 
-Umm... lalala... (a cleanup and a *fix*) :D
+Oh, and testing with the same hardware and userspace on 2.4.22-pre7 shows
+normal behaviour (writes with no reading, reads with no writing).
 
---- dm-file.c.orig      2003-07-22 23:36:57.639746368 +0200
-+++ dm-file.c   2003-07-22 23:37:26.203404032 +0200
-@@ -87,17 +87,16 @@
- {
-        char *src;
-        char *dst = (char *)desc->buf;
--       unsigned long count = desc->count;
-  
--       if (size > count)
--               size = count;
-+       if (size > desc->count)
-+               size = desc->count;
-  
-        src = kmap(page) + offset;
-        if (src != dst) /* FIXME: is src == dst possible? */
-                memcpy(dst, src, size);
-        kunmap(page);
-  
--       desc->count = count - size;
-+       desc->count -= size;
-        desc->written += size;
-        (char *)desc->buf += size;
-  
-@@ -127,8 +126,6 @@
-  
-                if (r < 0)
-                        break;
--
--               pos += bv->bv_len;
-        }
-  
-        return 0;
+This is with "badblocks -wso /tmp/hde.out /dev/hde > /dev/hde.log 2>&1 &" on
+a bash prompt on both kernels.
 
-
---
-Christophe Saout <christophe@saout.de>
-Please avoid sending me Word or PowerPoint attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-
+Neither found any bad blocks, and /tmp is on a /dev/hda1

@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTKQUfp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 15:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbTKQUfp
+	id S261732AbTKQUku (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 15:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTKQUku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 15:35:45 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:25358 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261411AbTKQUfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 15:35:43 -0500
-Date: Mon, 17 Nov 2003 21:35:33 +0100
-From: Jurriaan <thunder7@xs4all.nl>
+	Mon, 17 Nov 2003 15:40:50 -0500
+Received: from main.gmane.org ([80.91.224.249]:32143 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261732AbTKQUkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 15:40:49 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: Matrox Acceleration Probably_Just_Cosmetic Bug
-Message-ID: <20031117203533.GA6727@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <3FB75569.6040408@tudorejo.org> <20031117194845.GC18448@vana.vc.cvut.cz>
+From: Vedran Rodic <vedran@quark.fsb.hr>
+Subject: Re: Kernel 2.6.0-test9, deadlock using usb-storage, eventually memory allocation bug
+Date: Mon, 17 Nov 2003 21:28:33 +0100
+Message-ID: <pan.2003.11.17.20.28.32.434739@quark.fsb.hr>
+References: <1069097145.3fb920b9a10b1@fvs.dnsalias.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031117194845.GC18448@vana.vc.cvut.cz>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Cc: linux-usb-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-Date: Mon, Nov 17, 2003 at 08:48:45PM +0100
-> On Sun, Nov 16, 2003 at 09:46:01PM +1100, Tudor wrote:
-> > If you select "Matrox Acceleration" either built in or as module there 
-> > are two options:
-> > - G100/G200/G400/G450/G500 support
-> > and
-> > - G100/G200/G400 support
-> > 
-> > If you select the first, the second disappears.
-> > If you select the second, the first stays.
-> 
-> It is feature, so you can "extend" your driver later when you decide. Both
-> config options points to the same sources. In the past there was option
-> "G100-G550 support" with "Secondary head on G450/G550". Unfortunately 
-> G450 and G550 users were connecting monitor to the secondary output,
-> and then complaining that they do not see anything on the monitor.
-> So now this option is implicitly enabled when you select first choice,
-> and disabled when you select second one.
-> 
-> Unless you cannot afford about 16KB for secondary CRTC driver, you should
-> select first choice, as it gives you better upgrade path.
-> 							Petr Vandrovec
-> 
-I've always found this confusing as well, as I use a G450 but never use
-the secondary output.
+On Mon, 17 Nov 2003 20:25:45 +0100, Maximilian Mehnert wrote:
 
-How about
+> If anybody is willing to help me I  would gratefully send her/him all my logs
+> and my previous correspondence on this topic :)
 
-- G100-550 support (including secondary output)
-- G100-400 support (single head only)
 
-then mention in the help-text that secondary output is only usable after
-running program %%%% ?
+I think you may be hitting the same problem I did some time ago.
 
-Jurriaan
--- 
-She opened her eyes and gazed bleakly at him. "And is it your idea that
-discussing this interesting subject will make us friends?"
-	Guy Gavriel Kay - Tigana
-Debian (Unstable) GNU/Linux 2.6.0-test9-mm3 4259 bogomips 0.16 0.11
+Please see
+http://www.mail-archive.com/linux-usb-devel%40lists.sourceforge.net/msg17080.html
+
+
+Try the attached patch Alan Stern made. You'll have to add a "," to the
+end of "+      .max_sectors =                  240" line. 
+
+Alan, this patch should be in queue for 2.6.0, right?
+
+
+
+Vedran Rodic
+

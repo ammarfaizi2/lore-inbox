@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285173AbRLFRFV>; Thu, 6 Dec 2001 12:05:21 -0500
+	id <S285177AbRLFRJL>; Thu, 6 Dec 2001 12:09:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285176AbRLFRFL>; Thu, 6 Dec 2001 12:05:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39182 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285173AbRLFRE5>; Thu, 6 Dec 2001 12:04:57 -0500
+	id <S285180AbRLFRJB>; Thu, 6 Dec 2001 12:09:01 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:26131 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S285178AbRLFRI5> convert rfc822-to-8bit;
+	Thu, 6 Dec 2001 12:08:57 -0500
+Date: Thu, 6 Dec 2001 18:00:58 +0100 (CET)
+From: Pascal Junod <pascal.junod@epfl.ch>
+X-X-Sender: pjunod@lasecpc10.epfl.ch
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Linux/Pro  -- clusters
-Date: Thu, 6 Dec 2001 16:58:34 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9uo83q$aa7$1@penguin.transmeta.com>
-In-Reply-To: <9um58i$9no$1@penguin.transmeta.com> <E16BlnL-00080m-00@the-village.bc.nu>
-X-Trace: palladium.transmeta.com 1007658287 10402 127.0.0.1 (6 Dec 2001 17:04:47 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 6 Dec 2001 17:04:47 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+cc: dledford@redhat.com
+Subject: Re: i810 audio patch
+In-Reply-To: <20011206164547.A19660@danielle.hinet.hr>
+Message-ID: <Pine.LNX.4.40.0112061752480.3101-100000@lasecpc10.epfl.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E16BlnL-00080m-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->
->You still need the scsi code. There are a whole sequence of common, quite
->complex and generic functions that the scsi layer handles (in paticular
->error handling).
+Hi !
 
-Well, the preliminary patches already handle _some_ common things, like
-building the proper command request for reads and writes etc, and that
-will probably continue.  We'll probably have to have all the old helpers
-for things like "this target only wants to be probed on lun 0" etc.
+I'm trying to get sound working on my Sony Vaio PCG-GR114SK laptop with
+0.10 patch:
 
-I disagree about the error handling, though.
+kernel: Intel 810 + AC97 Audio, version 0.10, 17:31:53 Dec  6 2001
+kernel: PCI: Setting latency timer of device 00:1f.5 to 64
+kernel: i810: Intel ICH3 found at IO 0x18c0 and 0x1c00, IRQ 9
+kernel: i810_audio: Audio Controller supports 6 channels.
+kernel: ac97_codec: AC97 Audio codec, id: 0x4144:0x5348 (Analog Devices AD1881A)
+kernel: i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), total channels = 2
+kernel: ac97_codec: AC97 Modem codec, id: 0x4358:0x5421 (Unknown)
+kernel: i810_audio: timed out waiting for codec 1 analog ready
 
-Traditionally, the timeouts and the reset handling was handled in the
-SCSI mid-layer, and it was a complete and utter disaster.  Different
-hosts simply wanted so different behaviour that it's not even funny.
-Timeouts for different commands were so different that people ended up
-making most timeouts so long that they no longer made sense for other
-commands etc.
+I have tried alsa drivers 0.9.0beta10 with a little bit more success: I
+get some sound, but it's looping forever.
 
-Other device drivers have been able to handle timeouts and errors on
-their own before, and have _not_ had the kinds of horrendous problems
-that the SCSI layer has had.
+A+
 
-We'll see what the details will end up being, but I personally think
-that it is a major mistake to try to have generic error handling.  The
-only true generic thing is "this request finished successfully / with an
-error", and _no_ high-level retries etc. It's up to the driver to decide
-if retries make sense.
+Pascal
 
-(Often retrying _doesn't_ make sense, because the firmware on the
-high-end card or disk itself may already have done retries on its own,
-and high-level error handling is nothing but a waste of time and causes
-the error notification to be even more delayed).
+-- 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Pascal Junod, pascal.junod@epfl.ch                                 *
+* Security and Cryptography Laboratory (LASEC)                       *
+* INF 240, EPFL, CH-1015 Lausanne, Switzerland  ++41 (0)21 693 76 17 *
+* Montétan 13, CH-1004 Lausanne                 ++41 (0)79 617 28 57 *
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-		Linus
+
+
+

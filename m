@@ -1,21 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSHJMQQ>; Sat, 10 Aug 2002 08:16:16 -0400
+	id <S316883AbSHJMRL>; Sat, 10 Aug 2002 08:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316883AbSHJMQQ>; Sat, 10 Aug 2002 08:16:16 -0400
-Received: from mx1.mail.ru ([194.67.57.11]:27665 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id <S316882AbSHJMQP>;
-	Sat, 10 Aug 2002 08:16:15 -0400
+	id <S316886AbSHJMRL>; Sat, 10 Aug 2002 08:17:11 -0400
+Received: from mx1.mail.ru ([194.67.57.11]:62226 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id <S316883AbSHJMRJ>;
+	Sat, 10 Aug 2002 08:17:09 -0400
 From: "Samium Gromoff" <_deepfire@mail.ru>
 To: linux-kernel@vger.kernel.org
+Subject: 2.5 and DRM/3D infrastructure?
 Mime-Version: 1.0
 X-Mailer: mPOP Web-Mail 2.19
 X-Originating-IP: 192.168.231.142 via proxy [80.79.67.2]
-Date: Sat, 10 Aug 2002 16:19:59 +0400
+Date: Sat, 10 Aug 2002 16:20:54 +0400
 Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E17dVDr-000Doq-00@f12.mail.ru>
+Message-Id: <E17dVEk-000HFm-00@f19.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

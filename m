@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVCIJxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVCIJyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbVCIJxw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 04:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVCIJxv
+	id S262221AbVCIJyD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 04:54:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVCIJyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 04:53:51 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:55963 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262213AbVCIJxi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 04:53:38 -0500
-Date: Wed, 9 Mar 2005 09:52:46 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-In-Reply-To: <20050309083923.GA20461@kroah.com>
-Message-ID: <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
-References: <20050309083923.GA20461@kroah.com>
+	Wed, 9 Mar 2005 04:54:03 -0500
+Received: from web51401.mail.yahoo.com ([206.190.38.180]:42588 "HELO
+	web51401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262221AbVCIJxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 04:53:39 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=u5C5d0EZmCaEkFAjJcGHEWLIonz+6Tlgp6Ov4Yi7X2/+scTlLnBXWB2jiOWQChRHvtIE/oWA2fQxp0RowEYUzTppcvcjZdtDLNRxiKlamXZktMWZlkUeRURyzRmsErWUMbe76MwA3fQ/qnKnSq2QDKPeEeCU4KUaeJfEnp3MF+0=  ;
+Message-ID: <20050309095336.48054.qmail@web51401.mail.yahoo.com>
+Date: Wed, 9 Mar 2005 10:53:36 +0100 (CET)
+From: Joerg Pommnitz <pommnitz@yahoo.com>
+Subject: Re: select(2), usbserial, tty's and disconnect
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCT-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Robert Hancock wrote:
+> There was discussion at one point about doing a tty_hangup() when the  >
+USB device was disconnected (this causes the read() to return with 0  >  >
+bytes and future open attempts to fail), and a patch was put out to do  >
+this. I thought this had been merged, but I could be wrong.
 
-On Wed, 9 Mar 2005, Greg KH wrote:
+Well, I observed the hanging select with SuSE kernel 2.6.8-24.11, so it is
+fairly current. I'm seeing this problem with an Option Wireless UMTS data
+card. This card is interesting. It is a CardBus card that presents a USB
+OHCI hub to the system. Internally it claims to plug in a USB serial
+connector. If you issue a RESET AT command, the kernel tells me that the
+USB device virtually plugged into the hub got disconnected. A few seconds
+later the gets plugged in again. At this point I would have to reopen the
+tty. Unfortunately the disconnect event does not propagate to the
+application. I could poke the tty to see whether it is still really there,
+but this seems quite hackish.
 
-> which is a patch against the 2.6.11.1 release.  If consensus arrives
-> that this patch should be against the 2.6.11 tree, it will be done that
-> way in the future.
+Regards
+  Joerg
 
-IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt againt
-the last -rc but against 2.6.x.
 
-Marcos Marado
+	
 
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFCLsdwmNlq8m+oD34RApSIAJ4rAaaDduX7Xp1ChqGj9KJkqg/HuwCfYb5X
-5UAEW4srRcpOqspM8JaScAM=
-=REDu
------END PGP SIGNATURE-----
-
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267378AbRGLALX>; Wed, 11 Jul 2001 20:11:23 -0400
+	id <S267379AbRGLAMn>; Wed, 11 Jul 2001 20:12:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267379AbRGLALD>; Wed, 11 Jul 2001 20:11:03 -0400
-Received: from web14402.mail.yahoo.com ([216.136.174.59]:14350 "HELO
-	web14402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267378AbRGLAK5>; Wed, 11 Jul 2001 20:10:57 -0400
-Message-ID: <20010712001058.9730.qmail@web14402.mail.yahoo.com>
-Date: Wed, 11 Jul 2001 17:10:58 -0700 (PDT)
-From: Rajeev Bector <rajeev_bector@yahoo.com>
-Subject: Re: new IPC mechanism ideas
+	id <S267380AbRGLAMd>; Wed, 11 Jul 2001 20:12:33 -0400
+Received: from h24-76-51-210.vf.shawcable.net ([24.76.51.210]:7676 "EHLO
+	whiskey.enposte.net") by vger.kernel.org with ESMTP
+	id <S267379AbRGLAM1>; Wed, 11 Jul 2001 20:12:27 -0400
 To: linux-kernel@vger.kernel.org
-Cc: hpa@zytor.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Path: whiskey.fireplug.net!not-for-mail
+From: sl@whiskey.fireplug.net (Stuart Lynne)
+Newsgroups: list.linux-kernel
+Subject: Re: Switching Kernels without Rebooting?
+Date: 11 Jul 2001 17:10:54 -0700
+Organization: fireplug
+Distribution: local
+Message-ID: <9iipue$lo1$1@whiskey.enposte.net>
+In-Reply-To: <994895240.21189@whiskey.enposte.net>
+Reply-To: sl@fireplug.net
+X-Newsreader: trn 4.0-test67 (15 July 1998)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your comment, Peter.
-The problem with using a "driver"
-process is that now you need
-another mechanism to communicate
-with that driver - either
-message queues or shared
-memory or something.
+In article <994895240.21189@whiskey.enposte.net>,
+Andreas Dilger <adilger@turbolinux.com> wrote:
 
-Thanks,
-Rajeev
+>The best proposal I've heard so far was to use MOSIX to do live job
+>migration between machines, and then upgrade the kernel like normal.
+>In the end, it is the jobs that are running on the kernel, and not
+>the kernel or the individual machine that are the most important.  One
+>person pointed out that there is a single point of failure in the
+>MOSIX "stub" machine, which doesn't help you in the end (how do you
+>update the kernel there?).  If you can figure a way to enhance MOSIX
+>to allow migrating the MOSIX "stub" processes to another machine, you
+>will have solved your problem in a much easier way, IMHO.
+
+If you then think of using VMWare or S/390 style methods of running multiple
+copies of Linux on a single system you can now consider migrating processes
+to a new kernel on the same system.
 
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+-- 
+                                            __O 
+Lineo - For Embedded Linux Solutions      _-\<,_ 
+PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
+Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532

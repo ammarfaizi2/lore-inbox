@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262360AbTCMOLA>; Thu, 13 Mar 2003 09:11:00 -0500
+	id <S262357AbTCMOJe>; Thu, 13 Mar 2003 09:09:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262365AbTCMOLA>; Thu, 13 Mar 2003 09:11:00 -0500
-Received: from jack.stev.org ([217.79.103.51]:39476 "EHLO jack.stev.org")
-	by vger.kernel.org with ESMTP id <S262360AbTCMOJ4>;
-	Thu, 13 Mar 2003 09:09:56 -0500
-Message-ID: <01fa01c2e96c$a6a50e90$0cfea8c0@ezdsp.com>
+	id <S262360AbTCMOJd>; Thu, 13 Mar 2003 09:09:33 -0500
+Received: from jack.stev.org ([217.79.103.51]:37684 "EHLO jack.stev.org")
+	by vger.kernel.org with ESMTP id <S262357AbTCMOJc>;
+	Thu, 13 Mar 2003 09:09:32 -0500
+Message-ID: <01f801c2e96c$980b4390$0cfea8c0@ezdsp.com>
 From: "James Stevenson" <james@stev.org>
 To: "pd dd" <parviz_kernel@yahoo.com>, "M. Soltysiak" <msoltysiak@hotmail.com>,
        "ML-linux-kernel" <linux-kernel@vger.kernel.org>
@@ -14,7 +14,7 @@ Cc: "M. Soltysiak" <msoltysiak@hotmail.com>,
        "William Stearns" <wstearns@pobox.com>
 References: <20030313091315.14044.qmail@web20504.mail.yahoo.com>
 Subject: Re: Linux BUG: Memory Leak
-Date: Thu, 13 Mar 2003 14:27:17 -0000
+Date: Thu, 13 Mar 2003 14:26:49 -0000
 X-Priority: 3
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook Express 5.50.4920.2300

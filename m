@@ -1,82 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268802AbUHLVNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268816AbUHLVm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268802AbUHLVNX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 17:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUHLVKh
+	id S268816AbUHLVm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUHLVl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:10:37 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:35459 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268788AbUHLVIv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:08:51 -0400
-Message-ID: <411BDD11.8070400@tmr.com>
-Date: Thu, 12 Aug 2004 17:11:45 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 12 Aug 2004 17:41:57 -0400
+Received: from kerberos2.troja.mff.cuni.cz ([195.113.28.3]:6000 "HELO
+	kerberos2.troja.mff.cuni.cz") by vger.kernel.org with SMTP
+	id S268575AbUHLViT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 17:38:19 -0400
+Received: from argo.troja.mff.cuni.cz (195.113.28.11)
+  by vger.kernel.org with SMTP; 12 Aug 2004 21:38:17 -0000
+Date: Thu, 12 Aug 2004 23:38:13 +0200 (MET DST)
+From: Pavel Kankovsky <peak@argo.troja.mff.cuni.cz>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux kernel file offset pointer races
+In-Reply-To: <1091796995.16306.20.camel@localhost.localdomain>
+Message-ID: <20040812223057.CF9.0@argo.troja.mff.cuni.cz>
 MIME-Version: 1.0
-To: Tim Wright <timw@splhi.com>
-CC: Martin Mares <mj@ucw.cz>, Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       James.Bottomley@steeleye.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <20040807001427.GA10890@ucw.cz><200408070001.i7701PSa006663@burner.fokus.fraunhofer.de> <1091899593.20043.14.camel@kryten.internal.splhi.com>
-In-Reply-To: <1091899593.20043.14.camel@kryten.internal.splhi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Wright wrote:
-> On Fri, 2004-08-06 at 17:14, Martin Mares wrote:
-> 
->>Hello!
->>
->>
->>>I see always the same answers from Linux people who don't know anyrthing than
->>>their belly button :-(
->>>
->>>Chek Solaris to see that your statements are wrong.
->>
->>Well, so could you please enlighten the Linux people and say in a couple
->>of words how it could be done?
->>
->>				Have a nice fortnight
-> 
-> 
-> I can offer reasons as to why it cannot :-)
-> 
-> The path_to_inst stuff assumes a simple physical bus topology. It is
-> completely unsuited to e.g. a fibre-channel fabric. It is also unsuited
-> to iSCSI - my disks aren't attached to eth0, they're attached to
-> whichever interface has a route to the server. It's also worthless for
-> USB. The controller, bus and target are meaningless - the target number
-> is dynamically assigned at plugin so giving a name to controller 0, bus
-> 0 target 3 is utterly pointless.
-> 
-> Linux and/or associated drivers has mechanisms to handle consistent
-> naming for a number of these (WWPN-binding for FC, similar device
-> binding of the unique ids for iSCSI, the hotplug infrastructure for usb
-> etc.). All of these map devices to consistent device names in /dev. The
-> "Unix" way of accessing devices has always been via names in /dev. I
-> completely fail to understand why Joerg wants to try to force a naming
-> model that is both alien to the native systems (I want /dev/cdrw on
-> Linux; I probably want D: on Windows or something like that), and is
-> inadequate to the task if you move beyond the simple world of parallel
-> SCSI.
+On Fri, 6 Aug 2004, Alan Cox wrote:
 
-But they *don't* map to consistent device names. All hot pluggable 
-devices seem to map to the next available name. Looking at one of my 
-utility systems, it has IDE drives mapped by Redhat with ide-scsi, real 
-SCSI drives, a couple of flash card slots mapped to SCSI, and a USB 
-device, all in the /dev/sdX namespace. And in the order in which they 
-were detected (connected, in other words).
+> On Mer, 2004-08-04 at 21:36, Pavel Kankovsky wrote:
+> > IMHO, the proper fix is to serialize all operations modifying a shared
+> > file pointer (file->f_pos): read(), readv(), write(), writev(),
+> > lseek()/llseek(). As far as I can tell, this is required by POSIX:
+> 
+> Not if you want to get any useful work done. No Unix does this.
 
-Joerg hasn't made it any better, but it isn't great anyway. I recommend 
-a script to do discovery and make symlinks somewhere to names which 
-always match the same device.
+...serialize all operations modifying a shared file pointer wrt operations
+modifying the *same* pointer.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> The situation with multiple parallel lseek/read/writes is somewhat
+> undefined anyway since you don't know if the seek or the write
+> occurred first in user space.
+
+buffer[0] = 0;
+lseek(fd, 0, SEEK_SET);
+write(fd, buffer, 1);
+lseek(fd, 0, SEEK_SET);
+
+if (fork() > 0) {
+  buffer[0] = 1;
+  write(fd, buffer, 1000000);
+}
+else {
+  while (buffer[0] == 0)
+    pread(fd, buffer, 1, 0);
+  lseek(fd, 1234, SEEK_SET);
+}
+
+lseek(...1234...) cannot occur before write(...1000000) starts but it can
+occur before the big write() ends (unless write() is atomic).
+
+There is a similar scenario with a big read() but it is somewhat more
+complicated because it needs a piece of shared memory.
+
+> O_APPEND is a bit different, as are pread/pwrite but those are dealt
+> with using locking for files.
+
+Two write()'s are serialized by inode semaphore. But as far as can tell,
+there is no serialization between read()'s and write()'s. A read()
+overlapping a simultaneous write() might produce inconsistent results,
+e.g.:
+
+1. read() starts at offset 0
+2. read() reads a page of data and blocks
+3. write() starts at offset 0
+4. write() writes two pages of data and block
+5. read() wakes up, reads two pages of data
+6. write() wakes up, writes a page of data
+7. read() finished
+8. write() finished
+
+In this scenario, the 1st and 3rd pages read by read() contain the old
+data (before write()) but the 2nd page contains the new data (after
+write()). This is absurd.
+
+BTW: What about writev() (esp. with O_APPEND)? It appears Linux
+implementation makes it possible to interleave parts of writev() with
+other writes.
+
+Moreover, there appears to be a race condition between locks_verify_area()
+and the actual I/O operation(s).
+
+--Pavel Kankovsky aka Peak  [ Boycott Microsoft--http://www.vcnet.com/bms ]
+"Resistance is futile. Open your source code and prepare for assimilation."
+

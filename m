@@ -1,60 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281759AbRLBScc>; Sun, 2 Dec 2001 13:32:32 -0500
+	id <S281217AbRLBSpT>; Sun, 2 Dec 2001 13:45:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281762AbRLBScM>; Sun, 2 Dec 2001 13:32:12 -0500
-Received: from f25.law4.hotmail.com ([216.33.149.25]:3084 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S281759AbRLBScF>;
-	Sun, 2 Dec 2001 13:32:05 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: ajschrotenboer@lycosmail.com
-Subject: Re: Bidirectional USB Printer
-Date: Sun, 02 Dec 2001 18:32:00 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F255bsHGKFMj0LClVNp00021b11@hotmail.com>
-X-OriginalArrivalTime: 02 Dec 2001 18:32:00.0316 (UTC) FILETIME=[A16847C0:01C17B5F]
+	id <S281827AbRLBSpJ>; Sun, 2 Dec 2001 13:45:09 -0500
+Received: from mercury.mv.net ([199.125.85.40]:16615 "EHLO mercury.mv.net")
+	by vger.kernel.org with ESMTP id <S281217AbRLBSov>;
+	Sun, 2 Dec 2001 13:44:51 -0500
+Message-ID: <003401c17b61$02f5ec80$0201a8c0@home>
+From: "jeff millar" <jeff@wa1hco.mv.com>
+To: <dalecki@evision.ag>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Larry McVoy" <lm@bitmover.com>,
+        "Davide Libenzi" <davidel@xmailserver.org>,
+        "Andrew Morton" <akpm@zip.com.au>,
+        "Daniel Phillips" <phillips@bonn-fries.net>,
+        "Henning Schmiedehausen" <hps@intermeta.de>,
+        "Jeff Garzik" <jgarzik@mandrakesoft.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16AZhj-0003pe-00@the-village.bc.nu>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Date: Sun, 2 Dec 2001 13:41:15 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I´m sorry I use Slackware-8.0 + Current
-And one more thing could you give me the e-mail address for the USB 
-Maintainers.
-Victor
-
-On Saturday 01 December 2001 12:51, victor1 torres wrote:
- > I have a bidirectional usb printer and I was woundering how I would get
- > that to work with user space programs and if it really is supported. When 
-I
- > load all my USB things and the printer.o it says Bidirectional USB 
-Printer
- > = usblp0
-
-Doesn't sounds like a problem. Merely have to set up LPR or whatever 
-printing
-subsystem is in use w/ your distribution. You never said what distribution,
-so I can't tell you what to do to configure your box. Presumably, all u need
-to do is configure whatever LPR equivalent to use /dev/usblp0 (or do a find
-for lp0 in your /dev/ directory).
-
- > Please help.
-It's kind of hard when you don't tell us enough to give you a concise 
-answer.
-Please help us by helping yourself in the future.
- > Thanks in advance
-Spelling errors corrected for free
- >
-
-BTW, next time try to cc: to the appropriate subsystem maintainer (in this
-case USB and/or printing/parport) not the kernel maintainer. Neither Linus 
-or
-Marcelo need to be cc:'d for this kind of question.
---
-tabris
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: <dalecki@evision.ag>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; "Larry McVoy" <lm@bitmover.com>;
+"Davide Libenzi" <davidel@xmailserver.org>; "Andrew Morton"
+<akpm@zip.com.au>; "Daniel Phillips" <phillips@bonn-fries.net>; "Henning
+Schmiedehausen" <hps@intermeta.de>; "Jeff Garzik"
+<jgarzik@mandrakesoft.com>; <linux-kernel@vger.kernel.org>
+Sent: Sunday, December 02, 2001 11:42 AM
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
 
 
+> > > Question: What happens when people stick 8 threads of execution on a
+die with
+> > > a single L2 cache ?
+> >
+> > That had been already researched. Gogin bejoind 2 threads on a single
+> > CPU
+> > engine doesn't give you very much... The first step is giving about 25%
+> > the second only about 5%. There are papers in the IBM research magazine
+> > on
+>
+> The IBM papers make certain architectural assumptions. With some of the
+> tiny modern CPU cores its going to perfectly viable to put 4 or 8 of them
+> on one die. At that point cccluster still has to have cluster nodes
+scaling
+> to 8 way
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+Semiconductor technology will push this way because it's no longer possible
+to propagate a signal across the die in one clock cycle.  This means
+pipeline
+interlocking becomes vastly more complicated.  The simple solution puts
+several CPU cores on the die, each able to interlock in one clock but
+sharing
+memory over several clocks.
 

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281355AbRKVTOe>; Thu, 22 Nov 2001 14:14:34 -0500
+	id <S281458AbRKVTUy>; Thu, 22 Nov 2001 14:20:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281458AbRKVTOZ>; Thu, 22 Nov 2001 14:14:25 -0500
-Received: from AGrenoble-101-1-5-109.abo.wanadoo.fr ([80.11.136.109]:44421
-	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S281355AbRKVTOS> convert rfc822-to-8bit; Thu, 22 Nov 2001 14:14:18 -0500
-Message-ID: <3BFD4F57.8030408@wanadoo.fr>
-Date: Thu, 22 Nov 2001 20:17:43 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
+	id <S281488AbRKVTUp>; Thu, 22 Nov 2001 14:20:45 -0500
+Received: from mail5.speakeasy.net ([216.254.0.205]:9650 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S281458AbRKVTUe>; Thu, 22 Nov 2001 14:20:34 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: safemode <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Subject: slowdown on Via ide chipsets with 2.4.15?
+Date: Thu, 22 Nov 2001 14:20:31 -0500
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: James A Sutherland <jas88@cam.ac.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>, war <war@starband.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-In-Reply-To: <Pine.LNX.4.33L.0111221456020.1491-100000@duckman.distro.conectiva> <3BFD4A42.8090002@wanadoo.fr> <E166z3N-00020W-00@mauve.csi.cam.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011122192037Z281458-17408+17489@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James A Sutherland wrote:
+something i just took notice while fixing my computers.  
+hdparm -t to test the speed of drives, i have in the past had about 30MB/s 
+across all my drives.  
+Now, my primary disk, which is the only one on it's channel, gets 19MB/s 
+(udma2 speeds).  It's an udma4 drive and i've seen it get 30+ on average in 
+earlier kernels.  My primary master on the promise card gets 30+ still, but 
+my slave on the same channel gets 19MB/s even though the master is not being 
+used.  I know there is to be expected some performance drop, but that much is 
+a little disconcerting.  I have my atapi devices on the secondary channel of 
+my via controller (motherboard) and the second channel on the promise card 
+will be used for my new drive.  
+The harddrives are configured exactly the way they used to be and the kernel 
+is compiled with the exact same options for ide/dma and such.   The 
+changefile doesn't look like the via ide drivers were messed with.   The only 
+other difference is that all my drives are now ext3.
 
->>Obviously the problem is very much lessened, in my case, when
->>i put the swap partition on the *other* drive than the root fs.
->>Both are ATA100 (40GB 60GXPs), and the system is more responsive
->>with swap on hdc while / in on hda, than both on hda.
->>
-> 
-> Hmm... if you've experimented with this, how does this setup compare to a 
-> striped RAID of hda+hdc used for root and swap? (i.e. is the speedup down to 
-> splitting accesses between two spindles?)
+Controller (motherboard)  VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 
+controller on pci00:07.1
+Controller (card)  PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode 
+Secondary PCI Mode.
 
+All drives are set to UDMA4 (ATA66)    hdparm isn't used,  simple check shows 
+that everything is set the way it should be default.  
 
-I haven't, but it's a good idea, I may give it a try, but not very soon.
-
-François
-
+Also, the kernel displays UDMA(66)    wouldn't it be  ATA66.  UDMA comes in 
+1,2,4, and 5.  that's like, ata16, ata33, ata66 and ata100.        

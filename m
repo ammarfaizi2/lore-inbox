@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263130AbUA3LQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 06:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbUA3LQ6
+	id S262153AbUA3LU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 06:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUA3LU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 06:16:58 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:41158 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263130AbUA3LQ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 06:16:57 -0500
-Date: Fri, 30 Jan 2004 09:05:08 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Urban Widmark <Urban.Widmark@enlight.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] smbfs: Large File Support (3/3) (fwd)
-Message-ID: <Pine.LNX.4.58L.0401300904240.1323@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Fri, 30 Jan 2004 06:20:27 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:40065 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262153AbUA3LUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 06:20:23 -0500
+Date: Fri, 30 Jan 2004 12:20:39 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.2-rc2-mm1
+Message-ID: <20040130112039.GA1731@ucw.cz>
+References: <20040127233402.6f5d3497.akpm@osdl.org> <20040130104829.GA2505@babylon.d2dc.net> <20040130110205.GA1583@ucw.cz> <20040130111805.GC2505@babylon.d2dc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040130111805.GC2505@babylon.d2dc.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 30, 2004 at 06:18:05AM -0500, Zephaniah E. Hull wrote:
+> On Fri, Jan 30, 2004 at 12:02:05PM +0100, Vojtech Pavlik wrote:
+> > On Fri, Jan 30, 2004 at 05:48:29AM -0500, Zephaniah E. Hull wrote:
+> > > On Tue, Jan 27, 2004 at 11:34:02PM -0800, Andrew Morton wrote:
+> > > > 
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc2/2.6.2-rc2-mm1/
+> > > > 
+> > > > - From now on, -mm kernels will contain the latest contents of:
+> > > > 
+> > > > 	Vojtech's tree:		input.patch
+> > > 
+> > > This one seems to have a rather problematic patch, which I can't find
+> > > any explanation for.
+> > 
+> > There is another revision of the same mouse from A4Tech (owned by
+> > Jaroslav Kysela), that reports itself as Cypress and has the buttons a
+> > bit differently.
+> > 
+> > If it indeed collides with your mouse, then we need somehow to specify
+> > which button carries the wheel information in the quirk list.
+> 
+> Ugh, that is not fun, it does indeed conflict.
+> How about HID_QUIRK_2WHEEL_MOUSE_HACK_EXTRA and
+> HID_QUIRK_2WHEEL_MOUSE_HACK_BACK as quirk names?
 
-Urban?
+Sounds OK.
 
----------- Forwarded message ----------
-Date: Wed, 28 Jan 2004 14:21:53 -0500
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] smbfs: Large File Support (3/3)
-
-On Wed, 2004-01-28 at 06:05, Linux Kernel Mailing List wrote:
-
-> diff -Nru a/include/linux/smb.h b/include/linux/smb.h
-> --- a/include/linux/smb.h	Wed Jan 28 04:02:56 2004
-> +++ b/include/linux/smb.h	Wed Jan 28 04:02:56 2004
-> @@ -85,7 +85,7 @@
->  	uid_t		f_uid;
->  	gid_t		f_gid;
->  	kdev_t		f_rdev;
-> -	off_t		f_size;
-> +	loff_t		f_size;
->  	time_t		f_atime;
->  	time_t		f_mtime;
->  	time_t		f_ctime;
-
-ehhmmmm doesn't this change the userspace ABI incompatibly ???
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269107AbTCBDfh>; Sat, 1 Mar 2003 22:35:37 -0500
+	id <S269114AbTCBDkZ>; Sat, 1 Mar 2003 22:40:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269114AbTCBDfh>; Sat, 1 Mar 2003 22:35:37 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:54030 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S269107AbTCBDfg>; Sat, 1 Mar 2003 22:35:36 -0500
-Date: Sat, 1 Mar 2003 19:45:56 -0800
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kernel source spellchecker
-Message-ID: <20030302034556.GC30797@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de> <3E6101DE.5060301@kegel.com> <1046546305.10138.415.camel@spc1.mesatop.com> <3E612409.7090603@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E612409.7090603@kegel.com>
-User-Agent: Mutt/1.3.27i
+	id <S269115AbTCBDkZ>; Sat, 1 Mar 2003 22:40:25 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:63975 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S269114AbTCBDkY>;
+	Sat, 1 Mar 2003 22:40:24 -0500
+Message-Id: <200303020317.h223GN9c003631@eeyore.valparaiso.cl>
+To: Dan Kegel <dank@kegel.com>
+cc: Matthias Schniedermeyer <ms@citd.de>, Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
+Subject: Re: [PATCH] kernel source spellchecker 
+In-Reply-To: Your message of "Sat, 01 Mar 2003 10:54:22 -0800."
+             <3E6101DE.5060301@kegel.com> 
+Date: Sun, 02 Mar 2003 00:16:23 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 01, 2003 at 01:20:09PM -0800, Dan Kegel wrote:
-> Steven Cole wrote:
-> >Once you've loosed your beast upon the tree, I'd suggest that you
-> >very carefully look through the resulting diff for inappropriate
-> >corrections and redact the unnecessary hunks.  In the spelling fixes
-> >which I sent to Linus, I redacted hunks which didn't need fixing.  For
-> >example, Linus making fun of Sun folks' ability to spell, etc. and some
-> >comments in French or German for which the spelling was correct in those
-> >languages.
-> 
-> Good points.
-> 
-> >In addition to making fixes in the comments in the source, all of
-> >Documentation should be fair game.
-> 
-> Yeah, but that's easy :-)
-> 
-> >Then you'll have to contend with the folks whose out-of-tree patches
-> >you've borked.
-> 
-> That's a good argument for making the spellfix program polished
-> enough that everyone can use it, I think.  Those maintaining
-> out-of-tree patches can run the tool on their tree, and regenerate
-> diffs.
+Dan Kegel <dank@kegel.com> said:
 
-An ispell filter seems a simpler approach to me. (ispell -F
-filter) I use that (shown here to head off requests) for
-email so quoted content is ignored.  A similar filter for C
-source would make this trivial.
+[...]
 
+> Smashing!  However, it should probably avoid correcting spellings
+> in anything but C comments.
 
-$ grep ispell .muttrc
-set ispell="ispell -F maildequote"
-$ cat bin/maildequote
-#!/usr/bin/perl
+Right.
 
-while (<STDIN>)
-{
-        /^[>|] / || /^On .* wrote:$/ and tr[A-Za-z][_];
-        print $_;
-}
-print "\004";
+> Perhaps my C comment parser should be converted to perl and
+> incorporated into spell-fix.pl, and used to divide the source
+> file into two streams (comment and noncomment); the comment
+> stream would be spell-fixed and merged back with the noncomment
+> stream to create the output.
 
-
+I wouldn't go that far. Better give a list of speling mistakes (file/line)
+and fix them by hand. It won't need to be done more than occasionally, so
+the overhead is not too bad.
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

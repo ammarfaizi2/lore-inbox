@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136768AbREAX1e>; Tue, 1 May 2001 19:27:34 -0400
+	id <S136772AbREAXbO>; Tue, 1 May 2001 19:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136769AbREAX1Z>; Tue, 1 May 2001 19:27:25 -0400
-Received: from www.teaparty.net ([216.235.253.180]:7954 "EHLO www.teaparty.net")
-	by vger.kernel.org with ESMTP id <S136768AbREAX1N>;
-	Tue, 1 May 2001 19:27:13 -0400
-Date: Wed, 2 May 2001 00:26:41 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: David Bronaugh <dbronaugh@opensourcedot.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Breakage of opl3sax cards since 2.4.3 (at least)
-In-Reply-To: <20010501153941.E498@Woodbox.gv.shawcable.net>
-Message-ID: <Pine.LNX.4.10.10105020022210.17794-100000@www.teaparty.net>
+	id <S136773AbREAXbE>; Tue, 1 May 2001 19:31:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52620 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136772AbREAXaz>;
+	Tue, 1 May 2001 19:30:55 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15087.18144.149969.793821@pizda.ninka.net>
+Date: Tue, 1 May 2001 16:29:36 -0700 (PDT)
+To: Leif Sawyer <lsawyer@gci.com>
+Cc: linux-kernel@vger.kernel.org, suse-sparc@suse.com
+Subject: Re: DHCP comiling issues under sparc linux
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446DC82@berkeley.gci.com>
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446DC82@berkeley.gci.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2001, David Bronaugh wrote:
 
-> opl3sax cards have refused to init in Linux with the in-kernel OSS driver
-> since 2.4.3 at least (last I tested and worked was 2.4.1). I'm pretty sure
-> this is a kernel issue as it's happened on 2 different machines, one of
-> which I never goofed around with.
+Leif Sawyer writes:
+ > Below is the end of a thread between myself and Ted Lemon
+ > regarding building DHCP under Sparc Linux.
+ > 
+ > I'm not well versed in parsing the kernel code to know
+ > what the subtle differences in the different implementations
+ > of this IOCtl, and am looking for some guidance from the
+ > appropriate maintainers.
+ > 
+ > Please read below for the summary. I'll be happy to fill
+ > in the blanks off-list.
 
-My card [I should say chipset - built in to mobo] initialised partially.
-[Running 2.4.3-ac5]
- 
-> Usually message is something like:
-> 
-> opl3sa2: Control I/O port 0x220 (or whatever is tried) is not a YMF7xx
-> chipset!
+It is a bug if it behaves differently, without question.
 
-I believe I saw something like this, but the sound subsystem
-initialised, it was just the gameport that was dead.
+Can you give a trace of a bad case?  The code looks fine to
+me, but if I am shown a specific trace I may be able to see
+the bug.
 
-I resurrected it by cat'ing the following into /proc/isapnp
+Please, this is an issue I have with many bug reports.  The
+text of the report uses a lot of non-specific wording, "SIOCGIFCONF
+with NULL arg gives different results on sparc64 than i386"  That
+is great and gives me the gist of the problem, but without a specific
+trace of arguments and results and a description of what is
+specifically expected in this traced case compared to what actually
+happened, I do a lot of guessing to work on a fix.
 
-card 0 YMH0802
-dev 0 YMH0022
-port 0 0x201
-activate
-
-What does your /proc/isapnp say?
-
-
-
--- 
-Nobody wants constructive criticism.  It's all we can do to put up with
-constructive praise.
-
+Later,
+David S. Miller
+davem@redhat.com

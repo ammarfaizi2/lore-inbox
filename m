@@ -1,86 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130873AbRCMF0A>; Tue, 13 Mar 2001 00:26:00 -0500
+	id <S130902AbRCMFkL>; Tue, 13 Mar 2001 00:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130882AbRCMFZv>; Tue, 13 Mar 2001 00:25:51 -0500
-Received: from toscano.org ([64.50.191.142]:18130 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S130873AbRCMFZj>;
-	Tue, 13 Mar 2001 00:25:39 -0500
-Date: Tue, 13 Mar 2001 00:25:13 -0500
-From: Pete Toscano <pete.lkml@toscano.org>
-To: David DeGeorge <dld@degeorge.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APIC  usb MPS 1.4 and the 2.4.2 kernel
-Message-ID: <20010313002513.A1664@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
-	David DeGeorge <dld@degeorge.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org>
+	id <S130909AbRCMFkB>; Tue, 13 Mar 2001 00:40:01 -0500
+Received: from smtp3.xs4all.nl ([194.109.127.132]:35344 "EHLO smtp3.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S130902AbRCMFjr>;
+	Tue, 13 Mar 2001 00:39:47 -0500
+From: thunder7@xs4all.nl
+Date: Tue, 13 Mar 2001 06:36:55 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: [lkml]Re: Linux 2.4.2ac19
+Message-ID: <20010313063655.A2702@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <E14cYWp-0002Xu-00@the-village.bc.nu> <20010312211917.A2461@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200103130245.f2D2j2J01057@janus.local.degeorge.org>; from dld@degeorge.org on Mon, Mar 12, 2001 at 09:45:02PM -0500
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 12:17am  up 10 min,  3 users,  load average: 0.34, 0.40, 0.23
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010312211917.A2461@werewolf.able.es>; from jamagallon@able.es on Mon, Mar 12, 2001 at 09:19:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 12, 2001 at 09:19:17PM +0100, J . A . Magallon wrote:
+> 
+> On 03.12 Alan Cox wrote:
+> > 
+> > 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> > 
+> 
+> Silly idea: could you put the full path of the bz2 patch instead of only
+> the dir ?
+> 
+I have another idea: would it be possible to start a new tree
+alan/2.4.3/ when the 2.4.3 patches begin? Piling everything in 2.4/
+isn't making things clearer.
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Well, I can't speak for the consequences of noapic (I've wondered as
-much myself), but I know that there's been a problem with SMP 2.4
-kernels (even the 2.4 test kernels) and USB running on VIA chipsets for
-a while now.  I'm told by the linux-usb maintainers that it's a problem
-with the PCI IRQ routing for the VIA chipsets, but I've been unable to
-get anyone who knows about this to do anything (and I've been asking for
-a while).  Alas, since this stuff is beyond me, I just accept the fact
-that it'll probably always be broke.
-
-pete
-
-On Mon, 12 Mar 2001, David DeGeorge wrote:
-
-> I am running 2.4.2 as obtained from redhat, but I have experienced the sa=
-me=20
-> problems with a kernel compiled from the 2.4.2 sources at kernel.org.
-> I am experiencing troubles with enabling MPS 1.4 and USB. I have an ABIT =
-VP6=20
-> motherboard with two stock 733MHz PIIIs.
-> If I set MPS1.1 in the bios then my IOmega Photoshow usb zip drive works,=
- the=20
-> usb interrupt appears on irq 9 and after a day or two I experience  a har=
-d=20
-> (sysreq doesn't work) lock. It seems usb related since doing usb things i=
-.e.=20
-> mounting the drive sometimes cause the lock.
-> If I set MPS1.4 in the bios  then the usb interrupt appears on irq 19, wh=
-ose=20
-> count is alway zero, and the zip drive doesn't get registered. If give th=
-e=20
-> noapic command line then things appear to work, irq=3D9,don't know about =
-the=20
-> hard locks, but booting seems much slower. Of course I can provide much m=
-ore=20
-> information but I wonder is this a common problem and what are the=20
-> consequences of the noapic command?
-> David
-
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6ra85sMikd2rK89sRAoYCAKCHgm0XWr0N6ziVmBHAKfFBkdfZrQCdGprW
-BVLehoiBVeL7c/Rpp56Ev3I=
-=0ohO
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
+Jurriaan
+-- 
+When you stick your fingers in the mains, its not the imaginary component
+which you will feel.
+>From an EIST lecturer
+GNU/Linux 2.4.2-ac19 SMP/ReiserFS 2x1743 bogomips load av: 0.02 0.12 0.08

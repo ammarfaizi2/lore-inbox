@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264948AbTGHAKf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 20:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbTGHAKf
+	id S264916AbTGHAKV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 20:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbTGHAKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 20:10:35 -0400
-Received: from ns.suse.de ([213.95.15.193]:24580 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264948AbTGHAKd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 20:10:33 -0400
-Date: Tue, 8 Jul 2003 02:25:07 +0200
-From: Andi Kleen <ak@suse.de>
-To: Doug McNaught <doug@mcnaught.org>
-Cc: palbrecht@qwest.net, niv@us.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: question about linux tcp request queue handling
-Message-Id: <20030708022507.0c9f439b.ak@suse.de>
-In-Reply-To: <m31xx1swga.fsf@varsoon.wireboard.com>
-References: <3F08858E.8000907@us.ibm.com.suse.lists.linux.kernel>
-	<001a01c3441c$6fe111a0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<3F08B7E2.7040208@us.ibm.com.suse.lists.linux.kernel>
-	<000d01c3444f$e6439600$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<3F090A4F.10004@us.ibm.com.suse.lists.linux.kernel>
-	<001401c344df$ccbc63c0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<p73fzliqa91.fsf@oldwotan.suse.de>
-	<m3brw6rn3m.fsf@varsoon.wireboard.com>
-	<20030708015201.4a5ad7e6.ak@suse.de>
-	<m31xx1swga.fsf@varsoon.wireboard.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 7 Jul 2003 20:10:21 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:51852 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264916AbTGHAKT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 20:10:19 -0400
+Date: Tue, 8 Jul 2003 01:24:44 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Eric Varsanyi <e0216@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: epoll vs stdin/stdout
+Message-ID: <20030708002444.GA12127@mail.jlokier.co.uk>
+References: <20030707154823.GA8696@srv.foo21.com> <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com> <20030707194736.GF9328@srv.foo21.com> <20030707200315.GA10939@mail.jlokier.co.uk> <Pine.LNX.4.55.0307071506560.4704@bigblue.dev.mcafeelabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307071506560.4704@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 Jul 2003 20:17:57 -0400
-Doug McNaught <doug@mcnaught.org> wrote:
+Davide Libenzi wrote:
+> It has to keep (file*, fd) as hashing key. That will work out just fine.
 
+Do you mean epoll has to use (file*,fd) as the hash key?
 
-> Although, I distinctly remember seeing "Net-2" in one of the boot
-> mesages in an early kernel (pre 1.0); was that just the header files'
-> doing?
+> Not even thinking changing the API since it'll break existing apps.
 
-Net-2 was the name for a linux network code release too. The current code is net4
-(actually more net5). But it has nothing to do with the similarly named
-BSD release. 
+Oh, you're right.  I forgot that apps wait for both read & write on
+the same network fd... duh! :)
 
--Andi
+> The above trick will do it. Going to test it ...
+
+Good-oh.
+
+-- Jamie

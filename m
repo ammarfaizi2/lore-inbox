@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129573AbRAFGGI>; Sat, 6 Jan 2001 01:06:08 -0500
+	id <S129324AbRAFHgH>; Sat, 6 Jan 2001 02:36:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbRAFGF6>; Sat, 6 Jan 2001 01:05:58 -0500
-Received: from gandalf.math.uni-mannheim.de ([134.155.88.152]:27142 "EHLO
-	gandalf.math.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S129534AbRAFGFu>; Sat, 6 Jan 2001 01:05:50 -0500
-From: Matthias Juchem <juchem@uni-mannheim.de>
-To: torvalds@transmeta.com
-Subject: [PATCHlet]: removal of redundant line in documentation
-Date: Sat, 6 Jan 2001 06:51:58 +0100
-X-Mailer: KMail [version 1.0.29.2]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01010607054600.01947@gandalf>
-Content-Transfer-Encoding: 7BIT
+	id <S129401AbRAFHf4>; Sat, 6 Jan 2001 02:35:56 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:7940 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129324AbRAFHfl>;
+	Sat, 6 Jan 2001 02:35:41 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: georgek@netwrx1.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 Module compile error 
+In-Reply-To: Your message of "Fri, 05 Jan 2001 11:23:29 MDT."
+             <ek0c5t404dfib22jc6je0dldkj57e07k7d@4ax.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 06 Jan 2001 18:35:33 +1100
+Message-ID: <17981.978766533@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+On Fri, 05 Jan 2001 11:23:29 -0600, 
+George R. Kasica <georgek@netwrx1.com> wrote:
+>>make[1]: Nothing to be done for `modules_install'.
+>>make[1]: Leaving directory `/usr/src/linux-2.4.0/arch/i386/lib'
+>>cd /lib/modules/2.4.0; \
+>>mkdir -p pcmcia; \
+>>find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+>>pcmcia
+>>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.0; fi
+>>depmod: /lib/modules//2.2.18/modules.dep is not an ELF file
+>>depmod: error reading ELF header
 
-Step [7.3] is redundant because it is
-already handled by the ver_linux script
+You have a broken modules.conf that tells depmod to scan _all_ of
+/lib/modules or you have an old version of modules or you have some
+weird symlinks in /lib/modules.  It looks like you have some dangling
+symlinks, although I cannot be certain about that.
 
-This patch is against 2.4.0
-
-Matthias
-
---- REPORTING-BUGS.orig	Sat Jan  6 06:49:12 2001
-+++ REPORTING-BUGS	Sat Jan  6 06:47:57 2001
-@@ -45,11 +45,10 @@
- [7.] Environment
- [7.1.] Software (add the output of the ver_linux script here)
- [7.2.] Processor information (from /proc/cpuinfo):
--[7.3.] Module information (from /proc/modules):
--[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
--[7.5.] PCI information ('lspci -vvv' as root)
--[7.6.] SCSI information (from /proc/scsi/scsi)
--[7.7.] Other information that might be relevant to the problem
-+[7.3.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-+[7.4.] PCI information ('lspci -vvv' as root)
-+[7.5.] SCSI information (from /proc/scsi/scsi)
-+[7.6.] Other information that might be relevant to the problem
-        (please look in /proc and include all information that you
-        think to be relevant):
- [X.] Other notes, patches, fixes, workarounds:
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbTIKUnp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 16:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbTIKUmQ
+	id S261524AbTIKUrF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 16:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbTIKUrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 16:42:16 -0400
-Received: from lidskialf.net ([62.3.233.115]:17127 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S261530AbTIKUln convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 16:41:43 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: jbarnes@sgi.com (Jesse Barnes)
-Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
-Date: Thu, 11 Sep 2003 21:40:08 +0100
-User-Agent: KMail/1.5.3
-Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
-References: <20030909201310.GB6949@sgi.com> <200309102230.29794.adq_dvb@lidskialf.net> <20030910213821.GA17356@sgi.com>
-In-Reply-To: <20030910213821.GA17356@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200309112140.08967.adq_dvb@lidskialf.net>
+	Thu, 11 Sep 2003 16:47:05 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:56722 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261524AbTIKUrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 16:47:00 -0400
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: bill davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <bjqk1p$t9r$1@gatekeeper.tmr.com>
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
+	 <3F60837D.7000209@pobox.com> <20030911162634.64438c7d.ak@suse.de>
+	 <3F6087FC.7090508@pobox.com>  <bjqk1p$t9r$1@gatekeeper.tmr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063313075.3881.4.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Thu, 11 Sep 2003 21:44:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 Sep 2003 10:38 pm, Jesse Barnes wrote:
-> On Wed, Sep 10, 2003 at 10:30:29PM +0100, Andrew de Quincey wrote:
-> > So, exactly as your patch did, you just want it to drop back if there
-> > were no PCI routing entries found by ACPI... sounds sensible enough.
-> >
-> > Can you confirm I have this right?
->
-> Yep, that's it.  The code should do that, but we get there before the
-> list has been initialized, so we just hang.
+On Iau, 2003-09-11 at 20:56, bill davidsen wrote:
+> | When we know at compile time it's not needed, it should not be enabled.
+> 
+> Clearly that's right. This buys nothing on CPUs which don't have the
+> problem, why have *any* overhead in size and speed? It's too bad that
+> people have to read around all that code, they don't need to give it a
+> home in their RAM and execute it as well.
 
-I'm not sure if this is automatically fixed or not yet.
+We have always built kernels that contained the support for older chips.
+A 586 kernel for example is minutely slowed by the fact it will run on
+the Pentium Pro.
 
-With the new patch:
+If someone wants to put in clear "this CPU only" stuff as well then
+fine, but with my distributor hat on I defy you to benchmark the
+difference in the real world between PIV and PIV with 100 bytes of extra
+workaround code.
 
-1) If ACPI fails to parse a table, it disables ACPI, and so disables any 
-attempt to use ACPI for PRT routing.
+You could get that much code back by spending 10 minutes tidying some
+random other piece of code you use, or shortening a couple of printk
+messages.
 
-2) If ACPI is enabled, and enters the function you patched, code further in 
-checks if the routing tables have any entries. If not, it rejects the 
-attempt.
-
->From your patch, I get the impression (1) is what you were patching for.. am I 
-right? In that case, there shouldn't be a problem.
-
+ 

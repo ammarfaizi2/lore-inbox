@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbUJYRfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbUJYRjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbUJYRfB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:35:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbUJYRaB
+	id S261207AbUJYRjd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 13:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUJYRf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 13:30:01 -0400
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:51672 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S261218AbUJYR33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 13:29:29 -0400
-Date: Mon, 25 Oct 2004 13:29:11 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [PATCH 8/28] VFS: Remove MNT_EXPIRE support
-In-reply-to: <417D34D4.3040406@sun.com>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, raven@themaw.net
-Message-id: <417D37E7.8030605@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <10987153211852@sun.com> <10987153522992@sun.com>
- <20041025150446.GB1603@infradead.org> <417D34D4.3040406@sun.com>
+	Mon, 25 Oct 2004 13:35:57 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:61675 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261211AbUJYRcj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:32:39 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [2.6.9] unhandled OHCI IRQs...
+Date: Mon, 25 Oct 2004 10:13:26 -0700
+User-Agent: KMail/1.6.2
+Cc: "Daniel Blueman" <daniel.blueman@gmx.net>, linux-kernel@vger.kernel.org
+References: <16118.1098649213@www5.gmx.net>
+In-Reply-To: <16118.1098649213@www5.gmx.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410251013.26615.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Mike Waychison wrote:
-> Christoph Hellwig wrote:
+On Sunday 24 October 2004 13:20, Daniel Blueman wrote:
+> When plugging in an Epson C62 USB 1.1 printer to my nForce 2 OHCI + EHCI USB
+> controllers, the IRQ doesn't seem to get handled [1]. Tried both with
+> acpi=noirq and without, printer support and full USB support enabled. Kernel
+> is 2.6.9.
 > 
->>>On Mon, Oct 25, 2004 at 10:42:32AM -0400, Mike Waychison wrote:
->>>
->>>
->>>>Drop support for MNT_EXPIRE (flag to umount(2)).  Nobody was using it and it
->>>>didn't fit into the new expiry framework.
->>>
->>>
->>>umm, this is a user API, you can't simply drop it.
->>>
-> 
-> 
-> I also wanted to add that given the current interface that is found in
-> mainline, there is no way for userspace to even set a mountpoint as
-> expiring.  The only consumer is still AFS which handles the
-> mark_mounts_for_expiry stuff itself.
-> 
-> So even if userspace wanted to use MNT_EXPIRE, it couldn't.
-> 
+> Any ideas?
 
-Gah, nevermind. I'm an idiot.
+Make sure your BIOS isn't trying to do any more with USB than just
+enabling the hardware ... or try the new PCI "quirk" flag affecting
+boot-time handling of USB, merged in 2.6.10-rc1.
 
-MNT_EXPIRE allows userspace to do the countdown itself.  For some reason
-I assumed the mount in question had to be on a mnt_fslink list.
+- Dave
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBfTfndQs4kOxk3/MRAo5/AJ42AGwgKaRoEoA1Pto55DClNF3ZFwCfQna8
-02yxxTF3wB30aguYzaumWII=
-=oTA1
------END PGP SIGNATURE-----

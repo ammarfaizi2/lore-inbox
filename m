@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbUKLQn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbUKLQqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbUKLQn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 11:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbUKLQn6
+	id S262583AbUKLQqM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 11:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbUKLQoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 11:43:58 -0500
-Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:11976 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S262576AbUKLQmT
+	Fri, 12 Nov 2004 11:44:16 -0500
+Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:11208 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S262572AbUKLQmP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 11:42:19 -0500
-Date: Sat, 13 Nov 2004 01:42:17 +0900
-Message-ID: <m2hdnvuihi.wl%ysato@users.sourceforge.jp>
+	Fri, 12 Nov 2004 11:42:15 -0500
+Date: Sat, 13 Nov 2004 01:42:12 +0900
+Message-ID: <m2is8buihn.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] CONFIG_UNIX98_PTY=n warning fix
+Subject: [PATCH] H8/300 vmlinux.lds.S update (2nd)
 User-Agent: Wanderlust/2.11.30 (Wonderwall) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.6 (Marutamachi) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,27 +23,97 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+duplicate define section delete.
+fix CONFIG_ROMKERNEL.
+
 Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c	2004-11-13 01:12:50 +09:00
-+++ b/drivers/char/tty_io.c	2004-11-13 01:12:50 +09:00
-@@ -136,6 +136,7 @@
- extern int pty_limit;		/* Config limit on Unix98 ptys */
- static DEFINE_IDR(allocated_ptys);
- static DECLARE_MUTEX(allocated_ptys_lock);
-+static int ptmx_open(struct inode *, struct file *);
+diff -Nru a/arch/h8300/kernel/vmlinux.lds.S b/arch/h8300/kernel/vmlinux.lds.S
+--- a/arch/h8300/kernel/vmlinux.lds.S	2004-11-13 01:12:50 +09:00
++++ b/arch/h8300/kernel/vmlinux.lds.S	2004-11-13 01:12:50 +09:00
+@@ -5,9 +5,9 @@
+ /* target memory map */
+ #ifdef CONFIG_H8300H_GENERIC
+ #define ROMTOP  0x000000
+-#define ROMSIZE 0x200000
+-#define RAMTOP  0x200000
+-#define RAMSIZE 0x200000
++#define ROMSIZE 0x400000
++#define RAMTOP  0x400000
++#define RAMSIZE 0x400000
  #endif
  
- extern void disable_early_printk(void);
-@@ -147,7 +148,6 @@
- ssize_t redirected_tty_write(struct file *, const char __user *, size_t, loff_t *);
- static unsigned int tty_poll(struct file *, poll_table *);
- static int tty_open(struct inode *, struct file *);
--static int ptmx_open(struct inode *, struct file *);
- static int tty_release(struct inode *, struct file *);
- int tty_ioctl(struct inode * inode, struct file * file,
- 	      unsigned int cmd, unsigned long arg);
+ #ifdef CONFIG_H8300H_AKI3068NET
+@@ -26,16 +26,16 @@
+ 
+ #ifdef CONFIG_H8300H_SIM
+ #define ROMTOP  0x000000
+-#define ROMSIZE 0x200000
+-#define RAMTOP  0x200000
+-#define RAMSIZE 0x200000
++#define ROMSIZE 0x400000
++#define RAMTOP  0x400000
++#define RAMSIZE 0x400000
+ #endif
+ 
+ #ifdef CONFIG_H8S_SIM
+ #define ROMTOP  0x000000
+-#define ROMSIZE 0x200000
+-#define RAMTOP  0x200000
+-#define RAMSIZE 0x200000
++#define ROMSIZE 0x400000
++#define RAMTOP  0x400000
++#define RAMSIZE 0x800000
+ #endif
+ 
+ #ifdef CONFIG_H8S_EDOSK2674
+@@ -51,6 +51,8 @@
+ 
+ _jiffies = _jiffies_64 + 4;
+ 
++ENTRY(__start)
++	
+ SECTIONS
+ {
+ #if defined(CONFIG_ROMKERNEL)
+@@ -81,10 +83,8 @@
+ 	___start___ex_table = .;
+ 		*(__ex_table)
+ 	___stop___ex_table = .;
+-
+-        ___start___ksymtab = .;  /* Kernel symbol table          */
+-		 *(__ksymtab)
+ 	}
++	
+ 	RODATA
+ #if defined(CONFIG_ROMKERNEL)
+ 	SECURITY_INIT
+@@ -143,10 +143,7 @@
+ #if defined(CONFIG_RAMKERNEL)
+ 	SECURITY_INIT
+ #endif
+-	__begin_data = LOADADDR(.data) ;
+-#if defined(CONFIG_ROMKERNEL)
+-	__erom = LOADADDR(.data) + SIZEOF(.data) ;
+-#endif
++	__begin_data = LOADADDR(.data);
+         .bss : 
+         {
+ 	. = ALIGN(0x4) ;
+@@ -162,12 +159,11 @@
+ 	/DISCARD/ : {
+ 		*(.exitcall.exit)
+ 	}
+-
+         .romfs :	
+ 	{
+ 		*(.romfs*)
+ 	}
+-	. = RAMTOP+RAMSIZE; 
++	. = RAMTOP+RAMSIZE;
+         .dummy :
+         {
+ 	COMMAND_START = . - 0x200 ;
 
 -- 
 Yoshinori Sato

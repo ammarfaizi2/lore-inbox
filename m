@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132356AbQK0Cac>; Sun, 26 Nov 2000 21:30:32 -0500
+        id <S132434AbQK0Cgd>; Sun, 26 Nov 2000 21:36:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132467AbQK0CaX>; Sun, 26 Nov 2000 21:30:23 -0500
-Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:46588
-        "EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-        id <S132356AbQK0CaM>; Sun, 26 Nov 2000 21:30:12 -0500
-Date: Sun, 26 Nov 2000 18:58:56 -0700
-From: Tom Rini <trini@kernel.crashing.org>
+        id <S135321AbQK0CgY>; Sun, 26 Nov 2000 21:36:24 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:15623 "EHLO
+        pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+        id <S132434AbQK0CgM>; Sun, 26 Nov 2000 21:36:12 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: David Ford <david@linux.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] modutils 2.3.20 and beyond
-Message-ID: <20001126185856.F872@opus.bloom.county>
-In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org> <3A21968B.5CDB12BF@haque.net> <20001126170334.B1787@vger.timpanogas.org> <3A21A7D9.9CE7077B@linux.com> <20001126194643.E2265@vger.timpanogas.org>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: initdata for modules? 
+In-Reply-To: Your message of "Sun, 26 Nov 2000 19:49:43 PDT."
+             <20001126194943.F2265@vger.timpanogas.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001126194643.E2265@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sun, Nov 26, 2000 at 07:46:43PM -0700
+Date: Mon, 27 Nov 2000 13:06:04 +1100
+Message-ID: <3478.975290764@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 07:46:43PM -0700, Jeff V. Merkey wrote:
+On Sun, 26 Nov 2000 19:49:43 -0700, 
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
+>Microsoft drivers have an .INIT code section that is initialization 
+>ccode that get's chunked after it's loaded.  Their model allows 
+>memory segments to be defined as DISCARDABLE, which tells the loader
+>to chunk them after they get loaded in portable executable format.  
 
-> Anaconda is open sourced, so it's not technically tied to any one 
-> distributor any more....
-<NIT>
-Technically, yes it is opensourced.  But one of the things that does kinda
-distinguish one distro from another is the installer[1].
-</NIT>
-So yes, it is opensource.  So, counter-question.  Why should this non
-distro owned program require a specific distro's program? :)   But this all
-of course a moot point.
+The loader is insmod, which does all its own reloaction and loading.
+The problem is that ancillary tools like ksymoops, gdb, kdb and
+possibly others do not expect sections to be discarded after load.
+Adding the feature to insmod is fairly easy, fixing the ancillary tools
+to understand that some sections are discarded after load is a bit
+harder.  Debugging is particularly messy, when an oops occurs how do we
+tell if the __init data been discarded yet or not?
 
-[1] The sum difference between YellowDogLinux 1.0, LinuxPPC, Inc 1999 and
-LinuxPPC Reference Release was that two changed/help port the installer the
-3rd did, which was RedHat's newt-based installer.  Some confusion ensused.
+I have added this to my investigation list for modutils, ksymoops and
+kdb 2.5, no promises.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

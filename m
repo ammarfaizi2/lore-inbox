@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130999AbRBTX2L>; Tue, 20 Feb 2001 18:28:11 -0500
+	id <S129107AbRBTXck>; Tue, 20 Feb 2001 18:32:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131018AbRBTX2A>; Tue, 20 Feb 2001 18:28:00 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:18926
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S130999AbRBTX1u>; Tue, 20 Feb 2001 18:27:50 -0500
-Date: Tue, 20 Feb 2001 16:25:20 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        alan@redhat.com
-Subject: Re: [PATCH] make nfsroot accept server addresses from BOOTP root
-Message-ID: <20010220162520.D5639@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.30.0102201248290.1614-100000@today.toronto.redhat.com> <200102202302.f1KN2B423460@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <200102202302.f1KN2B423460@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Feb 20, 2001 at 11:02:10PM +0000
+	id <S131079AbRBTXcV>; Tue, 20 Feb 2001 18:32:21 -0500
+Received: from oboe.it.uc3m.es ([163.117.139.101]:45585 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S129107AbRBTXcL>;
+	Tue, 20 Feb 2001 18:32:11 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200102202332.f1KNW8S02052@oboe.it.uc3m.es>
+Subject: Re: plugging in 2.4. Does it work?
+In-Reply-To: <20010220235813.B811@suse.de> from "Jens Axboe" at "Feb 20, 2001
+ 11:58:13 pm"
+To: "Jens Axboe" <axboe@suse.de>
+Date: Wed, 21 Feb 2001 00:32:08 +0100 (MET)
+CC: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 20, 2001 at 11:02:10PM +0000, Russell King wrote:
-> Ben LaHaise writes:
-> > Yeah, that's the problem I was trying to work around, mostly because the
-> > docs on dhcpd are sufficiently vague and obscure.  Personally, I don't
-> > actually need tftp support, so I've just configured the system to now
-> > point at the NFS server.  For anyone who cares, the last patch was wrong,
-> > this one is right.
-> 
-> This is the dhcp entry for a host that I use to tftp a kernel from a 
-> different machine to that running dhcpd:
-> 
->                 host tasslehoff
->                 {
->                         hardware ethernet       00:10:57:00:03:EC;
->                         fixed-address           tasslehoff;
->                         next-server             raistlin;
->                         filename                "/usr/src/k/tasslehoff";
->                 }
-> 
-> The booting host is called "tasslehoff".  The tftp server host is called
-> "raistlin", and the dhcp server is called "flint".
-> 
-> According to Tom, this should also cause Linux to nfs mount from the
-> "next-server" address, and it is fair that this is not documented by
-> the dhcp man pages since it appears to be a Linux Kernel quirk.
+"A month of sundays ago Jens Axboe wrote:"
+> Forgot to mention that the above doesn't make much sense at all. If
+> there are no errors, you loop through ending all the buffers. Then
 
-Well, assuming next-server gets translated into TFTP server by the
-dhcp-doing-bootp bit, yes.  I'm using that right now to bootp on
-one box and NFS off another.
+Yes, that's right, thanks. I know I do one more end_that_request_first
+than is necessary, but it is harmless as there is a guard in the 
+kernel code. At least, it's harmless until someone removes that guard.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+It is like that because I added the while loop to the front of the code I
+already had working when I decided to try plugging.
+
+> you fall through and end the the first (non-existant) chunk? And
+> end_that_request_first does not need to hold the io_request_lock,
+> you can move that down to protect end_that_request_last.
+
+OK, thanks!
+
+Peter

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262138AbREPXcw>; Wed, 16 May 2001 19:32:52 -0400
+	id <S262139AbREPXdc>; Wed, 16 May 2001 19:33:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262139AbREPXcn>; Wed, 16 May 2001 19:32:43 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51716 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262138AbREPXc3>; Wed, 16 May 2001 19:32:29 -0400
-Message-ID: <3B030DDE.B4E7B0CC@transmeta.com>
-Date: Wed, 16 May 2001 16:31:42 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S262141AbREPXdY>; Wed, 16 May 2001 19:33:24 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23821 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262139AbREPXc6>; Wed, 16 May 2001 19:32:58 -0400
+Subject: Re: RH 7.1 on IBM xSeries 240
+To: ps@rzeczpospolita.pl (ps)
+Date: Thu, 17 May 2001 00:29:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B02504E.8F8926AB@rzeczpospolita.pl> from "ps" at May 16, 2001 12:02:54 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jonathan Lundell <jlundell@pobox.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E150AgG-0004bb-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E150Aju-0004cH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Are FireWire (and USB) disks always detected in the same order? Or does it
-> > behave like ADB, where you never know which mouse/keyboard is which
-> > mouse/keyboard?
-> 
-> USB disks are required (haha etc) to have serial numbers. Firewire similarly
-> has unique disk identifiers.
-> 
+> hm, page 0009f000 reserved twice.
+> hm, page 000a0000 reserved twice.
+> WARNING: MP table in the EBDA can be UNSAFE
 
-How about for other device classes?
+These are ok...
 
-	-hpa
+> ENABLING IO-APIC IRQs
+> ...changing IO-APIC physical APIC ID to 14 ... ok.
+> BIOS bug, IO-APIC#1 ID is 15 in the MPC table!...
+> ... fixing up to 15. (tell your hw vendor)
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Your BIOS tables seemed wrong..
+
+> mtrr: your CPUs had inconsistent fixed MTRR settings
+> mtrr: probably your BIOS does not setup all CPUs
+
+And your BIOS fails to set up the MTRR's properly. These are real BIOS 
+mistakes. They are ones Linux however took corrective action on.

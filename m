@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263927AbRF1TXt>; Thu, 28 Jun 2001 15:23:49 -0400
+	id <S263967AbRF1T1J>; Thu, 28 Jun 2001 15:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263967AbRF1TXj>; Thu, 28 Jun 2001 15:23:39 -0400
-Received: from [216.21.153.1] ([216.21.153.1]:50961 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S263927AbRF1TXa>;
-	Thu, 28 Jun 2001 15:23:30 -0400
-Date: Thu, 28 Jun 2001 12:25:09 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
+	id <S264071AbRF1T07>; Thu, 28 Jun 2001 15:26:59 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:33031 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263967AbRF1T0u>; Thu, 28 Jun 2001 15:26:50 -0400
+Date: Thu, 28 Jun 2001 12:25:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Patrick Dreker <patrick@dreker.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
+cc: Patrick Dreker <patrick@dreker.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>, <jffs-dev@axis.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: Cosmetic JFFS patch.
 In-Reply-To: <3B3B7EC4.F4C8F2F0@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10106281224250.26067-100000@innerfire.net>
+Message-ID: <Pine.LNX.4.33.0106281218550.15199-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, Jeff Garzik wrote:
 
-> Linus Torvalds wrote:
-> > Things like version strings etc sound useful, but the fact is that the
-> > only _real_ problem it has ever solved for anybody is when somebody thinks
-> > they install a new kernel, and forgets to run "lilo" or something. But
-> > even that information you really get from a simple "uname -a".
-> > 
-> > Do we care that when you boot kernel-2.4.5 you get "net-3"? No. Do we care
-> > that we have quota version "dquot_6.4.0"? No. Do we want to get the
-> > version printed for every single driver we load? No.
-> > 
-> > If people care about version printing, it (a) only makes sense for modules
-> > and (b) should therefore maybe be done by the module loader. And modules
-> > already have the MODULE_DESCRIPTION() thing, so they should NOT printk it
-> > on their own.  modprobe can do it if it wants to.
-> 
+On Thu, 28 Jun 2001, Jeff Garzik wrote:
+>
 > As Alan said, driver versions are incredibly useful.  People use update
 > their drivers over top of kernel drivers all the time.  Vendors do it
 > too.  "Run dmesg and e-mail me the output" is 1000 times more simple for
 > end users.
 
-Why not a generic way to query the drivers for version info from
-userspace?
- 
-	Gerhard
+Fair enough. Especially as "dmesg" will output even the debugging messages
+that do not actually end up being printed on the screen unless explicitly
+asked for.
 
---
-Gerhard Mack
+I'd also like to acknowledge the fact that at bootup it's usually very
+nice to see "what was the last message it printed before it hung", and
+that there's a fair reason for drivers to print out a single line of "I
+just registered myself" for that reason. If that line happens to contain a
+version string, all the better.
 
-gmack@innerfire.net
+And if the user has to boot with "debug" to see all the information when
+the machine hangs at bootup (when you can't just mail dmesg), that's
+probably acceptable.
 
-<>< As a computer I find your faith in technology amusing.
+		Linus
 

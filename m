@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319541AbSIMHfe>; Fri, 13 Sep 2002 03:35:34 -0400
+	id <S319543AbSIMHfg>; Fri, 13 Sep 2002 03:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319545AbSIMHfe>; Fri, 13 Sep 2002 03:35:34 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:24072
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319541AbSIMHfd>; Fri, 13 Sep 2002 03:35:33 -0400
-Subject: Re: [PATCH] kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y]
-From: Robert Love <rml@tech9.net>
-To: Robert Love <rml@tech9.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Steven Cole <elenstev@mesatop.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>, Steven Cole <scole@lanl.gov>
-In-Reply-To: <1031902595.4433.125.camel@phantasy>
-References: <Pine.LNX.4.44.0209130914190.28568-100000@localhost.localdomain> 
-	<1031902595.4433.125.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 13 Sep 2002 03:40:25 -0400
-Message-Id: <1031902825.4429.130.camel@phantasy>
+	id <S319545AbSIMHfg>; Fri, 13 Sep 2002 03:35:36 -0400
+Received: from isis.telemach.net ([213.143.65.10]:17424 "HELO
+	isis.telemach.net") by vger.kernel.org with SMTP id <S319543AbSIMHfe>;
+	Fri, 13 Sep 2002 03:35:34 -0400
+Date: Fri, 13 Sep 2002 09:35:29 +0200
+From: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
+To: linux-kernel@vger.kernel.org
+Subject: NTFS errors
+Message-Id: <20020913093529.517f6d14.Gregor.Fajdiga@telemach.net>
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-13 at 03:36, Robert Love wrote:
+Good day,
 
-> -	if (unlikely(in_atomic()))
-> -		BUG();
-> +	if (unlikely(in_atomic() && preempt_count() != PREEMPT_ACTIVE)) {
-> +		printk(KERN_ERROR "schedule() called while non-atomic!\n");
-> +		show_stack(NULL);
-> +	}
+I am using lk 2.4.19 + a NTFS 2.1.0 patch. Once in a while I get
+lots of these errors:
 
-Actually, looking at this again, we probably want to still BUG() if
-in_interrupt() but _not_ if in_atomic().
+Sep 10 09:24:27 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
+Sep 12 09:39:29 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
+Sep 13 09:19:28 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
+Sep 13 09:20:22 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
 
-	Robert Love
 
+Are these errors serious? How can I get rid of them?
+
+Best Regards,
+
+Grega Fajdiga

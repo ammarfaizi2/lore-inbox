@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271369AbTHHO3d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 10:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271367AbTHHO3c
+	id S271383AbTHHOhz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 10:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271384AbTHHOhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 10:29:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28588 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271369AbTHHO31
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 10:29:27 -0400
-Message-ID: <3F33B3B9.7030905@pobox.com>
-Date: Fri, 08 Aug 2003 10:29:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Fri, 8 Aug 2003 10:37:55 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:34703 "HELO
+	develer.com") by vger.kernel.org with SMTP id S271383AbTHHOhx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 10:37:53 -0400
+Message-ID: <3F33B5B5.6050705@develer.com>
+Date: Fri, 08 Aug 2003 16:37:41 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Mark Watts <m.watts@eris.qinetiq.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Innovision EIO DM-8301H/R SATA cards...
-References: <200308081408.16564.m.watts@eris.qinetiq.com> <3F33A3EB.9030108@pobox.com> <200308081511.28238.m.watts@eris.qinetiq.com>
-In-Reply-To: <200308081511.28238.m.watts@eris.qinetiq.com>
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Nicolas Pitre <nico@cam.org>, Willy Tarreau <willy@w.ods.org>,
+       Christoph Hellwig <hch@lst.de>, lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase
+References: <Pine.LNX.4.44.0307281307480.6507-100000@xanadu.home>	 <200307290102.01313.bernie@develer.com> <1060349104.25209.364.camel@passion.cambridge.redhat.com>
+In-Reply-To: <1060349104.25209.364.camel@passion.cambridge.redhat.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Watts wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+David Woodhouse wrote:
+> On Tue, 2003-07-29 at 00:02, Bernardo Innocenti wrote:
 > 
+>>I've read in the Kconfig help that JFFS2 still depends on mtdblock even
+>>though it doesn't use it for I/O. I think I've also seen some promise
+>>that this dependency will eventually be removed...
 > 
-> 
->>Mark Watts wrote:
->>
->>>-----BEGIN PGP SIGNED MESSAGE-----
->>>Hash: SHA1
->>>
->>>
->>>My local supplier has started doing some SATA cards....
->>>
->>>http://www.ivmm.com/eio/products_sata_pci_host.html
->>>
->>>
->>>The chip on the board i the screenshot looks vaguely like a Silicon Image
->>>chip - - am I correct in thinking that these are supported in linux?
->>
->>If they are Silicon Image, yes, they are supported.
-> 
-> 
-> Great stuff - can someone confirm whether I still need to do the folloing for 
-> the latest 2.4.22 kernels in order to get good performance?
-> 
-> # hdparm -d1 -X66 /dev/hdX
-> # echo "max_kb_per_request:15" > /proc/.ide/hdX/settings
+> It's already been removed from everything but the Kconfig file... :)
 
+So, let's try to remove the block layer from the kernel.
+Do you reckon it would be difficult to do?
 
-I have no idea :(   I'm off in libata land, which will soon support 
-Silicon Image SATA as well...
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-	Jeff
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
 
 
 

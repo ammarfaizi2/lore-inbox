@@ -1,86 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVANFsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVANFvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVANFsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 00:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVANFsZ
+	id S261326AbVANFvy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 00:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVANFvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 00:48:25 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:38283 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261187AbVANFsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 00:48:19 -0500
-Date: Thu, 13 Jan 2005 22:48:03 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Dave <dave.jiang@gmail.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
-       drew.moseley@intel.com, mporter@kernel.crashing.org
-Subject: Re: [PATCH 2/5] Convert resource to u64 from unsigned long
-Message-ID: <20050114054803.GA22715@schnapps.adilger.int>
-Mail-Followup-To: Dave <dave.jiang@gmail.com>, akpm@osdl.org,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org, smaurer@teja.com,
-	linux@arm.linux.org.uk, dsaxena@plexity.net, drew.moseley@intel.com,
-	mporter@kernel.crashing.org
-References: <8746466a050113152843f32a2f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-In-Reply-To: <8746466a050113152843f32a2f@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Fri, 14 Jan 2005 00:51:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20373 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261326AbVANFvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 00:51:52 -0500
+Message-ID: <41E75DE5.4020108@pobox.com>
+Date: Fri, 14 Jan 2005 00:51:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mitch Sako <msako@cadence.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: libata 2.6.10 limitation?
+References: <6.1.2.0.2.20050113163537.03cb9208@mailhub>
+In-Reply-To: <6.1.2.0.2.20050113163537.03cb9208@mailhub>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mitch Sako wrote:
+> 
+>> Is there a limitation to the number of SATA drives for libata that can 
+>> be loaded to a 32bit Intel machine running 2.6.10?  I'm trying to 
+>> setup six JBOD drives using 3 Promise cards or 3 Silicon Image cards 
+>> or 2 Promise TX4 cards and I'm seeing a problem with /dev/sde (the 
+>> fifth drive out of six) only.  I'm getting SCSI errors and machine 
+>> hangs on the fifth drive only.
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There is no limitation to the number of cards or devices.
 
-On Jan 13, 2005  16:28 -0700, Dave wrote:
-> Fixed some of the drivers as example just to get working on i386.
-> +     /*
-> +      * FIXME: apparently ia32 does not have u64 divide implementation
-> +      * we cast the pci_resource_len to u32 for the time being
-> +      * this probably should be fixed to support u64 for ia32
-> +      * and other archs that do not have u64 divide
-> +      */
-> +#if BIS_PER_LONG =3D=3D 64
->       maxnr =3D (pci_resource_len(dev, bar) - board->first_offset) /
->               (8 << board->reg_shift);
-> +#else
-> +     maxnr =3D ((u32)pci_resource_len(dev, bar) - board->first_offset) /
-> +             (8 << board->reg_shift);
-> +#endif
-                                                                           =
-    =20
-One of the reasons that ia32 doesn't support 64-bit divide directly is
-because it is a big red flag that you are probably doing something wrong.
-This is a prime example - why do a divide when you could do a shift:
-                                                                           =
-    =20
-        maxnr =3D (pci_resource_len(dev, bar) - board->first_offset) >>
-                (board->reg_shift + 3);
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+	Jeff
 
 
---tKW2IUtsqtDRztdT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFB510TpIg59Q01vtYRAoScAKCJhUt6/7oX1nRp2IpEpTbjj/c5FACgi7k+
-vD/2AsUEf3embuTy7jh7qFE=
-=6i7u
------END PGP SIGNATURE-----
-
---tKW2IUtsqtDRztdT--

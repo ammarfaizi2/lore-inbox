@@ -1,74 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbUKQXuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUKQX5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbUKQXuP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 18:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUKQWEC
+	id S262605AbUKQX5j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 18:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbUKQX4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 17:04:02 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:12548 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S262600AbUKQVEv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 16:04:51 -0500
-Date: Wed, 17 Nov 2004 16:01:22 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com, jgarzik@pobox.com, akpm@osdl.org
-Subject: [patch 2.6.10-rc2] 3c59x: reload EEPROM values at rmmod for needy cards
-Message-ID: <20041117160122.A4824@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	jgarzik@pobox.com, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Wed, 17 Nov 2004 18:56:35 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:53900 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262554AbUKQXxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 18:53:35 -0500
+Date: Wed, 17 Nov 2004 15:52:38 -0800
+From: Mitch Williams <mitch.a.williams@intel.com>
+X-X-Sender: mawilli1@mawilli1-desk2.amr.corp.intel.com
+To: David Smithson <david@customfilmeffects.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       "Williams, Mitch A" <mitch.a.williams@intel.com>,
+       bonding-devel@lists.sourceforge.net, fubar@us.ibm.com,
+       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Bonding-devel] Re: [PATCH] Fix for 802.3ad shutdown issue
+In-Reply-To: <1100728931.26492.9.camel@localhost>
+Message-ID: <Pine.CYG.4.58.0411171550570.3284@mawilli1-desk2.amr.corp.intel.com>
+References: <F3EE2A9EB4576F40AFE238EC0AC04BC504191A10@orsmsx402.amr.corp.intel.com>
+ <20041102134303.44e715da.akpm@osdl.org> <1100728931.26492.9.camel@localhost>
+ReplyTo: "Mitch Williams" <mitch.a.williams@intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Enable reload of EEPROM values in reset at rmmod for cards that need
-it, similar to old EEPROM_NORESET flag but in reverse.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-3c905 cards need an additional bit unmasked in the reset at rmmod or
-else they don't get reinitialized properly when the driver is reloaded.
 
-This is a repost -- the previous patch appears to have been lost
-in the shuffle.  This is the combination of the two patches posted
-previously regarding EEPROM_NORESET.
+On Wed, 17 Nov 2004, David Smithson wrote:
 
- drivers/net/3c59x.c |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+>
+> Hi all.  Where could I get my hands on a nicely-formatted version of
+> this patch?  I'm looking to patch my FC3 2.6.9 kernel.
+>
 
---- 3c59x-reset-2.6/drivers/net/3c59x.c.orig
-+++ 3c59x-reset-2.6/drivers/net/3c59x.c
-@@ -417,7 +417,7 @@ enum {	IS_VORTEX=1, IS_BOOMERANG=2, IS_C
- 	HAS_PWR_CTRL=0x20, HAS_MII=0x40, HAS_NWAY=0x80, HAS_CB_FNS=0x100,
- 	INVERT_MII_PWR=0x200, INVERT_LED_PWR=0x400, MAX_COLLISION_RESET=0x800,
- 	EEPROM_OFFSET=0x1000, HAS_HWCKSM=0x2000, WNO_XCVR_PWR=0x4000,
--	EXTRA_PREAMBLE=0x8000, };
-+	EXTRA_PREAMBLE=0x8000, EEPROM_RESET=0x10000, };
- 
- enum vortex_chips {
- 	CH_3C590 = 0,
-@@ -505,9 +505,9 @@ static struct vortex_chip_info {
- 	{"3c900B-FL Cyclone 10base-FL",
- 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
- 	{"3c905 Boomerang 100baseTx",
--	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|HAS_MII, 64, },
-+	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|HAS_MII|EEPROM_RESET, 64, },
- 	{"3c905 Boomerang 100baseT4",
--	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|HAS_MII, 64, },
-+	 PCI_USES_IO|PCI_USES_MASTER, IS_BOOMERANG|HAS_MII|EEPROM_RESET, 64, },
- 	{"3c905B Cyclone 100baseTx",
- 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_NWAY|HAS_HWCKSM|EXTRA_PREAMBLE, 128, },
- 
-@@ -3169,7 +3169,8 @@ static void __devexit vortex_remove_one 
- 			pci_restore_state(VORTEX_PCI(vp));
+Sorry for the mangling, David.  Here's the patch, hopefully looking a
+little better now that I've figured out how get Pine talking through our
+corporate net.
+-Mitch Williams
+
+
+diff -uprN -X dontdiff linux/drivers/net/bonding/bonding.h linux-2.6.9/drivers/net/bonding/bonding.h
+--- linux/drivers/net/bonding/bonding.h	2004-10-18 14:53:44.000000000 -0700
++++ linux-2.6.9/drivers/net/bonding/bonding.h	2004-10-29 14:01:14.000000000 -0700
+@@ -36,8 +36,8 @@
+ #include "bond_3ad.h"
+ #include "bond_alb.h"
+
+-#define DRV_VERSION	"2.6.0"
+-#define DRV_RELDATE	"January 14, 2004"
++#define DRV_VERSION	"2.6.1"
++#define DRV_RELDATE	"October 29, 2004"
+ #define DRV_NAME	"bonding"
+ #define DRV_DESCRIPTION	"Ethernet Channel Bonding Driver"
+
+diff -uprN -X dontdiff linux/drivers/net/bonding/bond_main.c linux-2.6.9/drivers/net/bonding/bond_main.c
+--- linux/drivers/net/bonding/bond_main.c	2004-10-18 14:55:21.000000000 -0700
++++ linux-2.6.9/drivers/net/bonding/bond_main.c	2004-10-29 14:01:37.000000000 -0700
+@@ -469,6 +469,13 @@
+  *	  * Add support for VLAN hardware acceleration capable slaves.
+  *	  * Add capability to tag self generated packets in ALB/TLB modes.
+  *	  Set version to 2.6.0.
++ * 2004/10/29 - Mitch Williams <mitch.a.williams at intel dot com>
++ *      - Fixed bug when unloading module while using 802.3ad.  If
++ *        spinlock debugging is turned on, this causes a stack dump.
++ *        Solution is to move call to dev_remov_pack outside of the
++ *        spinlock.
++ *        Set version to 2.6.1.
++ *
+  */
+
+ //#define BONDING_DEBUG 1
+@@ -3566,15 +3573,15 @@ static int bond_close(struct net_device
+ {
+ 	struct bonding *bond = bond_dev->priv;
+
+-	write_lock_bh(&bond->lock);
+-
+-	bond_mc_list_destroy(bond);
+-
+ 	if (bond->params.mode == BOND_MODE_8023AD) {
+ 		/* Unregister the receive of LACPDUs */
+ 		bond_unregister_lacpdu(bond);
  	}
- 	/* Should really use issue_and_wait() here */
--	outw(TotalReset|0x14, dev->base_addr + EL3_CMD);
-+	outw(TotalReset | ((vp->drv_flags & EEPROM_RESET) ? 0x04 : 0x14),
-+	     dev->base_addr + EL3_CMD);
- 
- 	pci_free_consistent(pdev,
- 						sizeof(struct boom_rx_desc) * RX_RING_SIZE
+
++	write_lock_bh(&bond->lock);
++
++	bond_mc_list_destroy(bond);
++
+ 	/* signal timers not to re-arm */
+ 	bond->kill_timers = 1;
+

@@ -1,136 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTHZMmx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 08:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263689AbTHZMmx
+	id S263659AbTHZNF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 09:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbTHZNF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 08:42:53 -0400
-Received: from zero.aec.at ([193.170.194.10]:35594 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263633AbTHZMmt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 08:42:49 -0400
-Date: Tue, 26 Aug 2003 14:40:52 +0200
-From: Andi Kleen <ak@muc.de>
-To: discuss@x86-64.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, andrew.grover@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Compile fix for ACPI in 2.4.22/x86-64
-Message-ID: <20030826124052.GA13495@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Tue, 26 Aug 2003 09:05:26 -0400
+Received: from gate.perex.cz ([194.212.165.105]:63501 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S263689AbTHZNFW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 09:05:22 -0400
+Date: Tue, 26 Aug 2003 15:03:51 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Strange memory usage reporting
+In-Reply-To: <yw1xad9w1uj5.fsf@users.sourceforge.net>
+Message-ID: <Pine.LNX.4.44.0308261459180.29234-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 26 Aug 2003, [iso-8859-1] Måns Rullgård wrote:
 
-Marcelo unfortunately added an last minute ACPI update that changed
-ACPI interfaces and broke x86-64 compilation. I didn't catch it in
-time, so 2.4.22 does not compile out of the box for AMD64. 
+> I was a little surprised to see top tell me this:
+> 
+>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND           
+> 10642 mru       11   0 23200  81m 2740 S  0.0 37.0   0:00.07 tcvp              
+> 
+> It didn't make sense that RES > VIRT, so I check /proc/pid/*.  Their
+> contents are below.  Am I missing something?  Note that they are not
+> consistent with the 'top' line above, since they were copied at a
+> different time.  The effect is easily reproducible.  It happens every
+> time I run my music player with using ALSA.
 
-This patch fixes it.
-You'll have to apply it when compiling 2.4.22 for x86-64
+I have exactly same behaviour with 2.4.21 kernel. It seems that VmRSS
+grows with the mmap2 syscalls although appropriate munmap is called. I'm
+investigating a possible problem with the memory accounting.
 
--Andi
+						Jaroslav
 
-----------
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 
-Update x86-64 for the ACPI interrupt link changes.
-
-diff -u linux/arch/x86_64/kernel/io_apic.c-LINK linux/arch/x86_64/kernel/io_apic.c
---- linux/arch/x86_64/kernel/io_apic.c-LINK	2003-08-22 12:29:21.000000000 +0200
-+++ linux/arch/x86_64/kernel/io_apic.c	2003-08-22 12:38:16.000000000 +0200
-@@ -1762,7 +1762,7 @@
- }
- 
- 
--int io_apic_set_pci_routing (int ioapic, int pin, int irq)
-+int io_apic_set_pci_routing (int ioapic, int pin, int irq, int edge_level ,int active_high_low)
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-@@ -1785,18 +1785,21 @@
- 	entry.dest_mode = INT_DELIVERY_MODE;
- 	entry.dest.logical.logical_dest = TARGET_CPUS;
- 	entry.mask = 1;					 /* Disabled (masked) */
--	entry.trigger = 1;				   /* Level sensitive */
--	entry.polarity = 1;					/* Low active */
-+	entry.trigger = edge_level;	
-+	entry.polarity = active_high_low;
- 
- 	add_pin_to_irq(irq, ioapic, pin);
- 
- 	entry.vector = assign_irq_vector(irq);
- 
- 	printk(KERN_DEBUG "IOAPIC[%d]: Set PCI routing entry (%d-%d -> 0x%x -> "
--		"IRQ %d)\n", ioapic, 
--		mp_ioapics[ioapic].mpc_apicid, pin, entry.vector, irq);
-+		"IRQ %d) Mode:%i Active:%i\n", ioapic, 
-+		mp_ioapics[ioapic].mpc_apicid, pin, entry.vector, irq, edge_level, active_high_low);
- 
--	irq_desc[irq].handler = &ioapic_level_irq_type;
-+	if (edge_level)
-+		irq_desc[irq].handler = &ioapic_level_irq_type;
-+	else
-+		irq_desc[irq].handler = &ioapic_edge_irq_type;
- 
- 	set_intr_gate(entry.vector, interrupt[irq]);
- 
-diff -u linux/arch/x86_64/kernel/mpparse.c-LINK linux/arch/x86_64/kernel/mpparse.c
---- linux/arch/x86_64/kernel/mpparse.c-LINK	2003-08-22 12:29:21.000000000 +0200
-+++ linux/arch/x86_64/kernel/mpparse.c	2003-08-22 12:29:25.000000000 +0200
-@@ -923,7 +923,7 @@
- 
- 	ioapic_pin = irq - mp_ioapic_routing[ioapic].irq_start;
- 
--	io_apic_set_pci_routing(ioapic, ioapic_pin, irq);
-+	io_apic_set_pci_routing(ioapic, ioapic_pin, irq, 1, 1);
- }
- 
- #endif /*CONFIG_ACPI_HT_ONLY*/
-@@ -939,6 +939,8 @@
- 	int			ioapic_pin = 0;
- 	int			irq = 0;
- 	int			idx, bit = 0;
-+	int			edge_level = 0;
-+	int			active_high_low = 0;
- 
- 	/*
- 	 * Parsing through the PCI Interrupt Routing Table (PRT) and program
-@@ -949,11 +951,14 @@
- 
- 		/* Need to get irq for dynamic entry */
- 		if (entry->link.handle) {
--			irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index);
-+			irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index, &edge_level, &active_high_low);
- 			if (!irq)
- 				continue;
--		} else
-+		} else {
-+			edge_level = 1;
-+			active_high_low = 1;
- 			irq = entry->link.index;
-+		}
- 
- 		irq = entry->link.index;
- 		ioapic = mp_find_ioapic(irq);
-@@ -983,7 +988,7 @@
- 
- 		mp_ioapic_routing[ioapic].pin_programmed[idx] |= (1<<bit);
- 
--		vector = io_apic_set_pci_routing(ioapic, ioapic_pin, irq);
-+		vector = io_apic_set_pci_routing(ioapic, ioapic_pin, irq, edge_level, active_high_low);
- 		if (vector)
- 			entry->irq = irq;
- 
-diff -u linux/include/asm-x86_64/io_apic.h-LINK linux/include/asm-x86_64/io_apic.h
---- linux/include/asm-x86_64/io_apic.h-LINK	2003-08-22 12:29:21.000000000 +0200
-+++ linux/include/asm-x86_64/io_apic.h	2003-08-22 12:29:25.000000000 +0200
-@@ -148,6 +148,6 @@
- extern int io_apic_get_unique_id (int ioapic, int apic_id);
- extern int io_apic_get_version (int ioapic);
- extern int io_apic_get_redir_entries (int ioapic);
--extern int io_apic_set_pci_routing (int ioapic, int pin, int irq);
-+extern int io_apic_set_pci_routing (int ioapic, int pin, int irq, int, int);
- 
- #endif

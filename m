@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273749AbRI0R6f>; Thu, 27 Sep 2001 13:58:35 -0400
+	id <S273748AbRI0R4P>; Thu, 27 Sep 2001 13:56:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273751AbRI0R6Z>; Thu, 27 Sep 2001 13:58:25 -0400
-Received: from mailhost.iworld.com ([63.95.15.3]:31666 "EHLO
-	mailhost.iworld.com") by vger.kernel.org with ESMTP
-	id <S273749AbRI0R6Q>; Thu, 27 Sep 2001 13:58:16 -0400
-Message-ID: <3BB3684F.A4A4DB3C@internet.com>
-Date: Thu, 27 Sep 2001 13:56:31 -0400
-From: Byron Albert <balbert@internet.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S273749AbRI0R4G>; Thu, 27 Sep 2001 13:56:06 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:6160 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S273748AbRI0Rzv>; Thu, 27 Sep 2001 13:55:51 -0400
+Date: Thu, 27 Sep 2001 10:56:07 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Jason McMullan <jmcmullan@linuxcare.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
+In-Reply-To: <20010927115710.A23248@jmcmullan.evillabs.net>
+Message-ID: <Pine.LNX.4.10.10109271040150.20787-100000@transvirtual.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: megaraid driver only seeing 2 of 3 logical dirve.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just added an ami megaraid card to a machine. I configured the 6  9gb
-drives to look like 3 18gb drives and then booted. Linux only saw 2 of
-the 3 drive.  I think got the latest kernel and compiled and rebooted
-and the same below is the relevant dmesg info.  It says it detected 3
-logical drives but the driver only uses two of them.
 
-I really need this other drive so any help would be appreciated.
+> 	Mode changing - Now there I can get into an argument. I
+> still (after all these years) feel that the Kernel is the best
+> place to put video mode control. That way 'killall -9 X' isn't
+> nearly as nasty... The kernel could at least get you back to
+> a text console.
 
-Byron
+Can we say framebuffer devices. As graphics cards are placed into more 
+and more different types of systems we need to have a way to make these
+cards workable on different platforms. This requires us to write
+drivers that can initialize a mode without firmware. I have reworked the
+console layer to deal with this and with allowing different modes on
+different VCs. The current system allows it too but it is more of a later
+add on hack. I have a much cleaner implementation which does what you ask 
+of the above.         
+ 
+> 	And now that XFree86 4 has a vm86 system to 'run the
+> Video BIOS' for certain cards, it shouldn't be to hard to 
+> emulate the old OS/2 system - in a vm86 session, use the BIOS
+> to switch to all the supported modes, and record (via vm86
+> io traps) everything the BIOS does. Then, in the driver,
+> just 'play back' the scripts... Worked beatifully for OS/2
+> back in the day for 2D framebuffers...
 
-p.s. please cc me as I am in the proccess of joining the list
-
-
-SCSI subsystem driver Revision: 1.00
-megaraid: v1.17a (Release Date: Fri Jul 13 18:44:01 EDT 2001)
-megaraid: found 0x8086:0x1960:idx 0:bus 0:slot 5:func 1
-scsi0 : Found a MegaRAID controller at 0xf8808000, IRQ: 10
-megaraid: [C :B ] detected 3 logical drives
-megaraid: channel[1] is raid.
-megaraid: channel[2] is raid.
-megaraid: channel[3] is raid.
-megaraid: no BIOS enabled.
-scsi0 : AMI MegaRAID C  254 commands 16 targs 3 chans 8 luns
-scsi0: scanning channel 1 for devices.
-scsi0: scanning channel 2 for devices.
-scsi0: scanning channel 3 for devices.
-scsi0: scanning virtual channel for logical drives.
-  Vendor: MegaRAID  Model: LD0 RAID0 17354R  Rev:   C
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: MegaRAID  Model: LD1 RAID0 17354R  Rev:   C
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi disk sda at scsi0, channel 3, id 0, lun 0
-Attached scsi disk sdb at scsi0, channel 3, id 0, lun 1
-SCSI device sda: 35540992 512-byte hdwr sectors (18197 MB)
- sda: sda1
-SCSI device sdb: 35540992 512-byte hdwr sectors (18197 MB)
- sdb: sdb1
-
+Really. I have my own personal compain to make all the graphics drivers
+firmware independent. I even like to see the VGA console driver also
+firmware independent.
 

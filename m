@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129747AbQLSVzh>; Tue, 19 Dec 2000 16:55:37 -0500
+	id <S129802AbQLSWRP>; Tue, 19 Dec 2000 17:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129886AbQLSVz2>; Tue, 19 Dec 2000 16:55:28 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:57607 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129747AbQLSVzS>; Tue, 19 Dec 2000 16:55:18 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Michael J. Dikkema" <mjd@moot.ca>
-Date: Wed, 20 Dec 2000 08:24:32 +1100 (EST)
-MIME-Version: 1.0
+	id <S129525AbQLSWRF>; Tue, 19 Dec 2000 17:17:05 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:16134 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129802AbQLSWQ4>; Tue, 19 Dec 2000 17:16:56 -0500
+Date: Tue, 19 Dec 2000 15:41:29 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: David Hinds <dhinds@valinux.com>
+Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA modem (v.90 X2) not working with 2.4.0-test12 PCMCIA services
+Message-ID: <20001219154129.A1763@vger.timpanogas.org>
+In-Reply-To: <007101c067cc$0500c620$0b31a3ce@g1e7m6> <20001218154033.C11728@valinux.com> <20001219114614.A12948@valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14911.53776.854761.710519@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 question (fh_lock_parent)
-In-Reply-To: message from Michael J. Dikkema on Tuesday December 19
-In-Reply-To: <Pine.LNX.4.21.0012190929280.637-100000@sliver.moot.ca>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001219114614.A12948@valinux.com>; from dhinds@valinux.com on Tue, Dec 19, 2000 at 11:46:14AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday December 19, mjd@moot.ca wrote:
+On Tue, Dec 19, 2000 at 11:46:14AM -0800, David Hinds wrote:
+> On Sat, Dec 16, 2000 at 05:52:30PM -0800, Miles Lane wrote:
+> > 
+> > Socket 1:
+> >     product info: "PCMCIA", "V.90 Communications Device ", "", ""
+> >     manfid: 0x018a, 0x0001
 > 
-> I've been getting tonnes of these since I installed 2.2.18. Is this a
-> problem? Should I even worry about this? If I don't need to worry about
-> it, is there a way to stop displaying this message?
+> Now I have another report of this card not working, under 2.2.
+> Perhaps it is a Winmodem?
 > 
-> fh_lock_parent: mqueue/xfBAA14279 parent changed or child unhashed
-> fh_lock_parent: mqueue/xfBAA16413 parent changed or child unhashed
-
-You are running sendmail on an NFS client with /var/spool mounted off
-the NFS server which is giving these message - right?
-
-These messages tend to indicate a race between two different NFS
-requests that try to do something to the one file - probably unlink
-it, though possibly rename it.
-
-If everything is configured properly (e.g. you don't have two
-different sendmails on two different clients trying to use the one
-shared spool area), then this would seem to imply that the server is
-responding more slowly that the client would like, and the client is
-resending the unlink (or whatever) request and so there are two
-identical requests being served by the NFS server and they race.
-
-So it is hard to be sure if you should worry about this.
-Maybe if you tell us what you are trying to do (i.e. confirm the
-configuration of sendmail, NFS mounts and the number of clients.
-Also, how frequent is this?  Would you be able to get a tcpdump of a
-few hundred packets either side of the message? If you do try this,
-make sure that you use a large snap-length for tcpdump (-s 1024) to
-get the whole nfs packet.
-
-NeilBrown
-
-> 
-> ,.;::
-> : Michael J. Dikkema
-> | Systems / Network Admin - Internet Solutions, Inc.
-> | http://www.moot.ca   Work: (204) 982-1060
-> ; mjd@moot.ca
-> ',.
-> 
+> -- Dave
 > -
+
+David, 
+
+On a related topic, the 3c575_cb driver on an IBM Thinkpad 765D is getting
+tx errors on the 2.2.18 kernel with PCMCIA services 3.1.22.
+
+Card is a 3Com 3CCFE575BT Cyclone Cardbus Adapter.
+
+Error is:
+
+eth0:  transmit timed out, tx_status 00 status e000.
+  diagnostics net 0cc2 media a800 dma 000000a0
+
+Windows NT 4 and W2K work flawlessly with the same hardware setup, and have
+for about 1 year.
+
+Jeff
+
+
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > Please read the FAQ at http://www.tux.org/lkml/

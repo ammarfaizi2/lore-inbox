@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbRGNVdE>; Sat, 14 Jul 2001 17:33:04 -0400
+	id <S264927AbRGNWAo>; Sat, 14 Jul 2001 18:00:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264883AbRGNVcy>; Sat, 14 Jul 2001 17:32:54 -0400
-Received: from hercules.telenet-ops.be ([195.130.132.33]:52668 "HELO
-	smtp1.pandora.be") by vger.kernel.org with SMTP id <S264877AbRGNVct>;
-	Sat, 14 Jul 2001 17:32:49 -0400
-Message-ID: <3B50BA77.7040101@aquazul.com>
-Date: Sat, 14 Jul 2001 23:32:39 +0200
-From: Mourad De Clerck <mourad@aquazul.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-ac15 i686; en-US; rv:0.9.1) Gecko/20010620
-X-Accept-Language: en, en-us, nl-be, nl
-MIME-Version: 1.0
+	id <S264933AbRGNWAe>; Sat, 14 Jul 2001 18:00:34 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:55217 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S264927AbRGNWAW>; Sat, 14 Jul 2001 18:00:22 -0400
+Date: Sat, 14 Jul 2001 17:00:21 -0500
+From: J Troy Piper <jtp@dok.org>
 To: linux-kernel@vger.kernel.org
-Subject: Still spontaneous reboots with 440LX chipsets (2.4.7-pre6)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Alan Cox <laughing@shared-source.org>, rusty@rustcorp.com.au
+Subject: [Problem] Linux 2.4.5-ac17 ipt_unclean 'fixes'
+Message-ID: <20010714170021.B1391@dok.org>
+Mime-Version: 1.0
+Content-Type: message/rfc822
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
+> 2.4.5-ac17
+> o	First set of ipt_unclean fixes			(Rusty Russell)
 
-I have a Soltek AT motherboard with
-- a 440LX/EX chipset
-- a celeron 533
-- 96 mb of ram (tested with memtest86, just to be sure)
-- an ATI rage pro (agp)
-- a western digital harddisk
-- a 3c509b
+Alan, 
 
-that's it, nothing fancy.
+I apologise for having taken so long to write this (I have known about 
+this problem since 2.4.5ac17 and have not had a chance to document til 
+today) but there seems to be a problem with the ipt_unclean fixes by Rusty 
+Russell.  ANY incoming packets from any interface (ppp0 and eth0) are 
+marked as 'unclean' with some variation on the following syslog entry:
 
-But ever since the 2.4 series (i used 2.4.3, 2.4.4acXX, 2.4.5ac7 and now 
-2.4.7-pre6) i get spontaneous reboots quite often. Usually it isn't 
-doing anything fancy when it happens, no harddisk activity or memory 
-pressure, it just pops and croaks.
+Jul  8 23:16:04 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
+Jul  8 23:16:05 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
+Jul  8 23:16:16 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
+Jul  8 23:16:18 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
 
-I'm using reiserfs by the way.
+and thus are blocked by my 'unclean packet dropping' firewall (iptables).
 
-
-I've mentioned this before, but it's still not solved with the newer 
-versions.
-
-Someone told me to not load the agp support, but this didn't help either.
-
-(btw: I tested the memory with memtest, i checked the fan of the cpu, 
-and the cpu is not overclocked.)
-
-Just thought i'd mention it, because i've seen other people having
-spontaneous reboots with LX chipsets.
-
-
+I haven't seen any mention of this on the list, nor have I seen any more 
+ipt_unclean patches to address this problem, so here's your heads-up 
+(albeit a bit late).
 
 Thanks,
 
-Mourad DC
-
-
+J Troy Piper
+jtp@dok.org

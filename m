@@ -1,90 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269360AbRGaQmC>; Tue, 31 Jul 2001 12:42:02 -0400
+	id <S269365AbRGaQnM>; Tue, 31 Jul 2001 12:43:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269359AbRGaQlw>; Tue, 31 Jul 2001 12:41:52 -0400
-Received: from tantale.fifi.org ([216.27.190.146]:6280 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S269358AbRGaQll>;
-	Tue, 31 Jul 2001 12:41:41 -0400
-To: "Nadav Har'El" <nyh@math.technion.ac.il>
-Cc: Erik De Bonte <erikd@lithtech.com>, linux-kernel@vger.kernel.org
-Reply-to: "Nadav Har'El" <nyh@math.technion.ac.il>,
-        Erik De Bonte <erikd@lithtech.com>, linux-kernel@vger.kernel.org
-Subject: Re: Determining IP:port corresponding to an ICMP port unreachable
-In-Reply-To: <AF020C5FC551DD43A4958A679EA16A1501349556@mailcluster.lith.com>
-	<20010731111131.B29309@leeor.math.technion.ac.il>
-From: Philippe Troin <phil@fifi.org>
-Date: 31 Jul 2001 09:41:43 -0700
-In-Reply-To: <20010731111131.B29309@leeor.math.technion.ac.il>
-Message-ID: <87k80pyrso.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S269363AbRGaQnD>; Tue, 31 Jul 2001 12:43:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55570 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269366AbRGaQmx>;
+	Tue, 31 Jul 2001 12:42:53 -0400
+Date: Tue, 31 Jul 2001 17:42:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: Khalid Aziz <khalid@fc.hp.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Support for serial console on legacy free machines
+Message-ID: <20010731174247.A21802@flint.arm.linux.org.uk>
+In-Reply-To: <200107302332.f6UNWbxg001791@webber.adilger.int> <3B65F1A2.30708CC1@fc.hp.com> <000701c119cd$ebf0c720$294b82ce@connecttech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <000701c119cd$ebf0c720$294b82ce@connecttech.com>; from stuartm@connecttech.com on Tue, Jul 31, 2001 at 10:34:35AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"Nadav Har'El" <nyh@math.technion.ac.il> writes:
+On Tue, Jul 31, 2001 at 10:34:35AM -0400, Stuart MacDonald wrote:
+> That's very odd. That implies that serial consoles don't use the serial
+> driver at all then, as the pci serial port setup is done at the same
+> time as the regular serial port setups.
+> 
+> If a serial console is using serial.c, the pci serial ports will also
+> be available.
 
-> On Mon, Jul 30, 2001, Erik De Bonte wrote about "Determining IP:port
-> corresponding to an ICMP port unreachable":
+No.  Console initialisation is done early, before PCI is setup.  This
+means that the serial driver is relying on a static array of IO port
+addresses.  At this time, the serial driver hasn't probed any ports at
+all, so it doesn't really know what does and doesn't exist.
 
-> > When an ICMP port unreachable message is received and corresponds
-> > to a UDP socket, is there a way to determine the corresponding
-> > unreachable IP and port?  I'm able to retrieve the IP, but not the
-> > port.  From looking through the kernel source, it appears that the
-> > port is never extracted from the payload section of the ICMP
-> > message.  If this is indeed a limitation of the kernel, is there a
-> > plan to "fix" it in the future?
-> 
-> If you recvfrom (for example) on a UDP socket (which, obviously, has
-> some port number) on which you sent a message previously, recvfrom
-> will return (-1) (with errno=connection refused) if an ICMP port
-> unreachable was received by the kernel for this port. This kind of
-> error is asynchronous, in the sense that you will get it some time
-> later after sending the original message (you could have sent and
-> received a dozen other messages in the meantime).
-> 
-> For connected()ed sockets, this behavior is indeed useful - you know
-> which port sent the message, which host and port was meant to get
-> that message (because the socket is connected() and only sends to
-> one host/port).
-> 
-> But for non-connected()ed sockets, you can only find out the host
-> sending the ICMP message. Note that sometimes (e.g., with host
-> unreachable errors) you don't even know the host you orignally sent
-> the message to (that is burried in the IP heard inside the ICMP
-> data) - only the host that sent you the error. And you don't know
-> any port number (again, the port number is inside the ICMP packet,
-> but you have no access to it - this is what you wrote too).
-> 
-> This is why the original BSD behavior was to pass these errors only
-> on connect()ed sockets. Linux decided to give those errors on
-> unconnect()ed sockets - while it is usually not useful, it fits more
-> closely with RFC 1122 which says in section 4.1.2.3: "UDP MUST pass
-> to the application layer all ICMP error messages that it receives
-> from the IP layer".
-> 
-> There's a discussion about this issue in Stevens' book ""UNIX
-> Network Programming", section 8.9 (Elementary UDP Sockets, Server
-> Not Running), page 221, and he discusses why the socket API is
-> problematic in that respect.
-> 
-> I think the only recourse you have (if you really want to know which
-> host/port every ICMP message is about) is to listen on a raw socket, which
-> you open with something like
-> 	in_icmp=socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-> 	shutdown(in_icmp,SHUT_WR); /* optional (we don't intend to write) */
-> 
-> And then you'll get full ICMP packets (all of them!) - and you'll
-> have to pick out the ones intended for your port(s), and then take
-> out the destination ip and port inside the ip header that is inside
-> the ICMP packet (not the ip header of the ICMP packet itself!). This
-> is rather ugly, because it requires you to understand how IP and UDP
-> headers look like.  Note that you need superuser permissions to
-> create (but not to read) a raw socket.
+If, for example, you specify your console on ttyS25, (and you have
+support for >=32 ports compiled in) I wonder what happens?  I can
+see one of two things happening:
 
-Nah, on linux, use setsockopt with IP_RECVERR.
-man 7 ip
+1. Kernel locks up waiting for the non-existent "transmitter" to become
+   ready.
+2. Kernel continues blindly writing to a non-existent port without
+   locking up and you get no messages at all.
 
-Phil.
+Now, this static table is updated after PCI and PNP initialisation, when
+the ports are actually probed.  Your ttyS25 may now change port address
+under the serial console!  I wonder what baud rate the messages come out
+at?  75 baud? ;(
+
+The more I think about this, the more that I think we need to get rid
+of this early console initialisation.  I think Linus really wants early
+console initialisation though, and to be honest, its an extremely useful
+debugging tool for those pesky non-boots with blank displays.
+
+[gratuitous plug]
+
+I'm currently doing a lot of work on the serial drivers at the moment; the
+ARM port currently has about 4 different uart based serial port types, and
+I wasn't going to put up with 4 buggy copies of serial.c to drive each
+type.
+
+Therefore, I now have a set of serial drivers based around a serial core
+(including the 16550 type) which I've been able to test out.  It is (I
+hope) functionally equivalent to what is in 2.4.7.  It needs a little
+more cleaning up, and a _lot_ more testing.  People interested can get
+it from:
+
+  :pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot (no login password)
+
+To access it:
+
+  cvs -d :pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot login
+  cvs -d :pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot co serial
+
+  Server note: If you want to use -z, please don't use anything above -z3.
+  (failure to follow this will result in anon cvs being withdrawn or
+  restricted). Thanks.
+
+What isn't provided at the moment are the patches to the Makefiles and
+Config.in files.  I'll include a patch for that later this evening.
+
+If someone would like to produce a patch which adds an option for early
+console vs "normal" console initialisation...  Otherwise I'll add it to
+my (longish) "to do" list.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264075AbTCXDBx>; Sun, 23 Mar 2003 22:01:53 -0500
+	id <S264080AbTCXDGm>; Sun, 23 Mar 2003 22:06:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264081AbTCXDBx>; Sun, 23 Mar 2003 22:01:53 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:53975 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id <S264075AbTCXDBw>;
-	Sun, 23 Mar 2003 22:01:52 -0500
-Subject: USB keyboard problems. 2.4.x and 2.5.x
-From: Stian Jordet <liste@jordet.nu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048475600.907.6.camel@chevrolet.hybel>
+	id <S264085AbTCXDGm>; Sun, 23 Mar 2003 22:06:42 -0500
+Received: from packet.digeo.com ([12.110.80.53]:64766 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264080AbTCXDGl>;
+	Sun, 23 Mar 2003 22:06:41 -0500
+Date: Sun, 23 Mar 2003 19:17:44 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm4
+Message-Id: <20030323191744.56537860.akpm@digeo.com>
+In-Reply-To: <9590000.1048475057@[10.10.2.4]>
+References: <20030323020646.0dfcc17b.akpm@digeo.com>
+	<9590000.1048475057@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 24 Mar 2003 04:13:20 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Mar 2003 03:17:30.0917 (UTC) FILETIME=[E7BD2D50:01C2F1B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've been running 2.5.x on my desktop the last months. It's working
-great! But I had one issue with 2.4.x that 2.5.x hasn't solved. I can't
-the the usb-keyboard working right.
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> profile from SDET 64:
 
-I have an usb-printer, usb-scanner, usb-bluetooth and usb-serial, all of
-them working like a charm. When I plug in the keyboard when my computer
-is running, it works allright. (When I have booted with PS/2). But if I
-boot with the keyboard inserted, I get the message "device not accepting
-address". I have seen the faq on linux-usb.org, but I'm not able to boot
-the pc without the noapic option.
+SDET is rather irritating because a) nobody has a copy and b) we don't even
+know what it does.
 
-The motherboard is a Asus CUV266-DLS dual P3 with integrated SCSI and
-LAN. 
+> 
+> 82303 __down
+> 42835 schedule
+> 31323 __wake_up
+> 26435 .text.lock.sched
+> 15924 .text.lock.transaction
 
-Anyone know what the problem is, or what I should try? It's kinda weird
-that it works without hassle if I plug in it when running, but it won't
-work when booting. Hmm.
+But judging by this, it's a rebadged dbench.  The profile is identical.
 
-Best regards,
-Stian
+Note that the lock_kernel() contention has been drastically reduced and we're
+now hitting semaphore contention.
+
+Running `dbench 32' on the quad Xeon, this patch took the context switch rate
+from 500/sec up to 125,000/sec.
+
+I've asked Alex to put together a patch for spinlock-based locking in the
+block allocator (cut-n-paste from ext2).
+
+That will fix up lock_super(), but I suspect the main problem is the
+lock_journal() in journal_start().  I haven't thought about that one yet.
+
 

@@ -1,71 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265182AbTGNNzA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270675AbTGNNx0
+	id S270571AbTGNOEd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 10:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270593AbTGNMbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:53:26 -0400
-Received: from mail.telpin.com.ar ([200.43.18.243]:30151 "EHLO
-	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S270620AbTGNNsZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 09:48:25 -0400
-Date: Mon, 14 Jul 2003 11:03:50 -0300
-From: Alberto Bertogli <albertogli@telpin.com.ar>
-To: netdev@oss.sgi.com
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] IPVS' Kconfig LBLC and LBLCR configuration typo
-Message-ID: <20030714140350.GB1389@telpin.com.ar>
-Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
-	netdev@oss.sgi.com, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-X-RAVMilter-Version: 8.4.2(snapshot 20021217) (mail)
+	Mon, 14 Jul 2003 08:31:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48260
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270591AbTGNMNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:13:11 -0400
+Date: Mon, 14 Jul 2003 13:27:12 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307141227.h6ECRCph030941@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com
+Subject: PATCH: fix vicam with old gcc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi there!
-
-The following patch fixes what looks like a typo in ipvs' Kconfig
-(net/ipv4/ipvs/Kconfig).
-
-Both the IP_VS_LBLC and IP_VS_LBLCR schedulings have the same tristate
-line (well, not the same, IP_VS_LBLCR's has a 'g' missing at the end):
-
-tristate "locality-based least-connection with replication scheduling"
-
-But it looks like LBLC should be "locality-based least-connection
-scheduling" and LBLCR "locality-based least-connection with replication
-scheduling".
-
-
-Thanks,
-		Alberto
-
-
---- Kconfig.orig	2003-07-14 10:32:06.000000000 -0300
-+++ Kconfig	2003-07-14 10:32:57.000000000 -0300
-@@ -147,7 +147,7 @@
- 	  unsure, say N.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/drivers/usb/vicam.c linux.22-pre5-ac1/drivers/usb/vicam.c
+--- linux.22-pre5/drivers/usb/vicam.c	2003-07-14 12:27:39.000000000 +0100
++++ linux.22-pre5-ac1/drivers/usb/vicam.c	2003-07-07 15:54:03.000000000 +0100
+@@ -763,8 +763,8 @@
+ static void
+ vicam_close(struct video_device *dev)
+ {
+-	DBG("close\n");
+ 	struct vicam_camera *cam = (struct vicam_camera *) dev->priv;
++	DBG("close\n");
  
- config	IP_VS_LBLC
--	tristate "locality-based least-connection with replication scheduling"
-+	tristate "locality-based least-connection scheduling"
-         depends on IP_VS
- 	---help---
- 	  The locality-based least-connection scheduling algorithm is for
-@@ -163,7 +163,7 @@
- 	  unsure, say N.
  
- config  IP_VS_LBLCR
--	tristate "locality-based least-connection with replication schedulin"
-+	tristate "locality-based least-connection with replication scheduling"
-         depends on IP_VS
- 	---help---
- 	  The locality-based least-connection with replication scheduling
-
-
-
+ 	if (cam->is_removed) {

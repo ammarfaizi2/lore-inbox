@@ -1,44 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263515AbUCYR1i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 12:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUCYR1h
+	id S263513AbUCYR15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 12:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUCYR14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 12:27:37 -0500
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:32407 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S263515AbUCYR0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 12:26:37 -0500
-Message-ID: <40631649.9070000@blueyonder.co.uk>
-Date: Thu, 25 Mar 2004 17:26:33 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.5-rc2-mm3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 25 Mar 2004 12:27:56 -0500
+Received: from colino.net ([62.212.100.143]:752 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S263513AbUCYR0g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 12:26:36 -0500
+Date: Thu, 25 Mar 2004 18:26:04 +0100
+From: Colin Leroy <colin@colino.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org, <linux-usb-devel@lists.sf.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS] reproducible oops with
+ 2.6.5-rc2-bk3
+Message-Id: <20040325182604.2db9666c@jack.colino.net>
+In-Reply-To: <Pine.LNX.4.44L0.0403251153110.1083-100000@ida.rowland.org>
+References: <13c901c41287$d29bb040$3cc8a8c0@epro.dom>
+	<Pine.LNX.4.44L0.0403251153110.1083-100000@ida.rowland.org>
+Organization: 
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Mar 2004 17:26:34.0220 (UTC) FILETIME=[51EA92C0:01C4128E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Builds OK on Athlon  XP2200+, but froze at Freeing unused kernel memory: 
-180k freed. SysRQ-B and on reboot, it got past that poing then froze 
-solid later on. This is from boot.omsg, hope to gather more data later.
-<6>Freeing unused kernel memory: 180k freed
-<4>Removing [35127 37455 0x0 SD]..done
-<4>Removing [3904 35127 0x0 SD]..done
-<4>There were 2 uncompleted unlinks/truncates. Completed
-<6>Adding 3823460k swap on /dev/hda2.  Priority:42 extents:1
-<4>hdb: Speed warnings UDMA 3/4/5 is not functional.          ### THE 
-CDROM ###
-Kernel logging (ksyslog) stopped.
-Kernel log daemon terminating.
-Regards
-Sid.
+On 25 Mar 2004 at 11h03, Alan Stern wrote:
 
+> It's not as bad as it looks. 
+
+Ok, thanks for the clarification. In the mean time here's the lsusb -v output for my phone. I'll try to find out why we have a null pointer.
+
+
+Bus 003 Device 003: ID 22b8:3802
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB              10.01
+  bDeviceClass            2 Communications
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x22b8
+  idProduct          0x3802
+  bcdDevice            1.00
+  iManufacturer           1 Motorola Inc.
+  iProduct                2 Motorola Phone (C350)
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           67
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          4
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower               20mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         2 Communications
+      bInterfaceSubClass      2 Abstract (modem)
+      bInterfaceProtocol      1 AT-commands (v.25ter)
+      iInterface              5 Motorola Communication Interface
+  unknown descriptor type: 05 24 00 01 01
+  unknown descriptor type: 05 24 01 03 01
+  unknown descriptor type: 05 24 06 00 01
+  unknown descriptor type: 04 24 02 02
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x89  EP 9 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               none
+        wMaxPacketSize         16
+        bInterval              10
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass        10 Data
+      bInterfaceSubClass      0 Unused
+      bInterfaceProtocol      0
+      iInterface             16 Motorola Data Interface
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               none
+        wMaxPacketSize         16
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               none
+        wMaxPacketSize         16
+        bInterval               0
+  Language IDs: (length=4)
+     0409 English(US)
+
+Thanks!
 -- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
-
+Colin

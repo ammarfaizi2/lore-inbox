@@ -1,55 +1,152 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269812AbRHDGyE>; Sat, 4 Aug 2001 02:54:04 -0400
+	id <S269815AbRHDHEE>; Sat, 4 Aug 2001 03:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269813AbRHDGxz>; Sat, 4 Aug 2001 02:53:55 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:4617 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S269812AbRHDGxo>;
-	Sat, 4 Aug 2001 02:53:44 -0400
-Date: Sat, 4 Aug 2001 02:50:10 -0400
-From: Anton Blanchard <anton@samba.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andrew Tridgell <tridge@valinux.com>, lkml <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: 2.4.8preX VM problems
-Message-ID: <20010804025008.A30349@krispykreme>
-In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva>
+	id <S269816AbRHDHDz>; Sat, 4 Aug 2001 03:03:55 -0400
+Received: from law2-f31.hotmail.com ([216.32.181.31]:60432 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S269815AbRHDHDs>;
+	Sat, 4 Aug 2001 03:03:48 -0400
+X-Originating-IP: [61.9.148.173]
+From: "Red Phoenix" <redph0enix@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux C2-Style Audit Capability
+Date: Sat, 04 Aug 2001 19:03:52 +1200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.18i
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW2-F31DgC81TbdkSm00013be0@hotmail.com>
+X-OriginalArrivalTime: 04 Aug 2001 07:03:52.0475 (UTC) FILETIME=[9E5DB6B0:01C11CB3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi Marcelo,
+G'day,
 
-> The problem is pretty nasty: if there is no global shortage and only a 
-> given zone with shortage, we set the zone free target to freepages.min
-> (basically no tasks can make progress with that amount of free memory). 
+We've been working on a kernel module/audit daemon combination that 
+implements a C2-style, objective-based audit capability for several months 
+now. We're at a stage where it's stable and functional, but a fundamental 
+kernel-to-user communication issue is making things difficult at the moment. 
+I'm hoping that someone here will have an idea of how to solve things.
 
-Paulus and I were seeing the same problem on a ppc with 2.4.8-pre3. We
-were doing cat > /dev/null of about 5G of data, when we had close to 3G of
-page cache kswapd chewed up all the cpu. Our guess was that there was a
-shortage of lowmem pages (everything above 512M is highmem on the ppc32
-kernel so there isnt much lowmem).
+At present, communication between audit daemon (user space) and the audit 
+module takes the form of a device (/dev/audit). The daemon communicates with 
+module via ioctl(), the module communicates with the daemon using read(), 
+via a file_operations structure in the module. As such, when a new audit 
+event is generated, the kernel module buffers any audit data in a ring 
+buffer, SIGIO's the daemon, and waits for the daemon to call a read() on 
+/dev/audit.
 
-The patch below allowed us to get close to 4G of page cache before
-things slowed down again and kswapd took over.
+System calls are overridden by pointing sys_call_table[system call] to a 
+replacement function which saves off the data for auditing purposes, then 
+calls the original system call.
+eg:
 
-Anton
+// Audit rmdir directory creations.
+asmlinkage int audit_rmdir(const char *path)
+{
+        io_class        io_event;
 
-> --- linux.orig/mm/page_alloc.c	Mon Jul 30 17:06:49 2001
-> +++ linux/mm/page_alloc.c	Wed Aug  1 06:21:35 2001
-> @@ -630,8 +630,8 @@
->  		goto ret;
->  
->  	if (zone->inactive_clean_pages + zone->free_pages
-> -			< zone->pages_min) {
-> -		sum += zone->pages_min;
-> +			< zone->pages_high) {
-> +		sum += zone->pages_high;
->  		sum -= zone->free_pages;
->  		sum -= zone->inactive_clean_pages;
->  	}
+        // If no daemon, or the daemon has generated the event.
+        if((!AUDIT_IS_RUNNING) || (AUDIT_IS_RUNNING && (current->pid == 
+auditdaemon_task_struct->pid)))
+        {
+                return orig_rmdir(path);
+        }
+
+        io_event.t_return.returncode=orig_rmdir(path);
+        io_event.t_header.event_class=AUDIT_CLASS_IO;
+        io_event.t_header.event_id=SYS_rmdir;
+        io_event.t_process.pid=current->pid;
+
+        io_event.t_process.name[0]='\0';
+        strncpy(io_event.t_process.name,current->comm,MAXCOMMAND);
+
+        // Store the path
+        strncpy(io_event.t_path.path,path,MAX_PATH);
+
+        // Everything else can be handled by the generic event handler.
+        audit_event(&io_event);
+
+        // Now continue on with the normal exit.
+        return io_event.t_return.returncode;
+}
+
+This works beautifully in most circumstances. However, when high-volume 
+audit events are turned on (eg: open()), the user-space audit daemon cannot 
+keep up with the kernel, and therefore my ring buffer fills. As such, we 
+lose events.
+
+                if(!write_io((io_class *)event))
+                {
+                        // Couldnt write it out.
+                        // No space available in the ring buffer.
+                        signal=0;
+                        lost_events++;
+                }
+
+
+Increasing the ring buffer memory allocation helps somewhat, but this only 
+serves to postpone the inevitable - the user-space audit daemon cannot keep 
+up with the events generated by the kernel if the kernel is generating 
+events very quickly. Even with a buffer of 1MB kernel memory, events are 
+lost. Unfortunately, (like a normal device driver), I can't afford to slow 
+my data source down - I can't just ask the kernel not to execute any more 
+system calls until my user-space program catches up ;) - I have to dump 
+data.
+
+In normal operations, very few (if any) audit events are lost.. However, 
+turn on the open() audit event, load mozilla, and you'll probably miss a 
+dozen or so events (out of a few hundred). Do a grep "blah" 
+/usr/include/*/*, and the audit daemon will miss about 500 out of perhaps 
+3000.
+
+What I've tried:
+* Removed the dependance on SIGIO to notify the audit daemon of a new event 
+- I used blocking IO in the module, and a while(read) in the daemon. No 
+significant difference.
+
+* nice -19 auditd. No significant difference.
+
+* I even briefly attempted having the audit daemon create a pipe (one end of 
+which is passed to the audit module), and have the audit module write to it 
+using sys_write()... however, since file descriptors are relative to the 
+process that opened them, the processes I wish to audit (which call 
+SYS_execve for example), do not share the file descriptor, and I cannot 
+write to the pipe in the routine called from my routine which overrides 
+execve.
+This seemed to be almost an ideal implementation before I really thought it 
+through - a pipe buffers the data in user space, rather than the module 
+buffering the data in kernel space.
+
+What I've considered:
+* Opening the output file directly from the module
+  - I'd prefer to avoid this if at all possible.
+* A file pointer that is 'global' across all processes?
+  - Does such a beast exist?
+
+So does anyone have any suggestions on how to effectively push the data out 
+from the audit module, without losing audit events, and without putting 
+artificial delays in the system calls to facilitate guaranteed event 
+delivery?
+
+Ideally, I'd like to be able to send the data straight out the door in the 
+kernel, and have it buffered somewhere that is available to user-space until 
+the audit daemon can pick the data up and run with it.... However, I'll 
+consider ANY suggestions.
+
+Overview available from 
+http://www.intersectalliance.com/projects/snare/index.html for those 
+interested in more details.
+
+Sorry for the hotmail return address by the way - with all the spambots 
+around, I'd rather the hotmail server cope with unrelated spam than mine. :)
+
+I'd appreciate being cc'd at the hotmail address (if you're willing), but 
+will try and watch any mailing-list replies via the lkml web archives.
+
+Leigh.
+---
+Leigh Purdie, Director - InterSect Alliance Pty Ltd
+http://www.intersectalliance.com/
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

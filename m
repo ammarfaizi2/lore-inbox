@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264047AbTDJONE (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 10:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbTDJONE (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 10:13:04 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:32743 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id S264047AbTDJOND (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 10:13:03 -0400
-Subject: Re: [PATCH] New radeonfb fork
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Daniele Venzano <webvenza@libero.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030410084650.GA728@renditai.milesteg.arr>
-References: <1049642954.550.41.camel@zion.wanadoo.fr>
-	 <20030410084650.GA728@renditai.milesteg.arr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049984776.555.90.camel@zion.wanadoo.fr>
+	id S264048AbTDJONY (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 10:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264049AbTDJONY (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 10:13:24 -0400
+Received: from AStrasbourg-204-1-3-163.abo.wanadoo.fr ([81.51.134.163]:8906
+	"EHLO kalman") by vger.kernel.org with ESMTP id S264048AbTDJONW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 10:13:22 -0400
+Date: Thu, 10 Apr 2003 16:25:06 +0200
+From: Bruno Boettcher <bboett@adlp.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67 compile problem...
+Message-ID: <20030410142506.GM29225@adlp.org>
+Reply-To: bboett@adlp.org
+Mail-Followup-To: Bruno Boettcher <bboett@adlp.org>,
+	linux-kernel@vger.kernel.org
+References: <20030408180604.GA3709@adlp.org> <200304082056.12305.freesoftwaredeveloper@web.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Apr 2003 16:26:16 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200304082056.12305.freesoftwaredeveloper@web.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-10 at 10:46, Daniele Venzano wrote:
-> I tried your patch for Radeon framebuffer on kernel 2.4.21-pre7, it
-> works better than before, but still I have some problems:
-> 
-> the cursor is visible only at 8 bit depth, with 16 or 32 bit it just
-> disappears, and at 8 bit it is a big full scale rectangular cursor
-> (no underline).
+On Tue, Apr 08, 2003 at 08:56:12PM +0200, Michael Buesch wrote:
+> This may fix it. (It's not tested)
+partly :D
 
-Known problem with fbdev's in 2.4. I have to find out if
-that can be fixed easily, though implementing HW cursor would
-cure it as well...
 
-> I couldn't find a way to set the resolution at boot time (I use the
-> driver compiled in), I tried the following, all being ignored:
-> radeonfb:1024x768-8@60
-> radeon:1024x768-8@60
+In file included from include/linux/mca.h:132,
+                 from drivers/block/ps2esdi.c:42:
+include/linux/mca-legacy.h:10:2: warning: #warning "MCA legacy - please move your driver to the new sysfs api"
+drivers/block/ps2esdi.c: In function `init_module':
+drivers/block/ps2esdi.c:185: warning: initialization from incompatible pointer type
+drivers/block/ps2esdi.c:188: dereferencing pointer to incomplete type
+drivers/block/ps2esdi.c:188: dereferencing pointer to incomplete type
+drivers/block/ps2esdi.c:189: dereferencing pointer to incomplete type
+drivers/block/ps2esdi.c:192: dereferencing pointer to incomplete type
+drivers/block/ps2esdi.c:193: dereferencing pointer to incomplete type
+drivers/block/ps2esdi.c:195: dereferencing pointer to incomplete type
+drivers/block/ps2esdi.c: In function `do_ps2esdi_request':
+drivers/block/ps2esdi.c:505: warning: long long unsigned int format, different type arg (arg 3)
+drivers/block/ps2esdi.c: In function `ps2esdi_out_cmd_blk':
+drivers/block/ps2esdi.c:626: warning: comparison of distinct pointer types lacks a cast
+drivers/block/ps2esdi.c:649: warning: comparison of distinct pointer types lacks a cast
+make[2]: *** [drivers/block/ps2esdi.o] Fehler 1
 
-That should work (the second one actually), I'll investigate why
-it doesn't. What mode do you get instead ?
+besides debugging this one....
+for what is it needed, and can i safely (question there, where?) switch it off, to be able to at least give this 2.5 kernel a test shot?
 
-Make sure you used "video=", that is you should have on your kernel
-command line video=radeon:1024x768-8@60
+please add me through CC to any answer
 
-> I am using an ugly fbset in a random boot script, but it just changes the
-> resolution for the first console. This is probably the biggest problem I
-> saw until now...
-
-Use fbset -a
-
-> Finally dmesg says:
-> 
-> PCI: Found IRQ 11 for device 01:00.0
-> radeonfb: ref_clk=2700, ref_div=12, xclk=20000 from BIOS
-> Console: switching to colour frame buffer device 80x30
-> radeonfb: ATI Radeon 9000 If DDR SGRAM 64 MB
-> radeonfb: DVI port no monitor connected
-> radeonfb: CRT port CRT monitor connected
->                    ^^^
-> But I have an LCD on the CRT port, I saw some LCD support in radeonfb.c,
-> but perhaps it was only on DVI port.
-
-If it's connected to an analgog VGA output, it is considered as a CRT
-and that's normal, there's nothing "smart" I can do about it. I could
-probably figure out it's a flat panel from the EDID and default to a
-better mode, but complete EDID & DDC management is something I don't
-plan on implementing in 2.4 though I will do it in 2.5/2.6 as soon
-as I get enough time.
-
-Ben.
-
+-- 
+ciao bboett
+==============================================================
+bboett@adlp.org
+http://inforezo.u-strasbg.fr/~bboett
+===============================================================

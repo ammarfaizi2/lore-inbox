@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135617AbREBQ3b>; Wed, 2 May 2001 12:29:31 -0400
+	id <S135625AbREBQdL>; Wed, 2 May 2001 12:33:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135623AbREBQ3V>; Wed, 2 May 2001 12:29:21 -0400
-Received: from viper.haque.net ([66.88.179.82]:1437 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S135617AbREBQ3D>;
-	Wed, 2 May 2001 12:29:03 -0400
-Date: Wed, 2 May 2001 12:28:39 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: LA Walsh <law@sgi.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 code breaks compile of VMWare network bridging
-In-Reply-To: <3AF032D2.51D61EF4@sgi.com>
-Message-ID: <Pine.LNX.4.33.0105021227500.26270-100000@viper.haque.net>
+	id <S135630AbREBQdC>; Wed, 2 May 2001 12:33:02 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60012 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S135623AbREBQcr>; Wed, 2 May 2001 12:32:47 -0400
+To: "Alex Huang" <alexjoy@sis.com.tw>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: How can do to disable the L1 cache in linux ?
+In-Reply-To: <00a601c0d2b4$a8571740$d9d113ac@sis.com.tw>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 02 May 2001 10:30:39 -0600
+In-Reply-To: "Alex Huang"'s message of "Wed, 2 May 2001 11:04:52 +0800"
+Message-ID: <m1itjjpvbk.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 May 2001, LA Walsh wrote:
+"Alex Huang" <alexjoy@sis.com.tw> writes:
 
-> reported it to the folks at VMware, but their response to problem reports
-> against 2.4.x is "can you duplicate it against 2.2.x, we don't support
-> 2.4.x yet".  Perhaps someone expert in the 'net/core' area could explain
-> what changed and what they shouldn't be doing anymore?
->
+> Dear All,
+>  How can do to disable the L1 cache in linux ?
+> Are there some commands or directives to disable it ??
 
-This was answered several hours ago. Check the list archives.
--- 
+Play with the MTRR's and disable caching on memory.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+Stupid but it should get what you want.
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+Eric

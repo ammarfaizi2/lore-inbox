@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263480AbUCTRHm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 12:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263481AbUCTRHm
+	id S263479AbUCTRP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 12:15:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263481AbUCTRPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 12:07:42 -0500
-Received: from ns.suse.de ([195.135.220.2]:21383 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263480AbUCTRHk (ORCPT
+	Sat, 20 Mar 2004 12:15:25 -0500
+Received: from gw0.infiniconsys.com ([65.219.193.226]:23308 "EHLO
+	mail.infiniconsys.com") by vger.kernel.org with ESMTP
+	id S263479AbUCTRPX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 12:07:40 -0500
-Subject: Re: [PATCH] barrier patch set
-From: Chris Mason <mason@suse.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200403201805.26211.bzolnier@elka.pw.edu.pl>
-References: <20040319153554.GC2933@suse.de>
-	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
-	 <1079800362.11062.280.camel@watt.suse.com>
-	 <200403201805.26211.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1079802604.11058.292.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 20 Mar 2004 12:10:04 -0500
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 12:15:23 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+Date: Sat, 20 Mar 2004 12:15:23 -0500
+Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB01EE9AD7@mercury.infiniconsys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: PATCH - InfiniBand Access Layer (IBAL)
+Thread-Index: AcQOnunO+ECrJ/izRbWW/zSJ0/jttA==
+From: "Acker, Dave" <dacker@infiniconsys.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-03-20 at 12:05, Bartlomiej Zolnierkiewicz wrote:
-> On Saturday 20 of March 2004 17:32, Chris Mason wrote:
-> > On Sat, 2004-03-20 at 11:23, Bartlomiej Zolnierkiewicz wrote:
-> > > > > - why are we doing pre-flush?
-> > The journaled filesystems need this.  We need to make sure that before
-> > we write the commit block for a transaction, all the previous log blocks
-> > we're written are safely on media.  Then we also need to make sure the
-> > commit block is on media.
+Ulrich Drepper <drepper@redhat.com> wrote in message
+news:<1ByNc-1km-21@gated-at.bofh.it>...
 > 
-> For low-level driver it shouldn't really matter whether sectors to be
-> written are the commit block for a transaction or the previous log blocks
-> and in the current implementation it does matter.
+> First, the working group I refer to is this:
 > 
-As Jens said, it depends on how you define barrier ;-)  I define it as
-this io will be written after all the previous io and before any later
-io.   It was originally written with scsi tags in mind as well, the FS
-side was the same for both.
+>   http://www.opengroup.org/icsc/
+> 
+> But that's all there is.  The socket extension working group
+> 
+>   http://www.opengroup.org/icsc/sockets/
+> 
 
-In the end, I'm not that picky though, any reasonable setup that gets
-the blocks on media is fine.
+Most of us IB folks wanted to work with the ICSC stuff waaaaay back but
+it never went anywhere and we all had to ship products.  So various
+stacks developed.  All that is being specified by the ICSC is an API.
+There are already several APIs into IB that are not IB specific.
+These include:
+DAPL - http://www.datcollaborative.org/,
+http://sourceforge.net/projects/dapl/ 
+MPI - http://www-unix.mcs.anl.gov/mpi/ 
+SDP - (not really an API but is run over IB verbs and RDMA verbs and
+meets up with your sockets note) See InfiniBand Specification, Volume 1,
+Annex A4, Release 1.1, http://www.rdmaconsortium.org/home 
 
--chris
+There is no reason we can't implement support for the ICSC APIs if the
+Linux community desires this.  I can say that these other APIs are
+already being used by other programs (or other APIs themselves) and
+really can't go away.  If folks ask for ICSC support, it will probably
+get in there.
 
+> So, these people come up with their own software stacks, unreviewed
+> interface extensions, and demand that everybody accepts what they were
+> "designing" without the ability to question anything.
+> I surely find this completely  unacceptable and any consideration of
+> accepting anything the Infiniband group comes up with should be
+> postponed until every bit of the design can be reviewed.  If bits and
+> pieces are accepted prematurely it'll just be "now that this is
+support
+> you have to add this too, otherwise it'll not be useful".
 
+While some of the same people were on the ICSC lists as the IBTA lists
+or the DAT lists, it doesn't mean that they are operating as one big
+group with some secret agenda.  The ICSC group went one way and only
+recently produced a spec.  The DAT group went another and has had a spec
+for some time.  The RDMA folks went yet another and produced a spec a
+bit ago.  While there are some people in both groups, the groups act
+independently with different companies and individuals have more
+control/influence in one than the other.
+
+All that said, the IB developer community has decided as a whole to open
+things up.  InfiniCon, TopSpin, Voltaire, DivergeNet, Mellanox, etc.
+have all opened up their code.  Add to this the already started open
+effort on sourceforge (IBAL) and we hope to find a best of breed final
+solution.  So please do review every single bit posted.  If there is
+going to be a standard linux infiniband stack it will have to be very
+good or else splinter versions and incompatible versions will live on.
+
+-Ack
+
+p.s. While I may work for an IB company, I am expressing my own
+opinions, not their official opinions.

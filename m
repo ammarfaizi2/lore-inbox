@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289532AbSAKGmp>; Fri, 11 Jan 2002 01:42:45 -0500
+	id <S289757AbSAKG5f>; Fri, 11 Jan 2002 01:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289589AbSAKGmg>; Fri, 11 Jan 2002 01:42:36 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24838 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289532AbSAKGmT>;
-	Fri, 11 Jan 2002 01:42:19 -0500
-Date: Fri, 11 Jan 2002 07:42:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Michael Zhu <mylinuxk@yahoo.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: About block device request function.
-Message-ID: <20020111074214.N19814@suse.de>
-In-Reply-To: <20020110212718.41819.qmail@web14906.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S289830AbSAKG5Z>; Fri, 11 Jan 2002 01:57:25 -0500
+Received: from ns2.generalbroadband.com ([64.32.62.5]:58116 "EHLO
+	mx1.relaypoint.net") by vger.kernel.org with ESMTP
+	id <S289757AbSAKG5N>; Fri, 11 Jan 2002 01:57:13 -0500
+Message-ID: <3C3E8D2A.66C96E37@laposte.net>
+Date: Thu, 10 Jan 2002 22:58:51 -0800
+From: Mike <m.mohr@laposte.net>
+X-Mailer: Mozilla 4.51 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.5.[0&1]
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020110212718.41819.qmail@web14906.mail.yahoo.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10 2002, Michael Zhu wrote:
-> Hi, I have a question of the block device request
-> function. I use the following sentences to change the
-> request function of a block device.
-> 
-> spin_lock_irq(&io_request_lock);
-> 
-> original_make_request_fn =
-> blk_dev[i].request_queue.make_request_fn;
-> 
-> blk_dev[i].request_queue.make_request_fn =
-> kti_make_request_fn;
-> 
-> spin_unlock_irq(&io_request_lock);
-> 
-> "i" is the major number of a block device.
-> 
-> You know blk_dev[] is the global block device array.
-> When I use those sentences to change the floppy block
-> device's request function, it works. The major number
-> of the floppy disk is 2. But when I use the same one
-> to change the hard disk's request function, it doesn't
-> work. I found that the
-> blk_dev[3].request_queue.make_request_fn is NULL. Does
-> that mean that the make_request_fn() of the hard disk
-> is NULL. I can't believe it. Can anyone give me an
-> answer?
+Good evening everyone.
 
-Read drivers/block/ll_rw_blk.c:blk_get_queue() -- either a driver uses
-the statically allocated per-major queue, or it provides its own and
-defines a get_queue function to return it.
+I'm new to this list.  After using Linux off and on for about 1 year, I
+have learned just enough to get around and do very basic system
+maintenance.  I am at the point where I need to recompile my kernel.  I
+have done so successfully with the source-code included in my dist
+(Slackware 8 currently), but am having problems with the most current
+kernels.
 
-You are still heading in the wrong direction :/
+Kernel sources decompressed without error and compiled just as expected,
+no errors.  Total bzImage size was about 920kb.  After using LILO to
+install kernel 2.5.0 and rebooting, my computer shows the Loading
+Linux............ text, then very briefly shows OK, Uncompressing
+Linux..., but immediately reboots the system before it can initialize.
 
--- 
-Jens Axboe
+Kernel 2.5.1 is not much better; it freezes the system immediately after
+showing the OK, decompressing the kernel message.  I would like to
+attempt upgrading the kernel to this latest version, but it won't even
+get far enough in the boot process to load my root filesystem.  What can
+I do, or what have I done wrong?
+
+I also installed the kernel onto a bootdisk using both LILO and dd with
+the same exact results.  Please send me any suggestions!
+
+Thanks,
+Michael Mohr
 

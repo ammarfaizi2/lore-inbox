@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265136AbUFWSZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUFWS2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265136AbUFWSZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 14:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUFWSZ3
+	id S265789AbUFWS2r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 14:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266598AbUFWS2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 14:25:29 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:16256 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265136AbUFWSZ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 14:25:27 -0400
-Date: Wed, 23 Jun 2004 20:26:13 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Christoph Hellwig <hch@infradead.org>, jbglaw@lug-owl.de,
-       linux-kernel@vger.kernel.org, miller@techsource.com
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040623182613.GA1458@ucw.cz>
-References: <A095D7F069C@vcnet.vc.cvut.cz> <20040622151236.GE20632@lug-owl.de> <20040622173215.GA6300@infradead.org> <20040622184220.GF20632@lug-owl.de> <40D99A93.8030900@techsource.com> <20040623150314.GA24169@infradead.org> <20040623160320.GA28370@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jun 2004 14:28:47 -0400
+Received: from 82-147-17-1.dsl.uk.rapidplay.com ([82.147.17.1]:54355 "HELO
+	82-147-17-1.dsl.uk.rapidplay.com") by vger.kernel.org with SMTP
+	id S265789AbUFWS2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 14:28:45 -0400
+From: Mark Watts <mrwatts@fast24.co.uk>
+To: linux-kernel@vger.kernel.org, ben@easynews.com
+Subject: Re: I/O Confirmation/Problem under 2.6/2.4
+Date: Wed, 23 Jun 2004 19:28:43 +0100
+User-Agent: KMail/1.6.1
+References: <1088012966.1347.28.camel@solaris.skunkware.org>
+In-Reply-To: <1088012966.1347.28.camel@solaris.skunkware.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040623160320.GA28370@vana.vc.cvut.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406231928.43759.mrwatts@fast24.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 06:03:20PM +0200, Petr Vandrovec wrote:
-> On Wed, Jun 23, 2004 at 04:03:14PM +0100, Christoph Hellwig wrote:
-> > On Wed, Jun 23, 2004 at 10:58:27AM -0400, Timothy Miller wrote:
-> > > Whatever it is that VMware needs in the kernel can probably be 
-> > > generalized in some way that makes it useful to other things (like 
-> > > Win4Lin) and then merged into mainline.
-> > 
-> > We already have drivers/net/tun.c thaqt works nicely with Hercules and MoL
-> > for me, but I guess the vmware folks want some additional deep magic.
-> 
-> Unless I missed something, there can be only one userspace reader/writter
-> attached to the device, while vmnet works like real network segment to
-> which you can connect any number of userspace processes, and each of
-> processes gets only packets which are targeted for it (as each process
-> has its own MAC address). And vmnet interface does not have to have 
-> any representation in host's networking (it can be used just as a channel 
-> for communication between two VMs), which is important if your guests 
-> are running potentially dangerous code, like network worms.
-> 
-> vmnet module actually provides tun-like character device, but with several
-> differences:
-> * You can connect any number of userspace processes to it.
-> * You can connect kernel end to nothing (complete guest-host separation), or
 
-These can be done purely in userspace - a daemon can exchange the data
-between the processes (VMs).
 
-> * You can create new network device for kernel end (you'll route between
->   guests and real world) or
+I get the following performance numbers from a Dell PowerEdge 1750 (2x Xeon) 
+with a Perc 4/Di (megaraid driver). 13x U320 10k 146GB disks configured in a 
+raid5 (in a PowerVault 220s external U320 enclosure).
 
-This can be done with tun, preferably opened by the abovementioned
-daemon.
+Kernel is 2.6.3 (Mandrake 10.0)
 
-> * You can attach this character device to some existing network device,
->   creating "bridge".
 
-And this is IMO pretty ugly to do. It is probably needed to get NetBEUI
-working between the VM and real network.
+# bonnie++ -u mwatts -d .
+Using uid:500, gid:500.
+Writing with putc()...done
+Writing intelligently...done
+Rewriting...done
+Reading with getc()...done
+Reading intelligently...done
+start 'em...done...done...done...
+Create files in sequential order...done.
+Stat files in sequential order...done.
+Delete files in sequential order...done.
+Create files in random order...done.
+Stat files in random order...done.
+Delete files in random order...done.
+Version 1.02c       ------Sequential Output------ --Sequential Input- 
+--Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- 
+--Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec 
+%CP
+ircd.eris.qineti 4G 28774  99 89047  93 54483  21 34335  89 115549  20 575.2   
+1
+                    ------Sequential Create------ --------Random 
+Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- 
+-Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec 
+%CP
+                 16  2192  99 +++++ +++ +++++ +++  2197  99 +++++ +++  5526  
+99
+ircd.eris.qinetiq.com,4G,28774,99,89047,93,54483,21,34335,89,115549,20,575.2,1,16,2192,99,
++++++,+++,+++++,+++,2197,99,+++++,+++,5526,99
 
-> Of these features tun supports only third (creating new kernel network device),
-> and with help of "normal" bridge also fourth. Correct me if I'm wrong.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+hdparm:
+
+# hdparm -tT /dev/sdb
+
+/dev/sdb:
+ Timing buffer-cache reads:   2812 MB in  2.00 seconds = 1404.11 MB/sec
+ Timing buffered disk reads:  294 MB in  3.00 seconds =  97.92 MB/sec
+
+
+I've been advised that the megaraid2 driver can be faster, but I've yet to try 
+it.
+
+Mark.

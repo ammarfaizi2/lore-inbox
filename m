@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUIJDem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267685AbUIJDen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUIJDem (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 23:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267793AbUIJDcN
+	id S267685AbUIJDen (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 23:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUIJD2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 23:32:13 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:59405 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S266163AbUIJDbO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 23:31:14 -0400
-Date: Fri, 10 Sep 2004 13:30:55 +1000
-To: Alex Riesen <fork0@users.sourceforge.net>,
-       "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: Re: 2.6.9-rc1+bk: assertion tcp_get_pcount failed at net/ipv4/tcp_input.c
-Message-ID: <20040910033055.GA26790@gondor.apana.org.au>
-References: <20040909111233.GA3987@steel.home>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-In-Reply-To: <20040909111233.GA3987@steel.home>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Thu, 9 Sep 2004 23:28:11 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:33962 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S267793AbUIJD11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 23:27:27 -0400
+Date: Fri, 10 Sep 2004 12:29:23 +0900 (JST)
+Message-Id: <200409100329.i8A3TNYV007108@mailsv.bs1.fc.nec.co.jp>
+To: akpm@osdl.org, hugh@veritas.com
+Cc: wli@holomorphy.com, takata.hirokazu@renesas.com, kaigai@ak.jp.nec.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] atomic_inc_return() for arm[3/5] (Re: atomic_inc_return)
+In-Reply-To: Your message of "Thu, 9 Sep 2004 20:48:27 +0100 (BST)".
+	<Pine.LNX.4.44.0409092005430.14004-100000@localhost.localdomain>
+From: kaigai@ak.jp.nec.com (Kaigai Kohei)
+X-Mailer: mnews [version 1.22PL1] 2000-02/15(Tue)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[3/5] atomic_inc_return-linux-2.6.9-rc1.arm.patch
+  This patch declares atomic_inc_return() as the alias of atomic_add_return()
+  and atomic_dec_return() as an alias of atomic_dec_return().
+  This patch has not been tested, since we don't have ARM machine.
+  I want to let this reviewed by ARM specialists.
 
-On Thu, Sep 09, 2004 at 11:12:33AM +0000, Alex Riesen wrote:
-> The box froze after being left for some time (some 10 hours) unattended.
-> The only thing in I could find in logs was:
-> 
-> Sep  8 22:30:18 steel kernel: KERNEL: assertion ((int)tcp_get_pcount(&tp->lost_out) >= 0) failed at net/ipv4/tcp_input.c (2422)
-> Sep  8 22:30:18 steel kernel: Leak l=4294967295 4
+Signed-off-by: KaiGai, Kohei <kaigai@ak.jp.nec.com>
+--------
+Kai Gai <kaigai@ak.jp.nec.com>
 
-Looks like the factor isn't set early enough.  Can you please check
-that you had the changeset titled
 
-[TCP]: Make sure SKB tso factor is setup early enough.
-
-from davem?
-
-If you did, then please apply the following patch and tell us what
-the resulting messages.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-===== include/net/tcp.h 1.87 vs edited =====
---- 1.87/include/net/tcp.h	2004-09-10 01:51:02 +10:00
-+++ edited/include/net/tcp.h	2004-09-10 13:24:25 +10:00
-@@ -30,6 +30,7 @@
- #include <linux/slab.h>
- #include <linux/cache.h>
- #include <linux/percpu.h>
-+#include <linux/rtnetlink.h>
- #include <net/checksum.h>
- #include <net/sock.h>
- #include <net/snmp.h>
-@@ -1195,6 +1196,7 @@
-  */
- static inline int tcp_skb_pcount(struct sk_buff *skb)
- {
-+	BUG_TRAP(TCP_SKB_CB(skb)->tso_factor);
- 	return TCP_SKB_CB(skb)->tso_factor;
- }
+diff -rNU4 linux-2.6.9-rc1/include/asm-arm/atomic.h linux-2.6.9-rc1.atomic_inc_return/include/asm-arm/atomic.h
+--- linux-2.6.9-rc1/include/asm-arm/atomic.h	2004-08-24 16:01:55.000000000 +0900
++++ linux-2.6.9-rc1.atomic_inc_return/include/asm-arm/atomic.h	2004-09-10 10:15:18.000000000 +0900
+@@ -194,8 +194,10 @@
+ #define atomic_dec(v)		atomic_sub(1, v)
  
-
---UlVJffcvxoiEqYs2--
+ #define atomic_inc_and_test(v)	(atomic_add_return(1, v) == 0)
+ #define atomic_dec_and_test(v)	(atomic_sub_return(1, v) == 0)
++#define atomic_inc_return(v)    (atomic_add_return(1, v))
++#define atomic_dec_return(v)    (atomic_sub_return(1, v))
+ 
+ #define atomic_add_negative(i,v) (atomic_add_return(i, v) < 0)
+ 
+ /* Atomic operations are already serializing on ARM */

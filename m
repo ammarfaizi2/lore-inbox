@@ -1,196 +1,270 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292092AbSB0FXV>; Wed, 27 Feb 2002 00:23:21 -0500
+	id <S292222AbSB0GrJ>; Wed, 27 Feb 2002 01:47:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292130AbSB0FXN>; Wed, 27 Feb 2002 00:23:13 -0500
-Received: from 24.213.60.124.up.mi.chartermi.net ([24.213.60.124]:469 "EHLO
-	front2.chartermi.net") by vger.kernel.org with ESMTP
-	id <S292092AbSB0FWw>; Wed, 27 Feb 2002 00:22:52 -0500
-From: reddog83 <reddog83@chartermi.net>
-Reply-To: reddog83@chartermi.net
-To: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] Intel i8xx redefine's
-Date: Wed, 27 Feb 2002 00:24:00 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-X-PRIORITY: 2 (High)
+	id <S292228AbSB0GrB>; Wed, 27 Feb 2002 01:47:01 -0500
+Received: from rwcrmhc54.attbi.com ([216.148.227.87]:40403 "EHLO
+	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
+	id <S292222AbSB0Gqm>; Wed, 27 Feb 2002 01:46:42 -0500
+Message-ID: <3C7C80D7.59F983B6@didntduck.org>
+Date: Wed, 27 Feb 2002 01:46:47 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.6-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_00F65BQRS92LNIAC4IJH"
-Message-ID: <auto-000065898980@front2.chartermi.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Use list heads for task list
+Content-Type: multipart/mixed;
+ boundary="------------7FF53C54D65C1C11E9E63E4E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------7FF53C54D65C1C11E9E63E4E
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
---------------Boundary-00=_00F65BQRS92LNIAC4IJH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+This patch (against 2.5.6-pre1) converts prev_task and next_task in the
+task_struct to use list heads.
 
-This patch here is against Linux Kernel-2.4.19-pre1 
-What it does is chnages the pci ids for the ICH chipset's so they are 
-correctly identifable as such here is the patch for 2.4.x
---------------Boundary-00=_00F65BQRS92LNIAC4IJH
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="ich.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="ich.diff"
+-- 
 
-ZGlmZiAtdXJOIGxpbnV4LnZpcmdpbi9kcml2ZXJzL2lkZS9waWl4LmMgbGludXgtMi40LjE5LXBy
-ZTEvZHJpdmVycy9pZGUvcGlpeC5jCi0tLSBsaW51eC52aXJnaW4vZHJpdmVycy9pZGUvcGlpeC5j
-CVRodSBPY3QgMjUgMTY6NTM6NDcgMjAwMQorKysgbGludXgtMi40LjE5LXByZTEvZHJpdmVycy9p
-ZGUvcGlpeC5jCVR1ZSBGZWIgMjYgMjM6NTk6MDYgMjAwMgpAQCAtODksMTcgKzg5LDI0IEBACiAJ
-dTggIHJlZzQ0ID0gMCwgcmVnNDggPSAwLCByZWc0YSA9IDAsIHJlZzRiID0gMCwgcmVnNTQgPSAw
-LCByZWc1NSA9IDA7CiAKIAlzd2l0Y2goYm1pZGVfZGV2LT5kZXZpY2UpIHsKKwkgICAgICAgIGNh
-c2UgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUNBXzEwOgorCSAgICAgICAgY2FzZSBQQ0lfREVW
-SUNFX0lEX0lOVEVMXzgyODAxQ0FfMTE6CisJCQlwICs9IHNwcmludGYocCwgIlxuICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBJbnRlbCBJQ0gzIFVsdHJhIDEwMCBDaGlwc2V0LlxuIik7
-CisJCQlicmVhazsKIAkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxQkFfODoKIAkJY2Fz
-ZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxQkFfOToKLQkgICAgICAgIGNhc2UgUENJX0RFVklD
-RV9JRF9JTlRFTF84MjgwMUNBXzEwOgotCQkJcCArPSBzcHJpbnRmKHAsICJcbiAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgSW50ZWwgUElJWDQgVWx0cmEgMTAwIENoaXBzZXQuXG4iKTsK
-KwkJCXAgKz0gc3ByaW50ZihwLCAiXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIElu
-dGVsIElDSDIgVWx0cmEgMTAwIENoaXBzZXQuXG4iKTsKIAkJCWJyZWFrOwotCQljYXNlIFBDSV9E
-RVZJQ0VfSURfSU5URUxfODIzNzJGQl8xOgogCQljYXNlIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4
-MDFBQV8xOgorCQkJcCArPSBzcHJpbnRmKHAsICJcbiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgSW50ZWwgSUNIIFVsdHJhIDY2IENoaXBzZXQuXG4iKTsKKwkJCWJyZWFrOworCQljYXNl
-IFBDSV9ERVZJQ0VfSURfSU5URUxfODIzNzJGQl8xOgogCQkJcCArPSBzcHJpbnRmKHAsICJcbiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgSW50ZWwgUElJWDQgVWx0cmEgNjYgQ2hpcHNl
-dC5cbiIpOwogCQkJYnJlYWs7Ci0JCWNhc2UgUENJX0RFVklDRV9JRF9JTlRFTF84MjQ1MU5YOgog
-CQljYXNlIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFBQl8xOgorCQkJcCArPSBzcHJpbnRmKHAs
-ICJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgSW50ZWwgSUNIMCBVbHRyYSAzMyBD
-aGlwc2V0LlxuIik7CisJCQlicmVhazsKKwkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyNDUx
-Tlg6CiAJCWNhc2UgUENJX0RFVklDRV9JRF9JTlRFTF84MjQ0M01YXzE6CiAJCWNhc2UgUENJX0RF
-VklDRV9JRF9JTlRFTF84MjM3MUFCOgogCQkJcCArPSBzcHJpbnRmKHAsICJcbiAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgSW50ZWwgUElJWDQgVWx0cmEgMzMgQ2hpcHNldC5cbiIpOwpk
-aWZmIC11ck4gbGludXgudmlyZ2luL2RyaXZlcnMvaWRlL2lkZS1wY2kuYyBsaW51eC0yLjQuMTkt
-cHJlMS9kcml2ZXJzL2lkZS9pZGUtcGNpLmMKLS0tIGxpbnV4LnZpcmdpbi9kcml2ZXJzL2lkZS9p
-ZGUtcGNpLmMJVGh1IE9jdCAyNSAxNjo1Mzo0NyAyMDAxCisrKyBsaW51eC0yLjQuMTkvZHJpdmVy
-cy9pZGUvaWRlLXBjaS5jCVR1ZSBGZWIgMjYgMjM6NTk6MDYgMjAwMgpAQCAtMzAsMTQgKzMwLDE1
-IEBACiAjZGVmaW5lIERFVklEX01QSUlYCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lE
-X0lOVEVMLCAgIFBDSV9ERVZJQ0VfSURfSU5URUxfODIzNzFNWH0pCiAjZGVmaW5lIERFVklEX1BJ
-SVgzCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX0lOVEVMLCAgIFBDSV9ERVZJQ0Vf
-SURfSU5URUxfODIzNzFTQl8xfSkKICNkZWZpbmUgREVWSURfUElJWDQJKChpZGVfcGNpX2Rldmlk
-X3Qpe1BDSV9WRU5ET1JfSURfSU5URUwsICAgUENJX0RFVklDRV9JRF9JTlRFTF84MjM3MUFCfSkK
-LSNkZWZpbmUgREVWSURfUElJWDRFCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX0lO
-VEVMLCAgIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFBQl8xfSkKKyNkZWZpbmUgREVWSURfSUNI
-MAkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9JTlRFTCwgICBQQ0lfREVWSUNFX0lE
-X0lOVEVMXzgyODAxQUJfMX0pCiAjZGVmaW5lIERFVklEX1BJSVg0RTIJKChpZGVfcGNpX2Rldmlk
-X3Qpe1BDSV9WRU5ET1JfSURfSU5URUwsICAgUENJX0RFVklDRV9JRF9JTlRFTF84MjQ0M01YXzF9
-KQotI2RlZmluZSBERVZJRF9QSUlYNFUJKChpZGVfcGNpX2RldmlkX3Qpe1BDSV9WRU5ET1JfSURf
-SU5URUwsICAgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUFBXzF9KQorI2RlZmluZSBERVZJRF9J
-Q0gJKChpZGVfcGNpX2RldmlkX3Qpe1BDSV9WRU5ET1JfSURfSU5URUwsICAgUENJX0RFVklDRV9J
-RF9JTlRFTF84MjgwMUFBXzF9KQogI2RlZmluZSBERVZJRF9QSUlYNFUyCSgoaWRlX3BjaV9kZXZp
-ZF90KXtQQ0lfVkVORE9SX0lEX0lOVEVMLCAgIFBDSV9ERVZJQ0VfSURfSU5URUxfODIzNzJGQl8x
-fSkKICNkZWZpbmUgREVWSURfUElJWDROWAkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9J
-RF9JTlRFTCwgICBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyNDUxTlh9KQotI2RlZmluZSBERVZJRF9Q
-SUlYNFUzCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX0lOVEVMLCAgIFBDSV9ERVZJ
-Q0VfSURfSU5URUxfODI4MDFCQV85fSkKLSNkZWZpbmUgREVWSURfUElJWDRVNAkoKGlkZV9wY2lf
-ZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9JTlRFTCwgICBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAx
-QkFfOH0pCi0jZGVmaW5lIERFVklEX1BJSVg0VTUJKChpZGVfcGNpX2RldmlkX3Qpe1BDSV9WRU5E
-T1JfSURfSU5URUwsICAgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUNBXzEwfSkKKyNkZWZpbmUg
-REVWSURfSUNIMgkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9JTlRFTCwgICBQQ0lf
-REVWSUNFX0lEX0lOVEVMXzgyODAxQkFfOX0pCisjZGVmaW5lIERFVklEX0lDSDJNCSgoaWRlX3Bj
-aV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX0lOVEVMLCAgIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4
-MDFCQV84fSkKKyNkZWZpbmUgREVWSURfSUNIMwkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRP
-Ul9JRF9JTlRFTCwgICBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxQ0FfMTF9KQorI2RlZmluZSBE
-RVZJRF9JQ0gzTQkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9JTlRFTCwgICBQQ0lf
-REVWSUNFX0lEX0lOVEVMXzgyODAxQ0FfMTB9KQogI2RlZmluZSBERVZJRF9WSUFfSURFCSgoaWRl
-X3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX1ZJQSwgICAgIFBDSV9ERVZJQ0VfSURfVklBXzgy
-QzU2MX0pCiAjZGVmaW5lIERFVklEX01SX0lERQkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRP
-Ul9JRF9WSUEsICAgICBQQ0lfREVWSUNFX0lEX1ZJQV84MkM1NzZfMX0pCiAjZGVmaW5lIERFVklE
-X1ZQX0lERQkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9WSUEsICAgICBQQ0lfREVW
-SUNFX0lEX1ZJQV84MkM1ODZfMX0pCkBAIC0zNzksMTQgKzM4MCwxNSBAQAogCXtERVZJRF9NUElJ
-WCwJIk1QSUlYIiwJTlVMTCwJCU5VTEwsCQlJTklUX1BJSVgsCU5VTEwsCQl7ezB4NkQsMHg4MCww
-eDgwfSwgezB4NkYsMHg4MCwweDgwfX0sCU9OX0JPQVJELAkwIH0sCiAJe0RFVklEX1BJSVgzLAki
-UElJWDMiLAlQQ0lfUElJWCwJTlVMTCwJCUlOSVRfUElJWCwJTlVMTCwJCXt7MHg0MSwweDgwLDB4
-ODB9LCB7MHg0MywweDgwLDB4ODB9fSwgCU9OX0JPQVJELAkwIH0sCiAJe0RFVklEX1BJSVg0LAki
-UElJWDQiLAlQQ0lfUElJWCwJTlVMTCwJCUlOSVRfUElJWCwJTlVMTCwJCXt7MHg0MSwweDgwLDB4
-ODB9LCB7MHg0MywweDgwLDB4ODB9fSwgCU9OX0JPQVJELAkwIH0sCi0Je0RFVklEX1BJSVg0RSwJ
-IlBJSVg0IiwJUENJX1BJSVgsCU5VTEwsCQlJTklUX1BJSVgsCU5VTEwsCQl7ezB4NDEsMHg4MCww
-eDgwfSwgezB4NDMsMHg4MCwweDgwfX0sCU9OX0JPQVJELAkwIH0sCisJe0RFVklEX0lDSDAsCSJJ
-Q0gwIiwJUENJX1BJSVgsCU5VTEwsCQlJTklUX1BJSVgsCU5VTEwsCQl7ezB4NDEsMHg4MCwweDgw
-fSwgezB4NDMsMHg4MCwweDgwfX0sCU9OX0JPQVJELAkwIH0sCiAJe0RFVklEX1BJSVg0RTIsCSJQ
-SUlYNCIsCVBDSV9QSUlYLAlOVUxMLAkJSU5JVF9QSUlYLAlOVUxMLAkJe3sweDQxLDB4ODAsMHg4
-MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9CT0FSRCwJMCB9LAotCXtERVZJRF9QSUlYNFUsCSJQ
-SUlYNCIsCVBDSV9QSUlYLAlBVEE2Nl9QSUlYLAlJTklUX1BJSVgsCU5VTEwsCQl7ezB4NDEsMHg4
-MCwweDgwfSwgezB4NDMsMHg4MCwweDgwfX0sCU9OX0JPQVJELAkwIH0sCisJe0RFVklEX0lDSCwJ
-IklDSCIsCVBDSV9QSUlYLAlBVEE2Nl9QSUlYLAlJTklUX1BJSVgsCU5VTEwsCQl7ezB4NDEsMHg4
-MCwweDgwfSwgezB4NDMsMHg4MCwweDgwfX0sCU9OX0JPQVJELAkwIH0sCiAJe0RFVklEX1BJSVg0
-VTIsCSJQSUlYNCIsCVBDSV9QSUlYLAlBVEE2Nl9QSUlYLAlJTklUX1BJSVgsCU5VTEwsCQl7ezB4
-NDEsMHg4MCwweDgwfSwgezB4NDMsMHg4MCwweDgwfX0sCU9OX0JPQVJELAkwIH0sCiAJe0RFVklE
-X1BJSVg0TlgsCSJQSUlYNCIsCVBDSV9QSUlYLAlOVUxMLAkJSU5JVF9QSUlYLAlOVUxMLAkJe3sw
-eDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9CT0FSRCwJMCB9LAotCXtERVZJ
-RF9QSUlYNFUzLAkiUElJWDQiLAlQQ0lfUElJWCwJQVRBNjZfUElJWCwJSU5JVF9QSUlYLAlOVUxM
-LAkJe3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9CT0FSRCwJMCB9LAot
-CXtERVZJRF9QSUlYNFU0LCAiUElJWDQiLAlQQ0lfUElJWCwJQVRBNjZfUElJWCwJSU5JVF9QSUlY
-LAlOVUxMLAkJe3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9CT0FSRCwJ
-MCB9LAotCXtERVZJRF9QSUlYNFU1LCAiUElJWDQiLAlQQ0lfUElJWCwJQVRBNjZfUElJWCwJSU5J
-VF9QSUlYLAlOVUxMLAkJe3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9C
-T0FSRCwJMCB9LAorCXtERVZJRF9JQ0gyLAkiSUNIMiIsCVBDSV9QSUlYLAlBVEE2Nl9QSUlYLAlJ
-TklUX1BJSVgsCU5VTEwsCQl7ezB4NDEsMHg4MCwweDgwfSwgezB4NDMsMHg4MCwweDgwfX0sCU9O
-X0JPQVJELAkwIH0sCisJe0RFVklEX0lDSDJNLAkiSUNIMk0iLAlQQ0lfUElJWCwJQVRBNjZfUElJ
-WCwJSU5JVF9QSUlYLAlOVUxMLAkJe3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19
-LAlPTl9CT0FSRCwJMCB9LAorCXtERVZJRF9JQ0gzLAkiSUNIMyIsCVBDSV9QSUlYLAlBVEE2Nl9Q
-SUlYLAlJTklUX1BJSVgsCU5VTEwsCQl7ezB4NDEsMHg4MCwweDgwfSwgezB4NDMsMHg4MCwweDgw
-fX0sCU9OX0JPQVJELAkwIH0sCisJe0RFVklEX0lDSDNNLAkiSUNIM00iLAlQQ0lfUElJWCwJQVRB
-NjZfUElJWCwJSU5JVF9QSUlYLAlOVUxMLAkJe3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAs
-MHg4MH19LAlPTl9CT0FSRCwJMCB9LAogCXtERVZJRF9WSUFfSURFLAkiVklBX0lERSIsCU5VTEws
-CQlOVUxMLAkJTlVMTCwJCU5VTEwsCQl7ezB4MDAsMHgwMCwweDAwfSwgezB4MDAsMHgwMCwweDAw
-fX0sCU9OX0JPQVJELAkwIH0sCiAJe0RFVklEX01SX0lERSwJIlZQX0lERSIsCVBDSV9WSUE4MkNY
-WFgsCUFUQTY2X1ZJQTgyQ1hYWCxJTklUX1ZJQTgyQ1hYWCwJRE1BX1ZJQTgyQ1hYWCwJe3sweDQw
-LDB4MDIsMHgwMn0sIHsweDQwLDB4MDEsMHgwMX19LCAJT05fQk9BUkQsCTAgfSwKIAl7REVWSURf
-VlBfSURFLAkiVlBfSURFIiwJUENJX1ZJQTgyQ1hYWCwJQVRBNjZfVklBODJDWFhYLElOSVRfVklB
-ODJDWFhYLAlETUFfVklBODJDWFhYLAl7ezB4NDAsMHgwMiwweDAyfSwgezB4NDAsMHgwMSwweDAx
-fX0sIAlPTl9CT0FSRCwJMCB9LApkaWZmIC11ck4gbGludXgudmlyZ2luL2RyaXZlcnMvcGNpL3Bj
-aS5pZHMgbGludXgtMi40LjE5LXByZTEvZHJpdmVycy9wY2kvcGNpLmlkcwotLS0gbGludXgudmly
-Z2luL2RyaXZlcnMvcGNpL3BjaS5pZHMJTW9uIEZlYiAyNSAxOTo0Nzo1MSAyMDAyCisrKyBsaW51
-eC0yLjQuMTktcHJlMS9kcml2ZXJzL3BjaS9wY2kuaWRzCVR1ZSBGZWIgMjYgMjM6NTk6MDYgMjAw
-MgpAQCAtNTAxNSwzOCArNTAxNSw0MiBAQAogCTFhMjQgIDgyODQwIDg0MCAoQ2FybWVsKSBDaGlw
-c2V0IFBDSSBCcmlkZ2UgKEh1YiBCKQogCTFhMzAgIDgyODQ1IDg0NSAoQnJvb2tkYWxlKSBDaGlw
-c2V0IEhvc3QgQnJpZGdlCiAJMWEzMSAgODI4NDUgODQ1IChCcm9va2RhbGUpIENoaXBzZXQgQUdQ
-IEJyaWRnZQotCTI0MTAgIDgyODAxQUEgSVNBIEJyaWRnZSAoTFBDKQotCTI0MTEgIDgyODAxQUEg
-SURFCi0JMjQxMiAgODI4MDFBQSBVU0IKLQkyNDEzICA4MjgwMUFBIFNNQnVzCi0JMjQxNSAgODI4
-MDFBQSBBQyc5NyBBdWRpbworCTI0MTAgIDgyODAxQUEgSUNIIElTQSBCcmlkZ2UgKExQQykKKwky
-NDExICA4MjgwMUFBIElDSCBJREUKKwkyNDEyICA4MjgwMUFBIElDSCBVU0IKKwkyNDEzICA4Mjgw
-MUFBIElDSCBTTUJ1cworCTI0MTUgIDgyODAxQUEgSUNIIEFDJzk3IEF1ZGlvCiAJCTExZDQgMDA0
-MCAgU291bmRNQVggSW50ZWdyYXRlZCBEaWdpdGFsIEF1ZGlvCiAJCTExZDQgMDA0OCAgU291bmRN
-QVggSW50ZWdyYXRlZCBEaWdpdGFsIEF1ZGlvCiAJCTExZDQgNTM0MCAgU291bmRNQVggSW50ZWdy
-YXRlZCBEaWdpdGFsIEF1ZGlvCi0JMjQxNiAgODI4MDFBQSBBQyc5NyBNb2RlbQotCTI0MTggIDgy
-ODAxQUEgUENJIEJyaWRnZQotCTI0MjAgIDgyODAxQUIgSVNBIEJyaWRnZSAoTFBDKQotCTI0MjEg
-IDgyODAxQUIgSURFCi0JMjQyMiAgODI4MDFBQiBVU0IKLQkyNDIzICA4MjgwMUFCIFNNQnVzCi0J
-MjQyNSAgODI4MDFBQiBBQyc5NyBBdWRpbworCTI0MTYgIDgyODAxQUEgSUNIIEFDJzk3IE1vZGVt
-CisJMjQxOCAgODI4MDFBQSBJQ0ggUENJIEJyaWRnZQorCTI0MjAgIDgyODAxQUIgSUNIMCBJU0Eg
-QnJpZGdlIChMUEMpCisJMjQyMSAgODI4MDFBQiBJQ0gwIElERQorCTI0MjIgIDgyODAxQUIgSUNI
-MCBVU0IKKwkyNDIzICA4MjgwMUFCIElDSDAgU01CdXMKKwkyNDI1ICA4MjgwMUFCIElDSDAgQUMn
-OTcgQXVkaW8KIAkJMTFkNCAwMDQwICBTb3VuZE1BWCBJbnRlZ3JhdGVkIERpZ2l0YWwgQXVkaW8K
-IAkJMTFkNCAwMDQ4ICBTb3VuZE1BWCBJbnRlZ3JhdGVkIERpZ2l0YWwgQXVkaW8KLQkyNDI2ICA4
-MjgwMUFCIEFDJzk3IE1vZGVtCi0JMjQyOCAgODI4MDFBQiBQQ0kgQnJpZGdlCi0JMjQ0MCAgODI4
-MjAgODIwIChDYW1pbm8gMikgQ2hpcHNldCBJU0EgQnJpZGdlIChJQ0gyKQotCTI0NDIgIDgyODIw
-IDgyMCAoQ2FtaW5vIDIpIENoaXBzZXQgVVNCIChIdWIgQSkKLQkyNDQzICA4MjgyMCA4MjAgKENh
-bWlubyAyKSBDaGlwc2V0IFNNQnVzCi0JMjQ0NCAgODI4MjAgODIwIChDYW1pbm8gMikgQ2hpcHNl
-dCBVU0IgKEh1YiBCKQotCTI0NDUgIDgyODIwIDgyMCAoQ2FtaW5vIDIpIENoaXBzZXQgQUMnOTcg
-QXVkaW8gQ29udHJvbGxlcgotCTI0NDYgIDgyODIwIDgyMCAoQ2FtaW5vIDIpIENoaXBzZXQgQUMn
-OTcgTW9kZW0gQ29udHJvbGxlcgotCTI0NDggIDgyODIwIDgyMCAoQ2FtaW5vIDIpIENoaXBzZXQg
-UENJICgtTSkKLQkyNDQ5ICA4MjgyMCAoSUNIMikgQ2hpcHNldCBFdGhlcm5ldCBDb250cm9sbGVy
-Ci0JMjQ0YSAgODI4MjAgODIwIChDYW1pbm8gMikgQ2hpcHNldCBJREUgVTEwMCAoLU0pCi0JMjQ0
-YiAgODI4MjAgODIwIChDYW1pbm8gMikgQ2hpcHNldCBJREUgVTEwMAotCTI0NGMgIDgyODIwIDgy
-MCAoQ2FtaW5vIDIpIENoaXBzZXQgSVNBIEJyaWRnZSAoSUNIMi1NKQotCTI0NGUgIDgyODIwIDgy
-MCAoQ2FtaW5vIDIpIENoaXBzZXQgUENJCisJMjQyNiAgODI4MDFBQiBJQ0gwIEFDJzk3IE1vZGVt
-CisJMjQyOCAgODI4MDFBQiBJQ0gwIFBDSSBCcmlkZ2UKKwkyNDQwICA4MjgwMUJBIElDSDIgSVNB
-IEJyaWRnZSAoTFBDKQorCTI0NDEgIDgyODAxQkEgSUNIMi1MRSBJREUgVTY2CisJMjQ0MiAgODI4
-MDFCQSBJQ0gyIFVTQiAoSHViIEEpCisJMjQ0MyAgODI4MDFCQSBJQ0gyIFNNQnVzCisJMjQ0NCAg
-ODI4MDFCQSBJQ0gyIFVTQiAoSHViIEIpCisJMjQ0NSAgODI4MDFCQSBJQ0gyIEFDJzk3IEF1ZGlv
-IENvbnRyb2xsZXIKKwkyNDQ2ICA4MjgwMUJBIElDSDIgQUMnOTcgTW9kZW0gQ29udHJvbGxlcgor
-CTI0NDggIDgyODAxQkEgSUNIMi1NIFBDSSBCcmlkZ2UKKwkyNDQ5ICA4MjgwMUJBIElDSDIgRXRo
-ZXJuZXQgQ29udHJvbGxlcgorCTI0NGEgIDgyODAxQkEgSUNIMi1NIElERSBVMTAwCisJMjQ0YiAg
-ODI4MDFCQSBJQ0gyIElERSBVMTAwCisJMjQ0YyAgODI4MDFCQSBJQ0gyLU0gSVNBIEJyaWRnZQor
-CTI0NGUgIDgyODAxQkEgSUNIMiBQQ0kgQnJpZGdlCisJMjQ4MSAgODI4MDFDQSBJQ0gzLUxFIFVE
-RSBVNjYKIAkyNDg1ICBBQyc5NyBBdWRpbyBDb250cm9sbGVyCisJMjQ4YSAgODI4MDFDQSBJQ0gz
-LU0gSURFIFUxMDAKKwkyNDhiICA4MjgwMUNBIElDSDMgSURFIFUxMDAKIAkyNTAwICA4MjgyMCA4
-MjAgKENhbWlubykgQ2hpcHNldCBIb3N0IEJyaWRnZSAoTUNIKQogCQkxMDQzIDgwMWMgIFAzQy0y
-MDAwIHN5c3RlbSBjaGlwc2V0CiAJMjUwMSAgODI4MjAgODIwIChDYW1pbm8pIENoaXBzZXQgSG9z
-dCBCcmlkZ2UgKE1DSCkK
+						Brian Gerst
+--------------7FF53C54D65C1C11E9E63E4E
+Content-Type: text/plain; charset=us-ascii;
+ name="task_list-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="task_list-1"
 
---------------Boundary-00=_00F65BQRS92LNIAC4IJH--
+diff -urN linux-2.5.6-pre1/arch/alpha/kernel/smp.c linux/arch/alpha/kernel/smp.c
+--- linux-2.5.6-pre1/arch/alpha/kernel/smp.c	Wed Feb 20 01:47:29 2002
++++ linux/arch/alpha/kernel/smp.c	Tue Feb 26 22:53:02 2002
+@@ -460,7 +460,7 @@
+ 	if (fork_by_hand() < 0)
+ 		panic("failed fork for CPU %d", cpuid);
+ 
+-	idle = init_task.prev_task;
++	idle = LAST_TASK;
+ 	if (!idle)
+ 		panic("No idle process for CPU %d", cpuid);
+ 
+diff -urN linux-2.5.6-pre1/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
+--- linux-2.5.6-pre1/arch/i386/kernel/smpboot.c	Wed Feb 20 01:47:29 2002
++++ linux/arch/i386/kernel/smpboot.c	Tue Feb 26 22:53:02 2002
+@@ -828,7 +828,7 @@
+ 	 * We remove it from the pidhash and the runqueue
+ 	 * once we got the process:
+ 	 */
+-	idle = init_task.prev_task;
++	idle = LAST_TASK;
+ 	if (!idle)
+ 		panic("No idle process for CPU %d", cpu);
+ 
+diff -urN linux-2.5.6-pre1/arch/ia64/kernel/smpboot.c linux/arch/ia64/kernel/smpboot.c
+--- linux-2.5.6-pre1/arch/ia64/kernel/smpboot.c	Wed Nov 21 13:31:09 2001
++++ linux/arch/ia64/kernel/smpboot.c	Tue Feb 26 22:53:02 2002
+@@ -412,7 +412,7 @@
+ 	 * We remove it from the pidhash and the runqueue
+ 	 * once we got the process:
+ 	 */
+-	idle = init_task.prev_task;
++	idle = LAST_TASK;
+ 	if (!idle)
+ 		panic("No idle process for CPU %d", cpu);
+ 
+diff -urN linux-2.5.6-pre1/arch/mips/kernel/smp.c linux/arch/mips/kernel/smp.c
+--- linux-2.5.6-pre1/arch/mips/kernel/smp.c	Wed Feb  6 11:47:02 2002
++++ linux/arch/mips/kernel/smp.c	Tue Feb 26 22:53:02 2002
+@@ -123,7 +123,7 @@
+ 		/* Spawn a new process normally.  Grab a pointer to
+ 		   its task struct so we can mess with it */
+ 		do_fork(CLONE_VM|CLONE_PID, 0, &regs, 0);
+-		p = init_task.prev_task;
++		p = LAST_TASK;
+ 
+ 		/* Schedule the first task manually */
+ 		p->processor = i;
+@@ -152,7 +152,7 @@
+ 		 * Linux can schedule processes on this slave.
+ 		 */
+ 		kernel_thread(0, NULL, CLONE_PID);
+-		p = init_task.prev_task;
++		p = LAST_TASK;
+ 		sprintf(p->comm, "%s%d", "Idle", i);
+ 		init_tasks[i] = p;
+ 		p->processor = i;
+diff -urN linux-2.5.6-pre1/arch/mips64/sgi-ip27/ip27-init.c linux/arch/mips64/sgi-ip27/ip27-init.c
+--- linux-2.5.6-pre1/arch/mips64/sgi-ip27/ip27-init.c	Wed Nov 21 13:31:09 2001
++++ linux/arch/mips64/sgi-ip27/ip27-init.c	Tue Feb 26 22:53:02 2002
+@@ -491,7 +491,7 @@
+ 			 * Linux can schedule processes on this slave.
+ 			 */
+ 			kernel_thread(0, NULL, CLONE_PID);
+-			p = init_task.prev_task;
++			p = LAST_TASK;
+ 			sprintf(p->comm, "%s%d", "Idle", num_cpus);
+ 			init_tasks[num_cpus] = p;
+ 			alloc_cpupda(cpu, num_cpus);
+diff -urN linux-2.5.6-pre1/arch/ppc/kernel/smp.c linux/arch/ppc/kernel/smp.c
+--- linux-2.5.6-pre1/arch/ppc/kernel/smp.c	Wed Feb 20 01:47:30 2002
++++ linux/arch/ppc/kernel/smp.c	Tue Feb 26 22:53:02 2002
+@@ -364,7 +364,7 @@
+ 		memset(&regs, 0, sizeof(struct pt_regs));
+ 		if (do_fork(CLONE_VM|CLONE_PID, 0, &regs, 0) < 0)
+ 			panic("failed fork for CPU %d", i);
+-		p = init_task.prev_task;
++		p = LAST_TASK;
+ 		if (!p)
+ 			panic("No idle task for CPU %d", i);
+ 		init_idle(p, i);
+diff -urN linux-2.5.6-pre1/arch/ppc64/kernel/smp.c linux/arch/ppc64/kernel/smp.c
+--- linux-2.5.6-pre1/arch/ppc64/kernel/smp.c	Wed Feb 20 01:47:31 2002
++++ linux/arch/ppc64/kernel/smp.c	Tue Feb 26 22:53:02 2002
+@@ -669,7 +669,7 @@
+ 
+ 		if (do_fork(CLONE_VM|CLONE_PID, 0, &regs, 0) < 0)
+ 			panic("failed fork for CPU %d", i);
+-		p = init_task.prev_task;
++		p = LAST_TASK;
+ 		if (!p)
+ 			panic("No idle task for CPU %d", i);
+ 
+diff -urN linux-2.5.6-pre1/arch/s390/kernel/smp.c linux/arch/s390/kernel/smp.c
+--- linux-2.5.6-pre1/arch/s390/kernel/smp.c	Wed Feb  6 11:46:55 2002
++++ linux/arch/s390/kernel/smp.c	Tue Feb 26 22:53:02 2002
+@@ -528,7 +528,7 @@
+          * We remove it from the pidhash and the runqueue
+          * once we got the process:
+          */
+-        idle = init_task.prev_task;
++        idle = LAST_TASK;
+         if (!idle)
+                 panic("No idle process for CPU %d",cpu);
+         idle->processor = cpu;
+diff -urN linux-2.5.6-pre1/arch/s390x/kernel/smp.c linux/arch/s390x/kernel/smp.c
+--- linux-2.5.6-pre1/arch/s390x/kernel/smp.c	Wed Feb  6 11:46:55 2002
++++ linux/arch/s390x/kernel/smp.c	Tue Feb 26 22:53:02 2002
+@@ -507,7 +507,7 @@
+          * We remove it from the pidhash and the runqueue
+          * once we got the process:
+          */
+-        idle = init_task.prev_task;
++        idle = LAST_TASK;
+         if (!idle)
+                 panic("No idle process for CPU %d",cpu);
+         idle->processor = cpu;
+diff -urN linux-2.5.6-pre1/arch/sparc/kernel/sun4d_smp.c linux/arch/sparc/kernel/sun4d_smp.c
+--- linux-2.5.6-pre1/arch/sparc/kernel/sun4d_smp.c	Wed Feb  6 11:46:55 2002
++++ linux/arch/sparc/kernel/sun4d_smp.c	Tue Feb 26 22:53:02 2002
+@@ -220,7 +220,7 @@
+ 
+ 			cpucount++;
+ 
+-			p = init_task.prev_task;
++			p = LAST_TASK;
+ 
+ 			p->cpu = i;
+ 
+diff -urN linux-2.5.6-pre1/arch/sparc/kernel/sun4m_smp.c linux/arch/sparc/kernel/sun4m_smp.c
+--- linux-2.5.6-pre1/arch/sparc/kernel/sun4m_smp.c	Wed Feb  6 11:46:55 2002
++++ linux/arch/sparc/kernel/sun4m_smp.c	Tue Feb 26 22:53:02 2002
+@@ -193,7 +193,7 @@
+ 
+ 			cpucount++;
+ 
+-			p = init_task.prev_task;
++			p = LAST_TASK;
+ 
+ 			p->cpu = i;
+ 
+diff -urN linux-2.5.6-pre1/arch/sparc64/kernel/smp.c linux/arch/sparc64/kernel/smp.c
+--- linux-2.5.6-pre1/arch/sparc64/kernel/smp.c	Mon Feb 11 10:21:43 2002
++++ linux/arch/sparc64/kernel/smp.c	Tue Feb 26 22:53:02 2002
+@@ -270,7 +270,7 @@
+ 			kernel_thread(NULL, NULL, CLONE_PID);
+ 			cpucount++;
+ 
+-			p = init_task.prev_task;
++			p = LAST_TASK;
+ 
+ 			init_idle(p, i);
+ 
+diff -urN linux-2.5.6-pre1/arch/x86_64/kernel/smpboot.c linux/arch/x86_64/kernel/smpboot.c
+--- linux-2.5.6-pre1/arch/x86_64/kernel/smpboot.c	Wed Feb 20 01:47:31 2002
++++ linux/arch/x86_64/kernel/smpboot.c	Tue Feb 26 22:53:02 2002
+@@ -559,7 +559,7 @@
+ 	 * We remove it from the pidhash and the runqueue
+ 	 * once we got the process:
+ 	 */
+-	idle = init_task.prev_task;
++	idle = LAST_TASK;
+ 	if (!idle)
+ 		panic("No idle process for CPU %d", cpu);
+ 
+diff -urN linux-2.5.6-pre1/include/linux/init_task.h linux/include/linux/init_task.h
+--- linux-2.5.6-pre1/include/linux/init_task.h	Tue Feb 26 23:56:18 2002
++++ linux/include/linux/init_task.h	Wed Feb 27 00:40:43 2002
+@@ -53,8 +53,7 @@
+     active_mm:		&init_mm,					\
+     run_list:		LIST_HEAD_INIT(tsk.run_list),			\
+     time_slice:		HZ,						\
+-    next_task:		&tsk,						\
+-    prev_task:		&tsk,						\
++    task_list:		LIST_HEAD_INIT(tsk.task_list),			\
+     p_opptr:		&tsk,						\
+     p_pptr:		&tsk,						\
+     thread_group:	LIST_HEAD_INIT(tsk.thread_group),		\
+diff -urN linux-2.5.6-pre1/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.6-pre1/include/linux/sched.h	Tue Feb 26 23:52:17 2002
++++ linux/include/linux/sched.h	Wed Feb 27 00:36:21 2002
+@@ -250,7 +250,7 @@
+ 	unsigned long cpus_allowed;
+ 	unsigned int time_slice;
+ 
+-	struct task_struct *next_task, *prev_task;
++	struct list_head task_list;
+ 
+ 	struct mm_struct *mm, *active_mm;
+ 	struct list_head local_pages;
+@@ -716,8 +716,7 @@
+ })
+ 
+ #define REMOVE_LINKS(p) do { \
+-	(p)->next_task->prev_task = (p)->prev_task; \
+-	(p)->prev_task->next_task = (p)->next_task; \
++	list_del(&(p)->task_list); \
+ 	if ((p)->p_osptr) \
+ 		(p)->p_osptr->p_ysptr = (p)->p_ysptr; \
+ 	if ((p)->p_ysptr) \
+@@ -727,18 +726,20 @@
+ 	} while (0)
+ 
+ #define SET_LINKS(p) do { \
+-	(p)->next_task = &init_task; \
+-	(p)->prev_task = init_task.prev_task; \
+-	init_task.prev_task->next_task = (p); \
+-	init_task.prev_task = (p); \
++	list_add_tail(&(p)->task_list, &init_task.task_list); \
+ 	(p)->p_ysptr = NULL; \
+ 	if (((p)->p_osptr = (p)->p_pptr->p_cptr) != NULL) \
+ 		(p)->p_osptr->p_ysptr = p; \
+ 	(p)->p_pptr->p_cptr = p; \
+ 	} while (0)
+ 
+-#define for_each_task(p) \
+-	for (p = &init_task ; (p = p->next_task) != &init_task ; )
++#define LAST_TASK list_entry(init_task.task_list.prev, struct task_struct, task_list)
++
++#define for_each_task(task) \
++	for (task = next_task(&init_task) ; task != &init_task ; task = next_task(task))
++
++#define next_task(p) \
++	list_entry((p)->task_list.next, struct task_struct, task_list)
+ 
+ #define for_each_thread(task) \
+ 	for (task = next_thread(current) ; task != current ; task = next_thread(task))
+
+--------------7FF53C54D65C1C11E9E63E4E--
+

@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267908AbRGZM5l>; Thu, 26 Jul 2001 08:57:41 -0400
+	id <S267904AbRGZMzC>; Thu, 26 Jul 2001 08:55:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267912AbRGZM5V>; Thu, 26 Jul 2001 08:57:21 -0400
-Received: from samar.sasken.com ([164.164.56.2]:38899 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S267908AbRGZM5N>;
-	Thu, 26 Jul 2001 08:57:13 -0400
-Date: Thu, 26 Jul 2001 18:27:02 +0530 (IST)
-From: Deepika Kakrania <deepika@sasken.com>
-To: <linux-net@vger.rutgers.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: CBQ is not limiting bandwidth!!!
-Message-ID: <Pine.GSO.4.30.0107261754530.26764-100000@sunk2.sasi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267908AbRGZMyv>; Thu, 26 Jul 2001 08:54:51 -0400
+Received: from charybda.fi.muni.cz ([147.251.48.214]:43525 "HELO
+	charybda.fi.muni.cz") by vger.kernel.org with SMTP
+	id <S267904AbRGZMyj>; Thu, 26 Jul 2001 08:54:39 -0400
+From: Jan Kasprzak <kas@informatics.muni.cz>
+Date: Thu, 26 Jul 2001 14:54:42 +0200
+To: Lutz Vieweg <lkv@isg.de>
+Cc: linux-kernel@vger.kernel.org, unix@fi.muni.cz
+Subject: Re: [Fwd: Linux 2.4 networking/routing slowdown]
+Message-ID: <20010726145442.K1024@informatics.muni.cz>
+In-Reply-To: <3B600EAD.3F8F9A70@isg.de> <3B6010EC.B7428A0D@isg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B6010EC.B7428A0D@isg.de>; from lkv@isg.de on Thu, Jul 26, 2001 at 02:45:32PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Lutz Vieweg wrote:
+: We didn't investigate the problem further, but found that by using 
+: "iptables" instead of the obsolete "ipchains" to establish the redirection
+: rule, everything was fine again.
+: 
+: So my advice would be to try iptables and see if your problem goes away
+: as well.
+: 
+	Well, the problem is, that even without ipchains.o module
+loaded, the server is not able to route even nearly close to 100Mbps.
+I'd like to have it routing at port speeds before I'll try to dig into
+ipchains/iptables.
 
- Hi all,
+-Yenya
 
-   I am using CBQ to limit the packet transmission rate to some small
-value(say 1Mbit...10Kbit) over an ethernet interface so that I can see
-queue building up at output side (having the queue length >10 or so while
-sending heavy traffic).
-
-The set up I am using is something like this
-
-  dst				router				src
-  ----------    		 ---------- 		      ----------
-  |	   |		  eth1   |	  |		      |	       |
-  |	   |-------------------- |	  |-------------------|        |
-  ---------			 ---------		      ---------
-   178.18.0.1		178.18.0.2     178.19.0.1	178.19.0.2
-
-  All 3 m/cs are connected thru' cross cables. The src m/c sends the
-traffic to dst m/c using netperf.
-  I am defining only one class at m/c router on interface eth1. The tc
-rules set up for doing so are following.
-
- tc qdisc add dev eth1 root handle 1: cbq bandwidth 10Mbit cell 8 avpkt
-1000 mpu 64
-
- tc class add dev eth1 parent 1:0 classud 1:1 cbq bandwidth 10Mbit rate
-1kbit allot 1514 cell 8 weigth 100bit prio 5 maxburst 20 avpkt 1000
-
- tc filter add dev eth1 parent 1:0 protocol ip prio 100 u32 match ip dst
-178.18.0.1 flowid 1:1
-
- But the result I get from netperf gives me the throughput of 6.81 Mbit
-even after setting the rate to 1Kbit.
-
-Another problem is that the queue length is 1 after enqueueing
-the packet at any time even if I send the traffic using 'ping -f
-178.18.0.1'.
-
-Can anyone tell me what could be the problem? Am I missing something?
-
-Thanks in advance.
-
-regards,
-Deepika
-
-Ps: I am not subscribed to this mailing list so please reply to my
-personal account.
-
-----------------------------------------------------------------------------
- Deepika Kakrania
- Sasken Communication Technologies Limited
-
- Phone No:(080) 5578 300 Extn:8059
-                5289906 (res)
- Email: deepika@sasi.com
-
+-- 
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+--Just returned after being 10 days off-line. Sorry for the delayed reply.--

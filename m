@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261809AbREVOsz>; Tue, 22 May 2001 10:48:55 -0400
+	id <S261802AbREVOwx>; Tue, 22 May 2001 10:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261802AbREVOsn>; Tue, 22 May 2001 10:48:43 -0400
-Received: from msp-26-178-183.mn.rr.com ([24.26.178.183]:54962 "HELO
-	msp-26-178-183.mn.rr.com") by vger.kernel.org with SMTP
-	id <S261809AbREVOsb>; Tue, 22 May 2001 10:48:31 -0400
-Date: Tue, 22 May 2001 09:48:24 -0500
-From: Shawn <core@enodev.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org,
-        timothy@monkey.org, reiser@namesys.com,
-        Guillem Cantallops Ramis <guillem@cantallops.net>
-Subject: Re: New XFS, ReiserFS and Ext2 benchmarks
-Message-ID: <20010522094824.A30186@localhost.mn.rr.com>
-In-Reply-To: <LOEGIBFACGNBNCDJMJMOKEADCJAA.gallir@uib.es> <01052212291305.06233@starship>
-Mime-Version: 1.0
+	id <S261813AbREVOwd>; Tue, 22 May 2001 10:52:33 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:9702 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S261802AbREVOw1>; Tue, 22 May 2001 10:52:27 -0400
+Message-ID: <3B0A7C0F.C824FDB5@uow.edu.au>
+Date: Wed, 23 May 2001 00:47:43 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] s_maxbytes handling
+In-Reply-To: <3B0A6124.E90717E7@uow.edu.au> from "Andrew Morton" at May 22, 2001 10:52:52 PM <E152CCP-0001rM-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <01052212291305.06233@starship>; from phillips@bonn-fries.net on Tue, May 22, 2001 at 12:29:13PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forbidden
-You don't have permission to access /~phillips/htree on this server.
-
-
---------------------------------------------------------------------------------
-
-Apache/1.3.14 Server at nl.linux.org Port 80
-
-On 05/22, Daniel Phillips rearranged the electrons to read:
-> On Tuesday 22 May 2001 04:41, Ricardo Galli wrote:
-> > Hi,
-> > 	you can find at http://bulma.lug.net/static/ a few new benchmarks
-> > among Reiser, XFS and Ext2 (also one with JFS).
-> >
-> > This time there is a comprehensive Hans' Mongo benchmarks
-> > (http://bulma.lug.net/static/mongo/ )and a couple of kernel
-> > compilations and read/write/fsync operations tests (I was very
-> > careful of populating the cache before the measures for the last two
-> > cases).
+Alan Cox wrote:
 > 
-> The measured create and rename times for Ext2 look pretty silly, don't they?
-> OK, I know that my htree directory index patch isn't part of Ext2 yet, but at 
-> least lets mention that this is a solved problem.
+> > If ->f_pos is positioned exactly at sb->s_maxbytes, a non-zero-length
+> > write to the file doesn't write anything, and write() returns zero.
 > 
->   http://nl.linux.org/~phillips/htree
-> 
-> --
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
---
-Hob Goblin
-core@enodev.com
+> Are you absolutely sure here. Because I ran that code through a set of standards
+> verification tests. So unless you can cite page and paragraph from SuS and
+> the LFS spec I think the 0 might in fact be correct..
 
-Truth is ever to be found in the simplicity, and not in the multiplicity and confusion of things. - Sir Isaac Newton (1642-1727)
+I don't know the standards Alan, but returning zero
+from write() when f_pos is at s_maxbytes will make
+a lot of apps hang up.  dd, bash and zsh certainly do.
+
+Are they buggy?  Should they be testing the return value
+of write() and assuming that zero is file-full?
+
+The s_maxbytes logic is different from the
+MAX_NON_LFS logic:
+
+        /*
+         *      LFS rule 
+         */
+        if ( pos + count > MAX_NON_LFS && !(file->f_flags&O_LARGEFILE)) {
+                if (pos >= MAX_NON_LFS) {
+                        send_sig(SIGXFSZ, current, 0);
+                        goto out;
+                }
+
+This makes more sense.  If the file is full, and
+you're trying to grow it, you fail.

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263924AbTDPVcs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 17:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTDPVcr
+	id S261760AbTDPVzv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 17:55:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTDPVzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 17:32:47 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:60126 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263924AbTDPVcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 17:32:46 -0400
-Date: Wed, 16 Apr 2003 23:44:23 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: jamal <hadi@cyberus.ca>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Catalin BOIE <util@deuroconsult.ro>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] qdisc oops fix
-Message-ID: <20030416214422.GM32575@louise.pinerecords.com>
-References: <20030415084706.O1131@shell.cyberus.ca> <20030416160606.GA32575@louise.pinerecords.com> <3E9D8A68.5050207@colorfullife.com> <200304162003.06600.m.c.p@wolk-project.de> <20030416140440.O5912@shell.cyberus.ca>
-Mime-Version: 1.0
+	Wed, 16 Apr 2003 17:55:51 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:62081 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S261760AbTDPVzu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 17:55:50 -0400
+From: root@mauve.demon.co.uk
+Message-Id: <200304162205.XAA15178@mauve.demon.co.uk>
+Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
+To: rwhite@casabyte.com (Robert White)
+Date: Wed, 16 Apr 2003 23:05:12 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGCEMNCHAA.rwhite@casabyte.com> from "Robert White" at Apr 16, 2003 01:53:34 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030416140440.O5912@shell.cyberus.ca>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [hadi@cyberus.ca]
-> >
-> > > >The original backtrace as provided by Martin Volf does not contain
-> > > >any weird addresses such as 0xd081ecc7 above:
-> > > >http://marc.theaimsgroup.com/?l=linux-kernel&m=105013596721774&w=2
-> > > Thanks.
-> > > The bug was caused by sch_tree_lock() in htb_change_class().
-> > > 2.4.21-pre7 contains a fix.
-> > am I just blind or isn't there a fix in -pre7|current-BK?
-> >
 > 
-> No you are not ;-> Yes, the fix for that specific problem is in
-> 2.4.21-pre7. I think Tomas might have missed that we moved on to the
-> next problem.
+> I had one-hell of a problem myself relating to memory on my new cutting edge
+> motherboard.  The problem, it turned out, had everything to do with the
+> motherboard and the often marginal quality of the ram.  Much investigation
+> revealed that there were only a few manufacturers of ram that the MoBoard
+> would "support"
+> 
+> In lay speak, I could put any damn thing I wanted into the first slot, but
+> anything I did with the second and subsequent slots went all haywire.
+> 
+> The BS layman's speak they gave me at the store was that they had seen a lot
+> of cases where having "double sided SIMMs" (they were oh-so-usefully
+> classifying the memory based on whether there were chips on just one side,
+> or on both sides of the circuit card 8-) in the second and subsequent slots
+> never worked.
 
-Trouble is, the fix went in for already -pre5 (cset 1.930.3.5), so if you
-only look at the pre6->pre7 changelog (like I did), you aren't likely to
-find it.  8)
+This has a little basis in fact.
 
-T.
+"Double sided SIMMs" can have higher capacitances on the data lines, as there
+are more pins connected to the socket.
+This means more loading, especially at high speed.
+
+Add in marginal designs, and it can make a difference.
+

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262979AbSJJC7l>; Wed, 9 Oct 2002 22:59:41 -0400
+	id <S262977AbSJJDPj>; Wed, 9 Oct 2002 23:15:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262977AbSJJC7l>; Wed, 9 Oct 2002 22:59:41 -0400
-Received: from packet.digeo.com ([12.110.80.53]:9631 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262979AbSJJC7j>;
-	Wed, 9 Oct 2002 22:59:39 -0400
-Message-ID: <3DA4EE6C.6B4184CC@digeo.com>
-Date: Wed, 09 Oct 2002 20:05:16 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.41 i686)
+	id <S263035AbSJJDPj>; Wed, 9 Oct 2002 23:15:39 -0400
+Received: from relay1.pair.com ([209.68.1.20]:15365 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S262977AbSJJDPj>;
+	Wed, 9 Oct 2002 23:15:39 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3DA4F4C6.7B3FEF57@kegel.com>
+Date: Wed, 09 Oct 2002 20:32:22 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3custom i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: colpatch@us.ibm.com
-CC: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       LSE <lse-tech@lists.sourceforge.net>, Martin Bligh <mjbligh@us.ibm.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
-References: <3DA4D3E4.6080401@us.ibm.com>
+To: Jeff Dike <jdike@karaya.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+References: <200210100355.WAA06063@ccure.karaya.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Oct 2002 03:05:17.0333 (UTC) FILETIME=[DC546450:01C27009]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson wrote:
+Jeff Dike wrote:
 > 
-> Greetings & Salutations,
->         Here's a wonderful patch that I know you're all dying for...  Memory
-> Binding!
+> dank@kegel.com said:
+> > George's approach would work a lot better when doing lots of UML VM's
+> > on a single box, too, wouldn't it?
+> 
+> My thinking on this is that I'll have UML do the on-demand ticks. ...
+> any generic support for on-demand
+> ticks would be re-used by UML.  And if UML required generic changes for this,
+> then that would obviously affect the other ports somehow.
 
-
-Seems reasonable to me.
-
-Could you tell us a bit about the operator's view of this?
-
-I assume that a typical usage scenario would be to bind a process
-to a bunch of CPUs and to then bind that process to a bunch of
-memblks as well? 
-
-If so, then how does the operator know how to identify those
-memblks?  To perform the (cpu list) <-> (memblk list) mapping?
-
-Also, what advantage does this provide over the current node-local
-allocation policy?  I'd have thought that once you'd bound a 
-process to a CPU (or to a node's CPUs) that as long as the zone
-fallback list was right, that process would be getting local memory
-pretty much all the time anyway?
-
-Last but not least: you got some benchmark numbers for this?
-
-Thanks.
+Yes, exactly.  UML wants on-demand ticks, which is exactly what George's
+patch
+uses, too.  I'm too far from the code to say, but there ought to be some
+commonality there.
+- Dan

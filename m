@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266037AbUBBUIy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266041AbUBBUHD
+	id S265963AbUBBUBP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:01:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265960AbUBBUAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 15:07:03 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:11680 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S266068AbUBBUGg
+	Mon, 2 Feb 2004 15:00:25 -0500
+Received: from mailr-1.tiscali.it ([212.123.84.81]:10614 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265904AbUBBT6G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 15:06:36 -0500
-Date: Mon, 2 Feb 2004 21:06:33 +0100
+	Mon, 2 Feb 2004 14:58:06 -0500
+X-BrightmailFiltered: true
+Date: Mon, 2 Feb 2004 20:58:04 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 42/42]
-Message-ID: <20040202200633.GP6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 26/42]
+Message-ID: <20040202195804.GZ6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -26,36 +27,25 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-yellowfin.c:1282: warning: unsigned int format, different type arg (arg 2)
-yellowfin.c:1294: warning: unsigned int format, different type arg (arg 2)
+kaweth.c:738: warning: assignment from incompatible pointer type
 
-dma_addr_t can be 64 bit long even on x86 (when CONFIG_HIGHMEM64G is
-defined). Cast to dma64_addr_t in the printk.
+Add explicit cast to suppress gcc warning.
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/net/yellowfin.c linux-2.4/drivers/net/yellowfin.c
---- linux-2.4-vanilla/drivers/net/yellowfin.c	Tue Nov 11 17:51:39 2003
-+++ linux-2.4/drivers/net/yellowfin.c	Sat Jan 31 19:26:34 2004
-@@ -1279,7 +1279,7 @@
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/usb/kaweth.c linux-2.4/drivers/usb/kaweth.c
+--- linux-2.4-vanilla/drivers/usb/kaweth.c	Tue Nov 11 17:51:14 2003
++++ linux-2.4/drivers/usb/kaweth.c	Sat Jan 31 18:14:38 2004
+@@ -735,7 +735,7 @@
+ 		}
+ 	}
  
- #if defined(__i386__)
- 	if (yellowfin_debug > 2) {
--		printk("\n"KERN_DEBUG"  Tx ring at %8.8x:\n", yp->tx_ring_dma);
-+		printk("\n"KERN_DEBUG"  Tx ring at %8.8Lx:\n", (dma64_addr_r)yp->tx_ring_dma);
- 		for (i = 0; i < TX_RING_SIZE*2; i++)
- 			printk(" %c #%d desc. %8.8x %8.8x %8.8x %8.8x.\n",
- 				   inl(ioaddr + TxPtr) == (long)&yp->tx_ring[i] ? '>' : ' ',
-@@ -1291,7 +1291,7 @@
- 				   i, yp->tx_status[i].tx_cnt, yp->tx_status[i].tx_errs,
- 				   yp->tx_status[i].total_tx_cnt, yp->tx_status[i].paused);
+-	private_header = __skb_push(skb, 2);
++	private_header = (u16*)__skb_push(skb, 2);
+ 	*private_header = cpu_to_le16(skb->len-2);
+ 	kaweth->tx_skb = skb;
  
--		printk("\n"KERN_DEBUG "  Rx ring %8.8x:\n", yp->rx_ring_dma);
-+		printk("\n"KERN_DEBUG "  Rx ring %8.8Lx:\n", (dma64_addr_t)yp->rx_ring_dma);
- 		for (i = 0; i < RX_RING_SIZE; i++) {
- 			printk(KERN_DEBUG " %c #%d desc. %8.8x %8.8x %8.8x\n",
- 				   inl(ioaddr + RxPtr) == (long)&yp->rx_ring[i] ? '>' : ' ',
 
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-"It is more complicated than you think"
-                -- The Eighth Networking Truth from RFC 1925
+Dicono che  il cane sia  il miglior  amico dell'uomo. Secondo me  non e`
+vero. Quanti dei vostri amici avete fatto castrare, recentemente?

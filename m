@@ -1,83 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbUKXPqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262697AbUKXPqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbUKXPqo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 10:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUKXPp3
+	id S262697AbUKXPqn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 10:46:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbUKXPpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 10:45:29 -0500
+	Wed, 24 Nov 2004 10:45:42 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:42400 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262764AbUKXPnc (ORCPT
+	by vger.kernel.org with ESMTP id S262736AbUKXPnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 10:43:32 -0500
-Date: Wed, 24 Nov 2004 07:32:49 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: ncunningham@linuxmail.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 31/51: Export tlb flushing
-Message-ID: <181630000.1101310366@[10.10.2.4]>
-In-Reply-To: <1101297506.5805.314.camel@desktop.cunninghams>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101297506.5805.314.camel@desktop.cunninghams>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 24 Nov 2004 10:43:21 -0500
+To: linux-kernel@vger.kernel.org
+Cc: d507a@cs.aau.dk
+Subject: Isolating two network processes on same machine
+From: Ole Laursen <olau@cs.aau.dk>
+Date: 24 Nov 2004 16:10:12 +0100
+Message-ID: <tv8r7mj1dwr.fsf@homer.cs.aau.dk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Nigel Cunningham <ncunningham@linuxmail.org> wrote (on Wednesday, November 24, 2004 23:59:50 +1100):
+Hi,
 
-> This patch adds a do_flush_tlb_all function that does the
-> SMP-appropriate thing for suspend after the image is restored.
+We need to test a peer-to-peer network application that is supposed to
+be scalable. To that end, we have a FreeBSD box with dummynet and a
+small cluster of Linux test machines. The box act as the gateway for
+the test machines and delay incoming packets for a while before
+throwing them back to the cluster to simulate latency on the Internet.
 
-Is software suspend only designed for i386, or is that the only arch that 
-didn't have such a function already? Seems like too low a level to be 
-exporting to me.
+By letting the test machines think they run on separate subnets, we
+have been able to fool them into forwarding their packets to the
+FreeBSD gateway even though everyone is connected to the same switch.
+This is working fine.
 
-M.
- 
-> diff -ruN 818-tlb-flushing-functions-old/arch/i386/kernel/smp.c 818-tlb-flushing-functions-new/arch/i386/kernel/smp.c
-> --- 818-tlb-flushing-functions-old/arch/i386/kernel/smp.c	2004-11-06 09:27:19.225681536 +1100
-> +++ 818-tlb-flushing-functions-new/arch/i386/kernel/smp.c	2004-11-04 16:27:41.000000000 +1100
-> @@ -476,7 +476,7 @@
->  	preempt_enable();
->  }
->  
-> -static void do_flush_tlb_all(void* info)
-> +void do_flush_tlb_all(void* info)
->  {
->  	unsigned long cpu = smp_processor_id();
->  
-> diff -ruN 818-tlb-flushing-functions-old/include/asm-i386/tlbflush.h 818-tlb-flushing-functions-new/include/asm-i386/tlbflush.h
-> --- 818-tlb-flushing-functions-old/include/asm-i386/tlbflush.h	2004-11-03 21:55:01.000000000 +1100
-> +++ 818-tlb-flushing-functions-new/include/asm-i386/tlbflush.h	2004-11-04 16:27:41.000000000 +1100
-> @@ -82,6 +82,7 @@
->  #define flush_tlb() __flush_tlb()
->  #define flush_tlb_all() __flush_tlb_all()
->  #define local_flush_tlb() __flush_tlb()
-> +#define local_flush_tlb_all() __flush_tlb_all();
->  
->  static inline void flush_tlb_mm(struct mm_struct *mm)
->  {
-> @@ -114,6 +115,10 @@
->  extern void flush_tlb_current_task(void);
->  extern void flush_tlb_mm(struct mm_struct *);
->  extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
-> +extern void do_flush_tlb_all(void * info);
-> +
-> +#define local_flush_tlb_all() \
-> +	do_flush_tlb_all(NULL);
->  
->  #define flush_tlb()	flush_tlb_current_task()
->  
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+The problem is that we need to run several instances of our network
+application on the same test machine since we have too few machines.
+But when we create two IP addresses on the same machine with
+
+  ifconfig eth0:0 10.0.0.2 netmask 255.255.255.0 broadcast 10.0.0.255
+  ifconfig eth0:1 10.0.1.2 netmask 255.255.255.0 broadcast 10.0.1.255
+
+and start two instances on the same machine with the two IP addresses,
+then they communicate directly with each other instead of going
+through the FreeBSD gateway. Can anyone see a way to solve this
+problem?
 
 
+(I've CC'ed the other guys in my group.)
+
+-- 
+Ole Laursen
+http://www.cs.aau.dk/~olau/

@@ -1,40 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUFPVNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264777AbUFPVSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264836AbUFPVNi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 17:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbUFPVKz
+	id S264777AbUFPVSK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 17:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUFPVSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 17:10:55 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:59401 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S266303AbUFPVHL (ORCPT
+	Wed, 16 Jun 2004 17:18:10 -0400
+Received: from sziami.cs.bme.hu ([152.66.242.225]:5045 "EHLO sziami.cs.bme.hu")
+	by vger.kernel.org with ESMTP id S264777AbUFPVSG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 17:07:11 -0400
-Date: Wed, 16 Jun 2004 23:07:08 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Christoph Hellwig <hch@infradead.org>, Dirk Jagdmann <doj@cubic.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE Auto-Geometry Resizing support missing in 2.6.7?
-Message-ID: <20040616210708.GA3951@pclin040.win.tue.nl>
-References: <40D0AA07.7010806@cubic.org> <20040616202023.GA19123@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040616202023.GA19123@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : mailhost.tue.nl 1182; Body=1 Fuz1=1 Fuz2=1
+	Wed, 16 Jun 2004 17:18:06 -0400
+Date: Wed, 16 Jun 2004 23:17:17 +0200 (CEST)
+From: Egmont Koblinger <egmont@uhulinux.hu>
+X-X-Sender: egmont@sziami.cs.bme.hu
+To: jsimmons@pentafluge.infradead.org
+Cc: Zilvinas Valinskas <zilvinas@gemtek.lt>, Jeff Garzik <jgarzik@pobox.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       David MacKenzie <djm@gnu.ai.mit.edu>
+Subject: Re: Linux 2.6.7 (stty rows 50 columns 140 reports : No such device
+ or address)
+In-Reply-To: <Pine.LNX.4.56.0406161728150.14901@pentafluge.infradead.org>
+Message-ID: <Pine.LNX.4.58L0.0406162313450.20508@sziami.cs.bme.hu>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org> 
+ <20040616095805.GC14936@gemtek.lt>  <40D0432A.1080006@pobox.com>
+ <1087395424.5314.2.camel@swoop.gemtek.lt> <Pine.LNX.4.56.0406161728150.14901@pentafluge.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 09:20:23PM +0100, Christoph Hellwig wrote:
+On Wed, 16 Jun 2004 jsimmons@pentafluge.infradead.org wrote:
 
-> You need to boot with hdX=stroke now.  I had a patch first that allowed both
-> run- an compiletime selection but Bart wanted the option to be removed.
+Hi,
 
-Bart is right. Compilation options should select inclusion of subsystems,
-modules, drivers, but not twiddle behaviour.
+> +#ifdef TIOCGWINSZ
+> +  int size_was_set = 0;
+> +  int cols, rows;
+     ^^^^^^^^^^^^^^^
+These should both be initialized to -1 because...
 
-I wondered whether the opposite default would have been better, but
-probably the current version is best.
+> -	      set_window_size ((int) integer_arg (argv[k]), -1,
+> -			       fd, device_name);
+> +	      rows = integer_arg (argv[k]);
+> +	      size_was_set = 1;
 
-On the other hand, there are too many gratuitous changes in a stable series.
-We should soon open 2.7, so that user-visible minor improvements have a place to go.
+[...]
+
+> -	      set_window_size (-1, (int) integer_arg (argv[k]),
+> -			       fd, device_name);
+> +	      cols = integer_arg (argv[k]);
+> +	      size_was_set = 1;
+
+...here maybe only one of them is set, but...
+
+> +  if (size_was_set)
+> +    {
+> +      set_window_size (rows, cols, fd, device_name);
+
+...here both of them are used. Looking at the body of size_was_set()
+and the code that was removed from stty it's clear that -1 means don't
+change, while 0 means change to 0.
+
+
+
+-- 
+Egmont

@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291311AbSBGVCG>; Thu, 7 Feb 2002 16:02:06 -0500
+	id <S291307AbSBGVFE>; Thu, 7 Feb 2002 16:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291308AbSBGVBg>; Thu, 7 Feb 2002 16:01:36 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:16391 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S291307AbSBGVB2>;
-	Thu, 7 Feb 2002 16:01:28 -0500
-Date: Thu, 7 Feb 2002 14:00:56 -0700
-From: yodaiken@fsmlabs.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: yodaiken@fsmlabs.com, Robert Love <rml@tech9.net>,
-        Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org,
-        akpm@zip.com.au, torvalds@transmet.com, mingo@elte.hu, nigel@nrg.org
-Subject: Re: [RFC] New locking primitive for 2.5
-Message-ID: <20020207140056.A23179@hq.fsmlabs.com>
-In-Reply-To: <3C629F91.2869CB1F@dlr.de> <1013113285.11659.84.camel@phantasy> <20020207133602.C21935@hq.fsmlabs.com> <E16Yvbr-00015i-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E16Yvbr-00015i-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Feb 07, 2002 at 09:57:35PM +0100
-Organization: FSM Labs
+	id <S291308AbSBGVEu>; Thu, 7 Feb 2002 16:04:50 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:58257 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291307AbSBGVE3>;
+	Thu, 7 Feb 2002 16:04:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Mike Touloumtzis <miket@bluemug.com>
+Subject: Re: How to check the kernel compile options ?
+Date: Thu, 7 Feb 2002 22:08:44 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16Yu52-00015I-00@starship.berlin> <20020207203451.GE26826@bluemug.com>
+In-Reply-To: <20020207203451.GE26826@bluemug.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Yvmf-00015n-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 09:57:35PM +0100, Daniel Phillips wrote:
-> On February 7, 2002 09:36 pm, yodaiken@fsmlabs.com wrote:
-> > > P.S. If this is going to turn into another priority-inheritance flame, I
-> > > am stopping here.  Let's take it off-list or just drop it, please.  I'd
-> > > much prefer to discuss the current combilock issue which is at hand. ;)
-> > 
-> > It's the same issue.
+On February 7, 2002 09:34 pm, Mike Touloumtzis wrote:
+> A final argument for using packaging/bundling tools and userspace files
+> instead of files in /proc for tracking kernel metadata:
 > 
-> Not necessarily, look at Ingo's observation about replacing semaphores with 
-> combi-locks as opposed to replacing spinlocks with combi-locks.
+> -- Kernels are no longer single files, at least for most people.
+>    A _harder_ problem than this one is tracking which modules go with
+>    which kernel.  Solving this problem solves the configuration tracking
+>    problem as a _side_effect_.  Conversely, solving the configuration
+>    tracking problem without solving the module tracking problem is
+>    largely useless.
 
-The underlying issue is an attempt to find a magic trick that will make
-hard synchronization problems go away. The result is usually something that
-makes hard synchronization problems more obscure. Ingo points to a case,
-apparently triggered only by a wierd benchmark artefact where a queue of very
-short term operations builds up a queue of expensive process reschedules. The
-problem is that the same semaphore is used to for slow and fast operations
-and the solution is to split them apart somehow or to conclude that its not
-an important case. 
+I can always rebuild the modules from a standard source tree, given the 
+config.  This makes the config a far more important piece of data than the 
+modules themselves, and that is why I want it stuck right on the side of the 
+kernel, the way my memory sticks have a little sticker on them telling me 
+what I've got.
 
-As Ingo points out, you need some actual positive results here, not a plausibility
-argument.
-
+As an option of course, you're welcome to build your kernel without it, and 
+you can also peel the stickers off your memory sticks and file them in a 
+drawer if you like.
 
 -- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Daniel

@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVCCFgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVCCFzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVCCFgl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 00:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVCCFfz
+	id S261532AbVCCFzs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 00:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCCFy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 00:35:55 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:54897 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261503AbVCCFbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 00:31:32 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][3/11] IB: sparse fixes
-In-Reply-To: <2005322131.5pgryiWlkZPYdcE7@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Wed, 2 Mar 2005 21:31:22 -0800
-Message-Id: <2005322131.O2Ym8iporsXeypcV@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 03 Mar 2005 05:31:22.0601 (UTC) FILETIME=[3C496590:01C51FB2]
+	Thu, 3 Mar 2005 00:54:27 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:21688 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261519AbVCCFvz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 00:51:55 -0500
+Date: Wed, 2 Mar 2005 21:51:43 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       benh@kernel.crashing.org, anton@samba.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+In-Reply-To: <20050302213831.7e6449eb.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.58.0503022149210.4272@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+ <20050302174507.7991af94.akpm@osdl.org> <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+ <20050302185508.4cd2f618.akpm@osdl.org> <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+ <20050302201425.2b994195.akpm@osdl.org> <16934.39386.686708.768378@cargo.ozlabs.ibm.com>
+ <20050302213831.7e6449eb.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tom Duffy <tduffy@sun.com>
+On Wed, 2 Mar 2005, David S. Miller wrote:
 
-Fix some sparse warnings by making sure we have appropriate "extern"
-declarations visible.
+> Actually, I guess I could do the pte_cmpxchg() stuff, but only if it's
+> used to "add" access.  If the TLB miss handler races, we just go into
+> the handle_mm_fault() path unnecessarily in order to synchronize.
+>
+> However, if this pte_cmpxchg() thing is used for removing access, then
+> sparc64 can't use it.  In such a case a race in the TLB handler would
+> result in using an invalid PTE.  I could "spin" on some lock bit, but
+> there is no way I'm adding instructions to the carefully constructed
+> TLB miss handler assembler on sparc64 just for that :-)
 
-Signed-off-by: Tom Duffy <tduffy@sun.com>
-Signed-off-by: Hal Rosenstock (<halr@voltaire.com>
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
-
---- linux-export.orig/drivers/infiniband/core/agent.c	2005-03-02 20:26:10.599187430 -0800
-+++ linux-export/drivers/infiniband/core/agent.c	2005-03-02 20:26:11.456001445 -0800
-@@ -45,14 +45,11 @@
- #include "smi.h"
- #include "agent_priv.h"
- #include "mad_priv.h"
--
-+#include "agent.h"
- 
- spinlock_t ib_agent_port_list_lock;
- static LIST_HEAD(ib_agent_port_list);
- 
--extern kmem_cache_t *ib_mad_cache;
--
--
- /*
-  * Caller must hold ib_agent_port_list_lock
-  */
---- linux-export.orig/drivers/infiniband/core/cache.c	2005-03-02 20:26:03.085818330 -0800
-+++ linux-export/drivers/infiniband/core/cache.c	2005-03-02 20:26:11.456001445 -0800
-@@ -37,6 +37,8 @@
- #include <linux/errno.h>
- #include <linux/slab.h>
- 
-+#include <ib_cache.h>
-+
- #include "core_priv.h"
- 
- struct ib_pkey_cache {
---- linux-export.orig/drivers/infiniband/core/mad_priv.h	2005-03-02 20:26:10.980104746 -0800
-+++ linux-export/drivers/infiniband/core/mad_priv.h	2005-03-02 20:26:11.457001228 -0800
-@@ -192,4 +192,6 @@
- 	struct ib_mad_qp_info qp_info[IB_MAD_QPS_CORE];
- };
- 
-+extern kmem_cache_t *ib_mad_cache;
-+
- #endif	/* __IB_MAD_PRIV_H__ */
---- linux-export.orig/drivers/infiniband/core/smi.c	2005-03-02 20:26:03.085818330 -0800
-+++ linux-export/drivers/infiniband/core/smi.c	2005-03-02 20:26:11.458001011 -0800
-@@ -37,7 +37,7 @@
-  */
- 
- #include <ib_smi.h>
--
-+#include "smi.h"
- 
- /*
-  * Fixup a directed route SMP for sending
-
+There is no need to provide pte_cmpxchg. If the arch does not support
+cmpxchg on ptes (CONFIG_ATOMIC_TABLE_OPS not defined)
+then it will fall back to using pte_get_and_clear while holding the
+page_table_lock to insure that the entry is not touched while performing
+the comparison.

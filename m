@@ -1,294 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUDACNk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 21:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUDACNk
+	id S261951AbUDACQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 21:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbUDACQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 21:13:40 -0500
-Received: from ppp01.ts1.Fredericksburg.visi.net ([209.96.245.1]:3712 "EHLO
-	bassett.home.org") by vger.kernel.org with ESMTP id S261928AbUDACNa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 21:13:30 -0500
-From: "James B. Hiller" <jhiller@visi.net>
-Message-Id: <200404010155.i311tuGL001097@bassett.home.org>
-Subject: PROBLEM: 1/2 Video RAM not found by video card BIOS after shutdown -r
-To: linux-kernel@vger.kernel.org
-Date: Wed, 31 Mar 2004 20:55:56 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Mar 2004 21:16:54 -0500
+Received: from ozlabs.org ([203.10.76.45]:57237 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261951AbUDACQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 21:16:48 -0500
+Subject: Re: [2.6.2] Badness in futex_wait revisited
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dirk Morris <dmorris@metavize.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <406B1522.9050204@metavize.com>
+References: <40311703.8070309@metavize.com>
+	 <20040217051911.6AC112C066@lists.samba.org>
+	 <20040331165656.GG19280@mail.shareable.org> <406B0219.3000309@metavize.com>
+	 <20040331183243.GA20418@mail.shareable.org> <406B1522.9050204@metavize.com>
+Content-Type: multipart/mixed; boundary="=-MUoLT++9bTVYW/i46pa0"
+Message-Id: <1080785801.32535.116.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 01 Apr 2004 12:16:42 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1.  PROBLEM:  1/2 Video RAM not found at video BIOS POST after shutdown -r.
-2.  FULL DESCRIPTION:
 
-When rebooting, and only rebooting, the video BIOS reports only 64MB when the
-card actually has 128 MB.  Exact sequence that produces this is:
+--=-MUoLT++9bTVYW/i46pa0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-  a.  Power on.
-  b.  Video card BIOS POST reports 128 MB (always).
-  c.  Log in as root.
-  d.  reboot -or- shutdown -r -or- telinit 6
-  e.  Video card BIOS POST reports 68 MB (always).
+On Thu, 2004-04-01 at 04:59, Dirk Morris wrote:
+> Jamie Lokier wrote:
+> 
+> >If you have a small test program (or pair of programs) that
+> >consistently triggers this message on any machine running 2.6.4, that
+> >would be very helpful indeed.
+> >  
+> >
+> Here ya go. :)
 
-I can't get this to happen using a hard reboot (front panel button) or using
-a cold boot.  I also can't get this to happen using Win2K.  It does occur
-always with kernel 2.6.4, 2.6.5-rc1, 2.6.5-rc2, and the -mm patches for each
-of these.  Also, if I do run XFree86, it clearly reports finding the amount
-that the video BIOS POST reported, so it's not an error in the video BIOS
-POST report itself.  I've tried two video cards, both NVidia GE Force FX 5200
-128 MB AGP cards, both eVGA.com cards, but different models, and both behave
-exactly the same way.  Never had a similar problem using this motherboard
-(Tyan S2460) with 64 MB AGP card.  No 128 MB PCI cards to check it with.
+Doesn't work for me (2.6.5-rc1 Debian unstable 2xi686).
 
-3.  KEYWORDS:  kernel, PCI bus, AGP, Video RAM.
-4.  KERNEL VERSION:  Linux version 2.6.4 (root@bassett) (gcc version 3.2.3) #1
-                     SMP Mon Mar 22 23:28:59 EST 2004
-5.  OOPS:  None.
-6.  EXAMPLE:  See #2.
-7.  ENVIRONMENT:
-7.1  Software:
-Linux bassett 2.6.4 #1 SMP Mon Mar 22 23:28:59 EST 2004 i686 unknown
- 
-Gnu C                  3.2.3
-Gnu make               3.80
-util-linux             2.11y
-mount                  2.11y
-module-init-tools      0.9.14
-e2fsprogs              1.34
-PPP                    2.4.2b3
-nfs-utils              1.0.6
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Linux C++ Library      5.0.3
-Procps                 3.2.0
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               2.0
-Modules Loaded         
+strace -f output attached below.
 
-7.2.  PROCESSOR INFORMATION:
+rusty@mingo:/tmp$ strace -f -o /tmp/foo.out ./foo
+Process 3993 attached
+Process 3994 attached
+Process 3993 suspended
+Process 3993 resumed
+Process 3994 detached
+sem_wait: Interrupted system call
+Process 3995 attached
+Process 3993 suspended
+Process 3993 resumed
+Process 3995 detached
+sem_wait: Interrupted system call
+Process 3996 attached
+Process 3993 suspended
+Process 3993 resumed
+Process 3996 detached
+sem_wait: Interrupted system call
+PANIC: handle_group_exit: 3993 leader 3992
 
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 6
-model name	: AMD Athlon(tm) Processor
-stepping	: 2
-cpu MHz		: 1200.156
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips	: 2367.48
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-processor	: 1
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 6
-model name	: AMD Athlon(tm) Processor
-stepping	: 2
-cpu MHz		: 1200.156
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips	: 2392.06
+--=-MUoLT++9bTVYW/i46pa0
+Content-Disposition: attachment; filename=foo.out.bz2
+Content-Type: application/x-bzip; name=foo.out.bz2
+Content-Transfer-Encoding: base64
 
-7.3.  MODULE INFORMATION:
+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
 
-{None}
+--=-MUoLT++9bTVYW/i46pa0--
 
-7.4.  LOADED DRIVER AND HARDWARE INFO:
-
-/proc/ioports:
-
-0000-001f : dma1
-0020-0021 : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial
-0376-0376 : ide1
-0378-037a : parport0
-037b-037f : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial
-0778-077a : parport0
-0cf8-0cff : PCI conf1
-1000-101f : 0000:00:0a.0
-  1000-101f : EMU10K1
-1030-103f : 0000:00:0d.0
-1040-1043 : 0000:00:00.0
-1048-104f : 0000:00:0a.1
-  1048-104f : emu10k1-gp
-1050-1057 : 0000:00:0d.0
-1058-105f : 0000:00:0d.0
-1060-1067 : 0000:00:0d.0
-1068-106f : 0000:00:0d.0
-1070-1077 : 0000:00:0d.0
-  1070-1072 : parport1
-  1073-1077 : parport1
-f000-f00f : 0000:00:07.1
-  f000-f007 : ide0
-  f008-f00f : ide1
-
-/proc/iomem:
-
-00000000-0009f7ff : System RAM
-0009f800-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000dc000-000dcfff : 0000:00:07.4
-  000dc000-000dcfff : ohci_hcd
-000e0000-000effff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-1ffeffff : System RAM
-  00100000-0038a718 : Kernel code
-  0038a719-0047eeff : Kernel data
-1fff0000-1ffffbff : ACPI Tables
-1ffffc00-1fffffff : ACPI Non-volatile Storage
-e1000000-e1ffffff : PCI Bus #01
-  e1000000-e1ffffff : 0000:01:05.0
-e2000000-e2000fff : 0000:00:00.0
-e2001000-e2001fff : 0000:00:0c.0
-e8000000-efffffff : 0000:00:00.0
-f0000000-f7ffffff : PCI Bus #01
-  f0000000-f7ffffff : 0000:01:05.0
-fec00000-fec0ffff : reserved
-fee00000-fee00fff : reserved
-fff80000-ffffffff : reserved
-
-7.5.  PCI info:
-
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 11)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64
-	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=128M]
-	Region 1: Memory at e2000000 (32-bit, prefetchable) [size=4K]
-	Region 2: I/O ports at 1040 [disabled] [size=4]
-	Capabilities: [a0] AGP version 2.0
-		Status: RQ=16 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
-		Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x4
-
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 99
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=68
-	I/O behind bridge: 0000f000-00000fff
-	Memory behind bridge: e1000000-e1ffffff
-	Prefetchable memory behind bridge: f0000000-f7ffffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] ISA (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] IDE (rev 01) (prog-if 8a [Master SecP PriP])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Region 4: I/O ports at f000 [size=16]
-
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] ACPI (rev 01)
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:07.4 USB Controller: Advanced Micro Devices [AMD] AMD-766 [ViperPlus] USB (rev 07) (prog-if 10 [OHCI])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 16 (20000ns max)
-	Interrupt: pin D routed to IRQ 19
-	Region 0: Memory at 000dc000 (32-bit, non-prefetchable) [size=4K]
-
-00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 05)
-	Subsystem: Creative Labs CT4760 SBLive!
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (500ns min, 5000ns max)
-	Interrupt: pin A routed to IRQ 18
-	Region 0: I/O ports at 1000 [size=32]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0a.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 05)
-	Subsystem: Creative Labs Gameport Joystick
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Region 0: I/O ports at 1048 [size=8]
-	Capabilities: [dc] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0c.0 Network controller: Harris Semiconductor Prism 2.5 Wavelan chipset (rev 01)
-	Subsystem: D-Link System Inc DWL-520 Wireless PCI Adapter
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 10
-	Interrupt: pin A routed to IRQ 16
-	Region 0: Memory at e2001000 (32-bit, prefetchable) [size=4K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0d.0 Communication controller: NetMos Technology: Unknown device 9805 (rev 01)
-	Subsystem: LSI Logic / Symbios Logic: Unknown device 0010
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 17
-	Region 0: I/O ports at 1070 [size=8]
-	Region 1: I/O ports at 1068 [size=8]
-	Region 2: I/O ports at 1060 [size=8]
-	Region 3: I/O ports at 1058 [size=8]
-	Region 4: I/O ports at 1050 [size=8]
-	Region 5: I/O ports at 1030 [size=16]
-
-01:05.0 VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200] (rev a1) (prog-if 00 [VGA])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (1250ns min, 250ns max)
-	Interrupt: pin A routed to IRQ 18
-	Region 0: Memory at e1000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: Memory at f0000000 (32-bit, prefetchable) [size=128M]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [44] AGP version 3.0
-		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
-		Command: RQ=16 ArqSz=0 Cal=0 SBA- AGP+ GART64- 64bit- FW- Rate=x4
-
-7.6.  SCSI info:
-
-{None}
-
-7.7.  Other info:
-
-Thx!
-
-jbh

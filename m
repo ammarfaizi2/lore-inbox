@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286581AbRL0Tt4>; Thu, 27 Dec 2001 14:49:56 -0500
+	id <S286541AbRL0TpZ>; Thu, 27 Dec 2001 14:45:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286574AbRL0Tsk>; Thu, 27 Dec 2001 14:48:40 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:55308 "EHLO
+	id <S286556AbRL0TpO>; Thu, 27 Dec 2001 14:45:14 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:37900 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S286553AbRL0Trr>; Thu, 27 Dec 2001 14:47:47 -0500
-Message-ID: <3C2B7A3E.E5C05404@zip.com.au>
-Date: Thu, 27 Dec 2001 11:45:02 -0800
+	id <S286541AbRL0TpB>; Thu, 27 Dec 2001 14:45:01 -0500
+Message-ID: <3C2B7981.EDCBEFA@zip.com.au>
+Date: Thu, 27 Dec 2001 11:41:53 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: andersg@0x63.nu
-CC: linux-kernel@vger.kernel.org, lvm-devel@sistina.com
-Subject: Re: lvm in 2.5.1
-In-Reply-To: <20011227084304.GA26255@h55p111.delphi.afb.lu.se> <3C2AEADB.24BEFE94@zip.com.au> <20011227122520.GA2194@h55p111.delphi.afb.lu.se> <3C2B75B3.4DEF90D3@zip.com.au>,
-		<3C2B75B3.4DEF90D3@zip.com.au> <20011227193711.GB20501@h55p111.delphi.afb.lu.se>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andre Hedrick <andre@linux-ide.org>, Keith Owens <kaos@ocs.com.au>,
+        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: your mail
+In-Reply-To: <Pine.LNX.4.10.10112271008350.24428-100000@master.linux-ide.org> <Pine.LNX.4.33.0112271025590.1052-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andersg@0x63.nu wrote:
+Linus Torvalds wrote:
 > 
-> On Thu, Dec 27, 2001 at 11:25:39AM -0800, Andrew Morton wrote:
-> > 0xc02546c7 <lvm_do_vg_create+3>:        sub    $0x1d4,%esp
-> >
-> > So perhaps we have a compiler problem.  Which version of the
-> > compiler are you using?   Have you verified that sizeof(lv_t)
-> > is really around 420 bytes in your setup?
+> The other part of the bio rewrite has been to get rid of another coupling:
+> the coupling between "struct buffer_head" (which is used for a limited
+> kind of memory management by a number of filesystems) and the act of
+> actually just doing IO.
 > 
-> gcc version 2.95.4 20011223 (Debian prerelease)
+> I used to think that we could just relegate "struct buffer_head" to _be_
+> the IO entity, but it turns out to be much easier to just split off the IO
+> part, which is why you now have a separate "bio" structure for the block
+> IO part, and the buffer_head stuff uses that to get the work done.
 > 
-> i didn't check the exact amount. i dont know where the 420 bytes comes from?
-> but (as Mike Galbraith pointed out) a lv_t contains:
-> 
->         sector_t blocks[LVM_MAX_SECTORS];
-> 
-> with:
-> 
-> #define LVM_MAX_ATOMIC_IO       512
-> #define LVM_MAX_SECTORS         (LVM_MAX_ATOMIC_IO * 2)
-> 
-> and
-> typedef unsigned long sector_t;
-> 
-> unsigned long beeing 4bytes => the blocks-member of lv_t should then be 4096
-> by it self...
 
-Ah.  Right you are.  I was looking at the 2.4.17 source.  That array
-was added in 2.5.x.
-
-So 2.4.x is OK.
-
-Thanks ;)
-
--
+So... would it be correct to say that there won't be any large
+changes to the buffer_head concept in 2.5?

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266606AbRGHBT3>; Sat, 7 Jul 2001 21:19:29 -0400
+	id <S266416AbRGHC6I>; Sat, 7 Jul 2001 22:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266611AbRGHBTJ>; Sat, 7 Jul 2001 21:19:09 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:17413 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S266606AbRGHBS7>; Sat, 7 Jul 2001 21:18:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: =?iso-8859-1?q?Jos=E9=20Luis=20Domingo=20L=F3pez?= 
-	<jldomingo@crosswinds.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: OOM: A Success Report
-Date: Sun, 8 Jul 2001 03:20:37 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20010708004051.A4765@dardhal.mired.net>
-In-Reply-To: <20010708004051.A4765@dardhal.mired.net>
-MIME-Version: 1.0
-Message-Id: <01070803203709.22952@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S266417AbRGHC56>; Sat, 7 Jul 2001 22:57:58 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:19205 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S266416AbRGHC5w>;
+	Sat, 7 Jul 2001 22:57:52 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems 
+In-Reply-To: Your message of "Sun, 08 Jul 2001 00:14:24 +0200."
+             <20010708001424.B10370@pcep-jamie.cern.ch> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 08 Jul 2001 12:57:46 +1000
+Message-ID: <21945.994561066@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Moreover, when swap is of, the hard disk
-> goes crazy as if it where using swap, when in fact it isn't). Is this
-> expected behaviour ?
+On Sun, 8 Jul 2001 00:14:24 +0200, 
+Jamie Lokier <lk@tantalophile.demon.co.uk> wrote:
+>On this theme, it's just occured to me that the module loader could be
+>taught to map ramfs pages directly to module code/data space.  That
+>would save a little memory.
 
-Yes, it's recovering memory by dropping program text pages (memory 
-mapped from elf files) so those have to be reloaded when the program 
-executes them again.
+I doubt it.  insmod relocates the code and data sections, discards
+sections, inserts a struct module, hooks the module into the existing
+change and generally mangles the object before it can be used by the
+kernel.  Any change to a page prevents it being mapped against cramfs.
+If you had a complete page that was identical before and after insmod
+had done its work I would be astonished.
 
---
-Daniel

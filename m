@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264907AbTBAQOW>; Sat, 1 Feb 2003 11:14:22 -0500
+	id <S264908AbTBAQSu>; Sat, 1 Feb 2003 11:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbTBAQOW>; Sat, 1 Feb 2003 11:14:22 -0500
-Received: from pat.uio.no ([129.240.130.16]:64506 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S264907AbTBAQOV>;
-	Sat, 1 Feb 2003 11:14:21 -0500
+	id <S264910AbTBAQSu>; Sat, 1 Feb 2003 11:18:50 -0500
+Received: from rivmkt61.wintek.com ([206.230.0.61]:640 "EHLO
+	dust.rivmkt61.wintek.com") by vger.kernel.org with ESMTP
+	id <S264908AbTBAQSu>; Sat, 1 Feb 2003 11:18:50 -0500
+Date: Sat, 1 Feb 2003 11:27:13 +0000 (UTC)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Chris Bradford <lkml-read@khat-fox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Current Status of Module Utilities for 2.5 Kernels?
+In-Reply-To: <Pine.LNX.4.52.0301312304210.22442@furcntrl.khat-fox.com>
+Message-ID: <Pine.LNX.4.53.0302011125280.1531@dust.rivmkt61.wintek.com>
+References: <Pine.LNX.4.52.0301312304210.22442@furcntrl.khat-fox.com>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15931.62606.441404.74917@charged.uio.no>
-Date: Sat, 1 Feb 2003 17:23:42 +0100
-To: David Ford <david+powerix@blue-labs.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@digeo.com>
-Subject: Re: NFS problems, 2.5.5x
-In-Reply-To: <3E3BEFDB.3060208@blue-labs.org>
-References: <3E3B2D2E.8000604@blue-labs.org>
-	<15931.35891.22926.408963@charged.uio.no>
-	<3E3BEFDB.3060208@blue-labs.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David Ford <david+powerix@blue-labs.org> writes:
+On Fri, 31 Jan 2003, Chris Bradford wrote:
 
-     > The last time NFS was working, I had 2.4.19 and 2.5.53 clients
-     > on a
-     > 2.5.59 server, that was yesterday.  I had experienced a slight
-     >        problem
-     > with it last week when my 2.5.53 client was booted for first
-     > time on 2.5.5x, it was previously a 2.4 kernel.  The server
-     > OOPSed repeatedly shortly after bootup in NFS stuff then it
-     > never happened again and was rock solid until today.
+> I'm using Slackware 9.0 beta as my distribution, which uses gcc 3.2.1 as
+> its C compiler.  My problems started when I noted that kernel 2.4 is not
+> compilable by gcc v3.x.  I upgraded to linux 2.5.59, which does work with
+> gcc 3.x.  My upgrade produced another hitch, I was unable to use modules.
+> My video card, which uses an nVidia TNT2, is of limited usefulness without
+> the ability to load modules.
+> 
+> Is there a work-around for my problems?
 
-So have you tried out the 2.5.53 client since you noticed this
-problem?
+A quick google, or look around an lkml archive would net you this handy 
+site: www.minion.de
 
-Cheers,
-  Trond
+-- 
+Alex Goddard
+agoddard@purdue.edu

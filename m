@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131514AbRAIXo2>; Tue, 9 Jan 2001 18:44:28 -0500
+	id <S129406AbRAIXtj>; Tue, 9 Jan 2001 18:49:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131385AbRAIXoT>; Tue, 9 Jan 2001 18:44:19 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:2750 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S132678AbRAIXn1>;
-	Tue, 9 Jan 2001 18:43:27 -0500
-Date: Wed, 10 Jan 2001 00:43:24 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101092343.AAA149309.aeb@texel.cwi.nl>
-To: Andries.Brouwer@cwi.nl, maillist@chello.nl
-Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
-Cc: linux-kernel@vger.kernel.org
+	id <S129431AbRAIXt3>; Tue, 9 Jan 2001 18:49:29 -0500
+Received: from unthought.net ([212.97.129.24]:11940 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S129406AbRAIXtT>;
+	Tue, 9 Jan 2001 18:49:19 -0500
+Date: Wed, 10 Jan 2001 00:49:17 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Hubert Mantel <mantel@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Change of policy for future 2.2 driver submissions
+Message-ID: <20010110004917.A861@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Hubert Mantel <mantel@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010109154908.F20539@suse.de> <E14G0Ag-0006ko-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <E14G0Ag-0006ko-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 09, 2001 at 02:54:44PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Igmar Palsenberg <maillist@chello.nl>
+On Tue, Jan 09, 2001 at 02:54:44PM +0000, Alan Cox wrote:
+> > some official 2.2 kernel. In order to make it possible to switch between
+> > kernel releases, every vendor now really is forced to integrate the new
+> > RAID0.90 code to their 2.2 kernel. IMHO this code should be integrated to
+> > the next official 2.2 kernel so people can use whatever they want.
+> 
+> Then people using a newer 2.2 cannot go back to an older 2.2 thats really
+> far far worse.
 
-    > > 2.2.18 sometimes sees 61 GB, sometimes 32 GB.
-    > > I don't call that hard to understand.
-    > 
-    > The same kernel has varying behaviour?
-    > Maybe not hard to understand, but rather surprising.
-    > You are the first to report nondeterministic behaviour.
+And don't forget, the 0.90 patches are available for 2.2 - so 2.2
+can do 0.90 Software RAID just fine.
 
-    You're not the only one that is suprised :
+Besides, most people using Software RAID have been using 0.90 for
+at least two years - so I doubt this would have been much of a problem
+if the 0.90 patches weren't available for 2.2, which they are.
 
-    1) Put disk in my machine (target machine hangs itself with the disk)
-    2) use setmax to set the limit to 32 GB
-    3) Put the disk in the target machine
-    4) System boots, linux sees 64GB
-    5) rebooted system, system hangs due to the soft clippig 'vanished'
-
-    I even had occurences of the kernel setmax message showing up, and after a
-    plain reboot it didn't.
-
-    It beats me.. I can't explain, and the machine is rock solid now.
-
-Probably you confused the proper way to use ibmsetmax with
-the proper way to use setmax. For setmax, and a Maxtor disk,
-you do not use a different machine, put the jumper to clip,
-now the boot succeeds, and you let Linux unclip.
-Either with a patched kernel that knows about these things
-or with a utility run from a boot script.
-(It is most convenient to have a partition boundary where
-the jumper clips, so that with old kernels and without running
-the utility you also have a valid filesystem.)
-
-Andries
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,84 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268222AbUHXA5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUHWT0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268222AbUHXA5X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 20:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUHXAzX
+	id S267452AbUHWT0a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUHWTZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 20:55:23 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:16789 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267165AbUHXAxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 20:53:22 -0400
-Message-Id: <200408240052.i7O0qscO007552@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: Greg KH <greg@kroah.com>
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-       Christoph Hellwig <hch@infradead.org>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][7/7] add xattr support to ramfs 
-In-Reply-To: Your message of "Mon, 23 Aug 2004 13:59:43 PDT."
-             <20040823205942.GA3370@kroah.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Xine.LNX.4.44.0408231420100.13728-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0408231421200.13728-100000@thoron.boston.redhat.com> <20040823212623.A20995@infradead.org> <1093292789.27211.279.camel@moss-spartans.epoch.ncsc.mil>
-            <20040823205942.GA3370@kroah.com>
+	Mon, 23 Aug 2004 15:25:11 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62147 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267176AbUHWSgl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:36:41 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10932860852622@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:45 -0700
+Message-Id: <10932860853494@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1096192960P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 23 Aug 2004 20:52:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1096192960P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <8638.1093308734.1@turing-police.cc.vt.edu>
+ChangeSet 1.1807.56.10, 2004/08/04 08:01:20-04:00, dsaxena@plexity.net
 
-On Mon, 23 Aug 2004 13:59:43 PDT, Greg KH said:
+[5/3][ARM] PCI quirks update for ARM
 
-> What's wrong with using a tmpfs for udev in such situations that xattrs
-> are needed?  udev does not require ramfs at all.  In fact, why not just
-> use a ext2 or ext3 partition for /dev instead today, if you really need
-> it?
+Good idea.  Following is ARM patch.
 
-Somehow, 'mount /dev/some-ext3-partition /dev' strikes me as having an innate
-bootstrapping issue :) (Yes, I know there's initial setup magic needed in an
-initrd to get a *working* udev up and running on a /dev on tmpfs).
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-The underlying end goal is to allow a configuration such as "/dev on a
-tmpfs and not break with SELinux or other xattr-using system".  This
-has several wins:
 
-1) You can mount / with 'nodev' (currently, / is the only partition on this
-machine *not* mounted with 'nodev')..
+ arch/arm/kernel/bios32.c |   39 +++++++--------------------------------
+ 1 files changed, 7 insertions(+), 32 deletions(-)
 
-2) /dev loses all the "legacy" entries your particular box doesn't need:
-# find /dev -type b -o -type c | wc -l
-19200
-# find /udev -type b -o -type c | wc -l
-211
-(On a laptop running Fedora Core)
 
-3) As mentioned, less bootstrapping issues for initrd systems that may need
-a /dev in order to get to a partition (LVM/raid/etc)
+diff -Nru a/arch/arm/kernel/bios32.c b/arch/arm/kernel/bios32.c
+--- a/arch/arm/kernel/bios32.c	2004-08-23 11:06:23 -07:00
++++ b/arch/arm/kernel/bios32.c	2004-08-23 11:06:23 -07:00
+@@ -128,12 +128,14 @@
+ 	pci_write_config_word(dev, 0x44, 0xb000);
+ 	outb(0x08, 0x4d1);
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_WINBOND, PCI_DEVICE_ID_WINBOND_83C553, pci_fixup_83c553);
+ 
+ static void __devinit pci_fixup_unassign(struct pci_dev *dev)
+ {
+ 	dev->resource[0].end -= dev->resource[0].start;
+ 	dev->resource[0].start = 0;
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_WINBOND2, PCI_DEVICE_ID_WINBOND2_89C940F, pci_fixup_unassign);
+ 
+ /*
+  * Prevent the PCI layer from seeing the resources allocated to this device
+@@ -154,6 +156,7 @@
+ 		}
+ 	}
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21285, pci_fixup_dec21285);
+ 
+ /*
+  * Same as above. The PrPMC800 carrier board for the PrPMC1100 
+@@ -178,6 +181,7 @@
+ 		}
+ 	}
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_IXP4XX, pci_fixup_prpmc1100);
+ 
+ /*
+  * PCI IDE controllers use non-standard I/O port decoding, respect it.
+@@ -198,6 +202,7 @@
+ 		}
+ 	}
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, pci_fixup_ide_bases);
+ 
+ /*
+  * Put the DEC21142 to sleep
+@@ -206,6 +211,7 @@
+ {
+ 	pci_write_config_dword(dev, 0x40, 0x80000000);
+ }
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142, pci_fixup_dec21142);
+ 
+ /*
+  * The CY82C693 needs some rather major fixups to ensure that it does
+@@ -271,38 +277,7 @@
+ 		pci_write_config_byte(dev, 0x45, 0x03);
+ 	}
+ }
+-
+-struct pci_fixup pcibios_fixups[] = {
+-	{
+-		PCI_FIXUP_HEADER,
+-		PCI_VENDOR_ID_CONTAQ,	PCI_DEVICE_ID_CONTAQ_82C693,
+-		pci_fixup_cy82c693
+-	}, {
+-		PCI_FIXUP_HEADER,
+-		PCI_VENDOR_ID_DEC,	PCI_DEVICE_ID_DEC_21142,
+-		pci_fixup_dec21142
+-	}, {
+-		PCI_FIXUP_HEADER,
+-		PCI_VENDOR_ID_DEC,	PCI_DEVICE_ID_DEC_21285,
+-		pci_fixup_dec21285
+-	}, {
+-		PCI_FIXUP_HEADER,
+-		PCI_VENDOR_ID_WINBOND,	PCI_DEVICE_ID_WINBOND_83C553,
+-		pci_fixup_83c553
+-	}, {
+-		PCI_FIXUP_HEADER,
+-		PCI_VENDOR_ID_WINBOND2,	PCI_DEVICE_ID_WINBOND2_89C940F,
+-		pci_fixup_unassign
+-	}, {
+-		PCI_FIXUP_HEADER,
+-		PCI_ANY_ID,		PCI_ANY_ID,
+-		pci_fixup_ide_bases
+-	}, {
+-		PCI_FIXUP_HEADER,
+-		PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_IXP4XX,
+-		pci_fixup_prpmc1100
+-	}, { 0 }
+-};
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_CONTAQ, PCI_DEVICE_ID_CONTAQ_82C693, pci_fixup_cy82c693);
+ 
+ void __devinit pcibios_update_irq(struct pci_dev *dev, int irq)
+ {
 
-4) Having udev-on-tmpfs work even under SELinux would be just one more
-thing to use against any remaining devfs infidels. ;)
-
-(And yes, the lack of xattr support is the only reason I'm not already using
-udev-on-tmpfs for a /dev)....
-
---==_Exmh_1096192960P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBKpFmcC3lWbTT17ARAv/dAJsHhYyBo/hZ4eIvdzmaHIdQQyeFcgCfUfyN
-6zHhJJ3uI7lOEiCoYullrUE=
-=SZsc
------END PGP SIGNATURE-----
-
---==_Exmh_1096192960P--

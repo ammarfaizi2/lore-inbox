@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266098AbUAFXl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 18:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266101AbUAFXl4
+	id S265488AbUAFXxj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 18:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265494AbUAFXxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 18:41:56 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:37641 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S266098AbUAFXly convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 18:41:54 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel buildsystem broken on RO medium
-Date: Wed, 7 Jan 2004 00:41:41 +0100
-User-Agent: KMail/1.5.94
-MIME-Version: 1.0
+	Tue, 6 Jan 2004 18:53:39 -0500
+Received: from linuxhacker.ru ([217.76.32.60]:52936 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S265488AbUAFXxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 18:53:37 -0500
+Date: Wed, 7 Jan 2004 01:53:35 +0200
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org, mfedyk@matchmail.com,
+       Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related to sector_t being unsigned, advice requested
+Message-ID: <20040106235335.GC415627@linuxhacker.ru>
+References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk> <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk> <20040106174650.GD1882@matchmail.com> <200401062135.i06LZAOY005429@car.linuxhacker.ru> <3FFB46B0.9060101@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401070041.41598.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+In-Reply-To: <3FFB46B0.9060101@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How to build external kernel modules using kernel buildsystem from RO medium?
+Hello!
 
+On Wed, Jan 07, 2004 at 02:37:20AM +0300, Hans Reiser wrote:
 
-make[1]: Entering directory `/home/users/misiek/rpm/BUILD/drbd-0.6.10/drbd'
+> >This code was never executing anyway.
+> Oleg, I thought you ran a script for finding dead code last fall or 
+> summer?  Any idea why it didn't find this and gcc did?  Or did you only 
+> run it on reiser4?
 
-    Calling toplevel makefile of kernel source tree, which I believe is in
-    KDIR=/lib/modules/2.6.1/build
-    NOTE: please ignore warnings regarding overriding of SUBDIRS
+Actually I found this dead code back then (with gcc as well), though
+it was not looked all that serious. I think I decided we may want to have that
+just in case sector_t will become signed oneday or something like that.
+(in 2.4 the block type is still signed long, for example).
 
-/usr/bin/make -C /lib/modules/2.6.1/build 
-SUBDIRS=/home/users/misiek/rpm/BUILD/drbd-0.6.10/drbd  modules
-make[2]: Entering directory `/usr/src/linux-2.6.1'
-  HOSTCC  scripts/modpost.o
-cc1: Permission denied: opening dependency file scripts/.modpost.o.d
-make[3]: *** [scripts/modpost.o] Error 1
-make[2]: *** [scripts] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.6.1'
-make[1]: *** [kbuild] Error 2
-make[1]: Leaving directory `/home/users/misiek/rpm/BUILD/drbd-0.6.10/drbd'
+As for why gcc is finding this, but scripts (e.g. smatch) do not is because
+scripts generally know nothing about variable types, so they cannot tell
+this comparison was always false (and since gcc can do this for long time
+already, there is no point in implementing it in scripts anyway).
 
-
-Are there any patches that fix this part of build system (if I remember 
-correctly someone created such patch but I didn't find it)?
-
--- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+Bye,
+    Oleg

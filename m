@@ -1,58 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315239AbSFTQfO>; Thu, 20 Jun 2002 12:35:14 -0400
+	id <S315257AbSFTQhl>; Thu, 20 Jun 2002 12:37:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315257AbSFTQfN>; Thu, 20 Jun 2002 12:35:13 -0400
-Received: from mail.viewcast.com ([66.21.70.195]:62698 "EHLO mail.viewcast.com")
-	by vger.kernel.org with ESMTP id <S315218AbSFTQfL>;
-	Thu, 20 Jun 2002 12:35:11 -0400
-From: "Scott Tillman" <tillman@viewcast.com>
-To: "Dave Jones" <davej@suse.de>
-Cc: "Martin Dalecki" <dalecki@evision-ventures.com>,
-       "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Garet Cammer" <arcolin@arcoide.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Need IDE Taskfile Access
-Date: Thu, 20 Jun 2002 12:36:26 -0400
-Message-ID: <CBELJEJGBEIGHCIMEDHNGEAICJAA.tillman@viewcast.com>
+	id <S315259AbSFTQhk>; Thu, 20 Jun 2002 12:37:40 -0400
+Received: from mail.storm.ca ([209.87.239.66]:30870 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S315257AbSFTQhh>;
+	Thu, 20 Jun 2002 12:37:37 -0400
+Message-ID: <3D11F7B9.27C74922@storm.ca>
+Date: Thu, 20 Jun 2002 11:41:45 -0400
+From: Sandy Harris <pashley@storm.ca>
+Organization: Flashman's Dragoons
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: McVoy's Clusters (was Re: latest linus-2.5 BK broken)
+References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org> <20020619222444.A26194@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20020620005259.V29373@suse.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wonder about the legality of including such a port in the
-> mainline kernel.
-> The IDE restriction sounds like it definitly comes under the
-> 'circumventing an access control' clause of the DMCA.
+[ I removed half a dozen cc's on this, and am just sending to the
+  list. Do people actually want the cc's?]
 
-Well, IANAL, but if you are referring to the IDE's security mode commands,
-they are just the access method...you still need the actual key.  If you
-want to count that then things like a DMA controller, or a mouse could be
-considered circumvention devices.  I think of it like the lock on a door.
-The lock commands are the lock, the code to access the commands is the
-*user* of the key.  You still need to have the actual key to unlock
-anything.  What the DMCA is geared to prevent is the "opening" of the lock
-by removing the hinges.
+Larry McVoy wrote:
 
-circumvention: To go around; bypass;
-(to circumvent != to use) in fact they are basically antonyms.
+> > Checkpointing buys three things.  The ability to preempt jobs, the
+> > ability to migrate processes,
 
-The IDE security commands are no more a "circumvention device" than you are.
-You use keys to provide access to things behind locks.  It uses keys to
-provide access to things behind locks.  So, if it is illegal for me to make
-code which can, when provided a key, unlock my hard drive then...Hey, I've
-got a great idea...let's arrest all pregnant women for manufacturing a
-circumvention device.
+For large multi-processor systems, it isn't clear that those matter
+much. On single user systems I've tried , ps -ax | wc -l usually
+gives some number 50 < n < 100. For a multi-user general purpose
+system, my guess would be something under 50 system processes plus
+50 per user. So for a dozen to 20 users on a departmental server,
+under 1000. A server for a big application, like database or web,
+would have fewer users and more threads, but still only a few 100
+or at most, say 2000.
 
-Sorry...It just irks me to see this knee-jerk reaction in fear of the DMCA,
-whether it's called for or not.
+So at something like 8 CPUs in a personal workstation and 128 or
+256 for a server, things average out to 8 processes per CPU, and
+it is not clear that process migration or any form of pre-emption
+beyond the usual kernel scheduling is needed.
 
--Scott Tillman aka SpeedBump
+What combination of resources and loads do you think preemption
+and migration are need for?
 
+> > and the ability to recover from failed nodes, (assuming the 
+> > failed hardware didn't corrupt your jobs checkpoint).
+
+That matters, but it isn't entirely clear that it needs to be done
+in the kernel. Things like databases and journalling filesystems
+already have their own mechanisms and it is not remarkably onerous
+to put them into applications where required.
+
+[big snip]
+
+> Larry McVoy's SMP Clusters
+> 
+> Discussion on November 8, 2001
+> 
+> Larry McVoy, Ted T'so, and Paul McKenney
+> 
+> What is SMP Clusters?
+> 
+>      SMP Clusters is a method of partioning an SMP (symmetric
+>      multiprocessing) machine's CPUs, memory, and I/O devices
+>      so that multiple "OSlets" run on this machine.  Each OSlet
+>      owns and controls its partition.  A given partition is
+>      expected to contain from 4-8 CPUs, its share of memory,
+>      and its share of I/O devices.  A machine large enough to
+>      have SMP Clusters profitably applied is expected to have
+>      enough of the standard I/O adapters (e.g., ethernet,
+>      SCSI, FC, etc.) so that each OSlet would have at least
+>      one of each.
+
+I'm not sure whose definition this is:
+   supercomputer: a device for converting compute-bound problems
+      into I/O-bound problems
+but I suspect it is at least partially correct, and Beowulfs are
+sometimes just devices to convert them to network-bound problems.
+
+For a network-bound task like web serving, I can see a large
+payoff in having each OSlet doing its own I/O.
+
+However, in general I fail to see why each OSlet should have
+independent resources rather than something like using one to
+run a shared file system and another to handle the networking
+for everybody.

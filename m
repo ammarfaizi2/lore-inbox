@@ -1,53 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131182AbQKKQ01>; Sat, 11 Nov 2000 11:26:27 -0500
+	id <S131219AbQKKQ1H>; Sat, 11 Nov 2000 11:27:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131219AbQKKQ0R>; Sat, 11 Nov 2000 11:26:17 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:43020 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131182AbQKKQ0N>;
-	Sat, 11 Nov 2000 11:26:13 -0500
-Date: Sat, 11 Nov 2000 17:26:10 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, Max Inux <maxinux@bigfoot.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-Message-ID: <20001111172610.A9140@inspiron.suse.de>
-In-Reply-To: <20001111154209.A3450@inspiron.suse.de> <Pine.LNX.4.21.0011111448200.1511-100000@saturn.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0011111448200.1511-100000@saturn.homenet>; from tigran@veritas.com on Sat, Nov 11, 2000 at 02:51:21PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131330AbQKKQ06>; Sat, 11 Nov 2000 11:26:58 -0500
+Received: from nat-ip.networkers.dk ([194.239.251.254]:4314 "EHLO
+	marvin.framfab.dk") by vger.kernel.org with ESMTP
+	id <S131219AbQKKQ0m> convert rfc822-to-8bit; Sat, 11 Nov 2000 11:26:42 -0500
+Message-ID: <3A0D7346.1C646F5@framfab.dk>
+Date: Sat, 11 Nov 2000 17:26:46 +0100
+From: Anders Peter Fugmann <anders.fugmann@framfab.dk>
+Organization: Framfab
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: problem detecting QUANTUM scsi disks in Wide mode.
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2000 at 02:51:21PM +0000, Tigran Aivazian wrote:
-> Yes, Andrea, I know that paging is disabled at the point of loading the
-> image but I was talking about the inability to boot (boot == complete
-> booting, i.e. at least reach start_kernel()) a kernel with very large
-> .data or .bss segments because of various reasons -- one of which,
-> probably,is the inadequacy of those pg0 and pg1 page tables set up in
-> head.S
+Hi
 
-Ah ok, I thought you were talking about bootloader.
+I'm having problems with an Adaptec AIC-7890/1 Ultra2 SCSI adapter.
+under kernel 2.4.0-test10.
 
-About the initial pagetable setup on i386 port there's certainly a 3M limit on
-the size of the kernel image, but it's trivial to enlarge it.  BTW, exactly for
-that kernel size limit reasons in x86-64 I defined a 40Mbyte mapping where we
-currently have a 4M mapping and that's even simpler to enlarge since they're 2M
-PAE like pagetables.
+Under boot, the the two Quantum scsi disks are not detected correctly,
+and the root partition could not be mounted (because it could not find
+the disks). 
 
-Basically as far as the kernel can get loaded in memory correctly we have
-no problem :)
+Written of the screen:
+	Host:   scsi0 channel:  00 Id: 01  Lun:00
+	Vendor: ÉP      Model: @L       rev: P
+	Type:   Unknown                 ANSI SCSI revision: 00
+	Host:   scsi0 channel:  00 Id: 02  Lun:00
+	Vendor: ÉP      Model: @L       rev: P
+	Type:   Unknown                 ANSI SCSI revision: 00
 
-> (which Peter says is infinite?) or the ones on .text/.data/.bss (and what
-> exactly are they?)? See my question now?
+Going into the scsi bios, and setting the scsi transfer to narrow (40Mb
+instead of 80Mb)
+corrects the problem. Is there any solution to this problem, or won't I
+ever get my discs up and running 80Mb/sec?
 
-We sure hit the 3M limit on the .bss clearing right now.
+Btw. They both gets detected correctly in 2.2.16 in wide mode.
+The mobo is a P2B-DS, with two PIII-550 Mhz CPU's
 
-Andrea
+> cat \proc\scsi\scsi
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS 10K 9WLS   Rev: UCP0
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS 10K 9WLS   Rev: UCP0
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+
+>cat /proc/scsi/aic7xxx/0
+Adaptec AIC7xxx driver version: 5.2.1/5.2.0
+Compile Options:
+  TCQ Enabled By Default : Enabled
+  AIC7XXX_PROC_STATS     : Enabled
+
+Adapter Configuration:
+           SCSI Adapter: Adaptec AIC-7890/1 Ultra2 SCSI host adapter
+                           Ultra-2 LVD/SE Wide Controller at PCI 0/6/0
+    PCI MMAPed I/O Base: 0xcc000000
+ Adapter SEEPROM Config: SEEPROM found and used.
+      Adaptec SCSI BIOS: Enabled
+                    IRQ: 19
+                   SCBs: Active 0, Max Active 16,
+                         Allocated 31, HW 32, Page 255
+             Interrupts: 53607
+      BIOS Control Word: 0x1886
+   Adapter Control Word: 0x1c1e
+   Extended Translation: Enabled
+Disconnect Enable Flags: 0xffff
+     Ultra Enable Flags: 0x0000
+ Tag Queue Enable Flags: 0x0003
+Ordered Queue Tag Flags: 0x0003
+Default Tag Queue Depth: 8
+    Tagged Queue By Device array for aic7xxx host instance 0:
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+    Actual queue depth per device for aic7xxx host instance 0:
+      {8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+
+Statistics:
+
+(scsi0:0:0:0)
+  Device using Narrow/Sync transfers at 40.0 MByte/sec, offset 31
+  Transinfo settings: current(10/31/0/0), goal(10/127/0/0),
+user(10/127/0/0)
+  Total transfers 32157 (9525 reads and 22632 writes)
+             < 2K      2K+     4K+     8K+    16K+    32K+    64K+  
+128K+
+   Reads:      18       0    6983     807     354     413     950      
+0
+  Writes:       0       0   18640    3822     121      22      27      
+0
+
+
+(scsi0:0:1:0)
+  Device using Narrow/Sync transfers at 40.0 MByte/sec, offset 31
+  Transinfo settings: current(10/31/0/0), goal(10/127/0/0),
+user(10/127/0/0)
+  Total transfers 21348 (9521 reads and 11827 writes)
+             < 2K      2K+     4K+     8K+    16K+    32K+    64K+  
+128K+
+   Reads:       7       0    7003     809     352     398     952      
+0
+  Writes:       0       0   10492    1184      55      68      28      
+0
+
+
+
+Regards 
+Anders Fugmann
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

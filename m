@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265278AbTFRPZH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 11:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTFRPZH
+	id S265266AbTFRPY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 11:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbTFRPY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 11:25:07 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:195 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265278AbTFRPZE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 11:25:04 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Interactivity fix for 2.4.21-ck1
-Date: Thu, 19 Jun 2003 01:38:56 +1000
-User-Agent: KMail/1.5.2
+	Wed, 18 Jun 2003 11:24:59 -0400
+Received: from lvs00-fl.valueweb.net ([216.219.253.199]:8941 "EHLO
+	ams003.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S265266AbTFRPY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 11:24:58 -0400
+Message-ID: <3EF0874B.7090701@coyotegulch.com>
+Date: Wed, 18 Jun 2003 11:37:47 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200306190139.00264.kernel@kolivas.org>
+To: Sachin Prasad <Sachin.Prasad@symphonysv.com>
+CC: "Linux (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: some new groups
+References: <02AB8F82CFB9AF47A537171AFF3A97E2638B2E@blr005istex01.symphonysv.com>
+In-Reply-To: <02AB8F82CFB9AF47A537171AFF3A97E2638B2E@blr005istex01.symphonysv.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Sachin Prasad wrote:
+> Do you know some good books on kernel internals or group that deals with newbies like me 
 
-I've posted a bugfix update for 2.4.21-ck1 that includes a fix for the long 
-standing interactivity bug that I've been battling with. This patch reverts 
-timeslices back to normal length as well. It makes a massive difference to 
-system responsiveness under very heavy load, and eliminates audio skips in my 
-testing. I highly recommend anyone using any -ck patchset up to 2.4.21-ck1 to 
-update.
+I highly recommend "Understanding the Linux Kernel" by Bovet and Cesati, 
+and published by O'Reilly. I believe there is a second edition now, and 
+I found it quite useful.
 
-http://kernel.kolivas.org
+You might also consider http://kernelnewbies.org/.
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Good luck.
 
-iD8DBQE+8IeQF6dfvkL3i1gRAoEQAKCnduFxF/BGOZr0Qxw91VNi3XUVFACdHPxM
-0ipG/nVjcXJG2/2v4QbK5GU=
-=CCYI
------END PGP SIGNATURE-----
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+
 

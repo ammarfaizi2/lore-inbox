@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130994AbQKGEny>; Mon, 6 Nov 2000 23:43:54 -0500
+	id <S130599AbQKGEpE>; Mon, 6 Nov 2000 23:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131004AbQKGEnp>; Mon, 6 Nov 2000 23:43:45 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:22657 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130994AbQKGEng>;
-	Mon, 6 Nov 2000 23:43:36 -0500
-Date: Mon, 6 Nov 2000 20:29:14 -0800
-Message-Id: <200011070429.UAA01723@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: jordy@napster.com
-CC: kuznet@ms2.inr.ac.ru, ak@muc.de, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A077AB9.74FE8BF2@napster.com> (message from Jordan Mendelson on
-	Mon, 06 Nov 2000 19:44:57 -0800)
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <3A076701.F437F88B@napster.com> <3A077AB9.74FE8BF2@napster.com>
+	id <S131004AbQKGEoz>; Mon, 6 Nov 2000 23:44:55 -0500
+Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:34308 "EHLO
+	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
+	id <S130599AbQKGEoj>; Mon, 6 Nov 2000 23:44:39 -0500
+Date: Mon, 6 Nov 2000 20:45:03 -0800 (PST)
+From: Dan Browning <danb@cyclonehq.dnsalias.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [HARDLOCK] 2.2.17 locks up hard on Ultra66/PDC20262 in DMA mode
+ when using ide + raid-A0 + eepro100 patches (fwd)
+Message-ID: <Pine.LNX.4.21.0011062044280.11597-100000@cyclonehq.dnsalias.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date:   Mon, 06 Nov 2000 19:44:57 -0800
-   From: Jordan Mendelson <jordy@napster.com>
+So far I have hit 25 minutes of uptime, another few hours to go.
 
-   Just some updates. This problem does not appear to happen under
-   2.2.16.  The dump for 2.2.16 is almost the same except we send an
-   mss back of 536 and not 1460 (remote mtu vs local mtu).
+I noticed a few errors in dmesg, though:
+VFS: Disk change detected on device ide0(3,64)
 
-MSS advertized makes no difference, it controls not what sized
-payloads we send, which is determined in this case by PMTU and thus
-both Linux 2.2.x and 2.4.x send equally sized limited packets.
+And while the system is running I thought I might as well run iozone (an
+IO benchmarking tool good for hard drives).
 
-Later,
-David S. Miller
-davem@redhat.com
+Additionally, I have gotten the following from hdparm -T /dev/md0...
+/dev/md0:
+ Timing buffer-cache reads:   128 MB in  1.39 seconds = 92.09 MB/sec
+
+92MB/sec... not bad for $425 of hardware. (I love Linux).
+
+On Mon, 6 Nov 2000, Andre Hedrick wrote:
+
+> 
+> Fsn shake this at it...
+> 
+> 
+> Andre Hedrick
+> CTO Timpanogas Research Group
+> EVP Linux Development, TRG
+> Linux ATA Development
+> 
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

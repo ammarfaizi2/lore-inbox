@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267797AbUG3TeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267804AbUG3ThH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267797AbUG3TeY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 15:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267802AbUG3TeY
+	id S267804AbUG3ThH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 15:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267802AbUG3ThG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 15:34:24 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:5248 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S267804AbUG3TeW (ORCPT
+	Fri, 30 Jul 2004 15:37:06 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:16007 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S267809AbUG3Tf6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 15:34:22 -0400
-Date: Fri, 30 Jul 2004 21:35:46 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
+	Fri, 30 Jul 2004 15:35:58 -0400
+Date: Fri, 30 Jul 2004 21:35:59 +0200
+From: Martin Mares <mj@ucw.cz>
 To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
+Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730193546.GA328@ucw.cz>
-References: <200407301010.29807.jbarnes@engr.sgi.com> <20040730192510.74857.qmail@web14922.mail.yahoo.com>
+Message-ID: <20040730193559.GA4687@ucw.cz>
+References: <20040730190456.GZ10025@parcelfarce.linux.theplanet.co.uk> <20040730193011.5239.qmail@web14929.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040730192510.74857.qmail@web14922.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040730193011.5239.qmail@web14929.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 12:25:10PM -0700, Jon Smirl wrote:
-> --- Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> > How about this patch?
-> 
-> Here's the ROM access code I've been using but it's not in the form
-> that we need.
-> 
-> We do need a standard scheme for the radeon situation of having a bug
-> in the ROM access logic. Is it ok to put the fix for this in the radeon
-> driver? So if you read the ROM before the driver is loaded it won't be
-> there (proabably FFFF's). After the driver loads the fix will run as
-> part of the driver init and the ROM access functions will work right. 
+Hello!
 
-IMO the fix should go to the PCI quirk logic. That's a place to work
-around PCI config bugs.
+> Another idea, it's ok to read the ROM when there is no device driver
+> loaded. When the driver for one of these card loads it could trigger a
+> copy of the ROM into RAM and cache it in a PCI structure.
 
+I really doubt it's worth the RAM wasted by the automatic caching of ROM's
+which will be probably left unused in 99.9% of cases.
+
+				Have a nice fortnight
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Never make any mistaeks.

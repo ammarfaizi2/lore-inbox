@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S281489AbRKZHdl>; Mon, 26 Nov 2001 02:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S281500AbRKZHdc>; Mon, 26 Nov 2001 02:33:32 -0500
-Received: from mongkok.pacific.net.hk ([202.64.33.131]:12791 "EHLO mongkok.pacific.net.hk") by vger.kernel.org with ESMTP id <S281497AbRKZHdT>; Mon, 26 Nov 2001 02:33:19 -0500
-Message-Id: <200111260733.PAA01649@tsingyi.pacific.net.hk>
-From: "noreply@noreply.com" <noreply@noreply.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S281500AbRKZHzz>; Mon, 26 Nov 2001 02:55:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S281505AbRKZHzp>; Mon, 26 Nov 2001 02:55:45 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:57264 "EHLO mailout06.sul.t-online.de") by vger.kernel.org with ESMTP id <S281501AbRKZHz3> convert rfc822-to-8bit; Mon, 26 Nov 2001 02:55:29 -0500
+Subject: Re: IT JOBS IN ASIA PACIFIC & JAPAN
+From: Ali Akcaagac <ali.akcaagac@stud.fh-wilhelmshaven.de>
 To: linux-kernel@vger.kernel.org
-Subject: IT JOBS IN ASIA PACIFIC & JAPAN
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-Reply-To: noreply@noreply.com
-Date: Mon, 26 Nov 2001 15:33:17 +0800
+In-Reply-To: <200111260733.PAA01649@tsingyi.pacific.net.hk>
+References: <200111260733.PAA01649@tsingyi.pacific.net.hk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 26 Nov 2001 08:54:59 +0100
+Message-Id: <1006761300.6960.2.camel@ulixys>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2001-11-26 at 08:33, noreply@noreply.com wrote:
+> RECRUIT.NET™
+> http://www.recruit.net
+> email: support@recruit.net
 
-Dear, Friend
+all synk4 are belong to you :-)
 
-Just a quick note to introduce you to RECRUIT.NET - the premier web site for Information Technology (IT) recruitment in  Asia Pacific and Japan.
-
-Search through our job listings of the best IT jobs in Asia Pacific and Japan. New jobs are added daily! http://www.recruit.net
-
-If you are even slightly interested in IT jobs or IT recruitment in Asia then please check us out, if not then please excuse the intrusion.
-
-RECRUIT.NET™
-http://www.recruit.net
-email: support@recruit.net
-
-Empowering the Tech Professional (tm)
-
+-- 
+Name....: Ali Akcaagac
+Status..: Student Of Computer & Economic Science
+E-Mail..: mailto:ali.akcaagac@stud.fh-wilhelmshaven.de
+WWW.....: http://www.fh-wilhelmshaven.de/~akcaagaa
 

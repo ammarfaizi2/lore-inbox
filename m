@@ -1,185 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVBSVyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVBSWQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVBSVyc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 16:54:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVBSVyb
+	id S261581AbVBSWQc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 17:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVBSWQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 16:54:31 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:46286 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262006AbVBSVyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 16:54:15 -0500
-Subject: Yenta TI: ... no PCI interrupts. Fish. Please report.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: len.brown@intel.com
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sat, 19 Feb 2005 16:54:09 -0500
-Message-Id: <1108850049.8413.143.camel@localhost.localdomain>
+	Sat, 19 Feb 2005 17:16:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:161 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261581AbVBSWQZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 17:16:25 -0500
+Date: Sat, 19 Feb 2005 17:16:24 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: slab corruption on 2.6.10-rc4-bk7
+Message-ID: <20050219221624.GB803@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+(This has actually been there for a while, but I only
+ noticed it in dmesg this morning).
+During boot on a dual em64t I see ..
 
-I've been banging my head on this one a couple of days with no luck. 
+scsi2 : ata_piix
+isa bounce pool size: 16 pages
+slab error in cache_free_debugcheck(): cache `size-2048': double free, or memory outside object was overwritten
 
-I have a IBM Thinkpad G41 with a pentium4M with Hyperthreading.  I can't
-get the PCMCIA working at all.  I've tried turning off hyperthreading,
-I've tried with and without preempt, I've even added pci=noacpi. I've
-added Len's ACPI patches, but nothing works.
+Call Trace:<ffffffff80163448>{cache_free_debugcheck+392} <ffffffff801646aa>{kfree+234}
+       <ffffffff88065189>{:libata:ata_pci_init_one+937} <ffffffff801fe9ea>{pci_bus_read_config_word+122}
+       <ffffffff880707f2>{:ata_piix:piix_init_one+498} <ffffffff80202926>{pci_device_probe+134}
+       <ffffffff802691ad>{driver_probe_device+77} <ffffffff802692cb>{driver_attach+75}
+       <ffffffff802696c9>{bus_add_driver+169} <ffffffff802025e3>{pci_register_driver+131}
+       <ffffffff88074010>{:ata_piix:piix_init+16} <ffffffff80152c58>{sys_init_module+344}
+       <ffffffff8010e52a>{system_call+126}
+ffff81011e49f4a0: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf071.
 
-Here's lspci -vvv: 
-
-0000:00:00.0 Host bridge: Intel Corp. 82852/855GM Host Bridge (rev 02)
-        Subsystem: IBM: Unknown device 0579
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort+ >SERR- <PERR-
-        Latency: 0
-        Region 0: Memory at d0000000 (32-bit, prefetchable) [size=256M]
-        Capabilities: <available only to root>
-
-0000:00:00.1 System peripheral: Intel Corp. 855GM/GME GMCH Memory I/O Control Registers (rev 02)
-        Subsystem: IBM: Unknown device 057a
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-        Latency: 0
-
-0000:00:00.3 System peripheral: Intel Corp. 855GM/GME GMCH Configuration Process Registers (rev 02)
-        Subsystem: IBM: Unknown device 057b
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-        Latency: 0
-
-0000:00:01.0 PCI bridge: Intel Corp. 855GME GMCH Host-to-AGP Bridge (Virtual PCI-to-PCI) (rev 02) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-        Latency: 96
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-        I/O behind bridge: 0000f000-00000fff
-        Memory behind bridge: c1000000-c1ffffff
-        Prefetchable memory behind bridge: e0000000-efffffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+and..
 
 
-[ ... USB controllers snipped out ... ]
+SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
+Slab corruption: start=ffff81011e49f4a8, len=2048
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<ffffffff8015290c>](load_module+0x180c/0x1a00)
+000: 38 e0 35 80 ff ff ff ff b8 f9 49 1e 01 81 ff ff
+010: e0 f4 49 1e 01 81 ff ff 80 e7 08 88 ff ff ff ff
+020: 24 01 00 00 5a 5a 5a 5a 10 0b 15 80 ff ff ff ff
+030: 00 00 00 00 00 00 00 00 2e 74 65 78 74 00 5a 5a
+040: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+050: 5a 5a 5a 5a 5a 5a 5a 5a 00 e0 07 88 ff ff ff ff
+Prev obj: start=ffff81011e49ec90, len=2048
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<ffffffff88064c79>](ata_probe_ent_alloc+0x29/0xc0 [libata])
+000: 90 ec 49 1e 01 81 ff ff 90 ec 49 1e 01 81 ff ff
+010: 80 8e 26 08 00 81 ff ff 60 24 07 88 ff ff ff ff
+slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
 
-0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 81) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort- >SERR- <PERR+
-        Latency: 0
-        Bus: primary=00, secondary=02, subordinate=08, sec-latency=168
-        I/O behind bridge: 00003000-00006fff
-        Memory behind bridge: c2000000-cfffffff
-        Prefetchable memory behind bridge: f0000000-f7ffffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+Call Trace:<ffffffff802d52c1>{alloc_skb+81} <ffffffff8016375a>{cache_alloc_debugcheck_after+186}
+       <ffffffff801638e8>{__kmalloc+216} <ffffffff802d52c1>{alloc_skb+81}
+       <ffffffff801f66e4>{send_uevent+84} <ffffffff801f6bb0>{kobject_hotplug+592}
+       <ffffffff801f635d>{kobject_add+349} <ffffffff8026a377>{class_device_add+135}
+       <ffffffff8026ab0d>{class_simple_device_add+317} <ffffffff80133a53>{__wake_up+67}
+       <ffffffff8023ab8d>{init_dev+1197} <ffffffff80243f3b>{vcs_make_devfs+43}
+       <ffffffff8024941e>{con_open+158} <ffffffff8023bebe>{tty_open+574}
+       <ffffffff801e51ea>{selinux_file_alloc_security+42}
+       <ffffffff80188d79>{chrdev_open+393} <ffffffff801e51ea>{selinux_file_alloc_security+42}
+       <ffffffff8017ef46>{dentry_open+246} <ffffffff8017f09e>{filp_open+62}
+       <ffffffff8017f18b>{get_unused_fd+219} <ffffffff8017f2dc>{sys_open+76}
+       <ffffffff8010e52a>{system_call+126}
+ffff81011e49f4a0: redzone 1: 0x170fc2a5, redzone 2: 0x170fc2a5.
+SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts
 
-0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 01)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
+This box got new hardware just before xmas, and a >24hr run of memtest86
+so I can probably rule out bad memory.
 
-[ ... snipped out IDE Bridge controllers too ... ]
-
-0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 01)
-        Subsystem: IBM: Unknown device 0547
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin B routed to IRQ 11
-        Region 4: I/O ports at 1880 [size=32]
-
-[ ... snipped audio VGA NVidia and Ethernet controllers ... ]
-
-0000:02:01.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller (rev 01)
-        Subsystem: IBM ThinkPad T30/T40
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168, Cache Line Size: 0x20 (128 bytes)
-        Interrupt: pin A routed to IRQ 177
-        Region 0: Memory at 3fefb000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
-        Memory window 0: 40000000-403ff000 (prefetchable)
-        Memory window 1: 40400000-407ff000
-        I/O window 0: 00004000-000040ff
-        I/O window 1: 00004400-000044ff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
-        16-bit legacy interface ports at 0001
-
-0000:02:01.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller (rev 01)
-        Subsystem: IBM ThinkPad T30/T40
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168, Cache Line Size: 0x20 (128 bytes)
-        Interrupt: pin B routed to IRQ 185
-        Region 0: Memory at 3fefc000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=02, secondary=07, subordinate=0a, sec-latency=176
-        Memory window 0: 40800000-40bff000 (prefetchable)
-        Memory window 1: 40c00000-40fff000
-        I/O window 0: 00004800-000048ff
-        I/O window 1: 00004c00-00004cff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt- PostWrite+
-        16-bit legacy interface ports at 0001
-
-
-
-The above is probably more than anyone needs, but if I should show the
-whole listing (USB, Audio and all), just let me know and I can post all
-of it too.
-
-
-And here's the dmesg:
-
-Linux Kernel Card Services
-  options:  [pci] [cardbus] [pm]
-ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 20 (level, low) -> IRQ 177
-Yenta: CardBus bridge found at 0000:02:01.0 [1014:0512]
-Yenta: Using INTVAL to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: socket 0000:02:01.0, mfunc 0x01001c22, devctl 0x64
-Yenta TI: socket 0000:02:01.0 probing PCI interrupt failed, trying to fix
-Yenta TI: socket 0000:02:01.0 no PCI interrupts. Fish. Please report.
-Yenta: ISA IRQ mask 0x0000, PCI irq 0
-Socket status: ffffffff
-ACPI: PCI interrupt 0000:02:01.1[B] -> GSI 21 (level, low) -> IRQ 185
-Yenta: CardBus bridge found at 0000:02:01.1 [1014:0512]
-Yenta: Using CSCINT to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: socket 0000:02:01.1, mfunc 0x01001c22, devctl 0x64
-Yenta TI: socket 0000:02:01.1 probing PCI interrupt failed, trying to fix
-Yenta TI: socket 0000:02:01.1 no PCI interrupts. Fish. Please report.
-Yenta: ISA IRQ mask 0x0000, PCI irq 0
-Socket status: 4410080c
-
-(the above is from kernel.org 2.6.10 with Len's ACPI patches).
-
-I've tried this with Debian stock kernels: 2.4.27-1-386, 2.6.8-2-686,
-2.6.9-1-686, 2.6.10-1-686-smp
-
-I've also tried kernel.org kernels with 2.6.9, 2.6.10 and
-2.6.11-rc3-mm2.  As I've mentioned, I've added Len's ACPI patches to
-2.6.10 and still nothing works. I've tried disable_clkrun but still
-nothing. I've found a couple of other patches on the net and nothing
-works.
-
-I've tried debugging this but PCMCIA is not my strong spot, so all I can
-tell you is that the interrupt never comes in when Yenta probes it. 
-
-Does anyone else out there have a IBM Thinkpad G41 and have this
-working? Or, do you have it and it is not working.  I get no power to
-the PCMCIA card slots, so they are basically useless now.
-
-Any ideas would be appreciated.
-
-Thanks,
-
--- Steve
-
+		Dave
 

@@ -1,39 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVBLGQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVBLIIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbVBLGQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 01:16:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVBLGQy
+	id S262399AbVBLIIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 03:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVBLIIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 01:16:54 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50317 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262398AbVBLGQw (ORCPT
+	Sat, 12 Feb 2005 03:08:53 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58807 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262399AbVBLIIS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 01:16:52 -0500
-Date: Fri, 11 Feb 2005 22:16:10 -0800
+	Sat, 12 Feb 2005 03:08:18 -0500
+Date: Sat, 12 Feb 2005 00:08:00 -0800
 From: Paul Jackson <pj@sgi.com>
-To: Chandra Seetharaman <sekharan@us.ibm.com>
-Cc: colpatch@us.ibm.com, dino@in.ibm.com, mbligh@aracnet.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, Simon.Derr@bull.net, ak@suse.de,
-       sivanich@sgi.com
-Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
- memory placement
-Message-Id: <20050211221610.46bbbd3d.pj@sgi.com>
-In-Reply-To: <20050212013744.GC22159@chandralinux.beaverton.ibm.com>
-References: <20041003083936.7c844ec3.pj@sgi.com>
-	<834330000.1096847619@[10.10.2.4]>
-	<1097014749.4065.48.camel@arrakis>
-	<420800F5.9070504@us.ibm.com>
-	<20050208095440.GA3976@in.ibm.com>
-	<42090C42.7020700@us.ibm.com>
-	<20050208124234.6aed9e28.pj@sgi.com>
-	<20050209175928.GA5710@chandralinux.beaverton.ibm.com>
-	<20050211024606.GB19997@chandralinux.beaverton.ibm.com>
-	<20050211012112.4913a3e2.pj@sgi.com>
-	<20050212013744.GC22159@chandralinux.beaverton.ibm.com>
+To: Ray Bryant <raybry@sgi.com>
+Cc: taka@valinux.co.jp, hugh@veritas.com, akpm@osdl.org, haveblue@us.ibm.com,
+       marcello@cyclades.com, raybry@sgi.com, raybry@austin.rr.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
+ sys_page_migrate
+Message-Id: <20050212000800.5ecee064.pj@sgi.com>
+In-Reply-To: <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+	<20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
 Organization: SGI
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -42,33 +29,81 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree with 97% of what you write, Chandra.
+Minor comments ... nothing profound.
 
+Ray wrote:
+> once we agree on what the authority model should be.
 
-> one more level of indirection(instead of task->cpuset->cpus_allowed
-> it will be task->taskclass->res[CPUSET]->cpus_allowed).
+Are the usual kill-like permissions sufficient?
+You can migrate the pages of a process if you can kill it.
 
-No -- two more levels of indirection (task->cpus_allowed becomes
-task->taskclass->res[CPUSET]->cpus_allowed).
+===
 
+In the following routine, tighten up some vertical spacing,
+add { ... } , ...
 
-> But, for your purposes or our discussions one would need only 3 modules
-> of the above (core, rcfs and taskclass). 
+The migrated and count manipulations are confusing my
+feeble brain.  Is this thing supposed to return 0 if all
+count pages are migrated?  Sure seems that it does, as it
+returns 'migrated', which is 'count - migrated', but that
+migrated is really count, so it returns 'count - count',
+which is zero.  Huh ...  The phrase 'return migrated' would
+make me think it returned some count of how many were
+migrated on success, not zero.
 
-Ok.  That was not obvious to me until now.  If there is a section in
-your documentation that explains this, and addresses the needs and
-motivations of someone trying to reuse portions of CKRM in such a
-manner, I missed it.  Whatever ...
+The variable name 'remains' is rather elaborate for what
+looks like a trivial return case.  But perhaps it actually
+provides a better clue to the return value, which apparently
+is the number of pages _not_ migrated successfully.
 
-In any case, on the issue that matters to me right now, we agree:
+Think carefully about what each variable represents, and
+then use each variable consistently.
 
-> It won't be a happy, productive marriage.
+And try to avoid the embedded 'return remains'.  A function
+header comment, saying what this routine does and returns might
+be helpful.
 
-Good.  Thanks.  Good luck to you.
+=========================================================================
+static int
+migrate_vma_common(struct list_head *page_list, short *node_map, int count)
+{
+	int pass, remains, migrated;
+	struct page *page;
 
-> PS to everyone else: Wow, you have lot of patience :)
+	for (pass = 0; pass < 10; msleep(10), pass++) {
+		remains = try_to_migrate_pages(page_list, node_map);
+		if (remains < 0)
+			return remains;
 
-For sure.
+		migrated = 0;
+		if (!list_empty(page_list)) {
+			list_for_each_entry(page, page_list, lru)
+				migrated++;
+		} else {
+			migrated = count;
+			break;
+		}
+		migrated = count - migrated;
+	}
+	return migrated;
+}
+=========================================================================
+
+Better init tmp_new_nodes, node_map to 0, or if tmp_old_news fails to
+allocate, you might try freeing bogus values for the other two in
+sys_page_migrate():
+
+===============================================================
++       short *tmp_old_nodes;
++       short *tmp_new_nodes;
++       short *node_map;
++       ...
++
++
++       tmp_old_nodes = (short *) kmalloc(size, GFP_KERNEL);
++       tmp_new_nodes = (short *) kmalloc(size, GFP_KERNEL);
++       node_map = (short *) kmalloc(MAX_NUMNODES*sizeof(short), GFP_KERNEL);
+================================================================
 
 -- 
                   I won't rest till it's the best ...

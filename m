@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264910AbTLISI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265983AbTLISI0
+	id S265994AbTLISMT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 13:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266033AbTLISMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:08:26 -0500
-Received: from cdc868fe.powerlandcomputers.com ([205.200.104.254]:8607 "EHLO
-	pl6w2kex.lan.powerlandcomputers.com") by vger.kernel.org with ESMTP
-	id S264910AbTLISIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:08:25 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3BE7F.6ED5FAF8"
-Subject: Minor bugs in via_dsp_release in via82cxxx_audio.c in 2.4.22
-Date: Tue, 9 Dec 2003 12:08:22 -0600
-Message-ID: <18DFD6B776308241A200853F3F83D507169CCF@pl6w2kex.lan.powerlandcomputers.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Minor bugs in via_dsp_release in via82cxxx_audio.c in 2.4.22
-Thread-Index: AcO+f27OCF0f/D12QAaLqnSJGBTJzg==
-From: "Chad Kitching" <CKitching@powerlandcomputers.com>
-To: <linux-kernel@vger.kernel.org>
+	Tue, 9 Dec 2003 13:12:19 -0500
+Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:47280
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S265994AbTLISMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 13:12:17 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+From: Ian Kumlien <pomac@vapor.com>
+To: ross@datscreative.com.au
+Cc: linux-kernel@vger.kernel.org, recbo@nishanet.com
+In-Reply-To: <200312081207.45297.ross@datscreative.com.au>
+References: <1070827127.1991.16.camel@big.pomac.com>
+	 <200312081207.45297.ross@datscreative.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bUevnAcnTAc23X4Gf6dZ"
+Message-Id: <1070993538.1674.10.camel@big.pomac.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Dec 2003 19:12:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C3BE7F.6ED5FAF8
-Content-Type: text/plain;
-	charset="iso-8859-1"
+--=-bUevnAcnTAc23X4Gf6dZ
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-There are two bugs in the via_dsp_release function for this sound =
-driver.
-The first is just a typo, that prevents it from suppressing "via_audio:=20
-ignoring drain playback error -512" errors. =20
+Bob wrote:
+> Using a patch that fixes a number of people's nforce2
+> lockups while enabling io-apic edge timer, I can now
+> use nmi_watchdog=3D2 but not =3D1
 
-The other bug (which I don't know the correct way to fix) in this same=20
-area is the "via_audio: ignoring drain playback error -11", which is=20
-caused when the via_dsp_drain_playback is called with nonblock !=3D 0, =
-and=20
-the function returns -EAGAIN.  Setting nonblock to zero certainly=20
-supresses the error, but I'm not sure what the dangers of blocking in =
-the=20
-release function would be when an application specifically requests non-
-blocking.  Ignoring this error as with -ERESTARTSYS is also possible =
-(and=20
-would cause no more harm than currently happens).
+Why regurgitate patches that are outdated, Personally i find int
+outdated after Ross made his patches available and they DO enable
+nmi_watchdog=3D1. (I have seen the old patches mentioned more than once,
+if something better comes along, please move to that instead.)
 
-Both bugs are pretty minor, I was just getting annoyed with my logfiles =
-filling up with useless messages.
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107080280512734&w=3D2
 
-------_=_NextPart_001_01C3BE7F.6ED5FAF8
-Content-Type: application/octet-stream;
-	name="viaaud.diff"
-Content-Transfer-Encoding: base64
-Content-Description: viaaud.diff
-Content-Disposition: attachment;
-	filename="viaaud.diff"
+Anyways, Is there anyway to detect if the cpu is "disconnected" or, is
+there anyway to see when the kernel sends it's halts that triggers the
+disconnect? (or is it automagic?)
 
-LS0tIGxpbnV4LTIuNC4yMi9kcml2ZXJzL3NvdW5kL3ZpYTgyY3h4eF9hdWRpby5jLm9yaWcJMjAw
-My0xMi0wOSAxMTo0OTowMy4wMDAwMDAwMDAgLTA2MDAKKysrIGxpbnV4LTIuNC4yMi9kcml2ZXJz
-L3NvdW5kL3ZpYTgyY3h4eF9hdWRpby5jCTIwMDMtMTItMDkgMTE6NDk6MjEuMDAwMDAwMDAwIC0w
-NjAwCkBAIC0zMzYzLDcgKzMzNjMsNyBAQAogCiAJaWYgKGZpbGUtPmZfbW9kZSAmIEZNT0RFX1dS
-SVRFKSB7CiAJCXJjID0gdmlhX2RzcF9kcmFpbl9wbGF5YmFjayAoY2FyZCwgJmNhcmQtPmNoX291
-dCwgbm9uYmxvY2spOwotCQlpZiAocmMgJiYgcmMgIT0gRVJFU1RBUlRTWVMpCS8qIE5vYm9keSBu
-ZWVkcyB0byBrbm93IGFib3V0IF5DICovCisJCWlmIChyYyAmJiByYyAhPSAtRVJFU1RBUlRTWVMp
-CS8qIE5vYm9keSBuZWVkcyB0byBrbm93IGFib3V0IF5DICovCiAJCQlwcmludGsgKEtFUk5fREVC
-VUcgInZpYV9hdWRpbzogaWdub3JpbmcgZHJhaW4gcGxheWJhY2sgZXJyb3IgJWRcbiIsIHJjKTsK
-IAogCQl2aWFfY2hhbl9mcmVlIChjYXJkLCAmY2FyZC0+Y2hfb3V0KTsK
+If there was a way to check, then thats all thats needed, all delays can
+be removed and the code can be more generalized.
 
-------_=_NextPart_001_01C3BE7F.6ED5FAF8--
+(Since doubt that this is apic torment. It's more apic trying to talk to
+a disconnected cpu... (which both approaches hints at imho))
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-bUevnAcnTAc23X4Gf6dZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/1hCC7F3Euyc51N8RAmPHAKCdN0QduFhsAeJkfrzixhWzydeRZACfXo1k
+B/djESOuSIsjDOP4zVhmqmw=
+=SEMY
+-----END PGP SIGNATURE-----
+
+--=-bUevnAcnTAc23X4Gf6dZ--
+

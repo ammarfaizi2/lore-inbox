@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264182AbUE2IqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUE2IrC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264182AbUE2IqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 04:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbUE2IqY
+	id S264211AbUE2IrC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 04:47:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUE2Iqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 04:46:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56475 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264124AbUE2IqH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 04:46:07 -0400
-Date: Sat, 29 May 2004 10:45:26 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: michael@optusnet.com.au
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_IRQBALANCE for AMD64?
-Message-ID: <20040529084526.GB29552@devserv.devel.redhat.com>
-References: <7F740D512C7C1046AB53446D372001730182BB40@scsmsx402.amr.corp.intel.com> <2750000.1085769212@flay> <20040528184411.GE9898@devserv.devel.redhat.com> <m1zn7r7hh1.fsf@mo.optusnet.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
-Content-Disposition: inline
-In-Reply-To: <m1zn7r7hh1.fsf@mo.optusnet.com.au>
-User-Agent: Mutt/1.4.1i
+	Sat, 29 May 2004 04:46:32 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:6546 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264196AbUE2IqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 04:46:19 -0400
+Message-ID: <40B84DD3.7090505@yahoo.com.au>
+Date: Sat, 29 May 2004 18:46:11 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Matthias Schniedermeyer <ms@citd.de>
+CC: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: MM patches (was Re: why swap at all?)
+References: <E1BTpqM-0005LZ-00@calista.eckenfels.6bone.ka-ip.net> <200405291031.02564.vda@port.imtp.ilyichevsk.odessa.ua> <40B84C85.8010207@yahoo.com.au>
+In-Reply-To: <40B84C85.8010207@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sat, May 29, 2004 at 06:41:46PM +1000, michael@optusnet.com.au wrote:
-> Arjan van de Ven <arjanv@redhat.com> writes:
-> > On Fri, May 28, 2004 at 11:33:32AM -0700, Martin J. Bligh wrote:
-> [...]
-> > > Also, we may well have more than 1 CPU's worth of traffic to
-> > > process in a large network server.
-> > 
-> > One NIC? I've yet to see that ;)
+Nick Piggin wrote:
+> Denis Vlasenko wrote:
 > 
-> Oh, and another corner case. 
+>> (pages with program/library code, data of e.g. your Mozilla, etc),
+>> please submit a report to lkml. VM gurus said more than once
+>> that they _want_ to fix things, but need to know how to reproduce.
 > 
-> Say you have a cpu-bound process on an SMP box.
-> Say you're also using a large chunk of a CPU processing
-> interrupts from a single IRQ.
 > 
-> What stops the cpu-bound process being scheduled onto
-> the same CPU as the interrupt handlers?
+> Yep.
 > 
-> Now you've got one idle CPU, and one seriously overloaded
-> CPU.
+> Thanks to everyone's input I was able to test and adapt my mm work.
+> It is hopefully at a stage where it can have wider testing now. It
+> is stable on my SMP system under very heavy swapping, but the usual
+> caution applies.
+> 
+> Test is 4 x cat 8GB > /dev/null (aggregate 100-200MB/s!) while in X,
+> with xterms and mozilla open browsing and grepping kernel tree, etc.
+> 
 
-yes and the only real answer here is to make the scheduler move the process.
-"balancing" the irq (say every other irq) will actually use BOTH cpus 100%
-(yes balancing is that expensive due to cache misses :)
+This isn't the "very heavy swapping" load, BTW :)
 
-
---mxv5cy4qt+RJ9ypb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAuE2lxULwo51rQBIRAtCyAJ43mrm8CAWFydUreEKPI4J1jGY+bgCfeXZc
-x1RloXyhborG3skjBtL69Zc=
-=uSfi
------END PGP SIGNATURE-----
-
---mxv5cy4qt+RJ9ypb--
+The very heavy swapping load is make -j15 in 64MB of memory.

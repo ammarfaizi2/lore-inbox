@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293109AbSCENwQ>; Tue, 5 Mar 2002 08:52:16 -0500
+	id <S293121AbSCEOBr>; Tue, 5 Mar 2002 09:01:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293119AbSCENwH>; Tue, 5 Mar 2002 08:52:07 -0500
-Received: from enseeiht.enseeiht.fr ([147.127.18.144]:61098 "EHLO
-	enseeiht.enseeiht.fr") by vger.kernel.org with ESMTP
-	id <S293109AbSCENv6>; Tue, 5 Mar 2002 08:51:58 -0500
-X-Url: http://www.enseeiht.fr
-Message-ID: <3C84CED2.2000603@enseeiht.fr>
-Date: Tue, 05 Mar 2002 14:57:38 +0100
-From: Emmanuel Chaput <Emmanuel.Chaput@enseeiht.fr>
-Organization: ENSEEIHT
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S293125AbSCEOBi>; Tue, 5 Mar 2002 09:01:38 -0500
+Received: from [216.66.12.254] ([216.66.12.254]:21461 "HELO
+	ep1.elevenprospect.com") by vger.kernel.org with SMTP
+	id <S293121AbSCEOBd>; Tue, 5 Mar 2002 09:01:33 -0500
+Message-ID: <3C84CF95.8070103@xblox.net>
+Date: Tue, 05 Mar 2002 14:00:53 +0000
+From: Matthew Allum <mallum@xblox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020205
+X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: timer question
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: fujitsu pt510 ( again ) and touchscreen
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Hi !
+Hi all;
 
-   I have a problem with the first part of run_timer_list() :
+I now have Linux running happily on the 510 with pcmcia and X running 
+happily.
 
-   if (!tv1.index) {
-         int n = 1;
-          do {
-                 cascade_timers(tvecs[n]);
-          } while (tvecs[n]->index == 1 && ++n < NOOF_TVECS);
-    }
+However I am having little luck getting any infomation from the 
+touchscreen. I have tried various X11 drivers ( from linuxslate.org 
+andfujitsu b112 drivers ) as well as kernel modules for different types 
+of ps2 mice. 
 
-   My problem is that tv*.index is initialized to 0, so the first call to
-run_timer_list() will result in a (useless) call to cascade_timers() for
-tvecs[1..NOOF_TVECS - 1].
+Im not sure if the touchscreen is on a ttyS or /dev/psaux, the kernel 
+reports nothing. I have been told ( unreliably however ) thats its a ps2 
+port on irq 12. Catting these various devices also produces nothing.
 
-   Am I wrong ? Thanks to anyone who could help me  !
+Im looking for some pointers on how to begin reverse enginneeing the 
+touchscreen and
+actually getting some data from it.
 
--- 
-Emmanuel Chaput                         Dépt Télécom & Réseau, ENSEEIHT
-*5 61 58 82 10 (Fax *5 61 58 80 14)         Emmanuel.Chaput@enseeiht.fr
+dmidecode gives me nothing as does lspci ( the machine does not have pci ).
+
+Any advice, greatly appreciated;
+
+Matthew Allum
 
 

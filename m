@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVALH6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVALIVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVALH6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 02:58:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVALH6v
+	id S261262AbVALIVh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 03:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVALIVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 02:58:51 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:9377 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261280AbVALH6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 02:58:49 -0500
-Date: Wed, 12 Jan 2005 07:58:04 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-Message-ID: <20050112075804.GA13336@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andries Brouwer <aebr@win.tue.nl>,
-	"Barry K. Nathan" <barryn@pobox.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl> <20050107170712.GK29176@logos.cnet> <1105136446.7628.11.camel@localhost.localdomain> <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org> <20050107221255.GA8749@logos.cnet> <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org> <20050111225127.GD4378@ip68-4-98-123.oc.oc.cox.net> <20050111235907.GG2760@pclin040.win.tue.nl>
+	Wed, 12 Jan 2005 03:21:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38099 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261262AbVALIV1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 03:21:27 -0500
+Date: Wed, 12 Jan 2005 00:17:22 -0800
+From: Greg KH <greg@kroah.com>
+To: Paul Mundt <paul.mundt@nokia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SuperHyway bus support
+Message-ID: <20050112081722.GA2745@kroah.com>
+References: <20041027075248.GA26760@pointless.research.nokia.com> <20050107072222.GB24441@kroah.com> <20050107094103.GA7408@pointless.research.nokia.com> <20050107162945.GA19043@pointless.research.nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050111235907.GG2760@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20050107162945.GA19043@pointless.research.nokia.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 12:59:07AM +0100, Andries Brouwer wrote:
-> s/sys_uselib/uselib/
-> The system call is uselib().
+On Fri, Jan 07, 2005 at 06:29:45PM +0200, Paul Mundt wrote:
+> On Fri, Jan 07, 2005 at 11:41:04AM +0200, Paul Mundt wrote:
+> > > Also, why have a local list of devices and not just use the list the
+> > > driver core provides for you?
+> > > 
+> > Probably because I wasn't aware that the driver core provided one. Now that I
+> > see the bus_for_each_xxx() stuff I'll drop the list and use that instead.
+> > 
+> I dropped this entirely as the release() stuff did what I was looking for..
 > 
-> Hmm - old cruft.. Why insult your users?
-> I do not have source for Maple. And my xmaple binary works just fine.
-> But it is a libc4 binary.
+> > Thanks for looking at this, I'll post a cleaned up version shortly.
 > 
-> You mean "on the typical recently installed Linux system, with nothing
-> but the usual Linux utilities".
+> Here it is against current BK.. let me know if you have any other issues.
 > 
-> People always claim that Linux is good in preserving binary compatibility.
-> Don't know how true that was, but introducing such config options doesnt
-> help.
+> Signed-off-by: Paul Mundt <paul.mundt@nokia.com>
 > 
-> Let me also mutter about something else.
-> In principle configuration options are evil. Nobody wants fifty thousand
-> configuration options. But I see them multiply like ioctls.
-> There should be a significant gain in having a config option.
-> 
-> 
-> Maybe some argue that there is a gain in security here. Perhaps.
-> Or a gain in memory. It is negligible.
-> I see mostly a loss.
-> 
-> There are more ancient system calls, like old_stat and oldolduname.
-> Do we want separate options for each system call that is obsoleted?
+>  drivers/Makefile                         |    1 
+>  drivers/sh/Makefile                      |    6 
+>  drivers/sh/superhyway/Makefile           |    7 +
+>  drivers/sh/superhyway/superhyway-sysfs.c |   47 +++++++
+>  drivers/sh/superhyway/superhyway.c       |  205 +++++++++++++++++++++++++++++++
 
-Agreed to this complaint.  I still think it might be a good idea to
-allow configuring obsolete syscalls out, but doing that on a per-syscall
-basis sounds like a bad idea.  I always liked the way FreeBSD one
-conditionals for everything that was obsoleted in a release.  So by setting
-only few options you could select how old binaries you want to support,
-defaulting to on for all of them.
+No Kconfig file to enable this option?
+
+> +static struct device superhyway_bus_device = {
+> +	.bus_id = "superhyway",
+> +};
+
+This device doesn't have a release function, as it's tied to the module.
+Are you sure it's race free?  :)
+
+> +static int __init superhyway_init(void)
+> +{
+> +	extern int superhyway_scan_bus(void);
+
+This should go in a .h file somewhere.
+
+> +EXPORT_SYMBOL(superhyway_bus_type);
+> +EXPORT_SYMBOL(superhyway_add_device);
+> +EXPORT_SYMBOL(superhyway_register_driver);
+> +EXPORT_SYMBOL(superhyway_unregister_driver);
+
+Did you forget a .h file with these function prototypes?
+
+Other than that, looks a whole lot better, nice job.
+
+greg k-h

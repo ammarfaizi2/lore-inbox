@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSEPQ4q>; Thu, 16 May 2002 12:56:46 -0400
+	id <S314456AbSEPRK6>; Thu, 16 May 2002 13:10:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSEPQ4p>; Thu, 16 May 2002 12:56:45 -0400
-Received: from pc-62-31-66-178-ed.blueyonder.co.uk ([62.31.66.178]:50051 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S313711AbSEPQ4n>; Thu, 16 May 2002 12:56:43 -0400
-Date: Thu, 16 May 2002 17:56:37 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: ext3-users@redhat.com, ext2-devel@lists.sourceforge.net,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-        Andreas Dilger <adilger@home.com>
-Subject: Ext3-0.9.18 available
-Message-ID: <20020516175637.A21624@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314458AbSEPRK5>; Thu, 16 May 2002 13:10:57 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7808 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S314456AbSEPRK4>; Thu, 16 May 2002 13:10:56 -0400
+Date: Thu, 16 May 2002 13:11:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: Bart Trojanowski <bart@jukie.net>, linux-kernel@vger.kernel.org
+Subject: Re: Q: x86 interrupt arrival after cli
+In-Reply-To: <200205161555.g4GFt0v05623@buggy.badula.org>
+Message-ID: <Pine.LNX.3.95.1020516124059.702A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 16 May 2002, Ion Badulescu wrote:
 
-ext3-0.9.18 is now available for 2.4.19-pre8.  Some of the fixes in
-this release are already in the 2.4.19-pre8, but there are some
-important new fixes in the patch and users are encouraged to upgrade.
-This release fixes all known outstanding bug reports.
+> On Wed, 15 May 2002 20:27:20 -0400, Bart Trojanowski <bart@jukie.net> wrote:
+> > [-- text/plain, encoding quoted-printable, 14 lines --]
+> > 
+> > Quick question for the x86 gurus:
+> > 
+> > If a hardware interrupt arrives within a spin_lock_irqsave &
+> > spin_unlock_irqrestore will the interrupt handler associated with said
+> > interrupt be called immediately after the spinlock is released?  
+> > 
+> > I am interested in any delays, even those less then a jiffie.
+> 
+> The interrupt will occur when the instruction after the "sti" finishes.
+> That's a one assembler instruction delay, i.e. a few clock cycles.
+> 
+> *Which* interrupt will be serviced first, however, depends on how 
+> many interrupt sources you have active and on the IRQ prioritization.
+> 
+> Ion
+> 
+Correct. And the priority for the Intel/IBM class machine is:
 
-The full patch against linux-2.4.19-pre8, and a tarball of the
-individual fixes in this patch set, is now propagating to
+<--- HIGHEST    -------------------     LOWEST ---->
 
-	ftp://ftp.*.kernel.org/pub/linux/kernel/people/sct/ext3/v2.4/
+IRQ0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 3, 4, 5, 6, 7
+   |  |  |                             |  |  |  |  |_ printer
+   |  |  |                             |  |  |  |____ Floppy
+   |  |  |                             |  |  |_______ Fixed disk
+   |  |  |                             |  |__________ Serial 0
+   |  |  |                             |_____________ Serial 1
+   |  |  |
+   |  |  |___________ IRQ2->IRQ8 cascade  RTC
+   |  |______________ Keyboard
+   |_________________ PIT channel 0
 
-The full list of changes is included below.
+IFF the IO-APIC is programmed to emulate the old dual controllers.
+
+Answering; 
+"I am interested in any delays, even those less then a jiffie."
+
+Any interrupt request that becomes active during your ISR, that
+has a higher priority, will be serviced before your ISR gets
+another chance to be serviced.
+
+As far as normal delays are concerned, one can make a simple
+interrupt routine that just bumps a counter, that works off
+from IRQ7 (the printer port), with a 400MHz machine (obsolete now),
+I could do 80,000 interrupts per second without missing any.
+
+This number should scale to your CPU speed quite well. FYI, this
+is the lowest priority and everything else was running (network
+with all its broadcast junk, etc).
+
+As I recall, if I disconnected the network, and didn't touch the
+keyboard, I could do over 150,000 interrupts per second without
+missing any.
+
 
 Cheers,
- Stephen
+Dick Johnson
 
----
-ChangeLog:
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-* Speed up MS_SYNC writes
-* Set up kjournald to be parented under init properly
-* config: ext3 is no longer experimental
-* fix i_blocks getting inconsistent after disk full
-* speed up fsyncs in non-journaled data modes a little
-* don't consider ENOSPC a fatal error when allocating an inode
-* fix LVM snapshot deadlock
-* fix "dump corrupts filesystems" core VFS bug
-* fix over-zealous ext3 complaint about locked buffers
-* fix very rare buffer leak
-* fix O_SYNC
-* fix tiny race where a buffer could be written to disk too soon
+                 Windows-2000/Professional isn't.
+

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271502AbRIFRX1>; Thu, 6 Sep 2001 13:23:27 -0400
+	id <S271515AbRIFR1H>; Thu, 6 Sep 2001 13:27:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271515AbRIFRXR>; Thu, 6 Sep 2001 13:23:17 -0400
-Received: from spike.porcupine.org ([168.100.189.2]:39945 "EHLO
-	spike.porcupine.org") by vger.kernel.org with ESMTP
-	id <S271502AbRIFRW5>; Thu, 6 Sep 2001 13:22:57 -0400
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias
-In-Reply-To: <E15f2WT-0008Tp-00@the-village.bc.nu> "from Alan Cox at Sep 6, 2001
- 06:01:01 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 6 Sep 2001 13:23:16 -0400 (EDT)
-Cc: Wietse Venema <wietse@porcupine.org>, Andrey Savochkin <saw@saw.sw.com.sg>,
-        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-X-Time-Zone: USA EST, 6 hours behind central European time
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S271518AbRIFR0t>; Thu, 6 Sep 2001 13:26:49 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:6665 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271515AbRIFR0c>; Thu, 6 Sep 2001 13:26:32 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20010906172316.E0B74BC06C@spike.porcupine.org>
-From: wietse@porcupine.org (Wietse Venema)
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "M. Edward Borasky" <znmeb@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 19:33:49 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com>
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010906172646Z16127-26183+18@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-> How for example do you propose to answer the question for the case
-> Q: "is this local" A: "it depends on the sender"
-> With netfilter and transparent proxying active this is entirely possible
+On September 6, 2001 03:54 pm, M. Edward Borasky wrote:
+> I'm relatively new to the Linux kernel world and even newer to the list, so
+> forgive me if I'm asking a silly question or making a silly comment. It
+> seems to me, from what I've seen of this discussion so far, that the only
+> way one "tunes" Linux kernels at the moment is by changing code and
+> rebuilding the kernel. That is, there are few "tunables" that one can set,
+> based on one's circumstances, to optimize kernel performance for a specific
+> application or environment.
+> 
+> Every other operating system that I've done performance tuning on, starting
+> with Xerox CP-V in 1974, had such tunables and tools to set them. And quite
+> often, some of the tuning parameters can be set "on the fly", simply by
+> knowing the correct memory location to set and poking a new value into it.
 
-Please explain the relevance for a real-world, SMTP based, MTA.
+We typically use proc for this, sometimes combined with an ioctl.  Some of 
+these settings are standard in the kernel (bdflush, others) but more often 
+you will have to apply a patch.
 
-If an MTA receives a delivery request for user@[ip.address] then
-the MTA has to decide if it is the final destination. This is
-required by the SMTP RFC.
+> No one "memory management scheme", for example, can be all things to all
+> tasks, and it seems to me that giving users tools to measure and control the
+> behavior of memory management, *preferably without having to recompile and
+> reboot*, should be a major priority if Linux is to succeed in a wide variety
+> of applications.
 
-In order to enable SMTP RFC compliance, Linux has to provide the
-MTA with the necessary information.  Requiring the sysadmin to
-enumerate all IP addresses in a file, as suggested by some other
-poster, is impractical.
+Linus doesn't seem to like like having tuning knobs appear where a better 
+algorithm should be used instead.  Leaving the knobs out makes people work 
+harder to come up with solutions that don't need them.
 
-If an MTA receives a mail relaying request for user@domain.name
-then it would be very useful if Linux could provide the MTA with
-the necessary information to distinguish between local subnetworks
-and the rest of the world. Requiring the local sysadmin to enumerate
-all local subnetwork blocks by hand is not practical.
-
-I will ignore denigrating comments about competing IP stacks.
-
-	Wietse
+--
+Daniel

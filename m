@@ -1,92 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278142AbRJRUrT>; Thu, 18 Oct 2001 16:47:19 -0400
+	id <S278137AbRJRUyT>; Thu, 18 Oct 2001 16:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278139AbRJRUrK>; Thu, 18 Oct 2001 16:47:10 -0400
-Received: from barry.mail.mindspring.net ([207.69.200.25]:10269 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S278136AbRJRUrC>; Thu, 18 Oct 2001 16:47:02 -0400
-Date: Thu, 18 Oct 2001 15:47:09 -0500
-From: Tim Walberg <twalberg@mindspring.com>
-To: James Sutherland <jas88@cam.ac.uk>, Ben Greear <greearb@candelatech.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-Message-ID: <20011018154709.E29662@mindspring.com>
-Reply-To: Tim Walberg <twalberg@mindspring.com>
-Mail-Followup-To: Tim Walberg <twalberg@mindspring.com>,
-	James Sutherland <jas88@cam.ac.uk>,
-	Ben Greear <greearb@candelatech.com>,
-	Neil Brown <neilb@cse.unsw.edu.au>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BCE6E6E.3DD3C2D6@candelatech.com> <Pine.SOL.4.33.0110180937420.13081-100000@yellow.csi.cam.ac.uk> <20011018132035.A444@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FEz7ebHBGB6b2e8X"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011018132035.A444@mikef-linux.matchmail.com> from Mike Fedyk on 10/18/2001 15:20
-X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
-X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
-X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
-X-URL: http://www.concentric.net/~twalberg
+	id <S278143AbRJRUyJ>; Thu, 18 Oct 2001 16:54:09 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:15035 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S278139AbRJRUx5>;
+	Thu, 18 Oct 2001 16:53:57 -0400
+To: linux-kernel@vger.kernel.org
+Cc: andrea@suse.de
+Subject: Write throughput in >= 2.4.10
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: 18 Oct 2001 21:13:13 +0200
+Message-ID: <87669c92ye.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It looks like recent kernels have some serious trouble during simple
+writing of files. Throughput is cut to half.
 
---FEz7ebHBGB6b2e8X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2.4.12-ac3 (Riel VM):
 
-A semi-random thought on the tree-quota concept:
-
-Does it really make sense to charge a tree quota to a single specific
-user? I haven't really looked into what would be required to implement
-it, but my mental picture of a tree quota is somewhat divorced from the
-user concept, other than maybe the quota table containing a pointer to
-a contact for quota violations. The bookkeeping might be easier if each
-tree quota root just held a cumulative total of allocated space, and
-maybe a just a user name for contacts (or on the fancier side, a hook
-to execute something...).
-
-I know it's kinda half-baked, but that's my $0.015...
-
-				tw
-
-On 10/18/2001 13:20 -0700, Mike Fedyk wrote:
->>	Actually, it looks like Niel is creating a two level Quota system.  In t=
-her
->>	normal quota system, if you own a file anywhere, it is attributed to you.
->>	But, in the tree quota system, it is attributed to the owner of the tree=
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  4  1      0   2548   7652 369104   0   0     0 21992  291   592   0  23  77
+ 0  4  1      0   2556   7652 369104   0   0     0 22500  280   175   0   3  97
+ 0  4  1      0   3064   7652 368588   0   0     8 19644  278   202   0   4  96
 ...
->>=09
->>	Niel, how do you plan to notify someone that their tree quota has been
->>	exceeded instead of their normal quota?
->>	-
->>	To unsubscribe from this list: send the line "unsubscribe linux-kernel" =
-in
->>	the body of a message to majordomo@vger.kernel.org
->>	More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>	Please read the FAQ at  http://www.tux.org/lkml/
-End of included message
 
+2.4.13-pre4 (Andrea/Linus VM):
 
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 1  1  1  30312   2884   2304 384076   0  28     0  7784  199   241   0  12  88
+ 0  1  1  30316   2068   2256 385772   0 132     4  7900  186   188   1   8  91
+ 0  1  0  30316   3960   2232 384140   0   0     8  6744  179   204   0   4  96
+...
 
---=20
-twalberg@mindspring.com
+'bo' column is the one to check out... I copied just 3 lines, but they
+are all alike. 2.4.13-pre ends up with 11MB/sec, where -ac kernels are
+over 20MB/sec (during sequential writing of big files - ext2 of course).
 
---FEz7ebHBGB6b2e8X
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.1i
-
-iQA/AwUBO88/y8PlnI9tqyVmEQIbygCfSW7+uWO8NYm5fcWFm3+fxnFsQIoAnjG8
-ZztEyYAUsJX4hXaFAlNEANIe
-=puSv
------END PGP SIGNATURE-----
-
---FEz7ebHBGB6b2e8X--
+Also it looks like pre4 swaps when it is not necessary to do so. With
+380MB in page cache I don't expect any swap traffic at all.
+-- 
+Zlatko

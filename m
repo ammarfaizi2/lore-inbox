@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262877AbSJLKoM>; Sat, 12 Oct 2002 06:44:12 -0400
+	id <S262881AbSJLKxX>; Sat, 12 Oct 2002 06:53:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbSJLKoM>; Sat, 12 Oct 2002 06:44:12 -0400
-Received: from warrior.services.quay.plus.net ([212.159.14.227]:57055 "HELO
-	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S262877AbSJLKoK>; Sat, 12 Oct 2002 06:44:10 -0400
-Date: Sat, 12 Oct 2002 11:45:04 +0100
-From: Stig Brautaset <stig@brautaset.org>
+	id <S262882AbSJLKxX>; Sat, 12 Oct 2002 06:53:23 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:23564 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262881AbSJLKxW>; Sat, 12 Oct 2002 06:53:22 -0400
+From: "Helge Hafting" <helgehaf@idb.hist.no>
+Date: Sat, 12 Oct 2002 12:59:28 +0200
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.42: unresolved symbols ext2
-Message-ID: <20021012104504.GA18928@arwen.brautaset.org>
-References: <fa.j2ck6sv.162gurn@ifi.uio.no>
+Cc: neilb@cse.unsw.edu.au
+Subject: 2.5.42 raid0 compile failure?
+Message-ID: <20021012105928.GA10941@hh.idb.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fa.j2ck6sv.162gurn@ifi.uio.no>
-User-Agent: Mutt/1.3.28i
-X-Location: London, UK
-X-URL: http://brautaset.org
-X-KeyServer: wwwkeys.nl.pgp.net
-X-PGP/GnuPG-Key: 9336ADC1
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 12 2002, Stig wrote:
-> /usr/bin/make -f arch/i386/lib/Makefile modules_install
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b /usr/src/linux/debian/tmp-image -r 2.5.42; fi
-> depmod: *** Unresolved symbols in /usr/src/linux/debian/tmp-image/lib/modules/2.5.42/kernel/fs/ext2/ext2.o
-> depmod:         generic_file_aio_read
-> depmod:         generic_file_aio_write
-> make[2]: *** [_modinst_post] Error 1
-> make[2]: Leaving directory `/usr/src/linux-2.5.x'
-> make[1]: *** [real_stamp_image] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.5.x'
+I tried compiling 2.5.42 with gcc 2.95.4.
+I use Peter Chubb's raid0 patch which
+worked fine with 2.5.41
 
-Oops, that was compiled with the debian make-kpkg tool. Here's the
-output from vanilla make modules_install:
+compiling, I got this:
+drivers/built-in.o: In function `raid0_mergeable_bvec':
+drivers/built-in.o(.text+0xa497d): undefined reference to `__umoddi3'
+drivers/built-in.o: In function `raid0_make_request':
+drivers/built-in.o(.text+0xa4d23): undefined reference to `__umoddi3'
 
-make -f arch/i386/lib/Makefile modules_install
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.42; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.42/kernel/fs/ext2/ext2.o
-depmod:         generic_file_aio_read
-depmod:         generic_file_aio_write
-make: *** [_modinst_post] Error 1
+These functions use the % operator with sector_t,
+so I guess there is a problem with the new 64-bit sector_t.
 
-Sorry about that.
+Helge Hafting
 
-
-Stig
--- 
-brautaset.org

@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbTIPTt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 15:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTIPTt7
+	id S262489AbTIPTyf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 15:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTIPTye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 15:49:59 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:57025 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262406AbTIPTt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 15:49:56 -0400
-Date: Tue, 16 Sep 2003 15:49:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-Message-ID: <20030916194955.GC5987@gtf.org>
-References: <200309131101.h8DB1WNd021570@harpo.it.uu.se> <1063476275.8702.35.camel@dhcp23.swansea.linux.org.uk> <20030913184934.GB10047@gtf.org> <20030913190131.GD10047@gtf.org> <20030915073445.GC27105@suse.de>
+	Tue, 16 Sep 2003 15:54:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53709 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262489AbTIPTya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 15:54:30 -0400
+Date: Tue, 16 Sep 2003 21:54:22 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>,
+       "Krishnakumar. R" <krishnakumar@naturesoft.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.6.0-test5-mm2: ISTALLION UP compile is fixed
+Message-ID: <20030916195422.GE17690@fs.tum.de>
+References: <20030914234843.20cea5b3.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030915073445.GC27105@suse.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030914234843.20cea5b3.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2003 at 09:34:45AM +0200, Jens Axboe wrote:
-> On Sat, Sep 13 2003, Jeff Garzik wrote:
-> > Oh, and I'm pondering the best way to deliver out-of-bang ATA taskfiles
-> > and SCSI cdbs to a device.  (for the uninitiated, this is lower level
-> > than block devices / cdrom devices / etc.)
-> > 
-> >  ... AF_BLOCK is not out of the question ;-)
+On Sun, Sep 14, 2003 at 11:48:43PM -0700, Andrew Morton wrote:
+>...
+> +istallion-build-fix.patch
 > 
-> Eh... I wont comment on that. I think we are way into Garzik lala land
-> there :)
-> 
-> I'd prefer just keeping sg_io_hdr, but dumping sg. A fully fledged bsg
-> (block sg) implementation. That way programs continue to work like
-> before on ATAPI/SCSI, for ATA we can use it as a task file transport.
+>  Compile fix
+>...
 
-I don't propose dumping the ugly "submit cdb/taskfile" ioctls, but we do
-need to deprecate them.  The ioctls are awful for throughput, async
-queueing, and the like.  And of course in general, ioctls are evil :)
+This patch fixed the UP compile of this driver.
 
-And we should deprecate them with a solution that aligns what with Linus
-described in Dec 2001 on lkml:  a chrdev where userland write(2)s cdbs
-and taskfiles, and read(2)s the results.  This is where my thinking
-picked up:  if we are creating a chrdev to send "packets" and receive
-responses to those packets............  <insert conclusion here>
+The following patch does the according BROKEN -> BROKEN_ON_SMP for the 
+Kconfig file:
 
-	Jeff
+--- linux-2.6.0-test5-mm2-no-smp/drivers/char/Kconfig.old	2003-09-15 23:27:32.000000000 +0200
++++ linux-2.6.0-test5-mm2-no-smp/drivers/char/Kconfig	2003-09-15 23:29:09.000000000 +0200
+@@ -370,7 +370,7 @@
+ 
+ config ISTALLION
+ 	tristate "Stallion EC8/64, ONboard, Brumby support"
+-	depends on STALDRV && BROKEN
++	depends on STALDRV && BROKEN_ON_SMP
+ 	help
+ 	  If you have an EasyConnection 8/64, ONboard, Brumby or Stallion
+ 	  serial multiport card, say Y here. Make sure to read
 
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

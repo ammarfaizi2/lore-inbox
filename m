@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbQLaD4u>; Sat, 30 Dec 2000 22:56:50 -0500
+	id <S130643AbQLaELD>; Sat, 30 Dec 2000 23:11:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130643AbQLaD4k>; Sat, 30 Dec 2000 22:56:40 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:59776 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S129436AbQLaD4c>;
-	Sat, 30 Dec 2000 22:56:32 -0500
-Message-ID: <3A4EA74B.EE858170@pobox.com>
-Date: Sat, 30 Dec 2000 19:26:04 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: Mirai Consulting
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre7 i586)
-X-Accept-Language: en
+	id <S129572AbQLaEKm>; Sat, 30 Dec 2000 23:10:42 -0500
+Received: from mail11.verio.de ([213.198.0.60]:22625 "HELO mail11.verio.de")
+	by vger.kernel.org with SMTP id <S129436AbQLaEKl>;
+	Sat, 30 Dec 2000 23:10:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Michael Meding <Michael@Meding.net>
+Reply-To: Michael@Meding.net
+To: linux-kernel@vger.kernel.org
+Subject: is there something odd in the aic7xxx driver ?
+Date: Sun, 31 Dec 2000 04:32:10 +0100
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre7...
-In-Reply-To: <Pine.LNX.4.10.10012301910420.1904-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00123104321002.00349@Hal>
+Content-Transfer-Encoding: 7BIT
+X-Loop-Detect: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hi all,
 
-> On Sat, 30 Dec 2000, Steven Cole wrote:
-> >
-> > It looks like 2.4.0-test13-pre7 is a clear winner when running dbench 48
-> > on my somewhat slow test machine (450 Mhz P-III, 192MB, IDE).
->
-> This is almost certainly purely due to changing (some would say "fixing")
-> the bdflush synchronous wait point.
->
+I am experiencing problem with the latest test kernels and my adaptec 2940uw 
+and one ibm hdd.
 
-After evaluating test13-pre7 with the quake 3 arena test,
-I think it's even snappier than the previous champ, which
-was test10 + low latency patches..
+Thing is that during times the machine simply reboots without apparent 
+reasons. Nothing shows up, to my knowledge in /var/log or other places. This 
+is with the kernel compiled with gcc 2.95.2 on debian woody.
 
-A most auspicious trend, if I might make so bold as
-to state it in this forum.
+Using Gibbs respectively the adaptec driver I haven't had this behaviour in 
+weeks, or better to say, not once.
 
-jjs
+The machine is up 24/7 but not under very high load. The times it failed have 
+mostly been under more or less heavy i/o like compiling several kernels at a 
+time.
 
+Are others experiencing similar behaviours ?
+
+Greetings
+
+Michael Meding
+
+
+
+System is kt-133 with mga g400, duron800 adaptec 2940uw with latest bios. 
+Further information upon request.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

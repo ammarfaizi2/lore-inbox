@@ -1,33 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbUL1R1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUL1R2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUL1R1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 12:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUL1R1b
+	id S261200AbUL1R2y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 12:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbUL1R2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 12:27:31 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:26533 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261197AbUL1R13
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 12:27:29 -0500
-Message-ID: <41D1977D.2000600@drzeus.cx>
-Date: Tue, 28 Dec 2004 18:27:25 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Tue, 28 Dec 2004 12:28:54 -0500
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:53079 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261200AbUL1R2d convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 12:28:33 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: 2.6.10 - Misrouted IRQ recovery for review
+Date: Tue, 28 Dec 2004 12:28:27 -0500
+User-Agent: KMail/1.6.2
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, mingo@redhat.com
+References: <1104249508.22366.101.camel@localhost.localdomain> <1104253919.4173.11.camel@laptopd505.fenrus.org>
+In-Reply-To: <1104253919.4173.11.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: APIC, changing level/edge interrupt
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200412281228.27307.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do you tell the APIC that a device uses level triggered interrupts, 
-not edge triggered? I have a flash reader on the LPC bus which uses 
-level triggered interrupts and /proc/interrupts show edge triggered. 
-Some interrupts are missed by the APIC so I figured this might be why.
+On Tuesday 28 December 2004 12:11 pm, Arjan van de Ven wrote:
+> On Tue, 2004-12-28 at 15:58 +0000, Alan Cox wrote:
+> > Ported to the new kernel/irq code.
+> 
+> 
+> one question; I see you start passing a struct pt_regs around all over
+> the place; does *anything* actually use that animal, or should we
+> consider just passing a NULL .....
+> (and eventually in 2.7 remove the parameter entirely from irq handlers?)
+> 
 
-Rgds
-Pierre
+>From what I saw the only thing that presently uses pt_rergs is SysRq
+handler to print the call trace and if we slightly change the semantics
+(instead of printing the trace immediately raise a flag and when next
+interrupt arrives check it in do_IRQ and print the trace from there -
+I even had some patches) we could drop pt_regs. I would very much like
+to do so at least for input drivers.
+
+-- 
+Dmitry

@@ -1,92 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261377AbREMFnb>; Sun, 13 May 2001 01:43:31 -0400
+	id <S261379AbREMGS2>; Sun, 13 May 2001 02:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261378AbREMFnW>; Sun, 13 May 2001 01:43:22 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:20741 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S261377AbREMFnL>; Sun, 13 May 2001 01:43:11 -0400
-Date: Sat, 12 May 2001 23:35:41 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: more 3ware issues
-Message-ID: <20010512233541.A4478@vger.timpanogas.org>
-In-Reply-To: <200105130454.VAA17842@bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200105130454.VAA17842@bitmover.com>; from lm@bitmover.com on Sat, May 12, 2001 at 09:54:28PM -0700
+	id <S261380AbREMGSJ>; Sun, 13 May 2001 02:18:09 -0400
+Received: from cx595243-c.okc1.ok.home.com ([24.6.27.53]:52867 "EHLO
+	quark.localdomain") by vger.kernel.org with ESMTP
+	id <S261379AbREMGRu>; Sun, 13 May 2001 02:17:50 -0400
+From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
+Date: Sun, 13 May 2001 01:17:37 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: jq419@my-deja.com (Jacky Liu), linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E14yHw8-0001V8-00@the-village.bc.nu>
+In-Reply-To: <E14yHw8-0001V8-00@the-village.bc.nu>
+Subject: Re: 2.4.4 kernel freeze for unknown reason
+MIME-Version: 1.0
+Message-Id: <01051301173700.02739@quark>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 11 May 2001 13:46, Alan Cox wrote:
+> > I have been monitoring the memory usage constantly with the gnome
+> > memory usage meter and noticed that as swap grows it is never freed
+> > back up.  I can kill off most of the large applications, such as
+>
+> The swap handling in 2.4 is somewhat hosed at the moment.
+>
+> > If I turn swap off all together or turn it off and back on
+> > periodically to clear the swap before it gets full, I do not seem to
+> > experience the lockups.
+>
+> That sounds right. I can give you a tiny patch that should fix the
+> lockups and instead it will kill processes out of memory but thats
+> obviously not the actual fix 8)
 
-I am working on them with a project here, and they have a lot of issues.
-Most of these issues just require some hard work.  I am seeing problems
-on 2.2.19 on all machines if you cram 4 of these 8 IDE disk adapters
-into a single bus.  There are some hardware issues with the cards that seem 
-to show up on all systems I test on with this many adapters. 
+I am not sure if you got my reply to this Alan, but I would like to
+have you send me the patch.  Thanks.
 
-Jeff
+Also, I got to thinking back and it dawned on me that there was
+another significant kernel change when we started experiencing the
+freezes from the vm problems.  We changed the compiler from
+gcc-2.7.2.3 to egcs-1.1.2 starting with kernel 2.4.0-test10 (That is
+the version in which gcc-2.7.2.3 stopped being supported for the
+kernel) and it seems like that was just about the same time frame that
+we started experiencing the vm/swap problems.  I would have to go back
+and run on the test10 kernel for a while to confirm if it started with
+it or 2.4.0.
 
+I am assuming the source of the vm problem is still unknown or it
+would have been fixed by now.  Is it possible that it could be related
+to the compiler change?  If nobody has considered that, I just thought
+I would bring the possibility to your attention.  
 
-On Sat, May 12, 2001 at 09:54:28PM -0700, Larry McVoy wrote:
-> I have a few more data points on the 3ware 6410 card in case anyone else
-> is looking at this.  As I said before, this is a nicely designed card,
-> I like it, kudos to the 3ware folks.
-> 
-> Combinations which work for me:
-> 
-> ASUS A7V and K7V motherboards, K7@1Ghz, 3c905, 1GB - 1.5GB ram.  Works
-> like a champ under 2.2.19, not so great under 2.2.15 (Mandrake 7.1) nor
-> under 2.4.4.
-> 
-> Combination which does not work under 2.2.15, 2.2.19, or 2.4.4:
-> 
-> Abit KT7 motherboard, K7@1Ghz, 3c905, 1GB.  I strongly suspect the Abit
-> motherboard being the cause of the problem.  What I see is as soon as
-> I start a disk scrubber on all 4 drives, is stuff like
-> 
-> 3w-xxxx: tw_post_command_packet(): Unexpected bits.
-> 3w-xxxx: tw_check_bits(): Found unexpected bits (0x572076c0).
-> 3w-xxxx: tw_check_bits(): Found unexpected bits (0x57206a60).
-> 3w-xxxx: tw_post_command_packet(): Unexpected bits.
-> 3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x1b, unit = 0x0.
-> 3w-xxxx: tw_check_bits(): Found unexpected bits (0x572079a0).
-> 3w-xxxx: tw_interrupt(): Unexpected bits.
-> 3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x1b, unit = 0x0.
-> 3w-xxxx: tw_check_bits(): Found unexpected bits (0x572079c0).
-> 3w-xxxx: tw_interrupt(): Unexpected bits.
-> 3w-xxxx: tw_scsi_eh_abort(): Abort failed for unknown Scsi_Cmnd 0xfbf4ac00, resetting card 0.
-> 3w-xxxx: tw_scsi_eh_reset(): Reset succeeded for card 0.
-> 3w-xxxx: tw_post_command_packet(): Unexpected bits.
-> 3w-xxxx: tw_check_bits(): Found unexpected bits (0x57226a60).
-> 3w-xxxx: tw_post_command_packet(): Unexpected bits.
-> 3w-xxxx: tw_check_bits(): Found unexpected bits (0x57226a60).
-> 3w-xxxx: tw_post_command_packet(): Unexpected bits.
-> 3w-xxxx: tw_scsi_eh_abort(): Abort failed for unknown Scsi_Cmnd 0xfbf49e00, resetting card 0.
-> 
-> 
-> Those are cut and pasted from several different OS versions, so they don't
-> all go together.  The bottom line was that with the Abit the system was
-> just completely unstable and unusable.  When the problems occurred, it 
-> would stall all I/O for quite a while (a minute or more) and then reset
-> the card, unwedge, and repeat.
-> 
-> Again, I don't want people to take this as a slam on the 3ware cards, I
-> like them a lot, in fact after getting the first one to work last week
-> I ordered more of them, which resulted in the Abit problems.  I don't
-> think it's the card at all.  Everyone I know who has them likes them.
-> It's just that some combinations work and some don't (yet) so it's 
-> useful information for people to know which is which.
-> 
-> If Adam or anyone wants to try and debug this, I'll happliy put the machine
-> with the Abit and a card up on the net, you can ssh in and do whatever
-> you want to it, let me know.
-> 
-> --lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+- Vincent Stemen

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbTJSUus (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 16:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTJSUus
+	id S262181AbTJSUsI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 16:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbTJSUsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 16:50:48 -0400
-Received: from tomts15.bellnexxia.net ([209.226.175.3]:51630 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262188AbTJSUur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 16:50:47 -0400
-Date: Sun, 19 Oct 2003 17:48:45 -0400
-From: John Chia <orange@geek.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8 Migration (CPUfreq, Synaptics, PS/2, undocking, omnibook 6000)
-Message-ID: <20031019214845.GA1055@beefchickenpork.org>
-References: <20031019160722.GA1172@beefchickenpork.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031019160722.GA1172@beefchickenpork.org>
-User-Agent: Mutt/1.5.4i
+	Sun, 19 Oct 2003 16:48:08 -0400
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:7808
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262181AbTJSUsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 16:48:06 -0400
+From: John Mock <kd6pag@qsl.net>
+To: Harold Martin <cocoadev@earthlink.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Mounting /dev/md0 as root in 2.6.0-test7
+Message-Id: <E1ABKTE-0000O2-00@penngrove.fdns.net>
+Date: Sun, 19 Oct 2003 13:48:12 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All that remains is the CPUfreq issue -- 
+I have been corrected!  While /dev/md0 may not be correctly detected in
+Macintosh (PPC) partitions, they should be recognized in MSDOS and SUN
+partition tables.  You probably won't need a 'md0=...' command line for
+most configurations.
 
-The PS/2 driver uses the passthrough of the synaptics touchpad even if
-the synaptics-specialised driver isn't being used.  As the 2.4 driver
-did.
+I apologize for any confusion i may have created.  Thank you very much
+for the correction, Andre.
+				       -- JM
 
-Docking/undocking is back after disabling ACPI completely.
 
-John.
+P.S.  I believe the relevant HOW-TO is:
 
-On Sun, Oct 19, 2003 at 12:07:22PM -0400, John Chia wrote:
-> Summary: 
-> Problems undocking in 2.6 kernel; CPUfreq & ps/2 drivers behaving unpleasantly.
+    http://www.tldp.org/HOWTO/Boot+Root+Raid+LILO.html
+
+    Boot+Root+Raid+LILO, Boot + Root + Raid + Lilo : Software Raid mini-HOWTO
+
+    Updated: July 2000. A cookbook for setting up root raid using the 0.90
+    raidtools for bootable raid mounted on root using standard LILO. 
+
+Good luck!

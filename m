@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267699AbTBYG2Z>; Tue, 25 Feb 2003 01:28:25 -0500
+	id <S267735AbTBYGal>; Tue, 25 Feb 2003 01:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267708AbTBYG2Z>; Tue, 25 Feb 2003 01:28:25 -0500
-Received: from holomorphy.com ([66.224.33.161]:52660 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267699AbTBYG2Y>;
-	Tue, 25 Feb 2003 01:28:24 -0500
-Date: Mon, 24 Feb 2003 22:37:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Miles Bader <miles@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: WARN_ON noise in 2.5.63's kernel/sched.c:context_switch
-Message-ID: <20030225063739.GY10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
-References: <buoadgkuatx.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267736AbTBYGak>; Tue, 25 Feb 2003 01:30:40 -0500
+Received: from webmail17.rediffmail.com ([203.199.83.27]:39821 "HELO
+	rediffmail.com") by vger.kernel.org with SMTP id <S267735AbTBYGaj>;
+	Tue, 25 Feb 2003 01:30:39 -0500
+Date: 25 Feb 2003 06:40:01 -0000
+Message-ID: <20030225064001.20937.qmail@webmail17.rediffmail.com>
+MIME-Version: 1.0
+From: "sudharsan  vijayaraghavan" <my_goal@rediffmail.com>
+Reply-To: "sudharsan  vijayaraghavan" <my_goal@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: narendiran_srinivasan@satyam.com
+Subject: Unresolved symbol error in __wake_up_sync
+Content-type: text/plain;
+	format=flowed
 Content-Disposition: inline
-In-Reply-To: <buoadgkuatx.fsf@mcspd15.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 03:35:22PM +0900, Miles Bader wrote:
-> I'm getting a bunch of stack dumps from the WARN_ON newly added to 
-> kernel/sched.c:context_switch:
-> 	if (unlikely(!prev->mm)) {
-> 		prev->active_mm = NULL;
-> 		WARN_ON(rq->prev_mm);
-> 		rq->prev_mm = oldmm;
-> 	}
-> The thing is, I'm hacking on uClinux, so I don't have an MMU, and the mm
-> stuff is purely noise.  What's the best way to squash this warning?
-> [Of course I'd like to just trash all the MM manipulation -- for me,
-> `context_switch' should really _just_ do `switch_to' -- but I'd settle
-> for just not having stack dumps litter my console output...]
+Hi
+    We wrote a module in which we used wake_up_interruptible,
+wake_up_interruptible_sync calls and when I compiled it into a      
+module
+with the appropriate Macros, it gets compiled properly.
+ 	But once, when I try to load the module with insmod, I get
+__wake_up_sync -  unresolved symbol?
+ 	What module should I load to get out this error? I am using
+2.4.7-10.
 
-This means there's some kind of trouble happening, i.e. the rq->prev_mm
-pointer is not NULL when it should be.
+Please help us out.
 
-Tracking down the root cause would better serve you.
+Regards,
+Sudharsan.
 
-
--- wli

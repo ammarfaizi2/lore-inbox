@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290047AbSAWUbO>; Wed, 23 Jan 2002 15:31:14 -0500
+	id <S290048AbSAWUgE>; Wed, 23 Jan 2002 15:36:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290048AbSAWUbF>; Wed, 23 Jan 2002 15:31:05 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:8320 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S290047AbSAWUaz>;
-	Wed, 23 Jan 2002 15:30:55 -0500
-Date: Wed, 23 Jan 2002 23:28:24 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Zdenek Smetana <zdenek@smetana.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Missing changelog to Ingo's J5 scheduler?
-In-Reply-To: <20020123135252.A58419@skuter.storm.com.pl>
-Message-ID: <Pine.LNX.4.33.0201232324550.14887-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290059AbSAWUfz>; Wed, 23 Jan 2002 15:35:55 -0500
+Received: from pc-80-195-34-66-ed.blueyonder.co.uk ([80.195.34.66]:49797 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S290048AbSAWUfp>; Wed, 23 Jan 2002 15:35:45 -0500
+Date: Wed, 23 Jan 2002 20:35:00 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andrew Morton <akpm@zip.com.au>, Hans Reiser <reiser@namesys.com>,
+        Andreas Dilger <adilger@turbolabs.com>, Chris Mason <mason@suse.com>,
+        Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net, Stephen Tweedie <sct@redhat.com>
+Subject: Re: [Ext2-devel] Re: Possible Idea with filesystem buffering.
+Message-ID: <20020123203500.L1930@redhat.com>
+In-Reply-To: <3C4DB256.172F8D6A@zip.com.au> <Pine.LNX.4.33L.0201221649430.32617-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33L.0201221649430.32617-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Jan 22, 2002 at 05:03:02PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, 23 Jan 2002, Zdenek Smetana wrote:
+On Tue, Jan 22, 2002 at 05:03:02PM -0200, Rik van Riel wrote:
+> On Tue, 22 Jan 2002, Andrew Morton wrote:
+> > Hans Reiser wrote:
+> >
+> > Note that writepage() doesn't get used much.  Most VM-initiated
+> > filesystem writeback activity is via try_to_release_page(), which
+> > has somewhat more vague and flexible semantics.
+> 
+> We may want to change this though, or at the very least get
+> rid of the horrible interplay between ->writepage and
+> try_to_release_page() ...
 
-> I can't find it.
+This is actually really important --- writepage on its own cannot
+distinguish between requests to flush something to disk (eg. msync or
+fsync), and requests to evict dirty data from memory.
 
-J5 is the next step towards better interactiveness. Lowered the default
-timeslice length from 250 msecs to 150 msecs - long timeslices were
-clearly causing problems for certain applications.
+This is really important for ext3's data journaling mode --- syncing
+to disk only requires flushing as far as the journal, but evicting
+dirty pages requires a full writeback too.  That's one place where our
+traditional VM notion of writepage just isn't quite fine-grained
+enough.
 
-there are some changes in my tree that will be -J6, will write a fuller
-changelog, there are cleanups from other people included as well.
-
-	Ingo
-
+Cheers,
+ Stephen

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132530AbRDBGbB>; Mon, 2 Apr 2001 02:31:01 -0400
+	id <S132616AbRDBGtb>; Mon, 2 Apr 2001 02:49:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132560AbRDBGav>; Mon, 2 Apr 2001 02:30:51 -0400
-Received: from hibernia.clubi.ie ([212.17.32.129]:62853 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S132530AbRDBGam>; Mon, 2 Apr 2001 02:30:42 -0400
-Date: Mon, 2 Apr 2001 07:30:34 +0100 (IST)
-From: Paul Jakma <paul@jakma.org>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-cc: "Trever L. Adams" <trever_Adams@bigfoot.com>,
-   Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-   linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serial, 115Kbps, 2.2, 2.4
-In-Reply-To: <003001c0bb0e$100149b0$08080808@zeusinc.com>
-Message-ID: <Pine.LNX.4.33.0104020729010.23387-100000@fogarty.jakma.org>
+	id <S132618AbRDBGtV>; Mon, 2 Apr 2001 02:49:21 -0400
+Received: from atacama.four-d.de ([129.247.190.4]:60678 "EHLO four-d.de")
+	by vger.kernel.org with ESMTP id <S132616AbRDBGtN>;
+	Mon, 2 Apr 2001 02:49:13 -0400
+Date: Mon, 2 Apr 2001 08:46:47 +0200 (=?X-UNKNOWN?Q?Westeurop=E4ische_Sommerzeit?=)
+From: Thomas Pfaff <tpfaff@gmx.net>
+To: Steven Walter <srwalter@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2: System clock slows down under load
+In-Reply-To: <F0E13277A26BD311944600500454CCD029BEBA@antarctica.intern.net>
+Message-ID: <Pine.WNT.4.33.0104020837110.215-100000@algeria.intern.net>
+X-X-Sender: pfaff@antarctica.intern.net
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Apr 2001, Tom Sightler wrote:
+On Tue, 27 Mar 2001, Steven Walter wrote:
 
-> III) I get a fair number of dropped packets at 115Kbps, enough to cause
-> problems and a significant speed decrease.  Simply dropping the serial port
-> rate to 56K seems to solve the problem.
+> On Tue, Mar 27, 2001 at 01:42:39PM +0200, Thomas Pfaff wrote:
+> > Hi all,
+> >
+> > i decided to make a test for the 2.4 kernel on my old hardware (Gigabyte
+> > EISA/VLB with an AMD 486 DX4 133). The kernel boots fine but there is one
+> > strange thing: The system clock slows down under load, after a make
+> > dep in the linux src directory it is about 2 minutes behind. This appears
+> > both in 2.4.1 and in 2.4.2 (I have not tried 2.4.0 yet).
+> >
+> > I have attached a gzipped dmesg.
+> >
+> > Any ideas ?
+>
+> I notice that you're using fbcon from your dmesg.  There was a
+> discussion about this a while back, and it was determined that fbcon
+> runs with interrupts disabled for unhealthily long period of time.  This
+> causes it to miss timer interrupts, and the system lock get behind.  See
+> if this slowdown occurs with vgacon.  If it does, its probably just a
+> cheap crystal on the motherboard.
+>
+> --
+> -Steven
+> Freedom is the freedom to say that two plus two equals four.
+>
+>
+>
 
-does the system have IDE disks? (DEC Venturis GL.. should be)
+You are right. If i compile with vgacon it works fine.
 
-Try hdparm -u on all your IDE disks... should improve things.
+I would be really glad if vesa fbcon in 2.4 would run without that problem
+like in all 2.2 kernels i have installed. It is the easiest way to get X
+and virtual consoles on my S3 graphic card.
 
-> Later,
-> Tom
+Thanks,
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-What I want is all of the power and none of the responsibility.
+Thomas
 
 

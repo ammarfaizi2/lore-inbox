@@ -1,146 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136326AbRD1Cgq>; Fri, 27 Apr 2001 22:36:46 -0400
+	id <S130493AbRD1DXZ>; Fri, 27 Apr 2001 23:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136327AbRD1Cgh>; Fri, 27 Apr 2001 22:36:37 -0400
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:23692 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S136326AbRD1Cg1>; Fri, 27 Apr 2001 22:36:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Atrocious icache/dcache in 2.4.2
-Date: Fri, 27 Apr 2001 22:36:20 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-mm@kvack.org, Alexander Viro <viro@math.psu.edu>,
-        Pete Zaitcev <zaitcev@redhat.com>
+	id <S129143AbRD1DXP>; Fri, 27 Apr 2001 23:23:15 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:10550 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S135519AbRD1DXE>; Fri, 27 Apr 2001 23:23:04 -0400
+Message-ID: <3AEA377C.8090005@blue-labs.org>
+Date: Fri, 27 Apr 2001 20:22:36 -0700
+From: david <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-pre6 i686; en-US; rv:0.8.1+) Gecko/20010426
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01042722362000.01922@oscar>
-Content-Transfer-Encoding: 7BIT
+To: Tony Hoyle <tmh@magenta-netlogic.com>
+CC: jason <jason@lacan.dabney.caltech.edu>, linux-kernel@vger.kernel.org
+Subject: Re: kernel panic with 2.4.x and reiserfs
+In-Reply-To: <Pine.LNX.4.10.10104270104010.7570-100000@lacan.dabney.caltech.edu> <3AE9913B.6090208@magenta-netlogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+To your complaint, I have to add my kudos.  I frequently run into 
+crashes and I have only had reiserfs filesystem that I had to rebuild in 
+well over a year of using it on half a dozen workstations.  I use 2.4 
+exclusively and have often had "premature restarts".
 
-Here is a patch that prunes unused, clean inodes from the icache
-faster.  I have previously checked out cleaning the unused dirty
-icache entries from the the same place in kswapd but did not find
-it to be much a win.
+David
 
-This code does the following.  It factors prune_icache to use,  
-prune_unused_icache to actually prune the list.   This makes it
-simple to add a shrink_unused_icache_memory routine which gets
-plugged into the kswapd loop.  The result is the icache is kept 
-smaller.
+Tony Hoyle wrote:
 
-fast_prune.diff
------
---- 2.4.4-pre7/include/linux/dcache.h	Thu Apr 26 12:57:47 2001
-+++ linux/include/linux/dcache.h	Fri Apr 27 18:17:20 2001
-@@ -176,6 +176,7 @@
- 
- /* icache memory management (defined in linux/fs/inode.c) */
- extern void shrink_icache_memory(int, int);
-+extern void shrink_unused_icache_memory(int);
- extern void prune_icache(int);
- 
- /* only used at mount-time */
---- 2.4.4-pre7/mm/vmscan.c	Fri Apr 27 11:36:04 2001
-+++ linux/mm/vmscan.c	Fri Apr 27 18:33:07 2001
-@@ -953,6 +953,11 @@
- 		 */
- 		refill_inactive_scan(DEF_PRIORITY, 0);
- 
-+		/* 
-+		 * Free unused inodes.
-+		 */
-+		shrink_unused_icache_memory(GFP_KSWAPD);
-+
- 		/* Once a second, recalculate some VM stats. */
- 		if (time_after(jiffies, recalc + HZ)) {
- 			recalc = jiffies;
---- 2.4.4-pre7/fs/inode.c	Thu Apr 26 12:49:33 2001
-+++ linux/fs/inode.c	Fri Apr 27 18:54:25 2001
-@@ -540,16 +540,16 @@
- 	 !inode_has_buffers(inode))
- #define INODE(entry)	(list_entry(entry, struct inode, i_list))
- 
--void prune_icache(int goal)
-+/*
-+ * Called with inode lock held, returns with it released.
-+ */
-+int prune_unused_icache(int goal)
- {
- 	LIST_HEAD(list);
- 	struct list_head *entry, *freeable = &list;
--	int count = 0, synced = 0;
-+	int count = 0;
- 	struct inode * inode;
- 
--	spin_lock(&inode_lock);
--
--free_unused:
- 	entry = inode_unused.prev;
- 	while (entry != &inode_unused)
- 	{
-@@ -577,19 +577,27 @@
- 
- 	dispose_list(freeable);
- 
-+	return count;
-+}
-+
-+/*
-+ * A goal of zero frees everything
-+ */
-+void prune_icache(int goal)
-+{
-+	spin_lock(&inode_lock);
-+	goal -= prune_unused_icache(goal);
-+
- 	/* 
- 	 * If we freed enough clean inodes, avoid writing 
--	 * dirty ones. Also giveup if we already tried to
--	 * sync dirty inodes.
-+	 * dirty ones.
- 	 */
--	if (!goal || synced)
-+	if (!goal)
- 		return;
- 	
--	synced = 1;
--
- 	spin_lock(&inode_lock);
- 	try_to_sync_unused_inodes();
--	goto free_unused;
-+ 	prune_unused_icache(goal);
- }
- 
- void shrink_icache_memory(int priority, int gfp_mask)
-@@ -611,6 +619,20 @@
- 
- 	prune_icache(count);
- 	kmem_cache_shrink(inode_cachep);
-+}
-+
-+void shrink_unused_icache_memory(int gfp_mask)
-+{
-+	/*
-+	 * Nasty deadlock avoidance..
-+	 */
-+	if (!(gfp_mask & __GFP_IO))
-+		return;
-+
-+	if (spin_trylock(&inode_lock)) {
-+		prune_unused_icache(0);
-+		kmem_cache_shrink(inode_cachep);
-+	}
- }
- 
- /*
------
+> jason wrote:
+>
+>> Hello,
+>>
+>> As the subject would imply, I've been having problems with 2.4.x. I have
+>> my root partition (/dev/hda1) as reiserfs and also have another 
+>> harddrive
+>> with a reiserfs partition (/dev/hdc1). Several programs write (e.g. save
+>> files to) /dev/hdc1, and I also store files there. Under 2.4.2, whenever
+>> manually copying files from hda1 to hdc1, I would get a kernel panic, 
+>> the
+>
+>
+>
+> Reiserfs doesn't cope well with crashes....  Under 2.4 I wouldn't 
+> recommend using it on any kind of critical server - it seems to 
+> progressively corrupt itself (I'm looking at the second reformat and 
+> reinstall in a week, and I'm not a happy bunny).
+>
+> As the warning on reiserfsck says, the rebuild-tree option is a last 
+> resort.  It's as likely to make the problem worse then improve it (It 
+> rounds all the file lengths up to a block size, padding with zeros, 
+> which breaks lots of stuff).  Backup what you can first.
+>
+> I find that if you run reiserfsck -x /dev/hda1 a couple of dozen times 
+> it slowly fixes stuff that it couldn't fix on the previous pass.One 
+> thing that can't fix is the bug that seems to make random files on the 
+> FS unreadable even for root.The only way I've found around that one is 
+> a periodic format/reinstall.
+>
+> Tony
+>
 
-Comments?
 
-Ed Tomlinson <tomlins@cam.org>
+

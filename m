@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291625AbSBZRNB>; Tue, 26 Feb 2002 12:13:01 -0500
+	id <S291484AbSBZRLv>; Tue, 26 Feb 2002 12:11:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291624AbSBZRMw>; Tue, 26 Feb 2002 12:12:52 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:3295 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S291625AbSBZRMh>; Tue, 26 Feb 2002 12:12:37 -0500
-Message-Id: <200202261624.JAA22808@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: "David S. Miller" <davem@redhat.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: [PATCH] 2.5.5-dj1, add 1 help text to net/Config.help
-Date: Tue, 26 Feb 2002 10:10:45 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S291624AbSBZRLl>; Tue, 26 Feb 2002 12:11:41 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64505
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S291484AbSBZRL1>; Tue, 26 Feb 2002 12:11:27 -0500
+Date: Tue, 26 Feb 2002 09:12:09 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+Message-ID: <20020226171209.GK4393@matchmail.com>
+Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <20020226160544.GD4393@matchmail.com> <3C7BB86A.7090305@zytor.com> <20020226164036.GG4393@matchmail.com> <a5gell$432$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a5gell$432$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a help text for CONFIG_VLAN_8021Q to net/Config.help.
+On Tue, Feb 26, 2002 at 08:55:17AM -0800, H. Peter Anvin wrote:
+> Followup to:  <20020226164036.GG4393@matchmail.com>
+> By author:    Mike Fedyk <mfedyk@matchmail.com>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Uhh, no.
+> > 
+> > You have a configurable size for the undelete dirs and you delete a file.
+> > Now, that file gets moved to $mountpoint/.undelete.  The daemon gets
+> > notified through a socket, and it can check to see if it needs to delete any
+> > older deleted files to make sure .undelete doesn't get bigger than
+> > configured.  
+> > 
+> > We're only scanning the dirs upon daemon startup (reminds me of
+> > quota... ;), and all other daemon actions are triggered by unlink() writing
+> > to a socket.  The worst thing that can happen is not seeing your free space
+> > immediately, but a few seconds later.
+> > 
+> 
+> Hence race condition.  
 
-The text was obtained from 2.4.18, modified by adding <> around the URL.
-There was an entry in Eric's Configure.help 2.97, but this version
-appears to be more recent.
+But an acceptable one (it's a small delay), unless the daemon dies. :(
 
-Steven
+>Also, the solution to hard-reserve space seems
+> to fundamentally defeat the purpose (IMO).
+>
 
---- linux-2.5.5-dj1/net/Config.help.orig        Tue Feb 26 09:30:49 2002
-+++ linux-2.5.5-dj1/net/Config.help     Tue Feb 26 09:32:59 2002
-@@ -136,6 +136,15 @@
+Do you really thing we should be moving files from kernel space?  Ok, glibc
+could move the files, that'd be ok.
 
-   It is safe to say N here for now.
+So, (I don't know) how is the kernel going to support undeletion on all
+filesystems (ext2/3, reiserfs, vfat, jfs, xfs, and any other writable fs...)
+in the exact same way (as seen from userspace...)? 
 
-+CONFIG_VLAN_8021Q
-+  Select this and you will be able to create 802.1Q VLAN interfaces on your
-+  ethernet interfaces.  802.1Q VLAN supports almost everything a regular
-+  ethernet interface does, including firewalling, bridging, and of course
-+  IP traffic.  You will need the 'vconfig' tool from the VLAN project in
-+  order to effectively use VLANs.  See the VLAN web page for more
-+  information:  <http://www.candelatech.com/~greear/vlan.html>.  If unsure,
-+  you can safely say 'N'.
-+
- CONFIG_IPX
-   This is support for the Novell networking protocol, IPX, commonly
-   used for local networks of Windows machines.  You need it if you
+Mike

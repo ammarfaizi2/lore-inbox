@@ -1,39 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264963AbSKETU4>; Tue, 5 Nov 2002 14:20:56 -0500
+	id <S265039AbSKESsi>; Tue, 5 Nov 2002 13:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264967AbSKETU4>; Tue, 5 Nov 2002 14:20:56 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10068 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264963AbSKETU4>; Tue, 5 Nov 2002 14:20:56 -0500
-Date: Tue, 5 Nov 2002 14:27:18 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>,
-       linux-kernel@vger.kernel.org, weissg@vienna.at,
-       Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Problem with USB-OHCI (2.4.20-pre10-ac2) and Sony Picturebook PCG-C1MHP
-Message-ID: <20021105142718.A25146@devserv.devel.redhat.com>
-References: <20021105103602.7c1282fa.Manuel.Serrano@sophia.inria.fr> <3DC8068A.7020000@pacbell.net>
+	id <S265054AbSKESsi>; Tue, 5 Nov 2002 13:48:38 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:11764 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S265039AbSKESsh>;
+	Tue, 5 Nov 2002 13:48:37 -0500
+Date: Tue, 5 Nov 2002 19:55:11 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jens Axboe <axboe@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, zippel@linux-m68k.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Allow 'n' as a symbol value in the .config file.
+Message-ID: <20021105185511.GR2502@pasky.ji.cz>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jens Axboe <axboe@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
+	Jeff Garzik <jgarzik@pobox.com>, zippel@linux-m68k.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> <20021105171409.GA1137@suse.de> <1036517201.5601.0.camel@localhost.localdomain> <20021105172617.GC1830@suse.de> <1036520436.4791.114.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DC8068A.7020000@pacbell.net>; from david-b@pacbell.net on Tue, Nov 05, 2002 at 09:57:30AM -0800
+In-Reply-To: <1036520436.4791.114.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Tue, 05 Nov 2002 09:57:30 -0800
-> From: David Brownell <david-b@pacbell.net>
+  Hello,
 
->  > usb-ohci.c: USB OHCI at membase 0xcf85a000, IRQ 9
->  > usb-ohci.c: usb-00:0f.0, Acer Laboratories Inc. [ALi] USB 1.1 Controller
-> 
-> I think Pete Zaitcev had a patch for this.  Seems like recent
-> incarnations of that silicon need modified init sequences.
+  this patch (against 2.5.46) enabled recognition of 'n' tristate/boolean
+symbol value in the .config file. This allows more convenient manual editing of
+the .config file. Please apply.
 
-No, it's nothing of the sort of thing. Most likely, Manuel's lappy
-has broken $PIRQ table, or some other problem with interrupt router.
-This is a case for Manfred.
+ confdata.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
 
--- Pete
+  Kind regards,
+				Petr Baudis
+
+--- linux/scripts/kconfig/confdata.c	Fri Nov  1 22:22:07 2002
++++ linux+pasky/scripts/kconfig/confdata.c	Tue Nov  5 19:54:12 2002
+@@ -1,6 +1,9 @@
+ /*
+  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+  * Released under the terms of the GNU GPL v2.0.
++ *
++ * Allow 'n' as a symbol value.
++ * 2002-11-05 Petr Baudis <pasky@ucw.cz>
+  */
+ 
+ #include <ctype.h>
+@@ -146,13 +149,13 @@
+ 				break;
+ 			}
+ 			switch (sym->type) {
+-			case S_BOOLEAN:
+-				sym->def = symbol_yes.curr;
+-				sym->flags &= ~SYMBOL_NEW;
+-				break;
+ 			case S_TRISTATE:
+ 				if (p[0] == 'm')
+ 					sym->def = symbol_mod.curr;
++				else
++			case S_BOOLEAN:
++				if (p[0] == 'n')
++					sym->def = symbol_no.curr;
+ 				else
+ 					sym->def = symbol_yes.curr;
+ 				sym->flags &= ~SYMBOL_NEW;

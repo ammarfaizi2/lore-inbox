@@ -1,67 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSBRIIE>; Mon, 18 Feb 2002 03:08:04 -0500
+	id <S288153AbSBQVUW>; Sun, 17 Feb 2002 16:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310228AbSBRIHp>; Mon, 18 Feb 2002 03:07:45 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:50279 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S310224AbSBRIHk>; Mon, 18 Feb 2002 03:07:40 -0500
-Date: Mon, 18 Feb 2002 08:09:10 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Linus Torvalds <torvalds@transmeta.com>, dmccr@us.ibm.com,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-        Robert Love <rml@tech9.net>, Rik van Riel <riel@conectiva.com.br>,
-        mingo@redhat.co, Andrew Morton <akpm@zip.com.au>,
-        manfred@colorfullife.com, wli@holomorphy.com
-Subject: Re: [RFC] Page table sharing
-In-Reply-To: <E16cciK-0000HW-00@starship.berlin>
-Message-ID: <Pine.LNX.4.21.0202180657210.10514-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289764AbSBQVUN>; Sun, 17 Feb 2002 16:20:13 -0500
+Received: from eik.ii.uib.no ([129.177.16.3]:19673 "EHLO ii.uib.no")
+	by vger.kernel.org with ESMTP id <S288153AbSBQVUC>;
+	Sun, 17 Feb 2002 16:20:02 -0500
+Date: Sun, 17 Feb 2002 22:19:47 +0100
+From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: secure erasure of files?
+Message-ID: <20020217211947.GA17457@ii.uib.no>
+In-Reply-To: <200202121326.g1CDQct12086@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.30.0202121431560.18694-100000@mustard.heime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.30.0202121431560.18694-100000@mustard.heime.net>
+X-Scanner: exiscan *16cYir-0000jD-00*K.Eux63DAGg* (ii.uib.no)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Daniel Phillips wrote:
-> On February 17, 2002 11:16 pm, Hugh Dickins wrote:
+On Tue, Feb 12, 2002 at 02:33:47PM +0100, Roy Sigurd Karlsbakk wrote:
+> > IMHO overwriting with /dev/zero or /dev/random is sufficient.
+> > Recovering data after that falls into urban legend category :-)
 > 
-> > You need your "page_table_share_lock" (better, per-page-table spinlock)
-> > much more than you seem to realize.  If mm1 and mm2 share a page table,
-> > mm1->page_table_lock and mm2->page_table_lock give no protection against
-> > each other.
+> I know of personal experience that the company ibas (http://www.ibas.com)
+> have, in lab, recovered data overwritten >30 times. To recover data
+> overwritten from /dev/zero is done in minutes.
 > 
-> Unless we decrement and find that the count was originally 1, that means
-> we are the exclusive owner and are protected by the mm->page_table_lock
-> we hold.  Only if that is not the case do we need the extra spinlock.
 
-Correct (assuming it's coded correctly).
+Interessting, but according to the following newsposting (in
+Norwegian) IBAS is clearly stating that they don't know of any
+documented methods to read back overwritten data, or know of anyone
+who are able to do this.
 
-> > Consider copy_page_range from mm1 or __pte_alloc in mm1
-> > while try_to_swap_out is acting on shared page table in mm2.  In fact,
-> > I think even the read faults are vulnerable to races (mm1 and mm2
-> > bringing page in at the same time so double-counting it), since your
-> > __pte_alloc doesn't regard a read fault as reason to break the share.
-> 
-> This is exactly what I've been considering, intensively, for days.
-> (Sleeping has been optional ;-)  Please re-evaluate this in light of the
-> exclusive owner observation above.
 
-I only see such page_count code under zap_page_range, and in __pte_alloc
-for write-access case.  mm/vmscan.c isn't even in the patch (I'm looking
-at the one you emailed on Saturday night), and there's no code of that
-kind in the header files in the patch.
+   -jf
 
-So how is the page_table_lock taken by swap_out effective when it's
-dealing with a page table shared by another mm than the one it is
-locking?  And when handling a read-fault, again no such code (but
-when handling a write-fault, __pte_alloc has unshared in advance).
+-----------------------------------------------------------------------------
+Path: nntp.uib.no!uio.no!nntp.uio.no!not-for-mail
+From: "Erik Andersen" <Erik@Andersen.tf>
+Newsgroups: no.fag.jus.it
+Subject: Re: Loggføring av bevegelser på  Internett
+Date: Thu, 22 Mar 2001 10:17:50 +0100
+Message-ID: <99cg5n$8ur$1@readme.uio.no>
+Reply-To: "Erik Andersen" <Erik@Andersen.tf>
+Xref: nntp.uib.no no.fag.jus.it:387
 
-Since copy_page_range would not copy shared page tables, I'm wrong to
-point there.  But __pte_alloc does copy shared page tables (to unshare
-them), and needs them to be stable while it does so: so locking against
-swap_out really is required.  It also needs locking against read faults,
-and they against each other: but there I imagine it's just a matter of
-dropping the write arg to __pte_alloc, going back to pte_alloc again.
+Med tillatelse fra FoU-sjefen gjengir jeg hans svar i sin helhet:
 
-Hugh
 
+
+Jeg skal forsøke å svare på dine spørsmål:
+
+Det korte svaret er: Nei det er ikke mulig å lese data som virkelig fysisk
+er blitt overskrevet.
+
+Imidlertid er grunnen til dette litt annerledes en det du beskriver.  For å
+snakke fornuftig om dette er det først nødvendig med forståelse av hva et
+bit på en HD er. En HD opererer ikke med individuelle bit, men med
+flux-endringer. Flux retning er enkelt fortalt hvorvidt magnet-feltet på
+disken peker mot eller med klokka (CW eller CCW). Så en flux endring er
+altså en endring fra f.eks CW til CCW flux retning. Mapping mellom flux
+endringer er ikke en-til-en. Det betyr at man IKKE benytter CW=0, CCW=1. I
+stedet gir en enkelt.flux-endring opphav til 2.5 til 3 bit. I tillegg
+benytter disken sekvens detektering. Dvs. at den ikke prøver å dekode
+bit'ene hver for seg, men i stedet ser på en hel sekvens (typisk 4096 bit =
+sektor).
+
+Denne sekvensdetekteringen disken gjør ligner mye på hvordan vi leser en
+dårlig telefax. Hvis vi forsøker å lese faxen bokstav for bokstav kan vi
+f.eks lett forveksle en a med en o. Hvis denne bokstaven er en del av ordet
+'bank', og vi tolker bokstav for bokstav ender vi med ordet 'bonk'.  Hvis vi
+ser på hele ordet (sekvensen med bokstaver) kan vi se at det mest
+sannsynlige ordet er 'bank'.
+
+Det man kan si er at man etter en overskriving kan måle hvor sterke de
+gamle dataene er i forhold til de nye. Det betyr at alle 'gamle' signaler
+faktisk ikke forsvinner. Våre undersøkelser viser imidlertid at det ikke
+finnes noen beskrivelser i litteraturen om hvordan man kan omdanne disse
+signalrestene til de opprinnelige dataene.
+
+Det kan synes som at dette krever banebrytende oppdagelser i en rekke
+disipliner: Ikke-linjær analyse og modellering, lavt-støyende elektronikk
+(cryo-elektronikk), datamaskin teknologi (superraske tallknusere).
+
+Og det var det lange (kompliserte) svaret :)
+
+Det som er sikkert: Ibas kjenner ikke til dokumenterte metoder,
+vitenskapelige miljøer eller kommersielle tjenester som utføre eller
+demonstrere lesing av overskrevne data.
+
+--
+Thor Arne Johansen
+Avdelingssjef FoU, Ibas AS
+
+
+
+Han har nå lagt til følgende:
+
+
+Det er imidlertid på sin plass å nevne at dette er et tema
+hvor de 'lærde' strides. Dvs. det finnes enkelte som mener at det er mulig
+å lese overskrevne data. Men vi har som sagt ikke kunnet finne noe
+vitenskaplig dokumentasjon eller beskrivelser av hvordan dette kan
+gjøres.
+
+-----------------------------------------------------------------------------
+
+
+  -jf

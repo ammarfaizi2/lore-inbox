@@ -1,101 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265687AbTIEUxS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265695AbTIEUxS
+	id S265751AbTIEUzo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265704AbTIEUza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:53:18 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.24]:23611 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S265687AbTIEUxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:53:14 -0400
-Date: Fri, 5 Sep 2003 22:48:25 +0200
-Message-Id: <200309052048.h85KmPLr000867@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] dmasound core fixes
+	Fri, 5 Sep 2003 16:55:30 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:49293 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265723AbTIEUys
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 16:54:48 -0400
+Date: Fri, 5 Sep 2003 21:54:18 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
+Message-ID: <20030905205418.GA6019@mail.jlokier.co.uk>
+References: <20030904210007.GE31590@mail.jlokier.co.uk> <20030905052006.DCCB62C261@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030905052006.DCCB62C261@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmasound core fixes from Christoph Hellwig:
-  - Some exported symbols are declared __init - in the modular case this is
-    freed before the other modules can call it..
-  - dmasound.lock is initialized to late, do it at compile time
+Rusty Russell wrote:
+> Now, if mremap doesn't move the memory, futexes aren't broken, even
+> without your patch, right?  If it does move, you've got a futex
+> sitting in invalid memory, no surprise if it doesn't work.
 
---- linux-2.6.0-test4/sound/oss/dmasound/dmasound_core.c	Sun Aug 24 09:50:28 2003
-+++ linux-m68k-2.6.0-test4/sound/oss/dmasound/dmasound_core.c	Wed Aug 27 13:52:09 2003
-@@ -226,7 +226,7 @@
-      *  Mid level stuff
-      */
- 
--struct sound_settings dmasound;
-+struct sound_settings dmasound = { .lock = SPIN_LOCK_UNLOCKED };
- 
- static inline void sound_silence(void)
- {
-@@ -374,7 +374,7 @@
- 	.release	= mixer_release,
- };
- 
--static void __init mixer_init(void)
-+static void mixer_init(void)
- {
- #ifndef MODULE
- 	int mixer_unit;
-@@ -1339,7 +1339,7 @@
- #endif
- };
- 
--static int __init sq_init(void)
-+static int sq_init(void)
- {
- #ifndef MODULE
- 	int sq_unit;
-@@ -1349,7 +1349,6 @@
- 	if (dmasound.mach.record)
- 		sq_fops.read = sq_read ;
- #endif
--	spin_lock_init(&dmasound.lock);
- 	sq_unit = register_sound_dsp(&sq_fops, -1);
- 	if (sq_unit < 0) {
- 		printk(KERN_ERR "dmasound_core: couldn't register fops\n") ;
-@@ -1557,7 +1556,7 @@
- 	.release	= state_release,
- };
- 
--static int __init state_init(void)
-+static int state_init(void)
- {
- #ifndef MODULE
- 	int state_unit;
-@@ -1576,7 +1575,7 @@
-      *  This function is called by _one_ chipset-specific driver
-      */
- 
--int __init dmasound_init(void)
-+int dmasound_init(void)
- {
- 	int res ;
- #ifdef MODULE
-@@ -1647,7 +1646,7 @@
- 
- #else /* !MODULE */
- 
--static int __init dmasound_setup(char *str)
-+static int dmasound_setup(char *str)
- {
- 	int ints[6], size;
- 
+If the mremap doesn't move the memory it's fine.  No surprise :)
 
-Gr{oetje,eeting}s,
+If it's moved, then the program isn't broken - it knows it just did an
+mremap, and it sends the wakeup to the new address.
 
-						Geert
+This makes sense if async futexes are used on an in-memory private
+database.  But such programs can just use MAP_ANON|MAP_SHARED if they
+want mremap to work.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> OTOH, I'm interested in returning EFAULT on waiters when pages are
+> unmapped, because I realized that stale waiters could "match" live
+> futex wakeups (an mm_struct gets recycled), and steal the wakeup.  Bad
+> juju.  We could do some uid check or something for anon pages, but
+> cleaner to flush them at unmap.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Ah, you're right.  Not fixing that is a serious bug.
+It can happen when an async futex fd is passed to another process.
+
+Not only can the mm_struct be recycled, it might be recycled into an
+inode so it could match a file futex too.
+
+This can be fixed more simply than the full do_unmap patch I posted
+earlier, by invalidating all the futexes in an mm when it is destroyed.
+
+Another fix would be to prevent futex fds of private mappings being
+passed to another process, somehow.
+
+It must be fixed somehow.
+
+Linus, which patch do you prefer?  Invalidate all futexes in an mm
+when it's destroyed, or invalidate ranges in do_munmap?
+
+-- Jamie
+
+ps. There's another bug: shared waiters match inodes, which they don't
+hold a reference to.  Inodes can be recycled too.  Fix is easy: just
+need to take an inode reference.

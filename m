@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVA0I22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVA0I3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbVA0I22 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 03:28:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVA0I22
+	id S262450AbVA0I3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 03:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVA0I3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 03:28:28 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1294 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262291AbVA0I2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 03:28:22 -0500
-Date: Thu, 27 Jan 2005 08:28:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050127082809.A20510@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, alexn@dsv.su.se, kas@fi.muni.cz,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <20050121161959.GO3922@fi.muni.cz> <1106360639.15804.1.camel@boxen> <20050123091154.GC16648@suse.de> <20050123011918.295db8e8.akpm@osdl.org> <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org> <20050123200315.A25351@flint.arm.linux.org.uk> <20050124114853.A16971@flint.arm.linux.org.uk> <20050125193207.B30094@flint.arm.linux.org.uk>
+	Thu, 27 Jan 2005 03:29:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:45282 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262450AbVA0I3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 03:29:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=NxwlY4Ejp6ZXhXwqmSC89Tt1IL0JOonOHw0A7HqO/v9DkIkxV9C0h8qMzntck5NqfVVLCycQe1f3G29TuCBkSdIDKbJcNC5oL5Mbg56wCFJBmXoTl39p0hdiK8yyHs+0wbExrmtWtnmKMYD3jMVT7FmiKHxRibteEqdvn20uxHw=
+Message-ID: <81b0412b050127002965e21f74@mail.gmail.com>
+Date: Thu, 27 Jan 2005 09:29:04 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: Pavel Fedin <sonic_amiga@rambler.ru>
+Subject: Re: [PATCH] Russian encoding support for MacHFS
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050125123516.7f40a397.sonic_amiga@rambler.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050125193207.B30094@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Tue, Jan 25, 2005 at 07:32:07PM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
+	 <81b0412b05012410463c7fd842@mail.gmail.com>
+	 <20050125123516.7f40a397.sonic_amiga@rambler.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 07:32:07PM +0000, Russell King wrote:
-> On Mon, Jan 24, 2005 at 11:48:53AM +0000, Russell King wrote:
-> > On Sun, Jan 23, 2005 at 08:03:15PM +0000, Russell King wrote:
-> > > I think I may be seeing something odd here, maybe a possible memory leak.
-> > > The only problem I have is wondering whether I'm actually comparing like
-> > > with like.  Maybe some networking people can provide a hint?
-> > > 
-> > > Below is gathered from 2.6.11-rc1.
-> > > 
-> > > bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-> > > 24
-> > > ip_dst_cache         669    885    256   15    1
-> > > 
-> > > I'm fairly positive when I rebooted the machine a couple of days ago,
-> > > ip_dst_cache was significantly smaller for the same number of lines in
-> > > /proc/net/rt_cache.
-> > 
-> > FYI, today it looks like this:
-> > 
-> > bash-2.05a# cat /proc/net/rt_cache | wc -l; grep ip_dst /proc/slabinfo
-> > 26
-> > ip_dst_cache         820   1065    256   15    1 
-> > 
-> > So the dst cache seems to have grown by 151 in 16 hours...  I'll continue
-> > monitoring and providing updates.
+On Tue, 25 Jan 2005 12:35:16 +0300, Pavel Fedin <sonic_amiga@rambler.ru> wrote:
+> > how about just leave the characters unchanged? (remap them to the same
+> > codes in Unicode).
 > 
-> Tonights update:
-> 50
-> ip_dst_cache        1024   1245    256   15    1
+>  But what to do when i convert then from unicode to 8-bit iocharset? This can lead to that several characters in Mac charset will be converted to the same character in Linux charset. This will lead to information loss and name will not be reverse-translatable.
+>  To describe the thing better: i have 8-bit Mac encoding and 8-bit target encoding (iocharset). I need to convert from (1) to (2) and be able to convert back. I tried to perform a one-way conversion like in other filesystems but this didn't work.
+>  Probably NLS tables can be used when iocharset is UTF8. If you wish i can try to implement it after some time.
+
+remap unicode character missing in filesystem codepage into something like '?'.
+I believe this is what nls routines do if converter returns -1 (error).
+You'd loose the new characters, right. But you'd loose them anyway, as they
+have no place in mac software.
+
+> > Unicode, and its encoding UTF8 IS commonly used everywhere.
+> > And Russia can (and often does) use it just as well.
 > 
-> As you can see, the dst cache is consistently growing by about 200
-> entries per day.  Given this, I predict that the box will fall over
-> due to "dst cache overflow" in roughly 35 days.
+>  Many people say many software is not UTF8-ready yet. Anyway i had problems when tried to use it. Many russian ASCII documents use 8-bit encoding so i need to be able to deal with them. Many software assumes that 1 byte is 1 character.
 
-This mornings magic numbers are:
+just fix that software instead of polluting the kernel.
 
-3
-ip_dst_cache        1292   1485    256   15    1
-
-Is no one interested in the fact that the DST cache is leaking and
-eventually takes out machines?  I've had virtually zero interest in
-this problem so far.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+And besides: software which _does_ work with unicode,
+can make a good use of an nls module for HFS.

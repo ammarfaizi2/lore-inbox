@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVCGQHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVCGQKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbVCGQHG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 11:07:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVCGQHG
+	id S261221AbVCGQKl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 11:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVCGQKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 11:07:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40899 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261811AbVCGQHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 11:07:01 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <E1D8KPt-00058Y-00@dorka.pomaz.szeredi.hu> 
-References: <E1D8KPt-00058Y-00@dorka.pomaz.szeredi.hu>  <E1D8K3T-00056q-00@dorka.pomaz.szeredi.hu> <20050307041047.59c24dec.akpm@osdl.org> <20050307034747.4c6e7277.akpm@osdl.org> <20050307033734.5cc75183.akpm@osdl.org> <20050303123448.462c56cd.akpm@osdl.org> <20050302135146.2248c7e5.akpm@osdl.org> <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <13767.1109857095@redhat.com> <9268.1110194624@redhat.com> <9741.1110195784@redhat.com> <9947.1110196314@redhat.com> <22447.1110204304@redhat.com> <24382.1110210081@redhat.com> 
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, torvalds@osdl.org, davidm@snapgear.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Mon, 07 Mar 2005 16:06:43 +0000
-Message-ID: <24862.1110211603@redhat.com>
+	Mon, 7 Mar 2005 11:10:41 -0500
+Received: from av8-2-sn3.vrr.skanova.net ([81.228.9.184]:60608 "EHLO
+	av8-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S261221AbVCGQKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 11:10:35 -0500
+Message-ID: <422C7CF3.9080609@fulhack.info>
+Date: Mon, 07 Mar 2005 17:10:27 +0100
+From: Henrik Persson <root@fulhack.info>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Cc: dtor@mail.ru, linux-kernel@vger.kernel.org
+Subject: Re: Touchpad "tapping" changes in 2.6.11?
+References: <422C539A.4040407@fulhack.info> <d120d500050307055522415fb3@mail.gmail.com>
+In-Reply-To: <d120d500050307055522415fb3@mail.gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi <miklos@szeredi.hu> wrote:
-
-> > It shouldn't silently break... It will refuse to compile. I renamed
-> > "memory_backed" to "capabilities".
+Dmitry Torokhov wrote:
+> On Mon, 07 Mar 2005 14:14:02 +0100, Henrik Persson <root@fulhack.info> wrote:
 > 
-> This will silently break:
+>>Hi there.
+>>
+>>I noticed that the ALPS driver was added to 2.6.11, a thing that alot of
+>>people probably like, but since my touchpad (Acer Aspire 1300XV) worked
+>>perfectly before (like, 2.6.10) and now the ALPS driver disables
+>>'hardware tapping', wich makes it hard to tap. I commented out the
+>>disable-tapping bits in alps.c and now it's working like a charm again.
+>>
 > 
-> static struct backing_dev_info my_bdi = {
->        .ra_pages = MY_RA,
->        .unplug_io_fn = default_unplug_io_fn,
-> };
+> 
+> Hi,
+> 
+> Could you please try 2.6.11-mm1. It has bunch of Peter Osterlund's
+> patches that shoudl improve the situation with tapping.
 
-Sorry, yes. Obvious. Ugh. Andrew Morton suggested flipping the logic, and
-although it was in conjunction with turning the concepts into bitfields, it
-still stands here.
+Well, -mm1 didn't quite agree with my savage gfx drivers. But I'm 
+booting with psmouse.proto=exps now, and it's working the way I'm used 
+to now.
 
-David
+The Aspire 1300-series is quite different from the 1350 ones.. The 
+touchpad on the 1300 will work like a charm without the synaptics driver 
+(but no fancy stuff is supported, I guess). Before you could boot and be 
+happy without the synaptics driver, now you probably have to install the 
+synaptics driver to be happy.. Maybe that's not so good. :)
+
+Could this touchpad use the "exps" proto as default and then you could 
+reconfigure if you want to use the ALPS driver..?
+
+-- 
+Henrik Persson

@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132643AbRDCUIQ>; Tue, 3 Apr 2001 16:08:16 -0400
+	id <S132655AbRDCUI5>; Tue, 3 Apr 2001 16:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132664AbRDCUIF>; Tue, 3 Apr 2001 16:08:05 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:62892 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S132643AbRDCUHz>; Tue, 3 Apr 2001 16:07:55 -0400
-Date: Tue, 3 Apr 2001 22:06:53 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Xuan Baldauf <xuan--lkml@baldauf.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] smbfs: caching problems
-In-Reply-To: <3AC68228.E9D8161B@baldauf.org>
-Message-ID: <Pine.LNX.4.30.0104032110440.12861-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132664AbRDCUIr>; Tue, 3 Apr 2001 16:08:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11794 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132655AbRDCUIf>;
+	Tue, 3 Apr 2001 16:08:35 -0400
+Date: Tue, 3 Apr 2001 21:07:44 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.3 and SysRq over serial console
+Message-ID: <20010403210744.A22460@flint.arm.linux.org.uk>
+In-Reply-To: <20010331163808.A9740@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010331163808.A9740@opus.bloom.county>; from trini@kernel.crashing.org on Sat, Mar 31, 2001 at 04:38:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Apr 2001, Xuan Baldauf wrote:
+On Sat, Mar 31, 2001 at 04:38:08PM -0700, Tom Rini wrote:
+> Hello all.  Without the attached patch, SysRq doesn't work over a serial
+> console here.  Has anyone else seen this problem?
 
-> Hello,
-> 
-> there is something wrong with smbfs caching which makes my
-> applications fail. The behaviour happens with
-> linux-2.4.3-pre4 and linux-2.4.3-final.
+It is handled at the serial port driver level, not the tty level.  You need
+to turn on CONFIG_SERIAL_CONSOLE and CONFIG_MAGIC_SYSRQ, and issue a break
+followed by the relevent character within 5 seconds on the serial TTY being
+used as the kernel console.
 
-Any version you know it doesn't happen with? (including 2.2 versions)
-
-
-> Consider following shell script: (where /mnt/n is a
-> smbmounted smb share from a Win98SE box)
-
-Reproducible, but so far only with win98 (SE?). NT4, samba are testing ok
-with the sizes I have tried, not sure what that means.
-
-Thanks a lot for providing a testcase.
-
-
-I have started looking but right now a lot of non-linux things are calling
-for attention. If it isn't trivial I may need some time to get around to
-it.
-(insanely early morning flights to Stockholm and late evening return
- flights, work, easter holiday preparations, local community stuff ... and
- that was just today.
- Sorry, I'm tired and felt like complaining to someone.
- Pay no attention to me :)
-
-You may want to consider looking into it yourself, if you need it
-fixed quickly.
-
-'tail -f' has previously been depending on smb_revalidate_inode to update
-inode information properly (I suspect that one right now, will check
-tomorrow. Possibly that smb open/close changes modification times ...
-and/or some win95 bug workaround is causing this?)
-
-Enabling verbose debug (select parts perhaps) can be useful.
-Adding debug printouts on inode mtime+size.
-
-/Urban
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

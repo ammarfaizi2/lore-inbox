@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271870AbRIDBJY>; Mon, 3 Sep 2001 21:09:24 -0400
+	id <S271875AbRIDBQZ>; Mon, 3 Sep 2001 21:16:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271871AbRIDBJO>; Mon, 3 Sep 2001 21:09:14 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:12268 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S271870AbRIDBJJ>; Mon, 3 Sep 2001 21:09:09 -0400
-Date: Mon, 3 Sep 2001 21:09:26 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: <Andries.Brouwer@cwi.nl>
-cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [resend PATCH] reserve BLKGETSIZE64 ioctl
-In-Reply-To: <200109032057.UAA36797@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.33.0109032107001.2463-100000@toomuch.toronto.redhat.com>
+	id <S271873AbRIDBQQ>; Mon, 3 Sep 2001 21:16:16 -0400
+Received: from mailhost.opengroup.fr ([62.160.165.1]:7348 "EHLO
+	mailhost.ri.silicomp.fr") by vger.kernel.org with ESMTP
+	id <S271871AbRIDBQI>; Mon, 3 Sep 2001 21:16:08 -0400
+Date: Tue, 4 Sep 2001 03:16:08 +0200 (CEST)
+From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFD] readonly/read-write semantics
+In-Reply-To: <Pine.GSO.4.21.0108311558430.15931-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.31.0109031558050.15486-100000@sisley.ri.silicomp.fr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Sep 2001 Andries.Brouwer@cwi.nl wrote:
+On Fri, 31 Aug 2001, Alexander Viro wrote:
 
-> Yes.
+> > In 2.4.9, I have encountered a strange condition while playing with file
+> > structs chained on a superblock list (sb->s_files) : some of them can have
+> > a NULL f_dentry pointer. The only case I found which can cause this is
+> > when fput is called and f_count drops to zero. Is that the only case ?
 >
-> (1) As you can see you'll only get redefinition complaints.
-> In other words, there is a B too much in the ioctl name.
+> Yes, it is, and yes, it's legitimate - code that scans that list should
+> (and in-tree one does) deal with such case.
 
-Yeah, the previous version was actually matching the subject.
+AFAICT fput (and also dentry_open, BTW) nullifies f_dentry without any
+lock held, so code that scans the list (such as fs_may_remount_ro, I
+haven't looked for other instances) can never assume that a file struct
+found in the list has or even will keep what looks like a valid f_dentry.
 
-> (2) We just concluded that 108-111 have been used for various
-> private purposes. If we avoid 108-111 in all official kernels
-> then nobody will be surprised if he ever uses some system
-> utility that uses one of these.
-> Thus, it is a very bad idea to want to use these again.
+> fs_may_remount_ro() is, indeed, racy and had been since very long.
 
-Where was 110 used?  That wasn't mentioned in the last thread.
+Sure, let's consider code in fs_may_remount_ro :
 
-> (3) Soon we'll all need a BLKGETSIZE64 ioctl, that gives
-> the size of a block device in bytes. Your proposed ioctl
-> gave the size in blocks if I recall correctly.
-> So, if you have to change the name and the number,
-> you might as well change the definition.
+	file_list_lock();
+	/* loop over files in sb->s_files */
+		if (!file->f_dentry)
+			continue;
+		/* now a concurrent fput may set f_dentry to NULL */
+		inode = file->f_dentry->d_inode; /* oops */
 
-I'd accepted that suggestion, I suppose that it should be added to the
-comment.
+Maybe the file struct should be removed from the list /before/ f_dentry is
+assigned NULL ?
 
-		-ben
+> However, the main problem is not in opening something after the
+> check - the check itself is not exact enough.
+
+I agree fs_may_remount_ro can report wrong results (ie. "you may remount
+ro" while you really can't) because of how it is used, but as stated
+above, I think it also has a small but real potential for directly
+crashing the system, and should be fixed.
+
+
+-- 
+Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
+mailto:saffroy@ri.silicomp.fr
 

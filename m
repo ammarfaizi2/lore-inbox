@@ -1,237 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262044AbTCVGnP>; Sat, 22 Mar 2003 01:43:15 -0500
+	id <S262046AbTCVGnW>; Sat, 22 Mar 2003 01:43:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262046AbTCVGnP>; Sat, 22 Mar 2003 01:43:15 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:9411 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP
-	id <S262044AbTCVGnL>; Sat, 22 Mar 2003 01:43:11 -0500
-Message-ID: <3E7C07F9.A7EBBBE@verizon.net>
-Date: Fri, 21 Mar 2003 22:51:37 -0800
+	id <S262047AbTCVGnV>; Sat, 22 Mar 2003 01:43:21 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:40068 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP
+	id <S262046AbTCVGnS>; Sat, 22 Mar 2003 01:43:18 -0500
+Message-ID: <3E7C0808.75B95FB7@verizon.net>
+Date: Fri, 21 Mar 2003 22:51:52 -0800
 From: "Randy.Dunlap" <randy.dunlap@verizon.net>
 X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.65 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com, jt@hpl.hp.com
-Subject: [PATCH] reduce stack in wireless/airo.c
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com, leo@netlabs.net
+Subject: [PATCH] reduce stack in cdrom/optcd.c
 Content-Type: multipart/mixed;
- boundary="------------03F675B4065EADB2A1CBFA4E"
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [4.64.238.61] at Sat, 22 Mar 2003 00:54:08 -0600
+ boundary="------------1075FE351E48CFE76A68482B"
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [4.64.238.61] at Sat, 22 Mar 2003 00:54:16 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------03F675B4065EADB2A1CBFA4E
+--------------1075FE351E48CFE76A68482B
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
 Hi,
 
-This reduces stack usage in drivers/net/wireless/airo.c by
-dynamically allocating 2KB buffers in 2 places.
+This reduces stack usage in drivers/cdrom/optcd.c by
+dynamically allocating a large (> 2 KB) buffer.
 
 Patch is to 2.5.65.  Please apply.
 
 ~Randy
---------------03F675B4065EADB2A1CBFA4E
+--------------1075FE351E48CFE76A68482B
 Content-Type: text/plain; charset=us-ascii;
- name="airo-stack.patch"
+ name="optcdrom-stack.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="airo-stack.patch"
+ filename="optcdrom-stack.patch"
 
-patch_name:	airo-stack.patch
-patch_version:	2003-03-21.22:14:20
+patch_name:	optcdrom-stack.patch
+patch_version:	2003-03-21.22:31:24
 author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	reduce stack usage in drivers/net/wireless/airo::
-		readrids() and writerids();
+description:	reduce stack usage in drivers/cdrom/optcd::cdromread()
 product:	Linux
 product_versions: 2.5.65
-changelog:	kmalloc() 2 KB buffers instead of declaring them on stack;
-maintainer:	Jean Tourrilhes <jt@hpl.hp.com>
+changelog:	kmalloc() the large buffer
+maintainer:	Leo Spiekman <leo@netlabs.net>
 diffstat:	=
- drivers/net/wireless/airo.c |   80 ++++++++++++++++++++++++++++----------------
- 1 files changed, 52 insertions(+), 28 deletions(-)
+ drivers/cdrom/optcd.c |   22 +++++++++++++++++-----
+ 1 files changed, 17 insertions(+), 5 deletions(-)
 
 
-diff -Naur ./drivers/net/wireless/airo.c%RIDS ./drivers/net/wireless/airo.c
---- ./drivers/net/wireless/airo.c%RIDS	Mon Mar 17 13:43:40 2003
-+++ ./drivers/net/wireless/airo.c	Fri Mar 21 22:14:01 2003
-@@ -5894,6 +5894,7 @@
- #endif /* WIRELESS_EXT */
+diff -Naur ./drivers/cdrom/optcd.c%CDROM ./drivers/cdrom/optcd.c
+--- ./drivers/cdrom/optcd.c%CDROM	Mon Mar 17 13:43:49 2003
++++ ./drivers/cdrom/optcd.c	Fri Mar 21 22:30:08 2003
+@@ -1600,13 +1600,17 @@
  
- #ifdef CISCO_EXT
-+#define RIDS_SIZE	2048
- /*
-  * This just translates from driver IOCTL codes to the command codes to
-  * feed to the radio's host interface. Things can be added/deleted
-@@ -5902,11 +5903,15 @@
-  */
- static int readrids(struct net_device *dev, aironet_ioctl *comp) {
- 	unsigned short ridcode;
--	unsigned char iobuf[2048];
-+	unsigned char *iobuf;
- 	struct airo_info *ai = dev->priv;
-+	int ret = 0;
+ static int cdromread(unsigned long arg, int blocksize, int cmd)
+ {
+-	int status;
++	int status, ret = 0;
+ 	struct cdrom_msf msf;
+-	char buf[CD_FRAMESIZE_RAWER];
++	char *buf;
  
- 	if (ai->flags & FLAG_FLASHING)
- 		return -EIO;
-+	iobuf = kmalloc(RIDS_SIZE, GFP_KERNEL);
-+	if (!iobuf)
-+		return -ENOMEM;
+ 	if (copy_from_user(&msf, (void *) arg, sizeof msf))
+ 		return -EFAULT;
  
- 	switch(comp->command)
- 	{
-@@ -5919,13 +5924,17 @@
- 	case AIROGEHTENC:   ridcode = RID_ETHERENCAP;   break;
- 	case AIROGWEPKTMP:  ridcode = RID_WEP_TEMP;
- 		/* Only super-user can read WEP keys */
--		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
-+		if (!capable(CAP_NET_ADMIN)) {
-+			ret = -EPERM;
-+			goto rr_free;
-+		}
- 		break;
- 	case AIROGWEPKNV:   ridcode = RID_WEP_PERM;
- 		/* Only super-user can read WEP keys */
--		if (!capable(CAP_NET_ADMIN))
--			return -EPERM;
-+		if (!capable(CAP_NET_ADMIN)) {
-+			ret = -EPERM;
-+			goto rr_free;
-+		}
- 		break;
- 	case AIROGSTAT:     ridcode = RID_STATUS;       break;
- 	case AIROGSTATSD32: ridcode = RID_STATSDELTA;   break;
-@@ -5933,23 +5942,25 @@
- 	case AIROGMICSTATS:
- 		if (copy_to_user(comp->data, &ai->micstats,
- 				 min((int)comp->len,(int)sizeof(ai->micstats))))
--			return -EFAULT;
--		return 0;
-+			ret = -EFAULT;
-+		goto rr_free;
- 	default:
--		return -EINVAL;
--		break;
-+		ret = -EINVAL;
-+		goto rr_free;
- 	}
- 
--	PC4500_readrid(ai,ridcode,iobuf,sizeof(iobuf));
-+	PC4500_readrid(ai,ridcode,iobuf,RIDS_SIZE);
- 	/* get the count of bytes in the rid  docs say 1st 2 bytes is it.
- 	 * then return it to the user
- 	 * 9/22/2000 Honor user given length
- 	 */
- 
- 	if (copy_to_user(comp->data, iobuf,
--			 min((int)comp->len, (int)sizeof(iobuf))))
--		return -EFAULT;
--	return 0;
-+			 min((int)comp->len, (int)RIDS_SIZE)))
-+		ret = -EFAULT;
-+rr_free:
-+	kfree(iobuf);
-+	return ret;
- }
- 
- /*
-@@ -5961,7 +5972,8 @@
- 	int  ridcode, enabled;
- 	Resp      rsp;
- 	static int (* writer)(struct airo_info *, u16 rid, const void *, int);
--	unsigned char iobuf[2048];
-+	unsigned char *iobuf;
-+	int ret = 0;
- 
- 	/* Only super-user can write RIDs */
- 	if (!capable(CAP_NET_ADMIN))
-@@ -5970,6 +5982,10 @@
- 	if (ai->flags & FLAG_FLASHING)
- 		return -EIO;
- 
-+	iobuf = kmalloc(RIDS_SIZE, GFP_KERNEL);
-+	if (!iobuf)
++	buf = kmalloc(CD_FRAMESIZE_RAWER, GFP_KERNEL);
++	if (!buf)
 +		return -ENOMEM;
 +
- 	ridcode = 0;
- 	writer = do_writerid;
+ 	bin2bcd(&msf);
+ 	msf.cdmsf_min1 = 0;
+ 	msf.cdmsf_sec1 = 0;
+@@ -1615,11 +1619,19 @@
  
-@@ -5991,8 +6007,8 @@
- 		 */
- 	case AIROPMACON:
- 		if (enable_MAC(ai, &rsp) != 0)
--			return -EIO;
--		return 0;
-+			ret = -EIO;
-+		goto wr_free;
+ 	DEBUG((DEBUG_VFS, "read cmd status 0x%x", status));
  
- 		/*
- 		 * Evidently this code in the airo driver does not get a symbol
-@@ -6000,32 +6016,38 @@
- 		 */
- 	case AIROPMACOFF:
- 		disable_MAC(ai);
--		return 0;
-+		goto wr_free;
- 
- 		/* This command merely clears the counts does not actually store any data
- 		 * only reads rid. But as it changes the cards state, I put it in the
- 		 * writerid routines.
- 		 */
- 	case AIROPSTCLR:
--		PC4500_readrid(ai,RID_STATSDELTACLEAR,iobuf,sizeof(iobuf));
-+		PC4500_readrid(ai,RID_STATSDELTACLEAR,iobuf,RIDS_SIZE);
- 
- 		enabled = ai->micstats.enabled;
- 		memset(&ai->micstats,0,sizeof(ai->micstats));
- 		ai->micstats.enabled = enabled;
- 
- 		if (copy_to_user(comp->data, iobuf,
--				 min((int)comp->len, (int)sizeof(iobuf))))
--			return -EFAULT;
--		return 0;
-+				 min((int)comp->len, (int)RIDS_SIZE)))
-+			ret = -EFAULT;
-+		goto wr_free;
- 
- 	default:
--		return -EOPNOTSUPP;	/* Blarg! */
-+		ret = -EOPNOTSUPP;	/* Blarg! */
-+		goto wr_free;
-+	}
-+
-+	if (comp->len > RIDS_SIZE) {
-+		ret = -EINVAL;
-+		goto wr_free;
- 	}
--	if(comp->len > sizeof(iobuf))
--		return -EINVAL;
- 
--	if (copy_from_user(iobuf,comp->data,comp->len))
--		return -EFAULT;
-+	if (copy_from_user(iobuf,comp->data,comp->len)) {
-+		ret = -EFAULT;
-+		goto wr_free;
-+	}
- 
- 	if (comp->command == AIROPCFG) {
- 		ConfigRid *cfg = (ConfigRid *)iobuf;
-@@ -6040,8 +6062,10 @@
- 	}
- 
- 	if((*writer)(ai, ridcode, iobuf,comp->len))
+-	if (!sleep_flag_low(FL_DTEN, SLEEP_TIMEOUT))
 -		return -EIO;
--	return 0;
++	if (!sleep_flag_low(FL_DTEN, SLEEP_TIMEOUT)) {
 +		ret = -EIO;
-+wr_free:
-+	kfree(iobuf);
++		goto cdr_free;
++	}
++
+ 	fetch_data(buf, blocksize);
+ 
+-	return copy_to_user((void *)arg, &buf, blocksize) ? -EFAULT : 0;
++	if (copy_to_user((void *)arg, &buf, blocksize))
++		ret = -EFAULT;
++
++cdr_free:
++	kfree(buf);
 +	return ret;
  }
  
- /*****************************************************************************
+ 
 
---------------03F675B4065EADB2A1CBFA4E--
+--------------1075FE351E48CFE76A68482B--
 

@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVCPXi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVCPXuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbVCPXi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 18:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbVCPXh0
+	id S261700AbVCPXuY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 18:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262863AbVCPXuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 18:37:26 -0500
-Received: from mail.dif.dk ([193.138.115.101]:24451 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262866AbVCPXfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 18:35:11 -0500
-Date: Thu, 17 Mar 2005 00:36:35 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: "David S. Miller" <davem@davemloft.net>, Pekka Savola <pekkas@netcore.fi>,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] net, ipv6: remove redundant NULL checks before kfree in
- ip6_flowlabel.c
-Message-ID: <Pine.LNX.4.62.0503170027390.2558@dragon.hyggekrogen.localhost>
+	Wed, 16 Mar 2005 18:50:24 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:29104 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261700AbVCPXuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 18:50:18 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nathan Lynch <ntl@pobox.com>
+Subject: Re: CPU hotplug on i386
+Date: Thu, 17 Mar 2005 00:51:57 +0100
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       rusty@rustcorp.com.au
+References: <20050316132151.GA2227@elf.ucw.cz> <20050316170945.GK21853@otto>
+In-Reply-To: <20050316170945.GK21853@otto>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503170051.58579.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-kfree() has no problems dealing with NULL pointers, so wrapping checks for 
-null round calls to it is redundant. This patch gets rid of two such 
-checks in net/ipv6/ip6_flowlabel.c
+On Wednesday, 16 of March 2005 18:09, Nathan Lynch wrote:
+> On Wed, Mar 16, 2005 at 02:21:52PM +0100, Pavel Machek wrote:
+> > Hi!
+> > 
+> > I tried to solve long-standing uglyness in swsusp cmp code by calling
+> > cpu hotplug... only to find out that CONFIG_CPU_HOTPLUG is not
+> > available on i386. Is there way to enable CPU_HOTPLUG on i386?
+> 
+> i386 cpu hotplug has been in -mm for a while.  Don't know when (if
+> ever) it will get merged.
 
-I considered also rewriting the 
-        if (fl)
-                fl_free(fl);
-bit as simply fl_free(fl) as well, but that if() potentially saves two 
-calls to kfree() inside fl_free as well as the call to fl_free itself, so 
-I guess that's worth the if().
+Thanks a lot for this hint! ;-)
 
-Please consider applying.
+Pavel, I've ported the basic i386 CPU hotplug stuff, without the sysfs
+interface, to x86-64 (a cut'n'paste kind of work, mostly).  For now, I've
+made HOTPLUG_CPU on x86-64 depend on SMP and SOFTWARE_SUSPEND and be set
+automatically.
 
+I'm going to test it together with your patch tomorrow.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.11-mm4-orig/net/ipv6/ip6_flowlabel.c linux-2.6.11-mm4/net/ipv6/ip6_flowlabel.c
---- linux-2.6.11-mm4-orig/net/ipv6/ip6_flowlabel.c	2005-03-02 08:37:50.000000000 +0100
-+++ linux-2.6.11-mm4/net/ipv6/ip6_flowlabel.c	2005-03-17 00:23:30.000000000 +0100
-@@ -87,8 +87,7 @@ static struct ip6_flowlabel * fl_lookup(
- 
- static void fl_free(struct ip6_flowlabel *fl)
- {
--	if (fl->opt)
--		kfree(fl->opt);
-+	kfree(fl->opt);
- 	kfree(fl);
- }
- 
-@@ -553,8 +552,7 @@ release:
- done:
- 	if (fl)
- 		fl_free(fl);
--	if (sfl1)
--		kfree(sfl1);
-+	kfree(sfl1);
- 	return err;
- }
- 
-
+Greets,
+Rafael
 
 
 -- 
-Jesper Juhl
-
-PS. Please CC me on replies from lists other than linux-kernel
-
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

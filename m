@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSHFGtd>; Tue, 6 Aug 2002 02:49:33 -0400
+	id <S318340AbSHFHV2>; Tue, 6 Aug 2002 03:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315388AbSHFGtd>; Tue, 6 Aug 2002 02:49:33 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:13072 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S315276AbSHFGtc>; Tue, 6 Aug 2002 02:49:32 -0400
-Date: Tue, 6 Aug 2002 08:53:08 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Problem reading CDRW in IDE drive
-Message-ID: <20020806065308.GA23256@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	id <S318384AbSHFHV2>; Tue, 6 Aug 2002 03:21:28 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:38153 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S318340AbSHFHV1>;
+	Tue, 6 Aug 2002 03:21:27 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200208060724.g767Om3178569@saturn.cs.uml.edu>
+Subject: Re: BIG files & file systems
+To: adilger@clusterfs.com (Andreas Dilger)
+Date: Tue, 6 Aug 2002 03:24:48 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), rddunlap@osdl.org (Randy.Dunlap),
+       matti.aarnio@zmailer.org (Matti Aarnio),
+       hch@infradead.org (Christoph Hellwig),
+       braam@clusterfs.com (Peter J. Braam), linux-kernel@vger.kernel.org
+In-Reply-To: <20020806051950.GD22933@clusterfs.com> from "Andreas Dilger" at Aug 05, 2002 11:19:50 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andreas Dilger writes:
 
-I have the following problem: I write a iso9660 fs to a cdrw, I can
-read it in the cdrw drive, but I cannot read it in the dvd-rom drive,
-which normally CAN read it. I tried to make a complete blank of the 
-disc before writing, no change. I tried kernel version 2.4.19, 2.4.19-jam0.
+> I would also have to add another footnote to this, if people start
+> talking about limits on 64-bit and >4kB page size systems.  ext2/3 can
+> support multiple block sizes (limited by the hardware page size), and
+> actually supporting larger block sizes has only been restricted for
+> cross-platform compatibility reasons.
 
-I always get the following errors:
-kernel: hdc: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-kernel: hdc: cdrom_decode_status: error=0x30
-kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-kernel: hdc: command error: error=0x51
-kernel: end_request: I/O error, dev 16:00 (hdc), sector 1636
-kernel: hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-kernel: hdc: command error: error=0x51
-kernel: end_request: I/O error, dev 16:00 (hdc), sector 1640
+This looks pretty silly if you think about it. We support
+both 8 kB UFS and 64 kB FAT16 already.
 
-cdrw = hdd via ide-scsi
-dvd/cd = hdc via ide
+> Having 16kB block size would allow a maximum of 64TB for a single
+> filesystem.  The per-file limit would be over 256TB.
 
+Um, yeah, 64 TB of data with 192 TB of holes!
+I really don't think you should count a file
+that won't fit on your filesystem.
 
-Best wishes
+It's one thing to say ext2 is ready for when
+the block devices grow. It's another thing to
+talk about files that can't possibly fit without
+changing the filesystem layout.
 
-Norbert
+> In reality, we will probably implement extent-based allocation for
+> ext3 when we start getting into filesystems that large, which has been
+> discussed among the ext2/ext3 developers already.
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
+It's nice to have a simple filesystem. If you turn ext2/ext3
+into an XFS/JFS competitor, then what is left? Just minix fs?

@@ -1,68 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266853AbRGXDtd>; Mon, 23 Jul 2001 23:49:33 -0400
+	id <S266914AbRGXEic>; Tue, 24 Jul 2001 00:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266907AbRGXDtX>; Mon, 23 Jul 2001 23:49:23 -0400
-Received: from mplspop4.mpls.uswest.net ([204.147.80.14]:6406 "HELO
-	mplspop4.mpls.uswest.net") by vger.kernel.org with SMTP
-	id <S266853AbRGXDtT>; Mon, 23 Jul 2001 23:49:19 -0400
-Date: Mon, 23 Jul 2001 20:45:54 -0700
-Message-Id: <p05100306b7829ca20739@[10.0.0.49]>
-From: "Jonathan Lundell" <jlundell@pobox.com>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "Andrea Arcangeli" <andrea@suse.de>, "Jeff Dike" <jdike@karaya.com>,
-        user-mode-linux-user@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, "Jan Hubicka" <jh@suse.cz>
+	id <S266929AbRGXEiV>; Tue, 24 Jul 2001 00:38:21 -0400
+Received: from rj.sgi.com ([204.94.215.100]:3731 "EHLO rj.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S266914AbRGXEiQ>;
+	Tue, 24 Jul 2001 00:38:16 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: pyrenees@club-internet.fr
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The moxa.c module is not compiled in 2.4.7 kernel. 
+In-Reply-To: Your message of "Mon, 23 Jul 2001 23:49:17 +0200."
+             <01072323491700.00616@linux> 
 Mime-Version: 1.0
-In-Reply-To: <Pine.LNX.4.33.0107231546430.7916-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0107231546430.7916-100000@penguin.transmeta.com>
-Subject: Re: user-mode port 0.44-2.4.7
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 24 Jul 2001 14:38:11 +1000
+Message-ID: <23760.995949491@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-At 3:51 PM -0700 2001-07-23, Linus Torvalds wrote:
->On Mon, 23 Jul 2001, Jonathan Lundell wrote:
->>
->>  If jiffies were not volatile, this initializing assignment and the
->>  test at the end could be optimized away, leaving an unconditional
->>  "return 0". A lock is of no help.
->
->Right.
->
->We want optimization barriers, and there's an explicit "barrier()"  thing
->for Linux exactly for this reason.
->
->For historical reasons "jiffies" is actually marked volatile, but at least
->it has reasonably good semantics with a single-data item. Which is not to
->say I like it. But grep for "barrier()" to see how many times we make this
->explicit in the algorithms.
->
->And really, THAT is my whole point. Notice in the previous mail how I used
->"volatile" when it was part of the _algorithm_. You should not hide
->algorithmic choices in your data structures. You should make them
->explicit, so that when you read the code you _see_ what assumptions people
->make.
+On Mon, 23 Jul 2001 23:49:17 +0200, 
+"J.L.Carlet" <pyrenees@club-internet.fr> wrote:
+>I have a problem with the 2.4.7 kernel only, not with the 2.4.6.
+>In the 2.4.6, using make xconfig, I select Moxa Intellio support, in the 
+>Character devices menu. I made make dep, make clean, make modules, make 
+>modules_install, and then I obtained the moxa.o file in 
+>/lib/modules/2.4.6/kernel/drivers/char directory.
+>If I make the same operations with 2.4.7 kernel, I don't obtain moxa.o
+>The file is not compiled and not installed.
 
-OK, sure, that's fine. Better than barrier() in some respects, too. 
-Namely, 1) volatile is portable C; barrier() isn't (not that that's 
-much of an issue for compiling Linux), and 2) volatile can be 
-specific to a variable, unlike the indiscriminate barrier(), which 
-forces a reload of everything that might be cached (OK, not a big 
-deal for IA32, but nontrivial for many-register architectures). One 
-could imagine a more specific barrier(jiffies) syntax, I suppose, but 
-the volatile cast is nice, restricting the effect not only to the 
-single variable but to the single reference to a single variable.
+It compiles and installs for me on 2.4.7, using make xconfig.
 
->For example, if you fix the code by adding an explicit barrier(), people
->see that (a) you're aware of the fact that you expect the values to change
->and (b) they see that it is taken care of.
->
->In contrast, if your data structure is marked volatile, how is anybody
->reading the code every going to be sure that the code is correct? You have
->to look at the header file defining all the data structures. That kind of
->thing is NOT GOOD.
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+# CONFIG_SERIAL_CONSOLE is not set
+CONFIG_SERIAL_EXTENDED=y
+# CONFIG_SERIAL_MANY_PORTS is not set
+# CONFIG_SERIAL_SHARE_IRQ is not set
+# CONFIG_SERIAL_DETECT_IRQ is not set
+# CONFIG_SERIAL_MULTIPORT is not set
+# CONFIG_HUB6 is not set
+CONFIG_SERIAL_NONSTANDARD=y
+# CONFIG_COMPUTONE is not set
+# CONFIG_ROCKETPORT is not set
+# CONFIG_CYCLADES is not set
+# CONFIG_DIGIEPCA is not set
+# CONFIG_DIGI is not set
+# CONFIG_ESPSERIAL is not set
+CONFIG_MOXA_INTELLIO=m
+# CONFIG_MOXA_SMARTIO is not set
+# CONFIG_ISI is not set
+# CONFIG_SYNCLINK is not set
+# CONFIG_N_HDLC is not set
+# CONFIG_RISCOM8 is not set
+# CONFIG_SPECIALIX is not set
+# CONFIG_SX is not set
+# CONFIG_RIO is not set
+# CONFIG_STALDRV is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
 
--- 
-/Jonathan Lundell.

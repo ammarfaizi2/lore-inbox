@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSGYM5A>; Thu, 25 Jul 2002 08:57:00 -0400
+	id <S312938AbSGYNC0>; Thu, 25 Jul 2002 09:02:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313125AbSGYM5A>; Thu, 25 Jul 2002 08:57:00 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:3982 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313113AbSGYM47>; Thu, 25 Jul 2002 08:56:59 -0400
-Message-Id: <5.1.0.14.2.20020725133331.00aa69b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 25 Jul 2002 14:03:46 +0100
-To: Alexander Viro <viro@math.psu.edu>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: RE: 2.5.28 and partitions
-Cc: Linus Torvalds <torvalds@transmeta.com>, Matt_Domsch@Dell.com,
-       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0207250739390.17037-100000@weyl.math.psu.edu
- >
-References: <Pine.LNX.4.44.0207242222410.1231-100000@home.transmeta.com>
+	id <S312973AbSGYNC0>; Thu, 25 Jul 2002 09:02:26 -0400
+Received: from ns.suse.de ([213.95.15.193]:23049 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S312938AbSGYNC0>;
+	Thu, 25 Jul 2002 09:02:26 -0400
+Date: Thu, 25 Jul 2002 15:05:39 +0200
+From: Dave Jones <davej@suse.de>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Re: MTRR Problems - 2.4.19-rc3
+Message-ID: <20020725150538.U16446@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+	rgooch@atnf.csiro.au
+References: <200207250303.20809.spstarr@sh0n.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200207250303.20809.spstarr@sh0n.net>; from spstarr@sh0n.net on Thu, Jul 25, 2002 at 03:03:20AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:44 25/07/02, Alexander Viro wrote:
->Al, still thinking that anybody who does mkfs.<whatever> on a multi-Tb
->device should seek professional help of the kind they don't give on l-k...
+On Thu, Jul 25, 2002 at 03:03:20AM -0400, Shawn Starr wrote:
+ > mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+ > mtrr: detected mtrr type: Intel
+ > mtrr: no MTRR for e0000000,4000000 found
+ > 
+ > Someone explain how an AMD Motherboard is Intel type? ;-) 
 
-Why? What is wrong with large devices/file systems? Why do we have to break 
-up everything into multiple devices? Just because the kernel is "too lazy" 
-to implement support for large devices? Nobody cares if 64bit code is 
-10-20% slower than 32bit code on a storage server. The storage devices are 
-physically way slower than the system, so the data throughput would not be 
-affected in the slightest. We would just see a higher CPU load on the 
-database server and we can live with that. At least our applications deal 
-with GiBs of data for each experiment, which is shifted over Gigabit 
-ethernet to/from a SQL database backend stored on a huge RAID array, so we 
-are completely i/o bound.
+The Athlon implemented Intel style MTRRs.
+There is no bug there.
 
-It's one database, and it's huge. And it's going to get bigger as people do 
-more experiments. We need mkfs.<whatever> on a huge device... We are just 
-lucky that our current RAID array is under 2TiB se we haven't hit the 
-"magic" barrier quite yet. But at 1.4TiB we are not far off...
-
-Best regards,
-
-         Anton
-
+        Dave
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

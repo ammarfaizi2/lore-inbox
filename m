@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSGXJox>; Wed, 24 Jul 2002 05:44:53 -0400
+	id <S315748AbSGXJxq>; Wed, 24 Jul 2002 05:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316884AbSGXJow>; Wed, 24 Jul 2002 05:44:52 -0400
-Received: from ns.suse.de ([213.95.15.193]:4877 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316882AbSGXJow>;
-	Wed, 24 Jul 2002 05:44:52 -0400
-Date: Wed, 24 Jul 2002 11:47:44 +0200
-From: Dave Jones <davej@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: bcrl@redhat.com, dalecki@evision.ag, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.27 enum
-Message-ID: <20020724114744.H16446@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Rusty Russell <rusty@rustcorp.com.au>, bcrl@redhat.com,
-	dalecki@evision.ag, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> <3D3BE421.3040800@evision.ag> <20020722160118.G6428@redhat.com> <20020723142704.B14323@suse.de> <20020724144937.3aa70f29.rusty@rustcorp.com.au>
+	id <S316434AbSGXJxq>; Wed, 24 Jul 2002 05:53:46 -0400
+Received: from reload.namesys.com ([212.16.7.75]:9103 "EHLO reload.namesys.com")
+	by vger.kernel.org with ESMTP id <S315748AbSGXJxp>;
+	Wed, 24 Jul 2002 05:53:45 -0400
+Date: Wed, 24 Jul 2002 13:56:56 +0400
+From: Joshua MacDonald <jmacd@namesys.com>
+To: Martin Brulisauer <martin@uceb.org>
+Cc: neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
+Message-ID: <20020724095656.GB11106@reload.namesys.com>
+Mail-Followup-To: Martin Brulisauer <martin@uceb.org>,
+	neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
+References: <20020723114703.GM11081@unthought.net> <3D3E75E9.28151.2A7FBB2@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020724144937.3aa70f29.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Wed, Jul 24, 2002 at 02:49:37PM +1000
+In-Reply-To: <3D3E75E9.28151.2A7FBB2@localhost>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 02:49:37PM +1000, Rusty Russell wrote:
- > Yes.  It particularly sucks on the "maintainerless" core code which is always
- > in flux.  This is also why I generally reject whitespace-cleanup patches,
- > and originally rejected the "doesnt" patches (I got convinced by the pedants).
- > 
- > OTOH, 90% of kernel code is copied from elsewhere, so janitorial cleanups
- > *are* worthwhile, as long as they are one-liners, or fix a real problem.
+On Wed, Jul 24, 2002 at 09:39:53AM +0200, Martin Brulisauer wrote:
+> On 24 Jul 2002, at 2:07, Joshua MacDonald wrote:
+> > 
+> > This may interest you.  We have written a type-safe doubly-linked list
+> > template which is used extensively in reiser4.  This is the kind of thing that
+> > some people like very much and some people hate, so I'll spare you the
+> > advocacy.
+> > 
+> > Comments are welcome.
+> 
+> Hi,
+> 
+> In my oppinion the attached template is a very good school 
+> example of how to excessively use C-style macros. But macros 
+> tend to make debugging difficult and as you know every new code 
+> has bugs (if it seems not to have one, then it has at least two 
+> which "correct" each other until you fix one of them ...), and finding 
+> the bugs is mainly done by others. 
+>
+> And who needs a "type-save" template for such a trivial thing like a 
+> dubbly-linked-list? If this is not buttom-line knowledge one should 
+> not try to do kernel level programming. By the way: Multiline C 
+> Macros are depreached and will not be supported by a future 
+> version of gcc and as for today will generate a bunch of warnings.
 
-I agree in part. Take the initialiser patches you're currently carrying
-for example. Whilst they're more useful (and more likely) to get merged
-than the enum patches, they also have the annoying issue that anyone
-currently working on code near those gets shafted.
+The list code is trivial, but when you have 10 classes of list and no type
+safety between independent list classes or even between the list head and list
+item types, there is a strong possibility you will pass the wrong argument to
+some list routine because there is nothing to stop you.
 
-With large touching patches like these, the only way to not piss people
-off is to find out who's working on a particular area, and work with
-them. "Can you roll this into your current working tree, and push to
-Linus next time". Instead of just shovelling straight to Linus.
-(Note, you did seem to actually seem to do the right thing here FWICS.
- have a gold star to go alongside your recent black one).
+The list code is trivial.  It doesn't make debugging difficult.  It is
+bottom-line knowledge.  But why make things difficult for yourself -- just to
+prove you can?
 
-        Dave
+I can say a lot of good and bad things about C++, but at least it lets you do
+this kind of thing with type safety and without ugly macros.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+> I have one additional comment to the current implementation:
+> > 
+> > #define TS_LINK_TO_ITEM(ITEM_TYPE,LINK_NAME,LINK) \
+> > 	((ITEM_TYPE *)((char *)(LINK)-(unsigned long)(&((ITEM_TYPE *)0)->LINK_NAME)))
+> 
+> As long as your pointers are 32bit this seems to be ok. But on 
+> 64bit implementations pointers are not (unsigned long) so this cast 
+> seems to be wrong.
+
+-josh

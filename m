@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265535AbUBAVOS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 16:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265546AbUBAVOR
+	id S265553AbUBAVQN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 16:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265572AbUBAVQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 16:14:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1476 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265535AbUBAVOJ (ORCPT
+	Sun, 1 Feb 2004 16:16:13 -0500
+Received: from mail.tmr.com ([216.238.38.203]:19977 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S265553AbUBAVQH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 16:14:09 -0500
-Date: Sun, 1 Feb 2004 13:14:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: morgan@transmeta.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: permission() bug?
-Message-Id: <20040201131457.2cf44e4c.akpm@osdl.org>
-In-Reply-To: <1075638996.2424.13.camel@nb.suse.de>
-References: <1075638996.2424.13.camel@nb.suse.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 1 Feb 2004 16:16:07 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
+Date: Sun, 01 Feb 2004 16:17:47 -0500
+Organization: TMR Associates, Inc
+Message-ID: <401D6CFB.2090501@tmr.com>
+References: <20040130152835.GN31589@devserv.devel.redhat.com> <Xine.LNX.4.44.0401301133350.16128-100000@thoron.boston.redhat.com> <20040130171407.GA18320@hexapodia.org> <20040130194921.GO31589@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1075670140 10083 192.168.12.10 (1 Feb 2004 21:15:40 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: Andy Isaacson <adi@hexapodia.org>, James Morris <jmorris@redhat.com>,
+       linux-kernel@vger.kernel.org
+To: Jakub Jelinek <jakub@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <20040130194921.GO31589@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gruenbacher <agruen@suse.de> wrote:
->
->  the fix for permission() that makes it compliant with POSIX.1-2001
->  apparently was lost. Here is the patch I sent before. (The relevant
->  lines from the standard text are cited in
->  http://www.ussg.iu.edu/hypermail/linux/kernel/0310.2/0286.html. The fix
->  proposed in that posting did not handle directories without execute
->  permissions correctly.)
+Jakub Jelinek wrote:
+> On Fri, Jan 30, 2004 at 11:14:07AM -0600, Andy Isaacson wrote:
+> 
+>>On Fri, Jan 30, 2004 at 11:35:20AM -0500, James Morris wrote:
+>>
+>>>-	const u8 padding[64] = { 0x80, };
+>>>+	static u8 padding[64] = { 0x80, };
+>>
+>>The RedHat bug suggests 'static const' as the appropriate replacement.
+>>
+>>https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=114610#c4
+>>
+>>Unfortunately that probably means an extra 64 bytes of text, rather than
+>>the 10 or so bytes of instructions to do the memset and store.  Ideally
+>>padding[] would be allocated in BSS rather than text or the stack (and
+>>initialized with { 0x80, } at runtime), but I guess you can't have
+>>everything.
+> 
+> 
+> Or you can use
+> 	u8 padding[64] = { 0x80 };
+> if you really want to initialize it at runtime and want to work around the
+> compiler bug.  It shouldn't be any less efficient than
+> 	const u8 padding[64] = { 0x80 };
+> since it is used just once, passed to non-inlined function.
 
-Question is: should we fix it?  I'm not aware of any bug reports against
-this behaviour, and there is the possibility that changing it now will
-break some applications.
+I like this, as it avoids bloating the 64 bytes into the kernel.
 
-Yes, those applications are presumably broken on other OS's but that's
-different.
 
-Given that this has been a longstanding misbehaviour in Linux (yes?) maybe
-the most prudent path is to remain bug-compatible?
-
-I'll add the patch to -mm so we can pick up any obvious userspace breakage,
-but it is likely that such problems will take a long time to emerge.
-
-> The access(2) function does not conform to POSIX.1-2001: For root
-> and a file with no permissions, access(file, MAY_READ|MAY_EXEC)
-> returns 0 (it should return -1).
-
-So are you saying that in this case access() is, in effect, returning
-
-	access(file, MAY_READ) || access(file, MAY_EXEC)
-
-whereas it should be returning
-
-	access(file, MAY_READ) && access(file, MAY_EXEC)
-
-?
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

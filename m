@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266599AbTGKUTR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 16:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266266AbTGKUSH
+	id S265325AbTGKUP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 16:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbTGKUPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 16:18:07 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:59792 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266215AbTGKUQf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 16:16:35 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: 2.5 'what to expect'
-Date: Fri, 11 Jul 2003 15:30:55 -0500
-User-Agent: KMail/1.5
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030711140219.GB16433@suse.de> <200307111437.12648.habanero@us.ibm.com> <20030711195920.GD976@matchmail.com>
-In-Reply-To: <20030711195920.GD976@matchmail.com>
+	Fri, 11 Jul 2003 16:15:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:17291 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S265325AbTGKUOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 16:14:41 -0400
+Date: Fri, 11 Jul 2003 17:26:38 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.22-pre5
+Message-ID: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307111530.55363.habanero@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 July 2003 14:59, Mike Fedyk wrote:
-> On Fri, Jul 11, 2003 at 02:37:12PM -0500, Andrew Theurer wrote:
-> > On Friday 11 July 2003 09:02, Dave Jones wrote:
-> > > Process scheduler improvements.
-> > > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > > - Scheduler is now Hyperthreading SMP aware and will disperse processes
-> > >   over physically different CPUs, instead of just over logical CPUs.
-> >
-> > I'm pretty sure this is not in 2.5 (unless it's in bk after 2.5.75)
->
-> wasn't this merged back in 2.4.6x?
 
-I believe that was support of, not enhancement for HT.  Actually there may 
-have been some enhancements in other areas, but not scheduler.
+Hi,
 
--Andrew Theurer
+Here goes -pre5.
+
+It fixes a deadlock introduced by the IO fairness changes, fixes ACPI on
+IBM's x440, has an uptodated cciss driver, a new ethernet driver for IBM
+PPC's 4xx, amongst other fixes.
+
+Please help testing.
+
+Summary of changes from v2.4.22-pre4 to v2.4.22-pre5
+============================================
+
+<jcchen:icplus.com.tw>:
+  o [netdrvr sundance] increase eeprom read timeout
+
+<mike.miller:hp.com>:
+  o cciss: change names and correct subsystem device ID for U320
+  o cciss: PCI BAR fix
+  o cciss: Fix potential overrun
+  o cciss: update version
+  o cciss: First part of PCI changes/driver cleanup
+  o cciss: Second part of PCI changes/driver cleanup
+
+Andi Kleen:
+  o Fix compiling on x86-64
+
+Benjamin Herrenschmidt:
+  o radeonfb 0.1.8 + my stuffs
+
+Chris Mason:
+  o Fix deadlocks in IO scheduler changes
+
+David Woodhouse:
+  o Backport vsprintf/scanf fixes from 2.5.74
+
+Geert Uytterhoeven:
+  o Fix adbhid m68k screwup
+
+J. A. Magallon:
+  o hfsplus: group Apple FS's and help text
+
+John Stultz:
+  o Fix boot crash of x440's in full acpi mode
+  o Cleanup x440 acpi fix
+
+Marcelo Tosatti:
+  o Changed EXTRAVERSION to -pre5
+
+Petr Vandrovec:
+  o Fix matroxfb on PPC64
+
+Tom Rini:
+  o An ethernet driver for the IBM PPC 4xx series of machines
+

@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318990AbSH2AlT>; Wed, 28 Aug 2002 20:41:19 -0400
+	id <S319051AbSH2Apk>; Wed, 28 Aug 2002 20:45:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319051AbSH2AlT>; Wed, 28 Aug 2002 20:41:19 -0400
-Received: from CPE-203-51-30-83.nsw.bigpond.net.au ([203.51.30.83]:18167 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S318990AbSH2AlS>; Wed, 28 Aug 2002 20:41:18 -0400
-Message-ID: <3D6D6EB0.5AE47D3D@eyal.emu.id.au>
-Date: Thu, 29 Aug 2002 10:45:36 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S319063AbSH2Apk>; Wed, 28 Aug 2002 20:45:40 -0400
+Received: from ip68-4-60-172.pv.oc.cox.net ([68.4.60.172]:1601 "EHLO
+	siamese.dyndns.org") by vger.kernel.org with ESMTP
+	id <S319051AbSH2Apj>; Wed, 28 Aug 2002 20:45:39 -0400
+To: Jim Treadway <jim@stardot-tech.com>
+cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
+Subject: Re: [TRIVIAL] strlen("literal string") -> (sizeof("literal string")-1)
+References: <fa.lrmcokv.1q28k2s@ifi.uio.no> <fa.pm2g4iv.k0s9jg@ifi.uio.no>
+From: junio@siamese.dyndns.org
+Date: 28 Aug 2002 17:49:51 -0700
+In-Reply-To: <fa.pm2g4iv.k0s9jg@ifi.uio.no>
+Message-ID: <7vd6s2lc9c.fsf@siamese.dyndns.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre5: compile failures
-References: <Pine.LNX.4.44.0208281946150.5234-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------5978FEDEDC8C10041F645771"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5978FEDEDC8C10041F645771
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+>>>>> "JT" == Jim Treadway <jim@stardot-tech.com> writes:
 
-drivers/net/pcmcia/wavelan_cs.c
-	should include standard headers first
+JT> Would redefining strlen() as __strlen() and then using
 
-drivers/usb/brlvger.c
-	macro fix for older gcc
+JT> #define strlen(x) (__builtin_constant_p(x) ? (sizeof(x) - 1) : __strlen(x))
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------5978FEDEDC8C10041F645771
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.20-pre5-wavelan_cs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.20-pre5-wavelan_cs.patch"
+JT> work in this situation?
 
---- linux/drivers/net/pcmcia/wavelan_cs.c.orig	Thu Aug 29 10:10:15 2002
-+++ linux/drivers/net/pcmcia/wavelan_cs.c	Thu Aug 29 10:21:39 2002
-@@ -63,9 +63,9 @@
-  *
-  */
- 
-+#include "wavelan_cs.h"		/* Private header */
- #include <linux/ethtool.h>
- #include <asm/uaccess.h>
--#include "wavelan_cs.h"		/* Private header */
- 
- /************************* MISC SUBROUTINES **************************/
- /*
+I thought about that before I posted the previous patch, but
+rejected it.
 
---------------5978FEDEDC8C10041F645771
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.20-pre5-brlvger.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.20-pre5-brlvger.patch"
+If it worked in all situations then it would have been great,
+but it fails in at least one way [*1*], so you cannot generally
+define the above in a header file which everybody includes.
+Instead, you end up examining each use of strlen() and make the
+above "#define" only where it does not break; it is not worth
+the aggravation.  Something named "strlen" must work in all
+situations, and "in this situation" is not good enough.
+Otherwise it would confuse/surprise people.
 
---- linux/drivers/usb/brlvger.c.orig	Thu Aug 29 10:30:50 2002
-+++ linux/drivers/usb/brlvger.c	Thu Aug 29 10:31:02 2002
-@@ -209,7 +209,7 @@
-     ({ printk(KERN_ERR "Voyager: " args); \
-        printk("\n"); })
- #define dbgprint(fmt, args...) \
--    ({ printk(KERN_DEBUG "Voyager: %s: " fmt, __FUNCTION__, ##args); \
-+    ({ printk(KERN_DEBUG "Voyager: %s: " fmt, __FUNCTION__ , ##args); \
-        printk("\n"); })
- #define dbg(args...) \
-     ({ if(debug >= 1) dbgprint(args); })
+[Footnotes]
 
---------------5978FEDEDC8C10041F645771--
+*1*  It fails on the following:
+
+#define FOOBARBAZ &("foobarbaz"[0])
+
+void
+main(void) {
+  int sz;
+  if (__builtin_constant_p(FOOBARBAZ)) {
+    sz = sizeof(FOOBARBAZ) - 1;
+    printf("sizeof(FOOBARBAZ) -1 = %d\n", sz);
+  }
+  printf("strlen(FOOBARBAZ) = %d\n", strlen(FOOBARBAZ));
+  exit(0);
+}
 

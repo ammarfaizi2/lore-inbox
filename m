@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268176AbUIKPok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUIKPop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268176AbUIKPok (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 11:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268169AbUIKPok
+	id S268177AbUIKPop (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 11:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268169AbUIKPop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 11:44:40 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:28595 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268176AbUIKPmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 11:42:36 -0400
-Subject: Re: radeon-pre-2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: adaplas@pol.net
-Cc: Dave Airlie <airlied@linux.ie>,
-       Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
-       Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200409111720.38477.adaplas@hotpop.com>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
-	 <Pine.LNX.4.58.0409110600120.26651@skynet>
-	 <200409111720.38477.adaplas@hotpop.com>
-Content-Type: text/plain
+	Sat, 11 Sep 2004 11:44:45 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:23469 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S268184AbUIKPnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 11:43:32 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/1] uml-update-2.6.8-finish
+Date: Sat, 11 Sep 2004 17:40:12 +0200
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>
+References: <20040908173855.68F518D0B@zion.localdomain> <200409102028.54580.blaisorblade_personal@yahoo.it> <200409102103.i8AL3b0O004288@ccure.user-mode-linux.org>
+In-Reply-To: <200409102103.i8AL3b0O004288@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094913600.21088.68.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 11 Sep 2004 15:40:01 +0100
+Message-Id: <200409111740.12121.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-09-11 at 10:20, Antonino A. Daplas wrote:
-> In theory, one can have a process (kernel or userland) change the video
-> mode, then provide the in-kernel driver with the necessary information
-> about the layout of the framebuffer.  When this in-kernel driver gets the
-> necessary information, it can trigger fbcon. This in-kernel driver need not
-> know anything about the hardware (unless 2D acceleration is needed).
+On Friday 10 September 2004 23:03, Jeff Dike wrote:
+> blaisorblade_personal@yahoo.it said:
+> > About the one from Jeff Dike, it's dangerous because I don't know
+> > whether or  not we would see any introduced bug.
 
-Thats great because one of the things X wants to tell DRI to tell the
-kernel eventually is "by the way the area visible is laid out like this
-shoudl you want to panic on it".
+> The ghash removal?  That's necessary, for one, and that code isn't
+> currently used anyway, so any bugs that I introduced can be sorted out
+> later.  For now, it's sufficient that it compiles.
+And making it compile with the hash code, rather than the rb_tree one? I know 
+ghash.h must be removed, but there is no reason at all to switch to Red-Black 
+trees. Even because, later, we will just see "Hey, I get a panic here" + 
+backtrace. Doing things right in first place is better.
 
-(Jon wants to move the mode setting out of X eventually and that follows
-the same line of requirement nicely).
+Andrew, what's your opinion about this? Do you prefer staying with the same 
+code (but without having a ghash.h) or using the new one?
 
+My idea is to move the needed #defines (not everything) inside physmem.c for 
+now, so that ghash.h does not appear in 2.6.9; then, after fixing the 
+breakage for mainline, we can look at the code to see if it needs any change; 
+however that should be tested for a while (probably in Jeff Dike's tree, 
+which is going to become for experimental stuff, now that UML gets merged in 
+mainline).
+
+Bye
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

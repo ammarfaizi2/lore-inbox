@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310917AbSDQRbt>; Wed, 17 Apr 2002 13:31:49 -0400
+	id <S311121AbSDQRcb>; Wed, 17 Apr 2002 13:32:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSDQRbs>; Wed, 17 Apr 2002 13:31:48 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:32526 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S310917AbSDQRbr> convert rfc822-to-8bit;
-	Wed, 17 Apr 2002 13:31:47 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Marc-Christian Petersen <m.c.p@gmx.net>
-Reply-To: m.c.p@gmx.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Possible EXT2 File System Corruption in Kernel 2.4
-Date: Wed, 17 Apr 2002 19:31:30 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andreas Dilger <adilger@clusterfs.com>
-X-PRIORITY: 2 (High)
+	id <S311025AbSDQRca>; Wed, 17 Apr 2002 13:32:30 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33102 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S311121AbSDQRc0>; Wed, 17 Apr 2002 13:32:26 -0400
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5.8] support for NCR voyager (3/4/5xxx series)
+In-Reply-To: <200204161601.g3GG1nP03345@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Apr 2002 11:25:14 -0600
+Message-ID: <m1wuv6fdad.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20020417173147Z310917-22651+8390@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas,
+James Bottomley <James.Bottomley@HansenPartnership.com> writes:
 
-your patch does not work:
+> This patch adds SMP (and UP) support for voyager which is an (up to 32 way) 
+> SMP microchannel non-PC architecture.
+> 
+> The patch is in two parts:  The i386 sub-architecture split is 
+> separated from the addition of the voyager components
+> 
+> http://www.hansenpartnership.com/voyager/files/arch-split-2.5.8.diff (269k)
+> http://www.hansenpartnership.com/voyager/files/voyager-2.5.8.diff (150k)
+> 
+> (The split diff is pretty huge because it's actually moving files about).  You 
+> must apply the split diff before applying the voyager one.
+> 
+> These two patches are also available as separate bitkeeper trees:
+> 
+> http://linux-voyager.bkbits.net/voyager-2.5
+> http://linux-voyager.bkbits.net/arch-split-2.5
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.18/include  -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=balloc  -c -o 
-balloc.o balloc.c
-balloc.c: In function `ext2_new_block':
-balloc.c:524: warning: long unsigned int format, unsigned int arg (arg 4)
-balloc.c:397: label `io_error' used but not defined
-balloc.c:383: label `out' used but not defined
-gcc: Internal compiler error: program cc1 got fatal signal 11
-make[3]: *** [balloc.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.18/fs/ext2'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.18/fs/ext2'
-make[1]: *** [_subdir_ext2] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.18/fs'
-make: *** [_dir_fs] Error 2
--- 
+Currently you place the voyager information in the APM table,  which is problematic
+for the goal of being able to have a kernel that will support everything,
+and it is a little confusing.  There is still plenty of room for the voyager table,
+elsewhere so I don't think that is needed.
 
-Kind regards
-	Marc-Christian Petersen
+Please check out include/asm-i386/boot_param.h for an enumeration of where
+we actually put the variables.  Since it hasn't made it into the kernel
+yet either get out of the linux-kernel mailing list or at:
+ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/linux-2.5.8.boot.diff
 
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824  080A 569D E2E3 DB44 1A16
-Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+Eric

@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263461AbTC2U7v>; Sat, 29 Mar 2003 15:59:51 -0500
+	id <S263462AbTC2VEa>; Sat, 29 Mar 2003 16:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263462AbTC2U7v>; Sat, 29 Mar 2003 15:59:51 -0500
-Received: from [12.47.58.57] ([12.47.58.57]:43988 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S263461AbTC2U7u>;
-	Sat, 29 Mar 2003 15:59:50 -0500
-Date: Sat, 29 Mar 2003 13:12:18 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: jamagallon@able.es, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-       vortex@scyld.com
-Subject: Re: Bad PCI IDs-Names table in 3c59x.c
-Message-Id: <20030329131218.04a8cf1e.akpm@digeo.com>
-In-Reply-To: <20030329141245.GA2560@werewolf.able.es>
-References: <20030329013022.GA2711@werewolf.able.es>
-	<20030328183836.36ccd14b.akpm@digeo.com>
-	<20030329141245.GA2560@werewolf.able.es>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S263463AbTC2VEa>; Sat, 29 Mar 2003 16:04:30 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:6407
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263462AbTC2VE3>; Sat, 29 Mar 2003 16:04:29 -0500
+Subject: Re: [PANIC][2.5.66bk3+] run_timer_softirq - IRQ Mishandlings
+From: Robert Love <rml@tech9.net>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <001c01c2f634$2e517da0$030aa8c0@unknown>
+References: <001c01c2f634$2e517da0$030aa8c0@unknown>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048972543.13757.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 29 Mar 2003 16:15:43 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Mar 2003 21:11:01.0834 (UTC) FILETIME=[B3B3E2A0:01C2F637]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
-> 
-> pci.ids has this:
-> 
-> 10b7  3Com Corporation
->     ...
->     9805  3c980-TX 10/100baseTX NIC [Python-T]
->         10b7 1201  3c982-TXM 10/100baseTX Dual Port A [Hydra]
->         10b7 1202  3c982-TXM 10/100baseTX Dual Port B [Hydra]
->         10b7 9805  3c980 10/100baseTX NIC [Python-T]
+On Sat, 2003-03-29 at 15:45, Shawn Starr wrote:
 
-That's hardly authoritative.
+> In both panics below c012e9b4 does not exist as a kernel symbol in
+> System.map:
 
-> and my card gives:
-> 
-> (lspci -n)
-> 00:12.0 Class 0200: 10b7:9805 (rev 78)
-> (lspci -v)
-> 00:12.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC [Python-T] (rev 78)
->         Subsystem: 3Com Corporation: Unknown device 1000
+The EIP need not exist itself in System.map.  System.map has the symbol
+to initial address mapping.  For example,
 
-Nor is that.
+	100	functionA
+	200	functionB
 
-> Donald's driver has:
->     { 0x10B7, 0x9800, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C980 },
->     { 0x10B7, 0x9805, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C9805 },
-> ...
->     {"3c980 Cyclone",
->      PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
->     {"3c982 Dual Port Server Cyclone",
->      PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
+If the EIP was "150" you would be 50 bytes into functionA().
 
-Nope, Donald's latest driver has
+> Code: 89 50 04 89 02 c7 41 30 00 00 00 00 81 3d 60 98 41 c0 3c 4b
+>  kernel/timer.c:258: spin_lock(kernel/timer.c:c0419860) already locked by
+> kernel/timer.c/398
+> Kernel panic: Aiee, killing interrupt handler!
+> In interrupt handler - not syncing
 
-    {"3c982 Server Tornado",{ 0x980510B7, 0xffffffff },
-     PCI_IOTYPE, CYCLONE_SIZE, FEATURE_TORNADO, },
+This is not a panic, just an oops.  And it was just a debugging check
+from spin lock debugging, but unfortunately you were in an interrupt
+handler so the machine went bye bye.
 
-(Note: no HAS_NWAY either)
+It is probably a simple double-lock deadlock, detected by spin lock
+debugging.  Knowing the EIP would help... but timer_interrupt() is a
+good first guess.
 
-But if you have a 10b7/9805 with a "3c980 Python-T" sticker on it I guess
-that will do.
-
-Not sure about NWAY though.
-
-hm, the 2.5 kernel has 
-
-    {"3c980C Python-T",
-     PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_NWAY|HAS_HWCKSM, 128, },
-
-for 10b7/9805, which looks much more healthy.
+	Robert Love
 

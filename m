@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313114AbSEVMpF>; Wed, 22 May 2002 08:45:05 -0400
+	id <S313122AbSEVMqI>; Wed, 22 May 2002 08:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313122AbSEVMpE>; Wed, 22 May 2002 08:45:04 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61199 "EHLO
+	id <S313157AbSEVMqH>; Wed, 22 May 2002 08:46:07 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62991 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313114AbSEVMpE>; Wed, 22 May 2002 08:45:04 -0400
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 22 May 2002 14:05:00 +0100 (BST)
-Cc: paulus@samba.org, dalecki@evision-ventures.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020522.035435.68675894.davem@redhat.com> from "David S. Miller" at May 22, 2002 03:54:35 AM
+	id <S313122AbSEVMqF>; Wed, 22 May 2002 08:46:05 -0400
+Subject: Re: Linux-2.5.17
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 22 May 2002 14:06:00 +0100 (BST)
+Cc: jack@suse.cz, torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3CEB78D7.7070107@evision-ventures.com> from "Martin Dalecki" at May 22, 2002 12:54:15 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17AVnY-0001YZ-00@the-village.bc.nu>
+Message-Id: <E17AVoW-0001Yl-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Paul Mackerras <paulus@samba.org>
->    Date: Wed, 22 May 2002 20:42:47 +1000 (EST)
+> Please put the following crap under /proc/sys/fs,
+> where it belongs. OK?
 > 
->    Martin Dalecki writes:
->    
->    > Remove support for /dev/port altogether.
->    
->    Great idea!
->    
-> You have my blessing too :-)
+> [root@kozaczek fs]# pwd
+> /proc/fs
+> [root@kozaczek fs]# cat quota
+> Version 60501
+> Formats
+> 0 0 0 0 0 0 0 8
+> [root@kozaczek fs]#
+> 
+> Or are are you going to reinvent just enother
+> case of /proc/ formatting compatibility problems?!
+> And the requirement to have /proc mounted for quoate usage?!
 
-I'd rather you didn't break too much application code. How do you think the
-perl people and the python folks do hardware control ? Or for that matter
-java people trying to avoid the crawling horrors of JNI. Its also used by
-libraries like libieee1284. Clock(8) uses it on some systems if the 
-/dev/rtc isn't available or built in.
+/proc/sys/ is sysctl space. 
 
-Xfree86 much to my suprise seems completely clean. Non Linux stuff uses it
-extensively but not Linux.
+	/proc/sys/fs/quota/version
+	/proc/sys/fs/quota/format/0,1,2,3..
 
-ALan
+maybe
+
+> (PS. Hah! I found finally someone today who deserves flames! :-).)
+
+You looked in the mirror ?

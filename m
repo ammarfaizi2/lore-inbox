@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264923AbSJ3W2k>; Wed, 30 Oct 2002 17:28:40 -0500
+	id <S264922AbSJ3Wfh>; Wed, 30 Oct 2002 17:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264940AbSJ3W2k>; Wed, 30 Oct 2002 17:28:40 -0500
-Received: from pop018pub.verizon.net ([206.46.170.212]:26104 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S264923AbSJ3W2j>; Wed, 30 Oct 2002 17:28:39 -0500
-Message-Id: <200210302332.g9UNWL5e001187@pool-141-150-241-241.delv.east.verizon.net>
-Date: Wed, 30 Oct 2002 18:32:18 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BK console] console updates.
-References: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net>
+	id <S264930AbSJ3Wfh>; Wed, 30 Oct 2002 17:35:37 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:24216 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264922AbSJ3Wfg>;
+	Wed, 30 Oct 2002 17:35:36 -0500
+Subject: Re: [CFT] [PATCH] kexec 2.5.44 (minimal)
+From: Andy Pfiffer <andyp@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>, Pavel Machek <pavel@ucw.cz>,
+       "Ph. Marek" <marek@bmlv.gv.at>, Pavel Roskin <proski@gnu.org>,
+       Torrey Hoffman <thoffman@arnor.net>,
+       Rob Landley <landley@trommello.org>,
+       Kasper Dupont <kasperd@daimi.au.dk>
+In-Reply-To: <m1lm4jj7v5.fsf_-_@frodo.biederman.org>
+References: <m1lm4jj7v5.fsf_-_@frodo.biederman.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Oct 2002 14:41:54 -0800
+Message-Id: <1036017717.1726.7.camel@andyp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Wed, Oct 30, 2002 at 01:56:38PM -0800
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop018.verizon.net from [141.150.241.241] at Wed, 30 Oct 2002 16:34:59 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
+On Mon, 2002-10-28 at 00:16, Eric W. Biederman wrote:
+> And is currently kept in two pieces.
+> The pure system call.
+> http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-2.diff
 > 
-> bk://linuxconsole.bkbits.net
-> 
-> BTW I will make patches avaiable as soon as 2.5.45 comes out.
+> And the set of hardware fixes known to help kexec.
+> http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-hwfixes.diff
 
-Don't even bother posting to the list without a patch.  Saying you want
-testers and not providing a patch is just rediculous.
+Eric,
 
--- 
-Skip
+Hmmm... I'm having a lot more problems on my troublesome machine with
+this patchset than I did with the previous iteration.  I've
+triple-checked the application of the patches, but I can't even get
+kexec_test to start, much less run to completion.
+
+The new behavior is that the system appears to hang immediately after
+invoking "kexec kexec_test".
+
+What could I have done wrong?
+
+Thanks,
+Andy
+
+

@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVBHXia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVBHXkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVBHXia (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 18:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVBHXia
+	id S261694AbVBHXkR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 18:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVBHXkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 18:38:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62643 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261693AbVBHXiF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 18:38:05 -0500
-Date: Tue, 8 Feb 2005 15:38:01 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8)
-Message-ID: <20050208153801.M24171@build.pdx.osdl.net>
-References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us> <20050207142603.A469@build.pdx.osdl.net> <20050208172450.GA3598@halcrow.us>
+	Tue, 8 Feb 2005 18:40:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35724 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261694AbVBHXil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 18:38:41 -0500
+Date: Tue, 8 Feb 2005 18:05:41 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Jean Tourrilhes <jt@hpl.hp.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] Wireless Extension v17 (resend)
+Message-ID: <20050208200541.GH10799@logos.cnet>
+References: <20050208181637.GB29717@bougret.hpl.hp.com> <20050208180116.GA10695@logos.cnet> <20050208215112.GB3290@bougret.hpl.hp.com> <20050208184145.GD10799@logos.cnet> <20050208224531.GE1850@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050208172450.GA3598@halcrow.us>; from mhalcrow@us.ibm.com on Tue, Feb 08, 2005 at 11:24:50AM -0600
+In-Reply-To: <20050208224531.GE1850@alpha.home.local>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michael Halcrow (mhalcrow@us.ibm.com) wrote:
-> [...].  This occurs because the bd_release function will
-> bd_release(bdev) and set inode->i_security to NULL on the close(fd1).
-> Hence, we want to place the control at the level of the file struct,
-> not the inode.
+On Tue, Feb 08, 2005 at 11:45:31PM +0100, Willy Tarreau wrote:
+> Hi Marcelo,
+> 
+> On Tue, Feb 08, 2005 at 04:41:46PM -0200, Marcelo Tosatti wrote:
+> > > 
+> > > 	There need to be some unique features in 2.6.X to force people
+> > > to upgrade, I guess...
+> > 
+> > Faster, cleaner, way more elegant, handles intense loads more gracefully, 
+> 
+> When a CPU-hungry task freezes another one for more than 13 seconds, I cannot
+> agree with your last statement, and that's why I still don't upgrade. I have
+> already posted examples of worst case scenarios, but I now start to have a
+> more meaningful example to show so that people working on the scheduler may
+> have something clearer to work with. I also did not have time to retest -ck
+> or staircase recently, but I will do for completeness.
 
-This is basically what I was referring to pre-merge.  And it is still
-not fully sufficient.  Multiple processes can share an fd.  So the test
-against current is broken.  Also well-behaved apps that are already
-using O_EXCL will break.  Using filp as the holder is sufficient to fix
-both of these issues.  Here's a 3.5/8 that will fix this.  6/8 no longer
-applies cleanly with this change.
+v2.6 scheduler regressions cannot be tolerated. 
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+Please prepare more detailed data about your problem - I'm sure Ingo and friends
+will appreciate it.
 
---- a/security/seclvl.c~bd_claim	2005-02-08 15:05:09.000000000 -0800
-+++ b/security/seclvl.c	2005-02-08 15:05:17.000000000 -0800
-@@ -492,17 +492,16 @@
-  */
- static int seclvl_bd_claim(struct file * filp)
- {
--	int holder;
- 	struct block_device *bdev = NULL;
- 	dev_t dev = filp->f_dentry->d_inode->i_rdev;
- 	bdev = open_by_devnum(dev, FMODE_WRITE);
- 	if (bdev) {
--		if (bd_claim(bdev, &holder)) {
-+		if (bd_claim(bdev, filp)) {
- 			blkdev_put(bdev);
- 			return -EPERM;
- 		}
- 		/* Claimed; mark it to release on close */
--		filp->f_security = current;
-+		filp->f_security = filp;
- 	}
- 	return 0;
- }
-@@ -597,7 +596,7 @@
- 	if (dentry && (filp->f_mode & FMODE_WRITE)) {
- 		struct inode * inode = dentry->d_inode;
- 		if (inode && S_ISBLK(inode->i_mode)
--		    && filp->f_security == current) {
-+		    && filp->f_security == filp) {
- 			struct block_device *bdev = inode->i_bdev;
- 			if (bdev) {
- 				bd_release(bdev);
+> > handles highmem decently, LSM/SELinux, etc, etc...
+> > 
+> > IMO everyone should upgrade whenever appropriate. 
+> 
+> I still know about a tens of 2.2 still running around at customers ;-)
+> However, if it had not been for lazyness, they should have upgraded. 
+
+:)

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288719AbSADS7i>; Fri, 4 Jan 2002 13:59:38 -0500
+	id <S288689AbSADTEj>; Fri, 4 Jan 2002 14:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288689AbSADS72>; Fri, 4 Jan 2002 13:59:28 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:53492 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S288712AbSADS7S>; Fri, 4 Jan 2002 13:59:18 -0500
-Date: Fri, 4 Jan 2002 19:41:34 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: David Weinehall <tao@acc.umu.se>
-cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        BALBIR SINGH <balbir.singh@wipro.com>, esr@thyrsus.com,
+	id <S288712AbSADTET>; Fri, 4 Jan 2002 14:04:19 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:3337 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S288689AbSADTEO>;
+	Fri, 4 Jan 2002 14:04:14 -0500
+Date: Fri, 4 Jan 2002 20:04:10 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
         David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020103231723.Z5235@khan.acc.umu.se>
-Message-ID: <Pine.GSO.3.96.1020104193143.829C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020104200410.E21887@suse.cz>
+In-Reply-To: <20020103133454.A17280@suse.cz> <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Jan 04, 2002 at 07:28:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, David Weinehall wrote:
+On Fri, Jan 04, 2002 at 07:28:58PM +0100, Maciej W. Rozycki wrote:
 
-> At least MCA and NuBus can be autodetected, and I'm fairly confident
-> the people behind the VME-bus and TurboChannel weren't stupid either,
-> so those can probably be autodetected and probed too.
+> > > Thats why I also suggested using lspci and looking for an ISA bridge.
+> > > If you have no PCI its probably ISA. If you have no PCI/ISA bridge its
+> > > very very unlikely to be ISA
+> > 
+> > Uh, no. Almost all 486 PCI boards and early Pentium/K5/K6 boards have
+> > the PCI bus hanging of the VLB or other local bus, and on those ISA
+> > isn't behind an ISA bridge. These chipsets do have ISA but no ISA
+> > bridge.
+> 
+>  These can be checked for explicitly as the list isn't likely to grow.  I
+> can dig a few Intel docs for IDs of 486-class PCI chipsets that have no
+> PCI-ISA bridge if they'd be useful.
+> 
+>  Also note that there are PCI-ISA bridges that are reported as "non-VGA
+> unclassified" devices as they predate PCI 2.0.  The SIO (82378IB/ZB) comes
+> to mind here.  The bridge is used in certain models of Alpha systems as
+> well.  The bridges would need to be listed by IDs, too. 
 
- The TURBOchannel is currently DECstation-only, so it can be easily
-deduced by the system type from /proc/cpuinfo (Alphas have it there as
-well, so if the Alpha port is ever finished there should be no problem). 
-You can have a Qbus-TURBOchannel bridge on certain VAX systems, so it
-would have to be detected separately once (if) supported.
-
- I'm not sure if it's worthwhile to implement /proc/bus/tc or whatever as
-there is likely nothing in the userland to need that info ever and for
-diagnostics the firmware and the startup log are sufficient.  If useful,
-it would be trivial to code, though.
+And of course, there will be a huge amount of false positives, because
+all the new chipsets have an ISA bridge built into the southbridge chip
+and it is there even when no ISA slots are present.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Vojtech Pavlik
+SuSE Labs

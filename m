@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVCBOAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVCBOCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVCBOAp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVCBOAp
+	id S262298AbVCBOCS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVCBOCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:00:45 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:54802 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262295AbVCBOAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:00:25 -0500
-Date: Wed, 2 Mar 2005 15:00:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, kai@germaschewski.name, sam@ravnborg.org,
-       rusty@rustcorp.com.au
-Cc: Vincent Vanackere <vincent.vanackere@gmail.com>, keenanpepper@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
-Message-ID: <20050302140019.GC4608@stusta.de>
-References: <422550FC.9090906@gmail.com> <20050302012331.746bf9cb.akpm@osdl.org> <65258a58050302014546011988@mail.gmail.com> <20050302032414.13604e41.akpm@osdl.org>
+	Wed, 2 Mar 2005 09:02:18 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:48578 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262298AbVCBOCC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 09:02:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=iS6xGwaDCHyu7oGR5EVwxfS+rn6+aJXyeEWv2MIovN2Rh1wstPFJww7/r6qYgvTHAmDJwZJQN73Ave3NqAl3qpht6tmF6LWL7nzgUaic49pfPJAE557MWj7W6K+nKS/Kj2yiUzbW/oLYKFiXXZhPj3lGUqKBtnCHdmrQajuZKTY=
+Message-ID: <5a4c581d0503020602130fc630@mail.gmail.com>
+Date: Wed, 2 Mar 2005 15:02:01 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Subject: Re: smartlink alsa modem problem in 2.6.11
+Cc: Michal Semler <cijoml@volny.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0503021358290.1745@pnote.perex-int.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050302032414.13604e41.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200503021354.38603.cijoml@volny.cz>
+	 <Pine.LNX.4.58.0503021358290.1745@pnote.perex-int.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 03:24:14AM -0800, Andrew Morton wrote:
-> Vincent Vanackere <vincent.vanackere@gmail.com> wrote:
+On Wed, 2 Mar 2005 14:01:41 +0100 (CET), Jaroslav Kysela <perex@suse.cz> wrote:
+> On Wed, 2 Mar 2005, Michal Semler wrote:
+> 
+> > Hi,
 > >
-> > I have the exact same problem. 
-> >  .config is attached
-> >  (this may be a debian specific problem as I'm running debian too)
+> > I tried use snd_intel8x0m  with smartlink modem, but without success:
 > 
-> OK, there are no vmlinux references to lib/parser.o's symbols.  So it isn't
-> getting linked in.
-
-That much I figured out after Vincent sent his bug report two weeks ago.
-
-> In lib/Makefile, remove parser.o from the lib-y: rule and add
+> > Mar  2 13:49:37 notas kernel: codec_semaphore: semaphore is not ready [0x1][0x701300]
+> > Mar  2 13:49:37 notas kernel: codec_write 1: semaphore is not ready for
 > 
-> obj-y	+= parser.o
+> It's known bug:
+> 
+> https://bugtrack.alsa-project.org/alsa-bug/view.php?id=890
+> 
+> Have you tried to load "snd-intel8x0m and snd-intel8x0" modules in
+> opposite order? Anyway, further discussion should go to this bug
+> report...
 
-This I didn't find.
+slmodemd over snd-intel8x0m worked for me last week on 2.6.11-rc4-bk10:
 
-Is it really the intention to silently omit objects that are not 
-referenced or could this be changed?
+Feb 24 23:19:07 incident chat[2554]: send (ATX3M0^M)
+Feb 24 23:19:07 incident chat[2554]: timeout set to 120 seconds
+Feb 24 23:19:07 incident chat[2554]: expect (OK)
+Feb 24 23:19:07 incident chat[2554]: ^M
+Feb 24 23:19:07 incident chat[2554]: ATX3M0^M^M
+Feb 24 23:19:07 incident chat[2554]: OK
+Feb 24 23:19:07 incident chat[2554]:  -- got it
+Feb 24 23:19:07 incident chat[2554]: send (ATDT0,,xxxxxx^M)
+Feb 24 23:19:07 incident chat[2554]: expect (CONNECT)
+Feb 24 23:19:07 incident chat[2554]: ^M
+Feb 24 23:19:07 incident chat[2554]: ATDT0,,xxxxxx^M^M
+Feb 24 23:19:07 incident kernel: ALSA sound/pci/intel8x0m.c:401:
+codec_semaphore: semaphore is not ready [0x1][0x301300]
+Feb 24 23:19:07 incident kernel: ALSA sound/pci/intel8x0m.c:415: codec_write 1:
+semaphore is not ready for register 0x54
+Feb 24 23:19:52 incident chat[2554]: CONNECT
+Feb 24 23:19:52 incident chat[2554]:  -- got it
+Feb 24 23:19:52 incident chat[2554]: send (^M)
+Feb 24 23:19:52 incident chat[2554]: expect (ogin:)
+Feb 24 23:19:52 incident chat[2554]:  28800^M
+Feb 24 23:19:58 incident chat[2554]: ^M
 
-Why doesn't an EXPORT_SYMBOL create a reference?
+[snipped rest of log]
 
-cu
-Adrian
+That is - I do get the codec_semaphore messages (though the error code
+ is slightly different), but the modem connection works fine.
 
--- 
+I have snd-intel8x0m modular while snd-intel8x0 is in-kernel.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--alessandro
 
+  "There is no distance that I don't see
+  I do have a will - No limit to my reach"
+  
+    (Wallflowers, "Empire In My Mind")

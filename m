@@ -1,40 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUJNPM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUJNPYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265697AbUJNPM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 11:12:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUJNPMz
+	id S266181AbUJNPYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 11:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUJNPYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 11:12:55 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:47135 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265697AbUJNPMy (ORCPT
+	Thu, 14 Oct 2004 11:24:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63695 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S266181AbUJNPYX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 11:12:54 -0400
-Message-ID: <81b0412b0410140812251110bb@mail.gmail.com>
-Date: Thu, 14 Oct 2004 17:12:54 +0200
-From: Alex Riesen <raa.lkml@gmail.com>
-Reply-To: Alex Riesen <raa.lkml@gmail.com>
-To: Johan Kullstam <kullstj-ml@comcast.net>
-Subject: Re: unkillable process
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87r7o1h4f3.fsf@sophia.axel.nom>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 14 Oct 2004 11:24:23 -0400
+Message-ID: <416E982D.4030909@osdl.org>
+Date: Thu, 14 Oct 2004 08:15:57 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Haroldo Gamal <haroldo.gamal@silexonline.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Submitting patches for unmaintained areas (Solaris x86 UFS bug)
+References: <c461c0d10410130406714fafe3@mail.gmail.com> <416D1D6F.4080508@silexonline.org> <416D442C.5070305@osdl.org> <416E600E.5010209@silexonline.org>
+In-Reply-To: <416E600E.5010209@silexonline.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <1097731227.2666.11264.camel@cube> <87r7o1h4f3.fsf@sophia.axel.nom>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Oct 2004 08:26:08 -0400, Johan Kullstam <kullstj-ml@comcast.net> wrote:
-> Albert Cahalan <albert@users.sf.net> writes:
+Haroldo Gamal wrote:
+> I have mailed Mr. Urban Widmark ans answered the appropriate bugzilla 
+> bug - https://bugzilla.samba.org/show_bug.cgi?id=999. No response until 
+> now.
 > 
-> > It's really bad when a task group leader exits.
-> > The process becomes unkillable.
-> 
-> I have been having zombie problems since 2.6.9-rc1.  I run a boinc
-> climateprediction program (related to seti@home) which leaves defunct
-> "cp" processes about.  Killing the climatepredictor (called
-> hadsm3um_4.03_i686-pc-linux-gnu) which spawns them causes these zombie
-> cp things to get reaped.
+> Maybe my patches do not apply for some reason, but I've got no response. 
+> I would like to get some feedback.
 
-I believe this is not related. Just a bug in the program missing
-SIGCHLD and not calling waitpid.
+Hm, if he is unresponsive, you can try any of (in no special order):
+
+a.  VFS maintainer (Al Viro)
+b.  2.6 maintainer (Andrew Morton)
+c.  linux-fsdevel@vger.kernel.org
+d.  samba@samba.org
+
+
+> Randy.Dunlap wrote:
+> 
+>> Haroldo Gamal wrote:
+>>
+>>> I've done have done the same with 
+>>> http://bugzilla.kernel.org/show_bug.cgi?id=3330 and I have the same 
+>>> question!
+>>>
+>>> Where do I go from now?
+>>
+>>
+>>
+>> Have you tried contacting the SMBfs maintainer?
+>> from the MAINTAINERS file:
+>>
+>> SMB FILESYSTEM
+>> P:    Urban Widmark
+>> M:    urban@teststation.com
+>> W:    http://samba.org/
+>> L:    samba@samba.org
+>> S:    Maintained
+
+
+-- 
+~Randy

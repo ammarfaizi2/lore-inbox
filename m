@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262887AbSJAVdL>; Tue, 1 Oct 2002 17:33:11 -0400
+	id <S262860AbSJAVTy>; Tue, 1 Oct 2002 17:19:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262889AbSJAVdL>; Tue, 1 Oct 2002 17:33:11 -0400
-Received: from jalon.able.es ([212.97.163.2]:50630 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262887AbSJAVdK>;
-	Tue, 1 Oct 2002 17:33:10 -0400
-Date: Tue, 1 Oct 2002 23:35:11 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Ian Molton <spyro@f2s.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UFS filesystem
-Message-ID: <20021001213511.GA3152@werewolf.able.es>
-References: <20020929231904.161b5a00.spyro@f2s.com> <20020930201520.5ab47124.spyro@f2s.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020930201520.5ab47124.spyro@f2s.com>; from spyro@f2s.com on Mon, Sep 30, 2002 at 21:15:20 +0200
-X-Mailer: Balsa 1.4.1
+	id <S262861AbSJAVTy>; Tue, 1 Oct 2002 17:19:54 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:38346 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262860AbSJAVTy>;
+	Tue, 1 Oct 2002 17:19:54 -0400
+Date: Tue, 1 Oct 2002 23:35:15 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+In-Reply-To: <m3bs6dn9x6.fsf@trained-monkey.org>
+Message-ID: <Pine.LNX.4.44.0210012332130.25070-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2002.09.30 Ian Molton wrote:
->On Sun, 29 Sep 2002 23:19:04 +0100
->Ian Molton <spyro@f2s.com> wrote:
->
->> Hi.
->> 
->> I'd like to use linux to create a UFS filesystem, but cant find the
->> utilities to go along with the kernel module.
->> 
->> Documentation/filesystems/ufs.txt doesnt have any clues.
->
->Anyone? I think I need 'newfs' but cant find it anywhere...
+On 1 Oct 2002, Jes Sorensen wrote:
 
-I think it is not ported to linux... or is it ?
+> The point here is that it probably makes the code easier for you to
+> read, but it makes it harder for a lot of other people since it's
+> inconsistent with the standard. [...]
 
-I have just found this, but is BSD-ish and does not build on Linux:
+i began the whole line of argument with this sentence:
 
-http://www.xinetd.org/pub/darwin/linux/newfs.ufs.tar.gz
+> *If* the consistent convention were to use the _t postfix for complex
+> 'derived' types, it would create more compact and more readable kernel
+> code.
 
-Will dig a little more...
+furthermore:
 
+> I agree that consistency is more important than having the absolute best
+> rules, [...]
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (dolphin) for i586
-Linux 2.4.20-pre8-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))
+so i think we are in violent agreement regarding consistency.
+
+	Ingo
+

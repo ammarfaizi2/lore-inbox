@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVBQNWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVBQNgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262150AbVBQNWP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 08:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVBQNWP
+	id S261790AbVBQNgE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 08:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVBQNgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 08:22:15 -0500
-Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:17830
-	"HELO mail.falke.at") by vger.kernel.org with SMTP id S262150AbVBQNWJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 08:22:09 -0500
-Message-ID: <42149A1D.4020901@winischhofer.net>
-Date: Thu, 17 Feb 2005 14:20:29 +0100
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050116 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
+	Thu, 17 Feb 2005 08:36:04 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:35210 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261790AbVBQNf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 08:35:58 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: -rc3 leaking NOT BIO [Was: Memory leak in 2.6.11-rc1?]
+Date: Thu, 17 Feb 2005 08:35:35 -0500
+User-Agent: KMail/1.7.92
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200502170348.j1H3mVpV008827@laptop11.inf.utfsm.cl>
+In-Reply-To: <200502170348.j1H3mVpV008827@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
-To: bruno.virlet@gmail.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: AMD 64 and Kernel AGPart support
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502170835.35623.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wednesday 16 February 2005 10:48 pm, Horst von Brand wrote:
+> Does x86_64 use up a (freeable) register for the frame pointer or not?
+> I.e., does -fomit-frame-pointer have any effect on the generated code?
 
+{Took Linus out of the loop as he probably isn't interested}
 
-I wondered about this a couple of minutes ago, too. I have a SiS760 and
-can't enable AGP support either.
+The generated code is different for both cases but for some reason gcc has 
+trouble with __builtin_return_address on x86-64.
 
-What host bridge does your system have? If it's anything but a 760, the
-agpgart code for sis needs to be patched by adding the proper PCI ID.
-(All this apart from the !X86_64 in the Kconfig file.)
+For e.g. specifying gcc -fo-f-p, a method produces following assembly.
 
-I am running 32bit only at the moment (waiting for a new harddisk to
-install, the 32bit system is only for some initial testing), but does
-AGP compile and initialize correctly if you remove the !X86_64 in
-drivers/char/agp/Kconfig at the AGP_SIS entry?
+method_1:
+.LFB2:
+        subq    $8, %rsp
+.LCFI0:
+        movl    $__FUNCTION__.0, %esi
+        movl    $.LC0, %edi
+        movl    $0, %eax
+        call    printf
+        movl    $0, %eax
+        addq    $8, %rsp
+        ret
 
-Thomas
+And with -fno-o-f-p,  the same method yields 
 
-- --
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net	       *** http://www.winischhofer.net
-twini AT xfree86 DOT org
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCFJodzydIRAktyUcRAoIlAJ9jHr0rvTzx4Ea5eLWZsmhj3h9iBgCgvt6r
-aSKGQteRZWegCJq3i3Lmf+c=
-=y/95
------END PGP SIGNATURE-----
+method_1:
+.LFB2:
+        pushq   %rbp
+.LCFI0:
+        movq    %rsp, %rbp
+.LCFI1:
+        movl    $__FUNCTION__.0, %esi
+        movl    $.LC0, %edi
+        movl    $0, %eax
+        call    printf
+        movl    $0, %eax
+        leave
+        ret

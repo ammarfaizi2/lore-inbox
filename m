@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292083AbSBOKbJ>; Fri, 15 Feb 2002 05:31:09 -0500
+	id <S289484AbSBOKbJ>; Fri, 15 Feb 2002 05:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292082AbSBOKbA>; Fri, 15 Feb 2002 05:31:00 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:27908 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S289484AbSBOKam>; Fri, 15 Feb 2002 05:30:42 -0500
-Message-Id: <200202151025.g1FAPAt26255@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: abhi@kernelnewbies.org
-Subject: Re: lk maintainers
-Date: Fri, 15 Feb 2002 12:25:12 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200202150943.g1F9hht26143@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200202150943.g1F9hht26143@Port.imtp.ilyichevsk.odessa.ua>
-Cc: Thomas Capricelli <tcaprice@logatique.fr>,
-        Hans-Joachim Baader <hjb@pro-linux.de>,
-        Jeremy Andrews <jeremy@kerneltrap.com>, linux-kernel@vger.kernel.org
+	id <S292083AbSBOKaw>; Fri, 15 Feb 2002 05:30:52 -0500
+Received: from vaak.stack.nl ([131.155.140.140]:29193 "HELO mailhost.stack.nl")
+	by vger.kernel.org with SMTP id <S292082AbSBOKae>;
+	Fri, 15 Feb 2002 05:30:34 -0500
+Date: Fri, 15 Feb 2002 11:30:32 +0100 (CET)
+From: Jos Hulzink <josh@stack.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: 2.5.5-pre1: mounting NTFS partitions -t VFAT
+Message-ID: <20020215112031.S68580-100000@toad.stack.nl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 February 2002 06:04, you wrote:
-> Hi,
-> 	It would be easier if u upload the file as and when it changes,
-> instead of a cron job. As I think it is going to be a pretty stable
-> list once it is complete. I'll mail u the URL where u can upload the
-> file as soon as I complete the setup.
+Hi,
 
-That is fine.
+Due to a recent change of filesystems, I found the following: 2.5.5-pre1
+mounts my NTFS (win2k) partition as VFAT partition, if told to do so. The
+kernel returns errors, but the mount is there. One write to the partition
+was enough to destroy the entire NTFS partition.
 
-Given unexpected amount of similar requests, I will set up a cron job which 
-will automatically check and upload new version of lk miantainers list to 
-anybody interested.
+Due to filesystem damage, I didn't test the behaviour of the VFAT driver
+on other filesystems yet.
 
-Just tell me how to upload the list to your site. Preferebly in a form:
+Kernel 2.4.17 also returns errors, but there the mount fails.
 
-------------
-Hi Denis,
-you may upload your list to my site as follows:
+Will try to debug the problem myself this afternoon. Sounds like the VFAT
+procedure ignores some errors.
 
-# <upload_tool> upload lk-maintainers.txt <address>...
-BTW, I tested <upload_tool> and it works (version x.y.z)
+Jos
 
-# wget lk-maintainers.txt <address>....
-works too, if you need it.
-------------
-
---
-vda

@@ -1,28 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272991AbRIWAe0>; Sat, 22 Sep 2001 20:34:26 -0400
+	id <S273028AbRIWAi4>; Sat, 22 Sep 2001 20:38:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273037AbRIWAeQ>; Sat, 22 Sep 2001 20:34:16 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:896 "EHLO
-	iccarus.tmr.com") by vger.kernel.org with ESMTP id <S272991AbRIWAeK>;
-	Sat, 22 Sep 2001 20:34:10 -0400
-Date: Sat, 22 Sep 2001 20:34:32 -0400 (EDT)
-From: Bill Davidsen <root@tmr.com>
-Reply-To: <davidsen@tmr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Sound modules not loaded in 2.4.9-ac14
-Message-ID: <Pine.LNX.4.33.0109222031230.969-100000@iccarus.tmr.com>
+	id <S273037AbRIWAir>; Sat, 22 Sep 2001 20:38:47 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:34952 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S273028AbRIWAid>;
+	Sat, 22 Sep 2001 20:38:33 -0400
+Message-ID: <3BAD2F22.6E151CBD@pobox.com>
+Date: Sat, 22 Sep 2001 17:38:58 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Robert Love <rml@tech9.net>
+Subject: Encouraging results from 2.4.10-pre14 + preempt
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I built 2.4.9-ac14 and on boot it did not load the sound modules listed in
-modules.conf. 2.4.7 does, I think 2.4.9-pre4 did as well, since I don't
-remember loading them by hand. So far stable operation, but I haven't
-really loaded it.
+I am very encouraged by the latest linus kernel, and
+thought I'd pass this along -
 
--- 
-Bill Davidsen, CTO TMR Associates, Inc
+Platform info -
+----------------
+PIII 933/Intel mobo
+512 MB RAM
+2 30 GB IDE disks
+Ensoniq ES1371 sound card
+Red Hat 7.1 + bits of rawhide
+kernel 2.4.10-pre14 + preempt patch
 
+The testing was done while running X windows (icewm), Netscape 4.78,
+iptraf, and misc other services (named, sendmail, apache, iptables
+firewalling etc.
+
+During the dbench runs mpg123 was playing mp3s -
+
+Highlights -
+------------
+ - There was absolutely no mp3 skipping during dbench 16 & 32.
+ - There was minor skipping during dbench 40, when load was near 40.
+ - Best of all, the desktop remained completely responsive the entire
+time.
+
+
+dbench summaries:
+---------------------------
+Throughput 49.6162 MB/sec (NB=62.0202 MB/sec  496.162 MBit/sec)  16
+procs
+Throughput 32.5531 MB/sec (NB=40.6913 MB/sec  325.531 MBit/sec)  32
+procs
+Throughput 24.8711 MB/sec (NB=31.0889 MB/sec  248.711 MBit/sec)  40
+procs
+
+
+Screenshot at http://mirai.cx/dbench40.png
 

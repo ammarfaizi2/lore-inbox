@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317194AbSIAP1U>; Sun, 1 Sep 2002 11:27:20 -0400
+	id <S317232AbSIAPao>; Sun, 1 Sep 2002 11:30:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317191AbSIAP1U>; Sun, 1 Sep 2002 11:27:20 -0400
-Received: from dsl-213-023-020-041.arcor-ip.net ([213.23.20.41]:54912 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317181AbSIAP1T>;
-	Sun, 1 Sep 2002 11:27:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: trond.myklebust@fys.uio.no, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Introduce BSD-style user credential [3/3]
-Date: Sun, 1 Sep 2002 17:23:57 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	id <S317215AbSIAPao>; Sun, 1 Sep 2002 11:30:44 -0400
+Received: from ppp-217-133-221-133.dialup.tiscali.it ([217.133.221.133]:3553
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S317191AbSIAPan>; Sun, 1 Sep 2002 11:30:43 -0400
+Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: trond.myklebust@fys.uio.no, Linus Torvalds <torvalds@transmeta.com>,
        Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Dave McCracken <dmccr@us.ibm.com>
-References: <15728.7151.27079.551845@charged.uio.no> <Pine.LNX.4.44.0208302110280.1524-100000@home.transmeta.com> <15728.61204.381468.238609@charged.uio.no>
-In-Reply-To: <15728.61204.381468.238609@charged.uio.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17lWZy-0004Zm-00@starship>
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E17lWRm-0004Zg-00@starship>
+References: <Pine.LNX.4.44.0208311235110.1255-100000@home.transmeta.com>
+	<15729.17279.474307.914587@charged.uio.no> <1030835635.1422.39.camel@ldb> 
+	<E17lWRm-0004Zg-00@starship>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-rz8wKHGlFpt16YJmBSDQ"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 01 Sep 2002 17:35:03 +0200
+Message-Id: <1030894503.2145.70.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 August 2002 18:30, Trond Myklebust wrote:
-> >>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
-> 
->      > One thing that may be interesting (I certainly think it migth
->      > be), would be to add a "struct user_struct *" pointer to the
->      > vfs_cred as well. This is because I'd just _love_ to have that
->      > "user_struct" fed down to the VFS layer, since I think that is
->      > where we may some day want to put things like user-supplied
->      > cryptographic keys etc.
-> 
->      > The advantage of "struct user_struct" (as opposed to just a
->      > uid_t) is that it can have information that lives for the whole
->      > duration of a login, and it's really the only kind of data
->      > structure in the kernel that can track that kind of
->      > information.
-> 
-> No problem at all with this. Indeed I agree it makes a lot of sense...
-> 
-> The only thing is if you'd allow me to do it as an incremental patch
-> to the initial one?
-> I don't see 'struct user_struct *' as replacing the existing 'uid'
-> entry, so there should be no need to change the existing API. Instead,
-> we can just add in the necessary call to alloc_uid() to
-> vfscred_create() and/or setfsuid()...
 
-I really do like Kai's name suggestion 'struct session'.
+--=-rz8wKHGlFpt16YJmBSDQ
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-Daniel
+> It is a serious concern.  Inventing new, subtle behavior differences 
+> between user and kernel threads is, in a word, gross.  It's certain
+> to bite people in the future.
+So you are suggesting that it's better to slow down *all* threads so
+that it's possible to have kernel threads with automatically shared
+credentials?
+BTW, signals and rescheduling (unless PREEMPT=y) don't work
+automatically for the same reason.
+
+
+--=-rz8wKHGlFpt16YJmBSDQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9cjOndjkty3ft5+cRAi3JAJ9GQDR3lbjfzeu3ZSqli2Oqz3plkwCffU3D
+PQRpE7GZGqRa/um3bjOtQy4=
+=K9QS
+-----END PGP SIGNATURE-----
+
+--=-rz8wKHGlFpt16YJmBSDQ--

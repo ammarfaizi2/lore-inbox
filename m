@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264255AbUEDHGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263605AbUEDHgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbUEDHGf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 03:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUEDHGf
+	id S263605AbUEDHgU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 03:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbUEDHgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 03:06:35 -0400
-Received: from ns.suse.de ([195.135.220.2]:26796 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264257AbUEDHGH (ORCPT
+	Tue, 4 May 2004 03:36:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54198 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263605AbUEDHgT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 03:06:07 -0400
-Date: Tue, 4 May 2004 09:06:06 +0200
-From: Olaf Hering <olh@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Fix booting some PPC32 machines
-Message-ID: <20040504070606.GA11701@suse.de>
-References: <20040503180945.GL26773@smtp.west.cox.net>
+	Tue, 4 May 2004 03:36:19 -0400
+Date: Tue, 4 May 2004 00:35:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: rusty@rustcorp.com.au, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix deadlock in __create_workqueue
+Message-Id: <20040504003548.75097bb6.akpm@osdl.org>
+In-Reply-To: <20040504065016.GA6911@in.ibm.com>
+References: <20040430113751.GA18296@in.ibm.com>
+	<20040430192712.2e085895.akpm@osdl.org>
+	<20040503122316.GA7143@in.ibm.com>
+	<20040503122520.1e02e861.akpm@osdl.org>
+	<20040504065016.GA6911@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040503180945.GL26773@smtp.west.cox.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, May 03, Tom Rini wrote:
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+>
+> On Mon, May 03, 2004 at 12:25:20PM -0700, Andrew Morton wrote:
+> > Well that create_workqueue_thread() will basically never fail - it's not a
+> > path we need to be optimising.
+> 
+> Even if thread creation normally never fails, we still check for its
+> return code and have some error recovery code! In that case, 
+> I dont understand the point behind continuing the loop once thread
+> destruction fails for some CPU. Lets say on a 128 CPU machine, if
+> thread creation fails for the 1st CPU (because of say ENOMEM?), then
+> why continue trying to create threads for the rest of 126 CPUs and
+> _then_ destroy? Why not just break at the first occurence of failure 
+> and cleanup then and there?
+> 
 
-> Hello.  The following patch fixes booting on some PPC32 machines with
-> OpenFirmware, when booted without the aid of an additional bootloader.
-> The problem is that the linker script for the 'zImage' type targets was
-> put into the list of dependancies which objcopy would parse as a list of
-> files to copy into the resulting image.  The fix is to make the phony
-> zImage targets depend on the linker script.
+Because there's less code to get wrong.
 
-This fixes netbooting on my B50. But it breaks the dependency to ld.script,
-which was the whole point of the previous patch.
-
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+In this situation, correctness, clarity and code size are the only things
+we care about.

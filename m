@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbULMASw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbULMATO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbULMASw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 19:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbULMASw
+	id S262179AbULMATO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 19:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbULMATN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 19:18:52 -0500
-Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:29836 "EHLO
-	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262177AbULMASg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 19:18:36 -0500
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041212234331.GO16322@dualathlon.random>
-Message-ID: <cone.1102897095.171542.10669.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Con Kolivas <kernel@kolivas.org>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: dynamic-hz
-Date: Mon, 13 Dec 2004 11:18:15 +1100
+	Sun, 12 Dec 2004 19:19:13 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:13279 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S262179AbULMAS6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 19:18:58 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: ngo Molnar <mingo@elte.hu>, Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+In-Reply-To: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
+References: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1102897004.31218.8.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 Dec 2004 16:16:47 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
-
-> On Mon, Dec 13, 2004 at 10:36:19AM +1100, Con Kolivas wrote:
->> The performance benefit, if any, is often lost in noise during 
->> benchmarks and when there, is less than 1%. So I was wondering if you 
->> had some specific advantage in mind for this patch? Is there some 
->> arch-specific advantage? I can certainly envision disadvantages to lower Hz.
+logOn Fri, 2004-12-10 at 09:49, Mark_H_Johnson@raytheon.com wrote:
+> >The -32-15 kernel can be downloaded from the
+> >usual place:
+> >
+> > http://redhat.com/~mingo/realtime-preempt/
 > 
-> My last number I've here is 1% for kernel compile. We're not talking
-> fancy desktop stuff here, we're talking about raw computing servers that
-> runs in userspace 99.9% of the time where the 1% loss is going to be
-> multiplied dozen or hundred of times. For those HZ=1000 is a pure
-> tangible disavantage.
-> 
-> For desktops 1% of cpu being lost is not an issue of course.
+> By the time I started today, the directory had -18 so that is what I built
+> with. Here are some initial results from running cpu_delay (the simple
+> RT test / user tracing) on a -18 PREEMPT_RT kernel. Have not started
+> any of the stress tests yet.
 
-Thanks. I have to admit that the real reason I wrote this email was for this 
-discussion to go on record so that desktop users would not get 
-inappropriately excited by this change.
+Something that just happened to me: running 0.7.32-14 (PREEMPT_DESKTOP)
+and trying to install 0.7.32-19 from a custom built rpm package
+completely hangs the machine (p4 laptop - I tried twice). No clues left
+behind. If I boot into 0.7.32-9 I can install 0.7.32-19 with no
+problems. 
 
-Cheers,
-Con
+-- Fernando
+
 

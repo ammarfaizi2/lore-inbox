@@ -1,80 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267590AbTGLE4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 00:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbTGLE4q
+	id S267614AbTGLFEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 01:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbTGLFEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 00:56:46 -0400
-Received: from h80ad26c8.async.vt.edu ([128.173.38.200]:38784 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267590AbTGLE4h (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 00:56:37 -0400
-Message-Id: <200307120511.h6C5BCSe017963@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-Cc: jcwren@jcwren.com, linux-kernel@vger.kernel.org
-Subject: Re: Bug in open() function (?) 
-In-Reply-To: Your message of "Fri, 11 Jul 2003 20:38:09 PDT."
-             <20030711203809.3c320823.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030712011716.GB4694@bouh.unh.edu> <16143.25800.785348.314274@cargo.ozlabs.ibm.com> <20030712024216.GA399@bouh.unh.edu> <200307112309.08542.jcwren@jcwren.com>
-            <20030711203809.3c320823.akpm@osdl.org>
+	Sat, 12 Jul 2003 01:04:09 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54456 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S267614AbTGLFEH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 01:04:07 -0400
+Date: Fri, 11 Jul 2003 22:09:05 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: James Morris <jmorris@intercode.com.au>
+Cc: jkenisto@us.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       akpm@osdl.org, jgarzik@pobox.com, alan@lxorguk.ukuu.org.uk,
+       rddunlap@osdl.org, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
+Message-Id: <20030711220905.2ea9ebc5.davem@redhat.com>
+In-Reply-To: <Mutt.LNX.4.44.0307120135120.21806-100000@excalibur.intercode.com.au>
+References: <3F0DB9A5.23723BE1@us.ibm.com>
+	<Mutt.LNX.4.44.0307120135120.21806-100000@excalibur.intercode.com.au>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1059107493P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sat, 12 Jul 2003 01:11:12 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1059107493P
-Content-Type: text/plain; charset=us-ascii
+On Sat, 12 Jul 2003 01:37:44 +1000 (EST)
+James Morris <jmorris@intercode.com.au> wrote:
 
-On Fri, 11 Jul 2003 20:38:09 PDT, Andrew Morton said:
-> "J.C. Wren" <jcwren@jcwren.com> wrote:
-> >
-> > I was playing around today and found that if an existing file is opened wit
-h 
-> >  O_TRUNC | O_RDONLY, the existing file is truncated.
+> On Thu, 10 Jul 2003, Jim Keniston wrote:
 > 
-> Well that's fairly idiotic, isn't it?
-
-Not idiotic at all, and even if it was, it's still contrary to specific
-language in the manpage.
-
-I could *easily* see some program having a line of code:
-
-	if (do_ro_testing) openflags |= O_RDONLY;
-
-I'd not be surprised if J.C. was playing around because a file unexpectedly
-shrank to zero size because of code like this.  There's a LOT of programs that
-implement some sort of "don't really do it" option, from "/bin/bash -n" to
-"cdrecord -dummy".  So you do something like the above to make your
-file R/O - and O_TRUNC *STILL* zaps the file, in *direct violation* of
-the language in the manpage.
-
-Whoops.  Ouch. Where's the backup tapes?
-
-> The Open Group go on to say "The result of using O_TRUNC with O_RDONLY is
-> undefined" which is also rather silly.
+> > That begs the question: do we trust that nobody but the kernel will send
+> > packets to a NETLINK_KERROR socket?  Ordinary users can't, but any root
+> > application can.  Without kerror_netlink_rcv(), such packets don't get
+> > dequeued.
 > 
-> I'd be inclined to leave it as-is, really.
+> Indeed, the kernel socket buffer fills up.
+> 
+> I think this needs to be addressed in the netlink code, per the patch 
+> below.
 
-I hate to think how many programmers are relying on the *documented* behavior to
-prevent data loss during debugging/test runs....
-
-/Valdis
-
---==_Exmh_1059107493P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/D5hvcC3lWbTT17ARAvh6AJwLQ+y9s28aiDECevt9dIj7Rg/+rwCgvD2u
-aOH5r9dx9Jx77yvEjQoJnYE=
-=LOWr
------END PGP SIGNATURE-----
-
---==_Exmh_1059107493P--
+Looks good, I'll apply this.

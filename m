@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319545AbSH3LO1>; Fri, 30 Aug 2002 07:14:27 -0400
+	id <S317182AbSH3LNm>; Fri, 30 Aug 2002 07:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319548AbSH3LO1>; Fri, 30 Aug 2002 07:14:27 -0400
-Received: from uni-sb.de ([134.96.252.33]:2526 "EHLO uni-sb.de")
-	by vger.kernel.org with ESMTP id <S319545AbSH3LO0>;
-	Fri, 30 Aug 2002 07:14:26 -0400
-Date: Fri, 30 Aug 2002 13:18:44 +0200
-Message-Id: <200208301118.g7UBIiMv002390@pixel.cs.uni-sb.de>
-From: Georg Demme <gdemme@graphics.cs.uni-sb.de>
-To: Alexander.Riesen@synopsys.com
-CC: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
-In-reply-to: <20020829172547.GE16092@riesen-pc.gr05.synopsys.com> (message
-	from Alex Riesen on Thu, 29 Aug 2002 19:25:47 +0200)
-Subject: Re: Server Hangups
-References: <200208281049.g7SAnFX7004638@pixel.cs.uni-sb.de> <20020828111240.GC16092@riesen-pc.gr05.synopsys.com> <200208281235.g7SCZZ9H001715@pixel.cs.uni-sb.de> <20020828124443.GD16092@riesen-pc.gr05.synopsys.com> <200208291459.g7TExsPT016952@pixel.cs.uni-sb.de> <20020829172547.GE16092@riesen-pc.gr05.synopsys.com>
+	id <S319545AbSH3LNm>; Fri, 30 Aug 2002 07:13:42 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:40174
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317182AbSH3LNl>; Fri, 30 Aug 2002 07:13:41 -0400
+Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <1030666256.1491.143.camel@ldb>
+References: <1030506106.1489.27.camel@ldb>  <20020828121129.A35@toy.ucw.cz>
+	<1030663192.1326.20.camel@irongate.swansea.linux.org.uk> 
+	<1030663772.1491.107.camel@ldb> 
+	<1030663955.1327.27.camel@irongate.swansea.linux.org.uk> 
+	<1030666256.1491.143.camel@ldb>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 30 Aug 2002 12:17:59 +0100
+Message-Id: <1030706279.3180.26.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 2002-08-30 at 01:10, Luca Barbieri wrote:
+> That wouldn't work for compiler-generated prefetches (unless you
+> preprocess the compiler output) and would enlarge the kernel.
+> However, it would be significantly cleaner.
 
-at last no hangups! Yesterday I switched to a normal IDE disk and a even
-more slim kernel (and some minor changes). Now it works. I will
-reinstall the old full featured kernel and see if it was him or the
-raid. 
+My general experience with compiler generated prefetches right now is
+pretty poor for kernel type code. Its hard to do it right in the
+compiler for complex stuff rather than 'fortran in C' type jobs
 
-I keep you informed.
+We certainly could perl the asm to drop in the right directives if it
+became an issue, but there are children on the list so lets worry about
+it if it becomes a problem
 
-Regards
-  Georg Demme
-
--- 
-______________________________________________________________
-sent by gdemme@cs.uni-sb.de                    - Georg Demme - 
-http://graphics.cs.uni-sb.de/~gdemme/    Tel: +49 681/302-3834
-Universität des Saarlandes       -      Gebäude 36.1, Raum E15

@@ -1,53 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265321AbSJSKCi>; Sat, 19 Oct 2002 06:02:38 -0400
+	id <S265580AbSJSKDD>; Sat, 19 Oct 2002 06:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265359AbSJSKCi>; Sat, 19 Oct 2002 06:02:38 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:47373 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S265321AbSJSKCg>; Sat, 19 Oct 2002 06:02:36 -0400
-Message-Id: <200210191003.g9JA36p15311@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Adam Kropelin <akropel1@rochester.rr.com>, jgarzik@pobox.com
-Subject: Re: [PATCH] 2.5: ewrk3 cli/sti removal by VDA
-Date: Sat, 19 Oct 2002 14:55:58 +0000
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
-       Andy Tai <lichengtai@yahoo.com>
-References: <20021019021340.GA8388@www.kroptech.com>
-In-Reply-To: <20021019021340.GA8388@www.kroptech.com>
+	id <S265581AbSJSKDD>; Sat, 19 Oct 2002 06:03:03 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:3736 "HELO mail.broadpark.no")
+	by vger.kernel.org with SMTP id <S265580AbSJSKDC>;
+	Sat, 19 Oct 2002 06:03:02 -0400
+Message-ID: <3DB12F8F.86C0B2E0@broadpark.no>
+Date: Sat, 19 Oct 2002 12:10:23 +0200
+From: Helge Hafting <helge.hafting@broadpark.no>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.5.7-dj2 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.44 compile failure, net/ipv4/raw.c
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 October 2002 02:13, Adam Kropelin wrote:
-> Below is a patch from Denis Vlasenko
-> <vda@port.imtp.ilyichevsk.odessa.ua> which removes cli/sti in the
-> ewrk3 driver. It tests out fine here with SMP & preempt.
-
-Thanks. SMP & preempt testing is most important.
-
-> Applies against 2.5.34 + ewrk3-ethtool patch. Also applies without
-> ethtool patch with some offsets.
->
-> (Denis, I took the liberty of forwarding this to Jeff since it works
-> fine for me and the driver is pretty much useless without it. Scream
-> if you don't want it applied...)
-
-No problem.
-
-I just want drivers to be _thoroughly_ tested while we fix them since
-a flaky driver can spoil all efforts spent on making bulletproof core
-kernel.
-
-What methods do folks use to break NIC drivers?
-It would be nice to have crash-my-nic toolset :-)
-
-BTW, I wanted to learn about pktgen, but there's no pktgen in 2.5
-(don't know why).
---
-vda
+  gcc -Wp,-MD,net/ipv4/.raw.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include   
+-DKBUILD_BASENAME=raw   -c -o net/ipv4/raw.o net/ipv4/raw.c
+net/ipv4/raw.c: In function `raw_send_hdrinc':
+net/ipv4/raw.c:297: `NF_IP_LOCAL_OUT' undeclared (first use in this
+function)
+net/ipv4/raw.c:297: (Each undeclared identifier is reported only once
+net/ipv4/raw.c:297: for each function it appears in.)

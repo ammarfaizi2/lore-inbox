@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267523AbUHPKvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUHPKv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267523AbUHPKvW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 06:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbUHPKvW
+	id S267526AbUHPKv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 06:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbUHPKv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 06:51:22 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:59815 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267535AbUHPKsd (ORCPT
+	Mon, 16 Aug 2004 06:51:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31177 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267519AbUHPKtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 06:48:33 -0400
-Date: Mon, 16 Aug 2004 12:48:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Scott Wood <scott@timesys.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
-Message-ID: <20040816104811.GA24747@elte.hu>
-References: <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <1091141622.30033.3.camel@mindpipe> <20040730064431.GA17777@elte.hu> <1091228074.805.6.camel@mindpipe> <s5hfz75sh30.wl@alsa2.suse.de> <1091847265.949.8.camel@mindpipe> <s5h8ycfbc5c.wl@alsa2.suse.de> <1092652981.13981.11.camel@krustophenia.net>
+	Mon, 16 Aug 2004 06:49:13 -0400
+Date: Mon, 16 Aug 2004 12:48:10 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Keith Whitwell <keith@tungstengraphics.com>,
+       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: DRM and 2.4 ...
+Message-ID: <20040816104810.GA13029@devserv.devel.redhat.com>
+References: <Pine.LNX.4.58.0408160652350.9944@skynet> <1092640312.2791.6.camel@laptop.fenrus.com> <412081C6.20601@tungstengraphics.com> <20040816094622.GA31696@devserv.devel.redhat.com> <412088A5.6010106@tungstengraphics.com> <20040816101426.GB31696@devserv.devel.redhat.com> <Pine.LNX.4.58.0408161137330.21177@skynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
 Content-Disposition: inline
-In-Reply-To: <1092652981.13981.11.camel@krustophenia.net>
+In-Reply-To: <Pine.LNX.4.58.0408161137330.21177@skynet>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > No, this is not.  It should be a real XRUN, I believe.
+On Mon, Aug 16, 2004 at 11:42:00AM +0100, Dave Airlie wrote:
 > 
-> This one has still defied explanation.  The working theory was that it
-> was the same bug causing an xrun if an unrelated process called
-> mlockall, but now that bug has been fixed, and this xrun at startup
-> still happens.
+> >
+> > DRM_IOCTL_ARGS, DRM_ERR, DRM_CURRENTPID, DRM_UDELAY, DRM_READMEMORYBARRIER,
+> > DRM_COPY_FROM_USER_IOCTL etc etc existed prior to freebsd support? Oh my
+> > god...
+> 
+> I'm currently open for constructive critics with ideas on how to fix these
+> things, the DRM is open for business if we can fix things up now it will
+> be a lot easier while I'm knee deep with time than after I'm finished and
+> back travelling .. should we have try to implement Linux fns in BSD, what
+> do we do if more parameters/info are needed from a BSD side, or do we try
+> and sideline all these into a separate library of functions and wrap them
+> on both bsd and linux?
 
-does the first xrun happen right during startup, or only when the first
-jack application uses jackd to do audio?
+it's a bit of all of this.
+If BSD doesn't have a conflicting udelay(), why not just implement one
+there instead of a superfluous rename.
+DRM_ERR() otoh should have been dealt with by making a core function for the
+ioctl with only the really needed/used arguments (probably even such that
+the arguments are already copied from userspace) and then a linux and a bsd
+specific API wrapper. The BSD one can then easily flip the sign (that's
+basically free), it also takes case of DRM_IOCTL_ARGS mess as well and
+DRM_COPY_FROM_USER_IOCTL if you do it right.
+DRM_CURRENTPID probably shouldn't exist at all, drivers shouldn't use pid's
+in general.
 
-if the former then does jackd set itself up (does an mlockall, etc.) 
-before it opens the audio device? If the audio device has an event for
-jackd the moment the device is opened, and jackd opens the audio device
-early during startup, then jackd might not be able to process this event
-until it has started up (which can take milliseconds).
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-	Ingo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBIJDqxULwo51rQBIRAijyAJ45UJgwqcPm1UjLXKGnS+rMgNFcdACcC7v1
+y9m6aMhuO20MrAWqGBh2+k0=
+=Zf/j
+-----END PGP SIGNATURE-----
+
+--KsGdsel6WgEHnImy--

@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUI0PVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUI0PWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUI0PVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 11:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUI0PVH
+	id S266459AbUI0PWy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 11:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUI0PWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 11:21:07 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:56772 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S266362AbUI0PVA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 11:21:00 -0400
-Date: Mon, 27 Sep 2004 11:19:48 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Message-ID: <20040927151948.GK28317@certainkey.com>
-References: <20040923234340.GF28317@certainkey.com> <20040927045828.GA13887@thunk.org> <20040927133203.GF28317@certainkey.com> <20040927145555.GB15589@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040927145555.GB15589@thunk.org>
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 27 Sep 2004 11:22:54 -0400
+Received: from smtp.jaluna.com ([212.11.48.245]:20751 "EHLO smtp.Jaluna.COM")
+	by vger.kernel.org with ESMTP id S266459AbUI0PVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 11:21:40 -0400
+Message-ID: <41583036.9010907@jaluna.com>
+Date: Mon, 27 Sep 2004 17:22:30 +0200
+From: Vladimir Grouzdev <vladimir.grouzdev@Jaluna.COM>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: johnstul@us.ibm.com
+Subject: 2.6.8.1: xtime value may become incorrect
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.
 
-My re-writing wilol appear as more like an editorial revision than a
-re-write.
+    The xtime value may become incorrect when the
+    update_wall_time(ticks) function is called with "ticks" > 1.
+    In such a case, the xtime variable is updated multiple times
+    inside the loop but it is normalized only once outside of
+    the loop.
 
-I will certainly talk to Jamal et al.  Thanks
+    This bug was reported at:
 
-JLC
+    http://bugme.osdl.org/show_bug.cgi?id=3403
 
-On Mon, Sep 27, 2004 at 10:55:55AM -0400, Theodore Ts'o wrote:
-> On Mon, Sep 27, 2004 at 09:32:03AM -0400, Jean-Luc Cooke wrote:
-> > 
-> > I'll read over this once I finish re-writing my patch to use your entropy
-> > estimation.
-> 
-> While you're at it, please re-read RFC 793 and RFC 1185.  You still
-> don't have TCP sequence generation done right.  The global counter
-> is being increased for every TCP connection, and with only eight bits,
-> it can wrap very frequently.  Encrypting the source/destination
-> address/port tuple and using that as an offset to the global clock,
-> and then only bumping the counter when you rekey would be much more in
-> the spirit of RFC 1185, and would result in sequence numbers much less
-> likely to cause stale packets to get mistakenly accepted.
-> 
-> I'm still a bit concerned about whether doing AES is going to be a
-> speed issue.  Your comparisons against MD4 using openssl don't really
-> prove much, because (a) the original code used a cut-down MD4, and (b)
-> the openssl benchmark does a large number of encryptions and nothing
-> else, so all of the AES key schedule and tables will be in cache. 
-> 
-> The only real way to settle this would be to ask Jamal and some of the
-> other networking hackers to repeat their benchmarks and see if the AES
-> encryption for every TCP SYN is a problem or not.  CPU's have gotten
-> faster (but then again so have networks, and memory has *not* gotten
-> much faster), so only a real benchmark will tell us for sure.
-> 
-> 					- Ted
+    Patch to fix the problem:
+
+diff -Nrca linux-2.6.8.1/kernel/timer.c linux-2.6.8.1-patched/kernel/timer.c
+*** linux-2.6.8.1/kernel/timer.c    2004-08-14 12:56:00.000000000 +0200
+--- linux-2.6.8.1-patched/kernel/timer.c    2004-09-27 
+16:24:48.000000000 +0200
+***************
+*** 776,788 ****
+      do {
+          ticks--;
+          update_wall_time_one_tick();
+      } while (ticks);
+-
+-     if (xtime.tv_nsec >= 1000000000) {
+-         xtime.tv_nsec -= 1000000000;
+-         xtime.tv_sec++;
+-         second_overflow();
+-     }
+  }
+ 
+  static inline void do_process_times(struct task_struct *p,
+--- 776,787 ----
+      do {
+          ticks--;
+          update_wall_time_one_tick();
++         if (xtime.tv_nsec >= 1000000000) {
++             xtime.tv_nsec -= 1000000000;
++             xtime.tv_sec++;
++             second_overflow();
++         }
+      } while (ticks);
+  }
+ 
+  static inline void do_process_times(struct task_struct *p,
+
+

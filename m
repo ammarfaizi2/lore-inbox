@@ -1,72 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279088AbRJVXfb>; Mon, 22 Oct 2001 19:35:31 -0400
+	id <S279097AbRJVXhN>; Mon, 22 Oct 2001 19:37:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279094AbRJVXfW>; Mon, 22 Oct 2001 19:35:22 -0400
-Received: from adsl-64-161-26-50.dsl.sntc01.pacbell.net ([64.161.26.50]:61874
-	"EHLO linux700") by vger.kernel.org with ESMTP id <S279088AbRJVXfJ>;
-	Mon, 22 Oct 2001 19:35:09 -0400
-Date: Mon, 22 Oct 2001 16:35:36 -0700
-From: Craig Dickson <crdic@yahoo.com>
-To: linux-kernel@vger.kernel.org
+	id <S279096AbRJVXhC>; Mon, 22 Oct 2001 19:37:02 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:35254 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S279103AbRJVXgo>; Mon, 22 Oct 2001 19:36:44 -0400
+Message-ID: <3BD4ADD8.5F47EC2@idcomm.com>
+Date: Mon, 22 Oct 2001 17:38:00 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011022163536.B19715@crdic.ath.cx>
-Mime-Version: 1.0
+In-Reply-To: <E15veCh-0001nf-00@the-village.bc.nu> <3BD4A602.5050605@blue-labs.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There have been a lot of messages from a number of different people
-about this "censored changelogs" issue. Rather than reply to various
-points separately, I just want to sum up my views in one message.
+David Ford wrote:
+> 
+> I assume since you are using Sklyarov as an example that you fully
+> intend to prevent Linus from getting such information as well?
+> 
+> This reaction is ludicrous.
+> 
+> Instead of helping US people, now the US people are fighting both US
+> politicians and their own camp of code developers.
 
-I simply don't believe that Alan Cox is at any risk of prosecution, and
-what's more, I don't believe that he believes it. He's just making a
-dramatic political statement that will have no effect on the law, will
-never even be noticed by American legislators, and serves only to annoy
-US-based Linux users.
+And there is the real danger of terrorism. Someone once wrote a book
+(called "The Art of War") that describes it. It's the realm of "divide
+and conquer". It brings a lot of people together to finally agree on
+things when they wouldn't even talk to each other. But it also brings
+together the "bad" things. These laws are dangerous because they add to
+the terrorist concept of divide and conquer, only now we're sponsoring
+it against ourselves, and companies like Disney and much of the
+entertainment industry finds it profitable to join the momentum, it's
+profitable for them.
 
-The words "Felten" and "Sklyarov" keep coming up in this discussion. The
-parallel between Alan Cox's situation and those cases are simply not
-valid.
+D. Stimits, stimits@idcomm.com
 
-Felten conducted research on how to break DRM systems that were being
-considered for commercial use (the proposed SDMI standards).
-
-Sklyarov developed (or helped develop) a product that breaks Adobe's
-commercial DRM scheme for PDF files.
-
-Note that both Felten and Skyarov developed and publicized (or announced
-an intent to publicize, in Felten's case) ways of compromising
-commercial, third-party DRM systems, thus embarrassing and antagonizing
-the wealthy corporations that had invested time, money, and prestige in
-those DRM systems. This has no real similarity with Alan Cox's kernel
-work. All Alan is doing is fixing bugs in a system that he has every
-right to work on, and has a long history of contributing to. He is _not_
-reverse-engineering someone else's copyright-protection scheme and
-publicizing how to circumvent it. And anyone who's ever actually _read_
-his changelogs should know that they do not in any way amount to attack
-recipes.
-
-What's more, nobody sued or prosecuted Felten. The RIAA made threatening
-noises, but backed off the instant they were called on it, insisting
-that they had never had any intention of suing anybody, and they fully
-supported Felten's rights as an academic researcher, blah blah blah.
-(No, I don't really believe them, but the fact is, ultimately, they
-didn't sue.) Felten elected not to present his paper mostly because it
-gave him and the EFF a stronger case for his suit against the RIAA; he
-couldn't very well present the paper and then sue them for preventing
-him from doing so, and he obviously wants to be the Constitutional test
-case or he wouldn't have bothered suing them at all after they publicly
-backed down.
-
-Alan Cox claims to have legal advice, but has said nothing about who
-gave it to him, or what their qualifications are regarding US copyright
-law and the DMCA, or even exactly what their reasoning was; all we know
-is that the end result is that he's decided not to distribute complete
-changelogs. I find it hard to take this sort of nebulous claim of "legal
-advice" seriously when the advice seems nonsensical on its face.
-
-Craig
+> 
+> David
+> 
+> Alan Cox wrote:
+> 
+> >>Putting pressure on US people to have them influence their
+> >>legislation? Aka. every people have the rulers they deserve? Won't work
+> >>out.
+> >>
+> >
+> >   "Until they become conscious they will never rebel, and until after
+> >    they have rebelled they cannot become conscious."
+> >
+> >>Seriously, are you kidding?
+> >>
+> >
+> >The current interpretation of the DMCA is as lunatic as it sounds. With luck
+> >the Sklyarov case will see that overturned on constitutional grounds. Until
+> >then US citizens will have to guess about security issues.
+> >
+> >Alan
+> >
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

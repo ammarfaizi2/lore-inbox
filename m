@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUGNJiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267342AbUGNJjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267341AbUGNJiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 05:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267342AbUGNJiZ
+	id S267342AbUGNJjP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 05:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUGNJjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 05:38:25 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52228 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267341AbUGNJiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 05:38:11 -0400
-Subject: Re: Can't compile sg.c 2.6.8-rc1-mm1
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <30a4d01b04071401457267defa@mail.gmail.com>
-References: <30a4d01b04071401457267defa@mail.gmail.com>
-Content-Type: multipart/mixed; boundary="=-o4iXvaMgTjppUxIgFy7e"
-Date: Wed, 14 Jul 2004 11:37:34 +0200
-Message-Id: <1089797854.1740.2.camel@teapot.felipe-alfaro.com>
+	Wed, 14 Jul 2004 05:39:15 -0400
+Received: from [211.152.157.138] ([211.152.157.138]:59063 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S267342AbUGNJjJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 05:39:09 -0400
+Date: Wed, 14 Jul 2004 17:29:57 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, bcollins@debian.org
+Subject: Re: [PATCH] fix rmmod sbp2 hang in 2.6.7
+Message-Id: <20040714172957.52de0f9b@localhost>
+In-Reply-To: <20040714102417.A12942@flint.arm.linux.org.uk>
+References: <20040714114854.29d4e015@localhost>
+	<20040714161357.426b5c08@localhost>
+	<20040714171107.49aa64f7@localhost>
+	<20040714102417.A12942@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Virus-Checked: Checked
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 14 Jul 2004 10:24:17 +0100
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
---=-o4iXvaMgTjppUxIgFy7e
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+| This down+up prevents drivers from being unloaded until there are no
+| references to their struct device_driver.  By removing this, you open
+| the very real possibility for an oops to occur.
+Yes, I agree with you. When sbp2 is using the module count is not zero, 
+so I can rmmod it, So I think, for sbp2 that's safe, That's true on my laptop.
 
-On Wed, 2004-07-14 at 11:45 +0300, Genady Okrain wrote:
-> I am using gcc-3.4.1
-> 
->   CC [M]  drivers/scsi/sg.o
-> drivers/scsi/sg.c: In function `sg_ioctl':
-> drivers/scsi/sg.c:209: sorry, unimplemented: inlining failed in call
-> to 'sg_jif_to_ms': function body not available
-> drivers/scsi/sg.c:930: sorry, unimplemented: called from here
-> make[2]: *** [drivers/scsi/sg.o] Error 1
-> make[1]: *** [drivers/scsi] Error 2
-> make: *** [drivers] Error 2
-> 
+| 
+| If you're waiting inside that function for the last reference to be
+| dropped, the real question is why you still have references to it.
+There are tree places that reference ->unload_sem in linux kernel tree, but I
+don't known, why the same code in 2.6.4 can works fine. :)
 
-Also, the following patch is needed for "make menuconfig" to work with
-GCC 3.5.
+bus.c:68:       up(&drv->unload_sem);
+driver.c:110:   down(&drv->unload_sem);
+driver.c:111:   up(&drv->unload_sem);
 
---=-o4iXvaMgTjppUxIgFy7e
-Content-Disposition: attachment; filename=gcc-35-fix-mconf.c.patch
-Content-Type: text/x-patch; name=gcc-35-fix-mconf.c.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -uNr linux-2.6.7-mm7/scripts/kconfig/mconf.c linux-2.6.7-mm7-gcc35/scripts/kconfig/mconf.c
---- linux-2.6.7-mm7/scripts/kconfig/mconf.c	2004-06-16 07:19:02.000000000 +0200
-+++ linux-2.6.7-mm7-gcc35/scripts/kconfig/mconf.c	2004-07-09 10:10:07.000000000 +0200
-@@ -88,7 +88,7 @@
- static int indent;
- static struct termios ios_org;
- static int rows, cols;
--static struct menu *current_menu;
-+struct menu *current_menu;
- static int child_count;
- static int do_resize;
- static int single_menu_mode;
-
---=-o4iXvaMgTjppUxIgFy7e--
-
+-- 
+Hu Gang / Steve
+Linux Registered User 204016
+GPG Public Key: http://soulinfo.com/~hugang/hugang.asc

@@ -1,87 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265756AbUFDMDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265750AbUFDMEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbUFDMDA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 08:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265749AbUFDMDA
+	id S265750AbUFDMEp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 08:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265749AbUFDMEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 08:03:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10933 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265756AbUFDMBs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 08:01:48 -0400
-Date: Fri, 4 Jun 2004 14:01:41 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-ID: <20040604120140.GX1946@suse.de>
-References: <1085689455.7831.8.camel@localhost> <200406040722.14026.edt@aei.ca> <20040604113226.GU1946@suse.de> <200406041357.58813.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406041357.58813.bzolnier@elka.pw.edu.pl>
+	Fri, 4 Jun 2004 08:04:44 -0400
+Received: from sendar.prophecy.lu ([213.166.63.242]:16530 "EHLO
+	sendar.prophecy.lu") by vger.kernel.org with ESMTP id S265755AbUFDMEi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 08:04:38 -0400
+Message-ID: <40C06549.2030200@linux.lu>
+Date: Fri, 04 Jun 2004 14:04:25 +0200
+From: Thierry Coutelier <Thierry.Coutelier@linux.lu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en, fr-lu, de-lu
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Freeze with 2.4.x
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Propehcy.lu-MailScanner-Information: Please contact the ISP for more information
+X-Propehcy.lu-MailScanner: Found to be clean
+X-Propehcy.lu-MailScanner-SpamCheck: not spam, SpamAssassin (score=0,
+	required 5)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Friday 04 of June 2004 13:32, Jens Axboe wrote:
-> > On Fri, Jun 04 2004, Ed Tomlinson wrote:
-> > > On June 4, 2004 05:42 am, Jens Axboe wrote:
-> > > > On Thu, Jun 03 2004, Andrew Morton wrote:
-> > > > > Ed Tomlinson <edt@aei.ca> wrote:
-> > > > > > Hi,
-> > > > > >
-> > > > > > I am still getting these ide errors with 7-rc2-mm2.  I  get the
-> > > > > > errors even if I mount with barrier=0 (or just defaults).  It would
-> > > > > > seem that something is sending my drive commands it does not
-> > > > > > understand...
-> > > > > >
-> > > > > > May 27 18:18:05 bert kernel: hda: drive_cmd: status=0x51 {
-> > > > > > DriveReady SeekComplete Error } May 27 18:18:05 bert kernel: hda:
-> > > > > > drive_cmd: error=0x04 { DriveStatusError }
-> > > > > >
-> > > > > > How can we find out what is wrong?
-> > > > > >
-> > > > > > This does not seem to be an error that corrupts the fs, it just
-> > > > > > slows things down when it hits a group of these.  Note that they
-> > > > > > keep poping up - they do stop (I still get them hours after
-> > > > > > booting).
-> > > > >
-> > > > > Jens, do we still have the command bytes available when this error
-> > > > > hits?
-> > > >
-> > > > It's not trivial, here's a hack that should dump the offending opcode
-> > > > though.
-> > >
-> > > Hi Jens,
-> > >
-> > > I applied the patch below and booted into the new kernel (the boot
-> > > message showed the new compile time).  The error messages remained the
-> > > same - no extra info.  Is there another place that prints this (or
-> > > (!rq) is true)?
-> >
-> > !rq should not be true, strange... are you sure it just doesn't to go
-> > /var/log/messages, it should be there in dmesg. Alternatively, add a
-> > KERN_ERR to that printk.
-> 
-> Probably !rq is true.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Don't think so, see my other mail. It's the crap duplicate dump_status()
-functions.
+Greeting,
 
-> Hint: this is what you get for playing tricks with hwrgroup->wrq
-> (do you now understand why it is evil?).
+We are using Linux boxes to offer Satellite Internet. We still use RedHat 7.[23]
+The system works using rp-l2tp and/or pptpd with pppd. On the outgoing interface (the
+one that sends traffic to the Satellite we were using CBQ and now we use HTB queuing
+discipline.
 
-Oh give it up, the code is complete crap in so many places as it is.
-->rq would just point to &wrq instead. Testament to how hard it is just
-to provide a dump opcode (and that you missed it to) is how convoluted
-it is. And almost a handful of different command types, with as many
-ways to submit it.
+The kernels range from 2.4.6 to 2.4.25 with some modifications (tcp_input). We tried
+with the standard kernel with the only change that the dev_alloc_name has been
+changed to support up to 900 names.
 
-This is not blaming you btw, just the code. You've done some nice
-cleanups. The main culprit is no longer active :)
+Every few weeks (sometimes 2 days, often 3 weeks and sometime up to 9 weeks) the
+kernel freezes: nothing on screen or serial console except from some VJ decompression
+errors which we have at all times, even the Num-Lock does not respond.
+We tried to enable sysreq keys but those won't work either.
 
--- 
-Jens Axboe
+2 days ago we were able to catch the following message (12 hours before a freeze) :
+HTB: dequeue bug (8,12140714,12140714), report it please !
 
+
+The Hardware are Dell PowerEdge with Perc2 or Perc3. We tried with HP servers and
+have the same problem. We tried different firmware releases for the Perc cards and
+still no change.
+
+The NIC cards are mostly Intel EEpro 100. We tried with both drivers Intel and
+community with no better results.
+
+The problem may be happening more often (every 2/3 days) when we simulate a lot of
+ppp connections/disconnections (80 users/minute), but in some cases it hangs even
+without having many users.
+
+The platform we run have between 25 to 200 simultaneous connections. Some have single
+or dual or even quad CPU's. And RAM between 512Mbytes and 4 Gbytes.
+
+We could not detect any parameters that would rise before the freeze (load, memory,
+swap ...)
+
+Could anyone give me some hint as to what to do/test more ?
+Where could the problem be ?
+
+
+Thanks.
+
+- --
+Thierry Coutelier
+No Patents on Software: http://www.linux.lu/epatent
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFAwGVJPOfrcNNQX7oRAm9tAKCKXcW/htHDLJgjLKCIjPJbEK4yNwCguJe2
+auyEN1rBK7DZNgZ3iSkD524=
+=oveM
+-----END PGP SIGNATURE-----

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292466AbSBUPlo>; Thu, 21 Feb 2002 10:41:44 -0500
+	id <S292464AbSBUPmP>; Thu, 21 Feb 2002 10:42:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292465AbSBUPlf>; Thu, 21 Feb 2002 10:41:35 -0500
-Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:26633 "HELO
-	fancypants.trellisinc.com") by vger.kernel.org with SMTP
-	id <S292464AbSBUPl1>; Thu, 21 Feb 2002 10:41:27 -0500
-Date: Thu, 21 Feb 2002 10:41:23 -0500
-From: Jason Lunz <j@trellisinc.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux kernel config converter
-Message-ID: <20020221154123.GA6543@trellisinc.com>
-In-Reply-To: <Pine.LNX.4.44.0202210636020.8696-100000@dlang.diginsite.com> <3C750CCF.989B1FDD@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S292465AbSBUPlz>; Thu, 21 Feb 2002 10:41:55 -0500
+Received: from [66.150.46.254] ([66.150.46.254]:14120 "EHLO mail.tvol.net")
+	by vger.kernel.org with ESMTP id <S292464AbSBUPln>;
+	Thu, 21 Feb 2002 10:41:43 -0500
+Message-ID: <3C751531.AFFA30B1@wgate.com>
+Date: Thu, 21 Feb 2002 10:41:37 -0500
+From: Michael Sinz <msinz@wgate.com>
+Organization: WorldGate Communications Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; FreeBSD 4.5-STABLE i386)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] kernel 2.5.5 - coredump sysctl
+In-Reply-To: <200202211512.g1LFC8Y27614@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C750CCF.989B1FDD@mandrakesoft.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> David Lang wrote:
->> I'll argue that _not_ doing this violated the principle of lease surprise,
->> if you turn a feature on and immediatly back off why should anything in
->> your config be any different then it was before you turned it on?
+Alan Cox wrote:
 > 
-> Imagine this case:
+> Would it be cleaner to use snprintf here ? Each of those checks you do
+> appears to come down to
 > 
-> make xconfig # select CONFIG_USB_HID, which auto-selects CONFIG_INPUT
-> { time passes }
-> make xconfig # de-select CONFIG_USB_HID
-> 
-> On the second 'make xconfig', should CONFIG_INPUT be automatically
-> de-selected?  No.  Because that is making the assumption that the person
-> does not want to continue to make the input API available.
+>         buf+=snprintf(buf, sizeof(buffer)+buffer-buf, "%foo", arg)
 
-It depends. When CONFIG_USB_HID auto-selected CONFIG_INPUT, did the user
-know about it? Or did it just happen automagically behind the scenes? If
-it was turned on silently, and the subsequent de-select of
-CONFIG_USB_HID silently left CONFIG_INPUT turned on, I'd say that
-violates least-surprise.
+	buf+=snprintf(buf, MAX_CORE_NAME - buf, "%foo", arg)
 
-On the other hand, if turning on CONFIG_USB_HID then prompts "to do
-that, I also have to turn on CONFIG_INPUT", i suppose it's ok to leave
-CONFIG_INPUT turned on later.
+Hmm.... I was trying to keep things clear but if snprintf() is what
+is prefered, it could be done so.  Most of the items here are just
+string copies anyway, so the loop is trivial (and snprintf is
+much higher overhead) 
+
+snprintf is a bit more annoying due to the fact that snprintf returns
+the number of bytes that *would have been written* and not the number
+of bytes actually written if the limit is reached.  (Or, in older C
+libraries, it returns -1 if the limit is hit)
+
+(Don't complain to me that snprintf() is like that, it is C99 standard.
+Older glibc have the -1 return code, which is also not really want
+you want.)
+
+BTW - I would really like to see this in the 2.4 kernels too - our
+clusters really could use it (and do use it since I build the kernel
+we use).
 
 -- 
-Jason Lunz		Trellis Network Security
-j@trellisinc.com	http://www.trellisinc.com/
+Michael Sinz -- msinz@wgate.com -- http://www.sinz.org
+A master's secrets are only as good as
+        the master's ability to explain them to others.

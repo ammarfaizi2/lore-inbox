@@ -1,30 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVBCD6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVBCEGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbVBCD6l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 22:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVBCD4x
+	id S262732AbVBCEGN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 23:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbVBCEGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 22:56:53 -0500
-Received: from quechua.inka.de ([193.197.184.2]:5787 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S262649AbVBCD42 (ORCPT
+	Wed, 2 Feb 2005 23:06:13 -0500
+Received: from waste.org ([216.27.176.166]:20187 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262732AbVBCEGF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 22:56:28 -0500
-From: Bernd Eckenfels <ecki-news2005-01@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Drive performance bottleneck
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CwY6U-0003p6-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Thu, 03 Feb 2005 04:56:26 +0100
+	Wed, 2 Feb 2005 23:06:05 -0500
+Date: Wed, 2 Feb 2005 20:05:42 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Clemens Fruhwirth <clemens@endorphin.org>, dm-crypt@saout.de,
+       Alasdair G Kergon <agk@redhat.com>
+Subject: Re: dm-crypt crypt_status reports key?
+Message-ID: <20050203040542.GQ2493@waste.org>
+References: <20050202211916.GJ2493@waste.org> <1107394381.10497.16.camel@server.cs.pocnet.net> <20050203015236.GO2493@waste.org> <1107398069.11826.16.camel@server.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1107398069.11826.16.camel@server.cs.pocnet.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com> you wrote:
->  Below is an oprofile (truncated) of (the same) dd running on /dev/sdb.
+On Thu, Feb 03, 2005 at 03:34:29AM +0100, Christophe Saout wrote:
+> The keyring API seems very flexible. You can define your own type of
+> keys and give them names. Well, the name is probably irrelevant here and
+> should be chosen randomly but it's less likely to collide with someone
+> else.
+ 
+Dunno here, seems that having one tool that gave the kernel a key named
+"foo" and then telling dm-crypt to use key "foo" is probably not a bad
+way to go. Then we don't have stuff like "echo <key> | dmsetup create"
+and the like and the key-handling smarts can all be put in one
+separate place.
 
-do  you also have the oprofile of the sg_dd handy?
+Getting from here to there might be interesting though. Perhaps we can
+teach dm-crypt to understand keys of the form "keyname:<foo>"? in
+addition to raw keys to keep compatibility. Might even be possible to
+push this down into crypt_decode_key() (or a smarter variant of same).
 
-Greetings
-Bernd
+Meanwhile, I'd still like to hide the raw key in crypt_status().
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSHQLPk>; Sat, 17 Aug 2002 07:15:40 -0400
+	id <S317673AbSHQLjm>; Sat, 17 Aug 2002 07:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317673AbSHQLPk>; Sat, 17 Aug 2002 07:15:40 -0400
-Received: from port-212-202-184-36.reverse.qdsl-home.de ([212.202.184.36]:37393
-	"EHLO intra.cycdolphin.net") by vger.kernel.org with ESMTP
-	id <S317482AbSHQLPj>; Sat, 17 Aug 2002 07:15:39 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc Schoenborn <schoenborn@cycdolphin.net>
-To: linux-kernel@vger.kernel.org
-Subject: ps/2 probs w/ asus board
-Date: Sat, 17 Aug 2002 13:19:34 +0200
-User-Agent: KMail/1.4.2
+	id <S317695AbSHQLjm>; Sat, 17 Aug 2002 07:39:42 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:35846 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S317673AbSHQLjl>;
+	Sat, 17 Aug 2002 07:39:41 -0400
+Date: Sat, 17 Aug 2002 12:43:29 +0100 (IST)
+From: Mel <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre3
+In-Reply-To: <Pine.LNX.4.44.0208162231060.8044-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.44.0208171240190.7887-100000@skynet>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208171319.34394.schoenborn@cycdolphin.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone -
+Last attempt at documentation patches again against 2.4.20pre3 .
 
-I'm having problems using the extended ps/2 procotol (here: imps/2) on an asus 
-board.
+http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.20pre3/2.4.20pre3_documentation_numa
+http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.20pre3/2.4.20pre3_page_alloc_commentry
+http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.20pre3/2.4.20pre3_paging_documentation
+http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.20pre3/2.4.20pre3_slab_commentry
+http://www.csn.ul.ie/~mel/projects/vm/patches/2.4.20pre3/2.4.20pre3_vmalloc_commentry
 
-_symptoms:_
-* Xfree86 4.2.0:
-using protocol ImPS/2 the curser jumps to the lower left corner when making 
-negative movements (left/down). Button events are happening randomly.
-gpm is disabled.
-Protocol PS/2 works fine but wheels are not responding.
+All of them but page_alloc is the same as the pre2 ones and it applied
+cleanly with offsets.
 
-* gpm (just for testing purposes):
-using protocol ImPS/2 the cursor the cursor goes crazy.
-Protocol PS/2 works fine.
-
-_possible cause:_
-It seems that linux kernel is not initializing the imps/2 protocol correctly 
-with that board.
-Everything worked fine with a DFI K6BV3+, AMD K6-III 400.
-
-_hardware:_
-* asus a7a266-E board (ali magik-1 chipset, M1647 north, M1535D+ south)
-* cpu AMD XP 2000+
-* A4tech trackball; two wheels, three buttons
-
-_notes:_
-* using an XP1600+ with the same board it is possible to make use of ImPS/2 
-but with limitations:
-Right after starting up the X server the mouse curser jumps to the lower left 
-corner when making negative movements. Switching several times from console 
-to X and back _can_ solve the problem (even the mouse wheels are working, 
-wow), restarting the X server multiple times _can_ solve the problem too, but 
-there's no guarantee this would work.
-Now, using an XP2000+ this trick doesn't work anymore.
-
-* this problem was discussed in linux.debian.user.german, message ID 
-<GfumSC.A.c5E.4V478@murphy> and following.
-
-
-is there anything I can do to make this trackball work with this board?
-
-Sincerely,
-Marc
+-- 
+Mel Gorman
+MSc Student, University of Limerick
+http://www.csn.ul.ie/~mel
 

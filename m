@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267617AbTACSVN>; Fri, 3 Jan 2003 13:21:13 -0500
+	id <S267621AbTACSby>; Fri, 3 Jan 2003 13:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267618AbTACSVN>; Fri, 3 Jan 2003 13:21:13 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22791
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267617AbTACSVM>; Fri, 3 Jan 2003 13:21:12 -0500
-Date: Fri, 3 Jan 2003 10:29:03 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: Marco Monteiro <masm@acm.org>, Andrew Walrond <andrew@walrond.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <Pine.LNX.4.10.10301030959390.421-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.10.10301031025280.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267622AbTACSbx>; Fri, 3 Jan 2003 13:31:53 -0500
+Received: from ns.suse.de ([213.95.15.193]:25874 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267621AbTACSbw>;
+	Fri, 3 Jan 2003 13:31:52 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
+References: <94F20261551DC141B6B559DC4910867204491F@blr-m3-msg.wipro.com.suse.lists.linux.kernel> <3E155903.F8C22286@digeo.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Jan 2003 19:40:22 +0100
+In-Reply-To: Andrew Morton's message of "3 Jan 2003 10:36:28 +0100"
+Message-ID: <p734r8qnkkp.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Andre Hedrick wrote:
-
-> On Fri, 3 Jan 2003, Larry McVoy wrote:
+Andrew Morton <akpm@digeo.com> writes:
 > 
-> > > Remember that the next time you buy a chipset that is not supported.
-> > > I will look for a check in the mail from you to pay for the support
-> > > services.
-> > 
-> > Andre, Andre, Andre.  Have I taught you nothing?!?  Accept no checks,
-> > only small unmarked bills in a brown paper bag.
-> 
-> Yeah, well I already did work for the SPOOKS of the cloak-n-dagger world
-> the help deal with world terrorism and have yet to be paid!  I do
-> electronic wire transfers in two stages now.
+> The teeny little microbenchmarks are telling us that the rmap overhead
+> hurts, that the uninlining of copy_*_user may have been a bad idea, that
+> the addition of AIO has cost a little and that the complexity which
+> yielded large improvements in readv(), writev() and SMP throughput were
+> not free.  All of this is already known.
 
-I should mention it is The Department of Treasury's Criminal Investigation
-Division of the Internal Revenue Service who can not pay their BILLS!
-This is in concert with all the partners in the Intelligence gathering
-communitities, who are indirectly to blame for not paying their bills.
+If you mean the signal speed regressions they caused - I fixed 
+that on x86-64 by inlining 1,2,4,8,10(used by signal fpu frame),16.
+But it should not use the stupud rep ; ..., of the old ersio but direct 
+unrolled moves.
 
-Then again who cares.
+x86-64 version in include/asm-x86_64/uaccess.h, could be ported
+to i386 given that movqs need to be replaced by two movls.
 
-Later!
+-Andi
 
-Andre Hedrick
-LAD Storage Consulting Group
+P.S.: regarding recent lmbench slow downs: I'm a bit
+worried about the two wrmsrs which are in the i386 context switch
+in load_esp0 for sysenter now. Last time I benchmarked WRMSRs on
+Athlon they were really slow and knowing the P4 it is probably
+even slower there. Imho it would be better to undo that patch
+and use Linus' original trampoline stack.
+
 

@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264308AbUEMQpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264304AbUEMQzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbUEMQpg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 12:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbUEMQpg
+	id S264304AbUEMQzN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 12:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbUEMQzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 12:45:36 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:48315 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264308AbUEMQpc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 12:45:32 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: 2.6.6 Oops disconnecting speedtouch usb modem
-Date: Thu, 13 May 2004 18:45:29 +0200
-User-Agent: KMail/1.5.4
-Cc: Nuno Ferreira <nuno.ferreira@graycell.biz>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sf.net>
-References: <Pine.LNX.4.44L0.0405131132310.1543-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0405131132310.1543-100000@ida.rowland.org>
+	Thu, 13 May 2004 12:55:13 -0400
+Received: from cantor.suse.de ([195.135.220.2]:60289 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264304AbUEMQzG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 12:55:06 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405131845.29812.baldrick@free.fr>
+Message-ID: <16547.43052.87943.11064@xf11.fra.suse.de>
+Date: Thu, 13 May 2004 18:54:04 +0200
+From: Egbert Eich <eich@pdx.freedesktop.org>
+To: dri-devel@lists.sourceforge.net
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: From Eric Anholt:
+In-Reply-To: torvalds@osdl.org wrote on Wednesday, 12 May 2004 at 15:32:12 -0700 
+References: <200405112211.i4BMBQDZ006167@hera.kernel.org>
+	<20040511222245.GA25644@kroah.com>
+	<Pine.LNX.4.58.0405120018360.3826@skynet>
+	<Pine.LNX.4.58.0405121529540.3636@evo.osdl.org>
+X-Mailer: VM 7.17 under Emacs 21.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't see how that can be.  The stack dump is getting unwieldy so I
-> haven't duplicated it here, but if I'm reading it right the problem occurs
-> when usb_set_interface() is called by usb_unbind_interface(), which itself
-> is called indirectly by device_unregister() above.  The pointer for the
-> interface being unregistered has not yet been set to NULL, hence this
-> shouldn't cause an oops.
+Linus Torvalds writes:
+ > 
+ > 
+ > On Wed, 12 May 2004, Dave Airlie wrote:
+ > > 
+ > > I just looked at drm.h and nearly all the ioctls use int, this file is
+ > > included in user-space applications also at the moment, I'm worried
+ > > changing all ints to __u32 will break some of these, anyone on DRI list
+ > > care to comment?
+ > 
+ > Right now, all architectures have "int" being 32-bit, so nothing should 
+ > break. Apart from sign issues, of course.
+ > 
+ > If there are pointers and "long", then those should just not exist. Never
+ > expose kernel pointers to user mode (and you really never should pass user
+ > pointers back), and "long" should really just be "__u32" instead (since 
+ > that is what it is on a 32-bit platform - and if it works there, then it 
+ > should work on a 64-bit platform too).
+ > 
 
-No, but the pointer for another (previous) interface may just have been
-set to NULL, causing an Oops when usb_ifnum_to_if loops over all
-interfaces.  In other words, maybe
+Unfortunately this is done in some places in DRM. Pointers are used as a 
+simple 'handle' to point to areas that are to be mapped by mmap()
+from user mode.
+I've done some ioctl32() interfaces for DRM for a few drivers (mga, 
+radeon, r128) to make 32bit software work on 64bit systems such as AMD64.
+In most cases it was easy to work around the longs as they either did
+not have to exist at all or could be replaced by something that's
+platform independent.
+I have plans to submit these ioctl32() interfaces to Mesa when I get
+around to do it.
+Anyway they are unnecessary kludges which should have been avoided
+from the beginning.
 
-                for (i = 0; i < dev->actconfig->desc.bNumInterfaces; i++) {
-                        struct usb_interface    *interface;
+Egbert.
 
-                        /* remove this interface */
-                        interface = dev->actconfig->interface[i];
-                        dev_dbg (&dev->dev, "unregistering interface %s\n",
-                                interface->dev.bus_id);
-                        device_unregister (&interface->dev);
-                        dev->actconfig->interface[i] = NULL;
-                }
-
-should be turned into
-
-                for (i = 0; i < dev->actconfig->desc.bNumInterfaces; i++) {
-                        struct usb_interface    *interface;
-
-                        /* remove this interface */
-                        interface = dev->actconfig->interface[i];
-                        dev_dbg (&dev->dev, "unregistering interface %s\n",
-                                interface->dev.bus_id);
-                        device_unregister (&interface->dev);
-                }
-                for (i = 0; i < dev->actconfig->desc.bNumInterfaces; i++)
-                        dev->actconfig->interface[i] = NULL;
-
-All the best,
-
-Duncan.

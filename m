@@ -1,58 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267188AbTBSU1I>; Wed, 19 Feb 2003 15:27:08 -0500
+	id <S267345AbTBSUa6>; Wed, 19 Feb 2003 15:30:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbTBSU1I>; Wed, 19 Feb 2003 15:27:08 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:40464 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S267188AbTBSU1H>;
-	Wed, 19 Feb 2003 15:27:07 -0500
-Subject: Re: hard lockup on 2.4.20 w/ nfs over frees/wan
-From: Shaya Potter <spotter@cs.columbia.edu>
+	id <S267346AbTBSUa6>; Wed, 19 Feb 2003 15:30:58 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:52096 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267345AbTBSUa4>; Wed, 19 Feb 2003 15:30:56 -0500
+Subject: [PATCH] IPSec protocol application order
+From: Tom Lendacky <toml@us.ibm.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1045634189.4761.44.camel@zaphod>
-References: <1045634189.4761.44.camel@zaphod>
+Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, toml@us.ibm.com
 Content-Type: text/plain
-Organization: 
-Message-Id: <1045686971.8084.2.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 19 Feb 2003 15:36:11 -0500
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Feb 2003 14:42:19 -0600
+Message-Id: <1045687340.3419.14.camel@tomlt2.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-didn't get any responses on this, but its crashes again a few times
-again today, the status code it printed out was ffff.  
+The IPSec RFC (2401) and IPComp RFC (3173) specify the order in which
+the COMP, ESP and AH protocols must be applied when being applied in
+transport mode.  Specifically, COMP must be applied first, then ESP
+and then AH.  Also, transport mode protocols must be applied before
+tunnel mode protocols.
 
-On Wed, 2003-02-19 at 00:56, Shaya Potter wrote:
-> I'm trying to use frees/wan 1.99 w/ NFSv3.  I've been testing it w/
-> large r and wsize's (32k each).  When used w/o ipsec, it seems to work
-> fine.  When used w/ ipsec, make dep on a kernel source tree has
-> consistently frozen up these IBM Netfinity boxes (2*933mhz P3s w/ smp
-> kernel).  One time the last thing the kernel printk'd was
-> 
-> pcnet32.c:	    printk(KERN_ERR "%s: Bus master arbitration failure,
-> status %4.4x.\n",
-> 
-> but didn't record the status number (well it was eth0: Bus master....,
-> and it's using a pcnet32 controller, so assume that's the line). 
-> Usually it's locked up w/o printk'ing anything, last things I see on
-> console are the normal ipsec printk's
-> 
-> Is it possible that the r/w size's are causing issues when used in
-> conjuction w/ ipsec?  Am I triggering some sort of race condition?  The
-> NFS client is running the exact same kernel on the same exact hardware
-> and hasn't had an issue yet.
-> 
-> any ideas on what I can do to debug it?
-> 
-> thanks,
-> 
-> shaya
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Here is a patch that creates the xfrm_tmpl structures in the order
+required by the RFCs.  The patch requires that the application order
+of new transformations/protocols be specified for transport mode
+in order to have an xfrm_tmpl structure created.  If this is not
+desired, an additional transport mode loop can be placed ahead of the
+COMP/ESP/AH transport mode loops that creates xfrm_tmpl structures
+for protocols other than COMP/ESP/AH.
+
+Tom
+
+--- linux-2.5.62-orig/net/key/af_key.c	2003-02-17 16:56:09.000000000 -0600
++++ linux-2.5.62/net/key/af_key.c	2003-02-19 09:00:53.000000000 -0600
+@@ -1562,12 +1562,58 @@
+ parse_ipsecrequests(struct xfrm_policy *xp, struct sadb_x_policy *pol)
+ {
+ 	int err;
+-	int len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
+-	struct sadb_x_ipsecrequest *rq = (void*)(pol+1);
++	int len;
++	struct sadb_x_ipsecrequest *rq;
+ 
++	/* The order of template creation is important (RFC2401/RFC3173):
++		Transport templates first
++			COMP then
++			ESP then
++			AH then
++		Tunnel templates in any order */
++	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
++	rq = (void*)(pol+1);
+ 	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
+-		if ((err = parse_ipsecrequest(xp, rq)) < 0)
+-			return err;
++		if (rq->sadb_x_ipsecrequest_mode == IPSEC_MODE_TRANSPORT &&
++		    rq->sadb_x_ipsecrequest_proto == IPPROTO_COMP) {
++			if ((err = parse_ipsecrequest(xp, rq)) < 0)
++				return err;
++		}
++		len -= rq->sadb_x_ipsecrequest_len;
++		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
++	}
++	
++	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
++	rq = (void*)(pol+1);
++	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
++		if (rq->sadb_x_ipsecrequest_mode == IPSEC_MODE_TRANSPORT &&
++		    rq->sadb_x_ipsecrequest_proto == IPPROTO_ESP) {
++			if ((err = parse_ipsecrequest(xp, rq)) < 0)
++				return err;
++		}
++		len -= rq->sadb_x_ipsecrequest_len;
++		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
++	}
++	
++	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
++	rq = (void*)(pol+1);
++	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
++		if (rq->sadb_x_ipsecrequest_mode == IPSEC_MODE_TRANSPORT &&
++		    rq->sadb_x_ipsecrequest_proto == IPPROTO_AH) {
++			if ((err = parse_ipsecrequest(xp, rq)) < 0)
++				return err;
++		}
++		len -= rq->sadb_x_ipsecrequest_len;
++		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
++	}
++	
++	len = pol->sadb_x_policy_len*8 - sizeof(struct sadb_x_policy);
++	rq = (void*)(pol+1);
++	while (len >= sizeof(struct sadb_x_ipsecrequest)) {
++		if (rq->sadb_x_ipsecrequest_mode != IPSEC_MODE_TRANSPORT) {
++			if ((err = parse_ipsecrequest(xp, rq)) < 0)
++				return err;
++		}
+ 		len -= rq->sadb_x_ipsecrequest_len;
+ 		rq = (void*)((u8*)rq + rq->sadb_x_ipsecrequest_len);
+ 	}
 

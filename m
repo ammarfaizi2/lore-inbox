@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVCLQEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVCLQET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbVCLQEP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 11:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCLQBx
+	id S261953AbVCLQET (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 11:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCLQBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 11:01:53 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35855 "HELO
+	Sat, 12 Mar 2005 11:01:19 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34831 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261950AbVCLP7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 10:59:47 -0500
-Date: Sat, 12 Mar 2005 16:59:40 +0100
+	id S261958AbVCLP6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 10:58:07 -0500
+Date: Sat, 12 Mar 2005 16:58:06 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Guenter Geiger <geiger@debian.org>
+To: paulsch@us.ibm.com, sullivam@us.ibm.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sound/oss/rme96xx.c: remove kernel 2.2 #if's
-Message-ID: <20050312155940.GD3814@stusta.de>
+Subject: [2.6 patch] drivers/char/mwave/tp3780i.c: remove kernel 2.2 #if's
+Message-ID: <20050312155806.GC3814@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,26 +26,33 @@ This patch removes #if's for kernel 2.2 .
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.11-mm2-full/sound/oss/rme96xx.c.old	2005-03-12 12:24:43.000000000 +0100
-+++ linux-2.6.11-mm2-full/sound/oss/rme96xx.c	2005-03-12 12:25:02.000000000 +0100
-@@ -1750,9 +1750,7 @@
- 
- 
- static struct file_operations rme96xx_audio_fops = {
+---
+
+ drivers/char/mwave/tp3780i.c |    8 +-------
+ 1 files changed, 1 insertion(+), 7 deletions(-)
+
+--- linux-2.6.11-mm2-full/drivers/char/mwave/tp3780i.c.old	2005-03-12 12:19:55.000000000 +0100
++++ linux-2.6.11-mm2-full/drivers/char/mwave/tp3780i.c	2005-03-12 12:20:32.000000000 +0100
+@@ -242,20 +242,14 @@
+ {
+ 	int retval = 0;
+ 	DSP_3780I_CONFIG_SETTINGS *pSettings = &pBDData->rDspSettings;
 -#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
- 	.owner	 = THIS_MODULE,
+ 	struct resource *pres;
 -#endif
- 	.read	 = rme96xx_read,
- 	.write	 = rme96xx_write,
- 	.poll	 = rme96xx_poll,
-@@ -1852,9 +1850,7 @@
- }
  
- static /*const*/ struct file_operations rme96xx_mixer_fops = {
+ 	PRINTK_2(TRACE_TP3780I,
+ 		"tp3780i::tp3780I_ClaimResources entry pBDData %p\n", pBDData);
+ 
 -#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
- 	.owner	 = THIS_MODULE,
+ 	pres = request_region(pSettings->usDspBaseIO, 16, "mwave_3780i");
+ 	if ( pres == NULL ) retval = -EIO;
+-#else
+-	retval = check_region(pSettings->usDspBaseIO, 16);
+-	if (!retval) request_region(pSettings->usDspBaseIO, 16, "mwave_3780i");
 -#endif
- 	.ioctl	 = rme96xx_mixer_ioctl,
- 	.open	 = rme96xx_mixer_open,
- 	.release = rme96xx_mixer_release,
++
+ 	if (retval) {
+ 		PRINTK_ERROR(KERN_ERR_MWAVE "tp3780i::tp3780I_ClaimResources: Error: Could not claim I/O region starting at %x\n", pSettings->usDspBaseIO);
+ 		retval = -EIO;
 

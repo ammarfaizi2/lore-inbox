@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262113AbSITJyj>; Fri, 20 Sep 2002 05:54:39 -0400
+	id <S261998AbSITKP2>; Fri, 20 Sep 2002 06:15:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbSITJyj>; Fri, 20 Sep 2002 05:54:39 -0400
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:64778 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S262113AbSITJyi>;
-	Fri, 20 Sep 2002 05:54:38 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MediaGX/Geode performance fix, Was: Which processor/board for embedded NTP
-References: <1032354632.23252.14.camel@venus> <87r8frqech.fsf@zoo.weinigel.se>
-	<20020919060218.GD10773@pengutronix.de>
-	<873cs5vkfb.fsf_-_@zoo.weinigel.se>
-	<1032477107.29021.4.camel@irongate.swansea.linux.org.uk>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 20 Sep 2002 11:59:42 +0200
-In-Reply-To: <1032477107.29021.4.camel@irongate.swansea.linux.org.uk>
-Message-ID: <87fzw5t20h.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S262101AbSITKP2>; Fri, 20 Sep 2002 06:15:28 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:58756 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S261998AbSITKP2>; Fri, 20 Sep 2002 06:15:28 -0400
+Date: Fri, 20 Sep 2002 03:20:31 -0700
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020920102031.GA4744@gnuppy.monkey.org>
+References: <3D8A6EC1.1010809@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D8A6EC1.1010809@redhat.com>
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thu, Sep 19, 2002 at 05:41:37PM -0700, Ulrich Drepper wrote:
+>   It is not generally accepted that a 1-on-1 model is superior but our
+>   tests showed the viability of this approach and by comparing it with
+>   the overhead added by existing M-on-N implementations we became
+>   convinced that 1-on-1 is the right approach.
 
-> On Thu, 2002-09-19 at 20:39, Christer Weinigel wrote:
-> > This mail contains a patch to fix a performance problem with many
-> > Cyrix MediaGX/NatSemi Geode platforms.  The register settings have
-> > been officially recommended by NatSemi themselves.  The patch is
-> > against linux-2.4.20-pre7.  Should this be merged into the mainsteam
-> > linux kernel?
-> 
-> This wont actually make an iota of difference in most cases. The CS5530
-> IDE driver will force this value to 0x14 anyway. It also sets MWI on te
-> X-bus which is needed too.
+Maybe not but...
 
-Ok, it did make a 5% difference when I did some quick tests on TCP
-performance.  But I didn't have the CS5530 IDE driver loaded.
+You might like to try a context switching/thread wakeup performance
+measurement against FreeBSD's libc_r. I'd imagine that it's difficult
+to beat a system like that since they keep all of that stuff in
+userspace since it's just 2 context switches and a call to their
+thread-kernel.
 
-> Probably the fixup should be done in the PCI quirks.
+I'm curious as to the rough numbers you got doing the 1:1 and M:N
+comparison.
 
-Sounds it should be moved from the IDE driver to quirks at least, but
-that might be a 2.5 thing in that case.
+bill
 
-  /Christer
-
--- 
-"Just how much can I get away with and still go to heaven?"
-
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

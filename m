@@ -1,75 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbUL3QX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbUL3QgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbUL3QX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 11:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUL3QX6
+	id S261652AbUL3QgY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 11:36:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUL3QgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 11:23:58 -0500
-Received: from c148216.adsl.hansenet.de ([213.39.148.216]:46208 "EHLO
-	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S261670AbUL3QXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 11:23:41 -0500
-To: linux-kernel@vger.kernel.org
-Cc: dm-crypt@saout.de
-Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
-References: <m3is6k4oeu.fsf@reason.gnu-hamburg>
-From: "Georg C. F. Greve" <greve@fsfeurope.org>
-Organisation: Free Software Foundation Europe
-X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
-X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
-X-Home-Page: http://gnuhh.org
-X-Accept-Language: en, de
-Date: Thu, 30 Dec 2004 17:23:17 +0100
-In-Reply-To: <m3is6k4oeu.fsf@reason.gnu-hamburg> (Georg C. F. Greve's message
-	of "Thu, 30 Dec 2004 01:31:37 +0100")
-Message-ID: <m38y7fn4ay.fsf@reason.gnu-hamburg>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="20041230172317+0100-64656733-12391328-91779438";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 30 Dec 2004 11:36:24 -0500
+Received: from lug-owl.de ([195.71.106.12]:35243 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261652AbUL3QgS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 11:36:18 -0500
+Date: Thu, 30 Dec 2004 17:36:17 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Dave Dillow <dave@thedillows.org>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 2.6.10 1/22] xfrm: Add direction information to xfrm_state
+Message-ID: <20041230163617.GB2460@lug-owl.de>
+Mail-Followup-To: Dave Dillow <dave@thedillows.org>,
+	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20041230035000.01@ori.thedillows.org> <20041230035000.10@ori.thedillows.org> <20041230094839.GX2460@lug-owl.de> <1104423409.23254.9.camel@dillow.idleaire.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5Wo9T3dGHPT+4OQz"
+Content-Disposition: inline
+In-Reply-To: <1104423409.23254.9.camel@dillow.idleaire.com>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---20041230172317+0100-64656733-12391328-91779438
 
-[ update ]
+--5Wo9T3dGHPT+4OQz
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Okay, tried to find out what is causing the kernel to crash and so I
-replaced the dm-crypt part by cryptoloop: same effect.
+On Thu, 2004-12-30 11:16:49 -0500, Dave Dillow <dave@thedillows.org>
+wrote in message <1104423409.23254.9.camel@dillow.idleaire.com>:
+> On Thu, 2004-12-30 at 04:48, Jan-Benedict Glaw wrote:
+> > On Thu, 2004-12-30 03:48:34 -0500, David Dillow <dave@thedillows.org>
+> > wrote in message <20041230035000.10@ori.thedillows.org>:
+> > > +enum {
+> > > +	XFRM_STATE_DIR_UNKNOWN,
+> > > +	XFRM_STATE_DIR_IN,
+> > > +	XFRM_STATE_DIR_OUT,
+> > > +};
+> >=20
+> > Any specific reason to first define such a nice enum and then using int
+> > in the struct?
+>=20
+> Just following the current style in net/xfrm.h, see xfrm_state.km.state
+> and XFRM_STATE_*.
 
-Then I tried ext3 on top of LVM2 RAID5 with no encryption and it still
-crashes. Not sure what is causing the problem exactly, but it does not
-seem that dm-crypt is to blame anymore.
+Hmmm... Maybe I'd prepare patches then :)
 
-The message I saw on the remote console when it crashed with pure ext3
-on raid5 was:
+MfG, JBG
 
- Assertion failure in journal_start() at fs/jbd/transaction.c:271: "handle->h_transaction->t_journal == journal"
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-
-Hope this helps -- filed the bug as #3968 on buzilla.kernel.org, more
-info at 
-
-  http://bugzilla.kernel.org/show_bug.cgi?id=3968
-
-Help appreciated, let me know if you have an idea.
-
-Regards,
-Georg
-
--- 
-Georg C. F. Greve                                       <greve@gnu.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-Brave GNU World	                           (http://brave-gnu-world.org)
-
---20041230172317+0100-64656733-12391328-91779438
-Content-Type: application/pgp-signature
+--5Wo9T3dGHPT+4OQz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.92 (GNU/Linux)
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQBB1Ct1bvivwoZXSsoRAlQiAJ9f/xFoljpzG041ttBDZcKxEPAPgwCaAmkI
-ny2HKC15P8D2NPFyOKINYGY=
-=dqK1
+iD8DBQFB1C6BHb1edYOZ4bsRAraeAJ4kdi0KY9MbAavAWo1ZpQ8F7bnn3wCbBvjS
+UD3Tby1J+v8hAYqL5uWkgrE=
+=Vrl2
 -----END PGP SIGNATURE-----
---20041230172317+0100-64656733-12391328-91779438--
+
+--5Wo9T3dGHPT+4OQz--

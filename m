@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270585AbRH1JWy>; Tue, 28 Aug 2001 05:22:54 -0400
+	id <S270619AbRH1KG6>; Tue, 28 Aug 2001 06:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270577AbRH1JWo>; Tue, 28 Aug 2001 05:22:44 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S270569AbRH1JW0>;
-	Tue, 28 Aug 2001 05:22:26 -0400
-Message-ID: <20010828004628.B1357@bug.ucw.cz>
-Date: Tue, 28 Aug 2001 00:46:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jan Niehusmann <jan@gondor.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: VCool - cool your Athlon/Duron during idle
-In-Reply-To: <20010826181315Z271401-760+6195@vger.kernel.org> <20010827010053.A9149@gondor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010827010053.A9149@gondor.com>; from Jan Niehusmann on Mon, Aug 27, 2001 at 01:00:53AM +0200
+	id <S270624AbRH1KGh>; Tue, 28 Aug 2001 06:06:37 -0400
+Received: from gate.terreactive.ch ([212.90.202.121]:38393 "HELO
+	toe.terreactive.ch") by vger.kernel.org with SMTP
+	id <S270619AbRH1KGg>; Tue, 28 Aug 2001 06:06:36 -0400
+Message-ID: <3B8B6CEF.17C616C0@tac.ch>
+Date: Tue, 28 Aug 2001 12:05:35 +0200
+From: Roberto Nibali <ratz@tac.ch>
+Organization: terreActive
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en, de-CH, zh-CN
+MIME-Version: 1.0
+To: Andrew Theurer <habanero@us.ibm.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Journal Filesystem Comparison on Netbench
+In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> +static void stpclk_idle(void)
-> +{
-> +	if (current_cpu_data.hlt_works_ok && !hlt_counter) {
-> +		__cli();
-> +		if (!current->need_resched) 
-> +			inb(Reg_PL2);
-> +		else
-> +			__sti();
-> +	}
-> +}
+Thank you for those interesting tests.
 
-You are not using hlt instruction -> you don't need to care about
-hlt_works_ok.
-							Pavel
+> Some optimizations were used for linux, including zerocopy,
+> IRQ affinity, and interrupt delay for the gigabit cards,
+> and process affinity for the smbd processes.
+
+Why is ext3 the only tested journaling filesystem that showed
+dropped packets [1] during the test and how do you explain it?
+
+[1]: http://lse.sourceforge.net/benchmarks/netbench/results/\
+     august_2001/filesystems/raid1e/ext3/4p/droppped_packets.txt
+
+Regards,
+Roberto Nibali, ratz
+
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`

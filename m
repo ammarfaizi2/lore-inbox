@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130030AbQKXTXJ>; Fri, 24 Nov 2000 14:23:09 -0500
+        id <S129870AbQKXTXJ>; Fri, 24 Nov 2000 14:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130031AbQKXTW7>; Fri, 24 Nov 2000 14:22:59 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:64516 "EHLO
-        imladris.demon.co.uk") by vger.kernel.org with ESMTP
-        id <S130030AbQKXTWt>; Fri, 24 Nov 2000 14:22:49 -0500
-Date: Fri, 24 Nov 2000 18:52:45 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Recent patch to cfi.h screws MTD CFI layer
-In-Reply-To: <200011241756.eAOHutB16267@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.30.0011241851030.18611-100000@imladris.demon.co.uk>
+        id <S130030AbQKXTW7>; Fri, 24 Nov 2000 14:22:59 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32562 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S129870AbQKXTWp>; Fri, 24 Nov 2000 14:22:45 -0500
+Subject: Re: do_initcalls bug
+To: pavel@suse.cz (Pavel Machek)
+Date: Fri, 24 Nov 2000 18:53:13 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <20001124164812.A2115@bug.ucw.cz> from "Pavel Machek" at Nov 24, 2000 04:48:12 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13zNyF-0000HI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Russell King wrote:
+> static void __init do_initcalls(void)
+> {
+>         initcall_t *call;
+> 
+>         call = &__initcall_start;
+>         do {
+>                 early_printk("[%lx]\n", call);
+>                 (*call)();
+>                 call++;
+>         } while (call < &__initcall_end);
+> }
+> 
+> In case there are no initcalls to be called, it just simply
+> crashes. Ouch.
 
-> The recent patch in 2.4.0-test11 causes MTD to oops the kernel:
-
-Fixed in my tree. That and other things will be fixed when I flush the
-latest CFI code to Linus - probably quite soon.
-
-The inter_module_ stuff has introduced link order dependencies too. I'm
-working on fixing that.
-
--- 
-dwmw2
-
+Known problem. Fixed in 2.2.x. Linus didn't want to take the patches because
+2.4 'always had initcalls'
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

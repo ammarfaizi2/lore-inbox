@@ -1,88 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261929AbTC0LE4>; Thu, 27 Mar 2003 06:04:56 -0500
+	id <S261897AbTC0LLW>; Thu, 27 Mar 2003 06:11:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261930AbTC0LE4>; Thu, 27 Mar 2003 06:04:56 -0500
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:17137 "HELO
-	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S261929AbTC0LEy>; Thu, 27 Mar 2003 06:04:54 -0500
-Date: Thu, 27 Mar 2003 11:16:00 +0000
-From: Chris Sykes <chris@sigsegv.plus.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
-Message-ID: <20030327111600.GI2695@spackhandychoptubes.co.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20030326162538.GG2695@spackhandychoptubes.co.uk> <20030326185236.GE24689@kroah.com> <20030326192520.GH2695@spackhandychoptubes.co.uk> <20030326193437.GI24689@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MMMIZFJzhAsRj/+"
-Content-Disposition: inline
-In-Reply-To: <20030326193437.GI24689@kroah.com>
-User-Agent: Mutt/1.4i
-x-gpg-fingerprint: 1D0A 139D DDA3 F02F 6FC0  B2CA CBC6 5EC0 540A F377
-x-gpg-key: wwwkeys.pgp.net
+	id <S261930AbTC0LLW>; Thu, 27 Mar 2003 06:11:22 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:3021 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S261897AbTC0LLU>; Thu, 27 Mar 2003 06:11:20 -0500
+From: Erik Hensema <erik@hensema.net>
+Subject: Re: Delaying writes to disk when there's no need
+Date: Thu, 27 Mar 2003 11:22:33 +0000 (UTC)
+Message-ID: <slrnb85nno.1q6.usenet@bender.home.hensema.net>
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <3E82BF2D.8080508@aitel.hist.no>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Helge Hafting (helgehaf@aitel.hist.no) wrote:
+> Erik Hensema wrote:
+>> In all kernels I've tested writes to disk are delayed a long time even when
+>> there's no need to do so.
+>> 
+> Short answer - it is supposed to do that!
+> 
+>> A very simple test shows this: on an otherwise idle system, create a tar of
+>> a NFS-mounted filesystem to a local disk. The kernel starts writing out the
+>> data after 30 seconds, while a slow and steady stream would be much nicer
+>> to the system, I think.
+>>
+> You're wrong then.  There's no need for a slow steady stream, why do
+> you want that.  Of course you can set up cron to run sync at
+> regular (short) intervals to achieve this.
+> 
+>> On 2.4.x this can block the system for several seconds. 2.5.6x and
+>> 2.5.6x-mm (with AS) also show this behaviour, but the system doesn't block
+>> anymore. I'm using a preemtable kernel.
+>> 
+> Writing out stuff is not supposed to block the machine, and as you say,
+> it is fixed in 2.5.  No need for the steady writing.
+> 
+>> I only started to notice this behaviour when I upgraded from 256 MB ram to
+>> 512 MB. In other words: Linux behaves more nicely with 256 MB.
+>> 
+> Why do you think that is more nice?
 
---3MMMIZFJzhAsRj/+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Because the interactivity of the system is better with less memory.
 
-On Wed, Mar 26, 2003 at 11:34:37AM -0800, Greg KH wrote:
-> > Anyway I'll test out a 2.5 kernel when I'm back in the office
-> > tomorrow, I can devote some time to tracking down the problem if you
-> > can give me some pointers on where to start.  I'd like to be able to
-> > feel confident that this will work reliably under 2.4, otherwise I
-> > guess I need to look for alternate solutions.
->=20
-> The problem is in the race on close() in the usb-serial.c code.  In 2.5
-> that logic has been rewritten to (hopefully) get rid of the race.  That
-> is what will need to be backported, once people test that this fixes the
-> issue.
+> Writing is delayed because that accumulate bigger writes and
+> fewer seeks.  This helps performance a lot.  Delaying writes
+> has another advantage - somw writes won't be done at all,
+> saving 100% writing time.  This is the case for temporary
+> files that gets written to, read, and deleted before they
+> get written to disk. It all happens in cache, improving
+> performance tremendously.  To see the alternative,
+> try booting with mem=4M or 16M or some such, with _no_ swapping.
 
-OK.  2.5.66 compiled and booted.
+I see that. However, I don't see why the kernel is writing out data
+as agressively as it does now. Delaying a write for 30 seconds isn't the
+problem: the aggressive writes are. Since the disks are otherwise idle, the
+kernel can gently start writing out the dirty cache. No need to try and
+write 40 MB in 1 sec when you can write 10 MB/sec in 4 seconds.
 
-I've jumpered the hardware back to how it was originally when I
-experienced the problem.
-I've been working happily for about 10 mins with:
+[...]
 
-while /bin/true; do
-        for i in *; do
-                cat $i >/dev/ttyUSB0
-        done
-done
+> For more detailed information, read a book about how filesystems and
+> disk caching works.
 
-No Oopsen or errors in dmesg as yet. (Before I was getting many errors
-about 0 size writes).
+I'm just reporting what's happening to me in practice, I don't really care
+about what should happen in theory.
 
-I can keep working under 2.5.66 for now to see if I experience any
-problems, but it would appear that the race is gone in 2.5.66
-(CONFIG_PREEMPT=3Dy)
-
-If you'd like me to try any patches against 2.4 just let me know.
-
-Thanks again,
-
---=20
-
-(o-  Chris Sykes  -- GPG Key: http://www.sigsegv.plus.com/key.txt
-//\       "Don't worry. Everything is getting nicely out of control ..."
-V_/_                          Douglas Adams - The Salmon of Doubt
-
-
---3MMMIZFJzhAsRj/+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+gt1wy8ZewFQK83cRAp4iAJ9Mlb+I6ot4hhsaq1wd/KlXGD9d7ACgl3Km
-IBQJ771D2FqCdPRPUr2YIHM=
-=wt9X
------END PGP SIGNATURE-----
-
---3MMMIZFJzhAsRj/+--
+-- 
+Erik Hensema <erik@hensema.net>

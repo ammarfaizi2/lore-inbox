@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263689AbUDQHOO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 03:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbUDQHOO
+	id S263705AbUDQH2H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 03:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUDQH2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 03:14:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58293 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263689AbUDQHOM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 03:14:12 -0400
-Date: Sat, 17 Apr 2004 09:13:35 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "H. J. Lu" <hjl@lucon.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to make stack executable on demand?
-Message-ID: <20040417071335.GA4296@devserv.devel.redhat.com>
-References: <20040416170915.GA20260@lucon.org> <1082145778.9600.6.camel@laptop.fenrus.com> <20040416204651.GA24194@lucon.org>
+	Sat, 17 Apr 2004 03:28:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:55306 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263705AbUDQH2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 03:28:04 -0400
+Date: Sat, 17 Apr 2004 09:24:56 +0200
+From: Willy Tarreau <w@w.ods.org>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: Linux NICS <linux.nics@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] e1000 fails on 2.4.26+bk with CONFIG_SMP=y
+Message-ID: <20040417072455.GD596@alpha.home.local>
+References: <20040416224422.GA19095@tsunami.ccur.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040416204651.GA24194@lucon.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040416224422.GA19095@tsunami.ccur.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 16, 2004 at 06:44:22PM -0400, Joe Korty wrote:
+> The e1000 driver fails to operate an Intel PRO/1000 MT Quad Port Server
+> Adaptor under the latest 2.4.26+bk with CONFIG_SMP=y.  It works fine
+> when CONFIG_SMP=n.
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Did you enable APIC in UP mode, and did you try with an SMP kernel booted
+with the 'nosmp' option ? Have you tried with plain 2.4.26 too ? There were
+e1000 changes in latest bk.
 
-On Fri, Apr 16, 2004 at 01:46:51PM -0700, H. J. Lu wrote:
-> On Fri, Apr 16, 2004 at 10:02:58PM +0200, Arjan van de Ven wrote:
-> > >  But it will either fail if
-> > > kernel is set with non-executable stack,
-> > 
-> > eh no. mprotect with prot_exec is still supposed to work. The stacks
-> > still have MAY_EXEC attribute, just not the actual EXEC attribute
-> 
-> Ok. It looks like a bug in Red Hat EL 3 kernel. In fs/exec.c, there
-> are
-> 
->                 if (executable_stack)
->                         mpnt->vm_flags = VM_STACK_FLAGS | VM_MAYEXEC | VM_EXEC;
-> 		else
->                         mpnt->vm_flags = VM_STACK_FLAGS & ~(VM_MAYEXEC|VM_EXEC); 
+I'm interested in trying this, because I know of a firewall appliance which
+is based on a dell with 2 xeon HT and which has 2 of these cards. I might
+try to boot it on a linux CD on monday if I find some time. Could you post
+your config ?
 
-yep that's a bug
+Regards,
+Willy
 
-
-> The VM_MAYEXEC bit is untouched. Now the question is if it is a good
-> idea for user to change stack permission.
-
-it's required for correct operation and "security wise" it doesn't matter,
-if someone can execute an mprotect syscall the game is over anyway 
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAgNkfxULwo51rQBIRAhE7AJ9qGdcwPS4t0U+myaQn3s58yoiiCwCfd77a
-upCtQHseSjY6YIXmomBNL6E=
-=DYLH
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--

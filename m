@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316043AbSFATRC>; Sat, 1 Jun 2002 15:17:02 -0400
+	id <S316620AbSFATjX>; Sat, 1 Jun 2002 15:39:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316620AbSFATRA>; Sat, 1 Jun 2002 15:17:00 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:51186 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316043AbSFATQy>; Sat, 1 Jun 2002 15:16:54 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sat, 1 Jun 2002 13:15:14 -0600
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 9/16] direct-to-BIO writeback for writeback-mode ext3
-Message-ID: <20020601191514.GA7905@turbolinux.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CF88903.E253A075@zip.com.au>
+	id <S316723AbSFATjW>; Sat, 1 Jun 2002 15:39:22 -0400
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:654 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S316620AbSFATjV>;
+	Sat, 1 Jun 2002 15:39:21 -0400
+Subject: Re: nfs problem 2.4.19-pre9
+From: Kenneth Johansson <ken@canit.se>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <shs8z5yrf2v.fsf@charged.uio.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 01 Jun 2002 21:39:21 +0200
+Message-Id: <1022960361.1185.46.camel@tiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 01, 2002  01:42 -0700, Andrew Morton wrote:
-> Turn on direct-to-BIO writeback for ext3 in data=writeback mode.
+On Sat, 2002-06-01 at 21:09, Trond Myklebust wrote:
+> >>>>> " " == Kenneth Johansson <ken@canit.se> writes:
+> 
+>      > I have had a problem for some time that processes get stuck in
+>      > D state and I now have a way to get this to happen at will.
+> 
+>      > One way to do this is to copy a file from one nfs mounted
+>      > directory to another. It dose not happen on the same mount and
+>      > not when copying from nfs to a local disk. To make this even
+>      > more complex it works with cp and mv but not in mc(midnight
+>      > commander F6 ).
+> 
+> Sounds like a network driver problem or something like that. UDP
+> appears to trigger these lockups a lot more easily than does TCP.
+> 
+> Try testing with a different brand of networking card...
+> 
 
-A minor note on this (especially minor since I believe data=journal
-doesn't even work in 2.5), but you should probably also change the
-address ops in ext3/ioctl.c if you enable/disable per-inode data
-journaling.
+I have three cards but they are all the same :(
+3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30).
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Also Why only this nfs mount. I can still telnet to other computers and
+use nfs on another mount point so it's not like I lose the network.
+
+
+
+
 

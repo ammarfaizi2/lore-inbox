@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264760AbSKYPdQ>; Mon, 25 Nov 2002 10:33:16 -0500
+	id <S264908AbSKYPlJ>; Mon, 25 Nov 2002 10:41:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264859AbSKYPdQ>; Mon, 25 Nov 2002 10:33:16 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:12464
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264760AbSKYPdQ>; Mon, 25 Nov 2002 10:33:16 -0500
-Date: Mon, 25 Nov 2002 10:43:14 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Steffen Persvold <sp@scali.com>
-cc: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>,
-       "" <linux-kernel@vger.kernel.org>, Manish Lachwani <manish@zambeel.com>,
-       "" <mingo@redhat.com>
-Subject: Re: i7500 and IRQ assignment
-In-Reply-To: <Pine.LNX.4.44.0211251615330.5004-100000@sp-laptop.isdn.scali.no>
-Message-ID: <Pine.LNX.4.50.0211251042020.1462-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0211251615330.5004-100000@sp-laptop.isdn.scali.no>
+	id <S264936AbSKYPlJ>; Mon, 25 Nov 2002 10:41:09 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:21773 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S264908AbSKYPlJ>; Mon, 25 Nov 2002 10:41:09 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15842.17986.416305.106123@laputa.namesys.com>
+Date: Mon, 25 Nov 2002 18:48:18 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Terje Malmedal <terje.malmedal@usit.uio.no>
+Cc: linux-kernel@vger.kernel.org,
+       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+Subject: Re: reiserfs and nfs. 
+In-Reply-To: <E18GKCG-0003cp-00@aqualene.uio.no>
+References: <E18GKCG-0003cp-00@aqualene.uio.no>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-NSA-Fodder: Nazi NSA Vince Foster clones genetic colonel Project Monarch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Nov 2002, Steffen Persvold wrote:
+Terje Malmedal writes:
+ > 
+ > Hi, 
+ > 
+ > I'm nfs-exporting a reiserfs filesystem, the problem is that the
+ > inode-number as seen from the client seems to change from time to
+ > time. This confuses a number of programs, for instance Emacs believes
+ > that the file changed under it when this happens.
 
-> 2.4.20-rc2 or -rc3 work fine on my E7500 boards. I've appiled the
-> irqbalance patch from Ingo Molnar though. It gives me better interrupt
-> latency compared to the APIC routing patch (with GbE it is ~10us faster on
-> ping-pong/2 tests).
+This problem is not known. What version of reiserfs (3.5 or 3.6) and
+kernel are you using? Is there any way to reproduce this problem?
 
-How does IRQ affinity fair with respect to your interrupt latencies?
+ > 
+ > Is this a known problem? Any known fix? I found a number of old
+ > messages about problems with reiser and nfs, but not this
+ > specifically.
+ > 
+ > -- 
+ >  - Terje
+ > malmedal@usit.uio.no
 
-	Zwane
--- 
-function.linuxpower.ca
+Nikita.
+

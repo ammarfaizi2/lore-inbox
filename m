@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316459AbSFDFUQ>; Tue, 4 Jun 2002 01:20:16 -0400
+	id <S316339AbSFDFmm>; Tue, 4 Jun 2002 01:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316475AbSFDFUO>; Tue, 4 Jun 2002 01:20:14 -0400
-Received: from graze.net ([65.207.24.2]:31469 "EHLO graze.net")
-	by vger.kernel.org with ESMTP id <S316459AbSFDFT4>;
-	Tue, 4 Jun 2002 01:19:56 -0400
-Subject: kernel routing of IPSec / VMWare
-From: "Brian C. Huffman" <huffman@graze.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 04 Jun 2002 01:19:53 -0400
-Message-Id: <1023167993.2914.12.camel@zaphod>
+	id <S316475AbSFDFml>; Tue, 4 Jun 2002 01:42:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:51617 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316339AbSFDFml>;
+	Tue, 4 Jun 2002 01:42:41 -0400
+Date: Mon, 03 Jun 2002 21:37:43 -0700 (PDT)
+Message-Id: <20020603.213743.68155795.davem@redhat.com>
+To: dmj+@andrew.cmu.edu
+Cc: ppadala@cise.ufl.edu, linux-kernel@vger.kernel.org
+Subject: Re: No PTRACE_READDATA for archs other than SPARC?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020529234951.GA3797@branoic.them.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All, 
-
-This may not be the place, but I've been struggling w/ a problem w/
-VMWare for quite some time.  Their support has not been helpful and I
-have not found anything by searching the net.  
-
-Is there some reason that linux does not route all IPSec traffic?  I've
-tried NATing using both IPtables and using the new built-in NAT that
-comes with the latest versions of VMWare and I can never get it to work
-w/ CheckPoint's SecurRemote product.  When I do a "bridged" ethernet (in
-VMWare), it always works.  Looking at the packets, it seems as though it
-might not be passing some of the ESP packets.  
-
-The way that we have checkpoint setup it is doing UDP encapsulation of
-the IPSec (otherwise it would not be possible to do this w/ NAT).  This
-is with all the latest 2.4 kernels (haven't tried 2.4.19, though). 
-
-Any suggestions would be helpful. 
-
-Thanks, 
-Brian 
-
-
-
-
-
+   From: Daniel Jacobowitz <dmj+@andrew.cmu.edu>
+   Date: Wed, 29 May 2002 19:49:51 -0400
+   
+   Not really, we should just get EINVAL (ENOSYS?) back when we try to use
+   it, right?
+   
+I answered this last week, you will get -EIO which turns out to also a
+valid return from PTRACE_READDATA.  So a backwards compatible way to
+test for existence of PTRACE_READDATA is going to be difficult.

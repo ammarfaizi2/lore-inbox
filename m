@@ -1,22 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264209AbUDGXBW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 19:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUDGXBW
+	id S261204AbUDGXKY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 19:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUDGXKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 19:01:22 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:42721 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264210AbUDGW5x (ORCPT
+	Wed, 7 Apr 2004 19:10:24 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:18567 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261204AbUDGXKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 18:57:53 -0400
-Date: Wed, 07 Apr 2004 16:09:25 -0700
+	Wed, 7 Apr 2004 19:10:21 -0400
+Date: Wed, 07 Apr 2004 16:21:44 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: NUMA API for Linux
-Message-ID: <18500000.1081379365@flay>
-In-Reply-To: <20040407155225.14936e8a.akpm@osdl.org>
-References: <1081373058.9061.16.camel@arrakis><20040407145130.4b1bdf3e.akpm@osdl.org><5840000.1081377504@flay><20040408003809.01fc979e.ak@suse.de> <20040407155225.14936e8a.akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, Eric Whiting <ewhiting@amis.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
+Message-ID: <29510000.1081380104@flay>
+In-Reply-To: <20040407230140.GT26888@dualathlon.random>
+References: <40718B2A.967D9467@amis.com> <20040405174616.GH2234@dualathlon.random> <4071D11B.1FEFD20A@amis.com> <20040405221641.GN2234@dualathlon.random> <20040406115539.GA31465@elte.hu> <20040406155925.GW2234@dualathlon.random> <20040406192549.GA14869@elte.hu> <12640000.1081378705@flay> <20040407230140.GT26888@dualathlon.random>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,10 +26,26 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sizeof(vm_area_struct) is a very sensitive thing on ia32.  If you expect
-> that anyone is likely to actually use the numa API on 32-bit, sharing
+> I agree as well it solves a real problem (i.e. 4G userspace), though the
+> userbase that needs it is extremely limited and they're sure ok to run
+> slower than to change their application to use shmfs (a special 4:4
+> kernel may be ok, just like a special 2.5:1.5 may be ok, just like
+> 3.5:0.5 was ok for similar reasons too), but the mass market doesn't
+> need 4:4 and it will never need it, so it's bad to have the masses pay
+> for this relevant worthless runtime overhead in various common
+> workloads.
 
-Me please ;-)
+Yeah, it needs to be a separate kernel for huge blobby machines. I think
+that's exactly what RH does, IIRC (> 16GB ?)
+ 
+> Of course above I'm talking about 2.6-aa or 2.6-mjb. Clearly with
+> kernels including rmap like 2.6 mainline or 2.6-mm or 2.6-mc or the
+> 2.4-rmap patches you need 4:4 everywhere, even on a 4/8G box to avoid
+> running out of normal zone in some fairly common and important workload.
+
+Speaking of which, pte_highmem is stinking expensive itself. There's
+probably a large class of workloads that'd work with out pte_highmem
+if we had 4/4 split (or shared pagetables. Grrr ;-))
 
 M.
 

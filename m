@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUIAPvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUIAPvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267250AbUIAPvP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 11:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUIAPvO
+	id S266187AbUIAPvA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 11:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUIAPrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:51:14 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:38283 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267195AbUIAPsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:48:11 -0400
-Subject: Re: Driver retries disk errors.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <ch4oq3$fse$1@gatekeeper.tmr.com>
-References: <20040831170016.GF17261@harddisk-recovery.com>
-	 <20040830163931.GA4295@bitwizard.nl>
-	 <1093968767.597.14.camel@localhost.localdomain>
-	 <ch4oq3$fse$1@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094049961.2777.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 15:46:03 +0100
+	Wed, 1 Sep 2004 11:47:51 -0400
+Received: from enterprise.spok.net ([213.139.94.155]:46497 "EHLO susi.ggom.de")
+	by vger.kernel.org with ESMTP id S267195AbUIAPpd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:45:33 -0400
+Message-ID: <1094053532.4135ee9c29c2f@secure.frodoid.org>
+Date: Wed,  1 Sep 2004 17:45:32 +0200
+From: Julien Oster <transcode@mc.frodoid.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Chew <achew@nvidia.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: IDE class driver with SATA controllers
+References: <DBFABB80F7FD3143A911F9E6CFD477B03F969B@hqemmail02.nvidia.com> <4135CC6E.3050508@pobox.com>
+In-Reply-To: <4135CC6E.3050508@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 62.225.162.75
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-01 at 16:18, Bill Davidsen wrote:
-> If would probably be good to retry "read what you were asked, nothing 
-> more" on error, to avoid passing back errors caused by readahead. I 
-> suspect this would avoid some issues reading data off CD as well, where 
-> one software can read clean and another ends with a short image and error.
+Quoting Jeff Garzik <jgarzik@pobox.com>:
 
-Sure but as I understand the block layer currently (and I may be missing
-something in the 2.6 code) I can't do that from a driver.
+Hello Jeff,
 
+> With regards to libata being the default, making that an _option_ is 
+> feasible, but we will probably default to the IDE driver for quite some 
+> time.  There are issues of /dev/hda versus /dev/sda, keeping existing 
+> user setups working, etc.
+
+once there is reasonable support to indeed use libata as default,
+we could just wrap a pass through IDE driver around, which allocates the
+major numbers for /dev/hd* and just feeds everything to libata. Or are the
+semantics too different?
+
+Regards,
+Julien
+
+
+-------------------------------------------------
+This mail sent through IMP: http://horde.org/imp/

@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271747AbRICQnw>; Mon, 3 Sep 2001 12:43:52 -0400
+	id <S271752AbRICQsW>; Mon, 3 Sep 2001 12:48:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271748AbRICQnn>; Mon, 3 Sep 2001 12:43:43 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:47813 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S271747AbRICQng>; Mon, 3 Sep 2001 12:43:36 -0400
-Message-ID: <3B93B32A.69D25916@pp.inet.fi>
-Date: Mon, 03 Sep 2001 19:43:22 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
-X-Accept-Language: en
+	id <S271751AbRICQsN>; Mon, 3 Sep 2001 12:48:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:33546 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271752AbRICQrz>; Mon, 3 Sep 2001 12:47:55 -0400
+Date: Mon, 3 Sep 2001 12:22:26 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Rik`s ac12-pmap2 vs ac12-vanilla perfcomp
+In-Reply-To: <20010902174454Z16091-32383+3013@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.21.0109031221290.929-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-crypto@nl.linux.org
-CC: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v1.4d file/swap crypto package
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[linux-kernel also CC'd due to recent encrypted swap discussion]
 
-In short: If file and swap crypto is all you need, this package is a hassle
-free replacement for international crypto patch and HVR's crypto-api.
 
-This package provides loadable Linux kernel module (loop.o) that has AES
-cipher built-in. The AES cipher can be used to encrypt local file systems
-and disk partitions. For more information about compiling and using the
-driver, see the README file in the package.
+On Sun, 2 Sep 2001, Daniel Phillips wrote:
 
-Features:
-- GPL license.
-- No source modifications to kernel. No patch hassles when you are upgrading
-  your kernel.
-- Works with all recent 2.4, 2.2 and 2.0 kernels, including distro vendor
-  kernels. Encrypted disk images are compatible across all supported
-  kernels.
-- AES cipher is used in CBC mode. Supports 128, 192 and 256 bit keys.
-- Passwords hashed with SHA-256, SHA-384 or SHA-512.
-- 512 byte based IV. IV is immune to variations in transfer size and does
-  not depend on file system block size.
-- Device backed (partition backed) loop is capable of encrypting swap on 2.4
-  kernels.
+> On September 2, 2001 11:46 pm, Samium Gromoff wrote:
+> > Daniel Phillips wrote:
+> > > > One thing that goes away with rmaps is the need to scan process page tables.
+> > > It's possible that this takes enough load off L1 cache to produce the effects
+> >
+> >     I feel like that. 
+> >     actually there was a fear that the overhead of reverse map maintenance
+> >  will overthrow the gain on low loads, but in my case this isnt an issue.
+> 
+> Rik's patch can be optimized a lot by using a direct pointer to the pte in the
+> nonshared case, and perhaps a null rmap pointer in the kernel-only case (e.g.,
+> page cache).  If the non-optimized version is already performing better than the
+> traditional approach it's a very good sign.  This needs careful confirmation.
+> 
+> Measurements where you force your system into continuous swapping would be very
+> interesting.
 
-Changes since previous release:
-- Little speed optimization in aes-glue.c
-- External encryption module locking bug is fixed (kernel 2.4 only). This
-  bug did not affect loop-AES operation at all. This fix is from Ingo
-  Rohloff.
-- On 2.4 kernels, device backed loop maintains private pre-allocated pool of
-  RAM pages that are used when kernel is totally out of free RAM. This
-  change also fixes stock loop.c sin of sleeping in make_request_fn().
+Indeed.
 
-Kernel 2.4 users who want to encrypt swap partitions should upgrade to this
-version. No need to upgrade if you use older 2.2 or 2.0 kernels.
-
-bzip2 compressed tarball is here:
-
-    http://loop-aes.sourceforge.net/loop-AES-v1.4d.tar.bz2
-    md5sum 404f82796bacc479deb266f13ec260b8
-
-PGP signature file, my public key, and fingerprint here:
-
-    http://loop-aes.sourceforge.net/loop-AES-v1.4d.tar.bz2.sign
-    http://loop-aes.sourceforge.net/PGP-public-key.asc
-    1024/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
-
-Regards, 
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+Samium, I would appreciated if you could run heavy anon mem tests with
+Rik's code. (eg programs from the memtest suite, make -jALOT, etc)
 

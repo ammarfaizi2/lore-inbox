@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268051AbTB1Sj5>; Fri, 28 Feb 2003 13:39:57 -0500
+	id <S268060AbTB1SqG>; Fri, 28 Feb 2003 13:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268060AbTB1Sj5>; Fri, 28 Feb 2003 13:39:57 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55566 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268051AbTB1Sj4>; Fri, 28 Feb 2003 13:39:56 -0500
-Date: Fri, 28 Feb 2003 10:47:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, <lse-tech@projects.sourceforge.net>
-Subject: Re: [PATCH] New dcache / inode hash tuning patch
-In-Reply-To: <p73n0kg7qi7.fsf@amdsimf.suse.de>
-Message-ID: <Pine.LNX.4.44.0302281039570.3177-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268061AbTB1SqG>; Fri, 28 Feb 2003 13:46:06 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:47488 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S268060AbTB1SqF>; Fri, 28 Feb 2003 13:46:05 -0500
+Date: Sat, 01 Mar 2003 07:59:36 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Software Suspend Functionality in 2.5
+In-reply-to: <20030228151744.GB14927@atrey.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1046458775.1720.5.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1046238339.1699.65.camel@laptop-linux.cunninghams>
+ <20030227181220.A3082@in.ibm.com>
+ <1046369790.2190.9.camel@laptop-linux.cunninghams>
+ <20030228121725.B2241@in.ibm.com>
+ <20030228130548.GA8498@atrey.karlin.mff.cuni.cz>
+ <20030228190924.A3034@in.ibm.com>
+ <20030228134406.GA14927@atrey.karlin.mff.cuni.cz>
+ <20030228204831.A3223@in.ibm.com>
+ <20030228151744.GB14927@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-03-01 at 04:17, Pavel Machek wrote:
+> > For the kind of atomicity you need there probably are two
+> > steps:
+> > 1) Quiesce the system - get to a point of consistency (when you
+> >    can take a resumable snapshot)
+> > 2) Perform an atomic copy / snapshot
+> > 
+> > Step (1) would be different for swsusp and crash dump (not
+> > intended to be common ). But for Step (2), do you think
+> > what you need/do is complicated by crashed system requirements ?
+> 
+> Well, I guess count_and_copy_data_pages() is easy to share, OTOH it is
+> really small piece of code. Also do you think you can free half of
+> memory in crashed system? Thats what swsusp currently does...
+> 
+> [I need really little about LKCD... But you are going to need modified
+> disk drivers etc, right? I'd like to get away without that in swsusp,
+> at least in 2.6.X.]
+> 
 
-On 28 Feb 2003, Andi Kleen wrote:
->
-> Also isn't it a bit late in the 2.5 cycle to think about such radical
-> changes like local lookup?
+With the changes I've made, which I'm starting to merge with Pavel, I
+think the two are a lot closer to each other.
 
-Look again at my suggestion: forcing locality by just changing the hash
-function to _intentionally_ bunch directory hashes together.
+With regard to quiescing the system, we need the same things stopped
+that you need. We can of course use drivers_suspend when you can't, but
+we could probably also use the SMP code you have.
 
-Yes, it's "pseudo-locality" (and my example hash was truly broken: we 
-must _not_ use the directory dentry hash value as part of the hash, as the 
-hash needs to be stable over the whole lifetime of the directory dentry), 
-but the point is that by just changing the hashing algorithm you can 
-potentially get a good portion of the locality we want.
+I've got swsusp so that freeing memory is not necessary - the whole
+image can be written to disk. There is still an option for the user to
+aim for a smaller image (a soft limit can be set), and if there's not
+enough swap available, that will also cause some memory to be freed, but
+LKCD would run into that problem writing to swap too.
 
-Right now the dcache hash is often something like 17 bits - and we could
-easily make it so that roughly "half" the bits would be based purely on
-the directory. That would still give each directory ~8 bits worth of
-"local hashing", which is fairly reasonable.
+Regards,
 
-> It sounds more like a nice 2.7 project.
-
-It sounds more like changing two lines of code to me.
-
-> I believe my patch with a bit more tweaking (my current 64K hash table
-> seems to be too small) is suitable even for an soon to be stable
-> kernel.
-
-Quite frankly, right now the only report I've seen about your patch is 
-that it made things slightly _slower_.
-
-For a patch that is supposed to speed stuff up, that's a damn bad track 
-record. Sorry.
-
-I'd suggest you drop the hash size changes, and try with _just_ the hlist 
-stuff, and once that is verified to perform well, _then_ worry about 
-hashing changes. Because quite frankly, I suspect my "local hash" thing 
-performs better than "make the hashes smaller". And the hash algorithm and 
-size is _totally_ independent from whether it uses the regular lists or 
-the hlists..
-
-			Linus
+Nigel
 

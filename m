@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265688AbSJSWLP>; Sat, 19 Oct 2002 18:11:15 -0400
+	id <S265696AbSJSW1x>; Sat, 19 Oct 2002 18:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265689AbSJSWLP>; Sat, 19 Oct 2002 18:11:15 -0400
-Received: from ra.abo.fi ([130.232.213.1]:62122 "EHLO ra.abo.fi")
-	by vger.kernel.org with ESMTP id <S265688AbSJSWLO>;
-	Sat, 19 Oct 2002 18:11:14 -0400
-Date: Sun, 20 Oct 2002 01:17:14 +0300 (EEST)
-From: Marcus Alanen <maalanen@ra.abo.fi>
-To: linux-kernel@vger.kernel.org
-cc: trivial@rustcorp.com.au
-Subject: [patch] setup_arg_pages. ARCH_STACK_GROWSUP ??
-Message-ID: <Pine.LNX.4.44.0210200110450.16009-100000@tuxedo.abo.fi>
+	id <S265697AbSJSW1x>; Sat, 19 Oct 2002 18:27:53 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:47122 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S265696AbSJSW1w>; Sat, 19 Oct 2002 18:27:52 -0400
+Path: Home.Lunix!not-for-mail
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+Date: Sat, 19 Oct 2002 22:36:30 +0000 (UTC)
+Organization: lunix confusion services
+References: <200210190352.WAA05769@ccure.karaya.com>
+NNTP-Posting-Host: kali.eth
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-Trace: quasar.home.lunix 1035066990 24846 10.253.0.3 (19 Oct 2002
+    22:36:30 GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Sat, 19 Oct 2002 22:36:30 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:188371
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <aosmpe$o8e$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as I can see, setup_arg_pages code is hosed for the 
-ARCH_STACK_GROWSUP case, completely wrong types... Does any arch even 
-use this?
-
-Marcus
-
-diff -Naurd --exclude-from=/home/maalanen/linux/base/diff_exclude linus-2.5.44/fs/exec.c msa-2.5.44/fs/exec.c
---- linus-2.5.44/fs/exec.c	Wed Oct 16 16:31:15 2002
-+++ msa-2.5.44/fs/exec.c	Sat Oct 19 22:03:11 2002
-@@ -354,11 +354,11 @@
- 		memmove(to, to + offset, PAGE_SIZE - offset);
- 		from = kmap(bprm->page[j]);
- 		memcpy(to + PAGE_SIZE - offset, from, offset);
--		kunmap(bprm[j - 1]);
-+		kunmap(bprm->page[j - 1]);
- 		to = from;
- 	}
- 	memmove(to, to + offset, PAGE_SIZE - offset);
--	kunmap(bprm[j - 1]);
-+	kunmap(bprm->page[j - 1]);
- 
- 	/* Adjust bprm->p to point to the end of the strings. */
- 	bprm->p = PAGE_SIZE * i - offset;
-
+In article <200210190352.WAA05769@ccure.karaya.com>,
+	Jeff Dike <jdike@karaya.com> writes:
+> 
+> This needs to be virtualizable somehow, which means that apps run inside
+> UML, without being changed, get the UML vsyscalls.  There are a couple of
+> possiblities that I can think of:
+> 	a get_vsyscall system call which is executed by libc on startup -
+> UML would return a different calue from the host
+> 	some mechanism for UML to map its own vsyscall area in place of
+> the host's - it wouldn't necessarily need to be able to unmap it when it's
+> running its own kernel code because it can probably arrange not to use the
+> host's vsyscalls.
+> 
+> 				Jeff
+> 
+In case you want UML to also be able to work as a jail, it should
+actually be impossible to get to the "real" systemcalls. In that case
+just asking libc is not acceptable if the other area remains available

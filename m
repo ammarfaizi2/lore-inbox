@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318564AbSGZUPH>; Fri, 26 Jul 2002 16:15:07 -0400
+	id <S318562AbSGZUM1>; Fri, 26 Jul 2002 16:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318569AbSGZUOz>; Fri, 26 Jul 2002 16:14:55 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:29715 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S318564AbSGZUMw>; Fri, 26 Jul 2002 16:12:52 -0400
-Date: Fri, 26 Jul 2002 13:15:54 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.5.28 Correct drivers/video aty build inconsistency
-In-Reply-To: <8505.1027656817@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.44.0207261315390.15282-100000@www.transvirtual.com>
+	id <S318564AbSGZUM0>; Fri, 26 Jul 2002 16:12:26 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:27149 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S318562AbSGZUMH>; Fri, 26 Jul 2002 16:12:07 -0400
+Message-ID: <3D41ADD3.9010509@namesys.com>
+Date: Sat, 27 Jul 2002 00:15:15 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to start on new db-based FS?
+References: <20020726160742.GA951@ksu.edu> <20020726190520.GA3192@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jose Luis Domingo Lopez wrote:
 
-Fixed. Thanks.
+>On Friday, 26 July 2002, at 11:07:42 -0500,
+>Johnny Q. Hacker wrote:
+>
+>  
+>
+>>I'm looking to start work in the next half-year to year on a filesystem
+>>  with LDAP and then maybe later someSQL backing.  Where's a good place
+>>  to start?  I'm going to have a look at NFS, because I think I might
+>>  be able to use its interface into the kernel (I'm planning on making
+>>  it a userspace daemon).  Maybe autofs, although I think that's a
+>>  different interface.
+>>
+>>    
+>>
+>Just a pointer to a project on filesystems that seems "revolutionary" in
+>concepts and objectives: ReiserFS 4 (http://www.namesys.com).
+>
+>Please don't ask me about details, because I don't know a thing about
+>filesystem design and such :-), but documentation at the above site can 
+>give you some ideas, and maybe a place to start contributing.
+>
+>Regards, 
+>
+>  
+>
+We would be happy to cooperate with persons interested in implementing 
+LDAP optimizing plugins for reiser4.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
+Probably you can get decent results compared to the competition even 
+without writing additional plugins.
 
-On Fri, 26 Jul 2002, Keith Owens wrote:
+-- 
+Hans
 
-> Detected by kbuild 2.5.
->
-> pp_makefile4:
-> Warning: drivers/video/cfbimgblt.o is a sub-object and it appears on select().
->          This is an ambiguous combination and is not recommended.
->
-> CONFIG_FB_NEOMAGIC=m, CONFIG_FB_ATY=y builds cfbimgblt as a module then
-> links it into vmlinux via atyfb.
->
-> Index: 28.1/drivers/video/aty/Makefile
-> --- 28.1/drivers/video/aty/Makefile Fri, 26 Jul 2002 10:10:31 +1000 kaos (linux-2.5/u/b/12_Makefile 1.3 444)
-> +++ 28.1(w)/drivers/video/aty/Makefile Fri, 26 Jul 2002 14:07:55 +1000 kaos (linux-2.5/u/b/12_Makefile 1.3 444)
-> @@ -3,7 +3,7 @@ export-objs    :=  atyfb_base.o mach64_a
->
->  obj-$(CONFIG_FB_ATY) += atyfb.o
->
-> -atyfb-y				:= atyfb_base.o mach64_accel.o ../cfbimgblt.o
-> +atyfb-y				:= atyfb_base.o mach64_accel.o
->  atyfb-$(CONFIG_FB_ATY_GX)	+= mach64_gx.o
->  atyfb-$(CONFIG_FB_ATY_CT)	+= mach64_ct.o mach64_cursor.o
->  atyfb-objs			:= $(atyfb-y)
-> Index: 28.1/drivers/video/Makefile
-> --- 28.1/drivers/video/Makefile Fri, 26 Jul 2002 10:10:31 +1000 kaos (linux-2.5/x/b/16_Makefile 1.12 444)
-> +++ 28.1(w)/drivers/video/Makefile Fri, 26 Jul 2002 14:08:51 +1000 kaos (linux-2.5/x/b/16_Makefile 1.12 444)
-> @@ -89,7 +89,7 @@ obj-$(CONFIG_FB_TX3912)           += tx3
->  obj-$(CONFIG_FB_MATROX)		  += matrox/
->  obj-$(CONFIG_FB_RIVA)		  += riva/
->  obj-$(CONFIG_FB_SIS)		  += sis/
-> -obj-$(CONFIG_FB_ATY)		  += aty/
-> +obj-$(CONFIG_FB_ATY)		  += aty/ cfbimgblt.o
->
->  obj-$(CONFIG_FB_SUN3)             += sun3fb.o
->  obj-$(CONFIG_FB_BWTWO)            += bwtwofb.o
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
 

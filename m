@@ -1,38 +1,74 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <155176-17483>; Tue, 11 May 1999 02:45:02 -0400
-Received: by vger.rutgers.edu id <154951-17480>; Tue, 11 May 1999 02:15:17 -0400
-Received: from post-10.mail.nl.demon.net ([194.159.73.20]:45361 "EHLO post.mail.nl.demon.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <155146-17483>; Tue, 11 May 1999 01:44:33 -0400
-Date: Tue, 11 May 1999 08:13:11 +0200 (CEST)
-From: Rik van Riel <riel@nl.linux.org>
-To: Roger Espel Llima <espel@llaic.u-clermont1.fr>
-cc: linux-kernel@vger.rutgers.edu
-Subject: Re: [OFFTOPIC] free plan9? [was Re: Ken Thompson interview in IEEE Computer magazine (fwd)]
-In-Reply-To: <19990511022507.B26071@llaic.u-clermont1.fr>
-Message-ID: <Pine.LNX.4.03.9905110812000.226-100000@mirkwood.nl.linux.org>
-X-Search-Engine-Bait: http://humbolt.nl.linux.org/
-X-My-Own-Server: http://www.nl.linux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: by vger.rutgers.edu via listexpand id <157500-17480>; Wed, 12 May 1999 13:56:03 -0400
+Received: by vger.rutgers.edu id <159987-17480>; Wed, 12 May 1999 09:49:15 -0400
+Received: from nicheisdn.inet.it ([194.185.219.229]:1041 "EHLO nicheisdn.inet.it" ident: "root") by vger.rutgers.edu with ESMTP id <154778-17483>; Wed, 12 May 1999 04:42:22 -0400
+Date: Wed, 12 May 1999 11:02:20 +0200
+From: Luca Lizzeri <ll@niche.it>
+To: linux-kernel@vger.rutgers.edu
+Subject: ppp and parport waitqueue changes for pre-2.3.1
+Message-ID: <19990512110220.A3085@niche.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3us
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Tue, 11 May 1999, Roger Espel Llima wrote:
-> Pavel Machek <pavel@bug.ucw.cz> wrote:
-> > 
-> > This already happened. It is called VSTa.
-> 
-> *sigh* how can they expect to get anywhere with a name that ugly!
 
-:)
+Plenty of places (especially sound) are still missing the waitqueue changes.
 
-The design is beautiful, however. People should go check it
-out at http://www.zendo.com/vsta/...
+The ones I made for ppp and parport follow.
 
-Rik -- Open Source: you deserve to be in control of your data.
-+-------------------------------------------------------------------+
-| Le Reseau netwerksystemen BV:               http://www.reseau.nl/ |
-| Linux Memory Management site:  http://humbolt.geo.uu.nl/Linux-MM/ |
-| Nederlandse Linux documentatie:          http://www.nl.linux.org/ |
-+-------------------------------------------------------------------+
+Bye,
+	Luca
+
+
+diff -ur linux-vanilla/drivers/misc/parport_share.c linux/drivers/misc/parport_share.c
+--- linux-vanilla/drivers/misc/parport_share.c	Wed May 12 10:49:49 1999
++++ linux/drivers/misc/parport_share.c	Wed May 12 10:05:22 1999
+@@ -277,7 +277,7 @@
+ 	inc_parport_count();
+ 	port->ops->inc_use_count();
+ 
+-	init_waitqueue(&tmp->wait_q);
++	init_waitqueue_head(&tmp->wait_q);
+ 	tmp->timeslice = PARPORT_DEFAULT_TIMESLICE;
+ 	tmp->waitnext = tmp->waitprev = NULL;
+ 
+diff -ur linux-vanilla/drivers/net/ppp.c linux/drivers/net/ppp.c
+--- linux-vanilla/drivers/net/ppp.c	Wed May 12 10:49:36 1999
++++ linux/drivers/net/ppp.c	Wed May 12 10:43:59 1999
+@@ -2834,7 +2834,7 @@
+ 	ppp->magic = PPP_MAGIC;
+ 	ppp->next = NULL;
+ 	ppp->inuse = 1;
+-	ppp->read_wait = NULL;
++	init_waitqueue_head(&ppp->read_wait);
+ 
+ 	/*
+ 	 * Make up a suitable name for this device
+diff -ur linux-vanilla/include/linux/if_pppvar.h linux/include/linux/if_pppvar.h
+--- linux-vanilla/include/linux/if_pppvar.h	Wed May 12 10:49:27 1999
++++ linux/include/linux/if_pppvar.h	Wed May 12 10:40:16 1999
+@@ -109,7 +109,7 @@
+ 	__u16		rfcs;		/* FCS so far of rpkt		*/
+ 
+ 	/* Queues for select() functionality */
+-	struct wait_queue *read_wait;	/* queue for reading processes	*/
++	wait_queue_head_t	read_wait;	/* queue for reading processes	*/
+ 
+ 	/* info for detecting idle channels */
+ 	unsigned long	last_xmit;	/* time of last transmission	*/
+diff -ur linux-vanilla/include/linux/parport.h linux/include/linux/parport.h
+--- linux-vanilla/include/linux/parport.h	Wed May 12 10:49:27 1999
++++ linux/include/linux/parport.h	Wed May 12 10:33:48 1999
+@@ -163,7 +163,7 @@
+ 	struct pardevice *next;
+ 	struct pardevice *prev;
+ 	struct parport_state *state;     /* saved status over preemption */
+-	struct wait_queue *wait_q;
++	wait_queue_head_t wait_q;
+ 	unsigned long int time;
+ 	unsigned long int timeslice;
+ 	unsigned int waiting;
 
 
 -

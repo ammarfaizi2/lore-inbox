@@ -1,31 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285498AbSBGHoI>; Thu, 7 Feb 2002 02:44:08 -0500
+	id <S286303AbSBGHqi>; Thu, 7 Feb 2002 02:46:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285692AbSBGHns>; Thu, 7 Feb 2002 02:43:48 -0500
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:24792 "HELO
+	id <S285828AbSBGHqa>; Thu, 7 Feb 2002 02:46:30 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:45273 "HELO
 	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S285498AbSBGHnh>; Thu, 7 Feb 2002 02:43:37 -0500
-Date: Thu, 7 Feb 2002 09:36:37 +0200 (SAST)
+	id <S285709AbSBGHqU>; Thu, 7 Feb 2002 02:46:20 -0500
+Date: Thu, 7 Feb 2002 09:39:20 +0200 (SAST)
 From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Benoit Garnier <bunch@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] - 2.5.4-pre1 - I/O error on CD-ROM
-In-Reply-To: <001d01c1afa8$620d7460$0201a8c0@cybercable.fr>
-Message-ID: <Pine.LNX.4.44.0202070936020.8308-100000@netfinity.realnet.co.sz>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Oops after disabling DMA with IDE-SCSI
+In-Reply-To: <Pine.LNX.4.44.0202070911321.8308-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0202070938470.8308-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Benoit Garnier wrote:
+Correction, looks like hdparm -d0 doesn't trigger an oops.
 
-> Should I try the IDE patch?
-
-The IDE patch is already in 2.5.3
-
-Cheers,
+Regards,
 	Zwane Mwaikambo
 
 

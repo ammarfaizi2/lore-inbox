@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTJ2HuO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 02:50:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbTJ2HuO
+	id S261889AbTJ2H73 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 02:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTJ2H73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 02:50:14 -0500
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:43986 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261909AbTJ2HuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 02:50:11 -0500
-Content-Disposition: inline
+	Wed, 29 Oct 2003 02:59:29 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:29623 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261889AbTJ2H72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 02:59:28 -0500
+Subject: [BK PATCH] ACPI 2.6
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1067414344.15257.5.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 29 Oct 2003 02:59:05 -0500
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="Big5"
-MIME-Version: 1.0
-X-Mailer: MIME::Lite 1.2  (F2.71; T1.001; A1.51; B2.12; Q2.03)
-From: "CN" <cnliou9@fastmail.fm>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 28 Oct 2003 23:50:10 -0800
-X-Epoch: 1067413810
-X-Sasl-enc: RHc0X2/tUdoMpz+9BNBKgQ
-Subject: kernel: i8253 counting too high! resetting..
-Message-Id: <20031029075010.596C57A6C6@smtp.us2.messagingengine.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Linus, please do a 
 
-I get several
+	bk pull http://linux-acpi.bkbits.net/linux-acpi-release-2.6.0
 
-kernel: i8253 counting too high! resetting..
+	These two csets undo recent changes that caused crashes.
 
-entries in syslog from kernel 2.4.22 upgraded from Debian woody (gcc
-2.95.4) running on AMD K6II 450MHz with 64MB RAM. I don't have such
-problem in kernel 2.4.20 upgraded from Slackware (gcc 2.95.3) running on
-another box with the identical CPU and main board (but with 192MB RAM).
-Does this message hurt anything?
+thanks,
+-Len
 
-Regards,
-CN
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.0-test9/acpi-20031002-2.6.0-test9.diff.gz
 
--- 
-http://www.fastmail.fm - Faster than the air-speed velocity of an
-                          unladen european swallow
+This will update the following files:
+
+ drivers/acpi/dispatcher/dsopcode.c |    8 +++-----
+ drivers/acpi/ec.c                  |   16 ++--------------
+ 2 files changed, 5 insertions(+), 19 deletions(-)
+
+through these ChangeSets:
+
+<len.brown@intel.com> (03/10/28 1.1373)
+   [ACPI] REVERT ACPICA-20030918 CONFIG_ACPI_DEBUG printk that caused
+crash
+   http://bugzilla.kernel.org/show_bug.cgi?id=1341
+
+<len.brown@intel.com> (03/10/28 1.1372)
+   [ACPI] REVERT acpi_ec_gpe_query(ec) fix that crashed non-T40 boxes
+   http://bugme.osdl.org/show_bug.cgi?id=1171
+
+
+
+

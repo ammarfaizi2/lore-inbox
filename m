@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270605AbTGURI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 13:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270608AbTGURI6
+	id S270617AbTGURJk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 13:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270627AbTGURJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 13:08:58 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38153
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270605AbTGURIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 13:08:55 -0400
-Date: Mon, 21 Jul 2003 10:23:55 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [PATCH] O7int for interactivity
-Message-ID: <20030721172355.GA1158@matchmail.com>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-	Davide Libenzi <davidel@xmailserver.org>
-References: <20030718230717.GG2289@matchmail.com> <200307190930.37447.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307190930.37447.kernel@kolivas.org>
-User-Agent: Mutt/1.5.4i
+	Mon, 21 Jul 2003 13:09:40 -0400
+Received: from mcomail04.maxtor.com ([134.6.76.13]:42257 "EHLO
+	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
+	id S270617AbTGURJf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 13:09:35 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D65F@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'Gabor MICSKO'" <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org
+Subject: RE: SCO offers UnixWare licenses for Linux
+Date: Mon, 21 Jul 2003 11:24:40 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 09:30:37AM +1000, Con Kolivas wrote:
-> On Sat, 19 Jul 2003 09:07, Mike Fedyk wrote:
-> > On Sat, Jul 19, 2003 at 02:10:49AM +1000, Con Kolivas wrote:
-> > > Here is an update to my Oint patches for 2.5/6 interactivity. Note I will
-> > Is this on top of 06 or 06.1?
-> 
-> On top of O6.1.
-> 
+To quote from their press release:
 
-Ok, after some testing I have a test case that hits a severe starvation case.
+"Hundreds of files of misappropriated UNIX source code and derivative UNIX
+code have been contributed to Linux in a variety of areas, including
+multi-processing capabilities. The Linux 2.2.x kernel was able to scale to
+2-4 processors. With Linux 2.4.x and the 2.5.x development kernel, Linux now
+scales to 32 and 64 processors through the addition of advanced Symmetrical
+Multi-Processing (SMP) capabilities taken from UNIX System V and derivative
+works, in violation of SCO's contract agreements and copyrights."
 
-I have the courier-imap server running on my box, and when mozilla gets
-messages with junk filtering turned on, it has to download each message to
-scan it, almost all of the processing is in mozilla, and the mouse is smooth
-as you'd see on windows, but I can't get anything else to run.
 
-My kde taskbar won't switch desktops, though gkrellm keeps running smoothly
-reporting 100% processor usage.
 
-I'm not using sound on this machine ATM, so I have nothing to say about
-XMMS...
+
+To my understanding, this hasn't been proven... most of what I have read
+says otherwise.
+
+If this is proven false in the IBM lawsuit, wouldn't this statement become
+grounds for a libel lawsuit on behalf of the authors of this functionality?
+
+--eric
+(speaking in my own capacity, not Maxtor's obviously)
+
+
+
+
+-----Original Message-----
+From: Gabor MICSKO [mailto:gmicsko@szintezis.hu]
+Sent: Monday, July 21, 2003 11:10 AM
+To: linux-kernel@vger.kernel.org
+Subject: SCO offers UnixWare licenses for Linux
+
+
+
+http://lwn.net/Articles/40526/
+
+interesting.
+
+-- 
+Windows not found
+(C)heers, (P)arty or (D)ance?
+-----------------------------------
+Micskó Gábor
+Compaq Accredited Platform Specialist, System Engineer (APS, ASE)
+Szintézis Computer Rendszerház Kft.      
+H-9021 Gyor, Tihanyi Árpád út. 2.
+Tel: +36-96-502-216
+Fax: +36-96-318-658
+E-mail: gmicsko@szintezis.hu
+Web: http://www.hup.hu
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

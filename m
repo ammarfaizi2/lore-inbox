@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261299AbSJ1PJb>; Mon, 28 Oct 2002 10:09:31 -0500
+	id <S261297AbSJ1PHa>; Mon, 28 Oct 2002 10:07:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261300AbSJ1PJa>; Mon, 28 Oct 2002 10:09:30 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:29194 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S261299AbSJ1PJD>; Mon, 28 Oct 2002 10:09:03 -0500
-Message-Id: <200210281515.g9SFFJo02790@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: James.Bottomley@HansenPartnership.com, linux-kernel@vger.kernel.org
-Subject: Re: Drivers - 2.5 side project - Do you fix random ancient drivers for
+	id <S261298AbSJ1PHa>; Mon, 28 Oct 2002 10:07:30 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41697 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261297AbSJ1PHK>; Mon, 28 Oct 2002 10:07:10 -0500
+Date: Mon, 28 Oct 2002 10:15:18 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.44-ac3
+Message-ID: <20021028151517.GA18875@redhat.com>
+Mail-Followup-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <200210251019.g9PAJ8V14406@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 28 Oct 2002 09:15:19 -0600
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+In-Reply-To: <200210251019.g9PAJ8V14406@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One thing that is obvious is that there are going to be a reasonable
-> number of broken drivers for weird, ancient or otherwise unsupportable
-> pieces of hardware.
+On Fri, Oct 25, 2002 at 06:19:08AM -0400, Alan Cox wrote:
+>    Doug's scsi changes broke mptfusion. I've not looked into that yet
+>    also u14f/u34f.
 
-As the possessor of a number of pieces of wierd and obsolete hardware, I do 
-this for what I have.
+Fixed in linux-scsi.bkbits.net/scsi-misc-2.5  Well, the mptfusion is, not 
+sure about u14f/u34f.  I think I have that turned off in my builds because 
+it was still broken in regards to the PCI DMA mapping API last I knew.
 
-> As a little side project I'd like to compile a list of people who
-> actually do commercial support for such random weird devices so when
-> people actually want to pay to fix some strange 8bit ISA device they
-> know where to go, and then stick it on the web referenced by such
-> drivers.
-
-You can put me down for most things MCA related (although most of my MCA cards 
-tend to be voyager specific).
-
-James
-
-
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUFMNGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265062AbUFMNHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbUFMNGG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 09:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUFMNGG
+	id S265062AbUFMNHI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 09:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUFMNHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 09:06:06 -0400
-Received: from rudnanet.customer.vol.cz ([195.122.192.2]:51737 "EHLO janik.cz")
-	by vger.kernel.org with ESMTP id S265054AbUFMNGF (ORCPT
+	Sun, 13 Jun 2004 09:07:08 -0400
+Received: from nmts-mur.murom.net ([213.177.124.6]:15016 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S265056AbUFMNGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 09:06:05 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Request: Netmos support in parport_serial for 2.4.27
-References: <20040613111949.GB6564@dbz.icequake.net>
-From: Pavel@Janik.cz (=?iso-8859-2?q?Pavel_Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Sun, 13 Jun 2004 15:05:52 +0200
-In-Reply-To: <20040613111949.GB6564@dbz.icequake.net> (Ryan Underwood's
- message of "Sun, 13 Jun 2004 06:19:49 -0500")
-Message-ID: <877jubk3pr.fsf@Janik.cz>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
+	Sun, 13 Jun 2004 09:06:45 -0400
+Date: Sun, 13 Jun 2004 17:06:30 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: timer + fpu stuff locks up computer
+Message-ID: <20040613130630.GB2236@sirius.home>
+References: <26h3z-t3-15@gated-at.bofh.it> <26hGq-Zr-29@gated-at.bofh.it> <26isF-1Im-11@gated-at.bofh.it> <26lJU-4lC-23@gated-at.bofh.it> <m3isdwo2et.fsf@averell.firstfloor.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
+Content-Disposition: inline
+In-Reply-To: <m3isdwo2et.fsf@averell.firstfloor.org>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ryan Underwood <nemesis-lists@icequake.net>
-   Date: Sun, 13 Jun 2004 06:19:49 -0500
 
-   > Can it be reviewed for inclusion before 2.4.27?  I have a few systems
-   > with these cards and it would be very nice to have them up to snuff.
+--GID0FwUMdk1T2AWN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I too have several (several hundreds) systems with it. Please include it in
-the next 2.4 version.
--- 
-Pavel Janík
+On Sun, Jun 13, 2004 at 12:08:10AM +0200, Andi Kleen wrote:
+> One problem on 486s/P5s would be the race that is described in D.2.1.3
+> of Volume 1 of the Intel architecture manual when the FPU is in MSDOS
+> compatibility. When that happens we can still get the exception later
+> (e.g. on a following fwait which the kernel can still execute). The
+> only way to handle that would be to check in the exception handler,
+> like my patch did.
 
-Avoid unnecessary branches.
-                  --  The Elements of Programming Style (Kernighan & Plaugher)
+But in head.S we set the NE flag in CR0 for all 486 or better
+processors, so the MSDOS compatibility mode is not used, and we don't
+need to care about this race.
+
+> However my patch was also not complete, since it
+> didn't handle it for all fwaits in the kernel.
+
+Looked at your patch...  I was also thinking about something similar.
+
+You treat exception 16 and IRQ13 the same - is this really correct?
+Asynchronous IRQ13 might break things.  But this would be visible only
+on a real 80386+80387 - does someone still have such hardware? ;)
+
+--GID0FwUMdk1T2AWN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAzFFWW82GfkQfsqIRApU6AJ9vcEelNI31jSePaPbuYQiBMhEwbQCfY2IH
+ceh3O6amLtQxb8qMK9+GrNE=
+=VyFe
+-----END PGP SIGNATURE-----
+
+--GID0FwUMdk1T2AWN--

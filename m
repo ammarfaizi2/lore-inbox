@@ -1,89 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267089AbTCEE17>; Tue, 4 Mar 2003 23:27:59 -0500
+	id <S267091AbTCEE2E>; Tue, 4 Mar 2003 23:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267091AbTCEE17>; Tue, 4 Mar 2003 23:27:59 -0500
-Received: from out006pub.verizon.net ([206.46.170.106]:64749 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP
-	id <S267089AbTCEE16>; Tue, 4 Mar 2003 23:27:58 -0500
-Message-ID: <3E657EBD.59E167D6@verizon.net>
-Date: Tue, 04 Mar 2003 20:36:13 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.59 i686)
+	id <S267102AbTCEE2D>; Tue, 4 Mar 2003 23:28:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54283 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267091AbTCEE2B>;
+	Tue, 4 Mar 2003 23:28:01 -0500
+Message-ID: <3E657F33.4000304@pobox.com>
+Date: Tue, 04 Mar 2003 23:38:11 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] move SWAP option in menu
-Content-Type: multipart/mixed;
- boundary="------------66783FF1E7355B54CB30A405"
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [4.64.238.61] at Tue, 4 Mar 2003 22:38:22 -0600
+To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       kai.bankett@ontika.net, mingo@redhat.com,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+Subject: Re: [PATCH][IO_APIC] 2.5.63bk7 irq_balance improvments / bug-fixes
+References: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com>
+In-Reply-To: <E88224AA79D2744187E7854CA8D9131DA8B7E0@fmsmsx407.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------66783FF1E7355B54CB30A405
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Kamble, Nitin A wrote:
+> There are few issues we found with the user level daemon approach.
 
-Hi,
+Thanks much for the response!
 
-Please apply this patch (option B of 2 choices) from
-Tomas Szepe to move the SWAP option into the General Setup
-menu.
 
-Patch is to 2.5.64.
+>    Static binding compatibility: With the user level daemon, users can
+> not  
+> use the /proc/irq/i/smp_affinity interface for the static binding of
+> interrupts.
 
-Thanks,
-~Randy
---------------66783FF1E7355B54CB30A405
-Content-Type: text/plain; charset=us-ascii;
- name="swap_option.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="swap_option.patch"
+Not terribly accurate:  in "one-shot" mode, where the daemon balances 
+irqs once at startup, users can change smp_affinity all they want.
 
-diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	2003-03-03 20:04:08.000000000 +0100
-+++ b/arch/i386/Kconfig	2003-03-03 19:58:48.000000000 +0100
-@@ -18,15 +18,6 @@
- 	bool
- 	default y
- 
--config SWAP
--	bool "Support for paging of anonymous memory"
--	default y
--	help
--	  This option allows you to choose whether you want to have support
--	  for socalled swap devices or swap files in your kernel that are
--	  used to provide more virtual memory than the actual RAM present
--	  in your computer.  If unusre say Y.
--
- config SBUS
- 	bool
- 
-diff -urN a/init/Kconfig b/init/Kconfig
---- a/init/Kconfig	2003-02-11 01:09:48.000000000 +0100
-+++ b/init/Kconfig	2003-03-03 20:02:11.000000000 +0100
-@@ -34,9 +34,18 @@
- 
- endmenu
- 
--
- menu "General setup"
- 
-+config SWAP
-+	depends on X86
-+	bool "Support for paging of anonymous memory"
-+	default y
-+	help
-+	  This option allows you to choose whether you want to have support
-+	  for the so-called swap devices or swap files.  There are used to
-+	  provide more virtual memory than the actual RAM presents in your
-+	  computer.  If unsure, say Y.
-+
- config SYSVIPC
- 	bool "System V IPC"
- 	---help---
+In the normal continuous-balance mode, it is quite easy to have the 
+daemon either (a) notice changes users make or (b) configure the daemon. 
+  The daemon does not do (a) or (b) currently, but it is a simple change.
 
---------------66783FF1E7355B54CB30A405--
+
+>   There is some information which is only available in the kernel today,
+> Also the future implementation might need more kernel data. This is
+> important for interfaces such as NAPI, where interrupts handling changes
+> on the fly.
+
+This depends on the information :)  Some information that is useful for 
+balancing is only [easily] available from userspace.   In-kernel 
+information may be easily exported through "sysfs", which is designed to 
+export in-kernel information.
+
+Further, for NAPI and networking in general, it is recommended to bind 
+each NIC to a single interrupt, and never change that binding. 
+Delivering a single NIC's interrupts to multiple CPUs leads to a 
+noticeable performance loss.  This is why some people complain that 
+their specific network setups are faster on a uniprocessor kernel than 
+an SMP kernel.
+
+I have not examined interrupt delivery for other peripherals, such at 
+ATA or SCSI hosts, but for networking you definitely want to statically 
+bind each NIC's irqs to a separate CPU, and then not touch that binding.
+
+Best regards, and thanks again for your valuable feedback,
+
+	Jeff
+
+
 

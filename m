@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUEWLkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUEWLr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUEWLkH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 07:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUEWLkH
+	id S262605AbUEWLr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 07:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUEWLr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 07:40:07 -0400
-Received: from zero.aec.at ([193.170.194.10]:18181 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262585AbUEWLkE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 07:40:04 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm5
-References: <1YAd2-6Th-13@gated-at.bofh.it> <1YPF4-2hJ-11@gated-at.bofh.it>
-	<1YPOI-2nq-1@gated-at.bofh.it> <1YRdQ-3pu-5@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 23 May 2004 13:39:59 +0200
-In-Reply-To: <1YRdQ-3pu-5@gated-at.bofh.it> (Eric W. Biederman's message of
- "Sun, 23 May 2004 04:50:06 +0200")
-Message-ID: <m3r7tbtlrk.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 23 May 2004 07:47:29 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:7955 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262605AbUEWLr1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 07:47:27 -0400
+Date: Sun, 23 May 2004 13:49:36 +0200
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Christoph Hellwig <hch@lst.de>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: i486 emu in mainline?
+Message-ID: <20040523114936.GA26157@hh.idb.hist.no>
+References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com> <20040523084415.GB16071@alpha.home.local> <20040523091356.GD5889@devserv.devel.redhat.com> <20040523094853.GA16448@alpha.home.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040523094853.GA16448@alpha.home.local>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
+On Sun, May 23, 2004 at 11:48:53AM +0200, Willy Tarreau wrote:
+> 
+> You mean like when a user does a malloc() and the memory is not physically
+> allocated because not used yet ? or even in case memory has been swapped
+> out ? I believe I begin to understand, but the corner case is not really
+> clear to me. It yet seems strange to me that the user can reference memory
+> areas that the kernel cannot access. 
 
-> Currently I know of a safe version that will work on x86 on processors
-> with sse support.   And I how to generate 64bit I/O cycles with using
-> mmx or x87 registers,  but don't know if I can write code that touches
-> the FPU registers that is interrupt safe.
+The user referencing non-present memory is not a problem, because:
+1. It is always pssoible to block the user process and let it wait
+   (a long time) for swapping to happen. That might not be an
+   option for the kernel - it can't wait while holding a
+   spinlock, for example.
+2. It is always ok to kill the user process if it uses memory it
+   doesn't have.  It is not ok to "kill" the kernel.  The indirect ways
+   of using user memory from the kernel side ensures that the
+   normal mechanisms (swap-wait or kill) applies to the process owning
+   the memory.  Direct reference from kernel does not invoke normal page 
+   fault mechanisms when memory goes wrong.
 
-As long as you save/restore cr0 and the FPU registers and do clts
-interrupts are not a problem.  In fact interrupts are even easier that
-process context, where you need preempt_disable().
-
--Andi
-
+Helge Hafting 

@@ -1,31 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262797AbRE0P4r>; Sun, 27 May 2001 11:56:47 -0400
+	id <S262796AbRE0QMJ>; Sun, 27 May 2001 12:12:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbRE0P42>; Sun, 27 May 2001 11:56:28 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:30744 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262707AbRE0P4P>; Sun, 27 May 2001 11:56:15 -0400
-Date: Sun, 27 May 2001 17:56:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Phil Oester <kernel@theoesters.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5aa1
-Message-ID: <20010527175606.C676@athlon.random>
-In-Reply-To: <20010526193310.A1834@athlon.random> <LAEOJKHJGOLOPJFMBEFEAELCDLAA.kernel@theoesters.com>
-Mime-Version: 1.0
+	id <S262799AbRE0QL7>; Sun, 27 May 2001 12:11:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49931 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262796AbRE0QLs>; Sun, 27 May 2001 12:11:48 -0400
+Subject: Re: [PATCH] scsi_ioctl.c
+To: suntzu@stanford.edu (John Martin)
+Date: Sun, 27 May 2001 13:38:59 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <Pine.GSO.4.31.0105262008040.19602-100000@elaine18.Stanford.EDU> from "John Martin" at May 26, 2001 08:19:11 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <LAEOJKHJGOLOPJFMBEFEAELCDLAA.kernel@theoesters.com>; from kernel@theoesters.com on Sat, May 26, 2001 at 10:15:48PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E153zox-0001oH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 10:15:48PM -0700, Phil Oester wrote:
-> Works for me.  Running cerberus on a machine w/2gb RAM - deadlocks on 2.4.5
-> vanilla, keeps running on 2.4.5aa1.
+> this seems to be a straight forward case of memory not being freed on an
+> error path.  so i just added in one line to each of the if statements that
+> could fail.
 
-great. That was the interesting test to try.
-
-Andrea
+Umm.. Thats only a partial fix. Thats good because I fixed the other half
+and missed that bit - there is a buffer tht may need freeing too.

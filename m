@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbUKIHPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbUKIHmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbUKIHPY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 02:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUKIHPY
+	id S261410AbUKIHmh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 02:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUKIHmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 02:15:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:13034 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261401AbUKIHPT (ORCPT
+	Tue, 9 Nov 2004 02:42:37 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:34722 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261410AbUKIHm3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 02:15:19 -0500
-Date: Mon, 8 Nov 2004 23:14:56 -0800
-From: Greg KH <greg@kroah.com>
+	Tue, 9 Nov 2004 02:42:29 -0500
+Date: Tue, 9 Nov 2004 18:42:23 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: Andrew Morton <akpm@osdl.org>
-Cc: mingo@elte.hu, diffie@gmail.com, linux-kernel@vger.kernel.org,
-       diffie@blazebox.homeip.net, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>
-Subject: Re: 2.6.10-rc1-mm3
-Message-ID: <20041109071455.GA11643@kroah.com>
-References: <9dda349204110611043e093bca@mail.gmail.com> <20041107024841.402c16ed.akpm@osdl.org> <20041108075934.GA4602@elte.hu> <20041107234225.02c2f9b6.akpm@osdl.org> <20041108224259.GA14506@kroah.com> <20041108212747.33b6e14a.akpm@osdl.org>
+Cc: ppc64-dev <linuxppc64-dev@ozlabs.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [0/6] PPC64 iSeries Machine Facilities code cleanup
+Message-Id: <20041109184223.16ea3414.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108212747.33b6e14a.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__9_Nov_2004_18_42_23_+1100_FMoVAgKnW0Mgr1fP"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 09:27:47PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > So I don't see how that could be failing here.  And why I don't see this
-> >  on my boxes...
-> 
-> OK, progress.  The oops is due to CONFIG_LEGACY_PTY_COUNT=512.  I assume
-> anything greater than 256 will trigger it.
-> 
-> - tty_register_driver() calls tty_register_device() for 512 devices.
-> 
-> - tty_register_device() calls pty_line_name() for the 512 devices, but
->   pty_line_name() only understands 256 devices.  After that, it starts
->   returning duplicated names.
-> 
-> - class_simple_device_add() gets an -EEXIST return from
->   class_device_register() and then tries to kfree local variable s_dev, but
->   it's already free.  Presumably all that icky refcounting under
->   class_device_register() did this for us already.  Can you fix this one
->   Greg?  Just enable slab debugging, set CONFIG_LEGACY_PTY_COUNT=512 and
->   watch the fun.
+--Signature=_Tue__9_Nov_2004_18_42_23_+1100_FMoVAgKnW0Mgr1fP
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Ick, yeah, I just tested that.  I don't know why that's happening, I'll
-go fix it up now.
+Hi Andrew,
 
-thanks,
+The following patches clean up iSeries_mf.c and related files.  There are
+a couple of simple fixes in here, but mainly this is just reorganisation
+and tidying.  (Lots of Studly Caps disappear!)
 
-greg k-h
+The overall diffstat looks like this:
+
+ arch/ppc64/kernel/Makefile        |    2
+ arch/ppc64/kernel/iSeries_pci.c   |    6
+ arch/ppc64/kernel/iSeries_setup.c |    9
+ arch/ppc64/kernel/mf.c            | 1118 +++++++++++++++++++++-----------------
+ arch/ppc64/kernel/mf_proc.c       |  250 --------
+ arch/ppc64/kernel/rtc.c           |    4
+ arch/ppc64/kernel/viopath.c       |    4
+ drivers/net/iseries_veth.c        |    6
+ include/asm-ppc64/iSeries/mf.h    |   41 -
+ 9 files changed, 668 insertions(+), 772 deletions(-)
+
+Please apply them all (in order) and send to Linus.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Tue__9_Nov_2004_18_42_23_+1100_FMoVAgKnW0Mgr1fP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBkHTf4CJfqux9a+8RAgNdAJ9PHn7x0t86dg07HA0D6I9VcGiOVgCgl47j
+hcml9xDVUCgiOVJQciNveFY=
+=VnCC
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__9_Nov_2004_18_42_23_+1100_FMoVAgKnW0Mgr1fP--

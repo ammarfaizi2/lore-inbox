@@ -1,92 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262535AbUBXX66 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 18:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUBXX65
+	id S262541AbUBYAFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 19:05:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUBYACP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 18:58:57 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:64737 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S262535AbUBXX50
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 18:57:26 -0500
-Date: Tue, 24 Feb 2004 16:57:25 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Split kgdb into "lite" and "normal" parts
-Message-ID: <20040224235725.GL1052@smtp.west.cox.net>
-References: <20040218225010.GH321@elf.ucw.cz> <200402191322.52499.amitkale@emsyssoft.com> <20040224213908.GD1052@smtp.west.cox.net> <20040224221541.GA9145@elf.ucw.cz> <20040224232137.GJ1052@smtp.west.cox.net> <20040224232703.GC9209@elf.ucw.cz> <20040224233809.GK1052@smtp.west.cox.net> <20040224234940.GD9209@elf.ucw.cz>
+	Tue, 24 Feb 2004 19:02:15 -0500
+Received: from mail.zmailer.org ([62.78.96.67]:54438 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S262542AbUBYAAD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 19:00:03 -0500
+Date: Wed, 25 Feb 2004 01:59:56 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Dmitry M Shatrov <erdizz@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OpenGL in the kernel
+Message-ID: <20040224235955.GO1751@mea-ext.zmailer.org>
+References: <403D2953.7080909@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040224234940.GD9209@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <403D2953.7080909@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 12:49:41AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > > > Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
-> > > > > > > Looks good.
-> > > > > > > 
-> > > > > > > Let's first check this in and then do more cleanups.
-> > > > > > > Tom, does it sound ok?
-> > > > > > 
-> > > > > > This sounds fine to me.  Pavel, I'm guessing you did this with quilt,
-> > > > > > could you provide some pointers on how to replicate this in the future?
-> > > > > 
-> > > > > Unfortunately, I done it by hand :-(. But if -lite parts are not
-> > > > > merged, soon, I'll be forced to start using quilt. Doing stuff by hand
-> > > > > is quite painfull...
-> > > > 
-> > > > There's still a whole bunch of bogons in the -lite patch still, so I
-> > > > don't think it should be merged yet.
-> > > 
-> > > Well, it seems to contains a *lot* less bogons than what currently is
-> > > in -mm series.
-> > > 
-> > > What big problems do you see? It does not yet use weak symbols, but I
-> > > do not think that's a serious problem. What else?
-> > 
-> > The first two big ones are:
-> > - Doesn't like gdb 6.0 (You cannot assume the first packet is Hc...)
-> > - Wierdities with kgdb_killed_or_detached / kgdb_might_be_resumed
-> >   (both can die).
-> > - Issues w/ handling 'D' and 'k' packets cleaner (and I think there was
-> >   a correctness fix in there, too, but it was a while ago).
-> > - Don't ACK packets sitting on the line
-> 
-> Okay, these look important but probably only touch core-lite, right?
+On Thu, Feb 26, 2004 at 02:01:39AM +0300, Dmitry M Shatrov wrote:
+> I think this is the right place to ask it for, sorry if not.
+> I heard a few about future OpenGL implementation in the Linux kernel, 
+> but failed to find any resource on this question. I also remember a 
+> message from this list about its author's experiments with Mesa in this 
+> key..
+> Does anybody work on the subject now? Could you help me with (if there 
+> are any) some links or just explain what's this really about?
 
-Some of these also touch 8250/kgdboe patch.
+As a rule: KERNEL IS WRONG PLACE.
 
-> So it should be easy to merge. Can you generate diff?
+There are some primitive things that to an extent make sense, but
+WHOLE OpenGL (which alone is nothing) or any other graphics server 
+entirely in kernel ?   No way.
 
-I'm working on that part right now, along with a cosmetic rename /
-Lindent the code.
+The XFree86 server can use kernel supplied DRI (Direct Rendering 
+Interface) facilities, if such are available.
 
-> I'll try to import kgdb into quilt to make working with it
-> easier. [But don't expect miracles.]
+You can find more about this recurring topic in list archives.
 
-Just let us know what it takes to do so. :)
+> With best regards, Dmitry M. Shatrov
 
-> > - All of the function pointer games (of which the weak symbols, but not
-> >   all of them) are a part of.
-> > - kgdb_schedule/process_breakpoint, required for kgdboe, harmless to use
-> >   on serial.
-> 
-> 
-> > There's still a lot of stuff I checked into linux-2.6-kgdb that's
-> > non-trivially important
-> > (http://ppc.bkbits.net:8080/linux-2.6-kgdb/ChangeSet@-4w?nav=index.html)
-> 
-> Hmm, I'm not allowed to use bt :-(.
-
-You can look at it all via the web 'tho.  There's nothing to agree to,
-to view the web page :)
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+/Matti Aarnio

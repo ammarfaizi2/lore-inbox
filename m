@@ -1,100 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSCWOhI>; Sat, 23 Mar 2002 09:37:08 -0500
+	id <S293251AbSCWOk6>; Sat, 23 Mar 2002 09:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293218AbSCWOg7>; Sat, 23 Mar 2002 09:36:59 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:62675 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S293203AbSCWOgp>; Sat, 23 Mar 2002 09:36:45 -0500
-Subject: [bkpatch-2.5.7] Detect get_block() errors in block_read_full_page()
-To: torvalds@transmeta.com
-Date: Sat, 23 Mar 2002 14:36:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16omdQ-0001LO-00@draco.cus.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+	id <S293245AbSCWOki>; Sat, 23 Mar 2002 09:40:38 -0500
+Received: from group1.mxgrp.airmail.net ([209.196.77.106]:60934 "EHLO
+	mx9.airmail.net") by vger.kernel.org with ESMTP id <S293218AbSCWOkd>;
+	Sat, 23 Mar 2002 09:40:33 -0500
+Date: Sat, 23 Mar 2002 08:51:59 -0600
+From: Art Haas <ahaas@neosoft.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot
+Message-ID: <20020323085159.A484@debian>
+In-Reply-To: <200203231419.g2NEJuV01771@gs176.sp.cs.cmu.edu> <3C9C8FA2.4090204@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Sat, Mar 23, 2002 at 03:22:26PM +0100, Martin Dalecki wrote:
+> John Langford wrote:
+> >>But before could you just tell the m5229_revision value
+> >>on your system?
+> >
+> >I'm not sure what you mean.  Certainly, lspci says:
+> >
+> >
+> >>00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c3)
+> 
+> That's it. Thank you.
+> 
 
-Below patch causes errors from get_block() in block_read_full_page() to be
-detected and handled properly (by setting page error flag). Without the
-patch the page (or parts of the page) will contain random data on
-get_block() failing without any form of error being signalled which
-can be catastrophic for filesystems using block_read_full_page() for
-accessing their metadata. And for normal data it would mean the user would
-see random data instead of what they expected.
+Hi.
 
-The patch works for me and the changes have been blessed by Andrea
-Arcangeli.
+I've been 'cc'd on the mail going to John Langford and everyone else
+having trouble with the alim15x3 driver. As another data point, here's
+what my machine has ...
 
-Please apply.
+$ lspci -vv
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1531 [Aladdin IV] (rev b3)
+	Subsystem: Acer Laboratories Inc. [ALi] M1531 [Aladdin IV]
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 32
 
-Best regards,
+00:02.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev b4)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort+ <MAbort+ >SERR- <PERR-
+	Latency: 0
 
-	Anton
+00:05.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01) (prog-if 00 [VGA])
+	Subsystem: S3 Inc. ViRGE/DX
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 63750ns max)
+	Interrupt: pin A routed to IRQ 0
+	Region 0: Memory at ec000000 (32-bit, non-prefetchable) [size=64M]
+	Expansion ROM at ebff0000 [disabled] [size=64K]
+
+00:0b.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20) (prog-if fa)
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 14
+	Region 4: I/O ports at ffa0 [size=16]
+$
+
+I'm currently running 2.4.19-pre3-ac6, and when I boot I've added "pci=biosirq"
+to the command line.
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
----------snip----------
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.537   -> 1.538  
-#	         fs/buffer.c	1.69    -> 1.70   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/03/23	aia21@cam.ac.uk	1.538
-# Detect get_block() error return in fs/buffer.c::block_read_full_page() and
-# set page error and don't set page uptodate.
-# --------------------------------------------
-#
-diff -Nru a/fs/buffer.c b/fs/buffer.c
---- a/fs/buffer.c	Sat Mar 23 14:23:26 2002
-+++ b/fs/buffer.c	Sat Mar 23 14:23:26 2002
-@@ -795,8 +795,11 @@
- 	unlock_buffer(bh);
- 	tmp = bh->b_this_page;
- 	while (tmp != bh) {
--		if (buffer_async(tmp) && buffer_locked(tmp))
--			goto still_busy;
-+		if (buffer_locked(tmp)) {
-+			if (buffer_async(tmp))
-+				goto still_busy;
-+		} else if (!buffer_uptodate(tmp))
-+			SetPageError(page);
- 		tmp = tmp->b_this_page;
- 	}
- 
-@@ -1716,7 +1719,7 @@
- 		if (!buffer_mapped(bh)) {
- 			if (iblock < lblock) {
- 				if (get_block(inode, iblock, bh, 0))
--					continue;
-+					SetPageError(page);
- 			}
- 			if (!buffer_mapped(bh)) {
- 				memset(kmap(page) + i*blocksize, 0, blocksize);
-@@ -1736,10 +1739,11 @@
- 
- 	if (!nr) {
- 		/*
--		 * all buffers are uptodate - we can set the page
--		 * uptodate as well.
-+		 * All buffers are uptodate - we can set the page uptodate
-+		 * as well. But not if get_block() returned an error.
- 		 */
--		SetPageUptodate(page);
-+		if (!PageError(page))
-+			SetPageUptodate(page);
- 		UnlockPage(page);
- 		return 0;
- 	}
+They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

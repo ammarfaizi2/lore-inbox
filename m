@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265239AbTIDQR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 12:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbTIDQR7
+	id S265173AbTIDQWl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbTIDQVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 12:17:59 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:33279 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265239AbTIDQQg (ORCPT
+	Thu, 4 Sep 2003 12:21:51 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35503 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265173AbTIDQTs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 12:16:36 -0400
-Date: Thu, 4 Sep 2003 18:15:36 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Deepak Saxena <dsaxena@mvista.com>
-cc: Paul Mackerras <paulus@samba.org>, Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
+	Thu, 4 Sep 2003 12:19:48 -0400
+Date: Thu, 4 Sep 2003 09:09:51 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: dsaxena@mvista.com
+Cc: paulus@samba.org, rmk@arm.linux.org.uk, hch@lst.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] fix ppc ioremap prototype
-In-Reply-To: <20030904155856.GB31420@xanadu.az.mvista.com>
-Message-ID: <Pine.GSO.4.21.0309041800330.8244-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20030904090951.7e678cb5.davem@redhat.com>
+In-Reply-To: <20030904155004.GA31420@xanadu.az.mvista.com>
+References: <20030903203231.GA8772@lst.de>
+	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
+	<20030904071334.GA14426@lst.de>
+	<20030904083007.B2473@flint.arm.linux.org.uk>
+	<16215.1054.262782.866063@nanango.paulus.ozlabs.org>
+	<20030904023624.592f1601.davem@redhat.com>
+	<20030904104801.A7387@flint.arm.linux.org.uk>
+	<16215.14133.352143.660688@nanango.paulus.ozlabs.org>
+	<20030904155004.GA31420@xanadu.az.mvista.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003, Deepak Saxena wrote:
-> On Sep 04 2003, at 14:57, Geert Uytterhoeven was caught saying:
-> > On Thu, 4 Sep 2003, Paul Mackerras wrote:
-> > > Geert Uytterhoeven writes:
-> > > > `ioremap is meant for PCI memory space only'
-> > > 
-> > > Did I say that, or someone else? :)  ioremap predates PCI support by a
-> > > long way IIRC...
-> > 
-> > inb() and friends are for ISA/PCI I/O space
-> > isa_readb() and friends are for ISA memory space
-> > readb() and friends are for PCI memory space (after ioremap())
-> > 
-> > That's why other buses (e.g. SBUS and Zorro) have their own versions of
-> > ioremap() and readb() etc.).
-> > 
-> > Life would be much easier with bus-specific I/O ops...
-> 
-> What happens if I have a device that can be either ISA or connected 
-> directly to a local memory bus? The driver should be able to 
-> ioremap(some resource) and then read/write the device without
-> having to have ugly #ifdefs to deal with different bus types.
-> Example in point is the CS8900a device which is hooked up directly
-> to a FPGA on the local memory bus with the bytelanes backwards.
-> The ammount of hacking done in the driver to get around that is
-> ugly. It would be much nicer if the driver still just did read*/write*
-> and the platform level code could deal with all the translation
-> issues. This requires a generic API for all I/O devices.
+On Thu, 4 Sep 2003 08:50:04 -0700
+Deepak Saxena <dsaxena@mvista.com> wrote:
 
-The usual solution is to have my_read() and friends in your driver, and #define
-them to what's appropriate based on your CONFIG_* settings.
+> I think we need to a have a resource tree per _bus_, not just PCI.
+> I have systems which have overlapping devices in multiple PCI domains
+> and devices on the local memory bus that also overlap.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+The physical address ranges are unique, I really don't see
+any problem.

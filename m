@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315465AbSEBXJV>; Thu, 2 May 2002 19:09:21 -0400
+	id <S315473AbSEBXJc>; Thu, 2 May 2002 19:09:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315473AbSEBXJU>; Thu, 2 May 2002 19:09:20 -0400
-Received: from unthought.net ([212.97.129.24]:37526 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S315465AbSEBXJT>;
-	Thu, 2 May 2002 19:09:19 -0400
-Date: Fri, 3 May 2002 01:09:18 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Jeff Nguyen <jeff@aslab.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE hotplug support?
-Message-ID: <20020503010918.A31556@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Jeff Nguyen <jeff@aslab.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020502215833.V31556@unthought.net> <E173N9y-0004k1-00@the-village.bc.nu> <20020502231359.W31556@unthought.net> <09fa01c1f227$c8357f00$6502a8c0@jeff>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
+	id <S315474AbSEBXJb>; Thu, 2 May 2002 19:09:31 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:3013 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315473AbSEBXJ3>;
+	Thu, 2 May 2002 19:09:29 -0400
+To: rwhron@earthlink.net
+cc: linux-kernel@vger.kernel.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: O(1) scheduler gives big boost to tbench 192 
+In-Reply-To: Your message of Thu, 02 May 2002 17:36:56 EDT.
+             <20020502173656.A26986@rushmore> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2344.1020384545.1@us.ibm.com>
+Date: Thu, 02 May 2002 17:09:05 -0700
+Message-Id: <E173QdG-0000bs-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 02, 2002 at 03:22:00PM -0700, Jeff Nguyen wrote:
-> You can get a sustained read speed of 80MB/s on the Adaptec 2000S
-> Zero Channel RAID with 7 drives (RAID-5). But the sustained write
-> speed is only around 32MB/s.
+In message <20020502173656.A26986@rushmore>, > : rwhron@earthlink.net writes:
+> On an OSDL 4 way x86 box the O(1) scheduler effect 
+> becomes obvious as the run queue gets large.  
 > 
-> On the other hand, the 3Ware Escalade 7850 can sustain a read speed
-> of 130MB/s with 8 drives (RAID-5). The write speed is 30MB/s.
+> 2.4.19-pre7-ac2 and 2.4.19-pre7-jam6 have the O(1) scheduler.  
+> 
+> At 192 processes, O(1) shows about 340% improvement in throughput.
+> The dyn-sched in -aa appears to be somewhat improved over the
+> standard scheduler.
+> 
+> Numbers are in MB/second.
+> 
 
-So for both cards, the solution with simple IDE controllers, all on
-one PCI bus, would be faster not only on RAID-5, but also RAID-1+0.
+If you are bored, you might compare this to the MQ scheduler
+at http://prdownloads.sourceforge.net/lse/2.4.14.mq-sched
 
-Or am I missing something ?
+Also, I think rml did a backport of the 2.5.X version of O(1);
+I'm not sure if htat is in -ac or -jam as yet.
 
-(I know, the IDE cabling is going to be *hell* for 15 drives if you
- want to stay within spec, and I would go SCSI or FC before that myself)
+Rumor is that on some workloads MQ it outperforms O(1), but it
+may be that the latest (post K3?) O(1) is catching up?
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+gerrit

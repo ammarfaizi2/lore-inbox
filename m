@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261402AbREQLtU>; Thu, 17 May 2001 07:49:20 -0400
+	id <S261403AbREQL6K>; Thu, 17 May 2001 07:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261403AbREQLtJ>; Thu, 17 May 2001 07:49:09 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:55258 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261402AbREQLtD>;
-	Thu, 17 May 2001 07:49:03 -0400
-Subject: Re: Bug in unlink error return
-To: Andries.Brouwer@cwi.nl
-Date: Thu, 17 May 2001 12:45:07 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-In-Reply-To: <UTC200105171126.NAA37619.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at May 17, 2001 01:26:44 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261408AbREQL6A>; Thu, 17 May 2001 07:58:00 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:52188 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261407AbREQL5p>;
+	Thu, 17 May 2001 07:57:45 -0400
+Message-ID: <3B03B5F5.F9EC01D3@uow.edu.au>
+Date: Thu, 17 May 2001 21:28:53 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: mdaljeet@in.ibm.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bindprocessor
+In-Reply-To: <CA256A4F.003B5469.00@d73mta05.au.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150MDL-0005F6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->        EISDIR pathname refers to a directory.  (This is the  non-
->               POSIX value returned by Linux since 2.1.132.)
+mdaljeet@in.ibm.com wrote:
+> 
+> How can I bind a user space process to a particular processor in  a SMP
+> environment?
 
-it isnnt that simple -ac does the right thing now I believe
+You can't.
 
-> Probably this should be fixed again, both in 2.2 and 2.4.
-> 2.0 is still correct (I checked only ext2).
+Nick Pollitt had an implementation of prcctl() which does this
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0102.2/0214.html
 
-I'll check 2.2.20pre and fix it if so.
-
-Alan
-
+I have a /proc based one at
+http://www.uow.edu.au/~andrewm/linux/#cpus_allowed

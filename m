@@ -1,99 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbTAPACS>; Wed, 15 Jan 2003 19:02:18 -0500
+	id <S264867AbTAPADQ>; Wed, 15 Jan 2003 19:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbTAPACQ>; Wed, 15 Jan 2003 19:02:16 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:46312 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261733AbTAPACN>; Wed, 15 Jan 2003 19:02:13 -0500
-Message-ID: <34072.10.10.213.14.1042675870.squirrel@linux.intel.com>
-Date: Wed, 15 Jan 2003 16:11:10 -0800 (PST)
-Subject: Error compiling ieee1394/pcilynx.c (2.5.54)
-From: "Tariq Shureih" <tariq@linux.co.intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-Reply-To: tariq.shureih@intel.com
-X-Mailer: SquirrelMail (version 1.2.10)
+	id <S264885AbTAPADQ>; Wed, 15 Jan 2003 19:03:16 -0500
+Received: from adsl-109-100.gigavia.com.ar ([200.26.109.100]:49852 "EHLO
+	morgoth.srv.sis.cooperativaobrera.com.ar") by vger.kernel.org
+	with ESMTP id <S264867AbTAPACe>; Wed, 15 Jan 2003 19:02:34 -0500
+Message-ID: <3E25F898.2010704@bblanca.com.ar>
+Date: Wed, 15 Jan 2003 21:11:04 -0300
+From: Gabriel Gomiz <gomita@bblanca.com.ar>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021218
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: NCR 7452/3 POS - Retail CMOS NVRAM Driver
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As part of my work on the Kernel-Janitor project, I am looking at the
-use of panic() in driver (char for now).
+I say Hi to the greatests hackers!
 
-The pcilynx.c driver will not compile giving the following error.
-I enabled I2C bit-bangin options as required by the driver.
+I'm trying to build a kernel module driver to be able to access the CMOS 
+NVRAM that the NCR 7452/3 POS (Point of Sale) has built-in on the 
+motherboard. All the information that I could get from the manufacturers 
+is that the memory works at I/O address 0x100. But later I found out 
+that you can configure the I/O address using switches on the motherboard 
+to one of the following ranges of addresses:
+0x100-0x10F DEFAULT
+0x120-0x12F
+0x140-0x14F
+0x160-0x16F
 
-Seems that the driver requires porting to 2.5.x since the i2c structures
-and implementation has changed in 2.5.x.
+The memory chips that NCR uses are:
+1) NEC D43256BGU - NCR POS Model 7452-1011
+    The chip is 256KB, but NCR says they use only 128KB
+2) NEC D431000AGW - NCR POS Model 7453-1011
+    The chip is 1MB, but NCR says they use only 128KB
 
-Anyone working on this?  I can't proceed with my work not having this
-compile.
+I've made a simple kernel module (based on drivers/char/nvram.c) to see 
+if I can _test_ the memory (to see if it is there and read/write some 
+bytes from 0x100 I/O Port) and I'm getting some confusing results.
+In the end the module does the following:
 
-Thanx
+#ifndef NVRAM_PORT
+#define NVRAM_PORT(x)	(0x100 + (x))
+#endif
 
--------------
+#define NVRAM_READ(addr) ({ \
+outb_p((addr),NVRAM_PORT(0)); \
+inb_p(NVRAM_PORT(1)); \
+})
 
-  gcc -Wp,-MD,drivers/ieee1394/.iso.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=pentium4
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE
- -DKBUILD_BASENAME=iso -DKBUILD_MODNAME=ieee1394   -c -o
-drivers/ieee1394/iso.o drivers/ieee1394/iso.c
-  ld -m elf_i386  -r -o drivers/ieee1394/ieee1394.ko
-drivers/ieee1394/ieee1394_core.o
-drivers/ieee1394/ieee1394_transactions.o drivers/ieee1394/hosts.o
-drivers/ieee1394/highlevel.o drivers/ieee1394/csr.o
-drivers/ieee1394/nodemgr.o drivers/ieee1394/oui.o drivers/ieee1394/dma.o
-drivers/ieee1394/iso.o
-  gcc -Wp,-MD,drivers/ieee1394/.pcilynx.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=pentium4
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE
- -DKBUILD_BASENAME=pcilynx -DKBUILD_MODNAME=pcilynx   -c -o
-drivers/ieee1394/pcilynx.o drivers/ieee1394/pcilynx.c
-drivers/ieee1394/pcilynx.c:139: warning: initialization from
-incompatible pointer type
-drivers/ieee1394/pcilynx.c:140: warning: missing braces around
-initializer drivers/ieee1394/pcilynx.c:140: warning: (near
-initialization for
-`bit_ops.name')
-drivers/ieee1394/pcilynx.c:141: warning: initialization makes integer
-from pointer without a cast
-drivers/ieee1394/pcilynx.c:142: warning: initialization makes integer
-from pointer without a cast
-drivers/ieee1394/pcilynx.c:143: warning: initialization makes integer
-from pointer without a cast
-drivers/ieee1394/pcilynx.c:144: warning: initialization makes integer
-from pointer without a cast
-drivers/ieee1394/pcilynx.c:145: warning: initialization makes integer
-from pointer without a cast
-drivers/ieee1394/pcilynx.c:145: initializer element is not computable at
-load time
-drivers/ieee1394/pcilynx.c:145: (near initialization for
-`bit_ops.name[5]') drivers/ieee1394/pcilynx.c:146: warning:
-initialization makes integer from pointer without a cast
-drivers/ieee1394/pcilynx.c:146: initializer element is not computable at
-load time
-drivers/ieee1394/pcilynx.c:146: (near initialization for
-`bit_ops.name[6]') drivers/ieee1394/pcilynx.c:147: initializer element
-is not constant drivers/ieee1394/pcilynx.c:147: (near initialization for
-`bit_ops.name') drivers/ieee1394/pcilynx.c: In function `lynx_devctl':
-drivers/ieee1394/pcilynx.c:763: warning: `_MOD_INC_USE_COUNT' is
-deprecated (declared at include/linux/module.h:346)
-drivers/ieee1394/pcilynx.c:765: warning: `__MOD_DEC_USE_COUNT' is
-deprecated (declared at include/linux/module.h:321)
-make[2]: *** [drivers/ieee1394/pcilynx.o] Error 1
-make[1]: *** [drivers/ieee1394] Error 2
-make: *** [drivers] Error 2
+#define NVRAM_WRITE(val, addr) ({ \
+outb_p((addr),NVRAM_PORT(0)); \
+outb_p((val),NVRAM_PORT(1)); \
+})
 
+The questions are:
+
+* Has anyone worked with this kind of NVRAM before?
+* Do you know how can the memory be programmed? Maybe you can enlight me 
+with something... :)
+
+I have some more details of the module and the tests I've been doing to 
+send if someone is interested.
+
+OBS: If this message is considered highly off-topic, please can you 
+point me in the right direction to ask this questions? (Maybe linux-mtd???)
+
+Many thanks in advance
 
 -- 
-The greatest enemy to knowledge is not ignorance.  It's the illusion of
-knowledge.  Thus the devil's greatest achievement was making people
-believe he didn't exist!
-
+    .^.    Gabriel Gomiz - Red Hat Certified Engineer (RHCE)
+    /V\
+   // \\
+  /(   )\
+   ^^-^^   s/Window[$s]/LINUX!!/g or die;
 

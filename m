@@ -1,80 +1,205 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263766AbTCUTVy>; Fri, 21 Mar 2003 14:21:54 -0500
+	id <S263793AbTCUT2Z>; Fri, 21 Mar 2003 14:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263735AbTCUTUz>; Fri, 21 Mar 2003 14:20:55 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:53717 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S263751AbTCUTUF>; Fri, 21 Mar 2003 14:20:05 -0500
-Message-ID: <3E7B686F.9030102@tmsusa.com>
-Date: Fri, 21 Mar 2003 11:30:55 -0800
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jochen Hein <jochen@jochen.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.65] tun not working
-References: <873clgh6t7.fsf@jupiter.jochen.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263834AbTCUT14>; Fri, 21 Mar 2003 14:27:56 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52612
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263793AbTCUT0X>; Fri, 21 Mar 2003 14:26:23 -0500
+Date: Fri, 21 Mar 2003 20:41:39 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303212041.h2LKfdxV026437@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: rework the reset code tof ix posting and races
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just as a data point, tun itself works for
-me on x86 - I use openvpn between my
-lan and our remote pop3 server, so I'd
-find out in a big hurry if it ever broke -
 
-(currently running 2.5.65 on the vpn gw)
+This isnt perfect, there is a race left somewhere still but its closer.
 
-Sounds like a 390-sepecific issue, or
-a hercule-specific issue?
-
-Joe
-
-Jochen Hein wrote:
-
->I'm using tun to connect my virtual S/390 from hercules to the local
->machine.  That works pretty well with 2.4, but with 2.5.65 hercules
->fails with:
->
->root@gswi1164:~# hercules -f /etc/hercules/hercules.cnf
->Hercules Version 2.16.5
->(c)Copyright 1999-2002 by Roger Bowler, Jan Jaeger, and others
->Built on Jul  9 2002 at 23:09:56
->Build information:
->  Debian
->  Modes: S/370 ESA/390 ESAME
->  Using setresuid() for setting privileges
->  HTTP Server support
->
->Running on Linux i686 2.5.65 #1 Thu Mar 20 19:11:34 CET 2003
->ckddasd: /mount/d/hercules/linux.191 cyls=300 heads=15 tracks=4500
->trklen=47616
->HHC894I Error setting MTU for tun: No such device
->HHC897I Error setting driving system IP addr for tun: No such device
->HHC897I Error setting Hercules IP addr for tun: No such device
->HHC897I Error setting netmask for tun: No such device
->HHC898I Error getting flags for tun: No such device
->HHC848I 0400 configuration failed: hercifc rc=4
->HHC038I Initialization failed for device 0400
->
->hercules uses /dev/net/tun to access the tun device.
->
->The module tun is loaded:
->
->dmesg:
->Universal TUN/TAP device driver 1.5 (C)1999-2002 Maxim Krasnyansky
->
->root@gswi1164:~# lsmod | grep tun
->tun                     6240  0
->
->Any idea why this fails?
->
->Jochen
->
->  
->
-
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/ide-iops.c linux-2.5.65-ac2/drivers/ide/ide-iops.c
+--- linux-2.5.65/drivers/ide/ide-iops.c	2003-03-18 16:46:48.000000000 +0000
++++ linux-2.5.65-ac2/drivers/ide/ide-iops.c	2003-03-07 18:43:58.000000000 +0000
+@@ -1050,7 +1071,7 @@
+ 
+ 
+ /* needed below */
+-ide_startstop_t do_reset1 (ide_drive_t *, int);
++static ide_startstop_t do_reset1 (ide_drive_t *, int);
+ 
+ /*
+  * atapi_reset_pollfunc() gets invoked to poll the interface for completion every 50ms
+@@ -1167,8 +1188,7 @@
+ 
+ void pre_reset (ide_drive_t *drive)
+ {
+-	if (drive->driver != NULL)
+-		DRIVER(drive)->pre_reset(drive);
++	DRIVER(drive)->pre_reset(drive);
+ 
+ 	if (!drive->keep_settings) {
+ 		if (drive->using_dma) {
+@@ -1202,14 +1222,20 @@
+  * (up to 30 seconds worstcase).  So, instead of busy-waiting here for it,
+  * we set a timer to poll at 50ms intervals.
+  */
+-ide_startstop_t do_reset1 (ide_drive_t *drive, int do_not_try_atapi)
++static ide_startstop_t do_reset1 (ide_drive_t *drive, int do_not_try_atapi)
+ {
+ 	unsigned int unit;
+ 	unsigned long flags;
+-	ide_hwif_t *hwif = HWIF(drive);
+-	ide_hwgroup_t *hwgroup = HWGROUP(drive);
++	ide_hwif_t *hwif;
++	ide_hwgroup_t *hwgroup;
++	
++	spin_lock_irqsave(&ide_lock, flags);
++	hwif = HWIF(drive);
++	hwgroup = HWGROUP(drive);
+ 
+-	local_irq_save(flags);
++	/* We must not reset with running handlers */
++	if(hwgroup->handler != NULL)
++		BUG();
+ 
+ 	/* For an ATAPI device, first try an ATAPI SRST. */
+ 	if (drive->media != ide_disk && !do_not_try_atapi) {
+@@ -1218,10 +1244,8 @@
+ 		udelay (20);
+ 		hwif->OUTB(WIN_SRST, IDE_COMMAND_REG);
+ 		hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
+-		if (HWGROUP(drive)->handler != NULL)
+-			BUG();
+-		ide_set_handler(drive, &atapi_reset_pollfunc, HZ/20, NULL);
+-		local_irq_restore(flags);
++		__ide_set_handler(drive, &atapi_reset_pollfunc, HZ/20, NULL);
++		spin_unlock_irqrestore(&ide_lock, flags);
+ 		return ide_started;
+ 	}
+ 
+@@ -1234,20 +1258,10 @@
+ 
+ #if OK_TO_RESET_CONTROLLER
+ 	if (!IDE_CONTROL_REG) {
+-		local_irq_restore(flags);
++		spin_unlock_irqrestore(&ide_lock, flags);
+ 		return ide_stopped;
+ 	}
+ 
+-# if 0
+-        {
+-		u8 control = hwif->INB(IDE_CONTROL_REG);
+-		control |= 0x04;
+-		hwif->OUTB(control,IDE_CONTROL_REG);
+-		udelay(30);
+-		control &= 0xFB;
+-		hwif->OUTB(control, IDE_CONTROL_REG);
+-	}
+-# else
+ 	/*
+ 	 * Note that we also set nIEN while resetting the device,
+ 	 * to mask unwanted interrupts from the interface during the reset.
+@@ -1257,23 +1271,21 @@
+ 	 * recover from reset very quickly, saving us the first 50ms wait time.
+ 	 */
+ 	/* set SRST and nIEN */
+-	hwif->OUTB(drive->ctl|6,IDE_CONTROL_REG);
++	hwif->OUTBSYNC(drive, drive->ctl|6,IDE_CONTROL_REG);
+ 	/* more than enough time */
+ 	udelay(10);
+ 	if (drive->quirk_list == 2) {
+ 		/* clear SRST and nIEN */
+-		hwif->OUTB(drive->ctl, IDE_CONTROL_REG);
++		hwif->OUTBSYNC(drive, drive->ctl, IDE_CONTROL_REG);
+ 	} else {
+ 		/* clear SRST, leave nIEN */
+-		hwif->OUTB(drive->ctl|2, IDE_CONTROL_REG);
++		hwif->OUTBSYNC(drive, drive->ctl|2, IDE_CONTROL_REG);
+ 	}
+ 	/* more than enough time */
+ 	udelay(10);
+ 	hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
+-	if (HWGROUP(drive)->handler != NULL)
+-		BUG();
+-	ide_set_handler(drive, &reset_pollfunc, HZ/20, NULL);
+-# endif
++	__ide_set_handler(drive, &reset_pollfunc, HZ/20, NULL);
++
+ 	/*
+ 	 * Some weird controller like resetting themselves to a strange
+ 	 * state when the disks are reset this way. At least, the Winbond
+@@ -1281,71 +1293,22 @@
+ 	 */
+ 	if (hwif->resetproc != NULL) {
+ 		hwif->resetproc(drive);
+-
+-# if 0
+-		if (drive->failures) {
+-			local_irq_restore(flags);
+-			return ide_stopped;
+-		}
+-# endif
+ 	}
+-
++	
+ #endif	/* OK_TO_RESET_CONTROLLER */
+ 
+-	local_irq_restore(flags);
++	spin_unlock_irqrestore(&ide_lock, flags);
+ 	return ide_started;
+ }
+ 
+-#if 0
+ /*
+  * ide_do_reset() is the entry point to the drive/interface reset code.
+  */
++
+ ide_startstop_t ide_do_reset (ide_drive_t *drive)
+ {
+ 	return do_reset1(drive, 0);
+ }
+-#else
+-/*
+- * ide_do_reset() is the entry point to the drive/interface reset code.
+- */
+-ide_startstop_t ide_do_reset (ide_drive_t *drive)
+-{
+-	ide_startstop_t start_stop = ide_started;
+-# if 0
+-        u8 tmp_dma	= drive->using_dma;
+-        u8 cspeed	= drive->current_speed;
+-	u8 unmask	= drive->unmask;
+-# endif
+-
+-	if (HWGROUP(drive)->handler != NULL) {
+-		unsigned long flags;
+-		spin_lock_irqsave(&ide_lock, flags);
+-		HWGROUP(drive)->handler = NULL;
+-		del_timer(&HWGROUP(drive)->timer);
+-		spin_unlock_irqrestore(&ide_lock, flags);
+-	}
+-
+-	start_stop = do_reset1(drive, 0);
+-# if 0
+-	/*
+-	 * check for suspend-spindown flag,
+-	 * to attempt a restart or spinup of device.
+-	 */
+-	if (drive->suspend_reset) {
+-		/*
+-		 * APM WAKE UP todo !!
+-		 * int nogoodpower = 1;
+-		 * while(nogoodpower) {
+-		 * 	check_power1() or check_power2()
+-		 * 	nogoodpower = 0;
+-		 * }
+-		 * HWIF(drive)->multiproc(drive);
+-		 */
+-# endif
+-
+-	return start_stop;
+-}
+-#endif
+ 
+ EXPORT_SYMBOL(ide_do_reset);
+ 

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130502AbQJ0VMy>; Fri, 27 Oct 2000 17:12:54 -0400
+	id <S130543AbQJ0VOo>; Fri, 27 Oct 2000 17:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130515AbQJ0VMp>; Fri, 27 Oct 2000 17:12:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28789 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130502AbQJ0VM0>; Fri, 27 Oct 2000 17:12:26 -0400
-Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Fri, 27 Oct 2000 22:12:47 +0100 (BST)
-Cc: pavel@suse.cz (Pavel Machek), torvalds@transmeta.com (Linus Torvalds),
-        andrewm@uow.edu.au (Andrew Morton),
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <39F9E849.D799D4A5@mandrakesoft.com> from "Jeff Garzik" at Oct 27, 2000 04:40:41 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130559AbQJ0VOe>; Fri, 27 Oct 2000 17:14:34 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34054 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130543AbQJ0VOW>; Fri, 27 Oct 2000 17:14:22 -0400
+Message-ID: <39F9F01B.518C5EC1@transmeta.com>
+Date: Fri, 27 Oct 2000 14:14:03 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpu detection fixes for test10-pre4
+In-Reply-To: <E13pGWx-0004qM-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13pGnv-0004rv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pavel Machek wrote:
-> > Would it be possible to keep 2.7.2.3? You still need 2.7.2.3 to
-> > reliably compile 2.0.X (and maybe even 2.2.all-but-latest?).
+Alan Cox wrote:
 > 
-> What fails, when you use egcs-1.1.2 to build 2.0.x or early 2.2.x?
+> > > True enough, personally I prefer "x86".
+> >
+> > ia32 is the official name. OTOH, i[3-6]86 _are_ different beasts...
+> 
+> ia32 is an intel trademark. Using it for non intel products is probably an
+> actionable matter ..
+> 
 
-egcs miscompiles inlined strstr. It gets combined with bad asm constraints
-to mean that 2.0 and earlier 2.2 will crash when fed the right (wrong ?) 
-sequence of FPU ops to software emulate
+Yet another reason to ignore it.
 
+	-hpa
 
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

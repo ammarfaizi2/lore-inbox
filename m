@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272308AbTHIJd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 05:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272309AbTHIJd6
+	id S272305AbTHIJ3x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 05:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272308AbTHIJ3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 05:33:58 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:26244 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272308AbTHIJd5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 05:33:57 -0400
-Date: Sat, 9 Aug 2003 10:33:37 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Grant Miner <mine0057@mrs.umn.edu>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-Message-ID: <20030809093337.GA28566@mail.jlokier.co.uk>
-References: <20030809010950.GD26375@mail.jlokier.co.uk> <Pine.LNX.4.30.0308090609370.19108-100000@divine.city.tvnet.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0308090609370.19108-100000@divine.city.tvnet.hu>
-User-Agent: Mutt/1.4.1i
+	Sat, 9 Aug 2003 05:29:53 -0400
+Received: from dyn-ctb-203-221-72-224.webone.com.au ([203.221.72.224]:25103
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S272305AbTHIJ3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 05:29:51 -0400
+Message-ID: <3F34BEC4.8090701@cyberone.com.au>
+Date: Sat, 09 Aug 2003 19:28:36 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+CC: trivial@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.0-test3] compile fix for driver/block/paride/pd.c
+References: <1060421994.1276.6.camel@lima.royalchallenge.com>
+In-Reply-To: <1060421994.1276.6.camel@lima.royalchallenge.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Szakacsits Szabolcs wrote:
-> I just can't believe reiser4 is so fast on an unloaded system (from the
-> numbers one could also expect it's the slowest on loaded systems and JFS
-> seems to be the winner on those).
+blk_init_queue now returns a request queue, so this
+patch will not work properly. See the changes in
+test2 -> test3 for how to do it correctly.
 
-reiser4 is using approximately twice the CPU percentage, but completes
-in approximately half the time, therefore it uses about the same
-amount of CPU time at the others.
+Vinay K Nallamothu wrote:
 
-Therefore on a loaded system, with a load carefully chosen to make the
-test CPU bound rather than I/O bound, one could expect reiser4 to
-complete in approximately the same time as the others, _not_ slowest.
-
-That's why it's misleading to draw conclusions from the CPU percentage alone.
-
-> Disks have a speed/seek limits. To be faster, one must ignore
-> 'sync', do less IO (file/tail packing, compression, etc) and/or
-> optimise seek times.
-
-reiser4 literature claims that it does less IO (wandering logs) and
-suggests better seek patterns (deferred allocation).
-
-> > Another interesting statistic would be the number of blocks read and
-> > written during the test.
+>This patch removes the extra argument to blk_init_queue which prevents
+>the module from compiling.
+>
+>
+>--- linux-2.6.0-test3/drivers/block/paride/pd.c	2003-07-28 10:43:52.000000000 +0530
+>+++ linux-2.6.0-test3-nvk/drivers/block/paride/pd.c	2003-08-09 15:02:19.000000000 +0530
+>@@ -893,7 +893,7 @@
+> 	if (register_blkdev(major, name))
+> 		return -1;
 > 
-> Yes, but I would collect those stats after these short term tests for an
-> additional X seconds to make sure no additional "optimization" is involved
-> (aka data is indeed on the disk).
+>-	blk_init_queue(&pd_queue, do_pd_request, &pd_lock);
+>+	blk_init_queue(do_pd_request, &pd_lock);
+> 	blk_queue_max_sectors(&pd_queue, cluster);
+> 
+> 	printk("%s: %s version %s, major %d, cluster %d, nice %d\n",
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-Indeed.  Even sync() is not guaranteed to flush the data to disk in
-its final form, if the filesystem state is already committed to the
-journal.
-
--- Jamie

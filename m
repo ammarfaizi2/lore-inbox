@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269474AbUIZBh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269473AbUIZBnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269474AbUIZBh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 21:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269477AbUIZBh1
+	id S269473AbUIZBnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 21:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269475AbUIZBnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 21:37:27 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:12256 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S269474AbUIZBhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 21:37:06 -0400
-Date: Sun, 26 Sep 2004 03:36:37 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Rik van Riel <riel@redhat.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ptep_establish/establish_pte needs set_pte_atomic and all set_pte must be written in asm
-Message-ID: <20040926013637.GU3309@dualathlon.random>
-References: <20040926002037.GP3309@dualathlon.random> <Pine.LNX.4.44.0409252030260.28582-100000@chimarrao.boston.redhat.com> <20040926004608.GS3309@dualathlon.random> <1096160383.18233.67.camel@gaston>
+	Sat, 25 Sep 2004 21:43:16 -0400
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:46527 "EHLO
+	certainkey.com") by vger.kernel.org with ESMTP id S269473AbUIZBnN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 21:43:13 -0400
+Date: Sat, 25 Sep 2004 21:42:18 -0400
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux@horizon.com, jmorris@redhat.com,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
+Message-ID: <20040926014218.GZ28317@certainkey.com>
+References: <20040924023413.GH28317@certainkey.com> <20040924214230.3926.qmail@science.horizon.com> <20040925145444.GW28317@certainkey.com> <20040925184352.GB7278@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1096160383.18233.67.camel@gaston>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040925184352.GB7278@thunk.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 26, 2004 at 10:59:43AM +1000, Benjamin Herrenschmidt wrote:
-> On Sun, 2004-09-26 at 10:46, Andrea Arcangeli wrote:
-> 
-> > As far as the C language is concerned that *ptep = something can be
-> > implemented with 8 writes of 1 byte each (or alternatively with an
-> > assembler instruction that may make the written data visible not
-> > atomically to other cpus, despite it was written with a single opcode,
-> > similarly to what happens if you use incl without the lock prefix). I'm
-> > not saying such instruction exists in ppc64, but the compiler is
-> > definitely allowed to break the above. You can blame on the compiler to
-> > be inefficient, but you can't blame on the compiler for the security
-> > hazard it would generate. Only the kernel would be to blame if for
-> > whatever reason a gcc version would be underoptimized.
-> 
-> BTW, for your reading pleasure :)
-> 
-> #define atomic_set(v,i)		(((v)->counter) = (i))
-> 
-> (asm-i386/atomic.h)
+On Sat, Sep 25, 2004 at 02:43:52PM -0400, Theodore Ts'o wrote:
+> You still haven't shown the flaw in the logic.  My point is that an
+> over-reliance on crypto primitives is dangerous, especially given
+> recent developments.  Fortuna relies on the crypto primitives much
+> more than /dev/random does.  Ergo, if you consider weaknesses in
+> crypto primitives to be a potential problem, then it might be
+> reasonable to take a somewhat more jaundiced view towards Fortuna
+> compared with other alternatives.
 
-and then check this:
+Correct me if I'm wrong here.
 
-typedef struct { volatile int counter; } atomic_t;
-		 ^^^^^^^^
+You claimed that the collision techniques found for the UFN design hashs
+(sha0, md5, md5, haval, ripemd) demonstrated the need to not rely on hash
+algorithms for a RNG.  Right?
 
-if the pte was at least volatile it would be a lot safer. C knows it
-must not mess with volatile.
+And I showed that the SHA-1 in random.c now can produce collisions.  So, if
+your argument against the fallen UFN hashs above (SHA-1 is a UFN hash also
+btw.  We can probably expect more annoucments from the crypto community in
+early 2005) should it not apply to SHA-1 in random.c?
 
-> And that's really far from beeing the 2 only cases where the kernel _relies_
-> on a write of a simple type like int or long to an aligned location to be
-> atomic. Almost all drivers manipulating DMA descriptors do that, jiffies
-> is a good example too afaik, and more and more and more ... so if the
+Or did I misunderstand you?  Were you just mentioning the weakened algorithms
+as a "what if they were more serious discoveries?  Wouldn't be be nice if we
+didn't rely on them?" ?
 
-jiffies, writel/readl all volatile incidentally.
+The decision to place trust in a entropy estimation scheme vs. a crypto
+algorithm we have different views on.  I can live with that.
 
-> compiler is breaking that up, I think the set_pte race is the least of
-> our problems :)
+> Whether or not /dev/random performs the SHA finalization step (which
+> adds the padding and the length to the hash) is completely and totally
+> irrelevant to this particular line of reasoning.  
 
-the only one not volatile, or can you find more?
+I "completly and totally" agree.  I'm pointing out that no added padding
+makes me, the new guy reading your code, work harder to decide if it's a
+weakness.  You shouldn't do that to people if you can avoid it.  Just like
+you shouldn't obfuscate code, even if it doesn't "weaken" its implementation.
+It's just rude.  Take the performance penalty to avoid scaring people away
+from a very important peice of the kernel.
+
+> ... Whether or not we should trust the design of something as
+> critical to the security of security applications as /dev/random to
+> someone who fails to grasp the difference between these two rather
+> basic issues is something I will leave to the others on LKML.
+
+... biting my toung ... so hard it bleeds ...
+
+The quantitaive aspects of the two RNGs in question are not being discussed.
+It's the qualitative aspects we do not see eye to eye on.  So I will no
+longer suggest replacing the status-quo.  I'd like to submit a patch to let
+users chose at compile-time under Cryptographic options weither to drop in
+Fortuna.
+
+Ted, can we leave it at this?
+
+JLC

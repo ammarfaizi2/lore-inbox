@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269103AbUINB77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269105AbUINCBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269103AbUINB77 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 21:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUINB77
+	id S269105AbUINCBr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 22:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUINCBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 21:59:59 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:2976 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269103AbUINB75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 21:59:57 -0400
-Message-ID: <4146508F.9080700@yahoo.com.au>
-Date: Tue, 14 Sep 2004 11:59:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
-References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com> <20040909162245.606403d3.akpm@osdl.org> <20040910000717.GR3106@holomorphy.com> <414133EB.8020802@yahoo.com.au> <20040910174915.GA4750@logos.cnet> <20040912045636.GA2660@holomorphy.com> <4143D07E.3030408@yahoo.com.au> <20040913222127.GA23588@logos.cnet>
-In-Reply-To: <20040913222127.GA23588@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Sep 2004 22:01:47 -0400
+Received: from are.twiddle.net ([64.81.246.98]:59777 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S269105AbUINCBj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 22:01:39 -0400
+Date: Mon, 13 Sep 2004 19:01:16 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org, greg@kroah.com,
+       wli@holomorphy.com
+Subject: Re: [RFT 2.6.9-rc1 alpha sys_alcor.c] [1/2] convert pci_find_device to pci_get_device
+Message-ID: <20040914020116.GA23058@twiddle.net>
+Mail-Followup-To: Hanna Linder <hannal@us.ibm.com>,
+	ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org,
+	greg@kroah.com, wli@holomorphy.com
+References: <806400000.1095118633@w-hlinder.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <806400000.1095118633@w-hlinder.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
->>Sure. And when you fill it with pages, they'll use up 32KB of dcache
->>by using a single 64B line per page. Now that you've blown the cache,
->>when you go to move those pages to another list, you'll have to pull
->>them out of L2 again one at a time.
->>
->>OK, so a 511 item pagevec is pretty unlikely. How about a 64 item one
->>with 128 byte cachelines, and you're touching two cachelines per
->>page operation? That's 16K.
-> 
-> 
-> Nick, 
-> 
-> Note that you dont read/write data to the actual pages most of the 
-> times pagevec's are used. The great majority is just page management code.  
-> So we dont really blow the caches like you said.
-> 
+On Mon, Sep 13, 2004 at 04:37:13PM -0700, Hanna Linder wrote:
+> Here is a very simple patch to convert pci_find_device call to pci_get_device.
+> As I don't have an alpha box or cross compiler could someone (wli- wink wink)
+> please verify it compiles and doesn't break anything, thanks a lot.
 
-You're often pulling them off lists though which is what will do it.
-Not the actual page, but the struct page.
+Presumably the intent is to eventually remove pci_find_device?
+These routines run at the very beginning of bootup; there cannot
+possibly be any races.
 
-> I agree we need more tests :) 
-> 
 
-Yep.
-
+r~

@@ -1,56 +1,52 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <160175-212>; Sun, 14 Mar 1999 14:09:35 -0500
-Received: by vger.rutgers.edu id <160061-212>; Sun, 14 Mar 1999 14:09:16 -0500
-Received: from mail13.digital.com ([192.208.46.30]:1166 "EHLO mail13.digital.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160047-215>; Sun, 14 Mar 1999 14:09:04 -0500
-Message-Id: <199903141602.LAA01022@alpha1.estabrook.org>
-X-Mailer: exmh version 2.0.2
-To: Jakub Jelinek <jj@sunsite.ms.mff.cuni.cz>
-Cc: axp-list@redhat.com, debian-alpha@lists.debian.org, linux-kernel@vger.rutgers.edu
-From: Jay.Estabrook@digital.com
-Subject: Re: > 1GB on alpha. Patch to 1TB? 
-In-Reply-To: Your message of Sat, 13 Mar 1999 21:48:45 +0100. <199903132048.VAA11627@sunsite.mff.cuni.cz> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 14 Mar 1999 11:02:18 -0500
+Received: by vger.rutgers.edu via listexpand id <160074-215>; Mon, 15 Mar 1999 06:00:49 -0500
+Received: by vger.rutgers.edu id <157389-215>; Mon, 15 Mar 1999 06:00:34 -0500
+Received: from chiara.csoma.elte.hu ([157.181.71.18]:31775 "EHLO chiara.csoma.elte.hu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160007-215>; Mon, 15 Mar 1999 05:58:20 -0500
+Date: Mon, 15 Mar 1999 11:46:17 +0100 (CET)
+From: Ingo Molnar <mingo@chiara.csoma.elte.hu>
+Reply-To: Ingo Molnar <mingo@chiara.csoma.elte.hu>
+To: Andrea Arcangeli <andrea@e-mind.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.rutgers.edu, Buddha Buck <bmbuck@acsu.buffalo.edu>, Colin McFadden <mcfadden@athenet.net>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] recover losed timer interrupt using the TSC [Re: [patch] kstat change to see how much Linux SMP really scale well]
+In-Reply-To: <Pine.LNX.4.05.9903150016110.606-100000@laser.random>
+Message-ID: <Pine.LNX.3.96.990315112902.21551A-100000@chiara.csoma.elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
 
->>> Jakub Jelinek said:
-> 
-> There is something in the sparc tree, which is used also for sun4c and sun4d
-> (where there is only 64MB of DMA per board, so one has to remap DMA areas
-> during runtime).
-> Besically, each driver before it starts doing dma uses some function which
-> translates virtual address + length to dma address and allocates it, then
-> after the dma the driver has to release it again.
+On Mon, 15 Mar 1999, Andrea Arcangeli wrote:
 
-This is a technique that would work on the Alphas as well, but as noted above,
-it *does* require driver modifications to manage the resource correctly.
+> I was in the hope of some kind of pipeline since the code in the middle in
+> my case was only moving a memory address to a register or to another
+> memory address. But as you said the I/O latency is so high that probably
+> would obfuscate any kind of clever optimization so I agree that it's
+> better to make the code cleaner.
 
-On Alpha, in addition to the direct-map DMA windows which are currently
-used, one can define what we call "scatter-gather" DMA windows. The range of
-PCI addresses that fall into one of these windows are re-directed to host
-memory via a page table, where the address in a PTE can be *any* page in the
-possible installed memory - no bounce buffers needed... :-)
- 
-> Martin Mares and myself are considering this as part of the new buses
-> interface we plan for 2.3. The Ultra port supports even now huge amounts of
-> memory, but uses bounce buffers for that. I plan to change it in early 2.3.
+no, even if latency was smaller, the CPU simply does not overlap inb/outb
+with preceding/succeeding instructions. even worse, it 'syncs' the
+pipeline basically, so by moving instructions _between_ IO instructions
+you increase latency. (because we lose the integration effect otherwise
+that instruction could get)
 
-Great! Keep us posted with your progress.
+> get back a KERN_NOTICE that will tell you how much ticks you lose. Since
+> we can do that with a minimal overhead, why not be robust?
 
---Jay++
+this is not necessarily robust. Timekeeping so far was pretty much
+independent of the cycle counter. (micro-time is not, but generic
+timekeeping yes). Now with your patch if the cycle counter produces
+something funny, we'd not only get a message, but also broken time.
 
--------------------------------------------------------------------------------
-  American Non Sequitur Society: we don't make sense, but we do like pizza...
+i think Andrea you are losing the generic picture. 10 msecs is _alot_ of
+time, especially on systems that have a time stamp counter. We should
+_not_ block interrupts for more than 10 msecs. If we do then yes we've
+lost a few ticks (we've lost them in previous Linux versions too, so this
+is certainly nothing new), but now we also get a message so people can fix
+it. You've just increased complexity in an already complex and hard to
+maintain piece of code to 'fix' the symptom of a fundamentally broken and
+rare case, instead of just detecting and fixing the real reason. 
 
-Jay A Estabrook                            Alpha Motherboards - LINUX Project
-Compaq Computer Corporation                (508) 841-3241 or (DTN) 237-3241
-334 South Street, Shrewsbury, MA 01545     Jay.Estabrook@digital.com
--------------------------------------------------------------------------------
-
-
-
+-- mingo
 
 
 -

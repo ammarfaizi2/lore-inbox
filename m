@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261570AbSJCOk3>; Thu, 3 Oct 2002 10:40:29 -0400
+	id <S261454AbSJCOfd>; Thu, 3 Oct 2002 10:35:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263266AbSJCOk3>; Thu, 3 Oct 2002 10:40:29 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:26122 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261570AbSJCOk2>; Thu, 3 Oct 2002 10:40:28 -0400
-Date: Thu, 3 Oct 2002 15:45:59 +0100
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Cc: hch@infradead.org, kai-germaschewski@uiowa.edu
-Subject: Re: RfC: Don't cd into subdirs during kbuild
-Message-ID: <20021003144559.GC56233@compsoc.man.ac.uk>
-References: <20021003140530.GA56233@compsoc.man.ac.uk> <Pine.LNX.4.44.0210030922270.24570-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210030922270.24570-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
+	id <S263310AbSJCOfc>; Thu, 3 Oct 2002 10:35:32 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60376 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261454AbSJCOfc>;
+	Thu, 3 Oct 2002 10:35:32 -0400
+Date: Thu, 3 Oct 2002 10:40:59 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: initrd breakage in 2.5.38-2.5.40
+In-Reply-To: <20021003131240.B2304@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0210031037340.15787-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 09:27:49AM -0500, Kai Germaschewski wrote:
 
-> Since it gives Rules.make the wrong file names in $(obj-[ym]), and relies 
-> on implementation details inside of Rules.make in combination with the 
-> vpath statement to make things work despite those wrong names. 
 
-This sounds like kbuild's problem not mine. That is, I don't see
-anything particularly ugly in using vpath.
+On Thu, 3 Oct 2002, Russell King wrote:
 
-> So did you decide to move things from drivers/oprofile/$(ARCH) to 
-> arch/$(ARCH)/oprofile? It's possible to make it work, but not pretty. As I 
-> said before, kbuild actually expects to have all parts of a single module 
-> to be in a single dir. This can be lifted a little bit as done for xfs, 
-> but spreading parts all over the tree is not very desirable IMO.
+> My mtdblock problems are probably related to this, so I'll followup here.
+> 
+> mtdblock registers its gendisk structure in its open() method.
+> Unfortunately, do_open wants to obtain this structure before
+> the open() method (but doesn't use it.)
 
-Can the kernel people decide amongst themselves what they want, then
-I'll just do it ?
+That's wrong thing to do, actually.  Correct way to handle it is the
+same as for modular ide, etc. - separate callback to be used by
+get_gendisk() and doing allocations/loading subdrivers/etc.
 
-Personally, the arch/ drivers/ split seems perfectly natural for
-oprofile.
+It will go in right after complete switchover to dynamic allocation and
+introduction of ->bd_disk.
 
-regards
-john
--- 
-"Me and my friends are so smart, we invented this new kind of art:
- Post-modernist throwing darts"
-	- the Moldy Peaches

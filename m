@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264738AbTFLNW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 09:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264752AbTFLNW0
+	id S264752AbTFLNgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 09:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264761AbTFLNgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 09:22:26 -0400
-Received: from AMarseille-201-1-3-129.w193-253.abo.wanadoo.fr ([193.253.250.129]:10535
-	"EHLO gaston") by vger.kernel.org with ESMTP id S264738AbTFLNWZ
+	Thu, 12 Jun 2003 09:36:25 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:60043 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264752AbTFLNgX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 09:22:25 -0400
-Subject: Re: Looks like your PCI patch broke the PPC build (and others)?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Greg KH <greg@kroah.com>, Miles Lane <miles.lane@attbi.com>,
-       willy@debian.org,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <16104.10078.284006.569894@cargo.ozlabs.ibm.com>
-References: <3EE77FD6.9020502@attbi.com> <20030611202811.GA26387@kroah.com>
-	 <16104.10078.284006.569894@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055424925.604.39.camel@gaston>
+	Thu, 12 Jun 2003 09:36:23 -0400
+Date: Thu, 12 Jun 2003 19:22:54 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: 2.5.70-bk16: nfs crash
+Message-ID: <20030612135254.GA2482@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030612125630.GA19842@butterfly.hjsoft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 Jun 2003 15:35:25 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030612125630.GA19842@butterfly.hjsoft.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-12 at 09:10, Paul Mackerras wrote:
-> Greg KH writes:
+On Thu, Jun 12, 2003 at 12:57:26PM +0000, John M Flinchbaugh wrote:
+> running 2.5.70-bk16, i got this error and hang.  sysrq worked for
+> reboot, etc.
 > 
-> > Not my patch, Matthew's :)
-> > 
-> > I think the PPC developers have a fix for this.
+> it apparently crashed when it mounted an nfs export from a 2.4.18 box,
+> and tried to mv a file.  i doubt it matters, but the nic is an
+> orinoco_cs wireless card.  thanks.
 > 
-> Just #include <asm/pci-bridge.h> at the top of include/asm-ppc/pci.h.
-> I'll push that change to Linus.
+> Jun 12 02:00:04 density kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+> Jun 12 02:00:04 density kernel: printing eip:
+> Jun 12 02:00:04 density kernel: c0169ef1
+> Jun 12 02:00:04 density kernel: *pde = 00000000
+> Jun 12 02:00:04 density kernel: Oops: 0002 [#1]
+> Jun 12 02:00:04 density kernel: CPU:    0
+> Jun 12 02:00:04 density kernel: EIP:    0060:[<c0169ef1>]    Not tainted
+> Jun 12 02:00:04 density kernel: EFLAGS: 00010246
+> Jun 12 02:00:04 density kernel: EIP is at d_move+0x51/0x250
+> Jun 12 02:00:04 density kernel: eax: 00000000   ebx: cd5e6960   ecx: cd5e69d0   edx: 00000000
 
-Well... asm/pci-bridge.h includes linux/pci.h which includes asm/pci.h,
-so we have a circular include here...
+I am not supprised at all by this, I can see two csets in Linus' tree 
+that will definitely break dcache -
 
-What I did in my tree is to move the definition of pci_controller
-from asm/pci-bridge.h to asm/pci.h. I'm now considering removing
-asm/pci-bridge.h, what do you think ?
+1. http://linux.bkbits.net:8080/linux-2.5/cset@1.1215.104.2?nav=index.html|ChangeSet@-2d
 
-Ben.
+__d_drop() *must not* initialize d_hash fields. Lockfree lookup depends on
+that. If __d_drop() needs to be allowed on an unhashed dentry, the right
+thing to do would be to check for DCACHE_UNHASHED before unhashing. I will
+submit a patch a little later to do this.
 
+
+2. http://linux.bkbits.net:8080/linux-2.5/cset@1.1215.104.1?nav=index.html|ChangeSet@-2d
+
+hlist poison patch is broken. list_del_rcu() and hlist_del_rcu() 
+*must not* re-initialize the pointers. Maneesh submitted a patch
+earlier today that corrects this -
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105541206017154&w=2
+
+
+Thanks
+Dipankar

@@ -1,53 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269718AbRHaWrC>; Fri, 31 Aug 2001 18:47:02 -0400
+	id <S269673AbRHaWrW>; Fri, 31 Aug 2001 18:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269693AbRHaWqy>; Fri, 31 Aug 2001 18:46:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19982 "EHLO
+	id <S269693AbRHaWrN>; Fri, 31 Aug 2001 18:47:13 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20494 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269673AbRHaWqX>; Fri, 31 Aug 2001 18:46:23 -0400
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-To: andrew.grover@intel.com (Grover, Andrew)
-Date: Fri, 31 Aug 2001 23:50:02 +0100 (BST)
-Cc: russell@coker.com.au ('Russell Coker'),
-        acpi@phobos.fachschaften.tu-muenchen.de ("Acpi-linux (E-mail)"),
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0DB@orsmsx35.jf.intel.com> from "Grover, Andrew" at Aug 31, 2001 02:49:04 PM
+	id <S269673AbRHaWq7>; Fri, 31 Aug 2001 18:46:59 -0400
+Subject: Re: [PATCH] usb fix
+To: mdharm-kernel@one-eyed-alien.net (Matthew Dharm)
+Date: Fri, 31 Aug 2001 23:50:16 +0100 (BST)
+Cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <20010831151636.B17480@one-eyed-alien.net> from "Matthew Dharm" at Aug 31, 2001 03:16:36 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15cx6w-00049f-00@the-village.bc.nu>
+Message-Id: <E15cx7A-00049p-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So of course I realize this wouldn't happen any time soon, but has any
-> discussion taken place regarding enhancing the bootloader (grub? Steal
-> FreeBSD's?) to load modular drivers very early, and possibly abstracting
-> SMP/UP from the kernel proper? Wouldn't this be a better solution than
-> initrd?
+> 
+> 
+> --LyciRD1jyfeSSjG0
+> Content-Type: text/plain; charset=us-ascii
+> Content-Disposition: inline
+> Content-Transfer-Encoding: quoted-printable
+> 
+> Odd.... must have been some sort of merging error on my part.  Sorry about
+> that.
+> 
+> Alan, Linus, this looks fine.
+> 
+> Matt
+> 
+> On Fri, Aug 31, 2001 at 10:03:27PM +0000, Andries.Brouwer@cwi.nl wrote:
+> > Wondering why my USB Compact Flash cardreader works with 2.4.7
+> > but not with 2.4.9, I noticed that my name was added and some
+> > constant changed. Changing it back revived my CF reader.
+> >=20
+> > Andries
+> >=20
+> > --- ../linux-2.4.9/linux/drivers/usb/storage/unusual_devs.h	Sat Aug 11 03=
+> :16:46 2001
+> > +++ ./linux/drivers/usb/storage/unusual_devs.h	Fri Aug 31 23:50:19 2001
+> > @@ -96,7 +96,7 @@
+> >  #endif
+> > =20
+> >  /* This entry is from Andries.Brouwer@cwi.nl */
+> > -UNUSUAL_DEV(  0x04e6, 0x0005, 0x0100, 0x0205,=20
+> > +UNUSUAL_DEV(  0x04e6, 0x0005, 0x0100, 0x0208,
+> >  		"SCM Microsystems",
+> >  		"eUSB SmartMedia / CompactFlash Adapter",
+> >  		US_SC_SCSI, US_PR_DPCM_USB, NULL,=20
+> 
+> --=20
+> Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+> net=20
+> Maintainer, Linux USB Mass Storage Driver
+> 
+> DP: And judging from the scores, Stef has the sma... =20
+> T:  LET'S NOT GO THERE!
+> 					-- Dust Puppy and Tanya
+> User Friendly, 12/11/1997
+> 
+> --LyciRD1jyfeSSjG0
+> Content-Type: application/pgp-signature
+> Content-Disposition: inline
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.0.6 (GNU/Linux)
+> Comment: For info see http://www.gnupg.org
+> 
+> iD8DBQE7kAzEz64nssGU+ykRAsXWAJ43l0buh6V5Xq/Wtd3cbi6EUUB+pQCdHeAM
+> y600l6YtDePtP/TMub27qlg=
+> =91SG
+> -----END PGP SIGNATURE-----
+> 
+> --LyciRD1jyfeSSjG0--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-All the discussion we have has been based on seriously enhancing and
-expanding the use of the initrd/ramfs layer. Remember we can begin running
-from ramfs without interrupts, pci bus scans or the like. The things it cant
-do are - pick a kernel by processor type, pick SMP/non SMP.
-
-As it happens both of those are things that are deeply buried in the whole
-compile choices and how we generate the code itself - so they do need to
-be boot loader driven (or user driven)
-
-So the path for ACPI could indeed go
-
-load kernel
-load initial ramfs
-Discover we have ACPI
-load acpi core
-load acpi irq router
-load acpi timers
-[init hardware]
-load ide disk
-load ext3
-mount /
-
-Alan

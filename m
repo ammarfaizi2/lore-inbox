@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267390AbRGLAzr>; Wed, 11 Jul 2001 20:55:47 -0400
+	id <S267391AbRGLA5r>; Wed, 11 Jul 2001 20:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267391AbRGLAz1>; Wed, 11 Jul 2001 20:55:27 -0400
-Received: from web14402.mail.yahoo.com ([216.136.174.59]:33553 "HELO
-	web14402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267390AbRGLAzW>; Wed, 11 Jul 2001 20:55:22 -0400
-Message-ID: <20010712005520.20851.qmail@web14402.mail.yahoo.com>
-Date: Wed, 11 Jul 2001 17:55:20 -0700 (PDT)
-From: Rajeev Bector <rajeev_bector@yahoo.com>
-Subject: Re: new IPC mechanism ideas
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
-In-Reply-To: <3B4CF429.D0B3B473@transmeta.com>
+	id <S267392AbRGLA5h>; Wed, 11 Jul 2001 20:57:37 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40452 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267391AbRGLA51>; Wed, 11 Jul 2001 20:57:27 -0400
+Message-ID: <3B4CF5E8.F9F9C429@transmeta.com>
+Date: Wed, 11 Jul 2001 17:57:12 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rajeev Bector <rajeev_bector@yahoo.com>
+CC: linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: Re: new IPC mechanism ideas
+In-Reply-To: <20010712005520.20851.qmail@web14402.mail.yahoo.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If your driver is in the kernel,
-then you dont need that. All processes
-use system-calls (or ioctls) to send
-messages and when they do recv(),
-they get a pointer to a location
-(where they are mapped to via mmap)
-and they can read directly. In this
-scheme, you dont need any traditional
-UNIX IPC mechanism to work.
-
-Thanks,
-Rajeev
-
---- "H. Peter Anvin" <hpa@transmeta.com> wrote:
-> Rajeev Bector wrote:
-> > 
-> > Thanks for your comment, Peter.
-> > The problem with using a "driver"
-> > process is that now you need
-> > another mechanism to communicate
-> > with that driver - either
-> > message queues or shared
-> > memory or something.
-> > 
+Rajeev Bector wrote:
 > 
-> You need that anyway.
+> If your driver is in the kernel,
+> then you dont need that. All processes
+> use system-calls (or ioctls) to send
+> messages and when they do recv(),
+> they get a pointer to a location
+> (where they are mapped to via mmap)
+> and they can read directly. In this
+> scheme, you dont need any traditional
+> UNIX IPC mechanism to work.
 > 
-> 	-hpa
 
+And the point of this is?
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+	-hpa

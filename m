@@ -1,38 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131822AbRBAXum>; Thu, 1 Feb 2001 18:50:42 -0500
+	id <S132040AbRBAXum>; Thu, 1 Feb 2001 18:50:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132040AbRBAXud>; Thu, 1 Feb 2001 18:50:33 -0500
-Received: from [206.112.104.8] ([206.112.104.8]:1796 "EHLO
-	mercury.illtel.denver.co.us") by vger.kernel.org with ESMTP
-	id <S131911AbRBAXuS>; Thu, 1 Feb 2001 18:50:18 -0500
-Date: Thu, 1 Feb 2001 15:50:54 -0800 (PST)
-From: Alex Belits <abelits@phobos.illtel.denver.co.us>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Serial device with very large buffer
-In-Reply-To: <E14OTPp-0005MY-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10102011546290.948-100000@mercury>
+	id <S131911AbRBAXud>; Thu, 1 Feb 2001 18:50:33 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:27405 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131822AbRBAXu0>; Thu, 1 Feb 2001 18:50:26 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patch] tmpfs for 2.4.1
+Date: 1 Feb 2001 15:50:02 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <95csna$vb6$1@cesium.transmeta.com>
+In-Reply-To: <20010123205315.A4662@werewolf.able.es> <m3lmrqrspv.fsf@linux.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Alan Cox wrote:
-
-> >   I also propose to increase the size of flip buffer to 640 bytes (so the
-> > flipping won't occur every time in the middle of the full buffer), however
-> > I understand that it's a rather drastic change for such a simple goal, and
-> > not everyone will agree that it's worth the trouble:
+Followup to:  <m3lmrqrspv.fsf@linux.local>
+By author:    Christoph Rohland <cr@sap.com>
+In newsgroup: linux.dev.kernel
+>
+> Hi,
 > 
-> Going to a 1K flip buffer would make sense IMHO for high speed devices too
+> here is the latest version of my tmpfs patch against 2.4.1
+> 
+> Have fun
+>                 Christoph
+> 
+> diff -uNr 2.4.1/Documentation/Changes 2.4.1-tmpfs/Documentation/Changes
+> --- 2.4.1/Documentation/Changes	Tue Jan 30 11:06:59 2001
+> +++ 2.4.1-tmpfs/Documentation/Changes	Thu Feb  1 22:04:13 2001
+> @@ -114,20 +114,6 @@
+>  DevFS is now in the kernel.  See Documentation/filesystems/devfs/* in
+>  the kernel source tree for all the gory details.
+>  
+> -System V shared memory is now implemented via a virtual filesystem.
+> -You do not have to mount it to use it. SYSV shared memory limits are
+> -set via /proc/sys/kernel/shm{max,all,mni}.  You should mount the
+> -filesystem under /dev/shm to be able to use POSIX shared
+> -memory. Adding the following line to /etc/fstab should take care of
+> -things:
+> -
+> -none		/dev/shm	shm		defaults	0 0
+> -
+> -Remember to create the directory that you intend to mount shm on if
+> -necessary (The entry is automagically created if you use devfs). You
+> -can set limits for the number of blocks and inodes used by the
+> -filesystem with the mount options nr_blocks and nr_inodes.
+> -
+>  The Logical Volume Manager (LVM) is now in the kernel.  If you want to
+>  use this, you'll need to install the necessary LVM toolset.
+>  
 
-1K flip buffer makes the tty_struct exceed 4096 bytes, and I don't think,
-it's a good idea to change the allocation mechanism for it.
+What happened with this being a management tool for shared memory
+segments?!
 
+	-hpa
 -- 
-Alex
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

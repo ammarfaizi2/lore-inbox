@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264400AbTKMTil (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 14:38:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbTKMTil
+	id S264414AbTKMTkY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 14:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264416AbTKMTkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 14:38:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50337 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264400AbTKMTij (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 14:38:39 -0500
-Date: Thu, 13 Nov 2003 11:39:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mary Edie Meredith <maryedie@osdl.org>
-Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, jenny@osdl.org
-Subject: Re: Nick's scheduler v18
-Message-Id: <20031113113906.65431b18.akpm@osdl.org>
-In-Reply-To: <1068746827.1750.1358.camel@ibm-e.pdx.osdl.net>
-References: <3FAFC8C6.8010709@cyberone.com.au>
-	<1068746827.1750.1358.camel@ibm-e.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 Nov 2003 14:40:24 -0500
+Received: from mx.stud.uni-hannover.de ([130.75.176.3]:61858 "EHLO
+	studserv.stud.uni-hannover.de") by vger.kernel.org with ESMTP
+	id S264414AbTKMTkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 14:40:16 -0500
+From: Michael Born <michael.born@stud.uni-hannover.de>
+To: linux-kernel@vger.kernel.org
+Subject: PCI: device 00:09.0 has unknown header type 04, ignoring.  What's that?
+Date: Thu, 13 Nov 2003 20:40:23 +0100
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311132040.23582.michael.born@stud.uni-hannover.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mary Edie Meredith <maryedie@osdl.org> wrote:
->
-> Nick,
-> 
-> We ran your patch on STP against one of our database workloads (DBT3 on
-> postgreSQL which uses file system rather than raw).
-> 
-> The test was able to compile, successfully start up the database,
-> successfully load the database from source file, successfully run the
-> power test (single stream update/query/delete).   
-> 
-> It failed, however at the next stage, where it starts 8 streams of query
-> and one stream of updates/deletes where it ran for approximately 40
-> minutes (usually takes over an hour to complete).  The updates appear to
-> have completed and only queries were active at the time of failure.  See
-> the error message below from the database log.
->
-> ...
->
-> PANIC:  fdatasync of log file 1, segment 81 failed: Input/output error
->
+Hi kernel hackers,
 
-It's hard to see how a CPU scheduler change could cause fdatasync() to
-return EIO.
+I have a problem with a GPIB PCI card from Quancom 
+( http://quancom.de/qprod01/eng/pb/pci_gpib.htm ).
 
-What filesystem was being used?
+I wrote a programm to read data <100kByte/sec from the GPIB bus to the RAM. 
+When the PCI card shares it's IRQ it works for some time and then hardlocks 
+my computer - the "PCI access LED" of the GPIB card is always ON then.
+Now I found a PCI slot where the card doesn't have to share the IRQ - but 
+linux ignores the card :-(
+While booting the kernel says:
+---
+<6>PCI: Probing PCI hardware
+<4>PCI: ACPI tables contain no PCI IRQ routing entries
+<4>PCI: Probing PCI hardware (bus 00)
+<3>PCI: device 00:09.0 has unknown header type 04, ignoring.
+<6>PCI: Using IRQ router VIA [1106/3074] at 00:11.0
+---
 
-If it was ext2 then perhaps you hit the recently-fixed block allocator
-race.  That fix was merged after test9.  Please check the kernel logs for
-any filesystem error messages.
+The BIOS bootscreen reported an "unknown device - IRQ5". But "lspci" doesn't 
+show up the card!!!
 
-Also, please retry the run, see if it is repeatable.
+What is "unknown header type 04" ?
+Why does "lspci" show the card when IRQ is shared?
+How can I know what's wrong with this card?
 
-Thanks.
+Somebody please enlighten me.
+Please CC me your mail - I'm not subscribed to the list.
+
+Greetings
+Michael
+
+PS: I already had trouble with this card spontaneously getting unconfigured 
+(like before the BIOS talks to the card) in an ECS L7S7A board ...
+
+
+My system:
+Athlon 2000XP
+512MB RAM
+Epox 8KHA+ (VIA KT266a)
+
+Suse8.2
+2.4.22 kernel
+3.1.97 linux gpib driver
+

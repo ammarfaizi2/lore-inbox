@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbUK1VoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbUK1V6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbUK1VoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 16:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUK1VoK
+	id S261458AbUK1V6X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 16:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUK1V6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 16:44:10 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:25262 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261283AbUK1VoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 16:44:07 -0500
-Subject: Re: Suspend 2 merge
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <20041126003944.GR2711@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <20041124132839.GA13145@infradead.org>
-	 <1101329104.3425.40.camel@desktop.cunninghams>
-	 <20041125192016.GA1302@elf.ucw.cz>
-	 <1101422088.27250.93.camel@desktop.cunninghams>
-	 <20041125232200.GG2711@elf.ucw.cz>
-	 <1101426416.27250.147.camel@desktop.cunninghams>
-	 <20041126003944.GR2711@elf.ucw.cz>
+	Sun, 28 Nov 2004 16:58:23 -0500
+Received: from ozlabs.org ([203.10.76.45]:54204 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261458AbUK1V6S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 16:58:18 -0500
+Subject: Re: [PPC64] Tweaks to ppc64 cpu sysfs information
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linuxppc64-dev@ozlabs.org,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041126035959.GK11370@zax>
+References: <20041126035959.GK11370@zax>
 Content-Type: text/plain
-Message-Id: <1101678040.4343.266.camel@desktop.cunninghams>
+Date: Mon, 29 Nov 2004 08:58:11 +1100
+Message-Id: <1101679091.25347.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 29 Nov 2004 08:40:40 +1100
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 2004-11-26 at 14:59 +1100, David Gibson wrote:
+> Andrew, please apply:
+> 
+> Currently the ppc64 sysfs code registers an entry for each possible
+> cpu in sysfs, rather than just online cpus.  That makes sense, since
+> the sysfs entries are needed to control onlining of the cpus.
+> However, this is done even if CONFIG_HOTPLUG_CPU is not set, or if it
+> is not a hotplug capable (DLPAR) machine, which is a bit misleading.
+> Secondly it also registers all the other sysfs entries (mostly
+> performance monitoring controls) on all possible cpus, although they
+> are quite meaningless on non-online cpus.
 
-On Fri, 2004-11-26 at 11:39, Pavel Machek wrote:
-> I'm not *that* concerned about speed. Getting rid of order-8 is
-> for preventing "sorry, not enough RAM to suspend to disk".
+Surely if !CONFIG_HOTPLUG_CPU, then online == possible?  If not, it
+should be.  That would solve part of the problem.
 
-That's fine, but you're only expressing your preference. I'm going to
-ignore the other postings from the weekend that essentially say the same
-thing; there's no point.
-
+Rusty.
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

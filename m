@@ -1,69 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTINQMG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 12:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbTINQMG
+	id S261198AbTINQah (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 12:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbTINQah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 12:12:06 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:26895 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261188AbTINQMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 12:12:03 -0400
-Date: Sun, 14 Sep 2003 18:12:01 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-Message-ID: <20030914181201.E3371@pclin040.win.tue.nl>
-References: <1063484193.1781.48.camel@mulgrave> <20030913212723.GA21426@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030913212723.GA21426@gtf.org>; from jgarzik@pobox.com on Sat, Sep 13, 2003 at 05:27:23PM -0400
+	Sun, 14 Sep 2003 12:30:37 -0400
+Received: from iafilius.xs4all.nl ([213.84.160.212]:37175 "EHLO
+	sjoerd.sjoerdnet") by vger.kernel.org with ESMTP id S261198AbTINQaf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 12:30:35 -0400
+Date: Sun, 14 Sep 2003 18:30:33 +0200 (CEST)
+From: Arjan Filius <iafilius@xs4all.nl>
+X-X-Sender: arjan@sjoerd.sjoerdnet
+Reply-To: Arjan Filius <iafilius@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Another ReiserFS (rpm database) issue (2.6.0-test5)
+Message-ID: <Pine.LNX.4.53.0309141826030.9944@sjoerd.sjoerdnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 05:27:23PM -0400, Jeff Garzik wrote:
+Hi,
 
-> IMO, we need to move users from a [probe-]order-based device and bus
-> enumeration to some system based on unique ids.  I'm of the opinion
-> that _both_ block devices and filesystems need some sort of GUID.
-> Luckily, a lot of blkdevs/fs's are already there.
-> 
-> If you look at current usage out there, order isn't _terribly_ important
-> given today's tools (such as LABEL=).  More important IMO is figuring
-> out which spindle is your boot disk, and which is your root disk.
-> Red Hat handles root disks by doing LABEL= from initrd.  But discovering
-> the boot disk is still largely an unsolved problem AFAIK...
+Finally i "solved" my "rpm --rebuild" problems.
 
-Such things are infinitely difficult.
-Moreover, great care is needed - one has to define precisely what it
-is this GUID is supposed to be an ID of.
+My rpm was on a reiserfs (scsi) partition, and for some while now i've got
+problems. Mainly at some point i was unable to install (rpm) packages, and
+"rpm --rebuild" failed or just looped forever.
 
-(Is it the ZIP drive? Or is it the ZIP disk?
-The 2.4 USB code is broken because it remembers a GUID and thinks that
-identical GUID implies identical disk.)
+In almost panic mode i tried to resque my system, and installed a similar
+system (suse 8.2), copied the rpm database files to that system, and to my
+surpise a "rpm --rebuilddb" went smoothly without any error or problem.
 
-I have a handful of CF/SM cardreaders.
-Some of them have no form of ID. Others have an ID.
+Then, copied the "fixed" rpm database files at the original place, and i
+was able to install packages again, however a "rpm --rebuilddb"
+looped/hanged forever.
 
-Then one can insert a CF or SM card into the reader.
-Some of these cards have an ID. Some have not.
+In a more relaxed panic mode i searched for differences, and motivated by
+the LargeFile ReiserFS problems, i decided i try a "rpm --rebuilddb" on a
+fresh ext2 partition.
+And with success!
 
-On the card one usually finds a FAT filesystem.
-There may be a label. Or there may not be.
+No succes i got with the original rpmdb dir on ext2 and the rpmrebuild-dir
+on reiserfs (another partition). (same problem, loops/hangs forever)
 
-This describes a 3-level situation.
-I have also 4-level situations, where the reader is filled with
-one of four auxiliary adapters (each with an own ID) and the
-adapter then get a CF/SM/SD/... card.
+I think this problem may have started somewhere 2.5, but i can't easy test
+this.
 
-So, yes, we love IDs. And we can always provide them ourselves
-as label or UUID or so in the filesystem.
+Any ideas? (except for banning reiserfs at all).
 
-But finding an unformatted unlabeled disk is difficult.
+At this point i'm still able to reproduce the problems, by doing/debugging
+(on a random reiserfs partition):
+ strace -f rpm --rebuilddb --dbpath /images/rpmtest/rpm/
+<snip>
+lseek(9, 37879808, SEEK_SET)            = 37879808
+write(9, "\4\0\352\377\3\0=@\342\377\324\377\342\377\0\0\0\0\0\0"..., 65536) = 65536
+lseek(9, 34275328, SEEK_SET)            = 34275328
+write(9, "\0\0\372\377\0\0\366\377\0\0\337\377\355\377\0\0\0\0\0"..., 65536) = 65536
+lseek(9, 36110336, SEEK_SET)            = 36110336
+read(9, "\4\0\354\377\3\0\n0\344\377\326\377\344\377\0\0\0\0\0\0"..., 65536) = 65536
+lseek(9, 7995392, SEEK_SET)             = 7995392
+read(9, "\2\0t@\0\0\366\377\0\0\341\377\357\377\0\0\0\0\0\0\0\0"..., 65536) = 65536
+lseek(9, 37879808, SEEK_SET)            = 37879808
+read(9, "\4\0\352\377\3\0=@\342\377\324\377\342\377\0\0\0\0\0\0"..., 65536) = 65536
+lseek(9, 34275328, SEEK_SET)            = 34275328
+read(9, "\0\0\372\377\0\0\366\377\0\0\337\377\355\377\0\0\0\0\0"..., 65536) = 65536
+<and here it "hangs" forever>
 
-Andries
+sizes of my rpmdb files:
+rpmtest # ll rpm
+total 142233
+drwxr-xr-x    2 root     root          320 Sep 14 18:16 .
+drwxr-xr-x    5 root     root          152 Sep 14 18:20 ..
+-rw-r--r--    1 root     root        16384 Sep 14 18:16 conflictsindex.rpm
+-rw-r--r--    1 root     root     83431424 Sep 14 18:16 fileindex.rpm
+-rw-r--r--    1 root     root        57344 Sep 14 18:16 groupindex.rpm
+-rw-r--r--    1 root     root        94208 Sep 14 18:16 nameindex.rpm
+-rw-r--r--    1 root     root     54840904 Sep 14 18:16 packages.rpm
+-rw-r--r--    1 root     root       331776 Sep 14 18:16 providesindex.rpm
+-rw-r--r--    1 root     root     42246144 Sep 14 18:16 requiredby.rpm
+-rw-r--r--    1 root     root        16384 Sep 14 18:16 triggerindex.rpm
 
+Using suse 8.2/kernel 2.6.0-test5/rpm-3.0.6-478
+
+Please CC my when replying.
+
+Greetings,
+-- 
+Arjan Filius
+mailto:iafilius@xs4all.nl

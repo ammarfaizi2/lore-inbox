@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287139AbSABWsE>; Wed, 2 Jan 2002 17:48:04 -0500
+	id <S287134AbSABWsE>; Wed, 2 Jan 2002 17:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287134AbSABWrz>; Wed, 2 Jan 2002 17:47:55 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:46604 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S287143AbSABWrj>;
-	Wed, 2 Jan 2002 17:47:39 -0500
-Message-ID: <3C338DCC.3020707@free.fr>
-Date: Wed, 02 Jan 2002 23:46:36 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: esr@thyrsus.com
-Cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S287141AbSABWrp>; Wed, 2 Jan 2002 17:47:45 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:900
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S287144AbSABWrn>; Wed, 2 Jan 2002 17:47:43 -0500
+Date: Wed, 2 Jan 2002 17:34:19 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@suse.de>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020102164757.A16976@thyrsus.com> <Pine.LNX.4.33.0201022305090.427-100000@Appserv.suse.de> <20020102170833.A17655@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020102173419.A21165@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020102172448.A18153@thyrsus.com> <E16LuDf-0005pp-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16LuDf-0005pp-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 02, 2002 at 10:50:47PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond wrote:
-
-> [...]
-
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > But you're thinking like a developer, not a user.  The right question
+> > is which approach requires the lowest level of *user* privilege to get
+> > the job done.  Comparing world-readable /proc files versus a setuid app,
+> > the answer is obvious.  This sort of thing is exactly what /proc is *for*.
 > 
-> But this is not a bad reason.  Allowing people to avoid running suid 
-> programs is a *good* reason.
+> Both require the same level of user privilege. 
 > 
+> 	cat /proc/wasteofmemory/dmi | dmidecoder
+> v
+> 	/sbin/dmidump | dmidecoder
 
-Usually yes. But for a code that simply parses /dev/kmem content without 
-taking args...
+What?  Perhaps we're talking at cross-prorposes here.  What I'm proposing
+is that /proc/dmi should be a world-readable /proc file with the property
+that 
+	cat /proc/dmi
 
-Just took a quick look at dmidecode.c and auditing this code doesn't 
-seem out of reach.
+gives you a DMI report.  No root privileges or SUID programs needed.
+Surely that would be an improvement on having to run Arjan's dmidecode as
+root or requiring it to be SUID.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-What's the difference security-wise between running this code in kernel 
-space and in a suid prog? Avoiding loading libraries?
-
-Frankly I don't see the point.
-
-LB.
-
+No one who's seen it in action can say the phrase "government help" without
+either laughing or crying.

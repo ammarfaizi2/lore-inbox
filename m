@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265071AbTLCQWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 11:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbTLCQWQ
+	id S265058AbTLCQUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 11:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTLCQUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 11:22:16 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:60900 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265071AbTLCQUz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 11:20:55 -0500
-Date: Wed, 3 Dec 2003 17:20:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David =?iso-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       clubinfo.servers@adi.uam.es, Ingo Molnar <mingo@elte.hu>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: Errors and later panics in 2.6.0-test11.
-Message-ID: <20031203162045.GA27964@suse.de>
-References: <200312031417.18462.ender@debian.org> <Pine.LNX.4.58.0312030757120.5258@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0312030757120.5258@home.osdl.org>
+	Wed, 3 Dec 2003 11:20:50 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25098 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265058AbTLCQUq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 11:20:46 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: ide-cd 2.6.0-test11 does not work
+Date: 3 Dec 2003 16:09:37 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bql1s1$i31$1@gatekeeper.tmr.com>
+References: <20031202163856.GA16759@thumper2.emsphone.com> <200312022026.47485.bzolnier@elka.pw.edu.pl>
+X-Trace: gatekeeper.tmr.com 1070467777 18529 192.168.12.62 (3 Dec 2003 16:09:37 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03 2003, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 3 Dec 2003, David [iso-8859-15] Martínez Moreno wrote:
-> >
-> > 	Hello again. I'm testing 2.6.0-test11 in one of my servers. In about a day or
-> > so under a web/FTP server load, the kernel starts to spit messages:
-> >
-> > Dec  2 22:07:25 ulises kernel: Bad page state at prep_new_page
-> > [ ... ]
-> >
-> > 	This machine is Pentium IV with 512 MB of RAM, IDE & SATA disks, RAID 0 over the
-> > 2 SATA disks, vanilla 2.6.0-test11, Debian testing, apache2 and proftpd.
-> 
-> Interesting. Another RAID 0 problem report..
+In article <200312022026.47485.bzolnier@elka.pw.edu.pl>,
+Bartlomiej Zolnierkiewicz  <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+| 
+| Do you have IDE CD support compiled-in or as module (ide-cd)?
 
-Hmm did _all_ reports include raid-0, or just "some" raid? I'm looking
-at the bio_pair stuff which raid-0 is the only user of, something looks
-fishy there.
+I'm assuming that since OP said "loaded" that it was as a module.
+| 
+| --bart
+| 
+| On Tuesday 02 of December 2003 17:38, Andrew Ryan wrote:
+| > The docs say I shouldn't need ide-scsi anymore, but ide-scsi is the only
+| > way I can mount cds.  If I try mount /dev/hdc /mnt I get /dev/hdc is not a
+| > valid block device.  After loading ide-scsi, mount /dev/sr0 /mnt works fine
+| > (though if I rip music cds with xcdroast the system locks up, ide-scsi
+| > related oops).  This is on a hp zd7000 notebook with a dvd/cd-rw
+| > (HL-DT-STCD-RW/DVD DRIVE GCC-4241N).
 
+Andrew, the recent patch from Linus seems to have fixed a lot of oopsen,
+has it cured yours?
 -- 
-Jens Axboe
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

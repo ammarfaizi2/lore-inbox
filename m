@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261861AbRFNJH1>; Thu, 14 Jun 2001 05:07:27 -0400
+	id <S262081AbRFNJH4>; Thu, 14 Jun 2001 05:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbRFNJHQ>; Thu, 14 Jun 2001 05:07:16 -0400
-Received: from matrix.fr.professo.net ([213.11.43.1]:30222 "EHLO
-	fr.professo.net") by vger.kernel.org with ESMTP id <S261861AbRFNJG6>;
-	Thu, 14 Jun 2001 05:06:58 -0400
-Message-ID: <003d01c0f4b1$4bf65f00$c200a8c0@professo.lan>
-From: "Ghozlane Toumi" <gtoumi@professo.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Rainer Mager" <rmager@vgkk.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15ARz4-0004Jm-00@the-village.bc.nu>
-Subject: Re: obsolete code must die
-Date: Thu, 14 Jun 2001 11:06:18 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S261979AbRFNJHr>; Thu, 14 Jun 2001 05:07:47 -0400
+Received: from babel.spoiled.org ([212.84.234.227]:57365 "HELO
+	babel.spoiled.org") by vger.kernel.org with SMTP id <S261791AbRFNJHk>;
+	Thu, 14 Jun 2001 05:07:40 -0400
+Date: 14 Jun 2001 09:07:38 -0000
+Message-ID: <20010614090738.30539.qmail@babel.spoiled.org>
+From: Juri Haberland <juri@koschikode.com>
+To: georgn@somanetworks.com
+Cc: linux-kernel@vger.kernel.org;, haberland@altus.de
+Subject: Re: 2.4.5-ac13, APM, and Dell Inspiron 8000
+In-Reply-To: <15143.40342.373565.892231@somanetworks.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (OpenBSD/2.9 (i386))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: obsolete code must die
+You wrote:
+> 
+> I've been running 2.4.5 on my new Dell I8000 without too many
+> problems.  Last night I built -ac13 (on my porch) and booted it
+> without incident.  Later, going inside and re-connecting the AC I
+> notice that the thing's hung.  I play around a bit and discover that
+> the act of plugging or unplugging the power cord will hang the box.
+> 
+> This lead me to disable all power manglement in the BIOS.  No joy.
+> 
+> This problem does not exist using straight 2.4.5.
+> 
+> Has anybody else seen this?  Any debugging suggestions?  Or stated
+> differently, has anybody with this machine arrived at a configuration
+> that avoids weirdness in the power management framework?
 
+Ok, I just tried that and my i8000 locked up as well. No problems with
+2.4.5 as well. I have also another problem:
+Running with -ac13 it doesn't poweroff properly - but it did running
+2.4.5. Sometimes it just stops where it should poweroff and locks hard,
+sometimes it blanks the display before locking up hard.
 
-> > Would it make sense to create some sort of 'make config' script that
-> > determines what you want in your kernel and then downloads only those
-> > components? After all, with the constant release of new hardware, isn't
-a
-> > 50MB kernel release not too far away? 100MB?
->
-> This should be a FAQ entry.
+Alan, what other infos do you need?
 
-actually, it *is* a FAQ entry ...
-http://www.tux.org/lkml/#s7-7
+Juri
 
-ghoz
+-- 
+Juri Haberland  <juri@koschikode.com> 
 

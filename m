@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbSKDVUF>; Mon, 4 Nov 2002 16:20:05 -0500
+	id <S262806AbSKDVoz>; Mon, 4 Nov 2002 16:44:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262876AbSKDVUF>; Mon, 4 Nov 2002 16:20:05 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26125 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262859AbSKDVUE>; Mon, 4 Nov 2002 16:20:04 -0500
-Date: Mon, 4 Nov 2002 21:26:36 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [PATCH-RFC] ARM Makefile cleanup
-Message-ID: <20021104212636.D18967@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-References: <20021102225530.GC15134@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021102225530.GC15134@mars.ravnborg.org>; from sam@ravnborg.org on Sat, Nov 02, 2002 at 11:55:31PM +0100
+	id <S262807AbSKDVoz>; Mon, 4 Nov 2002 16:44:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13835 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262806AbSKDVoy>; Mon, 4 Nov 2002 16:44:54 -0500
+Date: Mon, 4 Nov 2002 13:50:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <davej@suse.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <3DC6DA2B.8060903@redhat.com>
+Message-ID: <Pine.LNX.4.44.0211041344040.12273-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 11:55:31PM +0100, Sam Ravnborg wrote:
-> They looked pretty OK before, but I have updated then to use the new
-> make clean infrastructure, and deleted inclusion of Rules.make when I
-> touched a file that included that file.
 
-Unfortunately it breaks:
+On Mon, 4 Nov 2002, Ulrich Drepper wrote:
+> int
+> main()
+> {
+>   system ("cp -f u1 uu");
+>   int fd = open ("./uu", 0);
+>   char buf[100];
+>   sprintf (buf, "/proc/self/fd/%d", fd);
+>   char buf2[100];
+>   int n = readlink (buf, buf2, sizeof (buf2));
+>   buf2[n] = '\0';
+>   system ("cp -f u2 uu");
+>   execl (buf, buf2, "hallo", 0);
+>   return 0;
+> }
+> $ gcc -c o u u.c
+> $ ./u
+> 
+> 
+> You should see 'u2' as the result.  But this is exactly what the fexecve
+> call is supposed to prevent.  The file, once opened, should be reused.
+> The expected result is 'u1'.
 
-  Generating build number
-  Generating include/linux/compile.h (updated)
-  arm-linux-gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -Os -mapcs -mno-sched-prolog -fno-strict-aliasing -fno-common -mapcs-32 -D__LINUX_ARM_ARCH__=4 -march=armv4 -mtune=strongarm1100 -mshort-load-bytes -msoft-float -Wa,-mno-fpu -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
-   arm-linux-ld   -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
-  	arm-linux-ld  -p -X -T arch/arm/vmlinux.lds.s arch/arm/kernel/head.o arch/arm/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/arm/mach-sa1100/built-in.o  arch/arm/kernel/built-in.o  arch/arm/mm/built-in.o  arch/arm/nwfpe/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/arm/lib/lib.a  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group  -o vmlinux
-make -f scripts/Makefile.build obj=arch/arm/boot arch/arm/boot/zImage
-make -f scripts/Makefile.build obj=arch/arm/boot/compressed/ arch/arm/boot/compressed/vmlinux
-make[2]: Nothing to be done for `arch/arm/boot/compressed/vmlinux'.
-  arm-linux-objcopy -O binary -R .note -R .comment -S arch/arm/boot/compressed/vmlinux arch/arm/boot/zImage
+No, you're wrong.
 
-I did a make clean without telling make ARCH=arm just prior, so
-arch/arm/boot/compressed contains some stale files.  It looks like
-there's a missing dependency on the top level vmlinux file:
+Your "cp -f" will _overwrite_ the already existing "uu" file. So the "cp"  
+is actually overwriting the old binary, and it prints out "u2" as a
+result: which is exactly the expected behaviour of "fexecve()". If you
+change the file itself, there's no way to execve() the old contents,
+because the old contents simply do not exist. That's true of fexecve()  
+too.
 
--rwxrwxr-x    1 rmk      rmk       1822788 Nov  4 15:37 arch/arm/boot/compressed/piggy
--rwxrwxr-x    1 rmk      rmk       2283887 Nov  4 21:18 vmlinux
+To show what you want to show, you need to use "cp -fb" or something else
+that actually _switches_ the file around from under you. Or make the
+system() call do a "rm uu; cp uX uu". And if you do that, then you will
+see "u1". Try it and see.
 
-but oddly, arch/arm/boot/compressed/Makefile contains:
+In other words, "execve(/proc/self/fd/xxx)" does work and is exactly the
+same as fexecve().
 
-$(obj)/piggy:    vmlinux;       $(call if_changed,objcopy)
+		Linus
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

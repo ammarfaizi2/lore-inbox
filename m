@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVDDTEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVDDTFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVDDTEO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 15:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVDDTEO
+	id S261334AbVDDTFv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 15:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVDDTFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 15:04:14 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:31461
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261333AbVDDTEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 15:04:08 -0400
-Date: Mon, 4 Apr 2005 12:03:04 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: dvrabel@arcom.com, benh@kernel.crashing.org, matthew@wil.cx,
+	Mon, 4 Apr 2005 15:05:51 -0400
+Received: from attila.bofh.it ([213.92.8.2]:38603 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S261334AbVDDTFa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 15:05:30 -0400
+Date: Mon, 4 Apr 2005 21:05:18 +0200
+To: Greg KH <greg@kroah.com>
+Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
        linux-kernel@vger.kernel.org
-Subject: Re: iomapping a big endian area
-Message-Id: <20050404120304.5767b80f.davem@davemloft.net>
-In-Reply-To: <1112641079.5813.70.camel@mulgrave>
-References: <1112475134.5786.29.camel@mulgrave>
-	<20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>
-	<20050402183805.20a0cf49.davem@davemloft.net>
-	<20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>
-	<1112499639.5786.34.camel@mulgrave>
-	<20050402200858.37347bec.davem@davemloft.net>
-	<1112502477.5786.38.camel@mulgrave>
-	<1112601039.26086.49.camel@gaston>
-	<1112623143.5813.5.camel@mulgrave>
-	<42516034.7000802@arcom.com>
-	<1112641079.5813.70.camel@mulgrave>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050404190518.GA17087@wonderland.linux.it>
+Mail-Followup-To: md@Linux.IT, Greg KH <greg@kroah.com>,
+	debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+	linux-kernel@vger.kernel.org
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+In-Reply-To: <20050404175130.GA11257@kroah.com>
+User-Agent: Mutt/1.5.8i
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Apr 2005 13:57:59 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-> On Mon, 2005-04-04 at 16:41 +0100, David Vrabel wrote:
-> > The Network Processing Engines in the Intel IXP425 are big-endian and
-> > its XScale core may be run in little-endian mode. There's a bunch of
-> > gotchas related to running in little-endian mode so you typically run
-> > the IXP425 in big-endian mode, though.
-> 
-> Yes, based on feedback from Mips people and others pointing out the
-> existence of the motorola rapidio bus, which is BE, I give in and agree
-> that the io{read,write}{16,32}be are the way to go.
-> 
-> How does the attached look?
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This looks fine to me.
+On Apr 04, Greg KH <greg@kroah.com> wrote:
+
+> What if we don't want to do so?  I know I personally posted a solution
+Then probably the extremists in Debian will manage to kill your driver,
+like they did with tg3 and others.
+This sucks, yes.
+
+--=20
+ciao,
+Marco (@debian.org)
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCUY/uFGfw2OHuP7ERAo46AJ9Mi1meqIh1L3pG63F1wFZfelSEHQCeOAxy
+FFSQFy6wUCNINaWU+/qCYSg=
+=HAWv
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--

@@ -1,95 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287979AbSBDAeG>; Sun, 3 Feb 2002 19:34:06 -0500
+	id <S288005AbSBDAf0>; Sun, 3 Feb 2002 19:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288005AbSBDAd6>; Sun, 3 Feb 2002 19:33:58 -0500
-Received: from mailhost.cs.tamu.edu ([128.194.130.106]:48571 "EHLO cs.tamu.edu")
-	by vger.kernel.org with ESMTP id <S287979AbSBDAdn>;
-	Sun, 3 Feb 2002 19:33:43 -0500
-Date: Sun, 3 Feb 2002 18:33:41 -0600 (CST)
-From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
-To: Rob Landley <landley@trommello.org>
-cc: linux-kernel@vger.kernel.org
-Subject: SOCK_PACKET bypasses IPTABLES queue?
-In-Reply-To: <20020203221438.NAPP25931.femail13.sdc1.sfba.home.com@there>
-Message-ID: <Pine.SOL.4.10.10202031831480.25367-100000@dogbert>
+	id <S288012AbSBDAfR>; Sun, 3 Feb 2002 19:35:17 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37646 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288005AbSBDAfG>; Sun, 3 Feb 2002 19:35:06 -0500
+Subject: Re: [PATCH] Symbol troubles in 2.4.18pre... kernels
+To: michal@harddata.com (Michal Jaegermann)
+Date: Mon, 4 Feb 2002 00:48:12 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br (Marcelo Tosatti),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <20020203171615.A12981@mail.harddata.com> from "Michal Jaegermann" at Feb 03, 2002 05:16:15 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16XXIq-0005ml-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob,
-	Another problem:
-	Will a packet from SOCK_PACKET socket bypass all the queues of
-IPTABLES?
+> depmod: 	sis_malloc
+> 
+> The trouble is that these modules are exported by drivers/video/sis/sis_main.c
+> so depmod has valid complaints if the first was configured and the other
+> not.  So this is a source error or a configuration error depending if
+> these two are supposed to be independent or not.
 
-	Thanks!
-	
+There isnt a good way to fix this in the config language - suggestions
+welcome
 
-Xinwen Fu
+> 'isa_eth_io_copy_and_sum' is defined only for some architectures but
+> assorted modules, like drivers/net/3c503.o and few others, can be
+> configured, say, for Alpha and 'depmod' once again complains about
+> unresolved symbols.  I do not think that anybody will really miss that
+> on Alpha but maybe configuring them in should be disallowed?
 
+This is a bug in the Alpha port. Fix the port. Its not ecactly the
+most complex function to implement.
 
-On Sun, 3 Feb 2002, Rob Landley wrote:
+> Some sound modules are using 'mdelay', defined in linux/delay.h,
+> but are not including this header.  Here, at last, the patch is trivial. :-)
 
-> On Sunday 03 February 2002 01:45 pm, Xinwen - Fu wrote:
-> > Hi, All,
-> >
-> > 	I want  to know how a raw packet passes the chain of iptables.
-> >
-> > 	Here are the iptables chains
-> >
-> > --->PRE------>[ROUTE]--->FWD---------->POST------>
-> >         Conntrack    |       Filter   ^    NAT (Src)
-> >         Mangle       |                |    Conntrack
-> >         NAT (Dst)    |             [ROUTE]
-> >         (QDisc)      v                |
-> >                      IN Filter       OUT Conntrack
-> >
-> >                      |  Conntrack     ^  Mangle
-> >                      |
-> >                      |                |  NAT (Dst)
-> >
-> >                      v                |  Filter
-> >
-> >
-> > 	So how a raw packet go through these chains?
-> 
-> 
-> Well, from trial and error and a lot of documentation reading, I eventually 
-> worked out that a TCP/IP packet basically seems to do this:
-> 
-> --->pre--->forward--->post--->
->      |                           ^
->      |                           |
->      v                          |
->      input->local ports->output
-> 
-> I'd like to point out that the last arrow should point from "output" to 
-> "post", since kmail apparently is not using a fixed with font, and I can't 
-> figure out how to get it to do so.  (I did figure out how to get it to use a 
-> korean, chinese, or cyrillic encoding, but not monospaced.  Sigh...)
-> 
-> So in prerouting, the packet is either forwarded on to the forwarding chain 
-> (if it's not for this box) or to the input chain (if it's for a daemon on 
-> this box).  Forwarding never sees packets locally generated on this box, they 
-> go into the output chain and then get sent on to postrouting (which is where 
-> forwarding also feeds into).
-> 
-> It took a little trial and error to work this out, by the way.  It's entirely 
-> ossibly I'm wrong (since I don't think the above agrees with the 
-> documentation), but at the same time it works and survives specific behavior 
-> testing, so... :)  The tables are fairly arbitrarily broken into "NAT" tables 
-> and non-NAT tables.  Oh, and one of the chains (output, I think) exists in 
-> both nat and non-nat versions.  To this day, I have no idea why...
-> 
-> > 	Thanks!!
-> >
-> > Xinwen Fu
-> 
-> If the above doesn't help, this might:
-> 
-> http://netfilter.samba.org/unreliable-guides/
-> 
-> Rob
-> 
-
+Yep - looks good to me

@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRCWQSt>; Fri, 23 Mar 2001 11:18:49 -0500
+	id <S131226AbRCWQZT>; Fri, 23 Mar 2001 11:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131221AbRCWQSk>; Fri, 23 Mar 2001 11:18:40 -0500
-Received: from mg03.austin.ibm.com ([192.35.232.20]:64975 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S131205AbRCWQSY>; Fri, 23 Mar 2001 11:18:24 -0500
-Message-ID: <3ABB76A5.2031C1D4@austin.ibm.com>
-Date: Fri, 23 Mar 2001 10:15:33 -0600
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Andreas Dilger <adilger@turbolinux.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [RFC] sane access to per-fs metadata (was Re: 
- [PATCH]Documentation/ioctl-number.txt)
-In-Reply-To: <Pine.GSO.4.21.0103221720250.5619-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131227AbRCWQY7>; Fri, 23 Mar 2001 11:24:59 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:56836 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S131226AbRCWQYx>; Fri, 23 Mar 2001 11:24:53 -0500
+Message-Id: <200103231624.f2NGO4xY001489@pincoya.inf.utfsm.cl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init 
+In-Reply-To: Message from Mikael Pettersson <mikpe@csd.uu.se> 
+   of "Fri, 23 Mar 2001 01:09:32 +0100." <200103230009.BAA22702@harpo.it.uu.se> 
+Date: Fri, 23 Mar 2001 12:24:03 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al,
-I didn't know that creating file system ioctl's was such a hot topic. 
-Since the functions I want to implement are for a very specific purpose
-(I don't expect anything except the JFS utilities to invoke them), I
-would expect an ioctl to be an appropriate vehicle.
+Mikael Pettersson <mikpe@csd.uu.se> said:
+> Oh I know 99% of the processes getting this will die. The behaviour I'd
+> expect from vanilla code in this particular case (stack overflow) is:
+> - page fault in stack "segment"
+> - no backing store available
+> - post SIGSEGV to current
+>   * push sighandler frame on current stack (or altstack, if registered) [+]
+>   * no room? SIG_DFL, i.e kill
 
-If not ioctl's, why not procfs?  Your proposal is that each filesystem
-implements its own mini-procfs.  What's the advantage of that?
+I.e., kill innocent processes which try to increase their memory usage just
+at the wrong moment. This is exactly what happened before the OOM-killer...
 
-My intentions so far are to use ioctl's for specific operations required
-by the JFS utilities, and procfs for debugging output, tuning, and
-anything else that make sense.
+> My point is that with overcommit removed, there's no question as to
+> which process is actually out of memory. No need for the kernel to guess;
+> since it doesn't guess, it cannot guess wrong.
 
-Alexander Viro wrote:
-> That may look like an overkill, however
->         * You can get rid of any need to register ioctls, etc.
+Just too bad there is no complete accounting for memory usage in the kernel
+right now (a lot of complex data structures in kernel do consume varying
+amounts of memory, not always in the name of a specific process; much of
+the extra flexibility in later kernels is exactly because some structures
+aren't static anymore). Say good-bye to modules, you could as well have
+everything under the sun built in (as the memory for each possible module
+will have to be assumed in use, just in case).
 
-This is a one-time thing
+> Concerning the stack: sure, oom makes it problematic to report the
+> error in a useful way. So use sigaltstack() and SA_ONSTACK. [+]
+> Processes that don't do this get killed, but not because oom_kill
+> did some fancy guesswork.
 
->         * You can add debugging/whatever at any moment with no need to
->           update any utilities - everything is available from plain shell
+They just get killed for requesting memory at the wrong moment, which is a
+lot worse.
 
-We can do this with procfs right now.
-
->         * You can conveniently view whatever metadata you want - no need to
->           shove everything into ioctls on one object.
-
-Again, why re-invent procfs?  We could put this under
-/proc/fs/jfs/metadata.
-
->         * You can use normal permissions control - just set appropriate
->           permission bits for objects on jfsmeta
+> [+] Speaking as a hacker on a runtime system for a concurrent
+> programming language (Erlang), I consider the current Unix/POSIX/Linux
+> default of having the kernel throw up[*] at the user's current stack
+> pointer to be unbelievably broken. sigaltstack() and SA_ONSTACK should
+> not be options but required behaviour.
 > 
-> IOW, you can get normal filesystem view (meaning that you have all usual
-> UNIX toolkit available) for per-fs control stuff. And keep the ability to
-> do proper locking - it's the same driver that handles the main fs and you
-> have access to superblock. No need to change the API - everything is already
-> there...
+> [*] Signal & trap frames used to be called "stack puke" in old 68k days.
 
-I'm not sure how a utility would make atomic changes to several pieces
-of metadata.  The underlying fs code would protect the integrity of
-every metadata "file", but changes to more than one of these "files"
-would not be done as a group without some additional locking that would
-have to be coordinated between the utility and the fs.  This kind of
-thing could be handled by writing some special command to a
-"command-processor" type file, but why is this better than an ioctl?
-
-
+Can we please remember that OOM is *not* in any way a "normal system state"
+that has to be handled in a civilized, orderly way? This is just an escape
+route in case everything else has failed.
 -- 
-David Kleikamp
-IBM Linux Technology Center
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

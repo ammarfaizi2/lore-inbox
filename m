@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270655AbRHJV7p>; Fri, 10 Aug 2001 17:59:45 -0400
+	id <S270658AbRHJWAZ>; Fri, 10 Aug 2001 18:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270656AbRHJV7f>; Fri, 10 Aug 2001 17:59:35 -0400
-Received: from [216.101.162.242] ([216.101.162.242]:10880 "EHLO
-	pizda.ninka.net") by vger.kernel.org with ESMTP id <S270655AbRHJV73>;
-	Fri, 10 Aug 2001 17:59:29 -0400
-Date: Fri, 10 Aug 2001 14:58:36 -0700 (PDT)
-Message-Id: <20010810.145836.41632779.davem@redhat.com>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Newsgroups: lists.linux.kernel
-Subject: Re: struct page to 36 (or 64) bit bus address?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <slrn9n71kn.28q.kraxel@bytesex.org>
-In-Reply-To: <15218.61869.424038.30544@pizda.ninka.net>
-	<20010809163531.D1575@sventech.com>
-	<slrn9n71kn.28q.kraxel@bytesex.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270657AbRHJWAF>; Fri, 10 Aug 2001 18:00:05 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:11532 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270656AbRHJWAA>; Fri, 10 Aug 2001 18:00:00 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Fri, 10 Aug 2001 14:59:37 -0700
+Message-Id: <200108102159.f7ALxb908284@penguin.transmeta.com>
+To: Axel.Thimm@physik.fu-berlin.de, linux-kernel@vger.kernel.org
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+Newsgroups: linux.dev.kernel
+In-Reply-To: <20010810231906.A21435@bonzo.nirvana>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20010810231906.A21435@bonzo.nirvana> you write:
+>How can I reboot a stuck machine remotely, when there are uninterruptable
+>processes arround? shutdown -r, reboot [-n] [-f], telinit 6 do not give the
+>intended results. Localy I can use Alt-SysRq-S/U/B, but what if I still have a
+>remote ssh connection and don't want to have to get to the machines location?
+>
+>Of course the real problem are the processes themselves, but being able to
+>revive a machine is also nice ;)
 
-   I'm using the patch below (pulled out of Jens Axboe's bio
-   patches, i386 only).
+You have to use the reboot() system call directly as root, with the
+proper arguments to make it avoid doing even any sync. See
 
-Are you sure you aren't missing anything in this patch?  For example,
-one can't use the patch you've provided for 64-bit DMA unless the
-dma_addr_t type is made larger.
+	man 2 reboot
 
-Later,
-David S. Miller
-davem@redhat.com
+for details.
+
+		Linus

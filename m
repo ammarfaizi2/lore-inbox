@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbUBTO1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 09:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbUBTO1K
+	id S261210AbUBTOcV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 09:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbUBTOcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 09:27:10 -0500
-Received: from diogenis.ceid.upatras.gr ([150.140.141.181]:27785 "HELO
-	diogenis.ceid.upatras.gr") by vger.kernel.org with SMTP
-	id S261208AbUBTO1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 09:27:08 -0500
-Date: Fri, 20 Feb 2004 16:27:03 +0200 (EET)
-From: Stelios Xanthakis <sxanth@ceid.upatras.gr>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Hax0ring toolz
-Message-ID: <Pine.GSO.4.21.0402201622170.1813-100000@zenon.ceid.upatras.gr>
+	Fri, 20 Feb 2004 09:32:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49082 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261210AbUBTOcU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 09:32:20 -0500
+Message-ID: <40361A66.9060209@pobox.com>
+Date: Fri, 20 Feb 2004 09:32:06 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: MALET JL <malet.jean-luc@laposte.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [drivers][sata-promise] TX4 has the cache enabled, it should
+ be disabled
+References: <4031DB3E.8000406@laposte.net> <40354871.1060009@pobox.com> <40360FDD.1070607@laposte.net>
+In-Reply-To: <40360FDD.1070607@laposte.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi.
-
-For those of you who don't know it,
-ncc is a superb source code analyser especially
-made for kernel hax0ring. See the screenshot at
-
-http://students.ceid.upatras.gr/~sxanth/ncc
-
-I apologise for the spam but since this prog can
-make your life easier, it will reduce the number of 
-traffic on this list in the long run.
-
-PS - ncc ideas borrowed from sparse.c
+MALET JL wrote:
+> I relooked into manual (see promise site support, user manual)  and 
+> there are two parameters for TX4 : write through/ write back , cache on 
+> cache off..... I don't know which cache is it about but I'll redo some 
+> test (argh you oblige me to reboot to windows! did you thought of my 
+> uptime! LOL )this evening but as far as I remember the optimal values 
+> where write through /no cache.....
+> on windows with cache on their was small hangs too....
+> I noticed then that a prempible kernel is not a good idea in my case : 
+> lot more "small hangs"......
 
 
-Thanks,
+This would be the drive's cache, not the card's cache.
 
-stelios
+	Jeff
+
 
 

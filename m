@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270930AbTHOVBP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 17:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270939AbTHOVBP
+	id S270969AbTHOVIX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 17:08:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270982AbTHOVIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 17:01:15 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:50957
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270930AbTHOVBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 17:01:13 -0400
-Date: Fri, 15 Aug 2003 14:01:11 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       gaxt <gaxt@rogers.com>, Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O16int for interactivity
-Message-ID: <20030815210111.GP1027@matchmail.com>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	gaxt <gaxt@rogers.com>, Mike Galbraith <efault@gmx.de>
-References: <200308160149.29834.kernel@kolivas.org>
+	Fri, 15 Aug 2003 17:08:23 -0400
+Received: from mail.kroah.org ([65.200.24.183]:41641 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270969AbTHOVIX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 17:08:23 -0400
+Date: Fri, 15 Aug 2003 13:51:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 - sysfs sensor nameing inconsistency
+Message-ID: <20030815205158.GB4760@kroah.com>
+References: <200307152214.38825.arvidjaar@mail.ru> <20030715201822.GA5040@kroah.com> <200307262200.51781.arvidjaar@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308160149.29834.kernel@kolivas.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200307262200.51781.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 01:49:06AM +1000, Con Kolivas wrote:
-> Changes:
-> Waker is now kept track of.
+On Sat, Jul 26, 2003 at 10:00:51PM +0400, Andrey Borzenkov wrote:
 > 
-> Only user tasks have the bonus ceiling from uninterruptible sleep.
+> Attached is patch against 2.6.0-test1 that adds type_name to all in-tree 
+> sensors; it sets it to the same values as corr. 2.4 senors and (in one case) 
+> changes client name to match that of 2.4.
 > 
-> Preemption of tasks at the same level with twice as much timeslice has been 
-> dropped as this is not necessary with timeslice granularity (may improve 
-> performance of cpu intensive tasks).
-> 
-> Preemption of user tasks is limited to those in the interactive range; cpu 
-> intensive non interactive tasks can run out their full timeslice (may also 
-> improve cpu intensive performance)
-> 
-> Tasks cannot preempt their own waker.
-> 
-> Cleanups etc.
+> Assuming this patch (or variant thereof) is accepted I can then produce 
+> libsensors patch that will easily reuse current sensors.conf. I have already 
+> done it for gkrellm and as Mandrake is going to include 2.6 in next release 
+> sensors support becomes more of an issue.
 
-Con, given the problems reported, maybe each of these should be in a
-different changeset (OXXint, etc...).
+I like this idea, but now that the name logic has changed in the i2c
+code, care to re-do this patch?  Just set the name field instead of
+creating a new file in sysfs.
 
-Seeing the large number of changes, compared to previous releases gave me a
-pause on this patch.  So I waited a few minutes and there was a problem
-report quickly.
+Sound ok?
 
-Is there any way you can provide each change in a seperate patch, so we can
-narrow down the problem patch? (I have a feeling that most of your changes will do a
-lot of good)
+thanks,
 
-Mike
+greg k-h

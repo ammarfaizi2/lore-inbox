@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263418AbTJOPZH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 11:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbTJOPZH
+	id S263426AbTJOPcY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 11:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTJOPcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 11:25:07 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:16769
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263418AbTJOPZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 11:25:05 -0400
-Date: Wed, 15 Oct 2003 11:24:38 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Peter Maersk-Moller <peter@maersk-moller.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx lockup for SMP for 2.4.22
-In-Reply-To: <3F8D3A47.1000804@maersk-moller.net>
-Message-ID: <Pine.LNX.4.53.0310151124180.2328@montezuma.fsmlabs.com>
-References: <3F8D1377.3060509@maersk-moller.net> <3F8D3A47.1000804@maersk-moller.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Oct 2003 11:32:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4105 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263426AbTJOPcX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 11:32:23 -0400
+Date: Wed, 15 Oct 2003 16:32:12 +0100
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: mem=16MB laptop testing
+Message-ID: <20031015153212.GA5197@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20031014105514.GH765@holomorphy.com> <20031014045614.22ea9c4b.akpm@osdl.org> <20031015121208.GA692@elf.ucw.cz> <20031015125109.GQ16158@holomorphy.com> <20031015132054.GA840@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031015132054.GA840@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003, Peter Maersk-Moller wrote:
+On Wed, Oct 15, 2003 at 03:20:54PM +0200, Pavel Machek wrote:
 
-> Hi
-> 
-> More info on the subject. It turns out that a 2.4.22 kernel
-> without SMP-support but with IO-APIC enabled will also lock-up/stop
-> when it installs the aic7xxx driver upon boot. Disabling the IO-APIC
-> and disabling SMP-support makes the kernel boot normally.
+ > Do you want to say that calculation is different, already? We should
+ > probably make 2.5 version match 2.4 version, that's what users
+ > expect. Who changed it and why?
 
-How about UP and IO-APIC?
+More a case of who didn't change it (in 2.6 at least).
+This routine was identical until rev 1.42 of 2.4 when hch changed it to how
+it stands today, with the comment...
 
+[PATCH] memsetup fixes (again)
+
+The mem= fixes from Red Hat's tree had a small bug:
+if mem= was not actually used with the additional features, but
+int plain old way, is used the value as the size of memory it
+wants, not the upper limit.  The problem with this is that there
+is a small difference due to memory holes.
+				    
+I had one report of a person using mem= to reduce memory size for
+a broken i386 chipset thaty only supports 64MB cached and the rest
+as mtd/slram device for swap.  I got broken as the boundaries changed.
+
+
+Assuming this patch is correct, it needs forward porting to 2.6
+
+		Dave
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

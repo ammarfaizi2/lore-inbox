@@ -1,186 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbTEKDq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 23:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTEKDq4
+	id S262231AbTEKDx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 23:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbTEKDx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 23:46:56 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:11462 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S263435AbTEKDqc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 23:46:32 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.69 with contest
-Date: Sun, 11 May 2003 14:01:11 +1000
-User-Agent: KMail/1.5.1
+	Sat, 10 May 2003 23:53:27 -0400
+Received: from smtp1.wanadoo.es ([62.37.236.135]:13777 "EHLO smtp.wanadoo.es")
+	by vger.kernel.org with ESMTP id S262231AbTEKDx0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 23:53:26 -0400
+Message-ID: <3EBDCC2B.3040509@wanadoo.es>
+Date: Sun, 11 May 2003 06:06:03 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305111401.17772.kernel@kolivas.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       marcelo <marcelo@conectiva.com.br>
+Subject: [PATCH] kbuild ppc64 fix
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+hi,
 
-Here are contest (http://contest.kolivas.org) benchmarks with the osdl 
-(http://www.osdl.org) hardware:
+for 2.4.21-rc2:
 
-no_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   79      93.7    0.0     0.0     1.00
-2.5.60              2   79      94.9    0.0     0.0     1.00
-2.5.61              1   79      94.9    0.0     0.0     1.00
-2.5.62              3   79      94.9    0.0     0.0     1.00
-2.5.63              4   79      94.9    0.0     0.0     1.00
-2.5.64              3   79      94.9    0.0     0.0     1.00
-2.5.65              3   80      95.0    0.0     0.0     1.00
-2.5.66              3   79      94.9    0.0     0.0     1.00
-2.5.67              3   80      93.8    0.0     0.0     1.00
-2.5.68              3   79      94.9    0.0     0.0     1.00
-2.5.69              1   80      93.8    0.0     0.0     1.00
-cacherun:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   76      97.4    0.0     0.0     0.96
-2.5.60              2   75      98.7    0.0     0.0     0.95
-2.5.61              1   76      97.4    0.0     0.0     0.96
-2.5.62              3   76      97.4    0.0     0.0     0.96
-2.5.63              4   76      97.4    0.0     0.0     0.96
-2.5.64              3   75      98.7    0.0     0.0     0.95
-2.5.65              3   76      98.7    0.0     0.0     0.95
-2.5.66              3   76      98.7    0.0     0.0     0.96
-2.5.67              3   75      100.0   0.0     0.0     0.94
-2.5.68              3   75      100.0   0.0     0.0     0.95
-2.5.69              1   76      98.7    0.0     0.0     0.95
-process_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   92      81.5    29.7    17.4    1.16
-2.5.60              2   93      80.6    30.5    17.2    1.18
-2.5.61              1   93      80.6    29.0    16.1    1.18
-2.5.62              3   92      81.5    30.0    16.3    1.16
-2.5.63              4   92      81.5    28.2    15.2    1.16
-2.5.64              3   92      81.5    30.0    16.3    1.16
-2.5.65              3   243     30.5    317.0   68.3    3.04
-2.5.66              3   241     30.7    311.0   68.0    3.05
-2.5.67              3   181     40.9    193.3   56.9    2.26
-2.5.68              3   181     40.9    193.3   57.5    2.29
-2.5.69              2   181     41.4    196.5   58.0    2.26
-ctar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   98      80.6    2.0     5.1     1.24
-2.5.60              2   99      78.8    1.0     4.0     1.25
-2.5.61              2   100     79.0    1.0     4.0     1.27
-2.5.62              3   99      79.8    1.0     4.0     1.25
-2.5.63              3   99      79.8    1.0     4.0     1.25
-2.5.64              3   100     79.0    0.0     0.0     1.27
-2.5.65              3   108     72.2    0.0     0.0     1.35
-2.5.66              3   105     74.3    0.0     0.0     1.33
-2.5.67              3   106     73.6    0.0     0.0     1.32
-2.5.68              3   105     74.3    0.0     0.0     1.33
-2.5.69              3   103     75.7    0.0     0.0     1.29
-xtar_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   102     74.5    1.0     3.9     1.29
-2.5.60              2   101     76.2    1.0     5.0     1.28
-2.5.61              2   102     75.5    1.0     4.9     1.29
-2.5.62              3   103     73.8    1.0     3.9     1.30
-2.5.63              3   102     74.5    1.0     3.9     1.29
-2.5.64              3   103     73.8    1.0     3.9     1.30
-2.5.65              3   106     71.7    1.0     3.8     1.32
-2.5.66              3   105     72.4    1.0     3.8     1.33
-2.5.67              3   105     73.3    1.0     3.8     1.31
-2.5.68              3   105     72.4    1.0     3.8     1.33
-2.5.69              3   106     72.6    1.0     3.7     1.32
-io_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   152     50.0    34.1    13.1    1.92
-2.5.60              2   139     54.7    29.0    12.1    1.76
-2.5.61              2   143     52.4    32.9    13.3    1.81
-2.5.62              2   205     36.6    51.7    15.0    2.59
-2.5.63              5   217     35.0    56.7    15.1    2.75
-2.5.64              3   229     33.2    58.8    14.8    2.90
-2.5.65              3   411     19.0    137.5   20.4    5.14
-2.5.66              3   438     17.8    150.4   20.9    5.54
-2.5.67              3   519     15.0    180.7   20.2    6.49
-2.5.68              3   492     15.9    167.1   19.7    6.23
-2.5.69              4   343     22.7    120.5   19.8    4.29
-io_other:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   89      84.3    11.2    5.6     1.13
-2.5.60              2   90      83.3    10.8    5.5     1.14
-2.5.61              2   91      82.4    11.1    5.5     1.15
-2.5.62              2   96      78.1    15.7    8.2     1.22
-2.5.63              4   95      78.9    15.3    8.3     1.20
-2.5.64              3   100     75.0    18.4    9.0     1.27
-2.5.65              3   164     47.6    71.7    26.2    2.05
-2.5.66              3   158     49.4    70.0    27.2    2.00
-2.5.67              3   149     52.3    64.7    24.5    1.86
-2.5.68              3   148     52.7    65.7    25.0    1.87
-2.5.69              2   127     61.4    55.5    24.4    1.59
-read_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   101     77.2    6.5     5.0     1.28
-2.5.60              2   103     74.8    6.2     6.8     1.30
-2.5.61              2   102     77.5    6.3     4.9     1.29
-2.5.62              2   103     75.7    6.2     4.9     1.30
-2.5.63              3   106     74.5    5.7     4.7     1.34
-2.5.64              3   103     76.7    6.2     4.9     1.30
-2.5.65              3   107     72.9    6.3     4.7     1.34
-2.5.66              3   110     70.9    6.2     4.5     1.39
-2.5.67              3   109     71.6    6.2     4.6     1.36
-2.5.68              3   109     71.6    6.2     4.6     1.38
-2.5.69              2   104     75.0    6.3     4.8     1.30
-list_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   95      80.0    0.0     6.3     1.20
-2.5.60              2   95      80.0    0.0     6.3     1.20
-2.5.61              2   95      81.1    0.0     6.3     1.20
-2.5.62              2   95      80.0    0.0     6.3     1.20
-2.5.63              3   96      79.2    0.0     6.2     1.22
-2.5.64              3   96      79.2    0.0     6.2     1.22
-2.5.65              3   98      78.6    0.0     7.1     1.23
-2.5.66              3   97      79.4    0.0     7.2     1.23
-2.5.67              3   97      79.4    0.0     5.2     1.21
-2.5.68              3   95      81.1    0.0     5.3     1.20
-2.5.69              2   95      81.1    0.0     5.3     1.19
-mem_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   95      82.1    52.7    2.1     1.20
-2.5.60              2   98      79.6    53.0    2.0     1.24
-2.5.61              1   96      81.2    54.0    2.1     1.22
-2.5.62              2   101     78.2    59.0    2.0     1.28
-2.5.63              3   104     75.0    57.7    1.9     1.32
-2.5.64              3   105     74.3    58.3    1.9     1.33
-2.5.65              3   112     70.5    67.3    2.7     1.40
-2.5.66              3   112     70.5    64.0    1.8     1.42
-2.5.67              3   112     70.5    67.0    2.7     1.40
-2.5.68              3   113     69.0    64.3    1.8     1.43
-2.5.69              2   98      79.6    60.5    2.0     1.23
-dbench_load:
-Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-2.5.59              3   214     36.4    2.3     40.7    2.71
-2.5.61              2   237     32.5    3.0     47.3    3.00
-2.5.62              2   226     34.1    2.5     42.0    2.86
-2.5.63              4   194     39.2    2.0     38.7    2.46
-2.5.64              3   222     34.2    2.3     38.7    2.81
-2.5.65              3   542     14.2    9.0     62.5    6.78
-2.5.66              3   459     16.6    7.0     56.6    5.81
-2.5.67              3   350     22.0    4.7     49.3    4.38
-2.5.68              3   412     18.4    5.3     47.6    5.22
-2.5.69              4   374     20.3    5.0     48.1    4.67
+--cut--
+diff -Nuar linux/drivers/char/Config.in linux.xose/drivers/char/Config.in
+--- linux/drivers/char/Config.in        2003-05-11 02:53:29.000000000 +0200
++++ linux.xose/drivers/char/Config.in   2003-05-11 05:59:30.000000000 +0200
+@@ -158,7 +158,7 @@
+    dep_tristate 'Texas Instruments parallel link cable support' CONFIG_TIPAR $CONFIG_PARPORT
+ fi
 
-Significant drops in io_other, read_load and mem_load.
+-if [ "$CONFIG_PPC64" ] ; then
++if [ "$CONFIG_PPC64" = "y"] ; then
+    bool 'pSeries Hypervisor Virtual Console support' CONFIG_HVC_CONSOLE
+ fi
+--end--
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+vcsJF6dfvkL3i1gRAlZuAJ9YVxrSlSLZgE9PMUe9jyraWSi8uACeIYK9
-q4hS6dG3PR6XZWuVeOgHp0o=
-=Avn4
------END PGP SIGNATURE-----
+regards,
+-- 
+Galiza nin perdoa nin esquence. Governo demision!
 

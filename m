@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbULKOXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbULKOrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbULKOXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 09:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbULKOXQ
+	id S261937AbULKOrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 09:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbULKOrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 09:23:16 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:54689 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261936AbULKOXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 09:23:13 -0500
-Date: Sat, 11 Dec 2004 15:23:17 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: dynamic-hz
-Message-ID: <20041211142317.GF16322@dualathlon.random>
+	Sat, 11 Dec 2004 09:47:09 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:27011 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261937AbULKOrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 09:47:05 -0500
+Subject: Re: [BK PATCH] SCSI -rc fixes for 2.6.10-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41BA2948.4030906@osdl.org>
+References: <1102650988.3814.13.camel@mulgrave>
+	 <20041210201115.GD12581@suse.de>  <41BA2948.4030906@osdl.org>
+Content-Type: text/plain
+Organization: SteelEye Technology, inc.
+Date: Sat, 11 Dec 2004 08:46:46 -0600
+Message-Id: <1102776407.5688.4.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The below patch allows to set the HZ dynamically at boot time with
-command line parameter. HZ=1000 HZ=100 HZ=333 any other value just works
-(though certain value may cause more or less drift to the system time
-advance/decrease).
+On Fri, 2004-12-10 at 14:55 -0800, Randy.Dunlap wrote:
+> I have a drive, but I'm not near a highmem machine atm.
+> I can test it next week if no one else does so.
 
-Is there any interest from the mainline developers to merge this into
-2.6? I'm getting requests for this feature being forward ported to
-2.6 (both for batch jobs and for the powersaved that can trim the hz
-down to 80mhz). It should be up to the user to choose the HZ like it was
-in 2.4-aa.
+So would you be amenable to fixing it properly?  It looks like what
+needs to happen is that it needs to accept its commands into the
+scsi_pointer with page and offset (scsi_pointer doesn't have these
+fields, but you could probably cast in ptr and dma_handle).  Then do a
+kmap/kunmap around imm_in() and imm_out() when it's operating on
+SCp.ptr.
 
-This patch is quite intrusive since many HZ visible to userspace have to
-be converted to USER_HZ, and most important because HZ isn't available
-at compile time anymore and every variable in function of HZ must be
-either changed to be in function of USER_HZ or it must be initialized at
-runtime. The code has debugging code (optional at compile time) so that
-I can guarantee that there cannot be any regression.
+James
 
-Technically this makes a lot of sense to me (well, you can guess why I
-implemented it in the first place), at least in archs where one cannot
-reprogram the timer chip in a performant way (to stop timer ticks
-completely until the next posted timer). This is in production for years
-in SLES8 btw.
 
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23aa3/9999_zzz-dynamic-hz-5.gz
-
-Comments welcome thanks.

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbTHTPkS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 11:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTHTPkS
+	id S262023AbTHTPpj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 11:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbTHTPpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 11:40:18 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:32747 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262012AbTHTPkQ (ORCPT
+	Wed, 20 Aug 2003 11:45:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54681 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262023AbTHTPph (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 11:40:16 -0400
-Date: Wed, 20 Aug 2003 11:40:14 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE wierdness
-Message-ID: <20030820154014.GA9119@gtf.org>
-References: <20030820150903.GA7246@work.bitmover.com>
+	Wed, 20 Aug 2003 11:45:37 -0400
+Date: Wed, 20 Aug 2003 08:38:22 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: ak@colin2.muc.de, dang@fprintf.net, ak@muc.de, lmb@suse.de,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-Id: <20030820083822.598ce78a.davem@redhat.com>
+In-Reply-To: <20030820174133.5e3f50e5.skraw@ithnet.com>
+References: <mdtk.Zy.1@gated-at.bofh.it>
+	<mgUv.3Wb.39@gated-at.bofh.it>
+	<mgUv.3Wb.37@gated-at.bofh.it>
+	<miMw.5yo.31@gated-at.bofh.it>
+	<m365ktxz3k.fsf@averell.firstfloor.org>
+	<1061320620.3744.16.camel@athena.fprintf.net>
+	<20030819192125.GD92576@colin2.muc.de>
+	<1061321268.3744.20.camel@athena.fprintf.net>
+	<20030819193235.GG92576@colin2.muc.de>
+	<20030819122847.2d7e2e31.davem@redhat.com>
+	<20030820174133.5e3f50e5.skraw@ithnet.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030820150903.GA7246@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 08:09:03AM -0700, Larry McVoy wrote:
-> If the concensus is that it is OK that bad hardware locks you up then I'll
-> toss the drive and move on.
+On Wed, 20 Aug 2003 17:41:33 +0200
+Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
-Don't toss bad drives, send them to weirdos like me:  I can use them
-for testing and debugging error handling paths...
+> Aehm, sorry but the logic is bogus. A routed packet will be sent out this
+> interface with a foreign IP as source, too.
 
-	Jeff
+I'm talking about "local" addresses.
 
+When we're routing, we'll use an interface address of
+course.
 
+But when the packet is originating from our host, and
+the source address in the outgoing packet is local to
+us, we will use it as the source in the ARP packet.
+
+Look at the algorithm in net/ipv4/arp_solicit() to see
+what I mean.
 

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268303AbRGWQ7C>; Mon, 23 Jul 2001 12:59:02 -0400
+	id <S268302AbRGWREV>; Mon, 23 Jul 2001 13:04:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268300AbRGWQ6l>; Mon, 23 Jul 2001 12:58:41 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:64482 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S268299AbRGWQ6d>;
-	Mon, 23 Jul 2001 12:58:33 -0400
-Message-ID: <XFMail.20010723100059.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S268305AbRGWREB>; Mon, 23 Jul 2001 13:04:01 -0400
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:5578 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S268302AbRGWRD6>; Mon, 23 Jul 2001 13:03:58 -0400
+Date: Mon, 23 Jul 2001 18:04:02 +0100 (BST)
+From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+X-X-Sender: <ap1gvl@erdos.shef.ac.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: PCI IDE initialization
+Message-ID: <Pine.LNX.4.31.0107231758430.3070-100000@erdos.shef.ac.uk>
 MIME-Version: 1.0
-Date: Mon, 23 Jul 2001 10:00:59 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] small include/linux/list.h integration ...
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Subject says it all.
+Hello
 
+I asked on kernelnewbies - no reply. So, trying here. I'm not subscribed,
+so CC would be greatly appreciated.
 
-- Davide
+Somewhere in the background of my mind I am still trying to solve 'nicely'
+the problem with my machine - no kernel since 2.0.39 can turn IDE
+bus-mastering (IDE DMA) on it on. I have an ugly hack for 2.4.0, which
+works, but it's ugly - it should never be run on other machines.
 
+The problem with the newer kernels is that they fail to calculate IDE
+dma_base address correctly. So, in my ugly patch I just hard-coded the
+values (for ide0 and ide1) obtained from 2.0.39. And I am still hoping for
+a nicer solution. My guess (partly supported by studying the sources) is
+that 2.0.39 kernel used some BIOS-provided values, whereas 2.2 and 2.4
+kernels use some ad hoc knowledge about various chipsets, and my chipset
+somehow, although it's a simple Triton PIIX has it differently...
 
+Anyway, for now I would really appreciate if somebody could shed some
+light on the PCI IDE initialization path in 2.0(.39) vs 2.2/2.4, if indeed
+2.0 reads the value set by BIOS, whereas 2.2/2.4 clears those values (I
+tried reading the same address - clean) somewhere during bus
+initialization, where in the code does this happen - if my assumption is
+right, if not - what could be happening? I am hoping to read those values
+somewhere before the bus initialization, preserve them, and allow them to
+be used later if everything else fails.
 
+Thanks
+Guennadi
+___
 
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, Sheffield, U.K.
+email: g.liakhovetski@sheffield.ac.uk
 
-diff -Nru linux-2.4.7.vanilla/include/linux/list.h linux-2.4.7/include/linux/list.h
---- linux-2.4.7.vanilla/include/linux/list.h    Fri Feb 16 16:06:17 2001
-+++ linux-2.4.7/include/linux/list.h    Sun Jul 22 16:22:36 2001
-@@ -149,6 +149,11 @@
- #define list_for_each(pos, head) \
-        for (pos = (head)->next; pos != (head); pos = pos->next)
- 
-+#define list_first(head)       (((head)->next != (head)) ? (head)->next: (struct list_head *) 0)
-+#define list_last(head)        (((head)->prev != (head)) ? (head)->prev: (struct list_head *) 0)
-+#define list_next(pos, head)   (((pos)->next != (head)) ? (pos)->next: (struct list_head *) 0)
-+#define list_prev(pos, head)   (((pos)->prev != (head)) ? (pos)->prev: (struct list_head *) 0)
-+
- #endif /* __KERNEL__ || _LVM_H_INCLUDE */
- 
- #endif
 
 

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbTIYSJd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbTIYSIz
+	id S261396AbTIYR6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTIYR6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:08:55 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:45221 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S261835AbTIYSES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:04:18 -0400
-Subject: Re: [PATCH} fix defect with kobject memory leaks during del_gendisk
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
-In-Reply-To: <20030925072343.A4636@infradead.org>
-References: <1064444526.13033.355.camel@persist.az.mvista.com>
-	 <20030925072343.A4636@infradead.org>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1064513050.4763.21.camel@persist.az.mvista.com>
+	Thu, 25 Sep 2003 13:58:06 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:56290 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261396AbTIYR5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:57:37 -0400
+Date: Thu, 25 Sep 2003 13:57:35 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, andrea@kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030925175735.GB21341@gtf.org>
+References: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Sep 2003 11:04:11 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-24 at 23:23, Christoph Hellwig wrote:
-> On Wed, Sep 24, 2003 at 04:02:06PM -0700, Steven Dake wrote:
-> > Unfortunately it appears that del_gendisk uses kobject_del to delete the
-> > kobject.  If the kobject has a ktype release function, it is not called
-> > in the kobject_del call path, but only in kobject_unregister.
-> 
-> That's intentional.  gendisks (like everything using kobjects) are
-> reference counted and ->release is unly called after the last reference
-> goes away, for gendisks that would be the last put_disk call.
-> 
-> Unless you miss the put_disk call (which md certainly has) there's
-> no memeory leak.
-> 
-Thanks Christoph...
+On Thu, Sep 25, 2003 at 10:30:58AM -0700, Linus Torvalds wrote:
+> I don't know what the solution to it might be - but I don't think the 
+> reason they are using BK is that they are trying to emulate "the great 
+> kernel project". I know it wasn't for me - it's just that once you get 
+> used to BK, there's no way you'll ever go back to CVS willingly. 
 
-Looks like I'm barking up the wrong tree.  Time to go fix up md :)
+Nod.  All my new projects start out in BitKeeper these days, because
+it's so much better than cvs.
 
--steve
-> 
+	Jeff
+
+
 

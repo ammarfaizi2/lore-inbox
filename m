@@ -1,53 +1,690 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUKQEzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbUKQE7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUKQEzG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 23:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbUKQEzG
+	id S262167AbUKQE7X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 23:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbUKQE7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 23:55:06 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:29706 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262050AbUKQEzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 23:55:01 -0500
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 16 Nov 2004 20:54:54 -0800
-Message-ID: <52fz39f529.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH] linux/mount.h: add atomic.h and spinlock.h #includes
+	Tue, 16 Nov 2004 23:59:23 -0500
+Received: from havoc.gtf.org ([69.28.190.101]:58339 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262167AbUKQE6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 23:58:11 -0500
+Date: Tue, 16 Nov 2004 23:58:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, mlord@pobox.com, linville@tuxdriver.com
+Subject: [IDE] new driver: ADMA
+Message-ID: <20041117045809.GA1792@havoc.gtf.org>
+Reply-To: linux-ide@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 17 Nov 2004 04:55:00.0069 (UTC) FILETIME=[979BF150:01C4CC61]
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure what the current policy is on include files being
-self-sufficient, so feel free to drop this if we don't want to do this
-sort of cleanup...
 
-<linux/mount.h> uses atomic_t and spinlock_t, but doesn't include
-either <asm/atomic.h> or <linux/spinlock.h>, which means that any
-users of <linux/mount.h> have to include them.  This patch adds the
-necessary #includes to avoid this.
+Pacific Digital (and others?) have some PATA and SATA controllers which
+conform to the public "ADMA" specification found at
+	http://www.t13.org/project/d1510r1-Host-Adapter.pdf
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+In terms of standard IDE BMDMA controllers, ADMA is fairly advanced,
+allowing all commands (including non-DMA) to be transferred using
+DMA and a scatter-gather table.  Rather than a DMA ring, each port
+has a linked list of commands to execute.
 
-Index: linux-bk/include/linux/mount.h
-===================================================================
---- linux-bk.orig/include/linux/mount.h	2004-11-16 20:50:34.000000000 -0800
-+++ linux-bk/include/linux/mount.h	2004-11-16 20:51:30.000000000 -0800
-@@ -13,6 +13,8 @@
- #ifdef __KERNEL__
- 
- #include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <asm/atomic.h>
- 
- #define MNT_NOSUID	1
- #define MNT_NODEV	2
+In terms of modern SATA controllers, the ADMA design is showing
+its age just a tad, but is still a reasonable design.  Since the
+hardware ref is public, and since the driver was quick and easy,
+I took a couple hours out of the "post-work" evening to write the
+first draft of the ADMA driver.
+
+This driver conforms to Linus Confidence Level 2:
+	   It looks right
+	X  It builds
+	   It works
+	   It passes stress tests
+
+The error handling is severely lacking, but this should be basically
+right.
+
+The driver is built against 2.6.10-rc2 libata.
+
+
+
+
+/*
+ *  ata_adma.c - ADMA ATA support
+ *
+ *  Copyright 2004 Red Hat, Inc.
+ *  Copyright 2004 Jeff Garzik
+ *
+ *  The contents of this file are subject to the Open
+ *  Software License version 1.1 that can be found at
+ *  http://www.opensource.org/licenses/osl-1.1.txt and is included herein
+ *  by reference.
+ *
+ *  Alternatively, the contents of this file may be used under the terms
+ *  of the GNU General Public License version 2 (the "GPL") as distributed
+ *  in the kernel source COPYING file, in which case the provisions of
+ *  the GPL are applicable instead of the above.  If you wish to allow
+ *  the use of your version of this file only under the terms of the
+ *  GPL and not to allow others to use your version of this file under
+ *  the OSL, indicate your decision by deleting the provisions above and
+ *  replace them with the notice and other provisions required by the GPL.
+ *  If you do not delete the provisions above, a recipient may use your
+ *  version of this file under either the OSL or the GPL.
+ *
+ *  Draft of the ADMA hardware specification:
+ *  http://www.t13.org/project/d1510r1-Host-Adapter.pdf
+ *
+ */
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/init.h>
+#include <linux/blkdev.h>
+#include <linux/delay.h>
+#include <linux/interrupt.h>
+#include <linux/sched.h>
+#include "scsi.h"
+#include <scsi/scsi_host.h>
+#include <linux/libata.h>
+#include <asm/io.h>
+
+#define DRV_NAME	"ata_adma"
+#define DRV_VERSION	"0.1"
+
+
+enum board_ids_enum {
+	board_adma,
+};
+
+enum {
+	ADMA_PCI_BAR		= 4,
+	ADMA_CPB_SZ		= 64,
+	ADMA_SGTBL_LEN		= (4096 - ADMA_CPB_SZ) / 16,
+	ADMA_SGTBL_SZ		= ADMA_SGTBL_LEN * 16,
+	ADMA_PORT_PRIV_DMA_SZ	= ADMA_CPB_SZ + ADMA_SGTBL_SZ,
+
+	ADMA_CTL		= 0x0,
+	ADMA_STAT		= 0x2,
+	ADMA_CPB_COUNT		= 0x4,
+	ADMA_NEXT_CPB		= 0xC,
+
+	ADMA_GO			= (1 << 7),
+
+	APRD_UDMA		= (1 << 4),
+	APRD_WRITE		= (1 << 5),
+	APRD_END		= (1 << 7),
+
+	IRQ_PCI_ERR		= (1 << 0),
+	IRQ_CPB_ERR		= (1 << 1),
+	IRQ_DONE		= (1 << 7),
+	IRQ_ERR_MASK		= IRQ_CPB_ERR | IRQ_PCI_ERR,
+
+	CPB_APRD_VALID		= (1 << (2 + 16)),
+	CPB_IEN			= (1 << (3 + 16)),
+	CPB_LEN_SHIFT		= 24,
+	CPB_ERR_MASK		= 0xf8, /* select err bits 7-3 */
+
+	ADMA_USE_CLUSTERING	= 1,
+
+	N_PORTS			= 2,
+};
+
+struct adma_prd {
+	u32			addr;
+	u32			len;
+	u32			flags;
+	u32			next_prd;
+};
+
+struct adma_host_priv {
+	unsigned long		flags;
+};
+
+struct adma_port_priv {
+	u32			*cpb;
+	dma_addr_t		cpb_dma;
+	struct adma_prd		*aprd;
+	dma_addr_t		aprd_dma;
+};
+
+static int adma_init_one (struct pci_dev *pdev, const struct pci_device_id *ent);
+static int adma_qc_issue(struct ata_queued_cmd *qc);
+static irqreturn_t adma_interrupt (int irq, void *dev_instance, struct pt_regs *regs);
+static void adma_phy_reset(struct ata_port *ap);
+static void adma_irq_clear(struct ata_port *ap);
+static int adma_port_start(struct ata_port *ap);
+static void adma_port_stop(struct ata_port *ap);
+static void adma_host_stop(struct ata_host_set *host_set);
+static void adma_qc_prep(struct ata_queued_cmd *qc);
+static void adma_set_dmamode(struct ata_port *ap, struct ata_device *adev);
+
+static Scsi_Host_Template adma_sht = {
+	.module			= THIS_MODULE,
+	.name			= DRV_NAME,
+	.ioctl			= ata_scsi_ioctl,
+	.queuecommand		= ata_scsi_queuecmd,
+	.eh_strategy_handler	= ata_scsi_error,
+	.can_queue		= ATA_DEF_QUEUE,
+	.this_id		= ATA_SHT_THIS_ID,
+	.sg_tablesize		= ADMA_SGTBL_LEN,
+	.max_sectors		= ATA_MAX_SECTORS,
+	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
+	.emulated		= ATA_SHT_EMULATED,
+	.use_clustering		= ADMA_USE_CLUSTERING,
+	.proc_name		= DRV_NAME,
+	.dma_boundary		= ATA_DMA_BOUNDARY,
+	.slave_configure	= ata_scsi_slave_config,
+	.bios_param		= ata_std_bios_param,
+};
+
+static struct ata_port_operations adma_ops = {
+	.port_disable		= ata_port_disable,
+	.set_dmamode		= adma_set_dmamode,
+
+	.tf_load		= ata_tf_load,
+	.tf_read		= ata_tf_read,
+	.check_status		= ata_check_status,
+	.dev_select		= ata_std_dev_select,
+
+	.phy_reset		= adma_phy_reset,
+
+	.qc_prep		= adma_qc_prep,
+	.qc_issue		= adma_qc_issue,
+
+	.eng_timeout		= ata_eng_timeout,
+
+	.irq_handler		= adma_interrupt,
+	.irq_clear		= adma_irq_clear,
+
+	.port_start		= adma_port_start,
+	.port_stop		= adma_port_stop,
+	.host_stop		= adma_host_stop,
+};
+
+static struct ata_port_info adma_port_info[] = {
+	/* board_adma */
+	{
+		.sht		= &adma_sht,
+		.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST |
+				  ATA_FLAG_NO_LEGACY | ATA_FLAG_MMIO,
+		.pio_mask	= 0x03, /* pio3-4 */
+		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
+		.port_ops	= &adma_ops,
+	},
+};
+
+static struct pci_device_id adma_pci_tbl[] = {
+	{ }	/* terminate list */
+};
+
+
+static struct pci_driver adma_pci_driver = {
+	.name			= DRV_NAME,
+	.id_table		= adma_pci_tbl,
+	.probe			= adma_init_one,
+	.remove			= ata_pci_remove_one,
+};
+
+
+static inline void __iomem *adma_ctl_block(struct ata_port *ap)
+{
+	void __iomem *mmio = ap->host_set->mmio_base;
+
+	if (ap->port_no == 0)
+		mmio += 0x80;
+	else
+		mmio += 0xA0;
+
+	return mmio;
+}
+
+static void adma_set_dmamode(struct ata_port *ap, struct ata_device *adev)
+{
+	/* FIXME: todo */
+}
+
+static void adma_host_stop(struct ata_host_set *host_set)
+{
+	struct adma_host_priv *hpriv = host_set->private_data;
+	kfree(hpriv);
+}
+
+static int adma_port_start(struct ata_port *ap)
+{
+	struct device *dev = ap->host_set->dev;
+	struct adma_port_priv *pp;
+	int rc;
+	void *mem;
+	dma_addr_t mem_dma;
+
+	rc = ata_port_start(ap);
+	if (rc)
+		return rc;
+
+	pp = kmalloc(sizeof(*pp), GFP_KERNEL);
+	if (!pp) {
+		rc = -ENOMEM;
+		goto err_out;
+	}
+	memset(pp, 0, sizeof(*pp));
+
+	mem = dma_alloc_coherent(dev, ADMA_PORT_PRIV_DMA_SZ, &mem_dma, GFP_KERNEL);
+	if (!mem) {
+		rc = -ENOMEM;
+		goto err_out_kfree;
+	}
+	memset(mem, 0, ADMA_PORT_PRIV_DMA_SZ);
+
+	/*
+	 * First item in chunk of DMA memory:
+	 * 64-byte command parameter block (CPB)
+	 */
+	pp->cpb = mem;
+	pp->cpb_dma = mem_dma;
+
+	mem += ADMA_CPB_SZ;
+	mem_dma += ADMA_CPB_SZ;
+
+	/*
+	 * Second item: block of ADMA_SGTBL_LEN s/g entries
+	 */
+	pp->aprd = mem;
+	pp->aprd_dma = mem_dma;
+
+	ap->private_data = pp;
+
+	return 0;
+
+err_out_kfree:
+	kfree(pp);
+err_out:
+	ata_port_stop(ap);
+	return rc;
+}
+
+
+static void adma_port_stop(struct ata_port *ap)
+{
+	struct device *dev = ap->host_set->dev;
+	struct adma_port_priv *pp = ap->private_data;
+	void __iomem *mmio = adma_ctl_block(ap);
+
+	writew(0, mmio + ADMA_CTL);
+
+	ap->private_data = NULL;
+	dma_free_coherent(dev, ADMA_PORT_PRIV_DMA_SZ, pp->cpb, pp->cpb_dma);
+	kfree(pp);
+	ata_port_stop(ap);
+}
+
+static void adma_cbl_detect(struct ata_port *ap)
+{
+	/* FIXME: todo */
+}
+
+static void adma_phy_reset(struct ata_port *ap)
+{
+	adma_cbl_detect(ap);
+	ata_port_probe(ap);
+	ata_bus_reset(ap);
+}
+
+static void adma_fill_sg(struct ata_queued_cmd *qc)
+{
+	struct adma_port_priv *pp = qc->ap->private_data;
+	unsigned int i, idx;
+
+	VPRINTK("ENTER\n");
+
+	idx = 0;
+	if (is_atapi_taskfile(&qc->tf)) {
+		idx = 1;
+
+		/* FIXME: point first s/g entry to ATAPI packet */
+	}
+
+	for (i = 0; i < qc->n_elem; i++, idx++) {
+		u32 sg_len, addr, flags;
+
+		addr = (u32) sg_dma_address(&qc->sg[i]);
+		sg_len = sg_dma_len(&qc->sg[i]);
+
+		flags = 0;
+		if (qc->tf.flags & ATA_TFLAG_WRITE)
+			flags |= APRD_WRITE;
+		if (i == (qc->n_elem - 1))
+			flags |= APRD_END;
+		if (qc->tf.protocol == ATA_PROT_DMA ||
+		    qc->tf.protocol == ATA_PROT_ATAPI_DMA) {
+			flags |= APRD_UDMA;
+			flags |= (qc->dev->dma_mode << 8);
+			flags |= (2 << 12); /* udma bus burst size, 512b units*/
+		} else {
+			flags |= ((qc->dev->pio_mode - 1) << 8);
+		}
+
+		pp->aprd[idx].addr = cpu_to_le32(addr);
+		pp->aprd[idx].len = cpu_to_le32(sg_len / 8); /* len in Qwords */
+		pp->aprd[idx].flags = cpu_to_le32(flags);
+
+		if (i == (qc->n_elem - 1))
+			pp->aprd[idx].next_prd = 0;
+		else {
+			u32 tmp = (u32) pp->aprd_dma;
+			tmp += ((idx + 1) * 16);
+			pp->aprd[idx].next_prd = cpu_to_le32(tmp);
+		}
+	}
+}
+
+enum adma_regbits {
+	CMDEND	= (1 << 15),		/* end of command list */
+	WNB	= (1 << 14),		/* wait-not-BSY */
+	IGN	= (1 << 13),		/* ignore this entry */
+	CS1n	= (1 << (4 + 8)),	/* std. PATA signals follow... */
+	DA2	= (1 << (2 + 8)),
+	DA1	= (1 << (1 + 8)),
+	DA0	= (1 << (0 + 8)),
+};
+
+static const u16 adma_regaddr[] = {
+	CS1n,			/* ATA_REG_DATA */
+	CS1n | DA0,		/* ATA_REG_ERR */
+	CS1n | DA1,		/* ATA_REG_NSECT */
+	CS1n | DA1 | DA0,	/* ATA_REG_LBAL */
+	CS1n | DA2,		/* ATA_REG_LBAM */
+	CS1n | DA2 | DA0,	/* ATA_REG_LBAH */
+	CS1n | DA2 | DA1,	/* ATA_REG_DEVICE */
+	CS1n | DA2 | DA1 | DA0,	/* ATA_REG_STATUS */
+};
+
+static unsigned int adma_tf_to_cpb(struct ata_taskfile *tf, u16 *cpb)
+{
+	unsigned int idx = 0;
+
+	cpb[idx++] = cpu_to_le16(WNB | adma_regaddr[ATA_REG_ERR] | tf->feature);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_NSECT] | tf->nsect);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_LBAL] | tf->lbal);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_LBAM] | tf->lbam);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_LBAM] | tf->lbah);
+
+	if ((tf->flags & ATA_TFLAG_LBA48) == 0) {
+		cpb[idx++] = cpu_to_le16(IGN);
+		cpb[idx++] = cpu_to_le16(IGN);
+		cpb[idx++] = cpu_to_le16(IGN | CMDEND);
+		return idx;
+	}
+
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_ERR] | tf->hob_feature);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_NSECT] | tf->hob_nsect);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_LBAL] | tf->hob_lbal);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_LBAM] | tf->hob_lbam);
+	cpb[idx++] = cpu_to_le16(adma_regaddr[ATA_REG_LBAM] | tf->hob_lbah);
+	cpb[idx++] = cpu_to_le16(IGN);
+	cpb[idx++] = cpu_to_le16(IGN | CMDEND);
+
+	return idx;
+}
+
+static void adma_qc_prep(struct ata_queued_cmd *qc)
+{
+	struct adma_port_priv *pp = qc->ap->private_data;
+	u32 flags, *cpb = pp->cpb;
+	u16 *cpb16;
+	unsigned int cpb_used;
+
+	cpb[0] = cpu_to_le32(1);
+	cpb[1] = cpu_to_le32((u32) pp->cpb_dma);
+	cpb[2] = cpu_to_le32((u32) pp->aprd_dma);
+	cpb[3] = 0;
+
+	cpb16 = (u16 *) &cpb[4];
+	cpb_used = adma_tf_to_cpb(&qc->tf, cpb16);
+
+	flags = CPB_APRD_VALID | CPB_IEN;
+	flags |= (cpb_used / 4) << CPB_LEN_SHIFT;
+
+	cpb[0] = cpu_to_le32(flags);
+
+	if (!(qc->flags & ATA_QCFLAG_DMAMAP))
+		return;
+
+	adma_fill_sg(qc);
+}
+
+static inline void adma_complete (struct ata_port *ap,
+				  struct ata_queued_cmd *qc, int have_err)
+{
+	/* get drive status; clear intr; complete txn */
+	ata_qc_complete(ata_qc_from_tag(ap, ap->active_tag),
+			have_err ? ATA_ERR : 0);
+}
+
+static inline int adma_host_intr(struct ata_port *ap, struct ata_queued_cmd *qc)
+{
+	void __iomem *mmio = adma_ctl_block(ap);
+	struct adma_port_priv *pp = ap->private_data;
+	u8 status;
+	int have_err;
+
+	/* reading clears all flagged events */
+	status = readb(mmio + ADMA_STAT);
+	status &= ~(1 << 2); /* mask out reserved bit */
+	if (!status)
+		return 0;	/* no irq handled */
+
+	if (status & IRQ_ERR_MASK)
+		have_err = 1;
+	else if (le32_to_cpu(pp->cpb[0]) & CPB_ERR_MASK)
+		have_err = 1;
+	else
+		have_err = 0;
+
+	adma_complete(ap, qc, have_err);
+
+	return 1; /* irq handled */
+}
+
+static void adma_irq_clear(struct ata_port *ap)
+{
+	/* TODO */
+}
+
+static irqreturn_t adma_interrupt (int irq, void *dev_instance, struct pt_regs *regs)
+{
+	struct ata_host_set *host_set = dev_instance;
+	struct adma_host_priv *hpriv;
+	unsigned int i, handled = 0;
+	void *mmio;
+
+	VPRINTK("ENTER\n");
+
+	hpriv = host_set->private_data;
+	mmio = host_set->mmio_base;
+
+        spin_lock(&host_set->lock);
+
+        for (i = 0; i < host_set->n_ports; i++) {
+		struct ata_port *ap = host_set->ports[i];
+		struct ata_queued_cmd *qc;
+		VPRINTK("port %u\n", i);
+
+		qc = ata_qc_from_tag(ap, ap->active_tag);
+		if (qc)
+			handled |= adma_host_intr(ap, qc);
+	}
+
+        spin_unlock(&host_set->lock);
+
+	VPRINTK("EXIT\n");
+
+	return IRQ_RETVAL(handled);
+}
+
+static int adma_qc_issue(struct ata_queued_cmd *qc)
+{
+	void __iomem *mmio = adma_ctl_block(qc->ap);
+	struct adma_port_priv *pp = qc->ap->private_data;
+
+	writew(1, mmio + ADMA_CPB_COUNT);
+	writel((u32) pp->cpb_dma, mmio + ADMA_NEXT_CPB);
+	writew(ADMA_GO, mmio + ADMA_CTL);
+
+	return 0;
+}
+
+static void adma_setup_port(struct ata_probe_ent *probe_ent, unsigned int port)
+{
+	void __iomem *mmio = probe_ent->mmio_base;
+	struct ata_ioports *ioport = &probe_ent->port[port];
+
+	if (port == 1)
+		mmio += 0x40;
+
+	ioport->cmd_addr	= (unsigned long) mmio;
+        ioport->data_addr	= (unsigned long) mmio + (ATA_REG_DATA * 4);
+        ioport->error_addr	=
+        ioport->feature_addr	= (unsigned long) mmio + (ATA_REG_ERR * 4);
+        ioport->nsect_addr	= (unsigned long) mmio + (ATA_REG_NSECT * 4);
+        ioport->lbal_addr	= (unsigned long) mmio + (ATA_REG_LBAL * 4);
+        ioport->lbam_addr	= (unsigned long) mmio + (ATA_REG_LBAM * 4);
+        ioport->lbah_addr	= (unsigned long) mmio + (ATA_REG_LBAH * 4);
+        ioport->device_addr	= (unsigned long) mmio + (ATA_REG_DEVICE * 4);
+        ioport->status_addr	=
+        ioport->command_addr	= (unsigned long) mmio + (ATA_REG_STATUS * 4);
+	ioport->altstatus_addr	=
+	ioport->ctl_addr	= (unsigned long) mmio + 0x38;
+}
+
+static int adma_host_init(struct ata_probe_ent *probe_ent)
+{
+	struct pci_dev *pdev = to_pci_dev(probe_ent->dev);
+	unsigned int i;
+
+	probe_ent->n_ports = N_PORTS;
+
+	for (i = 0; i < probe_ent->n_ports; i++)
+		adma_setup_port(probe_ent, i);
+
+	pci_set_master(pdev);
+
+	return 0;
+}
+
+static int adma_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
+{
+	static int printed_version;
+	struct ata_probe_ent *probe_ent = NULL;
+	struct adma_host_priv *hpriv;
+	unsigned long base;
+	void *mmio_base;
+	unsigned int board_idx = (unsigned int) ent->driver_data;
+	int rc;
+
+	VPRINTK("ENTER\n");
+
+	if (!printed_version++)
+		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
+
+	rc = pci_enable_device(pdev);
+	if (rc)
+		return rc;
+
+	rc = pci_request_regions(pdev, DRV_NAME);
+	if (rc)
+		goto err_out;
+	rc = pci_set_dma_mask(pdev, ATA_DMA_MASK);
+	if (rc)
+		goto err_out_regions;
+	rc = pci_set_consistent_dma_mask(pdev, ATA_DMA_MASK);
+	if (rc)
+		goto err_out_regions;
+
+	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
+	if (probe_ent == NULL) {
+		rc = -ENOMEM;
+		goto err_out_regions;
+	}
+
+	memset(probe_ent, 0, sizeof(*probe_ent));
+	probe_ent->dev = pci_dev_to_dev(pdev);
+	INIT_LIST_HEAD(&probe_ent->node);
+
+	/* FIXME: ADMA BAR is always 64-bit... does the PCI
+	 * layer assign that BAR4, or do we need to '|' with BAR5?
+	 */
+	mmio_base = ioremap(pci_resource_start(pdev, ADMA_PCI_BAR),
+		            pci_resource_len(pdev, ADMA_PCI_BAR));
+	if (mmio_base == NULL) {
+		rc = -ENOMEM;
+		goto err_out_free_ent;
+	}
+	base = (unsigned long) mmio_base;
+
+	hpriv = kmalloc(sizeof(*hpriv), GFP_KERNEL);
+	if (!hpriv) {
+		rc = -ENOMEM;
+		goto err_out_iounmap;
+	}
+	memset(hpriv, 0, sizeof(*hpriv));
+
+	probe_ent->sht		= adma_port_info[board_idx].sht;
+	probe_ent->host_flags	= adma_port_info[board_idx].host_flags;
+	probe_ent->pio_mask	= adma_port_info[board_idx].pio_mask;
+	probe_ent->udma_mask	= adma_port_info[board_idx].udma_mask;
+	probe_ent->port_ops	= adma_port_info[board_idx].port_ops;
+
+       	probe_ent->irq = pdev->irq;
+       	probe_ent->irq_flags = SA_SHIRQ;
+	probe_ent->mmio_base = mmio_base;
+	probe_ent->private_data = hpriv;
+
+	/* initialize adapter */
+	rc = adma_host_init(probe_ent);
+	if (rc)
+		goto err_out_hpriv;
+
+	/* FIXME: check ata_device_add return value */
+	ata_device_add(probe_ent);
+	kfree(probe_ent);
+
+	return 0;
+
+err_out_hpriv:
+	kfree(hpriv);
+err_out_iounmap:
+	iounmap(mmio_base);
+err_out_free_ent:
+	kfree(probe_ent);
+err_out_regions:
+	pci_release_regions(pdev);
+err_out:
+	pci_disable_device(pdev);
+	return rc;
+}
+
+
+static int __init adma_init(void)
+{
+	return pci_module_init(&adma_pci_driver);
+}
+
+
+static void __exit adma_exit(void)
+{
+	pci_unregister_driver(&adma_pci_driver);
+}
+
+
+MODULE_AUTHOR("Jeff Garzik");
+MODULE_DESCRIPTION("ADMA ATA low-level driver");
+MODULE_LICENSE("GPL");
+MODULE_DEVICE_TABLE(pci, adma_pci_tbl);
+
+module_init(adma_init);
+module_exit(adma_exit);

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267487AbSLSByf>; Wed, 18 Dec 2002 20:54:35 -0500
+	id <S267497AbSLSBzg>; Wed, 18 Dec 2002 20:55:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267490AbSLSByf>; Wed, 18 Dec 2002 20:54:35 -0500
-Received: from windsormachine.com ([206.48.122.28]:22291 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S267487AbSLSBye>; Wed, 18 Dec 2002 20:54:34 -0500
-Date: Wed, 18 Dec 2002 21:02:31 -0500 (EST)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: "D.A.M. Revok" <marvin@synapse.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133 
- Promise ctrlr, or...
-In-Reply-To: <200212181718.26407.marvin@synapse.net>
-Message-ID: <Pine.LNX.4.33.0212182058270.22518-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267505AbSLSBzg>; Wed, 18 Dec 2002 20:55:36 -0500
+Received: from holomorphy.com ([66.224.33.161]:29119 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267497AbSLSBzf>;
+	Wed, 18 Dec 2002 20:55:35 -0500
+Date: Wed, 18 Dec 2002 18:01:47 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       "'Till Immanuel Patzschke'" <tip@inw.de>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 15000+ processes -- poor performance ?!
+Message-ID: <20021219020147.GN31800@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+	'Till Immanuel Patzschke' <tip@inw.de>,
+	lse-tech <lse-tech@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <A46BBDB345A7D5118EC90002A5072C7806CACA2C@orsmsx116.jf.intel.com> <1040265088.27221.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1040265088.27221.7.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Dec 2002, D.A.M. Revok wrote:
+On Thu, 2002-12-19 at 01:04, Perez-Gonzalez, Inaky wrote:
+>> If it has it ... well, I have no idea - maybe Robert Love would know.
 
-> yes, they updated it to deal with the Thoroughbred, .. blockheads don't
-> have the flash-util available on the site?
+On Thu, Dec 19, 2002 at 02:31:28AM +0000, Alan Cox wrote:
+> He's running the -aa kernel, which has all the right bits for this too.
+> In fact in some ways for very large memory boxes its probably the better
+> variant
 
-They have at least a few boards that don't need the flash util, you just
-alt-f2 when it's booting, and it loads it off the floppy.  I've got an
-ASUS P4B533 that i just flashed to a beta 1012, futilely searching for a
-fix for the fact that my machine will not boot Win98 unless it is in
-logged mode.  Safe mode works, but regular boot will not, only if you do
-option 2 in the startup menu.  Had to hunt down a disk to recycle to use.
+In my experience the most critical issues running 16K processes are:
+(1) the highmem footprint of the pte's is significant
+(2) the lowmem footprint of pmd's
 
-Speaking of floppies, old wisdom said to always flash off the floppy, then
-it was always flash off the hd, and now it's back to flashing off the floppy?
+and most of the rest is in the noise. It's probably a bad idea to run
+top(1) or perhaps even mount /proc/ at all until top itself,
+proc_pid_readdir(), and the tasklist_lock are all fixed.
 
-I wonder what you do for floppyless computers.
+Pretty much all he needs to "stay alive" is highpte of some flavor or
+another. Performance etc. is addressed somewhat more by 2.5.x than -aa,
+at least in the context of not degrading with this kind of multitasking.
+i.e. shpte and pidhash. I've been randomly shooting down do_each_thread()
+and for_each_process() loops in -wli, which is why I recommended it.
 
-Mike
-
+Bill

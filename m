@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268316AbUIWH6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268323AbUIWIDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268316AbUIWH6n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 03:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUIWH6m
+	id S268323AbUIWIDO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 04:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUIWIDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 03:58:42 -0400
-Received: from holub.nextsoft.cz ([195.122.198.235]:39367 "EHLO
-	holub.nextsoft.cz") by vger.kernel.org with ESMTP id S268316AbUIWH6k
+	Thu, 23 Sep 2004 04:03:14 -0400
+Received: from smtp-vbr3.xs4all.nl ([194.109.24.23]:32519 "EHLO
+	smtp-vbr3.xs4all.nl") by vger.kernel.org with ESMTP id S268323AbUIWIDI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 03:58:40 -0400
-From: Michal Rokos <michal@rokos.info>
-To: thockin@hockin.org
-Subject: [PATCH 2.6] Natsemi - remove compilation warnings
-Date: Thu, 23 Sep 2004 09:58:31 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Sep 2004 04:03:08 -0400
+Date: Thu, 23 Sep 2004 10:03:07 +0200
+From: Koos Vriezen <koos.vriezen@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Javascript bug with 2.6.8.1
+Message-ID: <20040923080306.GA33907@xs4all.nl>
+References: <20040922181800.GA20060@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409230958.31758.michal@rokos.info>
+In-Reply-To: <20040922181800.GA20060@xs4all.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tim,
+On Wed, Sep 22, 2004 at 08:18:00PM +0200, Koos Vriezen wrote:
+> sledgedog wrote:
+> > hi,
+> > the error occurs with any navigator and only with the kernel 2.6.8
+> > the javascript on an https interactive site of a bank won't
+> > display the full page and hang in the middle .
+> > But with the kernel 2.6.7 on same machine with same
+> > programs there is no problem the full page is displayed.
+> > I can reproduce the problem on different machines.
+> > I'd like to be personally CC'ed the answers/comments posted to the
+> > list in response to my posting.
+> 
+> Coincidence, I was bashing the #debian channel today with this problem
+> too. Used 'lynx -source www.iu.nl/nl' as testcase. After ignoring 
+> "it's ECN, you moron" and some tcpdump analyses, turned out to be 2.6.8.1
+> related. I really hope someone explains in this thread if 2.6.8.1 needs 
+> some extra configuring compared to 2.6.7 or either point to a patch or
+> so.
 
-natsemi driver emits a lot of warnings.
+In case it's not clear what this is about, it about lynx not being able
+to dump the whole page but hanging in the middle somewhere. Where seems
+to be at the same point, though changing the MTU changes that.
+With 2.6.7, lynx dumps this page, as it seems, in one stroke. Just now,
+I tested it with 2.6.9-rc2-bk8 and I do get the whole page, but it hangs
+for half a second or so at the same point and then continues the rest of
+the page.
+I found this problem after a report that our squid proxy wasn't able to
+get some web pages. The reported page was on the service provider in the
+above link. So it's not a lynx thingy. Even tried it with netcat, same
+result. Also different linux-2.6.8.1 boxes (one dual P200MMX, celeron700,
+PIV-2.4GHz) and 2.6.9-rc2-bk8 only on celeron700, with different network
+adaptors (eepro100, ne2k_pci, ne).
 
-This patch make compilation calm again.
-
-Code taken from drivers/net/pci-skeleton.c. Thanks Jeff.
-
-Michal
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/09/23 09:43:08+02:00 michal@nb-rokos.nx.cz
-#   [PATCH 2.6] Natsemi - remove compilation warnings
-#
-# drivers/net/natsemi.c
-#   2004/09/23 09:42:50+02:00 michal@nb-rokos.nx.cz +13 -0
-#   Remove zillion of
-#   drivers/net/natsemi.c:806: warning: passing arg 2 of `writew' makes 
-pointer from integer without a cast
-#   drivers/net/natsemi.c:807: warning: passing arg 1 of `readw' makes 
-pointer from integer without a cast
-#
-diff -Nru a/drivers/net/natsemi.c b/drivers/net/natsemi.c
---- a/drivers/net/natsemi.c     2004-09-23 09:44:14 +02:00
-+++ b/drivers/net/natsemi.c     2004-09-23 09:44:14 +02:00
-@@ -769,6 +769,19 @@
- static int netdev_get_regs(struct net_device *dev, u8 *buf);
- static int netdev_get_eeprom(struct net_device *dev, u8 *buf);
-
-+#undef readb
-+#undef readw
-+#undef readl
-+#undef writeb
-+#undef writew
-+#undef writel
-+#define readb(addr) inb((unsigned long)(addr))
-+#define readw(addr) inw((unsigned long)(addr))
-+#define readl(addr) inl((unsigned long)(addr))
-+#define writeb(val,addr) outb((val), (unsigned long)(addr))
-+#define writew(val,addr) outw((val), (unsigned long)(addr))
-+#define writel(val,addr) outl((val), (unsigned long)(addr))
-+
- static void move_int_phy(struct net_device *dev, int addr)
- {
-        struct netdev_private *np = netdev_priv(dev);
-
+> Koos

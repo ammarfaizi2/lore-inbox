@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130447AbRCCLCC>; Sat, 3 Mar 2001 06:02:02 -0500
+	id <S130448AbRCCLO4>; Sat, 3 Mar 2001 06:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130448AbRCCLBx>; Sat, 3 Mar 2001 06:01:53 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:8136 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S130447AbRCCLBi>;
-	Sat, 3 Mar 2001 06:01:38 -0500
-Message-ID: <3AA0CF0D.CB9D544C@mandrakesoft.com>
-Date: Sat, 03 Mar 2001 06:01:33 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
-X-Accept-Language: en
+	id <S130449AbRCCLOh>; Sat, 3 Mar 2001 06:14:37 -0500
+Received: from 13dyn216.delft.casema.net ([212.64.76.216]:49929 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S130448AbRCCLO2>; Sat, 3 Mar 2001 06:14:28 -0500
+Message-Id: <200103031114.MAA13672@cave.bitwizard.nl>
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <Pine.LNX.4.21.0103030113520.17415-100000@benatar.snurgle.org> from
+ William T Wilson at "Mar 3, 2001 01:14:28 am"
+To: William T Wilson <fluffy@snurgle.org>
+Date: Sat, 3 Mar 2001 12:14:22 +0100 (MET)
+CC: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "David S. Miller" <davem@redhat.com>, linuxppc-dev@lists.linuxppc.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: The IO problem on multiple PCI busses
-In-Reply-To: <15008.17278.154154.210086@pizda.ninka.net> <19350125195650.22439@mailhost.mipsys.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+William T Wilson wrote:
+> On Fri, 2 Mar 2001 Matt_Domsch@Dell.com wrote:
 > 
-> >No, don't do this, it is evil.  Use mappings, specify the device
-> >related info somehow when creating the mapping (in the userspace
-> >variant you do this by openning a specific device to mmap, in the
-> >kernel variant you can encode the bus/dev/etc. info in the device's
-> >resource and decode this at ioremap() time, see?).
+> > Linus has spoken, and 2.4.x now requires swap = 2x RAM.
 > 
-> Well, except that drivers doing IOs don't ioremap...
-> 
-> Maybe we could define an ioremap-like function for IOs, but the more
+> I think I missed this.  What possible value does this have?  (Not even
+> Sun, the original purveyors of the 2x RAM rule, need this any more).
 
-I/O is not supposed to be fast, that's what MMIO is for. :)  Just do
+RAM is still about 100x more expensive than HD. So I always recommend
+you use about 2% of the money you spent on RAM to pay for the HD space
+to handle swap.
 
-void outb (u8 val, u16 addr)
-{
-	void *addr = ioremap (ISA_IO_BASE + addr);
-	if (addr) {
-		writeb (val, addr);
-		iounmap (addr);
-	}
-}
+Actually the deal is: either use enough swap (about 2x RAM) or use
+none at all. 
 
-You can map and unmap for each call :)  Ugly and slow, but hey, it's
-I/O...
+A "good" operating system will want to use say half your memory for
+buffers, even if there are processes using that half of your RAM. Not
+when they are actively using it, but only after they have NOT used it
+for say an hour. Then the users of the machine will see efficient use
+of the resources. It does have the disadvantage that when you come back 
+in the morning, your xterm may have been swapped out because of the
+nightly backups and stuff....
+
+				Roger. 
 
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

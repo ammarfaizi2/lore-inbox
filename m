@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262913AbUJ0VcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbUJ0WcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbUJ0VcX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 17:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUJ0V3X
+	id S262959AbUJ0WcT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbUJ0W20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 17:29:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4251 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262754AbUJ0VYX (ORCPT
+	Wed, 27 Oct 2004 18:28:26 -0400
+Received: from mail.dif.dk ([193.138.115.101]:59574 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262902AbUJ0W1q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:24:23 -0400
-Date: Wed, 27 Oct 2004 14:24:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Zachary Amsden <zach@vmware.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove some divide instructions
-In-Reply-To: <41800218.8090902@vmware.com>
-Message-ID: <Pine.LNX.4.58.0410271422280.28839@ppc970.osdl.org>
-References: <417FC982.7070602@vmware.com> <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
- <41800218.8090902@vmware.com>
+	Wed, 27 Oct 2004 18:27:46 -0400
+Date: Thu, 28 Oct 2004 00:36:03 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Danny Brow <dan@fullmotions.com>
+Cc: Kernel-List <linux-kernel@vger.kernel.org>
+Subject: Re: SSH and 2.6.9
+In-Reply-To: <1098913797.3495.0.camel@hanzo.fullmotions.com>
+Message-ID: <Pine.LNX.4.61.0410280034020.3284@dragon.hygekrogen.localhost>
+References: <1098906712.2972.7.camel@hanzo.fullmotions.com> 
+ <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost> 
+ <1098912301.4535.1.camel@hanzo.fullmotions.com> <1098913797.3495.0.camel@hanzo.fullmotions.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Oct 2004, Danny Brow wrote:
 
-
-On Wed, 27 Oct 2004, Zachary Amsden wrote:
+> That was it, thanks.
 > 
-> Passes several tests (code looks sane, assembler looks sane, boots & 
-> runs fine) on i386.  Apologies if I unlikely broke any other 
-> architectures, but it's quite difficult to test them all.
+Ok, thank you for the feedback, glad you fixed your problem. 
+Now I guess we just need for someone to find out why LEGACY_PTYS breaks 
+ssh (and other apps?) with kernels >= 2.6.9, but I'm afraid thats beyond 
+my capabilities.
 
-I'd suggest _only_ changing the i386 version.
+--
+Jesper Juhl
 
-For example, your asm-generic changes looks senseless, since they only
-make the macros more complex, without actually changing anything. And the
-other architectures may want to do other things, since right now at least
-some of them use things like fixed hardware registers etc which is not
-necessarily appropriate for the non-asm case...
 
-That way you'd also only modify the architecture that you can actually 
-verify..
-
-		Linus

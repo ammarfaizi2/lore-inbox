@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVAKLK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVAKLNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbVAKLK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 06:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVAKLKZ
+	id S262716AbVAKLNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 06:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVAKLNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 06:10:25 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:1541 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S262712AbVAKLKT (ORCPT
+	Tue, 11 Jan 2005 06:13:09 -0500
+Received: from imap3.nextra.sk ([195.168.1.92]:41988 "EHLO tic.nextra.sk")
+	by vger.kernel.org with ESMTP id S262716AbVAKLM7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 06:10:19 -0500
-Date: Tue, 11 Jan 2005 12:10:15 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alex LIU <alex.liu@st.com>
-Cc: "'Andries Brouwer'" <aebr@win.tue.nl>, "'Pavel Machek'" <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: The purpose of PT_TRACESYSGOOD
-Message-ID: <20050111111015.GC2760@pclin040.win.tue.nl>
-References: <20050111023003.GA2760@pclin040.win.tue.nl> <00ac01c4f7a6$c79e03f0$ac655e0a@sha.st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00ac01c4f7a6$c79e03f0$ac655e0a@sha.st.com>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: dmv.com: pastinakel.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
+	Tue, 11 Jan 2005 06:12:59 -0500
+Message-ID: <41E3B4FE.8000507@rainbow-software.org>
+Date: Tue, 11 Jan 2005 12:14:06 +0100
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Pierre Ossman <drzeus-list@drzeus.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stephen_pollei@comcast.net, rmk+lkml@arm.linux.org.uk
+Subject: Re: [2.6 patch] remove SPF-using wbsd lists from MAINTAINERS
+References: <20050110184307.GB2903@stusta.de> <1105382033.12054.90.camel@localhost.localdomain> <41E2F1BD.1020407@drzeus.cx> <20050110220426.GF2903@stusta.de> <41E3001C.6020304@drzeus.cx> <20050110224238.GB29578@stusta.de>
+In-Reply-To: <20050110224238.GB29578@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> /*
->>  * A child stopped at a syscall has status as if it received SIGTRAP.
->>  * In order to distinguish between SIGTRAP and syscall, some kernel
->>  * versions have the PTRACE_O_TRACESYSGOOD option, that sets an extra
->>  * bit 0x80 in the syscall case.
->>  */
+Adrian Bunk wrote:
+> Thinking about it:
+> mailout.stusta.mhn.de has two IP addresses.
+> Do you try some lookups of it's 10.150.127.10 address???
 
-> Then I think the tracing thread should call the ptrace_request to set
-> PTRACE_O_TRACESYSGOOD flag of the traced thread first before
-> ptrace(PTRACE_SYSCALL...) ,right?
+That's a private class A IP address which should never appear on the 
+internet. Looks like DNS configuration is broken somewhere.
 
-Yes.
-
->From a baby ptrace demo:
-
-#define SIGSYSTRAP      (SIGTRAP | sysgood_bit)
-
-int sysgood_bit = 0;
-
-void set_sysgood(pid_t p) {
-#ifdef PTRACE_O_TRACESYSGOOD
-        int i = ptrace(PTRACE_SETOPTIONS, p, 0, (void*) PTRACE_O_TRACESYSGOOD);
-        if (i == 0)
-                sysgood_bit = 0x80;
-        else
-                perror("PTRACE_O_TRACESYSGOOD");
-#endif
-}
-
-and now the signal SIGSYSTRAP signifies a system call when the sysgood bit
-was implemented, anything different from SIGSYSTRAP is guaranteed to be a signal.
-
+-- 
+Ondrej Zary

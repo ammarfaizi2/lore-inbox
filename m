@@ -1,48 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130882AbRADWSZ>; Thu, 4 Jan 2001 17:18:25 -0500
+	id <S130281AbRADWYQ>; Thu, 4 Jan 2001 17:24:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130407AbRADWSP>; Thu, 4 Jan 2001 17:18:15 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:56859 "EHLO
-	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129183AbRADWSC>; Thu, 4 Jan 2001 17:18:02 -0500
-Date: Fri, 5 Jan 2001 00:25:09 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>
-cc: Sven Koch <haegar@cut.de>,
-        Kernel devel list <linux-kernel@vger.kernel.org>
-Subject: RE: 2.2.18 and Maxtor 96147H6 (61 GB)
-In-Reply-To: <4461B4112BDB2A4FB5635DE1995874320223BC@mail0.myrio.com>
-Message-ID: <Pine.LNX.4.21.0101050019530.4273-100000@server.serve.me.nl>
+	id <S129830AbRADWYH>; Thu, 4 Jan 2001 17:24:07 -0500
+Received: from madli.ut.ee ([193.40.5.124]:37842 "EHLO madli.ut.ee")
+	by vger.kernel.org with ESMTP id <S129183AbRADWXu>;
+	Thu, 4 Jan 2001 17:23:50 -0500
+Date: Fri, 5 Jan 2001 00:23:48 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: prerelease-ac6 compile problem in serial.c
+Message-ID: <Pine.GSO.4.21.0101050022210.9014-100000@madli.ut.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Torrey Hoffman wrote:
+2.4.0-prerelease-ac6 doesn't compile serial on x86 with pnp enabled:
 
-> I had exactly this problem with the Maxtor 61 GB drive on my 
-> Pentium based server.  Theoretically a BIOS upgrade could fix it,
-> but ASUS quit making BIOS upgrades for my motherboard two years
-> ago.
+serial.c: In function `probe_serial_pnp':
+serial.c:5187: structure has no member named `device'
+serial.c:5192: structure has no member named `device'
 
-Ah well, join the club in my case :)
-
-> I solved the problem by getting a Promise Ultra 100 controller
-> and putting the drive on that. Works perfectly under Linux 
-> Mandrake 2.2.17-mdk-21 - it shows up as /dev/hde.  They are
-> cheap controllers if you don't get the RAID version.
-
-Thanx.. Will try that. New machine costs more.
- 
-> Best wishes.
-> 
-> Torrey Hoffman
-
-
-	Regards,
-
-		Igmar
+---
+Meelis Roos <mroos@linux.ee>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

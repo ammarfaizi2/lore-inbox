@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287863AbSANSED>; Mon, 14 Jan 2002 13:04:03 -0500
+	id <S287865AbSANSFm>; Mon, 14 Jan 2002 13:05:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287866AbSANSDw>; Mon, 14 Jan 2002 13:03:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3086 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287863AbSANSDk>; Mon, 14 Jan 2002 13:03:40 -0500
-Date: Mon, 14 Jan 2002 10:01:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>, <linux-LVM@sistina.com>
-Subject: Re: [RFLART] kdev_t in ioctls
-In-Reply-To: <Pine.GSO.4.21.0201141227260.224-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0201140957040.15128-100000@penguin.transmeta.com>
+	id <S287866AbSANSFc>; Mon, 14 Jan 2002 13:05:32 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:60625 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S287865AbSANSFS>; Mon, 14 Jan 2002 13:05:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: 520047054719-0001@t-online.de (Oliver Neukum)
+Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
+To: Momchil Velikov <velco@fadata.bg>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Mon, 14 Jan 2002 19:04:17 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <16Q6V6-207eimC@fwd06.sul.t-online.com> <87d70c51wk.fsf@fadata.bg>
+In-Reply-To: <87d70c51wk.fsf@fadata.bg>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <16QBTc-1er7D6C@fwd03.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 14 Jan 2002, Alexander Viro wrote:
+> >> How so ? The POSIX specification is not clear enough or it is not to be
+> >> followed ?
 >
-> 	Linus, at least some ioctls (e.g. lvm ones) pass kdev_t from/to
-> userland.  While the common policy with ioctls is "anything goes", this
-> kind of abuse is IMNSHO over the top.
+> Oliver> You can have an rt task block on a lock held by a normal task that
+> was Oliver> preempted by a rt task of lower priority. The same problem as
+> with the Oliver> sched_idle patches.
+>
+> This can happen with a non-preemptible kernel too. And it has nothing to
+> do with scheduling policy.
 
-That's completely bogus.
+It can happen if you sleep with a lock held.
+It can not happen at random points in the code.
+Thus there is a relation to preemption in kernel mode.
 
-The good news is that the bit-for-bit representation of old kdev_t and
-"dev_t" are obviously 100% the same, so we should just make the damn thing
-be dev_t, and user land will never notice anything.
+To cure that problem tasks holding a lock would have to be given
+the highest priority of all tasks blocking on that lock. The semaphore
+code would get much more complex, even in the succesful code path,
+which would hurt a lot.
 
-So we can just change all structures that are exported to user land to use
-"dev_t", and add the required conversion magic. Possibly by duplicating
-the structure, and having "used_lvm_struct_x" and functions to read and
-write them from/to user space.
+If on the other hand sleeping in kernel mode is explicit, you can simply
+give any task being woken up a timeslice and the scheduling requirements
+are met. If that should be a problem.
 
-> Public statement along the lines "any API that passes kdev_t values
-> across the kernel boundary is unacceptable" would be a nice thing...
-
-Consider that done. ANYTHING that exports kdev_t to user space is
-incredibly broken, and will not work in a few months when the actual bit
-representation (and size) will change.
-
-Do we have any lvm people willing to fix this? (linux-lvm cc'd, but I know
-they've been very silent on the 2.5.x changes so far)
-
-		Linus
-
+	Regards
+		Oliver

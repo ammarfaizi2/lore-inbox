@@ -1,82 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261598AbSJAMZP>; Tue, 1 Oct 2002 08:25:15 -0400
+	id <S261595AbSJAMYz>; Tue, 1 Oct 2002 08:24:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261599AbSJAMZP>; Tue, 1 Oct 2002 08:25:15 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34192 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261598AbSJAMZH>;
-	Tue, 1 Oct 2002 08:25:07 -0400
-Date: Tue, 1 Oct 2002 14:30:13 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Con Kolivas <conman@kolivas.net>
-Cc: Andrew Morton <akpm@digeo.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.39-mm1
-Message-ID: <20021001123013.GS3867@suse.de>
-References: <200209301941.41627.conman@kolivas.net> <20021001101520.GB20878@suse.de> <3D9976D9.C06466B@digeo.com> <200210012219.53464.conman@kolivas.net>
+	id <S261598AbSJAMYz>; Tue, 1 Oct 2002 08:24:55 -0400
+Received: from sc-grnvl-66-169-5-131.chartersc.net ([66.169.5.131]:3456 "EHLO
+	rhino.thrillseeker.net") by vger.kernel.org with ESMTP
+	id <S261595AbSJAMYx>; Tue, 1 Oct 2002 08:24:53 -0400
+Subject: Re: Linux 2.4.20-pre8-ac3
+From: Billy Harvey <Billy.Harvey@thrillseeker.net>
+To: Alan Cox <alan@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200209302029.g8UKTfG12427@devserv.devel.redhat.com>
+References: <200209302029.g8UKTfG12427@devserv.devel.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 01 Oct 2002 08:30:16 -0400
+Message-Id: <1033475417.641.2.camel@rhino.thrillseeker.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210012219.53464.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01 2002, Con Kolivas wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Tuesday 01 Oct 2002 8:20 pm, Andrew Morton wrote:
-> > Jens Axboe wrote:
-> > > On Mon, Sep 30 2002, Andrew Morton wrote:
-> > > > > io_load:
-> > > > > Kernel                  Time            CPU             Ratio
-> > > > > 2.4.19                  216.05          33%             3.19
-> > > > > 2.5.38                  887.76          8%              13.11
-> > > > > 2.5.38-mm3              105.17          70%             1.55
-> > > > > 2.5.39                  229.4           34%             3.4
-> > > > > 2.5.39-mm1              239.5           33%             3.4
-> > > >
-> > > > I think I'll set fifo_batch to 16 again...
-> > >
-> > > As not to compare oranges and apples, I'd very much like to see a
-> > > 2.5.39-mm1 vs 2.5.39-mm1 with fifo_batch=16. Con, would you do that?
-> > > Thanks!
-> >
-> > The presence of /proc/sys/vm/fifo_batch should make that pretty easy.
-> 
-> Thanks. That made it a lot easier and faster, and made me curious enough to 
-> create a family or very interesting results. All these are with 2.5.39-mm1 
-> with fifo_batch set to 1->16, average of three runs. The first result is the 
-> unmodified 2.5.39-mm1 (fifo_batch=32).
+...
+> o	Further CPUfreq updates		(Gerald Britton, H Peter Anvin
+> 					 Dominik Brodowski)
+...
 
-Ah excellent, thanks a lot!
+I consistently get the following compile error:
 
-> io_load:
-> Kernel                  Time            CPU%            Ratio
-> 2.5.39-mm1              239.5           32              3.54
-> 2539mm1fb16             131.2           57              1.94
-> 2539mm1fb8              109.1           68              1.61
-> 2539mm1fb4              146.4           51              2.16
-> 2539mm1fb2              112.7           65              1.67
-> 2539mm1fb1              125.4           60              1.85
-> 
-> What's most interesting is the variation was small until the number was <8; 
-> then the variation between runs increased. Dare I say it there appears to be 
-> a sweet spot in the results.
+speedstep.c: In function `speedstep_detect_chipset':
+speedstep.c:297: `PCI_DEVICE_ID_INTEL_82815_MC' undeclared (first use in
+this function)
+speedstep.c:297: (Each undeclared identifier is reported only once
+speedstep.c:297: for each function it appears in.)
+make[1]: *** [speedstep.o] Error 1
 
-Yes it's an interesting curve. What makes it interesting is that 8 is
-better than 16. Both allow one seek to be dispatched, they only differ
-in the streamed amount of data we allow to dispatch. 8 will give you
-either 1 seek, or 8*256 == 2048 sectors == 1MiB. 16 will give you 1 seek
-or 2MiB of streamed I/O.
-
-Tests with other io benchmarks need to be considered as well. And I need
-a bit of time to digest this :-). The 8 vs 16 numbers are not what I
-expected.
-
-But the deadline io scheduler looks damn good in this test, if I have to
-say so myself.
-
--- 
-Jens Axboe
+Billy
 

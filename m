@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312588AbSDSOZy>; Fri, 19 Apr 2002 10:25:54 -0400
+	id <S312494AbSDSOYo>; Fri, 19 Apr 2002 10:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312601AbSDSOZy>; Fri, 19 Apr 2002 10:25:54 -0400
-Received: from waste.org ([209.173.204.2]:53948 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S312588AbSDSOZw>;
-	Fri, 19 Apr 2002 10:25:52 -0400
-Date: Fri, 19 Apr 2002 09:25:08 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: William Lee Irwin III <wli@holomorphy.com>, Keith Owens <kaos@ocs.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] 2.5.8 sort kernel tables
-In-Reply-To: <20020419144613.C13926@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0204190851490.8537-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312497AbSDSOYn>; Fri, 19 Apr 2002 10:24:43 -0400
+Received: from h24-66-126-33.tb.shawcable.net ([24.66.126.33]:12935 "HELO
+	beached.dyndns.org") by vger.kernel.org with SMTP
+	id <S312494AbSDSOYm>; Fri, 19 Apr 2002 10:24:42 -0400
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
+	reading damadged files
+From: Darrell Wright <dwright@beached.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Cc: root@chaos.analogic.com
+In-Reply-To: <Pine.LNX.3.95.1020419100917.724A-100000@chaos.analogic.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 19 Apr 2002 10:28:58 -0400
+Message-Id: <1019226539.31288.2.camel@table.private>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Apr 2002, Jamie Lokier wrote:
+I agree, I frequently find myself getting files off damages cd's that
+others running windows cannot access.  It takes a while, but I can
+usually get everything but the files on the damaged parts and even then
+I can get parts of them usually.
 
-> Oliver Xymoron wrote:
-> > Though we should probably just stick a simple qsort in the library
-> > somewhere.
->
-> Since we're comparing sort algorithms, I am quite fond of Heapsort.
-> Simple, no recursion or stack, and worst case O(n log n).  It's not
-> especially fast, but the worst case behaviour is nice:
->
-> /* This function is a classic in-place heapsort.  It sorts the array
->    `nums' of integers, which has `count' elements. */
+Darrell
 
-Make this generic by passing in compare and swap functions and stick it in
-lib. Heapsort is indeed a better candidate for a kernel algorithm than the
-simpler qsorts because of the constrained worst case. If I remember
-correctly, heapsort performs about as well as combsort in my testing -
-within a constant factor of two of qsort's best case.
+On Fri, 2002-04-19 at 10:14, Richard B. Johnson wrote:
+> On Thu, 18 Apr 2002, Dr. Death wrote:
+> 
+> > Problem:
+> > 
+> > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a 
+> > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the 
+> > damaged part of the file !
+> > 
+> 
+> So what do you suggest? You can see from the logs that the device
+> is having difficulty  reading your damaged CD. You can do what
+> Windows-95 does (ignore the errors and pretend everything is fine),
+> or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
+> or you can try like hell to read the files like Linux does. What do you
+> suggest?
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+> 
+>                  Windows-2000/Professional isn't.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> void my_heapsort (int count, int * nums)
-> {
-> 	int i;
-> 	for (i = 1; i < count; i++) {
-> 		int j = i, tmp = nums [j];
-> 		while (j > 0 && tmp > nums [(j-1)/2]) {
-> 			nums [j] = nums [(j-1)/2];
-> 			j = (j-1)/2;
-> 		}
-> 		nums [j] = tmp;
-> 	}
-> 	for (i = count - 1; i > 0; i--) {
-> 		int j = 0, k = 1, tmp = nums [i];
-> 		nums [i] = nums [0];
-> 		while (k < i && (tmp < nums [k]
-> 				 || (k+1 < i && tmp < nums [k+1]))) {
-> 			k += (k+1 < i && nums [k+1] > nums [k]);
-> 			nums [j] = nums [k];
-> 			j = k;
-> 			k = 2*j+1;
-> 		}
-> 		nums [j] = tmp;
-> 	}
-> }
->
-> cheers,
-> -- Jamie
->
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313199AbSDTWSq>; Sat, 20 Apr 2002 18:18:46 -0400
+	id <S313181AbSDTWUI>; Sat, 20 Apr 2002 18:20:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313201AbSDTWSp>; Sat, 20 Apr 2002 18:18:45 -0400
-Received: from codepoet.org ([166.70.14.212]:29132 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S313199AbSDTWSo>;
-	Sat, 20 Apr 2002 18:18:44 -0400
-Date: Sat, 20 Apr 2002 16:18:46 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK patches exported.
-Message-ID: <20020420221846.GA29608@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <31608.1019318609@redhat.com>
+	id <S313168AbSDTWUH>; Sat, 20 Apr 2002 18:20:07 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:1935 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S313060AbSDTWUF>;
+	Sat, 20 Apr 2002 18:20:05 -0400
+Date: Sat, 20 Apr 2002 18:20:03 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020420182003.A18057@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020420170747.B14186@havoc.gtf.org> <E16ygRk-0000bR-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat Apr 20, 2002 at 05:03:29PM +0100, David Woodhouse wrote:
-> For the benefit of the BK haters, or more to the point for my benefit to 
-> shut up the occasional whinging I've heard about needing to use BK to get 
-> at the very latest patches from Linus' tree...
-> 
-> 	http://www.kernel.org/~dwmw2/bk-2.5/
-> 
-> It should be updated every hour on the hour, and has the last week's worth 
-> of changesets exported as patches.
+On Sat, Apr 20, 2002 at 12:01:35AM +0200, Daniel Phillips wrote:
+> Let me turn that around.  Which bitkeeper patches have been posted to lkml and
+> generated significant amounts of discussion on lkml in the last week?  Versus
+> how many lines of bitkeeper patches applied to Linus's tree?
 
-You rock, this is great!  Any chance you could setup the same for
-kernel 2.4 as well for those watching the bleeding edge of the
-stable tree?
+Prior to BK, many people still emailed patches privately to Linus:
+me, DaveM, Alan, Al, GregKH, ...  You might consider private email
+stealth, but usually the changes are either (a) obvious or (b)
+previously discussed.  With BK, the situation is the same.
 
- -Erik
+So your argument is red herring -- which changes are _newly stealthed_
+under BK?  Do you have even ONE objectionable example?
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+BK only changes the medium of transmission of patches to Linus,
+and gives us _more_ information about submittors than pre-BK.
+
+
+> The next question you might ask is: are there more BK patches or
+> more Non-BK, in total, on and off lkml?  I don't have statistics at
+> hand but I'm willing to bet that there are more BK patches, because
+> that is how the bulk of the grunt tree maintainance is getting
+> done these days.
+
+> My conclusion: though there are more BK patches being applied to Linus's
+> tree than non-BK,
+
+So... your conclusion is based on a guess which is based on a guess.
+
+Even if your conclusion is correct (it might be), how do you use
+that to support the argument that, less discussion occurs due to BK?
+As I mentioned, most merging with Linus occured in private anyway.
+If you want to argue against that, go ahead.  But don't try to blame
+BitKeeper for it.
+
+If there are _specific solutions_ that can be implemented to equalize
+things with BK versus non-BK developers, please, chime in.  I think the
+daily snapshot idea is a good one.  Deleting a document, and nothing
+else, accomplishes no forward progress (except maybe spawning this
+discussion on the evils of BK).
+
+	Jeff
+
+
+

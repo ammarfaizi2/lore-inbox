@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVBBUJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVBBT7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbVBBUJI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:09:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVBBT7n
+	id S262294AbVBBT7A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVBBTq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:59:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5636 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262779AbVBBTwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:52:36 -0500
-Date: Wed, 2 Feb 2005 20:52:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] update Computone MAINTAINERS entry
-Message-ID: <20050202195234.GI3313@stusta.de>
-References: <20041120002559.GB2754@stusta.de> <20041119194735.63d2a257.akpm@osdl.org> <20041220191530.GA25986@alcove.wittsend.com> <20050101172832.GB14319@stusta.de> <20050118015604.GB31238@alcove.wittsend.com>
+	Wed, 2 Feb 2005 14:46:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22477 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262679AbVBBTkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:40:06 -0500
+Date: Wed, 2 Feb 2005 14:31:10 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: A scrub daemon (prezeroing)
+Message-ID: <20050202163110.GB23132@logos.cnet>
+References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com> <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet> <Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050118015604.GB31238@alcove.wittsend.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 08:56:04PM -0500, Michael H. Warfield wrote:
-> On Sat, Jan 01, 2005 at 06:28:32PM +0100, Adrian Bunk wrote:
->...
-> > It seems you are still active :-) , so why is it "Orphaned"?
+On Wed, Feb 02, 2005 at 11:05:14AM -0800, Christoph Lameter wrote:
+> On Wed, 2 Feb 2005, Marcelo Tosatti wrote:
 > 
-> 	Good question.  Probably someone jumping the gun a bit because
-> I haven't been very active on that driver lately.  I do tend to drop
-> off the radar for months at a time, depending on other projects and
-> engagements.  I haven't done updates to the driver in the 2.6 kernel
-> and, yes, it is broken.
->...
+> > Sounds very interesting idea to me. Guess it depends on whether the cost of
+> > DMA write for memory zeroing, which is memory architecture/DMA engine dependant,
+> > offsets the cost of CPU zeroing.
+> >
+> > Do you have any thoughts on that?
+> >
+> > I wonder if such thing (using unrelated devices DMA engine's for zeroing) ever been
+> > done on other OS'es?
+> >
+> > AFAIK SGI's BTE is special purpose hardware for memory zeroing.
+> 
+> Nope the BTE is a block transfer engine. Its an inter numa node DMA thing
+> that is being abused to zero blocks. 
 
-What about the patch below?
+Ah, OK. 
+Is there a driver for normal BTE operation or is not kernel-controlled ?
 
-cu
-Adrian
+> The same can be done with most DMA chips (I have done so on some other
+> platforms not on i386)
 
+Nice! What kind of DMA chip was that and through which kind of bus was it connected
+to CPU ?
 
-<--  snip  -->
+I wonder what has to be done to have active DMA engines be abused for zeroing
+when idle and what are the implications of that. Some kind of notification mechanism 
+is necessary to inform idleness ? 
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc2-mm2-full/MAINTAINERS.old	2005-02-02 18:51:25.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/MAINTAINERS	2005-02-02 18:52:13.000000000 +0100
-@@ -561,10 +561,9 @@
- 
- COMPUTONE INTELLIPORT MULTIPORT CARD
- P:	Michael H. Warfield
--M:	Michael H. Warfield <mhw@wittsend.com>
-+M:	mhw@wittsend.com
- W:	http://www.wittsend.com/computone.html
--L:	linux-computone@lazuli.wittsend.com
--S:	Orphaned
-+S:	Maintained
- 
- COSA/SRP SYNC SERIAL DRIVER
- P:	Jan "Yenya" Kasprzak
-
+Someone should try implementing the zeroing driver for a fast x86 PCI device. :)

@@ -1,101 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVAaUQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVAaUXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVAaUQL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 15:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVAaUQL
+	id S261340AbVAaUXi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 15:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVAaUXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 15:16:11 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:63673 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261338AbVAaUQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 15:16:04 -0500
-Message-ID: <41FE91D2.4000903@kolivas.org>
-Date: Tue, 01 Feb 2005 07:15:14 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jack O'Quin" <joq@io.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] sched - Implement priority and fifo support for SCHED_ISO
-References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>
-In-Reply-To: <87acqpjuoy.fsf@sulphur.joq.us>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigEA8B3FDDC8E00059CD551DB0"
+	Mon, 31 Jan 2005 15:23:37 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:52652 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S261340AbVAaUXg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 15:23:36 -0500
+Date: Mon, 31 Jan 2005 14:23:26 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: dm-devel@redhat.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [dm-devel] [PATCH 2.6.11-rc2] dm-ioctl.c: use new kstrdup() from library
+Message-ID: <20050131202326.GC24164@lists.us.dell.com>
+References: <20050131192859.GB24164@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050131192859.GB24164@lists.us.dell.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigEA8B3FDDC8E00059CD551DB0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Jack O'Quin wrote:
-> Con Kolivas <kernel@kolivas.org> writes:
+On Mon, Jan 31, 2005 at 01:28:59PM -0600, Matt Domsch wrote:
+> Removes private kstrdup() function, uses new implementation in lib/string.c.
 > 
-> 
->>While it is not clear what form the final soft real time
->>implementation is, we should complete the partial implementation of
->>SCHED_ISO that is in 2.6.11-rc2-mm1.
-> 
-> 
-> I finally had a chance to try this today.  I applied a slightly
-> different patch (2.6.11-rc2-iso3.diff) on top of patch-2.6.11-rc2.  I
-> tried to use 2.6.11-rc2-mm2, but could not due to conflicts with other
-> scheduler updates.
-> 
-> It is not clear whether the realtime threads are running in the new
-> scheduler class.  Checking with schedtool yields odd results.
-> (Before, my old schedtool always said "POLICY I: SCHED_ISO".)
-> 
-> [joq@sulphur] jack_test/ $ pst jackd
->  2173  2173 TS       -   0  19   0  0.0 SLs  rt_sigsuspend  jackd
->  2174  2174 ?       21   0  60   0  0.0 SL   -              jackd
->  2175  2175 TS       -   0  23   0  0.0 SL   rt_sigsuspend  jackd
->  2176  2176 TS       -   0  23   0  0.0 SL   -              jackd
->  2177  2177 ?       20   0  59   0  0.0 SL   syscall_call   jackd
->  2178  2178 ?       10   0  49   0  1.7 SL   -              jackd
-> [joq@sulphur] jack_test/ $ schedtool 2174 2176 2177 2178
-> PID  2174: PRIO  21, POLICY (null)         , NICE  0
-> PID  2176: PRIO   0, POLICY N: SCHED_NORMAL, NICE  0
-> PID  2177: PRIO  20, POLICY (null)         , NICE  0
-> PID  2178: PRIO  10, POLICY (null)         , NICE  0
+> Required to build.
 
-They're SCHED_ISO_FIFO which schedtool doesn't know about.
+Note, this assumes that Rusty's lib/string.c:kstrdup() patch gets
+applied first.
 
-> The results of the first run indicate something is badly wrong.  It is
-> quite possible that I got confused and messed up the build somehow.
-> 
->   http://www.joq.us/jack/benchmarks/sched-iso3/jack_test3-2.6.11-rc2-q1-200501311225.log
->   http://www.joq.us/jack/benchmarks/sched-iso3/jack_test3-2.6.11-rc2-q1-200501311225.png
-> 
-> Loading the realtime-lsm and then running with SCHED_FIFO *does* work
-> as expected on this kernel.  I should retry the test with *exactly*
-> the expected patch sequence.  What would that be?
-
-Shouldn't matter. There must still be something wrong with my code... 
-sigh. I'll look into it at some stage, but there doesn't seem much point.
-
-Cheers,
-Con
-
---------------enigEA8B3FDDC8E00059CD551DB0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB/pHSZUg7+tp6mRURAtx0AJ944tz2PLtSwYYCHgzX6KtHje4jJQCfUQxT
-JNrJ2/py6rR3h9eaDONp780=
-=VIev
------END PGP SIGNATURE-----
-
---------------enigEA8B3FDDC8E00059CD551DB0--
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

@@ -1,139 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264117AbRFNW3q>; Thu, 14 Jun 2001 18:29:46 -0400
+	id <S264113AbRFNWYY>; Thu, 14 Jun 2001 18:24:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264121AbRFNW3g>; Thu, 14 Jun 2001 18:29:36 -0400
-Received: from smtp-rt-13.wanadoo.fr ([193.252.19.223]:43248 "EHLO
-	oxera.wanadoo.fr") by vger.kernel.org with ESMTP id <S264117AbRFNW3W>;
-	Thu, 14 Jun 2001 18:29:22 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Going beyond 256 PCI buses
-Date: Fri, 15 Jun 2001 00:29:01 +0200
-Message-Id: <20010614222901.13715@smtp.wanadoo.fr>
-In-Reply-To: <15145.14057.67940.752173@pizda.ninka.net>
-In-Reply-To: <15145.14057.67940.752173@pizda.ninka.net>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S264117AbRFNWYP>; Thu, 14 Jun 2001 18:24:15 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:41234 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264113AbRFNWYE>; Thu, 14 Jun 2001 18:24:04 -0400
+Date: Thu, 14 Jun 2001 19:23:58 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: John Stoffel <stoffel@casc.com>
+Cc: Roger Larsson <roger.larsson@norran.net>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6-pre2, pre3 VM Behavior
+In-Reply-To: <15145.11683.861734.853957@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.33.0106141908220.28370-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's funny you mention this because I have been working on something
->similar recently.  Basically making xfree86 int10 and VGA poking happy
->on sparc64.
+On Thu, 14 Jun 2001, John Stoffel wrote:
 
-Heh, world is small ;)
-
->But this has no real use in the kernel.  (actually I take this back,
->read below)
-
-yup, fbcon at least... 
-
->You have a primary VGA device, that is the one the bios (boot
->firmware, whatever you want to call it) enables to respond to I/O and
->MEM accesses, the rest are configured to VGA pallette snoop and that's
->it.  The primary VGA device is the kernel console (unless using some
->fbcon driver of course), and that's that.
-
-Yup, fbcon is what I have in mind here
-
->The secondary VGA devices are only interesting to things like the X
->server, and xfree86 does all the enable/disable/bridge-forward-vga
->magic when doing multi-head.
-
-and multihead fbcon. 
-
->Perhaps, you might need to program the VGA resources of some device to
->use it in a fbcon driver (ie. to init it or set screen crt parameters,
->I believe the tdfx requires the latter which is why I'm having a devil
->of a time getting it to work on my sparc64 box).  This would be a
->seperate issue, and I would not mind at all seeing an abstraction for
->this sort of thing, let us call it:
+> Rik> There's another issue.  If dirty data is written out in small
+> Rik> bunches, that means we have to write out the dirty data more
+> Rik> often.
 >
->	struct pci_vga_resource {
->		struct resource io, mem;
->	};
+> What do you consider a small bunch?  32k?  1Mb?  1% of buffer space?
+> I don't see how delaying writes until the buffer is almost full really
+> helps us.  As the buffer fills, the pressure to do writes should
+> increase, so that we tend, over time, to empty the buffer.
 >
->	int pci_route_vga(struct pci_dev *pdev, struct pci_vga_resource *res);
->	pci_restore_vga(void);
+> A buffer is just that, not persistent storage.
 >
-> [.../...]
+> And in the case given, we were not seeing slow degradation, we saw
+> that the user ran into a wall (or inflection point in the response
+> time vs load graph), which was pretty sharp.  We need to handle that
+> more gracefully.
 
-Well... that would work for VGA itself (note that this semaphore
-you are talking about should be shared some way with the /proc
-interface so XFree can be properly sync'ed as well).
+No doubt on the fact that we need to handle it gracefully,
+but as long as we don't have any answers to any of the
+tricky questions you're asking above it'll be kind of hard
+to come up with a patch ;))
 
-But I still think it may be useful to generalize the idea to 
-all kind of legacy IO & PIOs. I definitely agree that VGA is a kind
-of special case, mostly because of the necessary exclusion on
-the VGA IO response.
-
-But what about all those legacy drivers that will issue inx/outx
-calls without an ioremap ? Should they call ioremap with hard-coded
-legacy addresses ? There are chipsets containing things like legacy
-timers, legacy keyboard controllers, etc... and in some (rare I admit)
-cases, those may be scattered (or multiplied) on various domains. 
-If we decide we don't handle those, then well, I won't argue more
-(it's mostly an estethic rant on my side ;), but the problem of
-wether they should call ioremap or not is there, and since the
-ISA bus can be "mapped" anywhere in the bus space by the host bridge,
-there need to be a way to retreive the ISA resources in general for
-a given domain.
-
-That's why I'd suggest something like 
-
-pci_get_isa_mem(struct resource* isa_mem);
-pci_get_isa_io(struct resource* isa_io);
-
-(I prefer 2 different functions as some platforms like powermac just
-don't provide the ISA mem space at all, there's no way to generate
-a memory cycle in the low-address range on the PCI bus of those and
-they don't have a PCI<->ISA bridge), so I like having the ability of
-one of the functions returning an error and not the other.
-
-Also, having the same ioremap() call for both mem IO and PIO means
-that things like 0xc0000 cannot be interpreted. It's a valid ISA-mem
-address in the VGA space and a valid PIO address on a PCI bus that
-supports >64k of PIO space.
-
-I beleive it would make things clearer (and probably implementation
-simpler) to separate ioremap and pioremap.
-
-Ben.
-
->So you'd go:
+> Rik> This in turn means extra disk seeks, which can horribly interfere
+> Rik> with disk reads.
 >
->	struct pci_vga_resource vga_res;
->	int err;
+> True, but are we optomizing for reads or for writes here?  Shouldn't
+> they really be equally weighted for priority?  And wouldn't the
+> Elevator help handle this to a degree?
+
+We definately need to optimise for reads.
+
+Every time we do a read, we KNOW there's a process waiting
+on the data to come in from the disk.
+
+Most of the time we do writes, they'll be asynchronous
+delayed IO which is done in the background. The program
+which wrote the data has moved on to other things long
+since.
+
+> Some areas to think about, at least for me.  And maybe it should be
+> read and write pressure, not rate?
 >
->	err = pci_route_vga(tdfx_pdev, &vga_res);
->
->	if (err)
->		barf();
->	vga_ports = ioremap(vga_res.io.start, vga_res.io.end-vga_res.io.start+1);
->	program_video_crtc_params(vga_ports);
->	iounmap(vga_ports);
->	vga_fb = ioremap(vga_res.mem.start, vga_res.mem.end-vga_res.mem.start+1);
->	clear_vga_fb(vga_fb);
->	iounmap(vga_fb);
->
->	pci_restore_vga();
->	
->pci_route_vga does several things:
->
->1) It saves the current VGA routing information.
->2) It configures busses and VGA devices such that PDEV responds to
->   VGA accesses, and other VGA devices just VGA palette snoop.
->3) Fills in the pci_vga_resources with
->   io: 0x320-->0x340 in domain PDEV lives, vga I/O regs
->   mem: 0xa0000-->0xc0000 in domain PDEV lives, video ram
->
->pci_restore_vga, as the name suggests, restores things back to how
->they were before the pci_route_vga() call.  Maybe also some semaphore
->so only one driver can do this at once and you can't drop the
->semaphore without calling pci_restore_vga().  VC switching into the X
->server would need to grab this thing too.
+>  - low write rate, and a low read rate.
+>    - Do seeks dominate our IO latency/throughput?
+
+Seeks always dominate IO latency ;)
+
+If you have a program which needs to get data from some file
+on disk, it is beneficial for that program if the disk head
+is near the data it wants.
+
+Moving the disk head all the way to the other side of the
+disk once a second will not slow the program down too much,
+but moving the disk head away 30 times a second "because
+there is little disk load" might just slow the program
+down by a factor of 2 ...
+
+Ie. if the head is in the same track or in the track next
+door, we only have rotational latency to count for (say 3ms),
+if we're on the other side of the disk we also have to count
+in seek time (say 7ms). Giving the program 30 * 7 = 210 ms
+extra IO wait time per second just isn't good ;)
+
+> - low write rate, high read rate.
+>   - seems like we want to keep writing the buffers, but at a lower
+>     rate.
+
+Not at a lower rate, just in larger blocks.  Disk transfer
+rate is so rediculously high nowadays that seek time seems
+the only sensible thing to optimise for.
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

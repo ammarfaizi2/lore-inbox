@@ -1,148 +1,709 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262096AbSI3N4W>; Mon, 30 Sep 2002 09:56:22 -0400
+	id <S262357AbSI3ORn>; Mon, 30 Sep 2002 10:17:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262112AbSI3Nzd>; Mon, 30 Sep 2002 09:55:33 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:20452 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262096AbSI3Npu>;
-	Mon, 30 Sep 2002 09:45:50 -0400
-Subject: Network interrupt pause problem in 2.5.38 kernel
-To: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       lse-tech@lists.sourceforge.net
-Cc: "Bill Hartner" <bhartner@us.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFEBDCD60A.DF5A555A-ON87256C41.0056917B@boulder.ibm.com>
-From: "Mala Anand" <manand@us.ibm.com>
-Date: Mon, 30 Sep 2002 08:50:55 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 09/30/2002 07:50:55 AM
+	id <S262350AbSI3OQx>; Mon, 30 Sep 2002 10:16:53 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:38123 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S262067AbSI3NoB> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:44:01 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.39 s390 (14/26): inlining.
+Date: Mon, 30 Sep 2002 14:57:18 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209301457.18631.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am seeing a network interrupt pause problem running Netperf3 on
-kernel 2.5.38. Netperf3 TCP_STREAM test is run on 1 adapter/
-1 connection configuration using SMP Kernel with maxcpus set to 1.
+Inline csum_partial for s390, the only reason it was out-of-line previously
+is that some older compilers could not get the inline version right.
 
-Two 996 MHz Pentium III systems with 4 gig memory/256KB L2 cache
-Intel Gigabit Ethernet network card one each on server and client
-2.5.38 kernel from www.kernel.org. No higmem support is enabled.
-Intel e1000 driver (the one in the kernel) is used
-Napi is not enabled.
-
-The TCP_STREAM test was run with TCP-NO Deay ON, 64k socket buffer
-size with a mtu size of 1500. The rest of tcp parameters used are
-default values.
-
-Running tcp_stream test for different message sizes, I noticed that
-the interrupts are being paused for some of the tests. I ran 8 message
-size and the following vmstat data for every 4 seconds show that
-interrupts are paused occasinally during the test.
-
-The test was run for 60 seconds and vmstat was collected for every 4
-seconds. The vmstat log was edited to remove the first entry of the
-run. The following vmstat is from the server and client for 2k and
-4k message sizes:
-
-message size: 2k  Throughput: 585.9 Mbits/sec
----------------------------------------------
-SERVER:
-   procs                    memory    swap      io     system     cpu
- r  b  w swpd   free   buff  cache  si  so  bi bo   in   cs  us  sy  id
- 1  0  1   0 575580 108248  34136   0   0   0  20 55357   20  2  98  0
- 1  0  1   0 575568 108256  34136   0   0   0   4 55621   19  2  98  0
- 1  0  0   0 575576 108256  34136   0   0   0   0 55533   17  2  98  0
- 1  0  1   0 575564 108264  34136   0   0   0   4 18424   11  1  33 67 ***
- 1  0  1   0 575556 108272  34136   0   0   0   4 53502   19  2  99  0
- 1  0  1   0 575544 108280  34136   0   0   0   4 53455   20  2  98  0
- 1  0  1   0 575532 108288  34136   0   0   0   4 53513   19  2  98  0
- 1  0  1   0 575528 108288  34136   0   0   0   0 53507   16  2  98  0
- 1  0  1   0 575516 108296  34136   0   0   0  23 53510   19  2  98  0
- 1  0  1   0 575524 108304  34140   0   0   0   8 53422   18  2  98  0
- 1  0  1   0 575512 108312  34140   0   0   0   4 53511   19  2  98  0
- 1  0  1   0 575500 108320  34140   0   0   0   4 53445   19  2  98  0
- 1  0  1   0 575496 108320  34140   0   0   0   0 52943   16  2  98  0
- 1  0  1   0 575484 108328  34140   0   0   0   4 53404   19  2  98  0
-
-Message size:2k
----------------
-CLIENT vmstat:
-   procs                  memory     swap   io     system       cpu
- r  b  w swpd free   buff  cache   si so  bi bo   in   cs  us  sy  id
- 1  0  0   0 773888  34492  35224  0  0   0   0 19906  1322  2  59  39
- 1  0  1   0 773876  34500  35224  0  0   0   4 20035  1306  2  58  40
- 1  0  0   0 773868  34508  35224  0  0   0   4 19928  1297  2  62  36
- 1  0  0   0 773856  34516  35224  0  0   0   4 8977   452   1  28  72 ***
- 1  0  0   0 773860  34524  35224  0  0   0   4 25267  1333  2  89   9
- 1  0  0   0 773856  34524  35224  0  0   0   0 25197  1313  2  80  18
- 1  0  0   0 773844  34532  35224  0  0   0   4 25223  1372  2  81  17
- 1  0  1   0 773836  34540  35224  0  0   0   4 25233  1334  2  89   9
- 1  0  0   0 773824  34548  35224  0  0   0   4 25261  1351  2  78  21
- 1  0  1   0 773808  34556  35228  0  0   0   8 25218  1362  3  85  12
- 1  0  1   0 773804  34556  35228  0  0   0   0 25250  1331  2  85  13
- 1  0  0   0 773812  34564  35228  0  0   0   4 25208  1289  2  78  20
- 1  0  1   0 773804  34572  35228  0  0   0   4 24982  1328  2  86  12
- 1  0  1   0 773792  34580  35228  0  0   0   4 25206  1360  2  82  16
-
-message size:4k  throughput: 574.5 Mbits/sec
---------------------------------------------
-SERVER:
-   procs                    memory    swap     io     system     cpu
- r  b  w swpd free   buff  cache    si  so  bi bo   in   cs  us sy  id
- 1  0  1   0 574940 108556  34144   0   0   0  23 58303  20  1  99   0
- 1  0  1   0 574928 108564  34144   0   0   0  23 58303  19  1  99   0
- 0  0  0   0 574924 108564  34144   0   0   0   0 40233  14  1  68  32
- 0  0  0   0 574912 108572  34144   0   0   0   4 1002   6   0   0 100 ***
- 1  0  1   0 574904 108576  34148   0   0   0   4 36228  12  1  63  37
- 1  0  1   0 574896 108580  34148   0   0   0   8 56477  19  1  99   0
- 1  0  1   0 574908 108588  34148   0   0   0   4 56311  19  1  99   0
- 1  0  1   0 574904 108588  34148   0   0   0   0 55842  16  1  99   0
- 1  0  1   0 574892 108596  34148   0   0   0   4 56315  19  1  99   0
- 1  0  1   0 574884 108604  34148   0   0   0   4 56381  19  1  99   0
- 1  0  1   0 574872 108612  34148   0   0   0   7 56352  19  1  99   0
- 1  0  0   0 574860 108620  34148   0   0   0   4 56392  19  1  99   0
- 1  0  1   0 574856 108620  34148   0   0   0   0 56387  16  1  99   0
- 1  0  1   0 574864 108628  34148   0   0   0   4 56326  19  1  99   0
-
-message size4k
---------------
-CLIENT
-   procs                    memory    swap   io    system         cpu
- r  b  w swpd free   buff  cache  si  so  bi bo   in    cs  us  sy  id
- 1  0  0  0 773448  34908  35236   0   0   0  0 16566  1532  1  60  39
- 1  0  0  0 773420  34916  35236   0   0   0  4 16508  1553  1  52  46
- 0  0  0  0 773352  34924  35236   0   0   0  4 10620   965  0  36  64
- 0  0  0  0 773340  34932  35236   0   0   0 39 1010     5   0   0 100 ***
- 1  0  0  0 773408  34940  35240   0   0   0  4 14732  1121  1  56  44
- 1  0  0  0 773404  34940  35240   0   0   0  0 20551  1597  1  80  19
- 1  0  0  0 773392  34948  35240   0   0   0  8 20492  1608  1  82  16
- 1  0  0  0 773384  34956  35240   0   0   0  4 20432  1675  1  76  22
- 1  0  0  0 773396  34964  35240   0   0   0  4 20544  1608  1  78  21
- 1  0  0  0 773384  34972  35240   0   0   0  4 20551  1595  1  82  16
- 1  0  0  0 773380  34972  35240   0   0   0  0 20554  1615  1  78  21
- 1  0  0  0 773368  34980  35240   0   0   0  4 20526  1598  2  80  19
- 1  0  0  0 773360  34988  35240   0   0   0  7 20578  1602  1  80  19
- 1  0  0  0 773348  34996  35240   0   0   0  4 20529  1604  1  79  20
-
-I have seen the number of interrupts go down moderately (10-20%) on
-2.5.33 kernel during tcp_stream test. But only on 2.5.38 I see
-interrupts pausing as shown in the above (***) vmstat data.Out of
-3 runs for each message size I see this problem 2 times mostly.
-I have not tested on other kernels, however I have not seen this
-problem in 2.5.32. Has anyone seen this problem.
-
-Regards,
-    Mala
-
-
-   Mala Anand
-   IBM Linux Technology Center - Kernel Performance
-   E-mail:manand@us.ibm.com
-   http://www-124.ibm.com/developerworks/opensource/linuxperf
-   http://www-124.ibm.com/developerworks/projects/linuxperf
-   Phone:838-8088; Tie-line:678-8088
-
-
-
+diff -urN linux-2.5.39/arch/s390/lib/Makefile linux-2.5.39-s390/arch/s390/lib/Makefile
+--- linux-2.5.39/arch/s390/lib/Makefile	Fri Sep 27 23:49:04 2002
++++ linux-2.5.39-s390/arch/s390/lib/Makefile	Mon Sep 30 13:32:39 2002
+@@ -6,8 +6,7 @@
+ 
+ EXTRA_AFLAGS := -traditional
+ 
+-obj-y = checksum.o delay.o memset.o misaligned.o strcmp.o strncpy.o uaccess.o
+-export-objs += misaligned.o
++obj-y = delay.o memset.o strcmp.o strncpy.o uaccess.o
+ 
+ include $(TOPDIR)/Rules.make
+ 
+diff -urN linux-2.5.39/arch/s390/lib/checksum.c linux-2.5.39-s390/arch/s390/lib/checksum.c
+--- linux-2.5.39/arch/s390/lib/checksum.c	Fri Sep 27 23:48:35 2002
++++ linux-2.5.39-s390/arch/s390/lib/checksum.c	Thu Jan  1 01:00:00 1970
+@@ -1,57 +0,0 @@
+-/*
+- *  arch/s390/lib/checksum.c
+- *    S390 fast network checksum routines
+- *
+- *  S390 version
+- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Ulrich Hild        (first version),
+- *               Martin Schwidefsky (schwidefsky@de.ibm.com),
+- *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
+- *
+- * This file contains network checksum routines
+- */
+- 
+-#include <linux/string.h>
+-#include <linux/types.h>
+-#include <asm/uaccess.h>
+-#include <asm/byteorder.h>
+-#include <asm/checksum.h>
+-
+-/*
+- * computes a partial checksum, e.g. for TCP/UDP fragments
+- */
+-unsigned int
+-csum_partial (const unsigned char *buff, int len, unsigned int sum)
+-{
+-	register_pair rp;
+-	  /*
+-	   * Experiments with ethernet and slip connections show that buff
+-	   * is aligned on either a 2-byte or 4-byte boundary.
+-	   */
+-	rp.subreg.even = (unsigned long) buff;
+-	rp.subreg.odd = (unsigned long) len;
+-        __asm__ __volatile__ (
+-                "0:  cksm %0,%1\n"    /* do checksum on longs */
+-                "    jo   0b\n"
+-                : "+&d" (sum), "+&a" (rp) : : "cc" );
+-        return sum;
+-}
+-
+-/*
+- *	Fold a partial checksum without adding pseudo headers
+- */
+-unsigned short csum_fold(unsigned int sum)
+-{
+-	register_pair rp;
+-
+-	__asm__ __volatile__ (
+-		"    slr  %N1,%N1\n" /* %0 = H L */
+-		"    lr   %1,%0\n"   /* %0 = H L, %1 = H L 0 0 */
+-		"    srdl %1,16\n"   /* %0 = H L, %1 = 0 H L 0 */
+-		"    alr  %1,%N1\n"  /* %0 = H L, %1 = L H L 0 */
+-		"    alr  %0,%1\n"   /* %0 = H+L+C L+H */
+-		"    srl  %0,16\n"   /* %0 = H+L+C */
+-		: "+&d" (sum), "=d" (rp) : : "cc" );
+-	return ((unsigned short) ~sum);
+-}
+-
+diff -urN linux-2.5.39/arch/s390/lib/misaligned.c linux-2.5.39-s390/arch/s390/lib/misaligned.c
+--- linux-2.5.39/arch/s390/lib/misaligned.c	Fri Sep 27 23:50:20 2002
++++ linux-2.5.39-s390/arch/s390/lib/misaligned.c	Thu Jan  1 01:00:00 1970
+@@ -1,29 +0,0 @@
+-/*
+- *  arch/s390/lib/misaligned.c
+- *    S390 misalignment panic stubs
+- *
+- *  S390 version
+- *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com).
+- *
+- * xchg wants to panic if the pointer is not aligned. To avoid multiplying
+- * the panic message over and over again, the panic is done in the helper
+- * functions __misaligned_u32 and __misaligned_u16.
+- */
+-
+-#include <linux/module.h> 
+-#include <linux/kernel.h>
+-
+-void __misaligned_u16(void)
+-{
+-	panic("misaligned (__u16 *) in __xchg\n");
+-}
+-
+-void __misaligned_u32(void)
+-{
+-	panic("misaligned (__u32 *) in __xchg\n");
+-}
+-
+-EXPORT_SYMBOL(__misaligned_u16);
+-EXPORT_SYMBOL(__misaligned_u32);
+-
+diff -urN linux-2.5.39/arch/s390x/lib/Makefile linux-2.5.39-s390/arch/s390x/lib/Makefile
+--- linux-2.5.39/arch/s390x/lib/Makefile	Fri Sep 27 23:49:06 2002
++++ linux-2.5.39-s390/arch/s390x/lib/Makefile	Mon Sep 30 13:32:39 2002
+@@ -6,8 +6,7 @@
+ 
+ EXTRA_AFLAGS := -traditional
+ 
+-obj-y = checksum.o delay.o memset.o misaligned.o strcmp.o strncpy.o uaccess.o
+-export-objs += misaligned.o
++obj-y = delay.o memset.o strcmp.o strncpy.o uaccess.o
+ 
+ include $(TOPDIR)/Rules.make
+ 
+diff -urN linux-2.5.39/arch/s390x/lib/checksum.c linux-2.5.39-s390/arch/s390x/lib/checksum.c
+--- linux-2.5.39/arch/s390x/lib/checksum.c	Fri Sep 27 23:49:57 2002
++++ linux-2.5.39-s390/arch/s390x/lib/checksum.c	Thu Jan  1 01:00:00 1970
+@@ -1,40 +0,0 @@
+-/*
+- *  arch/s390/lib/checksum.c
+- *    S390 fast network checksum routines
+- *
+- *  S390 version
+- *    Copyright (C) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Ulrich Hild        (first version),
+- *               Martin Schwidefsky (schwidefsky@de.ibm.com),
+- *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
+- *
+- * This file contains network checksum routines
+- */
+- 
+-#include <linux/string.h>
+-#include <linux/types.h>
+-#include <asm/uaccess.h>
+-#include <asm/byteorder.h>
+-#include <asm/checksum.h>
+-
+-/*
+- * computes a partial checksum, e.g. for TCP/UDP fragments
+- */
+-unsigned int
+-csum_partial (const unsigned char *buff, int len, unsigned int sum)
+-{
+-	  /*
+-	   * Experiments with ethernet and slip connections show that buff
+-	   * is aligned on either a 2-byte or 4-byte boundary.
+-	   */
+-        __asm__ __volatile__ (
+-                "    lgr  2,%1\n"    /* address in gpr 2 */
+-                "    lgfr 3,%2\n"    /* length in gpr 3 */
+-                "0:  cksm %0,2\n"    /* do checksum on longs */
+-                "    jo   0b\n"
+-                : "+&d" (sum)
+-                : "d" (buff), "d" (len)
+-                : "cc", "2", "3" );
+-        return sum;
+-}
+-
+diff -urN linux-2.5.39/arch/s390x/lib/misaligned.c linux-2.5.39-s390/arch/s390x/lib/misaligned.c
+--- linux-2.5.39/arch/s390x/lib/misaligned.c	Fri Sep 27 23:50:27 2002
++++ linux-2.5.39-s390/arch/s390x/lib/misaligned.c	Thu Jan  1 01:00:00 1970
+@@ -1,34 +0,0 @@
+-/*
+- *  arch/s390/lib/misaligned.c
+- *    S390 misalignment panic stubs
+- *
+- *  S390 version
+- *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com).
+- *
+- * xchg wants to panic if the pointer is not aligned. To avoid multiplying
+- * the panic message over and over again, the panic is done in the helper
+- * functions __misaligned_u64, __misaligned_u32 and __misaligned_u16.
+- */
+- 
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-
+-void __misaligned_u16(void)
+-{
+-	panic("misaligned (__u16 *) in __xchg\n");
+-}
+-
+-void __misaligned_u32(void)
+-{
+-	panic("misaligned (__u32 *) in __xchg\n");
+-}
+-
+-void __misaligned_u64(void)
+-{
+-	panic("misaligned (__u64 *) in __xchg\n");
+-}
+-
+-EXPORT_SYMBOL(__misaligned_u16);
+-EXPORT_SYMBOL(__misaligned_u32);
+-EXPORT_SYMBOL(__misaligned_u64);
+diff -urN linux-2.5.39/include/asm-s390/checksum.h linux-2.5.39-s390/include/asm-s390/checksum.h
+--- linux-2.5.39/include/asm-s390/checksum.h	Fri Sep 27 23:48:35 2002
++++ linux-2.5.39-s390/include/asm-s390/checksum.h	Mon Sep 30 13:32:39 2002
+@@ -27,13 +27,27 @@
+  *
+  * it's best to have buff aligned on a 32-bit boundary
+  */
+-unsigned int
+-csum_partial(const unsigned char * buff, int len, unsigned int sum);
++static inline unsigned int
++csum_partial(const unsigned char * buff, int len, unsigned int sum)
++{
++	register_pair rp;
++	/*
++	 * Experiments with ethernet and slip connections show that buf
++	 * is aligned on either a 2-byte or 4-byte boundary.
++	 */
++	rp.subreg.even = (unsigned long) buff;
++	rp.subreg.odd = (unsigned long) len;
++	__asm__ __volatile__ (
++		"0:  cksm %0,%1\n"	/* do checksum on longs */
++		"    jo   0b\n"
++		: "+&d" (sum), "+&a" (rp) : : "cc" );
++	return sum;
++}
+ 
+ /*
+  * csum_partial as an inline function
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_inline(const unsigned char * buff, int len, unsigned int sum)
+ {
+ 	register_pair rp;
+@@ -55,7 +69,7 @@
+  * better 64-bit) boundary
+  */
+ 
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy(const char *src, char *dst, int len,unsigned int sum)
+ {
+ 	memcpy(dst,src,len);
+@@ -71,7 +85,7 @@
+  * Copy from userspace and compute checksum.  If we catch an exception
+  * then zero the rest of the buffer.
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy_from_user (const char *src, char *dst,
+                                           int len, unsigned int sum,
+                                           int *err_ptr)
+@@ -88,7 +102,7 @@
+ }
+ 
+ 
+-extern inline unsigned int
++static inline unsigned int
+ csum_partial_copy_nocheck (const char *src, char *dst, int len, unsigned int sum)
+ {
+         memcpy(dst,src,len);
+@@ -98,10 +112,7 @@
+ /*
+  *      Fold a partial checksum without adding pseudo headers
+  */
+-#if 1
+-unsigned short csum_fold(unsigned int sum);
+-#else
+-extern inline unsigned short
++static inline unsigned short
+ csum_fold(unsigned int sum)
+ {
+ 	register_pair rp;
+@@ -116,14 +127,13 @@
+ 		: "+&d" (sum), "=d" (rp) : : "cc" );
+ 	return ((unsigned short) ~sum);
+ }
+-#endif
+ 
+ /*
+  *	This is a version of ip_compute_csum() optimized for IP headers,
+  *	which always checksum on 4 octet boundaries.
+  *
+  */
+-extern inline unsigned short
++static inline unsigned short
+ ip_fast_csum(unsigned char *iph, unsigned int ihl)
+ {
+ 	register_pair rp;
+@@ -143,7 +153,7 @@
+  * computes the checksum of the TCP/UDP pseudo-header
+  * returns a 32-bit checksum
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_tcpudp_nofold(unsigned long saddr, unsigned long daddr,
+                    unsigned short len, unsigned short proto,
+                    unsigned int sum)
+@@ -176,7 +186,7 @@
+  * returns a 16-bit checksum, already complemented
+  */
+ 
+-extern inline unsigned short int
++static inline unsigned short int
+ csum_tcpudp_magic(unsigned long saddr, unsigned long daddr,
+                   unsigned short len, unsigned short proto,
+                   unsigned int sum)
+@@ -189,7 +199,7 @@
+  * in icmp.c
+  */
+ 
+-extern inline unsigned short
++static inline unsigned short
+ ip_compute_csum(unsigned char * buff, int len)
+ {
+ 	return csum_fold(csum_partial(buff, len, 0));
+diff -urN linux-2.5.39/include/asm-s390/system.h linux-2.5.39-s390/include/asm-s390/system.h
+--- linux-2.5.39/include/asm-s390/system.h	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/include/asm-s390/system.h	Mon Sep 30 13:32:39 2002
+@@ -30,73 +30,56 @@
+ 
+ #define nop() __asm__ __volatile__ ("nop")
+ 
+-#define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
+-
+-extern void __misaligned_u16(void);
+-extern void __misaligned_u32(void);
++#define xchg(ptr,x) \
++  ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
+ 
+ static inline unsigned long __xchg(unsigned long x, void * ptr, int size)
+ {
++	unsigned long addr, old;
++	int shift;
++
+         switch (size) {
+-                case 1:
+-                        asm volatile (
+-                                "   lhi   1,3\n"
+-                                "   nr    1,%0\n"     /* isolate last 2 bits */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,8,3(%1)\n"   /* for ptr&3 == 0 */
+-                                "   stcm  0,8,3(%1)\n"
+-                                "   icm   1,4,3(%1)\n"   /* for ptr&3 == 1 */
+-                                "   stcm  0,4,3(%1)\n"
+-                                "   icm   1,2,3(%1)\n"   /* for ptr&3 == 2 */
+-                                "   stcm  0,2,3(%1)\n"
+-                                "   icm   1,1,3(%1)\n"   /* for ptr&3 == 3 */
+-                                "   stcm  0,1,3(%1)\n"
+-                                "0: sll   1,3\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+a&" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-			break;
+-                case 2:
+-                        if(((__u32)ptr)&1)
+-				__misaligned_u16();
+-                        asm volatile (
+-                                "   lhi   1,2\n"
+-                                "   nr    1,%0\n"     /* isolate bit 2^1 */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,12,2(%1)\n"   /* for ptr&2 == 0 */
+-                                "   stcm  0,12,2(%1)\n"
+-                                "   icm   1,3,2(%1)\n"    /* for ptr&2 == 1 */
+-                                "   stcm  0,3,2(%1)\n"
+-                                "0: sll   1,2\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+a&" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-                        break;
+-                case 4:
+-                        if(((__u32)ptr)&3)
+-				__misaligned_u32();
+-                        asm volatile (
+-                                "    l   0,0(%1)\n"
+-                                "0:  cs  0,%0,0(%1)\n"
+-                                "    jl  0b\n"
+-                                "    lr  %0,0\n"
+-                                : "+d&" (x) : "a" (ptr)
+-                                : "memory", "cc", "0" );
+-                        break;
++	case 1:
++		addr = (unsigned long) ptr;
++		shift = (3 ^ (addr & 3)) << 3;
++		addr ^= addr & 3;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old)
++			: "d" (x << shift), "d" (~(255 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 2:
++		addr = (unsigned long) ptr;
++		shift = (2 ^ (addr & 2)) << 3;
++		addr ^= addr & 2;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old) 
++			: "d" (x << shift), "d" (~(65535 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 4:
++		asm volatile (
++			"    l   %0,0(%2)\n"
++			"0:  cs  %0,%1,0(%2)\n"
++			"    jl  0b\n"
++			: "=&d" (old) : "d" (x), "a" (ptr)
++			: "memory", "cc", "0" );
++		x = old;
++		break;
+         }
+         return x;
+ }
+diff -urN linux-2.5.39/include/asm-s390x/checksum.h linux-2.5.39-s390/include/asm-s390x/checksum.h
+--- linux-2.5.39/include/asm-s390x/checksum.h	Fri Sep 27 23:50:31 2002
++++ linux-2.5.39-s390/include/asm-s390x/checksum.h	Mon Sep 30 13:32:39 2002
+@@ -27,13 +27,29 @@
+  *
+  * it's best to have buff aligned on a 32-bit boundary
+  */
+-unsigned int
+-csum_partial(const unsigned char * buff, int len, unsigned int sum);
++static inline unsigned int
++csum_partial(const unsigned char * buff, int len, unsigned int sum)
++{
++	/*
++	 * Experiments with ethernet and slip connections show that buff
++	 * is aligned on either a 2-byte or 4-byte boundary.
++	 */
++        __asm__ __volatile__ (
++                "    lgr  2,%1\n"    /* address in gpr 2 */
++                "    lgfr 3,%2\n"    /* length in gpr 3 */
++                "0:  cksm %0,2\n"    /* do checksum on longs */
++                "    jo   0b\n"
++                : "+&d" (sum)
++                : "d" (buff), "d" (len)
++                : "cc", "2", "3" );
++        return sum;
++	
++}
+ 
+ /*
+  * csum_partial as an inline function
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_inline(const unsigned char * buff, int len, unsigned int sum)
+ {
+ 	__asm__ __volatile__ (
+@@ -55,7 +71,7 @@
+  * better 64-bit) boundary
+  */
+ 
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy(const char *src, char *dst, int len,unsigned int sum)
+ {
+ 	memcpy(dst,src,len);
+@@ -71,7 +87,7 @@
+  * Copy from userspace and compute checksum.  If we catch an exception
+  * then zero the rest of the buffer.
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_partial_copy_from_user (const char *src, char *dst,
+                                           int len, unsigned int sum,
+                                           int *err_ptr)
+@@ -87,7 +103,7 @@
+ 	return csum_partial(dst, len, sum);
+ }
+ 
+-extern inline unsigned int
++static inline unsigned int
+ csum_partial_copy_nocheck (const char *src, char *dst, int len, unsigned int sum)
+ {
+         memcpy(dst,src,len);
+@@ -97,7 +113,7 @@
+ /*
+  *      Fold a partial checksum without adding pseudo headers
+  */
+-extern inline unsigned short
++static inline unsigned short
+ csum_fold(unsigned int sum)
+ {
+ 	__asm__ __volatile__ (
+@@ -116,7 +132,7 @@
+  *	which always checksum on 4 octet boundaries.
+  *
+  */
+-extern inline unsigned short
++static inline unsigned short
+ ip_fast_csum(unsigned char *iph, unsigned int ihl)
+ {
+ 	unsigned long sum;
+@@ -137,7 +153,7 @@
+  * computes the checksum of the TCP/UDP pseudo-header
+  * returns a 32-bit checksum
+  */
+-extern inline unsigned int 
++static inline unsigned int 
+ csum_tcpudp_nofold(unsigned long saddr, unsigned long daddr,
+                    unsigned short len, unsigned short proto,
+                    unsigned int sum)
+@@ -170,7 +186,7 @@
+  * returns a 16-bit checksum, already complemented
+  */
+ 
+-extern inline unsigned short int
++static inline unsigned short int
+ csum_tcpudp_magic(unsigned long saddr, unsigned long daddr,
+                   unsigned short len, unsigned short proto,
+                   unsigned int sum)
+@@ -183,7 +199,7 @@
+  * in icmp.c
+  */
+ 
+-extern inline unsigned short
++static inline unsigned short
+ ip_compute_csum(unsigned char * buff, int len)
+ {
+ 	return csum_fold(csum_partial_inline(buff, len, 0));
+diff -urN linux-2.5.39/include/asm-s390x/system.h linux-2.5.39-s390/include/asm-s390x/system.h
+--- linux-2.5.39/include/asm-s390x/system.h	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/include/asm-s390x/system.h	Mon Sep 30 13:32:39 2002
+@@ -39,77 +39,60 @@
+ 
+ static inline unsigned long __xchg(unsigned long x, void * ptr, int size)
+ {
++	unsigned long addr, old;
++	int shift;
++
+         switch (size) {
+-                case 1:
+-                        asm volatile (
+-                                "   lghi  1,3\n"
+-                                "   nr    1,%0\n"     /* isolate last 2 bits */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,8,7(%1)\n"   /* for ptr&3 == 0 */
+-                                "   stcm  0,8,7(%1)\n"
+-                                "   icm   1,4,7(%1)\n"   /* for ptr&3 == 1 */
+-                                "   stcm  0,4,7(%1)\n"
+-                                "   icm   1,2,7(%1)\n"   /* for ptr&3 == 2 */
+-                                "   stcm  0,2,7(%1)\n"
+-                                "   icm   1,1,7(%1)\n"   /* for ptr&3 == 3 */
+-                                "   stcm  0,1,7(%1)\n"
+-                                "0: sll   1,3\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+&a" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-			break;
+-                case 2:
+-                        if(((addr_t)ptr)&1)
+-				__misaligned_u16();
+-                        asm volatile (
+-                                "   lghi  1,2\n"
+-                                "   nr    1,%0\n"     /* isolate bit 2^1 */
+-                                "   xr    %0,1\n"     /* align ptr */
+-                                "   bras  2,0f\n"
+-                                "   icm   1,12,6(%1)\n"   /* for ptr&2 == 0 */
+-                                "   stcm  0,12,6(%1)\n"
+-                                "   icm   1,3,2(%1)\n"    /* for ptr&2 == 1 */
+-                                "   stcm  0,3,2(%1)\n"
+-                                "0: sll   1,2\n"
+-                                "   la    2,0(1,2)\n" /* r2 points to an icm */
+-                                "   l     0,0(%0)\n"  /* get fullword */
+-                                "1: lr    1,0\n"      /* cs loop */
+-                                "   ex    0,0(2)\n"   /* insert x */
+-                                "   cs    0,1,0(%0)\n"
+-                                "   jl    1b\n"
+-                                "   ex    0,4(2)"     /* store *ptr to x */
+-                                : "+&a" (ptr) : "a" (&x)
+-                                : "memory", "cc", "0", "1", "2");
+-                        break;
+-                case 4:
+-                        if(((addr_t)ptr)&3)
+-				__misaligned_u32();
+-                        asm volatile (
+-                                "    l    0,0(%1)\n"
+-                                "0:  cs   0,%0,0(%1)\n"
+-                                "    jl   0b\n"
+-                                "    lgfr %0,0\n"
+-                                : "+d" (x) : "a" (ptr)
+-                                : "memory", "cc", "0" );
+-                        break;
+-                case 8:
+-                        if(((addr_t)ptr)&7)
+-				__misaligned_u64();
+-                        asm volatile (
+-                                "    lg  0,0(%1)\n"
+-                                "0:  csg 0,%0,0(%1)\n"
+-                                "    jl  0b\n"
+-                                "    lgr %0,0\n"
+-                                : "+d" (x) : "a" (ptr)
+-                                : "memory", "cc", "0" );
+-                        break;
++	case 1:
++		addr = (unsigned long) ptr;
++		shift = (3 ^ (addr & 3)) << 3;
++		addr ^= addr & 3;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old)
++			: "d" (x << shift), "d" (~(255 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 2:
++		addr = (unsigned long) ptr;
++		shift = (2 ^ (addr & 2)) << 3;
++		addr ^= addr & 2;
++		asm volatile(
++			"    l   %0,0(%3)\n"
++			"0:  lr  0,%0\n"
++			"    nr  0,%2\n"
++			"    or  0,%1\n"
++			"    cs  %0,0,0(%3)\n"
++			"    jl  0b\n"
++			: "=&d" (old) 
++			: "d" (x << shift), "d" (~(65535 << shift)), "a" (addr)
++			: "memory", "cc", "0" );
++		x = old >> shift;
++		break;
++	case 4:
++		asm volatile (
++			"    l   %0,0(%2)\n"
++			"0:  cs  %0,%1,0(%2)\n"
++			"    jl  0b\n"
++			: "=&d" (old) : "d" (x), "a" (ptr)
++			: "memory", "cc", "0" );
++		x = old;
++		break;
++	case 8:
++		asm volatile (
++			"    lg  %0,0(%2)\n"
++			"0:  csg %0,%1,0(%2)\n"
++			"    jl  0b\n"
++			: "=&d" (old) : "d" (x), "a" (ptr)
++			: "memory", "cc", "0" );
++		x = old;
++		break;
+         }
+         return x;
+ }
 

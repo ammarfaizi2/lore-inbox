@@ -1,95 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbSJHJc0>; Tue, 8 Oct 2002 05:32:26 -0400
+	id <S261778AbSJHJqU>; Tue, 8 Oct 2002 05:46:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261725AbSJHJc0>; Tue, 8 Oct 2002 05:32:26 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:64819 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261599AbSJHJcY>;
-	Tue, 8 Oct 2002 05:32:24 -0400
+	id <S261794AbSJHJqU>; Tue, 8 Oct 2002 05:46:20 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:63034 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261778AbSJHJqS>;
+	Tue, 8 Oct 2002 05:46:18 -0400
 From: <Hell.Surfers@cwctv.net>
-To: landley@trommello.org, porter@cox.net, davem@redhat.com, giduru@yahoo.com,
-       andre@linux-ide.org, linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 10:36:21 +0100
-Subject: Re: The end of embedded Linux?
+To: jw@pegasys.ws, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 10:51:40 +0100
+Subject: RE:Re: The end of embedded Linux?
 MIME-Version: 1.0
 X-Mailer: Liberate TVMail 2.6
 Content-Type: multipart/mixed;
- boundary="1034069781264"
-Message-ID: <06d8659340908a2DTVMAIL12@smtp.cwctv.net>
+ boundary="1034070700767"
+Message-ID: <0372021510908a2DTVMAIL6@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1034069781264
+--1034070700767
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Integral support for TinyX would be nice(www.handhelds.org).
+limitation of mailer.
 
 Cheers, Dean.
 
-On 	Mon, 7 Oct 2002 15:50:43 -0400 	Rob Landley <landley@trommello.org> wrote:
+On 	Mon, 7 Oct 2002 17:10:50 -0700 	jw schultz <jw@pegasys.ws> wrote:
 
---1034069781264
+--1034070700767
 Content-Type: message/rfc822
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Tue, 8 Oct 2002 03:36:30 +0100
+	 Tue, 8 Oct 2002 01:42:31 +0100
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262674AbSJHC3u>; Mon, 7 Oct 2002 22:29:50 -0400
+	id <S263410AbSJHAHW>; Mon, 7 Oct 2002 20:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262683AbSJHC3u>; Mon, 7 Oct 2002 22:29:50 -0400
-Received: from pc132.utati.net ([216.143.22.132]:53921 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S262674AbSJHC3t>; Mon, 7 Oct 2002 22:29:49 -0400
-Received: from there (pc141.utati.net [216.143.22.141])
-	by merlin.webofficenow.com (Postfix on SuSE Linux 7.2 (i386)) with SMTP
-	id C0DDF630; Mon,  7 Oct 2002 19:50:30 -0500 (CDT)
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Matt Porter <porter@cox.net>
+	id <S262774AbSJHAHL>; Mon, 7 Oct 2002 20:07:11 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:24589 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S263502AbSJHAFP>; Mon, 7 Oct 2002 20:05:15 -0400
+Received: from leto.pegasys.ws (leto.pegasys.ws [10.1.1.20])
+	by vladimir.pegasys.ws (Mail Transfer Agent) with ESMTP id 13C60DF2C
+	for <linux-kernel@vger.kernel.org>; Mon,  7 Oct 2002 17:13:24 -0700 (PDT)
+Received: from duncan.pegasys.ws (duncan.pegasys.ws [10.1.1.50])
+	by leto.pegasys.ws (Mail Transfer Agent) with ESMTP id 3224A188
+	for <linux-kernel@vger.kernel.org>; Mon,  7 Oct 2002 17:10:51 -0700 (PDT)
+Received: by duncan.pegasys.ws (Postfix on SuSE Linux 8.0 (i386), from userid 1001)
+	id AC1694AF3; Mon,  7 Oct 2002 17:10:50 -0700 (PDT)
+Date: Mon, 7 Oct 2002 17:10:50 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
 Subject: Re: The end of embedded Linux?
-Date: Mon, 7 Oct 2002 15:50:43 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: "David S. Miller" <davem@redhat.com>, giduru@yahoo.com,
-	andre@linux-ide.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org> <20021007214053.36F16622@merlin.webofficenow.com> <20021007162048.A19216@home.com>
-In-Reply-To: <20021007162048.A19216@home.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021008005030.C0DDF630@merlin.webofficenow.com>
+Message-ID: <20021008001050.GB6537@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <07ac352022007a2DTVMAIL8@smtp.cwctv.net> <20021007.160146.128866444.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021007.160146.128866444.davem@redhat.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-On Monday 07 October 2002 07:20 pm, Matt Porter wrote:
->
-> > Or they could play in the source code if their needs are sufficiently
-> > unusual, which more or less by definition they will be in this case.  No
-> > matter how thorough you are here, there will be things they want to tweak
-> > (or would if they knew about them) that there is no config option for. 
-> > "make menuconfig" is not a complete replacement for knowing C in all
-> > cases.
->
-> True, but there are a number of people out there who want to do say
-> a kernel port to XYZ custom board.  They learn some basic kernel
-> knowledge, but we can't expect them to be a guru of everything to
-> get some work done.
+On Mon, Oct 07, 2002 at 04:01:46PM -0700, David S. Miller wrote:
+>    From: <Hell.Surfers@cwctv.net>
+>    Date: Mon, 7 Oct 2002 21:04:29 +0100
+> 
+>    Then shouldn't the thing thats different from the norm be programmed into a header file which contains how certain functions should be handled differently, which can be dynamically switched by a config option?
+>    
+> If I gave you a dollar, would you go out and buy some newlines
+> to use in future emails?
 
-Another very real option here is Documentation/tinykernel.txt.  (Possibly 
-even going so far as a brief mention of uclibc and busybox/tinylogin, but 
-mostly just about choping down the kernel for embedding in nosehair trimmers 
-and electric toothbrushes and such.)
+Maybe he could exchange the mime headers for newlines if he
+put his comments at the end where they belong.
 
-Rob "waiting for the linux i-button" Landley.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
---1034069781264--
+--1034070700767--
 
 

@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUHMTHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUHMTNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267170AbUHMTHN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 15:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266914AbUHMTDa
+	id S266820AbUHMTNF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 15:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267193AbUHMTNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 15:03:30 -0400
-Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:6366 "EHLO
-	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S267168AbUHMS7v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 14:59:51 -0400
-Message-ID: <411D0F73.6070301@ttnet.net.tr>
-Date: Fri, 13 Aug 2004 21:58:59 +0300
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4] ns83820.c fixes from 2.6
-Content-Type: multipart/mixed;
-	boundary="------------040204050002070203030908"
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Fri, 13 Aug 2004 15:13:04 -0400
+Received: from mail.gmx.net ([213.165.64.20]:20915 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266820AbUHMTJj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 15:09:39 -0400
+X-Authenticated: #12437197
+Date: Fri, 13 Aug 2004 22:09:53 +0300
+From: Dan Aloni <da-x@colinux.org>
+To: Sam Ravnborg <sam@ravnborg.org>, Benno <benjl@cse.unsw.edu.au>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] #2 (Generation of *.s files from *.S files in kbuild)
+Message-ID: <20040813190953.GA14504@callisto.yi.org>
+References: <20040812192535.GA20953@callisto.yi.org> <20040813003743.GF30576@cse.unsw.edu.au> <20040813050424.GA7417@mars.ravnborg.org> <20040813080941.GA7639@callisto.yi.org> <20040813092426.GA27895@callisto.yi.org> <20040813183347.GA9098@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040813183347.GA9098@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040204050002070203030908
-Content-Type: text/plain;
-	charset=ISO-8859-9;
-	format=flowed
-Content-Transfer-Encoding: quoted-printable
+On Fri, Aug 13, 2004 at 08:33:47PM +0200, Sam Ravnborg wrote:
+> On Fri, Aug 13, 2004 at 12:24:26PM +0300, Dan Aloni wrote:
+> > diff -urN linux-2.6.7/scripts/Makefile.build linux-2.6.7-work/scripts/Makefile.build
+> > --- linux-2.6.7/scripts/Makefile.build	2004-08-13 12:18:52.000000000 +0300
+> > +++ linux-2.6.7-work/scripts/Makefile.build	2004-08-13 12:19:00.000000000 +0300
+> > @@ -194,11 +194,11 @@
+> >  $(real-objs-m)      : modkern_aflags := $(AFLAGS_MODULE)
+> >  $(real-objs-m:.o=.s): modkern_aflags := $(AFLAGS_MODULE)
+> >  
+> > -quiet_cmd_as_s_S = CPP $(quiet_modtag) $@
+> > -cmd_as_s_S       = $(CPP) $(a_flags)   -o $@ $< 
+> > +quiet_cmd_as_lds_lds_S = CPP $(quiet_modtag) $@
+> > +cmd_as_lds_lds_S       = $(CPP) $(a_flags)   -o $@ $< 
+> >  
+> > -%.s: %.S FORCE
+> > -	$(call if_changed_dep,as_s_S)
+> > +%.lds: %.lds.S FORCE
+> > +	$(call if_changed_dep,as_lds_lds_S)
+> 
+> 
+> This is not good.
+> The .S -> .s is used for assembly.
 
-ns83820.c warning fix from 2.6
-
-=D6zkan Sezer
-
-
---------------040204050002070203030908
-Content-Type: text/plain;
-	name="ns83820.c-2.6-warning.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="ns83820.c-2.6-warning.diff"
-
---- 27rc5~/drivers/net/ns83820.c	2004-02-18 15:36:31.000000000 +0200
-+++ 27rc5/drivers/net/ns83820.c	2004-08-07 14:09:39.000000000 +0300
-@@ -1585,6 +1585,7 @@
- 	dprintk("%s: done %s in %d loops\n", dev->net_dev.name, name, loops);
- }
+Actually the only rule I saw that is being used for 
+assembly is the .S -> .o rule (examples under 
+arch/i386/kernel).
  
-+#ifdef PHY_CODE_IS_FINISHED
- static void ns83820_mii_write_bit(struct ns83820 *dev, int bit)
- {
- 	/* drive MDC low */
-@@ -1757,6 +1758,7 @@
- 		dprintk("version: 0x%04x 0x%04x\n", a, b);
- 	}
- }
-+#endif
- 
- static int __devinit ns83820_init_one(struct pci_dev *pci_dev, const struct pci_device_id *id)
- {
+> An additional rule is needed:
+> 
+> Something like:
+> quiet_cmd_cpp_lds_S    = LDS    $@
+>       cmd_cpp_lds_S    = $(CPP) $(cpp_flags) -o $@ $<
+> 
+> %.lds: %.lds.S FORCE
+> 	$(call if_changed_dep,cpp_lds_S)
+>
+> Adding a new rule it no longer are acceptable to misuse
+> AFLAGS for this. So you have to add support for a new
+> set of flags.
+> Better name them with CPP so they can be used for other
+> preprocessings tasks later if needed.
+> 
+> So in Makefile.lib you need to add cpp_flags like a_flags
+> but using CPPFLAGS, EXTRA_CPPFLAGS, and CPPFLAGS_@
+> 
+> Try building a clean kernel after implementing this.
 
+Okay, I'll send a patch when it's ready.
 
---------------040204050002070203030908--
+-- 
+Dan Aloni
+da-x@colinux.org

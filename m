@@ -1,82 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269761AbRHDCEK>; Fri, 3 Aug 2001 22:04:10 -0400
+	id <S269763AbRHDCbc>; Fri, 3 Aug 2001 22:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269762AbRHDCD7>; Fri, 3 Aug 2001 22:03:59 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:32171 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S269761AbRHDCDs>; Fri, 3 Aug 2001 22:03:48 -0400
-Message-ID: <3B6B59AF.9826F928@kegel.com>
-Date: Fri, 03 Aug 2001 19:10:55 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Petru Paler <ppetru@ppetru.net>
-CC: Christopher Smith <x@xman.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Zach Brown <zab@zabbo.net>
-Subject: Re: sigopen() vs. /dev/sigtimedwait
-In-Reply-To: <3B6B50C4.D9FBF398@kegel.com> <20010803183853.H1080@ppetru.net>
+	id <S269764AbRHDCbX>; Fri, 3 Aug 2001 22:31:23 -0400
+Received: from weta.f00f.org ([203.167.249.89]:15504 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269763AbRHDCbL>;
+	Fri, 3 Aug 2001 22:31:11 -0400
+Date: Sat, 4 Aug 2001 14:31:55 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+Cc: Mark Atwood <mra@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+Message-ID: <20010804143155.G18108@weta.f00f.org>
+In-Reply-To: <m33d78de7d.fsf@flash.localdomain> <20010804132159.F18108@weta.f00f.org> <996888738.24442.1.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <996888738.24442.1.camel@tduffy-lnx.afara.com>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petru Paler wrote:
-> 
-> On Fri, Aug 03, 2001 at 06:32:52PM -0700, Dan Kegel wrote:
-> > So I'm proposing the following user story:
-> >
-> >   // open a fd linked to signal mysignum
-> >   int fd = open("/dev/sigtimedwait", O_RDWR);
-> >   int sigs[1]; sigs[0] = mysignum;
-> >   write(fd, sigs, sizeof(sigs[0]));
-> >
-> >   // memory map a result buffer
-> >   struct siginfo_t *map = mmap(NULL, mapsize, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-> >
-> >   for (;;) {
-> >       // grab recent siginfo_t's
-> >       struct devsiginfo dsi;
-> >       dsi.dsi_nsis = 1000;
-> >       dsi.dsi_sis = NULL;      // NULL means "use map instead of buffer"
-> >       dsi.dsi_timeout = 1;
-> >       int nsis = ioctl(fd, DS_SIGTIMEDWAIT, &dvp);
-> >
-> >       // use 'em.  Some might be completion notifications; some might be readiness notifications.
-> >       for (i=0; i<nsis; i++)
-> >           handle_siginfo(map+i);
-> >   }
-> 
-> And the advantage of this over /dev/epoll would be that you don't have to
-> explicitly add/remove fd's?
+On Fri, Aug 03, 2001 at 06:32:18PM -0700, Thomas Duffy wrote:
 
-The advantage is that it can be used to collect
-completion notifications for aio.  (It can also be
-used to collect readiness notification via either
-linux's traditional rtsig stuff, or the signal-per-fd stuff,
-so this unifies readiness notification and completion notification,
-in case you happen to want to use both in the same thread.)
- 
-> I ask because yesterday I used /dev/epoll in a project and it behaves *very*
-> well, so I'm wondering what advantages your interface would bring.
+    so, what happens when you have two eth cards that use the same module?
+    in the isa land, the order you pass the io=0x300,0x240 would determine
+    which order the eth?'s go to...how about in the pci world?
 
-I am a huge fan of /dev/epoll and would like to see it integrated
-into the ac series.  /dev/epoll doesn't address the needs of those
-who are doing aio, though.
- 
-> How do you handle signal queue overflow? signal-per-fd helps, but you still
-> have to have the queue as big as the maximum number of fds is...
+when the pci module loads, it find all devices and registers them
 
-I am not addressing that issue.  However, when doing aio, the
-application can simply avoid issuing more than N I/O operations,
-where N is comfortably lower than the current size of the signal queue.
 
-When I get around to reading the kernel source finally, maybe I'll
-have a look at what the costs of large signal queues are.
 
-- Dan
-
--- 
-"I have seen the future, and it licks itself clean." -- Bucky Katt
+  --cw

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269639AbTGUKrt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 06:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269641AbTGUKrt
+	id S269650AbTGUK61 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 06:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269659AbTGUK60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 06:47:49 -0400
-Received: from pd146.bielsko.sdi.tpnet.pl ([217.96.247.146]:4115 "EHLO
-	aquila.wombb.edu.pl") by vger.kernel.org with ESMTP id S269639AbTGUKrs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 06:47:48 -0400
-Date: Mon, 21 Jul 2003 13:02:47 +0200
-From: =?ISO-8859-2?B?UHJ6ZW15c7NhdyBTdGFuaXOzYXc=?= Knycz 
-	<zolw@wombb.edu.pl>
-To: Bruce Harada <bharada@coral.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem linux-2.6.0-test1 on alpha
-Message-Id: <20030721130247.2d0a6ae3.zolw@wombb.edu.pl>
-In-Reply-To: <20030721185759.1d8da19f.bharada@coral.ocn.ne.jp>
-References: <vines.sxdD+Gjg4zA@SZKOM.BFS.DE>
-	<20030721110934.0aa1aaeb.zolw@wombb.edu.pl>
-	<20030721185759.1d8da19f.bharada@coral.ocn.ne.jp>
-Organization: RODN "WOM" =?ISO-8859-2?B?QmllbHNrby1CaWGzYQ==?=
-X-Mailer: Sylpheed version 0.8.2claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Mon, 21 Jul 2003 06:58:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:48092 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S269650AbTGUK6Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 06:58:25 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: azarah@gentoo.org
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: KML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: devfsd/2.6.0-test1 
+In-reply-to: Your message of "21 Jul 2003 00:48:56 +0200."
+             <1058741336.19817.147.camel@nosferatu.lan> 
+Date: Mon, 21 Jul 2003 21:09:24 +1000
+Message-Id: <20030721111327.DFC682C21F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Mon, 21 Jul 2003 18:57:59 +0900
-Bruce Harada <bharada@coral.ocn.ne.jp> naszkroba³:
+In message <1058741336.19817.147.camel@nosferatu.lan> you write:
+> > modprobe.conf syntax is easy to implement but unfortunately PITA
+> > to use.  Exactly probe and probeall have been very helful in
+> > tracking module dependencies. Now you have arbitrary shell line
+> > that is near to impossible to parse in general.
 
-> Just as a matter of interest, what distribution are you running on
-> that?
+Sure.  But probe and probeall isn't enough.  You'll also want
+conditionals in the parsing of the config file, so you can do
+different things on different architectures or different kernel
+levels.  You're going to lose, here, if you try to be general 8(
 
-PLD Linux Distribution (it's listed at alphalinux.org page) - test
-version. It haven't installer yet ;)
+We already have one hook to do arbitrary things, and I think it's
+quite neat:
 
--- 
-.----[ a d m i n at w o m b b dot e d u dot p l ]----.
-| Przemys³aw Stanis³aw Knycz,  djrzulf@jabber.gda.pl |
-| Net/Sys Administrator, PLD Developer,  RLU: 213344 |
-`------ "Linux - the choice of GNU generation" ------'
+	# Sound is complex.
+	install sound-slot-0 /sbin/configure-sound
+
+Now, if you want to implement a meta-language that does all this,
+great!  But I'm resisting new features in the base, because I have to
+support them, and I'm incredibly lazy.
+
+Modules already have their own hard and soft dependencies.  If you
+have an incredibly complex modprobe.conf, it's worth asking whether
+the correct solution is to make modprobe.conf's syntax more powerful,
+or look at making a more fundamental change...
+
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

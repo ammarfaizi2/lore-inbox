@@ -1,84 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269239AbUINJix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269238AbUINJna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269239AbUINJix (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 05:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269090AbUINJix
+	id S269238AbUINJna (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 05:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269090AbUINJna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 05:38:53 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:15808 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269240AbUINJh4 (ORCPT
+	Tue, 14 Sep 2004 05:43:30 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:49795 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S269242AbUINJkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 05:37:56 -0400
-Date: Tue, 14 Sep 2004 11:38:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] preempt-lock-need-resched.patch, 2.6.9-rc2
-Message-ID: <20040914093855.GA23258@elte.hu>
-References: <20040914091529.GA21553@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="0OAP2g/MAC+5xKAE"
-Content-Disposition: inline
-In-Reply-To: <20040914091529.GA21553@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 14 Sep 2004 05:40:52 -0400
+Date: Tue, 14 Sep 2004 11:40:31 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org, pj@sgi.com,
+       reiser@namesys.com, wli@holomorphy.com, zam@namesys.com
+Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined   
+ atomic_sub_and_test
+In-Reply-To: <OF6D4E73AE.1DB1AD2F-ON42256F0F.003132FF-42256F0F.00321365@de.ibm.com>
+Message-ID: <Pine.LNX.4.61.0409141128590.877@scrub.home>
+References: <OF6D4E73AE.1DB1AD2F-ON42256F0F.003132FF-42256F0F.00321365@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Tue, 14 Sep 2004, Martin Schwidefsky wrote:
 
+> > On some archs atomic_sub_return is more complex than atomic_sub_and_test
+> > and there it does make a difference.
+> 
+> Well even if you can save lets say 10 cycles for the atomic_sub_return
+> primitive you still won't notice any difference. The code in question
+> is part of the end i/o function.
 
-the attached preempt-lock-need-resched.patch is ontop of the preempt-smp
-and preempt-cleanups patches. It adds lock_need_resched() which is to
-check for the necessity of lock-break in a critical section. Used by
-later latency-break patches.
+It's not just about this particular piece of code, if we introduce this as 
+official API, people will start using it and in some cases it might 
+matter. atomic_dec_and_test() can also be implemented using 
+atomic_sub_return(), but I doubt you want to replace or deprecate it.
 
-tested on x86, should work on all architectures.
-
-	Ingo
-
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="preempt-lock-need-resched.patch"
-
-
-the attached preempt-lock-need-resched.patch is ontop of the preempt-smp
-and preempt-cleanups patches. It adds lock_need_resched() which is to
-check for the necessity of lock-break in a critical section. Used by
-later latency-break patches.
-
-tested on x86, should work on all architectures.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/include/linux/sched.h.orig	
-+++ linux/include/linux/sched.h	
-@@ -969,6 +972,17 @@ extern int cond_resched_lock(spinlock_t 
- # define need_lockbreak(lock) 0
- #endif
- 
-+/*
-+ * Does a critical section need to be broken due to another
-+ * task waiting or preemption being signalled:
-+ */
-+static inline int lock_need_resched(spinlock_t *lock)
-+{
-+	if (need_lockbreak(lock) || need_resched())
-+		return 1;
-+	return 0;
-+}
-+
- /* Reevaluate whether the task has signals pending delivery.
-    This is required every time the blocked sigset_t changes.
-    callers must hold sighand->siglock.  */
-
---0OAP2g/MAC+5xKAE--
+bye, Roman

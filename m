@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262118AbREPXDN>; Wed, 16 May 2001 19:03:13 -0400
+	id <S262120AbREPXEW>; Wed, 16 May 2001 19:04:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262120AbREPXDD>; Wed, 16 May 2001 19:03:03 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41746 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262118AbREPXCx>; Wed, 16 May 2001 19:02:53 -0400
-Date: Wed, 16 May 2001 20:02:06 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: virii <virii@gcecisp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: cmpci sound chip lockup 
-In-Reply-To: <3B02FE4D.2F7A8E8F@gcecisp.com>
-Message-ID: <Pine.LNX.4.33.0105162000420.5251-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0105162000422.5251@duckman.distro.conectiva>
+	id <S262122AbREPXEM>; Wed, 16 May 2001 19:04:12 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22688 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262120AbREPXD6>; Wed, 16 May 2001 19:03:58 -0400
+Date: Wed, 16 May 2001 17:03:49 -0600
+Message-Id: <200105162303.f4GN3n212178@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <3B02FBA6.86969BDE@transmeta.com>
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
+	<200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
+	<3B02D6AB.E381D317@transmeta.com>
+	<200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca>
+	<3B02DD79.7B840A5B@transmeta.com>
+	<200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
+	<3B02F2EC.F189923@transmeta.com>
+	<20010517001155.H806@nightmaster.csn.tu-chemnitz.de>
+	<3B02FBA6.86969BDE@transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 May 2001, virii wrote:
+H. Peter Anvin writes:
+> Ingo Oeser wrote:
+> > 
+> > We do this already with ide-scsi. A device is visible as /dev/hda
+> > and /dev/sda at the same time. Or think IDE-CDRW: /dev/hda,
+> > /dev/sr0 and /dev/sg0.
+> > 
+> > All at the same time.
+> > 
+> 
+> ... and if you don't know about this funny aliasing, you get screwed. 
+> This is BAD DESIGN, once again.
 
-> The attatched file is the format for reporting bugs.
+We have this aliasing anyway. sg and sr are just one example. If you
+care about conflicts, then make sure the drivers lock each other out.
+It's got nothing to do with the mechanism to find out whether
+something can behave like a CD-ROM or not.
 
-Too bad my mailreader doesn't quote that thing .. oh well, lets
-just replace your bugreport with mine ;)
+> > Sorry, I don't see your point here :-(
+> 
+> That seems to be a common theme with you.
 
-I'm seeing a similar thing on 2.4.4-pre[23], but in a far less
-serious way. Using xmms the music stops after anything between
-a few seconds and a minute, I suspect a race condition somewhere.
+C'mon, Peter. No need for that.
 
-Using mpg123 everything works fine...
+				Regards,
 
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbTCCQHf>; Mon, 3 Mar 2003 11:07:35 -0500
+	id <S266257AbTCCP57>; Mon, 3 Mar 2003 10:57:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266434AbTCCQHf>; Mon, 3 Mar 2003 11:07:35 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:526 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S266379AbTCCQHe> convert rfc822-to-8bit; Mon, 3 Mar 2003 11:07:34 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	id <S266367AbTCCP57>; Mon, 3 Mar 2003 10:57:59 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:8664 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266257AbTCCP56>; Mon, 3 Mar 2003 10:57:58 -0500
+Date: Mon, 03 Mar 2003 08:08:25 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: Dmesg: Use a PAE enabled kernel
+Message-ID: <26670000.1046707704@[10.10.2.4]>
+In-Reply-To: <3E63736F.6090000@walrond.org>
+References: <3E63736F.6090000@walrond.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] cciss: add passthrough ioctl
-Date: Mon, 3 Mar 2003 10:17:55 -0600
-Message-ID: <45B36A38D959B44CB032DA427A6E10640451336D@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] cciss: add passthrough ioctl
-Thread-Index: AcLhmVuLQaJipK7gSJKvr5NQ4w33iQAACvjg
-From: "Cameron, Steve" <Steve.Cameron@hp.com>
-To: "Arjan van de Ven" <arjanv@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Mar 2003 16:17:56.0365 (UTC) FILETIME=[7334C3D0:01C2E1A0]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
-> On Mon, Mar 03, 2003 at 09:26:40AM +0600, Stephen Cameron wrote:
-> > Because, in order to flash the array controller firmware,
-> > it's got to be done that way...
+> During bootup I see
 > 
-> I don't buy this. Sorry. What's against creating a device for this
-> controller itself ? 
-> (And yes, the kernel could use a formal ioctl number for "upgrade firmware") 
+>    Warning only 4GB will be used.
+>    Use a PAE enabled kernel.
+> 
+> But I only have 4Gb installed, so is this message wrong?
 
-Arg.  Now I wish I didn't already port that code to 10 distributions.
-Please shoot me.
+Publish the dump of the e820 map you get at the start of boot.
+You'll probably find that the 4Gb of RAM is spread over a range of
+physical addresses > 4Gb in size (for a start, there's a PCI window
+from 3.75 to 4 Gb). If there's no other bigger holes, probably it's
+faster if you just let it waste that 256Mb.
 
-How do you want it done?
+M.
 
--- steve

@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261281AbSJNNK1>; Mon, 14 Oct 2002 09:10:27 -0400
+	id <S261427AbSJNNOD>; Mon, 14 Oct 2002 09:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261301AbSJNNK1>; Mon, 14 Oct 2002 09:10:27 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:20750 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S261281AbSJNNK0>; Mon, 14 Oct 2002 09:10:26 -0400
-Date: Mon, 14 Oct 2002 23:16:05 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Bernd Jendrissek <berndj@prism.co.za>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What is "recvmsg bug: copied 870A11AD seq 0"?  (2.2.19)
-In-Reply-To: <20021014115341.A22933@prism.co.za>
-Message-ID: <Mutt.LNX.4.44.0210142313470.21746-100000@blackbird.intercode.com.au>
+	id <S261552AbSJNNOD>; Mon, 14 Oct 2002 09:14:03 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:44562 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S261427AbSJNNOC>;
+	Mon, 14 Oct 2002 09:14:02 -0400
+Message-ID: <3DAAC457.3040402@domdv.de>
+Date: Mon, 14 Oct 2002 15:19:19 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Theewara Vorakosit <g4465018@pirun.ku.ac.th>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: NFS root on 2.4.18-14
+References: <Pine.GSO.4.44.0210142012520.5993-100000@pirun.ku.ac.th>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------030903080205000602040205"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002, Bernd Jendrissek wrote:
+This is a multi-part message in MIME format.
+--------------030903080205000602040205
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Hello all
-> 
-> What does it mean if the last 9 items in dmesg from a 2.2.19 kernel say
-> "recvmsg bug: copied 870A11AD seq 0"?  Same sequence number each time.
-> 
-> A kernel (known) bug?  Some bogus TCP segments?
-
-It's been reported a few times, but I'm not sure if it's been resolved.
-
-Can you please post the version of the compiler which compiled the kernel, 
-what kind of hardware you're running on, and if it's a stock kernel or has 
-vendor/other patches applied.
-
-
-- James
+Theewara Vorakosit wrote:
+> Dear All,
+>     I use Red Hat 8.0 and kernel 2.4.18-14, which come from redhat
+> distribution. I want create a NFS-root kernel to build a diskless linux
+> using NFS root. I select "IP kernel level configuration-> BOOTP, DHCP",
+> NFS root support. I boot client using my kernel, it does not requrest for
+> an IP address. It try to mount NFS root immediately. Do I forget
+> something?
+If you try to boot from a floppy that was created like "dd if=vmlinuz 
+of=/dev/fd0" you will need the attached patch. Alan Cox however told me 
+that the ability to boot without boot manager (e.g. lilo) will 
+eventually go away.
 -- 
-James Morris
-<jmorris@intercode.com.au>
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
 
+--------------030903080205000602040205
+Content-Type: text/plain;
+ name="ip.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ip.patch"
+
+diff -rNu linux/net/ipv4/ipconfig.c linux-custom/net/ipv4/ipconfig.c
+--- linux/net/ipv4/ipconfig.c	2002-09-27 14:05:32.000000000 +0200
++++ linux-custom/net/ipv4/ipconfig.c	2002-09-27 14:57:01.000000000 +0200
+@@ -107,7 +107,7 @@
+  */
+ int ic_set_manually __initdata = 0;		/* IPconfig parameters set manually */
+ 
+-int ic_enable __initdata = 0;			/* IP config enabled? */
++int ic_enable __initdata = 1;			/* IP config enabled? */
+ 
+ /* Protocol choice */
+ int ic_proto_enabled __initdata = 0
+
+--------------030903080205000602040205--
 

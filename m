@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272385AbTGaFEV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 01:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272392AbTGaFEV
+	id S272390AbTGaFEY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 01:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272392AbTGaFEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 31 Jul 2003 01:04:24 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:62378 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S272390AbTGaFEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 31 Jul 2003 01:04:21 -0400
-Received: from e166066.upc-e.chello.nl ([213.93.166.66]:21162 "EHLO
-	hypnos.var.cx") by vger.kernel.org with ESMTP id S272385AbTGaFEU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 01:04:20 -0400
-Date: Thu, 31 Jul 2003 07:04:17 +0200
-From: Frank v Waveren <fvw@var.cx>
-To: James Morris <jmorris@intercode.com.au>
-Cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl,
-       linux-crypto@nl.linux.org
-Subject: Re: 2.6.0-test2+Util-linux/cryptoapi
-Message-ID: <1059627605AME.fvw@tracks.var.cx>
-References: <1059621603HIC.fvw@tracks.var.cx> <Mutt.LNX.4.44.0307311420080.21102-100000@excalibur.intercode.com.au>
-Mime-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bernardo Innocenti <bernie@develer.com>,
+       Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@lst.de>,
+       uClinux development list <uclinux-dev@uclinux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6 size increase
+References: <200307232046.46990.bernie@develer.com>
+	<200307240007.15377.bernie@develer.com>
+	<20030723222747.GF643@alpha.home.local>
+	<200307242227.16439.bernie@develer.com>
+	<20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net>
+	<1059518889.6838.19.camel@dhcp22.swansea.linux.org.uk>
+	<20030729230657.GL16051@ip68-0-152-218.tc.ph.cox.net>
+	<buoptjsepib.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<20030730153311.GA27214@ip68-0-152-218.tc.ph.cox.net>
+	<buoel07tqi5.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<20030731041743.GD27214@ip68-0-152-218.tc.ph.cox.net>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 31 Jul 2003 14:03:34 +0900
+In-Reply-To: <20030731041743.GD27214@ip68-0-152-218.tc.ph.cox.net>
+Message-ID: <buo1xw7thi1.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Mutt.LNX.4.44.0307311420080.21102-100000@excalibur.intercode.com.au>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 02:39:45PM +1000, James Morris wrote:
-> > Moving to the slightly more ontopic stuff for lk@vger: Is access to
-> > the cryptoapi algorithms exposed to userspace yet?
-> No, there is no point (apart from testing) unless the kernel API is 
-> providing access to crypto hardware.
-Even if we don't have the drivers yet, the sooner it's available and
-in use the better, then we can always drop in hardware support later.
-(Still, I'm not volunteering for either job so I won't complain, just
-wondering if it had been done)
+Tom Rini <trini@kernel.crashing.org> writes:
+> > The point was that in _some_ embedded systems, the space-savings is
+> > wanted, and so a useful thing for linux to support.
+> 
+> As has been pointed out, there's things like the block layer that aren't
+> needed if you have just a subset of common embedded-device filesystems and
+> some network stuff seems to have creeped back in.  All I'm trying to say
+> is that before you go too far down the CONFIG_SYSFS route, investigate the
+> others first as there's a fair chance of saving even more.
 
-> > Thirdly, has the encryption setup changed again since 2.4.x with hvr's
-> > testing cryptoapi stuff? I have a filesystem encrypted with 256 bits
-> > serpent, yet it won't decrypt using 2.6.0-test2 and util-linux 2.12.
-> The kerneli serpent implementation is incorrect (it's reversed, a common
-> implementation problem with this algorithm).
-Owch. But I assume this didn't sneak in since the testing cryptoAPI
-patches? Or have the algorithms been redone?
+I'm not really trying to defend this particular config option, just
+saying that the attitude of `why bother trying to cut down, it's more
+featureful to include everything!' is not always valid.
 
-> > Lastly: Why the move from a /proc/crypto directory containing files
-> > for all the algorithms to one monolithic /proc/crypto file? Isn't the
-> > former a lot nicer from the userspace programmer's point of view?
-> Possibly, although it's probably too late to change now for 2.6.
-But why was it ever changed to on big file in the first place?
+You may very well be right that other subsystems offer better
+gain/pain, and I'm all for attacking the low-hanging-fruit first.
 
+> To what end?  One of the things we (== PPC folks) at OLS was that, wow,
+> doing PM as some sort of one-off sucks, and if at all possible we want
+> to get device information (and pm dependancies) passed in so we can tell
+> sysfs and get any shared driver done right for free, among other
+> reasons.
+
+[What's PM?  Power Management?  What does that have to do with anything?]
+
+-Miles
 -- 
-Frank v Waveren                                      Fingerprint: 21A7 C7F3
-fvw@[var.cx|stack.nl|chello.nl] ICQ#10074100            1FF3 47FF 545C CB53
-Public key: hkp://wwwkeys.pgp.net/fvw@var.cx            7BD9 09C0 3AC1 6DF2
+Would you like fries with that?

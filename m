@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTJAFAy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 01:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbTJAFAy
+	id S261932AbTJAFKS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 01:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTJAFKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 01:00:54 -0400
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:33441
-	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with SMTP id S261893AbTJAFAx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 01:00:53 -0400
-Message-ID: <3F7A5F84.6010807@tupshin.com>
-Date: Tue, 30 Sep 2003 22:00:52 -0700
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6a) Gecko/20030924
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kartikey bhatt <kartik_me@hotmail.com>
-CC: paul@clubi.ie, linux-kernel@vger.kernel.org
-Subject: Re: Can't X be elemenated?
-References: <Law11-F67ATnLE7P95L00001388@hotmail.com>
-In-Reply-To: <Law11-F67ATnLE7P95L00001388@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Oct 2003 01:10:17 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:29921 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id S261932AbTJAFKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 01:10:13 -0400
+Date: Wed, 1 Oct 2003 01:10:08 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test6 scheduling(?) oddness
+Message-ID: <20031001051008.GD1416@Master>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031001032238.GB1416@Master> <20030930215512.1df59be3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930215512.1df59be3.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kartikey bhatt wrote:
+On Tue, Sep 30, 2003 at 09:55:12PM -0700, Andrew Morton wrote:
+> "Murray J. Root" <murrayr@brain.org> wrote:
+> >
+> > The render finishes in the same 30 minutes, then oowriter starts.
+> >  oowriter takes about 3 seconds to load if no rendering is going on.
+> 
+> OpenOffice uses sched_yield() in strange ways which causes it to
+> get hopelessly starved on 2.6 kernels.  I think RH have a fixed version,
+> but I don't know if that has propagated into the upstream yet.
+> 
+> So...  Don't worry about OpenOffice too much.  Is the problem reproducible
+> with other applications?
 
-> hey everyone who have joined this thread, my fundamental question have 
-> got
-> out of scope. I mean to say
->
-> 1. Kernel level support for graphics device drivers.
+Nope - even tried it with KDE apps.
+Write it off to OpenOffice, not test6.
 
-Done
+That doesn't explain the major time increase of the render, though.
+200% for 2.5.65 vs 2.6.0-test6 or 150% for 2.6.0-test5 vs 2.6.0-test6 is a 
+bit extreme.
 
-> 2. On top of that, one can develop complete lightweight GUI.
-
-Not relevant to this list
-
-> 3. Maybe kernel can provide support for event handling.
-
-Why?
-
--Tupshin
+-- 
+Murray J. Root
 

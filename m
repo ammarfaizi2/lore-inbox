@@ -1,70 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318341AbSGYFyn>; Thu, 25 Jul 2002 01:54:43 -0400
+	id <S318342AbSGYF6M>; Thu, 25 Jul 2002 01:58:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318342AbSGYFyn>; Thu, 25 Jul 2002 01:54:43 -0400
-Received: from mortar.viawest.net ([216.87.64.7]:18113 "EHLO
-	mortar.viawest.net") by vger.kernel.org with ESMTP
-	id <S318341AbSGYFym>; Thu, 25 Jul 2002 01:54:42 -0400
-Date: Wed, 24 Jul 2002 22:57:51 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.28: aty128fb.c:1752: incompatible type
-Message-ID: <20020725055751.GA5875@wizard.com>
+	id <S318343AbSGYF6M>; Thu, 25 Jul 2002 01:58:12 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:40200 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318342AbSGYF6L>;
+	Thu, 25 Jul 2002 01:58:11 -0400
+Date: Wed, 24 Jul 2002 23:01:06 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810_audio.c cli/sti fix
+Message-ID: <20020725060106.GA13691@kroah.com>
+References: <20020725003735.GA12682@kroah.com> <Pine.LNX.4.44.0207241815120.4293-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207241815120.4293-100000@home.transmeta.com>
 User-Agent: Mutt/1.4i
-X-Operating-System: Linux/2.5.25 (i686)
-X-uptime: 10:50pm  up 3 days,  5:46,  2 users,  load average: 1.57, 1.04, 0.53
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 27 Jun 2002 04:48:34 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 24, 2002 at 06:17:17PM -0700, Linus Torvalds wrote:
+> > @@ -2814,15 +2814,15 @@
+> >  		}
+> >  		dmabuf->count = dmabuf->dmasize;
+> >  		outb(31,card->iobase+dmabuf->write_channel->port+OFF_LVI);
+> > -		save_flags(flags);
+> > -		cli();
+> > +		local_irq_save(flags);
+> > +		local_irq_disable();
+> 
+> First off, "local_irq_save()" does both the save and the disable (the same
+> way "spin_lock_irqsave()" does), it's the "local_save_flags(") that is
+> equivalent to the old plain save_flags. So this should just be
+> 
+> 	local_irq_save(flags);
 
-        Roll of 2.5.28:
+Ah, sorry, I didn't get that from cli-sti-removal.txt.  Actually it
+looks like cli-sti-removal.txt is a bit wrong, as there is no
+local_irq_save_off() function.  I'll send a patch for that next.
 
-  gcc -Wp,-MD,./.aty128fb.o.d -D__KERNEL__ -I/usr/src/linux-2.5.25/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -g -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -malign-functions=4  -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=aty128fb   -c -o aty128fb.o aty128fb.c
-aty128fb.c: In function `aty128fb_set_var':
-aty128fb.c:1406: warning: implicit declaration of function `do_install_cmap'
-aty128fb.c: In function `aty128_init':
-aty128fb.c:1752: incompatible type for argument 1 of `fb_alloc_cmap'
-make[2]: *** [aty128fb.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.25/drivers/video'
-make[1]: *** [video] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.25/drivers'
-make: *** [drivers] Error 2
+> However, I also wonder if the code doesn't want any SMP locking? Is it ok
+> to just make it a non-spinlock local interrupt disable, and if so, why?
 
-        I can live with 1406. it'll get cleaned up towards code freeze time. 
-1752 is:
+This is _only_ a guess, as I do not know this hardware or driver at all,
+but this function is only called at device init time (from the PCI probe
+function), so I don't think anything else is going on in the driver at
+the same time to warrent SMP locking.  It also looks like this is done
+to determine the "clocking" of the device, so interrupts need to be off
+for the CPU doing the determination.
 
-fb_alloc_cmap(info->fb_info.cmap, size, 0);
+But again, this is only a guess from glancing at the code for a very
+short time, and I should probably start using the ALSA version of this
+driver anyway :)
 
-        Commenting this out resolves the compilation issue, but I don't think 
-is the right solution.
+Here's a patch with the extra local_irq_disable() call removed.
 
-CONFIG_FB_ATY=y
-CONFIG_FB_ATY_CT=y
-CONFIG_FB_RADEON=y
-CONFIG_FB_ATY128=y
-CONFIG_FBCON_ADVANCED=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
+thanks,
 
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+greg k-h
 
+
+diff -Nru a/sound/oss/i810_audio.c b/sound/oss/i810_audio.c
+--- a/sound/oss/i810_audio.c	Wed Jul 24 23:08:21 2002
++++ b/sound/oss/i810_audio.c	Wed Jul 24 23:08:21 2002
+@@ -1733,7 +1733,7 @@
+ 		}
+ 
+ 		spin_unlock_irqrestore(&state->card->lock, flags);
+-		synchronize_irq();
++		synchronize_irq(state->card->irq);
+ 		dmabuf->ready = 0;
+ 		dmabuf->swptr = dmabuf->hwptr = 0;
+ 		dmabuf->count = dmabuf->total_bytes = 0;
+@@ -2814,15 +2814,14 @@
+ 		}
+ 		dmabuf->count = dmabuf->dmasize;
+ 		outb(31,card->iobase+dmabuf->write_channel->port+OFF_LVI);
+-		save_flags(flags);
+-		cli();
++		local_irq_save(flags);
+ 		start_dac(state);
+ 		offset = i810_get_dma_addr(state, 0);
+ 		mdelay(50);
+ 		new_offset = i810_get_dma_addr(state, 0);
+ 		stop_dac(state);
+ 		outb(2,card->iobase+dmabuf->write_channel->port+OFF_CR);
+-		restore_flags(flags);
++		local_irq_restore(flags);
+ 		i = new_offset - offset;
+ #ifdef DEBUG
+ 		printk("i810_audio: %d bytes in 50 milliseconds\n", i);

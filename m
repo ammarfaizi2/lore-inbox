@@ -1,57 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263918AbTGFWMF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 18:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTGFWMF
+	id S263930AbTGFWWU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 18:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbTGFWWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 18:12:05 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:504 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263918AbTGFWMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 18:12:03 -0400
-Subject: Re: C99 types VS Linus types
-From: Albert Cahalan <albert@users.sf.net>
-To: bernie@develer.com, vojtech@suse.cz,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057529906.749.41.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 Jul 2003 18:18:26 -0400
+	Sun, 6 Jul 2003 18:22:20 -0400
+Received: from lns-th2-5f-81-56-227-145.adsl.proxad.net ([81.56.227.145]:39809
+	"EHLO smtp.ced-2.eu.org") by vger.kernel.org with ESMTP
+	id S263930AbTGFWWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 18:22:18 -0400
+Message-ID: <3F08A47F.1060902@ifrance.com>
+Date: Mon, 07 Jul 2003 00:36:47 +0200
+From: ced2 <ced2ml@ifrance.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20030624
+X-Accept-Language: fr-fr, fr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.21-ac4] Compile Error
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik writes:
-> On Sun, Jul 06, 2003 at 07:37:26PM +0200, Bernardo Innocenti wrote:
->> On Sunday 06 July 2003 14:23, Philippe Elie wrote:
+Compiling with gcc 3.2.2 :
 
->>> alpha user space .h define uint64_t as unsigned long,
->>> include/asm-alpha/types.h defines it as unsigned long long.
->>
->> Why is that? Isn't uint64_t supposed to be _always_ a 64bit
->> unsigned integer? Either the kernel or the user space might
->> be doing the wrong thing...
->>
->>  I've Cc'd the Alpha mantainer to make him aware of this
->> problem.
->
-> I suppose both an 'unsigned long' and 'unsigned long long'
-> are 64-bit entities on the Alpha (which is a 64-bit
-> architecture).
-
-Sure, both are "correct", but there would be a lot less
-pain and suffering in the world if "unsigned long long"
-would be used for 64-bit. It ought to be at least 40 years
-before 128-bit types begin to matter. In the Linux world,
-we can consider "long long" to be 64-bit, "int" to be
-32-bit, and "long" to be the same size as a pointer.
-
-Then we can ditch the nasty casts:
-sprintf(foo, "%llu", (unsigned long long)bar);
-
-This leaves only Win64, Win16, DOS, and ELKS out in
-the cold. Like we should care for kernel & glibc!
-
+In file included from poly_atan.c:19:
+poly.h: In function `add_Xsig_Xsig':
+poly.h:78: parse error before "movl"
+poly.h:78: `addl' undeclared (first use in this function)
+poly.h:78: (Each undeclared identifier is reported only once
+poly.h:78: for each function it appears in.)
+poly.h:78: parse error before '%' token
+poly.h:78: `adcl' undeclared (first use in this function)
+poly.h:78: parse error before '%' token
+In file included from poly_atan.c:19:
+poly.h:81:59: warning: multi-line string literals are deprecated
+poly.h:78: `g' undeclared (first use in this function)
+poly.h:78: parse error before string constant
+poly.h:82:46: warning: multi-line string literals are deprecated
+poly.h:83:32: warning: multi-line string literals are deprecated
+poly.h:78: `movl' undeclared (first use in this function)
+poly.h:78: parse error before '%' token
+poly.h:94: `movl' used prior to declaration
+poly.h:94: warning: implicit declaration of function `movl'
+poly.h:94: parse error before '%' token
+poly.h:94: parse error before '%' token
+poly.h:95: parse error before '%' token
+poly.h:96: parse error before '%' token
+poly.h:97: invalid suffix on integer constant
+poly.h:97: `jnc' undeclared (first use in this function)
+poly.h:98: `rcrl' undeclared (first use in this function)
+poly.h:98: `rcrl' used prior to declaration
+poly.h:98: warning: implicit declaration of function `rcrl'
+poly.h:98: parse error before '%' token
+poly.h:99: warning: implicit declaration of function `incl'
+poly.h:99: parse error before '%' token
+poly.h:100: invalid suffix on integer constant
+poly.h:100: `jmp' undeclared (first use in this function)
+poly.h:102:20: warning: multi-line string literals are deprecated
+poly.h:103:20: warning: multi-line string literals are deprecated
+poly.h:104:28: warning: multi-line string literals are deprecated
+poly.h:105:17: warning: multi-line string literals are deprecated
+poly.h:110:58: warning: multi-line string literals are deprecated
+poly.h:113:32: warning: multi-line string literals are deprecated
+poly.h:114:35: warning: multi-line string literals are deprecated
+poly.h:102: warning: implicit declaration of function `subl'
+poly.h:102: parse error before '%' token
+poly.h:102: parse error before '%' token
+poly.h:115:75: warning: multi-line string literals are deprecated
+poly.h:102: `sbbl' undeclared (first use in this function)
+poly.h:102: parse error before '%' token
+poly.h:116:77: warning: multi-line string literals are deprecated
+poly.h:102: parse error before '%' token
+poly.h:117:77: warning: multi-line string literals are deprecated
+poly.h:102: parse error before string constant
+poly.h:118:48: warning: multi-line string literals are deprecated
+poly.h:118:48: missing terminating " character
+poly.h:81:59: possible start of unterminated string literal
+poly.h:15:1: unterminated #ifndef
+poly_atan.c: In function `poly_atan':
+poly_atan.c:137: warning: implicit declaration of function `negate_Xsig'
+poly_atan.c:174: `oddnegterms' undeclared (first use in this function)
+poly_atan.c:176: warning: implicit declaration of function `add_two_Xsig'
+poly_atan.c: In function `add_Xsig_Xsig':
+poly_atan.c:230: parse error at end of input
+gmake[2]: *** [poly_atan.o] Error 1
+gmake[2]: Leaving directory `/usr/src/linux-2.4.21-ac4/arch/i386/math-emu'
+gmake[1]: *** [first_rule] Error 2
+gmake[1]: Leaving directory `/usr/src/linux-2.4.21-ac4/arch/i386/math-emu'
+gmake: *** [_dir_arch/i386/math-emu] Error 2
 

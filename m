@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317189AbSFWXVD>; Sun, 23 Jun 2002 19:21:03 -0400
+	id <S317193AbSFWX5U>; Sun, 23 Jun 2002 19:57:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317192AbSFWXVC>; Sun, 23 Jun 2002 19:21:02 -0400
-Received: from adsl-64-166-85-224.dsl.sntc01.pacbell.net ([64.166.85.224]:28420
-	"EHLO mastika.lnxw.com") by vger.kernel.org with ESMTP
-	id <S317189AbSFWXVC>; Sun, 23 Jun 2002 19:21:02 -0400
-Date: Sun, 23 Jun 2002 16:19:27 -0700 (PDT)
-From: Petko Manolov <petkan@lnxw.com>
-To: Rudmer van Dijk <rvandijk@science.uva.nl>
-cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild fixes and more
-In-Reply-To: <20020623201514Z317110-22020+9309@vger.kernel.org>
-Message-ID: <Pine.LNX.4.44.0206231610370.575-100000@mastika.lnxw.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317194AbSFWX5Q>; Sun, 23 Jun 2002 19:57:16 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:37386 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S317193AbSFWX5P>; Sun, 23 Jun 2002 19:57:15 -0400
+Subject: PATCH] linux-2.5.24 - LDM (Dynamic Disks)
+From: Richard Russon <ldm@flatcap.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7.99 
+Date: 24 Jun 2002 00:57:15 +0100
+Message-Id: <1024876637.20371.37.camel@whiskey.something.uk.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jun 2002, Rudmer van Dijk wrote:
+Hi Linus,
 
-> On Sunday 23 June 2002 20:39, Kai Germaschewski wrote:
-> >
-> > bk pull http://linux-isdn.bkbits.net/linux-2.5.make
-[snip]
-> patching it against 2.5.24 (starting from 2.5.13 and patched up to) gives the
-> same failed hunk as with 2.5.24-dj1
+[copy sent to Linus with inline patch]
 
-Applies cleanly against latest Linus' BK release.  And this time i
-finally got 2.5.24 to compile.  Haven't given it a try yet though, but it
-looks much better than the vanilla 2.5.24...
+Please can you apply the following patch to 2.5.24.
+
+It's a complete rewrite of the LDM driver (support for Windows Dynamic
+Disks).  Below is a one line summary, a full description and the patch.
 
 
-		Petko
+LDM Driver rewritten.  More efficient.  Much smaller memory footprint.
+
+
+The old driver was little more than a stopgap.
+The new driver is a complete rewrite
+based on a much better understanding of the database
+based on much more reverse engineering
+more able to spot errors and inconsistancies
+it has a much smaller memory footprint
+no longer considered experimental
+accompanied by brief info: Documentation/ldm.txt
+
+
+Documentation/00-INDEX    |    2 
+Documentation/ldm.txt     |  102 ++
+fs/partitions/Config.help |    5 
+fs/partitions/Config.in   |    2 
+fs/partitions/ldm.c       | 2220 +++++++++++++++++++++++++++-------------------
+fs/partitions/ldm.h       |  206 ++--
+
+  http://linux-ntfs.sf.net/ldm/linux-2.5.24-ldm.gz
+
+Cheers,
+  FlatCap - Richard Russon
+  ldm@flatcap.org
+
 

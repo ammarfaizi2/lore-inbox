@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbULKUGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbULKUXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbULKUGs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 15:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbULKUGs
+	id S262008AbULKUXT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 15:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbULKUXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 15:06:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:53436 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262001AbULKUGr (ORCPT
+	Sat, 11 Dec 2004 15:23:19 -0500
+Received: from NEUROSIS.MIT.EDU ([18.95.3.133]:18660 "EHLO neurosis.jim.sh")
+	by vger.kernel.org with ESMTP id S262008AbULKUXQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 15:06:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=sHxRCePNe4I/zFxgwjkjEdmGrTE66jm3fK6GsH8rnvCakfQAIPSLKZsRdgHRPk56BSs1acp+UuL6Wx0o5s7Gdg42C5fXRBTAimieVTkL/GNPo8C02b78xNpyBMfWExbkBCYil7ynmicRjoxlJSbdHSoXacUCOuSna9gsbuH6ttc=
-Message-ID: <6fc3293d0412111206451e56b8@mail.gmail.com>
-Date: Sat, 11 Dec 2004 21:06:46 +0100
-From: Ronald Hummelink <ronald.hummelink@gmail.com>
-Reply-To: Ronald Hummelink <ronald.hummelink@gmail.com>
-To: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
-Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041211195133.GA2210@leamonde.no-ip.org>
+	Sat, 11 Dec 2004 15:23:16 -0500
+Date: Sat, 11 Dec 2004 15:23:14 -0500
+From: Jim Paris <jim@jtan.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI IRQ problems -- update
+Message-ID: <20041211202314.GA22731@jim.sh>
+References: <20041211173538.GA21216@jim.sh> <1102783555.7267.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041211195133.GA2210@leamonde.no-ip.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102783555.7267.37.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Dec 2004 13:51:33 -0600, Camilo A. Reyes
-<camilo@leamonde.no-ip.org> wrote:
-> Not sure if this has been raised before, but I get this error message
-> every time I try to load a module, it is not the modprobe program it self
-> causing the problem since I updated it to version 2.4.9 which is the
-> latest out there...
-> 
-> Any suggestions? Please cc me as I am not on the list.
+> The PIIX should be in legacy mode by default in which case it would be
+> on IRQ 14/15 only. Can you post boot messages ?
 
-For 2.6 kernels you need the module-init-tools package which is
-available from ftp.<yourcountry>.kernel.org or your favourite distro
-vendor.
-Latest version as of yesterday was 3.1
+This is interesting:
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+$ lspci -x -s 1f.1
+0000:00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02)
+00: 86 80 8a 24 07 00 80 02 02 8e 01 01 00 00 00 00
+10: f1 01 00 00 f5 03 00 00 01 00 00 00 01 00 00 00
+20: 41 18 00 00 00 00 10 e0 00 00 00 00 f7 10 38 83
+30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 01 00 00
+
+The ICH3-M datasheet says offset 0x09 is the Programming Interface
+register.  Default value is 0x8A (legacy on both), value here is 0x8E
+(legacy on primary, native on secondary).  This mixed-mode setting
+is noted as a disallowed combination in the datasheet.
+
+So it looks like my BIOS is screwing me.  Where could/should I fix
+this up?
+
+-jim

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132447AbRA0J6q>; Sat, 27 Jan 2001 04:58:46 -0500
+	id <S132582AbRA0KAg>; Sat, 27 Jan 2001 05:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132482AbRA0J6h>; Sat, 27 Jan 2001 04:58:37 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:61707 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S132447AbRA0J61>;
-	Sat, 27 Jan 2001 04:58:27 -0500
-Date: Sat, 27 Jan 2001 11:58:15 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: List User <lists@chaven.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ECN -?  Anything _I_ need to do to allow it?
-Message-ID: <20010127115815.N25659@mea-ext.zmailer.org>
-In-Reply-To: <Pine.SOL.4.21.0101261344120.11126-100000@red.csi.cam.ac.uk> <07fc01c087f2$523da160$160912ac@stcostlnds2zxj>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <07fc01c087f2$523da160$160912ac@stcostlnds2zxj>; from lists@chaven.com on Fri, Jan 26, 2001 at 05:47:14PM -0600
+	id <S132482AbRA0KA0>; Sat, 27 Jan 2001 05:00:26 -0500
+Received: from 13dyn73.delft.casema.net ([212.64.76.73]:30729 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S132582AbRA0KAU>; Sat, 27 Jan 2001 05:00:20 -0500
+Message-Id: <200101271000.LAA22442@cave.bitwizard.nl>
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <3A70D7B2.F8C5F67C@transmeta.com> from "H. Peter Anvin" at "Jan
+ 25, 2001 05:49:38 pm"
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Date: Sat, 27 Jan 2001 11:00:15 +0100 (MET)
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 05:47:14PM -0600, List User wrote:
-> I run a small ISP for my local community and have read some reports about
-> hotmail not supporting it et al.  I don't want to be in a position where MY
-> site doesn't support this if it's the correct thing to do.
+H. Peter Anvin wrote:
+> "David S. Miller" wrote:
+> > 
+> > H. Peter Anvin writes:
+> >  > Last I communicated with them, I looked for a reference like that in the
+> >  > standards RFCs so I could quote chapter and verse at the Hotmail people,
+> >  > but I couldn't find it.
+> > 
+> > RFC793, where is lists the unused flag bits as "reserved".
+> > That is pretty clear to me.  It just has to say that
+> > they are reserved, and that is what it does.
+> > 
 > 
-> Is there anything special that needs to be done (cisco router config,
-> firewall (ie, checkpoint)) to allow this information to pass?
+> Is the definition of "reserved" defined anywhere?  In a lot of specs,
+> "reserved" means MBZ.
 
-	Cisco IOSes (at routers) ignore the ECN presently.
-	Somewhen along 12.2 (or a bit latter) those routers
-	will start supporting ECN markup.
+MBZ? Must Be Zero? 
 
-	On Cisco product lines, the PIX firewalls have had problems,
-	but they weren't cisco product originally...
+Reserved means MBZ on things you generate, to guarantee you'll get
+expected behaviour from the other side. But in no circumstance should
+a reserved bit being non-zero confuse you. They should be
+ignored. That leads to the "new" implementations knowing what the old
+implementations will do.
 
-	Checkpoint seems to pass the ECN bit successfully, at least
-	the one at my office passes.
+			Roger. 
 
-> Steve
-
-/Matti Aarnio
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129780AbRAaLKt>; Wed, 31 Jan 2001 06:10:49 -0500
+	id <S130017AbRAaLSK>; Wed, 31 Jan 2001 06:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130017AbRAaLKj>; Wed, 31 Jan 2001 06:10:39 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:14867 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129780AbRAaLK3>; Wed, 31 Jan 2001 06:10:29 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130105AbRAaLRu>; Wed, 31 Jan 2001 06:17:50 -0500
+Received: from bastion.power-x.co.uk ([62.232.19.201]:26630 "EHLO
+	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
+	id <S130017AbRAaLRq>; Wed, 31 Jan 2001 06:17:46 -0500
+Date: Wed, 31 Jan 2001 11:18:15 +0000 (GMT)
+From: "Dr. David Gilbert" <gilbertd@treblig.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: <ajschrotenboer@lycosmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
+In-Reply-To: <200101311057.LAA03114@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.30.0101311117460.20992-100000@springhead.px.uk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14967.62112.447929.546585@wire.cadcamlab.org>
-Date: Wed, 31 Jan 2001 05:10:24 -0600 (CST)
-To: Tom Leete <tleete@mountain.net>
-Cc: David Ford <david@linux.com>, Stephen Frost <sfrost@snowman.net>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-In-Reply-To: <3A777E1A.8F124207@linux.com>
-	<20010130220148.Y26953@ns>
-	<3A77966E.444B1160@linux.com>
-	<3A77C6E7.606DDA67@mountain.net>
-	<20010131042616.A32636@cadcamlab.org>
-	<3A77ED7F.466582F0@mountain.net>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Jan 2001, Mikael Pettersson wrote:
 
-[Tom Leete]
-> No, I'm saying that SMP locking etc. is compatible with Athlon.  The
-> failure to build is not a workaround but a coding error.  SMP builds
-> for UP machines are supposed to work.
+> Why on earth is this fairly recent motherboard using BIOS-88
+> to report available memory? I would have expected E820 here.
+> Can you send the dmesg output from 2.4.0 and/or 2.2.19pre7?
 
-Yes, but if SMP for Athlons is not supported, what is the point in
-allowing CONFIG_SMP + CONFIG_MK7 (or CONFIG_SMP + CONFIG_MK6)?  Such a
-kernel will not run on *any* SMP system, since AMD kernels do not work
-on Intel.  If an AMD user really wants to carry around SMP baggage for
-no reason, let him use CONFIG_M586TSC.
+Is it one of these motherboards which has an option setting to select
+which type of memory reporting it will do?
 
-This is like offering MCA-bus drivers for 'make config' on SPARC.
-Sure, they might compile, but nobody will have any use for them.  Thus,
-we ensure that they never appear on the menus in the first place.
+Dave
 
-Peter
+-- 
+/------------------------------------------------------------------\
+| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
+| -------- G7FHJ --------|---------------------------------------- |
+| Home: dave@treblig.org            http://www.treblig.org         |
+\------------------------------------------------------------------/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbRHAI5A>; Wed, 1 Aug 2001 04:57:00 -0400
+	id <S265844AbRHAJHu>; Wed, 1 Aug 2001 05:07:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265975AbRHAI4v>; Wed, 1 Aug 2001 04:56:51 -0400
-Received: from leeor.math.technion.ac.il ([132.68.115.2]:40678 "EHLO
-	leeor.math.technion.ac.il") by vger.kernel.org with ESMTP
-	id <S265402AbRHAI4m>; Wed, 1 Aug 2001 04:56:42 -0400
-Date: Wed, 1 Aug 2001 11:56:37 +0300
-From: "Nadav Har'El" <nyh@math.technion.ac.il>
-To: Riley Williams <rhw@MemAlpha.CX>
-Cc: Guest section DW <dwguest@win.tue.nl>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Virii (sic)
-Message-ID: <20010801115637.C22440@leeor.math.technion.ac.il>
-In-Reply-To: <20010801015116.B11060@win.tue.nl> <Pine.LNX.4.33.0108010754400.9176-100000@infradead.org>
-Mime-Version: 1.0
+	id <S265810AbRHAJHl>; Wed, 1 Aug 2001 05:07:41 -0400
+Received: from rainbow.transtec.de ([153.94.51.2]:25349 "EHLO
+	rainbow.transtec.de") by vger.kernel.org with ESMTP
+	id <S265844AbRHAJHa>; Wed, 1 Aug 2001 05:07:30 -0400
+From: Roland Fehrenbacher <rfehrenb@transtec.de>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0108010754400.9176-100000@infradead.org>; from rhw@MemAlpha.CX on Wed, Aug 01, 2001 at 07:58:51AM +0100
-Hebrew-Date: 12 Av 5761
+Content-Transfer-Encoding: 7bit
+Message-ID: <15207.47005.173877.328503@gargle.gargle.HOWL>
+Date: Wed, 1 Aug 2001 10:02:37 +0200
+Subject: Patch for scsi_scan.c (was: qlogicfc driver)
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 01, 2001, Riley Williams wrote about "Re: [OT] Virii (sic)":
->  > [The singular is virus. The plural in English is viruses. In
->  > Latin there is no plural - it is even debatable whether virus is
->  > a noun in Latin - in any case it is indeclinable.]
+Hi,
 
-What I don't understand is why people use the form virii, with a double I!
+it seems nobody was interested in the thread qlogicfc. Here is a patch for
+scsi_scan.c (against the 2.4.7 version) which solves the problem described in
+the last few messages of the qlogicfc thread. It is absolutely necessary for
+sparse_lun devices with LUN 0 not present.
 
-Just like the plural of abacus is abaci, the plural of cactus is cacti
-(check the dictionary if you don't believe me), shouldn't the plural of
-virus be viri, with one I at the end (of course, "viruses" is also currently
-accepted as a plural, and even preferred by some people).
+Please review the patch, and if approved, include it in the kernel.
 
-I think people get confused by the fact that the plural of radius is radii.
-That extra "I" comes from the i in radius - it shouldn't appear in the plural
-of "virus"! The plural of the different word "virius" should have been virii.
+Cheers,
 
-> PS: Plural of bacteria is bacterium, from the same source.
+Roland
 
-Note that bacteria is already plural - bacterium is the singular.
-
-There's a more computer relevant fact: "data" is a plural noun, whose
-singular is "datum". Similarly, "media" is plural, whose singular is
-"medium". So constructions like "datas" or "medias" are wrong, although
-they are becoming more and more accepted...
-
-Does anybody still use the form formulae as a plural of formula? I do, but
-I think I belong to a dying breed :)
-
-[Oops, I don't think this discussion is very relevant to Linux kernels any
-more...]
-
--- 
-Nadav Har'El                        |       Wednesday, Aug  1 2001, 12 Av 5761
-nyh@math.technion.ac.il             |-----------------------------------------
-Phone: +972-53-245868, ICQ 13349191 |A city is a large community where people
-http://nadav.harel.org.il           |are lonesome together.
+--- scsi_scan.c.orig    Mon Jul 23 09:24:53 2001
++++ scsi_scan.c Thu Jul 26 16:29:14 2001
+@@ -153,6 +153,8 @@
+        {"DELL", "PSEUDO DEVICE .",   "*", BLIST_SPARSELUN}, // Dell PV 530F
+        {"DELL", "PV530F",    "*", BLIST_SPARSELUN}, // Dell PV 530F
+        {"EMC", "SYMMETRIX", "*", BLIST_SPARSELUN},
++       {"CMD", "CRA-7280", "*", BLIST_SPARSELUN},   // CMD RAID Controller
++       {"Zzyzx", "RocketStor 500S", "*", BLIST_SPARSELUN}, // Zzyzx RocketStor Raid
+        {"SONY", "TSL",       "*", BLIST_FORCELUN},  // DDS3 & DDS4 autoloaders
+        {"DELL", "PERCRAID", "*", BLIST_FORCELUN},
+        {"HP", "NetRAID-4M", "*", BLIST_FORCELUN},
+@@ -565,20 +567,26 @@
+        }
+ 
+        /*
+-        * Check the peripheral qualifier field - this tells us whether LUNS
+-        * are supported here or not.
++        * Check for SPARSELUN before checking the peripheral qualifier,
++        * so sparse lun devices are completely scanned.
+         */
+-       if ((scsi_result[0] >> 5) == 3) {
+-               scsi_release_request(SRpnt);
+-               return 0;       /* assume no peripheral if any sort of error */
+-       }
+ 
+        /*
+         * Get any flags for this device.  
+         */
+        bflags = get_device_flags (scsi_result);
+ 
+-
++       if (bflags & BLIST_SPARSELUN) {
++         *sparse_lun = 1;
++       }
++       /*
++        * Check the peripheral qualifier field - this tells us whether LUNS
++        * are supported here or not.
++        */
++       if ((scsi_result[0] >> 5) == 3) {
++               scsi_release_request(SRpnt);
++               return 0;       /* assume no peripheral if any sort of error */
++       }
+         /*   The Toshiba ROM was "gender-changed" here as an inline hack.
+              This is now much more generic.
+              This is a mess: What we really want is to leave the scsi_result

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265896AbUAUKUI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 05:20:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUAUKUI
+	id S265910AbUAUKYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 05:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAUKYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 05:20:08 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:39568 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265896AbUAUKUE
+	Wed, 21 Jan 2004 05:24:37 -0500
+Received: from CPE-203-45-178-121.qld.bigpond.net.au ([203.45.178.121]:10257
+	"HELO linux-kernel") by vger.kernel.org with SMTP id S265910AbUAUKYg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 05:20:04 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 21 Jan 2004 10:59:36 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v4l-05 add infrared remote support
-Message-ID: <20040121095935.GA31624@bytesex.org>
-References: <20040120093054.GC18096@bytesex.org> <20040121043608.515032C090@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040121043608.515032C090@lists.samba.org>
-User-Agent: Mutt/1.5.3i
+	Wed, 21 Jan 2004 05:24:36 -0500
+Message-ID: <ynpko.30068amcntox@Subsumingrkjxd>
+From: "Subsuming" <alintruded@wongfaye.com>
+Date: Sat, 13 Dec 2003 04:01:23 -0100
+To: linux-kernel@vger.kernel.org
+Subject: nesws regarding vigros cowardice
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This provides simple forwards compat for 2.4.  It doesn't do arrays or
-> strings, but they can be added if required (this will cover the easy
-> 90%).
+emitted,
 
-At least the array stuff I'm using in my drivers, to handle the
-"multiple tv cards in one box" case, like this:
+How Vigras works. And you can better understand, what Vigras can do for you. If you are sensible about your health, reflect on what you can do for your seual health, to keep the chances that you will need Vigras as low as possible. passive expert maintains, loved. 
 
-  static unsigned int card[] = {[0 ... (SAA7134_MAXBOARDS - 1)] = UNSET };
-  MODULE_PARM(card,"1-" __stringify(SAA7134_MAXBOARDS) "i");
-  MODULE_PARM_DESC(card,"card type");
+ http://www.pvmsolutions.com/index.php?pid=genviag
 
-So having that in 2.4 too would be nice.
+ Inrease Seks Drive
+ Bost Seual Performance
+ Fuller & Harder Erecions
+ Inrease Stamna & Endurance
+ Quicker Rechages 
+ 
 
-I have also two more questions:  How can I specify default values != 0
-for insmod options using the new macros?  How specify help/description
-texts?  Using the MODULE_PARM_DESC() macro or is there something new too?
+descend seems trailer, Sikhes. unawares paddock griped, conquer.
 
-  Gerd
+Happy holidays,
+describes
+
 

@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264755AbSLFQkA>; Fri, 6 Dec 2002 11:40:00 -0500
+	id <S264907AbSLFQoA>; Fri, 6 Dec 2002 11:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264760AbSLFQkA>; Fri, 6 Dec 2002 11:40:00 -0500
-Received: from rakis.net ([216.235.252.212]:44685 "EHLO egg.rakis.net")
-	by vger.kernel.org with ESMTP id <S264755AbSLFQj6>;
-	Fri, 6 Dec 2002 11:39:58 -0500
-Date: Fri, 6 Dec 2002 11:47:35 -0500 (EST)
-From: Greg Boyce <gboyce@rakis.net>
-X-X-Sender: gboyce@egg
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dazed and Confused
-In-Reply-To: <1039190719.22971.15.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.42.0212061133330.7770-100000@egg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264788AbSLFQmi>; Fri, 6 Dec 2002 11:42:38 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23309 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S264786AbSLFQm3>; Fri, 6 Dec 2002 11:42:29 -0500
+Date: Fri, 6 Dec 2002 17:50:04 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Arjan van de Ven'" <arjanv@redhat.com>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+Subject: Re: [BK PATCH] ACPI updates
+Message-ID: <20021206165004.GE7961@atrey.karlin.mff.cuni.cz>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Dec 2002, Alan Cox wrote:
+Hi!
 
-> On Fri, 2002-12-06 at 14:55, Greg Boyce wrote:
-> > I work in a company with a large number of Linux machine deployed all
-> > around the country, and in some of the machines we've been seeing the
-> > following error:
-> >
-> > Uhhuh. NMI received. Dazed and confused, but trying to continue
-> > You probably have a hardware problem with your RAM chips
->
-> There are several causes of an NMI depending on the system - hardware
-> failures is one, some systems do it for things like PCI errors, a few
-> boxes you see them on power management events (notably old 486's)
->
-> > Due to the number of machines and their locations, running memtest86 on
-> > them isn't exactly feasible.
->
-> Then buy better ram ;)
+> I (Andy) said:
+> > > Well maybe that's what we should do - use the UnitedLinux 
+> > ACPI patch (which
+> > > iirc is based on fairly recent ACPI code, and presumably minimizes
+> > > ACPI-related breakage) and then proceed incrementally from there?
+> > > 
+> > > Sound OK? Marcelo? UL folks?
+> 
+> > I guess it will be better if you push acpi patch without killing those
+> > backup solutions. Extractign blacklist from UL might be worth it,
+> > through.
+> 
+> Well after communicating with Marcelo it sounds like he'd like to hold off
+> taking it in 2.4.21 because IDE changes take priority, and two big changes
+> at once is too many for a stable kernel revision.
+> 
+> Fair enough. I'm just worried that 2.4.22 is a long ways away.
+> 
+> Maybe one way to address Marcelo's stability concerns and Arjan's "keep
+> acpitable.[ch] around" preference is for me to submit a patch that I *know*
+> don't affect anything besides ACPI -- i.e. only the changes that have been
+> made under drivers/acpi, and then go from there, submitting UL-derived and
+> other improvements incrementally after that.
 
-We have a large number of a very small number of machine types.  The
-OS images installed are identical, and the bioses should be identical
-between each individual machine types.
-
-Since the number of machines reporting this error are pretty small, I
-think it's unlikely to be power management, or anything like that.
-
-> > Is there anything besides failing hardware that could be the cause of this
-> > error?  Also, how serious is this error?  Some of the machines reporting
-> > this error have had problems with programs crashing, while others seem to
-> > run fine.
->
-> Take a sample set of machines which have been crashing and run memtest86
-> on a couple. That should tell you if it is RAM. From a sample you can
-> then figure out how to handle the rest (things that come to mind if
-> memtest86 fails on the test machines include replacing the ram in a few
-> more then taking the old ram back to test)
-
-I'll mention it to the people who handle the replacement of hardware, but
-from the sounds of this and Dick's e-mail, it's most likely hardware of
-some sort or possibly overheating.  They can decide if they want to try to
-figure out which component is causing the problem, or if they'd prefer to
-just replace the faulty machines completely and worry about tracking the
-component later.  We have plenty of spares in the warehouse.
-
-Thanks for the help,
-
-Greg
-
+Yes, try that. Its certainly better than no ACPI update at all.
+									Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbUDQLNO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 07:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUDQLNO
+	id S263918AbUDQLQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 07:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUDQLQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 07:13:14 -0400
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:17287 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S263847AbUDQLNL convert rfc822-to-8bit (ORCPT
+	Sat, 17 Apr 2004 07:16:25 -0400
+Received: from smtp.mailix.net ([216.148.213.132]:9841 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S263918AbUDQLQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 07:13:11 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: Fix UDF-FS potentially dereferencing null
-Date: Sat, 17 Apr 2004 13:12:44 +0200
-User-Agent: KMail/1.6
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       Jeff Garzik <jgarzik@pobox.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       bfennema@falcon.csc.calpoly.edu
-References: <20040416214104.GT20937@redhat.com> <Pine.LNX.4.58.0404161720450.3947@ppc970.osdl.org> <1082195458.4691.1.camel@laptop.fenrus.com>
-In-Reply-To: <1082195458.4691.1.camel@laptop.fenrus.com>
-MIME-Version: 1.0
+	Sat, 17 Apr 2004 07:16:23 -0400
+Date: Sat, 17 Apr 2004 13:16:16 +0200
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <20040417111616.GA1826@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	linux-kernel@vger.kernel.org
+References: <40810BA4.50803@colorfullife.com>
+Mime-Version: 1.0
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404171313.02784.ioe-lkml@rameria.de>
+In-Reply-To: <40810BA4.50803@colorfullife.com>
+User-Agent: Mutt/1.5.6i
+X-SA-Exim-Mail-From: fork0@users.sourceforge.net
+Subject: Re: POSIX message queues, libmqueue: mq_open, mq_unlink
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Report: *  0.5 RCVD_IN_NJABL_DIALUP RBL: NJABL: dialup sender did non-local SMTP
+	*      [80.140.227.8 listed in dnsbl.njabl.org]
+	*  0.1 RCVD_IN_SORBS RBL: SORBS: sender is listed in SORBS
+	*      [80.140.227.8 listed in dnsbl.sorbs.net]
+	*  0.1 RCVD_IN_NJABL RBL: Received via a relay in dnsbl.njabl.org
+	*      [80.140.227.8 listed in dnsbl.njabl.org]
+	*  2.5 RCVD_IN_DYNABLOCK RBL: Sent directly from dynamic IP address
+	*      [80.140.227.8 listed in dnsbl.sorbs.net]
+X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
+X-SA-Exim-Scanned: Yes
+X-uvscan-result: clean (1BEno1-0005xB-Vq)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Manfred Spraul, Sat, Apr 17, 2004 12:49:08 +0200:
+> Alex wrote:
+> 
+> >Ok. It's just that every provider of the _kernel_ interface to user
+> >space has now to take care of being posix-compliant. Write the code for
+> >checks, iow. That is not the case for "open", for instance.
+> >And besides, with the patch applied the kernel is also posix compliant,
+> >isn't it?
+> >
+> No. E.g. mq_notify(,&{.sigev_notify=SIGEV_THREAD) cannot be implemented 
+> in kernel space. And sys_mq_getsetattr isn't posix compliant either - 
+> the user space library must implement mq_getattr and mq_setattr on top 
+> of the kernel API.
 
-Hi,
+Ok. It's inevitable, as it looks.
 
-On Saturday 17 April 2004 11:50, Arjan van de Ven wrote:
-[superflous NULL pointer checks]
-> > > It'll take a lot of effort to 'fix' them all, and given the non-severity
-> > > of a lot of them, I'm not convinced it's worth the effort.
-> > 
-> > Just for the fun of it, I added a "safe" attribute to sparse (hey, it was 
-> > trivial), and made it warn if you test a safe variable. 
-> > 
-> > You can do
-> > 
-> > 	#define __safe __attribute__((safe))
-> > 
-> > 	static struct denty *
-> > 	udf_lookup(struct inode * __safe dir,
-> > 			struct dentry * __safe dentry,
-> > 			struct nameidata * __safe nd);
-> > 
-> > or
-> is it maybe a good idea to map this to gcc's "nonnull" attribute in some
-> way? That way both sparse and the compiler get this explicit
-> knowledge.... (afaics gcc will then also just optimize out the null ptr
-> checks)
+> The kernel API was designed to be simple and flexible. Perhaps we want 
+> to extend the kernel implementation in the future, and then a leading 
+> slash could be used to indicate that we are using the new features.
 
-Or even call the attribute "nonnull", because this is a very obvious
-naming, even to non-native English readers.
+and userspace will need to be updated (the slashes are cut off in libmqueue)
 
-"safe" can mean anything from "safe to use under spinlock" to
-"you cannot get pregnant from using this variable".
-
-GCC will not only optimize out the check, but also ensure that the we
-will not pass NULL ptrs, if it can notice it. If this gets pushed high
-enough (up to the register-like functions, where it gets first
-assigned), we will never face this kind of problem anymore and document
-this fact per function. Sounds like C coder heaven ;-)
-
-
-Regards
-
-Ingo Oeser
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAgRE9U56oYWuOrkARAjQFAKCIvypi8zPswOX/Q4Qlnh01CBrwDQCfTKRQ
-BY8VRXpe0ZuHRRIHH8JgDag=
-=mQNg
------END PGP SIGNATURE-----

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313966AbSDPXoG>; Tue, 16 Apr 2002 19:44:06 -0400
+	id <S313965AbSDPXoF>; Tue, 16 Apr 2002 19:44:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313967AbSDPXoF>; Tue, 16 Apr 2002 19:44:05 -0400
-Received: from smtp3.wanadoo.es ([62.37.236.137]:7321 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id <S313966AbSDPXoE>;
+	id <S313967AbSDPXoE>; Tue, 16 Apr 2002 19:44:04 -0400
+Received: from smtp3.wanadoo.es ([62.37.236.137]:7065 "EHLO smtp.wanadoo.es")
+	by vger.kernel.org with ESMTP id <S313965AbSDPXoE>;
 	Tue, 16 Apr 2002 19:44:04 -0400
-Message-Id: <200204162332.g3GNW4u25399@smtp.wanadoo.es>
+Message-Id: <200204162332.g3GNW3u25393@smtp.wanadoo.es>
 Content-Type: text/plain; charset=US-ASCII
 From: Jacek Boboli <hussaile@ant.pl>
 To: linux-kernel@vger.kernel.org
 Subject: kernel-2.4.19pre7
-Date: Wed, 17 Apr 2002 01:45:54 +0200
+Date: Wed, 17 Apr 2002 01:45:00 +0200
 X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT

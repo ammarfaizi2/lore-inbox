@@ -1,46 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbTEFLM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 07:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbTEFLM3
+	id S262543AbTEFLJr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 07:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTEFLJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 07:12:29 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:27847 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262547AbTEFLM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 07:12:27 -0400
-Message-ID: <3EB79C0E.5060608@onlinehome.de>
-Date: Tue, 06 May 2003 13:27:10 +0200
-From: Hans-Georg Thien <1682-600@onlinehome.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: wwp <subscript@free.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] "Disable Trackpad while typing" on Notebooks withh
- a PS/2 Trackpad
-References: <3EB19625.6040904@onlinehome.de> <20030506112928.60306baf.subscript@free.fr>
-In-Reply-To: <20030506112928.60306baf.subscript@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 May 2003 07:09:47 -0400
+Received: from netmail01.services.quay.plus.net ([212.159.14.219]:5044 "HELO
+	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S262543AbTEFLJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 07:09:40 -0400
+Date: Tue, 6 May 2003 12:25:12 +0100
+From: Robert Murray <rob@mur.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: failed assertions in 2.4.20 networking code
+Message-ID: <20030506112512.GH2388@mur.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wwp wrote:
-> Hi Hans-Georg Thien,
-> 
-> 
-> Would it be possible to enable/disable this feature from userspace using an
-> echo 1 > /proc/blabla, or only using insmod/modprobe -r?
-> Anyway, very good idea!
-> 
-> 
-I'm working on an "echo ??? >/proc/something?" solution, where ??? is
+Hi
 
-delay=1200 # adjust trackpad to delay 1200 mSec after last keystroke
-delay=0    # no delay, => disable that feature
+I'm getting the following messages with 2.4.20.  This machine is
+acting as a server and a router between an adsl line and my LAN.  I
+will send my iptables and tc setup if it is necessary to diagnose the
+problem.
 
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
 
--Hans
+Cheers
 
-
+Rob

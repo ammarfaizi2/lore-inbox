@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbUKQXaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbUKQX2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbUKQXaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 18:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbUKQX2i
+	id S262681AbUKQX2N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 18:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbUKQX0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 18:28:38 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:38660 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262577AbUKQX1R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 18:27:17 -0500
-Message-ID: <419BDE53.1030003@tebibyte.org>
-Date: Thu, 18 Nov 2004 00:27:15 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: pt-br, pt
+	Wed, 17 Nov 2004 18:26:44 -0500
+Received: from 2-227.coreds.net ([207.55.227.2]:25587 "EHLO data.mvista.com")
+	by vger.kernel.org with ESMTP id S262577AbUKQXY3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 18:24:29 -0500
+Message-ID: <419BDD9D.7090200@mvista.com>
+Date: Wed, 17 Nov 2004 15:24:13 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrea Arcangeli <andrea@novell.com>,
-       Jesse Barnes <jbarnes@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable
- braindamage
-References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com> <20041106012018.GT8229@dualathlon.random> <1099706150.2810.147.camel@thomas> <20041117195417.A3289@almesberger.net>
-In-Reply-To: <20041117195417.A3289@almesberger.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: john stultz <johnstul@us.ibm.com>
+CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux@brodo.de,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: summary (Re: [patch] prefer TSC over PM Timer)
+References: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>	 <Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>	 <1100705495.32698.38.camel@localhost.localdomain>	 <Pine.LNX.4.61.0411170946410.9434@twinlark.arctic.org>	 <419BD0FF.4020602@mvista.com> <1100732984.3891.9.camel@leatherman>
+In-Reply-To: <1100732984.3891.9.camel@leatherman>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+john stultz wrote:
+> On Wed, 2004-11-17 at 14:30 -0800, George Anzinger wrote:
+> 
+>>The APIC timer is again on a different "rock" which is not designed for time 
+>>keeping and, again, is calibrated at boot up against the "GOLD" standard PIT.
+>>
+>>IMHO, the best time keeping we can get in and x86 box is to:
+>>
+>>a) set up the PIT up to do the 1/HZ ticks (once set up we do not need to touch 
+>>it again so the I/O access issues become mute),
+>>
+>>b) select either the TSC (if we think it is stable) or the pm_timer to do the 
+>>short term between tick interpolation and also to detect and correct for PIT 
+>>interrupt overrun (like we missed a tick or two).  We should prefer the TSC here 
+>>because of speed and that it is read every gettimeofday() access.
+> 
+> 
+> My only qualm here is that using the TSC to interpolate between timer
+> ticks allows for time inconsistencies. If the TSC isn't cumulatively
+> accurate, then when used in between ticks it will cause minor
+> inaccuracies and possible inconsistencies. I'd instead prefer picking a
+> single time source, and using NTP to correct for drift or inaccurate
+> calibration. 
 
+I think the inconstistancies are of the order of micro seconds and so will not 
+really show.  Not all systems are connected to an NTP server.  One possibility 
+is to build in an ntp like thing that averages out the PIT ticks and refines the 
+TSC count per tick thing over a much longer period.  This would drive the errors 
+way down into the noise and it still honors the notion of the PIT being the 
+STANDARD for time.
+> 
+> Also breaking time subsystem from requiring regular periodic ticks
+> allows for tickless systems and additional power management savings. But
+> this should be saved for another thread. 
 
-Werner Almesberger escreveu:
-> A process could declare itself as usual suspect. This would then be
-> recorded as a per-task flag, to be inherited by children.
+Amen!
+> 
 
-I don't think this "I know I'm buggy, please kill me" flag is the right 
-approach even if it can be made to work. The operating system has an 
-overview of all the memory and can see when a particular process is 
-basically making the machine unusable. It's quite likely that the 
-process causing the trouble doesn't know (or hasn't admitted) that it's 
-buggy and hasn't volunteered for early termination. As this means the 
-kernel must be able to deal with a problematic process completely 
-irrespective of whether it has set "kill me" flag or not the flag 
-doesn't really buy you anything.
-
-It is also specific to runaway processes that are clearly at fault. 
-There is the related case where no particular process is faulty as such 
-but the system as a whole can't cope with the demands being made.
-
-On a related note, I would prefer to see victim processes who are not 
-determined to be the cause of the trouble swapped out (i.e. *all* their 
-pages pushed out to swap) and suspended (not allowed to run) as a first 
-resort. The example I have in mind is on my machine when the daily cron 
-run over commits causing standard daemons such as ntpd to be killed to 
-make room. It would be preferable if the daemon was swapped out and just 
-didn't run for minutes, or even hours if need be, but was allowed to run 
-again once the system had settled down.
-
-Of course, from recent discussion the system should not actually be 
-killing off these daemons at all but that does seem to be resolved now. 
-There are circumstances when there simply isn't enough RAM and swapping 
-something out is preferable to killing it off. Of course, if there isn't 
-sufficient swap space killing it should be the second resort. The last 
-resort being panic.
-
-So, the problem breaks down into three parts:
-
-	  i) When should the oom killer be invoked.
-	 ii) How do we pick a victim process
-	iii) How can we deal with the process in the most useful manner
-
-Regards,
-Chris R.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 

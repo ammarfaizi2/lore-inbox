@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131739AbRBQOoF>; Sat, 17 Feb 2001 09:44:05 -0500
+	id <S131789AbRBQPPC>; Sat, 17 Feb 2001 10:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131801AbRBQOnz>; Sat, 17 Feb 2001 09:43:55 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:24334 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131739AbRBQOnk>; Sat, 17 Feb 2001 09:43:40 -0500
-Date: Sat, 17 Feb 2001 08:43:30 -0600
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is this the ultimate stack-smash fix?
-Message-ID: <20010217084330.A17398@cadcamlab.org>
-In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca> <m1lmr98c5t.fsf@frodo.biederman.org> <3A8ADA30.2936D3B1@sympatico.ca> <m1hf1w8qea.fsf@frodo.biederman.org> <3A8BF5ED.1C12435A@colorfullife.com> <m1k86s6imn.fsf@frodo.biederman.org>
+	id <S131801AbRBQPOx>; Sat, 17 Feb 2001 10:14:53 -0500
+Received: from jalon.able.es ([212.97.163.2]:25816 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131789AbRBQPOg>;
+	Sat, 17 Feb 2001 10:14:36 -0500
+Date: Sat, 17 Feb 2001 16:14:26 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Hugh Dickins <hugh@veritas.com>, Paul Gortmaker <p_gortmaker@yahoo.com>,
+        Keith Owens <kaos@ocs.com.au>,
+        linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] a more efficient BUG() macro
+Message-ID: <20010217161426.A981@werewolf.able.es>
+In-Reply-To: <3A8E3BA5.4B98E94E@yahoo.com> <Pine.LNX.4.21.0102171200530.2029-100000@localhost.localdomain> <20010217152240.A2641@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <m1k86s6imn.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Thu, Feb 15, 2001 at 09:00:48AM -0700
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010217152240.A2641@werewolf.able.es>; from jamagallon@able.es on Sat, Feb 17, 2001 at 15:22:40 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  [Manfred Spraul]
-> > Unless you modify the ABI and pass the array bounds around you won't
-> > catch such problems, 
+On 02.17 J . A . Magallon wrote:
+> #if 1
+>   extern void *__io_virt_debug(unsigned long x, const char *file, int line);
+>   extern unsigned long __io_phys_debug(unsigned long x, const char *file, int
+> li
+> ne);
+>   #define __io_virt(x) __io_virt_debug((unsigned long)(x), __FILE__, __LINE__)
+> //#define __io_phys(x) __io_phys_debug((unsigned long)(x), __FILE__, __LINE__)
+> #else
+>   #define __io_virt(x) ((void *)(x))
+> //#define __io_phys(x) __pa(x)
+> #endif
+> ..
 
-[Eric W. Biederman]
-> Of course.  But this is linux and you have the source.  And I did
-> mention you needed to recompile the libraries your trusted
-> applications depended on.
+Loking at it (arch/i386/lib/iodebug.c):
+void * __io_virt_debug(unsigned long x, const char *file, int line)
+{
+    if (x < PAGE_OFFSET) {
+        printk("io mapaddr 0x%05lx not valid at %s:%d!\n", x, file, line);
+        return __va(x);
+    }
+    return (void *)x;
+}
 
-So by what ABI do you propose to pass array bounds to a called
-function?  It sounds pretty ugly.  It also sounds like you will be
-breaking the extremely useful C postulate that, at the ABI level at
-least, arrays and pointers are equivalent.  I can't see *how* you plan
-to work around that one.
+is changed (if you turn off the #if 1), from 1_function_call+1_if+cache
+pollution with the function code to nothing (just a cast).
+This will make some difference in performance, won't it ?
+ 
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-> Yep bounds checking is not an easy fix.
+Linux werewolf 2.4.1-ac17 #1 SMP Sat Feb 17 01:47:56 CET 2001 i686
 
-Understatement of the year, if you really want to catch all cases.
-
-Peter

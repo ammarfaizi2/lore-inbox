@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316163AbSFPLT7>; Sun, 16 Jun 2002 07:19:59 -0400
+	id <S316167AbSFPLeU>; Sun, 16 Jun 2002 07:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316167AbSFPLT6>; Sun, 16 Jun 2002 07:19:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:41964 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S316163AbSFPLT5>; Sun, 16 Jun 2002 07:19:57 -0400
-Date: Sun, 16 Jun 2002 13:19:54 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Brian Gerst <bgerst@didntduck.org>, <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.5.14-dj1: misc.o: undefined reference to `__io_virt_debug'
-In-Reply-To: <287160000.1020816859@flay>
-Message-ID: <Pine.NEB.4.44.0206161317410.11043-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S316182AbSFPLeU>; Sun, 16 Jun 2002 07:34:20 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:1942 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316167AbSFPLeT>; Sun, 16 Jun 2002 07:34:19 -0400
+Date: Sun, 16 Jun 2002 13:07:10 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: opti621 IDE update [was: 2.5.20 hardlock w/ hdparm]
+In-Reply-To: <Pine.SOL.4.30.0206142004100.18856-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.44.0206161306200.11143-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin,
+On Sat, 15 Jun 2002, Bartlomiej Zolnierkiewicz wrote:
 
-this problem with CONFIG_MULTIQUAD does also exist in 2.4 kernels. Could
-you provide a patch against 2.4.19-pre10?
+> I don't have Opti card, but if you have dual interface one
+> I can modify driver to provide you some fun ;-)
 
-TIA
-Adrian
+I've only got single interface, but fire away regardless ;)
 
+Cheers,
+	Zwane Mwaikambo
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+http://function.linuxpower.ca
+		
 

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287487AbSANQVR>; Mon, 14 Jan 2002 11:21:17 -0500
+	id <S287563AbSANQWh>; Mon, 14 Jan 2002 11:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287612AbSANQU7>; Mon, 14 Jan 2002 11:20:59 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:6151 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S287487AbSANQUv>;
-	Mon, 14 Jan 2002 11:20:51 -0500
-Date: Mon, 14 Jan 2002 09:18:01 -0700
-From: yodaiken@fsmlabs.com
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: yodaiken@fsmlabs.com, Momchil Velikov <velco@fadata.bg>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020114091801.A23139@hq.fsmlabs.com>
-In-Reply-To: <20020114064548.D22065@hq.fsmlabs.com> <Pine.LNX.4.33.0201141541140.29505-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0201141541140.29505-100000@serv>; from zippel@linux-m68k.org on Mon, Jan 14, 2002 at 03:56:05PM +0100
-Organization: FSM Labs
+	id <S287578AbSANQW3>; Mon, 14 Jan 2002 11:22:29 -0500
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:14343 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S287612AbSANQWP>; Mon, 14 Jan 2002 11:22:15 -0500
+Message-ID: <3C430580.90309@zk3.dec.com>
+Date: Mon, 14 Jan 2002 11:21:20 -0500
+From: Peter Rival <frival@zk3.dec.com>
+Organization: Tru64 QMG Performance Engineering
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Mario Mikocevic <mozgy@hinet.hr>, linux-kernel@vger.kernel.org
+Subject: Re: FC & MULTIPATH !? (any hope?)
+In-Reply-To: <20020114123301.B30997@danielle.hinet.hr> <20020114130720.J917@marowsky-bree.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 03:56:05PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 14 Jan 2002 yodaiken@fsmlabs.com wrote:
-> 
-> > is going to be an enormously important issue.  However, once you add SCHED_FIFO in the
-> > current scheme, this becomes more complex. And with preempt, you cannot even offer the
-> > assurance that once a process gets the cpu it will make _any_ advance at all.
-> 
-> I'm not sure if I understand you correctly, but how is this related to
-> preempt?
+Lars Marowsky-Bree wrote:
 
-It's pretty subtle. If there is no preempt, processes don't get preempted.
-If there is preempt, they can be preempted. Amazing isn't it? 
+ > On 2002-01-14T12:33:01, Mario Mikocevic <mozgy@hinet.hr> said:
+ >
+ >
+ >> is there any hope of working combination of MULTIPATH with FC !?
+ >>
+ >
+ > Yes. QLogic's newest 2200 HBA can do that. I don't know whether that
+ >  is a possible solution for your problem though.
+ >
+The real question is when will Linux fully support multipath at the 
+CAM/block layer? I'd really like to be able to throw, say, four HBAs 
+into my system and have it use all of them simultaneously and not have 
+to spend all sorts of time trying to set up all 200+ LUNs that I have 
+available to me by hand.  Think 200 LUNs presented * 4 HBAs * 4 paths at 
+the controller end per LUN.  That's quite a bit of setup to me.
+
+  - Pete
+
+
+

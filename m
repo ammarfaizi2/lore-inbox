@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131846AbRAPCHh>; Mon, 15 Jan 2001 21:07:37 -0500
+	id <S129401AbRAPCtN>; Mon, 15 Jan 2001 21:49:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131999AbRAPCH2>; Mon, 15 Jan 2001 21:07:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17413 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131846AbRAPCHR>;
-	Mon, 15 Jan 2001 21:07:17 -0500
-Date: Tue, 16 Jan 2001 03:07:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: David Michael Norris <norrisd@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre3 kernel oops from kmem_cache_create(...)
-Message-ID: <20010116030713.B614@suse.de>
-In-Reply-To: <20010115210433.A1799@purdue.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010115210433.A1799@purdue.edu>; from norrisd@purdue.edu on Mon, Jan 15, 2001 at 09:04:33PM -0500
+	id <S129406AbRAPCtD>; Mon, 15 Jan 2001 21:49:03 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44045 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129401AbRAPCsv>; Mon, 15 Jan 2001 21:48:51 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: pre5 VM feedback..
+Date: 15 Jan 2001 18:48:32 -0800
+Organization: Transmeta Corporation
+Message-ID: <940cq0$6fe$1@penguin.transmeta.com>
+In-Reply-To: <3A63A9AE.345CBAF3@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15 2001, David Michael Norris wrote:
-> During boot of the 2.4.1-pre3 kernel, I received this oops:
-> 
-> BUG() in slab.c:804
-> EIP:	0010:[<c01251df>]
-> Code:	0f 0b 83 c4 0c 8b 1b 81 fb 7c 52 27 c0 75 c2 a1 7c 52 27 c0
+In article <3A63A9AE.345CBAF3@mandrakesoft.com>,
+Jeff Garzik  <jgarzik@mandrakesoft.com> wrote:
+>$!@#@! pre6 is already out :)
 
-module_init marks loop_init __init, and ll_rw_blk:blk_dev_init calls
-it too. So just remove the latter loop_init() call and it should be
-fine.
+Yes, and for heavens sake don't use it, because the reiserfs merge got
+some dirty inode logic wrong. pre7 fixes just that one line and should
+be ok again.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+>Anyway, this may be a totally subjective (and incorrect) perception, but
+>it seems to me like the recent 2.4.x-test kernels and thereafter start
+>swapping things out really quickly.  Case in point:  "diff -urN
+>linux.vanilla linux" command swaps out Konqueror and Netscape Mail, even
+>though I was using them only a few minutes ago.
+
+Yes. It's really nice for some stuff, but a bit too aggressive for
+normal use, I think.
+
+If you want to play with tuning, I'd suggest something like
+
+ - make SWAP_SHIFT bigger (try with 7 instead of 5)
+
+ - do the "self-swap-out" only for __GFP_VM allocations, and add the
+   __GFP_VM flag to all page fault allocations (ie __GPF_VM would be a
+   flag that says "this allocation will grow my RSS"). 
+
+The latter is kind of debatable - some allocations can't easily be put
+in one category or the other (ie page cache growing - do we do it
+because of the page cache or because we want to map the page?)
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262667AbRE3JYM>; Wed, 30 May 2001 05:24:12 -0400
+	id <S262669AbRE3Jam>; Wed, 30 May 2001 05:30:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262668AbRE3JYD>; Wed, 30 May 2001 05:24:03 -0400
-Received: from t2.redhat.com ([199.183.24.243]:46321 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262667AbRE3JXx>; Wed, 30 May 2001 05:23:53 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200105300041.CAA04507@green.mif.pg.gda.pl> 
-In-Reply-To: <200105300041.CAA04507@green.mif.pg.gda.pl> 
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrewm@uow.edu.au,
-        p_gortmaker@yahoo.com, linux-kernel@vger.kernel.org (kernel list)
-Subject: Re: [PATCH] net #3 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 30 May 2001 10:11:57 +0100
-Message-ID: <29071.991213917@redhat.com>
+	id <S262674AbRE3Jac>; Wed, 30 May 2001 05:30:32 -0400
+Received: from [159.226.138.76] ([159.226.138.76]:56072 "EHLO
+	eggplant.lzb.ac.cn") by vger.kernel.org with ESMTP
+	id <S262669AbRE3JaU>; Wed, 30 May 2001 05:30:20 -0400
+Date: Thu, 31 May 2001 01:21:49 +0800 (CST)
+From: Sun Qingwei <sunqw@ns.lzb.ac.cn>
+To: bug-sh-utils@gnu.org
+cc: linux-kernel@vger.kernel.org
+Subject: Date goes four times faster!
+Message-ID: <Pine.LNX.4.21.0105310046440.21295-100000@eggplant.lzb.ac.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ankry@green.mif.pg.gda.pl said:
-> -#ifdef CONFIG_ISAPNP 
-> +#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE)) 
-
-The result here would be a 3c509 module which differs depending on whether 
-the ISAPNP module happened to be compiled at the same time or not. 
-
-The ISAPNP-specific parts of the code aren't large. Please consider
-including them unconditionally instead. 
-
---
-dwmw2
-
+Dear, 
+I'm using Redhat linux 7.0 on an HP vectra vei8-Piii450 computer. My
+desktop environment is Gnome 1.2.1.
+This noon I found that the date went four times faster! It was going well
+before about 11 PM Wen May 30. But after that the date
+displayed by commod "date" accelerated. It told me Thu May 31 00:54:52 CST
+2001 while my watch was Wen May 30 17:40. 
+Also the "clock" applet on the Panel of Gnome told me 12:57 AM Thu May 31!
+Thanks for help!
+Timothy
 

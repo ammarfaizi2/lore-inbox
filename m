@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbTJRLun (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 07:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTJRLun
+	id S261582AbTJRMDS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 08:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbTJRMDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 07:50:43 -0400
-Received: from cpc2-blfs2-6-0-cust226.blfs.cable.ntl.com ([81.99.21.226]:13196
-	"EHLO foobox") by vger.kernel.org with ESMTP id S261569AbTJRLum
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 07:50:42 -0400
-Message-ID: <3F912911.4080707@ntlworld.com>
-Date: Sat, 18 Oct 2003 12:50:41 +0100
-From: Matt <dirtbird@ntlworld.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6 StumbleUpon/1.87
-X-Accept-Language: en, en-gb, ja
+	Sat, 18 Oct 2003 08:03:18 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:4001 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261582AbTJRMDR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 08:03:17 -0400
+To: John Bradford <john@grabjohn.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       Norman Diamond <ndiamond@wta.att.ne.jp>,
+       Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
+	<200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
+	<33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
+	<20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net>
+	<3F8BBC08.6030901@namesys.com>
+	<11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
+	<20031017102436.GB10185@bitwizard.nl>
+	<200310171049.h9HAnBbO000594@81-2-122-30.bradfords.org.uk>
+	<m3zng0yun9.fsf@defiant.pm.waw.pl>
+	<200310171935.h9HJZaLm002335@81-2-122-30.bradfords.org.uk>
+	<m37k33igui.fsf@defiant.pm.waw.pl>
+	<200310180827.h9I8Rxw8000383@81-2-122-30.bradfords.org.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 18 Oct 2003 14:02:27 +0200
+In-Reply-To: <200310180827.h9I8Rxw8000383@81-2-122-30.bradfords.org.uk>
+Message-ID: <m3u166vjn0.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: bunk@fs.tum.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re:Re: [2.6 patch] add a config option for -Os compilation
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > The main effect of -Os compared to -O2 (besides disabling some
- > reordering of the code and prefetching) is the disabling of various
- > alignments. I doubt that's a win on all CPUs.
+John Bradford <john@grabjohn.com> writes:
 
-Well the big win I found from -Os is the disabling of code inlining.
-So I found I got much better code from -finline-limit=100. I
-found this value after trial and error (via a bit of bench marking).
-Mind you this is what works for my athlon.. Mind you the
-difference isnt that huge.. I found turning on -Winline and
--finline-limit handy for finding the culprits of huge inlines..
+> Although, to be honest, except where performance is critical, remap on
+> read is pointless.  It saves you from having to identify the bad block
+> again when you write to it.  Generally, guaranteed remap on write is
+> what I want.
 
-    matt
+Then I think we have an agreement.
 
+> I did suggest that data which was recovered automatically by the drive
+> on a second or subsequent read should result in a remapping of that
+> block.
 
+AFAIK this is what the drives do.
+
+> My most important point is that writes should never fail on a good
+> drive.
+
+That's certainly what the drives do. Unless they are out of spare
+sectors, of course.
+
+Doing cat /dev/zero > /dev/hd* fixes all bad sectors on modern drive.
+-- 
+Krzysztof Halasa, B*FH

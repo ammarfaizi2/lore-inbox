@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264964AbRGIVkL>; Mon, 9 Jul 2001 17:40:11 -0400
+	id <S264976AbRGIVrw>; Mon, 9 Jul 2001 17:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264965AbRGIVkC>; Mon, 9 Jul 2001 17:40:02 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:32122 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S264964AbRGIVjv>; Mon, 9 Jul 2001 17:39:51 -0400
-Date: Mon, 9 Jul 2001 16:36:27 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Patrick Mochel <mochel@transmeta.com>,
-        Martin Knoblauch <Martin.Knoblauch@TeraPort.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        saw@saw.sw.com.sg
-Subject: Re: 2.4.6.-ac2: Problems with eepro100
-In-Reply-To: <Pine.LNX.4.33.0107092302450.2729-100000@vaio>
-Message-ID: <Pine.LNX.3.96.1010709163526.15260A-100000@mandrakesoft.mandrakesoft.com>
+	id <S264984AbRGIVrm>; Mon, 9 Jul 2001 17:47:42 -0400
+Received: from gateway.foliage.com ([63.117.36.2]:13609 "EHLO
+	gateway.foliage.com") by vger.kernel.org with ESMTP
+	id <S264976AbRGIVrc>; Mon, 9 Jul 2001 17:47:32 -0400
+From: "J. Richard Sladkey" <jrs@foliage.com>
+To: "Craig Soules" <soules@happyplace.pdl.cmu.edu>,
+        "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: NFS Client patch
+Date: Mon, 9 Jul 2001 17:46:31 -0400
+Message-ID: <MOBBLAGBDIJIPKLCBNCNGELFEBAA.jrs@foliage.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+In-Reply-To: <Pine.LNX.3.96L.1010709153516.16113R-100000@happyplace.pdl.cmu.edu>
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by gateway.foliage.com id f69LlEa27717
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ok, perhaps I mis-spoke slightly.  What the spec does state is that the
+> cookie is opaque.  This has generally been interpreted to mean that you
+> should not trust it to be stable after a change to that directory.
 
+This interpretation isn't useful.  If a second client modifies the
+directory while the first client is reading a directory, the first
+client has no way of knowing that its cookie is now invalid, yet it
+clearly will be invalid if the server's cookies are invalid after
+any directory modifying operation.
 
-On Mon, 9 Jul 2001, Kai Germaschewski wrote:
+The solution is that the server must cope with directory modifying
+operations and still keep its cookies valid.  It can do this by
+cooperating with the filesystem to update the "true" index associated
+with the "opaque" index stored in any outstanding cookies.  Or it can
+simply have a more sophisticated cookie, such as passing the inode number
+of the first unread directory entry in the cookie and the offset of the
+entry.  If they are the same continue as usual.  If they are different,
+re-read the directory from the beginning, searching for that specific
+inode.  Or any other scheme.  Note that this information is still
+completely opaque to the client.
 
-> On Mon, 9 Jul 2001, Patrick Mochel wrote:
-> 
-> > Can you do an 'lspci -vv' on the device? The current device state should
-> > be listed 2 lines after the Power Management Capabilities revision.
-> 
-> I already talked to Martin off list about this problem (since it's my 
-> patch which is causing trouble).
-> 
-> To summarize the results: His eepro100 does only survive one
-> D0-D2-D0 transition, after another D2 transition it's possible to place it 
-> back in D0, but it won't work.
-> 
-> It comes up in D0, eepro100 module load will place it in D2, first
-> ifconfig up will switch to D0, works. Another ifconfig down / up cycle 
-> will kill the network (same happens with the unpatched version).
-> 
-> If someone feels able to find out what's really happening, that'd be great
-> of course. To the question of what to do about this, the only thing I can
-> think of is adding a parameter/config option for eepro100 to supply the
-> power state when inactive (default would be D2, for Martin D0 will work).
-> 
-> Better ideas anyone?
-
-Do a register dump of working and dead-after-PM-transition, including
-PCI config registers, and look for differences.  Also look for
-differences in your host and PCI-PCI bridge PCI config registers.
+Other operating systems may not show the problem if they pre-read
+much larger blocks of directory entries.  However, you should be able
+to provoke the problem out of any OS by creating a sufficiently
+large directory.  In any case, the two-client argument clearly shows
+that cookies should be so fragile that any directory operation
+makes them invalid.  This makes your server more complicated, but it
+seems like the correct behavior.
 

@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272561AbTHKMxr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 08:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272563AbTHKMxr
+	id S272528AbTHKMuy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 08:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272536AbTHKMux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 08:53:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26059 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S272561AbTHKMxp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 08:53:45 -0400
-Message-ID: <3F3791C8.4090903@pobox.com>
-Date: Mon, 11 Aug 2003 08:53:28 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alex Tomas <bzzz@tmi.comex.ru>
-CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC] file extents for EXT3
-References: <m3ptjcabey.fsf@bzzz.home.net>
-In-Reply-To: <m3ptjcabey.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 11 Aug 2003 08:50:53 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:24724 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S272528AbTHKMuw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 08:50:52 -0400
+Date: Mon, 11 Aug 2003 22:50:39 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+Message-Id: <20030811225039.75549d0f.sfr@canb.auug.org.au>
+In-Reply-To: <20030811101403.GA360@elf.ucw.cz>
+References: <20030806231519.H16116@flint.arm.linux.org.uk>
+	<20030811101403.GA360@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
-> hello all!
+On Mon, 11 Aug 2003 12:14:03 +0200 Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
 > 
-> there are several problems with old good method ext2/ext3
-> use to store map of block for an inode. for example, ext3's
-> truncate is quite slow. I think extents could solve this
-> and some other troubles. so ...
+> > I'm trying to test out APM on my laptop (in order to test some PCMCIA
+> > changes), but I'm hitting a brick wall.  I've added the device_suspend()
+> > calls for the SAVE_STATE, DISABLE and the corresponding device_resume()
+> > calls into apm's suspend() function.  (this is needed so that PCI
+> > devices receive their notifications.)
 > 
-> 
-> in fact, design is taken from htree modern ext2/ext3 uses. in constrast with
-> htree, it isn't backward-compatible.
+> Can you verify that it is not device "vetoing" the suspend?
 
-Neat.  I really like extents, and think this is the best long-term 
-approach.  Apparently the ext3 maintainers do, too, because tytso/sct's 
-"ext roadmap" paper publishing a while ago describes extents, too.  (I 
-wish I had a URL for that)
+The error logged by the apm driver indicates an error from the BIOS. So
+the BIOS thinks the machine is in a state that it cannot suspend from.
 
-Anyway, something to keep in mind:
-
-Changing the underlying disk format without bumping the filesystem 
-revision is a hugely bad idea.  I disagreed with merging htree (even 
-though its backward compat) without bumping the filesystem version, too.
-
-Vendors, distributors, OEMs, etc. all test against existing on-disk 
-formats, when they release their products.  When the filesystem format 
-for an existing filesystem, in production, changes underneath them, they 
-tend to get worried and annoyed.  So, to all ext developers,
-
-Please add <it> to ext4 not ext3!
-
-	Jeff
-
-
-
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

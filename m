@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268672AbUI2Qjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUI2QoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268672AbUI2Qjc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 12:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268674AbUI2Qjc
+	id S268674AbUI2QoK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 12:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268710AbUI2QoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 12:39:32 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:20616 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268672AbUI2QjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 12:39:21 -0400
-Message-ID: <415AE53E.10308@comcast.net>
-Date: Wed, 29 Sep 2004 12:39:26 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Compressed filesystems:  Better compression?
-References: <415A302E.5090402@comcast.net> <415A31A9.3030708@comcast.net>
-In-Reply-To: <415A31A9.3030708@comcast.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Sep 2004 12:44:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47589 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268674AbUI2QoE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 12:44:04 -0400
+Subject: RE: patch so cciss stats are collected in /proc/stat
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+Cc: Christoph Hellwig <hch@infradead.org>, mikem@beardog.cca.cpqcorp.net,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org,
+       "Baker, Brian (ISS - Houston)" <brian.b@hp.com>
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DBFE0B@cceexc23.americas.cpqcorp.net>
+References: <D4CFB69C345C394284E4B78B876C1CF107DBFE0B@cceexc23.americas.cpqcorp.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-frRLFQu3OXujFAHoidhw"
+Organization: Red Hat UK
+Message-Id: <1096476186.2786.45.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 29 Sep 2004 18:43:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-http://developer.linuxtag.net/knoppix/sources/cloop_2.01-5.tar.gz
+--=-frRLFQu3OXujFAHoidhw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-During compilation of cloop I noticed it had LZMA compression.  Looks
-like I need to do my research.
+On Wed, 2004-09-29 at 18:29, Miller, Mike (OS Dev) wrote:
 
-This may still be interesting to use for zisofs; although at this point
-I appear to be producing a lot of white noise.  Still, I'd like to see
-LZMA ported out of cloop and into cryptoapi or such, where it can be
-more generally useful.
+> > This patch has been reject about half a million times, why are people
+> > submitting it again and again?
+>=20
+> As I said in my mail, it's a customer driven issue. As long as customers =
+rely on /proc/stat we'll keep trying. You can't tell a customer how he/she =
+should be doing things on their systems.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+I doubt you have many customers using 2.4.28.... I suspect that by now
+the majority of people is either using an (ancient) 2.4 vendor kernel or
+a 2.6 kernel. The very low number of reports on lkml about 2.4 seems to
+confirm that ...
+
+--=-frRLFQu3OXujFAHoidhw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFBWuU9hDd4aOud5P8RAj2BAJ4oBvpBfE9XTgRlQoqrFCpvZmFzZgCeKbpi
-kfLehAFjEcCpX/M9yt2MC0c=
-=1+4J
+iD8DBQBBWuYaxULwo51rQBIRAtEEAKCWnF3bYNxFGYT3sILR72G59/h81wCfVnxs
+aRL4duPegsg1w9/xvTu5fXE=
+=/f2B
 -----END PGP SIGNATURE-----
+
+--=-frRLFQu3OXujFAHoidhw--
+

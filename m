@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262636AbSJ0Uyr>; Sun, 27 Oct 2002 15:54:47 -0500
+	id <S262625AbSJ0Uw5>; Sun, 27 Oct 2002 15:52:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262646AbSJ0Uyr>; Sun, 27 Oct 2002 15:54:47 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:40602 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262636AbSJ0Uyq> convert rfc822-to-8bit; Sun, 27 Oct 2002 15:54:46 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: linux-kernel@vger.kernel.org
-Subject: ARGH!  (Is there an HTML archive for linux-kernel that patches work from?)
-Date: Sun, 27 Oct 2002 11:01:01 -0500
-User-Agent: KMail/1.4.3
-Cc: Erich Focht <efocht@ess.nec.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210271001.01798.landley@trommello.org>
+	id <S262636AbSJ0Uw5>; Sun, 27 Oct 2002 15:52:57 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:42958 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262625AbSJ0Uw4>; Sun, 27 Oct 2002 15:52:56 -0500
+Subject: Re: Swap doesn't work
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tim Tassonis <timtas@cubic.ch>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E185tHb-0002mq-00@trivadis.com>
+References: <E185tHb-0002mq-00@trivadis.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Oct 2002 21:17:34 +0000
+Message-Id: <1035753454.30373.33.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc.theaimsgroup.com has a lovely "raw mode", but it truncates posts that are 
-too long.
+On Sun, 2002-10-27 at 19:41, Tim Tassonis wrote:
+> Not that I would know better or have an idea why this bug happens, but to
+> say "Bugger off if you have an lfs system" is a bit lousy, I think. After
+> all, lfs has not really an "unstrusted toolchain", as compared to
+> RH/Suse's/Debian "trustworthy computing toolchains":
 
-groups.google.com looses attachments, even plain text ones.
+I get bugs that are clearly caused by miscompiled tool chains from Linux
+from scratch people. I trust the RH, SuSE and Debian tool chains because
+they have any neccessary patches applied for compiler bugs and they are
+running against a properly built glibc and binutils.
 
-Anything based on hypermail screws up whitespace in an interesting way.  (You 
-can't "save as" because it inserts <br> between each line, even the source 
-preserves whitespace and keeps tabs as tabs and everything.  You can't cut 
-and paste because html that isn't quoted with <pre> mangles whitespace for 
-you.  You can't make a simple script to remove <br> when it occurs at the end 
-of the line because it's not consistent: blank lines don't become <br>, they 
-become <p>.  And you'd have to worry about &lt; and such anyway...
+If you simply grab the latest and greatest of everything from
+ftp.gnu.org then quite often it won't work. 
 
-I'm sorry, I'm a bit frustrated right now.  I"m trying to provide URLs to 
-patches posted on this list.  This sounds easy, doesn't it?  It's not.
+If you'd like to me to spend hours debugging an LFS system where its
+probably a tool error, then you can ask for current hourly rates.
 
-I'm going to go to lunch now...
 
-Erich: Could you put your october 25 numa scheduler posting on your home page 
-somewhere?  I tried:
-
-http://home.arcor.de/efocht/patches/01-numa_sched_core-2.5.44-10a.patch
-
-But that just would have been too easy... :)
-
--- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+Alan

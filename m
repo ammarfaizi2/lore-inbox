@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129219AbQKWUhc>; Thu, 23 Nov 2000 15:37:32 -0500
+        id <S129295AbQKWUpz>; Thu, 23 Nov 2000 15:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129295AbQKWUhM>; Thu, 23 Nov 2000 15:37:12 -0500
-Received: from babylon5.babcom.com ([208.176.30.226]:26752 "EHLO
-        babylon5.babcom.com") by vger.kernel.org with ESMTP
-        id <S129219AbQKWUhI>; Thu, 23 Nov 2000 15:37:08 -0500
-Date: Thu, 23 Nov 2000 12:07:01 -0800
-From: Phil Stracchino <alaric@babcom.com>
-To: Linux-KERNEL <linux-kernel@vger.kernel.org>, support@vmware.com
-Subject: VMWare will not run on kernel 2.4.0-test11
-Message-ID: <20001123120701.A1338@babylon5.babcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-No-Archive: Yes
-X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
-X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
-X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
-X-Copyright: This message may not be reproduced, in part or in whole, for any commercial purpose without prior written permission.  Prior permission for BUGTRAQ is implicit.
-X-UCE-Policy: No unsolicited commercial email is accepted at this site.  The sending of any UCE to this domain may result in the imposition of civil liability against the sender in accordance with Cal. Bus. & Prof. Code Section 17538.45, and all senders of UCE will be permanently blocked.
+        id <S129586AbQKWUpp>; Thu, 23 Nov 2000 15:45:45 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:50604 "EHLO
+        smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+        id <S129295AbQKWUpb>; Thu, 23 Nov 2000 15:45:31 -0500
+Message-ID: <3A1D7ADD.8F243AA0@haque.net>
+Date: Thu, 23 Nov 2000 15:15:25 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Phil Stracchino <alaric@babcom.com>
+CC: Linux-KERNEL <linux-kernel@vger.kernel.org>, support@vmware.com
+Subject: Re: VMWare will not run on kernel 2.4.0-test11
+In-Reply-To: <20001123120701.A1338@babylon5.babcom.com>
+Content-Type: multipart/mixed;
+ boundary="------------E02D9A36ECED45007539BDEC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just compiled and installed kernel 2.4.0-test11.  Upon rebooting,
-vmware-2.0.3-786 refused to run.  Running vmware-config.pl resulted in a
-the following message:
+This is a multi-part message in MIME format.
+--------------E02D9A36ECED45007539BDEC
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-	"Your processor does not have a Time Stamp Counter. VMware will
-	 not run on this system."
+Tiny patch for vmware-config.pl
 
-Since (1) my hardware has not changed, (2) this VMware release ran
-perfectly on 2.4.0-test10, and (3) I changed nothing but the kernel in
-between 2.4.0-test10 and 2.4.0-test11, I feel quite confident in believing
-that I do indeed possess a Time Stamp Counter (whatever such a fabulous
-beast may be), but for some reason VMware is unable to detect its presence
-when running on kernel 2.4.0-test11.  Evidently there has been some change
-in the kernel which renders VMware unable to detect this mysterious - but
-apparently crucial - feature.
-
-
-I would appreciate any insights from either kernel folks or VMware folks
-as to where this problem may lie, with an eventual aim of patching either
-VMware or the kernel to allow VMware to run on this kernel.
-
-
+Phil Stracchino wrote:
+> 
+> I just compiled and installed kernel 2.4.0-test11.  Upon rebooting,
+> vmware-2.0.3-786 refused to run.  Running vmware-config.pl resulted in a
+> the following message:
+> 
+>         "Your processor does not have a Time Stamp Counter. VMware will
+>          not run on this system."
+> 
 
 -- 
- Linux Now!   ..........Because friends don't let friends use Microsoft.
- phil stracchino   --   the renaissance man   --   mystic zen biker geek
-    Vr00m:  2000 Honda CBR929RR   --   Cage:  2000 Dodge Intrepid R/T
- Previous vr00mage:  1986 VF500F (sold), 1991 VFR750F3 (foully murdered)
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
+--------------E02D9A36ECED45007539BDEC
+Content-Type: text/plain; charset=us-ascii;
+ name="vmware-config-2.4.0-test11.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vmware-config-2.4.0-test11.patch"
+
+--- vmware-config.pl.old	Thu Nov 23 15:12:32 2000
++++ vmware-config.pl	Thu Nov 23 15:12:55 2000
+@@ -1113,7 +1113,7 @@
+   if (direct_command(shell_string($gHelper{'grep'}) . ' ' . shell_string('^cpuid') . ' /proc/cpuinfo') eq '') {
+     error('Your ' . (($gSystem{'smp'} eq 'yes') ? 'processors do' : 'processor does') . ' not support the cpuid instruction. VMware will not run on this system.' . "\n\n");
+   }
+-  if (direct_command(shell_string($gHelper{'grep'}) . ' ' . shell_string('^flags.* tsc') . ' /proc/cpuinfo') eq '') {
++  if (direct_command(shell_string($gHelper{'grep'}) . ' ' . shell_string('^features.* tsc') . ' /proc/cpuinfo') eq '') {
+     error('Your ' . (($gSystem{'smp'} eq 'yes') ? 'processors do' : 'processor does') . ' not have a Time Stamp Counter. VMware will not run on this system.' . "\n\n");
+   }
+ }
+
+--------------E02D9A36ECED45007539BDEC--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

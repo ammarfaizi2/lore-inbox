@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310819AbSCHSpH>; Fri, 8 Mar 2002 13:45:07 -0500
+	id <S310916AbSCHSvt>; Fri, 8 Mar 2002 13:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310868AbSCHSos>; Fri, 8 Mar 2002 13:44:48 -0500
-Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:45988
-	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
-	with ESMTP id <S310819AbSCHSoj>; Fri, 8 Mar 2002 13:44:39 -0500
-Subject: Re: 2.4.18-rc4-aa1 XFS oopses caused by cpio
-From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
-To: Stephen Lord <lord@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-In-Reply-To: <3C88CB1C.90203@sgi.com>
-In-Reply-To: <1015580766.20800.3.camel@svetljo.st-peter.stw.uni-erlangen.de>
-	<3C88B612.1070206@sgi.com> <3C88C9A1.5070502@st-peter.stw.uni-erlangen.de> 
-	<3C88CB1C.90203@sgi.com>
-Content-Type: text/plain
+	id <S310950AbSCHSvi>; Fri, 8 Mar 2002 13:51:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55046 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310916AbSCHSvc>; Fri, 8 Mar 2002 13:51:32 -0500
+Message-ID: <3C89080D.8060503@zytor.com>
+Date: Fri, 08 Mar 2002 10:50:53 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Terje Eggestad <terje.eggestad@scali.com>,
+        Ben Greear <greearb@candelatech.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        george anzinger <george@mvista.com>
+Subject: Re: gettimeofday() system call timing curiosity
+In-Reply-To: <E16iz57-0002SW-00@the-village.bc.nu> <1015515815.4373.61.camel@pc-16.office.scali.no> <a68bo4$b18$1@cesium.transmeta.com> <20020308013222.B14779@kushida.apsleyroad.org> <3C88157E.5010106@zytor.com> <20020308015701.C14779@kushida.apsleyroad.org> <20020308183049.A18247@kushida.apsleyroad.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-4mdk 
-Date: 08 Mar 2002 19:45:23 +0100
-Message-Id: <1015613123.4301.11.camel@svetljo.st-peter.stw.uni-erlangen.de>
-Mime-Version: 1.0
-X-Scanner: exiscan *16jPLl-0007CL-00*xB8nuNe7t/k* (Studentenwohnanlage Nuernberg St.-Peter)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-seems to work now
-created a 1 Gib lv, formated it, extended with 2 Gib , extended the fs
-and transfered about 1,5 Gib over it 
-No troubles
+Jamie Lokier wrote:
 
-thanks for the fix
+> 
+> On my laptop, the median of rdtsc+gettimeofday+rdtsc times is 470 cycles
+> for most runs of 1000, but is occasionally 453 cycles.
+> 
 
-:)
 
-svetljo
+What that indicates to me is that 1000 is way too small of a sample. 
+You're only talking a difference of 17,000 cycles, which could -- 
+especially with cache effects -- easily be the time spent in an 
+interrupt handler.
 
-and 
-a stupid question
-is there a way to limit the I/O request that XFS sends to the lower
-layer ( soft RAID or lvm ) without need to modify existing fs 
-just a hack until the raid-0 code in 2.5 is fixed
+	-hpa
 
-i'm talking about this:
-> raid0_make_request bug: can't convert block across chunks or bigger
-> than 16k 23610115 64
-i posted already twice to lkml and linux-xfs
-and i got answer that the raid is not ready but it's worked on
 
-thanks
-
-svetljo
 

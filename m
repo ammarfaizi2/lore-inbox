@@ -1,83 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbTBEPl4>; Wed, 5 Feb 2003 10:41:56 -0500
+	id <S261302AbTBEP7v>; Wed, 5 Feb 2003 10:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbTBEPl4>; Wed, 5 Feb 2003 10:41:56 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49678 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261495AbTBEPlz>; Wed, 5 Feb 2003 10:41:55 -0500
-Date: Wed, 5 Feb 2003 15:51:27 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       James Simmons <jsimmons@infradead.org>
-Subject: Re: fbcon scrolling madness + fbset corruption
-Message-ID: <20030205155127.B28758@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	James Simmons <jsimmons@infradead.org>
-References: <20030119200340.A13758@flint.arm.linux.org.uk> <1043026112.988.4.camel@localhost.localdomain> <20030202195744.C32007@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030202195744.C32007@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sun, Feb 02, 2003 at 07:57:44PM +0000
+	id <S261530AbTBEP7v>; Wed, 5 Feb 2003 10:59:51 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:14824 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261302AbTBEP7u> convert rfc822-to-8bit; Wed, 5 Feb 2003 10:59:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] ide write barriers
+Date: Wed, 5 Feb 2003 16:28:48 +0100
+User-Agent: KMail/1.4.3
+Cc: Chris Mason <mason@suse.com>
+References: <20030205151859.GK31566@suse.de>
+In-Reply-To: <20030205151859.GK31566@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302051628.48803.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No one's commented on this yet.
+On Wednesday 05 February 2003 16:18, Jens Axboe wrote:
 
-James?
+Hi Jens,
 
-On Sun, Feb 02, 2003 at 07:57:44PM +0000, Russell King wrote:
-> This doesn't appear to solve the ywrap problem - I still get
-> places where the screen doesn't scroll.  I decided to write a
-> small program to dump out the contents of fb_var_screeninfo, and
-> where stuff goes horribly wrong:
-> 
-> bash-2.04# ./tst
-> Visible: 1280x1024
-> Virtual: 1280x1632
-> BPP    : 8
-> Offset : +0+2352
-> bash-2.04# ./tst
-> Visible: 1280x1024
-> Virtual: 1280x1632
-> BPP    : 8
-> Offset : +0+2392
-> 
-> Up to the point where it goes wrong:
-> 
-> bash-2.04# ./tst
-> Visible: 1280x1024
-> Virtual: 1280x1632
-> BPP    : 8
-> Offset : +0+528
-> bash-2.04# ./tst
-> Visible: 1280x1024
-> Virtual: 1280x1632
-> BPP    : 8
-> Offset : +0+568
-> bash-2.04# ./tst
-> Visible: 1280x1024	<--- this is the last line on the screen
-> Virtual: 1280x1632
-> BPP    : 8
-> Offset : +0+608
-> bash-2.04#
-> 
-> So it looks like something isn't limiting the yoffset in the generic
-> console layer; an xoffset of 2392 when the maximum virtual Y is 1632
-> is just nonsense.
-> 
-> I also noticed an additional problem with fbcon: if I change the
-> resolution using fbset, the change occurs, except I end up with
-> corrupted mess on the screen (the reminents of the original display.)
-> The shell prompt is nowhere to be seen.
-> 
-> Hitting ^L clears the screen and then the shell prompt is visiable.
+> The attached patch implements write barrier operations in the block
+> layer and for IDE, specifically. The goal is to make the use of write
+> back cache enabled ide drives safe with journalled file systems.
+> Patch is against 2.4.21-pre4-bk as of today, and includes a small patch
+> to enable it on ext3. Chris has a patch for reiserfs as well.
+Could you also please cook up one for 2.4.20? :) Thank you.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+ciao, Marc

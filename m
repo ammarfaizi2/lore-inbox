@@ -1,117 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbUCLMNN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 07:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUCLMNN
+	id S262068AbUCLMUu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 07:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUCLMUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 07:13:13 -0500
-Received: from furon.ujf-grenoble.fr ([152.77.2.202]:37261 "EHLO
-	furon.ujf-grenoble.fr") by vger.kernel.org with ESMTP
-	id S261983AbUCLMNK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 07:13:10 -0500
-From: Mickael Marchand <marchand@kde.org>
-To: Joe Thornber <thornber@redhat.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.4-mm1
-Date: Fri, 12 Mar 2004 13:11:46 +0100
-User-Agent: KMail/1.6.1
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-References: <1ysXv-wm-11@gated-at.bofh.it> <20040312082214.GO18345@reti> <20040312094951.GP18345@reti>
-In-Reply-To: <20040312094951.GP18345@reti>
-MIME-Version: 1.0
+	Fri, 12 Mar 2004 07:20:50 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4619
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262068AbUCLMUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 07:20:45 -0500
+Date: Fri, 12 Mar 2004 13:21:27 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+Message-ID: <20040312122127.GQ30940@dualathlon.random>
+References: <20040311135608.GI30940@dualathlon.random> <Pine.LNX.4.44.0403112226581.21139-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403121311.46975.marchand@kde.org>
+In-Reply-To: <Pine.LNX.4.44.0403112226581.21139-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 11, 2004 at 10:28:42PM -0500, Rik van Riel wrote:
+> On Thu, 11 Mar 2004, Andrea Arcangeli wrote:
+> 
+> > it's more complicated because it's more finegrined and it can handle
+> > mremap too. I mean, the additional cost of tracking the vmas payoffs
+> > because then we've a tiny list of vma to search for every page,
+> > otherwise with the mm-wide model we'd need to search all of the vmas in
+> > a mm.
+> 
+> Actually, with the code Rajesh is working on there's
+> no search problem with Hugh's idea.
 
-just tested, it works just fine :)
-no more errors,
-dmsetup version and dmsetup ls work nicely
-I will try to make evms work now but I guess that should be okay.
-I will report if I have other troubles.
+you missed the fact mremap doesn't work, that's the fundamental reason
+for the vma tracking, so you can use vm_pgoff.
 
-good candidate for next mm ?
+if you take Hugh's anonmm, mremap will be attaching a persistent dynamic
+overhead to the vma it touches. Currently it does in form of pte_chains,
+that can be converted to other means of overhead, but I simply don't
+like it.
 
-thanks Joe,
+I like all vmas to be symmetric to each other, without special hacks to
+handle mremap right.
 
-Mik
+We have the vm_pgoff to handle mremap and I simply use that.
 
-Le vendredi 12 Mars 2004 10:49, Joe Thornber a écrit :
-> On Fri, Mar 12, 2004 at 08:22:14AM +0000, Joe Thornber wrote:
-> > name len == 128, uuid_len == 129, so is the uuid_len being rounded up
-> > to the nearest 64bit boundary on x86-64 and only 32bit boundary on
-> > x86-32 ?  (Sounds likely)
->
-> In which case the following ugly patch should fix things.  Mickael,
-> any chance you could test this please ?
->
-> - Joe
->
->
-> Fix ioctl breakage on x86-64.
-> --- diff/include/linux/dm-ioctl.h	2004-03-11 10:20:28.000000000 +0000
-> +++ source/include/linux/dm-ioctl.h	2004-03-12 09:44:58.000000000 +0000
-> @@ -187,23 +187,37 @@ enum {
->  	DM_TABLE_STATUS_CMD,
->  };
->
-> +/*
-> + * The dm_ioctl struct passed into the ioctl is just the header
-> + * on a larger chunk of memory.  On x86-64 the dm-ioctl struct
-> + * will be padded to an 8 byte boundary so the size will be
-> + * different, which would change the ioctl code - yes I really
-> + * messed up.  This hack forces x86-64 to have the correct ioctl
-> + * code.
-> + */
-> +#ifdef CONFIG_X86_64
-> +typedef char ioctl_struct[308];
-> +#else
-> +typedef struct dm_ioctl ioctl_struct;
-> +#endif
-> +
->  #define DM_IOCTL 0xfd
->
-> -#define DM_VERSION       _IOWR(DM_IOCTL, DM_VERSION_CMD, struct dm_ioctl)
-> -#define DM_REMOVE_ALL    _IOWR(DM_IOCTL, DM_REMOVE_ALL_CMD, struct
-> dm_ioctl) -#define DM_LIST_DEVICES  _IOWR(DM_IOCTL, DM_LIST_DEVICES_CMD,
-> struct dm_ioctl) -
-> -#define DM_DEV_CREATE    _IOWR(DM_IOCTL, DM_DEV_CREATE_CMD, struct
-> dm_ioctl) -#define DM_DEV_REMOVE    _IOWR(DM_IOCTL, DM_DEV_REMOVE_CMD,
-> struct dm_ioctl) -#define DM_DEV_RENAME    _IOWR(DM_IOCTL,
-> DM_DEV_RENAME_CMD, struct dm_ioctl) -#define DM_DEV_SUSPEND  
-> _IOWR(DM_IOCTL, DM_DEV_SUSPEND_CMD, struct dm_ioctl) -#define DM_DEV_STATUS
->    _IOWR(DM_IOCTL, DM_DEV_STATUS_CMD, struct dm_ioctl) -#define DM_DEV_WAIT
->      _IOWR(DM_IOCTL, DM_DEV_WAIT_CMD, struct dm_ioctl) -
-> -#define DM_TABLE_LOAD    _IOWR(DM_IOCTL, DM_TABLE_LOAD_CMD, struct
-> dm_ioctl) -#define DM_TABLE_CLEAR   _IOWR(DM_IOCTL, DM_TABLE_CLEAR_CMD,
-> struct dm_ioctl) -#define DM_TABLE_DEPS    _IOWR(DM_IOCTL,
-> DM_TABLE_DEPS_CMD, struct dm_ioctl) -#define DM_TABLE_STATUS 
-> _IOWR(DM_IOCTL, DM_TABLE_STATUS_CMD, struct dm_ioctl) +#define DM_VERSION  
->     _IOWR(DM_IOCTL, DM_VERSION_CMD, ioctl_struct) +#define DM_REMOVE_ALL   
-> _IOWR(DM_IOCTL, DM_REMOVE_ALL_CMD, ioctl_struct) +#define DM_LIST_DEVICES 
-> _IOWR(DM_IOCTL, DM_LIST_DEVICES_CMD, ioctl_struct) +
-> +#define DM_DEV_CREATE    _IOWR(DM_IOCTL, DM_DEV_CREATE_CMD, ioctl_struct)
-> +#define DM_DEV_REMOVE    _IOWR(DM_IOCTL, DM_DEV_REMOVE_CMD, ioctl_struct)
-> +#define DM_DEV_RENAME    _IOWR(DM_IOCTL, DM_DEV_RENAME_CMD, ioctl_struct)
-> +#define DM_DEV_SUSPEND   _IOWR(DM_IOCTL, DM_DEV_SUSPEND_CMD, ioctl_struct)
-> +#define DM_DEV_STATUS    _IOWR(DM_IOCTL, DM_DEV_STATUS_CMD, ioctl_struct)
-> +#define DM_DEV_WAIT      _IOWR(DM_IOCTL, DM_DEV_WAIT_CMD, ioctl_struct)
-> +
-> +#define DM_TABLE_LOAD    _IOWR(DM_IOCTL, DM_TABLE_LOAD_CMD, ioctl_struct)
-> +#define DM_TABLE_CLEAR   _IOWR(DM_IOCTL, DM_TABLE_CLEAR_CMD, ioctl_struct)
-> +#define DM_TABLE_DEPS    _IOWR(DM_IOCTL, DM_TABLE_DEPS_CMD, ioctl_struct)
-> +#define DM_TABLE_STATUS  _IOWR(DM_IOCTL, DM_TABLE_STATUS_CMD,
-> ioctl_struct)
->
->  #define DM_VERSION_MAJOR	4
->  #define DM_VERSION_MINOR	0
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Considering the fact that we'll need Rajesh's code
+> anyway, to deal with Ingo's test program and the real
+
+Rajesh's code has nothing to do with the mremap breakage, Rajesh's code
+can only boost the search of the interesting vmas in an anonmm, it
+doesn't solve mremap.
+
+> world programs that do similar things, I don't see how
+> your objection to Hugh's code is still valid.
+
+This was my objection, maybe you didn't read all my emails, i quote
+again:
+
+"Overall the main reason for forbidding keeping track of vmas and not of
+mm, is to be able to handle mremap as efficiently as with 2.4, I mean
+your anobjrmap-5 simply reistantiate the pte_chains, so the vm then has
+to deal with both pte_chains and anonmm too."
+
+As said one can convert the pte_chains to other means of overhead, but
+still it's an hack and you'll need transient objects to track those if
+you don't track finegrined by vma as I'm doing.
+
+It's not that I didn't read anonmm patches from Hugh, I spent lots of
+time on those, they just were flawed and they couldn't handle mremap,
+he very well knows, see anobjrmap-5 for istance.
+
+the vma merging isn't a problem, we need to rework the code anyways to
+allow the file merging in both mprotect and mremap (currently only mmap
+is capable of merging files, and in turn it's also the only one capable
+of merging anon_vmas). Any merging code that is currently capable of
+merging files is easy to teach about anon_vmas too, it's basically the
+same problem at merging.

@@ -1,51 +1,38 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <155133-19608>; Mon, 25 Jan 1999 17:33:21 -0500
-Received: by vger.rutgers.edu id <154396-19608>; Mon, 25 Jan 1999 17:26:27 -0500
-Received: from wsdw01.win.tue.nl ([131.155.70.5]:3672 "EHLO wsdw01.win.tue.nl" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154411-19608>; Mon, 25 Jan 1999 17:20:00 -0500
-Date: Mon, 25 Jan 1999 23:26:48 +0100 (MET)
-From: dwguest@win.tue.nl (Guest section DW)
-Message-Id: <199901252226.XAA20449@wsdw01.win.tue.nl>
-To: alan@lxorguk.ukuu.org.uk, dhamm@itserve.com, torvalds@transmeta.com
-Subject: The Linux 64 GiB Limit - was: Re: oops! Should be fdisk broken?
+Received: by vger.rutgers.edu via listexpand id <154589-19608>; Tue, 26 Jan 1999 08:50:23 -0500
+Received: by vger.rutgers.edu id <154571-19607>; Tue, 26 Jan 1999 08:50:03 -0500
+Received: from exchange.telindus.be ([194.7.48.10]:1045 "EHLO carolus.telindus.be" ident: "TIMEDOUT") by vger.rutgers.edu with ESMTP id <154544-19607>; Tue, 26 Jan 1999 08:49:52 -0500
+Message-Id: <3.0.1.32.19990126145721.00900100@exchange.telindus.be>
+X-Mailer: Windows Eudora Light Version 3.0.1 (32)
+Date: Tue, 26 Jan 1999 14:57:21 +0100
+To: IOstream <iostream@vei.net>
+From: Marnix Coppens <maco@telindus.be>
+Subject: Re: Doors?
 Cc: linux-kernel@vger.rutgers.edu
+In-Reply-To: <36ADB9AE.F464FC74@vei.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> 	From: David Hamm <dhamm@itserve.com>
-> 
-> 	 I have an 84g raid unit I'm trying to fdisk.  When the computer boots I get
-> 	the  following info on the drive. 
-> 	SCSI device sdb: hdwr sector= 512 bytes. Sectors= 164659200 [80400 MB] [80.4 GB] 
-> 	When I fdisk it I get different info and after partitioning and mke2fs the 
-> 	dirve only mounts with 14g of space.  I know this is a geometry issue but why 
-> 	is it an issue?  Can fdisk be fixed? 
-> 
-> Not if you do not provide any detail at all.
+At 06:48 26/01/99 -0600, you wrote:
+> I was wondering if anyone knows if a doors implementation is available
+>in linux? these are a concept developed by Sun for their experimental
+>(and now dropped) Spring OS.  They are currently available in Solaris.
+>
 
-	From dhamm@itserve.com Mon Jan 25 16:48:31 1999
-	From: David Hamm <dhamm@itserve.com>
+The new Stevens book (UNIX Network Programming, Vol 2 - IPC) has a reference
+to it: http://www.rampant.org/doors .
 
-	Disk /dev/sdb: 64 heads, 32 sectors, 14864 cylinders
-
-Aha! Very good. You lost precisely 2^27 sectors, that is 64 GiB,
-or, more relevant, 2^16 cylinders.
-
-No surprise, since cylinders is a short.
-
-So, the following should improve things. (Unverified, untested.)
-
-Andries
+Cheers,
 
 
---- hdreg.h~    Fri Jan 22 16:49:34 1999
-+++ hdreg.h     Mon Jan 25 23:13:06 1999
-@@ -114,7 +114,7 @@
- struct hd_geometry {
-       unsigned char heads;
-       unsigned char sectors;
--      unsigned short cylinders;
-+      unsigned long cylinders;
-       unsigned long start;
- };
+Marnix Coppens
+
+---
+Reality is that which                   | Artificial Intelligence
+when you stop believing                 | stands no chance against
+in it doesn't go away. (Philip K. Dick) | Natural Stupidity.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

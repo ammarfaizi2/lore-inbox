@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267850AbUJRUJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267633AbUJRUXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267850AbUJRUJv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267759AbUJRUI2
+	id S267633AbUJRUXN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUJRUWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 16:08:28 -0400
-Received: from mail.citnet.ru ([212.1.224.54]:31399 "HELO mail.ti.ru")
-	by vger.kernel.org with SMTP id S267633AbUJRUFv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 16:05:51 -0400
-Message-ID: <41742215.8020005@quadra.ru>
-Date: Tue, 19 Oct 2004 00:05:41 +0400
-From: Oleg Makarenko <mole@quadra.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: ru, en-us, en
+	Mon, 18 Oct 2004 16:22:44 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:5603 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S263962AbUJRUUv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 16:20:51 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: back to -rc4
+Date: Mon, 18 Oct 2004 16:20:49 -0400
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-To: James Morris <jmorris@redhat.com>
-CC: Matt Domsch <Matt_Domsch@dell.com>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: using crypto_digest() on non-kmalloc'd memory failures
-References: <Xine.LNX.4.44.0410181534180.24062-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0410181534180.24062-100000@thoron.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410181620.49829.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.58.180] at Mon, 18 Oct 2004 15:20:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
+Greetings all;
 
->On Mon, 18 Oct 2004, Matt Domsch wrote:
->
->  
->
->>James, David,
->>
->>Oleg noted that when we call crypto_digest() on memory allocated as a
->>static array in a module, rather than kmalloc(GFP_KERNEL), it returns
->>incorrect data, and with other functions, a kernel panic.
->>
->>Thoughts as to why this may be?  Oleg's test patch appended.
->>    
->>
->
->I don't recall the exact details, but it's related to using kmap in the 
->core crypto code.
->
->
->- James
->  
->
-So to calculate digest on some static data I need to copy them to 
-kmalloc'ed memory first, right?
+Just a note to say that I've rebooted to 2.6.9-rc4, final is doing 
+something to the x apps.  I've had mozilla 1.7.3 crash silently 5 or 
+6 times since I booted to final, and kmail just died the same way 6 
+times in about 20 minutes.  When they go away, you can click on the 
+close button, and the system will eventually ask if you want to kill 
+the app, so you do.  And when you restart it, the app has been 
+totally restored to the place it was when it went out for lunch, and 
+works normally again till the next time.
 
-Can this copying be somehow avoided?
+There are no messages in the logs when this occurs.  The only 
+difference in the .config is I had turned an ATI option on in the agp 
+section.
 
-And one more question on crypto api. It looks like it is not very 
-effective for a single byte "block" ciphers as arc4. The overhead is 
-probably too big. Just look at the loop in cipher.c/crypt() and the code 
-in arc4.c/arc4_crypt(). All this code is called for every single clear 
-text byte. Right? Looks like an overkill for bsize == 1.
+I'll turn it back off and try 2.6.9-final again.
 
-Is there any better way to use crypto api for arc4 or similar ciphers? 
-Cipher block size is not always a natural choice for the crypto_yield(). 
-Especially for fast ciphers (arc4) and small "block" sizes (arc4 again).
-
-Or have I missed something obvious?
-
-=oleg
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265319AbRGBQD3>; Mon, 2 Jul 2001 12:03:29 -0400
+	id <S265327AbRGBQFj>; Mon, 2 Jul 2001 12:05:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265323AbRGBQDT>; Mon, 2 Jul 2001 12:03:19 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:55453 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265319AbRGBQDB>;
-	Mon, 2 Jul 2001 12:03:01 -0400
-Message-ID: <3B409B33.E672C5BC@mandrakesoft.com>
-Date: Mon, 02 Jul 2001 12:02:59 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
-X-Accept-Language: en
+	id <S265323AbRGBQF3>; Mon, 2 Jul 2001 12:05:29 -0400
+Received: from node181b.a2000.nl ([62.108.24.27]:37126 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S265322AbRGBQFT>;
+	Mon, 2 Jul 2001 12:05:19 -0400
+Date: Mon, 2 Jul 2001 18:05:40 +0200 (CEST)
+From: <kernel@ddx.a2000.nu>
+To: <linux-kernel@vger.kernel.org>
+cc: Enforcer <enforcer@ddx.a2000.nu>
+Subject: Strange errors in /var/log/messages
+Message-ID: <Pine.LNX.4.30.0107021800410.5490-100000@ddx.a2000.nu>
 MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Tobias Ringstrom <tori@unhappy.mine.nu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        mochel@transmeta.com, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: WOL with 3c59x and 2.4.6-pre6 breaks WOL
-In-Reply-To: <Pine.LNX.4.33.0106291257180.3935-200000@boris.prodako.se> <3B4096D9.36F40BF4@uow.edu.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> --- linux-2.4.6-pre8/drivers/pci/pci.c  Sun Jul  1 16:11:25 2001
-> +++ linux-akpm/drivers/pci/pci.c        Tue Jul  3 01:28:35 2001
-> @@ -425,7 +425,7 @@ int pci_enable_wake(struct pci_dev *dev,
-> 
->         if (enable) value |= PCI_PM_CTRL_PME_STATUS;
->         else value &= ~PCI_PM_CTRL_PME_STATUS;
-> -
-> +       value |= PCI_PM_CTRL_PME_ENABLE;
->         pci_write_config_word(dev, pm + PCI_PM_CTRL, value);
-> 
->         return 0;
+Hi!
 
-wrong but it seems you spotted a bug in the code -- set/clear _ENABLE
-right above your change here.  maybe read and write _STATUS
-unconditionally, for paranoia.
+I'm running RedHat 7.0 with all official RH patches applied. The kernel I
+currently run fow a few days is 2.2.19-7.0.8
+I run the pre-compiled kernel of RH. Suddenly I the following messages:
 
--- 
-Jeff Garzik      | The LSB is a bunch of crap.
-Building 1024    | E-mail for details.
-MandrakeSoft     |
+Jul  2 15:12:16 gateway SERVER[1240]: Dispatch_input: bad request line
+'BBXXXXXXXXXXXXXXXXXX%.176u%3
+00$nsecurity.%301$n%302$n%.192u%303$n\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220111F\200\2111f\2111\211C\211]C\211]K\211M\215M\2001\211ECf
+
+<CUT>
+
+Jul  2 15:12:53 gateway SERVER[1152]: Dispatch_input: bad request line
+'BBTUVWXXXXXXXXXXXXXXXXXX%.20u%30
+0$n%.166u%301$n%302$n%.192u%303$n\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
+0\220\220\220\220\220111F\200\2111f\2111\211C\211]C\211]K\211M\215M\2001\211ECf\211
+
+This continued for about half an hour. Then it stopped. What's going on
+here??
+

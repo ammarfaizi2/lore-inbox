@@ -1,146 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261228AbSITGzr>; Fri, 20 Sep 2002 02:55:47 -0400
+	id <S261464AbSITHBu>; Fri, 20 Sep 2002 03:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261458AbSITGyv>; Fri, 20 Sep 2002 02:54:51 -0400
-Received: from dp.samba.org ([66.70.73.150]:37504 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261415AbSITGyP>;
-	Fri, 20 Sep 2002 02:54:15 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Hotplug CPU 1/4: Bitops Cleanup
-Date: Fri, 20 Sep 2002 16:52:09 +1000
-Message-Id: <20020920065921.877142C05D@lists.samba.org>
+	id <S261474AbSITHBt>; Fri, 20 Sep 2002 03:01:49 -0400
+Received: from videira.terra.com.br ([200.176.3.5]:20368 "EHLO
+	videira.terra.com.br") by vger.kernel.org with ESMTP
+	id <S261464AbSITHBo>; Fri, 20 Sep 2002 03:01:44 -0400
+Subject: Re: ALTPATCH: 8139cp: LinkChg support
+From: Felipe W Damasio <felipewd@terra.com.br>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <3D8ABCEF.9060207@mandrakesoft.com>
+References: <1032487254.247.7.camel@tank> 
+	<3D8ABCEF.9060207@mandrakesoft.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Sep 2002 04:09:43 +0000
+Message-Id: <1032494983.247.70.camel@tank>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Bitops Cleanup
-Author: Rusty Russell
-Status: Trivial
+On Fri, 2002-09-20 at 06:15, Jeff Garzik wrote:
+> diff -Nru a/drivers/net/mii.c b/drivers/net/mii.c
+> --- a/drivers/net/mii.c	Fri Sep 20 02:13:15 2002
+> +++ b/drivers/net/mii.c	Fri Sep 20 02:13:15 2002
+> @@ -170,6 +170,75 @@
+>  	return r;
+>  }
+>  
+> +void mii_check_link (struct mii_if_info *mii)
+> +{
+> +	if (mii_link_ok(mii))
+> +		netif_carrier_on(mii->dev);
+> +	else
+> +		netif_carrier_off(mii->dev);
+> +}
+> +
+> +unsigned int mii_check_media (struct mii_if_info *mii, unsigned int ok_to_print)
+> +{
+> +	unsigned int old_carrier, new_carrier;
+> +	int advertise, lpa, media, duplex;
 
-D: This renames bitmap_member to DECLARE_BITMAP, and moves it to bitops.h.
+	Shouldn't advertise and lpa be either "unsigned short" or u16?
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/drivers/zorro/zorro.c .7898-linux-2.5.31.updated/drivers/zorro/zorro.c
---- .7898-linux-2.5.31/drivers/zorro/zorro.c	2002-07-25 10:13:15.000000000 +1000
-+++ .7898-linux-2.5.31.updated/drivers/zorro/zorro.c	2002-08-12 18:32:06.000000000 +1000
-@@ -80,7 +80,7 @@ struct zorro_dev *zorro_find_device(zorr
-      *  FIXME: use the normal resource management
-      */
- 
--bitmap_member(zorro_unused_z2ram, 128);
-+DECLARE_BITMAP(zorro_unused_z2ram, 128);
- 
- 
- static void __init mark_region(unsigned long start, unsigned long end,
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/bitops.h .7898-linux-2.5.31.updated/include/linux/bitops.h
---- .7898-linux-2.5.31/include/linux/bitops.h	2002-06-24 00:53:24.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/linux/bitops.h	2002-08-12 18:33:56.000000000 +1000
-@@ -1,6 +1,11 @@
- #ifndef _LINUX_BITOPS_H
- #define _LINUX_BITOPS_H
- #include <asm/bitops.h>
-+#include <asm/types.h>
-+
-+#define BITS_TO_LONG(bits) (((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
-+#define DECLARE_BITMAP(name,bits) \
-+	unsigned long name[BITS_TO_LONG(bits)]
- 
- /*
-  * ffs: find first bit set. This is defined the same way as
-@@ -107,7 +112,4 @@ static inline unsigned int generic_hweig
-         return (res & 0x0F) + ((res >> 4) & 0x0F);
- }
- 
--#include <asm/bitops.h>
--
--
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/types.h .7898-linux-2.5.31.updated/include/linux/types.h
---- .7898-linux-2.5.31/include/linux/types.h	2002-06-17 23:19:25.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/linux/types.h	2002-08-12 18:32:06.000000000 +1000
-@@ -3,9 +3,6 @@
- 
- #ifdef	__KERNEL__
- #include <linux/config.h>
--
--#define bitmap_member(name,bits) \
--	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
- #endif
- 
- #include <linux/posix_types.h>
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/linux/zorro.h .7898-linux-2.5.31.updated/include/linux/zorro.h
---- .7898-linux-2.5.31/include/linux/zorro.h	2002-07-25 10:13:18.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/linux/zorro.h	2002-08-12 18:32:06.000000000 +1000
-@@ -10,6 +10,7 @@
- 
- #ifndef _LINUX_ZORRO_H
- #define _LINUX_ZORRO_H
-+#include <linux/bitops.h>
- 
- #ifndef __ASSEMBLY__
- 
-@@ -199,7 +200,7 @@ extern struct zorro_dev *zorro_find_devi
-      *  the corresponding bits.
-      */
- 
--extern bitmap_member(zorro_unused_z2ram, 128);
-+extern DECLARE_BITMAP(zorro_unused_z2ram, 128);
- 
- #define Z2RAM_START		(0x00200000)
- #define Z2RAM_END		(0x00a00000)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/include/sound/ac97_codec.h .7898-linux-2.5.31.updated/include/sound/ac97_codec.h
---- .7898-linux-2.5.31/include/sound/ac97_codec.h	2002-06-21 09:41:55.000000000 +1000
-+++ .7898-linux-2.5.31.updated/include/sound/ac97_codec.h	2002-08-12 18:32:06.000000000 +1000
-@@ -25,6 +25,7 @@
-  *
-  */
- 
-+#include <linux/bitops.h>
- #include "control.h"
- #include "info.h"
- 
-@@ -169,7 +170,7 @@ struct _snd_ac97 {
- 	unsigned int rates_mic_adc;
- 	unsigned int spdif_status;
- 	unsigned short regs[0x80]; /* register cache */
--	bitmap_member(reg_accessed,0x80); /* bit flags */
-+	DECLARE_BITMAP(reg_accessed, 0x80); /* bit flags */
- 	union {			/* vendor specific code */
- 		struct {
- 			unsigned short unchained[3];	// 0 = C34, 1 = C79, 2 = C69
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/sound/core/seq/seq_clientmgr.h .7898-linux-2.5.31.updated/sound/core/seq/seq_clientmgr.h
---- .7898-linux-2.5.31/sound/core/seq/seq_clientmgr.h	2002-06-21 09:41:57.000000000 +1000
-+++ .7898-linux-2.5.31.updated/sound/core/seq/seq_clientmgr.h	2002-08-12 18:32:06.000000000 +1000
-@@ -53,7 +53,7 @@ struct _snd_seq_client {
- 	char name[64];		/* client name */
- 	int number;		/* client number */
- 	unsigned int filter;	/* filter flags */
--	bitmap_member(event_filter, 256);
-+	DECLARE_BITMAP(event_filter, 256);
- 	snd_use_lock_t use_lock;
- 	int event_lost;
- 	/* ports */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7898-linux-2.5.31/sound/core/seq/seq_queue.h .7898-linux-2.5.31.updated/sound/core/seq/seq_queue.h
---- .7898-linux-2.5.31/sound/core/seq/seq_queue.h	2002-06-21 09:41:57.000000000 +1000
-+++ .7898-linux-2.5.31.updated/sound/core/seq/seq_queue.h	2002-08-12 18:32:06.000000000 +1000
-@@ -26,6 +26,7 @@
- #include "seq_lock.h"
- #include <linux/interrupt.h>
- #include <linux/list.h>
-+#include <linux/bitops.h>
- 
- #define SEQ_QUEUE_NO_OWNER (-1)
- 
-@@ -51,7 +52,7 @@ struct _snd_seq_queue {
- 	spinlock_t check_lock;
- 
- 	/* clients which uses this queue (bitmap) */
--	bitmap_member(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
-+ 	DECLARE_BITMAP(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
- 	unsigned int clients;	/* users of this queue */
- 	struct semaphore timer_mutex;
- 
+> +
+> +	/* if forced media, go no further */
+> +	if (mii->duplex_lock)
+> +		return 0; /* duplex did not change */
+> +
+> +	/* check current and old link status */
+> +	old_carrier = netif_carrier_ok(mii->dev) ? 1 : 0;
+> +	new_carrier = (unsigned int) mii_link_ok(mii);
+> +
+> +	/* if carrier state did not change, this is a "bounce",
+> +	 * just exit as everything is already set correctly
+> +	 */
+> +	if (old_carrier == new_carrier)
+> +		return 0; /* duplex did not change */
+> +
+> +	/* no carrier, nothing much to do */
+> +	if (!new_carrier) {
+> +		netif_carrier_off(mii->dev);
+> +		if (ok_to_print)
+> +			printk(KERN_INFO "%s: link down\n", mii->dev->name);
+> +		return 0; /* duplex did not change */
+> +	}
+> +
+> +	/*
+> +	 * we have carrier, see who's on the other end
+> +	 */
+> +	netif_carrier_on(mii->dev);
+> +
+> +	/* get MII advertise and LPA values */
+> +	if (mii->advertising)
+> +		advertise = mii->advertising;
+> +	else {
+> +		advertise = mii->mdio_read(mii->dev, mii->phy_id, MII_ADVERTISE);
+> +		mii->advertising = advertise;
+> +	}
+> +	lpa = mii->mdio_read(mii->dev, mii->phy_id, MII_LPA);
+> +
+> +	/* figure out media and duplex from advertise and LPA values */
+> +	media = mii_nway_result(lpa & advertise);
+        ^^^^^^^^^^^^^^^^^^^^^^^ 
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+	mii_nway_result returns a "unsigned int", so media also doesn't look
+good.
+
+> +	duplex = (media & (ADVERTISE_100FULL | ADVERTISE_10FULL)) ? 1 : 0;
+
+	Or we could do
+
+	duplex = (media & ADVERTISE_FULL) ? 1 : 0;
+
+Felipe
+

@@ -1,107 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264683AbSKZM0x>; Tue, 26 Nov 2002 07:26:53 -0500
+	id <S264815AbSKZMhO>; Tue, 26 Nov 2002 07:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbSKZM0x>; Tue, 26 Nov 2002 07:26:53 -0500
-Received: from gaea.projecticarus.com ([195.10.228.71]:51105 "EHLO
-	gaea.projecticarus.com") by vger.kernel.org with ESMTP
-	id <S264683AbSKZM0w>; Tue, 26 Nov 2002 07:26:52 -0500
-Message-ID: <3DE36A10.4050506@walrond.org>
-Date: Tue, 26 Nov 2002 12:33:20 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: trog@wincom.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A Kernel Configuration Tale of Woe
-References: <3de27d7d.59a8.0@wincom.net>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264818AbSKZMhO>; Tue, 26 Nov 2002 07:37:14 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:738 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264815AbSKZMhM>; Tue, 26 Nov 2002 07:37:12 -0500
+Date: Tue, 26 Nov 2002 13:44:25 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dennis Grant <trog@wincom.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Identifying/activating faster ATAxx modes (WAS kernel config tale of woe)
+Message-ID: <20021126124424.GJ24796@fs.tum.de>
+References: <3de2eee3.16fd.0@wincom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3de2eee3.16fd.0@wincom.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attitude of *some* people (even those considered senior) in this and 
-other mailing lists is down right shameful.
+On Mon, Nov 25, 2002 at 10:31:12PM -0500, Dennis Grant wrote:
 
-Anybody who are genuinely trying to help, contribute or just get 
-involved all too often have their efforts publicly belittled.
+>...
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> VP_IDE: Unknown VIA SouthBridge, contact Vojtech Pavlik <vojtech@ucw.cz>
+>...      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Polite criticism and guidance is always the better option and encourages 
-people to join in rather than frightening them off.
+This is the information that explains it. As Christian already mentioned
+your motherboard has a VIA KT8235 Southbridge which wasn't supported
+until 2.4.20-rc2 (second Release Candidate for 2.4.20).
 
-Arrogance (Ar"ro*gance) (#), n.
-[F., fr. L. arrogantia, fr. arrogans. See Arrogant.]
+>...
+> Quick philosphical point - it was expressed to me that "users shouldn't be compiling
+> kernels, that's the distro manager's job"
+> 
+> I could not POSSIBLY disagree more. What is Linux if not putting more power
+> in the hands of the people who actually use the system? Users should ABSOLUTELY
+> be compiling kernels, if they want to or need to. The trick is to pass on enough
+> information so as to give the guy on the pointy end of the compiler as best
+> a chance of success as can be done.
 
-The act or habit of arrogating, or making undue claims in an overbearing 
-manner; that species of pride which consists in exorbitant claims of 
-rank, dignity, estimation, or power, or which exalts the worth or 
-importance of the person to an undue degree; proud contempt of others; 
-lordliness; haughtiness; self-assumption; presumption.
+IMHO we should distinguish two different kinds of users (simplified,
+but I hope you get the difference) that often get mixed:
+
+1. The novice user who wants to use applications
+This user wants to install Linux with as few clicks as possible. He
+doesn't know what a kernel is and he doesn't want to know. All he wants
+is a stable OS that runs OpenOffice and Netscape.
+
+2. The more experienced user
+There are good reasons (e.g. kernel patches) why a system administrator
+might want to compile his own kernel. Or a computer science student 
+wants to learn a bit more about the kernel he's using.
 
 
-> 
->>>This is the linux-kernel list. Nothing you said has anything
->>>to do with the linux-kernel. 
->>
-> 
-> Oh really Richard?
-> 
-> Re-read the message. 
-> 
-> Point #1 has to do with kernel configuration; ie, "cd /usr/src/linux ; make
-> xconfig" and the choices made thereafter. I want something like "make modelnumberconfig"
-> that abstracts away most of the lower level items based on what low-level stuff
-> is associated with which chunk of hardware.*
-> 
-> I'm pretty sure any time you're invoking the kernel Makefile that you're discussing
-> a "linux kernel issue"
-> 
-> Point #2 has to do with the messages that drivers, modules, and other bits of
-> kernel code print to the dmesg data store wrt how they are currently set up
-> - in other words, kernel state information. The last time I checked, these messages
-> were contained inside the kernel source - I remember looking through "ide.c"
-> looking to see what the "idebus=xx" parameter really controlled, and if it had
-> anything to do with the ATAxx values (as it turns out, it does not, although
-> my Googling indicates that this seems to be a common misconception)
-> 
-> So this, as well, is entirely appropriate material for linux-kernel.
-> 
-> Point #3 has to do with the issues in publishing where what hardware is supported
-> in what kernel version, and where drivers not currently contained in the vanilla
-> kernel are located. Put another way, point #3 is about locating the output of
-> the work of people "employed" on linux-kernel, and so is also entirely appropriate.
-> 
-> 
-> That you are knee-jerk flaming a legitimate message that is entirely on-topic
-> indicates that you didn't actually read the message, and instead fixated on
-> one or two statements contained within itand made assumptions from there. That
-> doesn't seem like good kernel developer practice - perhaps you were looking
-> for Slashdot?
-> 
-> -------------
-> * I saw one response from a gentleman who indicated that the low-level hardware
-> associated with a given "high-level" part number may well change during the
-> life of the part, and that this poses difficulty. I agree. I also think that
-> "perfect is the enemy of good enough" and that a case where you can abstract
-> away the underlying complexity for 90% of the people is probably good enough;
-> especially if there is some sort of feedback mechanism whereby running changes
-> to "high level" part numbers (and the related "low-level" kernel module associations)
-> can be updated in short order.
-> 
-> For the gentleman who posted examples of ATA dmesg output that duplicated very
-> nearly what I was asking for, mine didn't do that. I'll take that (very specific)
-> issue up in a later thread when I have access to the dmesg output from my machine.
-> 
-> 
+For people like you in the second category it should always be possible
+to compile a custom kernel. A user in the first category should whenever
+possible never need to compile his own kernel.
+
+
+> Is asking for a dmesg that states "this is an ATAxxx drive, and your interfacer
+> is using ATAyyy" really such a horrible thing to ask?
+
+No it isn't horrible. The problem I can imagine is that it's possible
+that a startup script on a user's computer (e.g. provided by the
+distribution) uses hdparm or a similar program to manipulate the IDE
+devices. The information provided by "dmesg" would then not reflect the
+state of the system after bootup is completed.
+
+> In any case, I will provide any other info anybody might wish on my system,
+> and thanks to those people who are offering help. It is appreciated.
+
+The information whether DMA is used is available via "hdparm -v", I'm
+sure it will show that "using_dma" is off on your computer.
+
+There are two solutions:
+- safe solution:
+  Apply the 2.4.20-rc3 patch [1] on top of 2.4.19 and do a
+    cp .config /tmp  # because "make mrproper" will delete the .config
+    make mrproper
+    cp /tmp/.config .
+    make oldconfig dep bzImage modules
+- more risky solution:
+  enable DMA with "hdparm -d1"
+
 > DG
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,32 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318964AbSIIVDM>; Mon, 9 Sep 2002 17:03:12 -0400
+	id <S318977AbSIIVFh>; Mon, 9 Sep 2002 17:05:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318965AbSIIVDM>; Mon, 9 Sep 2002 17:03:12 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:4336 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318964AbSIIVC5>; Mon, 9 Sep 2002 17:02:57 -0400
-Subject: Re: opps 2.4.20-pre5-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tabris <tabris@tabris.net>
-Cc: Lawrence Walton <lawrence@the-penguin.otak.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200209081753.14660.tabris@tabris.net>
-References: <20020908203126.GA11475@the-penguin.otak.com> 
-	<200209081753.14660.tabris@tabris.net>
-Content-Type: text/plain
+	id <S318976AbSIIVFh>; Mon, 9 Sep 2002 17:05:37 -0400
+Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:56252 "EHLO
+	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
+	id <S318975AbSIIVFT>; Mon, 9 Sep 2002 17:05:19 -0400
+Reply-To: <imran.badr@cavium.com>
+From: "Imran Badr" <imran.badr@cavium.com>
+To: "'Manfred Spraul'" <manfred@colorfullife.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Calculating kernel logical address ..
+Date: Mon, 9 Sep 2002 14:07:34 -0700
+Message-ID: <01b101c25844$ebb7d8f0$9e10a8c0@IMRANPC>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 09 Sep 2002 22:09:27 +0100
-Message-Id: <1031605767.29793.52.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3D7D0C58.4000309@colorfullife.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-08 at 22:53, Tabris wrote:
-> This is an interaction of the rmap vm patch (included in -ac) and the nVidia 
-> binary driver. I have run into this myself, tho it doesn't usually cause a 
 
-Only he isnt using the Nvidia driver. Somehow he got a page that should
-not have been blown away because someone still had maps to it.
+
+-----Original Message-----
+From: Manfred Spraul [mailto:manfred@colorfullife.com]
+Sent: Monday, September 09, 2002 2:02 PM
+To: Imran Badr; linux-kernel@vger.kernel.org
+Subject: RE: Calculating kernel logical address ..
+
+
+>>As long as you can be sure they won't spontaneously vanish on you.
+>
+>>--
+>>Daniel
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
+> down(&current->mm->mmap_sem) would help.
+>
+
+>Wrong. Acquiring the mmap semaphore does NOT prevent the swapper from
+>swapping out pages.
+
+>Only the page_table_lock prevents the swapper from touching a task.
+
+>--
+>	Manfred
+
+
+I think you missed the whole context of the discussion. The next step is to
+call get_user_pages() which takes appropriate actions to prevent page swaps.
+
+Thanks,
+Imran.
+
+
 

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318351AbSG3RBD>; Tue, 30 Jul 2002 13:01:03 -0400
+	id <S318347AbSG3Q4U>; Tue, 30 Jul 2002 12:56:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318352AbSG3RBD>; Tue, 30 Jul 2002 13:01:03 -0400
-Received: from deming-os.org ([63.229.178.1]:38665 "EHLO deming-os.org")
-	by vger.kernel.org with ESMTP id <S318351AbSG3RBC>;
-	Tue, 30 Jul 2002 13:01:02 -0400
-Message-ID: <3D46C6AB.1000103@deming-os.org>
-Date: Tue, 30 Jul 2002 10:02:35 -0700
-From: Russell Lewis <spamhole-2001-07-16@deming-os.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
+	id <S318350AbSG3Q4T>; Tue, 30 Jul 2002 12:56:19 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:37294 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S318347AbSG3Q4T>;
+	Tue, 30 Jul 2002 12:56:19 -0400
+Message-ID: <010201c237ea$7d338ac0$0200a8c0@MichaelKerrisk>
+From: "Michael Kerrisk" <m.kerrisk@gmx.net>
+To: "Michael Kerrisk" <m.kerrisk@gmx.net>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Weirdness with AF_INET listen() backlog [2.4.18]
+Date: Tue, 30 Jul 2002 18:59:24 +0200
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ia64] Linux kernel deadlock caused by spinlock bug
-References: <Pine.LNX.3.95.1020730124325.5378A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3110.1
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
+>What causes the delay of a few seconds following each of the connect()s
+>in excess of backlog?
 
->On Tue, 30 Jul 2002, Russell Lewis wrote:
->
->You need to gain a lock just to read the bias field. You can't read
->something that somebody else will change while you are deciding
->upon what you read. It just can't work.
->
-I intentionally made bias a non-precise field.  It really doesn't matter 
-if it gets corrupted; it is just a rough idea of what's going on.  So 
-there's no problem reading it without a lock.  If the value you read is 
-wrong (or partial), then the worst that happends is bunch of NOPs before 
-you try for the lock (an undesirable, but not disastrous occurance).
+And to engage my brain a bit - I assume the delay is to prevent flooding!  
+What detemines the length of the delay>
 
->If we presume that it did work. What problem are you attempting
->to fix?  FYI, there are no known 'lock-hogs'. Unlike a wait on
->a semaphore, where a task waiting will sleep (give up the CPU), a
->deadlock on a spin-lock isn't possible. A task will eventually
->get the resource. Because of the well-known phenomena of "locality",
->every possible 'attack' on the spin-lock variable will become
->ordered and the code waiting on the locked resource will get
->it in a first-come-first-served basis. This, of course, assumes
->that the code isn't broken by attempts to change the natural
->order.
->
-Check out the title of the thread...  Somebody has a real, reproducible 
-deadlock on a rw_lock where many readers are starving out a writer, and 
-the system hangs.
+Cheers
+
+Michael
+
 

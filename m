@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132541AbRDEUmp>; Thu, 5 Apr 2001 16:42:45 -0400
+	id <S132974AbRDEU5S>; Thu, 5 Apr 2001 16:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132763AbRDEUmh>; Thu, 5 Apr 2001 16:42:37 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:29789 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S132541AbRDEUma>; Thu, 5 Apr 2001 16:42:30 -0400
-Date: Thu, 5 Apr 2001 22:41:45 +0200 (MET DST)
-From: <Oliver.Neukum@lrz.uni-muenchen.de>
-X-X-Sender: <ui222bq@sun4.lrz-muenchen.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: John Fremlin <chief@bandits.org>,
-        Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: how to let all others run
-In-Reply-To: <Pine.LNX.3.95.1010405124737.15946A-100000@chaos.analogic.com>
-Message-Id: <Pine.SOL.4.31.0104052232001.5537-100000@sun4.lrz-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132547AbRDEU5I>; Thu, 5 Apr 2001 16:57:08 -0400
+Received: from Xenon.Stanford.EDU ([171.64.66.201]:47563 "EHLO
+	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S132974AbRDEU4y>; Thu, 5 Apr 2001 16:56:54 -0400
+Date: Thu, 5 Apr 2001 13:56:08 -0700
+From: Andy Chou <acc@CS.Stanford.EDU>
+To: Andy Chou <acc@CS.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
+Subject: Re: [CHECKER] 15 potential pointer dereference errors in 2.4.3
+Message-ID: <20010405135608.A748@Xenon.Stanford.EDU>
+Reply-To: acc@CS.Stanford.EDU
+In-Reply-To: <20010405015251.A20904@Xenon.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.1.1i
+In-Reply-To: <20010405015251.A20904@Xenon.Stanford.EDU>; from acc@CS.Stanford.EDU on Thu, Apr 05, 2001 at 01:52:51AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Doesn't even show on `top`. Further, it gets the CPU about 100 times
-> a second (HZ). This is normally what you want for something that
-> polls, buts needs to give up the CPU so that whatever it's waiting
-> for can get done as soon as possible.
+Here's one more potential bug for 2.4.3.
 
-Hi,
+-Andy
 
-first of all I want to do this in kernel.
-I need to do this to prevent a race. To handle removal of a hotpluggable
-scsi device. On SMP there's a race between the task blocking the scsi
-device and killing obsolete requests and other tasks queueing no requests.
-If a task has passed the block before it comes into effect, but the
-killing task is done with killing requests before the new request can be
-queued the system will oops.
-Simply calling the kernel equivalent of sched_yield() is not an option as
-the number of runnable tasks can be smaller than the number of CPUs in
-which case sched_yield is a nop.
+[BUG]
+/u2/acc/oses/linux/2.4.3/drivers/isdn/hysdn/hysdn_net.c:309:hysdn_net_create: ERROR:NULL:302:309: Using
+NULL ptr "dev" illegally! set by 'kmalloc_Rsmp_93d4cfe6':302
 
-	Regards
-		Oliver
+Start --->
+	if ((dev = kmalloc(sizeof(struct net_local), GFP_KERNEL)) ==
+NULL) {
+		printk(KERN_WARNING "HYSDN: unable to allocate mem\n");
+		if (card->debug_flags & LOG_NET_INIT)
+			return (-ENOMEM);
+	}
+	memset(dev, 0, sizeof(struct net_local));	/* clean the structure
+*/
 
+Error --->
+	spin_lock_init(&((struct net_local *) dev)->lock);
 

@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUITLvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUITLxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUITLvp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUITLvp
+	id S266296AbUITLxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUITLxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:51:45 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:48266 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S266304AbUITLv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 07:51:28 -0400
-Message-ID: <414EC43B.8040507@grupopie.com>
-Date: Mon, 20 Sep 2004 12:51:23 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Schwab <schwab@suse.de>
-Cc: Olaf Hering <olh@suse.de>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
+	Mon, 20 Sep 2004 07:53:09 -0400
+Received: from cantor.suse.de ([195.135.220.2]:56780 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266296AbUITLw7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 07:52:59 -0400
+Date: Mon, 20 Sep 2004 13:50:32 +0200
+From: Olaf Hering <olh@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
 Subject: Re: OOM & [OT] util-linux-2.12e
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>	<20040920094602.GA24466@suse.de> <jeoek1xn9p.fsf@sykes.suse.de>	<20040920105409.GH5482@DervishD> <jek6upxj1a.fsf@sykes.suse.de>
-In-Reply-To: <jek6upxj1a.fsf@sykes.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.11; VDF: 6.27.0.67; host: bipbip)
+Message-ID: <20040920115032.GA21631@suse.de>
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de> <Pine.LNX.4.61.0409201220200.3460@scrub.home> <20040920105618.GB24928@suse.de> <Pine.LNX.4.61.0409201311050.3460@scrub.home> <20040920112607.GA19073@suse.de> <Pine.LNX.4.61.0409201331320.3460@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0409201331320.3460@scrub.home>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab wrote:
-> DervishD <lkml@dervishd.net> writes:
-> 
-> 
->>    Hi Andreas :)
->>
->> * Andreas Schwab <schwab@suse.de> dixit:
->>
->>>>- fix all broken apps that still rely on mtab. like GNU df(1)
->>>
->>>df does not rely on /etc/mtab.  It relies on getmntent.
->>
->>    Then my GNU df has any problem :???
-> 
-> 
-> No, if any then getmntent.
+ On Mon, Sep 20, Roman Zippel wrote:
 
-I don't get this. From "man getmntent" it seems that getmntent is just a 
-parser for /etc/mtab, and that you must call "setmntent" with the 
-filename you want to parse.
+> Hi,
+> 
+> On Mon, 20 Sep 2004, Olaf Hering wrote:
+> 
+> > > > > How do you distinguish between manual and automatic loop device setup?
+> > > > 
+> > > > -v
+> > 
+> > What do you mean by auto vs. manual? I dont understand what you mean
+> > here.
+> 
+> $ mount -oloop image /mnt
+> 
+> vs
+> 
+> $ losetup image /dev/loop0
+> $ mount /dev/loop0 /mnt
+> 
+> What should umount do, when called with /mnt?
 
-So if you do "setmntent("/etc/mtab",...)" you're explicitly saying that 
-you want getmntent to use /etc/mtab. This is just a open/read in disguise.
+I have /dev/loop0 in /proc/mounts, umount does nothing wrong here.
+What do you see?
 
-Am I missing something?
+> Relying on any specifc ordering in /proc/mounts is broken.
+
+Thats most likely true.  You could bind mount a mtab file.
+This specific case is tricky.
 
 -- 
-Paulo Marques - www.grupopie.com
+USB is for mice, FireWire is for men!
 
-To err is human, but to really foul things up requires a computer.
-Farmers' Almanac, 1978
+sUse lINUX ag, nÜRNBERG

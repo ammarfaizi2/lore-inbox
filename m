@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbTHTDVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 23:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbTHTDVq
+	id S261695AbTHTEUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 00:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTHTEUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 23:21:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32929 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261588AbTHTDVp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 23:21:45 -0400
-Date: Tue, 19 Aug 2003 20:23:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jonathan Brown <jbrown@emergence.uk.net>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-acpi@intel.com
-Subject: Re: 2.6.0-test3-mm3
-Message-Id: <20030819202329.24e938ac.akpm@osdl.org>
-In-Reply-To: <1061349342.8327.11.camel@localhost>
-References: <20030819013834.1fa487dc.akpm@osdl.org>
-	<1061349342.8327.11.camel@localhost>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Aug 2003 00:20:25 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:13075 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261695AbTHTEUX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 00:20:23 -0400
+Date: Wed, 20 Aug 2003 00:11:26 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: David Lang <david.lang@digitalinsight.com>,
+       Eric St-Laurent <ericstl34@sympatico.ca>, linux-kernel@vger.kernel.org
+Subject: Re: scheduler interactivity: timeslice calculation seem wrong
+In-Reply-To: <20030820004851.GD4306@holomorphy.com>
+Message-ID: <Pine.LNX.3.96.1030820000415.11300B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Brown <jbrown@emergence.uk.net> wrote:
->
->   CC      arch/i386/kernel/mpparse.o
-> arch/i386/kernel/mpparse.c: In function `mp_config_ioapic_for_sci':
-> arch/i386/kernel/mpparse.c:1067: warning: implicit declaration of
-> function `mp_find_ioapic'
-> arch/i386/kernel/mpparse.c:1069: `mp_ioapic_routing' undeclared (first
-> use in this function)
-> arch/i386/kernel/mpparse.c:1069: (Each undeclared identifier is reported
-> only once
-> arch/i386/kernel/mpparse.c:1069: for each function it appears in.)
-> arch/i386/kernel/mpparse.c:1071: warning: implicit declaration of
-> function `io_apic_set_pci_routing'
-> arch/i386/kernel/mpparse.c: In function `mp_parse_prt':
-> arch/i386/kernel/mpparse.c:1115: `mp_ioapic_routing' undeclared (first
-> use in this function)
-> make[1]: *** [arch/i386/kernel/mpparse.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
+On Tue, 19 Aug 2003, William Lee Irwin III wrote:
+
+> On Tue, Aug 19, 2003 at 05:32:04PM -0700, David Lang wrote:
+> > while thinking about scaling based on CPU speed remember systems with
+> > variable CPU clocks (or even just variable performance like the transmeta
+> > CPU's)
+> 
+> This and/or mixed cpu speeds could make load balancing interesting on
+> SMP. I wonder who's tried. jejb?
+
+Hum, I *guess* that if you are using some "mean time between dispatches"
+to tune time slice you could apply a CPU speed correction, but mixed speed
+SMP is too corner a case for me. I think if you were tuning time slice by
+mean time between dispatches (or similar) you could either apply a
+correction, set affinity low to keep jobs changing CPUs, or just ignore
+it.
+
+The thing I like about the idea is that if the CPU speed changes the MTBD
+will change and the timeslice will compensate. You could use median MTBD,
+or pick some percentile to tune for response or throughput.
+
+I thought I was just thinking out loud, but it does sound interesting to
+try, since it would not prevent using some priorities as well.
+
+> 
+> 
+> -- wli
 > 
 
-Please send your .config to linux-acpi@intel.com and the fine folks
-there will fix it up, thanks.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

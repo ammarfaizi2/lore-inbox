@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264188AbTEOTgK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 15:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTEOTgK
+	id S264203AbTEOTbT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 15:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264204AbTEOTbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 15:36:10 -0400
-Received: from www.hostsharing.net ([212.42.230.151]:3229 "EHLO
-	pima.hostsharing.net") by vger.kernel.org with ESMTP
-	id S264188AbTEOTgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 15:36:09 -0400
-Date: Thu, 15 May 2003 21:50:25 +0200
-From: Elimar Riesebieter <riesebie@lxtec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: radeonfb and acpi
-Message-ID: <20030515195025.GB696@gandalf.home.lxtec.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 15 May 2003 15:31:19 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:61000 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264203AbTEOTbR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 15:31:17 -0400
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       johannes@erdfelt.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0305151355290.1139-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0305151355290.1139-100000@ida.rowland.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053027740.2095.44.camel@diemos>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
-Content-Disposition: inline
-Organization: LXTEC
-X-gnupg-key-fingerprint: BE65 85E4 4867 7E9B 1F2A  B2CE DC88 3C6E C54F 7FB0
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 15 May 2003 14:42:22 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-05-15 at 13:11, Alan Stern wrote:
+> Maybe they are an Intel-specific addition?  Or perhaps a more 
+> recent version of the spec has more information -- the one I've got is 1.1 
+> (March 1996).
 
---WYTEVAkct0FjGQmd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I can't find any later documents.
+
+> Can you suggest a good way of detecting whether or not a controller is
+> part of a PIIX4 chipset, to indicate whether or not the OC bits are valid?
+
+I don't see a generic way to determine the validity of these bits.
+
+I think the PCI ID is the only way:
+Vendor ID 8086
+Device ID 7112
+
+The erratum is only for the PIIX4, and it is
+triggered only when the OC inputs are active,
+so limiting the check to that device should
+be OK.
+
+Probably the least intrusive thing to do
+is to disable suspending the uhci controller
+if it is a PIIX4 *and* either port has an
+over current condition. This will catch the case
+of a functional USB controller that has one
+or more real over current conditions and the
+case of a deliberately disabled (by hardwiring
+the OC inputs) controller. The erratum will
+pop up in both cases causing suspend<->wake
+thrashing.
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
 
 
-Hi all,
-
-I am running 2.4.21-rc2-ac2 with a radeonfb and dri. If ACPI is
-enabled the power of 2.4 GHz Intel i686 is reduced to minimum the half.=20
-The acpi modules of 2.4.20 are working perfect in that constellation.
-(Need that for power off at shutdown). DRI and XF86 4.3.0 are
-running much better than the ati-drivers.
-
-BTW: Which kernel-params do I need to start radeonfb with
-video:radeonfb=3D1280x1024-16@75 ? The FB even starts with=20
-colour frame buffer device 80x30.
-
-Any hints?
-
-Ciao
-
-Elimar
-
-
---=20
-  Never make anything simple and efficient when a way=20
-  can be found to make it complex and wonderful ;-)
-
---WYTEVAkct0FjGQmd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+w++B3Ig8bsVPf7ARApckAKCnVEHSBq8ecS9+arSvGzUNduyXmgCghLNl
-zG8Y6h0xWANQcb0pVLnx4sE=
-=m4on
------END PGP SIGNATURE-----
-
---WYTEVAkct0FjGQmd--

@@ -1,91 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278506AbRJPDC1>; Mon, 15 Oct 2001 23:02:27 -0400
+	id <S277879AbRJPDI1>; Mon, 15 Oct 2001 23:08:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278509AbRJPDCR>; Mon, 15 Oct 2001 23:02:17 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55300 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278506AbRJPDCI>; Mon, 15 Oct 2001 23:02:08 -0400
-Date: Mon, 15 Oct 2001 20:01:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][PATCH] large /proc/mounts and friends
-In-Reply-To: <Pine.GSO.4.21.0110152050010.11608-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0110151936580.4179-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277918AbRJPDIS>; Mon, 15 Oct 2001 23:08:18 -0400
+Received: from grip.panax.com ([63.163.40.2]:51725 "EHLO panax.com")
+	by vger.kernel.org with ESMTP id <S277879AbRJPDIK>;
+	Mon, 15 Oct 2001 23:08:10 -0400
+Date: Mon, 15 Oct 2001 23:08:38 -0400
+From: Patrick McFarland <unknown@panax.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM
+Message-ID: <20011015230836.B1314@localhost>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011015211216.A1314@localhost> <9qg46l$378$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9qg46l$378$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: Linux 2.4.12 i586
+X-Distributed: Join the Effort!  http://www.distributed.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+reading what lang wrote, ive been thinking
 
-On Mon, 15 Oct 2001, Alexander Viro wrote:
->
-> 	See comments in fs/seq_file.c for description of interface - I
-> hope they are clear enough.
+Im on the type of machine that swapping the least is most favorable. rik's vm seems that it would be able to swap less, and not swap the wrong things enough of the time. andrea's, if i try to do something major, it swaps like crazy, but I havent tested rik's because I dont trust the rest of the ac tree to mess around with it. Is there any chance of rik's vm being atleast an option to choose, and possibly see what the community wants? Maybe if rik's vm is cleaned up, that 5% of stupidity would go down to the less than 1% we all hope for. 
 
-Al, I understand why you'd like the seq interface, but quite frankly, I
-would personally much prefer a different approach: namely making the file
-position be a "structured" thing instead, and have (for example) the low
-12 bits be the character index, and the upper 52 bits be various "field
-indexes" depending on what file it is.
+On 16-Oct-2001, Linus Torvalds wrote:
+> In article <20011015211216.A1314@localhost>,
+> Patrick McFarland  <unknown@panax.com> wrote:
+> >
+> >Why is the simple vm system still in place on the linus tree? I would
+> think the smart vm system in the ac tree would be better suited to .. 
+> oh..  say ..  everything.
+> 
+> "complex" != "smart".
+> 
+> The benchmarks I've seen says that the simple VM performs better - both
+> in terms of repeatability and in terms of absolute performance. Search
+> this list yourself if you don't believe me.
+> 
+> 		Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-If you have a character sequence number, that means that you _always_ have
-to re-generate the whole file up to the new read-point. That simply does
-not scale. Sure, it works well enough when the user usually reads the
-whole file, but it's still a silly design.
-
-File positions do not have to be consecutive, especially for /proc files
-that already confuse things like "less" by not having a well-defined
-length etc.
-
-You have 64 bits to play with, and you can pretty much organize them any
-way you want. For example, for many things it might be:
-
- - low 12 bits are "offset in entry string"
- - next X bits are "hash index"
- - next Y bits are "position on hash chain"
-
-which tends to work pretty well with things that are hashed (it mounts,
-sockets, etc) and that don't necessarily have a good cardinal ordering.
-
-Can it get confused when people insert/remove entries at the same time we
-read /proc? Sure. That's pretty much unavoidable with the /proc interface,
-as we can't hold any locks across user-mode system calls. But using a
-structured approach may make it _much_ more likely that the user doesn't
-get data where a entry is cut off in the middle, though - especially if
-you make the read routine be eager to return partial reads rather than
-cutting things off in the middle..
-
-(In other words: with a structured approach you can make guarantees about
-the stability of each entry - you just can't necessarily guarantee that
-all entries are shown or that some entries might not be duplicated..)
-
-This approach is actually already used for some things - the "readdir()"
-thing with "FIRST_PROCESS_ENTRY", for example. But also see a better
-example in "proc_pid_read_maps()" with the high bits being the "line
-number", and the low bits being the offset within the line.
-
-Final note: another _extremely_ useful thing for performance is to have a
-special "EOF" value for f_pos, because all normal applications end up
-having to always do at least two reads: first to get the data (usually
-the user buffer is larger than the amounf of data generated), the second
-to just get the "0" for EOF. If the second read can be done without any
-data generation or lock handling, that often speeds up /proc accesses by
-a noticeable amount.
-
-The special EOF value fits very well with the "structure" approach.
-
-For example, it's quite common to know that each individual entry is
-limited in size (with PAGE_SIZE being a nice common max size for any
-entry), and the thing that makes the whole /proc file potentially large is
-that there are many entries. I'd rather have that kind of helper routines:
-a helper routine where there would be a "print out entry X" routine, and
-then common routines to turn that "print out entry X" into a full
-proc_xxx_read() function.
-
-Al?
-
-		Linus
-
-
+-- 
+Patrick "Diablo-D3" McFarland || unknown@panax.com

@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVARAli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVARAvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVARAli (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 19:41:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVARAlh
+	id S261370AbVARAvm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 19:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVARAvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 19:41:37 -0500
-Received: from ms-smtp-02-lbl.southeast.rr.com ([24.25.9.101]:24808 "EHLO
-	ms-smtp-02-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S261361AbVARAld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 19:41:33 -0500
-Message-ID: <41EC5B3A.4000004@ncsu.edu>
-Date: Mon, 17 Jan 2005 19:41:30 -0500
-From: Chris Bookholt <cgbookho@ncsu.edu>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: legacy_va_layout
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 17 Jan 2005 19:51:42 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5075 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261370AbVARAvl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 19:51:41 -0500
+Subject: Re: [PATCH] PPC64 pmac hotplug cpu
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux PPC64 <linuxppc64-dev@ozlabs.org>,
+       Anton Blanchard <anton@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <41EBD662.1080409@nortelnetworks.com>
+References: <Pine.LNX.4.61.0501122341410.23299@montezuma.fsmlabs.com>
+	 <1105827794.27410.82.camel@gaston>
+	 <Pine.LNX.4.61.0501162129380.3010@montezuma.fsmlabs.com>
+	 <1105937266.4534.0.camel@gaston>  <41EBD662.1080409@nortelnetworks.com>
+Content-Type: text/plain
+Date: Tue, 18 Jan 2005 11:49:15 +1100
+Message-Id: <1106009355.4533.19.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could anyone explain or refer me to some documentation that explains the 
-purpose of the legacy_va_layout sysctl option?
+On Mon, 2005-01-17 at 09:14 -0600, Chris Friesen wrote:
+> Benjamin Herrenschmidt wrote:
+> 
+> > Well.. the cache flush part requires some not-really-documentd stuff on
+> > the 970, but I'll try to come up with something.
+> 
+> Details?  We've got a cache-flush routine put together based on the 
+> documentation that seems to be working, but if there's something else 
+> that has to be done I'd love to know about it.
 
-Essentially, I'm looking to understand how the legacy layout is 
-different from the current 2.6-series VA space layout.
+Well, I don't have all the details at hand right now, but it involves
+using SCOM (with appropriate workarounds for CPU SCOM bugs on some
+970's) to switch the L2 to direct addressing iirc.
 
-Thanks muchly in advance
+Ben.
 
--Chris
--- 
-Chris Bookholt
-cgbookho@ncsu.edu
-PGP Key: http://chris.kavefish.net/pubkey.asc
+

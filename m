@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135213AbRDLPyL>; Thu, 12 Apr 2001 11:54:11 -0400
+	id <S135212AbRDLQBN>; Thu, 12 Apr 2001 12:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135212AbRDLPyB>; Thu, 12 Apr 2001 11:54:01 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:5133 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S135211AbRDLPx4>;
-	Thu, 12 Apr 2001 11:53:56 -0400
-Date: Thu, 12 Apr 2001 08:51:18 -0700
-From: Anton Blanchard <anton@samba.org>
-To: Maneesh Soni <smaneesh@in.ibm.com>
-Cc: tridge@samba.org, lkml <linux-kernel@vger.kernel.org>,
-        lse tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [RFC][PATCH] Scalable FD Management using Read-Copy-Update
-Message-ID: <20010412085118.A26665@va.samba.org>
-In-Reply-To: <20010409201311.D9013@in.ibm.com> <20010411182929.A16665@va.samba.org> <20010412211354.A25905@in.ibm.com>
-Mime-Version: 1.0
+	id <S135214AbRDLQBE>; Thu, 12 Apr 2001 12:01:04 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48389 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135212AbRDLQAw>; Thu, 12 Apr 2001 12:00:52 -0400
+Subject: Re: scheduler went mad?
+To: hugh@veritas.com (Hugh Dickins)
+Date: Thu, 12 Apr 2001 17:02:52 +0100 (BST)
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0104121622520.1638-100000@localhost.localdomain> from "Hugh Dickins" at Apr 12, 2001 04:43:10 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010412211354.A25905@in.ibm.com>; from smaneesh@in.ibm.com on Thu, Apr 12, 2001 at 09:13:54PM +0530
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14njYc-0000vA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+> 2.4.3-pre6 quietly made a very significant change there:
+> it used to say "if (!order) goto try_again;" and now just
+> says "goto try_again;".  Which seems very sensible since
+> __GFP_WAIT is set, but I do wonder if it was a safe change.
+> We have mechanisms for freeing pages (order 0), but whether
+> any higher orders come out of that is a matter of chance.
 
-> Base (2.4.2) - 
->         100 Average Throughput = 39.628  MB/sec
->         200 Average Throughput = 22.792  MB/sec
-> 
-> Base + files_struct patch - 
->         100 Average Throughput = 39.874 MB/sec
->         200 Average Throughput = 23.174 MB/sec  
->          
-> I found this value quite less than the one present in the README distributed
-> with dbench tarball. I think the numbers in the README were for a similar 
-> machine but with 2.2.9 kernel.
+The fundamental problem is that it should say
 
-If you guestimate that each dbench client uses about 20M of RAM then dbench
-100 has no chance of remaining in memory. Once you hit disk then spinlock
-optimisations are all in the noise :) Smaller runs (< 30) should see 
-it stay in memory.
+	wait_for_mm_progress();
+	goto try_again;
 
-Also if you turn of kupdated (so old buffers are not flushed out just
-because they are old) and make the VM more agressive about filling
-memory with dirty buffers then you will not hit the disk and then
-hopefully the optimisations will be more obvious.
+and we dont have that facility right now. At that point the looping on
+failed allocations problem is ok as we will allow someone to make progress.
+That leaves the bounce buffers for > 800Mb RAM which currently are seriously
+horked and will loop and may even stack overflow by inspection
 
-killall -STOP kupdated
-echo "90 64 64 256 500 3000 95 0 0" > /proc/sys/vm/bdflush
-
-Remember to killall -CONT kupdated when you are finished :)
-
-> I am copying this to Andrew also, if he can also help. Also if you have some
-> dbench numbers from 2.4.x kernel, please let me have a look into those also.
-
-The single CPU 333MHz POWER 3 I was playing with got 100MB/s when not
-touching disk.
-
-Anton

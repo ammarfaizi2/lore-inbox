@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262380AbSLJPsz>; Tue, 10 Dec 2002 10:48:55 -0500
+	id <S262420AbSLJQLX>; Tue, 10 Dec 2002 11:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbSLJPsz>; Tue, 10 Dec 2002 10:48:55 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:35793 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S262380AbSLJPsy>; Tue, 10 Dec 2002 10:48:54 -0500
-Date: Tue, 10 Dec 2002 16:56:32 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: James Morris <jmorris@intercode.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2 networking, NET_BH latency
-Message-ID: <20021210155632.GC23479@laguna.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	James Morris <jmorris@intercode.com.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021210153134.GB23479@laguna.alcove-fr> <Mutt.LNX.4.44.0212110245180.1678-100000@blackbird.intercode.com.au>
+	id <S262452AbSLJQLK>; Tue, 10 Dec 2002 11:11:10 -0500
+Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:7360 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262416AbSLJQKO>; Tue, 10 Dec 2002 11:10:14 -0500
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Egger <degger@fhm.edu>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Joseph <jospehchan@yahoo.com.tw>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1039504941.30881.10.camel@sonja>
+References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
+	<20021210055215.GA9124@suse.de>  <1039504941.30881.10.camel@sonja>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Dec 2002 16:51:20 +0000
+Message-Id: <1039539080.14302.29.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Mutt.LNX.4.44.0212110245180.1678-100000@blackbird.intercode.com.au>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 02:46:11AM +1100, James Morris wrote:
 
-> On Tue, 10 Dec 2002, Stelian Pop wrote:
-> 
-> > I experience some odd behaviour when routing some network packets
-> > on a 2.2(.18) kernel (with Ingo's low latency patch in case it 
-> > matters).
-> > 
-> > Although there are probably bugs in the modifications we made
-> > (a network card driver, some tweaks in the network core to deal
-> > with several packet priorities etc), I'm not sure the behaviour
-> > is directly due to a bug in our modifications or some synchronisation
-> > issue we overlooked.
-> 
-> Can you reproduce the problem with a vanilla 2.2.23 kernel?
+> Interesting. I have no clue about which C3 you're talking about here but
+> a VIA Ezra has all 686 instructions including cmov and thus optimising 
+> for PPro works best for me.
 
-I didn't try yet, but it is on my list.
+Well if you optimise for ppro it won't actually always work. Also the
+scheduling seems to be best with 486. Remember the C3 is a single issue
+risc processor.
 
-Should I interpret your message as some changes between 2.2.18 and 2.2.23
-could be responsible for that behaviour or you are just shooting in the
-dark ? :-)
+Alan
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

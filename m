@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317475AbSF1U3C>; Fri, 28 Jun 2002 16:29:02 -0400
+	id <S317467AbSF1U2V>; Fri, 28 Jun 2002 16:28:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317481AbSF1U3B>; Fri, 28 Jun 2002 16:29:01 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:30694
-	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
-	id <S317475AbSF1U27> convert rfc822-to-8bit; Fri, 28 Jun 2002 16:28:59 -0400
-Message-ID: <20020628203120.23875.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
-To: linux-kernel@vger.kernel.org
-Subject: ide-cs not releasing interrupt line
+	id <S317475AbSF1U2U>; Fri, 28 Jun 2002 16:28:20 -0400
+Received: from congress104.linuxsymposium.org ([209.151.18.104]:7296 "EHLO
+	karaya.com") by vger.kernel.org with ESMTP id <S317467AbSF1U2U>;
+	Fri, 28 Jun 2002 16:28:20 -0400
+Message-Id: <200206282032.g5SKW4r02727@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Serge van den Boom <svdb@stack.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: On the forgotten ptrace EIP bug (patch included) 
+In-Reply-To: Your message of "Fri, 28 Jun 2002 17:24:41 +0200."
+             <20020628144639.I51309-100000@toad.stack.nl> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 28 Jun 2002 23:31:20 +0300
-From: Dag Nygren <dag@newtech.fi>
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 28 Jun 2002 16:32:04 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+svdb@stack.nl said:
+> At any rate, I have successfully booted a UML kernel, with either
+> patch applied to the host system kernel.
 
-Hi,
+Hmmm, well as long as your current patch doesn't break UML, then I can't
+have any objection to it.  It's puzzling that the old patch didn't break it
+though.  Maybe I'm mixing up ptrace patches or something.
 
-I am using 2.4.18 and am having trouble
-with ide-cs not releasing the reserved interrupt
-when the pcmcia board is ejected.
-
-As I am using this to read my CompactFlash cards
-and have only one interrupt to spare it means that
-I have to reboot between every CF-cartridge,
-not very Linux:ish.......
-
-Any hints ?
-Bug in ide-cs or in the cardmanger stuff ?
-
-BRGDS
-
-
--- 
-Dag Nygren                               email: dag@newtech.fi
-Oy Espoon NewTech Ab                     phone: +358 9 8024910
-Träsktorpet 3                              fax: +358 9 8024916
-02360 ESBO                              Mobile: +358 400 426312
-FINLAND
-
+				Jeff
 

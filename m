@@ -1,35 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130606AbRCPQDl>; Fri, 16 Mar 2001 11:03:41 -0500
+	id <S130619AbRCPQOw>; Fri, 16 Mar 2001 11:14:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130733AbRCPQDc>; Fri, 16 Mar 2001 11:03:32 -0500
-Received: from ns2.cypress.com ([157.95.67.5]:31954 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S130606AbRCPQDX>;
-	Fri, 16 Mar 2001 11:03:23 -0500
-Message-ID: <3AB23913.E1AF0023@cypress.com>
-Date: Fri, 16 Mar 2001 10:02:27 -0600
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Wayne.Brown@altec.com
+	id <S130656AbRCPQOo>; Fri, 16 Mar 2001 11:14:44 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:63501 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S130619AbRCPQO0>; Fri, 16 Mar 2001 11:14:26 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Alexander Viro <viro@math.psu.edu>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256A11.00590FF8.00@smtpnotes.altec.com>
+Date: Fri, 16 Mar 2001 10:12:42 -0600
 Subject: Re: How to mount /proc/sys/fs/binfmt_misc ?
-In-Reply-To: <86256A11.005489D0.00@smtpnotes.altec.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne.Brown@altec.com wrote:
-> 
-> 
-> which makes sense, I guess, because proc isn't a "real" filesystem.  So how do I
-> get binfmt_misc mounted?
 
-mount it somewhere else, say, /dev/binfmt_mount instead of in /proc
-until the proc entry is fixed. What should creat
-/proc/sys/fs/binfmt_misc ?
 
-	-Thomas
+Thanks for the quick response.  I took your suggestion (a) and created
+/etc/binfmt_misc, and set up a test in my rc.local to mount it and register my
+usual entries there if /proc/sys/fs/binfmt_misc doesn't exist.  So now it works
+with both 2.4.3-pre4 and 2.4.2-ac20.
+
+Wayne
+
+
+
+
+Alexander Viro <viro@math.psu.edu> on 03/16/2001 09:37:49 AM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   linux-kernel@vger.kernel.org
+
+Subject:  Re: How to mount /proc/sys/fs/binfmt_misc ?
+
+
+
+
+
+On Fri, 16 Mar 2001 Wayne.Brown@altec.com wrote:
+
+>   The release notes specify this:
+>
+>      mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+>
+> but this doesn't work because
+>
+>      mount: mount point /proc/sys/fs/binfmt_misc does not exist
+
+Grr... OK, I've been an overoptimistic idiot and missed that ugliness.
+
+Solutions:
+     a) mount it on some real place. And write there to register
+entries instead of the bogus /proc/sys/fs/binfmt_misc
+     b) add a couple of proc_mkdir() into fs/proc/root.c
+That is, add
+     proc_mkdir("sys/fs", 0):
+     proc_mkdir("sys/fs/binfmt_misc", 0);
+after the line that says
+     proc_mkdir("sys", 0);
+
+I would strongly recommend (a). In the long run we'll need to go that
+way.
+
+
+

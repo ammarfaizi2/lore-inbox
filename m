@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265747AbSKKQAN>; Mon, 11 Nov 2002 11:00:13 -0500
+	id <S265339AbSKKQGO>; Mon, 11 Nov 2002 11:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265737AbSKKQAN>; Mon, 11 Nov 2002 11:00:13 -0500
-Received: from email.gcom.com ([206.221.230.194]:35529 "EHLO gcom.com")
-	by vger.kernel.org with ESMTP id <S265740AbSKKQAM>;
-	Mon, 11 Nov 2002 11:00:12 -0500
-Message-Id: <5.1.0.14.2.20021111100525.02841da8@localhost>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 11 Nov 2002 10:06:26 -0600
-To: landley@trommello.org, nwourms@netscape.net, linux-kernel@vger.kernel.org
-From: David Grothe <dave@gcom.com>
-Subject: Re: [PATCH] Linux-streams registration 2.5.46
-In-Reply-To: <200211081759.52061.landley@trommello.org>
-References: <aqgjr9$8d4$1@main.gmane.org>
- <5.1.0.14.2.20021107145447.027905c8@localhost>
- <200211080637.06511.landley@trommello.org>
- <aqgjr9$8d4$1@main.gmane.org>
+	id <S265742AbSKKQGO>; Mon, 11 Nov 2002 11:06:14 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:34453 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265339AbSKKQGO>;
+	Mon, 11 Nov 2002 11:06:14 -0500
+Date: Mon, 11 Nov 2002 17:12:59 +0100
+From: Jens Axboe <axboe@suse.de>
+To: ebuddington@wesleyan.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.47 hangs while checking hda on PII laptop
+Message-ID: <20021111161259.GB838@suse.de>
+References: <20021111104153.A8017@ma-northadams1b-126.bur.adelphia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021111104153.A8017@ma-northadams1b-126.bur.adelphia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:59 PM 11/8/2002 Friday, Rob Landley wrote:
->On Friday 08 November 2002 15:07, Nicholas Wourms wrote:
->
->To answer the original question for Dave: Alan Cox has now seen it, so 
->life is
->probably good for you.
-Do I need to do anything more to get it into the kernel source?
--- Dave
+On Mon, Nov 11 2002, Eric Buddington wrote:
+> This is 2.5.47, compiled for a PII laptop (Omnibook 4100) with
+> gcc-3.2. I fixed an earlier boot panic by disabling IDE-TCQ, but now
+> it hangs in the hda check (shown below) I waited at least 2 minutes
+> for it to unhang.
+> 
+> Below is as much of the boot messages as I could capture; I don't know
+> if the hdc error is significant (the drive had no media), but pulling
+> the CD-ROM did not prevent the hda hang in a subsequent boot.
+
+Try disabling the acpi crap
+
+-- 
+Jens Axboe
 

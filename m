@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTKCRAN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 12:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbTKCRAN
+	id S262188AbTKCRMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 12:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTKCRMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 12:00:13 -0500
-Received: from b107150.adsl.hansenet.de ([62.109.107.150]:27520 "EHLO ds666")
-	by vger.kernel.org with ESMTP id S262139AbTKCRAI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 12:00:08 -0500
-Message-ID: <3FA6898D.3050603@portrix.net>
-Date: Mon, 03 Nov 2003 17:59:57 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Mon, 3 Nov 2003 12:12:50 -0500
+Received: from sea2-dav50.sea2.hotmail.com ([207.68.164.22]:59653 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262188AbTKCRMt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 12:12:49 -0500
+X-Originating-IP: [12.145.34.101]
+X-Originating-Email: [san_madhav@hotmail.com]
+From: "sankar" <san_madhav@hotmail.com>
+To: <linux-kernel@vger.kernel.org>, "Arve Knudsen" <aknuds-1@broadpark.no>
+References: <Sea2-DAV35RuMrzpeSK0000db71@hotmail.com> <oprxxqjgqeq1sf88@mail.broadpark.no>
+Subject: Re: pthread mutex question
+Date: Mon, 3 Nov 2003 09:07:47 -0800
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Clock skips (?) with 2.6 and games
-References: <3FA62DD4.1020202@portrix.net>	<20031103110129.GF1772@x30.random>	<3FA63A57.8070606@portrix.net>	<20031103143656.GA6785@x30.random>	<3FA677D7.1000100@portrix.net> <20031103171101.12b2cb59.skraw@ithnet.com>
-In-Reply-To: <20031103171101.12b2cb59.skraw@ithnet.com>
-X-Enigmail-Version: 0.81.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <Sea2-DAV50kJcj3CRIn0000c736@hotmail.com>
+X-OriginalArrivalTime: 03 Nov 2003 17:12:37.0249 (UTC) FILETIME=[ADF8AF10:01C3A22D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thx for the info...I lookd in boost.org..It does not have the source code
+for timed mutex.It just says how it shd work..Pls let me know if I am
+missing something  here..
+----- Original Message -----
+From: "Arve Knudsen" <aknuds-1@broadpark.no>
+To: "sankar" <san_madhav@hotmail.com>; <linux-kernel@vger.kernel.org>
+Sent: Friday, October 31, 2003 5:31 PM
+Subject: Re: pthread mutex question
 
-Stephan von Krawczynski wrote:
-|
-|
-| Have a look at /proc/cpuinfo. Possibly your processor numbers are not
-linear ...
-|
 
-Ah, sorry, on boot they are numbered differently:
-
-(from dmesg)
-
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Processor #0 Pentium 4(tm) XEON(tm) APIC version 20
-ACPI: LAPIC (acpi_id[0x02] lapic_id[0x06] enabled)
-Processor #6 Pentium 4(tm) XEON(tm) APIC version 20
-ACPI: LAPIC (acpi_id[0x03] lapic_id[0x01] enabled)
-Processor #1 Pentium 4(tm) XEON(tm) APIC version 20
-ACPI: LAPIC (acpi_id[0x04] lapic_id[0x07] enabled)
-Processor #7 Pentium 4(tm) XEON(tm) APIC version 20
-
-So thanks again and sorry for the noise,
-
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQE/pomNLqMJRclVKIYRAhWyAJ9yfFPC/Liumt19sswdDK2PCaC7tgCdH9rT
-VyQ0a2d0OX+OZZCMeMVje54=
-=FMDH
------END PGP SIGNATURE-----
-
+> Its C++, but you could have a look at the boost::thread::timed_mutex
+> (www.boost.org) implementation, which makes use of pthread_cond_timedwait.
+>
+> Regards
+>
+> Arve Knudsen
+>
+> On Fri, 31 Oct 2003 16:43:14 -0800, sankar <san_madhav@hotmail.com> wrote:
+>
+> > Hi,
+> > I am looking for an idea as to how to implement timed mutex using
+pthread
+> > libraries on linux.
+> > Basically I want to associate a timeout value with the wait function i,e
+> > pthread_mutex_lock() which returns once the timeout expires instaed of
+> > waiting for ever.
+> > Pls help
+> >
+> > thx..
+> >
+> > Sankarshana M
+>

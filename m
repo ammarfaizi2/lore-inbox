@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVASSHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVASSH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbVASSHY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 13:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVASSHX
+	id S261804AbVASSH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 13:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVASSH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 13:07:23 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:34433 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261811AbVASSHR
+	Wed, 19 Jan 2005 13:07:58 -0500
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:14791 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S261804AbVASSHw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 13:07:17 -0500
-Subject: [PATCH] Fix num_online_nodes() warning on NUMA-Q
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <andyw@uk.ibm.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1106158027.5548.15.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 19 Jan 2005 10:07:08 -0800
+	Wed, 19 Jan 2005 13:07:52 -0500
+Message-ID: <41EEA1C7.7060802@jonmasters.org>
+Date: Wed, 19 Jan 2005 18:07:03 +0000
+From: Jon Masters <jonathan@jonmasters.org>
+Organization: World Organi[sz]ation Of Broken Dreams
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kumar Gala <kumar.gala@freescale.com>
+CC: David Woodhouse <dwmw2@infradead.org>, Paul Mackerras <paulus@samba.org>,
+       Olaf Hering <olh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] raid6: altivec support
+References: <1106120622.10851.42.camel@baythorne.infradead.org> <BD84893E-6A28-11D9-AC28-000393DBC2E8@freescale.com>
+In-Reply-To: <BD84893E-6A28-11D9-AC28-000393DBC2E8@freescale.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/asm-i386/mach-numaq/mach_apic.h complains about an implicit
-declaration of num_online_nodes():
+Kumar Gala wrote:
 
-In file included from arch/i386/kernel/cpu/intel.c:19:
-include/asm-i386/mach-numaq/mach_apic.h: In function `setup_portio_remap':
-include/asm-i386/mach-numaq/mach_apic.h:115: warning: implicit declaration of function `num_online_nodes'
+> We did talk about looking at using some work Ben did in ppc64 with OF in 
+> ppc32.  John Masters was looking into this, but I havent heard much from 
+> him on it lately.
 
-This patch gets rid of this warning.  Please apply.
+I went rather quiet since I had nothing new to add to the discussion. 
+But I did plan to get somewhere before FOSDEM (next month) so I could at 
+least talk to the guys there about it - this is really taking a backseat 
+as I've little time for it and no BDI2000/etc. at home :-)
 
--Matt
+> The firmware interface on the ppc32 embedded side is some what broken in 
+> my mind.
 
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.11-rc1-mm1/include/asm-i386/mach-numaq/mach_apic.h linux-2.6.11-rc1-mm1+warn_fix/include/asm-i386/mach-numaq/mach_apic.h
---- linux-2.6.11-rc1-mm1/include/asm-i386/mach-numaq/mach_apic.h	2005-01-18 11:29:06.000000000 -0800
-+++ linux-2.6.11-rc1-mm1+warn_fix/include/asm-i386/mach-numaq/mach_apic.h	2005-01-18 15:57:33.000000000 -0800
-@@ -3,6 +3,7 @@
- 
- #include <asm/io.h>
- #include <linux/mmzone.h>
-+#include <linux/nodemask.h>
- 
- #define APIC_DFR_VALUE	(APIC_DFR_CLUSTER)
- 
+It's absolutely broken and needs fixing - perhaps if someone wants to 
+work with me on it, we'd get it sorted more quickly.
 
+Cheers,
 
+Jon.

@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318210AbSIEUUM>; Thu, 5 Sep 2002 16:20:12 -0400
+	id <S318219AbSIEUWe>; Thu, 5 Sep 2002 16:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318211AbSIEUUM>; Thu, 5 Sep 2002 16:20:12 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34312 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318210AbSIEUUK>; Thu, 5 Sep 2002 16:20:10 -0400
-Date: Thu, 5 Sep 2002 13:27:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: One more bio for for floppy users in 2.5.33..
-In-Reply-To: <3D77B1EF.97B1FDDD@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0209051310190.5983-100000@penguin.transmeta.com>
+	id <S318221AbSIEUWd>; Thu, 5 Sep 2002 16:22:33 -0400
+Received: from pat.uio.no ([129.240.130.16]:61116 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S318219AbSIEUWd>;
+	Thu, 5 Sep 2002 16:22:33 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15735.48664.951983.418842@charged.uio.no>
+Date: Thu, 5 Sep 2002 22:27:04 +0200
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+In-Reply-To: <3D77BB7C.5F20939F@zip.com.au>
+References: <3D77A22A.DC3F4D1@zip.com.au>
+	<Pine.BSO.4.33.0209051439540.12826-100000@citi.umich.edu>
+	<3D77ADC3.938C09F8@zip.com.au>
+	<shsvg5k9pg3.fsf@charged.uio.no>
+	<3D77BB7C.5F20939F@zip.com.au>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
 
-On Thu, 5 Sep 2002, Andrew Morton wrote:
-> 
-> >  - the code really cares about and uses the incremental information. At
-> >    which point it will already have "handled" any previous incremental
-> >    stuff, and the only thing it really cares about is the "new increment".
-> 
-> So the BIO client would need to keep some state somewhere about "this is
-> the next page to unlock".  That would best be in the BIO somewhere.
+     > It's a bit worrisome if NFS is dependent upon successful
+     > pagecache takedown in invalidate_inode_pages.
 
-Well, the information actually is there already, although I have to admit 
-that it's kind of subtle. 
+Why? We don't use all that buffer crap, so in principle
+invalidate_inode_page() is only supposed to fail for us if
 
-Look at the current mpage_end_io_read(), and realize that it already does 
-a traversal in pages from
+  - page is locked (i.e. new read in progress or something like that)
+  - page is refcounted (by something like mmap()).
 
-	start = bio->bi_io_vec
+neither of which should be the case here.
 
-	end = bio->bi_io_vec + bio->bi_vcnt - 1
-
-which is actually very close to what it would do with partial results.
-
-With partial results, it would need to do only a slightly different 
-traversal:
-
-	end = bio->bi_io_vec + bio->bi_vcnt*PAGE_SIZE - bio->bi_size
-
-	start = end - nr_sectors * 512
-
-	PAGE_ALIGN(start)
-	PAGE_ALIGN(end)
-
-but it's otherwise the exact same code (doing all the edge calculations in 
-bytes, and then only traversing pages that have now been fully done and 
-weren't fully done last time).
-
-It _looks_ like it literally needs just a few lines of changes.
-
-So I would actually argue against adding new information: we _do_ actually 
-have the information already, and adding more "convenient" forms of it 
-adds more aliasing and coherency issues. The current form isn't _that_ 
-complicated to use, and we might hide it behind a simple macro:
-
-	#define GET_PAGE_INDEXES(bio, start, end) \
-		... set start/end to point into the ...
-		... proper bio->bi_io_vec subarray  ...
-
-> Well we still will have the problem where reading 512 bytes from /dev/fd0
-> does 64k of IO.  That is most sweet for reading a bunch of 32k ext2 files
-> from a hard drive, not so nice for reading fd0's partition table.
-
-I do think we might make the read-ahead window configurable, and make slow 
-devices have slightly smaller windows. 
-
-On the other hand, I don't think the 64kB IO actually _hurts_ per se, as 
-long as it doesn't delay the stuff we care about.
-
-		Linus
-
+Cheers,
+  Trond

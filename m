@@ -1,67 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281708AbRKQHOJ>; Sat, 17 Nov 2001 02:14:09 -0500
+	id <S281709AbRKQHOS>; Sat, 17 Nov 2001 02:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281711AbRKQHN6>; Sat, 17 Nov 2001 02:13:58 -0500
-Received: from mail.direcpc.com ([198.77.116.30]:46802 "EHLO
-	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
-	id <S281708AbRKQHNx>; Sat, 17 Nov 2001 02:13:53 -0500
-Subject: [EMU10K1] Bug in EMU10K1
-From: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S281711AbRKQHOJ>; Sat, 17 Nov 2001 02:14:09 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:20484 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281709AbRKQHN5>; Sat, 17 Nov 2001 02:13:57 -0500
+Message-ID: <3BF60E0A.CA8AEAB4@zip.com.au>
+Date: Fri, 16 Nov 2001 23:13:15 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: "Stephen C. Tweedie" <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: synchronous mounts
+In-Reply-To: message from Stephen C. Tweedie on Thursday November 15,
+		<3BF376EC.EA9B03C8@zip.com.au>
+		<20011115214525.C14221@redhat.com> <15348.33549.67021.527467@notabene.cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 17 Nov 2001 02:10:50 -0500
-Message-Id: <1005981053.1377.0.camel@Eleusis>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having difficulty making an E-MU E-Card work with any degree of
-success under Linux.  Accoring to the notes in the driver, this card is
-listed as supported:
+Neil Brown wrote:
+> 
+> Andrew's patch fixes O_SYNC in data=journal and data=ordered modes,
+> but does not fix fsync in data=writeback mode.
+> 
 
-drivers/sound/emu10k1/main.c
- *      0.3 Fixed mixer routing bug, added APS, joystick support.
- *	0.7 Support for the Emu-APS. Bug fixes for voice cache setup, mmaped
-sound + poll().
+Neil, thanks for spotting this.
+
+patch-2.4.10-pre11 introduced a new per-inode dirty buffer queue,
+inode.i_dirty_data_buffers.
+
+generic_commit_write() was changed so that it placed buffers on that
+queue, rather than i_dirty_buffers.  A new function fsync_inode_data_buffers()
+was added for writing the new buffer list out.
+
+That patch changed ext2 and reiserfs to use the new function. The patch was
+not copied to any mailing list. There was no announcement and no discussion.
+There are no comments in the code indicating the distinction between these
+lists and why we have two such.
+
+This change broke fsync() for three in-kernel filesystems as well
+as the then-out-of-kernel ext3 and presumably any other buffer-based
+Linux filesystems.
+
+Ah.  google finds this, from April:
+
+	http://www.uwsg.iu.edu/hypermail/linux/kernel/0104.1/0810.html
+
+which attempts to explain why the separate list was added.  It
+appears to be bogus.  There is no reason why, if correctly done,
+syncing a list of ext2 data buffers and indirects should be
+significantly slower than syncing just the data. 
+
+
+Here's a fix.  A better fix would be to back out the unnecesary
+list and its support functions.
+
+
+--- linux-2.4.15-pre5/fs/minix/file.c	Mon Sep 10 07:31:30 2001
++++ linux-akpm/fs/minix/file.c	Fri Nov 16 22:07:53 2001
+@@ -30,8 +30,10 @@ struct inode_operations minix_file_inode
+ int minix_sync_file(struct file * file, struct dentry *dentry, int datasync)
+ {
+ 	struct inode *inode = dentry->d_inode;
+-	int err  = fsync_inode_buffers(inode);
++	int err;
  
-The modules load, mixer loads (but only has controls for 'Master'
-and 'DSP'), can use audio applications but don't hear sound.  System
-crashes (hard-lock, no SysReq, etc.) if audio is stoped and restarted.
-
-I had no trouble making a vanilla Live work with any of these drivers.  
-
-Driver is stock RH kernel from 2.4.9-12 with and without SMP - also
-tried CVS
-driver from Creative (11/02/2001) with same results.  System is IBM
-NetFinity 5600 with 2x
-PIII's @ 666 MHz.  Card is an E-MU E-Card without E-Drive.
-
-/sbin/modprobe emu10k1
-Nov 17 02:00:31 Eleusis kernel: Creative EMU10K1 PCI Audio Driver,
-version 0.7,
-18:28:17 Oct 30 2001
-Nov 17 02:00:31 Eleusis kernel: emu10k1: EMU10K1 rev 5 model 0x4001
-found, IO at
-0x2020-0x203f, IRQ 18
-
-/sbin/lspci -v00:0a.0 Multimedia audio controller: Creative Labs SB
-Live!
-EMU10000 (rev 05)
-	Subsystem: Creative Labs E-mu APS
-	Flags: bus master, medium devsel, latency 48, IRQ 18
-	I/O ports at 2020 [size=32]
-	Capabilities: [dc] Power Management version 1
-
-00:0a.1 Input device controller: Creative Labs SB Live! (rev 05)
-	Subsystem: Creative Labs: Unknown device 4001
-	Flags: bus master, medium devsel, latency 48
-	I/O ports at 2040 [size=8]
-	Capabilities: [dc] Power Management version 1
-
-
-
-
-
++	err = fsync_inode_buffers(inode);
++	err |= fsync_inode_data_buffers(inode);
+ 	if (!(inode->i_state & I_DIRTY))
+ 		return err;
+ 	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
+--- linux-2.4.15-pre5/fs/sysv/file.c	Thu Nov 15 23:44:29 2001
++++ linux-akpm/fs/sysv/file.c	Fri Nov 16 22:09:20 2001
+@@ -35,8 +35,10 @@ struct inode_operations sysv_file_inode_
+ int sysv_sync_file(struct file * file, struct dentry *dentry, int datasync)
+ {
+ 	struct inode *inode = dentry->d_inode;
+-	int err  = fsync_inode_buffers(inode);
++	int err;
+ 
++	err = fsync_inode_buffers(inode);
++	err |= fsync_inode_data_buffers(inode);
+ 	if (!(inode->i_state & I_DIRTY))
+ 		return err;
+ 	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
+--- linux-2.4.15-pre5/fs/udf/fsync.c	Mon Jun 11 19:15:27 2001
++++ linux-akpm/fs/udf/fsync.c	Fri Nov 16 22:11:03 2001
+@@ -45,6 +45,7 @@ int udf_fsync_inode(struct inode *inode,
+ 	int err;
+ 
+ 	err = fsync_inode_buffers(inode);
++	err |= fsync_inode_data_buffers(inode);
+ 	if (!(inode->i_state & I_DIRTY))
+ 		return err;
+ 	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
+--- linux-2.4.15-pre5/fs/ext3/fsync.c	Thu Nov 15 23:44:29 2001
++++ linux-akpm/fs/ext3/fsync.c	Fri Nov 16 22:09:34 2001
+@@ -62,6 +62,7 @@ int ext3_sync_file(struct file * file, s
+ 	 * we'll end up waiting on them in commit.
+ 	 */
+ 	ret = fsync_inode_buffers(inode);
++	ret |= fsync_inode_data_buffers(inode);
+ 
+ 	ext3_force_commit(inode->i_sb);

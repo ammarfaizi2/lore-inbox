@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbTANJiu>; Tue, 14 Jan 2003 04:38:50 -0500
+	id <S261900AbTANJiO>; Tue, 14 Jan 2003 04:38:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTANJiu>; Tue, 14 Jan 2003 04:38:50 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:11462 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S261963AbTANJis>; Tue, 14 Jan 2003 04:38:48 -0500
-From: "Ivan G." <ivangurdiev@attbi.com>
-Reply-To: ivangurdiev@attbi.com
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.5.58 Oops when booting from initrd - kobject_del
-Date: Tue, 14 Jan 2003 02:47:40 -0700
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S261907AbTANJiO>; Tue, 14 Jan 2003 04:38:14 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:2822 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S261900AbTANJiN>; Tue, 14 Jan 2003 04:38:13 -0500
+Date: Tue, 14 Jan 2003 10:39:02 +0100
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH][TRIVIAL] mmap.c corner case fix
+Message-ID: <20030114093902.GA225@DervishD>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
 Content-Disposition: inline
-Message-Id: <200301140247.40861.ivangurdiev@attbi.com>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel: 2.5.58 (everything but the tag changeset)
 
-My attempt to boot an initrd resulted in the following oops:
-(scribbled down important parts)
-=======================================================
-unable to handle kernel NULL pointer at virtual address 00000064
-...
-EIP at sysfs_remove_dir + 0xb/0x140
-...
-Process swapper (pid:1, threadinfo=c3fca000 ...
-...
-Call Trace:
-==========
-kobject_del+0x13/0x30
-kobject_unregister+0x13/0x30
-elv_unregister_queue+0x1c/0x30
-unlink_gendisk+0x13/0x40
-del_gendisk+0x80/0x140
-initrd_release+0x4e/0x90
-__fput+0xf1/0x100
-filp_close+0x74/0xa0
-sys_close+0x62/0xa0
-syscall_call+0x7/0xb
-prepare_namespace+0x13a/0x1b0
-init+0x3a/0x160
-init+0x0/0x160
-kernel_thread_helper+0x5/0x18
-...
-Code: 8b 70 28 85 f6 0f 84 1e 01 00 00 8b 06 85 c0 75 08 0f 0b 02
-=========================================================
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Last I checked initrd worked fine in 2.5.56
-============================================================
+    Hi Marcelo :)
 
-Another two minor questions for whoever might read this.
+    This patch fixes a corner case on the mmap() syscall.
 
-- Would it be possible to make Kconfig remember the location from which the
-   config file was last loaded? It would be more convenient that way.
+    The patch is from David S. Miller, not me. My patch was
+incomplete and did nothing on 'big TASK_SIZE' architectures.
 
-- Is Jaroslav Kysela, <perex@suse.cz> the current ALSA maintainer 
-	as listed in MAINTAINERS for 2.5.58?
+    The patch is against both 2.4.20 and 2.4.21-pre, is just the same.
+Please apply. I sent you the incomplete patch at pre-1 and this bug
+is getting older by the minute ;))
 
+    Thanks :)
 
+    Raúl
 
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=iso-8859-1
+Content-Description: mmap.c.diff for 2.4.20 and 2.4.21-pre
+Content-Disposition: attachment; filename="mmap.c.2.4.20.diff"
 
+--- linux/mm/mmap.c.orig	2002-12-11 13:59:37.000000000 +0100
++++ linux/mm/mmap.c	2002-12-11 14:01:16.000000000 +0100
+@@ -403,10 +403,12 @@
+ 	if (file && (!file->f_op || !file->f_op->mmap))
+ 		return -ENODEV;
+ 
+-	if ((len = PAGE_ALIGN(len)) == 0)
++	if (!len)
+ 		return addr;
+ 
+-	if (len > TASK_SIZE)
++	len = PAGE_ALIGN(len);
++
++	if (len > TASK_SIZE || len == 0)
+ 		return -EINVAL;
+ 
+ 	/* offset overflow? */
+
+--7AUc2qLy4jB3hD7Z--

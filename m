@@ -1,112 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVCITt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVCIT6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbVCITt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 14:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVCITry
+	id S261170AbVCIT6u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 14:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVCIT6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 14:47:54 -0500
-Received: from colin2.muc.de ([193.149.48.15]:49668 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262190AbVCIToC (ORCPT
+	Wed, 9 Mar 2005 14:58:50 -0500
+Received: from fire.osdl.org ([65.172.181.4]:35513 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261170AbVCITn0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 14:44:02 -0500
-Date: 9 Mar 2005 20:44:01 +0100
-Date: Wed, 9 Mar 2005 20:44:01 +0100
-From: Andi Kleen <ak@muc.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Greg KH <greg@kroah.com>, torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] -stable, how it's going to work.
-Message-ID: <20050309194401.GD17918@muc.de>
-References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <20050309182822.GU5389@shell0.pdx.osdl.net>
+	Wed, 9 Mar 2005 14:43:26 -0500
+Date: Wed, 9 Mar 2005 11:42:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: dhowells@redhat.com, torvalds@osdl.org, arjan@infradead.org,
+       suparna@in.ibm.com, linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] rwsem: Make rwsems use interrupt disabling spinlocks
+Message-Id: <20050309114234.6598f486.akpm@osdl.org>
+In-Reply-To: <1110395783.24286.207.camel@dyn318077bld.beaverton.ibm.com>
+References: <20050309032832.159e58a4.akpm@osdl.org>
+	<20050308170107.231a145c.akpm@osdl.org>
+	<1110327267.24286.139.camel@dyn318077bld.beaverton.ibm.com>
+	<18744.1110364438@redhat.com>
+	<20050309110404.GA4088@in.ibm.com>
+	<1110366469.6280.84.camel@laptopd505.fenrus.org>
+	<4175.1110370343@redhat.com>
+	<1110395783.24286.207.camel@dyn318077bld.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309182822.GU5389@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 10:28:22AM -0800, Chris Wright wrote:
-> * Andi Kleen (ak@muc.de) wrote:
-> > Greg KH <greg@kroah.com> writes:
-> > >
-> > > Rules on what kind of patches are accepted, and what ones are not, into
-> > > the "-stable" tree:
-> > >  - It must be obviously correct and tested.
-> > >  - It can not bigger than 100 lines, with context.
-> > 
-> > This rule seems silly. What happens when a security fix needs 150 lines? 
-> > 
-> > Better maybe a rule like "The patch should be the minimal and safest 
-> > change to fix an issue". But see below for an exception.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+>  I am not sure if this is related to your patch. But I ran into
+>  BUG() with sysrq-t with your patch.
 > 
-> It's just a guideline to scope the work.  But a fixed size is probably
-> less meaningful than your wording.
+>  Thanks,
+>  Badari
 > 
-> > >  - It must fix only one thing.
-> > >  - It must fix a real bug that bothers people (not a, "This could be a
-> > >    problem..." type thing.)
-> > >  - It must fix a problem that causes a build error (but not for things
-> > >    marked CONFIG_BROKEN), an oops, a hang, data corruption, a real
-> > >    security issue, or some "oh, that's not good" issue.  In short,
-> > >    something critical.
-> > >  - No "theoretical race condition" issues, unless an explanation of how
-> > >    the race can be exploited.
-> > >  - It can not contain any "trivial" fixes in it (spelling changes,
-> > >    whitespace cleanups, etc.)
-> > >  - It must be accepted by the relevant subsystem maintainer.
-> > 
-> > >  - It must follow Documentation/SubmittingPatches rules.
-> > 
-> > One rule I'm missing:
-> > 
-> > - It must be accepted to mainline. 
-> 
-> This can violate the principle of keeping fixes simple for -stable tree.
-> And Linus/Andrew don't want to litter mainline with patch series that
-> do simple fix followed by complete fix meant for developement branch.
+>  BUG: soft lockup detected on CPU#1!
+>                                      
+>  Modules linked in: joydev sg st floppy usbserial parport_pc lp parport
+>  ipv6 ohci_hcd i2c_amd756 i2c_core evdev usbcore raid0 dm_mod nls_utf8
+>  Pid: 15433, comm: bash Not tainted 2.6.11-mm1n
+>  RIP: 0010:[<ffffffff8013d094>] <ffffffff8013d094>{__do_softirq+84}
+>  RSP: 0018:ffff8101dff83f68  EFLAGS: 00000206
+>  RAX: ffffffff80651880 RBX: 0000000000000002 RCX: 0000000000000004
+>  RDX: 0000000000000002 RSI: 0000000000000103 RDI: ffff8101d7c77680
+>  RBP: ffff810177ffbe48 R08: 0000000000000002 R09: 0000000000000100
+>  R10: 0000000000000001 R11: 0000000000000000 R12: 0000000000000001
+>  R13: 00002aaaaaafb000 R14: 000000000000000a R15: 0000000000000001
+>  FS:  00002aaaab2890a0(0000) GS:ffffffff80651880(0000)
+>  knlGS:0000000000000000
+>  CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+>  CR2: 00002aaaaaafb000 CR3: 00000001bb2a0000 CR4: 00000000000006e0
+>                                                                    
+>  Call Trace:<IRQ> <ffffffff8013d165>{do_softirq+53}
+>  <ffffffff8010ef59>{apic_timer_interrupt+133}
+>          <EOI> <ffffffff80403055>{_spin_unlock_irqrestore+5}
+>         <ffffffff801bd357>{write_sysrq_trigger+55}
+>  <ffffffff80183579>{vfs_write+233}
+>         <ffffffff80183713>{sys_write+83}
+>  <ffffffff8010e5ce>{system_call+126}
 
-But it risks code drift like we had in 2.4 with older kernels 
-having more fixes than the newer kernel. And that way lies madness.
+That's probably just a false positive in Ingo's soft-lockup detector.  Long
+streams of irq-context serial console output will do that.
 
-I think it is very very important to avoid this.
-
-If you prefer you can rewrite the rule like
-
-"Fix must in mainline first. In exceptional cases when the fix 
-in mainline is too intrusive or risky a simpler version of the patch
-can be applied to stable. In this case the mainline fix must be already
-accepted. For most cases the full fix should be applied to avoid code drift"
-
-
-> I agree, it's a good rule, but these should be small, temporal diffs
-> from mainline.  For example, -ac tree will sometimes do the simpler fix,
-> whereas mainline does proper complete fix.
-
-You make it sound like all patches are super complicated and 
-not suitable for backporting.
-
->From my experiences maintaining distribution kernel most mainline changes
-can be just completely backported. 
-
-> 
-> > >    the security kernel team, and not go through the normal review cycle.
-> > >    Contact the kernel security team for more details on this procedure.
-> > 
-> > This also sounds like a bad rule. How come the security team has more
-> > competence to review patches than the subsystem maintainers?  I can
-> > see the point of overruling maintainers on security issues when they
-> > are not responsive, but if they are I think the should be still the
-> > main point of contact.
-> 
-> They don't, the security patches should still be reviewed by subsystem
-> maintainer.  Point here is, sometimes there's disclosure coordination
-> happening as well.
-
-Ok, how does it coordinate with the vendor-sec process? 
-And at what point is the subsystem maintainer notified.
-
-The security thing seems to be still quite half backed to me...
-
--Andi
-
+Ingo, we already have a touch_nmi_watchdog() in the sysrq code.  It might be
+worth adding a touch_softlockup_watchdog() wherever we have a
+touch_nmi_watchdog().

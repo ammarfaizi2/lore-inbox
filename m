@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbULTVd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbULTVmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbULTVd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 16:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbULTVcK
+	id S261657AbULTVmT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 16:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbULTVmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 16:32:10 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:40898 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261647AbULTVba
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 16:31:30 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: Scheduling while atomic (2.6.10-rc3-bk13)
-Date: Mon, 20 Dec 2004 13:31:35 -0800
-User-Agent: KMail/1.7.1
-Cc: Lee Revell <rlrevell@joe-job.com>, Greg KH <greg@kroah.com>,
-       Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
-References: <20041219231015.GB4166@mail.muni.cz> <200412201152.16329.david-b@pacbell.net> <1103576264.1252.87.camel@krustophenia.net>
-In-Reply-To: <1103576264.1252.87.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 20 Dec 2004 16:42:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14039 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261657AbULTVmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 16:42:10 -0500
+Subject: Re: Linux 2.6.9 and the GPL Buyout
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: "Jeff V. Merkey" <jmerkey@mail.gadugi.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, jmerkey@gadugi.org
+In-Reply-To: <20041220212723.GA8634@mail.gadugi.org>
+References: <20041220212723.GA8634@mail.gadugi.org>
+Content-Type: text/plain
+Organization: Open Source Development Lab, Inc.
+Date: Mon, 20 Dec 2004 13:42:55 -0800
+Message-Id: <1103578975.6142.45.camel@wookie-zd7>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412201331.35652.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 December 2004 12:57 pm, Lee Revell wrote:
-> On Mon, 2004-12-20 at 11:52 -0800, David Brownell wrote:
-> > Here's a quick'n'dirty patch, msleep --> mdelay.  I'd rather
-> > not mdelay for that long, but this late in 2.6.10 it's safer.
-> > (And this is also what OHCI does in that same code path.)
+On Mon, 2004-12-20 at 15:27 -0600, Jeff V. Merkey wrote:
 > 
-> Ugh.  20ms is WAY too long to hold a spinlock.  That's guaranteed to
-> cause audio skips.
-
-During system resume?  :)
-
-Anyone trying to use audio devices during system resume
-probably deserves what they get, just now.  Best for them
-to wait until after the system finishes resuming before
-they start playing audio again.  (Over for example the
-USB speaker hookup they were using... which has been
-suspended for more than 20msec already!)
-
-
-> Isn't there another way?
+> This is the final post on this particular thread.  I said I would
+> reveal to LKML the purpose behind this original proposal when the time
+> was right.  The GPL buyout offer has now expired and is formally closed,
+> now is the time to explian.
 > 
-> If OHCI calls mdelay(20) while holding a spinlock that needs to be
-> fixed.
+> The purpose behind the buyout was to convert as much Linux code over
+> as possible to another open source operating system project which 
+> is sponsored at www.gadugi.org.  This project is hosted by the Cherokee 
+> Nation and is sovereign under US Federal Laws.  This project is merging
+> the Linux Kernel with the Open Source NetWare project and distributing
+> the operating system.  The site is operational and the full code repository
+> will be posted with the merged operating system after the Cherokee Nation
+> Public License is published in January.  Anyone who
+> wishes to participate can email the site and get an account.  
+> 
+> Despite dubious reporting and wild conjecture, the buyout was not geared 
+> towards helping SCO, or in concert with M$ as some sort of grand 
+> conspiracy.  It was geared towards creating a new licensing and legal 
+> model for open source development.  The Cherokee Nation is enacting 
+> legislation to promote open source development.  So the whole buyout 
+> was me and a few folks attempting to convert Linux GPL code into 
+> a licensing model and Cherokee Nation Copyrights that renders the 
+> code sovereign and immune from litigation outside of tribal courts
+> and jurisdiction.  So much for all the SCO and other legal wranglings
+> regarding this effort and open source in general.  We are immune from
+> these people and so are any projects that use our licensing or host 
+> on our servers.  I personally told Darl "Mad Dog" McBride at SCO 
+> good luck and to buzz off.  
+> 
+> We are adopting Federal Copyright and Trademark law, and Federal Patent
+> law into our courts.  We are also enacting trade secret laws that make it
+> easier for folks to claim trade secrets on Open Source code for 
+> individual authors.  
+> 
+   So am I reading this right.  You are talking code that people have
+written under various licenses and just putting your own license 
+on it?
 
-Eventually this is worth fixing ... after Linux behaves
-sanely with selective device suspend/resume.
+Tim
 
-So for example, with PCI devices it sure _ought_ to be
-reasonable to put devices into PCI_D3hot state, with
-other active devices in PCI_D0 state and the CPU running
-in C0 (or C1, C2, C3 as appropriate) ... and then rely
-on ACPI to handle the device signaling PME# sanely,
-by resuming the device issuing that signal.  (And to
-do similar things for non-PCI/non-ACPI systems, too.)
-
-Until then, there's no real point in trying to rework
-those parts of usbcore to support selective resume
-of HCDs.  Such code would never be used, and those
-changes would conflict with more important work that's
-going on.  (Both in terms of lines-of-code changing,
-and in terms of opportunity costs.)
-
-On the other hand, if you want to help fix all that,
-we'd sure like to see your patches!
-
-- Dave
+> Whether anyone here bites at this or not neither adds or detracts from 
+> the opportunity and what we are doing.  We have been around a long
+> time in North America; over 7,000 years from our own
+> recorded history, which is a lot longer than even IBM has been around.  We
+> will be here 1000 years from now (and hopefully so will our website and 
+> open source projects).  
+> 
+> Wa-Do
+> 
+> Jeff V. Merkey
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Timothy D. Witham - Chief Technology Officer - wookie@osdl.org
+Open Source Development Lab Inc - A non-profit corporation
+12725 SW Millikan Way - Suite 400 - Beaverton OR, 97005
+(503)-906-1911  (office)    (503)-702-2871   (cell)
+(503)-626-2436  (fax)
 

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSHVSyQ>; Thu, 22 Aug 2002 14:54:16 -0400
+	id <S315717AbSHVSzo>; Thu, 22 Aug 2002 14:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSHVSyQ>; Thu, 22 Aug 2002 14:54:16 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:46733 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S315491AbSHVSyP>; Thu, 22 Aug 2002 14:54:15 -0400
-Subject: Re: ServerWorks OSB4 in impossible state
-From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Gonzalo Servat <gonzalo@unixpac.com.au>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1030039087.3161.27.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org> 
-	<1030017756.9866.74.camel@biker.pdb.fsc.net> 
-	<1030039087.3161.27.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 22 Aug 2002 20:58:08 +0200
-Message-Id: <1030042689.9867.120.camel@biker.pdb.fsc.net>
+	id <S315720AbSHVSzl>; Thu, 22 Aug 2002 14:55:41 -0400
+Received: from mail01.qualys.com ([12.162.2.5]:24746 "HELO mail01.qualys.com")
+	by vger.kernel.org with SMTP id <S315717AbSHVSzk>;
+	Thu, 22 Aug 2002 14:55:40 -0400
+Date: Thu, 22 Aug 2002 11:04:43 -0700
+From: Silvio Cesare <silvio@qualys.com>
+To: linux-kernel@vger.kernel.org
+Cc: silvio@qualys.com
+Subject: [PATCH TRIVIAL] linux-2.5.31/drivers/scsi/sg.c
+Message-ID: <20020822110443.A8182@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Don, 2002-08-22 um 19.58 schrieb Alan Cox:
 
-> > 2) The tested condition inb(dma_base+0x02)&1 is valid if the
-> >    device doing the DMA reported an error status. Only if the
-> >    device reports success is there an indication of the "4 byte shift".
-> 
-> True
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This condition is easy to test, right? My patch tested for
-   OK_STAT (GET_STAT(), DRIVE_READY, BAD_STAT)
-Why not put that in the code?
+remove 1 verify_area call which is directly followed with a __copy_to_user,
+and replace with just a copy_to_user.
 
-Martin
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+--
+Silvio
 
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch.2.5.31.sg"
 
+diff -u linux-2.5.31/drivers/scsi/sg.c dev/linux-2.5.31/drivers/scsi/sg.c
+--- linux-2.5.31/drivers/scsi/sg.c	Sat Aug 10 18:41:28 2002
++++ dev/linux-2.5.31/drivers/scsi/sg.c	Thu Aug 22 11:02:29 2002
+@@ -493,9 +493,7 @@
+ 	    sb_len = (hp->mx_sb_len > sb_len) ? sb_len : hp->mx_sb_len;
+ 	    len = 8 + (int)srp->sense_b[7]; /* Additional sense length field */
+ 	    len = (len > sb_len) ? sb_len : len;
+-	    if ((err = verify_area(VERIFY_WRITE, hp->sbp, len)))
+-		goto err_out;
+-	    if (__copy_to_user(hp->sbp, srp->sense_b, len)) {
++	    if (copy_to_user(hp->sbp, srp->sense_b, len)) {
+ 		err = -EFAULT;
+ 		goto err_out;
+ 	    }
 
-
-
+--BXVAT5kNtrzKuDFl--

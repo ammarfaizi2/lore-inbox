@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279574AbRJXTOc>; Wed, 24 Oct 2001 15:14:32 -0400
+	id <S279556AbRJXTNm>; Wed, 24 Oct 2001 15:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279575AbRJXTOY>; Wed, 24 Oct 2001 15:14:24 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:20486 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S279574AbRJXTOK>;
-	Wed, 24 Oct 2001 15:14:10 -0400
-Message-ID: <3BD7131C.5B939BE@lexus.com>
-Date: Wed, 24 Oct 2001 12:14:36 -0700
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-CC: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: acenic breakage in 2.4.13-pre
-In-Reply-To: <20011024204913.A18191@sith.mimuw.edu.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S279574AbRJXTNd>; Wed, 24 Oct 2001 15:13:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26116 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279556AbRJXTNM>; Wed, 24 Oct 2001 15:13:12 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: linux-2.4.13 high SWAP
+Date: Wed, 24 Oct 2001 19:11:59 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9r73pv$8h1$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0110241509250.885-100000@freak.distro.conectiva> <200110241936.RAA04632@inter.lojasrenner.com.br>
+X-Trace: palladium.transmeta.com 1003950802 24140 127.0.0.1 (24 Oct 2001 19:13:22 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 24 Oct 2001 19:13:22 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Rekorajski wrote:
+In article <200110241936.RAA04632@inter.lojasrenner.com.br>,
+Andre Margis  <andre@sam.com.br> wrote:
+>
+>Without use the tmpfs, appears to be OK!!!!!!!!!!
 
-> No. It's plain old egcs 1.1.2 (gcc 2.91.66). I can try with gcc 2.95.x
-> but 2.96 or 3.x are no-no for me :)
+Ok, the problem appears to be that tmpfs stuff just stays on the
+inactive list, and because it cannot be written out it eventually
+totally clogs the system.
 
-That's bizzare, 2.96 has been working nicely
-on all of my 30-40 Red Hat 7.x boxes. All sorts
-of configs, from single P5-166 to Quad PPRO
-with highmem, various vendors -
+Suggested fix appended (from Andrea),
 
-web, mail, dns, firewall, vpn, X workstations,
-database, and all running kernels compiled
-with gcc-2.96 , and everything running like
-a top.
+		Linus
 
-cu
-
-jjs
-
-
-
+-----
+diff -u --recursive --new-file v2.4.13/linux/drivers/block/rd.c linux/drivers/block/rd.c
+--- v2.4.13/linux/drivers/block/rd.c	Tue Oct 23 22:48:50 2001
++++ linux/drivers/block/rd.c	Wed Oct 24 08:59:21 2001
+@@ -209,6 +209,7 @@
+  */
+ static int ramdisk_writepage(struct page *page)
+ {
++	activate_page(page);
+ 	SetPageDirty(page);
+ 	UnlockPage(page);
+ 	return 0;
+diff -u --recursive --new-file v2.4.13/linux/fs/ramfs/inode.c linux/fs/ramfs/inode.c
+--- v2.4.13/linux/fs/ramfs/inode.c	Tue Oct  9 17:06:53 2001
++++ linux/fs/ramfs/inode.c	Wed Oct 24 08:59:21 2001
+@@ -81,6 +81,7 @@
+  */
+ static int ramfs_writepage(struct page *page)
+ {
++	activate_page(page);
+ 	SetPageDirty(page);
+ 	UnlockPage(page);
+ 	return 0;
 

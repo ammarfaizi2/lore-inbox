@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278492AbRJZOCF>; Fri, 26 Oct 2001 10:02:05 -0400
+	id <S278464AbRJZOPA>; Fri, 26 Oct 2001 10:15:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278475AbRJZOB4>; Fri, 26 Oct 2001 10:01:56 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:45031 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S278464AbRJZOBp>;
-	Fri, 26 Oct 2001 10:01:45 -0400
-Date: Fri, 26 Oct 2001 16:01:29 +0200 (CEST)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-cc: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>, linux-kernel@vger.kernel.org
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-In-Reply-To: <20011026101313.A18310@bee.lk>
-Message-ID: <Pine.LNX.4.21.0110261555450.8307-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+	id <S278490AbRJZOOu>; Fri, 26 Oct 2001 10:14:50 -0400
+Received: from relay02.cablecom.net ([62.2.33.102]:63238 "EHLO
+	relay02.cablecom.net") by vger.kernel.org with ESMTP
+	id <S278464AbRJZOOj>; Fri, 26 Oct 2001 10:14:39 -0400
+Message-Id: <200110261415.f9QEF9305606@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: <linux-kernel@vger.kernel.org>
+Subject: priority queues on dp83820
+Date: Fri, 26 Oct 2001 16:01:48 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Oct 2001, Anuradha Ratnaweera wrote:
+has anybody try to use the priority queues of the dp83820?
+or does somebody know where to get docu knewer then the 
+preliminary form february 2001?
 
-> > One machine begins an intensive downloading job.  How can this degrade the
-> > network performance even for ICMP packets between another machine and the
-> > router?  Notice that this can't be collitions because the download goes at
-> > 64kbps and the local network is 100 Mbps.  Something funny is going on to
-> > stop other people's packets.
-> 
-> Just found out that this is _not_ a problem of the "download accelerator", but
-> something to do with queuing algorithm of the router.  Even a normal wget
-> process or a big mail has a big impart on the network.  Hopefully an iptables
-> firewall would solve the problem.
+i wrote a driver for the dp83820. now i tried to use 
+priority queuing for prescheduled zero copy datastreans.
+first i just whanted enable priority queueing without 
+inserting of any vlan tag. this works for 1 to 3 queues 
+like it sais in the docu (untagged packets are queued 
+like packets with priority 0). but when i enable the 4th
+queue i receive all none tagged data on queue 1 instead 
+of queue 0. and if i enalbe vlan-tagging globaly or on 
+a per packet basis i don't get any interrupts on the 
+receiving side. has anybody an idea whats going on. if 
+you need the code to have a lock at - let me know, i 
+realy need some help.
 
-I'd advice you to seriously look over your network, are you 100% sure you
-don't have a duplex-issue anywhere?
-
-I've been running linuxrouters for quite a while and right now I have a few
-linuxrouters routing 100Mbit/s internetconnections. We have never had any
-problems like the one you describe so my first guess would be that you
-have a duplexproblem, probably between the linuxrouter and the switch it's
-connected to on the inside, that's usually where it's located. Or maybe
-between some switches or something but do look into this. I seriously
-doubt that this a problem with the networking in linux.
-
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+chris
 

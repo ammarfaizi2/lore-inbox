@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTJSQbT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 12:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTJSQbT
+	id S262030AbTJSQoY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 12:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTJSQoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 12:31:19 -0400
-Received: from h80ad26a8.async.vt.edu ([128.173.38.168]:13442 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262013AbTJSQbR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 12:31:17 -0400
-Message-Id: <200310191631.h9JGVEN5030083@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add a config option for -Os compilation 
-In-Reply-To: Your message of "Sun, 19 Oct 2003 18:14:55 +0200."
-             <20031019161454.GD12627@wiggy.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <I2Ue.7PG.5@gated-at.bofh.it> <I2Ue.7PG.7@gated-at.bofh.it> <I2Ue.7PG.9@gated-at.bofh.it> <I2Ue.7PG.11@gated-at.bofh.it> <I2Ue.7PG.13@gated-at.bofh.it> <I2Ue.7PG.1@gated-at.bofh.it> <ImzK.4TR.25@gated-at.bofh.it> <ImzK.4TR.23@gated-at.bofh.it> <InYQ.6OJ.21@gated-at.bofh.it> <3F92B62C.8020602@softhome.net>
-            <20031019161454.GD12627@wiggy.net>
+	Sun, 19 Oct 2003 12:44:24 -0400
+Received: from pimout5-ext.prodigy.net ([207.115.63.73]:35546 "EHLO
+	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262030AbTJSQoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 12:44:14 -0400
+Subject: Root panics on test 5-8
+From: Chris Anderson <chris@simoniac.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1066581997.407.5.camel@kuso>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_954831722P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 19 Oct 2003 12:46:37 -0400
 Content-Transfer-Encoding: 7bit
-Date: Sun, 19 Oct 2003 12:31:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_954831722P
-Content-Type: text/plain; charset=us-ascii
+I recently attempted to upgrade from test1 to test8 and came across the
+following error when I boot:
 
-On Sun, 19 Oct 2003 18:14:55 +0200, Wichert Akkerman <wichert@wiggy.net>  said:
-> Previously Ihar 'Philips' Filipau wrote:
-> >   The goal of kernel is to provide framework for applications to the 
-> > job well.
-> 
-> I doubt anyone using linux for routing would agree with you.
+VFS: cannot open root device "2102" or unknown-block(33,2)
+Please append a correct "root=" boot option
 
-OK, so the applications are limited to /sbin/iptables, /sbin/route, /bin/
-netstat, and maybe dhcpd and/or zebra. They're still applications, even if they
-end up invoking a lot of kernel resources on their behalf.
+I have the filesystem of my root built into the kernel (ext3) and also
+have pci ide and my ide chipset driver built in. I had this same issue
+with test 5-7 as well though, but test 1 (the last one I've really
+tried) works fine. I also have a friend with different hardware but the
+same circumstances who encounters the same problem. Any help would be
+appreciated.
+
+Following is anything that might help in finding the cause:
+My .config: http://www.simoniac.com/~chris/config.txt
+
+lspci output:
+00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo
+KT266/A/333]
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo
+KT266/A/333 AGP]
+00:0a.0 Ethernet controller: D-Link System Inc RTL8139 Ethernet (rev 10)
+00:0d.0 Unknown mass storage controller: Promise Technology, Inc. 20265
+(rev 02)
+00:0e.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
+10)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1b)
+01:00.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3 Ti
+200] (rev a3)
+
+-Chris
 
 
---==_Exmh_954831722P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/krxRcC3lWbTT17ARAkI9AJ0ZXHxt8EX0G6PpAsQoKonZoOZLBgCgrJOO
-Fi7ZJgYQYmy0zOcxcOPFd4g=
-=PL/8
------END PGP SIGNATURE-----
-
---==_Exmh_954831722P--

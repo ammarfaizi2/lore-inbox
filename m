@@ -1,124 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280813AbRKYP1u>; Sun, 25 Nov 2001 10:27:50 -0500
+	id <S280872AbRKYPaf>; Sun, 25 Nov 2001 10:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280872AbRKYP1f>; Sun, 25 Nov 2001 10:27:35 -0500
-Received: from smtp02.uc3m.es ([163.117.136.122]:31500 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S280813AbRKYP12>;
-	Sun, 25 Nov 2001 10:27:28 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200111251527.QAA05393@nbd.it.uc3m.es>
+	id <S280892AbRKYPaZ>; Sun, 25 Nov 2001 10:30:25 -0500
+Received: from chabotc.xs4all.nl ([213.84.192.197]:63884 "EHLO
+	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S280872AbRKYPaF>; Sun, 25 Nov 2001 10:30:05 -0500
 Subject: Re: Severe Linux 2.4 kernel memory leakage
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com> "from Chris Chabot
- at Nov 25, 2001 03:49:27 pm"
-To: Chris Chabot <chabotc@reviewboard.com>
-Date: Sun, 25 Nov 2001 16:27:20 +0100 (CET)
+From: Chris Chabot <chabotc@reviewboard.com>
+To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
 Cc: linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
-MIME-Version: 1.0
+In-Reply-To: <tgy9kuevtw.fsf@mercury.rus.uni-stuttgart.de>
+In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com> 
+	<tgy9kuevtw.fsf@mercury.rus.uni-stuttgart.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 25 Nov 2001 16:30:26 +0100
+Message-Id: <1006702226.1316.2.camel@gandalf.chabotc.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Chris Chabot wrote:"
-> The box has ran Redhat 7.1 and 7.2, with plain vanilla linux kernels
-> 2.4.9 upto 2.4.15, in all situations the same problem appeared.
+The kernel i ran for about a month was kernel 2.4.11.
+
+Ofcource i am aware that the memory usage grows as more memory is used
+for buffers/cache. (specialy since its also a large file server). 
+
+However if you check my 'free' output, and the ps aux output you will
+notice that the 430Mb used is with the cache and buffer usage already
+subtracted from the 'total usage' (else usage is just below 1 gig). 
+
+Of 430Mb, (counting ps aux res values), just below 80 Mb is used by the
+applications. the rest is just 'missing'.
+
+So the current memory division is about (sources: application = added ps
+aux output, buffer/cache/free = 'free' command, sysv shm from 'ipcs')
+
+Applications:  80Mb
+Buffers:       127Mb
+Cache:         460Mb
+Sysv shm:      0
+Free:          9.5Mb
+
+memory total   1Gb
+
+Unaccounted    +/- 360Mb
+
+ps, yes i did check /dev/shm, and 'ipcs' and no memory is used as sysv
+shared memory 
+
+
+	-- Chris
+
+
+On Sun, 2001-11-25 at 16:03, Florian Weimer wrote:
+> Chris Chabot <chabotc@reviewboard.com> writes:
 > 
-> The problem is that when the box boots up, it uses about 60Mb of memory.
-> However after only 1 1/2 days, the memory usage is already around 430Mb
-> (!!). (this is ofcource used - buffers - cache, as displayed by 'free').
+> > When the box keeps on running for about a month,
+> 
+> Which kernels have you run for about a month, and which ones showed
+> this extreme behavior?  Obviously not 2.4.15...
+> 
+> The amount of available memory decreasing is quite normal, due to the
+> growing cache.
+> 
+> -- 
+> Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+> University of Stuttgart           http://cert.uni-stuttgart.de/
+> RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I also have this problem. Unknown circumstances provoke it. Kernel
-2.4.9 to 2.4.13.  When it occurs I lose about 30MB a day.
 
-Dual 500MHz i686, 4 scsi disks (adaptec) under raid5 and raid0
-with 2 intelpro's and 1 IDE disk (and xfs and lvm).
-
-Right now I'm on 2.4.9 and it's NOT happening. Doing nothing different
-to any other day.
-
-> When the box keeps on running for about a month, the memory usage gets
-> so high that it turns into a swap-crazy, low-memory and slow server ;-/
-> (it does free up cache memory, and swaps stuff out, however the 'leaked'
-> memory only grows and is never re-claimed).
-
-Same.
-
-> The box runs dhcpd, bind, fetchmail (cron), pppd (to adsl modem), smb,
-> nfs, xinetd (imapd mostly) and sshd.
-
-Only thing in common with me is nfs. Running X 4.1. glibc 2.1.
-
-> based routing) for my cable modem & adsl modem. Also it has a 310Gb raid
-> 0 array on 4 IDE disks.
-
-Could be.
-
-> The hardware on the box is : Asus p2b-ds, 2x p3-600, 1Gb (ECC) ram, 3
-
-My mobo is whatever came from dell, and you also are running 2xP3. My
-ram is also ECC but there's only 128MB of it.
-
-> network cards (1x Intel EtherExpressPro, 2x 3c905 tx), Internal adaptect
-
-I have 2 network cards, both EEPRO.
-
-> 29xx u2w scsi, internal intel IDE, 2x Seagate Cheetah (u2w) 18 Gb disks
-
-Yep, I have internal adaptec too. Aic7xxx running ultra 160 at 20MHz
-on terminated cable.
-
-  Adaptec AIC7xxx driver version: 6.2.1
-  aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/255 SCBs
-
-4 WD disks:
-
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-
-> (/ and /var), 4x 80 Gb Maxtor IDE disks (raid 0 array) and a NVidia TNT2
-> card. This hardware 
-
-Umm .. I think I run ati rage, external card, though there is one on
-the mobo.
-
-(--) PCI:*(0:16:0) ATI Mach64 GU rev 154, Mem @ 0xf5000000/24,
-0xfe201000/12, I/O @ 0xd400/8
-(--) PCI: (1:0:0) ATI Mach64 GW rev 122, Mem @ 0xfc000000/24,
-0xfbfff000/12, I/O @ 0xec00/8
-
-> The kernel is compiled with all network- and scsi card and raid0 drivers
-> build in, and nfs + iptables as modules. The machine currently uses ext3
-
-I have it all compiled OUT. Including iptables, which I don't use.
-
-> (also build in), however this problem was also present before i
-> converted the raid0 volume to ext3, so i do not suspect it to cause this
-
-I am using xfs on top of lvm on top of raid5.
-
-> problem. The kernel is also set for HIGHMEM (4gb) to use the last Mb's
-> of the 1Gb of ram (else 127Mb isnt detected).
-
-Mine isn't. Normal setup.
-
-> I do not know which component (iptables / route hack / raid0 / network
-> cards / highmem) cause this problem. I run several of these components
-
-Looks from this as though it might be raid5 or 0 + adaptec scsi + SMP.
-
-Peter

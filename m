@@ -1,89 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271346AbTHMDH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 23:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271351AbTHMDH1
+	id S271341AbTHMDCk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 23:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271343AbTHMDCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 23:07:27 -0400
-Received: from out006pub.verizon.net ([206.46.170.106]:23254 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S271346AbTHMDHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 23:07:25 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: jw schultz <jw@pegasys.ws>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O13int for interactivity
-Date: Tue, 12 Aug 2003 23:07:22 -0400
-User-Agent: KMail/1.5.1
-References: <200308050207.18096.kernel@kolivas.org> <3F38D64C.2030109@cyberone.com.au> <20030813020808.GC23237@pegasys.ws>
-In-Reply-To: <20030813020808.GC23237@pegasys.ws>
-Organization: None that appears to be detectable by casual observers
+	Tue, 12 Aug 2003 23:02:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45505 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271341AbTHMDCj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 23:02:39 -0400
+Message-ID: <32835.4.4.25.4.1060743746.squirrel@www.osdl.org>
+Date: Tue, 12 Aug 2003 20:02:26 -0700 (PDT)
+Subject: Re: C99 Initialisers
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <davej@redhat.com>
+In-Reply-To: <20030813004941.GD2184@redhat.com>
+References: <20030812020226.GA4688@zip.com.au>
+        <1060654733.684.267.camel@localhost>
+        <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk>
+        <20030812053826.GA1488@kroah.com>
+        <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
+        <20030812180158.GA1416@kroah.com>
+        <3F397FFB.9090601@pobox.com>
+        <20030812171407.09f31455.rddunlap@osdl.org>
+        <3F3986ED.1050206@pobox.com>
+        <20030812173742.6e17f7d7.rddunlap@osdl.org>
+        <20030813004941.GD2184@redhat.com>
+X-Priority: 3
+Importance: Normal
+Cc: <rddunlap@osdl.org>, <jgarzik@pobox.com>, <greg@kroah.com>,
+       <willy@debian.org>, <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <kernel-janitor-discuss@lists.sourceforge.net>
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308122307.22813.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.61.27] at Tue, 12 Aug 2003 22:07:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 August 2003 22:08, jw schultz wrote:
->On Tue, Aug 12, 2003 at 09:58:04PM +1000, Nick Piggin wrote:
->> I have been hearing of people complaining the scheduler is worse
->> than 2.4 so its not entirely obvious to me. But yeah lots of it is
->> trial and error, so I'm not saying Con is wasting his time.
+> On Tue, Aug 12, 2003 at 05:37:42PM -0700, Randy.Dunlap wrote:
+>  > | I would much rather move the PCI ids out of the
+>  > | drivers altogether, into some metadata file(s) in the kernel source  |
+> tree, than bloat up tg3, tulip, e100, and the other PCI id-heavy  |
+> drivers' source code.
+>  >
+>  > That last few lines certainly sounds desirable.
 >
->I've been watching Con and Ingo's efforts with the process
->scheduler and i haven't seen people complaining that the
->process scheduler is worse.  They have complained that
->interactive processes seem to have more latency.  Con has
->rightly questioned whether that might be because the process
->scheduler has less control over CPU time allocation than in
->2.4.  Remember that the process scheduler only manages the
->CPU time not spent in I/O and other overhead.
->
->If there is something in BIO chewing cycles it will wreak
->havoc with latency no matter what you do about process
->scheduling.  The work on BIO to improve bandwidth and reduce
->latency was Herculean but the growing performance gap
->between CPU and I/O is a formidable challenge.
+> What exactly would be the benefit of this ?
+> The only thing I could think of was out-of-kernel tools to do
+> things like matching modules to pci IDs, but that seems to be
+> done mechanically by various distros already reading the pci_driver structs.
 
-In thinking about this from the aspect of what I do here, this makes 
-quite a bit of sense.  In running 2.6.0-test3, with anticipatory 
-scheduler, it appears the i/o intensive tasks are being pushed back 
-in favor of interactivity, perhaps a bit too aggressively.  An amanda 
-estimate phase, which turns tar loose on the drives, had to be 
-advanced to a -10 niceness for the whole tree of processes amanda 
-spawns before it began to impact the setiathome use as shown by the 
-nice display in gkrellm.  Normally there is a period for maybe 20 
-minutes before the tape drive fires up where the machine is virtually 
-unusable due to gzip hogging things, like the cpu, during which time 
-seti could just as easily be swapped out.  It remained at around 60%!
+Maybe I read too much into it.  It made me think of Jeff's previous
+remarks about driver config and help being close to but split from
+driver source code.  I saw (read) it as an extension of that:
+a way to package all driver information neatly close together,
+but in separate files.  Someone could modify the config, help, or IDs
+file(s) without mucking with the driver source file(s).
 
-It did not hog/lag near as badly as usual, and the amanda run was over 
-an hour longer than it would have been in 2.4.22-rc2.
+~Randy
 
-It is my opinion that all this should have been at setiathomes 
-expense, which is also rather cpu intensive, but it didn't seem to be 
-without lots of forceing.  This is what the original concept of 
-niceness was all about.  Or at least that was my impression.  From 
-what it feels like here, it seems the i/o stuff is whats being 
-choked, and choked pretty badly when using the anticipatory 
-scheduler.
 
-I've read rumors that a boottime option can switch it to somethng 
-else, so what do I do to switch it from the anticipatory scheduler to 
-whatever the alternate is?, so that I can get a feel for the other 
-methods and results.
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbTFLW5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTFLW5x
+	id S265038AbTFLW7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbTFLW7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:57:53 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:48390 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265053AbTFLW5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:57:52 -0400
-Date: Thu, 12 Jun 2003 16:07:40 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix vmtruncate race and distributed filesystem race
-Message-Id: <20030612160740.27a57aca.akpm@digeo.com>
-In-Reply-To: <184910000.1055458610@baldur.austin.ibm.com>
-References: <133430000.1055448961@baldur.austin.ibm.com>
-	<20030612134946.450e0f77.akpm@digeo.com>
-	<20030612140014.32b7244d.akpm@digeo.com>
-	<150040000.1055452098@baldur.austin.ibm.com>
-	<20030612144418.49f75066.akpm@digeo.com>
-	<184910000.1055458610@baldur.austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 12 Jun 2003 18:59:24 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:53121 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S265038AbTFLW7S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:59:18 -0400
+Message-Id: <200306122312.h5CNCwhk002147@verdi.et.tudelft.nl>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+X-Exmh-Isig-CompType: repl
+X-Exmh-Isig-Folder: linux-kernel
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Alan Cox <alan@redhat.com>, Arjan van de Ven <arjanv@redhat.com>,
+       robn@verdi.et.tudelft.nl, linux-kernel@vger.kernel.org
+Subject: Re: open(.. O_DIRECT ..) difference in between Linux and FreeBSD .. 
+In-Reply-To: Your message of "Thu, 12 Jun 2003 15:17:04 +0200."
+             <20030612151704.A2588@pclin040.win.tue.nl> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Jun 2003 23:11:38.0276 (UTC) FILETIME=[F9F08E40:01C33137]
+Content-Type: text/plain
+Date: Fri, 13 Jun 2003 01:12:57 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> wrote:
->
-> I also think if we can solve both the vmtruncate and the distributed file
-> system races without adding any vm_ops, we should.
-> 
-> Here's a new patch.  Does this look better?
 
-grumble, mutter.  It's certainly simple enough.
+Andries Brouwer wrote:
+>        O_DIRECT
+>               Try to minimize cache effects of  the  I/O  to  and
+>               from  this file.  In general this will degrade per-
+>               formance, but it is useful in  special  situations,
+>               such  as  when  applications  do their own caching.
+>               File  I/O  is  done  directly  to/from  user  space
+>               buffers.  The I/O is synchronous, i.e., at the com-
+>               pletion of the read(2)  or  write(2)  system  call,
+>               data   is  guaranteed  to  have  been  transferred.
+>               Transfer sizes, and the alignment  of  user  buffer
+>               and  file offset must all be multiples of the logi-
+>               cal block size of the file system.
 
-+	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
+FYI:
+It appears that somewhere between RH kernels 2.4.18-27.7.x and 2.4.20-18.9
+something has changed so that my application needs a O_SYNC too besides
+the O_DIRECT to make sure that writes will be synchronous.  If I leave
+the O_SYNC out with 2.4.20-18.9 the write will happen physically 35
+seconds after the write() was done.
 
-I'm not so sure about this one now.  write() alters dentry->d_inode but
-truncate alters dentry->d_inode->i_mapping->host.  Unless truncate is
-changed we have the wrong mapping here.
+Haven't tested with a vanilla 2.4.* kernel yet but will try.
+(All modern 2.4.2? kernels I tried will hang for > 30s during boot while
+probing the CompactFlash and are because of that kind of useless: my
+application needs a 5s boot-time ..)
 
-I'll put it back to the original while I try to work out why truncate isn't
-wrong...
-
+	greetings,
+	Rob van Nieuwkerk

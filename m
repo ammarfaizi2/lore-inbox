@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLFRBv>; Wed, 6 Dec 2000 12:01:51 -0500
+	id <S129183AbQLFROG>; Wed, 6 Dec 2000 12:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbQLFRBl>; Wed, 6 Dec 2000 12:01:41 -0500
-Received: from collibf1.jhuapl.edu ([128.244.27.248]:2743 "EHLO
-	collibf1.jhuapl.edu") by vger.kernel.org with ESMTP
-	id <S129257AbQLFRBa>; Wed, 6 Dec 2000 12:01:30 -0500
-Message-ID: <3A2E69DA.661A9994@jhuapl.edu>
-Date: Wed, 06 Dec 2000 11:31:22 -0500
-From: Skip Collins <bernard.collins@jhuapl.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129226AbQLFRN4>; Wed, 6 Dec 2000 12:13:56 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:20748 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129183AbQLFRNk>; Wed, 6 Dec 2000 12:13:40 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: system hang and corrupt ext2 filesystem with test12-pre5
-In-Reply-To: <3A2E51B0.76C65771@jhuapl.edu> <3A2E5FAA.FF29E9D7@Hell.WH8.TU-Dresden.De>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14894.27665.893145.458412@wire.cadcamlab.org>
+Date: Wed, 6 Dec 2000 10:40:49 -0600 (CST)
+To: Brian Kress <kressb@fsc-usa.com>
+Cc: Roberto Ragusa <robertoragusa@technologist.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel panic in SoftwareRAID autodetection
+In-Reply-To: <14893.25967.936504.881427@notabene.cse.unsw.edu.au>
+	<yam8375.1358.149393648@a4000>
+	<20001205183657.J6567@cadcamlab.org>
+	<3A2E3C39.B96B9516@fsc-usa.com>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
 
-> What drive are you using? AFAIR, Andre Hedrick once said certain Maxtor
-> drives aren't quite safe with DMA.
+[Brian Kress <kressb@fsc-usa.com>]
+> I got resounding silence to posting the patch last time, so I'm not
+> sure if anyone actually wants this patch,
 
-Using an IBM 45GB udma5 capable drive. The problems only occur under
-_heavy_ disk activity.  I have -d 1 -c 3 -m 16 set.
+Well, I like it, but admittedly it's mostly in the "cleanup" category
+(though it does fix the LVM name issue) so at this point in 2.4 I guess
+Linus has more important stuff to worry about.
 
-Have you tried thrashing your drive for an extended time? Try repeatedly
-copying more than one GB file simultaneously.
+The best thing about your patch is that by putting the logic back in
+the individual drivers, it makes check.c not depend on your module
+configuration (so you can compile a disk module, either inside or
+outside the kernel tree, without worrying about editing or recompiling
+check.c).
 
-Perhaps this is not relevant, but I have only run into the problem when
-manipulating vmware virtual disk files in some way, both inside and
-outside of vmware itself. This is probably because these are the only
-large files I have dealt with since installing a 2.4 kernel. But could
-some aspect of the structure of these files, such as large holes, be
-triggering the corruption?
+> +char *DAC960_disk_name(struct gendisk *hd, int minor, char *buf)
+> +char *cciss_disk_name(struct gendisk *hd, int minor, char *buf)
+> +char *ida_disk_name(struct gendisk *hd, int minor, char *buf)
+> +char* ide_disk_name(struct gendisk *hd, int minor, char *buf)
+> +char *lvm_hd_name(struct gendisk *, int, char *);
+> +char *lvm_hd_name(struct gendisk *hd, int minor, char *buf)
+> +char *md_disk_name(struct gendisk*, int, char *);
+> +char * md_disk_name(struct gendisk *hd, int minor, char* buf)
+> +char *scsi_disk_name(struct gendisk *hd, int minor, char *buf)
 
-sc
+These should all be 'static char *'.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

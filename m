@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275336AbTHGNz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275332AbTHGNz1
+	id S275330AbTHGN4v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275331AbTHGN4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:55:27 -0400
-Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:33153 "EHLO
-	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S275359AbTHGNzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:55:22 -0400
-From: jlnance@unity.ncsu.edu
-Date: Thu, 7 Aug 2003 09:55:22 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Filesystem Tests
-Message-ID: <20030807135522.GA5460@ncsu.edu>
-References: <3F306858.1040202@mrs.umn.edu> <20030805224152.528f2244.akpm@osdl.org> <3F310B6D.6010608@namesys.com>
+	Thu, 7 Aug 2003 09:56:50 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:23427 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S275330AbTHGNzs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:55:48 -0400
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Charles Lepple <clepple@ghz.cc>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030807120056.B17690@flint.arm.linux.org.uk>
+References: <20030806231519.H16116@flint.arm.linux.org.uk>
+	 <3F31BDA3.7040700@ghz.cc> <20030807204553.3c5f432e.sfr@canb.auug.org.au>
+	 <20030807120056.B17690@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060264234.3123.45.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F310B6D.6010608@namesys.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Aug 2003 14:50:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 06:06:37PM +0400, Hans Reiser wrote:
-> 
-> I don't think ext2 is a serious option for servers of the sort that 
-> Linux specializes in, which is probably why he didn't measure it.
+On Iau, 2003-08-07 at 12:00, Russell King wrote:
+> Well, it all works fine with 2.4, even with a 3c59x in the slot (except
+> for the resume problem.)  Even ejecting the card before suspending with
+> 2.6 doesn't fix the problem though.
 
-FWIW, I use Linux to run an application which generates many large
-temporary files.  Some larger runs could easily generate hundreds
-of GB of on-disk data.  I really prefer to use ext2 for these temp
-files.  The speed is nice, and the data consistency guarantees the
-other FSes give me does not really mean much as most of the files
-are not of any use if the machine were to crash.  Fsck times on
-an unclean shutdown are a problem, but I guess I could solve that
-by running mkext2fs instead.
+The 2.4 apm scripts handled a lot of this, could it be the 2.6 PCMCIA 
+suspend simply isnt turning off enough things to convince the BIOS ?
 
-On my home machine I switched the partition I do mozilla development
-on from ext3 back to ext2.  The man reason being that "make clobber"
-was so much faster.  And again I feel comfortable doing this because
-I can regenerate everything on that partiton with out too much
-work.
-
-Anyway, I just wanted to point out that ext2 still has its uses.  Im
-looking forward to trying out reiser4.  The speed looks quite impressive
-from what I have seen on the net.
-
-Thanks,
-
-Jim

@@ -1,50 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264610AbTFHGTM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 02:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbTFHGTM
+	id S264607AbTFHGWK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 02:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbTFHGWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 02:19:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:39626 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264610AbTFHGTL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 02:19:11 -0400
-Date: Sat, 7 Jun 2003 23:31:44 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>, rddunlap@osdl.org,
-       colin@colina.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Maximum swap space?
-Message-ID: <20030608063144.GL8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, rddunlap@osdl.org,
-	colin@colina.demon.co.uk, linux-kernel@vger.kernel.org
-References: <ltptlqb72n.fsf@colina.demon.co.uk> <33435.4.64.196.31.1055008200.squirrel@www.osdl.org> <20030607132432.26846b8a.akpm@digeo.com> <20030607205046.GL20413@holomorphy.com> <20030608005543.GM20413@holomorphy.com> <20030607182843.70079e07.akpm@digeo.com> <20030608013827.GK8978@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030608013827.GK8978@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 8 Jun 2003 02:22:10 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:11922 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S264607AbTFHGWH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 02:22:07 -0400
+Message-ID: <3EE2DA43.3060606@kegel.com>
+Date: Sat, 07 Jun 2003 23:40:03 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix segmentation fault in "make menuconfig" in current 2.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 06:28:43PM -0700, Andrew Morton wrote:
->> Seems hardly worth the extra arithmetic given that the 2G limit
->> is actually bogus?
->> I just did mkswap/swapon of a 52G partition.  That used 26MB of lowmem for
->> the swap map btw.
+I just ran into the following error:
+~/linux-2.4.19$ make ARCH=arm menuconfig
+...
+/bin/sh scripts/Menuconfig arch/arm/config.in
+Using defaults found in arch/arm/defconfig
+Preparing scripts: functions, parsingscripts/Menuconfig: line 1: 21468 Segmentation fault      awk "$1"
+Awk died with error code 139. Giving up.
+make: *** [menuconfig] Error 1
 
-On Sat, Jun 07, 2003 at 06:38:27PM -0700, William Lee Irwin III wrote:
-> It's not clear precisely who or what would benefit from it; however,
-> the decreased maximum of 32 swapfiles on i386 is a regression vs.
-> 2.4.x's limit of 64, in whatever sense something no one cares about is
-> actually a regression (in principle they could have merely not spoken
-> up about it).
-> In other words, if someone feels itchy because the number went down
-> from 2.4.x, here it is. If not, I'm fine with leaving it be.
+Looks like it's been reported before; Menuconfig has two mistakes
+in how it handles missing files in its awk sections.
+See http://mail.gnu.org/archive/html/bug-gnu-utils/2001-10/msg00155.html
+Even 2.4.21-rc7 seems to still contain the bug (unless I squinted wrong).
 
-I went and worked out why it's wrong (_PAGE_PROTNONE) clash. Whatever
-you do, don't apply it.
+Here's a patch relative to 2.4.19 that gets rid of the awk crash,
+as recommended by Arnold Robbins (!):
+
+--- linux-2.4.19/scripts/Menuconfig.old	Sat Jun  7 23:07:37 2003
++++ linux-2.4.19/scripts/Menuconfig	Sat Jun  7 23:08:24 2003
+@@ -714,7 +714,7 @@
+
+  function parser(ifile,menu) {
+
+-	while (getline <ifile) {
++	while ((getline <ifile) > 0) {
+  		if ($1 == "mainmenu_option") {
+  			comment_is_option = "1"
+  		}
+@@ -761,7 +761,7 @@
+
+  function parser(ifile,menu) {
+
+-	while (getline <ifile) {
++	while ((getline <ifile) > 0) {
+  		if ($0 ~ /^#|$MAKE|mainmenu_name/) {
+  			printf("") >>menu
+  		}
 
 
--- wli
+Once that's applied, Menuconfig produces a more useful, though still bad,
+error message:
+
+-----
+scripts/Menuconfig: ./MCmenu0: line 63: syntax error near unexpected token `fi'
+scripts/Menuconfig: ./MCmenu0: line 63: `fi'
+done.
+^[[H^[[2J+ cat
+
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
+
+  Q> scripts/Menuconfig: MCmenu0: command not found
+-----
+
+Figuring out what's going on then requires commenting out the line in
+Menuconfig that removes MCmenu0.
+The root cause of the error is that the file drivers/ssi/Config.in
+is in the arm-linux kernel, but not in the vger kernel.
+Sigh.  So I only ran into the problem because I was trying to configure
+(let alone build) the vger kernel for arm, which apparantly is something nobody ever does.
+- Dan
+
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+

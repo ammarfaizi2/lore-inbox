@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265478AbUBFOyu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 09:54:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbUBFOyu
+	id S265501AbUBFPih (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 10:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUBFPih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 09:54:50 -0500
-Received: from ns.suse.de ([195.135.220.2]:27362 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265478AbUBFOyr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 09:54:47 -0500
-Subject: Re: Bug in "select" dependency checking?
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "kbuild-devel@lists.sourceforge.net" 
-	<kbuild-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402061448500.7851@serv>
-References: <1076027838.2223.95.camel@nb.suse.de>
-	 <Pine.LNX.4.58.0402061448500.7851@serv>
-Content-Type: text/plain
-Organization: SUSE Labs, SUSE LINUX AG
-Message-Id: <1076078947.19043.27.camel@E136.suse.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 06 Feb 2004 15:49:07 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Feb 2004 10:38:37 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:57847 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265501AbUBFPif (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 10:38:35 -0500
+Date: Fri, 6 Feb 2004 10:36:55 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Michael Frank <mhf@linuxmail.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.25-rc1: BUG: wrong zone alignment, it will crash
+In-Reply-To: <200402062245.25651.mhf@linuxmail.org>
+Message-ID: <Pine.LNX.4.44.0402061034210.5933-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-06 at 15:00, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 6 Feb 2004, Andreas Gruenbacher wrote:
-> 
-> > With this configuration, menuconf gives me this message (among others):
-> >
-> >   Warning! Found recursive dependency: NFSD_V3 NFSD_ACL NFSD NFSD_V3
-> 
-> This is indeed a wrong positive, the patch below fixes this, but you if
-> change your config into e.g.:
-> 
-> config NFSD_ACL
-> 	bool "..."
-> 	depends on NFSD_V3
-> 	select NFS_ACL_SUPPORT if NFSD
->
-> you avoid the warning and it does the same.
+On Fri, 6 Feb 2004, Michael Frank wrote:
 
-Does it? I would assume this to limit NFS_ACL_SUPPORT to y or n
-depending on the value of NFSD_ACL. If should be y, m or n depending on
-the value of NFSD.
+> > > 300MB HIGHMEM available.
+> > > 195MB LOWMEM available.
+> > > On node 0 totalpages: 126960
+> > > zone(0): 4096 pages.
+> > > zone(1): 46064 pages.
+> > > zone(2): 76800 pages.
+> > > BUG: wrong zone alignment, it will crash
 
-> Or you could also write this simpler as:
-> 
-> config NFS_ACL_SUPPORT
-> 	tristate
-> 	default (NFSD && NFSD_ACL) || (NFS_FS && NFS_ACL)
+> It is supposed to work, just a bug in the zone alignment code.
 
-That's much more elegant than my "handwired" version. But I prefer
-select: NFSD_ACL and NFS_ACL are in different patches; with select, the
-patches don't conflict with each other.
+The error isn't in the kernel, it's between the chair and the keyboard.
+You have created a lowmem zone of a size that doesn't correctly
+align with the largest blocks used by the buddy allocator.
 
+> I have have to use HIGHMEM emulation for testing.
 
-Thanks,
+Then you'll need to choose a different size for the highmem=
+parameter, one that doesn't cause an unaligned boundary.
+
+Alternatively, you could submit a patch so the highmem= boot
+option parsing code does the aligning for you.
+
+However, that would simply be an improvement to the kernel and
+nothing like a bug you can demand to get fixed now.
+
 -- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

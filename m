@@ -1,144 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264347AbTLES4f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTLES4e
+	id S264364AbTLES6F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:58:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTLES4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:56:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16061 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264347AbTLESyw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:54:52 -0500
-Message-ID: <3FD0D469.3070504@pobox.com>
-Date: Fri, 05 Dec 2003 13:54:33 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: torvalds@osdl.org
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] net driver fixes
-References: <20031205183037.GA8536@gtf.org>
-In-Reply-To: <20031205183037.GA8536@gtf.org>
-Content-Type: multipart/mixed;
- boundary="------------010807080603020208040805"
+	Fri, 5 Dec 2003 13:56:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19109 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264348AbTLESzN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 13:55:13 -0500
+Subject: Prcess scheduler Imiprovements in 2.6.0-test9
+From: Craig Thomas <craiger@osdl.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1070650522.13254.28.camel@bullpen.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 05 Dec 2003 10:55:22 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010807080603020208040805
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+OSDL has been running peformance tests with hackbench to measure the
+improvment of the scheduler, compared with LInux 2.4.18.  We ran the
+test on our Scalable Test Platform on different system sizes.  The
+results obtained seem to show that the 2.6 scheduler is more
+efficient and allows for greater scalability on larger systems.
+See http://marc.theaimsgroup.com/?l=linux-kernel&m=100805466304516&w=2
+for a description of hackbench.
 
-Jeff Garzik wrote:
-> Linus, please do a
-> 
-> 	bk pull bk://gkernel.bkbits.net/net-drivers-2.5
-> 
-> This will update the following files:
-> 
->  drivers/net/pci-skeleton.c |    7 ---
->  drivers/net/pcnet32.c      |    2 
->  drivers/net/r8169.c        |    4 -
->  drivers/net/sis190.c       |    4 -
->  drivers/net/typhoon.c      |   97 ++++++++++++++++++++++++++++++++++++---------
->  5 files changed, 78 insertions(+), 36 deletions(-)
+The set of data below shows an average time of five hackbench runs
+for each set of groups.  Linux 2.6.0-test9 clearly shows significan
+improvement in the completion times.
 
+Test set 1: Performance of hackbench
 
-So following that email... you just wanna truncate this patch -- snip 
-the typhoon portion and apply the rest?
+(times are in seconds, lower number is better)
 
---------------010807080603020208040805
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+number of groups     50     100     150     200
+--------------------------------------------------
+1 CPU
+   2.4.18          15.52   37.63   74.34   110.62
+   2.6.0-test9      9.91   17.86   27.55    39.77
+--------------------------------------------------
+2 CPUs
+   2.4.18          10.50   30.42   64.26   112.46
+   2.6.0-test9      7.44   13.45   19.68    26.68
+--------------------------------------------------
+4 CPUs
+   2.4.18           7.07   22.75   54.10   101.45
+   2.6.0-test9      5.16   9.25    13.64    18.65
+--------------------------------------------------
+8 CPUs
+   2.4.18           7.02   24.63   61.48   114.93
+   2.6.0-test9      4.08   7.15    10.31    13.84
+--------------------------------------------------
 
+The set of data below shows how many groups can be run before the
+system failed with some resouce limitiation having been exceeded.
+The kernel was not tuned, so this tests a defalut configuration.
 
-This will update the following files:
+Test set 2: Max Groups Before Out of Resource
+(maximum nuber of groups that completed a successful run;  larger
+numbers are better)
 
- drivers/net/pci-skeleton.c |    7 ---
- drivers/net/pcnet32.c      |    2 
- drivers/net/r8169.c        |    4 -
- drivers/net/sis190.c       |    4 -
+------------------------
+1 CPU
+   2.4.18           200
+   2.6.0-test9      200
+------------------------
+2 CPUs
+   2.4.18           225
+   2.6.0-test9      350
+------------------------
+4 CPUs
+   2.4.18           225
+   2.6.0-test9      525
+------------------------
+8 CPUs
+   2.4.18           225
+   2.6.0-test9      425
+------------------------
 
-through these ChangeSets:
+We have been running hackbench results up through 2.6.0-test11 and
+we see no significant differences between test-11 and test9, so these
+results should be valid for test-11 as well.
 
-<jgarzik@redhat.com> (03/12/05 1.1499)
-   [netdrvr pcnet32] fix oops on unload
-   
-   Driver was calling pci_unregister_driver for each _device_, and then
-   again at the end of the module unload routine.  Remove the call that's
-   inside the loop, pci_unregister_driver should only be called once.
-   
-   Caught by Don Fry (and many others)
+A write-up of these results (complete with graphical plots) is posted
+at  http://developer.osdl.org/craiger/hackbench/index.html
 
-<viro@parcelfarce.linux.theplanet.co.uk> (03/12/03 1.1496.1.9)
-   [netdrvr] remove manual driver poisoning of net_device
-   
-   Such poisoning can cause oopses either because the refcount is not
-   zero when the poisoning occurs, or due to kernel debugging options
-   being enabled.
-
-
-diff -Nru a/drivers/net/pci-skeleton.c b/drivers/net/pci-skeleton.c
---- a/drivers/net/pci-skeleton.c	Fri Dec  5 13:22:32 2003
-+++ b/drivers/net/pci-skeleton.c	Fri Dec  5 13:22:32 2003
-@@ -864,13 +864,6 @@
- 
- 	pci_release_regions (pdev);
- 
--#ifndef NETDRV_NDEBUG
--	/* poison memory before freeing */
--	memset (dev, 0xBC,
--		sizeof (struct net_device) +
--		sizeof (struct netdrv_private));
--#endif /* NETDRV_NDEBUG */
--
- 	free_netdev (dev);
- 
- 	pci_set_drvdata (pdev, NULL);
-diff -Nru a/drivers/net/pcnet32.c b/drivers/net/pcnet32.c
---- a/drivers/net/pcnet32.c	Fri Dec  5 13:22:32 2003
-+++ b/drivers/net/pcnet32.c	Fri Dec  5 13:22:32 2003
-@@ -1766,8 +1766,6 @@
- 	next_dev = lp->next;
- 	unregister_netdev(pcnet32_dev);
- 	release_region(pcnet32_dev->base_addr, PCNET32_TOTAL_SIZE);
--	if (lp->pci_dev)
--	    pci_unregister_driver(&pcnet32_driver);
- 	pci_free_consistent(lp->pci_dev, sizeof(*lp), lp, lp->dma_addr);
- 	free_netdev(pcnet32_dev);
- 	pcnet32_dev = next_dev;
-diff -Nru a/drivers/net/r8169.c b/drivers/net/r8169.c
---- a/drivers/net/r8169.c	Fri Dec  5 13:22:32 2003
-+++ b/drivers/net/r8169.c	Fri Dec  5 13:22:32 2003
-@@ -642,10 +642,6 @@
- 	iounmap(tp->mmio_addr);
- 	pci_release_regions(pdev);
- 
--	// poison memory before freeing 
--	memset(dev, 0xBC,
--	       sizeof (struct net_device) + sizeof (struct rtl8169_private));
--
- 	pci_disable_device(pdev);
- 	free_netdev(dev);
- 	pci_set_drvdata(pdev, NULL);
-diff -Nru a/drivers/net/sis190.c b/drivers/net/sis190.c
---- a/drivers/net/sis190.c	Fri Dec  5 13:22:32 2003
-+++ b/drivers/net/sis190.c	Fri Dec  5 13:22:32 2003
-@@ -703,10 +703,6 @@
- 	iounmap(tp->mmio_addr);
- 	pci_release_regions(pdev);
- 
--	// poison memory before freeing 
--	memset(dev, 0xBC,
--	       sizeof (struct net_device) + sizeof (struct sis190_private));
--
- 	free_netdev(dev);
- 	pci_set_drvdata(pdev, NULL);
- }
-
---------------010807080603020208040805--
+-- 
+Craig Thomas
+craiger@osdl.org
 

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285247AbRLSLFh>; Wed, 19 Dec 2001 06:05:37 -0500
+	id <S285251AbRLSLKH>; Wed, 19 Dec 2001 06:10:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285246AbRLSLF1>; Wed, 19 Dec 2001 06:05:27 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:8720 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S285243AbRLSLFX>; Wed, 19 Dec 2001 06:05:23 -0500
-Message-ID: <3C207473.E7AB9C6B@idb.hist.no>
-Date: Wed, 19 Dec 2001 12:05:23 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre10 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112181216341.1237-100000@admin> <Pine.LNX.4.33.0112180922500.2867-100000@penguin.transmeta.com> <20011218105459.X855@lynx.no> <3C1F8A9E.3050409@redhat.com>
+	id <S285250AbRLSLJ5>; Wed, 19 Dec 2001 06:09:57 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:53254 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S285241AbRLSLJq>; Wed, 19 Dec 2001 06:09:46 -0500
+Date: Tue, 18 Dec 2001 23:50:24 +0000
+From: Russell King <rmk@flint.arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] PCI updates - 32-bit IO support
+Message-ID: <20011218235024.N13126@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+I have here a system which requires 32-bit IO addressing on its PCI
+busses.  Currently, Linux zeros the upper IO base/limit registers on
+all PCI bridges, which prevents addresses being forwarded on this
+system.
 
-> Weel, evidently esd and artsd both do this (well, I assume esd does now, it
-> didn't do this in the past).  Basically, they both transmit silence over the
-> sound chip when nothing else is going on.  So even though you don't hear
-> anything, the same sound output DMA is taking place.  
+The following patch the upper IO base/limit registers to be set
+appropriately by the PCI layer.
 
-Uuurgh. :-(
+This patch is being sent for review, and is targetted solely at 2.5.
 
-> That avoids things
-> like nasty pops when you start up the sound hardware for a beep and that
+diff -ur orig/drivers/pci/setup-bus.c linux/drivers/pci/setup-bus.c
+--- orig/drivers/pci/setup-bus.c	Sun Oct 14 20:53:14 2001
++++ linux/drivers/pci/setup-bus.c	Tue Dec 18 23:20:13 2001
+@@ -148,7 +181,10 @@
+ 	pci_write_config_dword(bridge, PCI_IO_BASE, l);
+ 
+ 	/* Clear upper 16 bits of I/O base/limit. */
+-	pci_write_config_dword(bridge, PCI_IO_BASE_UPPER16, 0);
++	pci_write_config_word(bridge, PCI_IO_BASE_UPPER16,
++			ranges.io_start >> 16);
++	pci_write_config_word(bridge, PCI_IO_LIMIT_UPPER16,
++			ranges.io_end >> 16);
+ 
+ 	/* Clear out the upper 32 bits of PREF base/limit. */
+ 	pci_write_config_dword(bridge, PCI_PREF_BASE_UPPER32, 0);
 
-Yuk, bad hardware.  Pops when you start or stop writing?  You don't even
-have to turn the volume off or something to get a pop?  Toss it.
 
-> sort of thing.  It also maintains state where as dropping output entirely
-> could result in things like module auto unloading and then reloading on the
-> next beep, etc.  
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Much better solved by having the device open, but not writing anything.
-Open devices don't unload.
-
-Helge Hafting

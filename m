@@ -1,240 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268289AbUIWFbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUIWFqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268289AbUIWFbo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 01:31:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUIWFbo
+	id S262418AbUIWFqv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 01:46:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUIWFqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 01:31:44 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:12440 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S268289AbUIWF33
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 01:29:29 -0400
-Date: Thu, 23 Sep 2004 11:00:29 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>, ak@muc.de,
-       suparna@in.ibm.com, Tom Rini <trini@kernel.crashing.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: [Patch] kprobes exception notifier fix 2.6.9-rc2
-Message-ID: <20040923053029.GB1291@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Thu, 23 Sep 2004 01:46:51 -0400
+Received: from gizmo11bw.bigpond.com ([144.140.70.21]:49618 "HELO
+	gizmo11bw.bigpond.com") by vger.kernel.org with SMTP
+	id S262418AbUIWFqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 01:46:46 -0400
+Message-ID: <41526341.8070902@bigpond.net.au>
+Date: Thu, 23 Sep 2004 15:46:41 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm2
+References: <20040922131210.6c08b94c.akpm@osdl.org> <20040923050740.GZ9106@holomorphy.com>
+In-Reply-To: <20040923050740.GZ9106@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+> On Wed, Sep 22, 2004 at 01:12:10PM -0700, Andrew Morton wrote:
+> 
+>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm2/
+>>- Added Peter Williams' Single Priority Array (SPA) O(1) CPU Scheduler, aka
+>>  the "zaphod" cpu scheduler.
+>>  It has a number of tunables and lots of documentation - see the changelog
+>>  entry in zaphod-scheduler.patch for details.
+> 
+> 
+> Something's a tad off here. Should be easy enough to fix up.
+> 
+> 
+> -- wli
+> 
+> Button XIR
+> Software Power ON
+> 4-slot Sun Enterprise 3000, No Keyboard
+> OpenBoot 3.2.30, 3840 MB memory installed, Serial #9039287.
+> Copyright 2002 Sun Microsystems, Inc.  All rights reserved
+> Ethernet address 8:0:20:89:ed:b7, Host ID: 8089edb7.
+> 
+> 
+> 
+> {6} ok boot net:dhcp -p root=/dev/nfs nfsroot=/mnt/f/e3k/debian ip=dhcp debug initcall_debug profile=1
+> Boot device: /sbus@3,0/SUNW,hme@3,8c00000:dhcp  File and args: -p root=/dev/nfs nfsroot=/mnt/f/e3k/debian ip=dhcp debug initcall_debug profile=1
+> 39b200
+> PROMLIB: Sun IEEE Boot Prom 3.2.30 2002/10/25 14:03
+> Linux version 2.6.9-rc2-mm2 (wli@analyticity) (gcc version 3.3.4 (Debian 1:3.3.4-12)) #2 SMP Wed Sep 22 21:53:53 PDT 2004
+> ARCH: SUN4U
+> Remapping the kernel... done.
+> Booting Linux...
+> Ethernet address: 08:00:20:89:ed:b7
+> CENTRAL: Detected 4 slot Enterprise system. cfreg[a8] cver[fc]
+> FHC(board 1): Version[1] PartID[fa0] Manuf[3e] (CENTRAL)
+> FHC(board 3): Version[1] PartID[fa0] Manuf[3e] (JTAG Master)
+> FHC(board 5): Version[1] PartID[fa0] Manuf[3e]
+> FHC(board 7): Version[1] PartID[fa0] Manuf[3e]
+> FHC(board 1): Version[1] PartID[fa0] Manuf[3e]
+> Unable to handle kernel NULL pointer dereference
+> tsk->{mm,active_mm}->context = 0000000000000000
+> tsk->{mm,active_mm}->pgd = fffff8000000ec00
+>               \|/ ____ \|/
+>               "@'/ .. \`@"
+>               /_| \__/ |_\
+>                  \__U_/
+> swapper(0): Oops [#1]
+> TSTATE: 0000000080d01603 TPC: 000000000041d7cc TNPC: 000000000041d7d0 Y: 00000000    Not tainted
+> TPC: <sched_clock+0xc/0x40>
+> g0: f880200000000010 g1: 00000000007b1800 g2: 0000000000000000 g3: 0000000000000030
+> g4: 00000000006e5600 g5: 000000000079c018 g6: 00000000006e1600 g7: 0000000000000000
+> o0: fffff80001e50ac0 o1: 0000000000100000 o2: fffff80001e50ac0 o3: 0000000000000000
+> o4: 0000000000000006 o5: 0000000000000000 sp: 00000000006e4af1 ret_pc: 000000000078010c
+> RPC: <__alloc_bootmem+0x2c/0x80>
+> l0: 00000000006ef640 l1: 0000000000002018 l2: 0000000000001ff0 l3: 0000000000077e8c
+> l4: 0000000000001f80 l5: 0000000000000000 l6: 00000000006ef400 l7: 0000000000792000
+> i0: fffff80001f4a238 i1: 0000000000000000 i2: 0000000000000000 i3: 000000000000000c
+> i4: fffff80001f4a238 i5: 0000000000000000 i6: 00000000006e4bb1 i7: 000000000077e530
+> I7: <sched_init+0xf0/0x140>
+> Caller[000000000077e530]: sched_init+0xf0/0x140
+> Caller[0000000000778688]: start_kernel+0x48/0x200
+> Caller[0000000000404674]: tlb_fixup_done+0x58/0x60
+> Caller[0000000000000000]: 0x0
+> Instruction DUMP: 9de3bf40  03001ec6  c4586148 <c658a008> 9fc0c000  01000000  03001ec6  c4586160  904a0002
+> Kernel panic - not syncing: Attempted to kill the idle task!
+>  <0>Press L1-A to return to the boot prom
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This looks the problem of sched_clock() being called before it's ready 
+(that we experienced with 2.6.9-rc2 on IA32 systems) only this time it's 
+fatal :-(
 
-In order to make other debuggers use exception notifiers, kprobes 
-notifier return values are required to be modified. This patch modifies the
-return values of kprobes notifier return values in a clean way.
+A quick workaround for this would be to initialize idle->sched_timestamp 
+in init_idle() and current->sched_timestamp in sched_init() to the 
+INITIAL_JIFFIES converted to nanoseconds instead of using sched_clock().
 
-Please let me know your comments.
+Another solution would be to set them to a value much greater than the 
+nanosecond equivalent of INITIAL_JIFFIES (e.g. 1ULL << 63) and let the 
+code that handles the non monotonic behaviour of sched_clock() sort it 
+out later.
 
-Thanks
-Prasanna
+Peter
 -- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kprobes-exceptions-notifier-fix.patch"
-
-
-This patch modifies the return value of kprobes exceptions notify handler.
-The kprobes exception notifier returns NOTIFY_STOP on handling notification.
-This patch helps other debuggers to co-exists with the Kprobes. Other debuggers 
-registered for exceptions notification must return NOTIFY_STOP on handling 
-the notification.
-
-Signed-off by : Prasanna S Panchamukhi <prasanna@in.ibm.com>
-
-
----
-
- linux-2.6.9-rc2-prasanna/arch/i386/kernel/kprobes.c |   10 +++++-----
- linux-2.6.9-rc2-prasanna/arch/i386/kernel/traps.c   |   18 +++++++++---------
- linux-2.6.9-rc2-prasanna/arch/i386/mm/fault.c       |    2 +-
- linux-2.6.9-rc2-prasanna/include/linux/notifier.h   |    4 ++++
- linux-2.6.9-rc2-prasanna/kernel/kprobes.c           |    3 +++
- 5 files changed, 22 insertions(+), 15 deletions(-)
-
-diff -puN arch/i386/kernel/kprobes.c~kprobes-exceptions-nofitier-fix arch/i386/kernel/kprobes.c
---- linux-2.6.9-rc2/arch/i386/kernel/kprobes.c~kprobes-exceptions-nofitier-fix	2004-09-21 15:06:22.000000000 +0530
-+++ linux-2.6.9-rc2-prasanna/arch/i386/kernel/kprobes.c	2004-09-21 15:06:22.000000000 +0530
-@@ -267,26 +267,26 @@ int kprobe_exceptions_notify(struct noti
- 	switch (val) {
- 	case DIE_INT3:
- 		if (kprobe_handler(args->regs))
--			return NOTIFY_OK;
-+			return NOTIFY_STOP;
- 		break;
- 	case DIE_DEBUG:
- 		if (post_kprobe_handler(args->regs))
--			return NOTIFY_OK;
-+			return NOTIFY_STOP;
- 		break;
- 	case DIE_GPF:
- 		if (kprobe_running() &&
- 		    kprobe_fault_handler(args->regs, args->trapnr))
--			return NOTIFY_OK;
-+			return NOTIFY_STOP;
- 		break;
- 	case DIE_PAGE_FAULT:
- 		if (kprobe_running() &&
- 		    kprobe_fault_handler(args->regs, args->trapnr))
--			return NOTIFY_OK;
-+			return NOTIFY_STOP;
- 		break;
- 	default:
- 		break;
- 	}
--	return NOTIFY_BAD;
-+	return NOTIFY_DONE;
- }
- 
- int setjmp_pre_handler(struct kprobe *p, struct pt_regs *regs)
-diff -puN arch/i386/kernel/traps.c~kprobes-exceptions-nofitier-fix arch/i386/kernel/traps.c
---- linux-2.6.9-rc2/arch/i386/kernel/traps.c~kprobes-exceptions-nofitier-fix	2004-09-21 15:06:22.000000000 +0530
-+++ linux-2.6.9-rc2-prasanna/arch/i386/kernel/traps.c	2004-09-21 15:06:22.000000000 +0530
-@@ -422,7 +422,7 @@ static inline void do_trap(int trapnr, i
- asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
- { \
- 	if (notify_die(DIE_TRAP, str, regs, error_code, trapnr, signr) \
--						== NOTIFY_OK) \
-+						== NOTIFY_STOP) \
- 		return; \
- 	do_trap(trapnr, signr, str, 0, regs, error_code, NULL); \
- }
-@@ -436,7 +436,7 @@ asmlinkage void do_##name(struct pt_regs
- 	info.si_code = sicode; \
- 	info.si_addr = (void __user *)siaddr; \
- 	if (notify_die(DIE_TRAP, str, regs, error_code, trapnr, signr) \
--						== NOTIFY_BAD) \
-+						== NOTIFY_STOP) \
- 		return; \
- 	do_trap(trapnr, signr, str, 0, regs, error_code, &info); \
- }
-@@ -445,7 +445,7 @@ asmlinkage void do_##name(struct pt_regs
- asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
- { \
- 	if (notify_die(DIE_TRAP, str, regs, error_code, trapnr, signr) \
--						== NOTIFY_OK) \
-+						== NOTIFY_STOP) \
- 		return; \
- 	do_trap(trapnr, signr, str, 1, regs, error_code, NULL); \
- }
-@@ -459,7 +459,7 @@ asmlinkage void do_##name(struct pt_regs
- 	info.si_code = sicode; \
- 	info.si_addr = (void __user *)siaddr; \
- 	if (notify_die(DIE_TRAP, str, regs, error_code, trapnr, signr) \
--						== NOTIFY_OK) \
-+						== NOTIFY_STOP) \
- 		return; \
- 	do_trap(trapnr, signr, str, 1, regs, error_code, &info); \
- }
-@@ -498,7 +498,7 @@ gp_in_vm86:
- gp_in_kernel:
- 	if (!fixup_exception(regs)) {
- 		if (notify_die(DIE_GPF, "general protection fault", regs,
--				error_code, 13, SIGSEGV) == NOTIFY_OK);
-+				error_code, 13, SIGSEGV) == NOTIFY_STOP);
- 			return;
- 		die("general protection fault", regs, error_code);
- 	}
-@@ -572,7 +572,7 @@ static void default_do_nmi(struct pt_reg
-  
- 	if (!(reason & 0xc0)) {
- 		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 0, SIGINT)
--							== NOTIFY_BAD)
-+							== NOTIFY_STOP)
- 			return;
- #ifdef CONFIG_X86_LOCAL_APIC
- 		/*
-@@ -587,7 +587,7 @@ static void default_do_nmi(struct pt_reg
- 		unknown_nmi_error(reason, regs);
- 		return;
- 	}
--	if (notify_die(DIE_NMI, "nmi", regs, reason, 0, SIGINT) == NOTIFY_BAD)
-+	if (notify_die(DIE_NMI, "nmi", regs, reason, 0, SIGINT) == NOTIFY_STOP)
- 		return;
- 	if (reason & 0x80)
- 		mem_parity_error(reason, regs);
-@@ -636,7 +636,7 @@ void unset_nmi_callback(void)
- asmlinkage int do_int3(struct pt_regs *regs, long error_code)
- {
- 	if (notify_die(DIE_INT3, "int3", regs, error_code, 3, SIGTRAP)
--			== NOTIFY_OK)
-+			== NOTIFY_STOP)
- 		return 1;
- 	/* This is an interrupt gate, because kprobes wants interrupts
- 	disabled.  Normal trap handlers don't. */
-@@ -677,7 +677,7 @@ asmlinkage void do_debug(struct pt_regs 
- 	__asm__ __volatile__("movl %%db6,%0" : "=r" (condition));
- 
- 	if (notify_die(DIE_DEBUG, "debug", regs, condition, error_code,
--					SIGTRAP) == NOTIFY_OK)
-+					SIGTRAP) == NOTIFY_STOP)
- 		return;
- 	/* It's safe to allow irq's after DR6 has been saved */
- 	if (regs->eflags & X86_EFLAGS_IF)
-diff -puN arch/i386/mm/fault.c~kprobes-exceptions-nofitier-fix arch/i386/mm/fault.c
---- linux-2.6.9-rc2/arch/i386/mm/fault.c~kprobes-exceptions-nofitier-fix	2004-09-21 15:06:22.000000000 +0530
-+++ linux-2.6.9-rc2-prasanna/arch/i386/mm/fault.c	2004-09-21 15:06:22.000000000 +0530
-@@ -227,7 +227,7 @@ asmlinkage void do_page_fault(struct pt_
- 	__asm__("movl %%cr2,%0":"=r" (address));
- 
- 	if (notify_die(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
--					SIGSEGV) == NOTIFY_OK)
-+					SIGSEGV) == NOTIFY_STOP)
- 		return;
- 	/* It's safe to allow irq's after cr2 has been saved */
- 	if (regs->eflags & (X86_EFLAGS_IF|VM_MASK))
-diff -puN kernel/kprobes.c~kprobes-exceptions-nofitier-fix kernel/kprobes.c
---- linux-2.6.9-rc2/kernel/kprobes.c~kprobes-exceptions-nofitier-fix	2004-09-21 15:06:22.000000000 +0530
-+++ linux-2.6.9-rc2-prasanna/kernel/kprobes.c	2004-09-21 15:06:22.000000000 +0530
-@@ -25,6 +25,8 @@
-  *		hlists and exceptions notifier as suggested by Andi Kleen.
-  * 2004-July	Suparna Bhattacharya <suparna@in.ibm.com> added jumper probes
-  *		interface to access function arguments.
-+ * 2004-Sep	Prasanna S Panchamukhi <prasanna@in.ibm.com> Changed Kprobes
-+ *		exceptions notifier to be first on the priority list.
-  */
- #include <linux/kprobes.h>
- #include <linux/spinlock.h>
-@@ -108,6 +110,7 @@ void unregister_kprobe(struct kprobe *p)
- 
- static struct notifier_block kprobe_exceptions_nb = {
- 	.notifier_call = kprobe_exceptions_notify,
-+	.priority = 0x7fffffff /* we need to notified first */
- };
- 
- int register_jprobe(struct jprobe *jp)
-diff -puN include/linux/notifier.h~kprobes-exceptions-nofitier-fix include/linux/notifier.h
---- linux-2.6.9-rc2/include/linux/notifier.h~kprobes-exceptions-nofitier-fix	2004-09-21 15:06:22.000000000 +0530
-+++ linux-2.6.9-rc2-prasanna/include/linux/notifier.h	2004-09-21 15:07:21.000000000 +0530
-@@ -29,6 +29,10 @@ extern int notifier_call_chain(struct no
- #define NOTIFY_OK		0x0001		/* Suits me */
- #define NOTIFY_STOP_MASK	0x8000		/* Don't call further */
- #define NOTIFY_BAD		(NOTIFY_STOP_MASK|0x0002)	/* Bad/Veto action	*/
-+/*
-+ * Clean way to return from the notifier and stop further calls.
-+ */
-+#define NOTIFY_STOP		(NOTIFY_OK|NOTIFY_STOP_MASK)
- 
- /*
-  *	Declared notifiers so far. I can imagine quite a few more chains
-
-_
-
---J/dobhs11T7y2rNN--

@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266488AbUJOASj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUJOAaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266488AbUJOASj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUJNS0U
+	id S267285AbUJOAaX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 20:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUJOAaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:26:20 -0400
-Received: from mail6.iserv.net ([204.177.184.156]:50832 "EHLO mail6.iserv.net")
-	by vger.kernel.org with ESMTP id S266793AbUJNRa0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 13:30:26 -0400
-Message-ID: <416EB7AD.4040302@didntduck.org>
-Date: Thu, 14 Oct 2004 13:30:21 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin K. Petersen" <mkp@wildopensource.com>
-CC: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, akpm@osdl.org,
-       tony.luck@intel.com
-Subject: Re: [PATCH] General purpose zeroed page slab
-References: <yq1oej5s0po.fsf@wilson.mkp.net>
-In-Reply-To: <yq1oej5s0po.fsf@wilson.mkp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 14 Oct 2004 20:30:22 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:34741 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S267285AbUJOA24
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 20:28:56 -0400
+Subject: Re: Fw: signed kernel modules?
+From: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
+       rusty@ozlabs.au.ibm.com, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <14000.1097749066@redhat.com>
+References: <1097707239.14303.22.camel@localhost.localdomain>
+	 <1096544201.8043.816.camel@localhost.localdomain>
+	 <1096411448.3230.22.camel@localhost.localdomain>
+	 <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
+	 <20040812092029.GA30255@devserv.devel.redhat.com>
+	 <20040811211719.GD21894@kroah.com>
+	 <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
+	 <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
+	 <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
+	 <30797.1092308768@redhat.com>
+	 <20040812111853.GB25950@devserv.devel.redhat.com>
+	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
+	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
+	 <10345.1097507482@redhat.com>
+	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
+	 <1097534090.16153.7.camel@localhost.localdomain>
+	 <1097570159.5788.1089.camel@baythorne.infradead.org>
+	 <1097626296.4013.34.camel@localhost.localdomain>
+	 <1097664137.4440.5.camel@localhost.! localdomain>
+	 <14000.1097749066@redhat.com>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1097800090.22673.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 15 Oct 2004 10:28:10 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin K. Petersen wrote:
-> A while back Bill Irwin converted the page table code on ppc64 to use
-> a zeroed page slab.  I recently did the same on ia64 and got a
-> significant performance improvement in terms of fault time (4 usec ->
-> 700 nsec).
+On Thu, 2004-10-14 at 20:17, David Howells wrote:
+> > I'd appreciate your opinion on the issue at hand.  Is it worth 600 lines
+> > of ELF verification and canonicalization code so we can strip modules
+> > without altering the signature?
 > 
-> This cache needs to be initialized fairly early on and so far we've
-> called it from pgtable_cache_init() on both archs.  However, Tony Luck
-> thought it might be useful to have a general purpose slab cache with
-> zeroed pages.  And other architectures might decide to use it for
-> their page tables too.
-> 
-> Consequently here's a patch that puts this functionality in slab.c.
-> 
-> Signed-off-by: Martin K. Petersen <mkp@wildopensource.com>
-> 
+> You have to some of the ELF verification anyway, otherwise your suggested way
+> is just as pointless. You had included somde code in your example, but what
+> that did wasn't sufficient either - it can trivially be broken.
 
-This doesn't work as you expect it does.  The constructor is only called 
-when a new slab is created, for each new object on the slab.  It is 
-_not_ run again when an object is freed.  So if a page is freed then 
-immediately reallocated it will contain garbage.
+The current approach is working just fine.  I'm not the one trying to
+prevent root from inserting malicious modules.  You are, so you need to
+do the checks.
 
---
-				Brian Gerst
+Rusty.
+
+

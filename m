@@ -1,56 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbTH3Awm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 20:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbTH3Awm
+	id S262188AbTH3ArK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 20:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTH3AqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 20:52:42 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:55588 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262471AbTH3Awk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 20:52:40 -0400
-Date: Sat, 30 Aug 2003 01:51:15 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-ac1 - VIA C3 cpufreq probs
-Message-ID: <20030830005115.GA14101@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jurgen Kramer <gtm.kramer@inter.nl.net>, Alan Cox <alan@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <200308291237.h7TCbYc12849@devserv.devel.redhat.com> <1062185134.1488.9.camel@paragon.slim>
+	Fri, 29 Aug 2003 20:46:21 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22152 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262188AbTH3AqQ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 20:46:16 -0400
+Message-Id: <200308300046.h7U0k8m8011982@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: don fisher <dfisher@as.arizona.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to choose between ip 2 identical ethernet cards 
+In-Reply-To: Your message of "Fri, 29 Aug 2003 17:29:29 PDT."
+             <3F4FEFE9.4050704@as.arizona.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <3F4FEFE9.4050704@as.arizona.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062185134.1488.9.camel@paragon.slim>
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-1616740185P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 29 Aug 2003 20:46:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 09:25:34PM +0200, Jurgen Kramer wrote:
+--==_Exmh_-1616740185P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <11969.1062204360.1@turing-police.cc.vt.edu>
 
- > I have just tried 2.4.22-ac1 on my VIA C3 EPIA 800 system. Cpufreq
- > (longhaul) fails both while compiled as a module and compiled in.
- > 
- > I first tried to build it as a module but somehow the module isn't build
- > at all. Next thing I tried was building it straight in the
- > kernel....with a direct oops when booting as a result.
- > 
- > The system doesn't have a keyboard or monitor..it did cost me some
- > fiddling to get it back up running...that's life for a tester...
- > 
- > There also seems to be some problem with the longhaul detection. Normaly
- > it would print something like:
- > longhaul: VIA CPU detected. Longhaul version 2 supported
- > longhaul: CPU currently at 798MHz (133 x 6.0)
- > longhaul: MinMult(x10)=30 MaxMult(x10)=60
- > longhaul: Lowestspeed=399000 Highestspeed=798000
- > 
- > But 2.4.22-ac1 printed MinMult and MaxMult to be 0.
+On Fri, 29 Aug 2003 17:29:29 PDT, don fisher <dfisher@as.arizona.edu>  said:
 
-Yeah, I screwed up. Looking into this is on my TODO.
+> I have tried changing the order of loading modules, along with a few 
+> vain attempts in modules.conf. For info, this is a Redhat system. 
+> Where is the definition as to which device will be associated with 
+> eth0 made?
 
-		Dave
+'man nameif'
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+Works great, less filling - my Dell 840 has up to *4* ethernets (the onboard
+built-in, the dock, the built-in wireless, and a Xircom card that's a combo
+56k modem/100BaseT).
+
+My /etc/mactab looks like this:
+
+# Onboard 10/100 port
+eth0 00:06:5b:b9:5e:27
+# 10/100 port on Xircom 10/100/56K card
+eth2 00:10:a4:9c:a8:86
+# wireless card
+wvlan0 00:02:2d:5c:11:48
+eth1 00:02:2d:5c:11:48
+# 10/100 port on dock...
+eth3 00:06:5b:ea:8e:4e
+
+(yes, there's 2 entries for the wireless - 2.4 kernel wants wvlanX, 2.6 calls it ethX.
+
+The magic under a RedHat system happens in:
+
+/etc/sysconfig/network-scripts/ifup
+
+Hope that helps.
+
+
+
+
+--==_Exmh_-1616740185P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/T/PPcC3lWbTT17ARAgwbAKDgk/pGGzQWhO6nKX0NGmww7IlXeQCgpPd3
+WzfJeyRRNK59KW+QCeSTYKo=
+=LSA/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1616740185P--

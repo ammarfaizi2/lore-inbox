@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276467AbRI2JIp>; Sat, 29 Sep 2001 05:08:45 -0400
+	id <S276470AbRI2JdC>; Sat, 29 Sep 2001 05:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276466AbRI2JIf>; Sat, 29 Sep 2001 05:08:35 -0400
-Received: from colorfullife.com ([216.156.138.34]:16905 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S276467AbRI2JI0>;
-	Sat, 29 Sep 2001 05:08:26 -0400
-Message-ID: <3BB58FAF.D1AF2D25@colorfullife.com>
-Date: Sat, 29 Sep 2001 11:09:03 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en, de
+	id <S276474AbRI2Jcw>; Sat, 29 Sep 2001 05:32:52 -0400
+Received: from web10407.mail.yahoo.com ([216.136.130.99]:57354 "HELO
+	web10407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276470AbRI2Jci>; Sat, 29 Sep 2001 05:32:38 -0400
+Message-ID: <20010929093305.31768.qmail@web10407.mail.yahoo.com>
+Date: Sat, 29 Sep 2001 19:33:05 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: 2.4.10 VM problem
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: lock_kiovec question
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lock_kiovec tries to lock each page in the kiovec, and fails if it can't
-lock one of the pages.
+Hi,
 
-What if the zero page is mapped multiple times in the kiobuf?
+I just got a lockup in X windows, (black screen,
+nothing works but the power off button still works)
+when compiling Lyx and running several program
+(LimeWire, Mozilla). Unfortunately I can not have any
+informative message yet, just I found in
+/var/log/message this line when reboot
 
-AFAICS map_user_pages doesn't break zero page mappings if it's called
-with rw==WRITE (i.e write to disk, read from kiobuf)
+ __alloc_pages: 0-order allocation failed (gfp=0
+x1d2/0) from c012f7a6
 
---
-	Manfred
+This is 2.4.10 with prempt patch and vm1 tweak form
+Andre.
+
+
+
+=====
+S.KIEU
+
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!

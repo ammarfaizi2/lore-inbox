@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262564AbTCISoj>; Sun, 9 Mar 2003 13:44:39 -0500
+	id <S262567AbTCISu2>; Sun, 9 Mar 2003 13:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262566AbTCISoj>; Sun, 9 Mar 2003 13:44:39 -0500
-Received: from pop.gmx.de ([213.165.64.20]:35688 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262564AbTCISoi>;
-	Sun, 9 Mar 2003 13:44:38 -0500
-Message-Id: <5.2.0.9.2.20030309192837.00c95468@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sun, 09 Mar 2003 19:59:50 +0100
-To: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: scheduler starvation running irman with 2.5.64bk2
-In-Reply-To: <20030309025015.GA2843@rushmore>
+	id <S262569AbTCISu2>; Sun, 9 Mar 2003 13:50:28 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:14611 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262567AbTCISu1>;
+	Sun, 9 Mar 2003 13:50:27 -0500
+Date: Sun, 9 Mar 2003 20:01:03 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, Romain Lievin <roms@tilp.info>
+Subject: Re: [PATCH] kconfig update
+Message-ID: <20030309190103.GA1170@mars.ravnborg.org>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel@vger.kernel.org, Romain Lievin <roms@tilp.info>
+References: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303090432200.32518-100000@serv>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:50 PM 3/8/2003 -0500, rwhron@earthlink.net wrote:
->irman triggers some odd behavior with 2.5.64bk2 on uniprocessor
->K6/2 475.  "ps aux" hasn't returned for a couple hours, though
->irman appears to be doing it's thing.  I haven't tried irman on smp.
->
->Time to run irman 3x.
->
->2.5.63                  4066 seconds
->2.5.63-mjb1             2993 seconds
->2.5.63-mm2-dline        2856 seconds
->2.5.64                  3473 seconds
->2.5.64bk2               ??
+On Sun, Mar 09, 2003 at 04:57:54AM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> It took a bit longer than I wanted, but here is finally another kconfig 
+> update.
 
-It _appears_ to be a valid test-case. I can reproduce this with 
-2.5.64+combo and B2.  I can also influence it to behave.  (that doesn't 
-mean that the scheduler changes are bust... could be that the test-case is 
-doing something bad)
+Hi Roman.
+Is it on your TODO list to make is more quiet?
+Today kconfig dumps out a lot of info when run, making sure no-one even
+notices the warnings that occur in the beginning.
+When executing
+$ make defconfig
+$ make V=0
+kconfig count for almost half of the output.
 
-Q/indicator:  do you ever see ksoftirqd _wanting_ to run?  (set top SCHED_RR)
+It would be really good if the following targets were quiet:
+oldconfig, defconfig, all*config.
+oldconfig obviously needs to display some info when asking users
+for new options.
 
-         -Mike 
+Also try executing conf with no arguments...
 
+	Sam

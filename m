@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311603AbSCNMoN>; Thu, 14 Mar 2002 07:44:13 -0500
+	id <S311604AbSCNMqd>; Thu, 14 Mar 2002 07:46:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311604AbSCNMoE>; Thu, 14 Mar 2002 07:44:04 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:36061 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S311603AbSCNMnu>;
-	Thu, 14 Mar 2002 07:43:50 -0500
-Message-ID: <3C909AEE.1020401@mandrakesoft.com>
-Date: Thu, 14 Mar 2002 07:43:26 -0500
+	id <S311605AbSCNMqX>; Thu, 14 Mar 2002 07:46:23 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:37088 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S311604AbSCNMqR>;
+	Thu, 14 Mar 2002 07:46:17 -0500
+Message-ID: <3C909B89.1000903@mandrakesoft.com>
+Date: Thu, 14 Mar 2002 07:46:01 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: Andrew Morton <akpm@zip.com.au>, Roberto Nibali <ratz@drugphish.ch>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Question about the ide related ioctl's BLK* in 2.5.7-pre1 kernel
-In-Reply-To: <3C9007F5.1000003@drugphish.ch> <3C900A11.55BA4B32@zip.com.au> <3C90939E.4070409@evision-ventures.com>
+To: Dave Jones <davej@suse.de>
+CC: Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre3aa2
+In-Reply-To: <20020314032801.C1273@dualathlon.random> <20020314133223.B19636@suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
+Dave Jones wrote:
 
-> Andrew Morton wrote:
 >
->> Roberto Nibali wrote:
->>
->>> What for are BLKRAGET, BLKFRAGET and BLKSECTGET still needed? 
->>
->>
->> They got collaterally damaged in the IDE "cleanup".  The patch at
->> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6/dallocbase-10-readahead.patch 
->>
->> resurrects them.
+>[1] 386/486/586. With addition of my Vendor choice menu, we could even further
+>    narrow it down to Intel only.
 >
->
-> This is WRONG. What I did here was just removal of unused code.
-> They got obsoleted by the BIO infrastructure changes.
 
-Martin,
 
-Did Andrew really deserve that?
+Could you be convinced to post your vendor choice patch to linux-kernel 
+perhaps?  :)
 
-Andrew's patch -implements- those ioctls.
-
-Can our new IDE maintainer please have a little bit more patience and 
-respect to those who have been hacking the kernel actively for a while? 
- Andrew certainly has earned our respect... calling changes wrong 
-without reading them does not.
+(yes, I know I already have it, I would like others to see it)
 
     Jeff
-
-
 
 
 

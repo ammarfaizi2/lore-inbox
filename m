@@ -1,63 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbUBWUgh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbUBWUgg
+	id S262040AbUBWUjq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbUBWUia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:36:36 -0500
-Received: from pD9E57667.dip.t-dialin.net ([217.229.118.103]:10244 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id S262041AbUBWUfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:35:52 -0500
-Date: Mon, 23 Feb 2004 20:35:28 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: fbdv/fbcon pending problems
-Message-ID: <20040223203528.E433@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	James Simmons <jsimmons@infradead.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <1077497593.5960.28.camel@gaston>
+	Mon, 23 Feb 2004 15:38:30 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:2691 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262040AbUBWUc7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 15:32:59 -0500
+Date: Mon, 23 Feb 2004 21:32:57 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Jim Wilson <wilson@specifixinc.com>
+Cc: linux-kernel@vger.kernel.org, Judith Lebzelter <judith@osdl.org>,
+       Dan Kegel <dank@kegel.com>, cliff white <cliffw@osdl.org>,
+       "Timothy D. Witham" <wookie@osdl.org>
+Subject: Re: Kernel Cross Compiling [update]
+Message-ID: <20040223203257.GA9800@MAIL.13thfloor.at>
+Mail-Followup-To: Jim Wilson <wilson@specifixinc.com>,
+	linux-kernel@vger.kernel.org, Judith Lebzelter <judith@osdl.org>,
+	Dan Kegel <dank@kegel.com>, cliff white <cliffw@osdl.org>,
+	"Timothy D. Witham" <wookie@osdl.org>
+References: <20040222035350.GB31813@MAIL.13thfloor.at> <1077565352.1054.22.camel@leaf.tuliptree.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <1077497593.5960.28.camel@gaston>; from benh@kernel.crashing.org on Mon, Feb 23, 2004 at 11:53:14AM +1100
+Content-Disposition: inline
+In-Reply-To: <1077565352.1054.22.camel@leaf.tuliptree.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 23, 2004 at 11:53:14AM +1100, Benjamin Herrenschmidt wrote:
->  - mach64 lockups on LT-G (I'll try on an LT-Pro soon) plus other
-> mach64 bugs in the new version in the bk fbdev, I'll have a patch for
-> some of the problems, but I didn't find a good explanation for the
-> accel lockups yet
+On Mon, Feb 23, 2004 at 11:42:31AM -0800, Jim Wilson wrote:
+> On Sat, 2004-02-21 at 19:53, Herbert Poetzl wrote:
+> > Here is an update to the Kernel Cross Compiling thread 
+> > I started ten days ago ...
+> 
+> If you want gcc to be fixed so the inhibit_libc builds work for linux
+> targets, then I suggest opening an FSF gcc bugzilla bug report.  Sending
+> mail to me or to the linux kernel mailing list is unlikely to accomplish
+> this.
 
-Question: Is fbdev supposed to work without BIOS? 
+hmm, sorry, I didn't want to tantalize you with mails,
+I just thought you would be interested in them ...
 
-I have an ATI Technologies Inc 3D Rage Pro 215GP in an Alpha AXPpci33,
-currently running with MILO as firmware/bootloader. 
-For several reasons I want to change to the original SRM firmware. 
-Unfortunately its intel_cpu/BIOS emulation locks up on the ATI BIOS. With
-the BIOS disabled the SRM succeeds loading the kernel. fbdev seems to
-initialize _something_, i.e. the monitor wakes up ans displays a stable
-repeating pattern of vertical stripes. But it hangs the machine after
-these lines on serial console:
+my apologies here, will avoid further mails to your account
 
-fb0: ATY Mach64 frame buffer device on PCI
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+my primary goal isn't to get this fixed by the gcc folks,
+I want to have a simple and working solution, which seems
+to be at hand for the toolchains, to cross compile the
+linux kernel for testing purposes. the changes so far are
+not very intrusive IMHO, and I can live with a few patches.
+(btw. currently Dan Kegel has a lot more patches to gcc in 
+his toolchain than I do)
 
-Booting the same kernel image (2.6.[13]) with MILO (which has a different
-cpu emulation that succeeds executing the BIOS) works fine with fbdev. 
+> FYI David Mosberger sent me a comment in private mail pointing out that
+> if you are trying to bootstrap linux on a new target, then requiring a
+> glibc port before the kernel port is a problem.  I consider this a good
+> reason to make this feature work.
 
-Bye,
-Thorsten
+sounds reasonable ... at least to me ;)
 
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+> However, my recommendation still stands.  In general, I do not recommend
+> building inhibit_libc crosses for linux targets, even though such
+> crosses are likely to work fine for building a kernel.  As a gcc
+> maintainer, it makes my job harder when people are building the compiler
+> different ways, because I may get bug reports that I can't reproduce or
+> understand.  Also, there is a risk that a kernel-only cross compiler
+> will accidentally be used for some other purpose, resulting in a bug
+> report that wastes the time of the gcc maintainers.
+
+originally I had the weird? opinion, that gcc (or it's
+build system) does support the cross target to exactly
+do this (building an initial gcc, which can be used to
+compile other stuff, like (g)libc and such) ...
+
+that this looks like some kind of hack is neither my fault
+nor does it justify messing around with 'unbuildable'
+(g)libcs to get a kernel cross compile working ...
+
+best,
+Herbert
+
+> -- 
+> Jim Wilson, GNU Tools Support, http://www.SpecifixInc.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

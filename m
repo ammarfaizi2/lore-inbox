@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVDFIUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVDFI0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262075AbVDFIUA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 04:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVDFIT0
+	id S262033AbVDFI0e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 04:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVDFI0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 04:19:26 -0400
-Received: from mp1-smtp-3.eutelia.it ([62.94.10.163]:14253 "EHLO
-	smtp.eutelia.it") by vger.kernel.org with ESMTP id S262033AbVDFIQB
+	Wed, 6 Apr 2005 04:26:34 -0400
+Received: from mail.bencastricum.nl ([213.84.203.196]:47632 "EHLO
+	bencastricum.nl") by vger.kernel.org with ESMTP id S262033AbVDFI0c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 04:16:01 -0400
-Message-ID: <42539ABD.1090103@eutelia.it>
-Date: Wed, 06 Apr 2005 10:15:57 +0200
-From: Sergio Chiesa <sergio.chiesa@eutelia.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Wed, 6 Apr 2005 04:26:32 -0400
+Date: Wed, 6 Apr 2005 10:22:50 +0200 (CEST)
+From: Ben Castricum <benc@bencastricum.nl>
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2 compile error in drivers/usb/class/cdc-acm.c
+In-Reply-To: <20050406001807.GB7226@stusta.de>
+Message-ID: <Pine.LNX.4.58.0504061012420.31870@gateway.bencastricum.nl>
+References: <Pine.LNX.4.58.0504051026330.30674@gateway.bencastricum.nl>
+ <20050406001807.GB7226@stusta.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: REPOST [Followup: PROBLEM: Kernel bug at tg3.c:2456]
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-bencastricum-MailScanner-Information: Please contact the ISP for more information
+X-bencastricum-MailScanner: Found to be clean
+X-MailScanner-From: benc@bencastricum.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-up :-D
 
--------- Original Message --------
-Subject: Followup: PROBLEM: Kernel bug at tg3.c:2456
-Date: Thu, 31 Mar 2005 14:34:22 +0200
-From: Sergio Chiesa <sergio.chiesa@eutelia.it>
-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0503301842460.13508@scsi.edisontel.it>
 
-Sergio Chiesa wrote:
+On Wed, 6 Apr 2005, Adrian Bunk wrote:
 
-> 7.7.
-> Well, it seems that with the original onboard raid controller the bug
-> didn't trigger... the controller was swapped with the lsi logic by my
-> supplier because it fails badly with raid-5 arrays (hw/fw related issue)
-> I also tried the original broadcom driver version 7.3.5 with similar
-> results...
+> On Tue, Apr 05, 2005 at 10:54:09AM +0200, Ben Castricum wrote:
+> > ...
+> >   CC      fs/quota_v2.o
+> > fs/quota_v2.c: In function `v2_write_dquot':
+> > fs/quota_v2.c:399: warning: unknown conversion type character `z' in
+> > format
+> > fs/quota_v2.c:399: warning: too many arguments for format
+>
+> These are warnings that only occur with gcc 2.95 and that can safely be
+> ignored.
 
-I made some tests again, switching back to the onboard dual aic7902 scsi
-controller (non raid) the tg3 dont hung anymore.
-I just noticed the IRQ mappings change between the two settings.
-The Broadcom eth get always the IRQ #25, the two onboard scsi controllers
-get #24 and #25 (shared with the eth, is it harmful??) but the megaraid
-driver gets the IRQ #28
+Just wondering, isn't 2.95.3 the recommended compiler anymore? I only use
+this (a bit old) version because it's _the_ compiler for the kernel.
 
-I think it is something IRQ related because if the eth hungs but the kernel
-is still running I see more than 140000 irq per second with "vmstat".
+If it still is then I find it a bit strange that code is accepted that
+doesn't compile cleanly on the recommended compiler.
 
-Hope it helps better!
-
-Sergioc.
-
+Thanks for your help,
+Ben

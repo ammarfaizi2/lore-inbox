@@ -1,91 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbUBZTbw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbUBZTad
+	id S262955AbUBZTjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbUBZTjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:30:33 -0500
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:6410 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262943AbUBZT2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:28:12 -0500
-Date: Thu, 26 Feb 2004 20:28:14 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Identify Radeon Ya and Yd in radeonfb
-Message-Id: <20040226202814.5655f16e.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 26 Feb 2004 14:39:40 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:39614 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S262955AbUBZTjZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:39:25 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16446.19305.637880.99704@napali.hpl.hp.com>
+Date: Thu, 26 Feb 2004 11:39:21 -0800
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, kingsley@aurema.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: /proc visibility patch breaks GDB, etc.
+In-Reply-To: <20040225224410.3eb21312.akpm@osdl.org>
+References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
+	<20040225224410.3eb21312.akpm@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+>>>>> On Wed, 25 Feb 2004 22:44:10 -0800, Andrew Morton <akpm@osdl.org> said:
 
-Here is a patch that adds support for the Radeon 9200 (Ya) and 9200 SE
-(Yd) to the radeonfb driver. Since it already supports the Radeon 9200
-Pro which is basically (if not exactly) the same chipset, this is just a
-matter of making the driver recognize two new IDs as something it
-supports. No new code here.
+  Andrew> Peter Chubb <peter@chubb.wattle.id.au> wrote:
+  >> 
+  >> 
+  >> In fs/proc/base.c:proc_pid_lookup(), the patch
+  >> 
+  >> read_unlock(&tasklist_lock); if (!task) goto out; + if
+  >> (!thread_group_leader(task)) + goto out_drop_task;
+  >> 
+  >> inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO);
+  >> 
+  >> means that threads other than the thread group leader don't
+  >> appear in the /proc top-level directory.  Programs that are
+  >> informed via pid of events can no longer find the appropriate
+  >> process -- for example, using gdb on a multi-threaded process, or
+  >> profiling using perfmon.
+  >> 
+  >> The immediate symptom is GDB saying: Could not open
+  >> /proc/757/status when 757 is a TID not a PID.
 
-I take no credit for this patch, since it is almost identical to this
-one by Sven Luther:
-http://marc.theaimsgroup.com/?l=linux-ppc&m=107427038129062
+  Andrew> What does `ls /proc/757' say?  Presumably no such file or
+  Andrew> directory?  It's fairly bizare behaviour to be able to open
+  Andrew> files which don't exist according to readdir, which is why
+  Andrew> we made that change.
 
-And is similar to these two other ones that are now in Linux 2.6, by
-Bernardo Innocenti and Andreas Steinmetz, respectively:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107345065025365
-http://lkml.org/lkml/2004/2/6/64
+Excuse, but this seems seriously FOOBAR.  I understand that it's
+interesting to see the thread-leader/thread relationship, but surely
+that's no reason to break backwards compatibility and the ability to
+look up _any_ task's info via /proc/PID/.  A program that only wants
+to show "processes" (thread-group leaders) can simply read
+/proc/PID/status and ignore the entries for which Tgid != PPid.
 
-The patch is against 2.4.26-pre1.
-Please apply,
-thanks.
+Perhaps you could put relative symlinks in task/?  Something like
+this:
 
+ $ ls -l /proc/self/task
+ dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13494 -> ..
+ dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13495 -> ../../13495
 
---- linux-2.4.26-pre1/include/linux/pci_ids.h	2004-02-26 13:50:00.000000000 +0100
-+++ linux-2.4.26-pre1-k1/include/linux/pci_ids.h	2004-02-26 13:54:04.000000000 +0100
-@@ -287,6 +287,8 @@
- #define PCI_DEVICE_ID_ATI_RADEON_Ig	0x4967
- /* Radeon RV280 (9200) */
- #define PCI_DEVICE_ID_ATI_RADEON_Y_	0x5960
-+#define PCI_DEVICE_ID_ATI_RADEON_Ya	0x5961
-+#define PCI_DEVICE_ID_ATI_RADEON_Yd	0x5964
- /* Radeon R300 (9700) */
- #define PCI_DEVICE_ID_ATI_RADEON_ND	0x4e44
- #define PCI_DEVICE_ID_ATI_RADEON_NE	0x4e45
---- linux-2.4.26-pre1/drivers/video/radeonfb.c	2003-08-25 13:44:42.000000000 +0200
-+++ linux-2.4.26-pre1-k1/drivers/video/radeonfb.c	2004-02-26 14:04:20.000000000 +0100
-@@ -202,6 +202,8 @@
- 	RADEON_If,
- 	RADEON_Ig,
- 	RADEON_Y_,
-+	RADEON_Ya,
-+	RADEON_Yd,
- 	RADEON_Ld,
- 	RADEON_Le,
- 	RADEON_Lf,
-@@ -261,6 +263,8 @@
- 	{ "9000 If", RADEON_RV250 },
- 	{ "9000 Ig", RADEON_RV250 },
- 	{ "9200 Y", RADEON_RV280 },
-+	{ "9200 Ya", RADEON_RV280 },
-+	{ "9200 Yd", RADEON_RV280 },
- 	{ "M9 Ld", RADEON_M9 },
- 	{ "M9 Le", RADEON_M9 },
- 	{ "M9 Lf", RADEON_M9 },
-@@ -326,6 +330,8 @@
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_NH, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_NH},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_NI, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_NI},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Y_, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Y_},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Ya, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Ya},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Yd, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Yd},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AD, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AD},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AP, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AP},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AR, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AR},
+perhaps?
 
-
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+	--david

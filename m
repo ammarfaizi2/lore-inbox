@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130677AbQKVRcT>; Wed, 22 Nov 2000 12:32:19 -0500
+        id <S129414AbQKVRtn>; Wed, 22 Nov 2000 12:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130800AbQKVRcJ>; Wed, 22 Nov 2000 12:32:09 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:36624 "EHLO
-        alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-        id <S130677AbQKVRcD>; Wed, 22 Nov 2000 12:32:03 -0500
-From: Norbert Preining <preining@logic.at>
-Date: Wed, 22 Nov 2000 18:01:51 +0100
+        id <S129415AbQKVRte>; Wed, 22 Nov 2000 12:49:34 -0500
+Received: from ikar.t17.ds.pwr.wroc.pl ([156.17.210.253]:23825 "HELO
+        ikar.t17.ds.pwr.wroc.pl") by vger.kernel.org with SMTP
+        id <S129414AbQKVRt2>; Wed, 22 Nov 2000 12:49:28 -0500
+Date: Wed, 22 Nov 2000 17:17:31 +0100
+From: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
 To: linux-kernel@vger.kernel.org
-Subject: isofs Problems with test11-final
-Message-ID: <20001122180151.A3530@alpha.logic.tuwien.ac.at>
+Subject: setrlimit() and 2.4.0-test11
+Message-ID: <20001122171731.B13272@pld.ORG.PL>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/
+X-Operating-System: Linux dark 4.0.20 #119 Tue Jan 16 12:21:53 MET 2001 i986 pld
+X-Team: Polish Linux Distribution Team Member
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
 
-Reading of devices with isofs fs is not working, listing of 0 files
-and the following msgs in the logfile:
-_isofs_bmap: block < 0
-_isofs_bmap: block >= EOF (1633681408, 10240)
-_isofs_bmap: block >= EOF (1633681408, 4096)
+Is probably broken (I didnt't saw any disscusion about this here,
+I missed it?).
 
-Is there any fix?
+when I try to start first user process I get:
+4366  fork()                            = -1 EAGAIN (Resource temporarily unavailable)
+but strace show proper value passed to setrlimit() -- 40 max number of processes:
+4366  setrlimit(0x6 /* RLIMIT_??? */, {rlim_cur=40, rlim_max=40}) = 0
 
-(Please Cc: answers to me, thanks)
+On test10 everything is ok.
 
-Best wishes
+This change broke test11 ?
 
-Norbert
+diff -u --recursive --new-file v2.4.0-test10/linux/fs/proc/array.c linux/fs/proc/array.c
+--- v2.4.0-test10/linux/fs/proc/array.c Tue Oct 31 12:42:27 2000
++++ linux/fs/proc/array.c       Tue Nov 14 11:22:36 2000
+@@ -372,7 +372,7 @@
+                task->start_time,
+                vsize,
+                mm ? mm->rss : 0, /* you might want to shift this left 3 */
+-               task->rlim ? task->rlim[RLIMIT_RSS].rlim_cur : 0,
++               task->rlim[RLIMIT_RSS].rlim_cur,
+                mm ? mm->start_code : 0,
+                mm ? mm->end_code : 0,
+                mm ? mm->start_stack : 0,
+
+I need patch.
+
 -- 
-ciao
-norb
-
-+-------------------------------------------------------------------+
-| Norbert Preining              http://www.logic.at/people/preining |
-| University of Technology Vienna, Austria        preining@logic.at |
-| DSA: 0x09C5B094 (RSA: 0xCF1FA165) mail subject: get [DSA|RSA]-key |
-+-------------------------------------------------------------------+
+Arkadiusz Mi¶kiewicz, AM2-6BONE    [ PLD GNU/Linux IPv6 ]
+http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/   [ enabled ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,92 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264607AbTFHGWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 02:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbTFHGWK
+	id S264606AbTFHGaA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 02:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbTFHG37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 02:22:10 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:11922 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S264607AbTFHGWH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 02:22:07 -0400
-Message-ID: <3EE2DA43.3060606@kegel.com>
-Date: Sat, 07 Jun 2003 23:40:03 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix segmentation fault in "make menuconfig" in current 2.4
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 8 Jun 2003 02:29:59 -0400
+Received: from rth.ninka.net ([216.101.162.244]:32642 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S264606AbTFHG37 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 02:29:59 -0400
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
+	(take 2)
+From: "David S. Miller" <davem@redhat.com>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+In-Reply-To: <20030608004540.P3232@almesberger.net>
+References: <20030606125416.C3232@almesberger.net>
+	 <200306062354.h56NsWsG002919@ginger.cmf.nrl.navy.mil>
+	 <20030606212026.I3232@almesberger.net>
+	 <20030606.235811.39162108.davem@redhat.com>
+	 <20030608004540.P3232@almesberger.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055054601.30054.4.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Jun 2003 23:43:22 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just ran into the following error:
-~/linux-2.4.19$ make ARCH=arm menuconfig
-...
-/bin/sh scripts/Menuconfig arch/arm/config.in
-Using defaults found in arch/arm/defconfig
-Preparing scripts: functions, parsingscripts/Menuconfig: line 1: 21468 Segmentation fault      awk "$1"
-Awk died with error code 139. Giving up.
-make: *** [menuconfig] Error 1
+On Sat, 2003-06-07 at 20:45, Werner Almesberger wrote:
+> Well, that's just the good old broken module API problem again.
+> Under the premise that modules can't be fixed, but the world
+> around them can, try_module_get is an adequate band-aid for
+> this API bug, but I wouldn't apply Kant's formula of universal
+> law quite so literally here :-)
 
-Looks like it's been reported before; Menuconfig has two mistakes
-in how it handles missing files in its awk sections.
-See http://mail.gnu.org/archive/html/bug-gnu-utils/2001-10/msg00155.html
-Even 2.4.21-rc7 seems to still contain the bug (unless I squinted wrong).
+Netdevices NO LONGER use module refcounts in any way shape or form. They
+are not needed to fix problems of this nature.
 
-Here's a patch relative to 2.4.19 that gets rid of the awk crash,
-as recommended by Arnold Robbins (!):
-
---- linux-2.4.19/scripts/Menuconfig.old	Sat Jun  7 23:07:37 2003
-+++ linux-2.4.19/scripts/Menuconfig	Sat Jun  7 23:08:24 2003
-@@ -714,7 +714,7 @@
-
-  function parser(ifile,menu) {
-
--	while (getline <ifile) {
-+	while ((getline <ifile) > 0) {
-  		if ($1 == "mainmenu_option") {
-  			comment_is_option = "1"
-  		}
-@@ -761,7 +761,7 @@
-
-  function parser(ifile,menu) {
-
--	while (getline <ifile) {
-+	while ((getline <ifile) > 0) {
-  		if ($0 ~ /^#|$MAKE|mainmenu_name/) {
-  			printf("") >>menu
-  		}
-
-
-Once that's applied, Menuconfig produces a more useful, though still bad,
-error message:
-
------
-scripts/Menuconfig: ./MCmenu0: line 63: syntax error near unexpected token `fi'
-scripts/Menuconfig: ./MCmenu0: line 63: `fi'
-done.
-^[[H^[[2J+ cat
-
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
-
-  Q> scripts/Menuconfig: MCmenu0: command not found
------
-
-Figuring out what's going on then requires commenting out the line in
-Menuconfig that removes MCmenu0.
-The root cause of the error is that the file drivers/ssi/Config.in
-is in the arm-linux kernel, but not in the vger kernel.
-Sigh.  So I only ran into the problem because I was trying to configure
-(let alone build) the vger kernel for arm, which apparantly is something nobody ever does.
-- Dan
+They way to fix it is to always dynamically allocate your netdevice
+objects, and mark them dead.  The final kfree() of the object can be
+deferred until the final reference goes away, and that could be 10 years
+from now, it doesn't matter and the module can be unloaded NOW and
+without any delay.
 
 -- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
-
+David S. Miller <davem@redhat.com>

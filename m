@@ -1,88 +1,231 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266205AbUF3FRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265500AbUF3FWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266205AbUF3FRx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 01:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUF3FRx
+	id S265500AbUF3FWs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 01:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUF3FWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 01:17:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9118 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265902AbUF3FRn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 01:17:43 -0400
-Date: Tue, 29 Jun 2004 22:17:11 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: wesolows@foobazco.org, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-       wesolows@foobazco.org
-Subject: Re: A question about PROT_NONE on Sparc and Sparc64
-Message-Id: <20040629221711.77f0fca5.davem@redhat.com>
-In-Reply-To: <20040630030503.GA25149@mail.shareable.org>
-References: <20040630030503.GA25149@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jun 2004 01:22:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14210 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265500AbUF3FWk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 01:22:40 -0400
+Message-ID: <40E24E0D.3060808@pobox.com>
+Date: Wed, 30 Jun 2004 01:22:21 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@dell.com>, Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: EDD breaks x86-64 build
+Content-Type: multipart/mixed;
+ boundary="------------060007030703080504070906"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jun 2004 04:05:03 +0100
-Jamie Lokier <jamie@shareable.org> wrote:
+This is a multi-part message in MIME format.
+--------------060007030703080504070906
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> In include/asm-sparc64/pgtable.h, there's:
-> 
-> #define __ACCESS_BITS   (_PAGE_ACCESSED | _PAGE_READ | _PAGE_R)
-> #define PAGE_NONE       __pgprot (_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_CACHE)
-> #define PAGE_READONLY   __pgprot (_PAGE_PRESENT | _PAGE_VALID | _PAGE_CACHE | \
->                                   __ACCESS_BITS)
-> 
-> PAGE_NONE has the hardware _PAGE_PRESENT bit set.  However unlike
-> PAGE_READONLY, it doesn't have the hardware _PAGE_R and software
-> _PAGE_READ bits.
-> 
-> I guess that means that PAGE_NONE pages aren't readable from
-> userspace.  Presumably the TLB handler takes care of it.
-> Does it prevent reads from kernel space as well?
+   CC      arch/x86_64/kernel/setup.o
+arch/x86_64/kernel/setup.c: In function `copy_edd':
+arch/x86_64/kernel/setup.c:415: error: `EDD_MBR_SIGNATURE' undeclared 
+(first use in this function)
+arch/x86_64/kernel/setup.c:415: error: (Each undeclared identifier is 
+reported only once
+arch/x86_64/kernel/setup.c:415: error: for each function it appears in.)
+arch/x86_64/kernel/setup.c:417: error: `EDD_MBR_SIG_NR' undeclared 
+(first use in this function)
+make[1]: *** [arch/x86_64/kernel/setup.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
 
-Neither user nor kernel can get at that page.  If _PAGE_R is not set
-we get a real fault no matter who attempts the access.
 
-> I.e. can you confirm that write() won't succeed in reading the data
-> from a PROT_NONE page on Sparc64?  I think that's probably the case.
-> You'll see why I ask, from the next one:
+config and dmesg attached, if interested.
 
-That's correct.
 
-> In include/asm-sparc/pgtsrmmu.h, there's:
-> 
-> #define SRMMU_PAGE_NONE    __pgprot(SRMMU_VALID | SRMMU_CACHE | \
-> 				    SRMMU_PRIV | SRMMU_REF)
-> #define SRMMU_PAGE_RDONLY  __pgprot(SRMMU_VALID | SRMMU_CACHE | \
-> 				    SRMMU_EXEC | SRMMU_REF)
-> 
-> This one bothers me.  The difference is that PROT_NONE pages are not
-> accessible to userspace, and not executable.
-> 
-> So userspace will get a fault if it tries to read a PROT_NONE page.
-> 
-> But what happens when the kernel reads one?  Don't those bits mean
-> that the read will succeed?  I.e. write() on a PROT_NONE page will
-> succeed, instead of returning EFAULT?
-> 
-> If so, this is a bug.  A minor bug, perhaps, but nonetheless I wish to
-> document it.
+--------------060007030703080504070906
+Content-Type: application/x-bzip2;
+ name="config.txt.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="config.txt.bz2"
 
-Yes this one is a bug and not intentional.
+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
+/4u5IpwoSBS57ecA
+--------------060007030703080504070906
+Content-Type: application/x-bzip2;
+ name="dmesg.txt.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="dmesg.txt.bz2"
 
-Keith W., we need to fix this.  Probably the simplest fix is just to
-drop the SRMMU_VALID bit.
-
-> Alternatively, perhaps in this case simply omitting the SRMMU_REF bit
-> would be enough?  Would that cause the TLB handler to be entered, and
-> the TLB handler could then refuse access?  Again, I don't know enough
-> about Sparc to say more.
-
-No, if it's SRMMU_VALID the hardware lets the translation succeed and
-like on x86 the hardware does the page table walk and thus the SRMMU_REF
-bit setting.
+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
+sSTLmuiWqwcmmB6waoYZsD/xdyRThQkJLVoGAA==
+--------------060007030703080504070906--

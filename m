@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUH1GOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUH1GOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267165AbUH1GOo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 02:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUH1GOo
+	id S266901AbUH1GOR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 02:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUH1GOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 02:14:44 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:62641 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266898AbUH1GOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 02:14:39 -0400
-Message-ID: <413022CB.8020308@namesys.com>
-Date: Fri, 27 Aug 2004 23:14:35 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Ford <david+challenge-response@blue-labs.org>
-CC: Will Dyson <will_dyson@pobox.com>, Andrew Morton <akpm@osdl.org>,
+	Sat, 28 Aug 2004 02:14:17 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15316 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266891AbUH1GOM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 02:14:12 -0400
+Date: Fri, 27 Aug 2004 23:08:57 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: riel@redhat.com, ninja@slaphack.com, torvalds@osdl.org,
+       diegocg@teleline.es, jamie@shareable.org, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
        hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+       flx@namesys.com, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <412E10A2.1020801@pobox.com> <412EEC07.30707@namesys.com> <412F7B6D.6010305@pobox.com> <412F7FB8.4010609@blue-labs.org>
-In-Reply-To: <412F7FB8.4010609@blue-labs.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <20040827230857.69340aec.pj@sgi.com>
+In-Reply-To: <412F7D63.4000109@namesys.com>
+References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
+	<412F7D63.4000109@namesys.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
+Hans wrote:
+> We create filename/pseudos/backup, and that tells the archiver what to 
+> do.....
 
-> Will Dyson wrote:
->
->> Hans Reiser wrote:
->>
->>> Will Dyson wrote:
->>>
->>
->>
->> String parsing bloats the kernel with code that will be called 
->> rarely, and doing it inside the filesystem module makes for duplicate 
->> code if more than one filesystem does it. But a good common parser 
->> routine (or a kernel api that takes a pre-compiled parse tree) would 
->> reduce the bad taste.
->
->
->
-> Like say.. printk() ?  :)
->
-or namei()....;-)
+Instead of exposing the old semantics under a new interface, why not
+expose the new semantics under a new interface.
 
-Seriously, what we are doing is making namei() more powerful.  That is 
-all.  Currently namei() is very simple.  Evolution happens.
+There exist plenty of programs that know the old Unix semantics.  There
+don't exist many working programs that use the new semantics that you're
+adding.
 
-Hans
+I raise again the example of how Windows adapted to long filenames.  Old
+DOS and FAT programs, including my Unix backups of today, see a 8.3 name
+space.  Only code that knows the new magic sees the long names.
+
+If given the choice of breaking much old, existing stuff, or some new,
+mostly not yet existing stuff, does not it make more sense to break what
+mostly doesn't exist yet?
+
+One possible way to do this, of no doubt many:
+
+ * Stealing a corner of the existing filename space for
+   some magic names with the new semantics.
+
+ * A new option on open(2), hence opendir(3), that lights up
+   these magic names.
+
+ * Doing any of the classic pathname calls with such a
+   new magic name exposes the new semantics - such calls
+   as:
+	access execve mkdir mknod mount readlink
+	rename rmdir stat truncate unlink
+
+This means essentially constructing a map between old and new,
+such that changes made in either view are sane and visible
+from the other view.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVDERYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVDER0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbVDERYD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVDERYD
+	id S261840AbVDER0u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVDERYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:24:03 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:61710 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261843AbVDEREl
+	Tue, 5 Apr 2005 13:24:39 -0400
+Received: from pop.gmx.net ([213.165.64.20]:55763 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261839AbVDERKe convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:04:41 -0400
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pktcddvd -> immediate crash
-References: <1112640251.5410.30.camel@localhost>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: because editing your files should be a traumatic experience.
-Date: Tue, 05 Apr 2005 18:04:37 +0100
-In-Reply-To: <1112640251.5410.30.camel@localhost> (Soeren Sonnenburg's
- message of "5 Apr 2005 11:06:14 +0100")
-Message-ID: <87fyy5jgt6.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Tue, 5 Apr 2005 13:10:34 -0400
+X-Authenticated: #222435
+From: Jonas Diemer <diemer@gmx.de>
+To: Vernon Mauery <vmauery@gmail.com>
+Subject: Re: security issue: hard disk lock
+Date: Tue, 5 Apr 2005 19:10:30 +0200
+User-Agent: KMail/1.8
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+References: <200504041832.j34IW6PO030096@laptop11.inf.utfsm.cl> <4252B1A9.3040005@gmail.com>
+In-Reply-To: <4252B1A9.3040005@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504051910.30562.diemer@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Apr 2005, Soeren Sonnenburg whispered secretively:
-> I wonder whether anyone could use the pktcddvd device without killing
-> random jobs (due to sudden out of memory or better memory leaks in
-> pktcddvd) and finally a complete freeze of the machine ?
+Am Dienstag 05. April 2005 17:41 schrieb Vernon Mauery:
+>  This makes sense because a particularly malicious
+> place to put something like this is a worm that attaches to your boot
+> loader.  Then, even doing it in the kernel at boot time is too late.
 
-I'm using it without difficulty.
+I understand... Didn't know that worms could attach to the bootloader :-) 
+Well, then even fixing this in the bootloader would be too late, if the worm 
+could simply replace the bootloader. I guess it's not a kernel-issue then and 
+should really be addressed in the boot-up sequence (as long as BIOS vendors 
+fail to fix it), be it with or without initrd.
 
-> To reproduce just create an udf filesystem on some dvdrw, mount it rw
-> and copy some large file to the mount point.
+regards,
+Jonas
 
-Well, I copied a 502Mb file to a CD/RW yesterday as part of my
-regular backups. No problems.
-
-
-I think we need more details (a .config would be nice, and preferably
-a cat of /proc/slabinfo and a dmesg dump when the problem starts).
-
--- 
-This is like system("/usr/funky/bin/perl -e 'exec sleep 1'");
-   --- Peter da Silva
+PS: Still not in list, so please CC me on eventual replies.

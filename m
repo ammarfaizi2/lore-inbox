@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269183AbUI2WXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269191AbUI2W2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269183AbUI2WXN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 18:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269157AbUI2WWd
+	id S269191AbUI2W2D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 18:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269148AbUI2W15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 18:22:33 -0400
-Received: from open.hands.com ([195.224.53.39]:44171 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S269183AbUI2WTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 18:19:02 -0400
-Date: Wed, 29 Sep 2004 23:30:08 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+	Wed, 29 Sep 2004 18:27:57 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:47854 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S269150AbUI2W1T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 18:27:19 -0400
+Date: Wed, 29 Sep 2004 15:28:20 -0700
+From: Hanna Linder <hannal@us.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: sys_* in fs/*.c - need most of it for fsproxy module!
-Message-ID: <20040929223008.GA6125@lkcl.net>
-Mime-Version: 1.0
+cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
+       kraxel@bytesex.org
+Subject: [PATCH 2.6.9-rc2-mm4 zr36120.c][5/8] Convert pci_find_device to pci_dev_present
+Message-ID: <19730000.1096496900@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-i'm writing an fsproxy module.
+The dev was not used from pci_find_device so it was acceptable to replace
+with pci_dev_present. There was no need for it to be in a while loop originally.
+Compile tested.
 
-so far i have pretty much cut/paste the entire contents of the following
-functions - unmodified - into the fsproxy module (based on fuse).
+Hanna Linder
+IBM Linux Technology Center
 
-any modifications, if any, are to strip out the top of the function
-which does the conversion from userspace memory to kernel memory.
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-example: i'm just about to cut/paste the entire contents of
-sys_unlink... minus the calls to getname and putname.
-
-does anyone have any objections to me creating a patch which would
-make the code in sys_unlink, sys_rename, sys_link, sys_this, sys_that,
-available from inside the kernel?
-
-l.
-
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/media/video/zr36120.c linux-2.6.9-rc2-mm4patch/drivers/media/video/zr36120.c
+--- linux-2.6.9-rc2-mm4cln/drivers/media/video/zr36120.c	2004-09-28 14:58:36.000000000 -0700
++++ linux-2.6.9-rc2-mm4patch/drivers/media/video/zr36120.c	2004-09-29 15:12:53.625518848 -0700
+@@ -145,14 +145,16 @@ static struct { const char name[8]; uint
+ static
+ void __init handle_chipset(void)
+ {
+-	struct pci_dev *dev = NULL;
++	static struct pci_device_id intel_82437[] = {
++		{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82437) },
++		{ },
++	};
+ 
+ 	/* Just in case some nut set this to something dangerous */
+ 	if (triton1)
+ 		triton1 = ZORAN_VDC_TRICOM;
+ 
+-	while ((dev = pci_find_device(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82437, dev)))
+-	{
++	if (pci_dev_present(intel_82437)) {
+ 		printk(KERN_INFO "zoran: Host bridge 82437FX Triton PIIX\n");
+ 		triton1 = ZORAN_VDC_TRICOM;
+ 	}
 

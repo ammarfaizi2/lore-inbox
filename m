@@ -1,22 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265030AbSJ3X2p>; Wed, 30 Oct 2002 18:28:45 -0500
+	id <S265066AbSJ3X3d>; Wed, 30 Oct 2002 18:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265033AbSJ3X2o>; Wed, 30 Oct 2002 18:28:44 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:59737 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S265030AbSJ3X2i>;
-	Wed, 30 Oct 2002 18:28:38 -0500
-From: <Hell.Surfers@cwctv.net>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 30 Oct 2002 23:34:58 +0000
-Subject: ot: whats that fraud squad address?
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
+	id <S265067AbSJ3X3d>; Wed, 30 Oct 2002 18:29:33 -0500
+Received: from dp.samba.org ([66.70.73.150]:18145 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265066AbSJ3X3c>;
+	Wed, 30 Oct 2002 18:29:32 -0500
+Date: Thu, 31 Oct 2002 10:31:07 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] use asm-generic/topology.h
+Message-ID: <20021030233107.GB4820@krispykreme>
+References: <3DC056C2.4070609@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Message-ID: <0b9c15632231ea2DTVMAIL8@smtp.cwctv.net>
+Content-Disposition: inline
+In-Reply-To: <3DC056C2.4070609@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I need the email address of the us secret service fraud squad, does anyone have it? I need to get some 419 scams erased.
 
-Cheers, Dean.
+Hi Matt,
+
+> use_generic_topology.patch
+> 
+> This patch changes ppc64 & alpha to use the generic topology.h for the 
+> non-NUMA case rather than redefining the same macros.  It is much easier 
+> to maintain one set of generic non-NUMA macros than several.
+
+Looks good from the ppc64 perspective.
+
+Anton

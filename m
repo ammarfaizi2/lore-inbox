@@ -1,111 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267724AbSLGFoN>; Sat, 7 Dec 2002 00:44:13 -0500
+	id <S267730AbSLGFrf>; Sat, 7 Dec 2002 00:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267731AbSLGFoN>; Sat, 7 Dec 2002 00:44:13 -0500
-Received: from gen3-newburypark5-192.vnnyca.adelphia.net ([207.175.226.192]:13559
-	"EHLO dave.home") by vger.kernel.org with ESMTP id <S267724AbSLGFoL>;
-	Sat, 7 Dec 2002 00:44:11 -0500
-Date: Fri, 6 Dec 2002 21:51:52 -0800
-From: David Ashley <dash@xdr.com>
-Message-Id: <200212070551.gB75pqj06406@dave.home>
-To: tadams-lists@myrealbox.com
-Subject: Re: 2.4.18 beats 2.5.50 in hard drive access????
-Cc: linux-kernel@vger.kernel.org
+	id <S267733AbSLGFrf>; Sat, 7 Dec 2002 00:47:35 -0500
+Received: from packet.digeo.com ([12.110.80.53]:64722 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267730AbSLGFrd>;
+	Sat, 7 Dec 2002 00:47:33 -0500
+Message-ID: <3DF18D38.F493636C@digeo.com>
+Date: Fri, 06 Dec 2002 21:55:04 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] max bomb segment tuning with read latency 2 patch in 
+ contest
+References: <200212071620.05503.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2002 05:55:05.0366 (UTC) FILETIME=[30D45B60:01C29DB5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hdparm -t yields similiar results on 2.4.18 and 2.5.50. What is a huge
-difference is the scattered reads from a disk. At least it is good to
-see other people experiencing similiar kernel messages. Would it help to
-post the program? Here it is anyway:
+Con Kolivas wrote:
+> 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Here are some io_load contest benchmarks with 2.4.20 with the read latency2
+> patch applied and varying the max bomb segments from 1-6 (SMP used to save
+> time!)
+> 
+> io_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.20 [5]              164.9   45      31      21      4.55
+> 2420rl2b1 [5]           93.5    81      18      22      2.58
+> 2420rl2b2 [5]           88.2    87      16      22      2.44
+> 2420rl2b4 [5]           87.8    84      17      22      2.42
+> 2420rl2b6 [5]           100.3   77      19      22      2.77
 
-Thanks--
-Dave
+If the SMP machine is using scsi then that tends to make the elevator
+changes less effective.  Because the disk sort-of has its own internal
+elevator which in my testing on a Fujitsu disk has the same ill-advised
+design as the kernel's elevator: it treats reads and writes in a similar
+manner.
 
-//compile with
-//gcc t.c -o t -lpthread
+Setting the tag depth to zero helps heaps.
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <linux/fcntl.h>
-#include <unistd.h>
-#include <linux/unistd.h>
-#include <sys/time.h>
-#include <pthread.h>
+But as you're interested in `desktop responsiveness' you should be
+mostly testing against IDE disks.  Their behavour tends to be quite
+different.
 
-char DEVNAME[128];
-extern long long lseek64(int,long long,int);
-unsigned char *tbuff;
+If you can turn on write caching on the SCSI disks that would change
+the picture too.
 
-long long now(void)
-{
-struct timeval tv;
-	gettimeofday(&tv,0);
-	return tv.tv_sec*1000000ll + tv.tv_usec;
-}
-int intcomp(const void *v1,const void *v2)
-{
-	return *(unsigned long *)v1 - *(unsigned long *)v2;
-}
-#define NUM 250
-#define BLOCK (188*128*4ll)
-int fd;
-long long l;
-char state[NUM];
-void *readfunc(void *a)
-{
-long long off;
-int lfd;
-int r;
-	lfd=open(DEVNAME,O_RDONLY|O_LARGEFILE|O_SYNC);
-	off=(rand()&0x7fffffff)%l*BLOCK;
-	lseek64(lfd,off,SEEK_SET);
-	r=read(lfd,tbuff,BLOCK);
-	state[(int)a]=1;
-	close(lfd);
-	return 0;
-}
+> io_other:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.20 [5]              89.6    86      17      21      2.47
+> 2420rl2b1 [3]           48.1    156     9       21      1.33
+> 2420rl2b2 [3]           50.0    149     9       21      1.38
+> 2420rl2b4 [5]           51.9    141     10      21      1.43
+> 2420rl2b6 [5]           52.1    142     9       20      1.44
+> 
+> There seems to be a limit to the benefit of decreasing max bomb segments. It
+> does not seem to have a significant effect on io load on another hard disk
+> (although read latency2 is overall much better than vanilla).
 
+hm.  I'm rather surprised it made much difference at all to io_other,
+because you shouldn't have competing reads and writes against either
+disk??
 
-int main(int argc,char **argv)
-{
-long long lres;
-int res;
-int i,j;
-long long start,off;
-unsigned char *p;
+The problem with io_other should be tickling is where `gcc' tries to
+allocate a page but ends up having to write out someone else's data,
+and gets stuck sleeping on the disk queue due to the activity of
+other processes.  (This doesn't happen much on a 4G machine, but it'll
+happen a lot on a 256M machine).
 
-if(argc<2) {printf("specify device to test\n");exit(0);}
-strcpy(DEVNAME,argv[1]);
-tbuff=malloc(BLOCK+4096);
-fd=open(argv[1],O_RDONLY|O_LARGEFILE);
-printf("fd=%d\n",fd);
-if(fd<0) exit(0);
-while((int)tbuff & 4095) ++tbuff; // align to PAGE_SIZE
-
-
-l=lseek64(fd,0ll,SEEK_END);
-printf("Total volume size=%lld megabytes\n",l/0x100000);
-l/=BLOCK;
-printf("%d blocks\n",l);
-	start=now();
-	srand((int)start);
-	for(i=0;i<NUM;++i)
-	{
-		pthread_t tt;
-		memset(&tt,0,sizeof(tt));
-		pthread_create(&tt,0,readfunc,(void *)i);
-	}
-	for(;;)
-	{
-		for(i=0;i<NUM;++i)
-			if(!state[i]) break;
-		if(i==NUM) break;
-		usleep(10000);
-	}
-	start=now()-start;
-	printf("%f seconds\n",start/(float)1000000.0);
-	printf("%f mbytes/second\n",(float)BLOCK*NUM/start);
-	return 0;
-}
+But that's a write-latency problem, not a read-latency one.

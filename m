@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283581AbRLDXbg>; Tue, 4 Dec 2001 18:31:36 -0500
+	id <S283602AbRLDXo4>; Tue, 4 Dec 2001 18:44:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283583AbRLDXb0>; Tue, 4 Dec 2001 18:31:26 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:36480 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S283581AbRLDXbK>; Tue, 4 Dec 2001 18:31:10 -0500
-Message-ID: <3C0D5CB6.1080600@optonline.net>
-Date: Tue, 04 Dec 2001 18:31:02 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S283588AbRLDXor>; Tue, 4 Dec 2001 18:44:47 -0500
+Received: from yuha.menta.net ([212.78.128.42]:42747 "EHLO yuha.menta.net")
+	by vger.kernel.org with ESMTP id <S283597AbRLDXoh>;
+	Tue, 4 Dec 2001 18:44:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ivanovich <ivanovich@menta.net>
+To: junio@siamese.dhis.twinsun.com, erik.tews@gmx.net (Erik Tews)
+Subject: Re: Strange messages with 2.4.16
+Date: Wed, 5 Dec 2001 00:44:15 +0100
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011203233612.J11967@no-maam.dyndns.org> <7vlmgjcy7u.fsf@siamese.dhis.twinsun.com>
+In-Reply-To: <7vlmgjcy7u.fsf@siamese.dhis.twinsun.com>
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <01120500441500.01169@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+A Dimarts 04 Desembre 2001 07:10, junio@siamese.dhis.twinsun.com va escriure:
+> >>>>> "Erik" == Erik Tews <erik.tews@gmx.net> writes:
+>
+> Erik> invalidate: busy buffer
+> Erik> ... What do they want to
+> Erik> tell me? Has anybody else seen this messages?
+>
+> I see them during shutdown (or reboot); a quick grep shows that
+> they are coming from fs/buffer.c: invalidate_bdev().  My kernel
+> is with RAID-1, and without lvm.
 
-> Yes, on underrun the DAC is stopped and dmabuf->enable is cleared. 
-> That's clearly a bug in this case.  However, it should only cause your 
-> problem if you are in fact getting an underrun.  Anyway, here's a 
-> proposed fix you can try to see if that's what's causing the problem:
+i get it _sometimes_ after a hdparm -t /dev/md0 which is a software RAID-0 
+stripe with 2 IDE hd. running 2.4.15-pre8
 
-[snip]
+but no idea what it means.... 
 
-That works.
-
+:-?

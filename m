@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbTIYG3V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 02:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbTIYG3V
+	id S261719AbTIYGzP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 02:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTIYGzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 02:29:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46232 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261713AbTIYG3U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 02:29:20 -0400
-Date: Wed, 24 Sep 2003 23:29:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: overridex@punkass.com, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] 2.6: joydev is too eager claiming input devices
-Message-Id: <20030924232912.7e41d9f9.akpm@osdl.org>
-In-Reply-To: <200309250012.48522.dtor_core@ameritech.net>
-References: <1064459037.19555.3.camel@nazgul.overridex.net>
-	<200309250012.48522.dtor_core@ameritech.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 25 Sep 2003 02:55:14 -0400
+Received: from AGrenoble-101-1-1-66.w193-251.abo.wanadoo.fr ([193.251.23.66]:19850
+	"EHLO awak") by vger.kernel.org with ESMTP id S261719AbTIYGzM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 02:55:12 -0400
+Subject: Re: rfc: test whether a device has a partition table
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0309241710380.1688-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0309241710380.1688-100000@home.osdl.org>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1064472834.622.30.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 25 Sep 2003 08:53:55 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
->
-> Could you please try the following patch (it is incremental against the 
->  previous one and should apply to the -mm)
+Le jeu 25/09/2003 à 02:18, Linus Torvalds a écrit :
 
-I ran that patch[1] past Vojtech yesterday and he then fixed the problem
-which it was addressing by other means within his tree.
+> The _worst_ thing that can happen is that you have four extra (totally 
+> bogus) partitions, and you end up using the whole device.
 
-So what we should do is to ask Vojtech to share that change with us so Dan
-can test it, please.
+That means that hotplug/automount will have to re-parse the partition
+table itself to mount only the real partitions. So the job is done
+twice, in-kernel and in userspace.
 
+Have no doubts that *real* users (like the police force mentionned by
+Andries) will let their system automount their USB disks, they'll never
+figure out which devices look bogus (dev/sd what ?!?) and which one to
+mount.
 
-[1] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2.6.0-test5-mm4/broken-out/joydev-exclusions.patch
+If the partition discovery and validity check is done in userspace, why
+still do it in-kernel ?
+
+	Xav
 

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbTFCWtL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 18:49:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTFCWtL
+	id S261825AbTFCXET (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 19:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTFCXET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 18:49:11 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:27356 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261790AbTFCWtK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 18:49:10 -0400
-Date: Tue, 3 Jun 2003 16:02:00 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, akpm@digeo.com
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fat-fs printk arg. fix
-Message-Id: <20030603160200.04991141.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 3 Jun 2003 19:04:19 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16514
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261825AbTFCXER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 19:04:17 -0400
+Subject: Re: siimage slow on 2.4.21-rc6-ac2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mauk van der Laan <mauk.lists@maatwerk.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3EDD25A0.1040602@maatwerk.net>
+References: <3EDD1C87.5090906@maatwerk.net>
+	 <1054675355.9233.73.camel@dhcp22.swansea.linux.org.uk>
+	 <3EDD2260.20200@maatwerk.net>  <3EDD25A0.1040602@maatwerk.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054678794.9233.76.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Jun 2003 23:19:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Maw, 2003-06-03 at 23:48, Mauk van der Laan wrote:
+> He! I just did
+> 
+> # hdparm -d1 -X66 /dev/hdX
+> # echo "max_kb_per_request:15" > /proc/.ide/hdX/settings
+> 
+> on BOTH sata drives and everything works fine!
+> Is it possible that they influence each other?
 
-A recent fatfs patch for large partitions upset printk.
-Here's a patch for it.
+Not as I understand it, but this is rather useful information. The SI
+does have some ties for PIO mode but not UDMA clocking. This is most
+interesting information.
 
---
-~Randy
+The max_kb_per thing should be irrelevant btw.
 
-
-patch_name:	fat-printk.patch
-patch_version:	2003-06-03.15:37:48
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	printk() args are unhappy with recent change for large
-		partition support;
-product:	Linux
-product_versions: 2.5.70
-maintainer:	OGAWA Hirofumi
-diffstat:	=
- fs/fat/misc.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Naur ./fs/fat/misc.c%PRTK ./fs/fat/misc.c
---- ./fs/fat/misc.c%PRTK	2003-06-02 14:35:15.000000000 -0700
-+++ ./fs/fat/misc.c	2003-06-03 14:40:49.000000000 -0700
-@@ -311,7 +311,7 @@
- 	*bh = sb_bread(sb, phys);
- 	if (*bh == NULL) {
- 		printk(KERN_ERR "FAT: Directory bread(block %llu) failed\n",
--		       phys);
-+		       (u64)phys);
- 		/* skip this block */
- 		*pos = (iblock + 1) << sb->s_blocksize_bits;
- 		goto next;

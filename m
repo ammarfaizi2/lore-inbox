@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262009AbRETAHC>; Sat, 19 May 2001 20:07:02 -0400
+	id <S262017AbRETASn>; Sat, 19 May 2001 20:18:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262012AbRETAGw>; Sat, 19 May 2001 20:06:52 -0400
-Received: from pop.gmx.net ([194.221.183.20]:15018 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262009AbRETAGo>;
-	Sat, 19 May 2001 20:06:44 -0400
-Message-ID: <3B07074B.A6964617@gmx.de>
-Date: Sun, 20 May 2001 01:52:43 +0200
-From: Edgar Toernig <froese@gmx.de>
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
+	id <S262020AbRETASX>; Sat, 19 May 2001 20:18:23 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22230 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262016AbRETAST>;
+	Sat, 19 May 2001 20:18:19 -0400
+Date: Sat, 19 May 2001 20:18:18 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Edgar Toernig <froese@gmx.de>
+cc: Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
  w/info-PATCH]device arguments from lookup)
-In-Reply-To: <Pine.GSO.4.21.0105190940310.5339-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3B07074B.A6964617@gmx.de>
+Message-ID: <Pine.GSO.4.21.0105192008290.7162-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nitpicking: a system call without side effects would be pretty useless.
 
-Alexander Viro wrote:
-> A lot of stuff relies on the fact that close(open(foo, O_RDONLY)) is a
-> no-op. Breaking that assumption is a Bad Thing(tm).
 
-That assumption is totally bogus.  Even for regular files you have side
-effects (atime); for anything else they're unpredictable.
+On Sun, 20 May 2001, Edgar Toernig wrote:
 
-Ciao, ET.
+> That assumption is totally bogus.  Even for regular files you have side
+> effects (atime); for anything else they're unpredictable.
+
+That means only one thing: safe backups are possible only in single-user
+mode. For values of safe being "not triggering these side effects on
+arbitrary files outside of the area you are trying to backup". You can't
+pin an object down until you open it. You can check that it's the same
+object you think it is, but that will require fstat(). I.e. opening the
+thing.
+
+If all effects of open() either disappear on close() or are something you
+don't care about - fine. Otherwise you have a problem. On any UNIX.
+

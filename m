@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267619AbSLGFDl>; Sat, 7 Dec 2002 00:03:41 -0500
+	id <S267615AbSLGFKB>; Sat, 7 Dec 2002 00:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267620AbSLGFDl>; Sat, 7 Dec 2002 00:03:41 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:24463 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267619AbSLGFDl>;
-	Sat, 7 Dec 2002 00:03:41 -0500
-Date: Fri, 6 Dec 2002 21:07:36 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-cc: "'Linux Kernel Development List'" <linux-kernel@vger.kernel.org>
-Subject: Re: POSSIBLE BUG: Debugging Not Automatically Activated in Slab.c
-In-Reply-To: <000a01c29da4$8235b370$8c43d03f@joe>
-Message-ID: <Pine.LNX.4.33L2.0212062105520.27850-100000@dragon.pdx.osdl.net>
+	id <S267620AbSLGFKB>; Sat, 7 Dec 2002 00:10:01 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:15744 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S267615AbSLGFKA> convert rfc822-to-8bit; Sat, 7 Dec 2002 00:10:00 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] max bomb segment tuning with read latency 2 patch in contest
+Date: Sat, 7 Dec 2002 16:20:01 +1100
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212071620.05503.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Dec 2002, Joseph D. Wagner wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-| Before I submit this as an actually bug, I'd like the input of some people
-| who know a little more about the Slab Allocator and Kernel Debugging.
-|
-| The Slab Allocator includes this line:
-|
-| #ifdef CONFIG_DEBUG_SLAB
-|
-| in slab.c (line 89) to activate debugging.
-|
-| However, I couldn't find anywhere in the code where CONFIG_DEBUG_SLAB is
-| linked to CONFIG_DEBUG_KERNEL.  In other words, setting the kernel as a
-| debug kernel doesn't automatically set the Slab Allocator to debug too.
+Here are some io_load contest benchmarks with 2.4.20 with the read latency2 
+patch applied and varying the max bomb segments from 1-6 (SMP used to save 
+time!)
 
-CONFIG_DEBUG_SLAB is a separate option, listed under the
-Kernel Hacking config menu (Debug memory allocations).
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.20 [5]              164.9   45      31      21      4.55
+2420rl2b1 [5]           93.5    81      18      22      2.58
+2420rl2b2 [5]           88.2    87      16      22      2.44
+2420rl2b4 [5]           87.8    84      17      22      2.42
+2420rl2b6 [5]           100.3   77      19      22      2.77
 
-| 1) Am I missing something?
-|
-| 2) Is this intentional or by design?
+io_other:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.20 [5]              89.6    86      17      21      2.47
+2420rl2b1 [3]           48.1    156     9       21      1.33
+2420rl2b2 [3]           50.0    149     9       21      1.38
+2420rl2b4 [5]           51.9    141     10      21      1.43
+2420rl2b6 [5]           52.1    142     9       20      1.44
 
-Design.
+There seems to be a limit to the benefit of decreasing max bomb segments. It 
+does not seem to have a significant effect on io load on another hard disk 
+(although read latency2 is overall much better than vanilla).
 
-| If this is an actually bug, it can be fixed by inserting the following code
-| in slab.h immediately following the #include statements:
-|
-| #ifdef CONFIG_DEBUG_KERNEL
-| #define CONFIG_DEBUG_SLAB
-| #endif
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-Nope, just enable it.
-
--- 
-~Randy
-
+iD8DBQE98YUEF6dfvkL3i1gRAn4kAJ4x414sM3G+8fVrXv2P0huRhNKicgCgqFyo
+kCXIKMVtO/Zp+tM92qlUz4s=
+=HOKs
+-----END PGP SIGNATURE-----

@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVDCOAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVDCOIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVDCOAB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 10:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVDCOAB
+	id S261750AbVDCOIL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 10:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVDCOIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 10:00:01 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:43004 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261739AbVDCN76 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 09:59:58 -0400
-Date: Sun, 3 Apr 2005 22:59:45 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.12-rc1-mm4] mips: remove obsolete VR41xx RTC function
- from vr41xx.h
-Message-Id: <20050403225945.60c1e751.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 3 Apr 2005 10:08:11 -0400
+Received: from mail.pixelwings.com ([194.152.163.212]:13248 "EHLO
+	pixelwings.com") by vger.kernel.org with ESMTP id S261750AbVDCOIF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 10:08:05 -0400
+In-Reply-To: <20050330233029.GA28879@sa.pracom.com.au>
+References: <Pine.LNX.4.61.0503290659360.10929@chaos.analogic.com> <20050330233029.GA28879@sa.pracom.com.au>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-1--1061393109"
+Message-Id: <4948d7062bd65ca91f84daa114b9adcb@tequila.co.jp>
 Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Date: Sun, 3 Apr 2005 23:07:56 +0900
+To: John Pearson <jpearson@oasissystems.com.au>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch had removed obsolete VR41xx RTC function from vr41xx.h .
-I forgot to put this change in "update VR41xx RTC support".
 
-Yoichi
+--Apple-Mail-1--1061393109
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-diff -urN -X dontdiff rc1-mm4-orig/include/asm-mips/vr41xx/vr41xx.h rc1-mm4/include/asm-mips/vr41xx/vr41xx.h
---- rc1-mm4-orig/include/asm-mips/vr41xx/vr41xx.h	Fri Apr  1 21:21:37 2005
-+++ rc1-mm4/include/asm-mips/vr41xx/vr41xx.h	Sat Apr  2 19:26:58 2005
-@@ -198,22 +198,6 @@
- extern void vr41xx_disable_bcuint(void);
- 
- /*
-- * Power Management Unit
-- */
--
--/*
-- * RTC
-- */
--extern void vr41xx_set_rtclong1_cycle(uint32_t cycles);
--extern uint32_t vr41xx_read_rtclong1_counter(void);
--
--extern void vr41xx_set_rtclong2_cycle(uint32_t cycles);
--extern uint32_t vr41xx_read_rtclong2_counter(void);
--
--extern void vr41xx_set_tclock_cycle(uint32_t cycles);
--extern uint32_t vr41xx_read_tclock_counter(void);
--
--/*
-  * General-Purpose I/O Unit
-  */
- enum {
+On 31/3/2005, at 08:30, John Pearson wrote:
+>
+> E.g.: suppose there are 2 snack bars within 100 yards of a school; one
+> is out of sight, across an intersection and down a side street, and one
+> is clearly visible across an empty lot.  For years the lot has been
+> unfenced and, human nature being what it is, kids just walk across the
+> open lot.  The owner of the lot then decides to put up a high fence
+> around it with a combination lock on the gate (now he's raising 
+> chinchillas,
+> or peaches; he won't say) so all the kids start going to the other 
+> snackbar,
+> except for a few that he trusts with the combination.  It seems to me
+> you're suggesting that the snackbar owner who's lost out would have
+> an action for restraint of trade; I can't see it myself.
 
+Well in Austria there is a law: if you walk through an area that is not 
+public and do this for a very long time years and suddenly the owner 
+stops you from doing this, you could sue him for stopping you doing a 
+usual thing.
+
+But real life issues and software laws are more than two kind of shoes. 
+They are two kind of universes.
+
+Right and Code changes always happens, some approve i some not. And 
+there will be always people not like it.
+
+Fact is the kernel is a GPL thing so logically the coders want to keep 
+it GPL,
+
+lg, clemens
+
+--Apple-Mail-1--1061393109
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iD8DBQFCT/i/jBz/yQjBxz8RAjVoAKDqfu9vPUnLHJsPmVeqWiW6i4C7dgCgr2Ly
+33Wzb2kxBsRn7ESWZ9p6xWs=
+=wz4c
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-1--1061393109--
 

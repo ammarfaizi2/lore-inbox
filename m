@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264145AbTEaFLm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 01:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTEaFLm
+	id S264147AbTEaGGR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 02:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTEaGGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 01:11:42 -0400
-Received: from imsantv20.netvigator.com ([210.87.250.76]:20927 "EHLO
-	imsantv20.netvigator.com") by vger.kernel.org with ESMTP
-	id S264145AbTEaFLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 01:11:42 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-Date: Sat, 31 May 2003 13:24:10 +0800
-User-Agent: KMail/1.5.2
-References: <Pine.LNX.4.44.0305301414210.2671-100000@home.transmeta.com> <20030531031231.GE5783@conectiva.com.br> <1054357685.2899.109.camel@spc>
-In-Reply-To: <1054357685.2899.109.camel@spc>
-X-OS: GNU/Linux 2.4.21-pre5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 31 May 2003 02:06:17 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1973 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264147AbTEaGGR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 02:06:17 -0400
+Date: Fri, 30 May 2003 23:18:13 -0700 (PDT)
+Message-Id: <20030530.231813.59666274.davem@redhat.com>
+To: scrosby@cs.rice.edu
+Cc: alexander.riesen@synopsys.COM, linux-kernel@vger.kernel.org
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <oydd6i04gq8.fsf@bert.cs.rice.edu>
+References: <20030530085901.GB11885@Synopsys.COM>
+	<20030530.020040.52897577.davem@redhat.com>
+	<oydd6i04gq8.fsf@bert.cs.rice.edu>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305311324.10878.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 May 2003 13:08, Steven Cole wrote:
-> The note about the old-style K&R prototypes being
-> deprecated is probably redundant and may be unnecessary,
-> unless someone is copying and pasting from some old
-> System V code, and we all know that makes about as much
-> sense as Boeing secretly looking over the blueprints for
-> the Douglas DC-3.
->
+   From: Scott A Crosby <scrosby@cs.rice.edu>
+   Date: 30 May 2003 10:05:51 -0500
 
-Lovely :-)
+   On Fri, 30 May 2003 02:00:40 -0700 (PDT), "David S. Miller" <davem@redhat.com> writes:
+   
+   > Indeed, I'd missed this.  GCC will emit the constant multiply
+   > expansion unless the multiply cost is set VERY low.
+   
+   It may still be a win. This does a bit under a dozen instructions per
+   byte. However, jenkin's does many bytes at a time.
 
+It turns out to not be the case at all.  There is too much work
+involved in the main loop just maintaining the 3-word + curbyte
+state.
 
+It needs to be optimized a bit.

@@ -1,240 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUJNQNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUJNQTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUJNQNj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 12:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUJNQNi
+	id S266749AbUJNQTX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 12:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbUJNQTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 12:13:38 -0400
-Received: from smtp.infolink.com.br ([200.187.64.6]:50704 "EHLO
-	smtp.infolink.com.br") by vger.kernel.org with ESMTP
-	id S266721AbUJNQKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 12:10:02 -0400
-Message-ID: <416EA4CD.3080804@silexonline.org>
-Date: Thu, 14 Oct 2004 13:09:49 -0300
-From: Haroldo Gamal <haroldo.gamal@silexonline.org>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: samba@samba.org, linux-fsdevel@vger.kernel.org, urban@teststation.com,
-       rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] smbfs: smbfs do not honor uid, gid, file_mode and dir_mode
- supplied by user mount
-Content-Type: multipart/mixed;
- boundary="------------090901080205070702020001"
+	Thu, 14 Oct 2004 12:19:21 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:41449 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S266578AbUJNQSw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 12:18:52 -0400
+Date: Thu, 14 Oct 2004 11:17:58 -0500
+From: mike.miller@hp.com
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [patch 2/2] cciss: fixes for clustering
+Message-ID: <20041014161758.GC21960@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090901080205070702020001
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Patch 2 of 2
+This patch changes our open specifically for clustering software. We must
+allow root to access any volume or device with a LUN ID. We also modified 
+our revalidate function for this reason.
+If a logical is reserved, we must register it with the OS with size=0. Then
+the backup system can call BLKRRPART after breaking the reservation to
+set the device to the correct size.
+We also must register a controller with no logical volumes for the online
+utilities to function. This is the way we've done it since the 2.2 kernel.
+Which doesn't neccesarily make it right, but we have legacy apps to consider.
 
-Hi,
+Thanks,
+mikem
+Signed off by: Mike Miller
 
-This patch fixes "Samba Bugzilla Bug 999". The last version (2.6.8.1) of 
-smbfs kernel module do not honor uid, gid, file_mode and dir_mode 
-supplied by user during mount. This bug is also logged as "Kernel Bug 
-Tracker Bug 3330".  I think this stuff is related to the "unix 
-extensions".  This patch offers to the client side the opportunity to 
-decide to use or not those extensions.  To fully work, some 
-modifications are needed to samba smbmount.c and smbmnt.c files. Those 
-patches are available at  Samba and Kernel Bug Tracker pages (Bug 999). 
-After those patches, if the user do not supply any of the parameters 
-above, the uid, gid, file_mode and dir_mode on the server will be used 
-by the client.
-
-I have  submitted this before, but I've got no answer. This is the last 
-time. If it have no value, please send me a note.
-
-Thank you in advance,
-
-Haroldo Gamal
-
-PS: Thank you Randy.
-
---------------090901080205070702020001
-Content-Type: text/x-patch;
- name="smbfs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="smbfs.patch"
-
-diff -uprN -X dontdiff linux-2.6.8.1.org/fs/smbfs/inode.c linux-2.6.8.1/fs/smbfs/inode.c
---- linux-2.6.8.1.org/fs/smbfs/inode.c	2004-08-14 07:54:50.000000000 -0300
-+++ linux-2.6.8.1/fs/smbfs/inode.c	2004-09-01 16:38:14.000000000 -0300
-@@ -368,7 +368,6 @@ parse_options(struct smb_mount_data_kern
- 				&optopt, &optarg, &flags, &value)) > 0) {
+ cciss.c |   88 ++++++++++++++++++++++++++++++++++++++++++++++++++--------------
+ 1 files changed, 69 insertions(+), 19 deletions(-)
+-------------------------------------------------------------------------------
+diff -urNp lx269-rc4-p001/drivers/block/cciss.c lx269-rc4/drivers/block/cciss.c
+--- lx269-rc4-p001/drivers/block/cciss.c	2004-10-13 13:53:49.545284000 -0500
++++ lx269-rc4/drivers/block/cciss.c	2004-10-13 15:26:47.312335048 -0500
+@@ -438,13 +438,22 @@ static int cciss_open(struct inode *inod
  
- 		VERBOSE("'%s' -> '%s'\n", optopt, optarg ? optarg : "<none>");
--
- 		switch (c) {
- 		case 1:
- 			/* got a "flag" option */
-@@ -383,15 +382,19 @@ parse_options(struct smb_mount_data_kern
- 			break;
- 		case 'u':
- 			mnt->uid = value;
-+			flags |= SMB_MOUNT_UID;
- 			break;
- 		case 'g':
- 			mnt->gid = value;
-+			flags |= SMB_MOUNT_GID;
- 			break;
- 		case 'f':
- 			mnt->file_mode = (value & S_IRWXUGO) | S_IFREG;
-+			flags |= SMB_MOUNT_FMODE;
- 			break;
- 		case 'd':
- 			mnt->dir_mode = (value & S_IRWXUGO) | S_IFDIR;
-+			flags |= SMB_MOUNT_DMODE;
- 			break;
- 		case 'i':
- 			strlcpy(mnt->codepage.local_name, optarg, 
-@@ -429,9 +432,9 @@ smb_show_options(struct seq_file *s, str
- 		if (mnt->flags & opts[i].flag)
- 			seq_printf(s, ",%s", opts[i].name);
- 
--	if (mnt->uid != 0)
-+	if (mnt->flags & SMB_MOUNT_UID)
- 		seq_printf(s, ",uid=%d", mnt->uid);
--	if (mnt->gid != 0)
-+	if (mnt->flags & SMB_MOUNT_GID)
- 		seq_printf(s, ",gid=%d", mnt->gid);
- 	if (mnt->mounted_uid != 0)
- 		seq_printf(s, ",mounted_uid=%d", mnt->mounted_uid);
-@@ -440,8 +443,10 @@ smb_show_options(struct seq_file *s, str
- 	 * Defaults for file_mode and dir_mode are unknown to us; they
- 	 * depend on the current umask of the user doing the mount.
+ 	/*
+ 	 * Root is allowed to open raw volume zero even if it's not configured
+-	 * so array config can still work.  I don't think I really like this,
++	 * so array config can still work. Root is also allowed to open any
++	 * volume that has a LUN ID, so it can issue IOCTL to reread the
++	 * disk information.  I don't think I really like this
+ 	 * but I'm already using way to many device nodes to claim another one
+ 	 * for "raw controller".
  	 */
--	seq_printf(s, ",file_mode=%04o", mnt->file_mode & S_IRWXUGO);
--	seq_printf(s, ",dir_mode=%04o", mnt->dir_mode & S_IRWXUGO);
-+	if (mnt->flags & SMB_MOUNT_FMODE)
-+		seq_printf(s, ",file_mode=%04o", mnt->file_mode & S_IRWXUGO);
-+	if (mnt->flags & SMB_MOUNT_DMODE)
-+		seq_printf(s, ",dir_mode=%04o", mnt->dir_mode & S_IRWXUGO);
- 
- 	if (strcmp(mnt->codepage.local_name, CONFIG_NLS_DEFAULT))
- 		seq_printf(s, ",iocharset=%s", mnt->codepage.local_name);
-@@ -566,8 +571,13 @@ int smb_fill_super(struct super_block *s
- 		mnt->file_mode = (oldmnt->file_mode & S_IRWXUGO) | S_IFREG;
- 		mnt->dir_mode = (oldmnt->dir_mode & S_IRWXUGO) | S_IFDIR;
- 
--		mnt->flags = (oldmnt->file_mode >> 9);
-+		mnt->flags = (oldmnt->file_mode >> 9) | SMB_MOUNT_UID | 
-+			SMB_MOUNT_GID | SMB_MOUNT_FMODE | SMB_MOUNT_DMODE;
- 	} else {
-+		mnt->file_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP | 
-+						S_IROTH | S_IXOTH | S_IFREG;
-+		mnt->dir_mode = mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP | 
-+						S_IROTH | S_IXOTH | S_IFDIR;
- 		if (parse_options(mnt, raw_data))
- 			goto out_bad_option;
+ 	if (drv->nr_blocks == 0) {
+-		if (iminor(inode) != 0)
++		if (iminor(inode) != 0)	{ 	/* not node 0? */
++			/* if not node 0 make sure it is a partition = 0 */
++			if (iminor(inode) & 0x0f) {
+ 			return -ENXIO;
++				/* if it is, make sure we have a LUN ID */
++			} else if (drv->LunID == 0) {
++				return -ENXIO;
++			}
++		}
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
  	}
-@@ -599,6 +609,7 @@ int smb_fill_super(struct super_block *s
- 	sb->s_root = d_alloc_root(root_inode);
- 	if (!sb->s_root)
- 		goto out_no_root;
-+
- 	smb_new_dentry(sb->s_root);
- 
- 	return 0;
-diff -uprN -X dontdiff linux-2.6.8.1.org/fs/smbfs/proc.c linux-2.6.8.1/fs/smbfs/proc.c
---- linux-2.6.8.1.org/fs/smbfs/proc.c	2004-08-14 07:54:50.000000000 -0300
-+++ linux-2.6.8.1/fs/smbfs/proc.c	2004-09-01 12:22:56.000000000 -0300
-@@ -2074,7 +2074,7 @@ out:
- 	return result;
+@@ -1095,13 +1104,6 @@ cleanup1:
+ 	
  }
  
--void smb_decode_unix_basic(struct smb_fattr *fattr, char *p)
-+void smb_decode_unix_basic(struct smb_fattr *fattr, struct smb_sb_info *server, char *p)
- {
- 	/* FIXME: verify nls support. all is sent as utf8? */
- 
-@@ -2098,8 +2098,17 @@ void smb_decode_unix_basic(struct smb_fa
- 	fattr->f_ctime = smb_ntutc2unixutc(LVAL(p, 16));
- 	fattr->f_atime = smb_ntutc2unixutc(LVAL(p, 24));
- 	fattr->f_mtime = smb_ntutc2unixutc(LVAL(p, 32));
--	fattr->f_uid = LVAL(p, 40); 
--	fattr->f_gid = LVAL(p, 48); 
-+
-+	if (server->mnt->flags & SMB_MOUNT_UID)
-+		fattr->f_uid = server->mnt->uid;
-+	else
-+		fattr->f_uid = LVAL(p, 40); 
-+
-+	if (server->mnt->flags & SMB_MOUNT_GID)
-+		fattr->f_gid = server->mnt->gid;
-+	else
-+		fattr->f_gid = LVAL(p, 48); 
-+
- 	fattr->f_mode |= smb_filetype_to_mode(WVAL(p, 56));
- 
- 	if (S_ISBLK(fattr->f_mode) || S_ISCHR(fattr->f_mode)) {
-@@ -2108,10 +2117,19 @@ void smb_decode_unix_basic(struct smb_fa
- 
- 		fattr->f_rdev = MKDEV(major & 0xffffffff, minor & 0xffffffff);
- 		if (MAJOR(fattr->f_rdev) != (major & 0xffffffff) ||
--		    MINOR(fattr->f_rdev) != (minor & 0xffffffff))
-+	    	MINOR(fattr->f_rdev) != (minor & 0xffffffff))
- 			fattr->f_rdev = 0;
- 	}
-+
- 	fattr->f_mode |= LVAL(p, 84);
-+
-+	if ( (server->mnt->flags & SMB_MOUNT_DMODE) &&
-+	     (S_ISDIR(fattr->f_mode)) ) 
-+		fattr->f_mode = (server->mnt->dir_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFDIR;
-+	else if ( (server->mnt->flags & SMB_MOUNT_FMODE) &&
-+	          !(S_ISDIR(fattr->f_mode)) ) 
-+		fattr->f_mode = (server->mnt->file_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) | S_IFREG;
-+
- }
- 
- /*
-@@ -2197,7 +2215,7 @@ smb_decode_long_dirent(struct smb_sb_inf
- 		/* FIXME: should we check the length?? */
- 
- 		p += 8;
--		smb_decode_unix_basic(fattr, p);
-+		smb_decode_unix_basic(fattr, server, p);
- 		VERBOSE("info SMB_FIND_FILE_UNIX at %p, len=%d, name=%.*s\n",
- 			p, len, len, qname->name);
- 		break;
-@@ -2756,7 +2774,7 @@ smb_proc_getattr_unix(struct smb_sb_info
- 	if (result < 0)
- 		goto out_free;
- 
--	smb_decode_unix_basic(attr, req->rq_data);
-+	smb_decode_unix_basic(attr, server, req->rq_data);
- 
- out_free:
- 	smb_rput(req);
-diff -uprN -X dontdiff linux-2.6.8.1.org/fs/smbfs/proto.h linux-2.6.8.1/fs/smbfs/proto.h
---- linux-2.6.8.1.org/fs/smbfs/proto.h	2004-08-14 07:55:34.000000000 -0300
-+++ linux-2.6.8.1/fs/smbfs/proto.h	2004-08-31 13:10:37.000000000 -0300
-@@ -24,7 +24,7 @@ extern int smb_proc_rmdir(struct dentry 
- extern int smb_proc_unlink(struct dentry *dentry);
- extern int smb_proc_flush(struct smb_sb_info *server, __u16 fileid);
- extern void smb_init_root_dirent(struct smb_sb_info *server, struct smb_fattr *fattr);
--extern void smb_decode_unix_basic(struct smb_fattr *fattr, char *p);
-+extern void smb_decode_unix_basic(struct smb_fattr *fattr, struct smb_sb_info *server, char *p);
- extern int smb_proc_getattr(struct dentry *dir, struct smb_fattr *fattr);
- extern int smb_proc_setattr(struct dentry *dir, struct smb_fattr *fattr);
- extern int smb_proc_setattr_unix(struct dentry *d, struct iattr *attr, unsigned int major, unsigned int minor);
-diff -uprN -X dontdiff linux-2.6.8.1.org/include/linux/smb_mount.h linux-2.6.8.1/include/linux/smb_mount.h
---- linux-2.6.8.1.org/include/linux/smb_mount.h	2004-08-14 07:54:46.000000000 -0300
-+++ linux-2.6.8.1/include/linux/smb_mount.h	2004-08-31 13:10:29.000000000 -0300
-@@ -38,7 +38,10 @@ struct smb_mount_data {
- #define SMB_MOUNT_DIRATTR	0x0004	/* Use find_first for getattr */
- #define SMB_MOUNT_CASE		0x0008	/* Be case sensitive */
- #define SMB_MOUNT_UNICODE	0x0010	/* Server talks unicode */
+-static int cciss_revalidate(struct gendisk *disk)
+-{
+-	drive_info_struct *drv = disk->private_data;
+-	set_capacity(disk, drv->nr_blocks);
+-	return 0;
+-}
 -
-+#define SMB_MOUNT_UID		0x0020  /* Use user specified uid */
-+#define SMB_MOUNT_GID		0x0040  /* Use user specified gid */
-+#define SMB_MOUNT_FMODE		0x0080  /* Use user specified file mode */
-+#define SMB_MOUNT_DMODE		0x0100  /* Use user specified dir mode */
- 
- struct smb_mount_data_kernel {
- 	int version;
-
---------------090901080205070702020001--
+ /*
+  * revalidate_allvol is for online array config utilities.  After a
+  * utility reconfigures the drives in the array, it can use this function
+@@ -1153,7 +1155,9 @@ static int revalidate_allvol(ctlr_info_t
+ 	for (i = 0; i < NWD; i++) {
+ 		struct gendisk *disk = host->gendisk[i];
+ 		drive_info_struct *drv = &(host->drv[i]);
+-		if (!drv->nr_blocks)
++		/* we must register the controller even if no disks exist */
++		/* this is for the online array utilities */
++		if (!drv->heads && i)
+ 			continue;
+ 		blk_queue_hardsect_size(host->queue, drv->block_size);
+ 		set_capacity(disk, drv->nr_blocks);
+@@ -1485,13 +1489,7 @@ static void cciss_geometry_inquiry(int c
+ 			}
+ 		}
+ 	} else { /* Get geometry failed */
+-		printk(KERN_WARNING "cciss: reading geometry failed, "
+-			"continuing with default geometry\n");
+-		drv->block_size = block_size;
+-		drv->nr_blocks = total_size;
+-		drv->heads = 255;
+-		drv->sectors = 32; // Sectors per track
+-		drv->cylinders = total_size / 255 / 32;
++		printk(KERN_WARNING "cciss: reading geometry failed\n");
+ 	}
+ 	printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
+ 		drv->heads, drv->sectors, drv->cylinders);
+@@ -1520,6 +1518,7 @@ cciss_read_capacity(int ctlr, int logvol
+ 		*total_size, *block_size);
+ 	return;
+ }
++
+ static int register_new_disk(ctlr_info_t *h)
+ {
+         struct gendisk *disk;
+@@ -1663,7 +1662,9 @@ static int register_new_disk(ctlr_info_t
+ 	/* setup partitions per disk */
+         disk = h->gendisk[logvol];
+ 	set_capacity(disk, h->drv[logvol].nr_blocks);
+-	add_disk(disk);
++	/* if it's the controller it's already added */
++	if(logvol)
++		add_disk(disk);
+ freeret:
+ 	kfree(ld_buff);
+ 	kfree(size_buff);
+@@ -1675,6 +1676,53 @@ free_err:
+ 	logvol = -1;
+ 	goto freeret;
+ }
++
++static int cciss_revalidate(struct gendisk *disk)
++{
++	ctlr_info_t *h = get_host(disk);
++	drive_info_struct *drv = get_drv(disk);
++	int logvol;
++	int FOUND=0;
++	unsigned int block_size;
++	unsigned int total_size;
++	ReadCapdata_struct *size_buff = NULL;
++	InquiryData_struct *inq_buff = NULL;
++
++	for(logvol=0; logvol < CISS_MAX_LUN; logvol++)
++	{
++		if(h->drv[logvol].LunID == drv->LunID) {
++			FOUND=1;
++			break;
++		}
++	}
++
++	if (!FOUND) return 1;
++
++	size_buff = kmalloc(sizeof( ReadCapdata_struct), GFP_KERNEL);
++        if (size_buff == NULL)
++        {
++                printk(KERN_WARNING "cciss: out of memory\n");
++                return 1;
++        }
++	inq_buff = kmalloc(sizeof( InquiryData_struct), GFP_KERNEL);
++        if (inq_buff == NULL)
++        {
++                printk(KERN_WARNING "cciss: out of memory\n");
++		kfree(size_buff);
++                return 1;
++        }
++
++	cciss_read_capacity(h->ctlr, logvol, size_buff, 1, &total_size, &block_size);
++	cciss_geometry_inquiry(h->ctlr, logvol, 1, total_size, block_size, inq_buff, drv);
++
++	blk_queue_hardsect_size(h->queue, drv->block_size);
++	set_capacity(disk, drv->nr_blocks);
++
++	kfree(size_buff);
++	kfree(inq_buff);
++	return 0;
++}
++
+ /*
+  *   Wait polling for a command to complete.
+  *   The memory mapped FIFO is polled for the completion.
+@@ -2762,7 +2810,9 @@ static int __devinit cciss_init_one(stru
+ 		disk->fops = &cciss_fops;
+ 		disk->queue = hba[i]->queue;
+ 		disk->private_data = drv;
+-		if( !(drv->nr_blocks))
++		/* we must register the controller even if no disks exist */
++		/* this is for the online array utilities */
++		if(!drv->heads && j)
+ 			continue;
+ 		blk_queue_hardsect_size(hba[i]->queue, drv->block_size);
+ 		set_capacity(disk, drv->nr_blocks);

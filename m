@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSILMcy>; Thu, 12 Sep 2002 08:32:54 -0400
+	id <S315437AbSILMfH>; Thu, 12 Sep 2002 08:35:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSILMcy>; Thu, 12 Sep 2002 08:32:54 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:61057 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S315419AbSILMcx>;
-	Thu, 12 Sep 2002 08:32:53 -0400
-Date: Thu, 12 Sep 2002 08:30:44 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Todd Underwood <todd@osogrande.com>
-cc: "David S. Miller" <davem@redhat.com>,
-       "tcw@tempest.prismnet.com" <tcw@tempest.prismnet.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-In-Reply-To: <Pine.LNX.4.44.0209120119580.25406-100000@gp>
-Message-ID: <Pine.GSO.4.30.0209120811300.16149-100000@shell.cyberus.ca>
+	id <S315440AbSILMfH>; Thu, 12 Sep 2002 08:35:07 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:58313 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315437AbSILMfG>;
+	Thu, 12 Sep 2002 08:35:06 -0400
+Subject: Re: netperf3 results on 2.5.25 kernel
+To: Eric Lemoine <Eric.Lemoine@ens-lyon.fr>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       lse-tech-admin@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF21DA2F38.45AD0884-ON87256C32.0044DDC0@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Thu, 12 Sep 2002 07:39:01 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 09/12/2002 06:39:03 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+>> I did a comparison test on 2.4.17, 2.5.25 stock kernels and on 2.5.25
+>> with NAPI enabled e1000 driver using netperf3, tcp_stream 1 adapter
+>> test using UNI kernels. The test setup/results can be found at:
+>>
+http://www-124.ibm.com/developerworks/opensource/linuxperf/netperf/results/july_02/netperf2.5.25results.htm
 
-Good work. The first time i have seen someone say Linux's way of
-reverse order is a GoodThing(tm). It was also great to see de-mything
-some of the old assumption of the world.
 
-BTW, TSO is not a intelligent as what you are suggesting.
-If i am not mistaken you are not only suggesting fragmentation and
-assembly at that level you are also suggesting retransmits at the NIC.
-This could be dangerous for practical reasons (changes in TCP congestion
-control algorithms etc). TSO as was pointed in earlier emails is just a
-dumb sender of packets. I think even fragmentation is a misnomer.
-Essentially you shove a huge buffer to the NIC and it breaks it into MTU
-sized packets for you and sends them.
+>On which machine(s) do you actually test the kernels? Source machine?
+>Destination machine? Or both?
 
-In regards to the receive side CPU utilization improvements: I think
-that NAPI does a good job at least in getting ridding of the biggest
-offender -- interupt overload. Also with NAPI also having got rid of
-intermidiate queues to the socket level, facilitating of zero copy receive
-should be relatively easy to add but there are no capable NICs in
-existence (well, ok not counting the TIGONII/acenic that you can hack
-and the fact that the tigon 2 is EOL doesnt help other than just for
-experiments). I dont think theres any NIC that can offload reassembly;
-that might not be such a bad idea.
+I am just catching up with my mail. Sorry about that.  I don't think
+I understand your question completely. Let me answer, if I don't make
+it clear ask me again.
 
-Are you still continuing work on this?
+The client and the server systems have the same level kernels. The CPU
+utilization collected at server end is used to derive the throughput
+scaled to CPU.  The throughput for tcp_stream reflects the rate of
+transmits at the client and the rate of receives at the server.
 
-cheers,
-jamal
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+
+
 

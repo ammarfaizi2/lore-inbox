@@ -1,52 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbTA1WA2>; Tue, 28 Jan 2003 17:00:28 -0500
+	id <S261426AbTA1WDT>; Tue, 28 Jan 2003 17:03:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbTA1WA2>; Tue, 28 Jan 2003 17:00:28 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:57746 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261486AbTA1WA1>; Tue, 28 Jan 2003 17:00:27 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 28 Jan 2003 14:15:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Mark Mielke <mark@mark.mielke.cc>,
-       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bug in select() (was Re: {sys_,/dev/}epoll waiting timeout)
-In-Reply-To: <20030128094500.GA26202@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.50.0301281411260.2085-100000@blue1.dev.mcafeelabs.com>
-References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net>
- <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
- <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc>
- <20030123182831.GA8184@bjl1.asuk.net> <20030123204056.GC2490@mark.mielke.cc>
- <20030123221858.GA8581@bjl1.asuk.net> <20030127162717.A1283@ti19>
- <Pine.LNX.4.50.0301271427320.1930-100000@blue1.dev.mcafeelabs.com>
- <20030128094500.GA26202@bjl1.asuk.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261581AbTA1WDT>; Tue, 28 Jan 2003 17:03:19 -0500
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:3996 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S261426AbTA1WDP>; Tue, 28 Jan 2003 17:03:15 -0500
+Subject: [PATCH] 2.5.59 add six help texts to drivers/ide/Kconfig
+From: Steven Cole <elenstev@mesatop.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: trivial@rustcorp.com.au, Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 28 Jan 2003 15:10:05 -0700
+Message-Id: <1043791805.14310.145.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jan 2003, Jamie Lokier wrote:
+Here are some help texts from 2.4.21-pre3 Configure.help which are
+needed in 2.5.59 drivers/ide/Kconfig.
 
-> Davide Libenzi wrote:
-> > ( if Tms > 0 )
->
-> Which is unfortunate, because that doesn't allow for a value of Tms ==
-> 0 which is needed when you want to sleep and wake up on every jiffie
-> on systems where HZ >= 1000.  Tms == 0 is taken already, to mean do
-> not wait at all.
+Steven
 
-Waking up every jiffie does not make a lot of sense in most applications
-since they probably prefer to deal with seconds and its derivates, to have
-a predictable behavior on different systems. Functions like
-poll/select/epoll are simply not the right solution if you want to cut the
-microsecond on sleep times.
+--- linux-2.5.59/drivers/ide/Kconfig.orig	Tue Jan 28 14:45:25 2003
++++ linux-2.5.59/drivers/ide/Kconfig	Tue Jan 28 14:50:41 2003
+@@ -193,6 +193,13 @@
+ config IDE_TASK_IOCTL
+ 	bool "IDE Taskfile Access"
+ 	depends on BLK_DEV_IDE
++	help
++	  This is a direct raw access to the media.  It is a complex but
++	  elegant solution to test and validate the domain of the hardware and
++	  perform below the driver data recover if needed.  This is the most
++	  basic form of media-forensics.
++
++	  If you are unsure, say N here.
+ 
+ #bool '  IDE Taskfile IO' CONFIG_IDE_TASKFILE_IO
+ comment "IDE chipset support/bugfixes"
+@@ -245,6 +252,10 @@
+ 	bool "PCI IDE chipset support" if PCI
+ 	depends on BLK_DEV_IDE
+ 	default BLK_DEV_IDEDMA_PMAC if ALL_PPC && BLK_DEV_IDEDMA_PMAC
++	help
++	  Say Y here for PCI systems which use IDE drive(s).
++	  This option helps the IDE driver to automatically detect and
++	  configure all PCI-based IDE interfaces in your system.
+ 
+ config BLK_DEV_GENERIC
+ 	bool "Generic PCI IDE Chipset Support"
+@@ -347,6 +358,10 @@
+ config BLK_DEV_IDEDMA_FORCED
+ 	bool "Force enable legacy 2.0.X HOSTS to use DMA"
+ 	depends on BLK_DEV_IDEDMA_PCI
++	help
++	  This is an old piece of lost code from Linux 2.0 Kernels.
++
++	  Generally say N here.
+ 
+ config IDEDMA_PCI_AUTO
+ 	bool "Use PCI DMA by default when available"
+@@ -383,6 +398,12 @@
+ config IDEDMA_PCI_WIP
+ 	bool "ATA Work(s) In Progress (EXPERIMENTAL)"
+ 	depends on BLK_DEV_IDEDMA_PCI && EXPERIMENTAL
++	help
++	  If you enable this you will be able to use and test highly
++	  developmental projects. If you say N, the configurator will
++	  simply skip those options.
++
++	  It is SAFEST to say N to this question.
+ 
+ config IDEDMA_NEW_DRIVE_LISTINGS
+ 	bool "Good-Bad DMA Model-Firmware (WIP)"
+@@ -656,6 +677,18 @@
+ config BLK_DEV_SLC90E66
+ 	tristate "SLC90E66 chipset support"
+ 	depends on BLK_DEV_IDEDMA_PCI
++	help
++	  This driver ensures (U)DMA support for Victroy66 SouthBridges for
++	  SMsC with Intel NorthBridges.  This is an Ultra66 based chipset.
++	  The nice thing about it is that you can mix Ultra/DMA/PIO devices
++	  and it will handle timing cycles.  Since this is an improved
++	  look-a-like to the PIIX4 it should be a nice addition.
++
++	  If you say Y here, you need to say Y to "Use DMA by default when
++	  available" as well.
++
++	  Please read the comments at the top of
++	  drivers/ide/slc90e66.c.
+ 
+ config BLK_DEV_TRM290
+ 	tristate "Tekram TRM290 chipset support"
+@@ -880,6 +913,12 @@
+ config BLK_DEV_4DRIVES
+ 	bool "Generic 4 drives/port support"
+ 	depends on IDE_CHIPSETS
++	help
++	  Certain older chipsets, including the Tekram 690CD, use a single set
++	  of I/O ports at 0x1f0 to control up to four drives, instead of the
++	  customary two drives per port. Support for this can be enabled at
++	  runtime using the "ide0=four" kernel boot parameter if you say Y
++	  here.
+ 
+ config BLK_DEV_ALI14XX
+ 	tristate "ALI M14xx support"
 
 
 
-- Davide
 

@@ -1,75 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267163AbRGKEH1>; Wed, 11 Jul 2001 00:07:27 -0400
+	id <S267086AbRGKEEr>; Wed, 11 Jul 2001 00:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267196AbRGKEHR>; Wed, 11 Jul 2001 00:07:17 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:22742 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S267195AbRGKEHN>; Wed, 11 Jul 2001 00:07:13 -0400
-Message-ID: <3B4BD13F.6CC25B6F@uow.edu.au>
-Date: Wed, 11 Jul 2001 14:08:31 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S267163AbRGKEEh>; Wed, 11 Jul 2001 00:04:37 -0400
+Received: from www.wen-online.de ([212.223.88.39]:54799 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S267086AbRGKEEX>;
+	Wed, 11 Jul 2001 00:04:23 -0400
+Date: Wed, 11 Jul 2001 06:03:08 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.21.0107102201360.2021-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0107110548410.583-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Mike Black <mblack@csihq.com>
-CC: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: 2.4.6 and ext3-2.4-0.9.1-246
-In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Black wrote:
-> 
-> I started testing 2.4.6 with ext3-2.4-0.9.1-246 yesterday morning and
-> immediately hit a wall.
-> 
-> Testing on a an SMP kernel -- dual IDE RAID1 set the system temporarily
-> locked up (telnet window stops until disk I/O is complete).
+On Tue, 10 Jul 2001, Marcelo Tosatti wrote:
 
-Mike, we're going to need a lot more detail to reproduce this.
+> On Mon, 9 Jul 2001, Mike Galbraith wrote:
+>
+> > On 9 Jul 2001, Christoph Rohland wrote:
+> >
 
-Let me describe how I didn't reproduce it and perhaps
-you can point out any differences:
+[snip]
 
-- Kernel 2.4.6+ext3-2.4-0.9.1.
+> > > > So, did I fix it or just bust it in a convenient manner ;-)
+> > >
+> > > ... now you drop random pages. This of course helps reducing memory
+> > > pressure ;-)
+> >
+> > (shoot.  I figured that was too easy to be right)
+> >
+> > > But still this may be a hint. You are not running out of swap, aren't
+> > > you?
+> >
+> > I'm running oom whether I have swap enabled or not.  The inactive
+> > dirty list starts growing forever, until it's full of (aparantly)
+> > dirty pages and I'm utterly oom.
+>
+> We can make sure if this (inactive full of dirty pages) is really the case
+> with the tracing code.
 
-- Two 4gig IDE partitions on separate disks combined into a
-  RADI1 device.
+The problem turned out to be KDE.  It opens/unlinks two files in /tmp
+per terminal, and lseeks/writes terminal output to them continually.
+With tmpfs/ramfs mounted on /tmp....
 
-- 64 megs of memory (32meg lowmem, 32meg highmem)
+> The shmem fix in 2.4.7-pre5 is the solution for your problem ?
 
-- 1 gig swapfile on the ext3 raid device.
+No.  Now, the pages go to the active list.  The solution is to not
+use KDE-2.1's terminals if I fire up X ;-)  It doesn't livelock at
+oom anymore though.. thrashes uncontrollably until sysrq-e fixes it's
+attitude problem.
 
-- Ran  ./tiobench.pl --threads 16
+(I never saw this problem before because I rarely run X, and never do
+anything which generates enough terminal output to oom the box if I do
+run it.  I only ran the tar thing by chance, trying to figure out why
+people were reporting updatedb causing massive swapping, when it didn't
+do that here.. shrug)
 
-That's a *lot* more aggressive than your setup, yet
-it ran to completion quite happily.
+> If not, I'll port the tracing code to the pre5 and hopefully we can
+> actually figure out what is going on here.
 
-I'd be particularly interested in knowing how much memory
-you're using.  It certainly sounds like you're experiencing
-memory exhaustion.  ext3's ability to recover from out-of-memory
-situations was weakened recently so as to reduce our impact
-on core kernel code.  I'll be generating an incremental patch
-which puts that code back in.
+No need.  What looked like a really weird kernel bug turned out to be
+a userland bug triggering oom livelock bug.
 
-In the meantime, could you please retest with this somewhat lame
-alternative?
-
+	-Mike
 
 
---- linux-2.4.6/mm/vmscan.c	Wed Jul  4 18:21:32 2001
-+++ lk-ext3/mm/vmscan.c	Wed Jul 11 14:03:10 2001
-@@ -852,6 +870,9 @@ static int do_try_to_free_pages(unsigned
- 	 * list, so this is a relatively cheap operation.
- 	 */
- 	if (free_shortage()) {
-+		extern void shrink_journal_memory(void);
-+
-+		shrink_journal_memory();
- 		ret += page_launder(gfp_mask, user);
- 		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
- 		shrink_icache_memory(DEF_PRIORITY, gfp_mask);

@@ -1,175 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbTHYOIf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 10:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTHYOIf
+	id S261939AbTHYOEn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 10:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTHYOEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 10:08:35 -0400
-Received: from verein.lst.de ([212.34.189.10]:37277 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261828AbTHYOIV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 10:08:21 -0400
-Date: Mon, 25 Aug 2003 16:07:14 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: marcelo@hera.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] backport iget_locked from 2.5/2.6
-Message-ID: <20030825140714.GA17359@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, marcelo@hera.kernel.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -3 () PATCH_UNIFIED_DIFF,USER_AGENT_MUTT
+	Mon, 25 Aug 2003 10:04:43 -0400
+Received: from dyn-ctb-210-9-243-120.webone.com.au ([210.9.243.120]:58637 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261939AbTHYOEd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 10:04:33 -0400
+Message-ID: <3F4A172F.8080303@cyberone.com.au>
+Date: Tue, 26 Aug 2003 00:03:27 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Haoqiang Zheng <hzheng@cs.columbia.edu>
+CC: William Lee Irwin III <wli@holomorphy.com>, Mike Galbraith <efault@gmx.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] new scheduler policy
+References: <3F4182FD.3040900@cyberone.com.au> <5.2.1.1.2.20030819113225.019dae48@pop.gmx.net> <20030820021351.GE4306@holomorphy.com> <3F4A1386.9090505@cs.columbia.edu>
+In-Reply-To: <3F4A1386.9090505@cs.columbia.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Provide an iget variant without unlocking the inode and ->read_inode
-call.  This is needed for XFS and IIRC the reiserfs folks wanted it,
-too.
-
-Tested in 2.5 for more than half a year and in 2.4-ac/-aa, and
-the varoius vendor trees for a long time.
 
 
---- 1.37/fs/inode.c	Thu Jul 10 11:51:08 2003
-+++ edited/fs/inode.c	Tue Aug  5 01:42:38 2003
-@@ -834,6 +839,20 @@
- 	return inode;
- }
- 
-+void unlock_new_inode(struct inode *inode)
-+{
-+	/*
-+	 * This is special!  We do not need the spinlock
-+	 * when clearing I_LOCK, because we're guaranteed
-+	 * that nobody else tries to do anything about the
-+	 * state of the inode when it is locked, as we
-+	 * just created it (so there can be no old holders
-+	 * that haven't tested I_LOCK).
-+	 */
-+	inode->i_state &= ~(I_LOCK|I_NEW);
-+	wake_up(&inode->i_wait);
-+}
-+
- /*
-  * This is called without the inode lock held.. Be careful.
-  *
-@@ -856,31 +875,13 @@
- 			list_add(&inode->i_list, &inode_in_use);
- 			list_add(&inode->i_hash, head);
- 			inode->i_ino = ino;
--			inode->i_state = I_LOCK;
-+			inode->i_state = I_LOCK|I_NEW;
- 			spin_unlock(&inode_lock);
- 
--			/* reiserfs specific hack right here.  We don't
--			** want this to last, and are looking for VFS changes
--			** that will allow us to get rid of it.
--			** -- mason@suse.com 
--			*/
--			if (sb->s_op->read_inode2) {
--				sb->s_op->read_inode2(inode, opaque) ;
--			} else {
--				sb->s_op->read_inode(inode);
--			}
--
- 			/*
--			 * This is special!  We do not need the spinlock
--			 * when clearing I_LOCK, because we're guaranteed
--			 * that nobody else tries to do anything about the
--			 * state of the inode when it is locked, as we
--			 * just created it (so there can be no old holders
--			 * that haven't tested I_LOCK).
-+			 * Return the locked inode with I_NEW set, the
-+			 * caller is responsible for filling in the contents
- 			 */
--			inode->i_state &= ~I_LOCK;
--			wake_up(&inode->i_wait);
--
- 			return inode;
- 		}
- 
-@@ -960,8 +961,7 @@
- 	return inode;
- }
- 
--
--struct inode *iget4(struct super_block *sb, unsigned long ino, find_inode_t find_actor, void *opaque)
-+struct inode *iget4_locked(struct super_block *sb, unsigned long ino, find_inode_t find_actor, void *opaque)
- {
- 	struct list_head * head = inode_hashtable + hash(sb,ino);
- 	struct inode * inode;
---- 1.73/include/linux/fs.h	Sun Aug  3 16:50:01 2003
-+++ edited/include/linux/fs.h	Thu Aug  7 12:44:44 2003
-@@ -966,6 +969,7 @@
- #define I_LOCK			8
- #define I_FREEING		16
- #define I_CLEAR			32
-+#define I_NEW			64
- 
- #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
- 
-@@ -1391,12 +1396,47 @@
- extern void force_delete(struct inode *);
- extern struct inode * igrab(struct inode *);
- extern ino_t iunique(struct super_block *, ino_t);
-+extern void unlock_new_inode(struct inode *);
- 
- typedef int (*find_inode_t)(struct inode *, unsigned long, void *);
--extern struct inode * iget4(struct super_block *, unsigned long, find_inode_t, void *);
-+
-+extern struct inode * iget4_locked(struct super_block *, unsigned long,
-+				   find_inode_t, void *);
-+
-+static inline struct inode *iget4(struct super_block *sb, unsigned long ino,
-+				  find_inode_t find_actor, void *opaque)
-+{
-+	struct inode *inode = iget4_locked(sb, ino, find_actor, opaque);
-+
-+	if (inode && (inode->i_state & I_NEW)) {
-+		/*
-+		 * reiserfs-specific kludge that is expected to go away ASAP.
-+		 */
-+		if (sb->s_op->read_inode2)
-+			sb->s_op->read_inode2(inode, opaque);
-+		else
-+			sb->s_op->read_inode(inode);
-+		unlock_new_inode(inode);
-+	}
-+
-+	return inode;
-+}
-+
- static inline struct inode *iget(struct super_block *sb, unsigned long ino)
- {
--	return iget4(sb, ino, NULL, NULL);
-+	struct inode *inode = iget4_locked(sb, ino, NULL, NULL);
-+
-+	if (inode && (inode->i_state & I_NEW)) {
-+		sb->s_op->read_inode(inode);
-+		unlock_new_inode(inode);
-+	}
-+
-+	return inode;
-+}
-+
-+static inline struct inode *iget_locked(struct super_block *sb, unsigned long ino)
-+{
-+	return iget4_locked(sb, ino, NULL, NULL);
- }
- 
- extern void clear_inode(struct inode *);
---- 1.67/kernel/ksyms.c	Sun Aug  3 16:50:01 2003
-+++ edited/kernel/ksyms.c	Tue Aug  5 01:44:42 2003
-@@ -143,7 +143,8 @@
- EXPORT_SYMBOL(fget);
- EXPORT_SYMBOL(igrab);
- EXPORT_SYMBOL(iunique);
--EXPORT_SYMBOL(iget4);
-+EXPORT_SYMBOL(iget4_locked);
-+EXPORT_SYMBOL(unlock_new_inode);
- EXPORT_SYMBOL(iput);
- EXPORT_SYMBOL(inode_init_once);
- EXPORT_SYMBOL(force_delete);
+Haoqiang Zheng wrote:
+
+> William Lee Irwin III wrote:
+>
+>> On Tue, Aug 19, 2003 at 12:24:17PM +0200, Mike Galbraith wrote:
+>>  
+>>
+>>> Test-starve.c starvation is back (curable via other means), but 
+>>> irman2 is utterly harmless.  Responsiveness under load is very nice 
+>>> until I get to the "very hefty" end of the spectrum (expected).  
+>>> Throughput is down a bit at make -j30, and there are many cc1's 
+>>> running at very high priority once swap becomes moderately busy.  
+>>> OTOH, concurrency for the make -jN in general appears to be up a 
+>>> bit.  X is pretty choppy when moving windows around, but that 
+>>> _appears_ to be the newer/tamer backboost bleeding a kdeinit thread 
+>>> a bit too dry.  (I think it'll be easy to correct, will let you know 
+>>> if what I have in mind to test that theory works out).  Ending on a 
+>>> decidedly positive note, I can no longer reproduce priority 
+>>> inversion troubles with xmms's gl thread, nor with blender.
+>>> (/me wonders what the reports from wine/game folks will be like)
+>>>   
+>>
+>>
+>> Someone else appears to have done some work on the X priority inversion
+>> issue who I'd like to drag into this discussion, though there doesn't
+>> really appear to be an opportune time.
+>>
+>> Haoqiang, any chance you could describe your solutions to the X priority
+>> inversion issue?
+>>
+>>
+>> -- wli
+>>  
+>>
+> I didn't follow the whole discussion. But from what wli has described 
+> to me, the problem (xmms skips frames) is pretty like a X scheduler 
+> problem.
+>
+> X server works like this:
+> "The X server uses select(2) to detect clients with pending input. 
+> Once the set of clients with pending input is determined, the X server 
+> starts executing requests from the client with the smallest file 
+> descriptor. Each client has a buffer which is used to read some data 
+> from the network connection, that buffer can be resized to hold 
+> unusually large requests, but is typically 4KB. Requests are executed 
+> from each client until either the buffer is exhausted of complete 
+> requests or after ten requests. After requests are read from all of 
+> the ready clients, the server determines whether any clients still 
+> have complete requests in their buffers. If so, the server foregoes 
+> the select(2) call and goes back to processing requests for those 
+> clients. When all client input buffers are exhausted of complete 
+> requests, the X server returns to select(2) to await additional data. "
+> --- Keith Packard, "Efficiently Scheduling {X} Clients",  FREENIX-00,
+>
+> Basically, the X server does a round robin for all the clients with 
+> pending input.  It's not surprising that xmms skip frames when there 
+> are a lot of "heavy" x requests pending.  I am not sure if this the 
+> cause of the problem that you guys are talking about.  But anyway, if 
+> this the cause, here is my 2 cents:
+>
+> I think the scheduler of X server has to be "smarter". It has to know 
+> which X client is more "important" and give the important client a 
+> high priority, otherwise the  priority inversion problem will be 
+> un-avoidable.  Suppose the system can provide something like 
+> "get_most_important_client()" , the X server can be fixed this way:
+> The X server calls get_most_important_client() before it starts to 
+> handle an X request. If the return is not NULL, it handles the request 
+> from this "important" client.  This way, an "important" x client only 
+> need to wait a maximun of a single X request (instead of unlimited 
+> number of X requests) to get served.
+>
+> The problem now is how can we decide which X client is the most 
+> important?  Well, I guess there are a lot of solutions. I have a 
+> kernel based solution to this question.    The basic idea is: keep the 
+> processes blocked by X server in the runqueue. If a certain process 
+> (P) of this kind is scheduled, the kernel switch to the X server 
+> instead. If the X server get scheduled in this way, it can handle the 
+> X requests from this very process (P). If you have interest, you can 
+> take a look at  
+> http://www.ncl.cs.columbia.edu/publications/cucs-005-03.pdf .
+>
+> Let me know your comments...
+
+
+
+Very interesting. I think X could be smarter about scheduling maybe
+quite easily by maintaining a bit more state, say a simple dynamic
+priority thing, just to keep heavy users from flooding out the
+occasional users. But AFAIK, the X club is pretty exclusive, and you
+would need an inside contact to get anything done.
+
+There are still regressions in the CPU scheduler though.
+
+Your last point didn't make sense to me. A client still needs to get CPU
+time. I guess I should look at the paper. Having to teach the scheduler
+about X doesn't sit well with me. I think the best you could hope for there
+_might_ be a config option _if_ you could show some significant
+improvements not attainable by modifying either X or the kernel in a more
+generic manner.
+
+

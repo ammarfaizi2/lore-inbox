@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSE1OGh>; Tue, 28 May 2002 10:06:37 -0400
+	id <S315440AbSE1OPQ>; Tue, 28 May 2002 10:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSE1OGh>; Tue, 28 May 2002 10:06:37 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:39418 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314459AbSE1OGf>; Tue, 28 May 2002 10:06:35 -0400
-Subject: Re: bluesmoke, machine check exception, reboot
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Corin Hartland-Swann <cdhs@commerce.uk.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0205281432450.27799-100000@buffy.commerce.uk.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 May 2002 16:09:00 +0100
-Message-Id: <1022598540.4123.89.camel@irongate.swansea.linux.org.uk>
+	id <S316309AbSE1OPP>; Tue, 28 May 2002 10:15:15 -0400
+Received: from sark.cc.gatech.edu ([130.207.7.23]:20882 "EHLO
+	sark.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S315440AbSE1OPO>; Tue, 28 May 2002 10:15:14 -0400
+Date: Tue, 28 May 2002 10:15:15 -0400
+From: Josh Fryman <fryman@cc.gatech.edu>
+To: linux-kernel@vger.kernel.org
+Subject: changing __PAGE_OFFSET on x86?
+Message-Id: <20020528101515.56785de1.fryman@cc.gatech.edu>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-28 at 14:46, Corin Hartland-Swann wrote:
-> CPU 1: Machine Check Exception: 0000000000000004
-> Bank 1: b200000000000115
-> Kernel panic: CPU context corrupt
->
-> How do you work out what the numbers mean? Is there some kind of reference
-> to it, or are you just Alan "decodes machine check exceptions in his head"
-> Cox :) From the code it seems to be some kind of MCG status and MC0 status
-> - but of course, I have no idea what that means...
 
-I contemplate them in zen peace and they speak to me 8). The MCE value
-is the flags from the control register. The Bank n value is a dump of
-the register that explains what the fault is. The decoding rules are in
-the Intel Pentium III documentation set.
+hi,
 
-> After checking the logs (above) I found that the two times this has
-> happened it has managed to write it to the logs. Is the fact that it
-> sync()d a good indication that it will manage to reboot OK?
+i posted a query last week about a problem we're having with some PCI devices.
+we have a P4 system with 512M of RAM and two PCI cards, each having another
+256MB of RAM.  we want our device driver to expose the entire memory region
+for the pci cards.
 
-Is the fact the airbag deployed a good indication that it will deploy if
-you keep crashing into walls ? Its logging a CPU error where it decides
-the CPU is in an unrecoverable state. The odds are pretty good but each
-time you are taking the risk it won't, and if its a hardware problem
-that it might simply drop dead for good.
+when adding all this up, we're exceeding the 3G/1G split of the linux kernel.
+as dan maas pointed out, there should be a way to fix this in the kernel...
+so, after some grepping and code browsing, my new question is:
 
-Alan
+to fix this, if we change the __PAGE_OFFSET in include/asm-i386/page.h from
+0xc0000000 to 0xb000000, are there any hidden dependencies?  is there anything 
+else we need to worry about?  (does the __PAGE_OFFSET need to lie on a 1G
+boundary?)
 
+i haven't seen any, but them i'm not willing to say i understand all the 
+implications from chaging such a fundamental #define ....
+
+thanks,
+
+josh

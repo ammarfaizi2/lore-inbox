@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S263546AbUJ2Unj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S263573AbUJ2VRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263546AbUJ2Unj (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 29 Oct 2004 16:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263443AbUJ2Uiq
+	id S263573AbUJ2VRW (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 29 Oct 2004 17:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUJ2VN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:38:46 -0400
-Received: from relay.snowman.net ([66.92.160.56]:24328 "EHLO relay.snowman.net")
-	by vger.kernel.org with ESMTP id S263522AbUJ2Udu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:33:50 -0400
-Date: Fri, 29 Oct 2004 16:33:01 -0400
-From: Stephen Frost <sfrost@snowman.net>
+	Fri, 29 Oct 2004 17:13:27 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:37896 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263592AbUJ2VMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:12:25 -0400
+Date: Fri, 29 Oct 2004 23:11:49 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Larry McVoy <lm@work.bitmover.com>,
         Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
         Scott Lockwood <lkml@www.lrsehosting.com>,
-        Larry McVoy <lm@bitmover.com>, Xavier Bestel <xavier.bestel@free.fr>,
+        Xavier Bestel <xavier.bestel@free.fr>,
         James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
         Roman Zippel <zippel@linux-m68k.org>,
         Andrea Arcangeli <andrea@novell.com>,
         Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: BK kernel workflow
-Message-ID: <20041029203301.GC12780@ns.snowman.net>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
-	Scott Lockwood <lkml@www.lrsehosting.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Xavier Bestel <xavier.bestel@free.fr>,
-	James Bruce <bruce@andrew.cmu.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Andrea Arcangeli <andrea@novell.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+Message-ID: <20041029211149.GT6677@stusta.de>
 References: <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es> <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com> <4182923D.5040500@hispalinux.es> <20041029193924.GA10216@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
 In-Reply-To: <20041029193924.GA10216@work.bitmover.com>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.4.24ns.3.0 (i686)
-X-Uptime: 16:21:02 up 272 days, 15:20, 17 users,  load average: 0.07, 0.14, 0.16
-User-Agent: Mutt/1.5.6+20040523i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Larry McVoy (lm@bitmover.com) wrote:
+On Fri, Oct 29, 2004 at 12:39:24PM -0700, Larry McVoy wrote:
+> On Fri, Oct 29, 2004 at 08:55:57PM +0200, Ram?n Rey Vicente wrote:
+> > Scott Lockwood wrote:
+> > | In what way is that improper? Just because you think so, or do you have
+> > | something you can cite in the spanish legal system that forbids this sort
+> > | of exchange of rights for a licsense?
+> > 
+> > Improper in the way of misusing the legal system.  
+> 
 > This is not getting us anywhere.  You're not citing case law, you're
 > citing vague statements that don't apply here.  And even if they do
 > apply, the law is a moving target, new case law changes the rules all
@@ -53,37 +46,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > and get new case law put in place that says you don't have such and
 > such a right unless you pay for the product?  Who's to say someone 
 > else doesn't do that?  It's a moving target.  
+>...
 
-Just to put it out there- there are places in the world where the legal
-system isn't based on case law.  Don't know if Spain is that way or not.
 
-> On the other hand, if you have a program that does not lock up the data,
-> does not impede your ability to get your work done, is it reasonable for
-> you to go digging around in that product for the purposes of creating
-> a clone?  Maybe, if the license doesn't prohibit that.  Is it reasonable
-> for a license to prohibit that?  I think so and so does BitMover's
-> legal counsel and so does outside counsel who are experts in contract
-> and copyright law.  Are we right?  Dunno.  Maybe we go to court and
-> find out.  Maybe we go to court and make new case law.
+Case law as you know it is not present in continental Europe, it's only 
+present in some countries overseas.
 
-An interesting parallel are 'no-compete' clauses which employers use to
-try and keep employees from being able to move from one company to a
-competeing one.  These clauses are actually not enforcable in some
-jurisdictions because the lawmakers there felt it was unreasonable.
-This, really, is the light under which I'd think the BK license would be
-seen.  Of course, IANAL, nor do I actually use (or have ever used) BK 
-anyway.
+In continental Europe, we have laws that cover every detail [1].
+Therefore, in continental Europe, we don't cite some court cases ruled 
+two centuries ago - we cite the paragraphs of the corresponding laws.
 
-> The side that will win will be the side which is both reasonable and
-> has enough money to present that case.  We think that's us.
+If the copyright law (like the German copyright law) says something, the 
+only way to change it is a change of the law [2].
 
-That's an unfortunate reality (the money bit).
 
-[...]
-> is I wouldn't do that if I were you.  It doesn't look reasonable to me
-> and I'll bet you long odds that it won't look reasonable to a jury.
+Larry, if you don't believe me, please ask any lawyer who roughly knows 
+both your and our law systems about this.
 
-It's unlikely that a jury would be involved in such a case since it's
-unlikely the facts themselves would be in dispute.
 
-	Stephen
+> Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+
+cu
+Adrian
+
+[1] e.g. in Germany our "Buergerliches Gesetzbuch" (our main book of 
+    civil law) contains four paragraphs covering swarms of bees - what 
+    happens if two swarms of different owners unite, you are allowed to 
+    enter foreign estates to capture your swarm of bees etc. - it's all 
+    explicitely covered by the law
+[2] the exception is that our highest court may say a law or a
+    paragraph of a law is void because it violates our constitution
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

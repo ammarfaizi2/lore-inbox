@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264145AbTKGWC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbTKGV7k
+	id S262186AbTKHAa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 19:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTKGWGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 16:59:40 -0500
-Received: from AGrenoble-101-1-5-128.w80-11.abo.wanadoo.fr ([80.11.136.128]:45777
-	"EHLO awak") by vger.kernel.org with ESMTP id S264003AbTKGJrR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 04:47:17 -0500
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-Cc: bill davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FAAB8B5.6060901@gmx.de>
-References: <3FA69CDF.5070908@gmx.de> <3FA8C916.3060702@gmx.de>
-	 <20031105095457.GG1477@suse.de> <3FA8CA87.2070201@gmx.de>
-	 <boe68a$f3g$1@gatekeeper.tmr.com>  <3FAAB8B5.6060901@gmx.de>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1068198396.5597.62.camel@nomade>
+	Fri, 7 Nov 2003 17:06:35 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56533 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264031AbTKGKGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 05:06:11 -0500
+Date: Fri, 7 Nov 2003 11:06:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: test9: suspend no go
+Message-ID: <20031107100609.GA5088@elf.ucw.cz>
+References: <3F9BCF7A.7000403@portrix.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 07 Nov 2003 10:46:37 +0100
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F9BCF7A.7000403@portrix.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 06/11/2003 à 22:10, Prakash K. Cheemplavam a écrit :
-> c) That scsi gets selected when using usbfs seams to be some sort of 
-> wrapper being used...(just guessing without actually knowing the code). 
-> WOuld be nice if a note in the kernel menuconfig or alike would be left 
-> so that one doesn't have to wonder... But IIRC usbfs will be dropped anyway.
+Hi!
 
-SCSI is not used for usbfs. It's simply the protocol for USB storage
-devices (same case as FireWire/IEEE1394 storage devices). So it won't
-get dropped any sooner. As SATA devices may be using SCSI in linux soon,
-it even could be always selected.
 
-	Xav
+> A little contribution to the ongoing suspend saga. This is a Sony Vaio
+> SRX51P Laptop (P3 Mobile CPU, i820 chipset).
 
+
+Few tips:
+
+If you want to trick swsusp/S3 into working, you might want to try:
+
+* go with minimal config, turn off drivers like USB you don't really
+need
+
+* use ext2. At least it has working fsck. [If something seemes to go
+  wrong, force fsck when you have a chance]
+
+* turn off modules
+
+* use vga text console, shut down X
+
+* try running as few processes as possible, preferably go from single
+use mode
+
+When you make it work, try to find out what exactly was it that broke
+suspend, and preferably fix that.
+
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

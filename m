@@ -1,96 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266286AbSL2BGf>; Sat, 28 Dec 2002 20:06:35 -0500
+	id <S265700AbSL2BDf>; Sat, 28 Dec 2002 20:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbSL2BGf>; Sat, 28 Dec 2002 20:06:35 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.224]:64737 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S266286AbSL2BGa>; Sat, 28 Dec 2002 20:06:30 -0500
-Date: Sat, 28 Dec 2002 20:07:18 -0500 (EST)
+	id <S265725AbSL2BDe>; Sat, 28 Dec 2002 20:03:34 -0500
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.222]:44437 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S265700AbSL2BDe>; Sat, 28 Dec 2002 20:03:34 -0500
+Date: Sat, 28 Dec 2002 20:04:21 -0500 (EST)
 From: Frank Davis <fdavis@si.rr.com>
 X-X-Sender: fdavis@linux-dev
 To: linux-kernel@vger.kernel.org
 cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.53 : drivers/net/pcmcia/3c574_cs.c
-Message-ID: <Pine.LNX.4.44.0212282004240.952-100000@linux-dev>
+Subject: [PATCH] 2.5.53 : drivers/net/wan/x25_asy.c
+Message-ID: <Pine.LNX.4.44.0212282000520.952-100000@linux-dev>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello all,
-  The following patch swaps the save_flags/cli/restore_flags combo 
-with a spinlock. Please review.
+  The attached patch swaps the save_flags/cli/restore_flags combo with a 
+spinlock.  Please review.
+
 Regards,
 Frank
 
---- linux/drivers/net/pcmcia/3c574_cs.c.old	Fri Nov 22 23:20:59 2002
-+++ linux/drivers/net/pcmcia/3c574_cs.c	Sat Dec 28 19:53:10 2002
-@@ -96,9 +96,12 @@
- #include <asm/io.h>
- #include <asm/system.h>
- #include <asm/bitops.h>
+--- linux/drivers/net/wan/x25_asy.c.old	Sat Dec 28 18:49:00 2002
++++ linux/drivers/net/wan/x25_asy.c	Sat Dec 28 18:54:51 2002
+@@ -33,6 +33,7 @@
+ #include <linux/lapb.h>
+ #include <linux/init.h>
+ #include "x25_asy.h"
 +#include <linux/spinlock.h>
  
- /*====================================================================*/
+ typedef struct x25_ctrl {
+ 	struct x25_asy	ctrl;		/* X.25 things			*/
+@@ -40,6 +41,7 @@
+ } x25_asy_ctrl_t;
  
-+static spinlock_t 3c574_cs_lock = SPIN_LOCK_UNLOCKED;
-+
- /* Module parameters */
+ static x25_asy_ctrl_t	**x25_asy_ctrls = NULL;
++static spinlock_t x25_asy_slock = SPIN_LOCK_UNLOCKED;
  
- MODULE_AUTHOR("David Hinds <dahinds@users.sourceforge.net>");
-@@ -1043,13 +1046,12 @@
+ int x25_asy_maxdev = SL_NRUNIT;		/* Can be overridden with insmod! */
+ 
+@@ -164,8 +166,7 @@
  		return;
-     }
+ 	}
  
--	save_flags(flags);
+-	save_flags(flags); 
 -	cli();
-+	spin_lock_irqsave(&3c574_cs_lock, flags);
- 	EL3WINDOW(4);
- 	media = mdio_read(ioaddr, lp->phys, 1);
- 	partner = mdio_read(ioaddr, lp->phys, 5);
- 	EL3WINDOW(1);
++	spin_lock_irqsave(&x25_asy_slock, flags); 
+ 
+ 	oxbuff    = sl->xbuff;
+ 	sl->xbuff = xbuff;
+@@ -195,7 +196,7 @@
+ 
+ 	sl->buffsize = len;
+ 
 -	restore_flags(flags);
-+	spin_unlock_irqrestore(&3c574_cs_lock, flags);
++	spin_unlock_irqrestore(&x25_asy_slock, flags);
  
- 	if (media != lp->media_status) {
- 		if ((media ^ lp->media_status) & 0x0004)
-@@ -1232,31 +1234,29 @@
- 	case SIOCDEVPRIVATE+1:		/* Read the specified MII register. */
- 		{
- 			int saved_window;
--                       unsigned long flags;
-+                        unsigned long flags;
- 
--			save_flags(flags);
--			cli();
-+			spin_lock_irqsave(&3c574_cs_lock, flags);
- 			saved_window = inw(ioaddr + EL3_CMD) >> 13;
- 			EL3WINDOW(4);
- 			data[3] = mdio_read(ioaddr, data[0] & 0x1f, data[1] & 0x1f);
- 			EL3WINDOW(saved_window);
--			restore_flags(flags);
-+			spin_unlock_irqrestore(&3c574_cs_lock,flags);
- 			return 0;
- 		}
- 	case SIOCDEVPRIVATE+2:		/* Write the specified MII register */
- 		{
- 			int saved_window;
--                       unsigned long flags;
-+                        unsigned long flags;
- 
- 			if (!capable(CAP_NET_ADMIN))
- 				return -EPERM;
--			save_flags(flags);
--			cli();
-+			spin_lock_irqsave(&3c574_cs_lock, flags);
- 			saved_window = inw(ioaddr + EL3_CMD) >> 13;
- 			EL3WINDOW(4);
- 			mdio_write(ioaddr, data[0] & 0x1f, data[1] & 0x1f, data[2]);
- 			EL3WINDOW(saved_window);
--			restore_flags(flags);
-+			spin_unlock_irqrestore(&3c574_cs_lock, flags);
- 			return 0;
- 		}
- 	default:
+ 	if (oxbuff != NULL) 
+ 		kfree(oxbuff);
 

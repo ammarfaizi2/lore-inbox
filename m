@@ -1,33 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271882AbRH2DgT>; Tue, 28 Aug 2001 23:36:19 -0400
+	id <S271899AbRH2EKV>; Wed, 29 Aug 2001 00:10:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271889AbRH2DgJ>; Tue, 28 Aug 2001 23:36:09 -0400
-Received: from juicer03.bigpond.com ([139.134.6.79]:32726 "EHLO
-	mailin6.bigpond.com") by vger.kernel.org with ESMTP
-	id <S271882AbRH2DgB>; Tue, 28 Aug 2001 23:36:01 -0400
-Message-Id: <200108290336.f7T3aCIG002344@ADSL-Server.davsoft.com.au>
-Content-Type: text/plain; charset=US-ASCII
-From: David Findlay <david_j_findlay@yahoo.com.au>
-Organization: Davsoft
-To: linux-kernel@vger.kernel.org
-Subject: Bug in 2.4.9: Joydev module has incorrect version number
-Date: Wed, 29 Aug 2001 13:35:34 +1000
-X-Mailer: KMail [version 1.3.1]
+	id <S271900AbRH2EKM>; Wed, 29 Aug 2001 00:10:12 -0400
+Received: from digger1.defence.gov.au ([203.5.217.4]:20986 "EHLO
+	digger1.defence.gov.au") by vger.kernel.org with ESMTP
+	id <S271899AbRH2EJy>; Wed, 29 Aug 2001 00:09:54 -0400
+From: Ian Dall <Ian.Dall@dsto.defence.gov.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15244.27087.313164.737903@gargle.gargle.HOWL>
+Date: Wed, 29 Aug 2001 13:34:31 +0930
+To: linux-kernel@vger.kernel.org
+Subject: IPCONFIG fails for BOOTP
+X-Mailer: VM 6.92 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using kernel 2.4.9. All the joystick stuff is in using the M options. 
-When going modprobe joydev it can't find it. When using insmod to specifiy 
-the exact name of the file, it says that it can't find the correct kernel 
-version.
+Kernel version 2.4.8-ac9
 
-I'd also like to ask for 2.6 to have a feature that will automatically detect 
-all hardware, and load the correct drivers. I'm sick of having to do all 
-sorts of stuff to get hardware to go. Why can't it just work? Thanks,
+I am attempting to set up a linux based xterm. The kernel loads
+but times out attempting to get ipaddresses etc in ipconfig.
+The following are defined in "include/linux/autoconf.h":
 
-David
+#define CONFIG_IP_PNP 1
+#define CONFIG_IP_PNP_DHCP 1
+#define CONFIG_IP_PNP_BOOTP 1
+#undef  CONFIG_IP_PNP_RARP
 
-P.S. I'm not subscribed, could you please CC your response to me, thanks.
+
+A few printk's latter and it seems that the problem is in ic_bootp_recv()
+around line 843:
+
+#ifdef IPCONFIG_DEBUG
+		printk("DHCP: Got message type %d\n", mt);
+#endif
+
+		switch (mt) {
+		    case DHCPOFFER:
+
+			 [.....]
+
+		    default:
+			/* Urque.  Forget it*/
+			ic_myaddr = INADDR_NONE;
+			ic_servaddr = INADDR_NONE;
+			goto drop;
+		}
+
+At this point we could be receiving either DHCP *or* BOOTP extensions.
+The code to handle the BOOTP extension follows, but is never executed
+because of the "goto drop" in the default case for handling dhcp packets.
+If the kernel were compiled without DHCP this problem would go away.
+
+There are two possibilities to fix this. One is to fall through to the
+bootp case instead of going to drop, or maybe fold the bootp code into
+the default case of the switch statement. The only problem then seems to
+be how to conditionalize the DHCP support.
+
+Ian

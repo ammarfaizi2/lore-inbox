@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbTIGV55 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 17:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTIGV55
+	id S261621AbTIGWOe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 18:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTIGWOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 17:57:57 -0400
-Received: from ns.suse.de ([195.135.220.2]:41676 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261663AbTIGV5z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 17:57:55 -0400
-To: peter_daum@t-online.de (Peter Daum)
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
-References: <20030907195557.GK14436@fs.tum.de.suse.lists.linux.kernel>
-	<Pine.LNX.4.30.0309072228110.9987-100000@swamp.bayern.net.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 07 Sep 2003 23:57:52 +0200
-In-Reply-To: <Pine.LNX.4.30.0309072228110.9987-100000@swamp.bayern.net.suse.lists.linux.kernel>
-Message-ID: <p73pticjm73.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sun, 7 Sep 2003 18:14:34 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:36586 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261621AbTIGWOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 18:14:32 -0400
+Date: Sun, 7 Sep 2003 23:13:23 +0100
+From: Dave Jones <davej@redhat.com>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oops_in_progress is unlikely()
+Message-ID: <20030907221323.GC28927@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20030907064204.GA31968@sfgoth.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030907064204.GA31968@sfgoth.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-peter_daum@t-online.de (Peter Daum) writes:
+On Sun, Sep 07, 2003 at 01:42:04AM -0500, Mitchell Blank Jr wrote:
+ > Andrew - thanks for applying my last patch; thought you might be interested
+ > in this trivial one too.  Patch is versus 2.6.0-test4-bk8, I expect it
+ > will also apply against current -mm.
 
-> ... actually, the problems also occurred when running on machines
-> with Pentium II/Pentium Pro CPUs - even on these machines, I only
-> could use kernels compiled with "CONFIG_MPENTIUM4".
-> 
-> Adrian's patch does fix these problems. What is amazing, is that
-> in kernel version 2.4.20, the same values were used for
-> "CONFIG_X86_L1_CACHE_SHIFT". The problems that I described,
-> however, occur only with 2.4.22 - the same machines with the same
-> configuration work just fine with 2.4.20. Maybe, there's
-> something else involved, too?
+none of this patch seems to touch particularly performance critical code.
+Is it really worth adding these macros to every if statement in the kernel?
+There comes a point where readability is lost, for no measurable gain.
 
-Yes it very much sounds like some memory corruption that is just
-masked by the bigger cacheline padding.
+		Dave
 
-Maybe you should try to compile with CONFIG_DEBUG_SLAB on 
-and see if it triggers something?
-
-The padding itself is a pure optimization, if it changes any behaviour
-that's a bug.
-
--Andi
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

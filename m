@@ -1,66 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbTIUOtS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 10:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTIUOtS
+	id S262424AbTIUOwr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 10:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTIUOwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 10:49:18 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:54034 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262418AbTIUOtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 10:49:16 -0400
-Date: Sun, 21 Sep 2003 16:49:14 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Norman Diamond <ndiamond@wta.att.ne.jp>,
+	Sun, 21 Sep 2003 10:52:47 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:63148 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262424AbTIUOwk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 10:52:40 -0400
+Date: Sun, 21 Sep 2003 07:52:35 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Larry McVoy <lm@bitmover.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5 vs. Japanese keyboards [3]
-Message-ID: <20030921164914.C11315@pclin040.win.tue.nl>
-References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60> <20030914122034.C3371@pclin040.win.tue.nl> <206701c37ab2$6a8033e0$2dee4ca5@DIAMONDLX60> <20030916154305.A1583@pclin040.win.tue.nl> <20030921110629.GC18677@ucw.cz> <20030921143934.A11315@pclin040.win.tue.nl> <20030921124817.GA19820@ucw.cz>
+Subject: Re: Fix for wrong OOM killer trigger?
+Message-ID: <20030921145235.GA26186@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <20030919192544.GC1312@velociraptor.random> <20030919203538.D1919@flint.arm.linux.org.uk> <20030919200117.GE1312@velociraptor.random> <20030919205220.GA19830@work.bitmover.com> <20030920033153.GA1452@velociraptor.random> <20030920043026.GA10836@work.bitmover.com> <20030920142314.GA1338@velociraptor.random> <20030920151332.GA18387@work.bitmover.com> <m1smmqjug2.fsf@ebiederm.dsl.xmission.com> <20030921142252.GB16399@velociraptor.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030921124817.GA19820@ucw.cz>; from vojtech@suse.cz on Sun, Sep 21, 2003 at 02:48:17PM +0200
+In-Reply-To: <20030921142252.GB16399@velociraptor.random>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 21, 2003 at 02:48:17PM +0200, Vojtech Pavlik wrote:
-
-> > So, instead of requiring new ioctls and new loadkeys etc
-> > I would prefer to make NR_KEYS 256, if possible.
-> > So the question is: why did you require 512?
+On Sun, Sep 21, 2003 at 04:22:52PM +0200, Andrea Arcangeli wrote:
+> On Sun, Sep 21, 2003 at 04:40:29AM -0600, Eric W. Biederman wrote:
+> > Careful with your accusations Larry, some of us can answer those questions,
+> > in ways that won't support your argument.
 > 
-> Excerpt from input.h:
+> It didn't worth an answer IMHO, he's ignoring lots of efforts going on,
 
-> #define KEY_TEEN                0x19e
-> #define KEY_TWEN                0x19f
-> #define KEY_DEL_EOL             0x1c0
-> #define KEY_DEL_EOS             0x1c1
-> 
-> So far the last defined key is KEY_DEL_LINE, with a code of 0x1c3.
-> That's above 256. If there are other places that require less than 256,
-> well, then those will need to be fixed or we're heading for trouble.
+First of all, I didn't accuse anyone of anything, I asked if you were 
+using open source for in everything that you use each day.  And you
+are ignoring the question.  You stated
 
-Hmm. The kernel assumes today that keycodes have 8 bits:
+>> I refuse to use closed software myself for my critical tasks true, 
 
-In drivers/char/keyboard.c emulate_raw() tries to invent
-the codes that the keyboard probably sent and resulted in a given
-keycode. It starts out
-	if (keycode > 255)
-		return -1;
+and I asked
 
-In drivers/input/keyboards/atkbd.c we have tables that convert
-scancodes to keycodes. The declaration is
-	static unsigned char atkbd_set2_keycode[512];
-the unsigned char means that no keycodes larger than 255 can be returned.
+> So where's the source to the BIOS of your machine?  Your drive
+> firmware?  Do you drive a car?  Turn on a microwave?  Use a cell phone?
 
-It really seems a pity to have to add new ioctls, and to have to release
-a new version of the kbd package, and to waste a lot of kernel space,
-while essentially nobody needs the resulting functionality.
+And you tell me you "will" be running free software on all that soon.
+Until you are, how about you go attack the drive people, the bios people,
+the car people, the cellphone people, etc?  Why constantly harp on the one
+thing that has done an enormous amount of good for the kernel?
 
+I also asked about those binaries that give you such problems when you
+recompile kernels, you seem perfectly OK using closed source to play
+quake.  Oh, that's not "critical" because it is for your fun, I see.
 
-Andries
+How convenient for you that some closed source is OK for you to use but
+other closed source is not OK.  I see you are a man of principle, of
+strong ethics and principles.  What a great role model.
 
+If you feel so strongly about closed source then stop using EVERYTHING
+that doesn't have open source in it.  When you have done that, and only 
+then, you have earned the right to whine about BK or whatever.  Until
+then, it's pathetic.  You are complaining about the stuff that it is
+easy for you not to use, but you are silent about the stuff that you 
+want to use and there is no open source alternative.
 
-
+Don't you find it a bit pathetic that you are whining at the very people
+who did the work so you wouldn't have to use anything but open source?
+Do you have no sense of shame at all?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

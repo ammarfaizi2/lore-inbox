@@ -1,94 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbTEPXTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 19:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTEPXTb
+	id S264622AbTEPX0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 19:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264624AbTEPX0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 19:19:31 -0400
-Received: from mail.gmx.net ([213.165.65.60]:36219 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263718AbTEPXT3 (ORCPT
+	Fri, 16 May 2003 19:26:50 -0400
+Received: from corky.net ([212.150.53.130]:49370 "EHLO marcellos.corky.net")
+	by vger.kernel.org with ESMTP id S264622AbTEPX0s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 19:19:29 -0400
-Message-ID: <3EC574FB.1030500@gmx.net>
-Date: Sat, 17 May 2003 01:32:11 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
+	Fri, 16 May 2003 19:26:48 -0400
+Date: Sat, 17 May 2003 02:39:35 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+X-X-Sender: yoavw@marcellos.corky.net
+To: Yoav Weiss <ml-lkml@unpatched.org>
+Cc: Ahmed Masud <masud@googgun.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: encrypted swap [was: The disappearing sys_call_table export.] 
+In-Reply-To: <Pine.LNX.4.44.0305170140520.32047-100000@marcellos.corky.net>
+Message-ID: <Pine.LNX.4.44.0305170211180.32047-100000@marcellos.corky.net>
 MIME-Version: 1.0
-To: Mark Hindley <mark@hindley.uklinux.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 oops
-References: <20030515070555.GA1589@titan.home.hindley.uklinux.net> <3EC3C6E0.6000300@gmx.net> <20030515201649.GA8661@hindley.uklinux.net>
-In-Reply-To: <20030515201649.GA8661@hindley.uklinux.net>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hindley wrote:
-> On Thu, May 15, 2003 at 06:57:04PM +0200, Carl-Daniel Hailfinger wrote:
-> 
->>Yes. Do you have APM/ACPI enabled in the kernel? Could you supply your
->>.config? Have you tried with 2.4.21-rc2?
->>
-> 
-> No APM or ACPI. config is below. I haven't tried the latest rc2 - is this something you think has been fixed?
+> There's still something I'm unsure of.  I'm not familiar with the mm
+> subsystem.  Do you know whether vma structs are shared among processes
+> with shared mapping ?  I'd think the answer is yes, in which case the
+> above is the right way, but if it works that way, how come vm_area_struct
+> doesn't have a refcount yet ?  Who keeps track of it ?  Who frees it when
+> the last mapper unmaps it ?  Is the vma->shared in charge of all that ?
+> If so, what lock protects it ?
+>
 
-Not necessarily. But you could be lucky. If we know that you are
-triggering a genuine bug (not faulty hardware or NVidia driver) in a
-Release Candidate kernel, you might get some more attention on the list.
-If you manage to reproduce the bug with 2.4.21-rc2, please change the
-subject to reflect that.
+Answering myself here.  Sanity-check me :)
 
->>>May 14 18:22:23 titan kernel: EIP:    0010:[kfree+63/180]    Tainted: P 
->>
->>Do you have any proprietary modules loaded, and if so, which ones? Can
->>you reproduce the hang without this module loaded?
->>
-> 
-> Sorry -- should have mentioned this. nVidia module version 1.0.3123.
-> Built on the same system. Still get random crashes without it, but less
-> often (? lower load without X runing)
+According to mm/mmap.c, vma's are indeed shared among processes.
+vma->shared is the list, and is maintained by __remove_shared_vm_struct()
+and __vma_link_file().
 
-Did I understand you correctly that the crashes also happen when the
-module is not loaded at all? (Even loading a module once can wreak
-havoc, even if you remove it subsequently.) If so, could you please post
-another Oops of an untainted kernel? (Most developers here will simply
-ignore Oopsen with a tainted kernel.)
+The semaphore we should probably grab when messing with the key of a
+shared area is actually its inode's sem, since vma doesn't have one.
+inode->i_mapping->i_shared_sem, in the inode pointed by vma->vm_file.
+If it doesn't exist, it probably means this vma has only one user.
 
-Do the crashes happen when the machine has high load or when it's idle
-or are they not related to load at all? Does it happen more often at
-night, when your room is hot, when somebody starts the washing machine,
-etc... Do you see any pattern at all?
-Depending on the pattern, we might be able to make an educated guess
-what the problem is. Don't laugh, I've fixed quite a few bugs once the
-pattern was clear (most of them hardware related, though).
+Invalidating the vma key should probably occur in any place that
+calls vma->vm_ops->close(), after this call.  We may want to add our own
+refcount in vma, in case vm_file isn't available for extracting the
+inode.
 
-> Thanks for your help
-> 
-> Mark
-> 
-> # Kernel hacking
-> #
-> CONFIG_DEBUG_KERNEL=y
-> # CONFIG_DEBUG_STACKOVERFLOW is not set
-> # CONFIG_DEBUG_HIGHMEM is not set
-> # CONFIG_DEBUG_SLAB is not set
-> # CONFIG_DEBUG_IOVIRT is not set
-> CONFIG_MAGIC_SYSRQ=y
-> # CONFIG_DEBUG_SPINLOCK is not set
-> CONFIG_FRAME_POINTER=y
+Just a thought: If we encrypt per-area, it might make more sense to go
+down another level, to mm_struct.  It already has its refcount and
+backpoints its users.  The key is valid iff the mm_struct is valid anyway,
+so we may not have to track so many things ourselves.  Just allocate a
+random key whenever mm_struct is allocated, and overwrite the key before
+mm_struct is freed.  Any mm experts care to comment ?
 
-Could you please enable all debugging options in the "Kernel hacking"
-menu? The machine may run slower, but if it helps us getting your
-problem fixed, it is worth it. Enabling software watchdog might also
-help, but I'm not so sure about that.
-
-
-HTH,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+	Yoav
 

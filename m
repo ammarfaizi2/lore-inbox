@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbUCSWGo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 17:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUCSWES
+	id S263121AbUCSWLN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 17:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUCSWLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 17:04:18 -0500
-Received: from mail.gmx.net ([213.165.64.20]:35776 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263089AbUCSWEI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 17:04:08 -0500
-X-Authenticated: #20450766
-Date: Fri, 19 Mar 2004 23:01:55 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Robert_Hentosh@Dell.com, <fleury@cs.auc.dk>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: spurious 8259A interrupt
-In-Reply-To: <Pine.LNX.4.55.0403191426180.18215@jurand.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.44.0403192258350.3619-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Mar 2004 17:11:13 -0500
+Received: from cfcafw.sgi.com ([198.149.23.1]:30382 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S263121AbUCSWLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 17:11:10 -0500
+Subject: Small bug in bio_clone?
+From: Russell Cattelan <cattelan@xfs.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/v9JMpAWqpRYIFJgL4kr"
+Message-Id: <1079734269.3373.42.camel@naboo.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5-4mdk 
+Date: Fri, 19 Mar 2004 16:11:09 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Maciej W. Rozycki wrote:
 
->  The best way to deal with spurious interrupts is to ack the interrupt at
-> the device ASAP in the handler, especially if you know that the response
-> is slow.
+--=-/v9JMpAWqpRYIFJgL4kr
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I am getting those from the lAPIC timer interrupt (on a VIA KM133 Duron
-system). And the APIC timer interrupt IS acked (almost) immediately. So, I
-have a choice: no NMI watchdog or that uncomfortably increasing ERR:
-counter. Kernel 2.6.3.
+Shouldn't __bio_clone be checking the state flags
+of the src bio?
 
-Guennadi
----
-Guennadi Liakhovetski
+--- /usr/tmp/TmpDir.29150-0/fs/bio.c_1.3        2004-03-19
+16:07:12.000000000 -0600
++++ fs/bio.c    2004-03-19 16:06:24.348491070 -0600
+@@ -225,7 +225,7 @@
+         */
+        bio->bi_vcnt =3D bio_src->bi_vcnt;
+        bio->bi_idx =3D bio_src->bi_idx;
+-       if (bio_flagged(bio, BIO_SEG_VALID)) {
++       if (bio_flagged(bio_src, BIO_SEG_VALID)) {
+                bio->bi_phys_segments =3D bio_src->bi_phys_segments;
+                bio->bi_hw_segments =3D bio_src->bi_hw_segments;
+                bio->bi_flags |=3D (1 << BIO_SEG_VALID);
 
+
+--=-/v9JMpAWqpRYIFJgL4kr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAW2/9NRmM+OaGhBgRAif2AJ45mp/TR6c1IU3F08VzvfPi3qcxFgCfT/Nl
+2j3T9AKEFNnfmY351necoOA=
+=R973
+-----END PGP SIGNATURE-----
+
+--=-/v9JMpAWqpRYIFJgL4kr--
 

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266144AbUFUHZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266150AbUFUH11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266144AbUFUHZA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFUHVo
+	id S266150AbUFUH11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266148AbUFUH10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:21:44 -0400
-Received: from mta3.srv.hcvlny.cv.net ([167.206.5.69]:64954 "EHLO
-	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S266144AbUFUHTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:19:46 -0400
-Date: Mon, 21 Jun 2004 03:19:27 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: 2.6.7-bk way too fast
-In-reply-to: <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Message-id: <200406210319.38694.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <40D64DF7.5040601@pobox.com>
- <200406210239.28918.norberto+linux-kernel@bensa.ath.cx>
- <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org>
+	Mon, 21 Jun 2004 03:27:26 -0400
+Received: from AGrenoble-152-1-39-8.w82-122.abo.wanadoo.fr ([82.122.133.8]:54696
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S266155AbUFUH1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 03:27:03 -0400
+Subject: Re: Stop the Linux kernel madness
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Hannu Savolainen <hannu@opensound.com>
+Cc: 4Front Technologies <dev@opensound.com>,
+       David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0406210933470.26543@zeus.compusonic.fi>
+References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay>
+	 <40D23701.1030302@opensound.com>
+	 <1087573691.19400.116.camel@winden.suse.de> <40D32C1D.80309@opensound.com>
+	 <20040618190257.GN14915@schnapps.adilger.int>
+	 <40D34CB2.10900@opensound.com>
+	 <200406181940.i5IJeBDh032311@turing-police.cc.vt.edu>
+	 <Pine.LNX.4.60.0406181326210.3688@dlang.diginsite.com>
+	 <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi>
+	 <Pine.LNX.4.60.0406201506360.6470@dlang.diginsite.com>
+	 <40D636EA.7090704@opensound.com>
+	 <Pine.LNX.4.58.0406210933470.26543@zeus.compusonic.fi>
+Content-Type: text/plain
+Date: Mon, 21 Jun 2004 09:25:37 +0200
+Message-Id: <1087802737.31390.3.camel@speedy.priv.grenoble.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2004-06-21 at 10:07 +0300, Hannu Savolainen wrote:
 
-On Monday 21 June 2004 02:16, Linus Torvalds wrote:
-> On Mon, 21 Jun 2004, Norberto Bensa wrote:
-> > Attaaached,    ..cooonfiig  and   dmmesssg.  Note:   iit''s
-> > waaaaaaaaaaaaaaay    too     fffasssst  on X.  Text moode    termiinall
-> > it''ss  oook.
->
-> Does it fix it to just remove that one line completely?
->
-> Like this..
->
-> 		Linus
+> What would the modules directory look like if the next generation devices
+> get included there too? Or if all the drivers for currently
+> unsupported defence, telecom, aviation, instrumentation and other special
+> purpose devices get included in the kernel source tree?
 
-I didn't try Andrew's patch, but your fixes it on my laptop.
+Having more maintained drivers in the kernel can't be a bad thing. For a
+standard desktop or server, having all these drivers installed
+under /lib/modules is also beneficial. Makers of embedded distributions
+will continue to heavily customize their kernel and applications, as
+they always did.
 
-Jeff.
+	Xav
 
-- -- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA1owHwFP0+seVj/4RAlqdAKCSNKjp2BP3q+hE7gkmdaOG45xeggCeKHWa
-zKr9aTY4NXAPT24GSk2dtG8=
-=NUoj
------END PGP SIGNATURE-----

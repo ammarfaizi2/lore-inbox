@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271050AbRHOFuO>; Wed, 15 Aug 2001 01:50:14 -0400
+	id <S271046AbRHOFtD>; Wed, 15 Aug 2001 01:49:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271047AbRHOFuD>; Wed, 15 Aug 2001 01:50:03 -0400
-Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:28122 "EHLO
-	sunny.pacific.net.au") by vger.kernel.org with ESMTP
-	id <S271048AbRHOFuA>; Wed, 15 Aug 2001 01:50:00 -0400
-Subject: Re: [PATCH] CDP handler for linux
-From: David Luyer <david_luyer@pacific.net.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Crowther <chrisc@shad0w.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15WlHC-0001xF-00@the-village.bc.nu>
-In-Reply-To: <E15WlHC-0001xF-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 15 Aug 2001 15:48:00 +1000
-Message-Id: <997854480.3451.10.camel@typhaon>
-Mime-Version: 1.0
+	id <S271047AbRHOFsx>; Wed, 15 Aug 2001 01:48:53 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:51899 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S271046AbRHOFsg>;
+	Wed, 15 Aug 2001 01:48:36 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: mag@fbab.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8 Resource leaks + limits
+In-Reply-To: <200108150532.f7F5WGq01653@penguin.transmeta.com>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 14 Aug 2001 22:42:11 -0700
+In-Reply-To: Linus Torvalds's message of "Tue, 14 Aug 2001 22:32:16 -0700"
+Message-ID: <m3snetq3po.fsf@otr.mynet>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Aug 2001 21:59:02 +0100, Alan Cox wrote:
-> > 	This said, if the consesus is that it belongs in userspace, I
-> > shall set about porting the code over to a dameon and possibly maintaing
-> > the kernel patch as a secondary "hobby project".
-> 
-> I really think user space is the right place for it. That keeps it in
-> pageable memory and likely to dump a core not an entire box on errors.
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-You're right (of course), but to a small extent it may depend how
-critical CDP is to your routing.  Both CDP and HSRP are things which
-can be used by Ciscos to choose backup paths, but neither protocol is
-really "urgent, real-time priority required" in the timing so that's
-really the main reason to stay out of the kernel.
+> However, part of the problem is that because the limits haven't
+> historically existed, there is also no accepted and nice way of
+> setting the limits.
 
-If you're using "set ip next-hop verify-availability" in a Cisco router
-then you don't want CDP to fail unless the machine is unavailable to
-route.  But then I guess we don't have OSPF or BGP in the kernel, so CDP
-doesn't belong there either.
+This should be the least of the problems.  Simply add new RLIMIT_*
+values[1] (and possibly [gs]etrlimit64 syscalls).  The shell's ulimit
+command can easily pick those up.  Non-standard, but every other
+solution will be, too.
 
-One thing which would be nice though from a performance perspective is
-a kernel NetFlow collector.  I'm currently using a netflow collecter
-which uses <asm/unistd.h> and doesn't link against libc or crt0.o,
-accumulates all it's write()s as 128k chunks, etc, and that's damn fast,
-but the kernel should be able to be even faster (avoid all those
-context switches on each packet received).
 -- 
-David Luyer                                     Phone:   +61 3 9674 7525
-Engineering Projects Manager   P A C I F I C    Fax:     +61 3 9699 8693
-Pacific Internet (Australia)  I N T E R N E T   Mobile:  +61 4 1111 2983
-http://www.pacific.net.au/                      NASDAQ:  PCNTF
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

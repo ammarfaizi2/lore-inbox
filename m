@@ -1,98 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbUEKFKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUEKFQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUEKFKd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 01:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEKFKd
+	id S262062AbUEKFQz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 01:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEKFQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 01:10:33 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:8585 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S262052AbUEKFKU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 01:10:20 -0400
-Subject: [PATCH] Sort kallsyms in name order: kernel shrinks by 30k
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, randy.dunlap@osdl.org,
-       Sam Ravnborg <sam@ravnborg.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1084252135.31802.312.camel@bach>
+	Tue, 11 May 2004 01:16:55 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:3222 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262062AbUEKFQx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 01:16:53 -0400
+Date: Tue, 11 May 2004 10:47:57 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, wli@holomorphy.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dentry bloat.
+Message-ID: <20040511104757.E31521@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040508031159.782d6a46.akpm@osdl.org> <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com> <409DDDAE.3090700@colorfullife.com> <20040509153316.GE4007@in.ibm.com> <20040509221712.GA17014@parcelfarce.linux.theplanet.co.uk> <20040510183925.GB4813@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 11 May 2004 15:08:55 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040510183925.GB4813@in.ibm.com>; from dipankar@in.ibm.com on Tue, May 11, 2004 at 12:09:25AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Admittedly, anyone who sets CONFIG_KALLSYMS doesn't care about space,
-it's a fairly trivial change.
+On Tue, May 11, 2004 at 12:09:25AM +0530, Dipankar Sarma wrote:
+> On Sun, May 09, 2004 at 11:17:12PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > On Sun, May 09, 2004 at 09:03:16PM +0530, Dipankar Sarma wrote:
+> >  
+> > > Actually, what may happen is that since the dentries are added
+> > > in the front, a double move like that would result in hash chain
+> > > traversal looping. Timing dependent and unlikely, but d_move_count
+> > > avoided that theoritical possibility. It is not about skipping
+> > > dentries which is safe because a miss would result in a real_lookup()
+> > 
+> > Not really.  A miss could result in getting another dentry allocated
+> > for the same e.g. directory, which is *NOT* harmless at all.
+> 
+> AFAICS, a miss in __d_lookup would result in a repeat lookup
+> under dcache_lock in which case we are safe or real_lookup()
+> which in turn does another lookup with dcache_lock. Is there
+> a path that I am missing here ?
 
-Name: Sort Kallsyms for Stem Compression
-Status: Booted on 2.6.6
-Depends: Misc/kallsyms-include-aliases.patch.gz
 
-Leaving the symbols sorted by name rather than address, so stem
-compression works more effectively.  Saves a little over 30k here.
+Actually, real_lookup is done with parent's i_sem (avoiding rename is the
+same directory) and it also uses rename_lock (seqence lock) which provides
+protection against d_move. (real_lookup() --> d_lookup() --> __d_lookup()). 
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5923-linux-2.6.6/Makefile .5923-linux-2.6.6.updated/Makefile
---- .5923-linux-2.6.6/Makefile	2004-05-10 15:12:44.000000000 +1000
-+++ .5923-linux-2.6.6.updated/Makefile	2004-05-11 14:45:37.000000000 +1000
-@@ -567,7 +567,7 @@ ifdef CONFIG_KALLSYMS
- kallsyms.o := .tmp_kallsyms2.o
- 
- quiet_cmd_kallsyms = KSYM    $@
--cmd_kallsyms = $(NM) -n $< | $(KALLSYMS) > $@
-+cmd_kallsyms = $(NM) $< | $(KALLSYMS) > $@
- 
- .tmp_kallsyms1.o .tmp_kallsyms2.o: %.o: %.S scripts FORCE
- 	$(call if_changed_dep,as_o_S)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .5923-linux-2.6.6/kernel/kallsyms.c .5923-linux-2.6.6.updated/kernel/kallsyms.c
---- .5923-linux-2.6.6/kernel/kallsyms.c	2004-05-11 14:45:36.000000000 +1000
-+++ .5923-linux-2.6.6.updated/kernel/kallsyms.c	2004-05-11 14:49:45.000000000 +1000
-@@ -62,7 +62,7 @@ const char *kallsyms_lookup(unsigned lon
- 			    unsigned long *offset,
- 			    char **modname, char *namebuf)
- {
--	unsigned long i, best = 0;
-+	unsigned long i, best = -1UL;
- 
- 	/* This kernel should never had been booted. */
- 	BUG_ON(!kallsyms_addresses);
-@@ -74,10 +74,12 @@ const char *kallsyms_lookup(unsigned lon
- 		unsigned long symbol_end;
- 		char *name = kallsyms_names;
- 
--		/* They're sorted, we could be clever here, but who cares? */
-+		/* Look for closest symbol <= address. */
- 		for (i = 0; i < kallsyms_num_syms; i++) {
--			if (kallsyms_addresses[i] > kallsyms_addresses[best] &&
--			    kallsyms_addresses[i] <= addr)
-+			if (kallsyms_addresses[i] > addr)
-+				continue;
-+			if (best == -1UL
-+			    ||kallsyms_addresses[i] > kallsyms_addresses[best])
- 				best = i;
- 		}
- 
-@@ -94,12 +96,11 @@ const char *kallsyms_lookup(unsigned lon
- 		else
- 			symbol_end = (unsigned long)_etext;
- 
--		/* Search for next non-aliased symbol */
--		for (i = best+1; i < kallsyms_num_syms; i++) {
--			if (kallsyms_addresses[i] > kallsyms_addresses[best]) {
-+		/* Search for next symbol */
-+		for (i = 0; i < kallsyms_num_syms; i++) {
-+			if (kallsyms_addresses[i] > kallsyms_addresses[best]
-+			    && kallsyms_addresses[i] < symbol_end)
- 				symbol_end = kallsyms_addresses[i];
--				break;
--			}
- 		}
- 
- 		*symbolsize = symbol_end - kallsyms_addresses[best];
+So as real_lookup() does repeat the cached lookup, I don't see any chance
+of missing a hashed dentry and allocating one more dentry with the same name.
 
+Thanks
+Maneesh
 
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

@@ -1,70 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbRBAEaG>; Wed, 31 Jan 2001 23:30:06 -0500
+	id <S129629AbRBAE5M>; Wed, 31 Jan 2001 23:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129629AbRBAE35>; Wed, 31 Jan 2001 23:29:57 -0500
-Received: from bluebox.ne.mediaone.net ([24.91.117.20]:17414 "EHLO
-	osiris.978.org") by vger.kernel.org with ESMTP id <S129314AbRBAE3p>;
-	Wed, 31 Jan 2001 23:29:45 -0500
-Date: Wed, 31 Jan 2001 23:29:44 -0500
-From: Brian Ristuccia <brian@ristuccia.com>
-To: linux-kernel@vger.kernel.org
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-        Alex Pennace <alex@osiris.978.org>,
-        Dennis Ristuccia <dennis@osiris.978.org>
-Subject: usermode linux hoses 2.2.18-SMP host machine when run from regular user account
-Message-ID: <20010131232944.J16908@osiris.978.org>
-Mail-Followup-To: brianr@osiris.978.org, linux-kernel@vger.rutgers.edu,
-	user-mode-linux-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S129715AbRBAE5D>; Wed, 31 Jan 2001 23:57:03 -0500
+Received: from goalkeeper.d2.com ([198.211.88.26]:60704 "HELO
+	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129629AbRBAE4y>;
+	Wed, 31 Jan 2001 23:56:54 -0500
+Date: Wed, 31 Jan 2001 20:51:37 -0800
+From: Greg from Systems <chandler@d2.com>
+To: John Jasen <jjasen1@umbc.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bummer...
+In-Reply-To: <Pine.SGI.4.31L.02.0101312218130.32454-100000@irix2.gl.umbc.edu>
+Message-ID: <Pine.SGI.4.10.10101311933320.29904-100000@hell.d2.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When run from a normal user account with its current working directory on a
-NFS filesystem, usermode linux causes the host machine's kernel to enter a
-hosed state. No processes (including UML) seem to respond, and the machine
-becomes unusable.
 
-I am running 2.2.18 built with SMP and hedrick's IDE patches on a dual
-Celeron 366@550 box with 384mB of ram. I have also reproduced the crash on a
-single Celeron 366@550 w/ 256mB of ram running 2.2.18-SMP w/ hedrick's IDE
-patches, and a dual PPro 166 w/ 256mB of RAM running 2.2.18pre23 unmodified
-from the version distributed by Alan Cox. The crash occurs with both the
-usermode linux 2.4.0 binary from their web site and the linux 2.4.1 binary
-there. I am using the root filesystem image file that comes in the tarball
-named deb-package-2.4.0.tar.bz2. The crash comes after the line "INIT:
-version 2.78 booting" during the virtual machine's boot sequence. The UML
-web site is at http://user-mode-linux.sourceforge.net/
+This is the kind of problem I have been experiancing.
+It either hangs on boot, or in a compile...
+However I am using an NCR 810 and a scsi disk..
+My board is the Compaq PC164 {some nasty partnumber}
 
-The UML people report that UML doesn't work when being run from an NFS
-filesystem: 
+The Servers all have the Qlogic ISP controller for the main disk.
 
-  UML doesn't work when it is being run from an NFS filesystem: This seems to
-  be a similar situation with the resierfs problem above. Some versions of
-  NFS seems not to handle mmap correctly, which UML depends on.  The fix is
-  to run UML in a non-NFS directory. The kernel binary and root filesystem
-  be be mounted from NFS; UML itself just has to be running in a non-NFS
-  directory.
+both setups have only the boot disk on the boot controller, no other
+devices....
 
-But I can't see how something done in userspace should hang the whole
-machine, especially when I set up low hard ulimits to prevent all system
-resources from being consumed. The statistics I'm able to gather from
-ctrl/shift-scrlock don't seem to indicate memory or process table overuse.
+On Wed, 31 Jan 2001, John Jasen wrote:
 
-Alt-Fx still switches consoles unless X is running. Ctrl/shift-scrlock still
-displays the usual debug stuff. The machine is still pingable and still
-accepts tcp/ip connections but you don't get any response from the listening
-daemon. Otherwise the box is hung. Ctrl-alt-del won't run the ctrlaltdel
-entry in inittab. Hardware reset is required to restore machine to normal
-operation.
+> On Wed, 31 Jan 2001, Greg from Systems wrote:
+> 
+> > I've been playing with the 2.4.0 kernel scince you gave me the patch for
+> > the alphas...
+> >
+> > What I have found is that it tends to randomly hang...
+> > No Panic, no OOPs, no nothing...
+> > The machine is a PC164, Which falls under the EB164 class.
+> > It exhibits this behaviour on both the "generic" and "eb164" cpu types
+> > {compile option}  It doesn't even boot compiled as pc164..
+> > I'm also seeing this problem on my A/S 4100, "Rawhide"..
+> 
+> I've been having IDE problems under alpha (API UP1100 motherboard) with
+> the ALI M1535D pci-isa bridge/ide controller and the AIC7xxx drivers.
+> Under 2.4.0, any heavy disk access "dd if=/dev/hda of=/dev/null" will
+> immediately lock the system, and under 2.4.1, it won't finish booting ...
+> 
+> --
+> -- John E. Jasen (jjasen1@umbc.edu)
+> -- In theory, theory and practise are the same. In practise, they aren't.
+> 
 
--- 
-Brian Ristuccia
-brian@ristuccia.com
-bristucc@cs.uml.edu
+----------------------------------------------------------------------------
+
+IGNOTUM PER IGNOTIUS
+
+"Grasshopper always wrong in argument with chicken"
+
+The "socratic approach" is what you call starting an argument by
+asking questions.
+
+The human race will begin solving it's problems on the day that it 
+ceases taking itself so seriously.
+
+                                        PRINCIPIA DISCORDIA
+
+
+                Published by POEE Head Temple - San Francisco
+                      " On The Future Site of Beautiful
+                             San Andreas Canyon"
+
+
+                                                Please do not use this
+                                                document as toilet tissue
+Fnord
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

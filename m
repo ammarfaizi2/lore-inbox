@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270396AbTGMU6t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 16:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270395AbTGMU6t
+	id S270394AbTGMU4J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 16:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270395AbTGMU4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 16:58:49 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:31180 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270405AbTGMU5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 16:57:43 -0400
-Date: Sun, 13 Jul 2003 22:12:27 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Anthony Lichnewsky <lich@tuxfamily.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.75 doesn't boot at all on x86
-Message-ID: <20030713211227.GA16127@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Anthony Lichnewsky <lich@tuxfamily.org>,
-	linux-kernel@vger.kernel.org
-References: <3F1163A7.6010004@tuxfamily.org>
+	Sun, 13 Jul 2003 16:56:08 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:50068 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270394AbTGMU4F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 16:56:05 -0400
+Date: Sun, 13 Jul 2003 22:10:45 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: David Schwartz <davids@webmaster.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+Message-ID: <20030713211045.GD21612@mail.jlokier.co.uk>
+References: <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com> <MDEHLPKNGKAHNMBLJOLKIEEPEFAA.davids@webmaster.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F1163A7.6010004@tuxfamily.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEEPEFAA.davids@webmaster.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 13, 2003 at 03:50:31PM +0200, Anthony Lichnewsky wrote:
- > After lilo, the kernel is uncompressed, then the screen goes black.
- > the traditional init message is not even displayed
- > ( INIT version 2.85 booting ).
- > It accepts Ctrl+Alt+Suppr for reboot. but that's it.
- > 
- > I checked that CONFIG_VT, CONFIG_VGA_CONSOLE are set in my .config.
- > I suspect the initrd image is not loaded correctly, but I don't have any
- > real clue. It was generated with mkinitrd version 3.4.43.
- > Any Idea of what it might be ?
+David Schwartz wrote:
+> 	For most real-world loads, M is some fraction of N. The fraction
+> asymptotically approaches 1 as load increases because under load it takes
+> you longer to get back to polling, so a higher fraction of the descriptors
+> will be ready when you do.
 
-Try CONFIG_VIDEO_SELECT=n. If that doesn't help, post your .config.
-(That config option really needs to tighten up what it does in
- its EDID parser, see http://www.cs.helsinki.fi/linux/linux-kernel/2003-20/0572.html
- which still isn't fixed...)
+Ah, but as the fraction approaches 1, you'll find that you are
+asymptotically approaching the point where you can't handle the load
+_regardless_ of epoll overhead.
 
-		Dave
+> 	By the way, I'm not arguing against epoll. I believe it will use less
+> resources than poll in pretty much every conceivable situation. I simply
+> take issue with the argument that it has better ultimate scalability or
+> scales at a different order.
+
+It scales according to the amount of work pending, which means that it
+doesn't take any _more_ time than actually doing the pending work.
+(This assumes you use epoll appropriately; there are many ways to use
+epoll which don't have this property).
+
+That was always the complaint about select() and poll(): they dominate
+the run time for large numbers of connections.  epoll, on the other
+hand, will always be in the noise relative to other work.
+
+If you want a formula for slides :), time_polling/time_working is O(1)
+with epoll, but O(N) with poll() & select().
+
+-- Jamie

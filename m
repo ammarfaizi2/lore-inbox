@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbTCTV7r>; Thu, 20 Mar 2003 16:59:47 -0500
+	id <S262637AbTCTV4x>; Thu, 20 Mar 2003 16:56:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262657AbTCTV7q>; Thu, 20 Mar 2003 16:59:46 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:55779 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262648AbTCTV65>; Thu, 20 Mar 2003 16:58:57 -0500
-Message-ID: <004c01c2ef2d$77fd7020$fe78a8c0@a>
-From: Andreas.Fey@t-online.de (Andreas Fey)
-To: <linux-kernel@vger.kernel.org>
-Subject: Using modules to avoid the need of a reboot during development
-Date: Thu, 20 Mar 2003 23:09:58 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S262643AbTCTV4x>; Thu, 20 Mar 2003 16:56:53 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:49792 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S262637AbTCTV4w>;
+	Thu, 20 Mar 2003 16:56:52 -0500
+Date: Thu, 20 Mar 2003 14:06:51 -0800
+From: Bob Miller <rem@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-sh@m17n.org, gniibe@m17n.org,
+       kkojima@rr.iij4u.or.jp
+Subject: Re: [PATCH] reduce stack usage in arch/sh/kernel/pci-sh7751
+Message-ID: <20030320220651.GB16501@doc.pdx.osdl.net>
+References: <20030320120833.2ddbfcc1.rddunlap@osdl.org> <20030320215910.GA16501@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030320215910.GA16501@doc.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 20, 2003 at 01:59:11PM -0800, Bob Miller wrote:
+> On Thu, Mar 20, 2003 at 12:08:33PM -0800, Randy.Dunlap wrote:
+> > +
+> > +	bus = kmalloc(sizeof(*bus), GFP_ATOMIC);
+> > +	dev = kmalloc(sizeof(*dev), GFP_ATOMIC);
+> > +	if (!bus || !dev) {
+> > +		printk(KERN_ERR "Out of memory in %s\n", __FUNCTION__);
+> > +		goto exit;
+> > +	}
+> > +
+> If the kmalloc() for bus succeeds but for dev fails this will leak the
+> memory given to bus.
+> 
+That's a goto, not a return... Never mind.
 
-I want to add a custom routine to the tcp-code in the kernel 2.4.18.
-Unfortunately I have to reboot the machine everytime I have made changes to
-the kernel.
-So my question is: Can I avoid the need of a reboot using a selfmade kernel
-module ?
-
-In tcp.c I want to call a dummy function. And when I insert the module it
-should intercept the dummy function so that the code in the module is
-executed instead of the function  in tcp.c. This would be great because all
-the things I have to do is compiling and reinserting the module everytime I
-have changed something in the code.
-
-Can this be done in the 2.4 kernel ? Is this the right way to safe time
-during kernel development or is there an easier way ?
-
-Thank You, Andy.
-
-
-
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131063AbRC3H3w>; Fri, 30 Mar 2001 02:29:52 -0500
+	id <S131194AbRC3IcH>; Fri, 30 Mar 2001 03:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131158AbRC3H3m>; Fri, 30 Mar 2001 02:29:42 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:64526 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131063AbRC3H3d>;
-	Fri, 30 Mar 2001 02:29:33 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Chris Funderburg" <chris@directcommunications.net>
-cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>,
-   "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: memcpy in 2.2.19 
-In-Reply-To: Your message of "Fri, 30 Mar 2001 08:04:17 +0100."
-             <CHEEIAEEAIFDOCGJIAKPOEDCCJAA.chris@directcommunications.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 29 Mar 2001 23:28:37 -0800
-Message-ID: <7717.985937317@ocs3.ocs-net>
+	id <S131206AbRC3Ib5>; Fri, 30 Mar 2001 03:31:57 -0500
+Received: from xerxes.thphy.uni-duesseldorf.de ([134.99.64.10]:63739 "EHLO
+	xerxes.thphy.uni-duesseldorf.de") by vger.kernel.org with ESMTP
+	id <S131194AbRC3Ibo>; Fri, 30 Mar 2001 03:31:44 -0500
+Date: Fri, 30 Mar 2001 10:31:01 +0200 (CEST)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: hugang <linuxhappy@etang.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [ISDN-ERR]
+In-Reply-To: <20010330100323.791a25c8.linuxhappy@etang.com>
+Message-ID: <Pine.LNX.4.10.10103301027550.19330-100000@chaos.thphy.uni-duesseldorf.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Mar 2001 08:04:17 +0100, 
-"Chris Funderburg" <chris@directcommunications.net> wrote:
->drivers/scsi/scsi.a(aic7xxx.o): In function `aic7xxx_load_seeprom':
->aic7xxx.o(.text+0x116bf): undefined reference to `memcpy'
 
-Under some circumstances gcc will generate an internal call to
-memcpy().  Alas this bypasses the pre-processor so memcpy is not
-converted to the kernel's internal memcpy code.  The cause is normally
-a structure assignment, probably this line.
+On Fri, 30 Mar 2001, hugang wrote:
 
-  struct seeprom_config *sc = (struct seeprom_config *) scarray;
+> Hello all:
+> 	
+> ---------------------------------------
+> OPEN: 10.0.0.2 -> 202.99.16.1 UDP, port: 1024 -> 53
+> ippp0: dialing 1 86310163...
+> isdn: HiSax,ch0 cause: E001B			<--- error !!
+> isdn_net: local hangup ippp0
+> ippp0: Chargesum is 0
+> ---------------------------------------
 
-Try this replacement
+E001B is an ISDN cause (see "man isdn_cause") it means
+Location: (00) local
+Cause:    (1B) Destination out of order
 
-  struct seeprom_config *sc;
-  memcpy(sc, scarray, sizeof(*sc));
+which most likely indicates a cabling problem on your ISDN line. If you
+need further assistance, contact me privately or ask on
+isdn4linux@listserv.isdn4linux.de, people on l-k don't really care.
 
-The other possibility I can see is
+--Kai
 
-    p->sc = *sc;
-
-try
-
-    memcpy(&(p->sc), sc, sizeof(*sc));
 

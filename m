@@ -1,131 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUEJXDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbUEJXIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUEJXDE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUEJXAv
+	id S262954AbUEJXIb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUEJXHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:00:51 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:34999 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261880AbUEJW7g convert rfc822-to-8bit (ORCPT
+	Mon, 10 May 2004 19:07:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42693 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262961AbUEJXFe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:59:36 -0400
-Subject: [BK PATCH] SCSI updates for 2.6.6
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 10 May 2004 17:59:31 -0500
-Message-Id: <1084229974.1763.512.camel@mulgrave>
+	Mon, 10 May 2004 19:05:34 -0400
+Date: Mon, 10 May 2004 16:07:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: alexeyk@mysql.com, nickpiggin@yahoo.com.au, peter@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Random file I/O regressions in 2.6
+Message-Id: <20040510160740.5db8c62c.akpm@osdl.org>
+In-Reply-To: <1084228767.6140.832.camel@localhost.localdomain>
+References: <200405022357.59415.alexeyk@mysql.com>
+	<200405050301.32355.alexeyk@mysql.com>
+	<20040504162037.6deccda4.akpm@osdl.org>
+	<200405060204.51591.alexeyk@mysql.com>
+	<20040506014307.1a97d23b.akpm@osdl.org>
+	<1084218659.6140.459.camel@localhost.localdomain>
+	<20040510132151.238b8d0c.akpm@osdl.org>
+	<1084228767.6140.832.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the latest set of assorted fixes, plus one new driver: the IBM
-Power Raid (ipr).
+Ram Pai <linuxram@us.ibm.com> wrote:
+>
+> I am nervous about this change. You are totally getting rid of
+> lazy-readahead and that was the optimization which gave the best
+> possible boost in performance. 
 
-The patch can be pulled from:
+Because it disabled the large readahead outside the area which the app is
+reading.  But it's still reading too much.
 
-bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
+> Let me see how this patch does with a DSS benchmark.
 
-The short changelog is:
+That was not a real patch.  More work is surely needed to get that right.
 
-<aradford:amcc.com>:
-  o 3ware driver update
+> In the normal large random workload this extra page would have
+> compesated for all the wasted readaheads.
 
-<noodles:earth.li>:
-  o Initio INI-9X00U/UW error handling in 2.6
+I disagree that 64k is "normal"!
 
-<praka:users.sourceforge.net>:
-  o qla2xxx set current state fixes
+>  However in the case of
+> sysbench with Andrew's ra-copy patch the readahead calculation is not
+> happening quiet right. Is it worth trying to get a marginal gain 
+> with sysbench at the cost of getting a big hit on DSS benchmarks,
+> aio-tests,iozone and probably others. Or am I making an unsubstantiated
+> claim? I will get back with results.
 
-Alan Stern:
-  o (as255) Handle Unit Attention during INQUIRY better
+It shouldn't hurt at all - the app does a seek, we perform the
+correctly-sized read.
 
-Andrew Morton:
-  o aic7xxx deadlock fix
-  o scsi_disk_release() warning fix
-
-Andrew Vasquez:
-  o qla2100 fabric fixes
-  o [15/15] qla2xxx: Update driver version
-  o [14/15] qla2xxx: Resync with latest released firmware -- 3.02.28
-  o [13/15] qla2xxx: Misc. code scrubbing
-  o [12/15] qla2xxx: RIO/ZIO fixes
-  o [11/15] qla2xxx: /proc fixes
-  o [10/15] qla2xxx: Use readX_relaxed
-  o [9/15]  qla2xxx: Tape command handling fixes
-  o [8/15]  qla2xxx: Volatile topology fixes
-  o [7/15]  qla2xxx: Firmware options fixes
-  o [6/15]  qla2xxx: LoopID downcast fix
-  o [5/15]  qla2xxx: Debug messages during ISP abort
-  o [4/15]  qla2xxx: PortID binding fixes
-  o [3/15]  qla2xxx: 2100 request-q contraints
-  o [2/15]  qla2xxx: Remove flash routines
-  o [1/15]  qla2xxx: Firmware dump fixes
-
-Aristeu Sergio Rozanski Filho:
-  o qlogic_cs: use qlogicfas408 module
-  o qlogicfas: split and create a new module
-  o qlogicfas: kill horrible irq probing
-
-Bob Tracy:
-  o sym53c500_cs remove irq,ioport scsi attributes
-  o sym53c500_cs PCMCIA SCSI driver (round 5)
-
-Brian King:
-  o Add IBM power RAID driver 2.0.6
-  o Make SCSI timeout modifiable
-
-Chris Wright:
-  o Update aacraid MAINTAINERS entry
-
-Christoph Hellwig:
-  o mca_53c9x needs CONFIG_MCA_LEGACY
-  o missing pci_set_master in megaraid
-  o imm/ppa style police
-
-Eric Dean Moore:
-  o MPT Fusion driver 3.01.06 update
-  o MPT Fusion add back FC909 support
-
-Herbert Xu:
-  o aic7xxx: fix oops whe hardware is not present
-
-James Bottomley:
-  o fix LLD module refcounting in sr.c
-  o Add SCSI IPR PCI Ids to pci_ids.h
-  o Fix errors in [PATCH] aic7xxx: fix oops whe hardware is not present
-  o Cset exclude: jejb@mulgrave.(none)|ChangeSet|20040404150128|05866
-  o aic7xxx: compile fix for EISA only case
-
-Jeremy Higdon:
-  o minor changes to qla1280 driver
-
-Kai Mäkisara:
-  o SCSI tape log message fixes
-
-Kurt Garloff:
-  o scsi: don't attach device if PQ indicates not connected
-
-Mark Haverkamp:
-  o aacraid reset handler fix
-
-Michael Veeck:
-  o (3/5) ncr53c8x: use kernel.h min/max
-  o (4/5) nsp32 (ninja): use kernel.h min/max/ARRAY_SIZE
-  o (2/5) aic7xyz_old: use kernel.h min/max/ARRAY_SIZE
-  o (5/5) pcmcia/nsp: use kernel.h min/max/ARRAY_SIZE
-
-Mike Anderson:
-  o fix module unload problem in sd
-
-Pavel Machek:
-  o support swsusp for aic7xxx
-
-James
-
+As I say, my main concern is that we correctly transition from seeky access
+to linear access and resume readahead.
 

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbTIRLWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 07:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbTIRLWh
+	id S261176AbTIRLgp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 07:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbTIRLfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 07:22:37 -0400
-Received: from dspnet.fr.eu.org ([62.73.5.179]:62987 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S261156AbTIRLWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 07:22:35 -0400
-Date: Thu, 18 Sep 2003 13:22:34 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: marcelo.tosatti@cyclades.com.br, pavel@ucw.cz, alan@lxorguk.ukuu.org.uk,
-       neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-ID: <20030918112234.GA81495@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	marcelo.tosatti@cyclades.com.br, pavel@ucw.cz,
-	alan@lxorguk.ukuu.org.uk, neilb@cse.unsw.edu.au,
-	linux-kernel@vger.kernel.org
-References: <20030916195345.GB68728@dspnet.fr.eu.org> <Pine.LNX.4.44.0309161814410.15569-100000@logos.cnet> <20030916212301.GC17045@m23.limsi.fr> <20030917131407.17f767a3.skraw@ithnet.com> <20030917130818.GA3144@m23.limsi.fr> <20030918095845.GA77609@dspnet.fr.eu.org> <20030918121327.5739b467.skraw@ithnet.com>
+	Thu, 18 Sep 2003 07:35:36 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:65257 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261176AbTIRLfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 07:35:14 -0400
+Date: Wed, 17 Sep 2003 21:41:53 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
+Subject: Re: laptop mode for 2.4.23-pre4 and up
+Message-ID: <20030917194152.GD9125@openzaurus.ucw.cz>
+References: <20030913103014.GA7535@gamma.logic.tuwien.ac.at> <20030914152755.GA27105@suse.de> <20030915093221.GE2268@gamma.logic.tuwien.ac.at> <20030917075432.GG906@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030918121327.5739b467.skraw@ithnet.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030917075432.GG906@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 18, 2003 at 12:13:27PM +0200, Stephan von Krawczynski wrote:
-> Fine. So we seem to agree 2.4.23 will be another big hit in the 2.4 line :-)
+Hi!
 
-Indeed, it's working beautifully.
+> +So what does the laptop mode patch do? It attempts to fully utilize the
+> +hard drive once it has been spun up, flushing the old dirty data out to
+> +disk. Instead of flushing just the expired data, it will clean everything.
+> +When a read causes the disk to spin up, we kick off this flushing after
+> +a few seconds. This means that once the disk spins down again, everything
+> +is up to date. That allows longer dirty data and journal expire times.
 
+Another nice touch would be to sync just before spinning down.
+noflushd does that... of course it needs software-controlled
+spindowns.
 
-> > Now if only the CPU enumeration worked and both CPUs were detected...
-> 
-> Hm, I have not yet seen any configuration where multiple CPUs are not detected.
-> Are you sure you have compiled in SMP support? What does dmesg look like?
-
-I found the problem.  The meaning of the option "number of supported
-CPUs" is not what is expected.  It is not fixing the maximum number of
-CPUs, but the number of the last CPU checked for.  Specifically, in
-our system the CPUs are numbered 0 and 6.  Setting the MNCPU to 2
-prevents the second CPU to be taken into account.
-
-  OG.
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

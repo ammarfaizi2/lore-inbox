@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266110AbUAVArx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 19:47:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266132AbUAVArx
+	id S266164AbUAVAjI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 19:39:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266167AbUAVAjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 19:47:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45449 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266110AbUAVArw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 19:47:52 -0500
-Date: Wed, 21 Jan 2004 16:43:34 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: cieciwa@alpha.zarz.agh.edu.pl, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1 + cset-20040120_0206] AHA152X building error
-Message-Id: <20040121164334.68ce12e0.rddunlap@osdl.org>
-In-Reply-To: <200401220125.00864.arekm@pld-linux.org>
-References: <Pine.LNX.4.58L.0401201043380.3210@alpha.zarz.agh.edu.pl>
-	<20040121155501.4defb5b2.rddunlap@osdl.org>
-	<200401220125.00864.arekm@pld-linux.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 21 Jan 2004 19:39:08 -0500
+Received: from ms-smtp-03-smtplb.ohiordc.rr.com ([65.24.5.137]:53700 "EHLO
+	ms-smtp-03-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S266164AbUAVAjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 19:39:06 -0500
+From: Rob Couto <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Date: Wed, 21 Jan 2004 19:38:58 -0500
+User-Agent: KMail/1.5.4
+References: <200401221012.17121.chakkerz@optusnet.com.au> <200401221105.12148.chakkerz@optusnet.com.au> <200401211824.10470.paul@misner.org>
+In-Reply-To: <200401211824.10470.paul@misner.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401211938.58112.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jan 2004 01:25:00 +0100 Arkadiusz Miskiewicz <arekm@pld-linux.org> wrote:
+On Wednesday 21 January 2004 19:24, Paul Misner wrote:
+> On Wednesday 21 January 2004 06:05 pm, Christian Unger wrote:
+> > About module-init-tools ... dunno ... never heard of it, I'm on Slackware
+> > 9.1 so ... dunno ... Not sure. But like you say, if i could not initalize
+> > modules the nvidia module should be the least of my worries, plus
+> > everything loads in 2.4.22
 
-| Dnia czw 22. stycznia 2004 00:55, Randy.Dunlap napisa³:
-| 
-| > |   LD [M]  drivers/scsi/pcmcia/aha152x_cs.o
-| > |
-| > | drivers/scsi/pcmcia/aha152x_core.o(.init.text+0x0): In function 
-| `init_module':
-| > | : multiple definition of `init_module'
-| > |
-| > | drivers/scsi/pcmcia/aha152x_stub.o(.init.text+0x0): first defined here
-| > | ld: Warning: size of symbol `init_module' changed from 22 in
-| > | drivers/scsi/pcmcia/aha152x_stub.o to 1212 in
-| > | drivers/scsi/pcmcia/aha152x_core.o
-| [...]
-| >
-| > Are you sure that this is on 2.6.1 + changes?
-| > I couldn't reproduce it there.
-| It was broken here
-| http://linus.bkbits.net:8080/linux-2.5/cset@1.1474.93.7?nav=index.html|
-| ChangeSet@-3w
-| 
-| and fixed here
-| http://linus.bkbits.net:8080/linux-2.5/cset@1.1474.115.2?nav=index.html|
-| ChangeSet@-3w
-| 
-| > We do have this same problem in 2.4.25-preN.
-| Any fix on that since source of problem is already known?
+Slackware 9.1 comes with module-init-tools in anticipation of 2.6. did you run 
+a full install or select by hand?
 
-No patch yet AFAIK.
-
+-- 
+Rob Couto
+rpc@cafe4111.org
+Rules for computing success:
+1) Attitude is no substitute for competence.
+2) Ease of use is no substitute for power.
+3) Safety matters; use a static-free hammer.
 --
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/

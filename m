@@ -1,40 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbUKLHI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbUKLHPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbUKLHI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 02:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbUKLHI1
+	id S261968AbUKLHPR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 02:15:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbUKLHPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 02:08:27 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:23785 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262474AbUKLHIU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 02:08:20 -0500
-Subject: Re: 2.6.10-rc1-mm5: REISER4_LARGE_KEY is still selectable
-From: Vladimir Saveliev <vs@namesys.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041111165045.GA2265@stusta.de>
-References: <20041111012333.1b529478.akpm@osdl.org>
-	 <20041111165045.GA2265@stusta.de>
-Content-Type: text/plain
-Message-Id: <1100243278.1490.42.camel@tribesman.namesys.com>
+	Fri, 12 Nov 2004 02:15:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47819 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261968AbUKLHPG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 02:15:06 -0500
+Date: Thu, 11 Nov 2004 23:15:02 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Florian Heinz <heinz@cronon-ag.de>, linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@osdl.org>
+Subject: Re: a.out issue
+Message-ID: <20041111231502.M2357@build.pdx.osdl.net>
+References: <20041111220906.GA1670@dereference.de> <20041111192727.R14339@build.pdx.osdl.net> <20041112035112.GA2075@kurtwerks.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 12 Nov 2004 10:07:59 +0300
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041112035112.GA2075@kurtwerks.com>; from kwall@kurtwerks.com on Thu, Nov 11, 2004 at 10:51:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-
-On Thu, 2004-11-11 at 19:50, Adrian Bunk wrote:
-> REISER4_LARGE_KEY is still selectable in reiser4-include-reiser4.patch 
-> (and we agreed that it shouldn't be).
+* Kurt Wall (kwall@kurtwerks.com) wrote:
+> On Thu, Nov 11, 2004 at 07:27:27PM -0800, Chris Wright took 39 lines to write:
+> > * Florian Heinz (heinz@cronon-ag.de) wrote:
+> > > seems like find_vma_prepare does not what insert_vm_struct expects when
+> > > the whole addresspace is occupied.
+> > 
+> > The setup_arg_pages() is inserting an overlapping region.  If nothing
+> > else, this will fix that problem.   Perhaps there's a better solution.
 > 
+> It solves the oops here (I didn't get the oops at first because I didn't
+> have CONFIG_BINFMT_AOUT set).
 
-Sorry, concerning this problem - what did we agree about?
+Heh, you're better off with it config'd off ;-)
 
-> cu
-> Adrian
+> Sort of. Now I just get "Killed" with
+> vm.overcommit_memory set to 1; with it set to 0 I get a seg fault.
 
+Yeah, it should generate a SIGKILL and terminate the program.  Thanks for
+testing.  The patch below should fixup that segfault as well.
+
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+
+===== fs/binfmt_aout.c 1.25 vs edited =====
+--- 1.25/fs/binfmt_aout.c	2004-10-18 22:26:36 -07:00
++++ edited/fs/binfmt_aout.c	2004-11-11 22:28:58 -08:00
+@@ -43,13 +43,18 @@
+ 	.min_coredump	= PAGE_SIZE
+ };
+ 
+-static void set_brk(unsigned long start, unsigned long end)
++#define BAD_ADDR(x)	((unsigned long)(x) >= TASK_SIZE)
++
++static int set_brk(unsigned long start, unsigned long end)
+ {
+ 	start = PAGE_ALIGN(start);
+ 	end = PAGE_ALIGN(end);
+-	if (end <= start)
+-		return;
+-	do_brk(start, end - start);
++	if (end > start) {
++		unsigned long addr = do_brk(start, end - start);
++		if (BAD_ADDR(addr))
++			return addr;
++	}
++	return 0;
+ }
+ 
+ /*
+@@ -413,7 +418,11 @@
+ beyond_if:
+ 	set_binfmt(&aout_format);
+ 
+-	set_brk(current->mm->start_brk, current->mm->brk);
++	retval = set_brk(current->mm->start_brk, current->mm->brk);
++	if (retval < 0) {
++		send_sig(SIGKILL, current, 0);
++		return retval;
++	}
+ 
+ 	retval = setup_arg_pages(bprm, EXSTACK_DEFAULT);
+ 	if (retval < 0) { 

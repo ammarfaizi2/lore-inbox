@@ -1,77 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbTA0Vqr>; Mon, 27 Jan 2003 16:46:47 -0500
+	id <S263321AbTA0Vre>; Mon, 27 Jan 2003 16:47:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbTA0Vqr>; Mon, 27 Jan 2003 16:46:47 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:34437 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263246AbTA0Vqp>;
-	Mon, 27 Jan 2003 16:46:45 -0500
-Date: Mon, 27 Jan 2003 22:52:43 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Dell Latitude CPi keyboard problems since 2.5.42
-Message-ID: <20030127225243.A25892@ucw.cz>
-References: <200301272057.VAA13114@harpo.it.uu.se>
-Mime-Version: 1.0
+	id <S263491AbTA0Vre>; Mon, 27 Jan 2003 16:47:34 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:22974 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263321AbTA0Vr3>;
+	Mon, 27 Jan 2003 16:47:29 -0500
+Message-ID: <3E35AAE4.10204@us.ibm.com>
+Date: Mon, 27 Jan 2003 13:55:48 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: kexec reboot code buffer
+References: <3E31AC58.2020802@us.ibm.com> <m1znppco1w.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200301272057.VAA13114@harpo.it.uu.se>; from mikpe@csd.uu.se on Mon, Jan 27, 2003 at 09:57:43PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 09:57:43PM +0100, Mikael Pettersson wrote:
-> On Mon, 27 Jan 2003 13:34:32 +0100, Vojtech Pavlik wrote:
-> >> Either removing the SSCANSET from atkbd_cleanup(), or changing
-> >> atkbd->oldset from 22 to 2, solves my CPi's keyboard problems.
-> >
-> >Can you try with the attached atkbd.c? It uses RESET_BAT instead of
-> >SSCANSET, which will slow down the reboot a bit, but should be very safe
-> >to bring the keyboard to its power-on state, which the BIOS should be
-> >able to handle.
+Eric W. Biederman wrote:
+> Dave Hansen <haveblue@us.ibm.com> writes:
+>>On my system, it appears to lock up in:
+>>kimage_alloc_reboot_code_pages()
+>>after the kexec -l.
 > 
-> I tried it, and the change to use RESET_BAT in atkbd_cleanup()
-> works fine. Tested on my Dell Latitiude CPi and four desktop
-> boxes of various vintages. No new problems. A reboot takes maybe
-> 1/10 of a second longer, but I don't care.
 > 
-> However, your version of atkbd.c caused a linkage error due to a
-> reference to input_regs() in atkbd_interrupt(). I extracted
-> just the changes to atkbd_cleanup() and atkbd_command(), but that
-> left me with a dead keyboard on the first test box. In the end
-> I kept only the atkbd_cleanup() change and the increased timeout
-> for RESET_BAT in atkbd_command() [see below].
+> O.k. It should come out of it eventually from what I have
+> seen described, the current algorithm is definitely inefficient on
+> your machine.
 
-Good. I'll do more tests here and find the problem which left you
-without the keyboard - the current atkbd.c I sent you is fairly
-untested.
+It does appear to completely hang in the free loop.  Something funny is
+happening there.  I'll try to provide more details later.  BTW, do you
+mind updating your patches for 2.5.59?  I'm having some other problems
+and I want to make sure it isn't my bad merging that's at fault :)
 
-> 
-> /Mikael
-> 
-> --- linux-2.5.59/drivers/input/keyboard/atkbd.c.~1~	2002-11-23 17:59:41.000000000 +0100
-> +++ linux-2.5.59/drivers/input/keyboard/atkbd.c	2003-01-27 19:54:30.000000000 +0100
-> @@ -233,6 +233,9 @@
->  	int i;
->  
->  	atkbd->cmdcnt = receive;
-> +
-> +	if (command == ATKBD_CMD_RESET_BAT)
-> +		timeout = 200000; /* 2 sec */
->  	
->  	if (command & 0xff)
->  		if (atkbd_sendbyte(atkbd, command & 0xff))
-> @@ -442,7 +445,7 @@
->  static void atkbd_cleanup(struct serio *serio)
->  {
->  	struct atkbd *atkbd = serio->private;
-> -	atkbd_command(atkbd, &atkbd->oldset, ATKBD_CMD_SSCANSET);
-> +	atkbd_command(atkbd, NULL, ATKBD_CMD_RESET_BAT);
->  }
->  
->  /*
+> And being able to allocate from 3GB instead of just 1GB is
+> much more polite.  The question then is how do I specify the zones
+> properly.
 
+Actually, I think that using lowmem is OK.  The machine is going away
+soon anyway, and the necessary memory is a very small portion,
+especially on a machine with this much RAM.
+
+>>What you want is RAM with physical addresses <3GB, right?
+> 
+> In this case, and then later I want to allocate from physical
+> addresses < 4GB.  The rest of the allocations will suffer
+> from the same problem on the NUMA-Q.
+> 
+> The problem is that I have not figured out how to tell the memory
+> allocator just what I need, 
+<snip>
+> I guess I would make the standard zones something like:
+> /*
+>  * ZONE_DMA	  < 16 MB	ISA DMA capable memory
+>  * ZONE_NORMAL  16-896 MB	direct mapped by the kernel
+>  * ZONE_PHYSMEM 896-4096 MB	memory that is accessible with the
+>                               MMU disabled.
+>  * ZONE_HIGHMEM > 4096MB      only page cache and user processes
+>  */
+
+I think this might be overkill.  ZONE_NORMAL gives you what you want,
+and I don't think it's worth it to introduce a new one just for the
+relatively short timespan where you have the new kernel loaded, but
+haven't actually shut down.  I think a little comment next to the
+allocation explaining this will be more than enough.
+
+Martin, any ideas?
 -- 
-Vojtech Pavlik
-SuSE Labs
+Dave Hansen
+haveblue@us.ibm.com
+

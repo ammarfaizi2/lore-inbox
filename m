@@ -1,914 +1,221 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316957AbSILSXn>; Thu, 12 Sep 2002 14:23:43 -0400
+	id <S316897AbSILS1U>; Thu, 12 Sep 2002 14:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316935AbSILSXm>; Thu, 12 Sep 2002 14:23:42 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:55526 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316898AbSILSXJ>;
-	Thu, 12 Sep 2002 14:23:09 -0400
-Message-ID: <3D80DB14.2040809@watson.ibm.com>
-Date: Thu, 12 Sep 2002 14:21:08 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Aio <linux-aio@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Ben <bcrl@redhat.com>
-Subject: [PATCH] 2.5 port of aio-20020619 for raw devices
-Content-Type: multipart/mixed;
- boundary="------------050903060105090308050609"
+	id <S316898AbSILS1T>; Thu, 12 Sep 2002 14:27:19 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:30038 "EHLO tsmtp7.mail.isp")
+	by vger.kernel.org with ESMTP id <S316897AbSILS1N>;
+	Thu, 12 Sep 2002 14:27:13 -0400
+Date: Thu, 12 Sep 2002 20:32:30 +0200
+From: Arador <diegocg@teleline.es>
+To: Oleg Drokin <green@namesys.com>
+Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK] ReiserFS changesets for 2.4 (performs writes more than 4k at a time)
+Message-Id: <20020912203231.70621a75.diegocg@teleline.es>
+In-Reply-To: <20020912111029.A4997@namesys.com>
+References: <20020910190950.A1064@namesys.com>
+	<Pine.LNX.4.44.0209101504590.16518-100000@freak.distro.conectiva>
+	<20020911193024.24fb7514.diegocg@teleline.es>
+	<20020912111029.A4997@namesys.com>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050903060105090308050609
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 12 Sep 2002 11:10:29 +0400
+Oleg Drokin <green@namesys.com> escribió:
 
-I just did a rough port of the raw device part of the aio-20020619.diff
-over to 2.5.32 using the 2.5 aio API published so far. The changeset
-comments are below. The patch hasn't been tested. Its only guaranteed
-to compile.
+> 
+> What kind of hardware were these tests on?
 
-I'd like to reiterate that this is not a fork of aio kernel code
-development or any attempt to question Ben's role as maintainer ! This
-was only an exercise in porting to enable a comparison of the older
-(2.4) approach with whatever's coming soon.
+The sis ide chipset can do multiword dma 2, (16 mb/s i think)
+A seagate barracuda 40 GB 7200 rpm UDMA 100
+32 mb ram and a cyrix 6x86 MX 233+ (200 mhz)
 
-Comments are invited on all aspects of the design and implementation.
+> 
+> Can you please conduct one more test with line 212 in fs/reiserfs/file.c
+> changed:
+> hint.preallocate = 0;
+> change 0 there to 1
 
-- Shailabh
+Sure ;)
 
+I've run two tests per kernel version, (-pre5 and -pre6 + that tweak)
+I can do more tests if you want ;)
 
+Unit information
+================
+File size = megabytes
+Blk Size  = bytes
+Rate      = megabytes per second
+CPU%      = percentage of CPU used during the test
+Latency   = milliseconds
+Lat%      = percent of requests that took longer than X seconds
+CPU Eff   = Rate divided by CPU% - throughput per cpu load
 
-# This changeset provides a partial port of Ben LaHaise's asynchronous
-# I/O patch for 2.4 kernel to 2.5. The port conforms to the aio API
-# included in 2.5.32 and uses the design, data structures and functions
-# of the aio-20020619.diff.txt patch.
-# What this patch does
-# - implements aio read/write for raw devices
-# - provides the kvec data structure and helper functions
-# - conforms to the kiocb data structure provided in the 2.5.32 aio API
-# What this patch doesn't do
-# - support read/write for regular files (including those opened with
-# O_DIRECT), pipes, sockets.
-# - use the dio related functions providing O_DIRECT support.
-# - change any of the synchronous read/write functions.
-# - allow large transfers (> 128 KB) which were done in 2.4 using the
-# generic_aio_next_chunk function and kiocb->u task queue.
-#
-# The intent of providing this patch is to allow a performance
-# comparison of the aio design provided in 2.4 with any forthcoming
-# design in 2.5. Hopefully it will lead to an estimate of the
-# performance impact of keeping the async and sync I/O paths separate.
-# To have a fair comparison, its probably necessary for this code to
-# use bios directly rather than buffer heads, allow large I/O's etc.
-# The comparison will also be more complete if the missing 2.4
-# functionality (regular files, pipes....) is ported over too.
-#
-# It is NOT intended to fork aio kernel code development or to suggest
-# an alternate design for 2.5 aio kernel support.
-#
-# Comments, suggestion for changes welcome.
-#
-# - Shailabh Nagar (nagar@watson.ibm.com)
+The two 2.4.20-pre5 benchs
 
+================================================= 2.4.20-pre5 =====================================================
 
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1   12.12 26.54%     0.319      187.11   0.00000  0.00000    46
+2.4.20-pre5                   200   4096    2   10.46 27.03%     0.735     1425.90   0.00000  0.00000    39
+2.4.20-pre5                   200   4096    4    9.77 21.92%     1.361     1201.57   0.00000  0.00000    45
+2.4.20-pre5                   200   4096    8    8.84 20.69%     2.750     2648.61   0.00195  0.00000    43
 
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1    0.54 2.590%     7.219       20.03   0.00000  0.00000    21
+2.4.20-pre5                   200   4096    2    0.56 2.395%    13.948       39.78   0.00000  0.00000    23
+2.4.20-pre5                   200   4096    4    0.54 2.494%    27.794      100.76   0.00000  0.00000    22
+2.4.20-pre5                   200   4096    8    0.60 2.809%    50.116      160.74   0.00000  0.00000    21
 
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1   11.86 87.89%     0.314      265.36   0.00000  0.00000    13
+2.4.20-pre5                   200   4096    2   11.91 88.60%     0.616      504.35   0.00000  0.00000    13
+2.4.20-pre5                   200   4096    4   12.06 89.30%     1.224      280.16   0.00000  0.00000    14
+2.4.20-pre5                   200   4096    8   11.84 88.50%     2.466      432.46   0.00000  0.00000    13
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1    1.14 4.236%     0.244      429.52   0.00000  0.00000    27
+2.4.20-pre5                   200   4096    2    1.13 4.060%     0.255       24.09   0.00000  0.00000    28
+2.4.20-pre5                   200   4096    4    1.15 3.668%     0.476       49.99   0.00000  0.00000    31
+2.4.20-pre5                   200   4096    8    1.16 4.098%     0.935       81.35   0.00000  0.00000    28
 
 
+----------> The second becnh for -pre5....
+
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1   12.22 29.07%     0.316       28.21   0.00000  0.00000    42
+2.4.20-pre5                   200   4096    2   10.86 25.96%     0.700     1049.20   0.00000  0.00000    42
+2.4.20-pre5                   200   4096    4   10.00 24.79%     1.463     1144.01   0.00000  0.00000    40
+2.4.20-pre5                   200   4096    8    8.70 20.44%     2.992     2106.78   0.00195  0.00000    43
+
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1    0.55 3.295%     7.026       20.05   0.00000  0.00000    17
+2.4.20-pre5                   200   4096    2    0.55 2.327%    13.977       40.04   0.00000  0.00000    24
+2.4.20-pre5                   200   4096    4    0.54 3.095%    28.571       90.03   0.00000  0.00000    17
+2.4.20-pre5                   200   4096    8    0.61 2.610%    48.261      150.45   0.00000  0.00000    23
+
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1   11.96 85.87%     0.313      340.07   0.00000  0.00000    14
+2.4.20-pre5                   200   4096    2   12.13 86.45%     0.612      279.22   0.00000  0.00000    14
+2.4.20-pre5                   200   4096    4   11.61 85.42%     1.229      356.53   0.00000  0.00000    14
+2.4.20-pre5                   200   4096    8   11.97 87.52%     2.421      616.12   0.00000  0.00000    14
+
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre5                   200   4096    1    1.18 3.463%     0.128        0.87   0.00000  0.00000    34
+2.4.20-pre5                   200   4096    2    1.15 3.755%     0.244       22.89   0.00000  0.00000    31
+2.4.20-pre5                   200   4096    4    1.15 3.976%     0.456       44.42   0.00000  0.00000    29
+2.4.20-pre5                   200   4096    8    1.16 3.771%     0.879      102.81   0.00000  0.00000    31
 
 
---------------050903060105090308050609
-Content-Type: text/plain;
- name="24aioport-020911.changeset.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="24aioport-020911.changeset.txt"
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux Kernel 2.5
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.2     -> 1.4    
-#	 include/linux/aio.h	1.1     -> 1.3    
-#	            Makefile	1.1     -> 1.2    
-#	         fs/buffer.c	1.1     -> 1.3    
-#	include/linux/types.h	1.1     -> 1.2    
-#	         mm/memory.c	1.1     -> 1.3    
-#	  include/linux/fs.h	1.1     -> 1.3    
-#	            fs/aio.c	1.1     -> 1.3    
-#	  drivers/char/raw.c	1.1     -> 1.3    
-#	               (new)	        -> 1.2     include/linux/kiovec.h
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/11	nagar@elinux04.watson.ibm.com	1.3
-# This changeset provides a partial port of Ben LaHaise's asynchronous 
-# I/O patch for 2.4 kernel to 2.5. The port conforms to the aio API 
-# included in 2.5.32 and uses the design, data structures and functions
-# of the aio-20020619.diff.txt patch. 
-# What this patch does
-# - implements aio read/write for raw devices
-# - provides the kvec data structure and helper functions
-# - conforms to the kiocb data structure provided in the 2.5.32 aio API
-# What this patch doesn't do
-# - support read/write for regular files (including those opened with 
-# O_DIRECT), pipes, sockets. 
-# - use the dio related functions providing O_DIRECT support. 
-# - change any of the synchronous read/write functions. 
-# - allow large transfers (> 128 KB) which were done in 2.4 using the
-# generic_aio_next_chunk function and kiocb->u task queue.
-# 
-# The intent of providing this patch is to allow a performance 
-# comparison of the aio design provided in 2.4 with any forthcoming 
-# design in 2.5. Hopefully it will lead to an estimate of the 
-# performance impact of keeping the async and sync I/O paths separate.
-# To have a fair comparison, its probably necessary for this code to 
-# use bios directly rather than buffer heads, allow large I/O's etc. 
-# The comparison will also be more complete if the missing 2.4 
-# functionality (regular files, pipes....) is ported over too. 
-# 
-# It is NOT intended to fork aio kernel code development or to suggest
-# an alternate design for 2.5 aio kernel support. 
-# 
-# Comments, suggestion for changes welcome.
-# 
-# - Shailabh Nagar (nagar@watson.ibm.com)
-#   
-# --------------------------------------------
-# 02/09/11	nagar@elinux04.watson.ibm.com	1.4
-# compilefixes
-# --------------------------------------------
-#
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Wed Sep 11 14:00:00 2002
-+++ b/Makefile	Wed Sep 11 14:00:00 2002
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 5
- SUBLEVEL = 32
--EXTRAVERSION =
-+EXTRAVERSION = -aioportraw
- 
- # *DOCUMENTATION*
- # Too see a list of typical targets execute "make help"
-diff -Nru a/drivers/char/raw.c b/drivers/char/raw.c
---- a/drivers/char/raw.c	Wed Sep 11 14:00:00 2002
-+++ b/drivers/char/raw.c	Wed Sep 11 14:00:00 2002
-@@ -17,6 +17,7 @@
- #include <linux/capability.h>
- 
- #include <asm/uaccess.h>
-+#include <linux/kiovec.h>
- 
- struct raw_device_data {
- 	struct block_device *binding;
-@@ -238,12 +239,99 @@
- 	return rw_raw_dev(WRITE, filp, (char *)buf, size, offp);
- }
- 
-+
-+int	raw_kvec_rw(struct file *filp, int rw, kvec_cb_t cb, size_t size, loff_t pos)
-+{
-+	int		err;
-+	unsigned	minor;
-+	kdev_t		dev;
-+	unsigned long	limit, blocknr, blocks;
-+
-+	unsigned	sector_size, sector_bits, sector_mask;
-+	unsigned	max_sectors;
-+	unsigned	i;
-+
-+	minor = minor(filp->f_dentry->d_inode->i_rdev);
-+	dev = to_kdev_t(raw_devices[minor].binding->bd_dev);
-+	sector_size = raw_devices[minor].binding->bd_block_size;
-+	sector_bits = blksize_bits(sector_size);
-+	sector_mask = sector_size- 1;
-+	max_sectors = 25000; /* Arbitrarily chosen from 2.4 code */
-+	
-+	if (blk_size[major(dev)])
-+		limit = (((loff_t) blk_size[major(dev)][minor(dev)]) << BLOCK_SIZE_BITS) >> sector_bits;
-+	else
-+		limit = INT_MAX;
-+
-+	/* EOF at the end */
-+	err = 0;
-+	if (!size || (pos >> sector_bits) == limit) {
-+		pr_debug("raw_kvec_rw: %Lu > %lu, %d\n", pos >> sector_bits, limit, sector_bits);
-+		cb.fn(cb.data, cb.vec, err);
-+		return 0;
-+	}
-+
-+	/* ENXIO for io beyond the end */
-+	err = -ENXIO;
-+	if ((pos >> sector_bits) >= limit) {
-+		pr_debug("raw_kvec_rw: %Lu > %lu, %d\n", pos >> sector_bits, limit, sector_bits);
-+		goto out;
-+	}
-+
-+	err = -EINVAL;
-+	if ((pos < 0) || (pos & sector_mask) || (size & sector_mask)) {
-+		pr_debug("pos(%Ld)/size(%lu) wrong(%d)\n", pos, size, sector_mask);
-+		goto out;
-+	}
-+
-+	/* Verify that the scatter-gather list is sector aligned. */
-+	for (i=0; i<cb.vec->nr; i++)
-+		if ((cb.vec->veclet[i].offset & sector_mask) ||
-+		    (cb.vec->veclet[i].length & sector_mask)) {
-+			pr_debug("veclet offset/length wrong");
-+			goto out;
-+		}
-+
-+	blocknr = pos >> sector_bits;
-+	blocks = size >> sector_bits;
-+	if (blocks > max_sectors)
-+		blocks = max_sectors;
-+	if (blocks > limit - blocknr)
-+		blocks = limit - blocknr;
-+	err = -ENXIO;
-+	if (!blocks) {
-+		pr_debug("raw: !blocks %d %ld %ld\n", max_sectors, limit, blocknr);
-+		goto out;
-+	}
-+
-+	err = brw_kvec_async(rw, cb, raw_devices[minor].binding, blocks, blocknr, sector_bits);
-+out:
-+	if (err)
-+		printk(KERN_DEBUG "raw_kvec_rw: ret is %d\n", err);
-+	return err;
-+	
-+
-+}
-+int raw_kvec_read(struct file *file, kvec_cb_t cb, size_t size, loff_t pos)
-+{
-+	return raw_kvec_rw(file, READ, cb, size, pos);
-+}
-+
-+int raw_kvec_write(struct file *file, kvec_cb_t cb, size_t size, loff_t pos)
-+{
-+	return raw_kvec_rw(file, WRITE, cb, size, pos);
-+}
-+
- static struct file_operations raw_fops = {
- 	.read	=	raw_read,
- 	.write	=	raw_write,
- 	.open	=	raw_open,
- 	.release=	raw_release,
- 	.ioctl	=	raw_ioctl,
-+	.aio_read   =	generic_file_aio_read,
-+	.aio_write  =	generic_file_aio_write,
-+	.kvec_read  =   raw_kvec_read,
-+	.kvec_write =   raw_kvec_write,
- 	.owner	=	THIS_MODULE,
- };
- 
-diff -Nru a/fs/aio.c b/fs/aio.c
---- a/fs/aio.c	Wed Sep 11 14:00:00 2002
-+++ b/fs/aio.c	Wed Sep 11 14:00:00 2002
-@@ -44,6 +44,9 @@
- /*------ sysctl variables----*/
- atomic_t aio_nr = ATOMIC_INIT(0);	/* current system wide number of aio requests */
- unsigned aio_max_nr = 0x10000;	/* system wide maximum number of aio requests */
-+unsigned aio_max_size = 0x20000;        /* 128KB per chunk */
-+unsigned aio_max_pinned;                /* set to mem/4 in aio_setup */
-+
- /*----end sysctl variables---*/
- 
- static kmem_cache_t	*kiocb_cachep;
-@@ -58,6 +61,11 @@
- static spinlock_t	fput_lock = SPIN_LOCK_UNLOCKED;
- LIST_HEAD(fput_head);
- 
-+/* forward prototypes */
-+static void generic_aio_complete_read(void *_iocb, struct kvec *vec, ssize_t res);
-+static void generic_aio_complete_write(void *_iocb, struct kvec *vec, ssize_t res);
-+
-+
- /* aio_setup
-  *	Creates the slab caches used by the aio routines, panic on
-  *	failure as this is done early during the boot sequence.
-@@ -74,6 +82,9 @@
- 	if (!kioctx_cachep)
- 		panic("unable to create kioctx cache");
- 
-+	aio_max_pinned = num_physpages/4;
-+
-+	printk(KERN_NOTICE "aio_setup: num_physpages = %u\n", aio_max_pinned);
- 	printk(KERN_NOTICE "aio_setup: sizeof(struct page) = %d\n", (int)sizeof(struct page));
- 
- 	return 0;
-@@ -1110,7 +1121,91 @@
- 	return ret;
- }
- 
-+
-+ssize_t generic_aio_rw(int rw, struct kiocb *req, char *buf, size_t size, loff_t pos)
-+{
-+	int (*kvec_op)(struct file *, kvec_cb_t, size_t, loff_t);
-+	kvec_cb_t cb;
-+	ssize_t res;
-+	struct file *file = req->ki_filp;
-+
-+	
-+	if (size > aio_max_size)
-+		size = aio_max_size;
-+
-+	cb.vec = map_user_kvec(rw, (unsigned long) buf, size);
-+	cb.fn = (rw == READ) ? generic_aio_complete_read
-+			     : generic_aio_complete_write;
-+	cb.data = req;
-+
-+	kvec_op = (rw == READ) ? file->f_op->kvec_read : file->f_op->kvec_write;
-+	res = kvec_op(file, cb, size, pos);
-+//	if (unlikely(res != 0)) {
-+//		/* If the first chunk was successful, we have to run
-+//		 * the callback to attempt the rest of the io.
-+//		 */
-+//		if (res == size && req->buf) {
-+//			cb.fn(cb.data, cb.vec, res);
-+//			return 0;
-+//		}
-+//		unmap_kvec(cb.vec, rw == READ);
-+//		free_kvec(cb.vec);
-+//	}
-+	return res;
-+}	
-+
-+ssize_t generic_file_aio_read(struct kiocb *req, char *buf, size_t size, loff_t pos)
-+{
-+	return generic_aio_rw(READ, req, buf, size, pos);  
-+}
-+
-+ssize_t generic_file_aio_write(struct kiocb *req, char *buf, size_t size, loff_t pos)
-+{
-+	return generic_aio_rw(WRITE, req, buf, size, pos);  
-+}
-+	
-+static void generic_aio_complete_rw(int rw, void *_iocb, struct kvec *vec, ssize_t res)
-+{
-+	struct kiocb *iocb = _iocb;
-+
-+	unmap_kvec(vec, rw == READ);
-+	free_kvec(vec);
-+
-+#if 0
-+	if (res > 0)
-+		iocb->nr_transferred += res;
-+
-+	/* Was this chunk successful?  Is there more left to transfer? */
-+	if (res == iocb->this_size && iocb->nr_transferred < iocb->size) {
-+		/* We may be in irq context, so queue processing in 
-+		 * process context.
-+		 */
-+		iocb->this_size = rw;
-+		INIT_TQUEUE(&iocb->u.tq, generic_aio_next_chunk, iocb);
-+		schedule_task(&iocb->u.tq);
-+		return;
-+	}
-+
-+	aio_complete(iocb, iocb->nr_transferred ? iocb->nr_transferred : res,
-+		     0);
-+#endif
-+	aio_complete(iocb, res, 0);
-+}
-+
-+static void generic_aio_complete_read(void *_iocb, struct kvec *vec, ssize_t res)
-+{
-+	generic_aio_complete_rw(READ, _iocb, vec, res);
-+}
-+
-+static void generic_aio_complete_write(void *_iocb, struct kvec *vec, ssize_t res)
-+{
-+	generic_aio_complete_rw(WRITE, _iocb, vec, res);
-+}
-+
-+
- __initcall(aio_setup);
- 
- EXPORT_SYMBOL(aio_complete);
- EXPORT_SYMBOL(aio_put_req);
-+EXPORT_SYMBOL_GPL(generic_file_aio_read);
-+EXPORT_SYMBOL_GPL(generic_file_aio_write);
-diff -Nru a/fs/buffer.c b/fs/buffer.c
---- a/fs/buffer.c	Wed Sep 11 14:00:00 2002
-+++ b/fs/buffer.c	Wed Sep 11 14:00:00 2002
-@@ -2586,3 +2586,171 @@
- 	for (i = 0; i < ARRAY_SIZE(bh_wait_queue_heads); i++)
- 		init_waitqueue_head(&bh_wait_queue_heads[i].wqh);
- }
-+
-+
-+/* async kio interface */
-+struct brw_cb {
-+	kvec_cb_t		cb;
-+	atomic_t		io_count;
-+	int			nr;
-+	struct buffer_head	*bh[1];
-+};
-+
-+static inline void brw_cb_put(struct brw_cb *brw_cb)
-+{
-+	if (atomic_dec_and_test(&brw_cb->io_count)) {
-+		ssize_t res = 0, err = 0;
-+		int nr;
-+
-+		/* Walk the buffer heads associated with this kiobuf
-+		 * checking for errors and freeing them as we go.
-+		 */
-+		for (nr=0; nr < brw_cb->nr; nr++) {
-+			struct buffer_head *bh = brw_cb->bh[nr];
-+			if (!err && buffer_uptodate(bh))
-+				res += bh->b_size;
-+			else
-+				err = -EIO;
-+			kmem_cache_free(bh_cachep, bh);
-+		}
-+
-+		if (!res)
-+			res = err;
-+
-+		brw_cb->cb.fn(brw_cb->cb.data, brw_cb->cb.vec, res);
-+
-+		kfree(brw_cb);
-+	}
-+}
-+
-+static void end_buffer_io_kiobuf_async(struct buffer_head *bh, int uptodate)
-+{
-+	struct brw_cb *brw_cb;
-+	
-+	if (uptodate)
-+		set_bit(BH_Uptodate, &bh->b_state);
-+	else 
-+		clear_bit(BH_Uptodate, &bh->b_state);
-+
-+	brw_cb = bh->b_private;
-+	unlock_buffer(bh);
-+
-+	brw_cb_put(brw_cb);
-+}
-+
-+int brw_kvec_async(int rw, kvec_cb_t cb, struct block_device *bdev, unsigned blocks, unsigned long blknr, int sector_shift)
-+{
-+	struct kvec	*vec = cb.vec;
-+	struct kveclet	*veclet;
-+	int		err;
-+	int		length;
-+	unsigned	sector_size = 1 << sector_shift;
-+	int		i;
-+
-+	struct brw_cb	*brw_cb;
-+
-+	if (!vec->nr)
-+		BUG();
-+
-+	/* 
-+	 * First, do some alignment and validity checks 
-+	 */
-+	length = 0;
-+	for (veclet=vec->veclet, i=0; i < vec->nr; i++,veclet++) {
-+		length += veclet->length;
-+		if ((veclet->offset & (sector_size-1)) ||
-+		    (veclet->length & (sector_size-1))) {
-+			printk("brw_kiovec_async: tuple[%d]->offset=0x%x length=0x%x sector_size: 0x%x\n", i, veclet->offset, veclet->length, sector_size);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (length < (blocks << sector_shift))
-+		BUG();
-+
-+	/* 
-+	 * OK to walk down the iovec doing page IO on each page we find. 
-+	 */
-+	err = 0;
-+
-+	if (!blocks) {
-+		printk("brw_kiovec_async: !i\n");
-+		return -EINVAL;
-+	}
-+
-+	/* FIXME: tie into userbeans here */
-+	brw_cb = kmalloc(sizeof(*brw_cb) + (blocks * sizeof(struct buffer_head *)), GFP_KERNEL);
-+	if (!brw_cb)
-+		return -ENOMEM;
-+
-+	brw_cb->cb = cb;
-+	brw_cb->nr = 0;
-+
-+	/* This is ugly.  FIXME. */
-+	for (i=0, veclet=vec->veclet; i<vec->nr; i++,veclet++) {
-+		struct page *page = veclet->page;
-+		unsigned offset = veclet->offset;
-+		unsigned length = veclet->length;
-+
-+		if (!page)
-+			BUG();
-+
-+		while (length > 0) {
-+			struct buffer_head *tmp;
-+			tmp = kmem_cache_alloc(bh_cachep, GFP_NOIO);
-+			err = -ENOMEM;
-+			if (!tmp)
-+				goto error;
-+
-+			tmp->b_size = sector_size;
-+			set_bh_page(tmp, page, offset);
-+			tmp->b_this_page = tmp;
-+
-+			init_buffer(tmp, end_buffer_io_kiobuf_async, NULL);
-+
-+			tmp->b_bdev = bdev;
-+			tmp->b_blocknr = blknr++;
-+			tmp->b_state = (1 << BH_Mapped) | (1 << BH_Lock)
-+					| (1 << BH_Req);
-+			tmp->b_private = brw_cb;
-+
-+			if (rw == WRITE) {
-+				set_bit(BH_Uptodate, &tmp->b_state);
-+				clear_bit(BH_Dirty, &tmp->b_state);
-+			}
-+
-+			brw_cb->bh[brw_cb->nr++] = tmp;
-+			length -= sector_size;
-+			offset += sector_size;
-+
-+			if (offset >= PAGE_SIZE) {
-+				offset = 0;
-+				break;
-+			}
-+
-+			if (brw_cb->nr >= blocks)
-+				goto submit;
-+		} /* End of block loop */
-+	} /* End of page loop */		
-+
-+submit:
-+	atomic_set(&brw_cb->io_count, brw_cb->nr+1);
-+	/* okay, we've setup all our io requests, now fire them off! */
-+	for (i=0; i<brw_cb->nr; i++) 
-+		submit_bh(rw, brw_cb->bh[i]);
-+	brw_cb_put(brw_cb);
-+
-+	return 0;
-+
-+error:
-+	/* Walk brw_cb_table freeing all the goop associated with each kiobuf */
-+	if (brw_cb) {
-+		/* We got an error allocating the bh'es.  Just free the current
-+		   buffer_heads and exit. */
-+		for (i=0; i<brw_cb->nr; i++)
-+			kmem_cache_free(bh_cachep, brw_cb->bh[i]);
-+		kfree(brw_cb);
-+	}
-+
-+	return err;
-+}
-diff -Nru a/include/linux/aio.h b/include/linux/aio.h
---- a/include/linux/aio.h	Wed Sep 11 14:00:00 2002
-+++ b/include/linux/aio.h	Wed Sep 11 14:00:00 2002
-@@ -2,6 +2,7 @@
- #define __LINUX__AIO_H
- 
- #include <linux/tqueue.h>
-+#include <linux/kiovec.h>
- #include <linux/list.h>
- #include <asm/atomic.h>
- 
-@@ -120,6 +121,9 @@
- {
- 	return list_entry(h, struct kiocb, ki_list);
- }
-+
-+extern ssize_t generic_file_aio_read(struct kiocb *req, char *buf, size_t size, loff_t pos);
-+extern ssize_t generic_file_aio_write(struct kiocb *req, char *buf, size_t size, loff_t pos);
- 
- /* for sysctl: */
- extern unsigned aio_max_nr, aio_max_size, aio_max_pinned;
-diff -Nru a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Wed Sep 11 14:00:00 2002
-+++ b/include/linux/fs.h	Wed Sep 11 14:00:00 2002
-@@ -200,6 +200,9 @@
- 
- #ifdef __KERNEL__
- 
-+#include <linux/aio.h>
-+#include <linux/aio_abi.h>
-+
- #include <asm/semaphore.h>
- #include <asm/byteorder.h>
- 
-@@ -764,6 +767,10 @@
- 	ssize_t (*sendfile) (struct file *, struct file *, loff_t *, size_t);
- 	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
- 	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
-+
-+	/* in-kernel fully async api */
-+	int (*kvec_read)(struct file *, kvec_cb_t, size_t, loff_t);
-+	int (*kvec_write)(struct file *, kvec_cb_t, size_t, loff_t);
- };
- 
- struct inode_operations {
-@@ -1248,6 +1255,9 @@
- 				loff_t offset, size_t count);
- int generic_direct_IO(int rw, struct inode *inode, char *buf,
- 			loff_t offset, size_t count, get_blocks_t *get_blocks);
-+extern int generic_file_kvec_read(struct file *file, kvec_cb_t cb, size_t size, loff_t pos);
-+extern int generic_file_kvec_write(struct file *file, kvec_cb_t cb, size_t size, loff_t pos);
-+
- 
- extern loff_t no_llseek(struct file *file, loff_t offset, int origin);
- extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin);
-diff -Nru a/include/linux/kiovec.h b/include/linux/kiovec.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/kiovec.h	Wed Sep 11 14:00:00 2002
-@@ -0,0 +1,59 @@
-+#ifndef __LINUX__KIOVEC_H
-+#define __LINUX__KIOVEC_H
-+
-+struct page;
-+struct block_device;
-+#include <linux/list.h>
-+
-+struct kveclet {
-+	struct page	*page;
-+	unsigned	offset;
-+	unsigned	length;
-+};
-+
-+struct kvec {
-+	unsigned	max_nr;
-+	unsigned	nr;
-+	struct kveclet	veclet[0];
-+};
-+
-+struct kvec_cb {
-+	struct kvec	*vec;
-+	void		(*fn)(void *data, struct kvec *vec, ssize_t res);
-+	void		*data;
-+};
-+
-+struct kvec_cb_list {
-+	struct list_head	list;
-+	struct kvec_cb		cb;
-+};
-+
-+#ifndef _LINUX_TYPES_H
-+#include <linux/types.h>
-+#endif
-+#ifndef _LINUX_KDEV_T_H
-+#include <linux/kdev_t.h>
-+#endif
-+#ifndef _ASM_KMAP_TYPES_H
-+#include <asm/kmap_types.h>
-+#endif
-+
-+extern struct kvec *FASTCALL(map_user_kvec(int rw, unsigned long va, size_t len));
-+extern struct kvec *FASTCALL(mm_map_user_kvec(struct mm_struct *, int rw,
-+				     unsigned long va, size_t len));
-+extern void FASTCALL(unmap_kvec(struct kvec *, int dirtied));
-+extern void FASTCALL(free_kvec(struct kvec *));
-+
-+/* brw_kvec_async:
-+ *	Performs direct io to/from disk into cb.vec.  Count is the number
-+ *	of sectors to read, sector_shift is the blocksize (which must be
-+ *	compatible with the kernel's current idea of the device's sector
-+ *	size) in log2.  blknr is the starting sector offset on device 
-+ *      represented by bdev.
-+ */
-+extern int brw_kvec_async(int rw, kvec_cb_t cb, struct block_device *bdev, 
-+			  unsigned count, unsigned long blknr, 
-+			  int sector_shift);
-+
-+
-+#endif /* __LINUX__KIOVEC_H */
-diff -Nru a/include/linux/types.h b/include/linux/types.h
---- a/include/linux/types.h	Wed Sep 11 14:00:00 2002
-+++ b/include/linux/types.h	Wed Sep 11 14:00:00 2002
-@@ -149,4 +149,9 @@
- 	char			f_fpack[6];
- };
- 
-+/* kernel typedefs -- they belong here. */
-+#ifdef __KERNEL__
-+typedef struct kvec_cb kvec_cb_t;
-+#endif /* __KERNEL__ */
-+
- #endif /* _LINUX_TYPES_H */
-diff -Nru a/mm/memory.c b/mm/memory.c
---- a/mm/memory.c	Wed Sep 11 14:00:00 2002
-+++ b/mm/memory.c	Wed Sep 11 14:00:00 2002
-@@ -44,6 +44,8 @@
- #include <linux/iobuf.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
-+#include <linux/slab.h>
-+#include <linux/compiler.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/rmap.h>
-@@ -455,6 +457,8 @@
- 	pte = *ptep;
- 	pte_unmap(ptep);
- 	if (pte_present(pte)) {
-+		struct page *page = pte_page(pte);
-+		prefetch(page);
- 		if (!write || (pte_write(pte) && pte_dirty(pte))) {
- 			pfn = pte_pfn(pte);
- 			if (pfn_valid(pfn))
-@@ -1512,4 +1516,173 @@
- 		}
- 	}
- 	return page;
-+}
-+
-+
-+/*
-+ * Force in an entire range of pages from the current process's user VA,
-+ * and pin them in physical memory.  
-+ * FIXME: some architectures need to flush the cache based on user addresses 
-+ * here.  Someone please provide a better macro than flush_cache_page.
-+ */
-+
-+#define dprintk(x...)
-+atomic_t user_pinned_pages = ATOMIC_INIT(0);
-+
-+struct kvec *map_user_kvec(int rw, unsigned long ptr, size_t len)
-+{
-+	return mm_map_user_kvec(current->mm, rw, ptr, len);
-+}
-+
-+struct kvec *mm_map_user_kvec(struct mm_struct *mm, int rw, unsigned long ptr,
-+			      size_t len)
-+{
-+	struct kvec		*vec;
-+	struct kveclet		*veclet;
-+	unsigned long		end;
-+	int			err;
-+	struct vm_area_struct *	vma = 0;
-+	int			i;
-+	int			datain = (rw == READ);
-+	unsigned		nr_pages;
-+
-+	end = ptr + len;
-+	if (unlikely(end < ptr))
-+		return ERR_PTR(-EINVAL);
-+
-+	nr_pages = (ptr + len + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	nr_pages -= ptr >> PAGE_SHIFT;
-+	nr_pages ++;
-+
-+	atomic_add(nr_pages, &user_pinned_pages);
-+	err = -EAGAIN;
-+	if (unlikely(atomic_read(&user_pinned_pages) >= aio_max_pinned))
-+		goto out_adjust;
-+
-+	vec = kmalloc(sizeof(struct kvec) + nr_pages * sizeof(struct kveclet),
-+			GFP_KERNEL);
-+	err = -ENOMEM;
-+	if (unlikely(!vec))
-+		goto out_adjust;
-+
-+	vec->nr = 0;
-+	vec->max_nr = nr_pages;
-+	veclet = vec->veclet;
-+	
-+	down_read(&mm->mmap_sem);
-+
-+	err = -EFAULT;
-+	
-+	i = 0;
-+
-+	/* 
-+	 * First of all, try to fault in all of the necessary pages
-+	 */
-+	while (ptr < end) {
-+		struct page *map;
-+		veclet->offset = ptr & ~PAGE_MASK;
-+		veclet->length = PAGE_SIZE - veclet->offset;
-+		if (len < veclet->length)
-+			veclet->length = len;
-+		ptr &= PAGE_MASK;
-+		len -= veclet->length;
-+
-+		if (!vma || ptr >= vma->vm_end) {
-+			vma = find_vma(mm, ptr);
-+			if (unlikely(!vma))
-+				goto out_unlock;
-+			if (unlikely(vma->vm_start > ptr)) {
-+				if (unlikely(!(vma->vm_flags & VM_GROWSDOWN)))
-+					goto out_unlock;
-+				if (unlikely(expand_stack(vma, ptr)))
-+					goto out_unlock;
-+			}
-+			if (unlikely(((datain) && (!(vma->vm_flags & VM_WRITE))) ||
-+					(!(vma->vm_flags & VM_READ)))) {
-+				err = -EFAULT;
-+				goto out_unlock;
-+			}
-+		}
-+		spin_lock(&mm->page_table_lock);
-+		while (unlikely(!(map = follow_page(mm, ptr, datain)))) {
-+			int ret;
-+
-+			spin_unlock(&mm->page_table_lock);
-+			ret = handle_mm_fault(mm, vma, ptr, datain);
-+			if (ret <= 0) {
-+				if (!ret)
-+					goto out_unlock;
-+				else {
-+					err = -ENOMEM;
-+					goto out_unlock;
-+				}
-+			}
-+			spin_lock(&mm->page_table_lock);
-+		}			
-+		map = get_page_map(map);
-+		if (likely(map != NULL)) {
-+			flush_dcache_page(map);
-+			atomic_inc(&map->count);
-+		} else
-+			printk (KERN_INFO "Mapped page missing [%d]\n", i);
-+		spin_unlock(&mm->page_table_lock);
-+		veclet->page = map;
-+		veclet++;
-+
-+		ptr += PAGE_SIZE;
-+		vec->nr = ++i;
-+	}
-+
-+	veclet->page = NULL;	/* dummy for the prefetch in free_kvec */
-+	veclet->length = 0;	/* bug checking ;-) */
-+
-+	up_read(&mm->mmap_sem);
-+	dprintk ("map_user_kiobuf: end OK\n");
-+	return vec;
-+
-+ out_unlock:
-+	up_read(&mm->mmap_sem);
-+	unmap_kvec(vec, 0);
-+	kfree(vec);
-+	dprintk("map_user_kvec: err(%d) rw=%d\n", err, rw);
-+	return ERR_PTR(err);
-+
-+ out_adjust:
-+	atomic_sub(nr_pages, &user_pinned_pages);
-+	dprintk("map_user_kvec: err(%d) rw=%d\n", err, rw);
-+	return ERR_PTR(err);
-+}
-+
-+/*
-+ * Unmap all of the pages referenced by a kvec.  We release the pages,
-+ * and unlock them if they were locked. 
-+ */
-+
-+void unmap_kvec (struct kvec *vec, int dirtied)
-+{
-+	struct kveclet *veclet = vec->veclet;
-+	struct kveclet *end = vec->veclet + vec->nr;
-+	struct page *map = veclet->page;
-+
-+	prefetchw(map);
-+	for (; veclet<end; map = (++veclet)->page) {
-+		prefetchw(veclet[1].page);
-+		if (likely(map != NULL) && !PageReserved(map)) {
-+			if (dirtied) {
-+				SetPageDirty(map);
-+				flush_dcache_page(map);	/* FIXME */
-+			}
-+			__free_page(map);
-+		}
-+	}
-+
-+	atomic_sub(vec->max_nr, &user_pinned_pages);
-+	vec->nr = 0;
-+}
-+
-+void free_kvec(struct kvec *vec)
-+{
-+	if (unlikely(vec->nr))
-+		BUG();
-+	kfree(vec);
- }
 
---------------050903060105090308050609--
+========================================= 2.4.20-pre6 + tweak ==================================================
 
+
+------>First for -pre6 ...
+
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1   12.21 27.22%     0.315       20.37   0.00000  0.00000    45
+2.4.20-pre6                   200   4096    2   10.13 26.12%     0.682     1241.05   0.00000  0.00000    39
+2.4.20-pre6                   200   4096    4    9.42 21.67%     1.382     1048.15   0.00000  0.00000    43
+2.4.20-pre6                   200   4096    8    8.90 20.78%     2.882     2709.68   0.00195  0.00000    43
+
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1    0.53 2.076%     7.328       20.65   0.00000  0.00000    26
+2.4.20-pre6                   200   4096    2    0.54 1.915%    14.206       40.18   0.00000  0.00000    28
+2.4.20-pre6                   200   4096    4    0.56 2.215%    27.334       90.00   0.00000  0.00000    25
+2.4.20-pre6                   200   4096    8    0.60 2.931%    49.111      259.38   0.00000  0.00000    21
+
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1   11.76 85.21%     0.314      433.33   0.00000  0.00000    14
+2.4.20-pre6                   200   4096    2   11.56 84.14%     0.627      408.37   0.00000  0.00000    14
+2.4.20-pre6                   200   4096    4   11.48 84.32%     1.236      393.79   0.00000  0.00000    14
+2.4.20-pre6                   200   4096    8    8.91 62.13%     3.179     2189.47   0.00195  0.00000    14
+
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1    1.16 3.851%     0.131        5.96   0.00000  0.00000    30
+2.4.20-pre6                   200   4096    2    1.13 4.196%     0.251       24.96   0.00000  0.00000    27
+2.4.20-pre6                   200   4096    4    1.11 3.540%     0.464       52.49   0.00000  0.00000    31
+2.4.20-pre6                   200   4096    8    1.14 4.026%     0.936       94.44   0.00000  0.00000    28
+
+------> and second......
+
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1   11.87 27.17%     0.325      169.14   0.00000  0.00000    44
+2.4.20-pre6                   200   4096    2   10.14 24.79%     0.742      900.01   0.00000  0.00000    41
+2.4.20-pre6                   200   4096    4    9.23 22.37%     1.512     1294.06   0.00000  0.00000    41
+2.4.20-pre6                   200   4096    8    8.79 21.30%     2.723     3030.53   0.00195  0.00000    41
+
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1    0.54 2.525%     7.206       20.13   0.00000  0.00000    21
+2.4.20-pre6                   200   4096    2    0.53 2.166%    14.600       39.85   0.00000  0.00000    24
+2.4.20-pre6                   200   4096    4    0.56 2.135%    27.360       79.95   0.00000  0.00000    26
+2.4.20-pre6                   200   4096    8    0.60 2.672%    50.614      231.03   0.00000  0.00000    22
+
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1   10.87 75.62%     0.340      981.54   0.00000  0.00000    14
+2.4.20-pre6                   200   4096    2   10.87 75.41%     0.675     1233.92   0.00000  0.00000    14
+2.4.20-pre6                   200   4096    4   10.40 73.56%     1.335     1160.16   0.00000  0.00000    14
+2.4.20-pre6                   200   4096    8    8.73 63.34%     3.192     1543.25   0.00000  0.00000    14
+
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.4.20-pre6                   200   4096    1    1.13 3.962%     0.130        0.67   0.00000  0.00000    28
+2.4.20-pre6                   200   4096    2    1.14 3.660%     0.249       29.81   0.00000  0.00000    31
+2.4.20-pre6                   200   4096    4    1.15 4.184%     0.469       43.59   0.00000  0.00000    27
+2.4.20-pre6                   200   4096    8    1.13 3.973%     0.887       84.27   0.00000  0.00000    28
+
+
+
+Diego Calleja

@@ -1,74 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281914AbRKUPmS>; Wed, 21 Nov 2001 10:42:18 -0500
+	id <S281912AbRKUPr5>; Wed, 21 Nov 2001 10:47:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281909AbRKUPmK>; Wed, 21 Nov 2001 10:42:10 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:13062 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S281910AbRKUPlz>;
-	Wed, 21 Nov 2001 10:41:55 -0500
-To: Andreas Schwab <schwab@suse.de>
-Cc: root@chaos.analogic.com, Jan Hudec <bulb@ucw.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-In-Reply-To: <Pine.LNX.3.95.1011121085737.21389A-100000@chaos.analogic.com>
-	<jelmh09nkt.fsf@sykes.suse.de>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <jelmh09nkt.fsf@sykes.suse.de>
-Date: 21 Nov 2001 17:48:25 +0200
-Message-ID: <87u1voyvjq.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S281905AbRKUPrs>; Wed, 21 Nov 2001 10:47:48 -0500
+Received: from abasin.nj.nec.com ([138.15.150.16]:20238 "HELO
+	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S281912AbRKUPrh>;
+	Wed, 21 Nov 2001 10:47:37 -0500
+From: Sven Heinicke <sven@research.nj.nec.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15355.52367.747990.149824@abasin.nj.nec.com>
+Date: Wed, 21 Nov 2001 10:47:27 -0500 (EST)
+To: Jorge Nerin <comandante@zaralinux.com>
+Cc: Sven Heinicke <sven@research.nj.nec.com>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/stat description for proc.txt
+In-Reply-To: <3BFAE0FD.8010909@zaralinux.com>
+In-Reply-To: <15347.57175.887835.525156@abasin.nj.nec.com>
+	<3BFAE0FD.8010909@zaralinux.com>
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andreas" == Andreas Schwab <schwab@suse.de> writes:
 
-Andreas> "Richard B. Johnson" <root@chaos.analogic.com> writes:
-Andreas> |> On Wed, 21 Nov 2001, Jan Hudec wrote:
-Andreas> |> 
-Andreas> |> > > >     *a++ = byte_rev[*a]
-Andreas> |> > > It looks perferctly okay to me. Anyway, whenever would you listen to a
-Andreas> |> > > C++ book talking about good C coding :p
-Andreas> |> > 
-Andreas> |> 
-Andreas> |> It's simple. If any object is modified twice without an intervening
-Andreas> |> sequence point, the results are undefined. The sequence-point in
-Andreas> |> 
-Andreas> |> 	*a++ = byte_rev[*a];
-Andreas> |> 
-Andreas> |> ... is the ';'.
-Andreas> |> 
-Andreas> |> So, we look at 'a' and see if it's modified twice.
+Yea, well, I didn't get any message about my proc.txt patch going into
+the kernel.  So it's back to the source I guess. :(
 
-Andreas> No, the rule much stricter. 
+    Sven
 
-Andreas>          -- Between two sequence points, an object is modified more
-Andreas>             than once, or  is  modified  and  the  prior  value  is
-Andreas>             accessed other than to determine the value to be stored
-Andreas>             (6.5).
-
-Hmm, I guess some context is missing here. Let's make it
-
-      Between the previous and next sequence point an object shall
-      have its stored value modified at most once by the evaluation of
-      an expression. Furthermore, the prior value shall be accessed
-      only to determine the value to be stored.
-
-So, the above ``*a++ = byte_rev[*a]'' is undefined, because the value
-of ``a'' is accessed other than to determine the value to be stored in
-``a'' (as Andreas pointed out).  The side effect of ``a++'' can take
-place anywhere before the next sequence point (``;''), that's before
-or after the array access, i.e. the statement can be evaluated as
-
-       tmp = *a;
-       *a++ = byte_rev[tmp];
-
- or as 
-
-       tmp = *(a+1);
-       *a++ = byte_rev [tmp];
-
-Regards,
--velco
-
+Jorge Nerin writes:
+ > Sven Heinicke wrote:
+ > 
+ > > I got tired at looking proc_misc.c to see what /proc/stat was
+ > > reporting about.  So here is my noted patched into proc.txt about the
+ > > /proc/stat file.  It's a patch off the 2.4.15-pre1 proc.txt, but it
+ > > worked fine patching it into 2.4.15-pre4 kernel.  Between which I
+ > > don't actually think proc.txt has changed.
+ > > 
+ > > 	   Sven
+ > > 
+ > > [snip]
+ > 
+ > >  Summary
+ > > -
+ > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+ > > the body of a message to majordomo@vger.kernel.org
+ > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > > Please read the FAQ at  http://www.tux.org/lkml/
+ > > 
+ > > 
+ > 
+ > Hey I wrote the last update to this file about exactly one year ago, and 
+ > I wrote it for the same reasons as you.
+ > 
+ > I needed some info about some files and fields in the proc tree, and the 
+ > responses was 1) read proc.txt (seriously out of date) and 2) look at 
+ > the source Luke.
+ > 
+ > So I also got tired of seeking & greping around the code and wrote a 
+ > small update, nice to see someone updated it again.
+ > 
+ > P.D. It should be updated by the people who updates the interface, at 
+ > least minimally, the name and meaning of the fields or where to look.
+ > 
+ > -- 
+ > Jorge Nerin
+ > <comandante@zaralinux.com>
+ > 

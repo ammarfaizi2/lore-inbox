@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbTE2TTV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 15:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbTE2TTU
+	id S262547AbTE2T0y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 15:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbTE2T0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 15:19:20 -0400
-Received: from bork.hampshire.edu ([206.153.194.35]:11242 "EHLO
-	bork.hampshire.edu") by vger.kernel.org with ESMTP id S262528AbTE2TTU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 15:19:20 -0400
-Date: Thu, 29 May 2003 15:32:37 -0400 (EDT)
-From: "Wm. Josiah Erikson" <josiah@insanetechnology.com>
-X-X-Sender: josiah@bork.hampshire.edu
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: siimage driver status
-In-Reply-To: <1054220163.20725.96.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0305291531270.23056-100000@bork.hampshire.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 May 2003 15:26:53 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61902 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262547AbTE2T0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 15:26:52 -0400
+Date: Thu, 29 May 2003 21:40:03 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, llinux-scsi@vger.kernel.org
+Subject: [patch] 2.5.70-mm2: aha1740.c doesn't compile.
+Message-ID: <20030529194003.GH5643@fs.tum.de>
+References: <20030529012914.2c315dad.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030529012914.2c315dad.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That might be nice - would it be possible for you to send me a patch? Or 
-is there something I can pass to the kernel at boottime that will make it 
-enable DMA? I've been experimenting with ide2=autotune hde=autotune etc 
-and that doesn't seem to be working.
-Thanks so much,
-	-Josiah
+It seems the following compile error comes from Linus' tree:
+
+<--  snip  -->
+
+...
+  CC      drivers/scsi/aha1740.o
+...
+drivers/scsi/aha1740.c:613: syntax error at end of input
+...
+make[2]: *** [drivers/scsi/aha1740.o] Error 1
+
+<--  snip  -->
 
 
-On 29 May 2003, Alan Cox wrote:
-<SNIP>
-> Now I suppose I just have to figure out how to make that work on boot 
-> (perhaps just to make the BIOS put them in DMA mode)
+The culprit is the following bogus part of a patch (please _revert_ it):
 
-One thing I might do is just make the driver ignore the bios policy for
-disk devices. 
+
+--- linux-2.5.70/drivers/scsi/aha1740.c	2003-05-26 19:16:33.000000000 -0700
++++ 25/drivers/scsi/aha1740.c	2003-05-28 23:52:00.000000000 -0700
+@@ -108,7 +102,6 @@ static int aha1740_proc_info(char *buffe
+     if (len > length)
+ 	len = length;
+     return len;
+-}
+ 
+ 
+ static int aha1740_makecode(unchar *sense, unchar *status)
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

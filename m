@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262647AbRFBSCl>; Sat, 2 Jun 2001 14:02:41 -0400
+	id <S262648AbRFBSOX>; Sat, 2 Jun 2001 14:14:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262648AbRFBSCc>; Sat, 2 Jun 2001 14:02:32 -0400
-Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:33224 "EHLO
-	fxian.jukie.net") by vger.kernel.org with ESMTP id <S262647AbRFBSCS>;
-	Sat, 2 Jun 2001 14:02:18 -0400
-Date: Sat, 2 Jun 2001 14:00:54 -0400 (EDT)
-From: Feng Xian <fxian@fxian.jukie.net>
-X-X-Sender: <fxian@tiger>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: APIC problem or 3com 3c590 driver problem in smp kernel 2.4.x
-In-Reply-To: <E156DvX-0001rf-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106021357110.5655-100000@tiger>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262655AbRFBSOD>; Sat, 2 Jun 2001 14:14:03 -0400
+Received: from iris.services.ou.edu ([129.15.2.125]:31135 "EHLO
+	iris.services.ou.edu") by vger.kernel.org with ESMTP
+	id <S262648AbRFBSNz>; Sat, 2 Jun 2001 14:13:55 -0400
+Date: Sat, 02 Jun 2001 13:17:15 -0500
+From: Sean Jones <sjones@ossm.edu>
+Subject: Warning in ac6
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <3B192DAB.FF8FB3B5@ossm.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac6 i586)
+Content-type: text/plain; charset=UTF-8
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Jun 2001, Alan Cox wrote:
+I've recieved this warning in the past several ac versions both 2.4.5
+and 2.4.4. Here is the out put from the compiler:
 
-> > It's our own's card. so it could be the card's problem. does the pci
-> > device have to do some special thing to support APIC? my card won't work
->
-> Nope. APIC is invisible to a correctly built piece of hardware. It just changes
-> how INTA-INTD are handled at the host end of things
->
-> > properly on uni-processor with APIC enable kernel or smp kernel when the
-> > card is sharing IRQ with some other pci devices.
->
-> That sounds like the driver isnt testing the irq was sourced by that card. You
-> also see hangups on insmod/rmmod when people do
->
-> 		writel(ENABLE_MY_IRQ, my_card->control);
->
-> before they request the IRQ and are able to clear it
->
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i586   -c -o init/main.o init/main.c
+In file included from /usr/src/linux-2.4/include/linux/raid/md.h:50,
+                 from init/main.c:24:
+/usr/src/linux-2.4/include/linux/raid/md_k.h: In function
+`pers_to_level':
+/usr/src/linux-2.4/include/linux/raid/md_k.h:41: warning: control
+reaches end of non-void function
 
-I forget to mention. in the same hardware configuration (same slot, sharing
-IRQ with other card) my card works perfect if I was using uni-processor
-without APIC support kernel (i tried 2.4.5-ac6 with apic disabled
-uniprocessor on a dual p3 box). If the driver did something wrong, it
-should not work on that system either. Maybe what I thought was wrong.
+Also the file /proc/sys/fs/binfmt_misc seems to be missing on my
+machine. How would I remedy this problem?
 
-Alex
+Could you CC all responces to me because my router does not support ECN.
 
--- 
-        Feng Xian
-   _o)     .~.      (o_
-   /\\     /V\      //\
-  _\_V    // \\     V_/_
-         /(   )\
-          ^^-^^
-           ALEX
+Thank you,
 
+Sean Jones

@@ -1,86 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265401AbUBPHsW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 02:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265413AbUBPHsW
+	id S265436AbUBPIbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 03:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265438AbUBPIbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 02:48:22 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:5124 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S265401AbUBPHsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 02:48:20 -0500
-Subject: Re: system (not HW) clock advancing really fast
-From: Bill Anderson <banderson@hp.com>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200402161545.09901.mhf@linuxmail.org>
-References: <1076910368.25980.12.camel@perseus>
-	 <200402161424.49242.mhf@linuxmail.org> <1076916391.25980.23.camel@perseus>
-	 <200402161545.09901.mhf@linuxmail.org>
-Content-Type: text/plain
-Message-Id: <1076917697.25980.35.camel@perseus>
+	Mon, 16 Feb 2004 03:31:09 -0500
+Received: from smtp3.clb.oleane.net ([213.56.31.19]:23765 "EHLO
+	smtp3.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S265436AbUBPIbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 03:31:05 -0500
+Subject: Re: JFS default behavior
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: Jan Knutar <jk-lkml@sci.fi>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200402160545.04175.jk-lkml@sci.fi>
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
+	 <200402160545.04175.jk-lkml@sci.fi>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gy3Ueg6OdOIEpGep9VC5"
+Organization: Adresse personnelle
+Message-Id: <1076920241.11055.4.camel@ulysse.olympe.o2t>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 16 Feb 2004 00:48:18 -0700
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2004 07:48:19.0275 (UTC) FILETIME=[3E6B99B0:01C3F461]
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Mon, 16 Feb 2004 09:30:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-02-16 at 00:45, Michael Frank wrote:
-> On Monday 16 February 2004 15:26, Bill Anderson wrote:
-> > On Sun, 2004-02-15 at 23:24, Michael Frank wrote:
-> > > I had this somtetimes when using ntpd doing step time update
-> > > resulting in silly values in /etc/adjtime . 
-> > > 
-> > > # mv /etc/adjtime /tmp 
-> > > # hwclock --systohc
-> > > 
-> > > and see if it goes away.
-> > 
-> > Thanks, though it didn't work. :(
-> > 
-> 
-> Please check your /etc/ntp/drift , the value in it is
-> usually between -30.0 and 30.0
-> 
-> If it is much larger than that, set it to 0.0 and restart ntpd.
 
+--=-gy3Ueg6OdOIEpGep9VC5
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Done that, too. in fact, that was my first target.
-Along with stop ntpd, sync, clear drift, clear adjtime, sync again, and
-restart ntpd. Sorry, should have said that. It's been a *looong* time
-since I've posted here.
+Le lun, 16/02/2004 =C3=A0 05:45 +0200, Jan Knutar a =C3=A9crit :
+> > - what happens to already existing invalid UTF-8 filenames ? Should
+> > the kernel forcibly rewrite them (in 2.7.0...) to remove legacy mess
+> > ? What should happen if someone plug an unconverted FS in such a
+> > system afterwards ?
+>=20
+> What I would like would be a userspace tool, that would recurse and=20
+> convert filename encodings from specified locale to UTF-8. Something=20
+> like "any2utf8 -from iso8859-1 -recurse /mnt/myoldmp3disk".=20
+> Does anyone know if such a tool exists already?
 
-I just tried some new stuff that is interesting.
+One can do find+ recode magic now
 
-MachineA is the one with the problem. MachineB is an identical machine
-(as far as two machines can be).
+The question is :
+- can this be automated ?
+- how can one recognise and unconverted fs ?
+- how can on guess the encodings(s) that have been used before on such
+an fs ?
 
-On MachineA I am seeing some interesting things with /proc/interrupts
-and the timer interrupt line.
+You're assuming the situation is merely a iso8859-1 to utf-8 migration.
+Far from it. The core problem is everyone damn wrote what it pleased him
+without considering future readers.
 
-On MachineA:
-  Over 10 seconds (wall clock):
-    CPU0: 107 interrupts/second (avg)
-    CPU1: 102.5 interrupts/second (avg)
-   [Over 10K interrupts difference between the two]
-On MachineB:
-  Over 10 seconds (wall clock):
-    CPU0: 46.4 interrupts/second (avg)
-    CPU1: 45.5 interrupts/second (avg)
-   [Over 10K interrupts difference between the two]
+Cheers,
 
-Now, the CPU differences don't make me blink. However, the slightly more
-than double the rate of timer interrupts on the problem machine is
-interesting to me. or is it a red herring/blind alley? Especially since
-it now seems to be ~2 seconds per second fast.
+--=20
+Nicolas Mailhot
 
-Cheers, and thanks for the help so far, Michael.
+--=-gy3Ueg6OdOIEpGep9VC5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
-Bill
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQBAMH+pI2bVKDsp8g0RAu+5AKCrkjSjuS4obgLFnV/KWsHD/W1wOgCfTEl2
+5p7EjazLOSHKAqjOzW55xmU=
+=S8t0
+-----END PGP SIGNATURE-----
 
--- 
-Bill Anderson <banderson@hp.com>
-Red Hat Certified Engineer
+--=-gy3Ueg6OdOIEpGep9VC5--
 

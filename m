@@ -1,65 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317348AbSGIRYs>; Tue, 9 Jul 2002 13:24:48 -0400
+	id <S317349AbSGIRYu>; Tue, 9 Jul 2002 13:24:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317351AbSGIRYr>; Tue, 9 Jul 2002 13:24:47 -0400
-Received: from 205-158-62-91.outblaze.com ([205.158.62.91]:16525 "HELO
-	ws3-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S317348AbSGIRYp>; Tue, 9 Jul 2002 13:24:45 -0400
-Message-ID: <20020709172723.18529.qmail@email.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S317351AbSGIRYt>; Tue, 9 Jul 2002 13:24:49 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:49566 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S317349AbSGIRYq> convert rfc822-to-8bit; Tue, 9 Jul 2002 13:24:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: O(1) scheduler "complex" macros
+Date: Tue, 9 Jul 2002 19:27:14 +0200
+X-Mailer: KMail [version 1.4]
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-ia64" <linux-ia64@linuxia64.org>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: haveblue@us.ibm.com
-Cc: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Date: Tue, 09 Jul 2002 12:27:23 -0500
-Subject: Re: lock_kernel check...
-X-Originating-Ip: 166.90.46.99
-X-Originating-Server: ws3-1.us4.outblaze.com
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207091927.14537.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 09 Jul 2002 02:08:18 -0700 
-To: dan carpenter <error27@email.com>
-Subject: Re: lock_kernel check...
+Hi Ingo,
 
-> cc'ing LKML 'cause this is interesting...
-> 
-> dan carpenter wrote:
->  > As you can see, the attached script is dead simple.  It prints an
->  > error every time you call return while lock_kernel is held.  On
->  > your computer you will want to comment out print_url() and
->  > uncomment the regular print statement.
-> 
-> I am continually amazed at all the simple, useful, cool stuff that 
-> people come up with.  I like!
-> 
+the patch eliminating the frozen_lock which went into 2.5.22 requires
+macros for prepare_arch_schedule(), etc... On IA64 I think that we need
+to use the "complex" macros, otherwise there is a potential deadlock.
 
-Glad you liked it.  :) 
+Unfortunately the "complex" macros seem to have the problem that the "prev"
+task can be stolen right before the context switch. In your description to
+the patch you wrote:
 
-Smatch.pm is from the smatch.sf.net scripts page.  Smatch is a really unfinished code checker that I've been working on.  It is based on reading the papers about the Stanford checker.   
+> architectures that need to unlock the runqueue before doing the switch can
+> do the following:
+>
+>  #define prepare_arch_schedule(prev)             task_lock(prev)
+>  #define finish_arch_schedule(prev)              task_unlock(prev)
+>  #define prepare_arch_switch(rq)                 spin_unlock(&(rq)->lock)
+>  #define finish_arch_switch(rq)                  __sti()
+>
+> this way the task-lock makes sure that a task is not scheduled on some
+> other CPU before the switch-out finishes, but the runqueue lock is
+> dropped.
 
-Unfortunately, after a night of sleep I realize that my script is broken for 2 reasons.  
-1)  Smatch.pm is meant to track state changes down different code paths.  But unfortunately it wasn't doing that in this case; it was just going down the code without taking into consideration any if_stmts  etc.  I'm extremely embarassed about that.  Sorry.  
-2)  What the Stanford checker does is print an error if one return_stmt is called while the kernel is locked and one is called while the kernel is unlocked.  This seems reasonable.
+Suppose we have 
+  cpu1: idle1
+  cpu2: prev2 -> next2  (in the switch)
 
-I will fix both mistakes later on this week.  Unfortunately I'm in the process of moving and looking for a job etc so I might not get to it for a bit.
+I don't understand how task_lock(prev2) done on cpu2 can prevent cpu1 to
+schedule prev2, which it stole after the RQ#2 lock release. It will just
+try to task_lock(idle1), which will be successfull.
 
-regards,
-dan carpenter
+The problems I have are with a small and ugly testprogram which generates
+128 threads which all just do   system("exit");  Running this program
+continuously sooner or later leads to attempts to switch to tasks which
+have already exited. Inserting a small udelay after prepare_arch_switch
+reveals the problem earlier.
 
-PS.  If you liked this script, try out my kmalloc script.  I don't think anyone besides me has successfully installed it yet, so if you have any questions I'd be glad to help.  :P  My phone number until tomorrow evening is (510) 835-7695.
+I also tried inserting "while (spin_is_locked(&(next)->alloc_lock));"
+but it didn't help.
 
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+Any idea how to fix this problem?
 
-Save up to $160 by signing up for NetZero Platinum Internet service.
-http://www.netzero.net/?refcd=N2P0602NEP8
+Thanks a lot in advance,
+best regards,
+
+Erich
+
+PS: Below is the relevant part of schedule():
+
+	prepare_arch_schedule(prev);
+...
+	if (likely(prev != next)) {
+		rq->nr_switches++;
+		rq->curr = next;
+		prepare_arch_switch(rq);
+		//while (spin_is_locked(&(next)->alloc_lock));
+		prev = context_switch(prev, next);
+		barrier();
+		rq = this_rq();
+		finish_arch_switch(rq);
+	} else
+		spin_unlock_irq(&rq->lock);
+ 	finish_arch_schedule(prev);
+
+PPS: The potential deadlock on IA64 for the "simple" macros comes from
+the fact that we sometimes wrap the context counter and need to
+read_lock(tasklist_lock). Doing this without releasing the RQ can lead
+to a deadlock with sys_wait4, where a write_lock(&tasklist_lock) is
+needed, inside of which a __wake_up needs the RQ lock :-(
 

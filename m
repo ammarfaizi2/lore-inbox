@@ -1,98 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265590AbUFYJOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266237AbUFYJ0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265590AbUFYJOb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 05:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266255AbUFYJOb
+	id S266237AbUFYJ0c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 05:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266255AbUFYJ0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 05:14:31 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:13580 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265590AbUFYJO2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 05:14:28 -0400
-Message-ID: <40DBED77.6090704@hist.no>
-Date: Fri, 25 Jun 2004 11:16:39 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Collapse ext2 and 3 please
-References: <40DB605D.6000409@comcast.net>
-In-Reply-To: <40DB605D.6000409@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Jun 2004 05:26:32 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:32677 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S266237AbUFYJ0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 05:26:13 -0400
+Date: Fri, 25 Jun 2004 11:25:57 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Mariusz Mazur <mmazur@kernel.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.7.0
+Message-ID: <20040625092557.GG27805@admingilde.org>
+Mail-Followup-To: Krzysztof Halasa <khc@pm.waw.pl>,
+	Jeff Garzik <jgarzik@pobox.com>, Mariusz Mazur <mmazur@kernel.pl>,
+	linux-kernel@vger.kernel.org
+References: <200406240020.39735.mmazur@kernel.pl> <40DA0F7D.60606@pobox.com> <m3n02s9a9f.fsf@defiant.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gTtJ75FAzB1T2CN6"
+Content-Disposition: inline
+In-Reply-To: <m3n02s9a9f.fsf@defiant.pm.waw.pl>
+User-Agent: Mutt/1.3.28i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> I know this has been mentioned before, or at least I *hope* it has.
->
-Take a look at history.  Linus said that creating a journalled fs was
-fine, but they had to make it a new fs so as to not make ext2 unstable
-while working on it.  Therefore - ext3.  Now ext3 was based on ext2
-so it basically started out as a copy.
+--gTtJ75FAzB1T2CN6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ext2 and ext3 are essentially the same, aren't they?  I'm looking at a
-> diff, and other than ext2->ext3, I'm seeing things like:
->
-> - -              mark_inode_dirty(inode);
-> +              ext3_mark_inode_dirty(handle, inode);
->
-> and thinking
->
-> - -              mark_inode_dirty(inode);
-> +#ifdef CONFIG_EXT2_JOURNALED
-> +              if (fs->journaled)
-> +                 extjnl_mark_inode_dirty(handle, inode);
-> +              else
-> +#endif
-> +                 mark_inode_dirty(inode);
->
-> would have been so much more appropriate.  
+hi :)
 
-No, because:
-1. Code withg lots of #ifdefs isn't popular here.  So don't suggest it,
-    because no argument will win this one.
-2. Did it ever occur to you that some people want to support both
-    ext2 and ext3 with the same kernel.  Impossible with your scheme,
-    and don't say "nobody needs that".
-3. ext3 may evolve differently from ext2 with time.  Common code
-    makes people do things in suboptimal ways in order to keep
-    commonality.  There is _no_ commonality pressure when the
-    sources are separate.  ext3 developers are free to change their
-    code in ways that could break operation of the non-journalling ext2.
-    And vice-versa- ext2 is free do use ordering optimizations incompatible
-    with journalling.
-4. "Appropriate" doesn't matter.  Readability and maintainability does.
-5. Linus demanded two fs'es in this case, so there is no discussion.
+On Thu, Jun 24, 2004 at 06:43:56PM +0200, Krzysztof Halasa wrote:
+> > HPA suggested include/abi and I don't think anyone objected.
 
-> I see entire functions that
-> are dropped and added; the dropped can stay, the added can be added,
-> they can be used conditionally.  I also see mostly code that just was
-> copied verbatim, or was s/EXT2/EXT3/ or s/ext2/ext3/ .  That's just not
-> appropriate.
+well, include/abi looks very generic. For userspace code, I really
+like to have 'linux' in the include file name, so that it's clear that
+some linux-specific header is being used.
 
-This is not much of a problem - a few kB wasted on keeping some
-identical copies of code.  You might be able to establish a
-ext23_common.c, _if_ you can prove that the stuff therein really
-won't ever be different in ext2 and ext3.
+> /usr/include/abi -> linux/include/abi
+> /usr/include/linux -> abi (obsolete, to be removed with 2.8)
+> Appropriate $ARCH + generic dirs (names?).
 
+what about keeping /usr/include/linux for the userspace visible part
+of the linux headers and using a new name for the internal headers.
+That way we don't have to change userspace applications and can
+do all modifications in the kernel tree at the time we want.
 
->
-> The ext2 driver can even load up ext3 partitions without using the
-> journal, if it still behaves like it did in 2.4.20.  I say collapse them
-> in on eachother.
+For example:
 
-This was very useful during initial development, when ext3 couldn't
-really be trusted.  It is still useful because it allows easy conversion
-of existing filesystems, and a single fsck. 
-Compatibility might break someday though.
-The fs code may take very different approaches with time anyway,
-even if the disk layout remains compatible. 
+ * mkdir include/kernel (plus arch-specific versions)
+ * add placeholer files that simply #include the old include/linux file
+ * start replacing in-kernel #includes with the include/kernel version.
+ * move the #ifdef __KERNEL__ parts from include/linux to include/kernel
 
-Helge Hafting
+This can be done incrementally, too.
+
+--=20
+Martin Waitz
+
+--gTtJ75FAzB1T2CN6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA2++kj/Eaxd/oD7IRAh0sAJoDj4ubGaN1sl++jYUBUKK9Z0VLGwCghCEc
+HpH42yD8YWLgzQoL2EZSnDM=
+=q5v5
+-----END PGP SIGNATURE-----
+
+--gTtJ75FAzB1T2CN6--

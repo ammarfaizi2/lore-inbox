@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbRLGL0T>; Fri, 7 Dec 2001 06:26:19 -0500
+	id <S285462AbRLGLha>; Fri, 7 Dec 2001 06:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282707AbRLGL0J>; Fri, 7 Dec 2001 06:26:09 -0500
-Received: from mustard.heime.net ([194.234.65.222]:6283 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S274862AbRLGL0E>; Fri, 7 Dec 2001 06:26:04 -0500
-Date: Fri, 7 Dec 2001 12:25:48 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
-In-Reply-To: <E16C3XL-0007nM-00@calista.inka.de>
-Message-ID: <Pine.LNX.4.30.0112071224260.28883-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285465AbRLGLhV>; Fri, 7 Dec 2001 06:37:21 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:64224 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S285462AbRLGLhK>; Fri, 7 Dec 2001 06:37:10 -0500
+Date: Fri, 7 Dec 2001 17:09:36 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Niels Christiansen <nchr@us.ibm.com>, arjanv@redhat.com
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
+Message-ID: <20011207170936.I20583@in.ibm.com>
+In-Reply-To: <OF5920A1C3.B32C93AF-ON85256B1A.005706AC@raleigh.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OF5920A1C3.B32C93AF-ON85256B1A.005706AC@raleigh.ibm.com>; from nchr@us.ibm.com on Thu, Dec 06, 2001 at 10:10:47AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It works
->
-> what results do you get?
->
-> >>       echo file_readahead:100 > /proc/ide/ide0/hda/settings
+Hi Niels, Arjan
 
-echo file_readahead:1024 > /proc/ide/ide0/hda/settings
+On Thu, Dec 06, 2001 at 10:10:47AM -0600, Niels Christiansen wrote:
+> 
+> > Well, I wrote a simple kernel module which just increments a shared
+> global
+> > counter a million times per processor in parallel, and compared it with
+> > the statctr which would be incremented a million times per processor in
+> > parallel..
+> 
+> I suspected that.  Would it be possible to do the test on the real
+> counters?
 
-...gave me full throughput to the disk (this disk can do ~25MB/s) while
-reading 50 files concurrently :-)
+Yep, I am gonna run a benchmark after changing some stat counters in the
+Kernel.  That should let us know if there are performance gains or otherwise..
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Kiran
+-- 
+Ravikiran G Thirumalai <kiran@in.ibm.com>
+Linux Technology Center, IBM Software Labs,
+Bangalore.

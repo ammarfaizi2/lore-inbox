@@ -1,179 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268090AbUH3NtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268084AbUH3Nxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268090AbUH3NtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 09:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268136AbUH3NtW
+	id S268084AbUH3Nxe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 09:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268094AbUH3Nx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 09:49:22 -0400
-Received: from gepard.lm.pl ([212.244.46.42]:25764 "EHLO gepard.lm.pl")
-	by vger.kernel.org with ESMTP id S268090AbUH3NpZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 09:45:25 -0400
-Subject: Re: 2.6.9-rc1-mm1 kjournald: page allocation failure. order:1,
-	mode:0x20
-From: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040829160257.3b881fef.akpm@osdl.org>
-References: <1093794970.1751.10.camel@rakieeta>
-	 <20040829160257.3b881fef.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-TTIrFusoJekk5hb1t1It"
-Organization: o2.pl Sp z o.o.
-Message-Id: <1093873432.1786.16.camel@rakieeta>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 30 Aug 2004 15:43:52 +0200
+	Mon, 30 Aug 2004 09:53:27 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:61701 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S268084AbUH3Nwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 09:52:39 -0400
+Message-ID: <41333225.7070801@hist.no>
+Date: Mon, 30 Aug 2004 15:56:53 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
+       Spam <spam@tnonline.net>, Jamie Lokier <jamie@shareable.org>,
+       Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
---=-TTIrFusoJekk5hb1t1It
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+>On Sat, 28 Aug 2004, Helge Hafting wrote:
+>  
+>
+>>>I think that lack of distinguishing power is more serious for 
+>>>directories. The more I think I think about it, the more I wonder whether 
+>>>Solaris did things right - having a special operation to "cross the 
+>>>boundary".
+>>>
+>>>I suspect Solaris did it that way because it's a hell of a lot easier to 
+>>>do it like that, but regardless, it would solve the issue of real 
+>>>directories having both real children _and_ the "extra streams".
+>>>      
+>>>
+>>There are many ways of doing this. Several extra streams to a directory
+>>that aren't ordinary files in the directory?
+>>    
+>>
+>
+>Well.. Yes. We already have "." and "..", which are "special extra
+>streams" in a sense. However, people expect them, and know to ignore them. 
+>The same wouldn't be true of new naming.
+>
+>  
+>
+>>It seems to me that we can get a lot of nice functionality in a simpler way:
+>>Instead of thinking about a number of streams attached to something
+>>that is either an ordinary file or directory, just say that the only
+>>change will be that a directory may have a _single_ file stream in
+>>addition to being a plain directory.
+>>    
+>>
+>
+>That doesn't really help us. What would the name be, and how could you 
+>avoid clashes? 
+>  
+>
+The name for the file stream and the directory would be the same,
+distinguished by how they're used.  I.e. fopen("filedirname", "rw")
+gets the stream, while chdir("filedirname") changes into the directory.
+fopen("filedirname/substream", "rw"); opens some stream inside
+the directory - as usual.
 
-W li¶cie z pon, 30-08-2004, godz. 01:02, Andrew Morton pisze: 
-> Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl> wrote:
-> >
-> > after creating several GB of data in small files on the SMP highmem box
-> >  the
-> > 
-> >  kjournald: page allocation failure. order:1, mode:0x20
-> > 
-> > 
-> >  start flooding the logs, load goes to sth around 1k, writing processes
-> >  get stuck in D state and the system needs hard reset.
-> > 
-> >  Anyone else is experiencing that kind of problems?
-> > 
-> >  Im running sw raid1 on that box, not preemtible kernel.
-> 
-> There should have been a stack trace as well.  Please send it.
-> 
+My idea is that the "extra streams" aren't special at all, they
+are simply files in a directory and will therefore work with
+any normal tool.  cd'ing into such a directory won't be special
+either - because it is a plain directory. A collection of named streams
+is usually a bunch of files in a directory - nothing new there.
 
-this time there is an attachement.
-Sadly I don't have the stack for kjournald process however I have
-similiar traces, please see the attached file. 2.6.9-rc1-mm1 SMP,
-highmem.
+Someone serving files for clients using
+other os'es may attach special meaning to them, but I don't see the need
+for a special meaning under linux.
 
-Hope that can give you some more information.
+So the only new thing is that the directory have a stream of
+its own.  Then there must be a way to turn a ordinary
+file into such a directory - people may then implement
+thumbnails, summaries and so on as substreams.  Where
+the substreams really are plain files in this slightly
+special directory.
 
-Krzysztof
+Perhaps mkdir with an existing filename could succeed,
+creating a mixed file/directory, if the underlying fs support it.
 
---=-TTIrFusoJekk5hb1t1It
-Content-Disposition: attachment; filename=2.6.9-rc1-mm1bug
-Content-Type: text/plain; name=2.6.9-rc1-mm1bug; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
+>  
+>
+>>If the VFS is to be extended in order to support file-as-directory (or
+>>vice versa) then hopefully it can be done in a simple way.
+>>    
+>>
+>
+>I'm pretty confident that we can extend the VFS layer to support named
+>streams (see the technical discussion with Al, rather than the flames in
+>this thread). I also clearly believe that it is worth it, but I'm starting
+>to wonder if we should have a special open flag to make people select the
+>stream.
+>
+>If you look at the Solaris interface, the _nice_ part about "openat()" is 
+>that you can do something like
+>
+>	file = open(filename, O_RDONLY);
+>	if (file < 0)
+>		return -ENOENT;
+>	icon = openat(file, "icon", O_RDONLY | O_XATTR);
+>	if (icon < 0)
+>		icon = default_icon_file;
+>	..
+>
+>and it will work regardless of whether "filename" is a directory or a 
+>regular file, if I've understood correctly.
+>  
+>
+An alternative: support open("filename/icon", O_CREAT);
+and have this turn "filename" into file-as-directory if it wasn't so
+already.  Then it works both with files and directories.
+A new flag might be needed if old programs somehow depend on the stuff
+above failing for plain files.
 
-swapper: page allocation failure. order:2, mode:0x20
- [<c0133b1f>] __alloc_pages+0x21a/0x3d3
- [<c0133cfd>] __get_free_pages+0x25/0x3f
- [<c01370be>] kmem_getpages+0x21/0xcd
- [<c0137c2c>] alloc_slabmgmt+0x55/0x60
- [<c0137dab>] cache_grow+0xa7/0x148
- [<c0137f1b>] cache_alloc_refill+0xcf/0x219
- [<c013842f>] __kmalloc+0x73/0x7a
- [<c0244a75>] pskb_expand_head+0x51/0x123
- [<c02910e1>] tcp_in_window+0x46d/0x472
- [<c0249536>] skb_checksum_help+0x103/0x114
- [<c02607ab>] ip_finish_output2+0x0/0x1a4
- [<c0294f90>] ip_nat_fn+0x224/0x235
- [<c02607ab>] ip_finish_output2+0x0/0x1a4
- [<c0294c7f>] ipt_route_hook+0x37/0x3b
- [<c02607ab>] ip_finish_output2+0x0/0x1a4
- [<c0252dfd>] nf_iterate+0x71/0xa5
- [<c02607ab>] ip_finish_output2+0x0/0x1a4
- [<c02607ab>] ip_finish_output2+0x0/0x1a4
- [<c02530c6>] nf_hook_slow+0x6b/0xf9
- [<c02607ab>] ip_finish_output2+0x0/0x1a4
- [<c0260782>] dst_output+0x0/0x29
- [<c025e30d>] ip_finish_output+0x1f8/0x1fd
- [<c02607ab>] ip_finish_output2+0x0/0x1a4
- [<c0260782>] dst_output+0x0/0x29
- [<c0260796>] dst_output+0x14/0x29
- [<c025311f>] nf_hook_slow+0xc4/0xf9
- [<c0260782>] dst_output+0x0/0x29
- [<c025ea18>] ip_queue_xmit+0x4e5/0x5e4
- [<c0260782>] dst_output+0x0/0x29
- [<c0137c2c>] alloc_slabmgmt+0x55/0x60
- [<c0137df7>] cache_grow+0xf3/0x148
- [<c0137f1b>] cache_alloc_refill+0xcf/0x219
- [<c026ef42>] tcp_transmit_skb+0x423/0x6ce
- [<c026faa1>] tcp_write_xmit+0x189/0x2d5
- [<c026cdd5>] __tcp_data_snd_check+0xdd/0xec
- [<c026d672>] tcp_rcv_established+0x49f/0x906
- [<c02761d3>] tcp_v4_do_rcv+0x139/0x13e
- [<c0276787>] tcp_v4_rcv+0x5af/0x80a
- [<c025008f>] .text.lock.neighbour+0xca/0x16b
- [<c0294bcf>] ipt_hook+0x37/0x3b
- [<c025b566>] ip_local_deliver_finish+0x0/0x161
- [<c025b608>] ip_local_deliver_finish+0xa2/0x161
- [<c025b566>] ip_local_deliver_finish+0x0/0x161
- [<c025311f>] nf_hook_slow+0xc4/0xf9
- [<c025b566>] ip_local_deliver_finish+0x0/0x161
- [<c025b6c7>] ip_rcv_finish+0x0/0x251
- [<c025b081>] ip_local_deliver+0x1b7/0x1d5
- [<c025b566>] ip_local_deliver_finish+0x0/0x161
- [<c025b8a4>] ip_rcv_finish+0x1dd/0x251
- [<c025b6c7>] ip_rcv_finish+0x0/0x251
- [<c025311f>] nf_hook_slow+0xc4/0xf9
- [<c025b6c7>] ip_rcv_finish+0x0/0x251
- [<c025b49a>] ip_rcv+0x3fb/0x4c7
- [<c025b6c7>] ip_rcv_finish+0x0/0x251
- [<c0249d7f>] netif_receive_skb+0x12d/0x190
- [<c01f200f>] e1000_clean_rx_irq+0x13f/0x470
- [<c02444d4>] __kfree_skb+0x6f/0xe4
- [<c01f1c19>] e1000_clean+0x51/0xe9
- [<c0249f9d>] net_rx_action+0x7a/0x120
- [<c011dfde>] __do_softirq+0xba/0xc9
- [<c0107649>] do_softirq+0x4c/0x5b
- =======================
- [<c0106dd9>] do_IRQ+0x158/0x193
- [<c010207e>] default_idle+0x0/0x2d
- [<c0104a2c>] common_interrupt+0x18/0x20
- [<c010207e>] default_idle+0x0/0x2d
- [<c01020a8>] default_idle+0x2a/0x2d
- [<c010211c>] cpu_idle+0x37/0x40
- [<c031f9d7>] start_kernel+0x16a/0x183
- [<c031f4a0>] unknown_bootoption+0x0/0x16f
-RAID1 conf printout:
- --- wd:2 rd:2
- disk 0, wo:0, o:1, dev:sdn1
- disk 1, wo:0, o:1, dev:sdv1
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-printk: 41 messages suppressed.
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-printk: 98 messages suppressed.
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-printk: 170 messages suppressed.
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-printk: 273 messages suppressed.
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
-printk: 161 messages suppressed.
-mazakd: page allocation failure. order:1, mode:0x20
-Stack pointer is garbage, not printing trace
+>Now, I think that makes sense for several reasons:
+> - single case
+> - race-free (think "stat()" vs "fstat()" races).
+> - I think we want to do "openat()" regardless of whether we ever 
+>   support extended attributes or not ("openat()" is nice for doing 
+>   "namei()" in user space even in the absense of any attributes or 
+>   named streams).
+>
+>So what we can do is
+> - implement openat() regardless, and expect to do the Solaris thing for 
+>   it if we ever do streams.
+> - _also_ support the "implied named attributes" for regular files, so 
+>   that you don't have to use "openat()" to access them.
+>
+>Comments? Does anybody hate "openat()" for any reason (regardless of 
+>attributes)? We can easily support it, we'd just need to pass in the file 
+>to use as part of the "nameidata" thing or add an argument (it would also 
+>possibly be cleaner if we made "fs->pwd" be a "struct file").
+>
+>  
+>
+No problem with openat()
 
---=-TTIrFusoJekk5hb1t1It--
+Helge Hafting
 

@@ -1,168 +1,568 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264760AbTE1PDK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 11:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264761AbTE1PDK
+	id S264659AbTE1PJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 11:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbTE1PJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 11:03:10 -0400
-Received: from [65.37.126.18] ([65.37.126.18]:9867 "EHLO the-penguin.otak.com")
-	by vger.kernel.org with ESMTP id S264760AbTE1PDH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 11:03:07 -0400
-Date: Wed, 28 May 2003 08:16:20 -0700
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: OOPs report
-Message-ID: <20030528151620.GA21579@the-penguin.otak.com>
-Mail-Followup-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
+	Wed, 28 May 2003 11:09:56 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15634 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264659AbTE1PJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 11:09:45 -0400
+Date: Wed, 28 May 2003 16:22:57 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] PCMCIA updates
+Message-ID: <20030528162257.A12329@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux 2.5.70-mm1 on an i686
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all I have a oops report, happened overnight don't know why,
-other then it looks devfs related. 
+Here's the patch for a set of PCMCIA updates which will shortly be heading
+Linus-ward.  As normal, if you want a bk tree to pull, just ask in personal
+mail.
 
-System is running debian sid.
+<proski@org.rmk.(none)> (03/05/28 1.1127.7.2)
+	[PATCH] Fix crash when unloading yenta_socket in Linux 2.5.69
+	
+	socket->base is unmapped in yenta_close(), which is called by
+	cardbus_remove().  The value of socket->base is not changed to
+	NULL, so it becomes invalid.
+	
+	Then cardbus_remove() calls class_device_unregister(), which calls
+	pcmcia_unregister_socket(), which it turn tries to access memory
+	space of the socket.
 
-More then happy to be flamed, apply patches, dance a jig.
+<hch@de.rmk.(none)> (03/05/18 1.1127.7.1)
+	[PATCH] kill register_pccard_driver
+	
+	I tried to get as much in as possible through the maintainers but
+	didn't get much feedback.. (Except two batches included and Kai
+	ACKing the ISDN stuff).
+	
+	So here's a big patch to move the reamining users over to
+	pcmcia_register_driver and kill it off.
 
+diff -Nru a/drivers/char/pcmcia/synclink_cs.c b/drivers/char/pcmcia/synclink_cs.c
+--- a/drivers/char/pcmcia/synclink_cs.c	Wed May 28 16:18:29 2003
++++ b/drivers/char/pcmcia/synclink_cs.c	Wed May 28 16:18:30 2003
+@@ -3131,9 +3131,18 @@
+ 	}
+ }
+ 
++static struct pcmcia_driver mgslpc_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "synclink_cs",
++	},
++	.attach		= mgslpc_attach,
++	.detach		= mgslpc_detach,
++};
++
+ static int __init synclink_cs_init(void)
+ {
+-    servinfo_t serv;
++    int error;
+ 
+     if (break_on_load) {
+ 	    mgslpc_get_text_ptr();
+@@ -3142,13 +3151,9 @@
+ 
+     printk("%s %s\n", driver_name, driver_version);
+ 
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-	    printk(KERN_NOTICE "synclink_cs: Card Services release "
+-		   "does not match!\n");
+-	    return -1;
+-    }
+-    register_pccard_driver(&dev_info, &mgslpc_attach, &mgslpc_detach);
++    error = pcmcia_register_driver(&mgslpc_driver);
++    if (error)
++	    return error;
+ 
+     /* Initialize the tty_driver structure */
+ 	
+@@ -3217,7 +3222,9 @@
+ 		printk("%s(%d) failed to unregister tty driver err=%d\n",
+ 		       __FILE__,__LINE__,rc);
+ 
+-	unregister_pccard_driver(&dev_info);
++	pcmcia_unregister_driver(&mgslpc_driver);
++
++	/* XXX: this really needs to move into generic code.. */
+ 	while (dev_list != NULL) {
+ 		if (dev_list->state & DEV_CONFIG)
+ 			mgslpc_release((u_long)dev_list);
+diff -Nru a/drivers/ide/legacy/ide-cs.c b/drivers/ide/legacy/ide-cs.c
+--- a/drivers/ide/legacy/ide-cs.c	Wed May 28 16:18:30 2003
++++ b/drivers/ide/legacy/ide-cs.c	Wed May 28 16:18:30 2003
+@@ -470,28 +470,25 @@
+     return 0;
+ } /* ide_event */
+ 
+-/*====================================================================*/
++static struct pcmcia_driver ide_cs_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "ide_cs",
++	},
++	.attach		= ide_attach,
++	.detach		= ide_detach,
++};
+ 
+ static int __init init_ide_cs(void)
+ {
+-    servinfo_t serv;
+-    DEBUG(0, "%s\n", version);
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-	printk(KERN_NOTICE "ide-cs: Card Services release "
+-	       "does not match!\n");
+-	return -EINVAL;
+-    }
+-    register_pccard_driver(&dev_info, &ide_attach, &ide_detach);
+-    return 0;
++	return pcmcia_register_driver(&ide_cs_driver);
+ }
+ 
+ static void __exit exit_ide_cs(void)
+ {
+-    DEBUG(0, "ide-cs: unloading\n");
+-    unregister_pccard_driver(&dev_info);
+-    while (dev_list != NULL)
+-	ide_detach(dev_list);
++	pcmcia_unregister_driver(&ide_cs_driver);
++	while (dev_list != NULL)
++		ide_detach(dev_list);
+ }
+ 
+ module_init(init_ide_cs);
+diff -Nru a/drivers/isdn/hardware/avm/avm_cs.c b/drivers/isdn/hardware/avm/avm_cs.c
+--- a/drivers/isdn/hardware/avm/avm_cs.c	Wed May 28 16:18:29 2003
++++ b/drivers/isdn/hardware/avm/avm_cs.c	Wed May 28 16:18:29 2003
+@@ -510,29 +510,30 @@
+     return 0;
+ } /* avmcs_event */
+ 
+-/*====================================================================*/
++static struct pcmcia_driver avmcs_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "avmcs_cs",
++	},
++	.attach		= avmcs_attach,
++	.detach		= avmcs_detach,
++};
+ 
+ static int __init avmcs_init(void)
+ {
+-    servinfo_t serv;
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-	printk(KERN_NOTICE "avm_cs: Card Services release "
+-	       "does not match!\n");
+-	return -1;
+-    }
+-    register_pccard_driver(&dev_info, &avmcs_attach, &avmcs_detach);
+-    return 0;
++	return pcmcia_register_driver(&avmcs_driver);
+ }
+ 
+ static void __exit avmcs_exit(void)
+ {
+-    unregister_pccard_driver(&dev_info);
+-    while (dev_list != NULL) {
+-	if (dev_list->state & DEV_CONFIG)
+-	    avmcs_release((u_long)dev_list);
+-	avmcs_detach(dev_list);
+-    }
++	pcmcia_unregister_driver(&avmcs_driver);
++
++	/* XXX: this really needs to move into generic code.. */
++	while (dev_list != NULL) {
++		if (dev_list->state & DEV_CONFIG)
++			avmcs_release((u_long)dev_list);
++		avmcs_detach(dev_list);
++	}
+ }
+ 
+ module_init(avmcs_init);
+diff -Nru a/drivers/isdn/hisax/avma1_cs.c b/drivers/isdn/hisax/avma1_cs.c
+--- a/drivers/isdn/hisax/avma1_cs.c	Wed May 28 16:18:30 2003
++++ b/drivers/isdn/hisax/avma1_cs.c	Wed May 28 16:18:30 2003
+@@ -515,30 +515,30 @@
+     return 0;
+ } /* avma1cs_event */
+ 
+-/*====================================================================*/
++static struct pcmcia_driver avma1cs_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "avma1_cs",
++	},
++	.attach		= avma1cs_attach,
++	.detach		= avma1cs_detach,
++};
+ 
+ static int __init init_avma1_cs(void)
+ {
+-    servinfo_t serv;
+-    DEBUG(0, "%s\n", version);
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-        printk(KERN_NOTICE "avma1_cs: Card Services release "
+-               "does not match!\n");
+-        return -1;
+-    }
+-    register_pccard_driver(&dev_info, &avma1cs_attach, &avma1cs_detach);
+-    return 0;
++	return pcmcia_register_driver(&avma1cs_driver);
+ }
+ 
+ static void __exit exit_avma1_cs(void)
+ {
+-    DEBUG(0, "avma1_cs: unloading\n");
+-    unregister_pccard_driver(&dev_info);
+-    while (dev_list != NULL)
+-	if (dev_list->state & DEV_CONFIG)
+-	    avma1cs_release((u_long)dev_list);
+-        avma1cs_detach(dev_list);
++	pcmcia_unregister_driver(&avma1cs_driver);
++
++	/* XXX: this really needs to move into generic code.. */
++	while (dev_list != NULL) {
++		if (dev_list->state & DEV_CONFIG)
++			avma1cs_release((u_long)dev_list);
++		avma1cs_detach(dev_list);
++	}
+ }
+ 
+ module_init(init_avma1_cs);
+diff -Nru a/drivers/isdn/hisax/elsa_cs.c b/drivers/isdn/hisax/elsa_cs.c
+--- a/drivers/isdn/hisax/elsa_cs.c	Wed May 28 16:18:30 2003
++++ b/drivers/isdn/hisax/elsa_cs.c	Wed May 28 16:18:30 2003
+@@ -531,28 +531,27 @@
+     return 0;
+ } /* elsa_cs_event */
+ 
+-/*====================================================================*/
++static struct pcmcia_driver elsa_cs_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "elsa_cs",
++	},
++	.attach		= elsa_cs_attach,
++	.detach		= elsa_cs_detach,
++};
+ 
+ static int __init init_elsa_cs(void)
+ {
+-    servinfo_t serv;
+-    DEBUG(0, "%s\n", version);
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-        printk(KERN_NOTICE "elsa_cs: Card Services release "
+-               "does not match!\n");
+-        return -1;
+-    }
+-    register_pccard_driver(&dev_info, &elsa_cs_attach, &elsa_cs_detach);
+-    return 0;
++	return pcmcia_register_driver(&elsa_cs_driver);
+ }
+ 
+ static void __exit exit_elsa_cs(void)
+ {
+-    DEBUG(0, "elsa_cs: unloading\n");
+-    unregister_pccard_driver(&dev_info);
+-    while (dev_list != NULL)
+-        elsa_cs_detach(dev_list);
++	pcmcia_unregister_driver(&elsa_cs_driver);
++
++	/* XXX: this really needs to move into generic code.. */
++	while (dev_list != NULL)
++		elsa_cs_detach(dev_list);
+ }
+ 
+ module_init(init_elsa_cs);
+diff -Nru a/drivers/isdn/hisax/sedlbauer_cs.c b/drivers/isdn/hisax/sedlbauer_cs.c
+--- a/drivers/isdn/hisax/sedlbauer_cs.c	Wed May 28 16:18:29 2003
++++ b/drivers/isdn/hisax/sedlbauer_cs.c	Wed May 28 16:18:29 2003
+@@ -633,34 +633,32 @@
+     return 0;
+ } /* sedlbauer_event */
+ 
+-/*====================================================================*/
++static struct pcmcia_driver sedlbauer_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "sedlbauer_cs",
++	},
++	.attach		= sedlbauer_attach,
++	.detach		= sedlbauer_detach,
++};
+ 
+ static int __init init_sedlbauer_cs(void)
+ {
+-    servinfo_t serv;
+-    DEBUG(0, "%s\n", version);
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-	printk(KERN_NOTICE "sedlbauer_cs: Card Services release "
+-	       "does not match!\n");
+-	return -1;
+-    }
+-    register_pccard_driver(&dev_info, &sedlbauer_attach, &sedlbauer_detach);
+-    return 0;
++	return pcmcia_register_driver(&sedlbauer_driver);
+ }
+ 
+ static void __exit exit_sedlbauer_cs(void)
+ {
+-    DEBUG(0, "sedlbauer_cs: unloading\n");
+-    unregister_pccard_driver(&dev_info);
+-    while (dev_list != NULL) {
+-	del_timer(&dev_list->release);
+-	if (dev_list->state & DEV_CONFIG)
+-	    sedlbauer_release((u_long)dev_list);
+-	sedlbauer_detach(dev_list);
+-    }
++	pcmcia_unregister_driver(&sedlbauer_driver);
++
++	/* XXX: this really needs to move into generic code.. */
++	while (dev_list != NULL) {
++		del_timer(&dev_list->release);
++		if (dev_list->state & DEV_CONFIG)
++			sedlbauer_release((u_long)dev_list);
++		sedlbauer_detach(dev_list);
++	}
+ }
+ 
+ module_init(init_sedlbauer_cs);
+ module_exit(exit_sedlbauer_cs);
+-
+diff -Nru a/drivers/mtd/maps/pcmciamtd.c b/drivers/mtd/maps/pcmciamtd.c
+--- a/drivers/mtd/maps/pcmciamtd.c	Wed May 28 16:18:29 2003
++++ b/drivers/mtd/maps/pcmciamtd.c	Wed May 28 16:18:29 2003
+@@ -836,17 +836,18 @@
+ 	return link;
+ }
+ 
++static struct pcmcia_driver pcmciamtd_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "pcmciamtd",
++	},
++	.attach		= pcmciamtd_attach,
++	.detach		= pcmciamtd_detach,
++};
+ 
+ static int __init init_pcmciamtd(void)
+ {
+-	servinfo_t serv;
+-
+ 	info(DRIVER_DESC " " DRIVER_VERSION);
+-	CardServices(GetCardServicesInfo, &serv);
+-	if (serv.Revision != CS_RELEASE_CODE) {
+-		err("Card Services release does not match!");
+-		return -1;
+-	}
+ 
+ 	if(buswidth && buswidth != 1 && buswidth != 2) {
+ 		info("bad buswidth (%d), using default", buswidth);
+@@ -860,8 +861,8 @@
+ 		info("bad mem_type (%d), using default", mem_type);
+ 		mem_type = 0;
+ 	}
+-	register_pccard_driver(&dev_info, &pcmciamtd_attach, &pcmciamtd_detach);
+-	return 0;
++
++	return pcmcia_register_driver(&pcmciamtd_driver);
+ }
+ 
+ 
+@@ -870,7 +871,10 @@
+ 	struct list_head *temp1, *temp2;
+ 
+ 	DEBUG(1, DRIVER_DESC " unloading");
+-	unregister_pccard_driver(&dev_info);
++
++	pcmcia_unregister_driver(&pcmciamtd_driver);
++
++	/* XXX: this really needs to move into generic code.. */
+ 	list_for_each_safe(temp1, temp2, &dev_list) {
+ 		dev_link_t *link = &list_entry(temp1, struct pcmciamtd_dev, list)->link;
+ 		if (link && (link->state & DEV_CONFIG)) {
+diff -Nru a/drivers/net/pcmcia/pcnet_cs.c b/drivers/net/pcmcia/pcnet_cs.c
+--- a/drivers/net/pcmcia/pcnet_cs.c	Wed May 28 16:18:30 2003
++++ b/drivers/net/pcmcia/pcnet_cs.c	Wed May 28 16:18:30 2003
+@@ -1620,16 +1620,7 @@
+ 
+ static int __init init_pcnet_cs(void)
+ {
+-    servinfo_t serv;
+-    DEBUG(0, "%s\n", version);
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-	printk(KERN_NOTICE "pcnet_cs: Card Services release "
+-	       "does not match!\n");
+-	return -EINVAL;
+-    }
+-    pcmcia_register_driver(&pcnet_driver);
+-    return 0;
++    return pcmcia_register_driver(&pcnet_driver);
+ }
+ 
+ static void __exit exit_pcnet_cs(void)
+diff -Nru a/drivers/parport/parport_cs.c b/drivers/parport/parport_cs.c
+--- a/drivers/parport/parport_cs.c	Wed May 28 16:18:31 2003
++++ b/drivers/parport/parport_cs.c	Wed May 28 16:18:31 2003
+@@ -390,28 +390,27 @@
+     return 0;
+ } /* parport_event */
+ 
+-/*====================================================================*/
++static struct pcmcia_driver parport_cs_driver = {
++	.owner		= THIS_MODULE,
++	.drv		= {
++		.name	= "parport_cs",
++	},
++	.attach		= parport_attach,
++	.detach		= parport_detach,
++};
+ 
+ static int __init init_parport_cs(void)
+ {
+-    servinfo_t serv;
+-    DEBUG(0, "%s\n", version);
+-    CardServices(GetCardServicesInfo, &serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-	printk(KERN_NOTICE "parport_cs: Card Services release "
+-	       "does not match!\n");
+-	return -EINVAL;
+-    }
+-    register_pccard_driver(&dev_info, &parport_attach, &parport_detach);
+-    return 0;
++	return pcmcia_register_driver(&parport_cs_driver);
+ }
+ 
+ static void __exit exit_parport_cs(void)
+ {
+-    DEBUG(0, "parport_cs: unloading\n");
+-    unregister_pccard_driver(&dev_info);
+-    while (dev_list != NULL)
+-	parport_detach(dev_list);
++	pcmcia_unregister_driver(&parport_cs_driver);
++
++	/* XXX: this really needs to move into generic code.. */
++	while (dev_list != NULL)
++		parport_detach(dev_list);
+ }
+ 
+ module_init(init_parport_cs);
+diff -Nru a/drivers/pcmcia/ds.c b/drivers/pcmcia/ds.c
+--- a/drivers/pcmcia/ds.c	Wed May 28 16:18:30 2003
++++ b/drivers/pcmcia/ds.c	Wed May 28 16:18:30 2003
+@@ -182,50 +182,6 @@
+ }
+ EXPORT_SYMBOL(pcmcia_unregister_driver);
+ 
+-
+-int register_pccard_driver(dev_info_t *dev_info,
+-			   dev_link_t *(*attach)(void),
+-			   void (*detach)(dev_link_t *))
+-{
+-    struct pcmcia_driver *driver;
+-
+-    DEBUG(0, "ds: register_pccard_driver('%s')\n", (char *)dev_info);
+-    driver = get_pcmcia_driver(dev_info);
+-    if (driver)
+-	    return -EBUSY;
+-
+-    driver = kmalloc(sizeof(struct pcmcia_driver), GFP_KERNEL);
+-    if (!driver) return -ENOMEM;
+-    memset(driver, 0, sizeof(struct pcmcia_driver));
+-    driver->drv.name = (char *)dev_info;
+-    pcmcia_register_driver(driver);
+-
+-    driver->attach = attach;
+-    driver->detach = detach;
+-
+-    return 0;
+-} /* register_pccard_driver */
+-
+-/*====================================================================*/
+-
+-int unregister_pccard_driver(dev_info_t *dev_info)
+-{
+-    struct pcmcia_driver *driver;
+-
+-    DEBUG(0, "ds: unregister_pccard_driver('%s')\n",
+-	  (char *)dev_info);
+-
+-    driver = get_pcmcia_driver(dev_info);
+-    if (!driver)
+-	return -ENODEV;
+-    
+-    pcmcia_unregister_driver(driver);
+-    kfree(driver);
+-    return 0;
+-} /* unregister_pccard_driver */
+-
+-/*====================================================================*/
+-
+ #ifdef CONFIG_PROC_FS
+ static int proc_read_drivers_callback(struct device_driver *driver, void *d)
+ {
+@@ -875,11 +831,6 @@
+ 	.write		= ds_write,
+ 	.poll		= ds_poll,
+ };
+-
+-EXPORT_SYMBOL(register_pccard_driver);
+-EXPORT_SYMBOL(unregister_pccard_driver);
+-
+-/*====================================================================*/
+ 
+ static int __devinit pcmcia_bus_add_socket(struct device *dev, unsigned int socket_nr)
+ {
+diff -Nru a/drivers/pcmcia/pci_socket.c b/drivers/pcmcia/pci_socket.c
+--- a/drivers/pcmcia/pci_socket.c	Wed May 28 16:18:31 2003
++++ b/drivers/pcmcia/pci_socket.c	Wed May 28 16:18:31 2003
+@@ -196,9 +196,9 @@
+ 	pci_socket_t *socket = pci_get_drvdata(dev);
+ 
+ 	/* note: we are already unregistered from the cs core */
++	class_device_unregister(&socket->cls_d.class_dev);
+ 	if (socket->op && socket->op->close)
+ 		socket->op->close(socket);
+-	class_device_unregister(&socket->cls_d.class_dev);
+ 	pci_set_drvdata(dev, NULL);
+ }
+ 
+diff -Nru a/include/pcmcia/ds.h b/include/pcmcia/ds.h
+--- a/include/pcmcia/ds.h	Wed May 28 16:18:29 2003
++++ b/include/pcmcia/ds.h	Wed May 28 16:18:29 2003
+@@ -156,12 +156,6 @@
+ int pcmcia_register_driver(struct pcmcia_driver *driver);
+ void pcmcia_unregister_driver(struct pcmcia_driver *driver);
+ 
+-/* legacy driver registration interface.  don't use in new code */
+-int register_pccard_driver(dev_info_t *dev_info,
+-			   dev_link_t *(*attach)(void),
+-			   void (*detach)(dev_link_t *));
+-int unregister_pccard_driver(dev_info_t *dev_info);
+-
+ /* error reporting */
+ void cs_error(client_handle_t handle, int func, int ret);
+ 
 
-
-ksymoops 2.4.8 on i686 2.5.70-mm1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.70-mm1/ (default)
-     -m /System.map (specified)
-
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-kernel BUG at include/linux/list.h:140!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c011a44b>]    Not tainted VLI
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010093
-eax: e4ddfea8   ebx: 00000296   ecx: e4ddfeb4   edx: df081e40
-esi: df081e40   edi: e4dde000   ebp: e1048c80   esp: e4ddfe6c
-ds: 007b   es: 007b   ss: 0068
-Stack: e4ddfea8 c01a693c c037e360 e4ddfe98 d3a607e0 df081e3c efd4ebc0 00000000 
-       c6cbf980 c0119140 00000000 00000000 00000286 00000000 e735f960 00000000 
-       c6cbf980 c0119140 df081e40 df081e40 eee9c005 000056ed 00000001 e1048c80 
-Call Trace:
- [<c01a693c>] devfs_d_revalidate_wait+0x12c/0x130
- [<c0119140>] default_wake_function+0x0/0x30
- [<c0119140>] default_wake_function+0x0/0x30
- [<c015631c>] do_lookup+0x6c/0xb0
- [<c0156770>] link_path_walk+0x410/0x790
- [<c01573c6>] open_namei+0x76/0x3d0
- [<c0148a0e>] filp_open+0x3e/0x70
- [<c0148e0b>] sys_open+0x5b/0x90
- [<c010a8cb>] syscall_call+0x7/0xb
-Code: 53 89 d0 9c 5b fa 8d 4a 0c 8b 51 04 39 0a 75 1b 8b 40 0c 39 48 04 75 09 89 50 04 89 02 53 9d 5b c3 0f 0b 8d 00 f2 65 29 c0 eb ed <0f> 0b 8c 00 f2 65 29 c0 eb db 8d 74 26 00 8d bc 27 00 00 00 00 
-
-
->>EIP; c011a44b <remove_wait_queue+2b/40>   <=====
-
->>eax; e4ddfea8 <_end+24a50300/3fc6e458>
->>ecx; e4ddfeb4 <_end+24a5030c/3fc6e458>
->>edx; df081e40 <_end+1ecf2298/3fc6e458>
->>esi; df081e40 <_end+1ecf2298/3fc6e458>
->>edi; e4dde000 <_end+24a4e458/3fc6e458>
->>ebp; e1048c80 <_end+20cb90d8/3fc6e458>
->>esp; e4ddfe6c <_end+24a502c4/3fc6e458>
-
-Trace; c01a693c <devfs_d_revalidate_wait+12c/130>
-Trace; c0119140 <default_wake_function+0/30>
-Trace; c0119140 <default_wake_function+0/30>
-Trace; c015631c <do_lookup+6c/b0>
-Trace; c0156770 <link_path_walk+410/790>
-Trace; c01573c6 <open_namei+76/3d0>
-Trace; c0148a0e <filp_open+3e/70>
-Trace; c0148e0b <sys_open+5b/90>
-Trace; c010a8cb <syscall_call+7/b>
-
-Code;  c011a420 <remove_wait_queue+0/40>
-00000000 <_EIP>:
-Code;  c011a420 <remove_wait_queue+0/40>
-   0:   53                        push   %ebx
-Code;  c011a421 <remove_wait_queue+1/40>
-   1:   89 d0                     mov    %edx,%eax
-Code;  c011a423 <remove_wait_queue+3/40>
-   3:   9c                        pushf  
-Code;  c011a424 <remove_wait_queue+4/40>
-   4:   5b                        pop    %ebx
-Code;  c011a425 <remove_wait_queue+5/40>
-   5:   fa                        cli    
-Code;  c011a426 <remove_wait_queue+6/40>
-   6:   8d 4a 0c                  lea    0xc(%edx),%ecx
-Code;  c011a429 <remove_wait_queue+9/40>
-   9:   8b 51 04                  mov    0x4(%ecx),%edx
-Code;  c011a42c <remove_wait_queue+c/40>
-   c:   39 0a                     cmp    %ecx,(%edx)
-Code;  c011a42e <remove_wait_queue+e/40>
-   e:   75 1b                     jne    2b <_EIP+0x2b>
-Code;  c011a430 <remove_wait_queue+10/40>
-  10:   8b 40 0c                  mov    0xc(%eax),%eax
-Code;  c011a433 <remove_wait_queue+13/40>
-  13:   39 48 04                  cmp    %ecx,0x4(%eax)
-Code;  c011a436 <remove_wait_queue+16/40>
-  16:   75 09                     jne    21 <_EIP+0x21>
-Code;  c011a438 <remove_wait_queue+18/40>
-  18:   89 50 04                  mov    %edx,0x4(%eax)
-Code;  c011a43b <remove_wait_queue+1b/40>
-  1b:   89 02                     mov    %eax,(%edx)
-Code;  c011a43d <remove_wait_queue+1d/40>
-  1d:   53                        push   %ebx
-Code;  c011a43e <remove_wait_queue+1e/40>
-  1e:   9d                        popf   
-Code;  c011a43f <remove_wait_queue+1f/40>
-  1f:   5b                        pop    %ebx
-Code;  c011a440 <remove_wait_queue+20/40>
-  20:   c3                        ret    
-Code;  c011a441 <remove_wait_queue+21/40>
-  21:   0f 0b                     ud2a   
-Code;  c011a443 <remove_wait_queue+23/40>
-  23:   8d 00                     lea    (%eax),%eax
-Code;  c011a445 <remove_wait_queue+25/40>
-  25:   f2                        repnz
-Code;  c011a446 <remove_wait_queue+26/40>
-  26:   65                        gs
-Code;  c011a447 <remove_wait_queue+27/40>
-  27:   29 c0                     sub    %eax,%eax
-Code;  c011a449 <remove_wait_queue+29/40>
-  29:   eb ed                     jmp    18 <_EIP+0x18>
-Code;  c011a44b <remove_wait_queue+2b/40>   <=====
-  2b:   0f 0b                     ud2a      <=====
-Code;  c011a44d <remove_wait_queue+2d/40>
-  2d:   8c 00                     movl   %es,(%eax)
-Code;  c011a44f <remove_wait_queue+2f/40>
-  2f:   f2                        repnz
-Code;  c011a450 <remove_wait_queue+30/40>
-  30:   65                        gs
-Code;  c011a451 <remove_wait_queue+31/40>
-  31:   29 c0                     sub    %eax,%eax
-Code;  c011a453 <remove_wait_queue+33/40>
-  33:   eb db                     jmp    10 <_EIP+0x10>
-Code;  c011a455 <remove_wait_queue+35/40>
-  35:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  c011a459 <remove_wait_queue+39/40>
-  39:   8d bc 27 00 00 00 00      lea    0x0(%edi,1),%edi
-
-
-1 error issued.  Results may not be reliable.
 -- 
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://the-penguin.otak.com/~lawrence/
---------------------------------------
-- - - - - - O t a k  i n c . - - - - - 
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

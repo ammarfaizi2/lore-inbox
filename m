@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274232AbRISW27>; Wed, 19 Sep 2001 18:28:59 -0400
+	id <S274233AbRISWet>; Wed, 19 Sep 2001 18:34:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274233AbRISW2u>; Wed, 19 Sep 2001 18:28:50 -0400
-Received: from fabulous.u--3.com ([212.50.142.250]:7632 "HELO
-	fabulous.u--3.com") by vger.kernel.org with SMTP id <S274232AbRISW2i>;
-	Wed, 19 Sep 2001 18:28:38 -0400
-Date: Thu, 20 Sep 2001 01:28:55 +0300
-From: Erno Kuusela <erno@iki.fi>
-To: Brad Pepers <brad@linuxcanada.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-Message-ID: <20010920012855.U31911@fabulous.u--3.com>
-In-Reply-To: <Pine.LNX.4.33.0109191635310.29593-100000@terbidium.openservices.net> <20010919214317Z274216-760+14235@vger.kernel.org> <01091916225800.23716@dragon.linuxcan.com>
+	id <S274235AbRISWej>; Wed, 19 Sep 2001 18:34:39 -0400
+Received: from a1a90191.sympatico.bconnected.net ([209.53.18.133]:2201 "EHLO
+	continuum.cm.nu") by vger.kernel.org with ESMTP id <S274233AbRISWe1>;
+	Wed, 19 Sep 2001 18:34:27 -0400
+Date: Wed, 19 Sep 2001 15:34:41 -0700
+From: Shane Wegner <shane@cm.nu>
+To: Martin MOKREJ? <mmokrejs@natur.cuni.cz>
+Cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: __alloc_pages: 0-order allocation failed still in -pre12
+Message-ID: <20010919153441.A30940@cm.nu>
+In-Reply-To: <Pine.OSF.4.21.0109121502420.18976-100000@prfdec.natur.cuni.cz> <Pine.OSF.4.21.0109191615070.3826-100000@prfdec.natur.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01091916225800.23716@dragon.linuxcan.com>; from brad@linuxcanada.com on Wed, Sep 19, 2001 at 04:22:58PM -0600
-Organization: 26-dimensional hypercube
-X-PGP-Key-URL: http://212.50.142.250/dsakey.asc - please use it!
+In-Reply-To: <Pine.OSF.4.21.0109191615070.3826-100000@prfdec.natur.cuni.cz>
+User-Agent: Mutt/1.3.20i
+Organization: Continuum Systems, Vancouver, Canada
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Hi,
 
-On Wed, 19 Sep 2001, Brad Pepers wrote:
+I'm getting the same thing here.  At least it looks similar
+though I'm not sure what's causing it.  Dual PIII 850, 1gb
+ram, 300mb swap.
 
-| I've noticed that on my Athalon 1.4GHz system (Asus A7V133), I get results 
-| quite a bit higher than reported here when running the athalon.c program.  
-| For example everyone posting seemed to get 4000-5000 cycles per page for the 
-| clear_page fuctions "faster_clear_page" and "even_faster_clear" while mine is 
-| in the 6300-6700 range.  Does this indicate I'm missing some BIOS 
-| optimizations?  Slow memory?  Something else?
+__alloc_pages: 0-order allocation failed (gfp=0x20/0) from
+c012e052
+__alloc_pages: 0-order allocation failed (gfp=0x20/0) from
+c012e052
+__alloc_pages: 0-order allocation failed (gfp=0x20/0) from
+c012e052
 
-you have a faster cpu (but same speed memory) - so more
-cycles pass by when doing memory operations.
 
-   -- erno
+On Wed, Sep 19, 2001 at 04:21:43PM +0200, Martin MOKREJ? wrote:
+> Hi,
+>   I tried 2.4.10-pre12 and run some mysql big tests (actually
+> mysql/tests/fork_big.pl ). And, the load is coming up and down from 17 to
+> 6 .... and now, it's 1.7 only and I see in dmesg:
+> 
+> __alloc_pages: 0-order allocation failed (gfp=0x20/0) from c012e3e2
+> __alloc_pages: 0-order allocation failed (gfp=0x20/0) from c012e3e2
+
+-- 
+Shane Wegner: shane@cm.nu
+              http://www.cm.nu/~shane/
+PGP:          1024D/FFE3035D
+              A0ED DAC4 77EC D674 5487
+              5B5C 4F89 9A4E FFE3 035D

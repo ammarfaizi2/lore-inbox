@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290206AbSAORlH>; Tue, 15 Jan 2002 12:41:07 -0500
+	id <S290207AbSAORlT>; Tue, 15 Jan 2002 12:41:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290205AbSAORks>; Tue, 15 Jan 2002 12:40:48 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:4525 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S290119AbSAORkq>;
-	Tue, 15 Jan 2002 12:40:46 -0500
-Date: Tue, 15 Jan 2002 09:22:39 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ACB-IO for 2.5.1 (Re: Linux-2.5.2) (fwd)
-Message-ID: <Pine.LNX.4.10.10201150921350.24031-100000@master.linux-ide.org>
+	id <S290205AbSAORlI>; Tue, 15 Jan 2002 12:41:08 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:26164 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S290119AbSAORks>;
+	Tue, 15 Jan 2002 12:40:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: initramfs buffer spec -- second draft
+Date: Tue, 15 Jan 2002 16:15:20 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16QXbx-0000wa-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On January 13, 2002 09:39 pm, Alexander Viro wrote:
+> On 13 Jan 2002, Eric W. Biederman wrote:
+> > "H. Peter Anvin" <hpa@zytor.com> writes:
+> > 
+> > > This is an update to the initramfs buffer format spec I posted
+> > > earlier.  The changes are as follows:
+> > 
+> > Comments.  Endian issues are not specified, is the data little, big
+> > or vax endian?
+> 
+> Data is what you put into files, byte-by-byte.  Headers are ASCII.
 
-Since this was eaten by VGER again :-((
+Encoding the numeric fields in ASCII/hex is a goofy wart on an otherwise nice 
+design.  What is the compelling reason?  Bytesex isn't it: we should just 
+pick one or the other and stick with it as we do in Ext2.
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+Why don't we fix cpio to write a consistent bytesex?
 
----------- Forwarded message ----------
-Date: Tue, 15 Jan 2002 00:36:23 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ACB-IO for 2.5.1 (Re: Linux-2.5.2)
-
-
-
-http://www.linxudiskcert.org/
-
-Please note that not every patch submitted and is added to this patch.
-However all of them are in queue.
-
-If you have submitted any patches in the past 2 months please resend.
-
-I do expect some breakage in various archs; however, this change is to
-allow them to have a native MMIO migration path.  Additionally a second
-data-phase transport layer will be developed for SerialATA and all future
-MMIO native Host-Controllers.  Please be away Ultra133 in the future will
-require MMIO transport or Virtual DMA accross the PCI-DMA bus to the next
-generation of ATA-Bridges.
-
-Respectfully,
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+--
+Daniel
 

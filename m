@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133070AbREIVXh>; Wed, 9 May 2001 17:23:37 -0400
+	id <S135463AbREIVZR>; Wed, 9 May 2001 17:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135276AbREIVX2>; Wed, 9 May 2001 17:23:28 -0400
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:11595 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S133070AbREIVXO>; Wed, 9 May 2001 17:23:14 -0400
-Message-Id: <200105092125.f49LPew13300@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: martin@bugs.unl.edu.ar (=?iso-8859-1?q?Mart=EDn=20Marqu=E9s?=),
-        linux-kernel@vger.kernel.org
-Subject: Re: reiserfs, xfs, ext2, ext3 
-In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
-   of "Wed, 09 May 2001 15:49:17 BST." <E14xVHE-0002VB-00@the-village.bc.nu> 
-Date: Wed, 09 May 2001 16:25:40 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S135580AbREIVZF>; Wed, 9 May 2001 17:25:05 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:64760 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S135463AbREIVYf>; Wed, 9 May 2001 17:24:35 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105092122.f49LMAVL019186@webber.adilger.int>
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+In-Reply-To: <01050701135600.07657@starship> "from Daniel Phillips at May 7,
+ 2001 01:16:27 am"
+To: Daniel Phillips <phillips@bonn-fries.net>
+Date: Wed, 9 May 2001 15:22:10 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org, Albert Cranford <ac9410@bellsouth.net>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel writes [re index directories]:
+> This is lightly tested and apparently stable.
 
-> 
-> XFS is very fast most of the time (deleting a file is sooooo slow its like us
-> ing
-> old BSD systems). Im not familiar enough with its behaviour under Linux yet.
+I was looking at the new patch, and I saw something that puzzles me.
+Why do you set the EXT2_INDEX_FL on a new (empty) directory, rather
+than only setting it when the dx_root index is created?
 
-Hmm, I just removed 2.2 Gbytes of data in 30000 files in 37 seconds (14.4
-seconds system time), not tooo slow. And that is on a pretty vanilla 2 cpu
-linux box with a not very exciting scsi drive.
+Setting the flag earlier than that makes it mostly useless, since it
+will be set on basically every directory.  Not setting it would also
+make your is_dx() check simply a check for the EXT2_INDEX_FL bit (no
+need to also check size).
 
-> 
-> What you might want to do is to make a partition for 'mystery journalling fs'
-> and benchmark a bit.
-> 
-> Alan
-> 
+Also no need to set EXT2_COMPAT_DIR_INDEX until such a time that we have
+a (real) directory with an index, to avoid gratuitous incompatibility
+with e2fsck.
 
-I agree with Alan here, the only sure fire way to find out which filesystem
-will work best for your application is to try it out. I have found reiserfs
-to be very fast in some tests, especially those operating on lots of small
-files, but contrary to some peoples, belief XFS is good for a lot more than
-just messing with Gbyte long data files.
-
-Steve Lord
-
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

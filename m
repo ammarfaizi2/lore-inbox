@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSIWMZk>; Mon, 23 Sep 2002 08:25:40 -0400
+	id <S261207AbSIWMmW>; Mon, 23 Sep 2002 08:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbSIWMZk>; Mon, 23 Sep 2002 08:25:40 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:49670 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S261205AbSIWMZj>;
-	Mon, 23 Sep 2002 08:25:39 -0400
-Date: Mon, 23 Sep 2002 14:31:14 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Rhoads, Rob" <rob.rhoads@intel.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Linux Hardened Device Drivers Project
-Message-ID: <20020923123114.GC6790@marowsky-bree.de>
-References: <D9223EB959A5D511A98F00508B68C20C0A53899F@orsmsx108.jf.intel.com>
+	id <S261208AbSIWMmW>; Mon, 23 Sep 2002 08:42:22 -0400
+Received: from codepoet.org ([166.70.99.138]:34703 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S261207AbSIWMmV>;
+	Mon, 23 Sep 2002 08:42:21 -0400
+Date: Mon, 23 Sep 2002 06:47:31 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Con Kolivas <conman@kolivas.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
+Message-ID: <20020923124730.GA7556@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Con Kolivas <conman@kolivas.net>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209230945260.2917-100000@localhost.localdomain> <1032777021.3d8eed3d55f53@kolivas.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0A53899F@orsmsx108.jf.intel.com>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+In-Reply-To: <1032777021.3d8eed3d55f53@kolivas.net>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-20T17:26:47,
-   "Rhoads, Rob" <rob.rhoads@intel.com> said:
+On Mon Sep 23, 2002 at 08:30:21PM +1000, Con Kolivas wrote:
+> Yes you make a very valid point and something I've been stewing over privately
+> for some time. contest runs benchmarks in a fixed order with a "priming" compile
+> to try and get pagecaches etc back to some sort of baseline (I've been trying
+> hard to make the results accurate and repeatable). 
 
-Hi Rob,
+It would sure be nice for this sortof test if there were
+some sort of a "flush-all-caches" syscall...
 
-I fully support the idea to audit the Linux device drivers - using guidelines,
-hardware fault injection, stress testing etc - and fixing any potential bugs.
-This is obviously a very important task, because the drivers are some of the
-most ugly code I've seen in the kernel.
+ -Erik
 
-"Pro-active monitoring", ie by basically gathering whatever statistics are
-available and feeding them to some sort of user-space application and then
-trying to deduce a potential failure is also a very valuable goal; so exposing
-more statistics seems definetely good, too. As long as that doesn't introduce
-even more errors...
-
-Any help you can offer on the above is surely appreciated by all involved and
-will have a direct, positive impact on Linux.
-
-That said, and the fluff in your specification aside (which was very likely
-necessary for management ;-), your spec certainly contains some good points on
-how to write stable and robust code. (Aside from the comments the others have
-raised already regarding event logging and that of course all recommendations
-need to be thoughtfully applied to the case in question)
-
-The statistics can best be exposed via driverfs or /proc (for kernels which
-don't have driverfs); however, the statistics analyser nor the SNMP agent
-pre-processing belong into the kernel itself. Keep the drivers as lean as
-possible, that will introduce less errors at this level. I object to the CSM
-being in kernel space. Having a more or less common API for the statistics to
-be gathered and exposed by the drivers would be highly valuable indeed though.
-
-What are your further timelines?
-
-A lot of the above - ie, audit and test current drivers - can be done without
-(at least not with much more) further planning; I'm always rather amazed at
-how much effort Intel, IBM and their child OSDL spent on pretty specifications
-which could also be applied to real work ;-)
-
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Principal Squirrel
-Research and Development, SuSE Linux AG
- 
-``Immortality is an adequate definition of high availability for me.''
-	--- Gregory F. Pfister
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

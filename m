@@ -1,47 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbUCYVrk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 16:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUCYVrj
+	id S263629AbUCYV7j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 16:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbUCYV7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 16:47:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:9357 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263624AbUCYVrh (ORCPT
+	Thu, 25 Mar 2004 16:59:39 -0500
+Received: from gprs214-160.eurotel.cz ([160.218.214.160]:8577 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263633AbUCYV7e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 16:47:37 -0500
-Date: Thu, 25 Mar 2004 22:48:15 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andi Kleen <ak@suse.de>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, piggin@cyberone.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Message-ID: <20040325214815.GA19060@elte.hu>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu> <10030000.1080242684@flay>
+	Thu, 25 Mar 2004 16:59:34 -0500
+Date: Thu, 25 Mar 2004 22:59:19 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de
+Subject: Re: swsusp with highmem, testing wanted
+Message-ID: <20040325215919.GA301@elf.ucw.cz>
+References: <20040324235702.GA497@elf.ucw.cz> <20040325100339.GN791@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <10030000.1080242684@flay>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040325100339.GN791@holomorphy.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Martin J. Bligh <mbligh@aracnet.com> wrote:
+> I think this kind of thing should help stabilize swsusp in the presence
+> of memory holes, which can be important for embedded devices which would
+> in the future find swsusp useful for power-saving purposes.
 
-> Exec time balancing is a *lot* more efficient, it just doesn't work
-> for things that don't exec ... cloned threads would certainly be one
-> case.
+I had to apply this to compile it, I have not ran it yet.
 
-yeah - exec-balancing is a clear thing. fork/clone time balancing is
-alot less clear.
+								Pavel
 
-	Ingo
+--- tmp/linux/kernel/power/swsusp.c	2004-03-25 14:42:07.000000000 +0100
++++ linux/kernel/power/swsusp.c	2004-03-25 14:41:12.000000000 +0100
+@@ -443,16 +443,16 @@
+ 
+ static int pfn_is_nosave(unsigned long pfn)
+ {
+-	static const unsigned long nosave_begin_pfn
++	unsigned long nosave_begin_pfn
+ 				= __pa(&__nosave_begin) >> PAGE_SHIFT;
+-	static const unsigned long nosave_end_pfn
++	unsigned long nosave_end_pfn
+ 				= PAGE_ALIGN(__pa(&__nosave_end)) >> PAGE_SHIFT;
+ 	return pfn >= nosave_begin_pfn && pfn < nosave_end_pfn;
+ }
+ 
+ static int count_and_copy_zone(struct zone *zone, struct pbe **pagedir_p)
+ {
+-	unsigned long zone_pfn, nr_copy_pages = 0;
++	unsigned long zone_pfn, chunk_size, nr_copy_pages = 0;
+ 	struct pbe *pbe = *pagedir_p;
+ 	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+ 		struct page *page;
+@@ -472,7 +472,7 @@
+ 		}
+ 		nr_copy_pages++;
+ 		if (!pbe)
+-			continue
++			continue;
+ 		pbe->orig_address = page_address(page);
+ 		copy_page((void *)pbe->address, (void *)pbe->orig_address);
+ 		pbe++;
+@@ -495,7 +495,7 @@
+ static void free_suspend_pagedir_zone(struct zone *zone, unsigned long pagedir)
+ {
+ 	unsigned long zone_pfn, pagedir_end, pagedir_pfn, pagedir_end_pfn;
+-	pagedir_end = pagedir + PAGE_SIZE << pagedir_order;
++	pagedir_end = pagedir + (PAGE_SIZE << pagedir_order);
+ 	pagedir_pfn = __pa(pagedir) >> PAGE_SHIFT;
+ 	pagedir_end_pfn = __pa(pagedir_end) >> PAGE_SHIFT;
+ 	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+@@ -517,7 +517,7 @@
+ 	struct zone *zone;
+ 	for_each_zone(zone) {
+ 		if (!is_highmem(zone))
+-			free_suspend_pagedir_zone(this_pagedir);
++			free_suspend_pagedir_zone(zone, this_pagedir);
+ 	}
+ 	free_pages(this_pagedir, pagedir_order);
+ }
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

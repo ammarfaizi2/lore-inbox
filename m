@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262921AbVCDQji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbVCDQoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262921AbVCDQji (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 11:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbVCDQji
+	id S262925AbVCDQoz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 11:44:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbVCDQoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 11:39:38 -0500
-Received: from mail.dif.dk ([193.138.115.101]:10389 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262936AbVCDQjA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 11:39:00 -0500
-Date: Fri, 4 Mar 2005 17:39:51 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Steve French <sfrench@us.ibm.com>
-Cc: samba-technical <samba-technical@lists.samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Luca Tettamanti <kronoz@kronoz.cjb.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Subject: [PATCH][resend] copy_to_user return value check in fs/cifs/file.c
-Message-ID: <Pine.LNX.4.62.0503041729310.2794@dragon.hygekrogen.localhost>
+	Fri, 4 Mar 2005 11:44:54 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:9336 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262936AbVCDQnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 11:43:08 -0500
+To: Greg KH <greg@kroah.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][3/26] IB/mthca: improve CQ locking part 1
+X-Message-Flag: Warning: May contain useful information
+References: <2005331520.cHJfJcRbBu1fFgB6@topspin.com>
+	<4227AD34.4050002@pobox.com> <20050304005824.GA18411@kroah.com>
+	<527jkonryr.fsf@topspin.com> <20050304163357.GB28179@kroah.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 04 Mar 2005 08:43:06 -0800
+In-Reply-To: <20050304163357.GB28179@kroah.com> (Greg KH's message of "Fri,
+ 4 Mar 2005 08:33:58 -0800")
+Message-ID: <521xavmkf9.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 04 Mar 2005 16:43:06.0998 (UTC) FILETIME=[3DFE1160:01C520D9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Roland> What would pci_irq_sync() do exactly?
 
-Hi Steve,
+    Greg> Consolidate common code like this?  :)
 
-Back around the time of 2.6.10 I submitted a patch to fix the compile 
-warning about copy_to_user in fs/cifs/file.c. The patch generated some 
-comments and suggestions from several people and I subsequently cut a new 
-patch that took care of the issues raised. Allan Cox then Ack'ed that new 
-patch and then discussion died out. Aparently the patch never made it into 
-2.6.11, so I've re-diffed it against that and hereby submit it to you for 
-inclusion once more.
+I don't see how one can do that.  As I pointed out in my reply to
+Jeff, it actually requires understanding how the driver uses the
+different MSI-X vectors to know which vector we need to synchronize
+against.  So it seems pci_irq_sync() would have to be psychic.
 
+If we can figure out how to do that, maybe we can consolidate a lot
+more code into an API like
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+	void do_what_i_mean(void);
 
---- linux-2.6.11-orig/fs/cifs/file.c	2005-03-02 08:38:34.000000000 +0100
-+++ linux-2.6.11/fs/cifs/file.c	2005-03-04 16:38:36.000000000 +0100
-@@ -1148,6 +1148,7 @@ cifs_user_read(struct file * file, char 
- 
- 	for (total_read = 0,current_offset=read_data; read_size > total_read;
- 				total_read += bytes_read,current_offset+=bytes_read) {
-+		unsigned residue;
- 		current_read_size = min_t(const int,read_size - total_read,cifs_sb->rsize);
- 		rc = -EAGAIN;
- 		smb_read_data = NULL;
-@@ -1165,12 +1166,17 @@ cifs_user_read(struct file * file, char 
- 				 &bytes_read, &smb_read_data);
- 
- 			pSMBr = (struct smb_com_read_rsp *)smb_read_data;
--			copy_to_user(current_offset,smb_read_data + 4/* RFC1001 hdr*/
-+			residue = copy_to_user(current_offset, smb_read_data + 4 /* RFC1001 hdr */
- 				+ le16_to_cpu(pSMBr->DataOffset), bytes_read);
- 			if(smb_read_data) {
- 				cifs_buf_release(smb_read_data);
- 				smb_read_data = NULL;
- 			}
-+			if (residue) {
-+				total_read += bytes_read - residue;
-+				rc = -EFAULT;
-+				break;
-+			}
- 		}
- 		if (rc || (bytes_read == 0)) {
- 			if (total_read) {
+;)
 
-
+ - R.

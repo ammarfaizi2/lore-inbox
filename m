@@ -1,71 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265406AbUAHQ2j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 11:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbUAHQ1G
+	id S265515AbUAHQYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 11:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265517AbUAHQYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 11:27:06 -0500
-Received: from iua-mail.upf.es ([193.145.55.10]:28862 "EHLO iua-mail.upf.es")
-	by vger.kernel.org with ESMTP id S265406AbUAHQ0K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 11:26:10 -0500
-Date: Thu, 8 Jan 2004 16:44:47 +0000 (UTC)
-From: Maarten de Boer <mdeboer@iua.upf.es>
-X-X-Sender: mdeboer@iua-mail.upf.es
-To: bug-glibc@gnu.org, <linux-kernel@vger.kernel.org>,
-       <gdb@sources.redhat.com>
-Subject: Re: gdb problem with kernel 2.6.0 and pthreads
-In-Reply-To: <20040107174932.7d7b9542.mdeboer@iua.upf.es>
-Message-ID: <Pine.LNX.4.44.0401081643400.1419-100000@iua-mail.upf.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner-Information: Please contact postmaster@iua.upf.es for more information
-X-MTG-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-5.801,
-	required 5, BAYES_10)
+	Thu, 8 Jan 2004 11:24:09 -0500
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:36282 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S265515AbUAHQYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 11:24:01 -0500
+Date: Thu, 08 Jan 2004 11:23:49 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+In-reply-to: <20040108122916.GA72001@dspnet.fr.eu.org>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <3FFD8415.9000502@sun.com>
+MIME-version: 1.0
+Content-type: multipart/signed;
+ boundary=------------enigB8CC8934A63C29DAF0B98D72;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+X-Accept-Language: en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
+ Debian/1.5-3
+X-Enigmail-Version: 0.82.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <3FFB12AD.6010000@sun.com>
+ <Pine.LNX.4.53.0401071139430.20046@simba.math.ucla.edu>
+ <3FFC8E5B.40203@sun.com> <3FFC8E5B.40203@sun.com>
+ <20040108122916.GA72001@dspnet.fr.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB8CC8934A63C29DAF0B98D72
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-As suggested by several people, moving to gdb 6.0 solves the problem,
-so for the record.
+Olivier Galibert wrote:
+> On Wed, Jan 07, 2004 at 05:55:23PM -0500, Mike Waychison wrote:
+> 
+>>Yes, an 'ls' actually does an lstat on every file.
+> 
+> 
+> I guess you haven't met the plague called color-ls yet.  Lucky you.
+> 
+> Most modern file browsers also seem to feel obligated to follow
+> symlinks to check whether they're dangling.  A mis-click on "up" when
+> you're on your home directory could cause a beautiful mount-storm.
 
-Thanks,
+Why would any file browser or even ls feel compelled to 'stat' something 
+right after an 'lstat' says it is not a symbolic link though?
 
-Maarten
+-- 
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+mailto: Michael.Waychison@Sun.COM
+http://www.sun.com
 
-> Hello,
->
-> Sorry for cross-posting, but I have a problem that I am not sure whom
-> to address... Google did not reveal anything helpfull.
->
-> I resently moved to kernel 2.6.0 (on Debian Sarge), and while everything
-> seems to work just fine, to my surprise gdb now fails to debug
-> executables that are linked against pthread:
->
-> GNU gdb 5.3-debian
-> [snip]
-> This GDB was configured as "i386-linux"...
-> (gdb) b main
-> Breakpoint 1 at 0x80483a4: file foo.c, line 3.
-> (gdb) r
-> Starting program: /root/a.out
-> Error while reading shared library symbols:
-> Cannot find new threads: capability not available
-> Cannot find user-level thread for LWP 714: capability not available
->
-> With kernel 2.4.22 this problem did not occur. Do you have any idea what
-> may have caused this problem, and how to solve it? If I can provide you
-> with any information that could be helpfull, please let me know.
->
-> Kind regards,
->
-> Maarten
->
-> gcc version 3.3.2 (Debian)
-> GNU gdb 5.3-debian
-> GNU libc 2.3.2
->
->
->
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+--------------enigB8CC8934A63C29DAF0B98D72
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+
+iD8DBQE//YQZdQs4kOxk3/MRAh5TAJ9o0dcaS8VFsPdlxfY77GuGIXO20gCeOmb5
+9qtkXmyjgPDQpRAmh7rxekk=
+=b5rQ
+-----END PGP SIGNATURE-----
+
+--------------enigB8CC8934A63C29DAF0B98D72--
 

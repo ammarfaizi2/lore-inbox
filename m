@@ -1,163 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279446AbRJWOMw>; Tue, 23 Oct 2001 10:12:52 -0400
+	id <S279444AbRJWONW>; Tue, 23 Oct 2001 10:13:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279447AbRJWOMm>; Tue, 23 Oct 2001 10:12:42 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:53443 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S279446AbRJWOM2>;
-	Tue, 23 Oct 2001 10:12:28 -0400
-Importance: Normal
-Subject: Re: [Lse-tech] Re: Preliminary results of using multiblock raw I/O
-To: Jens Axboe <axboe@suse.de>
-Cc: Martin Frey <frey@scs.ch>, "'Reto Baettig'" <baettig@scs.ch>,
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF98236159.2E4369EA-ON85256AEE.004D5B64@pok.ibm.com>
-From: "Shailabh Nagar" <nagar@us.ibm.com>
-Date: Tue, 23 Oct 2001 10:12:47 -0400
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
- 10/23/2001 10:12:48 AM
+	id <S279445AbRJWONN>; Tue, 23 Oct 2001 10:13:13 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:42114 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S279444AbRJWONE>; Tue, 23 Oct 2001 10:13:04 -0400
+Date: Tue, 23 Oct 2001 10:13:21 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mike Jagdis <jaggy@purplet.demon.co.uk>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Behavior of poll() within a module
+In-Reply-To: <3BD571A1.1000009@purplet.demon.co.uk>
+Message-ID: <Pine.LNX.3.95.1011023095757.11227A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tue, 23 Oct 2001, Mike Jagdis wrote:
 
+> Richard B. Johnson wrote:
+> > What is the intended behavior of poll within a module when
+> > two or more tasks are sleeping in poll? Specifically, when
+> > wake_up_interruptible is executed from a module, are all
+> > tasks awakened or is only one? If only one, is it the
+> > first task to call poll/select or the last, which is awakened
+> > first? 
+> 
+> Normally all but... In the case of accept() the kernel knows
+> that a woken up process will service the event (the code is
+> all in the kernel) so the accept code flags its wait_queue
+> entry to say, "If this gets woken don't wake the rest".
+> Unfortunately the way wake one and wake all semantics are
+> handled within the wait queue mean we get FIFO rather than
+> LIFO behaviour I believe :-(
+> 
+> I guess you could do "the accept() thing" yourself from a
+> module - or add a Linux specific poll flag and do it from
+> user space for that matter.
+> 
+> Oh, and yes, wake all is required behaviour of poll/select.
+> It's just accept that is special because all the code is in
+> the kernel and if it gets woken we _know_ that event is no
+> longer present.
+> 
+> 				Mike
+> 
 
->On Tue, Oct 23 2001, Martin Frey wrote:
->> >I haven't seen the SGI rawio patch, but I'm assuming it used kiobufs to
->> >pass a single unit of 1 meg down at the time. Yes currently we do incur
->> >significant overhead compared to that approach.
->> >
->> Yes, it used kiobufs to get a gatherlist, setup a gather DMA out
->> of that list and submitted it to the SCSI layer. Depending on
->> the controller 1 MB could be transfered with 0 memcopies, 1 DMA,
->> 1 interrupt. 200 MB/s with 10% CPU load was really impressive.
->
->Let me repeat that the only difference between the kiobuf and the
->current approach is the overhead incurred on multiple __make_request
->calls. Given the current short queues, this isn't as bad as it used to
->be. Of course it isn't free, though.
+Well it doesn't seem to do as described.
 
-The patch below attempts to address exactly that - reducing the number of
-submit_bh/__make_request() calls made for raw I/O. The basic idea is to do
-a major
-part of the I/O in page sized blocks.
+The following actual module code:
 
-Comments on the idea ?
+static unsigned int vxi_poll(struct file *fp, struct poll_table_struct *wait)
+{
+    unsigned long flags;
+    unsigned int mask;
+    DEB(printk("vxi_poll\n"));
+    info->poll_active++;
+    poll_wait(fp, &info->wait, wait);
+    spin_lock_irqsave(&vxi_lock, flags);
+    mask = info->poll_mask;
+    if(!--info->poll_active)
+        info->poll_mask = 0;
+    spin_unlock_irqrestore(&vxi_lock, flags);
+    DEB(printk("vxi_poll returns\n"));
+    return mask;
+}
 
+... results in one task getting the correct return value. Other tasks
+get 0 if they are awakened at all. With two tasks sleeping in user mode
+select(), both tasks seem to always be awakened. With three or more
+tasks waiting in select(), only one task gets awakened. I haven't
+been able to figure it out.
 
-diff -Naur linux-2.4.10-v/drivers/char/raw.c
-linux-2.4.10-rawvar/drivers/char/raw.c
---- linux-2.4.10-v/drivers/char/raw.c    Sat Sep 22 23:35:43 2001
-+++ linux-2.4.10-rawvar/drivers/char/raw.c    Wed Oct 17 16:31:43 2001
-@@ -283,6 +283,9 @@
+Also, with no tasks sleeping in select(), debugging shows that the
+module poll() routine is entered, based upon some previous history.
+For instance, if a user-mode task never called select, but some
+event that would have awakened the task occurs, another task that
+calls select ends up returning immediately with a stale (weeks old)
+event.
 
-     int       sector_size, sector_bits, sector_mask;
-     int       max_sectors;
-+
-+    int             cursector_size, cursector_bits;
-+    loff_t          startpg,endpg ;
+Maybe there is some way to clear kernel history that could be
+accomplished during close()? 
 
-     /*
-      * First, a few checks on device size limits
-@@ -304,8 +307,8 @@
-     }
+Cheers,
+Dick Johnson
 
-     dev = to_kdev_t(raw_devices[minor].binding->bd_dev);
--    sector_size = raw_devices[minor].sector_size;
--    sector_bits = raw_devices[minor].sector_bits;
-+    sector_size = cursector_size = raw_devices[minor].sector_size;
-+    sector_bits = cursector_bits = raw_devices[minor].sector_bits;
-     sector_mask = sector_size- 1;
-     max_sectors = KIO_MAX_SECTORS >> (sector_bits - 9);
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-@@ -325,6 +328,23 @@
-     if ((*offp >> sector_bits) >= limit)
-          goto out_free;
-
-+    /* Using multiple I/O granularities
-+       Divide <size> into <initial> <pagealigned> <final>
-+       <initial> and <final> are done at sector_size granularity
-+       <pagealigned> is done at PAGE_SIZE granularity
-+       startpg, endpg define the boundaries of <pagealigned>.
-+       They also serve as flags on whether PAGE_SIZE I/O is
-+       done at all (its unnecessary if <size> is sufficiently small)
-+    */
-+
-+    startpg = (*offp + (loff_t)(PAGE_SIZE - 1)) & (loff_t)PAGE_MASK ;
-+    endpg = (*offp + (loff_t) size) & (loff_t)PAGE_MASK ;
-+
-+    if ((startpg == endpg) || (sector_size == PAGE_SIZE))
-+         /* PAGE_SIZE I/O either unnecessary or being done anyway */
-+         /* impossible values make startpg,endpg act as flags     */
-+         startpg = endpg = ~(loff_t)0 ;
-+
-     /*
-      * Split the IO into KIO_MAX_SECTORS chunks, mapping and
-      * unmapping the single kiobuf as we go to perform each chunk of
-@@ -332,9 +352,23 @@
-      */
-
-     transferred = 0;
--    blocknr = *offp >> sector_bits;
-     while (size > 0) {
--         blocks = size >> sector_bits;
-+
-+         if (*offp  == startpg) {
-+              cursector_size = PAGE_SIZE ;
-+              cursector_bits = PAGE_SHIFT ;
-+         }
-+         else if (*offp == endpg) {
-+              cursector_size = sector_size ;
-+              cursector_bits = sector_bits ;
-+         }
-+
-+         blocknr = *offp >> cursector_bits ;
-+         max_sectors = KIO_MAX_SECTORS << (cursector_bits - 9) ;
-+         if (limit != INT_MAX)
-+              limit = (((loff_t) blk_size[MAJOR(dev)][MINOR(dev)]) <<
-BLOCK_SIZE_BITS) >> cursector_bits ;
-+
-+         blocks = size >> cursector_bits;
-          if (blocks > max_sectors)
-               blocks = max_sectors;
-          if (blocks > limit - blocknr)
-@@ -342,7 +376,7 @@
-          if (!blocks)
-               break;
-
--         iosize = blocks << sector_bits;
-+         iosize = blocks << cursector_bits;
-
-          err = map_user_kiobuf(rw, iobuf, (unsigned long) buf, iosize);
-          if (err)
-@@ -351,7 +385,7 @@
-          for (i=0; i < blocks; i++)
-               iobuf->blocks[i] = blocknr++;
-
--         err = brw_kiovec(rw, 1, &iobuf, dev, iobuf->blocks, sector_size);
-+         err = brw_kiovec(rw, 1, &iobuf, dev, iobuf->blocks,
-cursector_size);
-
-          if (rw == READ && err > 0)
-               mark_dirty_kiobuf(iobuf, err);
-@@ -360,6 +394,7 @@
-               transferred += err;
-               size -= err;
-               buf += err;
-+              *offp += err ;
-          }
-
-          unmap_kiobuf(iobuf);
-@@ -369,7 +404,6 @@
-     }
-
-     if (transferred) {
--         *offp += transferred;
-          err = transferred;
-     }
-
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVA1IqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVA1Isu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVA1IqL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 03:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVA1IqL
+	id S261239AbVA1Isu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 03:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVA1Isu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 03:46:11 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:46293 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S261210AbVA1IqC (ORCPT
+	Fri, 28 Jan 2005 03:48:50 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:63969 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261224AbVA1Irz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 03:46:02 -0500
-Date: Fri, 28 Jan 2005 09:45:58 +0100
-From: David Weinehall <tao@debian.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>,
-       John Richard Moser <nigelenki@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch 0/6  virtual address space randomisation
-Message-ID: <20050128084558.GM17242@khan.acc.umu.se>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Julien TINNES <julien.tinnes.NOSPAM@francetelecom.REMOVE.com>,
-	John Richard Moser <nigelenki@comcast.net>,
-	linux-kernel@vger.kernel.org
-References: <20050127101117.GA9760@infradead.org> <41F8D44D.9070409@francetelecom.REMOVE.com> <1106827050.5624.81.camel@laptopd505.fenrus.org> <41F927F2.2080100@comcast.net> <41F9425A.2030101@francetelecom.REMOVE.com> <1106856785.5624.132.camel@laptopd505.fenrus.org>
+	Fri, 28 Jan 2005 03:47:55 -0500
+Date: Fri, 28 Jan 2005 09:47:25 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: George Anzinger <george@mvista.com>, LKML <linux-kernel@vger.kernel.org>,
+       Doug Niehaus <niehaus@ittc.ku.edu>,
+       Benedikt Spranger <bene@linutronix.de>
+Subject: Re: High resolution timers and BH processing on -RT
+Message-ID: <20050128084725.GB5004@elte.hu>
+References: <1106871192.21196.152.camel@tglx.tec.linutronix.de> <20050128044301.GD29751@elte.hu> <1106900411.21196.181.camel@tglx.tec.linutronix.de> <20050128082439.GA3984@elte.hu> <1106901013.21196.194.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106856785.5624.132.camel@laptopd505.fenrus.org>
+In-Reply-To: <1106901013.21196.194.camel@tglx.tec.linutronix.de>
 User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 09:13:04PM +0100, Arjan van de Ven wrote:
-> On Thu, 2005-01-27 at 20:34 +0100, Julien TINNES wrote:
-> > > 
-> > > Yeah, if it came from PaX the randomization would actually be useful.
-> > > Sorry, I've just woken up and already explained in another post.
-> > > 
-> > 
-> > Please, no hard feelings.
-> > 
-> > Speaking about implementation of the non executable pages semantics on 
-> > IA32, PaX and Exec-Shield are very different (well not that much since 
-> > 2.6 in fact because PAGEEXEC is now "segmentation when I can").
-> > But when it comes to ASLR it's pretty much the same thing.
-> > 
-> > The only difference may be the (very small) randomization of the brk() 
-> > managed heap on ET_EXEC (which is probably the more "hackish" feature of 
-> > PaX ASLR) but it seems that Arjan is even going to propose a patch for 
-> > that (Is this in ES too ?).
+
+* Thomas Gleixner <tglx@linutronix.de> wrote:
+
+> > or is it that we have a 'group' of normal timers expiring, which, if
+> > they happen to occur _just_ prior a HRT event will generate a larger
+> > delay?
 > 
-> Exec shield randomized brk() too yes.
-> However that is a both more dangerous and more invasive change to do
-> correctly (you have no idea how hard it is to get that right for
-> emacs...) so that's reserved for the second batch of patches once this
-> first batch is dealt with.
+> Yep. The timers expire at random times. So it's likely to have short
+> sequences of timer interrupts going off. This needs reprogramming of
+> the PIT and processing of the expired timers.
 
-Oh, so you mean that we can both get a more secure system, *and* make
-emacs stop working?  A win-win situation! =)
+i dont really like the static splitup of 'normal' vs. 'HRT' timers -
+there might in fact be separate priority requirements between HRT timers
+too.
 
+i think one possible solution would be to introduce some notion of
+'timer priority', and to expire each timer priority level in a separate
+timer expiry thread. Priority 0 (lowest) would be expired in ksoftirqd,
+and there would be 3 separate threads for say priorities 1-3. Or
+something like this. Potentially exposed to user-space as well, via new
+APIs. Hm?
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+To push this even further: in theory timers could inherit the priority
+of the task that starts them, and they would be expired in that priority
+order - but this probably needs a pretty clever (and most likely
+complex) data-structure ...
+
+	Ingo

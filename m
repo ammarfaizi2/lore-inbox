@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266134AbUGTTQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266130AbUGTTQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266134AbUGTTQU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUGTTOq
+	id S266130AbUGTTQT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUGTTOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:14:46 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:56882 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266157AbUGTSju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 15:14:53 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:15953 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266130AbUGTSju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 20 Jul 2004 14:39:50 -0400
-Date: Tue, 20 Jul 2004 20:39:49 +0200
-Message-Id: <200407201839.i6KIdn4R015540@anakin.of.borg>
+Date: Tue, 20 Jul 2004 20:39:47 +0200
+Message-Id: <200407201839.i6KIdlMi015535@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       apdim@grecian.net
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       irda-users@lists.sourceforge.net,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] depends on PCI: Toshiba and VIA FIR
+Subject: [PATCH] depends on PCI: Guillemot MAXI Radio FM 2000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toshiba and VIA FIR unconditionally depend on PCI
+Guillemot MAXI Radio FM 2000 unconditionally depends on PCI
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.8-rc2/drivers/net/irda/Kconfig	2004-07-15 23:14:24.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/drivers/net/irda/Kconfig	2004-07-19 18:28:34.000000000 +0200
-@@ -333,7 +333,7 @@
+--- linux-2.6.8-rc2/drivers/media/radio/Kconfig	2004-04-15 11:44:12.000000000 +0200
++++ linux-m68k-2.6.8-rc2/drivers/media/radio/Kconfig	2004-07-19 18:26:53.000000000 +0200
+@@ -145,7 +145,7 @@
  
- config TOSHIBA_FIR
- 	tristate "Toshiba Type-O IR Port"
--	depends on IRDA && !64BIT
-+	depends on IRDA && PCI && !64BIT
- 	help
- 	  Say Y here if you want to build support for the Toshiba Type-O IR
- 	  and Donau oboe chipsets. These chipsets are used by the Toshiba
-@@ -385,7 +385,7 @@
- 
- config VIA_FIR
- 	tristate "VIA VT8231/VT1211 SIR/MIR/FIR"
--	depends on IRDA && ISA
-+	depends on IRDA && ISA && PCI
- 	help
- 	  Say Y here if you want to build support for the VIA VT8231
- 	  and VIA VT1211 IrDA controllers, found on the motherboards using
+ config RADIO_MAXIRADIO
+ 	tristate "Guillemot MAXI Radio FM 2000 radio"
+-	depends on VIDEO_DEV
++	depends on VIDEO_DEV && PCI
+ 	---help---
+ 	  Choose Y here if you have this radio card.  This card may also be
+ 	  found as Gemtek PCI FM.
 
 Gr{oetje,eeting}s,
 

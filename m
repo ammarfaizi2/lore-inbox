@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbQLRVMn>; Mon, 18 Dec 2000 16:12:43 -0500
+	id <S130017AbQLRVOn>; Mon, 18 Dec 2000 16:14:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130983AbQLRVMd>; Mon, 18 Dec 2000 16:12:33 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:39891 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S129436AbQLRVMV>; Mon, 18 Dec 2000 16:12:21 -0500
-Date: Mon, 18 Dec 2000 20:41:53 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Jani Monoses <jani@virtualro.ic.ro>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0test13pre3ac1
-Message-ID: <20001218204153.L1039@redhat.com>
-In-Reply-To: <E14868l-00064b-00@the-village.bc.nu> <Pine.LNX.4.10.10012182211040.15640-100000@virtualro.ic.ro>
+	id <S130805AbQLRVOd>; Mon, 18 Dec 2000 16:14:33 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:20760 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130017AbQLRVO2>; Mon, 18 Dec 2000 16:14:28 -0500
+Date: Mon, 18 Dec 2000 21:42:52 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Chris Lattner <sabre@nondot.org>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+Message-ID: <20001218214252.B23365@athlon.random>
+In-Reply-To: <Pine.LNX.3.96.1001216000116.27376A-100000@artax.karlin.mff.cuni.cz> <Pine.LNX.4.21.0012181825180.2595-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012182211040.15640-100000@virtualro.ic.ro>; from jani@virtualro.ic.ro on Mon, Dec 18, 2000 at 10:17:17PM +0200
+In-Reply-To: <Pine.LNX.4.21.0012181825180.2595-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Dec 18, 2000 at 06:29:24PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 10:17:17PM +0200, Jani Monoses wrote:
+On Mon, Dec 18, 2000 at 06:29:24PM -0200, Rik van Riel wrote:
+> Wrong. Getblk won't deadlock, it will just sleep and another
 
-> Tim Waugh pointed out this wasn't good as 'const' is part of the function
-> signature and he now has a better patch.
+getblk will deadlock.
 
-I'll sync up with Alan.
-
-Tim.
-*/
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

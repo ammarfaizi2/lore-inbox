@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271381AbRHPOuJ>; Thu, 16 Aug 2001 10:50:09 -0400
+	id <S271418AbRHPOyJ>; Thu, 16 Aug 2001 10:54:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271370AbRHPOt7>; Thu, 16 Aug 2001 10:49:59 -0400
-Received: from zero.tech9.net ([209.61.188.187]:12043 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S271381AbRHPOtt>;
-	Thu, 16 Aug 2001 10:49:49 -0400
-Subject: Re: [PATCH] Optionally let Net Devices feed Entropy
-From: Robert Love <rml@tech9.net>
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010816105010.A10595@se1.cogenit.fr>
-In-Reply-To: <997936615.921.22.camel@phantasy> 
-	<20010816105010.A10595@se1.cogenit.fr>
-Content-Type: text/plain
+	id <S271417AbRHPOx7>; Thu, 16 Aug 2001 10:53:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60178 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271408AbRHPOxu>; Thu, 16 Aug 2001 10:53:50 -0400
+Subject: Re: [patch] zero-bounce highmem I/O
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 16 Aug 2001 15:56:21 +0100 (BST)
+Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "David S. Miller" at Aug 16, 2001 07:15:19 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 16 Aug 2001 10:50:30 -0400
-Message-Id: <997973433.684.3.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E15XOZJ-0005LW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Aug 2001 10:50:10 +0200, Francois Romieu wrote:
-> Please, add an '(EXPERIMENTAL)' label to the configuration thing.
+> It is video layer, and the video layer should be helping along with
+> these sorts of issues.
 
-What is experimental about it?
+Linus refused to let make make the vmalloc helpers generic code, thats
+why we have 8 or 9 different copies some containing old bugs
 
-Some devices already contributed to the pool, now its a configuration
-setting.  It just toggles whether net devices can contribute.  Nothing
-experimental there to me.
+> void video_pci_put_user_pages(struct pci_dev *pdev,
+> 			      struct scatterlist *sg,
+> 			      int npages);
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Why video_pci. WHy is this even video related. This is a generic issue
 
+> In fact, this isn't even a video layer issue, and the kernel
+> ought to provide my suggested interfaces in some generic
+> place.
+
+Then we agree on that

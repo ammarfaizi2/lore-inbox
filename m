@@ -1,956 +1,551 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317383AbSFHGuy>; Sat, 8 Jun 2002 02:50:54 -0400
+	id <S317385AbSFHHK1>; Sat, 8 Jun 2002 03:10:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317384AbSFHGux>; Sat, 8 Jun 2002 02:50:53 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:30473 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S317383AbSFHGur>; Sat, 8 Jun 2002 02:50:47 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove the fat_cvf
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 08 Jun 2002 15:50:00 +0900
-Message-ID: <87d6v2p8mf.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317386AbSFHHK0>; Sat, 8 Jun 2002 03:10:26 -0400
+Received: from niobium.golden.net ([199.166.210.90]:31702 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP
+	id <S317385AbSFHHKW>; Sat, 8 Jun 2002 03:10:22 -0400
+Date: Sat, 8 Jun 2002 03:10:06 -0400
+From: "John L. Males" <jlmales@yahoo.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is there something strange going on with the ext2 Filesystem?
+Message-Id: <20020608031006.1ff5a93a.jlmales@yahoo.com>
+In-Reply-To: <3CFFA7DB.77DF7054@zip.com.au>
+Reply-To: jlmales@yahoo.com
+Organization: Toronto, Ontario - Canada
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.dQuVsvI_/VNyLF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--=.dQuVsvI_/VNyLF
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-This patch removes the fat_cvf stuff. It seems the fat_cvf wasn't used
-for a long time.
+Hi All,
 
-Please apply.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+***** Please BCC me in on any reply, not CC me.  Two reasons, I am not
+on the LKML, and second I am suffering BIG time with SPAM from posting
+to the mailing list.  Thanks in advance. *****
 
-diff -urN linux-2.5.20/Documentation/filesystems/fat_cvf.txt fat-remove_cvf/Documentation/filesystems/fat_cvf.txt
---- linux-2.5.20/Documentation/filesystems/fat_cvf.txt	Wed Jun  5 21:46:08 2002
-+++ fat-remove_cvf/Documentation/filesystems/fat_cvf.txt	Thu Jan  1 09:00:00 1970
-@@ -1,210 +0,0 @@
--This is the main documentation for the CVF-FAT filesystem extension.  18Nov1998
--
--
--Table of Contents:
--
--1. The idea of CVF-FAT
--2. Restrictions
--3. Mount options
--4. Description of the CVF-FAT interface
--5. CVF Modules
--
--------------------------------------------------------------------------------
--
--
--1. The idea of CVF-FAT
--------------------------------------------------------------------------------
--
--CVF-FAT is a FAT filesystem extension that provides a generic interface for
--Compressed Volume Files in FAT partitions. Popular CVF software, for
--example, are Microsoft's Doublespace/Drivespace and Stac's Stacker.
--Using the CVF-FAT interface, it is possible to load a module that handles
--all the low-level disk access that has to do with on-the-fly compression
--and decompression. Any other part of FAT filesystem access is still handled
--by the FAT, MSDOS or VFAT or even UMSDOS driver.
--
--CVF access works by redirecting certain low-level routines from the FAT
--driver to a loadable, CVF-format specific module. This module must fake
--a normal FAT filesystem to the FAT driver while doing all the extra stuff
--like compression and decompression silently.
--
--
--2. Restrictions
--------------------------------------------------------------------------------
--
--- BMAP problems
--
--  CVF filesystems cannot do bmap. It's impossible in principle. Thus
--  all actions that require bmap do not work (swapping, writable mmapping).
--  Read-only mmapping works because the FAT driver has a hack for this
--  situation :) Well, writable mmapping should now work using the readpage
--  interface function which has been hacked into the FAT driver just for 
--  CVF-FAT :)
--  
--- attention, DOSEmu users 
--
--  You may have to unmount all CVF partitions before running DOSEmu depending 
--  on your configuration. If DOSEmu is configured to use wholedisk or 
--  partition access (this is often the case to let DOSEmu access 
--  compressed partitions) there's a risk of destroying your compressed 
--  partitions or crashing your system because of confused drivers.
--  
--  Note that it is always safe to redirect the compressed partitions with 
--  lredir or emufs.sys. Refer to the DOSEmu documentation for details.
--
--
--3. Mount options
--------------------------------------------------------------------------------
--
--The CVF-FAT extension currently adds the following options to the FAT
--driver's standard options:
--
--  cvf_format=xxx
--    Forces the driver to use the CVF module "xxx" instead of auto-detection.
--    Without this option, the CVF-FAT interface asks all currently loaded
--    CVF modules whether they recognize the CVF. Therefore, this option is
--    only necessary if the CVF format is not recognized correctly
--    because of bugs or incompatibilities in the CVF modules. (It skips
--    the detect_cvf call.) "xxx" may be the text "none" (without the quotes)
--    to inhibit using any of the loaded CVF modules, just in case a CVF
--    module insists on mounting plain FAT filesystems by misunderstanding.
--    "xxx" may also be the text "autoload", which has a special meaning for
--    a module loader, but does not skip auto-detection.
--
--    If the kernel supports kmod, the cvf_format=xxx option also controls
--    on-demand CVF module loading. Without this option, nothing is loaded
--    on demand. With cvf_format=xxx, a module "xxx" is requested automatically
--    before mounting the compressed filesystem (unless "xxx" is "none"). In 
--    case there is a difference between the CVF format name and the module 
--    name, setup aliases in your modules configuration. If the string "xxx" 
--    is "autoload", a non-existent module "cvf_autoload" is requested which 
--    can be used together with a special modules configuration (alias and 
--    pre-install statements) in order to load more than one CVF module, let 
--    them detect automatically which kind of CVF is to be mounted, and only 
--    keep the "right" module in memory. For examples please refer to the 
--    dmsdos documentation (ftp and http addresses see below).
--
--  cvf_options=yyy
--    Option string passed to the CVF module. I.e. only the "yyy" is passed
--    (without the quotes). The documentation for each CVF module should 
--    explain it since it is interpreted only by the CVF module. Note that 
--    the string must not contain a comma (",") - this would lead to 
--    misinterpretation by the FAT driver, which would recognize the text 
--    after a comma as a FAT driver option and might get confused or print 
--    strange error messages. The documentation for the CVF module should 
--    offer a different separation symbol, for example the dot "." or the
--    plus sign "+", which is only valid inside the string "yyy".
--
--
--4. Description of the CVF-FAT interface
--------------------------------------------------------------------------------
--
--Assuming you want to write your own CVF module, you need to write a lot of
--interface functions. Most of them are covered in the kernel documentation
--you can find on the net, and thus won't be described here. They have been
--marked with "[...]" :-) Take a look at include/linux/fat_cvf.h.
--
--struct cvf_format
--{ int cvf_version;
--  char* cvf_version_text;
--  unsigned long int flags;
--  int (*detect_cvf) (struct super_block*sb);
--  int (*mount_cvf) (struct super_block*sb,char*options);
--  int (*unmount_cvf) (struct super_block*sb);
--  [...]
--  void (*zero_out_cluster) (struct inode*, int clusternr);
--}
--
--This structure defines the capabilities of a CVF module. It must be filled
--out completely by a CVF module. Consider it as a kind of form that is used
--to introduce the module to the FAT/CVF-FAT driver.
--
--It contains...
--  - cvf_version:
--      A version id which must be unique. Choose one.
--  - cvf_version_text:
--      A human readable version string that should be one short word 
--      describing the CVF format the module implements. This text is used
--      for the cvf_format option. This name must also be unique.
--  - flags:
--      Bit coded flags, currently only used for a readpage/mmap hack that 
--      provides both mmap and readpage functionality. If CVF_USE_READPAGE
--      is set, mmap is set to generic_file_mmap and readpage is caught
--      and redirected to the cvf_readpage function. If it is not set,
--      readpage is set to generic_readpage and mmap is caught and redirected
--      to cvf_mmap. (If you want writable mmap use the readpage interface.)
--  - detect_cvf:
--      A function that is called to decide whether the filesystem is a CVF of
--      the type the module supports. The detect_cvf function must return 0
--      for "NO, I DON'T KNOW THIS GARBAGE" or anything >0 for "YES, THIS IS
--      THE KIND OF CVF I SUPPORT". The function must maintain the module
--      usage counters for safety, i.e. do MOD_INC_USE_COUNT at the beginning
--      and MOD_DEC_USE_COUNT at the end. The function *must not* assume that
--      successful recognition would lead to a call of the mount_cvf function
--      later. 
--  - mount_cvf:
--      A function that sets up some values or initializes something additional
--      to what has to be done when a CVF is mounted. This is called at the
--      end of fat_read_super and must return 0 on success. Definitely, this
--      function must increment the module usage counter by MOD_INC_USE_COUNT.
--      This mount_cvf function is also responsible for interpreting a CVF
--      module specific option string (the "yyy" from the FAT mount option
--      "cvf_options=yyy") which cannot contain a comma (use for example the
--      dot "." as option separator symbol).
--  - unmount_cvf:
--      A function that is called when the filesystem is unmounted. Most likely
--      it only frees up some memory and calls MOD_DEC_USE_COUNT. The return
--      value might be ignored (it currently is ignored).
--  - [...]:
--      All other interface functions are "caught" FAT driver functions, i.e.
--      are executed by the FAT driver *instead* of the original FAT driver
--      functions. NULL means use the original FAT driver functions instead.
--      If you really want "no action", write a function that does nothing and 
--      hang it in instead.
--  - zero_out_cluster:
--      The zero_out_cluster function is called when the fat driver wants to
--      zero out a (new) cluster. This is important for directories (mkdir).
--      If it is NULL, the FAT driver defaults to overwriting the whole
--      cluster with zeros. Note that clusternr is absolute, not relative
--      to the provided inode.
--
--Notes:
--  1. The cvf_bmap function should be ignored. It really should never
--     get called from somewhere. I recommend redirecting it to a panic
--     or fatal error message so bugs show up immediately.
--  2. The cvf_writepage function is ignored. This is because the fat
--     driver doesn't support it. This might change in future. I recommend
--     setting it to NULL (i.e use default).
--
--int register_cvf_format(struct cvf_format*cvf_format);
--  If you have just set up a variable containing the above structure,
--  call this function to introduce your CVF format to the FAT/CVF-FAT
--  driver. This is usually done in init_module. Be sure to check the
--  return value. Zero means success, everything else causes a kernel
--  message printed in the syslog describing the error that occurred.
--  Typical errors are:
--    - a module with the same version id is already registered or 
--    - too many CVF formats. Hack fs/fat/cvf.c if you need more.
--
--int unregister_cvf_format(struct cvf_format*cvf_format);
--  This is usually called in cleanup_module. Return value =0 means
--  success. An error only occurs if you try to unregister a CVF format
--  that has not been previously registered. The code uses the version id
--  to distinguish the modules, so be sure to keep it unique.
--
--5. CVF Modules
--------------------------------------------------------------------------------
--
--Refer to the dmsdos module (the successor of the dmsdos filesystem) for a
--sample implementation.  It can currently be found at
--
--  ftp://fb9nt.uni-duisburg.de/pub/linux/dmsdos/dmsdos-x.y.z.tgz
--  ftp://sunsite.unc.edu/pub/Linux/system/Filesystems/dosfs/dmsdos-x.y.z.tgz
--  ftp://ftp.uni-stuttgart.de/pub/systems/linux/local/system/dmsdos-x.y.z.tgz
--
--(where x.y.z is to be replaced with the actual version number). Full
--documentation about dmsdos is included in the dmsdos package, but can also
--be found at
--
--  http://fb9nt.uni-duisburg.de/mitarbeiter/gockel/software/dmsdos/index.html
--  http://www.yk.rim.or.jp/~takafumi/dmsdos/index.html (in Japanese).
-diff -urN linux-2.5.20/fs/fat/Makefile fat-remove_cvf/fs/fat/Makefile
---- linux-2.5.20/fs/fat/Makefile	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/Makefile	Wed Jun  5 00:03:17 2002
-@@ -6,6 +6,6 @@
- 
- obj-$(CONFIG_FAT_FS) += fat.o
- 
--fat-objs := buffer.o cache.o dir.o file.o inode.o misc.o cvf.o fatfs_syms.o
-+fat-objs := buffer.o cache.o dir.o file.o inode.o misc.o fatfs_syms.o
- 
- include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.20/fs/fat/buffer.c fat-remove_cvf/fs/fat/buffer.c
---- linux-2.5.20/fs/fat/buffer.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/buffer.c	Wed Jun  5 00:02:59 2002
-@@ -7,91 +7,37 @@
- #include <linux/slab.h>
- #include <linux/fs.h>
- #include <linux/msdos_fs.h>
--#include <linux/fat_cvf.h>
- #include <linux/buffer_head.h>
- 
- struct buffer_head *fat_bread(struct super_block *sb, int block)
- {
--	return MSDOS_SB(sb)->cvf_format->cvf_bread(sb,block);
--}
--struct buffer_head *fat_getblk(struct super_block *sb, int block)
--{
--	return MSDOS_SB(sb)->cvf_format->cvf_getblk(sb,block);
--}
--void fat_brelse (struct super_block *sb, struct buffer_head *bh)
--{
--	if (bh) 
--		MSDOS_SB(sb)->cvf_format->cvf_brelse(sb,bh);
--}
--void fat_mark_buffer_dirty (
--	struct super_block *sb,
--	struct buffer_head *bh)
--{
--	MSDOS_SB(sb)->cvf_format->cvf_mark_buffer_dirty(sb,bh);
--}
--void fat_set_uptodate (
--	struct super_block *sb,
--	struct buffer_head *bh,
--	int val)
--{
--	MSDOS_SB(sb)->cvf_format->cvf_set_uptodate(sb,bh,val);
--}
--int fat_is_uptodate(struct super_block *sb, struct buffer_head *bh)
--{
--	return MSDOS_SB(sb)->cvf_format->cvf_is_uptodate(sb,bh);
--}
--void fat_ll_rw_block (
--	struct super_block *sb,
--	int opr,
--	int nbreq,
--	struct buffer_head *bh[32])
--{
--	MSDOS_SB(sb)->cvf_format->cvf_ll_rw_block(sb,opr,nbreq,bh);
--}
--
--struct buffer_head *default_fat_bread(struct super_block *sb, int block)
--{
- 	return sb_bread(sb, block);
- }
--
--struct buffer_head *default_fat_getblk(struct super_block *sb, int block)
-+struct buffer_head *fat_getblk(struct super_block *sb, int block)
- {
- 	return sb_getblk(sb, block);
- }
--
--void default_fat_brelse(struct super_block *sb, struct buffer_head *bh)
-+void fat_brelse (struct super_block *sb, struct buffer_head *bh)
- {
- 	brelse (bh);
- }
--
--void default_fat_mark_buffer_dirty (
--	struct super_block *sb,
--	struct buffer_head *bh)
-+void fat_mark_buffer_dirty (struct super_block *sb, struct buffer_head *bh)
- {
- 	mark_buffer_dirty (bh);
- }
--
--void default_fat_set_uptodate (
--	struct super_block *sb,
--	struct buffer_head *bh,
--	int val)
-+void fat_set_uptodate (struct super_block *sb, struct buffer_head *bh, int val)
- {
- 	if (val)
- 		set_buffer_uptodate(bh);
- 	else
- 		clear_buffer_uptodate(bh);
- }
--
--int default_fat_is_uptodate (struct super_block *sb, struct buffer_head *bh)
-+int fat_is_uptodate(struct super_block *sb, struct buffer_head *bh)
- {
- 	return buffer_uptodate(bh);
- }
--
--void default_fat_ll_rw_block (
--	struct super_block *sb,
--	int opr,
--	int nbreq,
--	struct buffer_head *bh[32])
-+void fat_ll_rw_block (struct super_block *sb, int opr, int nbreq,
-+		      struct buffer_head *bh[32])
- {
--	ll_rw_block(opr,nbreq,bh);
-+	ll_rw_block(opr, nbreq, bh);
- }
-diff -urN linux-2.5.20/fs/fat/cache.c fat-remove_cvf/fs/fat/cache.c
---- linux-2.5.20/fs/fat/cache.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/cache.c	Tue Jun  4 23:57:32 2002
-@@ -10,7 +10,6 @@
- 
- #include <linux/fs.h>
- #include <linux/msdos_fs.h>
--#include <linux/fat_cvf.h>
- #include <linux/buffer_head.h>
- 
- #if 0
-@@ -22,19 +21,6 @@
- static struct fat_cache *fat_cache,cache[FAT_CACHE];
- static spinlock_t fat_cache_lock = SPIN_LOCK_UNLOCKED;
- 
--/* Returns the this'th FAT entry, -1 if it is an end-of-file entry. If
--   new_value is != -1, that FAT entry is replaced by it. */
--
--int fat_access(struct super_block *sb,int nr,int new_value)
--{
--	return MSDOS_SB(sb)->cvf_format->fat_access(sb,nr,new_value);
--}
--
--int fat_bmap(struct inode *inode,int sector)
--{
--	return MSDOS_SB(inode->i_sb)->cvf_format->cvf_bmap(inode,sector);
--}
--
- int __fat_access(struct super_block *sb, int nr, int new_value)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-@@ -127,7 +113,11 @@
- 	return next;
- }
- 
--int default_fat_access(struct super_block *sb, int nr, int new_value)
-+/* 
-+ * Returns the this'th FAT entry, -1 if it is an end-of-file entry. If
-+ * new_value is != -1, that FAT entry is replaced by it.
-+ */
-+int fat_access(struct super_block *sb, int nr, int new_value)
- {
- 	int next;
- 
-@@ -317,7 +307,7 @@
- 	return nr;
- }
- 
--int default_fat_bmap(struct inode *inode,int sector)
-+int fat_bmap(struct inode *inode, int sector)
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-diff -urN linux-2.5.20/fs/fat/cvf.c fat-remove_cvf/fs/fat/cvf.c
---- linux-2.5.20/fs/fat/cvf.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/cvf.c	Thu Jan  1 09:00:00 1970
-@@ -1,176 +0,0 @@
--/* 
-- * CVF extensions for fat-based filesystems
-- *
-- * written 1997,1998 by Frank Gockel <gockel@sent13.uni-duisburg.de>
-- *
-- * please do not remove the next line, dmsdos needs it for verifying patches
-- * CVF-FAT-VERSION-ID: 1.2.0
-- *
-- */
-- 
--#include <linux/fs.h>
--#include <linux/msdos_fs.h>
--#include <linux/msdos_fs_sb.h>
--#include <linux/fat_cvf.h>
--#include <linux/config.h>
--#include <linux/buffer_head.h>
--#ifdef CONFIG_KMOD
--#include <linux/kmod.h>
--#endif
--
--#define MAX_CVF_FORMATS 3
--
--struct buffer_head *default_fat_bread(struct super_block *,int);
--struct buffer_head *default_fat_getblk(struct super_block *, int);
--void default_fat_brelse(struct super_block *, struct buffer_head *);
--void default_fat_mark_buffer_dirty (struct super_block *, struct buffer_head *);
--void default_fat_set_uptodate (struct super_block *, struct buffer_head *,int);
--int default_fat_is_uptodate(struct super_block *, struct buffer_head *);
--int default_fat_access(struct super_block *sb,int nr,int new_value);
--void default_fat_ll_rw_block (struct super_block *sb, int opr, int nbreq,
--			      struct buffer_head *bh[32]);
--int default_fat_bmap(struct inode *inode,int block);
--ssize_t default_fat_file_write(struct file *filp, const char *buf,
--			       size_t count, loff_t *ppos);
--
--struct cvf_format default_cvf = {
--	cvf_version: 		0,	/* version - who cares? */	
--	cvf_version_text: 	"plain",
--	flags:			0,	/* flags - who cares? */
--	cvf_bread:		default_fat_bread,
--	cvf_getblk:		default_fat_getblk,
--	cvf_brelse:		default_fat_brelse,
--	cvf_mark_buffer_dirty:	default_fat_mark_buffer_dirty,
--	cvf_set_uptodate:	default_fat_set_uptodate,
--	cvf_is_uptodate:	default_fat_is_uptodate,
--	cvf_ll_rw_block:	default_fat_ll_rw_block,
--	fat_access:		default_fat_access,
--	cvf_bmap:		default_fat_bmap,
--	cvf_file_read:		generic_file_read,
--	cvf_file_write:		default_fat_file_write,
--};
--
--struct cvf_format *cvf_formats[MAX_CVF_FORMATS];
--int cvf_format_use_count[MAX_CVF_FORMATS];
--
--int register_cvf_format(struct cvf_format*cvf_format)
--{ int i,j;
--
--  for(i=0;i<MAX_CVF_FORMATS;++i)
--  { if(cvf_formats[i]==NULL)
--    { /* free slot found, now check version */
--      for(j=0;j<MAX_CVF_FORMATS;++j)
--      { if(cvf_formats[j])
--        { if(cvf_formats[j]->cvf_version==cvf_format->cvf_version)
--          { printk("register_cvf_format: version %d already registered\n",
--                   cvf_format->cvf_version);
--            return -1;
--          }
--        }
--      }
--      cvf_formats[i]=cvf_format;
--      cvf_format_use_count[i]=0;
--      printk("CVF format %s (version id %d) successfully registered.\n",
--             cvf_format->cvf_version_text,cvf_format->cvf_version);
--      return 0;
--    }
--  }
--  
--  printk("register_cvf_format: too many formats\n");
--  return -1;
--}
--
--int unregister_cvf_format(struct cvf_format*cvf_format)
--{ int i;
--
--  for(i=0;i<MAX_CVF_FORMATS;++i)
--  { if(cvf_formats[i])
--    { if(cvf_formats[i]->cvf_version==cvf_format->cvf_version)
--      { if(cvf_format_use_count[i])
--        { printk("unregister_cvf_format: format %d in use, cannot remove!\n",
--          cvf_formats[i]->cvf_version);
--          return -1;
--        }
--      
--        printk("CVF format %s (version id %d) successfully unregistered.\n",
--        cvf_formats[i]->cvf_version_text,cvf_formats[i]->cvf_version);
--        cvf_formats[i]=NULL;
--        return 0;
--      }
--    }
--  }
--  
--  printk("unregister_cvf_format: format %d is not registered\n",
--         cvf_format->cvf_version);
--  return -1;
--}
--
--void dec_cvf_format_use_count_by_version(int version)
--{ int i;
--
--  for(i=0;i<MAX_CVF_FORMATS;++i)
--  { if(cvf_formats[i])
--    { if(cvf_formats[i]->cvf_version==version)
--      { --cvf_format_use_count[i];
--        if(cvf_format_use_count[i]<0)
--        { cvf_format_use_count[i]=0;
--          printk(KERN_EMERG "FAT FS/CVF: This is a bug in cvf_version_use_count\n");
--        }
--        return;
--      }
--    }
--  }
--  
--  printk("dec_cvf_format_use_count_by_version: version %d not found ???\n",
--         version);
--}
--
--int detect_cvf(struct super_block*sb,char*force)
--{ int i;
--  int found=0;
--  int found_i=-1;
--
--  if(force)
--    if(strcmp(force,"autoload")==0)
--    {
--#ifdef CONFIG_KMOD
--      request_module("cvf_autoload");
--      force=NULL;
--#else
--      printk("cannot autoload CVF modules: kmod support is not compiled into kernel\n");
--      return -1;
--#endif
--    }
--    
--#ifdef CONFIG_KMOD
--  if(force)
--    if(*force)
--      request_module(force);
--#endif
--
--  if(force)
--  { if(*force)
--    { for(i=0;i<MAX_CVF_FORMATS;++i)
--      { if(cvf_formats[i])
--        { if(!strcmp(cvf_formats[i]->cvf_version_text,force))
--            return i;
--        }
--      }
--      printk("CVF format %s unknown (module not loaded?)\n",force);
--      return -1;
--    }
--  }
--
--  for(i=0;i<MAX_CVF_FORMATS;++i)
--  { if(cvf_formats[i])
--    { if(cvf_formats[i]->detect_cvf(sb))
--      { ++found;
--        found_i=i;
--      }
--    }
--  }
--  
--  if(found==1)return found_i;
--  if(found>1)printk("CVF detection ambiguous, please use cvf_format=xxx option\n"); 
--  return -1;
--}
-diff -urN linux-2.5.20/fs/fat/dir.c fat-remove_cvf/fs/fat/dir.c
---- linux-2.5.20/fs/fat/dir.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/dir.c	Wed Jun  5 00:03:08 2002
-@@ -672,11 +672,6 @@
- 				    vfat_ioctl_fill, 1, 1);
- 	}
- 	default:
--		/* forward ioctl to CVF extension */
--	       if (MSDOS_SB(inode->i_sb)->cvf_format &&
--		   MSDOS_SB(inode->i_sb)->cvf_format->cvf_dir_ioctl)
--		       return MSDOS_SB(inode->i_sb)->cvf_format
--			       ->cvf_dir_ioctl(inode,filp,cmd,arg);
- 		return -EINVAL;
- 	}
- 
-diff -urN linux-2.5.20/fs/fat/fatfs_syms.c fat-remove_cvf/fs/fat/fatfs_syms.c
---- linux-2.5.20/fs/fat/fatfs_syms.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/fatfs_syms.c	Wed Jun  5 00:03:28 2002
-@@ -10,7 +10,6 @@
- 
- #include <linux/mm.h>
- #include <linux/msdos_fs.h>
--#include <linux/fat_cvf.h>
- 
- EXPORT_SYMBOL(fat_new_dir);
- EXPORT_SYMBOL(fat_get_block);
-@@ -30,8 +29,6 @@
- EXPORT_SYMBOL(fat_scan);
- EXPORT_SYMBOL(fat_statfs);
- EXPORT_SYMBOL(fat_write_inode);
--EXPORT_SYMBOL(register_cvf_format);
--EXPORT_SYMBOL(unregister_cvf_format);
- EXPORT_SYMBOL(fat_dir_ioctl);
- EXPORT_SYMBOL(fat_add_entries);
- EXPORT_SYMBOL(fat_dir_empty);
-diff -urN linux-2.5.20/fs/fat/file.c fat-remove_cvf/fs/fat/file.c
---- linux-2.5.20/fs/fat/file.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/file.c	Wed Jun  5 00:05:20 2002
-@@ -8,16 +8,18 @@
- 
- #include <linux/time.h>
- #include <linux/msdos_fs.h>
--#include <linux/fat_cvf.h>
- #include <linux/smp_lock.h>
- #include <linux/buffer_head.h>
- 
- #define PRINTK(x)
- #define Printk(x) printk x
- 
-+static ssize_t fat_file_write(struct file *filp, const char *buf, size_t count,
-+			      loff_t *ppos);
-+
- struct file_operations fat_file_operations = {
- 	llseek:		generic_file_llseek,
--	read:		fat_file_read,
-+	read:		generic_file_read,
- 	write:		fat_file_write,
- 	mmap:		generic_file_mmap,
- 	fsync:		file_fsync,
-@@ -28,18 +30,6 @@
- 	setattr:	fat_notify_change,
- };
- 
--ssize_t fat_file_read(
--	struct file *filp,
--	char *buf,
--	size_t count,
--	loff_t *ppos)
--{
--	struct inode *inode = filp->f_dentry->d_inode;
--	return MSDOS_SB(inode->i_sb)->cvf_format
--			->cvf_file_read(filp,buf,count,ppos);
--}
--
--
- int fat_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh_result, int create)
- {
- 	struct super_block *sb = inode->i_sb;
-@@ -76,23 +66,8 @@
- 	return 0;
- }
- 
--ssize_t fat_file_write(
--	struct file *filp,
--	const char *buf,
--	size_t count,
--	loff_t *ppos)
--{
--	struct inode *inode = filp->f_dentry->d_inode;
--	struct super_block *sb = inode->i_sb;
--	return MSDOS_SB(sb)->cvf_format
--			->cvf_file_write(filp,buf,count,ppos);
--}
--
--ssize_t default_fat_file_write(
--	struct file *filp,
--	const char *buf,
--	size_t count,
--	loff_t *ppos)
-+static ssize_t fat_file_write(struct file *filp, const char *buf, size_t count,
-+			      loff_t *ppos)
- {
- 	struct inode *inode = filp->f_dentry->d_inode;
- 	int retval;
-diff -urN linux-2.5.20/fs/fat/inode.c fat-remove_cvf/fs/fat/inode.c
---- linux-2.5.20/fs/fat/inode.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/inode.c	Wed Jun  5 00:15:53 2002
-@@ -15,15 +15,12 @@
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
- #include <linux/msdos_fs.h>
--#include <linux/fat_cvf.h>
- #include <linux/pagemap.h>
- #include <linux/buffer_head.h>
- 
- //#include <asm/uaccess.h>
- #include <asm/unaligned.h>
- 
--extern struct cvf_format default_cvf;
--
- /* #define FAT_PARANOIA 1 */
- #define DEBUG_LEVEL 0
- #ifdef FAT_DEBUG
-@@ -174,10 +171,6 @@
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
- 
--	if (sbi->cvf_format->cvf_version) {
--		dec_cvf_format_use_count_by_version(sbi->cvf_format->cvf_version);
--		sbi->cvf_format->unmount_cvf(sb);
--	}
- 	fat_clusters_flush(sb);
- 	fat_cache_inval_dev(sb);
- 	if (sbi->nls_disk) {
-@@ -203,8 +196,7 @@
- 
- 
- static int parse_options(char *options, int *debug,
--			 struct fat_mount_options *opts,
--			 char *cvf_format, char *cvf_options)
-+			 struct fat_mount_options *opts)
- {
- 	char *this_char,*value,save,*savep;
- 	char *p;
-@@ -340,16 +332,6 @@
- 					ret = 0;
- 			}
- 		}
--		else if (!strcmp(this_char,"cvf_format")) {
--			if (!value)
--				return 0;
--			strncpy(cvf_format,value,20);
--		}
--		else if (!strcmp(this_char,"cvf_options")) {
--			if (!value)
--				return 0;
--			strncpy(cvf_options,value,100);
--		}
- 
- 		if (this_char != options) *(this_char-1) = ',';
- 		if (value) *savep = save;
-@@ -643,9 +625,6 @@
- 	unsigned char media;
- 	long error = -EIO;
- 	char buf[50];
--	int i;
--	char cvf_format[21];
--	char cvf_options[101];
- 
- 	sbi = kmalloc(sizeof(struct msdos_sb_info), GFP_KERNEL);
- 	if (!sbi)
-@@ -653,19 +632,13 @@
- 	sb->u.generic_sbp = sbi;
- 	memset(sbi, 0, sizeof(struct msdos_sb_info));
- 
--	cvf_format[0] = '\0';
--	cvf_options[0] = '\0';
--	sbi->private_data = NULL;
--
- 	sb->s_magic = MSDOS_SUPER_MAGIC;
- 	sb->s_op = &fat_sops;
- 	sb->s_export_op = &fat_export_ops;
- 	sbi->options.isvfat = isvfat;
- 	sbi->dir_ops = fs_dir_inode_ops;
--	sbi->cvf_format = &default_cvf;
- 
--	if (!parse_options((char *)data, &debug, &sbi->options,
--			   cvf_format, cvf_options))
-+	if (!parse_options((char *)data, &debug, &sbi->options))
- 		goto out_fail;
- 
- 	fat_cache_init();
-@@ -848,15 +821,6 @@
- 		goto out_invalid;
- 	}
- 
--	if (!strcmp(cvf_format, "none"))
--		i = -1;
--	else
--		i = detect_cvf(sb, cvf_format);
--	if (i >= 0) {
--		if (cvf_formats[i]->mount_cvf(sb, cvf_options))
--			goto out_invalid;
--	}
--
- 	cp = sbi->options.codepage ? sbi->options.codepage : 437;
- 	sprintf(buf, "cp%d", cp);
- 	sbi->nls_disk = load_nls(buf);
-@@ -904,10 +868,7 @@
- 		printk("FAT: get root inode failed\n");
- 		goto out_fail;
- 	}
--	if(i >= 0) {
--		sbi->cvf_format = cvf_formats[i];
--		++cvf_format_use_count[i];
--	}
-+
- 	return 0;
- 
- out_invalid:
-@@ -922,9 +883,6 @@
- 		unload_nls(sbi->nls_disk);
- 	if (sbi->options.iocharset)
- 		kfree(sbi->options.iocharset);
--	if (sbi->private_data)
--		kfree(sbi->private_data);
--	sbi->private_data = NULL;
- 	sb->u.generic_sbp = NULL;
- 	kfree(sbi);
- 
-@@ -935,11 +893,6 @@
- {
- 	int free,nr;
-        
--	if (MSDOS_SB(sb)->cvf_format &&
--	    MSDOS_SB(sb)->cvf_format->cvf_statfs)
--		return MSDOS_SB(sb)->cvf_format->cvf_statfs(sb,buf,
--						sizeof(struct statfs));
--	  
- 	lock_fat(sb);
- 	if (MSDOS_SB(sb)->free_clusters != -1)
- 		free = MSDOS_SB(sb)->free_clusters;
-diff -urN linux-2.5.20/fs/fat/misc.c fat-remove_cvf/fs/fat/misc.c
---- linux-2.5.20/fs/fat/misc.c	Wed Jun  5 21:47:28 2002
-+++ fat-remove_cvf/fs/fat/misc.c	Wed Jun  5 00:04:08 2002
-@@ -233,27 +233,21 @@
- 	
- 	sector = MSDOS_SB(sb)->data_start + (nr - 2) * cluster_size;
- 	last_sector = sector + cluster_size;
--	if (MSDOS_SB(sb)->cvf_format
--	    && MSDOS_SB(sb)->cvf_format->zero_out_cluster) {
--		res = ERR_PTR(-EIO);
--		MSDOS_SB(sb)->cvf_format->zero_out_cluster(inode, nr);
--	} else {
--		for ( ; sector < last_sector; sector++) {
--			if (!(bh = fat_getblk(sb, sector)))
--				printk("FAT: fat_getblk() failed\n");
--			else {
--				memset(bh->b_data, 0, sb->s_blocksize);
--				fat_set_uptodate(sb, bh, 1);
--				fat_mark_buffer_dirty(sb, bh);
--				if (!res)
--					res = bh;
--				else
--					fat_brelse(sb, bh);
--			}
-+	for ( ; sector < last_sector; sector++) {
-+		if (!(bh = fat_getblk(sb, sector)))
-+			printk("FAT: fat_getblk() failed\n");
-+		else {
-+			memset(bh->b_data, 0, sb->s_blocksize);
-+			fat_set_uptodate(sb, bh, 1);
-+			fat_mark_buffer_dirty(sb, bh);
-+			if (!res)
-+				res = bh;
-+			else
-+				fat_brelse(sb, bh);
- 		}
--		if (res == NULL)
--			res = ERR_PTR(-EIO);
- 	}
-+	if (res == NULL)
-+		res = ERR_PTR(-EIO);
- 	if (inode->i_size & (sb->s_blocksize - 1)) {
- 		fat_fs_panic(sb, "Odd directory size");
- 		inode->i_size = (inode->i_size + sb->s_blocksize)
-diff -urN linux-2.5.20/include/linux/fat_cvf.h fat-remove_cvf/include/linux/fat_cvf.h
---- linux-2.5.20/include/linux/fat_cvf.h	Wed Jun  5 21:47:52 2002
-+++ fat-remove_cvf/include/linux/fat_cvf.h	Thu Jan  1 09:00:00 1970
-@@ -1,47 +0,0 @@
--#ifndef _FAT_CVF
--#define _FAT_CVF
--
--#define CVF_USE_READPAGE  0x0001
--
--struct cvf_format
--{ int cvf_version;
--  char* cvf_version_text;
--  unsigned long flags;
--  int (*detect_cvf) (struct super_block*sb);
--  int (*mount_cvf) (struct super_block*sb,char*options);
--  int (*unmount_cvf) (struct super_block*sb);
--  struct buffer_head* (*cvf_bread) (struct super_block*sb,int block);
--  struct buffer_head* (*cvf_getblk) (struct super_block*sb,int block);
--  void (*cvf_brelse) (struct super_block *sb,struct buffer_head *bh);
--  void (*cvf_mark_buffer_dirty) (struct super_block *sb,
--                              struct buffer_head *bh);
--  void (*cvf_set_uptodate) (struct super_block *sb,
--                         struct buffer_head *bh,
--                         int val);
--  int (*cvf_is_uptodate) (struct super_block *sb,struct buffer_head *bh);
--  void (*cvf_ll_rw_block) (struct super_block *sb,
--                        int opr,
--                        int nbreq,
--                        struct buffer_head *bh[32]);
--  int (*fat_access) (struct super_block *sb,int nr,int new_value);
--  int (*cvf_statfs) (struct super_block *sb,struct statfs *buf, int bufsiz);
--  int (*cvf_bmap) (struct inode *inode,int block);
--  ssize_t (*cvf_file_read) ( struct file *, char *, size_t, loff_t *);
--  ssize_t (*cvf_file_write) ( struct file *, const char *, size_t, loff_t *);
--  int (*cvf_mmap) (struct file *, struct vm_area_struct *);
--  int (*cvf_readpage) (struct inode *, struct page *);
--  int (*cvf_writepage) (struct inode *, struct page *);
--  int (*cvf_dir_ioctl) (struct inode * inode, struct file * filp,
--                        unsigned int cmd, unsigned long arg);
--  void (*zero_out_cluster) (struct inode*, int clusternr);
--};
--
--int register_cvf_format(struct cvf_format*cvf_format);
--int unregister_cvf_format(struct cvf_format*cvf_format);
--void dec_cvf_format_use_count_by_version(int version);
--int detect_cvf(struct super_block*sb,char*force);
--
--extern struct cvf_format *cvf_formats[];
--extern int cvf_format_use_count[];
--
--#endif
-diff -urN linux-2.5.20/include/linux/msdos_fs.h fat-remove_cvf/include/linux/msdos_fs.h
---- linux-2.5.20/include/linux/msdos_fs.h	Wed Jun  5 21:47:53 2002
-+++ fat-remove_cvf/include/linux/msdos_fs.h	Wed Jun  5 00:32:14 2002
-@@ -273,12 +273,8 @@
- /* fat/file.c */
- extern struct file_operations fat_file_operations;
- extern struct inode_operations fat_file_inode_operations;
--extern ssize_t fat_file_read(struct file *filp, char *buf, size_t count,
--			     loff_t *ppos);
- extern int fat_get_block(struct inode *inode, sector_t iblock,
- 			 struct buffer_head *bh_result, int create);
--extern ssize_t fat_file_write(struct file *filp, const char *buf, size_t count,
--			      loff_t *ppos);
- extern void fat_truncate(struct inode *inode);
- 
- /* fat/inode.c */
-diff -urN linux-2.5.20/include/linux/msdos_fs_sb.h fat-remove_cvf/include/linux/msdos_fs_sb.h
---- linux-2.5.20/include/linux/msdos_fs_sb.h	Wed Jun  5 21:47:53 2002
-+++ fat-remove_cvf/include/linux/msdos_fs_sb.h	Tue Jun  4 23:56:15 2002
-@@ -46,9 +46,7 @@
- 	struct fat_mount_options options;
- 	struct nls_table *nls_disk;  /* Codepage used on disk */
- 	struct nls_table *nls_io;    /* Charset used for input and display */
--	struct cvf_format* cvf_format;
- 	void *dir_ops;		     /* Opaque; default directory operations */
--	void *private_data;
- 	int dir_per_block;	     /* dir entries per block */
- 	int dir_per_block_bits;	     /* log2(dir_per_block) */
- };
+Andrew, thanks kindly for sending me a copy of your reply so I can
+answer the questions.  Please see below for my comments ...
+
+On Thu, 06 Jun 2002 11:20:11 -0700
+Andrew Morton wrote in Message-ID: 3CFFA7DB.77DF7054@zip.com.au
+
+To: "John L. Males" <jlmales@softhome.net>
+From: Andrew Morton <akpm@zip.com.au>
+Subject: [Fwd: Re: Is there something strange going on with the ext2
+Filesystem?]
+Date: Thu, 06 Jun 2002 11:20:11 -0700
+
+> 
+> 
+
+[snip]
+
+> 
+> "John L. Males" wrote:
+> > 
+> > Hi,
+> > 
+
+[snip]
+
+> 
+> Don't be silly. Install spamassassin like everyone else.
+
+Thanks, but for moment I will need to see how to implement this with
+sylpheed, and best done on a upcomming fresh distribution install I
+will need to do from a hybreed SuSE 6.4 I have.
+
+> 
+> > Ok, I have been having some odd, to very serious problems with the
+> > ext2 file system.  The problems seemed to have started when I
+> > started using the 2.4.x kernels.  Possible suspect are in the
+> > 2.4.15-pre5. I had used 2.4.9-ac10, 2.4.9-ac18, 2.4.10-ac12,
+> > 2.4.13-ac5 in the past and a SuSE 2.4.9 varient that was simply
+> > had some odd problems, not file system related, that I used for a
+> > very short one session, and short boot.
+> > 
+> > There are three basic issues at hand:
+> > 
+> >  1) e2fsck 1.19 would hang with a 2.4.x kernel.  Kernel occurred
+> >  on
+> > was 2.4.15-pre5, then tried 2.4.13-ac5, and 2.4.9-ac18 and these
+> > two also had e2fsch hang.  No changes made, just booted to 2.2.19
+> > (current at time) on same system as already had 2.4.19 with the
+> > OpenWall patch and e2fsck run to completion.  I do not recall if
+> > there were errors detected.  I may have notes on this, as in the
+> > comsole messages, but I have to do a bit of digging.
+> 
+> Note that e2fsprogs is at version 1.27.  1.19 is rather old.
+
+Correct.  Most of the major problems were a while back and then 1.19
+was very current and considered the version of choice.  I have been on
+1.24a for some months now and 1.24a applies to issues 3 and 4.  I have
+no desire to try a 2.4.x kernel on a system I need to depend on.
+
+> 
+> If it's not a fsck bug, it's conceivably a VM problem.  More
+> likely it's a lost interrupt from your disk system.
+
+Oh, I was not suggesting it was a e2fsck bug, based on the fact of
+booting the already existing 2.2.19 and making no other changes,
+e2fsck ran just fine.  Suggests a kernel issue in my opinion.  As for
+lost interrupt, possible, but I suspect very unlikley based on how
+familar I am with my system.  VM may be a possibility, but difficult
+to say.  I can offer this observation with a Linus 2.2.20 Kernel and
+the OpenWall patch - when memory is stressed moderately my eMail the
+passwords held by my eMail program get lost and I need to re-enter one
+or both the next time access to the pop server is required.  The
+program remembers the password for the current instance invoked.  I do
+not store my passwords in the program. 
+
+>  
+> >   2) BIG TIME cross node problems, BIG BIG time bit map problems
+> >   that
+> > is either realted to the special test programs I have developed
+> > for testing the kernel VM subsystem, or maybe unrelated.
+> 
+> Can you make these programs available?
+
+That is possible at a future date.  The programs, scripts and
+supporting logging data still need work.  I also have a few more
+programs and related scripts to write to round out the test suite.  I
+need to find a dynamic way for the tests to run so that the "same"
+type of test can run on machines of different memory configurations,
+to allow a proper comparisons of VM between machines with different
+amounts of memory or Kernel Memory options in order that the essence
+of a test between such differences are in fact a Apples to Apples
+comparison.
+
+The other issue I have is one of licensing.  I rather not Open Source
+the programs for the simple fact I have no desire to allow closed
+Operating System software to have the fruits of OS QA/Testing skills
+on such a basic OS element.  I have not had the time to think this out
+as the test programs I have written still have various technical
+metrics considerations to be thought out.  When I have the programs in
+good shape, I will be happy to request thoughts/comments how to make
+the tools available for Linux Kernel developers to test and inmprove
+the VM subsystem.
+  
+> 
+> >  Bottom line I
+> > had real serious problems after this e2fsck wherein many files
+> > were lost or say the "ps" name entry no longer pointed to the "ps"
+> > program, but say the Free Pascal compiler.  There were a number of
+> > these messes and so I have since moved back to the 2.2.x kernel
+> > series.  There had been "smaller scale" problems like these, but
+> > not with cross linked/duplicae nodes or the like with other 2.4.x
+> > kernels before 2.4.15-pre5.  I therefore feel there is a problem
+> > sitting about that may not have been addressed yet.  I have no
+> > notes on this as these problems were with the root file system and
+> > I had no ability to hold the messages and try to copy the, at
+> > times, several hundred, numbers, messages.  For my other mounts I
+> > can as I have XFree up at that time and can cut and past the
+> > console messages into an editor and save the messages and all.
+> 
+> Sounds like hardware, and/or a buggy driver which wasn't buggy
+> in 2.2.
+
+For the record it is the Buslogic driver, and based on the same
+hardware used for a variety of OS's via drive caddies, I have to
+suggest the issue is neitehr hardware or driver related.  These
+problems had definite relationships to which Kernel I was using.
+
+> 
+> How many systems have you been able to reproduce this on?
+
+One hardware system, same Linux drive, many different Kernels I had
+compiled and had available via LILO.  There is a plan once I have the
+time to test this on the prime hardware system I use, and also a
+second system that happenes to be a Dual SMP CPU.  Just at moment I
+have not had enough time.  I know this is silly, but if the
+distributions pooled resources for save a dedicated VM testing
+activity, I be happy to dedicate all my time to the VM testing issues.
+ Problem is I need to pay for my food, rent, cats and some other very
+modest living expenses.  I have every reality the distributions would
+not pool for such an expense, but just mention it in case my
+assumption is incorrect.
+
+>  
+> >  3) I am starting to see a parallel even not that I have been
+> >  using
+> > the 2.2.19/2.2.20 kernel for a number of months now.  The parallel
+> > is when the file system gets full, I will skip how this happens
+> > but it does frequently in what things I do, either the next boot
+> > of the system or the next scheduled e2fsck reults in various
+> > bitmap, wrong group, directory counts, etc.  The number of times
+> > this has happened is more than suggestive of a problem.
+> 
+> I can well believe that.  We've had several ENOSPC bugs, and
+> they were (hopefully) fixed in kernels which are later than
+> the ones you've been testing.
+
+I need some clarification here.  First can someone explain what is
+ENOSPC?  I am technical, I have seen this term used in the patch
+summaries, but have no idea what it is.  I am techncial, but not a
+kernel expert, so it is ok to be brief enough to allow me to
+understand concepts and some technical aspects.  I do not believe I
+need the very detailed technical explaination, unless there is a
+strong opinion of those in the know otherwise.
+
+Second calrification, I have to assume these ENOSPC bug fixes have
+been effected in the > 2.4.14 kernels.  What I am not sure of is in
+the 2.2.20 Kernel, it is current and are there some outstanding 2.2.20
+ENOSPC bugs?
+
+> 
+> >  I currently do not have the
+> > time or a "current" mainstream release of Linux to try testing my
+> > theory on this without risking my one and only Linux day to day
+> > use system.  I am trying to find time and current distribution I
+> > can download over 56K modem line to do such a test.  I aslo need
+> > to see if my VM tests are a factor, as in when the kernel is
+> > stressed in the VM context, it has secondary negative effects. 
+> > Not to mention seeing what progress the VM subsystem has made.  My
+> > last check with 2.4.15-pre5 was ok, but still many problems.
+> 
+> 2.4.14/2.4.15 VM was pretty rough.  Suggest you grab a current
+> vendor kernel or 2.4.19-pre10.
+
+Agree those kernels were fairly rought, as real world experience
+tought me.  Right now I ahave to say I am 2.4.x gun shy for my primary
+Linux system.
+
+Hence my desire, but short of time, to get a more current
+distribution, free up or buy another hard drive, and do the extensive
+testing on that isolated system just to see if beyond the obvious VM
+issues that may or may not still exist, if there are file
+system/Kernel stability issues.
+
+I suspect I need to cross check this against a few different
+distributions to confirm the results are the same across the board. 
+One thing to do a test with distribution A because it is easier and
+smaller to get and install.  Then install and run with my distribution
+of choice, B, only to find out there is some distribution specific
+issues that cause filesystem corruption.  One thing to do a test with
+distribution A because it is easier and smaller to get and install. 
+Then install and run with my distribution of choice, B, only to find
+out there is some distribution specific issues that cause filesystem
+corruption.
+
+For sure I will need to test a few different kernel versions,
+including some of the "problem" ones I suspect, in order to validate
+results and progress.  That implies a need to create a base test
+install image that can be reinstalled after each test to ensure the
+same baseline reference of tests are used.
+
+I also need to run the same tests on FreeBSD and OpenBSD as there
+seems to be a general opinion that these BSD varients handle VM much
+better at this time.  If that is in fact the case then the automated
+test programs and scripts I have developed with demonstrate this or
+where these BSD systems may or may not behave better under the various
+VM contitions that can exist.  
+
+Can one now see and begin to appreciate why some much time and effort
+is required, even if one has created automated test cases.  To add to
+this, I only have one hardware configuration.  Not a big deal for me,
+but I will need to have a sense of at least the amount of memory on
+the system impact to such basic test case objectives.  Now if there
+were 2, 3, etc machines of the exact same "test" configuration then
+the same tests could be carried out in parallel and with much less
+lapsed time.  No, the machines need not match my system.  They would
+need to match the "targeted" test conditions/assumptions.  I need to
+do more research and discussion to determine the "technical"
+requirements, conditions and number "base" conditions/tests required. 
+This also goes back to the test programs I have created, that have to
+either be tweaked, changed, or additional programs developed to ensure
+the proper testing and metrics are tested, measured and compariable
+between different the "established" variables of the tests.
+
+I will stop there.  I started my days of testing in OS as well as
+compiler testing.  I now have a  background with 12+ years of
+QA/Testing experience.  I recall last October on this mailing list
+where VM issues were being discussed yet again.  There were some very
+good thoughts and comments made at the time.  One was something to
+effect of a testing "GOD" I think was mentioned and the person making
+the comments suspected no such type of person existed.  I recall the
+postings were about 16/17 Oct 2001 on the LKML, in case someone wants
+to review that round of VM discussions.  NO, I will not suggest I am
+such a Testing GOD.  I was tempted to indicate that what was believed
+not possible to create test cases for was in fact possible.  That was
+the motivation for me writing the VM test programs I have created.  I
+will skip the rational of why it is possible as many on the LKML
+suggest it is not possible.  I really think the Kernel team needs some
+QA/Testing people.  We QA/Testing people do have a different, but very
+helpful way of looking at things developers generally do not have the
+time for.  Even us QA/Testing people run out of time for what we need
+and want to test.  Software keeps getting more complicated and able to
+handle a bigger range of elements.  That fact is puttting great
+pressure on many software code bases, not just the Kernel.     
+
+>  
+> >   4) Now in past few days I had a case where the system was shut
+> >   down
+> > normally,  Then started again next day for a few hours of very
+> > light activity and shut down again normally,  Then the next
+> > startup there are group/directory count problems, and bitmap
+> > problems.  All after two clean shutdowns and no mount/device full
+> > conditions during any of these prior sessions.
+> 
+> That's too easy.  Again, busted hardware, memory or driver.
+
+Sorry, with all due respect I again have to disagree.  I have tracked
+the issues and the timing of common elements too long to think it is
+hardware.  As far as driver goes, possible, it is software, or its
+interaction with the "larger" aspects of the Kernel.  So assuming the
+issues is not hardware (memory is hardware) realted then we are back
+to the Kernel as the drivers are part of the Kernel code.
+
+I would have to question how one can make such a conclusion?  On what
+facts is such an answer based?  Again I have to make mention of the
+fact of how Kernel verions make a difference.  What I have forgoton to
+mention, which is possible, is a cascade effect.  In the cascade
+effect, "bad" code has corrupted the file system, and no matter how
+"correct" the code using the file system is going forward, the
+"damage" has been done and needs a "clean" slate.  Hence my need to
+test on a seperate and known "clean" isolated install, and then the
+determinations of facts can be made.  I am very well aware what I have
+suggested here is hard to believe.  I have made basic and regular
+observations that suggest what I have experienced may be a problem. 
+What is needed is a focused and formal effort to test and determine
+under strictly "controlled" conditions if the problems I have
+experienced can be recreated or not, or if other problems are
+discovered that may or may not be realted to what issues I have
+observed on my system.  That is the essense of what needs to be done.
+
+I posted my thoughts based on casual, yet very focused, observations -
+firstly in case there were "know" issues, that could say with
+confidence yes know that problem, yes it is fixed.  In that case it is
+very easy to test and confirm.  Beyond that, matters become grey very
+quickly due to the number of variables involved.  I am very good at
+QA/Testing.  If there is a problem, and I have the time and resources,
+I WILL find the issues and I WILL be able to document them and how to
+duplicate them.
+
+What may or may not be welcome is even after such effort is put in to
+find the "formula" to duplicate an issue is if those that need to look
+at the problem have the time and resources to recreate the problem so
+that they can develop a fix.  That assumes someone like me has not
+made some sort of oversight that results in the developer being unable
+to recreate the bug.  Such situations can add additional duty cycles
+and test peoples patience.
+
+>  
+> > In conclusion, I think there needs to be some more formalized and
+> > specific QA/Testing testing of file systems.  The conditions to be
+> > tested needs to bacome a formal and routine part Linux kernel
+> > testing.
+> 
+> The vendors do a lot of testing.  (pretty lame testing IMO, but
+> they do their best ;))
+
+I then repeat two thoughts.  One in this eMail and one I have stated
+in the past.  Then maybe it is time to "pool" the vendor resources for
+testing the Kernel as it would be a win win for everyone, vendors,
+users, and corporate users.  As the Kernel reaches or tries to reach
+the "next" level, the QA/Testing effort increases orders of magnitude
+to fulsh out what will be more difficult to find bugs, yet bugs if not
+found will hold the kernel back from reaching the "next" level of
+acceptance.  I have personally found the "vendor" kernels to be more
+unstable that the "stock" kernel, but that is my personal observations
+and experiences.  I know others have expressed much different
+experiences.  All I can suggest is the extent in such a difference of
+opinion at the community/user level is suggestive that there are
+problems on both sides of fence.  That implies a need to try to bring
+things closer together before the different problems/solutions creates
+too many varients that will make the "merging" back an overwhelming
+task.  I have seen this sort of pattern too many times in the past,
+and it costs big time money and man hours.
+
+> 
+> >  I realize it can be time consuming, but there can be "creative"
+> >  ways
+> > and techniques applied to ease the effort and automate the process
+> > to a great extent I am sure.
+> 
+> Automation doesn't help for much but regression testing.  Because
+> you're always running the same test.  The most valuable test lab
+> is the people who use this software daily, and report stuff.
+
+I am sorry I have to disagree in this point.  Yes, your point is true
+to a certian extent.  It is actully quite possible to flush out and
+create test cases, manual and/or automated to find many of the
+widespread/generic bugs.  Automation is very helpful as it is far more
+efficient and provides consistant tests, ergo results that can be more
+informative to comparing.  This is where I think maybe the Kernel
+Development Community needs to learn that they need QA/Testing people,
+who may not know how to code or write Kernel code, but clearly
+understand the technical and functional OS requirements to be able to
+create the needed tests.  Formal software testing requires at least as
+much time and resources as development of the software code, and it is
+generally know that in fact QA/Testing of softare requires more time
+and resources than that required for development of the code.  .  Ad
+hoc/beta testing is not a replacement for formal testing.  Manual
+tests will always exist for any number of reasons.  Automated tests
+can auctually be created more often than many peole believe.  Case in
+point, how can a VM subsystem be benchmarked, or even coded if there
+are no specific controlled test suites that isolate the VM subsystem. 
+All other system functions (disk i/o other than for VM functions
+included) and factors do not encroach to the point of allowing the
+test suite conditions to actually be objective?  I need no answer, I
+am just asking the question for the purpose of really thinking about
+it.  I have seen many tests for the VM subsystem used, and with all
+due respect, that are more often subjective than objective or
+interfeer with the ability of the VM subsystem to perform without
+competing with other system functions.  The specific issues some
+installations have expereinced during last year are excellent examples
+of the lack of test conditions that could of simulated many of those
+conditions if the time and effort was allowed and spent on developing
+test cases and "scripts" to test the conditions.  For the moment I do
+not want to get into that discussion here.  That is not to suggest I
+am the last word on the matter, just that the point has to be
+demonstrated in fact.
+
+Maybe I will be able to show one or two examples of such facts.  I am
+human and I do make mistakes.   So I am not the last word on this by
+any means, but I know I am not alone in what I think.  What is needed
+to move forward is to demonstrate this in practice.  That is why I
+have taken the time to develop a good foundation of tests and
+supporting programs to test the VM subsystem.  I have not made much
+noise or otherwise of that fact or effort I have been making.  The
+reason is simple, I need facts, and that implies I need a seperarte
+system to do this on to better control the variables and hence to
+facts that can be concluded fromt the tests.  I have had little time
+to do the testing and develop the test cases (automation, all be it is
+well automated thus far, some tests can take several hours) ensure the
+test cases self reference to account for a number of hardware based
+variables, and there are a number of kernels to test and compare
+results with.  No, not every version of the Kernel needs testing at
+this point of time, but still there are at least 3-4 in each of the
+2.2.x and 2.4.x series.  I can tell you I have seen the same test on
+same machine vary from a couple hours to well beyond 12 hours between
+different kernel versions I have tested.  The tests have alreay a part
+built in where a "baseline" is established to determine how much
+overhead is created overall, with logging of the specifics, so the
+excessive overhead elements can be identified, and thereofore
+evaluated.  
+
+> 
+> >  From my ongoing experiences the ext2 file
+> > system with regard to device/file system full conditions, using
+> > different block sizes, inode density configurations, and kernel
+> > stress conditions are key starting elements in such a ongoing
+> > sanity check of the kernel.  I would expect all the other file
+> > systems to be put throught the generic file system tests as well
+> > as in combination with their own specific file system
+> > configurations/options.  I happened not to take the defaults and
+> > therefore these may not have been tested at all or not very well
+> > tested for any file system, not just the ext2 file system.
+> 
+> Please send a detailed bug report which will enable a developer to
+> reproduce these problems.
+
+Yes, very important request.  I am very well aware of that need and
+its importance.  Now lets see of I will be able to reproduce the
+problem.  The purpose of the original eMail as again mentioned in this
+reply, was to at least give a heads up there may be an issue.  I know
+for me it will be some time before I can determine if the problem can
+be recreated, unless of course soeone proposes an alternate means to
+the time and resources issues I have.  At least if people speak up
+saying umm, having this odd behavious and yes others express the same,
+then at least we know there is a problem.  Duplicating it, and some
+problems are hard to duplicate, then becaomes the next focus in the
+process.  Usually be trying to identify common factors and control
+those factors to see if they have any impact of manifesting the
+problem.
+
+>  
+> > I would like to trust Linux with its file system management, as I
+> > can tell you first hand The Other OS has big time problems, on a
+> > routine basis with thw two primary file systems it uses.  I know
+> > from first hand experience, BIT TIME.  I can tell you I am not
+> > your average user, and I know there are many very large
+> > installations that have used Linux under what are believed
+> > stressful and demanding uses over several hours.  All I can tell
+> > you is for some reason I seem to break the general 80/20 rule more
+> > often and my uses of systems tend to be more a 70/30 or 60/40
+> > split.
+> > 
+> > For that reason I seem to encounter and find by "accident" more
+> > problems than others in my day to day use of systems.  I will not
+> > tell you what happens when I actually try to test and break
+> > software to validate its design/stability/duty cycles.
+> 
+> You sound like a useful chap.  Please send those detailed bug
+> reports.  (But please verify them on a different machine first).
+
+
+As you can tell from my mindset and points that is what I intend to
+do.  Just wish there was more formal structure to the Kernel process
+that maybe is able to catch such issues that are very elusive.
+
+>  
+> > ...
+> > ==================================================================
+> > Please BCC me by replacing yahoo.com after the "@" as follows"
+> > TLD =         The last three letters of the word internet
+> > Domain name = The first four letters of the word software,
+> >               followed by the last four letters of the word
+> >               homeless.
+> 
+> softless.net ain't registered.   ihbt.
+> 
+> -
+
+
+==================================================================
+
+
+"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 -
+February/2000
+
+Again if I did not make sense in some part of my reply please feel
+free to ask for clarification.  It is late and my mind is starting to
+fade.
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+08 June 2002 03:10
+
+
+
+==================================================================
+***** Please BCC me in on any reply, not CC me.  Two reasons, I am not
+on the LKML, and second I am suffering BIG time with SPAM from posting
+to the mailing list.  Thanks in advance. *****
+
+
+Please BCC me by replacing yahoo.com after the "@" as follows"
+TLD =         The last three letters of the word internet
+Domain name = The first four letters of the word software,
+              followed by the first four letters of the word
+              homeless.
+My appologies in advance for the jumbled eMail address
+and request to BCC me, but SPAM has become a very serious
+problem.  The eMail address in my header information is
+not a valid eMail address for me.  I needed to use a valid
+domain due to ISP SMTP screen rules.
+--=.dQuVsvI_/VNyLF
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iEYEARECAAYFAj0BrdgACgkQsrsjS27q9xYH9gCgn+gyH0fJS50BZR6+FUlwb1fS
+rMAAmwUMW1NkTDvMUPoy8dkSeCjaiDGr
+=W3gm
+-----END PGP SIGNATURE-----
+
+--=.dQuVsvI_/VNyLF--
+

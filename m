@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263763AbTDDPWB (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 10:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbTDDPUo (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 10:20:44 -0500
-Received: from lrsehosting.com ([198.78.66.31]:57871 "EHLO www.geekizoid.com")
-	by vger.kernel.org with ESMTP id S263758AbTDDPQs (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 10:16:48 -0500
-Date: Fri, 4 Apr 2003 07:28:12 -0800 (PST)
-From: William Scott Lockwood III <vlad@geekizoid.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <Pine.LNX.4.53.0304040752500.2804@chaos>
-Message-ID: <20030404072327.J5167-100000@www.geekizoid.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263764AbTDDPnI (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 10:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263758AbTDDPmY (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 10:42:24 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:44267 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263764AbTDDPhS (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 10:37:18 -0500
+Date: Fri, 4 Apr 2003 10:48:42 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Justin Cormack <justin@street-vision.com>
+Cc: Paul Rolland <rol@as2917.net>,
+       "'Michael Knigge'" <Michael.Knigge@set-software.de>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Strange e1000
+Message-ID: <20030404154842.GA10607@gtf.org>
+References: <043501c2faaf$da061e10$3f00a8c0@witbe> <1049467531.2676.87.camel@lotte>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049467531.2676.87.camel@lotte>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Apr 2003, Richard B. Johnson wrote:
-> On Thu, 3 Apr 2003, William Scott Lockwood III wrote:
-> > On Thu, 3 Apr 2003, David S. Miller wrote:
-> > >    From: "Richard B. Johnson" <root@chaos.analogic.com>
-> > >    Date: Thu, 3 Apr 2003 15:02:41 -0500 (EST)
-> > >    Well it's not a yahoo users problem because yahoo users can't fix
-> > >    it. Some yahoo users have yahoo "free" mail as their only connection
-> > >    to the internet because of facist network administrators.
-> > > If you want all the SPAM that will result on Linux-kernel, we
-> > > can disable the filter if you want.
-> > > I refuse to sit here and listen to all the "this is the only
-> > > connection person FOO has to the internet" stories, quite frankly I'm
-> > > absolutely sick of hearing them.
-> > > If you don't have properly functioning mail, you can't use these
-> > > lists.
-> > > Period.
-> > When did that become your call?  I didn't realize you owned LKML.
-> Well it's his "baseball" and; "You'll play by my rules or you won't
-> play at all..."
-> FYI, there is no Major Domo. It's Latin, major domus, "master of
-> the house". He doith whatever he careth...
+On Fri, Apr 04, 2003 at 03:45:25PM +0100, Justin Cormack wrote:
+> On Fri, 2003-04-04 at 14:41, Paul Rolland wrote:
+> > Hello,
+> > 
+> > > when I load the e1000 module, my NIC is recognized. Then, "pump -i 
+> > > eth0" is called (DHCP-Client), the message "e1000: eth0 NIC 
+> > > Link is Up 
+> > > 1000 Mbps Full Duplex" appears and after some time I get the message 
+> > > "operation failed".
+> > > 
+> > > When I sleep some time (currently 20 seconds) before doing 
+> > > the "pump", 
+> > > everything works as expected.
+> > > 
+> > > What the hell is happening here? Ok, I got it working with the 
+> > > 20-sec-sleep but this is not the way it sould work...
+> > > 
+> > > My Board is a Gigabyte GA-7ZXR (1.0) and the Intel NIC is a PRO/1000 
+> > > MT (should be the 82540OEM Chip). The NIC is attached to a NetGear 
+> > > FSM726S Switch (24x100 + 2x1000). It is currenty the only box 
+> > > attached 
+> > 
+> > Could it be possible that the 1000MBps FD on the e1000 side is
+> > a local configuration, and that it needs some time to discuss with
+> > the Netgear switch to negotiate correctly speed and duplex before 
+> > working correctly ? (i.e. 20 sec = negotiation time)
+> 
+> It is probably something like this. For some reason the managed Netgear
+> switches take a very long time to do anything. Log into the switch and
+> watch the port status while this happens to confirm. I actually can't
+> netboot off these switches because if this. Hopefully Netgear will come
+> up with a fix.
 
-Yes, I can see that.  No matter who it alienates.  Weither or not he's
-checked with anyone else either.  How about leting those of us who (like
-Linus) choose to use a commercial email product do so?  Garbage about
-headers, etc. is just that - garbage.  The best list is one that is
-inclusive.  One that tollerates other opinions and choices.  LKML has
-turned into the largest, nastiest click I've ever seen, and that's really
-sad, as I'm sure it scares some good people away.  Look at all the crap I
-and others got for using hotmail - I finally got sick and tired of the
-whining and now have to take 3x as long to read my mail - but it's not a
-hotmail address anymore, so the whining stoped.  Why not spend less timing
-restricting what people can read and post from, and just let people
-participate?
+In another thread, Scott Feldman (one of the e1000 team) asked if
+spanning trees were enabled on the switch.  That could be a potential
+cause.
+
+	Jeff
+
+
 

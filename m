@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbRDEX1C>; Thu, 5 Apr 2001 19:27:02 -0400
+	id <S129511AbRDEXYM>; Thu, 5 Apr 2001 19:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129598AbRDEX0w>; Thu, 5 Apr 2001 19:26:52 -0400
-Received: from www.resilience.com ([209.245.157.1]:13712 "EHLO
-	www.resilience.com") by vger.kernel.org with ESMTP
-	id <S129524AbRDEX0j>; Thu, 5 Apr 2001 19:26:39 -0400
-Message-ID: <3ACCFF6A.9BD08DBD@resilience.com>
-Date: Thu, 05 Apr 2001 16:27:38 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+	id <S129524AbRDEXYD>; Thu, 5 Apr 2001 19:24:03 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:62350 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S129511AbRDEXX7>;
+	Thu, 5 Apr 2001 19:23:59 -0400
+Message-ID: <3ACCFE60.FF896272@mandrakesoft.com>
+Date: Thu, 05 Apr 2001 19:23:12 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 3 kmalloc underallocation bugs
-In-Reply-To: <200104052245.PAA29663@csl.Stanford.EDU> <20010406011301.A11046@sm.luth.se> <3ACCFF07.5AF0A74A@resilience.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: acc@CS.Stanford.EDU
+Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
+Subject: Re: [CHECKER] 15 potential pointer dereference errors in 2.4.3
+In-Reply-To: <20010405015251.A20904@Xenon.Stanford.EDU>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-André Dahlqvist wrote:
->
-> Dawson Engler <engler@csl.Stanford.EDU> wrote:
-> > enclosed are three bugs found in the 2.4.1 kernel by an extension
->
-> Why are you guys running these tests against an already old kernel?
-> I would suggest running it against at least Linus' latest version, or
-> preferably Alan's -ac tree.
+Andy Chou wrote:
+> [BUG]
+> /u2/acc/oses/linux/2.4.3/drivers/net/tokenring/tmsisa.c:274:tms_isa_probe: ERROR:NULL:273:274: Using
+> unknown ptr "card" illegally! set by 'kmalloc':273
 
-At least the two bugs in emu10k1/midi.c still exist in 2.4.3.
+fixed
 
-Just because 2.4.3 is a later version, doesn't mean all the bugs are
-fixed from earlier versions.
 
--Jeff
+> [BUG]
+> /u2/acc/oses/linux/2.4.3/drivers/pcmcia/rsrc_mgr.c:199:do_io_probe: ERROR:NULL:191:199: Using
+> unknown ptr "b" illegally! set by 'kmalloc':191
+
+fixed
 
 -- 
-Jeff Golds
-jgolds@resilience.com
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

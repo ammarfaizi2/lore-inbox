@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268001AbUH1Aqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUH1Avg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268001AbUH1Aqh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUH1Aqd
+	id S267818AbUH1Avg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268010AbUH1Aux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:46:33 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:18331 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S267818AbUH1Aq2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:46:28 -0400
-Date: Sat, 28 Aug 2004 01:45:07 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Christoph Hellwig <hch@infradead.org>,
-       Craig Milo Rogers <rogers@isi.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       webcam@smcc.demon.nl
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-In-Reply-To: <412FB418.1030508@pobox.com>
-Message-ID: <Pine.LNX.4.61.0408280141190.2441@fogarty.jakma.org>
-References: <20040826233244.GA1284@isi.edu>  <20040827004757.A26095@infradead.org>
-  <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>  <20040827094346.B29407@infradead.org>
-  <Pine.LNX.4.58.0408271027060.14196@ppc970.osdl.org> <1093628254.15313.14.camel@gonzales>
- <Pine.LNX.4.58.0408271106330.14196@ppc970.osdl.org>
- <Pine.LNX.4.60.0408272225140.9310@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.58.0408271448400.14196@ppc970.osdl.org> <412FB418.1030508@pobox.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Fri, 27 Aug 2004 20:50:53 -0400
+Received: from ntmail.xtreamlok.com ([203.20.243.135]:46013 "EHLO
+	ntmail.xtreamlok.com") by vger.kernel.org with ESMTP
+	id S267818AbUH1Auq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 20:50:46 -0400
+Message-ID: <412FD751.9070604@biodome.org>
+Date: Sat, 28 Aug 2004 10:52:33 +1000
+From: QuantumG <qg@biodome.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.1) Gecko/20040707
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: reverse engineering pwcx
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Aug 2004 00:52:36.0004 (UTC) FILETIME=[4F35FE40:01C48C99]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004, Jeff Garzik wrote:
 
-> Yup.
->
-> In that fact's what a lot of modern RAID firmwares are, an RTOS 
-> running on a generic CPU.  Some NIC firmwares too.
+Having watched the discussion around pwcx since the first posting, I 
+thought I would take a look at libpwcx.a.  It consists of 3 .o files 
+each containing full symbol information and in total a *very* small 
+amount of code.  There is no secret algorithm or complex image 
+processing in this code.  Having worked on reverse engineering a complex 
+audio processing application (see our paper Using a Decompiler for 
+Real-World Source Recovery, to appear WCRE 2004), I expected to see some 
+serious floating point calculations or at least something recognisable 
+as a FFT or some other known algorithm.  There is none of this in the 
+pwcx driver.   I could provide complete decompiled source code for this 
+binary, however due to the legal questions I'd rather just say that 
+there is really not a lot of effort required here to black box this 
+driver and replicate what it is doing.  The biggest job will be 
+deciphering the two or three large tables used in the decompression 
+operations.
 
-Not just modern, old controllers too, eg DAC960 (i960), ExtremeRAID 
-(StrongARM), Compaq Smart-2 (AMD 29k), etc. Hard disks too. Do a 
-strings on Seagate SCSI disk firmware, the 'BOS' RTOS iirc. Intel 
-IXP2x00 network accelerators are Xscale+added bits (there's a port of 
-Fedora for them!).
+The specific issue of pwcx dealt with I'd really like to ask why 
+companies perfer to release binary drivers over open source drivers.  A 
+Linux kernel driver is really easy to decompile.  There's a number of 
+factors that make this so, especially the large amount of symbols 
+generally left in binary drivers, but mainly the fact that kernel 
+drivers are by design small contained pieces of code.  Also, they are 
+generally written in straight C with the only function pointers being 
+well documented interfaces (and the function pointers are not changed 
+dynamically).  Compared to say, a win32 application written in C++ with 
+all that stdcall/fastcall stuff, a linux kernel module is a joy to 
+decompile.  So why bother releasing a binary only driver?  The company 
+is not protecting its intellectual property.  If an amature like me, who 
+knows nothing about web cams, can understand this driver than surely 
+someone at one of Philips' competitors reverse engineered and understood 
+this algorithm within weeks of the drivers for this camera hitting the 
+market.  I'm sure Philips' knows this so why force Nemosoft to sign an 
+NDA?  And more importantly, why not let the community maintain this driver?
 
-Linux could be one of several OSes running on any given PC.
+Trent Waddington
+Decompiler maintainer, http://boomerang.sourceforge.net/
 
-> 	Jeff
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-One possible reason that things aren't going according to plan
-is that there never was a plan in the first place.

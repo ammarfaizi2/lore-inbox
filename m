@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129361AbQLMBDP>; Tue, 12 Dec 2000 20:03:15 -0500
+	id <S129866AbQLMBFo>; Tue, 12 Dec 2000 20:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129866AbQLMBDF>; Tue, 12 Dec 2000 20:03:05 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:61453 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S129361AbQLMBCp>;
-	Tue, 12 Dec 2000 20:02:45 -0500
-Date: Tue, 12 Dec 2000 16:32:30 -0800 (PST)
-From: James Simmons <jsimmons@suse.com>
-To: Bob Lorenzini <hwm@ns.newportharbornet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 vs Inspiron
-In-Reply-To: <Pine.LNX.4.21.0012121557330.2752-100000@newportharbornet.com>
-Message-ID: <Pine.LNX.4.21.0012121631510.270-100000@euclid.oak.suse.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130321AbQLMBFe>; Tue, 12 Dec 2000 20:05:34 -0500
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:36612 "HELO
+	gateway.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S129866AbQLMBFW>; Tue, 12 Dec 2000 20:05:22 -0500
+Date: Wed, 13 Dec 2000 01:34:46 +0100
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-25 DELL Laptop Video Problems
+Message-ID: <20001213013446.A13808@uni-mainz.de>
+Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20001209160027.A15007@vger.timpanogas.org> <E144sZd-0005q5-00@the-village.bc.nu> <20001209181351.C15531@vger.timpanogas.org> <20001210174906.B2161@uni-mainz.de> <20001210155016.A19788@vger.timpanogas.org> <20001211082646.B4646@uni-mainz.de> <20001211111141.A3443@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001211111141.A3443@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Mon, Dec 11, 2000 at 11:11:41AM -0700
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> There was some discusion lately re: Dell Inspiron FB probs. The bad news
-> is the ATI Mach64 display support is still broken but just selecting
-> VESA VGA graphics console is working fine. 
+On Mon, Dec 11, 2000 at 11:11:41AM -0700, Jeff V. Merkey wrote:
+...
+> Then this is the vga=271 stuff?
 > 
-> The patient is a Dell Inspiron I7500 1050x1450 display, vga = 794.
+> Jeff 
 
-Ah the infamous Rage Mobility chipset. Three versions of the same chipset
-but each is very different.
+No, that's just selecting the VGA resolution. I am referring to the
+video parameter:
 
+  video=<driver>:<option>[,<option>,...]
+
+Look at linux/Dokumentation/fb/modedb.txt.
+
+Yours,
+  Dominik Kubla
+-- 
+Drug misuse is not  a disease, it is a decision, like  the decision to step
+out in  front of a  moving car. You  would call that  not a disease  but an
+error of judgment.  --Philip K. Dick. Author's Note, A SCANNER DARKLY, 1977
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

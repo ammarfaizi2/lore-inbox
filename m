@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbTAXVGM>; Fri, 24 Jan 2003 16:06:12 -0500
+	id <S265643AbTAXVDS>; Fri, 24 Jan 2003 16:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265683AbTAXVGM>; Fri, 24 Jan 2003 16:06:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43014 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id <S265681AbTAXVGJ>;
-	Fri, 24 Jan 2003 16:06:09 -0500
-Date: Fri, 24 Jan 2003 16:15:23 -0500
-From: Christopher Faylor <cgf@redhat.com>
-To: lost@l-w.net
+	id <S265667AbTAXVDS>; Fri, 24 Jan 2003 16:03:18 -0500
+Received: from packet.digeo.com ([12.110.80.53]:50394 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265643AbTAXVDR>;
+	Fri, 24 Jan 2003 16:03:17 -0500
+Date: Fri, 24 Jan 2003 13:31:31 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "Luck, Tony" <tony.luck@intel.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
-Message-ID: <20030124211523.GA14229@redhat.com>
-References: <Pine.LNX.4.44.0301241237160.29548-100000@harappa.oldtrail.reston.va.us> <Pine.LNX.4.51.0301241337080.28717@potnoodle.l-w.net>
+Subject: Re: 2.5.59-mm5
+Message-Id: <20030124133131.05a223ff.akpm@digeo.com>
+In-Reply-To: <DD755978BA8283409FB0087C39132BD1A07BDE@fmsmsx404.fm.intel.com>
+References: <DD755978BA8283409FB0087C39132BD1A07BDE@fmsmsx404.fm.intel.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0301241337080.28717@potnoodle.l-w.net>
-User-Agent: Mutt/1.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jan 2003 21:12:24.0267 (UTC) FILETIME=[4A6629B0:01C2C3ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 24, 2003 at 01:46:10PM -0700, lost@l-w.net wrote:
->On Fri, 24 Jan 2003, David C Niemi wrote:
+"Luck, Tony" <tony.luck@intel.com> wrote:
 >
->> I have been experiencing some baffling SSH client hangs under 2.5.59 (and
->> 55) in which the session totally hangs up after I have typed (typically)
->> 10-100 characters.  Right before it hangs permanently, a character is
->> echo'd back to the screen several seconds late.  Interestingly, data due
->> back for my client which is initiated by the server side does make it, I
->> just can't type anything further.
->
-><snip>
->
->> Neither "ifconfig" nor dmesg show *any* errors whatsoever.
->>
->> Anyone else seeing SSH client hangs to nonlocal hosts under 2.5.59?
->
->I'm seeing the same problem with a D-Link NIC (8139too driver). Exact same
->symptoms - a delayed echo followed by no further echos. Checking netstat
->shows an output queue for the socket but it never transmits anything.
->Messages echoed by the remote server also make it through the connection.
+> Andrew Morton wrote:
+> 
+>   So what anticipatory scheduling does is very simple: if an application
+>   has performed a read, do *nothing at all* for a few milliseconds.  Just
+>   return to userspace (or to the filesystem) in the expectation that the
+>   application or filesystem will quickly submit another read which is
+>   closeby.
+> 
+> Do you need to give a process being woken from the read an extra priority
+> boost to make sure that it actually gets run in your "few milliseconds"
+> window.  It would be a shame to leave the disk idle for the interval, and
+> then discover that the process scheduler had been running other stuff, so
+> that the reader didn't get a chance to issue the next read.
+> 
 
-I hate "me toos" but maybe this will provide some useful data.
+Indeed.  I have experimented with giving the to-be-woken task a boost in the
+CPU scheduler, and was not able to observe much difference.  At the very
+least, one would expect to be able to decrease the anticipation timeout with
+that in place.
 
-I'm seeing the same thing with a 3c59x driver.  I couldn't reproduce the
-problem with a tulip driver when I connect my laptop directly to my
-cable modem.  The problem only occurs when going through the laptop
-(which acts as a firewall, running netfilter) to a remote site, in my
-case the site is sources.redhat.com.
+Maybe it just needs more testing to find the usage patterns which need this
+change.
 
-cgf
+It could be that the woken task is getting sufficient boost from the
+effective_prio() logic that no change will be needed.  I don't know yet.
+

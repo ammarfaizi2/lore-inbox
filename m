@@ -1,36 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267515AbTAQNkU>; Fri, 17 Jan 2003 08:40:20 -0500
+	id <S267500AbTAQNrr>; Fri, 17 Jan 2003 08:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267540AbTAQNkU>; Fri, 17 Jan 2003 08:40:20 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:13320 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id <S267515AbTAQNkS>; Fri, 17 Jan 2003 08:40:18 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200301171349.IAA32603@clem.clem-digital.net>
-Subject: 2.5.59 fails compile 3c509.c
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Fri, 17 Jan 2003 08:49:15 -0500 (EST)
-X-Mailer: ELM [version 2.4ME+ PL48 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267509AbTAQNrr>; Fri, 17 Jan 2003 08:47:47 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51730 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267500AbTAQNrq>; Fri, 17 Jan 2003 08:47:46 -0500
+Date: Fri, 17 Jan 2003 13:56:38 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: kai@tp1.ruhr-uni-bochum.de, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
+Message-ID: <20030117135638.A376@flint.arm.linux.org.uk>
+Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
+	kai@tp1.ruhr-uni-bochum.de, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org
+References: <15911.64825.624251.707026@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15911.64825.624251.707026@harpo.it.uu.se>; from mikpe@csd.uu.se on Fri, Jan 17, 2003 at 01:55:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+On Fri, Jan 17, 2003 at 01:55:21PM +0100, Mikael Pettersson wrote:
+> This oops occurs for every module, not just af_packet.ko, at
+> resolve_symbol()'s first call to __find_symbol().
+> 
+> What happens is that __find_symbol() oopses because the kernel's
+> symbol table is in la-la land. (Note the bogus kernel adress
+> 2220c021 it tried to dereference above.)
+> 
+> Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
+> problem and modules now load correctly for me.
+> 
+> I don't know if this is a problem also for non-i386 archs.
 
-  gcc -Wp,-MD,drivers/net/.3c509.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=3c509 -DKBUILD_MODNAME=3c509   -c -o drivers/net/3c509.o drivers/net/3c509.c
-drivers/net/3c509.c: In function `el3_probe':
-drivers/net/3c509.c:584: warning: label `found' defined but not used
-drivers/net/3c509.c: In function `el3_close':
-drivers/net/3c509.c:1083: structure has no member named `edev'
-drivers/net/3c509.c: At top level:
-drivers/net/3c509.c:268: warning: `nopnp' defined but not used
-make[2]: *** [drivers/net/3c509.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
+Well:
+
+        __start___ksymtab = .;                                          \
+        __ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {         \
+                *(__ksymtab)                                            \
+        }                                                               \
+        __stop___ksymtab = .;                                           \
+
+breaks on some ARM binutils (from a couple of years ago.)  The most
+reliable way we've found in with ARM binutils is to place the symbols
+inside the section - this appears to work 100% every single time and
+I've never had any reports of failure (whereas I did with the symbols
+outside as above.)
+
+On the topic of these changes, I'd prefer it if people didn't silently
+run around making random stuff generic when there are subtle differences
+between each architecture version without:
+
+1. querying why things are different.
+2. waiting a reasonable time for replies to why things are different.
+3. copying such changes to the architecture maintainers for review
+   in case steps 1 and 2 failed.
+
+Unfortunately, it seems that the BK disease is growing and seems to
+be killing the review process, as some people here predicted it
+would. ;(
 
 -- 
-Pete Clements 
-clem@clem.clem-digital.net
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

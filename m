@@ -1,66 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUIEJu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUIEJxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266479AbUIEJu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 05:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUIEJu5
+	id S266477AbUIEJxU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 05:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUIEJxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 05:50:57 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:36317 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S266479AbUIEJuf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 05:50:35 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 4/5][RFC] fbdev: Clean up framebuffer initialization
-Date: Sun, 5 Sep 2004 17:50:47 +0800
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Thomas Winischhofer <thomas@winischhofer.net>
-References: <200409041108.40276.adaplas@hotpop.com> <Pine.GSO.4.58.0409051113060.28961@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0409051113060.28961@waterleaf.sonytel.be>
+	Sun, 5 Sep 2004 05:53:20 -0400
+Received: from web8504.mail.in.yahoo.com ([202.43.219.166]:28087 "HELO
+	web8504.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S266477AbUIEJxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 05:53:16 -0400
+Message-ID: <20040905095313.42297.qmail@web8504.mail.in.yahoo.com>
+Date: Sun, 5 Sep 2004 10:53:13 +0100 (BST)
+From: =?iso-8859-1?q?Dinesh=20Ahuja?= <mdlinux7@yahoo.co.in>
+Subject: Mouse Support in Kernel 2.6.8
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409051750.47987.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 September 2004 17:16, Geert Uytterhoeven wrote:
-> On Sat, 4 Sep 2004, Antonino A. Daplas wrote:
-> > Currently, the framebuffer system is initialized in a roundabout manner.
-> > First, drivers/char/mem.c calls fbmem_init().  fbmem_init() will then
-> > iterate over an array of individual drivers' xxxfb_init(), then each
-> > driver registers its presence back to fbmem.  During console_init(),
-> > drivers/char/vt.c will call fb_console_init(). fbcon will check for
-> > registered drivers, and if any are present, will call take_over_console()
-> > in drivers/char/vt.c.
-> >
-> > This patch changes the initialization sequence so it proceeds in this
-> > manner: Each driver has its own module_init(). Each driver calls
-> > register_framebuffer() in fbmem.c. fbmem.c will then notify fbcon of the
-> > driver registration.  Upon notification, fbcon calls take_over_console()
-> > in vt.c.
->
-> My main concern with this change is that it will be no longer possible to
-> change initialization order (and hence choose the primary display for
-> systems with multiple graphics adapters) by specifying `video=xxxfb' on the
-> kernel command line.
->
+I have build and installed Kernel 2.6.8 in my machine
+which has Red Hat Linux 9.0 installed. The mouse
+[Logitech Mouse with 3 buttons] supports works fine in
+Red Hat Linux 9.0 but it is not detected by Kernel
+2.6.8. I have modified the rc.sysinit and halt scripts
+as suggested by some articles posted on the net. I
+have included USB support and have usbmose, usbkdb,
+usbcore and uhci-hcd modules loaded at the time of
+booting kernel 2.6.8. 
 
-I see your point.  But, can we use "fbcon=" setup options to choose which fb
-gets mapped to what console? We already have fbcon=map:<option> so we can
-choose which becomes the primary display. Granted the "fbcon=" setup is
-currently broken, but if fixed, will that be a fair compromise?
+Please guide me how to proceed to provide the mouse
+support in my kernel 2.6.8.
 
-Tony
+My configuration file is as follows:
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_MOUSE_INPORT is not set
+# CONFIG_MOUSE_LOGIBM is not set
+# CONFIG_MOUSE_PC110PAD is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_INPUT_MISC is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# USB HID Boot Protocol drivers
+#
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+
+I have spend two days on it and looking for the help
+to find the solution of this problem.
+
+Regards
+Dinesh
 
 
+
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your life partner online
+Go to: http://yahoo.shaadi.com/india-matrimony

@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRAIPVn>; Tue, 9 Jan 2001 10:21:43 -0500
+	id <S130092AbRAIPYX>; Tue, 9 Jan 2001 10:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130870AbRAIPVd>; Tue, 9 Jan 2001 10:21:33 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:3044 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129742AbRAIPV2>;
-	Tue, 9 Jan 2001 10:21:28 -0500
-Date: Tue, 9 Jan 2001 15:17:25 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, hch@caldera.de,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <20010109151725.D9321@redhat.com>
-In-Reply-To: <20010109141806.F4284@redhat.com> <Pine.LNX.4.30.0101091532150.4368-100000@e2>
-Mime-Version: 1.0
+	id <S129742AbRAIPYN>; Tue, 9 Jan 2001 10:24:13 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:29967 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S129324AbRAIPYD>;
+	Tue, 9 Jan 2001 10:24:03 -0500
+Message-ID: <3A5B3BF3.485A6375@candelatech.com>
+Date: Tue, 09 Jan 2001 09:27:31 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hashed device lookup (New Benchmarks)
+In-Reply-To: <3A578F27.D2A9DF52@candelatech.com> <20010107042959.A14330@gruyere.muc.suse.de> <3A580B31.7998C783@candelatech.com> <20010107062744.A15198@gruyere.muc.suse.de> <3A58249F.86DD52BC@candelatech.com> <3A597665.4B68C39@candelatech.com> <200101080700.XAA10037@pizda.ninka.net> <3A59EA1F.AEAD08A6@candelatech.com> <20010108175036.A22154@fred.local>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.30.0101091532150.4368-100000@e2>; from mingo@elte.hu on Tue, Jan 09, 2001 at 03:40:56PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Jan 09, 2001 at 03:40:56PM +0100, Ingo Molnar wrote:
+Andi Kleen wrote:
 > 
-> i'd love to first see these kinds of applications (under Linux) before
-> designing for them.
+> On Mon, Jan 08, 2001 at 04:23:41PM +0100, Ben Greear wrote:
+> > I don't argue that ifconfig shouldn't be fixed, but the hash speeds up
+> 
+> It's already fixed since months. There was one stupid algorithm, which
+> I was to blame for when I changed ifconfig to use a device list two years ago.
 
-Things like Beowulf have been around for a while now, and SGI have
-been doing that sort of multimedia stuff for ages.  I don't think that
-there's any doubt that there's a demand for this.
- 
-> Eg. if an IO operation (eg. streaming video webcast)
-> does a DMA from a camera card to an outgoing networking card, would it be
-> possible to access the packet data in case of a TCP retransmit? 
+The benchmark was run against this one:
+[root@candle lanforge]# ifconfig --version
+net-tools 1.57
+ifconfig 1.40 (2000-05-21)
 
-I'm not thinking about pci-to-pci as much as pci-to-memory-to-pci
-with no memory-to-memory copies.  That's no different to writepage:
-doing a zero-copy writepage on a page cache page still gives you the
-problem of maintaining retransmit semantics if a user mmaps the file
-or writes to it after your initial transmit.
 
-And if you want other examples, we have applications such as Oracle
-who want to do raw disk IO in chunks of at least 128K.  Going through
-a page-by-page interface for large IOs is almost as bad as the
-existing buffer_head-by-buffer_head interface, and we have already
-demonstrated that to be a bottleneck in the block device layer.
+The latest I could find anywhere....  Please tell me the version of a
+newer one if it exists.
 
-Jes has also got hard numbers for the performance advantages of
-jumbograms on some of the networks he's been using, and you ain't
-going to get udp jumbograms through a page-by-page API, ever.
+> > ip by about 2X too.  Is that not useful enough?  ip seems to be implemented
+> > pretty efficient, so if the hash helps it significantly then maybe it
+> > can help other efficient programs too.  Notice that it is the system
+> > (ie kernel) time that stays remarkably flat with the hash + ip graph.
+> 
+> Just does your benchmark represent anything that real users do frequently ?
 
-Cheers,
- Stephen
+I'm going to write something that binds to a raw device, which is something
+users (DHCP, for sure) does.  If it does not show any significant improvement,
+then I'll drop the issue untill many-many interfaces are more common.
+
+> 
+> If you really want to optimize I'm sure there are lots of areas in the kernel
+> where your efforts are better spent ;) [just run with a the kernel profiler on
+> for a few days on your box and look at all the real hot spots]
+
+I was just trying to smooth VLAN's adoption into the kernel by removing the
+one linear-lookup that I know of relating to lots of VLANs.  It obviously
+isn't horribly important, but it was fun :)
+
+
+> 
+> BTW, if you just want to optimize ip link ls speed it would be probably enough
+> to keep a one behind cache that just caches the next member after the last
+> search.
+
+That is still linear in the kernel...or do you mean cache in the kernel?  At any
+rate, I'm more concerned about random access.
+
+> 
+> -Andi
+
+-- 
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264681AbSKZMP4>; Tue, 26 Nov 2002 07:15:56 -0500
+	id <S264711AbSKZMUn>; Tue, 26 Nov 2002 07:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264679AbSKZMP4>; Tue, 26 Nov 2002 07:15:56 -0500
-Received: from inway106.cdi.cz ([213.151.81.106]:51862 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S264665AbSKZMPw>;
-	Tue, 26 Nov 2002 07:15:52 -0500
-Date: Tue, 26 Nov 2002 13:21:25 +0100 (CET)
-From: devik <devik@cdi.cz>
-X-X-Sender: <devik@devix>
-To: <linux-smp@vger.kernel.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: IO-APIC on SiS P4 messes interrupts
-Message-ID: <Pine.LNX.4.33.0211261307200.530-100000@devix>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264815AbSKZMUn>; Tue, 26 Nov 2002 07:20:43 -0500
+Received: from mta2n.bluewin.ch ([195.186.4.220]:7618 "EHLO mta2n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S264711AbSKZMUm>;
+	Tue, 26 Nov 2002 07:20:42 -0500
+Date: Tue, 26 Nov 2002 13:27:30 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, linux-ns83820@kvack.org
+Subject: [PATCH][2.4/2.5] Fix ns83820 ioctl oops
+Message-ID: <20021126122730.GA5484@k3.hellgate.ch>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, linux-ns83820@kvack.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.44 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I used two MSI 8533 mobos for our 1U rack servers.
-These mobos are for P4 and uses SiS 5513 chipset.
-They have integrated VGA and NIC (RTL8139).
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-When I boot 2.4.19 or 2.4.20rc2 with IO-APIC enabled
-the NIC doesn't work. It get IRQ 18 (instead of
-IRQ 11 in non-ioapic mode) but IRQ routing is bad
-because it got no irqs at that line.
+Patch fixes the line mistaking a null pointer for an actual reference.
+Also, to prevent this from happening again, the null pointer now is
+replaced with the real one. Please apply.
 
-When booting kernel complaints that APIC is unknown
-and that I should write to linux-smp@vger.kernel.org.
+Roger
 
-I tried to use pirq=0,0,0,0,0,11 which assigns IRQ 11
-to NIC but still it got no interrupts.
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ns83820.c.diff"
 
-In order to keep this mail short, I placed dmesg,
-lspci -vv and cat /proc/interrupts from all three
-cases (noapic, apic, pirq) at:
-http://luxik.cdi.cz/~devik/tmp/apic/
+--- drivers/net/ns83820.c.orig	Wed Nov 20 12:51:37 2002
++++ drivers/net/ns83820.c	Tue Nov 26 12:51:39 2002
+@@ -1214,7 +1214,7 @@ static int ns83820_ethtool_ioctl (struct
+ 
+ static int ns83820_ioctl(struct net_device *_dev, struct ifreq *rq, int cmd)
+ {
+-	struct ns83820 *dev = _dev->priv;
++	struct ns83820 *dev = (struct ns83820 *)_dev;
+ 
+ 	switch(cmd) {
+ 	case SIOCETHTOOL:
+@@ -1788,6 +1788,7 @@ static int __devinit ns83820_init_one(st
+ 	dev->ee.cache = &dev->MEAR_cache;
+ 	dev->ee.lock = &dev->misc_lock;
+ 	dev->net_dev.owner = THIS_MODULE;
++	dev->net_dev.priv = dev;
+ 
+ 	PREPARE_TQUEUE(&dev->tq_refill, queue_refill, dev);
+ 	tasklet_init(&dev->rx_tasklet, rx_action, (unsigned long)dev);
 
-Let me know if I can do more (root access to the machine
-would be possible during this week).
-
-I'd appreciate if you Cc me in replies.
-Best regards,
--------------------------------
-    Martin Devera aka devik
-Linux kernel QoS/HTB maintainer
-  http://luxik.cdi.cz/~devik/
-
+--lrZ03NoBR/3+SXJZ--

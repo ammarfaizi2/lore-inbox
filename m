@@ -1,58 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288012AbSATG0o>; Sun, 20 Jan 2002 01:26:44 -0500
+	id <S288019AbSATGby>; Sun, 20 Jan 2002 01:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288019AbSATG0e>; Sun, 20 Jan 2002 01:26:34 -0500
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:29605 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S288012AbSATG02>; Sun, 20 Jan 2002 01:26:28 -0500
-Date: Sun, 20 Jan 2002 01:26:20 -0500
-To: jeev <naptime@cervnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.17 problem.
-Message-ID: <20020120062620.GA25787@opeth.ath.cx>
-In-Reply-To: <000501c1a172$cc679a50$0200a8c0@mainframe>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-In-Reply-To: <000501c1a172$cc679a50$0200a8c0@mainframe>
-User-Agent: Mutt/1.3.25i
-From: Dan Chen <crimsun@email.unc.edu>
+	id <S288021AbSATGbp>; Sun, 20 Jan 2002 01:31:45 -0500
+Received: from cervnet.com ([216.58.141.4]:7952 "EHLO CervNet.COM")
+	by vger.kernel.org with ESMTP id <S288019AbSATGbl>;
+	Sun, 20 Jan 2002 01:31:41 -0500
+From: "jeev" <naptime@cervnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.17 problem.
+Date: Sat, 19 Jan 2002 22:31:40 -0800
+MIME-Version: 1.0
+Message-ID: <005001c1a17c$1f88a4f0$0200a8c0@mainframe>
+Content-Type: multipart/signed;
+	micalg=SHA1;
+	protocol="application/x-pkcs7-signature";
+	boundary="----=_NextPart_000_004B_01C1A139.1087D630"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <20020120062620.GA25787@opeth.ath.cx>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+------=_NextPart_000_004B_01C1A139.1087D630
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Would you run those through ksymoops and repost?
+The box is currently down, I will repost the output tommarow, sorry.
 
-On Sat, Jan 19, 2002 at 09:24:56PM -0800, jeev wrote:
-> Hi, im running slackware with the kernel 2.4.17, when I tar -zxvf a big
-> file, ie. hlds_l_3108_full.tar.gz.
->=20
-> It cuts off saying format violated..
-> This is an amd 1.4ghz with 768 mbram 41gb 7200rpm harddrive (brand new
-> stuff)
+j
 
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> owner@vger.kernel.org] On Behalf Of Dan Chen
+> Sent: Saturday, January 19, 2002 10:26 PM
+> To: jeev
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Linux 2.4.17 problem.
+> 
+> Would you run those through ksymoops and repost?
+> 
+> On Sat, Jan 19, 2002 at 09:24:56PM -0800, jeev wrote:
+> > Hi, im running slackware with the kernel 2.4.17, when I tar -zxvf a
+big
+> > file, ie. hlds_l_3108_full.tar.gz.
+> >
+> > It cuts off saying format violated..
+> > This is an amd 1.4ghz with 768 mbram 41gb 7200rpm harddrive (brand
+new
+> > stuff)
+> 
+> --
+> Dan Chen                 crimsun@email.unc.edu
+> GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+------=_NextPart_000_004B_01C1A139.1087D630
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII8TCCAoAw
+ggHpoAMCAQICAwZBjzANBgkqhkiG9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
+c3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsT
+FENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAw
+MC44LjMwMB4XDTAxMTIwNjA2MDYzM1oXDTAyMTIwNjA2MDYzM1owRTEfMB0GA1UEAxMWVGhhd3Rl
+IEZyZWVtYWlsIE1lbWJlcjEiMCAGCSqGSIb3DQEJARYTbmFwdGltZUBjZXJ2bmV0LmNvbTCBnzAN
+BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAz0mQ8rzcTgacUdJdwyW6PzGeYHxOaslWWCUrFmvuaO8q
+2NcC8hTieOkuOknDzNz7uUR0ab8n+pXOFYThs1muaMK11VRp4BIkiRJe/41diCSjFWb8X1XhqGpU
+pB5DtTHGTT+G6XOa0cCUobIehi8zuP9wRKgkaycNQb8owCQVc8UCAwEAAaMwMC4wHgYDVR0RBBcw
+FYETbmFwdGltZUBjZXJ2bmV0LmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBAgUAA4GBAFW+
+KAHeKTLKrga03WUsMHpsk9NW77W1nzafKDqyHYnBXp1yJkXYHXfSpBXt1teCJAptPDJ9NKmq54X2
+tOCrrkt2tv45La8yPuY17EEeKawK/g2d9hNvuPMh9qfSNoz8XUbviDMpWmrPVuINlFLN1g55kCWq
+H13QE06B+sk4AUFzMIIDLTCCApagAwIBAgIBADANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMC
+WkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFU
+aGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lv
+bjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxw
+ZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4XDTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1
+OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0B
+AQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG26nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL
+734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDimAKOHePb5lIZererAXnbr2RSjXW56fAylS1V/
+Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkCAwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zAN
+BgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JC
+I4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBHH7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AU
+G95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRzneigTCCAzgwggKhoAMCAQICEGZFcrfMdPXPY3ZF
+hNAukQEwDQYJKoZIhvcNAQEEBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENh
+cGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNV
+BAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJz
+b25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3Rl
+LmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wNDA4MjcyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMG
+A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEd
+MBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWls
+IFJTQSAyMDAwLjguMzAwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7Sbngn
+Z4HF2ogZgpcO40QpimM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWa
+NRqdknWoJ67Ycvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFp
+AgMBAAGjTjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNV
+HRMBAf8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQAxsUtHXfkBceX1
+U2xdedY9mMAmE2KBIqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BVqGz3Da1MG7wD9LXrokef
+bKIMWI0xQgkRbLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvKPPZE6iZph39Ins6ln+eE2Mli
+Yq0FxjGCA2kwggNlAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBl
+MRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNh
+dGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZB
+jzAJBgUrDgMCGgUAoIICJDAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEP
+Fw0wMjAxMjAwNjMxNDBaMCMGCSqGSIb3DQEJBDEWBBTKYl4lo87k6RjVX40TauyPnPOR9DBnBgkq
+hkiG9w0BCQ8xWjBYMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAH
+BgUrDgMCBzANBggqhkiG9w0DAgIBKDAHBgUrDgMCGjAKBggqhkiG9w0CBTCBqwYJKwYBBAGCNxAE
+MYGdMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlD
+YXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMx
+KDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZBjzCBrQYLKoZIhvcN
+AQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNV
+BAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0ZSBTZXJ2
+aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAIDBkGPMA0GCSqG
+SIb3DQEBAQUABIGAVM+FVFK24VpZtPeo1huQlBfN3Bd3DFwmV1qhXgf6FJFWrCqPYsyGJGzouMep
+cMXxlgNzYXvtskDq/9fKTnhSeDts98Cfa2uxGhPbv4ZPcQvh2IQeEQcmVFrlXq919DDknosDjYvy
+VTWwr/VXnJh4Fi9eQqnEvV4hFZ2ImfSNtXEAAAAAAAA=
 
-iD8DBQE8SmMMMwVVFhIHlU4RAr8wAJwLIv4M2AcSZ9iXWHs4dOVrJ0F9FQCfZiet
-MljzYieYJc06XvgTxjLh/70=
-=8hCe
------END PGP SIGNATURE-----
+------=_NextPart_000_004B_01C1A139.1087D630--
 
---jI8keyz6grp/JLjh--

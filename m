@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUJETx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUJETyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266218AbUJETx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUJETuh
+	id S266352AbUJETyP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUJETyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:50:37 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:224 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S265800AbUJETq7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:46:59 -0400
-Subject: Re: /dev/misc/inotify 0.11
-From: Robert Love <rml@novell.com>
-To: David Busby <DBusby@SeattleMortgage.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <82C88232E64C7340BF749593380762021166F3@seattleexchange.SMC.LOCAL>
-References: <82C88232E64C7340BF749593380762021166F3@seattleexchange.SMC.LOCAL>
-Content-Type: text/plain
-Date: Tue, 05 Oct 2004 15:45:24 -0400
-Message-Id: <1097005524.4429.13.camel@betsy.boston.ximian.com>
+	Tue, 5 Oct 2004 15:54:01 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:15752
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S266034AbUJETxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:53:21 -0400
+Date: Tue, 5 Oct 2004 12:53:00 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND] 2.[46]: Set ARP hw type correctly for BOOTP over
+ FDDI
+Message-Id: <20041005125300.106abab9.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58L.0410040310550.22545@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.58L.0410040310550.22545@blysk.ds.pg.gda.pl>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 09:55 -0700, David Busby wrote:
+On Mon, 4 Oct 2004 23:56:59 +0100 (BST)
+"Maciej W. Rozycki" <macro@linux-mips.org> wrote:
 
-In the future please CC me and John McCutchan <ttb@tentacle.dhs.org> on
-inotify bugs if you can.  Or respond to an existing inotify thread.  I
-almost missed this.  Thanks.
+>  Using the Ethernet ARP hw type for FDDI networks is mandated by RFC 1390
+> (STD 36) and that code is already used by Linux elsewhere, but not for
+> BOOTP requests sent for IPv4 autoconfiguration.  Here is a patch for both
+> 2.4 and 2.6 that fixes the problem for me.  Please apply.
+> 
+>  Applies both to 2.4.27 and to 2.6.8.1.
 
-> 1> When I say `cat /dev/misc/inotify' my machine stops responding
-> instantly.  I've not had a chance to see what happens.  I know I'll not
-> normally say that but when I say something else dumb like cat
-> /dev/misc/rtc cat will simply wait, not choke up my whole system.
-
-I cannot reproduce this.
-
-`cat /dev/inotify` simply blocks in inotify_read().
-
-You use devfs?  Can you try it without that?
-
-	Robert Love
-
-
+Patch applied, thanks.

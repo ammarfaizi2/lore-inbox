@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283412AbRLDUTC>; Tue, 4 Dec 2001 15:19:02 -0500
+	id <S281450AbRLDUWN>; Tue, 4 Dec 2001 15:22:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283388AbRLDURr>; Tue, 4 Dec 2001 15:17:47 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:65156 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S283402AbRLDUQ7> convert rfc822-to-8bit; Tue, 4 Dec 2001 15:16:59 -0500
-Date: Tue, 4 Dec 2001 18:23:28 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "David S. Miller" <davem@redhat.com>, <hps@intermeta.de>,
-        <jgarzik@mandrakesoft.com>, <lm@bitmover.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue 
-In-Reply-To: <20011204181546.B2674-100000@gerard>
-Message-ID: <20011204182100.Y2761-100000@gerard>
+	id <S283389AbRLDUUi>; Tue, 4 Dec 2001 15:20:38 -0500
+Received: from leeloo.zip.com.au ([203.12.97.48]:26120 "EHLO
+	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
+	id <S283422AbRLDUUV>; Tue, 4 Dec 2001 15:20:21 -0500
+Message-ID: <3C0D2FF4.837EEE87@zip.com.au>
+Date: Tue, 04 Dec 2001 12:20:04 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <E16BJvR-0002uc-00@the-village.bc.nu>,
+		<E16BJvR-0002uc-00@the-village.bc.nu> <E16BK7Y-0000Rk-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 4 Dec 2001, Gérard Roudier wrote:
-
->
-> On Mon, 3 Dec 2001, Keith Owens wrote:
->
-> > On Sun, 02 Dec 2001 15:21:57 -0800 (PST),
-> > "David S. Miller" <davem@redhat.com> wrote:
-> > >   From: Keith Owens <kaos@ocs.com.au>
-> > >   Date: Sat, 01 Dec 2001 12:17:03 +1100
-> > >
-> > >   What is ugly in aic7xxx is :-
-> > >
-> > >You missed:
-> > >
-> > >* #undef's "current"
+Daniel Phillips wrote:
+> 
+> On December 4, 2001 07:04 pm, Alan Cox wrote:
+> > > Single additional alloc -> twice as many allocs, two slabs, more cachelines
+> > > dirty.  This was hashed out on fsdevel, though apparently not to everyone's
+> > > satisfaction.
 > >
-> > Where?  fgrep -ir current 2.4.17-pre2/drivers/scsi/aic7xxx did not find it.
->
-> What is ugly is "David S. Miller" ?
-               ^^
-Amusing mistake, I wanted to write 'in' instead of 'is'. :-)
+> > Al Viro's NFS in generic_ip saved me something like 130K of memory.
+> 
+> Yes, all of these proposals would do that, by getting away from all inodes
+> being the same size (basically the size of the ext2 inode).
+> 
 
->
-> The 'Z' in the first name and the 'K' in the family name. :-)
->
->   Gérard.
->
->
-
+ext3 is the pig at present.  I think Andreas has half-a-patch
+to move it to generic_ip.

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbTLNXzt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 18:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTLNXzt
+	id S262790AbTLOAEm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 19:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTLOAEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 18:55:49 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:15309 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S262789AbTLNXzs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 18:55:48 -0500
-From: Andrew Walrond <andrew@walrond.org>
+	Sun, 14 Dec 2003 19:04:42 -0500
+Received: from deagol.email.Arizona.EDU ([128.196.133.142]:22660 "EHLO
+	smtpgate.email.arizona.edu") by vger.kernel.org with ESMTP
+	id S262790AbTLOAEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 19:04:41 -0500
+Subject: Strange issue with 2.6.0-test11 and magic packets
+From: Harry McGregor <hmcgregor@espri.arizona.edu>
 To: linux-kernel@vger.kernel.org
-Subject: Sis900 ethernet dropping 70% packets
-Date: Sun, 14 Dec 2003 23:55:45 +0000
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain
+Organization: Tucson Center Support Group - USGS
+Message-Id: <1071446598.30538.6.camel@Sony>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 14 Dec 2003 17:03:19 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312142355.45631.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to install a little Via C3 machine with on-board Sis900 ethernet. 
-As usual, I booted my LNX-BBC rescue disk, configured eth0 and tried to scp 
-my distro over, but failed miserably.
+Hi,
 
-Pinging other hosts on the net sees 70-80% packets getting lost.
+We have been having a strange issue while testing 2.6.0-test in one of
+our computer labs (actually, it's a Debian GNU/Linux based lab in an
+Elementary School!).  The lab uses ether-wake to boot the computers,
+which is of course a bios level thing, and works quite nicely.
 
-LNX-BBC rescue cd uses a 2.4.19 kernel
+The problem comes into play that when a computer happens to already be
+booted when a magic packet is sent to it's MAC address, CPU load goes to
+100%.  top shows the usages as being [events].  We did not experience
+this result of sending a magic packet while running 2.4.x kernels.
 
-So then I tried a Trinity rescue disk, using a 2.4.21 kernel. Same thing.
+Hardware is Intel i815e motherboards in Compaq Deskpro systems.  Intel
+e100 driver built into the kernel.
 
-Anybody got experience of this? Googling gives wads of people with similar 
-sounding problems, mostly interrupt related, sometimes Vlan related (It's 
-plugged into a Cisco catalyst but I tried a x-over cable to my laptop with 
-the same result, so I don't think thats relevant), but don't see any 
-solutions.
+If anyone can shed some light on where we should start looking, or any
+tests you would like to see done, either follow up this post, or respond
+to me directly.
 
-Is this a known-bad interface? The drivers sources don't seem to have been 
-touched for a long time which makes me think its unlikely that a newer kernel 
-would help, but who knows...
-
-Any suggestions apprieciated
-
-Andrew Walrond
+			Harry
 

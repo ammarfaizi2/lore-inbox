@@ -1,40 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264690AbSLBSQy>; Mon, 2 Dec 2002 13:16:54 -0500
+	id <S264666AbSLBSOx>; Mon, 2 Dec 2002 13:14:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSLBSQy>; Mon, 2 Dec 2002 13:16:54 -0500
-Received: from magic.adaptec.com ([208.236.45.80]:3275 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id <S264690AbSLBSQx>;
-	Mon, 2 Dec 2002 13:16:53 -0500
-Date: Mon, 02 Dec 2002 11:24:13 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: "Cress, Andrew R" <andrew.r.cress@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: AIC79xx driver question
-Message-ID: <36490000.1038853452@aslan.btc.adaptec.com>
-In-Reply-To: <A5974D8E5F98D511BB910002A50A66470580D41F@hdsmsx103.hd.intel.com>
-References: <A5974D8E5F98D511BB910002A50A66470580D41F@hdsmsx103.hd.intel.com
- >
-X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
-MIME-Version: 1.0
+	id <S264690AbSLBSOx>; Mon, 2 Dec 2002 13:14:53 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39632 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264666AbSLBSOv>; Mon, 2 Dec 2002 13:14:51 -0500
+Date: Mon, 2 Dec 2002 19:22:14 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Bill Davidsen <davidsen@tmr.com>, Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [BUG]2.5.49-ac1 - more info on make error
+Message-ID: <20021202182213.GC775@fs.tum.de>
+References: <Pine.LNX.4.44.0211271540270.7715-201000@bilbo.tmr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211271540270.7715-201000@bilbo.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Justin,
-> 
-> I was looking at the code for aic79xx, and it appears that the channel is
-> hard-coded to 'A' in a number of places, rather than using
-> SCB_GET_CHANNEL() (e.g.: calls to ahd_reset_channel in aic79xx_core.c).
-> Was this intentional?  Is there only one channel per aic79xx host? 
+On Wed, Nov 27, 2002 at 03:45:24PM -0500, Bill Davidsen wrote:
 
-Yes.  There is only one channel.  Much of the code was ported from
-the aic7xxx driver which, due to the aic7770's twin/narrow capability,
-must have a concept of "channel".  At some point, the channel references
-may be completely removed from the code, but they are harmless.
+>...
+Content-Description: config
+>...
+> CONFIG_HOTPLUG=y
+>...
+> #
+> # Tulip family network device support
+> #
+> CONFIG_NET_TULIP=y
+> CONFIG_DE2104X=y
+>...
 
---
-Justin
+./drivers/net/tulip/de2104x.o(.data+0x74): undefined reference to `local 
+symbols in discarded section .exit.text'
+
+
+In drivers/net/tulip/de2104x.c the function de_remove_on is __exit but 
+the pointer to it is __devexit_p.
+
+Two possible solutions:
+
+1. Make this driver hot-pluggable. Jeff Garzik vetoes against this 
+   solution.
+
+2. Change the __devexit_p to an #ifdef MODULE (it's ugly, but it lets
+   the driver compiles with all combinations of config options without
+   making it hot-pluggable):
+
+--- drivers/net/tulip/de2104x.c.old	2002-12-02 19:16:24.000000000 +0100
++++ drivers/net/tulip/de2104x.c	2002-12-02 19:18:18.000000000 +0100
+@@ -2217,8 +2217,9 @@
+ 	.name		= DRV_NAME,
+ 	.id_table	= de_pci_tbl,
+ 	.probe		= de_init_one,
+-#warning only here to fix build.  should be __exit_p not __devexit_p.
+-	.remove		= __devexit_p(de_remove_one),
++#ifdef MODULE
++	.remove		= de_remove_one,
++#endif
+ #ifdef CONFIG_PM
+ 	.suspend	= de_suspend,
+ 	.resume		= de_resume,
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267644AbTAQTX1>; Fri, 17 Jan 2003 14:23:27 -0500
+	id <S267643AbTAQTYH>; Fri, 17 Jan 2003 14:24:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267645AbTAQTX1>; Fri, 17 Jan 2003 14:23:27 -0500
-Received: from cs144171.pp.htv.fi ([213.243.144.171]:26127 "EHLO chip.ath.cx")
-	by vger.kernel.org with ESMTP id <S267644AbTAQTX0>;
-	Fri, 17 Jan 2003 14:23:26 -0500
-Date: Fri, 17 Jan 2003 21:32:01 +0200 (EET)
-From: Panu Matilainen <pmatilai@welho.com>
-X-X-Sender: pmatilai@chip.ath.cx
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org, Andrew Walrond <andrew@walrond.org>,
-       jw schultz <jw@pegasys.ws>
-Subject: Re: any brand recomendation for a linux laptop ?
-In-Reply-To: <20030116154004.GD31419@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0301172125160.20821-100000@chip.ath.cx>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267645AbTAQTYG>; Fri, 17 Jan 2003 14:24:06 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:26256 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267643AbTAQTYE>;
+	Fri, 17 Jan 2003 14:24:04 -0500
+Date: Fri, 17 Jan 2003 14:32:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Initcall / device model meltdown?
+Message-ID: <20030117193256.GE8304@gtf.org>
+References: <20030117192356.F13888@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030117192356.F13888@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Jan 2003, Larry McVoy wrote:
-
-> On Thu, Jan 16, 2003 at 04:37:27PM +0100, Jan-Benedict Glaw wrote:
-> > On Thu, 2003-01-16 06:40:45 -0800, Larry McVoy <lm@bitmover.com>
-> > wrote in message <20030116144045.GC30736@work.bitmover.com>:
-> > > On Thu, Jan 16, 2003 at 02:14:27PM +0000, Andrew Walrond wrote:
-> > 
-> > > I like the T23 myself.  Wireless, ethernet, modem, DVD, fast.
-> > 
-> > Serial modem, or some winmodem type? I'd prefer to have a "real" modem,
-> > though...
+On Fri, Jan 17, 2003 at 07:23:56PM +0000, Russell King wrote:
+> 1. the device model requires a certain initialisation order.
+> 2. modules need to use module_init() which means the initialisation order
+>    is link-order dependent, despite our multi-level initialisation system.
 > 
-> Winmodem.  I'm pretty sure I got it to work under Linux at some point but
-> I'll admit that I boot into windows on those rare occasions I need a modem.
-> Getting that stuff to work under Linux is fragile at best.
+> Obviously one solution would be to spread the drivers for this
+> multifunction chip throughout the kernel tree (ie, by function not
+> by device) so the touchscreen driver would live under drivers/input.
+> 
+> However, then we need to make sure that the multifunction chip's
+> bus type is initialised before any of the other subsystems, and of
+> course, the bus type is initialised using module_init() since it
+> lives in a module...
+> 
+> I think we need to re-think what we're doing with the initialisation
+> handling and the device model before these sorts of problems get out
+> of hand.
 
-There's a driver at http://www.physcip.uni-stuttgart.de/heby/ltmodem/
-It's worked quite well for me.. (with T21) The only real trouble with it 
-is that it's largely binary only :(
+IMO this link order business is a problem that's existed for ages,
+it's unrelated to the device model, and adding seven levels of
+initcalls merely hid this problem a little bit.
 
-Another caveat with T2x'es is that there are two kinds of them: for the 
-seemingly more common variant the ltmodem driver works, for the other 
-MiniPCI modem no driver exists.
+Back when I was doing fbdev stuff, I just gave up and did things "the
+old way", a la
 
--- 
-	- Panu -
+	#ifdef MODULE
+	module_init(my_driver);
+	#endif
+
+and then call my_driver from other code, when it is built into the
+kernel, overriding link order.
+
+Not a great solution, I know.  My preferred solution has always been to
+explicitly list the dependencies, so a build-time tool can figure out
+the link order automagically.
+
+	Jeff
+
+
 

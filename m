@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266135AbTGDTci (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 15:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbTGDTch
+	id S266146AbTGDTj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 15:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbTGDTj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 15:32:37 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:2203 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266135AbTGDTcg
+	Fri, 4 Jul 2003 15:39:57 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:64493 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S266146AbTGDTj4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 15:32:36 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 4 Jul 2003 12:39:16 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       benh@kernel.crashing.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-In-Reply-To: <Pine.LNX.4.44.0307041217180.1748-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.55.0307041231350.5132@bigblue.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0307041217180.1748-100000@home.osdl.org>
+	Fri, 4 Jul 2003 15:39:56 -0400
+Date: Fri, 04 Jul 2003 12:53:54 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
+Message-ID: <16900000.1057348432@[10.10.2.4]>
+In-Reply-To: <20030704193135.GF955@holomorphy.com>
+References: <20030703023714.55d13934.akpm@osdl.org> <Pine.LNX.4.53.0307041139150.24383@montezuma.mastecende.com> <13170000.1057335490@[10.10.2.4]> <20030704183106.GC955@holomorphy.com> <14820000.1057346400@[10.10.2.4]> <20030704193135.GF955@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jul 2003, Linus Torvalds wrote:
+--William Lee Irwin III <wli@holomorphy.com> wrote (on Friday, July 04, 2003 12:31:35 -0700):
 
-> My reason for disliking this patch is that it adds user-space information
-> to the kernel - in a place where user space cannot get at it.
->
-> In particular, any traditional cooperative user-space threading package
-> wants to switch its own stack around, and they all do it by just changing
-> %esp directly. The whole point of such threading is that it's _fast_,
-> since it doesn't need any kernel support (and since it's cooperative, you
-> can avoid locking).
->
-> The old "optimization" that you didn't like was not an optimization at
-> all: it got the case of user space changing stacks _right_, while still
-> allowing yet another stack for signal handling and exiting the signal by
-> hand.
->
-> Does anybody do that? I don't know. But it was done the way it was done on
-> purpose.
+> At some point in the past, I wrote:
+>>> The bitmap is wider than the function wants. The change is fine, despite
+>>> your abuse of phys_cpu_present_map.
+> 
+> On Fri, Jul 04, 2003 at 12:20:02PM -0700, Martin J. Bligh wrote:
+>> I'm happy to remove the abuse of phys_cpu_present_map, seeing as we now
+>> have a reason to do so. That would actually seem a much cleaner solution
+>> to these problems than creating a whole new data type, which still doesn't
+>> represent what it claims to
+> 
+> Dirtier, but possibly lower line count.
 
-Yes, GNU Pth :
+I disagree with the "dirtier" bit, but still. I'd rather have this sort
+of stuff put into subarch, where most people don't have to look at it.
 
-http://www.gnu.org/software/pth/
+More to the point, the changes would be confined to the big-iron arches,
+and have less chance of breaking anyone else for things they don't
+care about, nor do them any benefit. Touching this code is fragile as
+hell, so if it can be confined, it should be ...
 
-and, for example :
+It'd also remove the long-standing abuse of phys_cpu_present_map, which
+would probably make the rest of the code clearer.
 
-http://www.xmailserver.org/libpcl.html
-
-They use the generic POSIX stack setup described here :
-
-http://www.gnu.org/software/pth/rse-pmt.ps
-
-My Pine's 'd' key deleted his patch before I could take an exhaustive
-look, but it should be fine though. They both do use to enter the signal
-handler simply to get a snapshot of the context, and they exit the handler
-by letting the kernel to clean the on-sig-stack flag. try to search
-archives to take a better look at the patch ...
-
-
-
-- Davide
+M.
 

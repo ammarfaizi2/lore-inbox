@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264439AbSIQRlV>; Tue, 17 Sep 2002 13:41:21 -0400
+	id <S264425AbSIQRnW>; Tue, 17 Sep 2002 13:43:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264452AbSIQRlV>; Tue, 17 Sep 2002 13:41:21 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:58116 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264439AbSIQRlV>;
-	Tue, 17 Sep 2002 13:41:21 -0400
-Date: Tue, 17 Sep 2002 10:46:31 -0700
-From: Greg KH <greg@kroah.com>
-To: Thomas Dodd <ted@cypress.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
-       gen-lists@blueyonder.co.uk
-Subject: Re: Problems accessing USB Mass Storage
-Message-ID: <20020917174631.GD2569@kroah.com>
-References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com> <3D876861.9000601@cypress.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D876861.9000601@cypress.com>
-User-Agent: Mutt/1.4i
+	id <S264436AbSIQRnW>; Tue, 17 Sep 2002 13:43:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34061 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264425AbSIQRnW>; Tue, 17 Sep 2002 13:43:22 -0400
+Message-ID: <3D876ADD.9090800@transmeta.com>
+Date: Tue, 17 Sep 2002 10:48:13 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Padraig Brady <padraig.brady@corvil.com>
+CC: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: [PATCH][2.5.35] CPU frequency and voltage scaling (0/5)
+References: <20020917113047.C25385@brodo.de> <3D870734.9080301@corvil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
+Padraig Brady wrote:
 > 
-> I get the feeling it's not a true mass storage device.
-
-Sounds like it.
-
-> The windows drivers talk about TWAIN. And the vendor ID
-> is for ViewQuest Technologies, which has a similar camera,
-> also with TWAIN drivers. I can send you the drivers from both
-> if you think they would help.
+> This is much better, but I preferred Dave Jones' suggestion of
+> supporting stackable policies as I can see no end to them:
+> max_cpu_temp, temp_hysteresis, favor_fast_{fsb,multiplier}, ...
 > 
-> http://www.digitaldreamco.com/shop/epsilon.htm
-> http://www.digitaldreamco.com/support/downloads/windows/epsilon.exe
-> and
-> http://www.vqti.com/VIEWQUEST_ENGLISH/product_detail.asp?NUMBERS=VQ780S
-> http://www.vqti.com/viewquest/driver/VQ780S-setup.exe
 
-Windows drivers don't help me much, maybe one of the other usb
-developers could help.
+It would be especially interesting if the policy name can be a loadable 
+module (via kmod.)
 
-Sorry,
+	-hpa
 
-greg k-h
+

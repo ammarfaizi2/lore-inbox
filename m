@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267731AbTAIV2x>; Thu, 9 Jan 2003 16:28:53 -0500
+	id <S267738AbTAIVoF>; Thu, 9 Jan 2003 16:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267738AbTAIV2x>; Thu, 9 Jan 2003 16:28:53 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:38392 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267731AbTAIV2x> convert rfc822-to-8bit; Thu, 9 Jan 2003 16:28:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: Jason Lunz <lunz@falooley.org>, linux-kernel@vger.kernel.org
-Subject: Re: detecting hyperthreading in linux 2.4.19
-Date: Thu, 9 Jan 2003 13:37:04 -0800
-User-Agent: KMail/1.4.3
-References: <slrnb1rlct.g2c.lunz@stoli.localnet>
-In-Reply-To: <slrnb1rlct.g2c.lunz@stoli.localnet>
+	id <S267749AbTAIVoF>; Thu, 9 Jan 2003 16:44:05 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:39078 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S267738AbTAIVoF>; Thu, 9 Jan 2003 16:44:05 -0500
+Message-ID: <3E1DEF29.8020900@google.com>
+Date: Thu, 09 Jan 2003 13:52:41 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301091337.04957.jamesclv@us.ibm.com>
+To: James Curbo <phoenix@sandwich.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DMA timeouts on Promise 20267 IDE card
+References: <20030109204350.GA413@carthage>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 January 2003 12:02 pm, Jason Lunz wrote:
-> Is there a way for a userspace program running on linux 2.4.19 to tell
-> the difference between a single hyperthreaded xeon P4 with HT enabled
-> and a dual hyperthreaded xeon P4 with HT disabled? The /proc/cpuinfos
-> for the two cases are indistinguishable.
+James Curbo wrote:
+
+>[please cc: me as I am not subscribed to lkml]
 >
-> Jason
+>I've recently started getting errors like this (this example is from
+>2.4.20-pre3-ac2):
 >
-> -
+>Jan  9 14:20:48 carthage kernel: hda: dma_timer_expiry: dma status ==
+>0x61
+>Jan  9 14:20:48 carthage kernel: hdc: dma_timer_expiry: dma status ==
+>0x21
+>  
+>
+I believe the low bit set in the dma_status means that the DMA transfer 
+is still in progress.  Since the timer has expired, that means it's been 
+in progress for 10 seconds.  Odds are the drive has stopped responding. 
+ Since it's a Western Digital drive, it probably needs to be powercycled 
+to come back.
 
-In the kernel that's no problem:
+I don't think this is a problem with the controller card, but I could be 
+wrong.
 
-A) If the BIOS writers followed Intel's guidelines, just look at the physical 
-APIC IDs.  HT siblings have odd IDs, the real ones have even.
+    Ross
 
-B) Check the siblings table built up at boot time and used by the scheduler.
 
-I don't know of any way to do this in userland.  The whole point is that the 
-sibling processors are supposed to look like real ones.
-
-You _could_ try running two processes simultaneously in tight spin loops for 
-100 million cycles and comparing the amount of real time consumed.  That 
-would be rather unreliable and kludgey though.
-
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263086AbTHVIzb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 04:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTHVIzb
+	id S263070AbTHVIwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 04:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263065AbTHVIux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 04:55:31 -0400
-Received: from mail4.bluewin.ch ([195.186.4.74]:34953 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S263086AbTHVIz0 (ORCPT
+	Fri, 22 Aug 2003 04:50:53 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:30447 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263076AbTHVIdh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 04:55:26 -0400
-Date: Fri, 22 Aug 2003 10:55:08 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][PATCH] new scheduler policy
-Message-ID: <20030822085508.GA10215@k3.hellgate.ch>
-Mail-Followup-To: Nick Piggin <piggin@cyberone.com.au>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3F4182FD.3040900@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F4182FD.3040900@cyberone.com.au>
-X-Operating-System: Linux 2.6.0-test3 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+	Fri, 22 Aug 2003 04:33:37 -0400
+Date: Fri, 22 Aug 2003 10:33:34 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Sulaiman Alhasawi <sulaiman@unix-zone.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: SCO's "proof"
+In-Reply-To: <3F458064.4070409@unix-zone.org>
+Message-ID: <Pine.GSO.4.21.0308221032450.12543-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 11:53:01 +1000, Nick Piggin wrote:
-> I haven't run many tests on it - my mind blanked when I tried to
-> remember the scores of scheduler "exploits" thrown around. So if
-> anyone would like to suggest some, or better still, run some,
-> please do so. And be nice, this isn't my type of scheduler :P
+On Fri, 22 Aug 2003, Sulaiman Alhasawi wrote:
+> >>>>www.heise.de/newsticker/data/jk-19.08.03-000/imh0.jpg
+> >>>>
+>    
+>   What is the  language on  "System V" code  ?   ;-)
 
-I timed a pathological benchmark from hell I've been playing with lately.
-Three consecutive runs following a fresh boot. Time is in seconds:
+English using a Greek font.
 
-2.4.21			821	21	25
-2.6.0-test3-mm1		724	946	896
-2.6.0-test3-mm1-nick	905	987	997
+Gr{oetje,eeting}s,
 
-Runtime with ideal scheduling: < 2 seconds (we're thrashing).
+					Geert (\Gamma\epsilon\epsilon\rho\tau)
 
-If anybody has thrashing test cases closer to the real world, I'd be very
-interested to learn about them.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Roger
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

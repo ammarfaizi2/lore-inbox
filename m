@@ -1,344 +1,283 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTF0CKx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 22:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTF0CKw
+	id S263355AbTF0CZE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 22:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTF0CZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 22:10:52 -0400
-Received: from [65.118.82.9] ([65.118.82.9]:47315 "EHLO firesvr1.luminex.com")
-	by vger.kernel.org with ESMTP id S263315AbTF0CKn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 22:10:43 -0400
-Date: Thu, 26 Jun 2003 19:16:14 -0700 (PDT)
-From: Ryan White <rwhite@luminex.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Kernel Bug Report
-Message-ID: <Pine.LNX.4.44.0306261850110.6190-100000@rwhite.luminex.com>
+	Thu, 26 Jun 2003 22:25:03 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:52184 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263355AbTF0CYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 22:24:55 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Date: Fri, 27 Jun 2003 12:38:50 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16123.44602.150927.280989@gargle.gargle.HOWL>
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH - ALPS glidepoint/dualpoint driver for 2.5.7x
+X-Mailer: VM 7.16 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1.  Linux system hangs when being shared Helios directory is accessed my 
-Macintosh client
 
-2.  This is exactly what I am doing.  I have installed Helios Ethershare 
-on my linux box.  I am using an iMac (MacOS 9.22) to access the shared 
-directories.  This all works fine up until a certain point.
+Hi,
+ The following adds support for the ALPS glidepoint/dualpoint pointing
+ devices to the mouse driver in 2.5.7x
 
-I put in an HFS disc into the local drive on my linux box.  I mount this 
-as an HFS disc by doing: "mount -t hfs /dev/hdc /mount_pt_1"
+ It "works-for-me" but there are issues that probably need to be
+ addressed.
 
-I am then NFS mounting that directory to another directory on the same 
-box.  "mount -t nfs localhost:/mount_pt_1 /mount_pt_2".  This works fine 
-and can view the contents of the disc over the two mount points perfectly.
+ 1/ The code is based on other code fragments I have collected off the
+   internet.  I have found no documentation and the one request I made to
+   ALPS has so-far been unanswered.  So I cannot be sure it is right,
+   but as I say it seems to work.
 
-The /mount_pt_2 directory is the shared directory from 
-Helios Ethershare and will be allowed readonly access by the iMac.  I go 
-to the Chooser on the iMac and open up this directory and it just hangs.  
-I go back over to the linux box and I can not access that directory 
-anymore.  It is hung and have to quit out of my shell.  I can no longer 
-umount any of my mounted directories.  I have to reboot.
+ 2/ It appears (but see 1) that it is not possible to reliably detect
+    an ALPS device.  There is a sequence where you send 3 SetRes2:1
+    commands, and then a GetStatus command and you get something which
+    isn't really a status, but I don't know what range of status
+    values mean "ALPS".  I tried checking for "any status which must
+    be wrong" i.e. any status that say the device is in 1:1 mode, or
+    is enabled etc.  But a Logitech mouse seem to respond
+    interestingly to that sequence too.
 
-3.  Keywords:  NFS, HFS, Helios, Ethershare
+    Also, there is no guarantee that the reply will come from the ALPS
+    device.  For example, on my Dell Latitude D800, if I have a
+    logitech mouse plugged in the expansion port, the GetStatus reply
+    comes from the logitech and not the ALPS.  So it would seem that
+    reliable detection is impossible.
 
-4.  I tried this on Kernel Version: 2.4.7-10 and also on 2.4.21.  The same 
-thing happened on both of them.
+    So the current code always sends the ALPS set-absolute-mode
+    sequence (4 disables before the enable) unless a
+    non-3-byte-protocol device was detected.
 
-5.  OOPS:
-Jun 26 18:38:21 linux2 rebuild[1216]: starting rebuild in /root
-Jun 26 18:38:21 linux2 rebuild[1216]: stat /root/.netscape/lock: No such 
-file or directory
-Jun 26 18:38:23 linux2 rebuild[1216]: rebuild done in /root
-Jun 26 18:38:26 linux2 kernel: hfs_cat_put: trying to free free entry: 
-c7d2b200
-Jun 26 18:38:32 linux2 last message repeated 12 times
-Jun 26 18:38:32 linux2 kernel: hfs_cat_put: trying to free free entry: 
-c3f38200
-Jun 26 18:38:32 linux2 kernel: hfs_cat_put: trying to free free entry: 
-c3f38200
-Jun 26 18:38:32 linux2 kernel: Unable to handle kernel NULL pointer 
-dereference at virtual address 00000070
-Jun 26 18:38:32 linux2 kernel:  printing eip:
-Jun 26 18:38:32 linux2 kernel: c88a04c8
-Jun 26 18:38:32 linux2 kernel: *pde = 00000000
-Jun 26 18:38:32 linux2 kernel: Oops: 0000
-Jun 26 18:38:32 linux2 kernel: CPU:    0
-Jun 26 18:38:32 linux2 kernel: EIP:    0010:[<c88a04c8>]    Not tainted
-Jun 26 18:38:32 linux2 kernel: EFLAGS: 00010202
-Jun 26 18:38:32 linux2 kernel: eax: c61dbe70   ebx: c3f38200   ecx: 
-00000000   edx: c88ab488
-Jun 26 18:38:32 linux2 kernel: esi: c61dbe96   edi: c3f38256   ebp: 
-00000000   esp: c61dbd34
-Jun 26 18:38:32 linux2 kernel: ds: 0018   es: 0018   ss: 0018
-Jun 26 18:38:32 linux2 kernel: Process nfsd (pid: 1209, 
-stackpage=c61db000)
-Jun 26 18:38:32 linux2 kernel: Stack: c61dbe70 00000011 00000000 c61dbe70 
-00000000 c3db6260 c0346a80 000002e2
-Jun 26 18:38:32 linux2 kernel:        00000000 c3f3820c c01cb1da 00000006 
-c033f740 c03ba8a8 00002208 00002239
-Jun 26 18:38:32 linux2 kernel:        000ca82e c02bc39a 00000018 c03b867f 
-00000006 c0116eeb c033f740 c03ba8a8
-Jun 26 18:38:32 linux2 kernel: Call Trace:    [vt_console_print+122/760] 
-[vsnprintf+1146/1228] [__call_console_drivers+59/76] 
-[_call_console_drivers+83/88] [release_console_sem+146/152]
-Jun 26 18:38:32 linux2 kernel:   [<c88a034a>] [<c88a06a8>] [<c88a0bc1>] 
-[<c88a2885>] [sys_select+1142/1448] [lookup_hash+157/224]
-Jun 26 18:38:32 linux2 kernel:   [lookup_one_len+87/108] 
-[nfsd_lookup+832/1192] [nfssvc_decode_diropargs+93/196] 
-[nfsd_proc_lookup+141/160] [nfsd_dispatch+211/410] [svc_process+700/1374]
-Jun 26 18:38:32 linux2 kernel:   [nfsd+433/872] [arch_kernel_thread+35/48]
-Jun 26 18:38:32 linux2 kernel:
-Jun 26 18:38:32 linux2 kernel: Code: 8b 6d 70 89 ee 89 6c 24 1c 56 8d 44 
-24 34 89 c6 89 44 24 24
-Jun 26 18:39:55 linux2 kernel:  <5>nfs: server localhost not responding, 
-still trying
-Jun 26 18:41:57 linux2 inetd[498]: auth/tcp: bind: Address already in use
-Jun 26 18:42:23 linux2 PAM_pwdb[1221]: (login) session opened for user 
-rjw-engr by (uid=0)
-Jun 26 18:42:26 linux2 PAM_pwdb[1258]: (su) session opened for user root 
-by rjw-engr(uid=4033)
+    There are two consequences of always assuming an ALPS that may not
+    be good.
+     1) The mouse always claims to generate various ABS events even
+       when there might not be any ABS-generating device behind the
+       mouse.
+     2) The driver could misinterpret a normal mouse event that
+       overflowed in the negative direction for both X and Y as part
+       of an ALPS absolute event.  This is because ALPS absolute
+       events are detected by checking if the top 5 bits of the first
+       byte are all one.   I doubt this is a real problem as double
+       overflows are very unlikely (aren't they?)
+
+  3/ I haven't set the Min and Max absolute values (though both X and
+     Y seem to range from 0 to 100 in practice on my notebook).
+     This was because declaring a Min and Max causes the mousedev
+     driver to scale values to fit a supposed screen size, and I don't
+     think that is really appropriate for a touchpad.  Would there be
+     some other way to decide when to scale?  I would like to be able
+     to include Min and Max so that a post-processor (possibly in
+     mousedev) would be able to differentiate edge based activity
+     (scroll regions, corner taps, etc).
 
 
-6.  Do not have a shell script to reproduce environment.  
+  This patch also includes a fix for mousedev_event that allows it to
+  work sensibly with a touchpad in absolute mode.  With a touchpad, if
+  you lift your finger and place it down again you don't want that to
+  be interpreted as movement, but mousedev_event currently will.
+  I have changed it so that if ABS_PRESSURE is an available event,
+  then a new ABS_{X,Y} event while the current ABS_PRESSURE is zero
+  will not generate any movement.
 
-7.  ENVIRONMENT
-   7.1  Didn't have access to the ver_linux script
-   7.2  
-[root@linux2 /root]# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 2
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 698.668
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 1392.64
+ ----------- Diffstat output ------------
+ ./drivers/input/mouse/psmouse-base.c |   83 ++++++++++++++++++++++++++++++++++-
+ ./drivers/input/mouse/psmouse.h      |    1 
+ ./drivers/input/mousedev.c           |   26 +++++++---
+ 3 files changed, 100 insertions(+), 10 deletions(-)
 
-   7.3
-[root@linux2 /root]# cat /proc/modules
-hfs                    76656   1 (autoclean)
-appletalk              23376  11
+diff ./drivers/input/mouse/psmouse-base.c~current~ ./drivers/input/mouse/psmouse-base.c
+--- ./drivers/input/mouse/psmouse-base.c~current~	2003-06-26 13:49:26.000000000 +1000
++++ ./drivers/input/mouse/psmouse-base.c	2003-06-26 13:51:49.000000000 +1000
+@@ -99,6 +99,48 @@ static void psmouse_process_packet(struc
+ }
+ 
+ /*
++ * ALPS abolute Mode
++ * byte 0: 1 1 1 1 1 mid0 rig0 lef0
++ * byte 1: 0 x6 x5 x4 x3 x2 x1 x0
++ * byte 2: 0 x10 x9 x8 x7 0 fin ges
++ * byte 3: 0 y9 y8 y7 1 mid1 rig1 lef1
++ * byte 4: 0 y6 y5 y4 y3 y2 y1 y0
++ * byte 5: 0 z6 z5 z4 z3 z2 z1 z0
++ *
++ * On a dualpoint, {mid,rig,lef}0 are the stick, 1 are the pad.
++ * We just 'or' them together for now.
++ * We also send 'ges'ture as BTN_TOUCH
++ */
++
++static void ALPS_process_packet(struct psmouse *psmouse, struct pt_regs *regs)
++{
++	unsigned char *packet = psmouse->packet;
++	struct input_dev *dev = &psmouse->dev;
++	int x,y,z;
++
++	input_regs(dev, regs);
++
++	x = (packet[1] & 0x7f) | ((packet[2] & 0x78)<<(7-3));
++	y = (packet[4] & 0x7f) | ((packet[3] & 0x70)<<(7-4));
++	z = packet[5];
++
++	if (z > 0) {
++		input_report_abs(dev, ABS_X, x);
++		input_report_abs(dev, ABS_Y, y);
++		input_report_abs(dev, ABS_PRESSURE, z);
++	} else
++		input_report_abs(dev, ABS_PRESSURE, 0);
++
++	input_report_key(dev, BTN_LEFT,   ((packet[0] | packet[3])     ) & 1);
++	input_report_key(dev, BTN_MIDDLE, ((packet[0] | packet[3]) >> 2) & 1);
++	input_report_key(dev, BTN_RIGHT,  ((packet[0] | packet[3]) >> 1) & 1);
++
++	input_report_key(dev, BTN_TOUCH,  packet[2] & 1);
++
++	input_sync(dev);
++}
++
++/*
+  * psmouse_interrupt() handles incoming characters, either gathering them into
+  * packets or passing them to the command routine as command output.
+  */
+@@ -139,6 +181,19 @@ static irqreturn_t psmouse_interrupt(str
+ 	psmouse->last = jiffies;
+ 	psmouse->packet[psmouse->pktcnt++] = data;
+ 
++	/* ALPS absolute mode packets start with 0b11111mrl
++	 * Normal mouse packets are extremely unlikely to overflow both
++	 * x and y 
++	 */
++	if (!psmouse_noext && psmouse->type < PSMOUSE_GENPS &&
++	    (psmouse->packet[0] & 0xf8)== 0xf8) {
++		if (psmouse->pktcnt == 6) {
++			ALPS_process_packet(psmouse, regs);
++			psmouse->pktcnt = 0;
++		}
++		goto out;
++	}
++			
+ 	if (psmouse->pktcnt == 3 + (psmouse->type >= PSMOUSE_GENPS)) {
+ 		psmouse_process_packet(psmouse, regs);
+ 		psmouse->pktcnt = 0;
+@@ -424,6 +479,17 @@ static void psmouse_set_resolution(struc
+  * psmouse_initialize() initializes the mouse to a sane state.
+  */
+ 
++static inline void set_abs_params(struct input_dev *dev, int axis, int min, int max, int fuzz, int flat)
++{
++	dev->absmin[axis] = min;
++	dev->absmax[axis] = max;
++	dev->absfuzz[axis] = fuzz;
++	dev->absflat[axis] = flat;
++
++	set_bit(axis, dev->absbit);
++}
++
++
+ static void psmouse_initialize(struct psmouse *psmouse)
+ {
+ 	unsigned char param[2];
+@@ -453,8 +519,23 @@ static void psmouse_initialize(struct ps
+ 
+ /*
+  * Last, we enable the mouse so that we get reports from it.
+- */
++ * If it is a 3-byte setting and we are allowed to use extensions,
++ * then it could be an ALPS Glidepoint, so send the init sequence just
++ * incase. i.e. 4 consecutive "disable"s before the "enable"
++ */
++	if (psmouse->type < PSMOUSE_GENPS && !psmouse_noext) {
++		psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE);
++		psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE);
++		psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE);
++		psmouse_command(psmouse, NULL, PSMOUSE_CMD_DISABLE);
++
++		set_bit(BTN_TOUCH, psmouse->dev.keybit);
++		set_bit(EV_ABS, psmouse->dev.evbit);
++		set_abs_params(&psmouse->dev, ABS_X, 0, 0, 0, 0);
++		set_abs_params(&psmouse->dev, ABS_Y, 0, 0, 0, 0);
++		set_abs_params(&psmouse->dev, ABS_PRESSURE, 0, 127, 0, 0);
+ 
++	}
+ 	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_ENABLE))
+ 		printk(KERN_WARNING "psmouse.c: Failed to enable mouse on %s\n", psmouse->serio->phys);
+ 
 
-   7.4
-[root@linux2 /root]# cat /proc/ioports ; cat /proc/iomem
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0400-040f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-0cf8-0cff : PCI conf1
-6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-8000-9fff : PCI Bus #01
-  9800-98ff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
-d000-d0ff : Adaptec AHA-2940U2/U2W
-d400-d43f : Intel Corp. 82557/8/9 [Ethernet Pro 100]
-  d400-d43f : eepro100
-d800-d803 : Advanced Micro Devices [AMD] AMD-751 [Irongate] System 
-Controller
-dc00-dcff : Adaptec AIC-7892B U160/m
-ffa0-ffaf : VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000d6000-000d7fff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-07feffff : System RAM
-  00100000-002bf7b3 : Kernel code
-  002bf7b4-00378e1f : Kernel data
-07ff0000-07ff7fff : ACPI Tables
-07ff8000-07ffffff : ACPI Non-volatile Storage
-dd800000-dd8fffff : PCI Bus #01
-e0000000-e7ffffff : Advanced Micro Devices [AMD] AMD-751 [Irongate] System 
-Controller
-ed9ff000-ed9fffff : Advanced Micro Devices [AMD] AMD-751 [Irongate] System 
-Controller
-eda00000-efafffff : PCI Bus #01
-  ee000000-eeffffff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
-  efaff000-efafffff : ATI Technologies Inc 3D Rage Pro AGP 1X/2X
-efe00000-efefffff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
-efffd000-efffdfff : Adaptec AHA-2940U2/U2W
-  efffd000-efffdfff : aic7xxx
-efffe000-efffefff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
-  efffe000-efffefff : eepro100
-effff000-efffffff : Adaptec AIC-7892B U160/m
-  effff000-efffffff : aic7xxx
-ffff0000-ffffffff : reserved
+diff ./drivers/input/mouse/psmouse.h~current~ ./drivers/input/mouse/psmouse.h
+--- ./drivers/input/mouse/psmouse.h~current~	2003-06-26 13:49:26.000000000 +1000
++++ ./drivers/input/mouse/psmouse.h	2003-06-26 13:50:16.000000000 +1000
+@@ -9,6 +9,7 @@
+ #define PSMOUSE_CMD_GETID	0x02f2
+ #define PSMOUSE_CMD_SETRATE	0x10f3
+ #define PSMOUSE_CMD_ENABLE	0x00f4
++#define	PSMOUSE_CMD_DISABLE	0x00f5
+ #define PSMOUSE_CMD_RESET_DIS	0x00f6
+ #define PSMOUSE_CMD_RESET_BAT	0x02ff
+ 
 
-   7.5
-lspci -vvv
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] 
-System Controller (rev 25)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 64 set
-        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=128M]
-        Region 1: Memory at ed9ff000 (32-bit, prefetchable) [size=4K]
-        Region 2: I/O ports at d800 [disabled] [size=4]
-        Capabilities: [a0] AGP version 1.0
-                Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2
-                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] AGP 
-Bridge (rev 01) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 set
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-        I/O behind bridge: 00008000-00009fff
-        Memory behind bridge: eda00000-efafffff
-        Prefetchable memory behind bridge: dd800000-dd8fffff
-        BridgeCtl: Parity- SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
-
-00:03.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] 
-(rev 08)
-        Subsystem: Intel Corporation EtherExpress PRO/100+ Management 
-Adapter
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 8 min, 56 max, 64 set, cache line size 08
-
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at efffe000 (32-bit, non-prefetchable) [size=4K]
-        Region 1: I/O ports at d400 [size=64]
-        Region 2: Memory at efe00000 (32-bit, non-prefetchable) [size=1M]
-        Expansion ROM at efd00000 [disabled] [size=1M]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- AuxPwr- DSI+ D1+ D2+ PME+
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-00:04.0 SCSI storage controller: Adaptec 7892B (rev 02)
-        Subsystem: Adaptec: Unknown device 62a1
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 40 min, 25 max, 64 set, cache line size 08
-        Interrupt: pin A routed to IRQ 10
-        BIST result: 00
-        Region 0: I/O ports at dc00 [disabled] [size=256]
-        Region 1: Memory at effff000 (64-bit, non-prefetchable) [size=4K]
-        Expansion ROM at effc0000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 
-1b)
-        Subsystem: VIA Technologies, Inc.: Unknown device 0000
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0 set
-
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 
-06) (prog-if 8a [Master SecP PriP])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 set
-        Region 4: I/O ports at ffa0 [size=16]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 
-20)
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-
-00:09.0 SCSI storage controller: Adaptec AHA-2940U2/W
-        Subsystem: Adaptec: Unknown device a180
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 39 min, 25 max, 64 set, cache line size 08
-        Interrupt: pin A routed to IRQ 11
-        BIST result: 00
-        Region 0: I/O ports at d000 [disabled] [size=256]
-        Region 1: Memory at efffd000 (64-bit, non-prefetchable) [size=4K]
-        Expansion ROM at effa0000 [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:05.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 
-1X/2X (rev 5c) (prog-if 00 [VGA])
-        Subsystem: ATI Technologies Inc: Unknown device 0084
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 8 min, 64 set, cache line size 08
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at ee000000 (32-bit, non-prefetchable) [size=16M]
-        Region 1: I/O ports at 9800 [size=256]
-        Region 2: Memory at efaff000 (32-bit, non-prefetchable) [size=4K]
-        Expansion ROM at efac0000 [disabled] [size=128K]
-        Capabilities: [50] AGP version 1.0
-                Status: RQ=255 SBA+ 64bit- FW- Rate=x1,x2
-                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-   7.6
-[root@linux2 /root]# cat /proc/scsi/scsi
-Attached devices: 
-Host: scsi1 Channel: 00 Id: 02 Lun: 00
-  Vendor: IBM      Model: DNES-309170      Rev: SA30
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi1 Channel: 00 Id: 03 Lun: 00
-  Vendor: PLEXTOR  Model: CD-R   PX-W1210S Rev: 1.01
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-
-  7.7  OTHER INFORMATION:  Kernel 2.4.21 was downloaded and compiled and 
-installed.  I added now patches to it whatsoever.  This is a fairly simple 
-problem to reproduce I feel.  The only difficulty will be getting Helios 
-Ethershare software if you do not have it.  
-
-We are using Ethershare Version 2.6, CD-17.
-
-Please let me know if you need any other information.
-
--- 
-Ryan White
-Software Engineer
-
-Luminex Software, Inc.
-6840 Indiana Avenue, Suite 130
-Riverside, CA 92506
-909.781.4100 x159
-rwhite@luminex.com
-
+diff ./drivers/input/mousedev.c~current~ ./drivers/input/mousedev.c
+--- ./drivers/input/mousedev.c~current~	2003-06-26 13:49:26.000000000 +1000
++++ ./drivers/input/mousedev.c	2003-06-26 13:50:22.000000000 +1000
+@@ -53,7 +53,7 @@ struct mousedev_list {
+ 	struct fasync_struct *fasync;
+ 	struct mousedev *mousedev;
+ 	struct list_head node;
+-	int dx, dy, dz, oldx, oldy;
++	int dx, dy, dz, oldx, oldy, finger;
+ 	signed char ps2[6];
+ 	unsigned long buttons;
+ 	unsigned char ready, buffer, bufsiz;
+@@ -79,6 +79,7 @@ static void mousedev_event(struct input_
+ 	struct mousedev **mousedev = mousedevs;
+ 	struct mousedev_list *list;
+ 	int index, size, wake;
++	int dx, dy;
+ 
+ 	while (*mousedev) {
+ 
+@@ -93,23 +94,30 @@ static void mousedev_event(struct input_
+ 						case ABS_X:	
+ 							size = handle->dev->absmax[ABS_X] - handle->dev->absmin[ABS_X];
+ 							if (size != 0) {
+-								list->dx += (value * xres - list->oldx) / size;
+-								list->oldx += list->dx * size;
++								dx = list->dx + (value * xres - list->oldx) / size;
++								list->oldx += dx * size;
+ 							} else {
+-								list->dx += value - list->oldx;
+-								list->oldx += list->dx;
++								dx = list->dx + value - list->oldx;
++								list->oldx += dx;
+ 							}
++							if (list->finger || !test_bit(ABS_PRESSURE, handle->dev->absbit))
++								list->dx = dx;
+ 							break;
+ 
+ 						case ABS_Y:
+ 							size = handle->dev->absmax[ABS_Y] - handle->dev->absmin[ABS_Y];
+ 							if (size != 0) {
+-								list->dy -= (value * yres - list->oldy) / size;
+-								list->oldy -= list->dy * size;
++								dy = list->dy - (value * yres - list->oldy) / size;
++								list->oldy -= dy * size;
+ 							} else {
+-								list->dy -= value - list->oldy;
+-								list->oldy -= list->dy;
++								dy = list->dy - (value - list->oldy);
++								list->oldy -= dy;
+ 							}
++							if (list->finger || !test_bit(ABS_PRESSURE, handle->dev->absbit))
++								list->dy = dy;
++							break;
++						case ABS_PRESSURE:
++							list->finger = value;
+ 							break;
+ 					}
+ 					break;

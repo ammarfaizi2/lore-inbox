@@ -1,36 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbULDPL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbULDP4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbULDPL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 10:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbULDPL1
+	id S261720AbULDP4b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 10:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbULDP4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 10:11:27 -0500
-Received: from 82-147-17-1.dsl.uk.rapidplay.com ([82.147.17.1]:36664 "HELO
-	short4.org") by vger.kernel.org with SMTP id S262532AbULDPL0 (ORCPT
+	Sat, 4 Dec 2004 10:56:31 -0500
+Received: from mahonia.com ([216.99.203.20]:60297 "EHLO mischief.mahonia.com")
+	by vger.kernel.org with ESMTP id S261720AbULDP43 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 10:11:26 -0500
-Message-ID: <41B1D385.2030904@linux-corner.info>
-Date: Sat, 04 Dec 2004 15:11:01 +0000
-From: Mark Watts <m.watts@linux-corner.info>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 4 Dec 2004 10:56:29 -0500
+Subject: Re: Linux 2.6.9-ac13
+From: Mark McPherson <mark@mahonia.com>
+Reply-To: mark@mahonia.com
 To: linux-kernel@vger.kernel.org
-Subject: getting performance statistics from the LVS subsystem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sat, 04 Dec 2004 07:56:27 -0800
+Message-Id: <1102175787.10418.8.camel@mischief.mahonia.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-When you run a linux box as an LVS (Linux Virtual Server) director, what 
-is the recomended way of getting performance statistics out of the kernel?
-
-I'd like to run some tests on the LVS subsystem in order to work out its 
-scaling limits on various hardware configurations, but I can't work out 
-how to determine the kernels' load in response to the number of 
-connection requests I put through it.
+Here, at least, bzdiff tells me that the .bz2 patches for -ac12 and
+-ac13 are identical.  And the byte counts in Alan's directory seem to be
+the same for these files.  Could it be that the -ac12 patch set was
+inadvertently assembled and released again as -ac13?
 
 Cheers,
-
-Mark.
+Mark 
+-- 
+Mark McPherson <mark@mahonia.com>

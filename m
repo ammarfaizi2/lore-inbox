@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267234AbRGKIpQ>; Wed, 11 Jul 2001 04:45:16 -0400
+	id <S267232AbRGKInq>; Wed, 11 Jul 2001 04:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267236AbRGKIpB>; Wed, 11 Jul 2001 04:45:01 -0400
-Received: from [202.140.153.5] ([202.140.153.5]:38927 "EHLO
-	techctd.techmas.hcltech.com") by vger.kernel.org with ESMTP
-	id <S267234AbRGKIoF>; Wed, 11 Jul 2001 04:44:05 -0400
-Message-ID: <3B4C126E.8085BDD@techmas.hcltech.com>
-Date: Wed, 11 Jul 2001 14:16:38 +0530
-From: "N. Varadarajan" <varadhu_n@techmas.hcltech.com>
-X-Mailer: Mozilla 4.7 [en] (Win98; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kernel Linux <linux-kernel@vger.kernel.org>,
-        Vasu Varma P V <pvvvarma@techmas.hcltech.com>
-Subject: [Fwd: Re: Total RAM in the system]
+	id <S267235AbRGKInh>; Wed, 11 Jul 2001 04:43:37 -0400
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:5506 "EHLO ookhoi.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S267234AbRGKInT>;
+	Wed, 11 Jul 2001 04:43:19 -0400
+Date: Wed, 11 Jul 2001 10:42:46 +0200
+From: Ookhoi <ookhoi@dds.nl>
+To: Antonio Pagliaro <antoniopagliaro@tin.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon Thunderbird, Abit KT7 Raid, Kernel 2.4: DESKTOP FROZEN!
+Message-ID: <20010711104246.G7424@humilis>
+Reply-To: ookhoi@dds.nl
+In-Reply-To: <01071023392004.02550@lila.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <01071023392004.02550@lila.localdomain>
+User-Agent: Mutt/1.3.19i
+X-Uptime: 09:20:43 up 28 min,  4 users,  load average: 0.76, 0.67, 0.48
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Mike,
-i tried that already on a 2.2.18 kernel and
-num_physpages is not
-exported. num_physpages does not contain the
-actual RAM present
-in the system.
+Hi Antonio,
 
-i booted up my linux with command line parameter
-mem=32M,
-but my machine actually had 128M RAM. and from KDB
-i inspected
-num_physpages which showed me only 32M
+> (by the way: what is the SysRq magic or something similar?
+> Does it help? Which keys??)
 
-thanx
+You can find more on this in the kernel source:
+linux/Documentation/sysrq.txt
 
-Mike Galbraith wrote:
-> 
-> On Wed, 11 Jul 2001, N. Varadarajan wrote:
-> 
-> > Hi,
-> > Is there a way to know the amount of physical RAM
-> > present in the system from a loadable kernel
-> > module
-> 
-> Yes.. num_physpages is an exported symbol.
-> 
->         -Mike
+	Ookhoi

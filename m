@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVBXWkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVBXWpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVBXWkj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVBXWkh
+	id S262536AbVBXWpq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVBXWpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:40:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:34968 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262531AbVBXWjx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:39:53 -0500
-Message-ID: <421E57C9.3090308@osdl.org>
-Date: Thu, 24 Feb 2005 14:40:09 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stuart MacDonald <stuartm@connecttech.com>
-CC: "'Greg Folkert'" <greg@gregfolkert.net>,
-       "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: Re: Greg's Decree! (was Re: Linus' decrees?)
-References: <002201c51abd$712cf500$294b82ce@stuartm>
-In-Reply-To: <002201c51abd$712cf500$294b82ce@stuartm>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 17:45:45 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54862
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S262537AbVBXWlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:41:42 -0500
+Date: Thu, 24 Feb 2005 23:41:34 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] seccomp: don't say it was more or less mandatory
+Message-ID: <20050224224134.GE20715@opteron.random>
+References: <20050223014233.6710fd73.akpm@osdl.org> <20050224215136.GK8651@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050224215136.GK8651@stusta.de>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart MacDonald wrote:
-> From: Greg Folkert [mailto:greg@gregfolkert.net] 
-> 
->>On Thu, 2005-02-24 at 15:03 -0500, Stuart MacDonald wrote:
->>
->>>Recently I ran across
->>>
->>>http://groups.google.ca/groups?hl=en&lr=lang_en&safe=off&selm=
->>>1033074519.2698.5.
->>>camel%40localhost.localdomain
->>>
->>>Is there a collection point for Linus' decrees?
+Hello Adrian,
 
-[snip]
+On Thu, Feb 24, 2005 at 10:51:36PM +0100, Adrian Bunk wrote:
+> seccomp might be a nice feature under some circumstances.
+> But the suggestion in the help text is IMHO too strong and therefore 
+> removed by this patch.
 
-> So what I'm wondering is, is there a location on the net where Linus'
-> statements about how the kernel is to be are collected? ie, Where the
-> above statements could all be found, with cites.
-> 
-> I'm thinking there's probably other info about the standard way of
-> doing things in regards to the kernel (all aspects thereof) that Linus
-> has put forth that might be handy for me to know, and I'm hoping that
-> there's a handy dandy collection that I can peruse.
-> 
-> I guess what I'm looking for is a collection of linux kernel policies.
-> Is there such a collection?
+Why too strong? The reason there is a config option is for the embedded
+space, where clearly they want to compile into the kernel only the
+strict features they use.
 
-Not that I know of, but it would be nice, esp. for newcomers.
+There are no risks in enabling seccomp and the size of the kernel image
+won't change in any significant way either.
 
--- 
-~Randy
+So I'd prefer to keep the "If unsure, say Y." and it seems appropriate
+to me.
 
-ObPlug:  there is a small collection of Linus/Andrew/et al quotes
-at http://www.madrone.org/quotes/linuxquotes.html
-and I have lots more queued up for there, but there aren't
-enough hours in a day.
+You have to say Y, if later on you want to sell your CPU resources with
+Cpushare.  BTW, you can already test it if you download version 0.8 of
+the LGPL'd Cpushare software, it'll connect to the server and it'll
+execute a remote seccomp computation and then it'll hang around until
+you stop it with ./stop_cpushare.sh (and you will see your client
+connected in the homepage stats). I didn't finish writing all the code
+yet but it's already a decent demo for the seccomp part at least.
+
+Anyway the help text is a minor detail after all. Thanks to everyone who
+helped and provided feedback about the seccomp patch, especially to
+Andrew. I'm very glad to see it in -mm right now!

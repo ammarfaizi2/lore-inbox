@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTJJEjk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 00:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTJJEjk
+	id S262152AbTJJEti (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 00:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTJJEti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 00:39:40 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:24715 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262439AbTJJEjj
+	Fri, 10 Oct 2003 00:49:38 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:26507 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262152AbTJJEth
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 00:39:39 -0400
-Date: Fri, 10 Oct 2003 05:39:32 +0100
+	Fri, 10 Oct 2003 00:49:37 -0400
+Date: Fri, 10 Oct 2003 05:49:09 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-Message-ID: <20031010043932.GA26379@mail.shareable.org>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAwtz+A6aJAkeufXSGK2GIiwEAAAAA@casabyte.com> <Pine.LNX.4.44.0310071743370.32358-100000@home.osdl.org> <bm48fb$599$1@gatekeeper.tmr.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Ulrich Drepper <drepper@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+Message-ID: <20031010044909.GB26379@mail.shareable.org>
+References: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org> <3F85ED01.8020207@redhat.com> <20031010002248.GE7665@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bm48fb$599$1@gatekeeper.tmr.com>
+In-Reply-To: <20031010002248.GE7665@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bill davidsen wrote:
-> Your base point that resources shouldn't be shared needlessly is
-> correct, or course.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> Umm...  I don't see anything equivalent to statfs(2) ->f_type in statvfs(2).
+> ->f_frsize makes no sense for practically all filesystems we support.
+> ->f_namemax is not well-defined ("maximum filename length" as in "you won't
+> see filenames longer than..." or "attempt to create a file with name longer
+> than... will fail" or "longer than that and I'm truncating";  and that is
+> aside of lovely questions about the meaning of "length" - strlen()?  number
+> of multibyte characters accepted by that fs? something else?)
+> ->f_fsid is also practically undefined (and left 0 by practically every fs,
+> so no userland code can do anything useful with it).
+> ->f_flag might be useful, all right.  However, I'd like to see real-world
+> examples of code (Solaris, whatever) that would use it in any meaningful
+> way...
 
-On that theme, non-shared fd tables are slightly faster than shared
-due to (a) reduced cache line transfers between CPUs; (b) fewer fds
-between tables reduces the time to search for a free fd when something
-is opened.
+On this theme, I'd like to know:
 
-I'm sure it's a tiny effect, but it is there.
+    - are dnotify / lease / lock reliable indicators on this filesystem?
+      (i.e. dnotify is reliable on all local filesystems, but not over any
+      of the remote ones AFAIK).
+
+    - is stat() reliable (local filesystems and many remote) or potentially
+      out of date without open/close (NFS due to attribute cacheing)
 
 -- Jamie

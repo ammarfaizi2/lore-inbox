@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268667AbRGZTzR>; Thu, 26 Jul 2001 15:55:17 -0400
+	id <S268672AbRGZUFR>; Thu, 26 Jul 2001 16:05:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268666AbRGZTzH>; Thu, 26 Jul 2001 15:55:07 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:59529 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S268667AbRGZTyw>;
-	Thu, 26 Jul 2001 15:54:52 -0400
-Date: Thu, 26 Jul 2001 20:54:48 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Dawson Engler <engler@csl.Stanford.EDU>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Evan Parker <nave@stanford.edu>, linux-kernel@vger.kernel.org,
-        mc@CS.Stanford.EDU,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [CHECKER] repetitive/contradictory comparison bugs for 2.4.7
-Message-ID: <602725597.996180886@[169.254.62.211]>
-In-Reply-To: <200107260113.SAA11847@csl.Stanford.EDU>
-In-Reply-To: <200107260113.SAA11847@csl.Stanford.EDU>
-X-Mailer: Mulberry/2.1.0b1 (Win32)
+	id <S268675AbRGZUFH>; Thu, 26 Jul 2001 16:05:07 -0400
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:30910 "EHLO
+	e23.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268672AbRGZUE7>; Thu, 26 Jul 2001 16:04:59 -0400
+Date: Thu, 26 Jul 2001 16:04:13 -0400 (EDT)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+X-X-Sender: <cowboy@badlands.lexington.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <Pine.LNX.4.33.0107261233000.1062-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0107261554020.19887-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Thu, 26 Jul 2001, Linus Torvalds wrote:
 
+> > 	1) Does fsync() of a directory work on most/all current FS?
+>
+> Modulo bugs, yes.
 
->> > other 10 are questionable.  Those 10 are all simple variations on the
->> > following code:
->> >
->> > Start --->
->> > 	if (!tmp_buf) {
->> > 		page = get_free_page(GFP_KERNEL);
->> >
->> > Error --->
->> > 		if (tmp_buf)
->> > 			free_page(page);
->> > 		else
->> > 			tmp_buf = (unsigned char *) page;
->> > 	}
->>
->> That one is not a bug. The serial drivers do this to handle a race.
->> Really it should be
+Great, that was a big concern
 
-May be I'm being dumb here, and without wishing to open the 'volatile'
-can of worms elsewhere, but:
+> Now, there's another issue, of course: if you have an important mail-spool
+> on some of the less tested filesystems, I would consider you crazy
+> regardless of fsync() working ;). I don't think anybody has ever verified
+> that fsync() (or much anything else wrt writing) does the right thing on
+> NTFS, for example.
 
-   static char * tmp_buf;
+Caveat Emptor ;-)
 
-How will this be guaranteed to help handle a race, when gcc is
-likely either to have tmp_buf in a register (not declared
-volatile), or perhaps even optimize out the second reference.
-Seems to me (and I may well be wrong), either there is a
-race thread (tmp_buf being assigned between the first
-test and grabbing the page), in which case as tmp_buf may
-be in a register, it doesn't avoid the race (and potentially
-stomps on the existing buffer), or there is not a race, in
-which case the second check is unnecessary. IE the checker
-found a real bug.
+> > 	2) Does it work on 2.2.x as well as 2.4.x?
+>
+> Yes. However, there may be performance issues. As with just about
+> anything, we didn't start optimizing things until it became a real issue,
+> and in some cases at least historically the filesystems fell back on just
+> doing a whole "fsync_dev()" if they had nothing better to do.
+>
+> I think later 2.2.x kernels (ie the ones past the point where Alan took
+> over) probably have the fsync() optimizations at least for ext2.
 
---
-Alex Bligh
+That should be recent enough - I push 2.2.19 for shm support and security
+reasons anyway - though I see alot of folk on 2.2.16/17.
+
+Are the optimizations more than writing out only changed blocks?
+Has anyone any information on the performance differences between
+optimized vs non-optimized?
+
+Thanks, I'm feeling much better about getting this support added
+-- 
+Rick Nelson
+Life'll kill ya                         -- Warren Zevon
+Then you'll be dead                     -- Life'll kill ya
+

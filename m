@@ -1,75 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUEWC6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbUEWDNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbUEWC6i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 22:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUEWC6h
+	id S262175AbUEWDNv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 23:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUEWDNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 22:58:37 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:10459 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S262170AbUEWC6f
+	Sat, 22 May 2004 23:13:51 -0400
+Received: from mx11.sac.fedex.com ([199.81.193.118]:31503 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP id S262175AbUEWDNu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 22:58:35 -0400
-Subject: Re: [PATCH][2.4.26 x86_64] fix ACPI PRT entry handling
-From: Len Brown <len.brown@intel.com>
-To: Andy Currid <acurrid@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FBF36@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615FBF36@hdsmsx403.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1085281102.12353.716.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 22 May 2004 22:58:22 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 22 May 2004 23:13:50 -0400
+Date: Sun, 23 May 2004 11:13:36 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: What's the most compatible gcc/glibc?
+Message-ID: <Pine.LNX.4.60.0405231106370.7578@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 05/23/2004
+ 11:13:44 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 05/23/2004
+ 11:13:46 AM,
+	Serialize complete at 05/23/2004 11:13:46 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Accepted.
+
+I'm using gcc2.95.3 and glib2.2.5-34 and these compiles and runs nearly 
+all sources.
+
+But, now I need to compile ipw2100 for Centrino notebook, and that 
+requires gcc3.x
+
+Will someone be able to advise on what's the best gcc/glibc to use for 
+gcc3.x that would compile/run mozilla, linux.2.6, uml and still runs 
+sybase12.x and vmware4.x
+
 
 Thanks,
--Len
-
-On Fri, 2004-05-21 at 18:23, Andy Currid wrote:
-> This patch fixes a PCI interrupt routing bug that shows up when
-> running
-> on x86_64 with ACPI and IOAPIC functionality enabled. Without this
-> patch
-> in place, the code attempts to route all configurable PCI interrupts
-> to
-> IRQ 0.
-> 
-> Regards
-> 
-> Andy
-> --
-> Andy Currid, NVIDIA Corporation 
-> acurrid@nvidia.com   408 566 6743
-> 
-> --
-> diff -Nupr linux-2.4.26/arch/x86_64/kernel/mpparse.c
-> linux-2.4.26-patch/arch/x86_64/kernel/mpparse.c
-> --- linux-2.4.26/arch/x86_64/kernel/mpparse.c   2004-05-21
-> 06:39:40.000000000 -0700
-> +++ linux-2.4.26-patch/arch/x86_64/kernel/mpparse.c     2004-05-21
-> 06:39:33.000000000 -0700
-> @@ -942,8 +942,6 @@ void __init mp_parse_prt (void)
->                         irq = entry->link.index;
->                 }
->  
-> -               irq = entry->link.index;
-> -
->                 /* Don't set up the ACPI SCI because it's already set
-> up
-> */
->                  if (acpi_fadt.sci_int == irq) {
->                           entry->irq = irq; /*we still need to set
-> entry's irq*/
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Jeff

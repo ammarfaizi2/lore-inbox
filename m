@@ -1,148 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264611AbSJ3HQn>; Wed, 30 Oct 2002 02:16:43 -0500
+	id <S264613AbSJ3HXb>; Wed, 30 Oct 2002 02:23:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264613AbSJ3HQn>; Wed, 30 Oct 2002 02:16:43 -0500
-Received: from 212.68.254.82.brutele.be ([212.68.254.82]:39180 "EHLO debian")
-	by vger.kernel.org with ESMTP id <S264611AbSJ3HQl>;
-	Wed, 30 Oct 2002 02:16:41 -0500
-Date: Wed, 30 Oct 2002 08:21:35 +0100
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Compile Error -- 2.4.20-rc1 -- SiSFB and DRM
-Message-ID: <20021030072135.GB17547@debian>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: GNU/Linux
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+	id <S264614AbSJ3HXb>; Wed, 30 Oct 2002 02:23:31 -0500
+Received: from c-66-176-164-150.se.client2.attbi.com ([66.176.164.150]:54938
+	"EHLO schizo.psychosis.com") by vger.kernel.org with ESMTP
+	id <S264613AbSJ3HXa>; Wed, 30 Oct 2002 02:23:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: landley@trommello.org, linux-kernel@vger.kernel.org
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
+Date: Wed, 30 Oct 2002 02:29:44 -0500
+User-Agent: KMail/1.4.2
+Cc: reiser@namesys.com, alan@lxorguk.ukuu.org.uk, davem@redhat.com,
+       boissiere@adiglobal.com
+References: <200210272017.56147.landley@trommello.org>
+In-Reply-To: <200210272017.56147.landley@trommello.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210300229.44865.dcinege@psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 27 October 2002 21:17, Rob Landley wrote:
+> This is the next to last posting of this list.  (When abbott and costello
+> meet the monster, its time is almost up.)  There will be at most one more,
+> tomorrow, and it may just be a repost of this cc'd to Linus.  (Those
+> of you waiting for the last minute, this would be it.)
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+Knock off initramfs off...I'll be posting something that
+supercedes it (IMO) within the next 72 hours.
 
-hi !
+Aside from providing full untar suppprt, it DRAMATICALLY
+cleans up do_mounts.c and moves all the initrd code that was
+there to initrd.c. Infact I pretty much entirly rewrote initrd,
+so it makes sense. (purging prehistoric junk, etc.)
 
-here is a compile error with the 2.4.20-rc1, 
-when i compile the sisfb option, i have this error
-drivers/char/drm/drm.o: In function `sis_fb_alloc':
-drivers/char/drm/drm.o(.text+0x6f4e): undefined reference to `sis_malloc'
-drivers/char/drm/drm.o(.text+0x6ff2): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_fb_free':
-drivers/char/drm/drm.o(.text+0x7065): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_final_context':
-drivers/char/drm/drm.o(.text+0x748e): undefined reference to `sis_free'
-make: *** [vmlinux] Error 1
-bash-2.05a$ 
+Dave
 
-
-here is my .config in bz2 --> config.bz2 (4.3K)
-
-Best regards,
-
-
-Stephane Wirtel
-
-
-
-
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-GPG ID : 1024D/C9C16DA7 | 5331 0B5B 21F0 0363 EACD  B73E 3D11 E5BC C9C1 6DA7
-
-
---45Z9DzgjV8m4Oswq
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="config.bz2"
-Content-Transfer-Encoding: base64
-
-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
-pI7OcEAgUt4e9quzfFuaupMf+LuSKcKEhMdVhPA=
-
---45Z9DzgjV8m4Oswq--

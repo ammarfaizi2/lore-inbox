@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUHGB0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266211AbUHGB2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266209AbUHGB0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 21:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUHGB0T
+	id S266211AbUHGB2p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 21:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267900AbUHGB2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 21:26:19 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28649 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266209AbUHGB0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 21:26:18 -0400
-Date: Sat, 7 Aug 2004 03:26:15 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is extern inline -> static inline OK?
-Message-ID: <20040807012614.GC17708@fs.tum.de>
-References: <2q0Wb-2Tc-17@gated-at.bofh.it> <2q1pe-3hq-17@gated-at.bofh.it> <2qlo1-wO-37@gated-at.bofh.it> <m3657vj1bn.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Aug 2004 21:28:45 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:19147 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S266211AbUHGB2m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 21:28:42 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Date: Fri, 6 Aug 2004 21:28:39 -0400
+User-Agent: KMail/1.6.82
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408051019.44268.gene.heskett@verizon.net> <200408070203.35268.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408070203.35268.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m3657vj1bn.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200408062128.39882.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.8.94] at Fri, 6 Aug 2004 20:28:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 07, 2004 at 01:26:04AM +0200, Andi Kleen wrote:
-> Tim Bird <tim.bird@am.sony.com> writes:
-> >
-> >  From what I have read, for either 'extern inline' or 'static inline'
-> > the compiler is free to not inline the code. Is this wrong?
-> 
-> Yes, it's wrong in current Linux 2.6. It currently defines inline to
-> inline __attribute__((always_inline))
->...
+On Friday 06 August 2004 19:03, Denis Vlasenko wrote:
+>Hi Gene,
+>
+>Please do not remove my address from To or CC
+>fields, I can miss your emails otherwise.
+>
+Denis:
+Mmm, sorry.  I was in the habit of using a button on kmail that 
+replies only to the mailing list, thinking that then I wasn't 
+bombarding everyone with 2 or more copies of my replies.  I've now 
+re-arranged it so that I have a "reply all" button, and will use that 
+one from now on unless the subject is really OT.
 
-To be more exact:
+Linus:
+One comment re the patch, I'm seeing a huge slowdown in the seti 
+processing, its only done about 2.5 units since 6am local, and it 
+should be well into the 4th by now.
 
-It's defined this way in both 2.4 and 2.6, but only for gcc >= 3.1 
-(which support __attribute__((always_inline)) ).
+Anybody:
+Speaking of somewhat OT, what is the command I should use to actually 
+turn on the PREEMPT option in the kernel?  Its on in the compile, but 
+I think I read someplace where I had to do an "echo 1 >someplace 
+in /proc" to actually enable it.  I've survived over 24 hours now 
+with the patch Linus sent, and I thought maybe I'd get some exersize 
+pushing my luck :)
 
-> Hope this helps,
-> 
-> -Andi
-
-cu
-Adrian
+[...]
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Cheers Denis, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

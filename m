@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVC0JRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVC0JTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVC0JRX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 04:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVC0JRW
+	id S261501AbVC0JTx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 04:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVC0JTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 04:17:22 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:3988 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261498AbVC0JQQ (ORCPT
+	Sun, 27 Mar 2005 04:19:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:64148 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261504AbVC0JRw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 04:16:16 -0500
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: linux-kernel@vger.kernel.org
-Subject: Proposal for new (meta) filesystem
-Date: Sun, 27 Mar 2005 11:16:10 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Sun, 27 Mar 2005 04:17:52 -0500
+Date: Sun, 27 Mar 2005 01:16:30 -0800
+From: Jeremy Higdon <jeremy@sgi.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 6/7] - MPT FUSION - SPLITTING SCSI HOST DRIVERS
+Message-ID: <20050327091630.GA938785@sgi.com>
+References: <91888D455306F94EBD4D168954A9457C01B70565@nacos172.co.lsil.com> <1111809137.5541.7.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503271116.10396.Norbert@edusupport.nl>
+In-Reply-To: <1111809137.5541.7.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear fellow Linux-kernel maillist users,
+On Fri, Mar 25, 2005 at 09:52:17PM -0600, James Bottomley wrote:
+> On Thu, 2005-03-24 at 16:57 -0700, Moore, Eric Dean wrote:
+> > +static struct device_attribute mptscsih_queue_depth_attr = {
+> > +       .attr = {
+> > +               .name =         "queue_depth",
+> > +               .mode =         S_IWUSR,
+> > +       },
+> > +       .store = mpt_core_store_queue_depth,
+> > +};
+> 
+> But in the original which you're removing, this was implemented via the
+> change_queue_depth API.
+> 
+> It looks like the patches you're posting are actually an older version
+> of the fusion driver.   Do you have the split done on a current copy?
+> 
+> Thanks,
+> 
+> James
 
-I want to present a new (meta) filesystem proposal to you, to consider.
-The filesystem is supposed to be optimized for useage of business filesystems, 
-mailservers, and other filesystems with an above average amount of repetitive 
-data.
-Features:
-- Depending on the implementation on block level or on file level (as meta 
-system): Copy on change of the block or the file.
-- Meta database with file features like name, permissions, and checksum per 
-block.
-- The files itself will not be visual to the users, and will not have an owner 
-(not even nobody). The files will only be accessible through references to 
-the files.
-- The changes are recorded as change on the previous file ala LVM methods but 
-then per user or group. The changes do not mean that there is an old version 
-which can be accessed, for the user accessing that file, there is just one 
-version.
-- The changes are kept in a seperate part of the filesystem, which is a 
-reserved percentage of the diskspace, but which can be stretched by the 
-filesystem of there are more changes then expected. The changes are kept in a 
-database like system.
-- There is only one change record per file per user/group combination. So in 
-case of copy of an already changed file, the file will be made permanent, and 
-the copy will get a reference to this new permanent file.
-- Deletion of the source file will be virtual as long as it has references to 
-it.
+James, actually this queue depth code predates your change_queue_depth
+API.  I don't think it was ever converted to the new API.
 
-Files with different names, dates etc, but with the same binary content will 
-be stored only once this way. From the outside nobody will see that this 
-happens, backup programs will make a normal backup.
-du should report the virtual used space while df should report the virtual 
-used space, the optimized use and the real free blocks.
-
-Any more ideas/comments?
-
-Norbert
+jeremy

@@ -1,71 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289385AbSA2OgW>; Tue, 29 Jan 2002 09:36:22 -0500
+	id <S289661AbSA2Ojm>; Tue, 29 Jan 2002 09:39:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289631AbSA2OgN>; Tue, 29 Jan 2002 09:36:13 -0500
-Received: from paloma16.e0k.nbg-hannover.de ([62.181.130.16]:43441 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S289385AbSA2OgA>; Tue, 29 Jan 2002 09:36:00 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Subject: Re: fonts corruption with 3dfx drm module
-Date: Tue, 29 Jan 2002 15:32:09 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Mark Zealey <mark@zealos.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0201290838560.20095-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.44.0201290838560.20095-100000@netfinity.realnet.co.sz>
+	id <S289564AbSA2Ojd>; Tue, 29 Jan 2002 09:39:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9988 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289645AbSA2OjS>; Tue, 29 Jan 2002 09:39:18 -0500
+Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
+To: garzik@havoc.gtf.org (Jeff Garzik)
+Date: Tue, 29 Jan 2002 14:51:43 +0000 (GMT)
+Cc: raul@viadomus.com (DervishD), ebiederm@xmission.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020129093024.E10404@havoc.gtf.org> from "Jeff Garzik" at Jan 29, 2002 09:30:24 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020129143609Z289385-13996+13878@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VZbr-00046x-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 29. January 2002 07:45, Zwane Mwaikambo wrote:
-> On Mon, 28 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
-> > MTRR, of course (do you like 2D and even 3D hardware accelerated without
-> > MTRR?), FB, no, chipset is a AMD 750 (Irongate C4), using X 4.1.99.1 DRI
-> > CVS.
->
-> The reason why i ask is because i was experiencing font corruption with
-> MTRRs enabled and X segfaulting with 4.x and a VIA Apollo pro
+> Your libc should provide a "sanitized" version of the kernel headers,
+> which is completely separate from any kernel sources.
+> 
+> dietlibc does this...  it's completely independent of kernel header changes.
+> 
+> RedHat will be doing this with glibc in the future.
 
-That make sense.
+We already do. Red Hat shipped since about 7.0 has a seperate set of
+kernel based headers that glibc uses for its own internal use, and the set
+in the kernel sources.
 
-> (mostly because with 3.3.6 i never setup the MTRRs myself)
-
-We 3.3.6 you have to do it some times.
-
-> and a friend of mine was seeing corruption plus the occasional lockup with
-> his KT133. Disabling MTRRs solved both our lockup problems,
-
-This could be all the VIA/mobo/BIOS problems widely discussed.
-Maybe the latest AGP GART issue.
-
-> mind you i soon switched back to my older 440BX setup and my problems went
-> away.
-
-Some point at Intel 'cause they "designed" the AGP port with UP only in mind 
-and AMD's Athlon/Duron is designed for SMP from the ground.
-
-> I also asked about FB because my particular card (ATI Rage IIC) never gets
-> MTRRs working in X4.1 unless i have it FB enabled.
-
-Have you ever looked at XFree and/or DRI devel?
-I think this could and should be solved. Without notice nobody cares...
-
-You should definitely go with XFree86 4.2.0. It is out and most distros have 
-packages available. Then look deeper into the MTRR problem.
-
-Good luck.
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+Alan

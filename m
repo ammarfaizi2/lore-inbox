@@ -1,347 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbTEVRSm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 13:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbTEVRSm
+	id S262955AbTEVRRW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 13:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbTEVRRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 13:18:42 -0400
-Received: from sol.cobite.com ([208.222.80.183]:47488 "EHLO sol.cobite.com")
-	by vger.kernel.org with ESMTP id S262964AbTEVRSb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 13:18:31 -0400
-Date: Thu, 22 May 2003 13:31:28 -0400 (EDT)
-From: David Mansfield <lkml@dm.cobite.com>
-X-X-Sender: david@sol.cobite.com
-To: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: complete lockup in 2.5.69-mm8
-Message-ID: <Pine.LNX.4.44.0305221324090.3115-100000@sol.cobite.com>
+	Thu, 22 May 2003 13:17:22 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:265 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262955AbTEVRRU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 13:17:20 -0400
+Date: Thu, 22 May 2003 13:24:26 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Dave Hansen <haveblue@us.ibm.com>, "David S. Miller" <davem@redhat.com>,
+       Andrew Theurer <habanero@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: userspace irq balancer
+In-Reply-To: <60830000.1053575867@[10.10.2.4]>
+Message-ID: <Pine.LNX.3.96.1030522130544.19863B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 19 May 2003, Dave Hansen wrote:
 
-Hi Andrew,
+> On Mon, 2003-05-19 at 15:11, Arjan van de Ven wrote:
+	[...snip...]
+> But, do you see the need for ripping out the current code?  For those of
+> us that are still running a slightly more primitive distro, it would be
+> nice to have some pretty effective default behavior, like what is in the
+> kernel now.
 
-After 30 day uptime with 2.5.67-mm3 with not a single problem, I decided
-to upgrade to the latest.  Actually, there was ONE problem wih 2.5.67-mm3:
-some programs just wouldn't run (I don't think it was like this at the
-beginning), including the redhat up2date program and the apache httpd
-shipped with redhat 9.0.  They just segfaulted, predictably.  Every thing
-else was working great though ;-).
+Ripping out the current code and having useful default behaviour are
+hopefully not mutually exclusive.
 
-Anyway, I booted 2.5.69-mm8 and it locked solid within about 2 minutes of
-starting X (5 minutes after boot perhaps).  No ping/sysrq/caps-lock etc.  
-Completely frozen.  up2date was running at the time, as well as a few 
-'desktop' apps.  I was definitely 'interacting' with the machine when it 
-crashed.
+On 19 May 2003, David S. Miller wrote:
 
-I have a UP Athlon 1.4ghz, 512mb ram, RTL8139 NIC, IDE harddrive, SiS 
-Video, running on RedHat 9.0.
 
-Need more info?  Ask.
+> You have to install new modutils to even use modules with the 2.5.x
+> kernel, given that why are we even talking about the "inconvenience"
+> of installing the usermode IRQ balancer as being a blocker for
+> ripping out the in-kernel stuff?
 
-David
+But you don't have to use modules at all, while running without
+interrupts isn't an option.
 
-Oh yeah,
+> The in-kernel stuff MUST go.  It went in because "some benchmark went
+> faster", but with no "why" describing why it might have improved
+> performance.  We KNOW it absolutely sucks for routing and firewall
+> applications.  The in-kernel bits were all a shamans dance, with zero
+> technical "here is why this makes things go faster" description
+> attached.  If I remember properly, the changelog message when the
+> in-kernel irq balancing went in was of the form "this makes some
+> specweb run go faster".
 
-Config:
+Perhaps I misread Linus' recent post about not breaking things to the
+user, and I know he was talking about executables in particular, but if
+this new code is so great, why can't it start with some default values
+which will be no worse than what we have? Because there will be people
+who haven't installed the latest userspace int-diddler.
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_EDD=y
-CONFIG_NOHIGHMEM=y
-CONFIG_1GB=y
-CONFIG_MTRR=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA_PROBE=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_LBD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_MD_MULTIPATH=y
-CONFIG_BLK_DEV_DM=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_IPIP=y
-CONFIG_NET_IPGRE=y
-CONFIG_NET_IPGRE_BROADCAST=y
-CONFIG_IP_MROUTE=y
-CONFIG_IP_PIMSM_V1=y
-CONFIG_IP_PIMSM_V2=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_PKTTYPE=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_ECN=y
-CONFIG_IP_NF_MATCH_DSCP=y
-CONFIG_IP_NF_MATCH_AH_ESP=y
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_HELPER=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_SNMP_BASIC=y
-CONFIG_IP_NF_NAT_IRC=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_ECN=y
-CONFIG_IP_NF_TARGET_DSCP=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_ULOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_IP_NF_ARPTABLES=y
-CONFIG_IP_NF_ARPFILTER=y
-CONFIG_IPV6=y
-CONFIG_IP6_NF_IPTABLES=y
-CONFIG_IP6_NF_MATCH_LIMIT=y
-CONFIG_IP6_NF_MATCH_MAC=y
-CONFIG_IP6_NF_MATCH_MULTIPORT=y
-CONFIG_IP6_NF_MATCH_OWNER=y
-CONFIG_IP6_NF_MATCH_MARK=y
-CONFIG_IP6_NF_MATCH_LENGTH=y
-CONFIG_IP6_NF_MATCH_EUI64=y
-CONFIG_IP6_NF_FILTER=y
-CONFIG_IP6_NF_TARGET_LOG=y
-CONFIG_IP6_NF_MANGLE=y
-CONFIG_IP6_NF_TARGET_MARK=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_ATM=y
-CONFIG_ATM_CLIP=y
-CONFIG_ATM_LANE=y
-CONFIG_ATM_MPOA=y
-CONFIG_VLAN_8021Q=y
-CONFIG_DECNET=y
-CONFIG_DECNET_SIOCGIFCONF=y
-CONFIG_DECNET_ROUTER=y
-CONFIG_DECNET_ROUTE_FWMARK=y
-CONFIG_BRIDGE=y
-CONFIG_NET_DIVERT=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=y
-CONFIG_NET_SCH_HTB=y
-CONFIG_NET_SCH_CSZ=y
-CONFIG_NET_SCH_PRIO=y
-CONFIG_NET_SCH_RED=y
-CONFIG_NET_SCH_SFQ=y
-CONFIG_NET_SCH_TEQL=y
-CONFIG_NET_SCH_TBF=y
-CONFIG_NET_SCH_GRED=y
-CONFIG_NET_SCH_DSMARK=y
-CONFIG_NET_SCH_INGRESS=y
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=y
-CONFIG_NET_CLS_ROUTE4=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=y
-CONFIG_NET_CLS_RSVP=y
-CONFIG_NET_CLS_RSVP6=y
-CONFIG_NET_CLS_POLICE=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_TUN=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_8139TOO_8129=y
-CONFIG_PPP=y
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_SYNC_TTY=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPPOATM=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=2048
-CONFIG_PRINTER=y
-CONFIG_PPDEV=y
-CONFIG_BUSMOUSE=y
-CONFIG_NVRAM=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_SIS=y
-CONFIG_RAW_DRIVER=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_MINIX_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_SMB_FS=y
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_MINIX_SUBPARTITION=y
-CONFIG_SOLARIS_X86_PARTITION=y
-CONFIG_UNIXWARE_DISKLABEL=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_TRIDENT=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-CONFIG_DEBUG_INFO=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
+Deliberately making the initial tuning useless to promote use of the
+user space software seems counter productive. There will be many users
+who will find a way to make a tuned kernel worse than any default, so if
+the default is usable it will avoid people shooting themselves in the
+foot. Can you imagine someone leaving an interrupt unserviced at all? If
+there's a way someone will :-(
+
+I'm not defending the existing code, just speaking for the idea of
+leaving something useful in its place.
+
+
+On Tue, 20 May 2003, Andrew Theurer wrote:
+
+	[...snip...]
+> If kirq gets ripped out, at least have some default policy that is somewhat 
+> harmless, like destination cpu = int_number % nr_cpus.   I think Suse8 had 
+> this, and it performed reasonably well.
+
+As long as it's something sane, it doesn't have to be optimal. If SuSE
+used it, it's likely to be good enough.
+
+
+On Wed, 21 May 2003, Martin J. Bligh wrote:
+
+	[...snip...]
+> I'd be happy with that - sounds to me like you're arguing for the same 
+> thing. Sane default in kernel, can override from userspace if you like. 
+> However, I've yet to see an implementation of the TPR usage that got
+> good performance numbers ... I'd love to see that happen.
+
+I may be misreading the intent in David's messages, as long as the
+default is useful it certainly doesn't have to be what is in place now.
+Of couse it would be useful to actually see some numbers, just because
+existing code is somewhat ugly, confusing, and ill-justified and the new
+is a pretty algorithm with great flexibility, does not mean that the
+actual benchmarks will reflect better performance.
 
 -- 
-/==============================\
-| David Mansfield              |
-| lkml@dm.cobite.com           |
-\==============================/
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

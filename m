@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262978AbVAFSlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262975AbVAFSIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262978AbVAFSlc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 13:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVAFShk
+	id S262975AbVAFSIt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 13:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVAFSDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 13:37:40 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:32011 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262993AbVAFSgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 13:36:55 -0500
-Message-Id: <200501061836.j06IakHo030551@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/04/2005 with nmh-1.1-RC3
-To: root <root@mail.gadugi.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cherokee Nation Posts Open Source Legisation - Invites comments from Community Members 
-In-Reply-To: Your message of "Thu, 06 Jan 2005 12:04:14 CST."
-             <20050106180414.GA11597@mail.gadugi.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050106180414.GA11597@mail.gadugi.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1105036606_31907P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 06 Jan 2005 13:36:46 -0500
+	Thu, 6 Jan 2005 13:03:47 -0500
+Received: from smtpout.mac.com ([17.250.248.46]:46834 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262973AbVAFSA6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 13:00:58 -0500
+In-Reply-To: <1105023040.4028.36.camel@localhost.localdomain>
+References: <1104979908.8060.34.camel@localhost.localdomain> <20050105212629.K469@build.pdx.osdl.net> <1105023040.4028.36.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <EA341136-600C-11D9-892F-000D9352858E@mac.com>
+Content-Transfer-Encoding: 8BIT
+Cc: narahimi@us.ibm.com, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: [PATCH] Enhanced Trusted Path Execution (TPE) Linux Security	Module
+Date: Thu, 6 Jan 2005 19:00:56 +0100
+To: =?ISO-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1105036606_31907P
-Content-Type: text/plain; charset=us-ascii
+On 6 Jan 2005, at 15:50, Lorenzo Hernández García-Hierro wrote:
 
-On Thu, 06 Jan 2005 12:04:14 CST, root said:
+>> The two biggest issues are 1) it's trivial to bypass:
+>> $ /lib/ld.so /untrusted/path/to/program
+>> and 2) that there's no (visible/vocal) user base calling for the 
+>> feature.
+>
+> About the point 1), yesterday i wrote just a simple regression test
+> (that can be found at the same place as the patch) and of course it
+> bypasses, this is an old commented problem, Stephen suggested the use 
+> of
+> the mmap and mprotect hooks, so, i will have a look at them but i'm not
+> sure on how to (really) prevent the dirty,old trick.
+> About 2), just give it a chance, maybe it's useful and my work is not
+> completely nonsense.
 
-> This legislation Will be voted on in the Rules Committee Jan 17 and will be presented for 
-> ratification to the Full Tribal Council on February 14, 2005. This legislation is designed 
-> to protect trade secrets for both open source development and general public licensing 
-> schemes as well as proprietary technology developed in the commerical sector.
-
-I fail to see how you can *possibly* have "trade secret" rights in open source
-software.  At least not in any way interoperable with any other country's usage
-of the term "trade secret".
-
-It's one thing to be smoking a peace pipe. Totally another to be smoking a
-crack pipe.
-
-
-
---==_Exmh_1105036606_31907P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFB3YU+cC3lWbTT17ARAmhTAJwOYE28O/CB38zIRf6tmlpB7S0ruwCeP25t
-znqCU/e7FS875/vaz6tfhqg=
-=dpTH
------END PGP SIGNATURE-----
-
---==_Exmh_1105036606_31907P--
+Well, I'm not a visible/vocal user base, but I do really like this TPE 
+LSM module.

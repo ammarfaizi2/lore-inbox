@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLSROU>; Tue, 19 Dec 2000 12:14:20 -0500
+	id <S129982AbQLSRQu>; Tue, 19 Dec 2000 12:16:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129408AbQLSROB>; Tue, 19 Dec 2000 12:14:01 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:15168 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129319AbQLSRNu>; Tue, 19 Dec 2000 12:13:50 -0500
-Date: Tue, 19 Dec 2000 17:43:08 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mike Black <mblack@csihq.com>
-Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18aa2 weird problem
-Message-ID: <20001219174308.D32152@athlon.random>
-In-Reply-To: <03a001c069cd$8a593c50$e1de11cc@csihq.com>
-Mime-Version: 1.0
+	id <S129573AbQLSRQk>; Tue, 19 Dec 2000 12:16:40 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:44814 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129408AbQLSRQ1>;
+	Tue, 19 Dec 2000 12:16:27 -0500
+Message-ID: <3A3F904F.8FBC46A5@innominate.de>
+Date: Tue, 19 Dec 2000 17:43:59 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Test12 ll_rw_block error.
+In-Reply-To: <20001218114612.E21351@redhat.com> <Pine.LNX.4.21.0012191008360.836-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <03a001c069cd$8a593c50$e1de11cc@csihq.com>; from mblack@csihq.com on Tue, Dec 19, 2000 at 10:08:27AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2000 at 10:08:27AM -0500, Mike Black wrote:
-> Rebooting this machine to 2.2.17-RAID works just fine
+Marcelo Tosatti wrote:
+> 
+> On Mon, 18 Dec 2000, Stephen C. Tweedie wrote:
+> 
+> > Hi,
+> >
+> > On Sun, Dec 17, 2000 at 12:38:17AM -0200, Marcelo Tosatti wrote:
+> > > On Fri, 15 Dec 2000, Stephen C. Tweedie wrote:
+> > >
+> > > Stephen,
+> > >
+> > > The ->flush() operation (which we've been discussing a bit) would be very
+> > > useful now (mainly for XFS).
+> > >
+> > > At page_launder(), we can call ->flush() if the given page has it defined.
+> > > Otherwise use try_to_free_buffers() as we do now for filesystems which
+> > > dont care about the special flushing treatment.
+> >
+> > As of 2.4.0test12, page_launder() will already call the
+> > per-address-space writepage() operation for dirty pages.  Do you need
+> > something similar for clean pages too, or does Linus's new laundry
+> > code give you what you need now?
+> 
+> I think the semantics of the filesystem specific ->flush and ->writepage
+> are not the same.
+> 
+> Is ok for filesystem specific writepage() code to sync other "physically
+> contiguous" dirty pages with reference to the one requested by
+> writepage() ?
+> 
+> If so, it can do the same job as the ->flush() idea we've discussing.
 
-Which RAID patch are you using against 2.2.17 exactly? Also make sure you're
-using exactly the same kernel configuration of 2.2.17-RAID.
+Except that for ->writepage you don't have the option of *not* writing
+the specified page.
 
-> Might there be a problem with RAID5 as root?
-
-Might be possible, I've not tested RAID5 as root (though I tested raid5 in
-non-root mountpoints). OTOH you said it mounted things correctly and it somehow
-booted, so I'm not sure what's going wrong... Just make sure it's really a
-kernel issue ;).
-
-Andrea
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

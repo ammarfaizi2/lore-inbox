@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129913AbRAaVYg>; Wed, 31 Jan 2001 16:24:36 -0500
+	id <S129030AbRAaV0g>; Wed, 31 Jan 2001 16:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130633AbRAaVYR>; Wed, 31 Jan 2001 16:24:17 -0500
-Received: from cannet.com ([206.156.188.2]:61709 "HELO mail.cannet.com")
-	by vger.kernel.org with SMTP id <S129913AbRAaVYK>;
-	Wed, 31 Jan 2001 16:24:10 -0500
-Message-ID: <003701c08bcc$19b8bae0$7930000a@hcd.net>
-From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-To: Lukasz Gogolewski <lucas@supremedesigns.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A787D97.CBF7B327@supremedesigns.com>
-Subject: Re: problems with sblive as well as 3com 3c905
-Date: Wed, 31 Jan 2001 16:23:44 -0500
-Organization: Himebaugh Consulting, Inc.
+	id <S129028AbRAaV00>; Wed, 31 Jan 2001 16:26:26 -0500
+Received: from kohoutek.bigsky.net ([206.252.237.8]:47884 "EHLO
+	kohoutek.bigsky.net") by vger.kernel.org with ESMTP
+	id <S129026AbRAaV0H>; Wed, 31 Jan 2001 16:26:07 -0500
+Message-ID: <01d801c08bcb$49981720$3ceefcce@adhara.bigsky.net>
+From: "Josh Higham" <jhigham@bigsky.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.18 - failed to exec /sbin/modprobe -s -k binfmt-464c
+Date: Wed, 31 Jan 2001 14:17:56 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 4.72.3155.0
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3155.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need to create a symlink
+I tried compiling a 2.2.18 kernel, and when I reboot I get
 
-ln -s /lib/modules/2.4.1/kernel/drivers/net /lib/modules/2.4.1/net
+failed to exec /sbin/modprobe -s -k binfmt-464c
 
-That will fix the nic, I am not sure about sound.  You may need to
-create a misc link like
+scrolling past the screen.
 
-ln -s /lib/modules/2.4.1/kernel/drivers/misc /lib/modules/2.4.1/misc
+A web search reveals a comment about 2.3.99pre3, which indicates that it is
+a problem with the USB config (video4linux must be compiled in the kernel?).
+I am not using USB, and it is not compiled, so I am either misunderstanding
+the problem, or there is something else at work here.  I tried compiling
+with USB as a module and video as a module (but no specific options, since
+it was just a rough experiment) and that gave the same error.  Compiling
+without modules altogether wouldn't boot at all (stops after the
+'uncompressing kernel now loading' bit).
 
+Am I misunderstanding the problem (there were a few issues reported in the
+archived message that I looked at, so it may be that the answer regarding
+USB is the answer to a different question), or is there a simple (heh)
+config change that I can make to get this to compile?
 
------ Original Message -----
-From: "Lukasz Gogolewski" <lucas@supremedesigns.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, January 31, 2001 4:03 PM
-Subject: problems with sblive as well as 3com 3c905
+I would appreciate it if you could CC me in, as I am not a member of this
+list.
 
+Thanks,
 
-> After I compiled kernel 2.4.1 on rh 6.2 I enabled module support for 2
-> of those devices.
->
-> However when I rebooted my machine both of those devices are not
-> working.
->
-> I don't know what's wrong since I did make moudle and make
-> module_install.
->
-> When I try to configure mdoule for the sound card, I get a message
-> saying that module wasn't found.
->
-> For the network card I get Delaying initialization
->
-> any suggestions on how to fix it?
->
-> - Lucas
->
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Josh Higham
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

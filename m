@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281504AbRLJF14>; Mon, 10 Dec 2001 00:27:56 -0500
+	id <S286162AbRLJFco>; Mon, 10 Dec 2001 00:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286162AbRLJF1o>; Mon, 10 Dec 2001 00:27:44 -0500
-Received: from pcow028o.blueyonder.co.uk ([195.188.53.124]:5899 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S281504AbRLJF1f>;
-	Mon, 10 Dec 2001 00:27:35 -0500
-Date: Mon, 10 Dec 2001 04:48:49 +0000
-From: Ian Molton <spyro@armlinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: slow read performance...
-Message-Id: <20011210044849.538c84c6.spyro@armlinux.org>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S286163AbRLJFce>; Mon, 10 Dec 2001 00:32:34 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:17414 "EHLO wagner")
+	by vger.kernel.org with ESMTP id <S286162AbRLJFcP>;
+	Mon, 10 Dec 2001 00:32:15 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: anton@samba.org, davej@suse.de, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Linux 2.4.17-pre5 
+In-Reply-To: Your message of "Mon, 10 Dec 2001 00:41:43 -0000."
+             <E16DEVr-0008SW-00@the-village.bc.nu> 
+Date: Mon, 10 Dec 2001 16:31:41 +1100
+Message-Id: <E16DJ2T-0002Af-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+In message <E16DEVr-0008SW-00@the-village.bc.nu> you write:
+> > 	If you number each CPU so its two IDs are smp_num_cpus()/2
+> > 	apart, you will NOT need to put some crappy hack in the
+> > 	scheduler to pack your CPUs correctly.
+> 
+> Which is a major change to the x86 tree and an invasive one. Right now the
+> X86 is doing a 1:1 mapping, and I can offer Marcelo no proof that somewhere
+> buried in the x86 arch code there isnt something that assumes this or mixes
+> a logical and physical cpu id wrongly in error. 
 
-I've just run bonnie (Im curious :) and got some disappointing figures.
+Agreed, but does the current x86 code does map them like this or not?
+If it does, I'm curious as to why they saw a problem which this fixed.
 
-Im running a Duron @ 976MHz, on an ASUS A7M (76x northbridge, via 686B
-southbridge)
+I've been playing with this on and off for months, and trying to
+understand what is happening.  I posted my findings, and I'd really
+like to get some feedback from others doing the same thing.
 
-the machine has 256MB RAM and a seagate ST320413A UDMA 100 harddisc as the
-only device on the primary ide interface.
+BUT I CAN'T DO THAT WHEN THERE'S NO DISCUSSION ABOUT PATCHES FROM
+ANONYMOUS SOURCES WHICH GET MERGED!  FUCK ARGHH FUCK FUCK FUCK.
 
-UDMA is /on/, and all in hdparm looks OK - 32 bit IO etc.
+(BTW, "I trust Intel engineers" is NOT discussion).
 
-write speed is fine (22-30MB/sec) but reads are horribly slow, as little as
-9MB/sec and I havent seen >16MB/sec yet.
+> Congratulations on your zen like mastery of the scheduler algorithm.
 
-I am using a 400MB test in bonnie to remove linuxs disc cache from the
-equation, as suggested by someone here.
+8) I just try to understand what I've seen on real hardware.  It leads
+to my belief that HMT cannot be a win on # processes = # CPUS + 1
+situations on a non-preemptible scheduler.
 
-I thought HDDs were supposed to /read/ faster than they write?
+> The simple scheduler doesn't work. I've run about 20 schedulers on playing
+> cards, and at the point you are shuffling things around and its clear what 
+> is happening its actually hard not to start laughing at the current
+> scheduler once you hit a serious load or serious amounts of processors.
 
-if 9MB/sec normal? seems low... I thought UDMA 100 discs were up around the
-30MB/sec mark for reads...
+Ack.  Even in the limited case of trying to get HMT to work reasonably
+in simple cases, scheduling changes are not simply "change the
+goodness() function and it alters behavior". 8(
 
-or does bonnie just report unrealistic read speeds? the machine 'feels'
-responsive enough...
+BTW: Alchemy, Voodoo, Zen and Cards.  Maybe you should start hacking
+on something more deterministic? 8)
 
-TIA...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

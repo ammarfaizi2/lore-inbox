@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286783AbRL1HYt>; Fri, 28 Dec 2001 02:24:49 -0500
+	id <S286789AbRL1I2U>; Fri, 28 Dec 2001 03:28:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286782AbRL1HYj>; Fri, 28 Dec 2001 02:24:39 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:5638 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S286786AbRL1HYZ>; Fri, 28 Dec 2001 02:24:25 -0500
-Date: Fri, 28 Dec 2001 02:24:22 -0500
-From: Lennert Buytenhek <buytenh@gnu.org>
-To: Narancs v1 <narancs@narancs.tii.matav.hu>
-Cc: acsgabi@acsgabi.tii.matav.hu, linux-kernel@vger.kernel.org,
-        manty@debian.org, bridge@math.leidenuniv.nl
-Subject: Re: brctl 0.9.3 error on ultrasparc/linux 2.4.17
-Message-ID: <20011228022421.C6101@gnu.org>
-In-Reply-To: <Pine.LNX.4.43.0112271431280.30564-100000@helka>
+	id <S286784AbRL1I2K>; Fri, 28 Dec 2001 03:28:10 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:31242 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S286790AbRL1I17>; Fri, 28 Dec 2001 03:27:59 -0500
+Date: Fri, 28 Dec 2001 19:28:42 +1100
+From: john slee <indigoid@higherplane.net>
+To: Brian Craft <bcboy@thecraftstudio.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pasting arbitrary input to consoles
+Message-ID: <20011228192842.A20717@higherplane.net>
+In-Reply-To: <20011227141759.A19460@bcboy-linux.cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.43.0112271431280.30564-100000@helka>; from narancs@narancs.tii.matav.hu on Thu, Dec 27, 2001 at 02:50:49PM +0100
+In-Reply-To: <20011227141759.A19460@bcboy-linux.cisco.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Thu, Dec 27, 2001 at 02:17:59PM -0800, Brian Craft wrote:
+> Another option would be to run a terminal emulator, like screen, that
+> was voice aware. Can such a program be wedged between the user and the
+> os early during boot?
 
-Bridging not working on ultra is a known problem which I haven't really
-bothered to fix.  If you have a spare ultra somewhere you can let me ssh
-into I'll have a look..
+[gq}]
 
+there is an example and associated discussion of doing this sort of
+wedging (similar to screen or script, as mentioned in another post) in
+W. Richard Stevens' "Advanced Programming in the UNIX Environment".
 
-cheers,
-Lennert
+also i think 'expect' may be a useful utility to look at for an example.
 
+good luck, it sounds like a very worthwhile project you are working on.
 
-On Thu, Dec 27, 2001 at 02:50:49PM +0100, Narancs v1 wrote:
+j.
 
-> Hi Lennert!
-> 
-> We have a big trouble here, we have a so called "firewall" which has 5 eth
-> if.s and it is a sun ultra 5 ws. 2 ports should be used as an ethernet
-> bridge for filtering IPX between 2 ethernet segments.
-> 
-> I have read all the docs which came with the bridge-utils package.
-> 
-> On intel we use the same kernel, similar kernel config and it is working
-> fine.
-> 
-> on sparc we get this error message:
-> 
-> # brctl addbr br0
-> br_add_bridge: operation not supported
-> 
-> bridge module is loaded
-> 
-> distribution is debian woody/sparc
-> 
-> Thank you for your great help!
-> 
+-- 
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

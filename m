@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263855AbTJ1FC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 00:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263858AbTJ1FCz
+	id S263858AbTJ1FLm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 00:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTJ1FLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 00:02:55 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31748 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263855AbTJ1FCy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 00:02:54 -0500
-Date: Mon, 27 Oct 2003 23:52:42 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test9
-In-Reply-To: <3F9DD0A6.1010703@pobox.com>
-Message-ID: <Pine.LNX.3.96.1031027234844.23915A-100000@gatekeeper.tmr.com>
+	Tue, 28 Oct 2003 00:11:42 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46430 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263858AbTJ1FLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 00:11:40 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: fastboot@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] [announce] kexec for 2.6.0-test9
+References: <20031027140745.1a5ddc3a.rddunlap@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 27 Oct 2003 22:09:37 -0700
+In-Reply-To: <20031027140745.1a5ddc3a.rddunlap@osdl.org>
+Message-ID: <m1ekwy54oe.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Oct 2003, Jeff Garzik wrote:
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
 
-> bill davidsen wrote:
-> > In article <20031027182141.GH32168@vic20.blipp.com>,
-> > Patrik Wallstrom  <pawal@blipp.com> wrote:
-> > 
-> > | This patch worked for the Promise-controller:
-> > | http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/2.6.0-test9-promise20378.patch
-> > 
-> > If this patch solves the problem, might I hope that it will be
-> > considered critical enough a bugfix to get into the mainline? I assume
-> > the SATA code added in test9 was intended to work, rather than as a
-> > place holder.
+> Updated kexec patch for 2.6.0-test9 is now available at:
+>   http://developer.osdl.org/rddunlap/kexec/2.6.0-test9/
 > 
-> 
-> The above patch solves the 'problem' of a particular PCI id not being 
-> listed in the driver.
-> 
-> IOW it _adds_ new hardware support.
+> Testing, feedback, results, etc. to fastboot@lists.osdl.org, please.
 
-Sounds unlikely to be considered a fix for a major problem. Thanks for the
-info. Also sounds unlikely to be a fix for any similar problem :-(
+If the testing reveals a general bug LKML is fine.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Randy Looking at the code and what it took to merge with the 4G
+patch.  identity_map_pages needs to be removed from the generic path.
+There needs to be call into the machine specific code to allocate page
+tables or whatever it needs.
 
+That piece of code has caused more problems, and has broken more often
+than any of the rest of the generic code.  So it looks to me like it should
+not be generic.  In particular the ppc people had trouble with it as well,
+as various times it has broken on x86.
+
+One property that should be preserved is that the code should not allocate
+any memory in machine_kexec.  It is very hard to cope with memory
+failures at that point, and in a lot of ways we have already passed
+the point of no return.
+
+I will look at more as I get time, and thanks for keeping a working
+version around. 
+
+Eric

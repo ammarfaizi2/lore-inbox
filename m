@@ -1,41 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbTJFV3q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 17:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbTJFV3q
+	id S261801AbTJFVXc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 17:23:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbTJFVXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 17:29:46 -0400
-Received: from dspnet.fr.eu.org ([62.73.5.179]:1289 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S262275AbTJFV3p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 17:29:45 -0400
-Date: Mon, 6 Oct 2003 23:29:42 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-Message-ID: <20031006212942.GA61774@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <Dnwo.1ew.15@gated-at.bofh.it> <DnPL.3XB.11@gated-at.bofh.it> <DsvX.3yN.1@gated-at.bofh.it> <E1A6a6A-0000qT-00@neptune.local> <20031006183857.GA3508@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031006183857.GA3508@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 6 Oct 2003 17:23:31 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:4109 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261801AbTJFVX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 17:23:26 -0400
+Date: Mon, 6 Oct 2003 17:23:17 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Domen Puncer <domen@coderock.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x on 2.6.0-test3->test6 slow
+In-Reply-To: <200310061529.56959.domen@coderock.org>
+Message-ID: <Pine.LNX.4.53.0310061710300.19396@montezuma.fsmlabs.com>
+References: <200310061529.56959.domen@coderock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 11:38:57AM -0700, Larry McVoy wrote:
-> That has no bearing on the legalities.  A version of the kernel can't
-> force the GPL on a driver that works with that version of the kernel
-> because you can pull that driver out and drop in another.  A great example
-> is the eepro driver, there is Becker's version and the Intel version.
-> Any judge who wasn't fooled by Microsoft priced lawyers would clearly
-> see the boundary and make a ruling that the GPL can't cross over it.
+On Mon, 6 Oct 2003, Domen Puncer wrote:
 
-So you're saying the LGPL and the GPL mean the same thing for
-libraries?  That, for instance, you can handle Qt as if it was LGPL?
+> Works slow (~35kB/s) on kernels 2.6.0-test3 and newer. I can trace this to wol
+> removal patch. (reloading doesn't help, like in test2 case, see below)
+> 
+> But there's another problem:
+> On 2.6.0-test2 it works normal, but only when i reload (rmmod/modprobe) the
+> driver.
+> After this reloading i can't get it back into "slow" mode even if i use test3 or
+> newer driver.
+> One thing to note: when it works ok, i get this in dmesg:
+> eth0: Setting full-duplex based on MII #24 link partner capability of 0141.
 
-  OG.
+Ok, could you send your .config too, i use the 3c59x driver and haven't 
+noticed this in 2.6.0-test5-mm4. My card is;
+
+00:10.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30)
+00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
+
+> 
+> erikm suggested running mii-tool -r eth0, output i get:
+> # mii-tool -r eth0
+> SIOCGMIIPHY on 'eth0' failed: Operation not supported
+> # mii-tool
+> SIOCGMIIPHY on 'eth0' failed: Operation not supported
+> no MII interfaces found
+
+And when done as root?
+
+zwane@montezuma /tmp {0:1} sudo mii-tool
+eth0: negotiated 100baseTx-FD, link ok
+eth1: negotiated 100baseTx-FD, link ok
+
+> # lspci -v
+> 00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 34)
+>         Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
+>         Flags: bus master, medium devsel, latency 32, IRQ 10
+>         I/O ports at d000 [size=128]
+>         Memory at db000000 (32-bit, non-prefetchable) [size=128]
+>         Expansion ROM at <unassigned> [disabled] [size=128K]
+>         Capabilities: [dc] Power Management version 1
+> 
+> # lspci -vv
+> 00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 34)
+>         Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 32 (2500ns min, 2500ns max), cache line size 08
+>         Interrupt: pin A routed to IRQ 10
+>         Region 0: I/O ports at d000 [size=128]
+>         Region 1: Memory at db000000 (32-bit, non-prefetchable) [size=128]
+>         Expansion ROM at <unassigned> [disabled] [size=128K]
+>         Capabilities: [dc] Power Management version 1
+>                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
+>                 Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
+> 
+> 
+> 
+> If there's any more testing/trying patches i can do, i'll be glad to.
+
+Just your .config,
+
+cheers,
+	Zwane
+

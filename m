@@ -1,36 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291192AbSBVBzC>; Thu, 21 Feb 2002 20:55:02 -0500
+	id <S291193AbSBVB6M>; Thu, 21 Feb 2002 20:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291193AbSBVByw>; Thu, 21 Feb 2002 20:54:52 -0500
-Received: from courage.cs.stevens-tech.edu ([155.246.89.70]:26568 "HELO
-	courage.cs.stevens-tech.edu") by vger.kernel.org with SMTP
-	id <S291192AbSBVByn>; Thu, 21 Feb 2002 20:54:43 -0500
-Date: Thu, 21 Feb 2002 20:54:41 -0500 (EST)
-From: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: How to implement listen and accept routines
-Message-ID: <Pine.NEB.4.33.0202212054040.7235-100000@courage.cs.stevens-tech.edu>
+	id <S291204AbSBVB6C>; Thu, 21 Feb 2002 20:58:02 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:4317 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S291193AbSBVB5w>;
+	Thu, 21 Feb 2002 20:57:52 -0500
+Message-ID: <3C75B1E0.ADC9B488@vnet.ibm.com>
+Date: Thu, 21 Feb 2002 20:50:08 -0600
+From: Tom Gall <tom_gall@vnet.ibm.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: bug(?): SET_PERSONALITY 2.4.18-rc3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Greetings,
 
-I want to make my protocol connection-oriented. I am really stuck with
-listen and accept routines :-(. As examples, I took:
-int tcp_listen_start(struct sock *sk);
-struct sock *tcp_accept(struct sock *sk, int flags, int *err);
+While getting 2.4.18-rc[1|2] up and running on ppc64 the following bug
+surfaced. Least I think it's a bug. You be the judge. If it's not, we'd
+kinda like to know why not.
 
-Could anybody briefly explain me how should I implement them? I know the
-purpose of those functions in the userland.
-Mainly I have 2 questions:
-1. What else besides changing sk->state to TCP_LISTEN should my
-"listen_start" do?
-2. How do I get a pending "socket" in my "accept" function. Should
-sock_alloc a new one or copy it from some queue?
+in fs/binfmt_elf.c I believe the following patch appears to be needed
 
-Thanks for any help!
--marek
+------8<----------8<--------------------
+diff -urN linuxppc64_2_4.bld-rc.borked/fs/binfmt_elf.c
+linuxppc64_2_4.bld-rc/fs/binfmt_elf.c
+--- linuxppc64_2_4.bld-rc.borked/fs/binfmt_elf.c        Wed Feb 20
+13:32:56 2002
++++ linuxppc64_2_4.bld-rc/fs/binfmt_elf.c       Thu Feb 21 17:27:04 2002
+@@ -568,6 +565,9 @@
+			// printk(KERN_WARNING "ELF: Ambiguous type, using ELF\n");
+			interpreter_type = INTERPRETER_ELF;
+		}
++	} else {
++		/* Executables without an interpreter also need a personality  */
++		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
+	}
 
+	/* OK, we are done with that, now set up the arg stuff,
+----8<-------------8<------------------
+
+otherwise a static application would be run without SET_PERSONALITY
+being called, which On ppc64, very quickly leads to a bad day.
+
+Regards,
+
+Tom
+
+-- 
+Tom Gall - [embedded] [PPC64 | PPC32] Code Monkey
+Peace, Love &                  "Where's the ka-boom? There was
+Linux Technology Center         supposed to be an earth
+http://www.ibm.com/linux/ltc/   shattering ka-boom!"
+(w) tom_gall@vnet.ibm.com       -- Marvin Martian
+(w) 507-253-4558
+(h) tgall@rochcivictheatre.org

@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129243AbRBMWyB>; Tue, 13 Feb 2001 17:54:01 -0500
+	id <S129500AbRBMWzV>; Tue, 13 Feb 2001 17:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129246AbRBMWxm>; Tue, 13 Feb 2001 17:53:42 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:30889 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S129243AbRBMWxc>; Tue, 13 Feb 2001 17:53:32 -0500
-Date: Tue, 13 Feb 2001 17:52:48 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: <cowboy@badlands.lexington.ibm.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.1-ac11  swap problems
-Message-ID: <Pine.LNX.4.33.0102131744020.2104-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129496AbRBMWzL>; Tue, 13 Feb 2001 17:55:11 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:14495 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129246AbRBMWzC>;
+	Tue, 13 Feb 2001 17:55:02 -0500
+Date: Tue, 13 Feb 2001 23:54:34 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200102132254.XAA98078.aeb@vlet.cwi.nl>
+To: michael_e_brown@dell.com
+Subject: Re: block ioctl to read/write last sector
+Cc: Matt_Domsch@exchange.dell.com, freitag@alancoxonachip.com,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.1-ac10 works fine (I had it up 24 hours before, and am again running
-it).
+>   The block device uses 1K blocksize, and will prevent userspace from
+> seeing the odd-block at the end of the disk, if the disk is odd-size.
+>
+>   IA-64 architecture defines a new partitioning scheme where there is a
+> backup of the partition table header in the last sector of the disk. While
+> we can read and write to this sector in the kernel partition code, we have
+> no way for userspace to update this partition block.
 
-Shortly after boot on 2.4.1-ac11, I get a ration of these:
-  kernel: Unused swap offset entry in swap_count 0015fb04
-looks like its going through most of the swap space...
-Then this comes out:
-  kernel: Unused swap offset entry in swap_count 001dd904
-  kernel: Unused swap offset entry in swap_dup 001dd904
-  kernel: VM: Bad swap entry 001dd904
-  kernel: VM: Bad swap entry 001dd904
-  kernel: Unused swap offset entry in swap_count 001dd904
+Are you sure?
 
-after some more messages, the 001dd904 address is repeated again
-Eventually, some processes get killed:
-  kernel: VM: killing process wmsetbg
-  kernel: VM: killing process X
+There may be no easy, convenient way right now, but
+(without having checked anything) it seems to me
+that you can, also today.
+Look at the addpart utility in the util-linux package.
+It will allow you to add a partition disjoint from
+previously existing partitions.
+And since a partition can start on an odd sector,
+this should allow you to also read the last sector.
 
-Ver_Linux reports thusly:
-Linux badlands.lexington.ibm.com 2.4.1-ac10 #5 Mon Feb 12 10:59:36 EST
-2001 i686 unknown
+Do I overlook something?
 
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.10.1.0.2
-util-linux             2.10q
-modutils               2.4.1
-e2fsprogs              1.19
-PPP                    2.4.0
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.58
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         nfs lockd sunrpc ipx af_packet netlink_dev
-softdog msr cpuid microcode olympic dummy0 usbcore maestro3 soundcore
-ac97_codec ipchains eeprom sensors i2c-viapro i2c-core agpgart ipv6 unix
+Anyway, an ioctl just to read the last sector is too silly.
+An ioctl to change the blocksize is more reasonable.
+And I expect that this fixed blocksize will go soon.
 
--- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
+Andries
 
+[Sorry if precisely the same discussion has happened earlier -
+I have no memory.]

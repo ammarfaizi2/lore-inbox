@@ -1,388 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbTDQXKS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 19:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTDQXKS
+	id S262685AbTDQXMp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 19:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbTDQXMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 19:10:18 -0400
+	Thu, 17 Apr 2003 19:12:45 -0400
 Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21132 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262682AbTDQXJx
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262685AbTDQXMe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 19:09:53 -0400
-Date: Fri, 18 Apr 2003 01:21:27 +0200 (MET DST)
+	Thu, 17 Apr 2003 19:12:34 -0400
+Date: Fri, 18 Apr 2003 01:24:15 +0200 (MET DST)
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.67-ac1 IDE - fix Taskfile IOCTLs
 In-Reply-To: <Pine.SOL.4.30.0304180052130.20946-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.SOL.4.30.0304180120530.22161-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.SOL.4.30.0304180123510.22161-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-tf-ioctls-2b.diff:
+tf-ioctls-4.diff:
 
-# Taskfile and flagged Taskfile PIO handlers unification [2/2].
-# Incremental to tf-ioctls-2a patch.
+# Remove dead ide_diag_taskfile() code.
+# Incremental to tf-ioctls-3 patch.
 #
-# Detailed changelog:
-# - remove all flagged Taskfile handlers, use standard ones instead
+# - rq->flags is already set to REQ_DRIVE_TASKFILE by ide_init_drive_taskfile()
+# - remove dead variant of ide_diag_taskfile(), it was broken
+#   and had ide_do_drive_cmd() unfolded which IMHO wasn't good idea
 #
 # Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
-diff -uNr linux-2.5.67-ac1-tf2a/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
---- linux-2.5.67-ac1-tf2a/drivers/ide/ide-taskfile.c	Thu Apr 17 21:17:43 2003
-+++ linux/drivers/ide/ide-taskfile.c	Thu Apr 17 22:32:32 2003
-@@ -1116,15 +1116,6 @@
+diff -uNr linux-2.5.67-ac1-tf3/drivers/ide/ide-taskfile.c linux/drivers/ide/ide-taskfile.c
+--- linux-2.5.67-ac1-tf3/drivers/ide/ide-taskfile.c	Thu Apr 17 23:24:51 2003
++++ linux/drivers/ide/ide-taskfile.c	Thu Apr 17 23:49:03 2003
+@@ -990,14 +990,11 @@
 
- #define MAX_DMA		(256*SECTOR_WORDS)
+ EXPORT_SYMBOL(ide_init_drive_taskfile);
 
--ide_startstop_t flagged_taskfile(ide_drive_t *, ide_task_t *);
--ide_startstop_t flagged_task_no_data_intr(ide_drive_t *);
--ide_startstop_t flagged_task_in_intr(ide_drive_t *);
--ide_startstop_t flagged_task_mulin_intr(ide_drive_t *);
--ide_startstop_t flagged_pre_task_out_intr(ide_drive_t *, struct request *);
--ide_startstop_t flagged_task_out_intr(ide_drive_t *);
--ide_startstop_t flagged_pre_task_mulout_intr(ide_drive_t *, struct request *);
--ide_startstop_t flagged_task_mulout_intr(ide_drive_t *);
+-#if 1
 -
- int ide_taskfile_ioctl (ide_drive_t *drive, unsigned int cmd, unsigned long arg)
+ int ide_diag_taskfile (ide_drive_t *drive, ide_task_t *args, unsigned long data_size, u8 *buf)
  {
- 	ide_task_request_t	*req_task;
-@@ -1230,23 +1221,13 @@
- 				err = -EPERM;
- 				goto abort;
- 			}
--			if (args.tf_out_flags.all != 0) {
--				args.prehandler = &flagged_pre_task_mulout_intr;
--				args.handler = &flagged_task_mulout_intr;
--			} else {
--				args.prehandler = &pre_task_mulout_intr;
--				args.handler = &task_mulout_intr;
--			}
-+			args.prehandler = &pre_task_mulout_intr;
-+			args.handler = &task_mulout_intr;
- 			err = ide_diag_taskfile(drive, &args, taskout, outbuf);
- 			break;
- 		case TASKFILE_OUT:
--			if (args.tf_out_flags.all != 0) {
--				args.prehandler = &flagged_pre_task_out_intr;
--				args.handler    = &flagged_task_out_intr;
--			} else {
--				args.prehandler = &pre_task_out_intr;
--				args.handler = &task_out_intr;
--			}
-+			args.prehandler = &pre_task_out_intr;
-+			args.handler = &task_out_intr;
- 			err = ide_diag_taskfile(drive, &args, taskout, outbuf);
- 			break;
- 		case TASKFILE_MULTI_IN:
-@@ -1258,27 +1239,15 @@
- 				err = -EPERM;
- 				goto abort;
- 			}
--			if (args.tf_out_flags.all != 0) {
--				args.handler = &flagged_task_mulin_intr;
--			} else {
--				args.handler = &task_mulin_intr;
--			}
-+			args.handler = &task_mulin_intr;
- 			err = ide_diag_taskfile(drive, &args, taskin, inbuf);
- 			break;
- 		case TASKFILE_IN:
--			if (args.tf_out_flags.all != 0) {
--				args.handler = &flagged_task_in_intr;
--			} else {
--				args.handler = &task_in_intr;
--			}
-+			args.handler = &task_in_intr;
- 			err = ide_diag_taskfile(drive, &args, taskin, inbuf);
- 			break;
- 		case TASKFILE_NO_DATA:
--			if (args.tf_out_flags.all != 0) {
--				args.handler = &flagged_task_no_data_intr;
--			} else {
--				args.handler = &task_no_data_intr;
--			}
-+			args.handler = &task_no_data_intr;
- 			err = ide_diag_taskfile(drive, &args, 0, NULL);
- 			break;
- 		default:
-@@ -1621,273 +1590,6 @@
+ 	struct request rq;
 
- EXPORT_SYMBOL(flagged_taskfile);
+ 	ide_init_drive_taskfile(&rq);
+-	rq.flags = REQ_DRIVE_TASKFILE;
+ 	rq.buffer = buf;
 
--ide_startstop_t flagged_task_no_data_intr (ide_drive_t *drive)
+ 	/*
+@@ -1009,6 +1006,12 @@
+ 	if (args->command_type != IDE_DRIVE_TASK_NO_DATA) {
+ 		if (data_size == 0)
+ 			rq.current_nr_sectors = rq.nr_sectors = (args->hobRegister[IDE_NSECTOR_OFFSET_HOB] << 8) | args->tfRegister[IDE_NSECTOR_OFFSET];
++#if 0
++			ata_nsector_t nsector;
++			nsector.b.low = args->hobRegister[IDE_NSECTOR_OFFSET_HOB];
++			nsector.b.high = args->tfRegister[IDE_NSECTOR_OFFSET];
++			rq.nr_sectors = nsector.all;
++#endif
+ 		else
+ 			rq.current_nr_sectors = rq.nr_sectors = data_size / SECTOR_SIZE;
+
+@@ -1030,69 +1033,6 @@
+ 	return ide_do_drive_cmd(drive, &rq, ide_wait);
+ }
+
+-#else
+-
+-int ide_diag_taskfile (ide_drive_t *drive, ide_task_t *args, unsigned long data_size, u8 *buf)
 -{
--	ide_hwif_t *hwif = HWIF(drive);
--	u8 stat;
+-	struct request *rq;
+-	unsigned long flags;
+-	ide_hwgroup_t *hwgroup = HWGROUP(drive);
+-	struct list_head *queue_head = &drive->queue.queue_head;
+-	DECLARE_COMPLETION(wait);
 -
--	local_irq_enable();
+-	if (HWIF(drive)->chipset == ide_pdc4030 && buf != NULL)
+-		return -ENOSYS; /* special drive cmds not supported */
 -
--	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG), READY_STAT, BAD_STAT)) {
--		if (stat & ERR_STAT) {
--			return DRIVER(drive)->error(drive, "flagged_task_no_data_intr", stat);
--		}
--		/*
--		 * (ks) Unexpected ATA data phase detected.
--		 * This should not happen. But, it can !
--		 * I am not sure, which function is best to clean up
--		 * this situation.  I choose: ide_error(...)
--		 */
-- 		return DRIVER(drive)->error(drive, "flagged_task_no_data_intr (unexpected phase)", stat);
--	}
--
--	ide_end_drive_cmd(drive, stat, hwif->INB(IDE_ERROR_REG));
--
--	return ide_stopped;
--}
--
--/*
-- * Handler for command with PIO data-in phase
-- */
--ide_startstop_t flagged_task_in_intr (ide_drive_t *drive)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	u8 stat			= hwif->INB(IDE_STATUS_REG);
--	struct request *rq	= HWGROUP(drive)->rq;
--	char *pBuf		= NULL;
--
--	if (rq->current_nr_sectors == 0)
--		return DRIVER(drive)->error(drive, "flagged_task_in_intr (no data requested)", stat);
--
--	if (!OK_STAT(stat, DATA_READY, BAD_R_STAT)) {
--		if (stat & ERR_STAT) {
--			return DRIVER(drive)->error(drive, "flagged_task_in_intr", stat);
--		}
--		/*
--		 * (ks) Unexpected ATA data phase detected.
--		 * This should not happen. But, it can !
--		 * I am not sure, which function is best to clean up
--		 * this situation.  I choose: ide_error(...)
--		 */
--		return DRIVER(drive)->error(drive, "flagged_task_in_intr (unexpected data phase)", stat);
--	}
--
--	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
--	DTF("Read - rq->current_nr_sectors: %d, status: %02x\n", (int) rq->current_nr_sectors, stat);
--
--	taskfile_input_data(drive, pBuf, SECTOR_WORDS);
--
--	if (--rq->current_nr_sectors != 0) {
--		/*
--                 * (ks) We don't know which command was executed.
--		 * So, we wait the 'WORSTCASE' value.
--                 */
--		ide_set_handler(drive, &flagged_task_in_intr,  WAIT_WORSTCASE, NULL);
--		return ide_started;
--	}
--	stat = flagged_wait_drive_ready(drive);
--	ide_end_drive_cmd (drive, stat, hwif->INB(IDE_ERROR_REG));
--
--	return ide_stopped;
--}
--
--ide_startstop_t flagged_task_mulin_intr (ide_drive_t *drive)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	u8 stat			= hwif->INB(IDE_STATUS_REG);
--	struct request *rq	= HWGROUP(drive)->rq;
--	char *pBuf		= NULL;
--	unsigned int msect, nsect;
--
--	if (rq->current_nr_sectors == 0)
--		return DRIVER(drive)->error(drive, "flagged_task_mulin_intr (no data requested)", stat);
--
--	msect = drive->mult_count;
--	if (msect == 0)
--		return DRIVER(drive)->error(drive, "flagged_task_mulin_intr (multimode not set)", stat);
--
--	if (!OK_STAT(stat, DATA_READY, BAD_R_STAT)) {
--		if (stat & ERR_STAT) {
--			return DRIVER(drive)->error(drive, "flagged_task_mulin_intr", stat);
--		}
--		/*
--		 * (ks) Unexpected ATA data phase detected.
--		 * This should not happen. But, it can !
--		 * I am not sure, which function is best to clean up
--		 * this situation.  I choose: ide_error(...)
--		 */
--		return DRIVER(drive)->error(drive, "flagged_task_mulin_intr (unexpected data phase)", stat);
--	}
--
--	nsect = (rq->current_nr_sectors > msect) ? msect : rq->current_nr_sectors;
--	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
--
--	DTF("Multiread: %p, nsect: %d , rq->current_nr_sectors: %ld\n",
--	    pBuf, nsect, rq->current_nr_sectors);
--
--	taskfile_input_data(drive, pBuf, nsect * SECTOR_WORDS);
--
--	rq->current_nr_sectors -= nsect;
--	if (rq->current_nr_sectors != 0) {
--		/*
--                 * (ks) We don't know which command was executed.
--		 * So, we wait the 'WORSTCASE' value.
--                 */
--		ide_set_handler(drive, &flagged_task_mulin_intr,  WAIT_WORSTCASE, NULL);
--		return ide_started;
--	}
--	stat = flagged_wait_drive_ready(drive);
--	ide_end_drive_cmd (drive, stat, hwif->INB(IDE_ERROR_REG));
--
--	return ide_stopped;
--}
--
--/*
-- * Pre handler for command with PIO data-out phase
-- */
--ide_startstop_t flagged_pre_task_out_intr (ide_drive_t *drive, struct request *rq)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	u8 stat			= hwif->INB(IDE_STATUS_REG);
--	ide_startstop_t startstop;
--
--	if (!rq->current_nr_sectors) {
--		return DRIVER(drive)->error(drive, "flagged_pre_task_out_intr (write data not specified)", stat);
--	}
--
--	if (ide_wait_stat(&startstop, drive, DATA_READY,
--			BAD_W_STAT, WAIT_DRQ)) {
--		printk(KERN_ERR "%s: No DRQ bit after issuing write command.\n", drive->name);
--		return startstop;
--	}
--
--	taskfile_output_data(drive, rq->buffer, SECTOR_WORDS);
--	--rq->current_nr_sectors;
--
--	return ide_started;
--}
--
--ide_startstop_t flagged_task_out_intr (ide_drive_t *drive)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	u8 stat			= hwif->INB(IDE_STATUS_REG);
--	struct request *rq	= HWGROUP(drive)->rq;
--	char *pBuf		= NULL;
--
--	if (!OK_STAT(stat, DRIVE_READY, BAD_W_STAT))
--		return DRIVER(drive)->error(drive, "flagged_task_out_intr", stat);
--
--	if (!rq->current_nr_sectors) {
--		ide_end_drive_cmd (drive, stat, hwif->INB(IDE_ERROR_REG));
--		return ide_stopped;
--	}
--
--	if (!OK_STAT(stat, DATA_READY, BAD_W_STAT)) {
--		/*
--		 * (ks) Unexpected ATA data phase detected.
--		 * This should not happen. But, it can !
--		 * I am not sure, which function is best to clean up
--		 * this situation.  I choose: ide_error(...)
--		 */
--		return DRIVER(drive)->error(drive, "flagged_task_out_intr (unexpected data phase)", stat);
--	}
--
--	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
--	DTF("Write - rq->current_nr_sectors: %d, status: %02x\n",
--		(int) rq->current_nr_sectors, stat);
--
--	taskfile_output_data(drive, pBuf, SECTOR_WORDS);
--	--rq->current_nr_sectors;
+-	memset(rq, 0, sizeof(*rq));
+-	rq->flags = REQ_DRIVE_TASKFILE;
+-	rq->buffer = buf;
 -
 -	/*
--	 * (ks) We don't know which command was executed.
--	 * So, we wait the 'WORSTCASE' value.
+-	 * (ks) We transfer currently only whole sectors.
+-	 * This is suffient for now.  But, it would be great,
+-	 * if we would find a solution to transfer any size.
+-	 * To support special commands like READ LONG.
 -	 */
--	ide_set_handler(drive, &flagged_task_out_intr, WAIT_WORSTCASE, NULL);
--
--	return ide_started;
--}
--
--ide_startstop_t flagged_pre_task_mulout_intr (ide_drive_t *drive, struct request *rq)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	u8 stat			= hwif->INB(IDE_STATUS_REG);
--	char *pBuf		= NULL;
--	ide_startstop_t startstop;
--	unsigned int msect, nsect;
--
--	if (!rq->current_nr_sectors)
--		return DRIVER(drive)->error(drive, "flagged_pre_task_mulout_intr (write data not specified)", stat);
--
--	msect = drive->mult_count;
--	if (msect == 0)
--		return DRIVER(drive)->error(drive, "flagged_pre_task_mulout_intr (multimode not set)", stat);
--
--	if (ide_wait_stat(&startstop, drive, DATA_READY,
--			BAD_W_STAT, WAIT_DRQ)) {
--		printk(KERN_ERR "%s: No DRQ bit after issuing write command.\n", drive->name);
--		return startstop;
+-	if (args->command_type != IDE_DRIVE_TASK_NO_DATA) {
+-		if (data_size == 0) {
+-			ata_nsector_t nsector;
+-			nsector.b.low = args->hobRegister[IDE_NSECTOR_OFFSET_HOB];
+-			nsector.b.high = args->tfRegister[IDE_NSECTOR_OFFSET];
+-			rq.nr_sectors = nsector.all;
+-		} else {
+-			rq.nr_sectors = data_size / SECTOR_SIZE;
+-		}
+-		rq.current_nr_sectors = rq.nr_sectors;
+-	//	rq.hard_cur_sectors = rq.nr_sectors;
 -	}
 -
--	nsect = (rq->current_nr_sectors > msect) ? msect : rq->current_nr_sectors;
--	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
--	DTF("Multiwrite: %p, nsect: %d , rq->current_nr_sectors: %ld\n",
--	    pBuf, nsect, rq->current_nr_sectors);
--
--	taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
--
--	rq->current_nr_sectors -= nsect;
--
--	return ide_started;
--}
--
--ide_startstop_t flagged_task_mulout_intr (ide_drive_t *drive)
--{
--	ide_hwif_t *hwif	= HWIF(drive);
--	u8 stat			= hwif->INB(IDE_STATUS_REG);
--	struct request *rq	= HWGROUP(drive)->rq;
--	char *pBuf		= NULL;
--	unsigned int msect, nsect;
--
--	msect = drive->mult_count;
--	if (msect == 0)
--		return DRIVER(drive)->error(drive, "flagged_task_mulout_intr (multimode not set)", stat);
--
--	if (!OK_STAT(stat, DRIVE_READY, BAD_W_STAT))
--		return DRIVER(drive)->error(drive, "flagged_task_mulout_intr", stat);
--
--	if (!rq->current_nr_sectors) {
--		ide_end_drive_cmd (drive, stat, hwif->INB(IDE_ERROR_REG));
--		return ide_stopped;
--	}
--
--	if (!OK_STAT(stat, DATA_READY, BAD_W_STAT)) {
+-	if (args->tf_out_flags.all == 0) {
 -		/*
--		 * (ks) Unexpected ATA data phase detected.
--		 * This should not happen. But, it can !
--		 * I am not sure, which function is best to clean up
--		 * this situation.  I choose: ide_error(...)
+-		 * clean up kernel settings for driver sanity, regardless.
+-		 * except for discrete diag services.
 -		 */
--		return DRIVER(drive)->error(drive, "flagged_task_mulout_intr (unexpected data phase)", stat);
+-		args->posthandler = ide_post_handler_parser(
+-				(struct hd_drive_task_hdr *) args->tfRegister,
+-				(struct hd_drive_hob_hdr *) args->hobRegister);
 -	}
+-	rq->special = args;
+-	rq->errors = 0;
+-	rq->rq_status = RQ_ACTIVE;
+-	rq->rq_disk = drive->disk;
+-	rq->waiting = &wait;
 -
--	nsect = (rq->current_nr_sectors > msect) ? msect : rq->current_nr_sectors;
--	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
--	DTF("Multiwrite: %p, nsect: %d , rq->current_nr_sectors: %ld\n",
--	    pBuf, nsect, rq->current_nr_sectors);
+-	spin_lock_irqsave(&ide_lock, flags);
+-	queue_head = queue_head->prev;
+-	list_add(&rq->queue, queue_head);
+-	ide_do_request(hwgroup, 0);
+-	spin_unlock_irqrestore(&ide_lock, flags);
 -
--	taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
--	rq->current_nr_sectors -= nsect;
--
--	/*
--	 * (ks) We don't know which command was executed.
--	 * So, we wait the 'WORSTCASE' value.
--	 */
--	ide_set_handler(drive, &flagged_task_mulout_intr, WAIT_WORSTCASE, NULL);
--
--	return ide_started;
+-	wait_for_completion(&wait);	/* wait for it to be serviced */
+-	return rq->errors ? -EIO : 0;	/* return -EIO if errors */
 -}
 -
- /*
-  * Beginning of Taskfile OPCODE Library and feature sets.
-  */
+-#endif
+-
+ EXPORT_SYMBOL(ide_diag_taskfile);
+
+ int ide_raw_taskfile (ide_drive_t *drive, ide_task_t *args, u8 *buf)
 

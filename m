@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbUAWSyb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 13:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbUAWSyb
+	id S266643AbUAWTCN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 14:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266644AbUAWTCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 13:54:31 -0500
-Received: from 62-43-5-49.user.ono.com ([62.43.5.49]:57028 "EHLO
-	mortadelo.pirispons.net") by vger.kernel.org with ESMTP
-	id S262566AbUAWSya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 13:54:30 -0500
-Date: Fri, 23 Jan 2004 19:54:29 +0100
-From: Kiko Piris <kernel@pirispons.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.2-rc1] unknown i2c symbols in bttv and friends
-Message-ID: <20040123185429.GA4797@pirispons.net>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040123183827.GA928@pirispons.net>
+	Fri, 23 Jan 2004 14:02:13 -0500
+Received: from h00a0cca1a6cf.ne.client2.attbi.com ([65.96.182.167]:13184 "EHLO
+	h00a0cca1a6cf.ne.client2.attbi.com") by vger.kernel.org with ESMTP
+	id S266643AbUAWTCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 14:02:07 -0500
+Date: Fri, 23 Jan 2004 14:02:05 -0500
+From: timothy parkinson <t@timothyparkinson.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: hauan@cmu.edu, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1 "clock preempt"?
+Message-ID: <20040123190205.GA477@h00a0cca1a6cf.ne.client2.attbi.com>
+Mail-Followup-To: john stultz <johnstul@us.ibm.com>, hauan@cmu.edu,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1074630968.19174.49.camel@steinar.cheme.cmu.edu> <1074633977.16374.67.camel@cog.beaverton.ibm.com> <1074697593.5650.26.camel@steinar.cheme.cmu.edu> <1074709166.16374.73.camel@cog.beaverton.ibm.com> <20040122193704.GA552@h00a0cca1a6cf.ne.client2.attbi.com> <1074800554.21658.68.camel@cog.beaverton.ibm.com> <20040122195026.GA579@h00a0cca1a6cf.ne.client2.attbi.com> <1074801242.21658.71.camel@cog.beaverton.ibm.com> <20040122200044.GA593@h00a0cca1a6cf.ne.client2.attbi.com> <1074806504.21658.76.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040123183827.GA928@pirispons.net>
-User-Agent: Mutt
+In-Reply-To: <1074806504.21658.76.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23/01/2004 at 19:38, Kiko Piris wrote:
 
-> I compiled 2.6.2-rc1 and I can't use my Pinnacle PCTV card because bbtv
-> module and friends refuse to load due to unknown i2c_* symbols. dmesg
-> relevant part is attached (kernel config is also - grep ^CONFIG -).
+On Thu, Jan 22, 2004 at 01:21:45PM -0800, john stultz wrote:
+> On Thu, 2004-01-22 at 12:00, timothy parkinson wrote:
+> > su -c "/usr/sbin/hdparm /dev/hda"
+> > Password:
+> > 
+> > /dev/hda:
+> >  multcount    = 16 (on)
+> >  IO_support   =  1 (32-bit)
+> >  unmaskirq    =  0 (off)
+> >  using_dma    =  0 (off)
+> >  keepsettings =  0 (off)
+> >  readonly     =  0 (off)
+> >  readahead    = 256 (on)
+> >  geometry     = 65535/16/63, sectors = 156301488, start = 0
+> > 
+> > but...
+> > 
+> > su -c "/usr/sbin/hdparm -d1 /dev/hda"
+> > Password:
+> > 
+> > /dev/hda:
+> >  setting using_dma to 1 (on)
+> >  HDIO_SET_DMA failed: Operation not permitted
+> >  using_dma    =  0 (off)
+> > 
+> > it's an 80gig western digital from about 2-3 years ago.
+> 
+> Its likely you need to enable support in the kernel for your IDE
+> controller, or your DMA on your controller isn't supported. 
+> 
+> thanks
+> -john
+> 
+> 
 
-My fault. I had a forgotten line 
+so, apparently the problem was that i just needed to enable dma...  which meant
+that i needed to set "CONFIG_BLK_DEV_VIA82CXXX=y" in my .config.
 
-options i2c-core       i2c_debug=1
+been running all night/morning with load - no "losing ticks" message or slowing
+clock yet.  thanks for pointing me in the right direction.
 
-in modprobe.conf. Of course they wheren't loading! :-[
+think we could improve that error message?  i'd never have guessed that it was
+hard disk related if you hadn't told me...
 
-Sorry for the noise.
-
--- 
-Kiko
+timothy

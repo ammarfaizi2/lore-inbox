@@ -1,75 +1,39 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269978AbUJNIgd (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 14 Oct 2004 04:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269999AbUJNIgd
+	id S267985AbUJOPKY (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 15 Oct 2004 11:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267979AbUJOPKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 04:36:33 -0400
-Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.114.37]:47890 "EHLO
-	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S269978AbUJNIgL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 04:36:11 -0400
-Date: Thu, 14 Oct 2004 01:35:34 -0700
-Message-ID: <4164424600039A5E@mk-cpfrontend-1.mail.uk.tiscali.com>
-From: "Donald Lekota" <don_lekota133@handbag.com>
-Subject: From Donald
-Reply-To: donald_lekota@yahoo.co.in
-To: don_lekota133@handbag.com
+	Fri, 15 Oct 2004 11:10:23 -0400
+Received: from [193.116.209.27] ([193.116.209.27]:53146 "EHLO
+	maillist.mobisphere.com") by vger.kernel.org with ESMTP
+	id S267985AbUJOPE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 11:04:59 -0400
+Message-Id: <200410151504.i9FENtXH020623@maillist.mobisphere.com>
+Reply-To: "Digicam" <cdigitale@katamail.com>
+From: "Digicam" <cdigitale@katamail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Macchina digitale 6 megapixel!!
+Date: Fri, 15 Oct 2004 17:04:58 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S269978AbUJNIgd@vger.kernel.org>
-
-Dear Friend,
-
-My name is Mr. Donald Lekota.
-I am an accountant with a bank here in London.
-There is a fixed deposit of =A315,000,000.00=20
-(Fifteen Million Pounds Sterling) made to this bank=20
-since 1994 which ten years now and since then no claim=20
-or withdrawal has been made on that deposit.=20
-Fortunately, I have been the person working
-the interest from the day of deposit to date.=20
-The interesting part of it is that the fixed deposit
-belongs to a man in Yugoslavia, this means that the=20
-account may have been abandoned by the surviving=20
-family members or that they are not even aware of=20
-the existence of the deposit.
-However, I just finished updating the interest of the
-deposit this January, and it has come up to
-=A315,000,000.00 at 7% interest rate per annum. It
-is this interest that I am interested in because I
-know very well that the family will care less on what
-happens to the interest if they want to redeem the
-deposit, they will be interested on the main money,
-that is if they are able to claim it at all because all
-the money lodged into different banks here in Europe
-and United States are now been claimed .
-Meanwhile, my plan is to withdraw just some amount
-from the accumulated interest, which will not even
-affect the main fixed deposit. I will give you the
-details of procedure and my full ID when I receive
-your reply and indication of partnership.=20
-Your reward and amount to withdraw will be our mutual=20
-agreement to avoid any misunderstanding.
-We have nothing to lose, we only have courage to do this.=20
-please reply me as soon as possible.
-
-Yours sincerely,
-
-Mr. Donald Lekota
-
-__________________________________________________________________
-Get Tiscali Broadband From =A315:99
-http://www.tiscali.co.uk/products/broadbandhome/
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S267985AbUJOPKY@vger.kernel.org>
 
 
+Macchina fotografica digitale a 6  megapixel!
+Interamente in alluminio,dimensioni ridottissime,alta tecnologia a
+portata di mano.Con display a colori,batteria al litio e altri accessori.
+E' in assoluto la piu' competitiva sul mercato! Per visionarla clicca su:
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+http://window.to/fdigitale   o su   http://www.mdigitale.tech.nu   o su   http://mdigitale.3000.it
+
+Soddisfatti o rimborsati entro 10 giorni lavorativi dal momento del ricevimento della fotocamera.
+
+Cordiali saluti!
+Lo staff Digicam

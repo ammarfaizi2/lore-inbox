@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269238AbTCBB2j>; Sat, 1 Mar 2003 20:28:39 -0500
+	id <S269231AbTCBB0A>; Sat, 1 Mar 2003 20:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269239AbTCBB2i>; Sat, 1 Mar 2003 20:28:38 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:34951 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S269238AbTCBB2g>;
-	Sat, 1 Mar 2003 20:28:36 -0500
-Date: Sun, 2 Mar 2003 02:40:39 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Arador <diegocg@teleline.es>,
-       "Adam J. Richter" <adam@yggdrasil.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       pavel@janik.cz, pavel@ucw.cz, hch@infradead.org
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-Message-ID: <20030302014039.GC1364@dualathlon.random>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030302014915.34a6de37.diegocg@teleline.es> <1046571336.24903.0.camel@irongate.swansea.linux.org.uk> <3E615C38.7030609@pobox.com>
+	id <S269232AbTCBB0A>; Sat, 1 Mar 2003 20:26:00 -0500
+Received: from almesberger.net ([63.105.73.239]:48654 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S269231AbTCBBZ7>; Sat, 1 Mar 2003 20:25:59 -0500
+Date: Sat, 1 Mar 2003 22:36:12 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [KEXEC][2.5.63] Partially tested patches available
+Message-ID: <20030301223612.O2791@almesberger.net>
+References: <Pine.LNX.3.96.1030228085058.25875B-100000@gatekeeper.tmr.com> <m1smu8l4mf.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E615C38.7030609@pobox.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+In-Reply-To: <m1smu8l4mf.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Fri, Feb 28, 2003 at 10:03:20AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 01, 2003 at 08:19:52PM -0500, Jeff Garzik wrote:
-> Alan Cox wrote:
-> >On Sun, 2003-03-02 at 00:49, Arador wrote:
-> >
-> >>On Sat, 1 Mar 2003 16:11:55 -0800
-> >>"Adam J. Richter" <adam@yggdrasil.com> wrote:
-> >>
-> >>(Just a very personal suggestion)
-> >>Why to waste time trying to clone a 
-> >>tool such as *notrademarkhere*? Why not to support things like subversion?
-> >
-> >
-> >Because the repositories people need to read are in BK format, for better
-> >or worse. It doesn't ultimately matter if you use it as an input filter
-> >for CVS, subversion or no VCS at all.
-> 
-> "BK format"?  Not really.  Patches have been posted (to lkml, even) to 
-> GNU CSSC which allow it to read SCCS files BK reads and writes.
+Eric W. Biederman wrote:
+> The code has already gotten tentative approval from Linus.  And I suspect
+> the biggest reason it isn't in is that I have gotten distracted lately
+> and have not been asking for it to be included.
 
-you never tried what you're talking about.  there's no way to make any
-use of the SCCS tree from Rik's website with only the patched CSSC. The
-whole point of bitbucket is to find a way to use CSSC on that tree. And
-the longer Larry takes to export the whole data in an open format (CVS,
-subversion or whatever), the more progress it will be accomplished in
-getting the data out of the only service we have right now (Rik's
-server). Sure, CSSC is a foundamental piece to extract the data out of
-the single files, but CSSC alone is useless. CSSC only allows you to
-work on a single file, you lose the whole view of the tree and in turn
-it is completely unusable for doing anything useful like watching
-changesets, or checking out a branch or whatever else useful thing. As
-Pavel found _all_ the info we are interested about is in the
-SCCS/s.ChangeSet file and that has nothing to do with CSSC or SCCS.
+After that tentative approval, kexec finally has gotten the attention
+it deserves, and there was quite a bit of development on and
+surrounding it, so I guess Linus may just have decided to wait until
+the storm has calmed down a little.
 
-> 
-> Since that already exists, a full BitKeeper clone is IMO a bit silly, 
-> because it draws users and programmers away from projects that could 
-> potentially _replace_ BitKeeper.
+Have you sent him a mail asking directly, maybe with a short status
+update ?
 
-Jeff, please uninstall *notrademarkhere* from your harddisk, install the
-patched CSSC instead (like I just did), rsync Rik's SCCS tree on your
-harddisk (like I just did), and then send me via email the diff of the
-last Changeset that Linus applied to his tree with author, date,
-comments etc...  If you can do that, you're completely right and at
-least personally I will agree 100% with you, again: iff you can.
+- Werner
 
-Andrea
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

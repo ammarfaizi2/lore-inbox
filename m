@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUICI2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269380AbUICIcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269390AbUICI2D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 04:28:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269363AbUICIXO
+	id S269380AbUICIcL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 04:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269394AbUICIcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 04:23:14 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:27141 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269394AbUICITc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 04:19:32 -0400
-Date: Fri, 3 Sep 2004 09:19:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Amit Gud <amitgud@gmail.com>
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org, gud@eth.net
-Subject: Re: Using filesystem blocks
-Message-ID: <20040903091926.B2288@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Amit Gud <amitgud@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-	linux-kernel@vger.kernel.org, gud@eth.net
-References: <2c6b3ab004090212293b394b41@mail.gmail.com> <20040902200743.GB6875@taniwha.stupidest.org> <2c6b3ab0040902215656704680@mail.gmail.com>
+	Fri, 3 Sep 2004 04:32:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16786 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269380AbUICIZ6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 04:25:58 -0400
+Date: Fri, 3 Sep 2004 10:22:57 +0200
+From: Greg KH <greg@kroah.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040903082256.GA17629@kroah.com>
+References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <200408290004.i7T04DEO003646@localhost.localdomain> <20040901224513.GM31934@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2c6b3ab0040902215656704680@mail.gmail.com>; from amitgud@gmail.com on Fri, Sep 03, 2004 at 10:26:23AM +0530
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040901224513.GM31934@mail.shareable.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 10:26:23AM +0530, Amit Gud wrote:
-> > 
-> > > Is it wise enough to abstract away the usage of blocks for storing
-> > > extended attributes?
-> > 
-> > No.  Some fs' will store xattr data in the inodes if it fits.
-> > 
+On Wed, Sep 01, 2004 at 11:45:13PM +0100, Jamie Lokier wrote:
+> Horst von Brand wrote:
+> > What happened to "code talks, bullshit walks"?
 > 
-> First up, why is mbcache code is written at VFS layer than being
-> filesystem specific? Neccessarily to take away the coding overheads of
-> maintaining block cache that any filesystem uses, even though given
-> that only ext2 and ext3 uses it. It facilitates code reuse.
+> devfs is a fine example of why code isn't enough.  With devfs the code
+> came first, the >1 year of strategic bullshit politics from the "it's
+> not traditional unix" crowd came later, then it went in, then lots of
+> people used it, then it was replaced by something which still doesn't
+> work as well as 2.4 does with or without devfs, and people are still
+> using it despite it's faults.
 
-It is not written at the VFS level.  It's a library ontop of the buffercache
-than can be reused by filesystems.
+What is udev's faults that have an issue with?
+
+Yes, we don't do module autoloading when opening a device node, but
+that's well known, documented, and the way the kernel has evolved to
+anyway.
+
+thanks,
+
+greg k-h

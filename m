@@ -1,23 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266777AbTAIOsA>; Thu, 9 Jan 2003 09:48:00 -0500
+	id <S266749AbTAIO5L>; Thu, 9 Jan 2003 09:57:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266794AbTAIOsA>; Thu, 9 Jan 2003 09:48:00 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14023 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266777AbTAIOr4>; Thu, 9 Jan 2003 09:47:56 -0500
-Date: Thu, 9 Jan 2003 15:56:33 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: bjornw@axis.com, dev-etrax@axis.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] small cleanups for arch/cris/drivers/serial.c
-Message-ID: <20030109145633.GW6626@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266735AbTAIO5J>; Thu, 9 Jan 2003 09:57:09 -0500
+Received: from miranda.axis.se ([193.13.178.2]:41193 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S266728AbTAIO5F>;
+	Thu, 9 Jan 2003 09:57:05 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE5F3@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'Adrian Bunk'" <bunk@fs.tum.de>, Bjorn Wesen <bjorn.wesen@axis.com>,
+       dev-etrax <dev-etrax@axis.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [2.5 patch] small cleanups for arch/cris/drivers/serial.c
+Date: Thu, 9 Jan 2003 16:05:34 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+We have already done this locally but has not yet been able to 
+get Linus to apply a patch to update CRIS architecture to 2.5
+status.
+
+I suggest that Linus does not apply this patch and instead
+applies our patch that will get CRIS up to date with 2.5.55
+(will be sent to Linus within the next hour).
+
+Thanks for caring about our architecture!
+
+/Mikael
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Adrian Bunk
+Sent: Thursday, January 09, 2003 3:57 PM
+To: Bjorn Wesen; dev-etrax
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] small cleanups for arch/cris/drivers/serial.c
+
 
 The patch below makes the following changes to 
 arch/cris/drivers/serial.c:
@@ -247,3 +268,8 @@ Adrian
    
  	if (tty_register_driver(&serial_driver))
  		panic("Couldn't register serial driver\n");
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

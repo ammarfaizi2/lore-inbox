@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264439AbTEPNwc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 09:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264440AbTEPNwc
+	id S264450AbTEPNyv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 09:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTEPNyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 09:52:32 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:53983 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264439AbTEPNwb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 09:52:31 -0400
-Message-Id: <200305161405.h4GE5G608690@zeus.kernel.org>
-From: =?ISO-8859-1?Q?=20=22Reda=E7=E3o?=.Comercial" <redacaodecartas@bol.com.br>"@vax.home.local
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	Comercial
-				 ^-missing closing '"' in token
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	Comercial
-				 ^-missing closing '"' in token
-To: <linux-kernel@vger.kernel.org>
-Subject: 330 Modelos de Cartas comerciais (avisos, convites, propostas, etc.)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Date: Fri, 16 May 2003 10:04:41 -0300
-Content-Transfer-Encoding: 8bit
+	Fri, 16 May 2003 09:54:51 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:26790 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S264450AbTEPNyt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 09:54:49 -0400
+Message-ID: <20030516140835.21004.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Date: Fri, 16 May 2003 22:08:35 +0800
+Subject: Re: [BENCHMARK AIM9] Regressions in 2.5.69
+X-Originating-Ip: 194.185.48.246
+X-Originating-Server: ws5-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Estamos lançando o KIT DE CARTAS COMERCIAIS, que sana suas dúvidas na
-elaboração de: agradecimentos, atestados e declarações, avisos,  cartas de
-cobrança, cartas em inglês, comunicados,  convites,  contratos, propostas,
-empregos, solicitações e pedidos, telegramas, cartas por e-mail, etc.
-Composto de 02 (dois) disquetes com 150 modelos de documentos cada um, mais
-livreto 20 páginas, com técnicas de redação comercial. Indicado para:
-secretárias em geral, gerências, Rh, executivos, estudantes e empresas de
-toda ordem.
-Este kit possui um preço ínfimo em relação ao que poderá gerar no
-aperfeiçoamento da comunicação de sua empresa.
+From: Andrew Morton <akpm@digeo.com>
+Date: Fri, 16 May 2003 00:47:07 -0700
+To: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+Subject: Re: [BENCHMARK AIM9] Regressions in 2.5.69
 
-Acesse nossa Home Page para mais detalhes:
+> "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org> wrote:
+> >
+> > Hi all/Andrew/Martin,
+> >  I noticed regression in a few tests,
+> >  I deleted the results of tests that don't show differences between the two kernel version.
+> > 
+> >  Hope it helps.
+> > 
+> >  Ciao,
+> >  		Paolo
+> >  		
+> >  2.5.67
+> >  2.5.69
+> > 
+> >  creat-clo 10010 86.8132        86813.19 File Creations and Closes/second
+> >  creat-clo 10030 22.0339        22033.90 File Creations and Closes/second
+> >  ^^^^BIG REGRESSION
+> 
+> I cannot repeat any of this.  In fact 2.5.69-mm is a bit faster than
+> 2.5.67.
+> 
+> I tested ext2 mainly.  But a spot-check of creat-clo on reiserfs showed
+> no regression either.
 
-http://www.redacaocartas.ihp.com.br
+Ok, thanks Andrew.
+I dunno what happened during the test.
+I'll try again to run the test with both the kernel.
+I'll back to you if I'm able to reproduce those numbers.
 
+Ciao,
+          Paolo
+ 
 
-Ps: Caso não queira receber novas mensagens e novidades sobre esse assunto,
-acesse:
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-http://www.remova-me.ihp.com.br
+Powered by Outblaze

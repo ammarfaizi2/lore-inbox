@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289580AbSAVXtY>; Tue, 22 Jan 2002 18:49:24 -0500
+	id <S289564AbSAVXuo>; Tue, 22 Jan 2002 18:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289588AbSAVXtP>; Tue, 22 Jan 2002 18:49:15 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:44559 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289585AbSAVXtE>; Tue, 22 Jan 2002 18:49:04 -0500
-Message-ID: <3C4DF8F7.C50486EC@zip.com.au>
-Date: Tue, 22 Jan 2002 15:42:47 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
+	id <S289577AbSAVXuh>; Tue, 22 Jan 2002 18:50:37 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:23556 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289564AbSAVXuU>;
+	Tue, 22 Jan 2002 18:50:20 -0500
+Date: Tue, 22 Jan 2002 21:49:58 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Steve Brueggeman <xioborg@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon PSE/AGP Bug
+In-Reply-To: <c5qr4uk3adm53fgvuibld2tnjtnfnq0a5i@4ax.com>
+Message-ID: <Pine.LNX.4.33L.0201222146090.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Serguei Miridonov <mirsev@cicese.mx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Console output for debugging
-In-Reply-To: <3C4DF2AD.66BC3F6C@cicese.mx>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serguei Miridonov wrote:
-> 
-> Q: Is there any function in the kernel which I can call
-> safely from a module to print debug message on the console
-> screen?
-> 
-> I don't want to use printk for some reasons. One of them is
-> that I want messages to appear on the screen immediately,
-> even from interrupt processing routines. Another is to be
-> able to see messages until the system freezes completely in
-> case of software or hardware bug.
-> 
+On Tue, 22 Jan 2002, Steve Brueggeman wrote:
 
-printk does all this, usually.  It is synchronous, so when
-it returns to your code, the text is on the screen.
+> I AM NOT stating that this is necessarily the Athelon bug exposed by
+> gentoo, but it appears that there are enough people complaining about
+> unstable systems, becoming stable by running with the mem=nopentium.
+> It also appears that a significant number of them are also running
+> Nvidia AGP graphics adapters.
 
-The only exception to this is when you perform a printk
-from within an interrupt handler *while* printk itself
-is executing in non-interrupt context.  When this rare
-situation occurs, the text is buffered, to be emitted
-by the non-interrupt code before it returns to its caller.
+Daniel Robbins, William Lee Irwin and myself were on the
+phone with people from AMD today.
 
-If the printk-within-printk buffering is a problem for you,
-(which I doubt) then you could disable interrupts while
-running printk. Something like this:
+One possible cause for this problem was already tracked
+down a while ago; this problem isn't the fault of any
+particular part of the system (CPU, OS, AGP or graphics
+driver) but simply a consequence of how these things
+work together. Of course we don't know if this particular
+bug is the one hitting Linux systems with nvidia.
 
+I won't post my poorly explained version of the story
+here as the AMD guys are working on releasing their
+well-written version of the story somewhere in the next
+few days...
 
---- linux-2.4.18-pre6/kernel/printk.c	Tue Jan 22 12:38:31 2002
-+++ linux-akpm/kernel/printk.c	Tue Jan 22 15:40:57 2002
-@@ -412,6 +412,10 @@ asmlinkage int printk(const char *fmt, .
- 	char *p;
- 	static char printk_buf[1024];
- 	static int log_level_unknown = 1;
-+	static spinlock_t printk_lock = SPIN_LOCK_UNLOCKED;
-+	unsigned long xflags;
-+
-+	spin_lock_irqsave(&printk_lock, xflags);
- 
- 	if (oops_in_progress) {
- 		/* If a crash is occurring, make sure we can't deadlock */
-@@ -471,6 +475,7 @@ asmlinkage int printk(const char *fmt, .
- 		spin_unlock_irqrestore(&logbuf_lock, flags);
- 	}
- out:
-+	spin_unlock_irqrestore(&printk_lock, xflags);
- 	return printed_len;
- }
- EXPORT_SYMBOL(printk);
+kind regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

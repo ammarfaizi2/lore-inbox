@@ -1,440 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUFDPO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265760AbUFDPX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265799AbUFDPO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 11:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265790AbUFDPO2
+	id S265760AbUFDPX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 11:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUFDPX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 11:14:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59882 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265799AbUFDPNH (ORCPT
+	Fri, 4 Jun 2004 11:23:56 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:44170 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265760AbUFDPXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 11:13:07 -0400
-Date: Fri, 4 Jun 2004 17:12:51 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org
-Subject: Re: mlock as non-root: use rlimits
-Message-ID: <20040604151251.GD16897@devserv.devel.redhat.com>
-References: <20040604112845.GA28413@devserv.devel.redhat.com>
+	Fri, 4 Jun 2004 11:23:53 -0400
+Date: Fri, 4 Jun 2004 17:23:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ide errors in 7-rc1-mm1 and later
+Message-ID: <20040604152347.GD1946@suse.de>
+References: <1085689455.7831.8.camel@localhost> <200406041438.44706.bzolnier@elka.pw.edu.pl> <20040604124704.GA1946@suse.de> <200406041534.48688.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040604112845.GA28413@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200406041534.48688.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 05:12:02PM +0200, Arjan van de Ven wrote:
-> Hi,
+On Fri, Jun 04 2004, Bartlomiej Zolnierkiewicz wrote:
+> On Friday 04 of June 2004 14:47, Jens Axboe wrote:
+> > On Fri, Jun 04 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > Well, thanks but I still think that your patch suits crappy code
+> > > perfectly (you know all the complains).
+> >
+> > I'm not on a crusade to clean up drivers/ide, in fact I could not care
+> > less it if rots away (thank fully it is doing just that, pata is going
+> > away). Most of your complaints are not valid in my opinion (->wrq usage
+> 
+> You are missing two facts:
+> - I'm on the _crusade_ to clean drivers/ide and merge them with libata later
 
-missed one chunk (sorry)
+I'm well aware of that.
 
-diff -urN linux-2.6.1-1.138.2.1/fs/hugetlbfs/inode.c linux-2.6.1-1.138.2.1custom/fs/hugetlbfs/inode.c
---- linux-2.6.1-1.138.2.1/fs/hugetlbfs/inode.c	2004-01-30 15:15:50.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/fs/hugetlbfs/inode.c	2004-02-26 14:17:48.000000000 -0800
-@@ -755,7 +755,7 @@
- 	struct qstr quick_string;
- 	char buf[16];
- 
--	if (!capable(CAP_IPC_LOCK))
-+	if (!can_do_mlock())
- 		return ERR_PTR(-EPERM);
- 
- 	if (!is_hugepage_mem_enough(size))
-diff -urN linux-2.6.1-1.138.2.1/include/asm-alpha/resource.h linux-2.6.1-1.138.2.1custom/include/asm-alpha/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-alpha/resource.h	2004-01-08 22:59:08.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-alpha/resource.h	2004-03-02 13:45:23.000000000 -0800
-@@ -39,7 +39,7 @@
-     {INR_OPEN, INR_OPEN},			/* RLIMIT_NOFILE */	\
-     {LONG_MAX, LONG_MAX},			/* RLIMIT_AS */		\
-     {LONG_MAX, LONG_MAX},			/* RLIMIT_NPROC */	\
--    {LONG_MAX, LONG_MAX},			/* RLIMIT_MEMLOCK */	\
-+    {PAGE_SIZE,PAGE_SIZE},			/* RLIMIT_MEMLOCK */	\
-     {LONG_MAX, LONG_MAX},                       /* RLIMIT_LOCKS */      \
- }
- 
-diff -urN linux-2.6.1-1.138.2.1/include/asm-arm/resource.h linux-2.6.1-1.138.2.1custom/include/asm-arm/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-arm/resource.h	2004-01-08 22:59:56.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-arm/resource.h	2004-03-02 13:46:40.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ 0,             0             },	\
- 	{ INR_OPEN,      INR_OPEN      },	\
--	{ RLIM_INFINITY, RLIM_INFINITY },	\
-+	{ PAGE_SIZE,      PAGE_SIZE    },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-arm26/resource.h linux-2.6.1-1.138.2.1custom/include/asm-arm26/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-arm26/resource.h	2004-01-08 22:59:04.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-arm26/resource.h	2004-03-02 13:48:39.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ 0,             0             },	\
- 	{ INR_OPEN,      INR_OPEN      },	\
--	{ RLIM_INFINITY, RLIM_INFINITY },	\
-+	{ PAGE_SIZE,     PAGE_SIZE     },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- 	{ RLIM_INFINITY, RLIM_INFINITY },	\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-cris/resource.h linux-2.6.1-1.138.2.1custom/include/asm-cris/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-cris/resource.h	2004-01-08 22:59:45.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-cris/resource.h	2004-03-02 13:47:33.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },               \
-+	{ PAGE_SIZE,     PAGE_SIZE     },               \
-         { RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-h8300/resource.h linux-2.6.1-1.138.2.1custom/include/asm-h8300/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-h8300/resource.h	2004-01-08 22:59:06.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-h8300/resource.h	2004-03-02 13:49:00.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
-         { RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-i386/resource.h linux-2.6.1-1.138.2.1custom/include/asm-i386/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-i386/resource.h	2004-01-08 22:59:09.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-i386/resource.h	2004-03-02 13:47:47.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
-         { RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-ia64/resource.h linux-2.6.1-1.138.2.1custom/include/asm-ia64/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-ia64/resource.h	2004-01-08 22:59:55.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-ia64/resource.h	2004-03-02 13:48:07.000000000 -0800
-@@ -42,7 +42,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-m68k/resource.h linux-2.6.1-1.138.2.1custom/include/asm-m68k/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-m68k/resource.h	2004-01-08 22:59:05.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-m68k/resource.h	2004-03-02 13:49:18.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
-         { RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-parisc/resource.h linux-2.6.1-1.138.2.1custom/include/asm-parisc/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-parisc/resource.h	2004-01-08 22:59:46.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-parisc/resource.h	2004-03-02 13:50:30.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-ppc/resource.h linux-2.6.1-1.138.2.1custom/include/asm-ppc/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-ppc/resource.h	2004-01-08 22:59:26.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-ppc/resource.h	2004-03-02 13:50:57.000000000 -0800
-@@ -34,7 +34,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-ppc64/resource.h linux-2.6.1-1.138.2.1custom/include/asm-ppc64/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-ppc64/resource.h	2004-01-08 22:59:46.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-ppc64/resource.h	2004-03-02 13:50:44.000000000 -0800
-@@ -43,7 +43,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-s390/resource.h linux-2.6.1-1.138.2.1custom/include/asm-s390/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-s390/resource.h	2004-01-08 22:59:19.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-s390/resource.h	2004-03-02 13:51:12.000000000 -0800
-@@ -45,7 +45,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{ INR_OPEN, INR_OPEN },                         \
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-sh/resource.h linux-2.6.1-1.138.2.1custom/include/asm-sh/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-sh/resource.h	2004-01-08 22:59:45.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-sh/resource.h	2004-03-02 13:51:38.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE,     PAGE_SIZE     },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-sparc/resource.h linux-2.6.1-1.138.2.1custom/include/asm-sparc/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-sparc/resource.h	2004-01-08 22:59:09.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-sparc/resource.h	2004-03-02 13:52:06.000000000 -0800
-@@ -42,7 +42,7 @@
-     {       0, RLIM_INFINITY},		\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {INR_OPEN, INR_OPEN}, {0, 0},	\
--    {RLIM_INFINITY, RLIM_INFINITY},	\
-+    {PAGE_SIZE, PAGE_SIZE},	\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {RLIM_INFINITY, RLIM_INFINITY}	\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-sparc64/resource.h linux-2.6.1-1.138.2.1custom/include/asm-sparc64/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-sparc64/resource.h	2004-01-08 22:59:06.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-sparc64/resource.h	2004-03-02 13:51:58.000000000 -0800
-@@ -41,7 +41,7 @@
-     {       0, RLIM_INFINITY},		\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {INR_OPEN, INR_OPEN}, {0, 0},	\
--    {RLIM_INFINITY, RLIM_INFINITY},	\
-+    {PAGE_SIZE,     PAGE_SIZE    },	\
-     {RLIM_INFINITY, RLIM_INFINITY},	\
-     {RLIM_INFINITY, RLIM_INFINITY}	\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-v850/resource.h linux-2.6.1-1.138.2.1custom/include/asm-v850/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-v850/resource.h	2004-01-08 22:59:06.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-v850/resource.h	2004-03-02 13:52:59.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE, PAGE_SIZE  },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
-         { RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/include/asm-x86_64/resource.h linux-2.6.1-1.138.2.1custom/include/asm-x86_64/resource.h
---- linux-2.6.1-1.138.2.1/include/asm-x86_64/resource.h	2004-01-08 22:59:47.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/include/asm-x86_64/resource.h	2004-03-02 13:53:10.000000000 -0800
-@@ -37,7 +37,7 @@
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
- 	{             0,             0 },		\
- 	{      INR_OPEN,     INR_OPEN  },		\
--	{ RLIM_INFINITY, RLIM_INFINITY },		\
-+	{ PAGE_SIZE , PAGE_SIZE  },		\
- 	{ RLIM_INFINITY, RLIM_INFINITY },		\
-         { RLIM_INFINITY, RLIM_INFINITY },		\
- }
-diff -urN linux-2.6.1-1.138.2.1/ipc/shm.c linux-2.6.1-1.138.2.1custom/ipc/shm.c
---- linux-2.6.1-1.138.2.1/ipc/shm.c	2004-01-08 22:59:34.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/ipc/shm.c	2004-03-02 13:57:21.000000000 -0800
-@@ -502,14 +502,11 @@
- 	case SHM_LOCK:
- 	case SHM_UNLOCK:
- 	{
--/* Allow superuser to lock segment in memory */
--/* Should the pages be faulted in here or leave it to user? */
--/* need to determine interaction with current->swappable */
--		if (!capable(CAP_IPC_LOCK)) {
-+		/* Allow superuser to lock segment in memory */
-+		if (!can_do_mlock()) {
- 			err = -EPERM;
- 			goto out;
- 		}
--
- 		shp = shm_lock(shmid);
- 		if(shp==NULL) {
- 			err = -EINVAL;
-@@ -524,9 +521,11 @@
- 			goto out_unlock;
- 		
- 		if(cmd==SHM_LOCK) {
--			if (!is_file_hugepages(shp->shm_file))
--				shmem_lock(shp->shm_file, 1);
--			shp->shm_flags |= SHM_LOCKED;
-+			if (!is_file_hugepages(shp->shm_file)) {
-+				err = shmem_lock(shp->shm_file, 1);
-+				if (!err)
-+					shp->shm_flags |= SHM_LOCKED;
-+			}
- 		} else {
- 			if (!is_file_hugepages(shp->shm_file))
- 				shmem_lock(shp->shm_file, 0);
-diff -urN linux-2.6.1-1.138.2.1/ipc/util.c linux-2.6.1-1.138.2.1custom/ipc/util.c
---- linux-2.6.1-1.138.2.1/ipc/util.c	2004-01-08 22:59:26.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/ipc/util.c	2004-03-02 15:03:08.000000000 -0800
-@@ -377,8 +377,11 @@
- 		granted_mode >>= 3;
- 	/* is there some bit set in requested_mode but not in granted_mode? */
- 	if ((requested_mode & ~granted_mode & 0007) && 
--	    !capable(CAP_IPC_OWNER))
--		return -1;
-+	    !capable(CAP_IPC_OWNER)) {
-+		if (!can_do_mlock())  {
-+			return -1;
-+		}
-+	}	
- 
- 	return security_ipc_permission(ipcp, flag);
- }
-diff -urN linux-2.6.1-1.138.2.1/mm/mlock.c linux-2.6.1-1.138.2.1custom/mm/mlock.c
---- linux-2.6.1-1.138.2.1/mm/mlock.c	2004-01-08 22:59:07.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/mm/mlock.c	2004-02-24 14:19:53.000000000 -0800
-@@ -57,7 +57,7 @@
- 	struct vm_area_struct * vma, * next;
- 	int error;
- 
--	if (on && !capable(CAP_IPC_LOCK))
-+	if (on && !can_do_mlock())
- 		return -EPERM;
- 	len = PAGE_ALIGN(len);
- 	end = start + len;
-@@ -139,7 +139,7 @@
- 	unsigned int def_flags;
- 	struct vm_area_struct * vma;
- 
--	if (!capable(CAP_IPC_LOCK))
-+	if (!can_do_mlock())
- 		return -EPERM;
- 
- 	def_flags = 0;
-diff -urN linux-2.6.1-1.138.2.1/mm/mmap.c linux-2.6.1-1.138.2.1custom/mm/mmap.c
---- linux-2.6.1-1.138.2.1/mm/mmap.c	2004-01-30 15:15:50.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/mm/mmap.c	2004-02-24 14:26:15.000000000 -0800
-@@ -519,15 +519,17 @@
- 			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
- 
- 	if (flags & MAP_LOCKED) {
--		if (!capable(CAP_IPC_LOCK))
-+		if (!can_do_mlock())
- 			return -EPERM;
- 		vm_flags |= VM_LOCKED;
- 	}
- 	/* mlock MCL_FUTURE? */
- 	if (vm_flags & VM_LOCKED) {
--		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
-+		unsigned long locked, lock_limit;
-+		locked = mm->locked_vm << PAGE_SHIFT;
-+		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 		locked += len;
--		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
-+		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
- 			return -EAGAIN;
- 	}
- 
-@@ -1360,9 +1362,11 @@
- 	 * mlock MCL_FUTURE?
- 	 */
- 	if (mm->def_flags & VM_LOCKED) {
--		unsigned long locked = mm->locked_vm << PAGE_SHIFT;
-+		unsigned long locked, lock_limit;
-+		locked = mm->locked_vm << PAGE_SHIFT;
-+		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 		locked += len;
--		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
-+		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
- 			return -EAGAIN;
- 	}
- 
-diff -urN linux-2.6.1-1.138.2.1/mm/mremap.c linux-2.6.1-1.138.2.1custom/mm/mremap.c
---- linux-2.6.1-1.138.2.1/mm/mremap.c	2004-01-30 15:15:50.000000000 -0800
-+++ linux-2.6.1-1.138.2.1custom/mm/mremap.c	2004-02-24 14:28:06.000000000 -0800
-@@ -377,10 +377,12 @@
- 			goto out;
- 	}
- 	if (vma->vm_flags & VM_LOCKED) {
--		unsigned long locked = current->mm->locked_vm << PAGE_SHIFT;
-+		unsigned long locked, lock_limit;
-+		locked = current->mm->locked_vm << PAGE_SHIFT;
-+		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 		locked += new_len - old_len;
- 		ret = -EAGAIN;
--		if (locked > current->rlim[RLIMIT_MEMLOCK].rlim_cur)
-+		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
- 			goto out;
- 	}
- 	ret = -ENOMEM;
-diff -urNp linux-530/mm/shmem.c linux-550/mm/shmem.c
---- linux-530/mm/shmem.c
-+++ linux-550/mm/shmem.c
-@@ -1161,17 +1161,36 @@ shmem_get_policy(struct vm_area_struct *
- }
- #endif
- 
--void shmem_lock(struct file *file, int lock)
-+int shmem_lock(struct file *file, int lock)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
- 	struct shmem_inode_info *info = SHMEM_I(inode);
-+	struct mm_struct *mm = current->mm;
-+	unsigned long lock_limit, locked;
-+	int retval = -ENOMEM;
- 
- 	spin_lock(&info->lock);
-+	if (lock && !(info->flags & VM_LOCKED)) {
-+		locked = inode->i_size >> PAGE_SHIFT;
-+		locked += mm->locked_vm;
-+		lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
-+		lock_limit >>= PAGE_SHIFT;
-+		if ((locked > lock_limit) && !capable(CAP_IPC_LOCK))
-+			goto out_nomem;
-+		mm->locked_vm = locked;
-+	}
-+	if (!lock && (info->flags & VM_LOCKED) && mm) {
-+		locked = inode->i_size >> PAGE_SHIFT;
-+		mm->locked_vm -= locked;
-+	}
- 	if (lock)
- 		info->flags |= VM_LOCKED;
- 	else
- 		info->flags &= ~VM_LOCKED;
-+	retval = 0;
-+out_nomem:
- 	spin_unlock(&info->lock);
-+	return retval;
- }
- 
- static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
---- linux-2.6.6/include/linux/mm.h~	2004-06-02 10:59:42.600139423 +0200
-+++ linux-2.6.6/include/linux/mm.h	2004-06-02 10:59:42.600139423 +0200
-@@ -495,9 +495,19 @@
- struct mempolicy *shmem_get_policy(struct vm_area_struct *vma,
- 					unsigned long addr);
- struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags);
--void shmem_lock(struct file * file, int lock);
-+int shmem_lock(struct file * file, int lock);
- int shmem_zero_setup(struct vm_area_struct *);
- 
-+static inline int can_do_mlock(void)
-+{
-+	if (capable(CAP_IPC_LOCK))
-+		return 1;
-+	if (current->rlim[RLIMIT_MEMLOCK].rlim_cur != 0)
-+		return 1;
-+	return 0;
-+}
-+
-+
- /*
-  * Parameter block passed down to zap_pte_range in exceptional cases.
-  */
+> - pata is (slowly) going away but support for it is not going _anywhere_
+>   (although some people are smoking 'libata pata' crack)
+
+
+> > is fine. it's not pretty, but it's not broken as long as you serialize
+> > access across the hwgroup of course). Like the rest, it's an artifact of
+> > how messy the code paths are in there. That could be cleaned too
+> > naturally, but that's someone elses job and I'm not about to increase my
+> > work load in that area.
+> 
+> Yep, you prefer to increase my work load instead.
+
+If you think that any change to the ide base is increasing your work
+load, then yes. Otherwise no.
+
+> > That you need to queue pre/post flushes to support barriers is a _driver
+> > implementation detail_ in my opinion. You don't want to even advertise
+> 
+> It is implementation braindamage IMO (but I'll buy it if rest is OK).
+
+Well feel free to pull a rabbit out of your hat and suggest something
+else that works for barriers. It's mind boggling that nothing so far has
+come out of t13 to address this, I guess data integrity isn't high on
+their list.
+
+So in short, either shut up or put up.
+
+> > that to upper layers. I will move a little of that into the block layer,
+> > if only because SATA will need it as well.
+> >
+> > As for REQ_DRIVE_TASK and ide_get_error_location(), well hell I do take
+> > patches! If there's something you consider broken, damnit send a patch
+> 
+> It is _your_ job to do it properly.
+
+I _am_ doing it properly. If you think otherwise, then I suggest you
+show in code what you want changed. If you think it's my job to keep
+changing the code based on unclear suggestions, then you are sadly
+mistaken.
+
+> There are no double standards, 'IDE crap embargo' holds for everyone.
+
+Like it or not, but ide code needs changing to support barriers one way
+or the other. If there's some part of the implementation you don't like,
+then I suggest you show why. Since we appear to have reached a
+discussion dead lock, I suggest you do so by showing a patch changing eg
+the ide_get_error_location() stuff. Sadly you could have done this
+roughly 10 times in the same time frame that you have written these
+emails.
+
+> > to correct it and I'll surely merge it into the base if I agree it makes
+> > sense. That's the way to get changes done if you feel something should
+> > be different, snide remarks with basically zero detail is not.
+> 
+> I think I provided enough details few times already.
+> You can always ask in case of problems (keep linux-ide@ cc:-ed).
+> 
+> [ First thing to do is to use REQ_DRIVE_TASKFILE not REQ_DRIVE_TASK. ]
+
+REQ_DRIVE_TASKFILE change I agree with, and yeah you have given enough
+detail there. And I'll work iget_get_error_location() to fill the holes
+in case of flush errors. I'll get that change done soonish and post
+updates for -mm.
+
+-- 
+Jens Axboe
+

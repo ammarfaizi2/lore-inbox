@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267181AbUBSAVV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 19:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUBSAVU
+	id S267247AbUBSAfr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 19:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267249AbUBSAfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 19:21:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59580 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267181AbUBSAVT
+	Wed, 18 Feb 2004 19:35:47 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:20429 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S267247AbUBSAfj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 19:21:19 -0500
-Message-ID: <4034016C.5070307@pobox.com>
-Date: Wed, 18 Feb 2004 19:21:00 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 18 Feb 2004 19:35:39 -0500
+Message-ID: <403402DE.4030400@cyberone.com.au>
+Date: Thu, 19 Feb 2004 11:27:10 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Arne Ahrend <aahrend@web.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6: No hot_UN_plugging of PCMCIA network cards
-References: <20040122210501.40800ea7.aahrend@web.de> <20040122213757.H23535@flint.arm.linux.org.uk> <20040123232025.4a128ead.aahrend@web.de> <20040124004530.B25466@flint.arm.linux.org.uk>
-In-Reply-To: <20040124004530.B25466@flint.arm.linux.org.uk>
+To: Eric <eric@cisu.net>
+CC: Brice Figureau <brice+lklm@daysofwonder.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: spurious temporary freeze, scheduler and preempt problem
+ ?
+References: <1077117976.2265.61.camel@localhost.localdomain> <200402181212.06279.eric@cisu.net>
+In-Reply-To: <200402181212.06279.eric@cisu.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Fri, Jan 23, 2004 at 11:20:25PM +0100, Arne Ahrend wrote:
-> 
->>>It works for me - with pcnet_cs.  Do you have ipv6 configured into the
->>>kernel?
->>
->>No.
-> 
-> 
-> Argh, it seems that several patches which were in the netdrv experimental
-> tree never got merged.
-> 
-> Jeff - what's the situation with the net driver experimental tree?
-> Could the DEV_STALE_CONFIG patches from around December time be
-> merged please?
 
 
-All my netdev patches are in upstream now, FWIW.
+Eric wrote:
 
-	Jeff
+>On Wednesday 18 February 2004 9:26 am, Brice Figureau wrote:
+>Someone correct me if I'm way off base, but have you tried
+>	scheduler=deadline
+>To try the different kernel schedulers?
+>Im not sure about the keyword, but do a quick google or search lkml and you'll 
+>see the correct keyword and the different schedulers you can try.
+>
+>
+>
 
-
+It's probably a CPU scheduler related problem, so this
+wouldn't do much.
 

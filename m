@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272345AbRIEWjv>; Wed, 5 Sep 2001 18:39:51 -0400
+	id <S272340AbRIEWrW>; Wed, 5 Sep 2001 18:47:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272350AbRIEWja>; Wed, 5 Sep 2001 18:39:30 -0400
-Received: from mx3.port.ru ([194.67.57.13]:525 "EHLO smtp3.port.ru")
-	by vger.kernel.org with ESMTP id <S272345AbRIEWj2>;
-	Wed, 5 Sep 2001 18:39:28 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109060302.f8632BP02164@vegae.deep.net>
-Subject: more fruits, though not probably fresh
-To: linux-kernel@vger.kernel.org
-Date: Thu, 6 Sep 2001 03:02:11 +0000 (UTC)
-Cc: alan@lxorguk.ukuu.org.uk
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272350AbRIEWrB>; Wed, 5 Sep 2001 18:47:01 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:35594 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S272340AbRIEWq4>;
+	Wed, 5 Sep 2001 18:46:56 -0400
+Date: Wed, 5 Sep 2001 15:46:46 -0700
+From: Greg KH <greg@kroah.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: dag@brattli.net, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        bhards@bigpond.net.au, bvermeul@devel.blackstar.nl
+Subject: Re: PATCH: linux-2.4.10-pre4/drivers/net/irda/irda-usb.c incorrectly matched to other USB devices
+Message-ID: <20010905154646.A15893@kroah.com>
+In-Reply-To: <20010904215553.A23814@baldur.yggdrasil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010904215553.A23814@baldur.yggdrasil.com>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-       Dunno if it already is fised in ac7 kernels but...
+On Tue, Sep 04, 2001 at 09:55:53PM -0700, Adam J. Richter wrote:
 
-make[4]: Entering directory `/usr/src/linux-stest/drivers/scsi/aic7xxx/aicasm'
-*** Install db development libraries
-gcc -I/usr/include -I. -ldb aicasm_gram.c aicasm_scan.c aicasm.c aicasm_symbol.c -o aicasm
-aicasm_gram.y:1476: warning: type mismatch with previous implicit declaration
-/usr/share/bison.simple:643: warning: previous implicit declaration of `yyerror'aicasm_gram.y:1476: warning: `yyerror' was previously implicitly declared to return `int'
-aicasm_symbol.c:39: aicdb.h: No such file or directory
-make[4]: *** [aicasm] Error 1
-make[4]: Leaving directory `/usr/src/linux-stest/drivers/scsi/aic7xxx/aicasm'
-make[3]: *** [aicasm/aicasm] Error 2
-make[3]: Leaving directory `/usr/src/linux-stest/drivers/scsi/aic7xxx'
-make[2]: *** [_modsubdir_aic7xxx] Error 2
-make[2]: Leaving directory `/usr/src/linux-stest/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-stest/drivers'
-make: *** [_mod_drivers] Error 2
+> --- linux-2.4.10-pre4/drivers/net/irda/irda-usb.c	Sun Aug  5 13:12:40 2001
+> +++ linux/drivers/net/irda/irda-usb.c	Tue Sep  4 21:19:43 2001
+> @@ -76,7 +76,8 @@
+>  	{ USB_DEVICE(0x50f, 0x180), driver_info: IUC_SPEED_BUG | IUC_NO_WINDOW },
+>  	/* Extended Systems, Inc.,  XTNDAccess IrDA USB (ESI-9685) */
+>  	{ USB_DEVICE(0x8e9, 0x100), driver_info: IUC_SPEED_BUG | IUC_NO_WINDOW },
+> -	{ match_flags: USB_DEVICE_ID_MATCH_INT_CLASS,
+> +	{ match_flags: USB_DEVICE_ID_MATCH_INT_CLASS |
+> +	               USB_DEVICE_ID_MATCH_INT_SUBCLASS,
+>  	  bInterfaceClass: USB_CLASS_APP_SPEC,
+>  	  bInterfaceSubClass: USB_CLASS_IRDA,
+>  	  driver_info: IUC_DEFAULT, },
 
-cheers,
- Sam
+That should be:
+	{ USB_INTERFACE_INFO (USB_CLASS_APP_SPEC, USB_CLASS_IRDA, 0), driver_info: IUC_DEFAULT},
+
+according to the IrDA USB spec.
+
+greg k-h
+	
+

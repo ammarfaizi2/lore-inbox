@@ -1,121 +1,98 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314805AbSDVVga>; Mon, 22 Apr 2002 17:36:30 -0400
+	id <S314801AbSDVVmB>; Mon, 22 Apr 2002 17:42:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314791AbSDVVg3>; Mon, 22 Apr 2002 17:36:29 -0400
-Received: from fiona.siteprotect.com ([66.113.135.14]:2064 "HELO
-	fiona.siteprotect.com") by vger.kernel.org with SMTP
-	id <S314816AbSDVVfm>; Mon, 22 Apr 2002 17:35:42 -0400
-Message-ID: <3CC481BD.5070506@hostway.net>
-Date: Mon, 22 Apr 2002 16:33:49 -0500
-From: Nicholas Harring <nharring@hostway.net>
-Reply-To: nharring@hostway.net
-Organization: Hostway Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
-X-Accept-Language: en-us, en
+	id <S314819AbSDVVmB>; Mon, 22 Apr 2002 17:42:01 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:19185 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S314801AbSDVVkU>;
+	Mon, 22 Apr 2002 17:40:20 -0400
+Message-ID: <3CC48321.5855B08A@mvista.com>
+Date: Mon, 22 Apr 2002 14:39:45 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Doug Ledford <dledford@redhat.com>, Larry McVoy <lm@bitmover.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zNxY-0001Ld-00@starship> <20020422165327.A914@redhat.com> <E16zOWH-0001MF-00@starship>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Robert Love <rml@tech9.net>
+CC: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: in_interrupt race
+In-Reply-To: <15553.17071.88897.914713@argo.ozlabs.ibm.com> <1019502174.939.50.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> On Monday 22 April 2002 22:53, Doug Ledford wrote:
+Robert Love wrote:
 > 
->>On Sun, Apr 21, 2002 at 10:29:19PM +0200, Daniel Phillips wrote:
->>
->>>On Monday 22 April 2002 21:53, Doug Ledford wrote:
->>>
->>>>On Sun, Apr 21, 2002 at 07:34:49PM +0200, Daniel Phillips wrote:
->>>>
->>>>>How about a URL instead?  Any objection?
->>>>
->>>>Yes.  Why should I have to cut and paste (assuming I'm in X) or
->>>>write down
->>>
->>>What???   What kind of system are you running?  Err... redhat supports
->>>cut and paste I thought. <-- funnny.
->>
->>Depends on what you use to read the file containing the URL.  Obviously, 
->>if I'm Al Viro I'm on a text console and wouldn't use a mouse if you 
->>cemented it in my hand, so cut and paste isn't an option.
+> On Sat, 2002-04-20 at 06:27, Paul Mackerras wrote:
+> 
+> > Thus if we have CONFIG_SMP and CONFIG_PREEMPT, there is a small but
+> > non-zero probability that in_interrupt() will give the wrong answer if
+> > it is called with preemption enabled.  If the process gets scheduled
+> > from cpu A to cpu B between calling smp_processor_id() and evaluating
+> > local_irq_count(cpu) or local_bh_count(), and cpu A then happens to be
+> > in interrupt context at the point where the process resumes on cpu B,
+> > then in_interrupt() will incorrectly return 1.
+> 
+> Looks like you are probably right ...
+> 
+> > One idea I had is to use a couple of bits in
+> > current_thread_info()->flags to indicate whether local_irq_count and
+> > local_bh_count are non-zero for the current cpu.  These bits could be
+> > tested safely without having to disable preemption.
+
+Preemption lock is implied by either of these being != 0, so this seems
+consistant, but why not the whole counter?
+> 
+> For now we can just do this,
+> 
+> --- linux-2.5.8/include/asm-i386/hardirq.h      Sun Apr 14 15:18:55 2002
+> +++ linux/include/asm-i386/hardirq.h    Mon Apr 22 14:56:29 2002
+> @@ -21,8 +21,10 @@
+>   * Are we in an interrupt context? Either doing bottom half
+>   * or hardware interrupt processing?
+>   */
+> -#define in_interrupt() ({ int __cpu = smp_processor_id(); \
+> -       (local_irq_count(__cpu) + local_bh_count(__cpu) != 0); })
+> +#define in_interrupt() ({ int __cpu; preempt_disable(); \
+> +       __cpu = smp_processor_id(); \
+> +       (local_irq_count(__cpu) + local_bh_count(__cpu) != 0); \
+> +       preempt_enable(); })
+> 
+>  #define in_irq() (local_irq_count(smp_processor_id()) != 0)
 > 
 > 
-> Would everybody with no mouse on their system please stand up, and leave
-> the room.
+> Or perhaps leave the code as-is but make the rule preemption needs to be
+> disabled before calling (either implicitly or explicitly).  I.e., via a
+> call to preempt_disable or because interrupts are disabled, a lock is
+> held, etc ...
+
+Right, getting a consistant flag is not much use if it isn't used within
+the same context.
 > 
-> Seriously, you're trolling.
+> > In fact almost all uses of local_irq_count() and local_bh_count() are
+> > for the current cpu; the exceptions are the irqs_running() function
+> > and some debug printks.  Maybe the irq and bh counters themselves
+> > could be put into the thread_info struct, if irqs_running could be
+> > implemented another way.
 > 
-> 
->>>>and transpose some URL from a file that used to contain
->>>>the exact instructions I need in order to get those instructions now
->>>
->>>Bogus.  You'd have to do the same to edit/list the file.
->>
->>No, I wouldn't.  In one case I would do "less <filename>" and in the other 
->>case I would do "less <filename>", ohh damn, it's only a pointer to the 
->>real docs, switch to X or install lynx on my system, go to URL.  It's a 
->>matter of having the appropriate documentation at hand vs. having to 
->>retrieve it.
-> 
-> 
-> lynx <url>
-> 
-> What's the difference?
-The difference is that currently linux/Documentation/SubmittingPatches 
-currently exists and advocates the usage of diff. Linus no longer 
-prefers diff, he has made it clear he likes BK output.
-Would it be acceptable to simply modify said file to include both 
-instructions for using diff, which I believe Linus has said he will 
-continue to accept, as well as to include basic commands for BK to get 
-output such as Linus wants emailed to him. No feature listing, no 
-advertising, no advocacy, just simple usage.
+> One thing Linus, DaveM, and I discussed a while back was actually
+> getting rid of the irq and bh counts completely and folding them into
+> preempt_count.  I am interested in this...
+
+Yes.
 
 > 
+>         Robert Love
 > 
->>I put my docs on my web site because that's what I owned/controlled and it 
->>was relevant to people already coming to my web site.  That in no way 
->>indicates that your position is correct, especially since you ignored to 
->>truly relevant item in my email:
-> 
-> 
-> I'm actually trying to do a little work as well as handle all the input
-> from the Bitkeeper moonies, thankyou.
-> 
-> Err, did I say moonies, sorry I meant advocates, err, apologists, umm.
-> Sorry, I just meant I've been getting a lot of email lately, some of it
-> is too long to read every word.  Unless you are a spectacularly good
-> writer, expect some of your deathless prose to drop through the cracks.
-> 
-> 
->>>>information so that the whole picture, from start to finish, was all 
->>>>described in one easy to access place.
->>>
->>One place for relevant information, from start to finish.
-> 
-> 
-> Right.  bitkeeper.com, any argument?
-> 
-> 
->>>You haven't read the thread closely, this was described before.  There are
->>>one documentation file and three scripts.  The documentation file is about
->>>half general description of Bitkeeper - which is quite unabashedly
->>>promotional and the author does describe it as an adverisement - and half
->>>how to use for submitting kernel patches.
->>
->>Now, now Daniel, let's not put words into people's mouths.  Jeff has said 
->>he does like BitKeeper, and he said he could *see how you think his 
->>description is an advertisement* but that he *didn't write it as an 
->>advertisement*.
-> 
-> 
-> He agreed it was an advertisement.
-> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbUKODBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbUKODbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261487AbUKODBi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUKODBh
+	id S261518AbUKODbs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbUKOD3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 22:01:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:58635 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261497AbUKOCui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 21:50:38 -0500
-Date: Mon, 15 Nov 2004 03:38:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI t128.c: remove an unused function
-Message-ID: <20041115023859.GE2249@stusta.de>
+	Sun, 14 Nov 2004 22:29:49 -0500
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:39093 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261518AbUKODZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 22:25:54 -0500
+Date: Sun, 14 Nov 2004 19:25:41 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Dike <jdike@addtoit.com>, LKML <linux-kernel@vger.kernel.org>,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH] uml: fail xterm_open when we have no $DISPLAY
+Message-ID: <20041115032541.GA13077@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below removes the unused function t128_setup.
+If UML wants to open an xterm channel and the xterm does not run
+properly (eg. terminates soon after starting) we will get a hang.
+This avoids the most common cause for this and adds a comment (which
+long term will go away with a rewrite of that code I guess?)
 
-Please review whether it's correct.
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
+---
 
+ arch/um/drivers/xterm.c      |    7 +++++++
+ arch/um/drivers/xterm_kern.c |    3 +++
+ 2 files changed, 10 insertions(+)
 
-diffstat output:
- drivers/scsi/t128.c |   28 ----------------------------
- 1 files changed, 28 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/t128.c.old	2004-11-14 01:31:48.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/t128.c	2004-11-14 01:37:27.000000000 +0100
-@@ -154,34 +154,6 @@
+Index: cw-current/arch/um/drivers/xterm.c
+===================================================================
+--- cw-current.orig/arch/um/drivers/xterm.c	2004-11-14 17:52:05.955194653 -0800
++++ cw-current/arch/um/drivers/xterm.c	2004-11-14 17:52:23.048945524 -0800
+@@ -94,6 +94,13 @@
+ 			 "/usr/lib/uml/port-helper", "-uml-socket",
+ 			 file, NULL };
  
- #define NO_SIGNATURES (sizeof (signatures) /  sizeof (struct signature))
++	/* Check that DISPLAY is set, this doesn't guarantee the xterm
++	 * will work but w/o it we can be pretty sure it won't. */
++	if (!getenv("DISPLAY")) {
++		printk("xterm_open: $DISPLAY not set.\n");
++		return -ENODEV;
++	}
++
+ 	if(os_access(argv[4], OS_ACC_X_OK) < 0)
+ 		argv[4] = "port-helper";
  
--/*
-- * Function : t128_setup(char *str, int *ints)
-- *
-- * Purpose : LILO command line initialization of the overrides array,
-- * 
-- * Inputs : str - unused, ints - array of integer parameters with ints[0]
-- *	equal to the number of ints.
-- *
-- */
--
--void __init t128_setup(char *str, int *ints){
--    static int commandline_current = 0;
--    int i;
--    if (ints[0] != 2) 
--	printk("t128_setup : usage t128=address,irq\n");
--    else 
--	if (commandline_current < NO_OVERRIDES) {
--	    overrides[commandline_current].address = ints[1];
--	    overrides[commandline_current].irq = ints[2];
--	    for (i = 0; i < NO_BASES; ++i)
--		if (bases[i].address == ints[1]) {
--		    bases[i].noauto = 1;
--		    break;
--		}
--	    ++commandline_current;
--	}
--}
--
- /* 
-  * Function : int t128_detect(Scsi_Host_Template * tpnt)
-  *
-
+Index: cw-current/arch/um/drivers/xterm_kern.c
+===================================================================
+--- cw-current.orig/arch/um/drivers/xterm_kern.c	2004-11-14 17:52:51.484194558 -0800
++++ cw-current/arch/um/drivers/xterm_kern.c	2004-11-14 17:53:09.197972625 -0800
+@@ -61,6 +61,9 @@
+ 		ret = err;
+ 		goto out;
+ 	}
++
++	/* XXX Note, if the xterm doesn't work for some reason
++	 * (eg. DISPLAY isn't set this will hang... */
+ 	down(&data->sem);
+ 
+ 	free_irq_by_irq_and_dev(XTERM_IRQ, data);

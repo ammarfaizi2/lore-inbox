@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbTHaAqO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 20:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbTHaAqO
+	id S262280AbTHaAsK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 20:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbTHaAsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 20:46:14 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:32525 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262186AbTHaAqN
+	Sat, 30 Aug 2003 20:48:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64161 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262280AbTHaAsH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 20:46:13 -0400
-Date: Sat, 30 Aug 2003 17:46:08 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [FS Benchmark] reiser4 vs. reiserfs (3.6)
-Message-ID: <20030831004608.GA30238@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <1062233153.499.15.camel@sunshine> <3F50A5A2.8070107@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F50A5A2.8070107@cyberone.com.au>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause sleeplessness, irritability, loss of appetite, anxiety, depression, or other psychological disorders.  Consult your doctor if these symptoms persist.
+	Sat, 30 Aug 2003 20:48:07 -0400
+Message-ID: <3F5145BB.5080906@pobox.com>
+Date: Sat, 30 Aug 2003 20:47:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] check_gcc for i386
+References: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet> <1062286661.31332.8.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1062286661.31332.8.camel@dhcp23.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 30, 2003 at 11:24:50PM +1000, Nick Piggin wrote:
+Alan Cox wrote:
+> On Sad, 2003-08-30 at 23:58, Marcelo Tosatti wrote:
 > 
-> Gabor MICSKO wrote:
+>>> ifdef CONFIG_MPENTIUM4
+>>>-CFLAGS += -march=i686
+>>>+CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
+>>> endif
+>>> 
+>>> ifdef CONFIG_MK6
+>>
+>>OK, I forgot what that does. Can you please explain in detail what 
+>>check_gcc does. 
 > 
-> >Kernel: 2.6.0-test4 SMP
-> >
-> >
-> Hi Gabor,
-> Just a suggestion, comparisons like this are often nicer to read if they
-> are in a patch format. It also saves you having to do anything by hand.
+> 
+> Tries to use gcc with the options given and if not falls back to the
+> second set suggested. So it'll try -march=pentium4 (new gcc) and 
+> fall back to -march=i686
 
-Side by side is even better ala diff -y or comm.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Yep.  I introduced check_gcc into 2.4 (backported from 2.5), in fact.
 
-		Remember Cernan and Schmitt
+The above change does exactly what Alan describes, and is a patch I was 
+planning to submit myself :)  I did not want to change compiler options 
+at the time when I submitted the check_gcc patch, but after many months 
+of manually patching to get the best compiler flags, it seems solid.
+
+	Jeff
+
+
+

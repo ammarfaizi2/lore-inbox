@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265486AbTFMSqz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbTFMSqz
+	id S265489AbTFMSxB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265490AbTFMSxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:46:55 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:55027 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S265486AbTFMSqz
+	Fri, 13 Jun 2003 14:53:01 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:20101 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265489AbTFMSw6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:46:55 -0400
-Date: Fri, 13 Jun 2003 20:36:39 +0200
-From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, stefan@stefan-foerster.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.21 released
-Message-ID: <20030613183639.GA533@deimos.one.pl>
-References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613165628.GE28609@in-ws-001.cid-net.de> <20030613165625.GA573@deimos.one.pl> <20030613193709.49f22332.skraw@ithnet.com> <20030613171903.GA797@deimos.one.pl> <1055526549.5162.78.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1055526549.5162.78.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: one will be enough!
-X-IM: JID:dEiMoS_DK@jabber.org ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.21-rc8-ac1, up 4 min
+	Fri, 13 Jun 2003 14:52:58 -0400
+Date: Fri, 13 Jun 2003 15:09:33 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "David B. Stevens" <dsteven3@maine.rr.com>
+cc: Alfie John <alfiejohn@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] joining the "elite" team
+In-Reply-To: <3EEA1BD7.9030706@maine.rr.com>
+Message-ID: <Pine.LNX.4.53.0306131508150.6583@chaos>
+References: <Law10-F26GCl9FopYC900000100@hotmail.com> <3EEA1BD7.9030706@maine.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 06:49:10PM +0100, Alan Cox wrote:
-> Is this with 2.4.20/2.4.21rc or with the -ac tree and/or added current
-> ACPI ?
+On Fri, 13 Jun 2003, David B. Stevens wrote:
 
-ACPI works with new acpid-1.0.2, but without CONFIG_X86_UP_IOAPIC :-)
+> Typical HR wonk speak.  The clue less ones at work, nothing here
+> for you, move along now ;)
+>
+> Cheers
+>
 
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+This following is an explanation of the most common
+Human Resources buzz-speak. It is by no means complete.
+
+
+        Wanted : Recent graduate, maximum of 5 years experience.
+Interpretation : Anybody over 30 need not apply.
+        Wanted : Team player.
+Interpretation : Need somebody to take the blame for failure.
+        Wanted : Excellent interpersonal skills.
+Interpretation : Needs to kiss a lot of ass.
+        Wanted : Experience in Antidisestablishmentarianism.
+Interpretation : Getting an existing employee a green-card.
+        Wanted : Excellent salary and benefits.
+Interpretation : They provide health care through the Red Cross.
+        Wanted : Excellent communications skills.
+Interpretation : Knows Microsoft Word.
+        Wanted : Relocation assistance provided.
+Interpretation : Cross-country bus fare to interview is provided.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

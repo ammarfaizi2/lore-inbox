@@ -1,56 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275344AbTHSE2b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 00:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275346AbTHSE2b
+	id S275342AbTHSE1e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 00:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275344AbTHSE1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 00:28:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28883 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275344AbTHSE20 (ORCPT
+	Tue, 19 Aug 2003 00:27:34 -0400
+Received: from [63.247.75.124] ([63.247.75.124]:17327 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S275342AbTHSE1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 00:28:26 -0400
-Date: Mon, 18 Aug 2003 21:29:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: davej@redhat.com, mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: Debug: sleeping function called from invalid context
-Message-Id: <20030818212951.11e13c98.akpm@osdl.org>
-In-Reply-To: <32829.4.4.25.4.1061264369.squirrel@www.osdl.org>
-References: <20030815101856.3eb1e15a.rddunlap@osdl.org>
-	<20030815173246.GB9681@redhat.com>
-	<20030815123053.2f81ec0a.rddunlap@osdl.org>
-	<20030816070652.GG325@waste.org>
-	<20030818140729.2e3b02f2.rddunlap@osdl.org>
-	<20030819001316.GF22433@redhat.com>
-	<20030818171545.5aa630a0.akpm@osdl.org>
-	<32789.4.4.25.4.1061263463.squirrel@www.osdl.org>
-	<20030818203513.393c4a48.akpm@osdl.org>
-	<32829.4.4.25.4.1061264369.squirrel@www.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 19 Aug 2003 00:27:30 -0400
+Date: Tue, 19 Aug 2003 00:27:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [bk patches] 2.6 net driver updates
+Message-ID: <20030819042729.GA1360@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->
-> Call Trace:
->   [<c0120d93>] __might_sleep+0x53/0x74
->   [<c010d001>] save_v86_state+0x71/0x1f0
->   [<c010dbd5>] handle_vm86_fault+0xc5/0xa90
->   [<c019cac8>] ext3_file_write+0x28/0xc0
->   [<c011cd96>] __change_page_attr+0x26/0x220
->   [<c010b310>] do_general_protection+0x0/0x90
->   [<c010a69d>] error_code+0x2d/0x40
->   [<c0109657>] syscall_call+0x7/0xb
-> 
->  My (more) vague understanding is that X(?) got the kernel to
->  do_general_protection() somehow, but change_page_attr() does this:
->  	spin_lock_irqsave(&cpa_lock, flags);
->  in arch/i386/mm/pageattr.c (I'm on a UP box),
->  so irqs are disabled by the kernel and then we calls put_user()
->  with a spinlock held.
 
-The __change_page_attr() there looks like stack gunk.
+Linus, please do a
+
+	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.6
+
+Patch is also available from
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test3-bk6-netdrvr1.patch.bz2
+
+This will update the following files:
+
+ Documentation/networking/8139too.txt |    1 
+ drivers/net/8139cp.c                 |    4 
+ drivers/net/8139too.c                |   10 
+ drivers/net/Kconfig                  |    2 
+ drivers/net/eexpress.c               |    2 
+ drivers/net/tulip/Kconfig            |    8 
+ drivers/net/wireless/Kconfig         |    2 
+ drivers/net/wireless/airo.c          |  522 +++++++++++++++++++----------------
+ drivers/net/wireless/atmel.c         |   21 -
+ drivers/net/wireless/atmel_cs.c      |    1 
+ 10 files changed, 313 insertions(+), 260 deletions(-)
+
+through these ChangeSets:
+
+<alan@lxorguk.ukuu.org.uk> (03/08/19 1.1240)
+   [netdrvr eexpress] fix buglet in skb_padto conversion
+
+<jgarzik@redhat.com> (03/08/19 1.1239)
+   [netdrvr de2104x] fix Kconfig help text to reflect reality
+
+<srk@thekelleys.org.uk> (03/08/19 1.1238)
+   [wireless atmel] minor updates
+   
+   1) Add another card to the PCMCIA card database.
+   2) Fix a bug in wireless extensions.
+   3) Remove extra code for compilation without the firmware loader
+   4) force-enable CRC32 and FW_LOADER in Kconfig.
+   
+
+<jgarzik@redhat.com> (03/08/19 1.1237)
+   [netdrvr 8139too] add adapter to supported list, in docs
+
+<akropel1@rochester.rr.com> (03/08/19 1.1236)
+   [netdrvr] fix seeq8005 entry help text in Kconfig
+
+<sziwan@hell.org.pl> (03/08/18 1.1235)
+   [netdrvr 8139too] fix resume behavior
+
+<matthewn@snapgear.com> (03/08/18 1.1234)
+   [netdrvr 8139cp] fix h/w vlan offload
+   
+   It wants big endian vlan tags.  IEEE, or just weird?
+
+<javier@tudela.mad.ttd.net> (03/08/18 1.1233)
+   [wireless airo] Replaces task queues by simpler kernel_thread
 

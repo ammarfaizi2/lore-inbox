@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261893AbTCaXMe>; Mon, 31 Mar 2003 18:12:34 -0500
+	id <S261905AbTCaXYm>; Mon, 31 Mar 2003 18:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261895AbTCaXMe>; Mon, 31 Mar 2003 18:12:34 -0500
-Received: from grunt4.ihug.co.nz ([203.109.254.44]:3303 "EHLO
-	grunt4.ihug.co.nz") by vger.kernel.org with ESMTP
-	id <S261893AbTCaXMd>; Mon, 31 Mar 2003 18:12:33 -0500
-Date: Tue, 1 Apr 2003 11:23:49 +1200 (NZST)
-From: jmduthie@ihug.co.nz
-X-X-Sender: spudgun@hades.internal.beyondhelp.co.nz
-Reply-To: john@beyondhelp.co.nz
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: John M Collins <jmc@xisl.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Query about SIS963 Bridges
-In-Reply-To: <1048467041.10727.100.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0303300940200.16280-100000@hades.internal.beyondhelp.co.nz>
-X-I-Opt-Out-NOW: E-Mail Addresses in this message may not be used to Deliver Unsolicited Commercial E-mail - This E-Mail message is NOT a request to subscribe to any E-mail advertising service or list
+	id <S261910AbTCaXYm>; Mon, 31 Mar 2003 18:24:42 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:9991 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261905AbTCaXYl>; Mon, 31 Mar 2003 18:24:41 -0500
+Date: Tue, 1 Apr 2003 01:35:51 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Joel Becker <Joel.Becker@oracle.com>
+cc: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <Andries.Brouwer@cwi.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Wim Coekaerts <Wim.Coekaerts@oracle.com>
+Subject: Re: 64-bit kdev_t - just for playing
+In-Reply-To: <20030331230720.GP32000@ca-server1.us.oracle.com>
+Message-ID: <Pine.LNX.4.44.0304010130590.5042-100000@serv>
+References: <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk>
+ <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com>
+ <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com>
+ <Pine.LNX.4.44.0303281924530.5042-100000@serv> <20030331083157.GA29029@outpost.ds9a.nl>
+ <Pine.LNX.4.44.0303311039190.5042-100000@serv> <20030331172403.GM32000@ca-server1.us.oracle.com>
+ <Pine.LNX.4.44.0303312215020.5042-100000@serv> <20030331230720.GP32000@ca-server1.us.oracle.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Mar 2003, Alan Cox wrote:
+Hi,
 
--> Date: 24 Mar 2003 00:50:41 +0000
--> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
--> To: John M Collins <jmc@xisl.com>
--> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
--> Subject: Re: Query about SIS963 Bridges
-->
--> On Sun, 2003-03-23 at 23:31, John M Collins wrote:
--> > I've just got a new machine (2.5 GHz pentium lots of RAM and disk space)
--> > which has one of these SIS963 Southbridge creatures and I get the
--> > message on booting a 2.4.19ish sort of kernel.
-->
--> The SiS963 is currently a winputer.
+On Mon, 31 Mar 2003, Joel Becker wrote:
 
-Nooooooooo!
-Arrgh !
-darn
-no wonder my setup is broken after that H/W upgrade
+> 	I'm right here campaigning loudly for a larger dev_t.  I intend
+> to never, ever make assumptions about dev_t.  In fact, I'd rather not
+> deal with dev_t.  But I do need a way to map 4k or 8k or 16k disks.
+> now.
 
-2.2.20 actually works with my PCI NIC (no support for my paradise ATA)
-2.4.x does not work with nic or (00:0b.0 Unknown mass storage controller:
-                                 Promise Technology, Inc.: Unknown device
-                                 4d68 (rev 01) )
-2.4.20 slackware 9.0 bare.i works with the PCI NIC and PCI ATA card (no
-acpi in this kernel)
+Fine, so write the software to do this, but what exactly is there still 
+for the kernel to do?
 
-is ACPI the problem with this chipset ?
-
-I'd like to get this board working is there any information I can provide that would give
-you another data point ....
-
-Just tell me which kernel/patch and what info you need..
-
-
---
-John Duthie
-E-Mail:   <jmduthie@ihug.co.nz>
- When you choke a smurf, what color does it turn?
-
-
-
-
+bye, Roman
 

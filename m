@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272273AbRHXR3x>; Fri, 24 Aug 2001 13:29:53 -0400
+	id <S272280AbRHXReX>; Fri, 24 Aug 2001 13:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272278AbRHXR3n>; Fri, 24 Aug 2001 13:29:43 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:33799 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S272273AbRHXR3c>; Fri, 24 Aug 2001 13:29:32 -0400
-To: "Samium Gromoff" <_deepfire@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: source control?
-In-Reply-To: <E15aKdG-000KU2-00@f12.port.ru>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 24 Aug 2001 19:29:39 +0200
-In-Reply-To: <E15aKdG-000KU2-00@f12.port.ru> ("Samium Gromoff"'s message of "Fri, 24 Aug 2001 21:20:34 +0400")
-Message-ID: <tgu1yxicxo.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
-MIME-Version: 1.0
+	id <S272279AbRHXReO>; Fri, 24 Aug 2001 13:34:14 -0400
+Received: from t2.redhat.com ([199.183.24.243]:26611 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S272278AbRHXReE>; Fri, 24 Aug 2001 13:34:04 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <2606707256.998677533@[10.132.112.53]> 
+In-Reply-To: <2606707256.998677533@[10.132.112.53]>  <14764.998658214@redhat.com> 
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Tim Walberg <twalberg@mindspring.com>,
+        "J. Imlay" <jimlay@u.washington.edu>, linux-kernel@vger.kernel.org
+Subject: Re: macro conflict 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Fri, 24 Aug 2001 18:34:16 +0100
+Message-ID: <6242.998674456@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Samium Gromoff" <_deepfire@mail.ru> writes:
 
-> > > That's a great description of all source control!  "Makes it all to easy
-> > > for other people to push crap into your tree"!
-> 
-> > Try Aegis.  It enforces a develop/review/integrate cycle for each
-> > change.
+linux-kernel@alex.org.uk said:
+>  Will this work with things like
+> void test(unsigned int foo, char bar) {
+> 	printf ("%d %d\n", min(foo, 10), min (bar, 20)); }
+> Surely one of those must BUG().
 
->   and slows down the things...
+Well, ideally both of them would BUG() and the user would have to explicitly
+cast one (or both) of the arguments so the types match. But as Keith 
+pointed out, it won't work.
 
-Well, sometimes this increases productivity. ;-)
+--
+dwmw2
 
->   and hides (though not completely) the process from the people...
 
-Well, if everyone has to monitor every other developer, there would be
-problems, too.
-
->   one-thread-modify of some piece of code is inefficeient.
-
-Of course, Aegis supports multiple changes which are being developed
-at the same time.
-
->     When X code hacker splits his changes on small pieces
->   and feeds them to Linus^WSourceControl, does he need
->   to move each of his patches thru these
->   develop/review/integrate cycles?
-
-IIRC, some time in the past, Linus said that he was the integrator and
-the subsystem maintainers the reviewers.  I think the Linux
-development process is actually pretty close to the Aegis model.
-(However, the Aegis implementation seems to have some properties which
-make it a bit unsuitable for controlling the Linux kernel
-development.)
-
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

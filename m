@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268152AbTAKWXs>; Sat, 11 Jan 2003 17:23:48 -0500
+	id <S268156AbTAKWWN>; Sat, 11 Jan 2003 17:22:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268155AbTAKWXs>; Sat, 11 Jan 2003 17:23:48 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35598 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268152AbTAKWXq>; Sat, 11 Jan 2003 17:23:46 -0500
-Date: Sat, 11 Jan 2003 22:32:31 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sl82c105 driver update
-Message-ID: <20030111223231.B21505@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <1042302798.525.66.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1042302798.525.66.camel@zion.wanadoo.fr>; from benh@kernel.crashing.org on Sat, Jan 11, 2003 at 05:33:19PM +0100
+	id <S268159AbTAKWWN>; Sat, 11 Jan 2003 17:22:13 -0500
+Received: from dp.samba.org ([66.70.73.150]:32391 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268156AbTAKWWM>;
+	Sat, 11 Jan 2003 17:22:12 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Henderson <rth@twiddle.net>, Miles Bader <miles@gnu.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PREFIX is non-empty 
+In-reply-to: Your message of "Fri, 10 Jan 2003 21:36:02 -0800."
+             <Pine.LNX.4.44.0301102134150.9532-100000@home.transmeta.com> 
+Date: Sun, 12 Jan 2003 00:42:55 +1100
+Message-Id: <20030111223100.6C9CD2C055@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 05:33:19PM +0100, Benjamin Herrenschmidt wrote:
-> Enclosed is an update to the sl82c105 driver against 2.4.21-pre3, I'll
-> produce a 2.5 version once this is accepted by Alan.
+In message <Pine.LNX.4.44.0301102134150.9532-100000@home.transmeta.com> you wri
+te:
+> 
+> On Sat, 11 Jan 2003, Rusty Russell wrote:
+> > 
+> > Just in case someone names a variable over 2000 chars, and uses it as
+> > an old-style module parameter?
+> 
+> No. Just because variable-sized arrays aren't C, and generate crappy code.
+> 
+> >  	for (i = 0; i < num; i++) {
+> > +		char sym_name[strlen(obsparm[i].name)
+> > +			     + sizeof(MODULE_SYMBOL_PREFIX)];
+> 
+> It's still there.
 
-Its still broken - if it uses DMA, the ide core will call ide_dma_on,
-which will call config_for_dma(), which will call ide_config_drive_speed,
-which will then call ide_dma_on, etc.
+OK, *please* explain to me in little words so I can understand.
 
-Sorry, I don't have a solution off hand for this.  I just wish that
-the IDE core didn't change in these incompatible ways during a stable
-kernel release.
+Variable-sized arrays are C, as of C99.  They've been a GNU extension
+forever.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+While gcc 2.95.4 generates fairly horrible code, gcc 3.0 does better
+(the two compilers I have on my laptop).
 
+Both generate correct code.
+
+Speed is certainly of absolutely no importance here.
+
+Changing it to do a kmalloc every time around the loop is complex,
+inefficient, unneccessary, and introduces another failure path.
+
+In summary, I can't see any reason why the clearest, simplest code
+should be avoided.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

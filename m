@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316683AbSGIBxS>; Mon, 8 Jul 2002 21:53:18 -0400
+	id <S317283AbSGICLG>; Mon, 8 Jul 2002 22:11:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317283AbSGIBxR>; Mon, 8 Jul 2002 21:53:17 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:5036 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316683AbSGIBxR>;
-	Mon, 8 Jul 2002 21:53:17 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S317286AbSGICLG>; Mon, 8 Jul 2002 22:11:06 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:14257 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S317283AbSGICLF>;
+	Mon, 8 Jul 2002 22:11:05 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [patch] 2.5.25 net/core/Makefile 
+In-reply-to: Your message of "Tue, 09 Jul 2002 02:36:28 +0200."
+             <20020709023628.A1697@suse.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15658.16940.915111.778342@argo.ozlabs.ibm.com>
-Date: Tue, 9 Jul 2002 11:53:48 +1000 (EST)
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.19-rc1 doesn't link
-In-Reply-To: <200207082330.g68NUtH01899@vindaloo.ras.ucalgary.ca>
-References: <200207082330.g68NUtH01899@vindaloo.ras.ucalgary.ca>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Date: Tue, 09 Jul 2002 12:13:30 +1000
+Message-ID: <23502.1026180810@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch writes:
+On Tue, 9 Jul 2002 02:36:28 +0200, 
+Dave Jones <davej@suse.de> wrote:
+>On Tue, Jul 09, 2002 at 10:30:31AM +1000, Keith Owens wrote:
+> > > > The valid combination of CONFIG_NET=n, CONFIG_LLC undefined incorrectly
+> > >And this breaks the valid combination of CONFIG_NET=y, CONFIG_LLC undef'd
+>
+> > ??? That is the bug that I reported.  My patch fixes that bug.
+>
+>Same bug maybe, but triggered in different ways.
+>Note the CONFIG_NET change between your report and mine.
 
->   Hi, all. Looks like initrd handling has been broken again:
-> init/do_mounts.o: In function `rd_load_image':
-> init/do_mounts.o(.text.init+0x941): undefined reference to `change_floppy'
-> init/do_mounts.o: In function `rd_load_disk':
-> init/do_mounts.o(.text.init+0xa9b): undefined reference to `change_floppy'
-> make: *** [vmlinux] Error 1
-> 
-> This is the config option combination that exposed the bug:
-> CONFIG_BLK_DEV_RAM=y
-> # CONFIG_BLK_DEV_INITRD is not set
+Sorry, missed that change the first time.
 
-This should fix it...
+The problem is net/802/Makefile which includes p8022 for any of
+CONFIG_LLC, CONFIG_TR, CONFIG_IPX or CONFIG_ATALK.  p8022 calls
+llc_register_sap which is in ext8022.o, that file is built by
+net/core/Makefile but only for CONFIG_LLC.  It worked before because of
+the wrong test in net/core/Makefile which always built ext8022.o.
 
-Paul.
+Davem - we could unconditionally build ext8022.o when CONFIG_NET=y or
+we could do this
 
-diff -urN linux-2.4.19-rc1/init/do_mounts.c pmac/init/do_mounts.c
---- linux-2.4.19-rc1/init/do_mounts.c	Tue Jun 25 01:23:40 2002
-+++ pmac/init/do_mounts.c	Mon Jul  8 22:21:04 2002
-@@ -378,7 +378,7 @@
- 	return sys_symlink(path + n + 5, name);
- }
+Index: 25.1/net/core/Makefile
+--- 25.1/net/core/Makefile Wed, 19 Jun 2002 14:11:35 +1000 kaos (linux-2.5/p/c/50_Makefile 1.4 444)
++++ 25.1(w)/net/core/Makefile Tue, 09 Jul 2002 12:10:53 +1000 kaos (linux-2.5/p/c/50_Makefile 1.4 444)
+@@ -16,7 +16,8 @@ obj-$(CONFIG_FILTER) += filter.o
  
--#if defined(CONFIG_BLOCK_DEV_RAM) || defined(CONFIG_BLK_DEV_FD)
-+#if defined(CONFIG_BLK_DEV_RAM) || defined(CONFIG_BLK_DEV_FD)
- static void __init change_floppy(char *fmt, ...)
- {
- 	struct termios termios;
+ obj-$(CONFIG_NET) += dev.o dev_mcast.o dst.o neighbour.o rtnetlink.o utils.o
+ 
+-ifneq ($(CONFIG_LLC),n)
++# See p8022 in net/802/Makefile for config options to check
++ifneq ($(subst n,,$(CONFIG_LLC)$(CONFIG_TR)$(CONFIG_IPX)$(CONFIG_ATALK)),)
+ obj-y += ext8022.o
+ endif
+ 
+Index: 25.1/net/802/Makefile
+--- 25.1/net/802/Makefile Fri, 21 Jun 2002 10:09:01 +1000 kaos (linux-2.5/r/c/0_Makefile 1.3 444)
++++ 25.1(w)/net/802/Makefile Tue, 09 Jul 2002 12:10:38 +1000 kaos (linux-2.5/r/c/0_Makefile 1.3 444)
+@@ -6,6 +6,7 @@ export-objs		:= llc_macinit.o p8022.o ps
+ 
+ obj-y			:= p8023.o
+ 
++# Check the p8022 selections against net/core/Makefile.
+ obj-$(CONFIG_SYSCTL)	+= sysctl_net_802.o
+ obj-$(CONFIG_LLC)	+= p8022.o psnap.o llc_sendpdu.o llc_utility.o \
+ 			   		   cl2llc.o llc_macinit.o	
+
+
+

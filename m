@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbTIJUNV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 16:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265723AbTIJUNV
+	id S265285AbTIJUPU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 16:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTIJUPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 16:13:21 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:8337 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S265722AbTIJUNT (ORCPT
+	Wed, 10 Sep 2003 16:15:20 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:52193 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265285AbTIJUPQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 16:13:19 -0400
-Date: Wed, 10 Sep 2003 21:12:40 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
-       Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops_in_progress is unlikely()
-Message-ID: <20030910201240.GB24424@mail.jlokier.co.uk>
-References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com> <20030910152902.GA2764@elf.ucw.cz> <Pine.LNX.4.53.0309101147040.14762@chaos> <20030910183138.GA23783@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101439390.18459@chaos>
-Mime-Version: 1.0
+	Wed, 10 Sep 2003 16:15:16 -0400
+Date: Wed, 10 Sep 2003 13:04:03 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
+Message-ID: <10720000.1063224243@flay>
+In-Reply-To: <20030910114346.025fdb59.akpm@osdl.org>
+References: <20030828235649.61074690.akpm@osdl.org><20030910185338.GA1461@matchmail.com><20030910185537.GB1461@matchmail.com> <20030910114346.025fdb59.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309101439390.18459@chaos>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> 		cmpl	$1, %eax
-> 		jz	1f
-> 		jc	2f
-> 		call	do_default
-> 		jmp	more_code
-> 	1:	call	do_something_if_equal
-> 		jmp	more_code
-> 	2:	call	do_something_if_less
-> 	more_code:
+>> I have another oops for you with 2.6.0-test4-mm3-1 and ide-scsi. 
 > 
-> In every case, one has to jump around code for other execution paths
-> except the last, where you have to jump on condition anyway. There
-> is no free liunch, and the straight-through route, do_default
-> uas just as many jumps as the last.
+> ide-scsi is a dead duck.  defunct.  kaput.  Don't use it.  It's only being
+> kept around for weirdo things like IDE-based tape drives, scanners, etc.
+> 
+> Just use /dev/hdX directly.
 
-Here is your code optimised for no jumps in the "do_default" case:
+That's a real shame ... it seemed to work fine until recently. Some
+of the DVD writers (eg the one I have - Sony DRU500A or whatever)
+need it. Is it unfixable? or just nobody's done it?
 
-		cmpl	$1,%eax
-		jbe	1f
-		call	do_default
-	more_code:
-		.subsection 1
-	1:	jnz	2f
-		call	do_something_if_equal
-		jmp	more_code
-	2:	call	do_something_if_less
-		jmp	more_code
-		.previous
+M.
 
-> > How would you optimise it, if you were writing assembly language yourself?
-
-> I did. And I do this for a living. And, after 30 years of this shit
-> they still haven't fired me. Learn something. I'm pissed.
-
-It's ok to be pissed.  I'd be pissed too :)
-
-*ducks*
-
-Enjoy :)
--- Jame

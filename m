@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVADKXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVADKai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVADKXd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 05:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVADKXd
+	id S261679AbVADKai (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 05:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVADKai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 05:23:33 -0500
-Received: from smtpout.mac.com ([17.250.248.46]:60658 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261634AbVADKXa (ORCPT
+	Tue, 4 Jan 2005 05:30:38 -0500
+Received: from main.gmane.org ([80.91.229.2]:54230 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261679AbVADKad (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 05:23:30 -0500
-In-Reply-To: <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk>
-References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org> <20050104054649.GC7048@alpha.home.local> <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <9F909072-5E3A-11D9-A816-000D9352858E@mac.com>
+	Tue, 4 Jan 2005 05:30:33 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Martin Lucina <mato@kotelna.sk>
+Subject: 2.6.10 suspend/resume bustage (was Re: [PATCH] swsusp: properly suspend and resume *all* devices)
+Date: Tue, 4 Jan 2005 10:30:11 +0000 (UTC)
+Message-ID: <loom.20050104T112419-883@post.gmane.org>
+References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net> <20050102184239.GA21322@butterfly.hjsoft.com> <1104696556.2478.12.camel@pefyra> <20050103051018.GA4413@ip68-4-98-123.oc.oc.cox.net> <20050103084713.GB2099@elf.ucw.cz> <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net> <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net> <loom.20050104T093741-631@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Cc: Adrian Bunk <bunk@stusta.de>, Willy Tarreau <willy@w.ods.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@debian.org>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Rik van Riel <riel@redhat.com>
-From: Felipe Alfaro Solana <lkml@mac.com>
-Subject: Re: starting with 2.7
-Date: Tue, 4 Jan 2005 11:23:06 +0100
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Apple Mail (2.619)
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 62.176.172.84 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041128 Firefox/1.0 (Debian package 1.0-4))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Jan 2005, at 07:36, Al Viro wrote:
+> Obviously, I don't get the APIC errors, but everything else is the same, random
+> devices fail and need to be reloaded (3c59x and uhci-hcd in particular), plus
+> the system appears to panic somewhere along the way to resume occasionally
 
-> On Tue, Jan 04, 2005 at 06:46:49AM +0100, Willy Tarreau wrote:
->> On Mon, Jan 03, 2005 at 10:14:42PM +0000, Christoph Hellwig wrote:
->>>> Gosh! I bought an ATI video card, I bought a VMware license, 
->>>> etc.... I
->>>> want to keep using them. Changing a "stable" kernel will 
->>>> continuously
->>>> annoy users and vendors.
->>>
->>> So buy some Operating System that supports the propritary software of
->>> your choice but stop annoying us.
->>
->> That's what he did. But it was not written in the notice that it 
->> could stop
->> working at any time :-)
->
-> Do you want a long list of message-IDs going way, way back?  Ones of 
-> Linus'
-> postings saying that there never had been any promise whatsoever of 
-> in-kernel
-> interfaces staying unchanged...
+...[panic] and suspend, as I just found out.
 
-  I don't pretend that kernel interfaces stay written in stone, for 
-ages. What I would like is that, at least, those interfaces were stable 
-enough, let's say for a few months for a stable kernel series, so I 
-don't have to keep bothering my propietary VMWare vendor to fix the 
-problems for me, since the new kernel interface broke VMWare. Yeah, I 
-know I could decide not to upgrade kernels in last instance, but that's 
-not always possible.
+I just tried pci=routeirq here, doesn't help.
 
-If kernel interfaces need to be changed for whatever reason, change 
-them in 2.7, -mm, -ac or whatever tree first, and let the community 
-know beforehand what those changes will be, and be prepared to adapt. 
-Meanwhile, try to leave 2.6 as stable as possible.
+Another thing I'm seeing sometimes on resume is that the last key pressed on the
+keyboard appears to be "stuck". This laptop has a function to ask for a password
+on powerup/resume, which presumably is done by the BIOS while in SMM. Since the
+last key pressed is ENTER, and I tend to resume into X with an XTerm window
+focused, I see the ENTER keypress being repeated for ever, until I hit ENTER
+again.
+
+I haven't seen this in any other kernel version, so I'm just mentioning it here
+in case it might be relevant.
+
+-mato
 

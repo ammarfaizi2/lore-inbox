@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270526AbTGZSC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270544AbTGZSC3
+	id S262385AbTGZSIm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 14:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTGZSIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:02:29 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:2564 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S270526AbTGZSC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:02:28 -0400
-Subject: Re: [PATCH] O9int for interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <200307270306.47363.kernel@kolivas.org>
-References: <200307270306.47363.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1059243458.575.1.camel@teapot.felipe-alfaro.com>
+	Sat, 26 Jul 2003 14:08:41 -0400
+Received: from svr7.m-online.net ([62.245.150.229]:9900 "EHLO
+	svr7.m-online.net") by vger.kernel.org with ESMTP id S262499AbTGZSIj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 14:08:39 -0400
+Date: Sat, 26 Jul 2003 20:25:55 +0200
+From: Florian Huber <florian.huber@mnet-online.de>
+To: linux-kernel@vger.kernel.org
+Cc: Balram Adlakha <b_adlakha@softhome.net>
+Subject: Re: cpu-freq P4 no sysfs interface
+Message-Id: <20030726202555.53eab2b5.florian.huber@mnet-online.de>
+In-Reply-To: <20030726181233.GA2894@localhost.localdomain>
+References: <20030726181233.GA2894@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3.99 
-Date: Sat, 26 Jul 2003 20:17:38 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-07-26 at 19:06, Con Kolivas wrote:
+Hello Balram,
 
-> Patch applies on top of 2.6.0-test1-mm2 + O8int. A patch against vanilla
-> 2.6.0-test1 is also available on my website.
+On Sat, 26 Jul 2003 23:42:33 +0530
+Balram Adlakha <b_adlakha@softhome.net> wrote:
 
-patch-test1-O9 contains some differences with respect to patch-O9 for
-the -mm kernels. In the patch-test1-O9, MAX_SLEEP_AVG and
-STARVATION_LIMIT are both set to (10*HZ), while in patch-O9-mm2 they are
-set to (HZ).
+> But there seems to be no cpu/ in /sysfs/class
 
-Is this intentional?
+It's in /sysfs/devices/system/cpu/* for me.
 
+HTH
+	Florian Huber

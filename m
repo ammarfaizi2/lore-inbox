@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265319AbTLNBGY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 20:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbTLNBGY
+	id S265325AbTLNBQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 20:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbTLNBQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 20:06:24 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:60098 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265319AbTLNBGW
+	Sat, 13 Dec 2003 20:16:55 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39941 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265325AbTLNBQy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 20:06:22 -0500
-Message-ID: <3FDBB261.5010208@cyberone.com.au>
-Date: Sun, 14 Dec 2003 11:44:17 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Anton Blanchard <anton@samba.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [PATCH] improve rwsem scalability (was Re: [CFT][RFC] HT scheduler)
-References: <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au> <3FD81BA4.8070602@cyberone.com.au> <3FD8317B.4060207@cyberone.com.au> <20031211115222.GC8039@holomorphy.com> <3FD86C70.5000408@cyberone.com.au> <20031211132301.GD8039@holomorphy.com> <3FD8715F.9070304@cyberone.com.au> <20031211133207.GE8039@holomorphy.com> <3FD88D93.3000909@cyberone.com.au> <3FD91F5D.30005@cyberone.com.au> <Pine.LNX.4.58.0312120440400.14103@devserv.devel.redhat.com> <3FDA5842.9090109@cyberone.com.au>
-In-Reply-To: <3FDA5842.9090109@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Dec 2003 20:16:54 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Increasing HZ (patch for HZ > 1000)
+Date: 14 Dec 2003 01:05:28 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <brgd0o$hr4$1@gatekeeper.tmr.com>
+References: <20031212220853.GA314@elf.ucw.cz> <1071269849.4182.14.camel@idefix.homelinux.org>
+X-Trace: gatekeeper.tmr.com 1071363928 18276 192.168.12.62 (14 Dec 2003 01:05:28 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1071269849.4182.14.camel@idefix.homelinux.org>,
+Jean-Marc Valin  <Jean-Marc.Valin@USherbrooke.ca> wrote:
+| 
+| > Every notebook from thinkpad 560X up has produced some kind of
+| > cpu-load-related-noise. You'd have to throw out quite a lot of
+| > notebooks...
+| 
+| You're right, I'm probably not the only one. It may be worth at least
+| having an option to change HZ to less annoying values. Otherwise there
+| are going to be lots of complaints when people try out 2.6 on their
+| laptops and hear that noise. On mine, I seriously could not stand the
+| noise more than 5 minutes. Not because it was that loud but 1 kHz is
+| really annoying.
+| 
+| > PS: Jean, can you try how high you can get it? You might want to go to
+| > 24kHz so that no human can hear it, or to 100kHz to be kind to
+| > cats. At ~1MHz you'd be even kind to bats :-), but it is probably
+| > impossible to get over 200kHz or so. Still it might be funny
+| > experiment.
+| 
+| For now, my patch only allows up to around 10 kHz. At that frequency, I
+| don't hear anything because the noise is not loud enough (ear is much
+| more sensitive at 1 kHz). Also, I have around 10% overhead on my
+| Pentium-M 1.6 GHz, so I guess it's not for everyone. Extrapolating from
+| there, I'd also say that at 100 kHz, it wouldn't do anything but handle
+| the interrupts, which is slightly annoying when you want to actually get
+| some work done :)
+| 
+| 	Jean-Marc
 
+Stop! This is Linux we're talking about, if we can have Morse code panic
+messages, we can certainly have the idle loop change frequency to play a
+tune on the output capacitors (or whatever else make noise). How about
+the Penguin army marching music from the Saturday morning cartoon, and
+maybe hack LinuxBIOS to check for Windows running and have the idle loop
+play Twilight of the Gods.
 
-Nick Piggin wrote:
-
->
->
-> Ingo Molnar wrote:
->
->> On Fri, 12 Dec 2003, Nick Piggin wrote:
->>
->>
->>> getting contended. The following graph is a best of 3 runs average.
->>> http://www.kerneltrap.org/~npiggin/rwsem.png
->>>
->>
->> the graphs are too noise to be conclusive.
->>
->>
->>> The part to look at is the tail. I need to do some more testing to see
->>> if its significant.
->>>
->>
->> yes, could you go from 150 to 300?
->>
->
-> The benchmark dies at 160 rooms unfortunately. Probably something in 
-> the JVM.
->
-> I'll do a larger number of runs around the 130-150 mark.
->
-
-OK, this is an average of 5 runs at 145, 150, 155 rooms with my scheduler
-patches, with and without my rwsem patch. Its all over the place, but I 
-think
-rwsem does give a small but significant improvement.
-
-http://www.kerneltrap.org/~npiggin/rwsem2.png
-
+I better stop before someone actually does it.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbTDUFWl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 01:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTDUFWl
+	id S263769AbTDUFWX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 01:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbTDUFWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 01:22:41 -0400
-Received: from ca-fulrtn-cuda2-c6a-113.anhmca.adelphia.net ([68.66.9.113]:17550
-	"EHLO shrike.mirai.cx") by vger.kernel.org with ESMTP
-	id S263770AbTDUFWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 01:22:40 -0400
-Message-ID: <3EA382F1.205@tmsusa.com>
-Date: Sun, 20 Apr 2003 22:34:41 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Mon, 21 Apr 2003 01:22:23 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:46515 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S263769AbTDUFWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 01:22:22 -0400
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] archs: vmlinux.lds.S unification
+References: <Pine.LNX.4.44.0304180925320.9070-100000@chaos.physics.uiowa.edu>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 21 Apr 2003 14:34:17 +0900
+In-Reply-To: <Pine.LNX.4.44.0304180925320.9070-100000@chaos.physics.uiowa.edu>
+Message-ID: <buod6jgct2e.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.68 comments -
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks good for the most part, but the rwhod
-problem is still with us. (The system is unable
-to receive udp broadcasts since early in the
-2.5.67-bk release series)
+Kai Germaschewski <kai-germaschewski@uiowa.edu> writes:
+> I'm wondering if anybody (particularly arch maintainers) have comments or
+> objections for changes like the appended, which separate out common bits
+> from arch/$ARCH/vmlinux.lds.S and put them into
 
-Best Regards,
+Well the definition of EXTABLE is wrong on the v850, for the same reason
+the definition of RODATA is wrong; see the previous discusion on lkml
+for details.
 
-Joe
+[The v850 has hairier linker script(s) than most args, and making it
+conform to the model you've chosen will probably require all its linker
+scripting to be rewritten.  I haven't gotten around to figuring out how
+that can be done yet.]
 
-
-
-
-
+-Miles
+-- 
+Somebody has to do something, and it's just incredibly pathetic that it
+has to be us.  -- Jerry Garcia

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272019AbRHXPA2>; Fri, 24 Aug 2001 11:00:28 -0400
+	id <S271991AbRHXO6s>; Fri, 24 Aug 2001 10:58:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272070AbRHXPAS>; Fri, 24 Aug 2001 11:00:18 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:41343
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S272019AbRHXPAM>; Fri, 24 Aug 2001 11:00:12 -0400
-Message-ID: <3B866C04.9090903@fugmann.dhs.org>
-Date: Fri, 24 Aug 2001 17:00:20 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
+	id <S272019AbRHXO6i>; Fri, 24 Aug 2001 10:58:38 -0400
+Received: from [145.254.152.123] ([145.254.152.123]:20462 "HELO
+	schottelius.org") by vger.kernel.org with SMTP id <S271991AbRHXO63>;
+	Fri, 24 Aug 2001 10:58:29 -0400
+Message-ID: <3B866B52.508CF2C6@pcsystems.de>
+Date: Fri, 24 Aug 2001 16:57:22 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] const initdata.
-In-Reply-To: <Pine.LNX.4.31.0108240051360.1732-100000@noodles.codemonkey.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        mj@atrey.karlin.mff.cuni.cz
+Subject: problem with includes: pc_keyb.h
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How "bad" is it to have __initdata declared static?
+Hello guys!
 
-A quick scan through the kernel tree shows
-that 27 .h and 355 .c files needa patching.
-(a total of 845 places)
+I tried to include pc_keyb.h into my project, but it fails:
 
-Numbers are from 2.4.9 kernel.
+In file included from test_pc_keybh.c:1:
+/usr/include/linux/pc_keyb.h:127: parse error before `wait_queue_head_t'
 
-It should be very easy to correct through a script.
-
-Regards
-Anders Fugmann
+/usr/include/linux/pc_keyb.h:127: warning: no semicolon at end of struct
+or union
+/usr/include/linux/pc_keyb.h:130: parse error before `}'
 
 
-Dave Jones wrote:
-> As defined in in Rusty's kernel-hacking doc, __initdata must not be
-> marked as const.  Patch below does this for the PCI subsystem.
-> 
-> *nb*, This kind of patch needs to be done in quite a few other
-> places too.
-> 
-> regards,
-> 
-> Dave.
-> 
-> 
+I tried to include linux/sched.h before, but that didn't work either
+(seems to have problems with sys/time.h).
 
+What to do ?
+
+Sincerly,
+
+Nico
 

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132664AbRA1F3j>; Sun, 28 Jan 2001 00:29:39 -0500
+	id <S132316AbRA1Fca>; Sun, 28 Jan 2001 00:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132316AbRA1F3a>; Sun, 28 Jan 2001 00:29:30 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:32011 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132664AbRA1F3M>;
-	Sun, 28 Jan 2001 00:29:12 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Matthew Pitts" <mpitts@suite224.net>
-cc: Jacob Anawalt <anawaltaj@qwest.net>, linux-kernel@vger.kernel.org
-Subject: Re: Knowing what options a kernel was compiled with 
-In-Reply-To: Your message of "Sun, 28 Jan 2001 00:13:48 CDT."
-             <web-2874335@suite224.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 28 Jan 2001 16:29:06 +1100
-Message-ID: <4687.980659746@ocs3.ocs-net>
+	id <S132639AbRA1FcU>; Sun, 28 Jan 2001 00:32:20 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:57616 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S132316AbRA1FcI>; Sun, 28 Jan 2001 00:32:08 -0500
+Date: Sun, 28 Jan 2001 01:42:37 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <Pine.LNX.4.10.10101272030590.1897-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0101280119360.12703-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jan 2001 00:13:48 -0500, 
-"Matthew Pitts" <mpitts@suite224.net> wrote:
->Some distributions DO include the config. It may be located
->in the /boot dir with a name CONFIG-2.2.10 or similar. I
->know that Caldera 2.3 shiped that way(2.4 may also). If you
->have the install CDROM, the kernel source install may have
->it (e.g. Linux-Mandrake 7.x).
 
-I know that some distributions ship .config but not all do.  A long way
-down on my TODO list is "submit a requirement to FHS that .config,
-System.map and other kernel related text files must be shipped in
-directory <foo>".  I would like <foo> to be /lib/modules/`uname -r`
-since that directory is already kernel specific, but we have to handle
-kernels without modules and disks with restricted size in /lib.
-However that discussion is best held on the FHS/LSB lists, not l-k.
+
+On Sat, 27 Jan 2001, Linus Torvalds wrote:
+
+> 
+> 
+> On Sun, 28 Jan 2001, Marcelo Tosatti wrote:
+> > > 
+> > > This is the smoking gun here, I bet, but I'd like to make sure I see the
+> > > whole thing. I don't see _why_ we'd have deadlocked on __wait_on_page(),
+> > > but I think this is the thread that hangs on to the mm semaphore.
+> > 
+> > I was able to reproduce it here with dbench. 
+> > 
+> > Nothing is locked except this dbench thread (the only dbench thread):
+> > 
+> > dbench    D C1C9FE64  5200  1013      1        (L-TLB)    1370   785 
+> > Call Trace: [___wait_on_page+130/160] [truncate_list_pages+100/404] [truncate_inode_pages+93/128] [iput+162/360] [dput+262/356] [fput+121/232] [exit_mmap+218/292]  
+> > [mmput+56/80] [do_exit+208/680] [do_signal+566/656] [dput+25/356] [path_release+13/60] [sys_newstat+100/112] [sys_read+188/196] [signal_return+20/24]  
+> 
+> Ok, this definitely seems to be the pattern.
+> 
+> I don't see _what_ is going on, though.
+> 
+> I know of one "known bug" in pre10: if you run out of swap-space with
+> shared memory segments, it will do the wrong thing (return 1 without
+> unlocking the page). xmms might trigger this, but I didn't think that
+> dbench used shared memory?
+
+It does. Bingo.
+
+I'm not able to reproduce the problem here with your patch. 
+
+Btw, there is another bug in shm_writepage() where it does not set the
+page dirty in case of failure...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

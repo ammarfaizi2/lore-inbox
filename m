@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265296AbTL0C2V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 21:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265297AbTL0C2V
+	id S265298AbTL0Crb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 21:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265301AbTL0Crb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 21:28:21 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:3556
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265296AbTL0C2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 21:28:19 -0500
-Date: Fri, 26 Dec 2003 18:28:13 -0800
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Can't eject a previously mounted CD?
-Message-ID: <20031227022813.GF12871@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20031226081535.GB12871@triplehelix.org> <20031226103427.GB11127@ucw.cz> <20031226194457.GC12871@triplehelix.org> <3FEC91FA.1050705@rackable.com> <20031226202700.GD12871@triplehelix.org> <3FECC3C1.5000108@wmich.edu> <3FECCAC2.2030101@vgertech.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fWddYNRDgTk9wQGZ"
-Content-Disposition: inline
-In-Reply-To: <3FECCAC2.2030101@vgertech.com>
-User-Agent: Mutt/1.5.4i
-From: joshk@triplehelix.org (Joshua Kwan)
+	Fri, 26 Dec 2003 21:47:31 -0500
+Received: from imladris.surriel.com ([66.92.77.98]:44436 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S265298AbTL0Cra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 21:47:30 -0500
+Date: Fri, 26 Dec 2003 21:47:55 -0500 (EST)
+From: Rik van Riel <riel@surriel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Page aging broken in 2.6
+In-Reply-To: <Pine.LNX.4.58.0312261649070.14874@home.osdl.org>
+Message-ID: <Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com>
+References: <1072423739.15458.62.camel@gaston>  <Pine.LNX.4.58.0312260957100.14874@home.osdl.org>
+  <1072482941.15458.90.camel@gaston>  <Pine.LNX.4.58.0312261626260.14874@home.osdl.org>
+ <1072485899.15456.96.camel@gaston> <Pine.LNX.4.58.0312261649070.14874@home.osdl.org>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Dec 2003, Linus Torvalds wrote:
 
---fWddYNRDgTk9wQGZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I'll let Rik and Andrea argue that part - it's entirely possible that
+> getting lots of positive results is a _good_ thing, if the same page is
+> mapped multiple times. That would just make us less eager to unmap it,
+> which sounds like potentially the right thign to do (it's also how the
+> old non-rmap code worked, and I know Rik thought it was "unfair", but
+> whatever).
 
-On Fri, Dec 26, 2003 at 11:56:50PM +0000, Nuno Silva wrote:
-> This happens to me too, running 2.6.0-mm1. Even a music CD gets stuck=20
-> and can only be ejected with the "eject" command. eject, after ejecting=
-=20
-> sucessfully the CD outputs this:
->=20
-> # eject
-> eject: unable to eject, last error: Invalid argument
-> #
+I'm really not sure which of the two behaviours would
+perform better.  Chances are both behaviours will show
+some performance improvement over the other, depending
+on the workload...
 
-Exactly! This must be a -mm problem then... Andrew?
-
---=20
-Joshua Kwan
-
---fWddYNRDgTk9wQGZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iQIVAwUBP+zuPKOILr94RG8mAQKHnA//XpP9tnHJ4+Gsk8lCVPT6YJD75J2+80KT
-TooIhdpo3Xd9Jyf5dcsGA0VWPMLY14dv+9/u3QMiW9BAF4L5GotNNJkZ7sh4Ckeo
-pAznTsECNPmOsab/Qp+Udd/2Bws3Xo4DgTJmkpGKvGb3RNR7hBm81S+TjJcQxWfZ
-T9w1BDw7WaEZtpXmlR8pz8kQ27yvIIT1mdY5WNuUb1xRkhkaxBq3Yym2qMN2z9V7
-XwqkjsDQK3bdZUVuBJneD/hl/FGz63ifZYIDvlJpz+OtUru4C58UBstU/jv3z6HA
-8Uco3SWMk1MSjsqUE9tI+EmJdIzTDA6MVz8aScESkgWd3dubmMoaCk92VpQhC0Nc
-24CAaxBtdcf5cJc0pc41T5WNY1gSl4pJDjjXWOuLjNdP+y4ssIwscrWOh4fOl6e8
-+t+jyiIjRv/wUf1ms/dWop3HG5de+JYSaGLTmeapue9zgiXRmxHGp0NNNiURObxy
-ALa+hFHk2XP3c8VkQd3NdWtFO+XRCmG4EQDFzd+DW3FWsLRjG/EhgP6h8JMNx5Yu
-2rajYwDfrPqdWwCbBCHXOn3wU2FREMjSiH59tE+ZLtyc8sqaVPf9bBrT9jaWrOCo
-tI2CiDKnBjmc7Y+7Os3ACoplpSNNO3R04yMSgDcWCV+I+Ass0lKQFBR606JlXISH
-ENZ1HdvYbVM=
-=nh/c
------END PGP SIGNATURE-----
-
---fWddYNRDgTk9wQGZ--
+Rik
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

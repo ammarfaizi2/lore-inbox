@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263669AbVCEBU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263420AbVCEAhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263669AbVCEBU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 20:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbVCEBUp
+	id S263420AbVCEAhD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:37:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263434AbVCEAGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 20:20:45 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1038 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263489AbVCEBMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 20:12:43 -0500
-Date: Sat, 5 Mar 2005 02:12:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       adaplas@pol.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [2.6 patch] make savagefb one module
-Message-ID: <20050305011241.GO3327@stusta.de>
-References: <20050301024118.GF4021@stusta.de> <200503040350.51163.adaplas@hotpop.com> <20050303202039.GH4608@stusta.de> <200503040437.43495.adaplas@hotpop.com> <20050303230750.GT4608@stusta.de> <Pine.LNX.4.62.0503041017000.22831@numbat.sonytel.be>
+	Fri, 4 Mar 2005 19:06:09 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48586 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263111AbVCDWHl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 17:07:41 -0500
+Date: Fri, 4 Mar 2005 23:07:09 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, mjg59@scrf.ucam.org, hare@suse.de,
+       "Barry K. Nathan" <barryn@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: allow resume from initramfs
+Message-ID: <20050304220709.GE2385@elf.ucw.cz>
+References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org> <20050304175038.GE9796@ip68-4-98-123.oc.oc.cox.net> <1109971327.3772.280.camel@desktop.cunningham.myip.net.au> <20050304214329.GD2385@elf.ucw.cz> <1109973035.3772.291.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0503041017000.22831@numbat.sonytel.be>
+In-Reply-To: <1109973035.3772.291.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 10:17:17AM +0100, Geert Uytterhoeven wrote:
-> On Fri, 4 Mar 2005, Adrian Bunk wrote:
-> > This patch links all selected files under drivers/video/savagefb/ into 
-> > one module.
+Hi!
+
+> > > You guys are reinventing the wheel a lot at the moment and I'm in the
+> > > middle of doing it for x86_64 lowlevel code :> Can we see if we can work
+> > > a little more closely - perhaps we can get some shared code going that
+> > > will allow us to handle these issues without stepping on each others'
+> > > feet? In particular, shared code for
+> > > 
+> > > - initramfs and initrd support
 > > 
-> > This required a renaming of savagefb.c to savagefb_driver.c .
-> > 
-> > As a side effect, the EXPORT_SYMBOL's in this directory are no longer 
-> > required.
-> > 
-> > ---
-> > 
-> > Other names than savagefb_driver.c (e.g. savagefb_main.c) are easily 
-> > possible - I do not claim being good at picking names...
+> > Its actually done, and it was few strategically placed lines of code
+> > (like 20 lines). I do not think it can be meaningfully shared.
 > 
-> savagefb_core.c?
+> Mmm. But if we're both putting hooks in the same places...
 
-Antonino, what's your opinion?
+There are very little hooks... But we may want to make sure we have
+same userland interface. swsusp uses "echo 3:5 > /sys/power/resume" to
+trigger resume from device major 3 minor 5.
 
-> Gr{oetje,eeting}s,
+> > > - lowlevel suspend & resume
+> > 
+> > This makes very good sense to share. We have i386, x86-64 and ppc
+> > versions. They simply walk list of pbe's; that should be simple enough
+> > to be usable for suspend2, too....
 > 
-> 						Geert
+> The CPU save and restore, yes. But I use a different format for
+> recording the image metadata (I use bitmaps to record the locations of
+> pages). Perhaps I should hasten to mention the bitmaps are discontiguous
+> - single pages connected by a kmalloc'd list. The copyback itself will
+> need to stay distinct.
 
-cu
-Adrian
+Hmm, bitmaps? Okay, then low-level code needs to stay separate. (And
+thats bad, I wanted that one to be shared most).
+								Pavel
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

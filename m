@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316182AbSEaQeI>; Fri, 31 May 2002 12:34:08 -0400
+	id <S315870AbSEaQdQ>; Fri, 31 May 2002 12:33:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316185AbSEaQeH>; Fri, 31 May 2002 12:34:07 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:19207 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S316182AbSEaQeG>;
-	Fri, 31 May 2002 12:34:06 -0400
-Date: Fri, 31 May 2002 12:28:15 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sendfile64()?
-Message-ID: <20020531122815.A15156@mark.mielke.cc>
-In-Reply-To: <200205311553.g4VFrP300813@mail.pronto.tv>
+	id <S316182AbSEaQdP>; Fri, 31 May 2002 12:33:15 -0400
+Received: from pop.gmx.de ([213.165.64.20]:46512 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315870AbSEaQdO>;
+	Fri, 31 May 2002 12:33:14 -0400
+Date: Fri, 31 May 2002 19:32:19 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [PATCH] fix NULL dereferencing in dcache.c
+Message-ID: <20020531163219.GA27443@callisto.yi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 05:53:23PM +0200, Roy Sigurd Karlsbakk wrote:
-> where can i find sendfile64()? It doesn't seem to exist in any library 
-> anywhere ...
+Unrelated to my first dcache patch, this is something more crucial
+and should be applied first. 
 
-sys/sendfile.h (2.4.18):
+fs/dcache.c:
+ - handle d_alloc() returning NULL.
 
-    #ifdef __USE_FILE_OFFSET64
-    # error "<sys/sendfile.h> cannot be used with _FILE_OFFSET_BITS=64"
-    #endif
+--- linux-2.5.19/fs/dcache.c	Thu May 30 22:35:37 2002
++++ linux-2.5.19/fs/dcache.c	Fri May 31 19:19:18 2002
+@@ -755,6 +755,9 @@
+ 	}
+ 
+ 	tmp = d_alloc(NULL, &(const struct qstr) {"",0,0});
++	if (!tmp)
++		return NULL;
++
+ 	tmp->d_parent = tmp; /* make sure dput doesn't croak */
+ 	
+ 	spin_lock(&dcache_lock);
 
-The real question, then, isn't where is it, but why isn't it?
-
-Somebody else will have to answer this... sorry...
-mark
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Dan Aloni
+da-x@gmx.net

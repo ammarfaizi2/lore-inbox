@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbTJDIC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 04:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTJDIC7
+	id S261932AbTJDH4q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 03:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTJDH4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 04:02:59 -0400
-Received: from gprs147-84.eurotel.cz ([160.218.147.84]:2432 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261939AbTJDICy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 04:02:54 -0400
-Date: Sat, 4 Oct 2003 10:02:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Stan Bubrouski <stan@ccs.neu.edu>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix oops after saving image
-Message-ID: <20031004080239.GA213@elf.ucw.cz>
-References: <20031002203906.GB7407@elf.ucw.cz> <Pine.LNX.4.44.0310031433530.28816-100000@cherise> <20031003223352.GB344@elf.ucw.cz> <3F7E57E9.8070904@ccs.neu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Oct 2003 03:56:46 -0400
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:38075 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261932AbTJDH4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 03:56:44 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Subject: Re: down_timeout
+Date: Sat, 4 Oct 2003 09:53:43 +0200
+User-Agent: KMail/1.5.4
+References: <F760B14C9561B941B89469F59BA3A84702C93004@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84702C93004@orsmsx401.jf.intel.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F7E57E9.8070904@ccs.neu.edu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310040953.43024.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Andrew,
 
-> >+ *    Note: The buffer we allocate to use to write the suspend header is
-> >+ *    not freed; its not needed since system is going down anyway
-> >+ *    (plus it causes oops and I'm lazy^H^H^H^Htoo busy).
-> >+ */
-> 
-> Too lazy to properly fix your comment as well.
+On Friday 03 October 2003 20:03, Grover, Andrew wrote:
+> > From: linux-kernel-owner@vger.kernel.org
+> > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
+> > Matthew Wilcox
+> > It's still not great because it doesn't preserve ordering.
+> > down_timeout()
+> > would be a much better primitive.  We have down_interruptible() which
+> > could be used for this purpose.  Something like (completely
+> > uncompiled):
+>
+> Yeah we proposed this 2 years ago and someone (don't remember who) shot
+> us down.
 
-Can you elaborate?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+It was me.
+
+Reason: 
+	I misunderstood your suggestion down_timeout() as "down and hold
+	a semaphore until timeout" instead of "try until timeout to get
+	the semaphore". I suggested using waitqueues for this.
+
+But now that I understand, what you really want, I agree that this is
+very useful and also agree that the kernel should provide it.
+
+I don't think that I prevented it from being accepted, but my opinion
+about it might had have the wrong influence.
+
+I'm really sorry, that this simple communication problem caused you,
+the ACPI development and users such a big pain.
+
+PS: And I still think that semaphores with a maximum hold time are a bad
+    idea in the linux kernel. But this is just *my* opinion ;-)
+
+Regards
+
+Ingo Oeser
+
+

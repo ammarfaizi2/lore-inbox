@@ -1,97 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVACBSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVACBUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVACBSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 20:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVACBSQ
+	id S261303AbVACBUp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 20:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVACBUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 20:18:16 -0500
-Received: from [83.132.194.216] ([83.132.194.216]:41402 "EHLO pad")
-	by vger.kernel.org with ESMTP id S261377AbVACBRw (ORCPT
+	Sun, 2 Jan 2005 20:20:45 -0500
+Received: from holomorphy.com ([207.189.100.168]:17047 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261303AbVACBUl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 20:17:52 -0500
-Subject: Suspend/resume to disk problem
-From: Francisco Martins <fmartins@di.fc.ul.pt>
-To: linux-kernel@vger.kernel.org
-Cc: Francisco Martins <fmartins@di.fc.ul.pt>
-Content-Type: text/plain
-Date: Mon, 03 Jan 2005 01:20:28 +0000
-Message-Id: <1104715228.8402.34.camel@pad.di.fc.ul.pt>
+	Sun, 2 Jan 2005 20:20:41 -0500
+Date: Sun, 2 Jan 2005 17:20:35 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adam Mercer <ramercer@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050103012035.GR29332@holomorphy.com>
+References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de> <20050103001917.GO29332@holomorphy.com> <20050103003857.GJ4183@stusta.de> <799406d60501021649737f1bd@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <799406d60501021649737f1bd@mail.gmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 3 Jan 2005 01:38:58 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+>> 2.4.27 -> 2.4.28 is a kernel upgrade that is very unlikely to cause
+>> problems.
+>> Compared to this, 2.6.9 -> 2.6.10 is much more likely to break an
+>> existing setup that worked in 2.6.9 .
 
-I'm using Debian GNU/linux 3.1 with kernel 2.6.10 on my IBM Thinkpad
-R40, and I'm experiencing a strange problem with suspend to disk.
+On Mon, Jan 03, 2005 at 12:49:22AM +0000, Adam Mercer wrote:
+> IIRC 2.4.9 -> 2.4.10 broke a few setups as well.
 
-If I configure the kernel options 
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-# CONFIG_PM_DEBUG is not set
-CONFIG_SOFTWARE_SUSPEND=y
-CONFIG_PM_STD_PARTITION="/dev/hda5",
-
-issuing 
-
-echo platform > /sys/kernel/disk
-echo disk > /sys/kernel/state
-
-always results in error:
-swsusp: FATAL: cannot find swap device, try swapon -a!
+Negligible. Compare to 2.4.9 vs. 2.4.10
 
 
-My swap partition was on, as can be confirmed by
-
-(output from free)
-             total       used       free     shared    buffers    cached
-Mem:        515836     469716      46120          0      35588    220672
--/+ buffers/cache:     213456     302380
-Swap:       763520          0     763520
-
-
-(cat /proc/swaps)
-Filename                                Type            Size    Used
-Priority
-/dev/hda5                               partition       763520  0
--1
-
-So, after searching with no luck for help in google, I looked at in the
-source code for kernel/power/swsusp.c
-
-The problem seems to be in function "is_resume_device"
-
-static int is_resume_device(const struct swap_info_struct *swap_info)
-...
-        return S_ISBLK(inode->i_mode) &&
-              resume_device == MKDEV(imajor(inode), iminor(inode));
-}
-
-The resume_device variable is not initialised at this stage and
-has the value zero, which is different from MKDEV(...)
-
-Can you please check this out?
-
-I was able to suspend to disk by setting CONFIG_PM_STD_PARTITION="", but
-I cannot resume. 
-Again, resume_device is set to 0 in function swsusp_read after
-      resume_device = name_to_dev_t(resume_file);
-and therefore, it is not possible to open the swap device and
-      resume_bdev = open_by_devnum(resume_device, FMODE_READ);
-returns an error, aborting the resume process.
-
-I check that resume_file is correctly set to "/dev/hda5" by
-the resume_setup function form disk.c
-
-
-Thanks for you attention,
-
-Cheers,
-
-Francisco
-
-
+-- wli

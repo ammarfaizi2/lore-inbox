@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265118AbUBORem (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 12:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUBORem
+	id S265146AbUBORke (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 12:40:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUBORke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 12:34:42 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:9373 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S265118AbUBORek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 12:34:40 -0500
-Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
-From: Christophe Saout <christophe@saout.de>
-To: Michal Kwolek <miho@centrum.cz>
-Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <402A4B52.1080800@centrum.cz>
-References: <402A4B52.1080800@centrum.cz>
-Content-Type: text/plain
-Message-Id: <1076866470.20140.13.camel@leto.cs.pocnet.net>
+	Sun, 15 Feb 2004 12:40:34 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:23965 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S265146AbUBORkc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 12:40:32 -0500
+Date: Sun, 15 Feb 2004 18:40:30 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel.org finger service
+Message-ID: <20040215174030.GB22567@MAIL.13thfloor.at>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu,
+	linux-kernel@vger.kernel.org
+References: <20040215001237.GB13839@MAIL.13thfloor.at> <200402151521.i1FFLtOA009594@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 15 Feb 2004 18:34:31 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402151521.i1FFLtOA009594@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Feb 15, 2004 at 10:21:55AM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 15 Feb 2004 01:12:38 +0100, Herbert Poetzl <herbert@13thfloor.at>  said:
+> > 
+> > hmm, probably everybody knows and there is a good 
+> > reason for it, but just for the unlikely case, that 
+> > it did went unnoticed ...
+> > 
+> > the finger services at kernel.org does not return
+> > useful information atm.
+> 
+> >From the main page at http://www.kernel.org:
+> 
+> August 21, 2003: Please don't use finger.kernel.org for any sort of automatic
+> monitoring. The number of automatic bots hitting this port is causing the
+> finger daemon to shut down more often than not. The same information is
+> available from http://www.kernel.org/kdist/finger_banner.
 
-> I've got a reproducible oops when using cryptoloop on vanilla 2.6.0,
-> 2.6.1 and 2.6.2 (2.4.* works fine).
-> [also reported a deadlock while trying loop-aes]
+hey, I'm no automaton, I'm still a human 8-)
 
-could you try dm-crypt? It uses the device-mapper instead of the loop
-device but should be compatible (uses cryptoapi too). It's going to be
-added to the kernel soon I hope.
-
-You can find a patch on http://www.saout.de/misc/ against the vanilla
-kernel (dm-crypt.diff), I just rediffed it against linux 2.6.2.
-
-You need the dmsetup tool from the device-mapper package to set up
-encryption. There's also a shell script called cryptsetup on the page
-that wraps around dmsetup. It requires the hashalot program.
-
-It shouldn't oops. But if the deadlock you were seeing didn't come from
-loop-aes it might also show up here. If you're willing to test - let me
-know. :)
-
+best,
+Herbert
 

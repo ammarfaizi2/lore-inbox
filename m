@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266292AbSLWCcW>; Sun, 22 Dec 2002 21:32:22 -0500
+	id <S266297AbSLWCm3>; Sun, 22 Dec 2002 21:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266297AbSLWCcW>; Sun, 22 Dec 2002 21:32:22 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:50193 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S266292AbSLWCcV>; Sun, 22 Dec 2002 21:32:21 -0500
-Date: Mon, 23 Dec 2002 00:40:17 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       joe user <joe_user35@hotmail.com>
-Subject: Re: [PATCH] /proc/net/tcp + ipv6 hang
-Message-ID: <20021223024017.GO4942@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Anders Gustafsson <andersg@0x63.nu>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	joe user <joe_user35@hotmail.com>
-References: <20021223015723.GA17439@gagarin>
+	id <S266308AbSLWCm3>; Sun, 22 Dec 2002 21:42:29 -0500
+Received: from ns.netrox.net ([64.118.231.130]:62872 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S266297AbSLWCm3>;
+	Sun, 22 Dec 2002 21:42:29 -0500
+Subject: Re: [BENCHMARK] scheduler tunables with contest - starvation_limit
+From: Robert Love <rml@tech9.net>
+To: Con Kolivas <conman@kolivas.net>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212231241.01049.conman@kolivas.net>
+References: <Pine.LNX.4.44.0212221703070.10806-100000@dlang.diginsite.com>
+	 <200212231241.01049.conman@kolivas.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040611954.2129.67.camel@icbm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021223015723.GA17439@gagarin>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 22 Dec 2002 21:52:35 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Dec 23, 2002 at 02:57:23AM +0100, Anders Gustafsson escreveu:
-> this patch fixes an infinite loop when reading /proc/net/tcp and having
-> daemons listening on ipv6.
+On Sun, 2002-12-22 at 20:40, Con Kolivas wrote:
 
-Perfect! Thanks for the fix, looking at it now it seems soooo obvious, /me
-slaps himself in the face 8)
+> The current osdl hardware uses ext3 in the default journalling mode. Trying 
+> different filesystems is something I have had planned for a while. When I get 
+> the hardware sorted out as I need it to do this I will post some results 
+> where comparisons can be made.
 
-David, pleasey apply, I think there is still at least one bug with this code,
-will be testing this as soon as possible.
+One thing I have found in doing low-latency research is the impact of
+ext3 over ext2.  There is a periodic blip of high latency with ext3 not
+seen in ext2.  Presumably due to the journal writeback of ext3.
 
-Anders, if you're feeling brave, from the top of my head, think about what
-happens if somebody only reads the first, say, 10 bytes of /proc/net/tcp, will
-we unlocking a not held lock at tcp_seq_stop, no? :-)
+It was not huge but a measurable increase.  This was on 2.4, so I am
+curious how improved it is on 2.5.
 
-Another fix for this one will be apreciated 8)
+	Robert Love
 
-- Arnaldo

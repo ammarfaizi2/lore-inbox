@@ -1,133 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbSJDPSA>; Fri, 4 Oct 2002 11:18:00 -0400
+	id <S262442AbSJDQcG>; Fri, 4 Oct 2002 12:32:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261866AbSJDOj7>; Fri, 4 Oct 2002 10:39:59 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:25778 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S261847AbSJDOhZ> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:25 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.40 s390 (8/27): xpram driver.
-Date: Fri, 4 Oct 2002 16:39:22 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210041627.32150.schwidefsky@de.ibm.com>
+	id <S262447AbSJDQcG>; Fri, 4 Oct 2002 12:32:06 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:15765 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262442AbSJDQcE>; Fri, 4 Oct 2002 12:32:04 -0400
+Date: Fri, 4 Oct 2002 10:37:34 -0600
+Message-Id: <200210041637.g94GbYS09161@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Greg KH <greg@kroah.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] minor devfs cleanup for 2.5.40
+In-Reply-To: <20021004173105.A3478@infradead.org>
+References: <20021003213908.GB1388@kroah.com>
+	<200210041617.g94GHY008334@vindaloo.ras.ucalgary.ca>
+	<20021004172457.A3390@infradead.org>
+	<200210041627.g94GR7M08781@vindaloo.ras.ucalgary.ca>
+	<20021004173105.A3478@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove reference to xpram_release. Correct calls to bi_end_io and bio_io_error.
+Christoph Hellwig writes:
+> On Fri, Oct 04, 2002 at 10:27:07AM -0600, Richard Gooch wrote:
+> > Those names *were* in mainline. They've been there all through 2.4.x.
+> > It's a useful feature that is *still* being used. Change this and lots
+> > of people will get a panic at boot because there root FS is "missing".
+> 
+> They have never been the devfs names in_any_ kernel.  Linus made you
+> change to saner names before merging devfs (saner code would also
+> have been a good idea, btw..).  Anyway, 2.5 is going to initramfs,
+> so feel free to put devfsd into your initramfs.
 
-diff -urN linux-2.5.40/drivers/s390/block/xpram.c linux-2.5.40-s390/drivers/s390/block/xpram.c
---- linux-2.5.40/drivers/s390/block/xpram.c	Tue Oct  1 09:07:34 2002
-+++ linux-2.5.40-s390/drivers/s390/block/xpram.c	Fri Oct  4 16:15:15 2002
-@@ -15,7 +15,6 @@
-  *   Device specific file operations
-  *        xpram_iotcl
-  *        xpram_open
-- *        xpram_release
-  *
-  * "ad-hoc" partitioning:
-  *    the expanded memory can be partitioned among several devices 
-@@ -36,6 +35,7 @@
- #include <linux/blkpg.h>
- #include <linux/hdreg.h>  /* HDIO_GETGEO */
- #include <linux/device.h>
-+#include <linux/bio.h>
- #include <asm/uaccess.h>
- 
- #define XPRAM_NAME	"xpram"
-@@ -47,10 +47,13 @@
- #define PRINT_WARN(x...)	printk(KERN_WARNING XPRAM_NAME " warning:" x)
- #define PRINT_ERR(x...)		printk(KERN_ERR XPRAM_NAME " error:" x)
- 
--static struct device xpram_sys_device = {
--	name: "S/390 expanded memory RAM disk",
--	bus_id: "xpram",
--};
-+static struct sys_device xpram_sys_device = {
-+	.name = "S/390 expanded memory RAM disk",
-+	.dev  = {
-+		.name   = "S/390 expanded memory RAM disk",
-+		.bus_id = "xpram",
-+	},
-+}; 
- 
- typedef struct {
- 	unsigned long	size;		/* size of xpram segment in pages */
-@@ -312,10 +315,12 @@
- 		}
- 	}
- 	set_bit(BIO_UPTODATE, &bio->bi_flags);
--	bio->bi_end_io(bio);
-+	bytes = bio->bi_size;
-+	bio->bi_size = 0;
-+	bio->bi_end_io(bio, bytes, 0);
- 	return 0;
- fail:
--	bio_io_error(bio);
-+	bio_io_error(bio, bio->bi_size);
- 	return 0;
- }
- 
-@@ -329,7 +334,6 @@
- 	return 0;
- }
- 
--
- static int xpram_ioctl (struct inode *inode, struct file *filp,
- 		 unsigned int cmd, unsigned long arg)
- {
-@@ -338,7 +342,7 @@
- 	int idx = minor(inode->i_rdev);
- 	if (idx >= xpram_devs)
- 		return -ENODEV;
--	if (cmd != HDIO_GETGEO)
-+ 	if (cmd != HDIO_GETGEO)
- 		return -EINVAL;
- 	/*
- 	 * get geometry: we have to fake one...  trim the size to a
-@@ -355,14 +359,12 @@
- 	put_user(4, &geo->start);
- 	return 0;
- }
--}
- 
- static struct block_device_operations xpram_devops =
- {
- 	owner:   THIS_MODULE,
- 	ioctl:   xpram_ioctl,
- 	open:    xpram_open,
--	release: xpram_release,
- };
- 
- /*
-@@ -492,7 +494,7 @@
- 		del_gendisk(xpram_disks + i);
- 	unregister_blkdev(XPRAM_MAJOR, XPRAM_NAME);
- 	devfs_unregister(xpram_devfs_handle);
--	unregister_sys_device(&xpram_sys_device);
-+	sys_device_unregister(&xpram_sys_device);
- }
- 
- static int __init xpram_init(void)
-@@ -510,12 +512,12 @@
- 	rc = xpram_setup_sizes(xpram_pages);
- 	if (rc)
- 		return rc;
--	rc = register_sys_device(&xpram_sys_device);
-+	rc = sys_device_register(&xpram_sys_device);
- 	if (rc)
- 		return rc;
- 	rc = xpram_setup_blkdev();
- 	if (rc)
--		unregister_sys_device(&xpram_sys_device);
-+		sys_device_unregister(&xpram_sys_device);
- 	return rc;
- }
- 
+The convenience names for the root FS *have* been in the kernel since
+before 2.4.x. I agree with the initramfs approach: that's been my plan
+for handling the rootFS compatibility names (put a mini devfsd into
+initramfs). But until all the infrastructure for that is ready, you
+can't just go around breaking features people rely on. Especially
+where there is no benefit to breaking it.
 
+If you really feel strongly about it, and don't want to wait for
+devfsd to be added to initramfs, by all means move the current code
+(or the moral equivalent) to initramfs. But you'll have to wait for
+initramfs to be available and for it to be the default.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288623AbSADN3L>; Fri, 4 Jan 2002 08:29:11 -0500
+	id <S288525AbSADNcB>; Fri, 4 Jan 2002 08:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288525AbSADN3C>; Fri, 4 Jan 2002 08:29:02 -0500
-Received: from ws-002.ray.fi ([193.64.14.2]:50076 "EHLO behemoth.ts.ray.fi")
-	by vger.kernel.org with ESMTP id <S288582AbSADN2v>;
-	Fri, 4 Jan 2002 08:28:51 -0500
-Date: Fri, 4 Jan 2002 15:27:03 +0200 (EET)
-From: Tommi Kyntola <kynde@ts.ray.fi>
-X-X-Sender: <lk@behemoth.ts.ray.fi>
-To: Marco Ermini <markoer@markoer.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: [patch] Re: Framebuffer...Why oh Why???
-In-Reply-To: <20020103232614.26f2f5af.markoer@markoer.org>
-Message-ID: <Pine.LNX.4.33.0201041522030.1702-100000@behemoth.ts.ray.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288624AbSADNbv>; Fri, 4 Jan 2002 08:31:51 -0500
+Received: from mail.spylog.com ([194.67.35.220]:12460 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S288525AbSADNbh>;
+	Fri, 4 Jan 2002 08:31:37 -0500
+Date: Fri, 4 Jan 2002 16:31:28 +0300
+From: Andrey Nekrasov <andy@spylog.ru>
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: [bug report] [patch] ultra-scalable O(1) SMP and UP scheduler
+Message-ID: <20020104133128.GA1473@spylog.ru>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [...]
-> > I'm having the exact same problems on my ThinkPad 390X. Sometimes it
-> > freezes several times a day with the exact same symptoms. RedHat 6.2
-> > worked fine on this laptop. The problems started with 7.1 which uses 
-> > XFree86 4.0, and it didn't get better with 7.2 (XFree86 4.1).
-> > What makes it even worse is that after a warm reboot, the screen and 
-> > keyboard locks up again as soon as gdm gets started (Numlock doesn't work 
-> > etc.). So I always have to turn off the power to get the laptop working 
-> > again.
-> 
-> A similar things happened to me. I have a Toshiba Satellite 4080 XCDT, and
-> switching from XFree to console and back to XFree becomed impossibile with the
-> upgrade to Redhat 7.x and XFree 4. The problem is that the apm script use to
-> switch to console mode when I suspend (es. closing the laptop) and when it
-> resumes it tries to switch to XFree again, but this messes the screen. I am
-> still able to come back to console and killall X, but of course I'll lose my
-> current not saved works under X.
-> 
-> Under XFree 3 I could switch from X to console and back without problems -
-> anyway, after a couple of switches my laptop used to hang. I think X writes to
-> the uncorrect memory regions causing my laptop to hang.
+Hello.
 
-This really is offtopic, because the above symptoms are caused solely by 
-XFree 4.1. The was discussion about this in XFree mailing lists.
+2.4.17 + O(1) patch + gcc 2.95.2
 
-A quick fix is to get a newer RedHat Rawhide XFree86 rpm (atleast
-4.1.0-8 and later have that bug fixed) or better yet get a newer 
-tarball of X from xfree86.org 
 
-yers,
- another member of "Linux on a Toshiba Satellite 4080xcdt (TM)" :)
+...
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.17-A0/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=i686    -c -o md.o md.c
+md.c: In function `md_thread':
+md.c:2934: structure has no member named `nice'
+md.c: In function `md_do_sync':
+md.c:3387: structure has no member named `nice'
+md.c:3466: structure has no member named `nice'
+md.c:3475: structure has no member named `nice'
+make[3]: *** [md.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.17-A0/drivers/md'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.17-A0/drivers/md'
+make[1]: *** [_subdir_md] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.17-A0/drivers'
+make: *** [_dir_drivers] Error 2
+suse:/usr/src/linux # 
+
+
 
 -- 
-  Tommi "Kynde" Kyntola      
-     /* A man alone in the forest talking to himself and 
-        no women around to hear him. Is he still wrong?  */
-
+bye.
+Andrey Nekrasov, SpyLOG.

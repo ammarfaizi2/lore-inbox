@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVBQRCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVBQRPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVBQRCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 12:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVBQRCh
+	id S262169AbVBQRPP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 12:15:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVBQRPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 12:02:37 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5134 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262308AbVBQRCQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 12:02:16 -0500
-Date: Thu, 17 Feb 2005 18:02:11 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Paolo Ornati <ornati@fastwebnet.it>, bruno.virlet@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: spam mails with the same Message-ID
-Message-ID: <20050217170211.GA1772@stusta.de>
-References: <4213AB2B.2050604@giesskaennchen.de> <20050217154250.110f4615@localhost> <20050217161048.20daf6cd@localhost> <200502171026.55766.kernel-stuff@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 17 Feb 2005 12:15:15 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33495 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262169AbVBQRPJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 12:15:09 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: pci_map_rom bug?
+Date: Thu, 17 Feb 2005 09:14:04 -0800
+User-Agent: KMail/1.7.2
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200502161600.48252.jbarnes@sgi.com> <9e473391050217082963f6ce50@mail.gmail.com>
+In-Reply-To: <9e473391050217082963f6ce50@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200502171026.55766.kernel-stuff@comcast.net>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200502170914.04305.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 10:26:55AM -0500, Parag Warudkar wrote:
-> On Thursday 17 February 2005 10:10 am, Paolo Ornati wrote:
-> > > ÄúºÃ£º
-> > >     ÎÒÒÑ_­ÊÕµ_ÄúµÄÀ_ÐÅ
-> >
-> > and... what does this means?
-> SPAM. This looks to me like a new way of spamming though, replying to valid 
-> mailing list messages. (I too received couple of these in reply to my 
-> messages.)
+On Thursday, February 17, 2005 8:29 am, Jon Smirl wrote:
+> On Wed, 16 Feb 2005 16:00:47 -0800, Jesse Barnes <jbarnes@sgi.com> wrote:
+> > It looks like it's trying to verify all the ROMs on a given PCI device
+> > rather than just the one we just ioremap'd above.  Should this check just
+> > be inline and the loop deleted?  In that case, all of the breaks would
+> > turn into return NULLs (though the code should probably be refactored to
+> > make that a little clearer) along with an iounmap?
+>
+> The ROM experts on linux-pci supplied that code. It is legal to have
+> multiple images in a ROM for different formats, x86, OpenFirmware,
+> proprietary. The loop is adding all of the images together. Above we
+> IO remapped the entire PCI window which may be 64K and it contained
+> two images each at 20K. The extra loop returns the smaller size. This
+> lets the copy_rom case allocate 40K of memory instead of 64K.
 
-The most interesting fact seems to be that these spam messages have the 
-same message ID as the original Mails.
+Ah, ok, but we still have the situation that cause me to post the cleanup 
+patch in the first place--pci_map_rom succeeds, but the first two bytes 
+aren't 0x55aa but 0x0303...  Any ideas?
 
-If you run a program that automatically discards duplicate mails and the 
-spam message reaches you faster than the original email through 
-linux-kernel (which seems to often happen with these mails), the 
-original email will be discarded. 
-
-I don't know whether these are known attacks, but the automatic 
-discarding of duplicated emails offers attackers nice opportunities if 
-they know a message ID (as with these emails) or can guess the
-message ID (since many MUAs have predictable message IDs, an attacker C
-could use this to suppress a message from person A to person B by 
-sending an email with the message ID to person B bevor person B gets 
-the email from person A).
-
-> Parag
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jesse

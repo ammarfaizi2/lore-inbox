@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290593AbSCWBYU>; Fri, 22 Mar 2002 20:24:20 -0500
+	id <S288071AbSCWBYT>; Fri, 22 Mar 2002 20:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292131AbSCWBXM>; Fri, 22 Mar 2002 20:23:12 -0500
+	id <S292130AbSCWBXK>; Fri, 22 Mar 2002 20:23:10 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:41967 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292841AbSCWBPO>;
-	Fri, 22 Mar 2002 20:15:14 -0500
-Date: Fri, 22 Mar 2002 23:51:49 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-To: <arjan@fenrus.demon.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Interrupts lost on Intel Plumas chipset
-In-Reply-To: <200203222232.g2MMWsY02827@fenrus.demon.nl>
-Message-ID: <Pine.LNX.4.30.0203222344020.4279-100000@elin.scali.no>
+	by vger.kernel.org with ESMTP id <S293181AbSCWBPN>;
+	Fri, 22 Mar 2002 20:15:13 -0500
+Date: Fri, 22 Mar 2002 18:42:23 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: John Kim <john@larvalstage.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, marcelo@connectiva.com.br,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] trivial broken compile fixes for 2.4.19-pre4
+In-Reply-To: <20020321022855.4788C23BAA@larvalstage.com>
+Message-ID: <Pine.LNX.4.21.0203221841040.10969-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002 arjan@fenrus.demon.nl wrote:
 
-> In article <3C9BAB3D.C66B7AAE@scali.com> you wrote:
-> > List readers,
-> >
-> > I have a SuperMicro P4DPR+ system here with Dual Intel Xeon 1.7GHz. This board utilizes the Intel
-> > E7500 (Plumas) chipset. The chipset is configured with two P64H2 (PCI-X) Hubs, one which is
-> > kernel-2.4.9-21smp (and I've also tried a stock 2.4.17 kernel), interrupts from the SCI card never
->
-> You need at least kernel-2.4.9-31smp or 2.4.18 for the plumas chipset to
-> work properly
 
-Why ? I haven't seen anything specific in the changelogs ? What is
-missing in 2.4.17 ? Is it the APIC stuff that isn't implemented good
-enough ( I see something about APIC LVTERR) ?
+On Wed, 20 Mar 2002, John Kim wrote:
 
-Regards,
+> Marcelo and Alan,
+> 
+> This patch fixes trivial syntax errors due to missing comment open or
+> close or one too many comment open or close.  It will fix some compile
+> errors as a result.  It should apply cleanly to 2.4.19-pre4.  Thanks.
 
--- 
-  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
- mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
+John,
+
+dma-arc.c and ecma_167.h hunks did not apply cleanly.
+
+The other ones I've merged. 
 

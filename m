@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263229AbTCSXR2>; Wed, 19 Mar 2003 18:17:28 -0500
+	id <S263258AbTCSXXq>; Wed, 19 Mar 2003 18:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263230AbTCSXR1>; Wed, 19 Mar 2003 18:17:27 -0500
-Received: from inet-mail2.oracle.com ([148.87.2.202]:4801 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id <S263229AbTCSXR0>; Wed, 19 Mar 2003 18:17:26 -0500
-Date: Wed, 19 Mar 2003 15:28:13 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: WimMark I report for 2.5.65-mm2
-Message-ID: <20030319232812.GJ2835@ca-server1.us.oracle.com>
+	id <S263260AbTCSXXq>; Wed, 19 Mar 2003 18:23:46 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:33730 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263258AbTCSXXp>;
+	Wed, 19 Mar 2003 18:23:45 -0500
+Subject: Re: [RFC] linux-2.5.65_clock-override_A0
+From: Stephen Hemminger <shemminger@osdl.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Jerry Cooperstein <coop@axian.com>
+In-Reply-To: <1048114445.4821.256.camel@w-jstultz2.beaverton.ibm.com>
+References: <1048114445.4821.256.camel@w-jstultz2.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1048116881.1086.2.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 19 Mar 2003 15:34:41 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-WimMark I report for 2.5.65-mm2
+On Wed, 2003-03-19 at 14:54, john stultz wrote:
+> All,
+> 	Inspired by Stephen Hemminger's "boot time parameter to turn of TSC
+> usage" patch, I implemented my own version that is a tad bit more
+> flexible. 
 
-Runs:  1374.22 1487.19 1437.26
+This is cleaner and better (relatively speaking) and avoids the problem of
+cpu_khz being zero.
 
-	WimMark I is a rough benchmark we have been running
-here at Oracle against various kernels.  Each run tests an OLTP
-workload on the Oracle database with somewhat restrictive memory
-conditions.  This reduces in-memory buffering of data, allowing for
-more I/O.  The I/O is read and sync write, random and seek-laden.
-	The benchmark is called "WimMark I" because it has no
-official standing and is only a relative benchmark useful for comparing
-kernel changes.  The benchmark is normalized an arbitrary kernel, which
-scores 1000.0.  All other numbers are relative to this.
-	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
-of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
-10K RPM U2W SCSI of similar vintage.  The data files are living on an
-ext3 filesystem.  Unless mentioned, all runs are
-on this machine (variation in hardware would indeed change the
-benchmark).
-
--- 
-
-"Senator let's be sincere,
- As much as you can."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

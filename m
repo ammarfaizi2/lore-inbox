@@ -1,30 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262490AbSJ0SrA>; Sun, 27 Oct 2002 13:47:00 -0500
+	id <S262488AbSJ0Sud>; Sun, 27 Oct 2002 13:50:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262491AbSJ0SrA>; Sun, 27 Oct 2002 13:47:00 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:53120 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262490AbSJ0Sq7>; Sun, 27 Oct 2002 13:46:59 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200210271853.g9RIrHV06188@devserv.devel.redhat.com>
-Subject: Re: PATCH: ptrace support for fork/vfork/clone events [1/3]
-To: dan@debian.org (Daniel Jacobowitz)
-Date: Sun, 27 Oct 2002 13:53:17 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org, landley@trommello.org (Rob Landley),
-       alan@redhat.com (Alan Cox)
-In-Reply-To: <20021027185038.GA27979@nevyn.them.org> from "Daniel Jacobowitz" at Oct 27, 2002 01:50:39 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S262489AbSJ0Sud>; Sun, 27 Oct 2002 13:50:33 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:26522 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262488AbSJ0Suc>;
+	Sun, 27 Oct 2002 13:50:32 -0500
+Date: Sun, 27 Oct 2002 19:56:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Markus Plail <plail@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug] 2.5.44-ac2 cdrom eject panic
+Message-ID: <20021027185636.GJ3966@suse.de>
+References: <20021025103631.GA588@giantx.co.uk> <20021025103938.GN4153@suse.de> <87adl2is1u.fsf@gitteundmarkus.de> <20021025144224.GW4153@suse.de> <87pttyh3r5.fsf@gitteundmarkus.de> <20021025165354.GG4153@suse.de> <874rb71xfc.fsf@gitteundmarkus.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <874rb71xfc.fsf@gitteundmarkus.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've submitted this a couple of times and gotten no feedback, but I'm a
-> sucker for pain, so here it is again - I'd really like to see this patch in
-> 2.6.
+On Sun, Oct 27 2002, Markus Plail wrote:
+> Hi Jens!
+> 
+> * Jens Axboe writes:
+> >On Fri, Oct 25 2002, Markus Plail wrote:
+> >>Yes it does. I can't burn though. I attached the cdrecord output. Hava
+> >>a look at the Blocks numbers. Although the image is only 500MB, it
+> >>says it wouldn't fit on the disc which is 700MB. In another try it
+> >>wanted to start burning although I had a bought audio CD in the
+> >>burner.
+> 
+> >As a hack, can you change:
+> 
+> >	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
+> rq->errors = sense_key;
+> >in drivers/ide/ide-cd.c:cdrom_decode_status() to
+> >	if ((rq->flags & REQ_BLOCK_PC) && !rq->errors)
+> rq->errors = 2;
+> 
+> Works fine now :-)
 
-I've been ignoring this because it doesn't appear to agree with what other
-people tell me. For example why can't you do the fork trace by building
-a trampoline ?
+Cool great, the above change was already in my tree when I sent the
+suggestion, glad to hear it works.
+
+> Now if C2 scans would work that'd be great ;-)
+> 
+> [plail@plailis_lfs:plail]$ readcd dev=/dev/hdc -c2scan
+> Read  speed:  7056 kB/s (CD  40x, DVD  5x).
+> Write speed:     0 kB/s (CD   0x, DVD  0x).
+> Capacity: 4116432 Blocks = 8232864 kBytes = 8039 MBytes = 8430 prMB
+> Sectorsize: 2048 Bytes
+> Copy from SCSI (0,0,0) disk to file '/dev/null'
+> end:   4116432
+> addr:        0 cnt: 99^Mreadcd: Operation not permitted. Cannot send SCSI cmd vi
+> readcd: Operation not permitted. Cannot send SCSI cmd via ioctl
+
+Interesting, have no tried readcd at all myself. Will give it a spin and
+fix this tomorrow.
+
+-- 
+Jens Axboe
+

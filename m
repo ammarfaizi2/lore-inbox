@@ -1,100 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315218AbSENF5w>; Tue, 14 May 2002 01:57:52 -0400
+	id <S315222AbSENGDR>; Tue, 14 May 2002 02:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315222AbSENF5v>; Tue, 14 May 2002 01:57:51 -0400
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:30894 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S315218AbSENF5u>; Tue, 14 May 2002 01:57:50 -0400
+	id <S315223AbSENGDQ>; Tue, 14 May 2002 02:03:16 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:32944 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S315222AbSENGDP>;
+	Tue, 14 May 2002 02:03:15 -0400
+Date: Tue, 14 May 2002 16:00:43 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: linux-kernel@vger.kernel.org
+Cc: rmk@arm.linux.org.uk, bjornw@axis.com, davidm@hpl.hp.com,
+        paulus@au.ibm.com, engebret@us.ibm.com, jes@trained-monkey.org,
+        ralf@gnu.org, schwidefsky@de.ibm.com, davem@redhat.com,
+        gniibe@m17n.org, ak@suse.de
+Subject: [PATCH] Signal cleanups part1: siginfo rationalisation
+Message-Id: <20020514160043.05fbd4f1.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@linuxfreemail.com>
-Reply-To: ivangurdiev@linuxfreemail.com
-Organization: ( )
-To: Roger Luethi <rl@hellgate.ch>
-Subject: Re: [PATCH] VIA Rhine stalls: TxAbort handling
-Date: Mon, 13 May 2002 17:51:22 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20020514035318.GA20088@k3.hellgate.ch>
-MIME-Version: 1.0
-Message-Id: <02051317475500.00917@cobra.linux>
-Content-Transfer-Encoding: 7BIT
-Cc: LKML <linux-kernel@vger.kernel.org>, Urban Widmark <urban@teststation.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 May 2002 09:53 pm, you wrote:
-> I don't know how many time-out problems exist in via-rhine.c, but the patch
-> below fixes at least one of them. It works for my VT6102 based card. I hope
-> some of you can confirm the fix (or let me know what other chips I broke).
+http://www.canb.auug.org.au/15-si.1.1.diff.gz
 
-My card behaves as unpredictably as always.
-Sometimes it works fine for relatively long periods of time (2mins+ :) )
-and sometimes it stalls dead on the first 100K.
+[Please do not flame me too much, just be happy that I did not post
+the whole 120K patch :-)]
 
-So....
-I've learned not to trust that card regarding anything..
-Let's look at the code instead.
+This patch creates asm-generic/siginfo.h and uses it to remove a
+lot of duplicate code in the various asm-*/siginfo.h files.  Some
+if it is a little ugly, but I think it will be worth it just to
+help us eliminate some of the bugs that have come from code copying.
 
-> - Recover gracefully from TxAbort (the actual fix)
+diffstat looks like this:
 
-Some time ago, I asked Becker about this same piece of code in the Linuxfet 
-driver pertaining to IntrTxUnderrun. They recover in such a way for both 
-Underrun and Abort. And here's what he said:
+ asm-alpha/siginfo.h   |  212 -----------------------------------------
+ asm-arm/siginfo.h     |  230 ---------------------------------------------
+ asm-cris/siginfo.h    |  229 ---------------------------------------------
+ asm-generic/siginfo.h |  254 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ asm-i386/siginfo.h    |  230 ---------------------------------------------
+ asm-ia64/siginfo.h    |  145 ++--------------------------
+ asm-m68k/siginfo.h    |  176 ----------------------------------
+ asm-mips/siginfo.h    |  156 ++----------------------------
+ asm-mips64/siginfo.h  |  155 ++----------------------------
+ asm-parisc/siginfo.h  |  225 --------------------------------------------
+ asm-ppc/siginfo.h     |  227 --------------------------------------------
+ asm-ppc64/siginfo.h   |  228 --------------------------------------------
+ asm-s390/siginfo.h    |  156 ------------------------------
+ asm-s390x/siginfo.h   |  156 ------------------------------
+ asm-sh/siginfo.h      |  229 ---------------------------------------------
+ asm-sparc/siginfo.h   |  164 --------------------------------
+ asm-sparc64/siginfo.h |  172 +--------------------------------
+ asm-x86_64/siginfo.h  |  229 ---------------------------------------------
+ 18 files changed, 326 insertions(+), 3247 deletions(-)
 
+so you can see there was LOTS of duplication :-)
 
-<QUOTE>
-> if (txstatus & 0x0800) {
->              /* uderrun happen */
->               np->tx_ring[entry].tx_status = cpu_to_le32(DescOwn);
->               writel(virt_to_bus(&np->tx_ring[entry]), ioaddr + TxRingPtr);
+Let me know if it is too ugly, otherwise, please apply.  This builds
+on i386 and ppc64 and shouldn't (in theory) change the object code
+produced (modulo some static/extern inlines).
 
+I intent to follow this with more code consolidation and some bug fixes
+to the siginfo handling code.
 
-This is backing up the Tx pointer to retransmit the failed packet.
-My original driver did not do this -- I believe that it's semantically
-wrong.
-
-I write my drivers to always fail the current transmit attempt on Tx
-Abort.  Ethernet uses dropped packets on severe overload (16 collision
-abort) to provide flow control to the protocol layers.  If you back up
-and attempt to retransmit the same packet you defeat this element of the
-protocol.  It's an atypical case, but Ethernet works where Aloha fails
-because it gets the rare cases right.
-</QUOTE>
-
-I don't know if he's right or wrong. 
-I have tried the code. I got different results with different combinations of 
-recovery from Underrun and Abort. I think I was able to get some improvement 
-on the stall issue with one of them, but then speed went down, as you 
-acknowledge. A friend also verified that some time ago:
-
-<QUOTE>
-with patch:
-transmit and receive speeds are slow but steady, no stalling
-
-without patch:
-transmit speeds are fast but have occasional stalls... overall, its probably 
-the same speed as with the patch
-</QUOTE>
-
-So, given what Becker said and the completely random behavior of my card,
-I decided to stay away from the abort handling. You can figure out if it's 
-the proper thing to do.
-
-
-Speaking of VIA Rhine Cards....
-
-THIS:
-      if (chip_id == VT86C100A) {
-                /* More recent docs say that this bit is reserved ... */
-                n = inb(ioaddr + ConfigA) | 0x20;
-                outb(n, ioaddr + ConfigA);
-
-is not right, as the comment also explains...
-So what should be done here instead??
-
-Ivan G, tested with a Rhine-I card (VT86C100A)
-
-
-
-
+This is CC'd to all the architecture maintainers in the hope that they
+will check that I have not broken them badly.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

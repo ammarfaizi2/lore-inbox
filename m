@@ -1,54 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbUJ0S27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbUJ0SkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbUJ0S27 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 14:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbUJ0SX5
+	id S262607AbUJ0SkB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 14:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbUJ0Sj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:23:57 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:16375 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S262587AbUJ0SUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:20:05 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: [BK PATCHES] ide-2.6 update
-Date: Wed, 27 Oct 2004 14:19:59 -0400
-User-Agent: KMail/1.7
-Cc: torvalds@osdl.org, linux-ide@vger.kernel.org
-References: <58cb370e04102706074c20d6d7@mail.gmail.com> <200410271305.06265.gene.heskett@verizon.net> <58cb370e041027101527b5e340@mail.gmail.com>
-In-Reply-To: <58cb370e041027101527b5e340@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410271419.59500.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 13:20:02 -0500
+	Wed, 27 Oct 2004 14:39:58 -0400
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:25846 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S262639AbUJ0Sgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 14:36:46 -0400
+Date: Wed, 27 Oct 2004 14:36:38 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH 4/28] VFS: Stat shouldn't stop expire
+In-reply-to: <20041026102703.GA12026@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Message-id: <417FEAB6.1020006@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <10987152003432@sun.com> <1098715230634@sun.com>
+ <20041026102703.GA12026@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 October 2004 13:15, Bartlomiej Zolnierkiewicz wrote:
->>On Wed, 27 Oct 2004 13:05:06 -0400, Gene Heskett
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->> Drat.  I can't afford bitkeeper, either the time or the resources.
->> So I assume this will be in 2.6.10-rc2 or 3?
->
->I hope it will be in the next -bk snapshot...
+Christoph Hellwig wrote:
+> On Mon, Oct 25, 2004 at 10:40:30AM -0400, Mike Waychison wrote:
+> 
+>>This patch fixes the problem where if you have a mountpoint that is going to
+>>expire, it fails to expire before somebody keeps stat(2)ing the root of it's
+>>filesystem.  For example, consider the case where a user has his home
+>>directory automounted on /home/mikew.   Some other user can keep the
+>>filesystem mounted forever by simply calling ls(1) in /home, because the stat
+>>action resets the marker on each call.
+>>
+>>Signed-off-by: Mike Waychison <michael.waychison@sun.com>
+>>---
+>>
+>> namei.c |   11 ++++++++++-
+>> 1 files changed, 10 insertions(+), 1 deletion(-)
+>>
+>>Index: linux-2.6.9-quilt/fs/namei.c
+>>===================================================================
+>>--- linux-2.6.9-quilt.orig/fs/namei.c	2004-08-14 01:36:45.000000000 -0400
+>>+++ linux-2.6.9-quilt/fs/namei.c	2004-10-22 17:17:34.762179488 -0400
+>>@@ -275,7 +275,16 @@ int deny_write_access(struct file * file
+>> void path_release(struct nameidata *nd)
+>> {
+>> 	dput(nd->dentry);
+>>-	mntput(nd->mnt);
+>>+	/*
+>>+	 * In order to ensure that access to an automounted filesystems'
+>>+	 * root does not reset it's expire counter, we check to see if the path
+>>+	 * being released here is a mountpoint itself.  If it is, then we call
+>>+	 * _mntput which leaves the expire counter alone.
+>>+	 */
+>>+	if (nd->mnt && nd->mnt->mnt_root == nd->dentry)
+>>+		_mntput(nd->mnt);
+>>+	else  
+>>+		mntput(nd->mnt);
+> 
+> 
+> Why only for the root dentry not any on stat()  This seems highly inconsistant.
 
-I just grabbed 2.6.10-rc1-bk6.  Dated about 3 hours ago if the time 
-zones are the same.
+I'm not sure.  I need help in understanding the different cases of
+path_release: (please add any others/discrepencies you see)
 
-Thanks
+ 1) path walk (across a mountpoint)
+ 2) open / close (of a mountpoint)
+ 3) stat / xattr (of a mountpoint)
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+The first case, a path walk, will always touch a non-mountpoint root
+dentry.  As such, the above snippet will always reset the expire counter
+ as some other dentry got path_released.
+
+Case 2, opening of a mountpoint happens when you readdir a the base of
+the mounted filesystem.  In this case, you aren't path_releasing on
+close, but are doing an explicit mntput(filp->f_vfsmnt).
+
+Case 3, you are accessing meta information of the root of the
+mountpoint.  Assuming the call is made from 'outside' the mounted
+filesystem, the expire counter is currently ticking.  Access to grab
+meta information of the base directory of the mountpoint shouldn't reset
+the counter, and in all cases I looked at (minimal), they called
+path_release when done.
+
+The above hack^Wsnippet was intended to deal with case #3, but it may
+make more sense to look into the matter further and perform the special
+case in vfs_l?stat themselves.
+
+Thoughts?
+
+> Also while you're at it please give _mntput a more sensible name, e.g.
+> mntput_no_expire (yes, I know that name isn't your fault)
+> 
+
+Will do.
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD4DBQFBf+q2dQs4kOxk3/MRAnlQAJ413gDuQLqF5HgOKSQ/S7LrtlaZqQCYix9y
+ogHTca+0B+7+HIuSJsY9kQ==
+=Qw5B
+-----END PGP SIGNATURE-----

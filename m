@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSGVGOb>; Mon, 22 Jul 2002 02:14:31 -0400
+	id <S315942AbSGVD5m>; Sun, 21 Jul 2002 23:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316446AbSGVGOb>; Mon, 22 Jul 2002 02:14:31 -0400
-Received: from holomorphy.com ([66.224.33.161]:61313 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316408AbSGVGOb>;
-	Mon, 22 Jul 2002 02:14:31 -0400
-Date: Sun, 21 Jul 2002 23:17:32 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@surriel.com,
-       anton@samba.org
-Subject: Re: pte_chain_mempool-2.5.27-1
-Message-ID: <20020722061732.GD919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, riel@surriel.com, anton@samba.org
-References: <20020721035513.GD6899@holomorphy.com> <3D3BA131.34D2BD86@zip.com.au>
+	id <S315946AbSGVD5m>; Sun, 21 Jul 2002 23:57:42 -0400
+Received: from mail.telpin.com.ar ([200.43.18.243]:62869 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP
+	id <S315942AbSGVD5l>; Sun, 21 Jul 2002 23:57:41 -0400
+Date: Mon, 22 Jul 2002 00:49:19 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: lartc@mailman.ds9a.nl
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Frozen machine with adding a tc filter
+Message-ID: <20020722034919.GH685@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	lartc@mailman.ds9a.nl, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <3D3BA131.34D2BD86@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.4i
+X-RAVMilter-Version: 8.3.0(snapshot 20010925) (mail)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 21, 2002 at 11:07:45PM -0700, Andrew Morton wrote:
-> mempool?  Guess so.
-> mempool is really designed for things like IO request structures.
-> BIOs, etc.  Things which are guaranteed to have short lifecycles.
-> Things which make the "wait for some objects to be freed" loop
-> in mempool_alloc() reliable.
 
-My usage of it was incorrect. Slab allocation alone will have to do.
+Hi!
 
+This is a (really early) bug report on one i just caught when setting a
+filter for traffic control.
 
-On Sun, Jul 21, 2002 at 11:07:45PM -0700, Andrew Morton wrote:
-> Be aware that mempool kmallocs a contiguous chunk of element
-> pointers.  This statement is asking for a
-> kmalloc(16384 * sizeof(void *)), which is 128k. It will work,
-> but only just.
-> How did you engineer the size of this pool, btw?  In the
-> radix_tree code, we made the pool enormous.  It was effectively
-> halved in size when the ratnodes went to 64 slots, but I still
-> have the fun task of working out what the pool size should really
-> be.  In retrospect it would have been smarter to make it really
-> small and then increase it later in response to tester feedback.
-> Suggest you do that here.
+It makes the machine to frozen solid, without even an oops. Keyboard is not
+responsive (neither sysrq nor the num/caps/screen lock leds), everything
+seems quite dead.
 
-Any contiguous allocation that large is a bug. There was no engineering.
-It was a "conservative guess", and hence even worse than the radix tree
-node pool sizing early on. Removing mempool from it entirely is the best
-option. pte_chains aren't transient enough to work with this, and my
-misreading of mempool led me to believe it had the logic to deal with
-the cases you described above.
+It's fully reproducible, i tried both 2.4.13 and 2.4.19-rc3 (the last one
+with htb patches, but i don't think it's related).
 
-OOM handling is on the way soon anyway, so mempool for "extra
-reliability" will be a non-issue then.
+The machine is an iPII with 256Mb RAM, it has been working well for about a
+year and a half.
 
 
-Cheers,
-Bill
+Basically a main cbq class with two (also cbq) leaves:
+tc qdisc add dev eth1 root handle 20:0 cbq bandwidth 100Mbit avpkt 1000
+tc class add dev eth1 parent 20:0 classid 20:1 $EST cbq bandwidth 100Mbit \
+	rate 2800Kbit bounded isolated $CBQ_PARAMS
+
+($EST is empty and $CBQ_PARAMS is "allot 1514 avpkt 1000")
+
+Both leaves are basically the same, just a cbq class with parent 20:1 and
+then sfq attached as qdisc; really simple. I have another set pretty much
+like this one, only with one leave, on eth0.
+
+The command which frozes the machine is
+tc filter add dev eth1 parent 20:0 protocol ip handle 5 fw classid 20:0
+
+I know it's weird, but anyway i don't think that a lockup is the error the
+user deserves =)
+
+Setting classid 20:X (X != 0) works as expected.
+
+As this is quite early (just hit it) i don't know if i can reproduce it
+using another scenario.
+
+Tomorrow i'll try to dig into it on a testing machine and i'll post the
+results.
+
+
+Thanks,
+		Alberto
+
+

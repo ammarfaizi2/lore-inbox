@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291306AbSCTTi0>; Wed, 20 Mar 2002 14:38:26 -0500
+	id <S311279AbSCTTjg>; Wed, 20 Mar 2002 14:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293010AbSCTTiQ>; Wed, 20 Mar 2002 14:38:16 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:33292 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291306AbSCTTiG>;
-	Wed, 20 Mar 2002 14:38:06 -0500
-Date: Wed, 20 Mar 2002 16:35:16 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scalability problem (kmap_lock) with -aa kernels
-In-Reply-To: <20020320192625.H4268@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0203201630070.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S293010AbSCTTj0>; Wed, 20 Mar 2002 14:39:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57097 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292631AbSCTTjY>;
+	Wed, 20 Mar 2002 14:39:24 -0500
+Message-ID: <3C98E53B.9020807@mandrakesoft.com>
+Date: Wed, 20 Mar 2002 14:38:35 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@zip.com.au>
+CC: Adrian Bunk <bunk@fs.tum.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: aa-160-lru_release_check
+In-Reply-To: <3C980990.1C6B232A@zip.com.au> <Pine.NEB.4.44.0203201703450.3932-100000@mimas.fachschaften.tu-muenchen.de> <3C98E2E4.A42B13D0@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Mar 2002, Andrea Arcangeli wrote:
+Andrew Morton wrote:
 
-> One design idea I had to avoid the locking in the persistnt kmaps around
-> the copy-user, is to rewrite completly the persistnt code with a pool of
-> atomic kmaps per-CPU and to pin the task to the current CPU before doing
-> the copy-user, and then to count the number of reentrant persistent
-> kmaps happening in the current CPU and if it overflows we block waiting
-> somebody else to be wakenup and to kunmap.  pros: it would avoid all the
-> locks (complete scalability, all per-cpu), it would avoid the IPI and
-> the global flush. cons: it will possibly waste some more address space
-> since not all NR_CPUS are going to be used in all machines, and it will
-> not be able to do any caching, so page->virtual can be dropped enterely
-> in x86 then, and it will reduce the ability of the scheduler to
-> reschedule in idle cpus during copy users around persistent kmaps.
+>I hate BUG_ON() :)  It's arse-about so you have to stare at it furiously
+>to understand why your kernel still works.
+>
+>I hope the Nobel committee is reading this mailing list: how
+>about assert()?
+>
 
-Ahhhhh, but once you've reached that point, you might
-as well make the kmap array PER PROCESS.
+I vote 'aye'
 
-This has some advantages over the per-cpu scheme:
-- no address space wastage
-- caching is possible
-- processes can be rescheduled
-- the process can sleep while holding a kmap
+It's the same thing just in another name.
 
-It would still avoid the locks and flushes because we
-can simply mark the address range used for these per
-process kmaps as non-global so they'll be carried with
-the process just like the user space page tables are.
+I would call it kassert or fixup existing places that use 'assert' 
+first, though.
 
-This should result in somewhat simpler code than either
-a global kmap array or a per-cpu kmap array. The fact
-that the amount of kmap space scales with the number of
-processes should also completely get rid of processes
-sleeping on kmap space.
+    Jeff
 
-regards,
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
 
-http://www.surriel.com/		http://distro.conectiva.com/
 

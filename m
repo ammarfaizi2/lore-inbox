@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267920AbUHETsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUHETxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267920AbUHETsK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 15:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267915AbUHETsJ
+	id S267926AbUHETxb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 15:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267930AbUHETxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 15:48:09 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:22034 "EHLO
-	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S267930AbUHETrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 15:47:51 -0400
-Subject: cciss updates [6/6] pdev->intr fix for 2.6.8-rc3
-From: mikem <mike.miller@hp.com>
-To: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1091735220.4826.28.camel@beardog.cca.cpqcorp.net>
+	Thu, 5 Aug 2004 15:53:31 -0400
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:7610 "EHLO
+	certainkey.com") by vger.kernel.org with ESMTP id S267926AbUHETx3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 15:53:29 -0400
+Date: Thu, 5 Aug 2004 15:49:14 -0400
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: James Morris <jmorris@redhat.com>
+Cc: Michal Ludvig <mludvig@suse.cz>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]
+Message-ID: <20040805194914.GC23994@certainkey.com>
+References: <41123B7E.2060601@suse.cz> <Xine.LNX.4.44.0408051000130.17694-100000@dhcp83-76.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 05 Aug 2004 14:47:00 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0408051000130.17694-100000@dhcp83-76.boston.redhat.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 6 of 6
+James,
 
-This patch fixes our usage of pdev->intr. We were truncating it to an
-unchar. We were also reading it before calling pci_enable_device. This
-patch fixes both of those. Thanks to Bjorn Helgaas for the patch.
-Please apply in order.
+Would you be against a patch to cryptoapi to have access to a
+non-scatter-list set of calls?
 
-Thanks,
-mikem
--------------------------------------------------------------------------------
-diff -burpN lx268-rc3-p005/drivers/block/cciss.c
-lx268-rc3/drivers/block/cciss.c
---- lx268-rc3-p005/drivers/block/cciss.c	2004-08-05 11:21:05.069294000
--0500
-+++ lx268-rc3/drivers/block/cciss.c	2004-08-05 11:30:40.761776344 -0500
-@@ -2300,7 +2300,6 @@ static int find_PCI_BAR_index(struct pci
- static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
- {
- 	ushort subsystem_vendor_id, subsystem_device_id, command;
--	unchar irq = pdev->irq;
- 	__u32 board_id, scratchpad = 0;
- 	__u64 cfg_offset;
- 	__u32 cfg_base_addr;
-@@ -2359,11 +2358,11 @@ static int cciss_pci_init(ctlr_info_t *c
- 
- #ifdef CCISS_DEBUG
- 	printk("command = %x\n", command);
--	printk("irq = %x\n", irq);
-+	printk("irq = %x\n", pdev->irq);
- 	printk("board_id = %x\n", board_id);
- #endif /* CCISS_DEBUG */ 
- 
--	c->intr = irq;
-+	c->intr = pdev->irq;
- 
- 	/*
- 	 * Memory base addr is first addr , the second points to the config
-diff -burpN lx268-rc3-p005/drivers/block/cciss.h
-lx268-rc3/drivers/block/cciss.h
---- lx268-rc3-p005/drivers/block/cciss.h	2004-06-16 00:18:37.000000000
--0500
-+++ lx268-rc3/drivers/block/cciss.h	2004-08-05 11:30:40.762776192 -0500
-@@ -48,7 +48,7 @@ struct ctlr_info 
- 	unsigned long io_mem_addr;
- 	unsigned long io_mem_length;
- 	CfgTable_struct *cfgtable;
--	int	intr;
-+	unsigned int intr;
- 	int	interrupts_enabled;
- 	int 	max_commands;
- 	int	commands_outstanding;
+I know a few people would like to see that , and I would also like to use
+some low-level:
 
+crypto_digest_update_byte(struct digest_alg *digest,
+                          unsigned char *buf,
+                          unsigned int  nbytes);
+crypto_cipher_encrypt_byte(struct cipher_alg *cipher,
+                           unsigned char *dst,
+                           unsigned char *src,
+                           unsigned int  nbytes);
 
+I'm in the middle of preparing for a paper and would like to get code running
+without scatterlists.
+
+Cheers,
+
+JLC
+
+On Thu, Aug 05, 2004 at 10:11:14AM -0400, James Morris wrote:
+> On Thu, 5 Aug 2004, Michal Ludvig wrote:
+> 
+> > Hi James,
+> > 
+> > the aes-i586 patch recently added to BK breaks compilation of AES on
+> > non-i586 platforms. Attached patch fixes it.
+> 
+> Thanks, the code is about to be dropped and replaced, so we need to
+> remember to fix it then.
+> 
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@redhat.com>
+> 
+> 
+> _______________________________________________
+> 
+> Subscription: http://lists.logix.cz/mailman/listinfo/cryptoapi
+> List archive: http://lists.logix.cz/pipermail/cryptoapi

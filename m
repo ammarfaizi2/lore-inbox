@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbTFZPZW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 11:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTFZPZW
+	id S261944AbTFZP25 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 11:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTFZP25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 11:25:22 -0400
-Received: from smtp3.dti.ne.jp ([202.216.228.38]:45239 "EHLO smtp3.dti.ne.jp")
-	by vger.kernel.org with ESMTP id S261919AbTFZPZV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 11:25:21 -0400
-Date: Fri, 27 Jun 2003 00:36:35 +0900 (JST)
-Message-Id: <20030627.003635.74756433.co2b@ceres.dti.ne.jp>
+	Thu, 26 Jun 2003 11:28:57 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:676 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S261944AbTFZP2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 11:28:55 -0400
+Date: Fri, 27 Jun 2003 01:48:29 +1000
+From: CaT <cat@zip.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.73 can't mount DVD-RAM via ide-scsi
-From: Kouichi ONO <co2b@ceres.dti.ne.jp>
-X-Mailer: Mew version 3.1.53 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Subject: 2.5.73-bk4: synaptics touchpad failure
+Message-ID: <20030626154829.GA543@zip.com.au>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jun 27 01:39:33 theirongiant kernel: mice: PS/2 mouse device common for all mice
+Jun 27 01:39:33 theirongiant kernel: synaptics reset failed
+Jun 27 01:39:33 theirongiant last message repeated 2 times
+Jun 27 01:39:33 theirongiant kernel: Synaptics Touchpad, model: 1
+Jun 27 01:39:33 theirongiant kernel:  Firware: 4.1
+Jun 27 01:39:33 theirongiant kernel:  Sensor: 8
+Jun 27 01:39:33 theirongiant kernel:  new absolute packet format
+Jun 27 01:39:33 theirongiant kernel: input: Synaptics Synaptics TouchPad on isa0060/serio1
+Jun 27 01:39:33 theirongiant kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+Jun 27 01:39:33 theirongiant kernel: input: AT Set 2 keyboard on isa0060/serio0
+Jun 27 01:39:33 theirongiant kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
 
-in 2.5.73, I can't read/write mount DVD-RAM via ide-scsi (only r/o mount). 
-Without ide-scsi, I can mount DVD-RAM read/write mode and works fine. 
+gpm would not pick up any mouse movements from the touchpad.
 
-Here's a patch to fix this.
+On reboot into 2.5.72 the touchpad only works for moving the mouse. No
+amount of tapping will illicit a click. 8(
 
---- linux-2.5.73-org/drivers/scsi/sr.c	2003-06-25 20:39:59.000000000 +0900
-+++ linux-2.5.73/drivers/scsi/sr.c	2003-06-26 23:45:33.000000000 +0900
-@@ -65,7 +65,7 @@
- 	(CDC_CLOSE_TRAY|CDC_OPEN_TRAY|CDC_LOCK|CDC_SELECT_SPEED| \
- 	 CDC_SELECT_DISC|CDC_MULTI_SESSION|CDC_MCN|CDC_MEDIA_CHANGED| \
- 	 CDC_PLAY_AUDIO|CDC_RESET|CDC_IOCTLS|CDC_DRIVE_STATUS| \
--	 CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_GENERIC_PACKET)
-+	 CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_DVD_RAM|CDC_GENERIC_PACKET)
- 
- static int sr_probe(struct device *);
- static int sr_remove(struct device *);
-
-
-Regards,
+This is a synaptics touchpad in a Gateway *spit* XL5300 *spit* laptop.
 
 -- 
-  Ono Kouichi (co2b@ceres.dti.ne.jp)
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

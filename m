@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265977AbUAEWXG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:23:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265964AbUAEWWJ
+	id S265959AbUAEWTq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 17:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265958AbUAEWSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:22:09 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:46721 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265958AbUAEWUH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:20:07 -0500
-Subject: Re: [ANNOUNCE] 2004-01-05 release of hotplug scripts
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       Linux-usb-users@lists.sourceforge.net
-In-Reply-To: <1073341146.6075.352.camel@nosferatu.lan>
-References: <20040105183058.GA22066@kroah.com>
-	 <1073341146.6075.352.camel@nosferatu.lan>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JNK+FF5nFohsG5ZXoWbj"
-Message-Id: <1073341375.6075.354.camel@nosferatu.lan>
+	Mon, 5 Jan 2004 17:18:42 -0500
+Received: from hell.org.pl ([212.244.218.42]:260 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S265959AbUAEWRx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 17:17:53 -0500
+Date: Mon, 5 Jan 2004 23:17:58 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0-mm2] PM timer still has problems
+Message-ID: <20040105221758.GA13727@hell.org.pl>
+References: <20031230204831.GA17344@hell.org.pl> <1073340716.15645.96.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Jan 2004 00:22:55 +0200
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <1073340716.15645.96.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thus wrote john stultz:
+> If the override boot option failed, its most likely your system doesn't
+> have an ACPI PM time source.  Instead it seems your system is having
 
---=-JNK+FF5nFohsG5ZXoWbj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Well, I don't have the slightest idea on how to determine this, though I
+read somewhere that all ACPI-compliant systems have those.
 
-On Tue, 2004-01-06 at 00:19, Martin Schlemmer wrote:
-> On Mon, 2004-01-05 at 20:30, Greg KH wrote:
-> > I've just packaged up the latest Linux hotplug scripts into a release,
-> > which can be found at:
-> >  	http://sourceforge.net/project/showfiles.php?group_id=3D17679
-> > =20
->=20
-> Seems there is an issue with hotplug.functions .. attached correct
-> patch?
+> trouble using the PIT as a time source (which seems not all that
+> uncommon unfortunately). 
 
-Err, do not worry - seemed like I missed an patch we had for this
-(was not in same section of the build file).
+Perhaps, though bear in mind it behaves so only if clock=pmtmr has been
+appended and works fine with clock=pit.
 
+> I guess we can just re-call select_timer() without an override if the
+> override fails, that way you'll fall back to the default time source on
+> your system. Try the (compile tested) patch below and see if that helps.
 
-Sorry,
+That would be PIT again, as TSC is unusable due to CPUFreq.
+I'll try it ASAP -- should I test with Dmitry's patch applied?
+Best regards,
 
---=20
-Martin Schlemmer
-
---=-JNK+FF5nFohsG5ZXoWbj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/+eO+qburzKaJYLYRAulqAKCNvwsaqyu39Lntg2Mjt2UNmpI7bQCgiRXw
-Cr21//GleyG2ESF3UphqkiY=
-=j8en
------END PGP SIGNATURE-----
-
---=-JNK+FF5nFohsG5ZXoWbj--
-
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

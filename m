@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbTKKDIR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 22:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264234AbTKKDIR
+	id S264239AbTKKDXH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 22:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264240AbTKKDXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 22:08:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61828 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264233AbTKKDIQ (ORCPT
+	Mon, 10 Nov 2003 22:23:07 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29581 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264239AbTKKDXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 22:08:16 -0500
-Date: Mon, 10 Nov 2003 19:07:17 -0800 (PST)
+	Mon, 10 Nov 2003 22:23:05 -0500
+Date: Mon, 10 Nov 2003 19:22:55 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: Andrew Morton <akpm@osdl.org>, Dag Brattli <dag@brattli.net>,
-       Jean Tourrilhes <jt@hpl.hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <irda-users@lists.sourceforge.net>
-Subject: Re: [PATCH] irda: fix type of struct irda_ias_set.attribute.irda_attrib_string.len
-In-Reply-To: <Pine.LNX.4.44.0311101856130.2881-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0311101900120.2881-100000@home.osdl.org>
+To: Paul Venezia <pvenezia@jpj.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I/O issues, iowait problems, 2.4 v 2.6
+In-Reply-To: <1068519213.22809.81.camel@soul.jpj.net>
+Message-ID: <Pine.LNX.4.44.0311101918210.2881-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 10 Nov 2003, Linus Torvalds wrote:
+On 10 Nov 2003, Paul Venezia wrote:
 > 
-> No, please don't.
+> Running smbtorture's NBENCH test against the 2.6 kernel shows a
+> significant performance disparity vs Redhat 2.4.20 or 2.4.22. The target
+> system is running RH AS 3.0, and is an IBM x335 dual P4 XEON with 1.5GB
+> RAM, Broadcom gigabit NIC linked at 1000/full and an MPT RAID
+> controller.
+> 
+> Running a 12-client NBENCH test against this server running 2.4.22
+> consistently produces a result of ~33MB/s. Running 2.6.0-test9 through
+> bk-11 however, produces a much lower result, usually ~14MB/s. The test
+> will start at ~80MB/s, sustained for 10-15 seconds, then throughput
+> drops precipitously, and the file transfers slow to a crawl.
 
-Btw, this is a general thing with warnings that the compiler spits out.
+Can you try to see where it is waiting? "ctrl + scrollock" while outside X 
+should get you a call trace of all the processes in the system, and it 
+would be interesting to see what seems to trigger the iowait. So if you do 
+the scrollock thing a few times while the system is spending 99% in 
+iowait, the results should show where the processes ended up actually 
+waiting for IO.
 
-Some compiler warnings are for perfectly ok code.
+Now, it's entirely possible that the IO waits are there in 2.4.x too, but 
+that driver breakage or just IO scheduler breakage makes them much 
+_bigger_ in 2.6.x. In which case you won't see anything very interesting.
 
-Sometimes the warning itself is fundamentally broken (the sign warnings 
-that gcc used to spit out), sometimes it's because the code is 100% right 
-for some abstract reason that the compiler can't figure out.
-
-An example of such an "abstract reason" is exactly something like this 
-case, where the user really didn't _care_ too deeply about the type he was 
-checking, and was caring a lot more about a totally _independent_ sanity 
-check, which just happened to be unrelated to the type size. In this case, 
-having the compiler just silently notice that "oh, this can't happen, 
-because I know the range in this case" is ok.
-
-And if the code is right, just re-write it in a form that avoids the 
-warning. So
-
-	if (a = b) {
-
-should become
-
-	a = b;
-	if (a) {
-
-because it's clearer _and_ avoids the warning (don't just blindly add a
-parenthesis).
-
-That's why I hate the "sign compare" warning of gcc so much - it warns 
-about things that you CANNOT sanely write in any other way. That makes 
-that particular warning _evil_, since it encourages people to write crap 
-code.
-
-In this case, the warning is easily avoided by splitting the code up a 
-bit, and accepting an unnecessary cast (which hopefully the compiler may 
-eventually notice it unnecessary). And as the warning in general is good, 
-that's fine - the warning does not generally _encourage_ bad programming.
+But we've also had a few cases where the IO gets throttled for totally 
+different reasons - implementing FDATASYNC incorrectly, for example, or 
+just having the memory allocator throttle on IO too aggressively (the 
+latter usually leads to much nicer interactive usage, but can hurt 
+throughput a lot).
 
 		Linus
 

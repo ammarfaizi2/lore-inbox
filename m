@@ -1,60 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271813AbTHDPKH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 11:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271814AbTHDPKH
+	id S271808AbTHDPc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 11:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271812AbTHDPc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 11:10:07 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:20229 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S271813AbTHDPKC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 11:10:02 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test2-mm[34] 8042 config broken
-Date: Mon, 4 Aug 2003 23:09:48 +0800
-User-Agent: KMail/1.5.2
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200308042308.11878.mflt1@micrologica.com.hk>
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 4 Aug 2003 11:32:28 -0400
+Received: from mivlgu.ru ([81.18.140.87]:20631 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S271808AbTHDPcU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 11:32:20 -0400
+Date: Mon, 4 Aug 2003 19:32:12 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: 2.4.22-pre7 drivers/i2c/i2c-dev.c user/kernel bug and  
+ mem leak
+Message-Id: <20030804193212.11786d06.vsu@altlinux.ru>
+In-Reply-To: <20030803192312.68762d3c.khali@linux-fr.org>
+References: <20030803192312.68762d3c.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.4cvs2 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't think anyone has reported on whether 2.6.0-test2-mm2 fixes any
-> PS/2 or synaptics problems.  You are all very bad.
+On Sun, 3 Aug 2003 19:23:12 +0200
+Jean Delvare <khali@linux-fr.org> wrote:
 
-2.6.x-mm1 and -mm2 did not break the keyboard and trackpoint for me ;)
+> Ten days ago, Robert T. Johnson repported two bugs in 2.4's
+> drivers/i2c/i2c-dev.c. It also applies to i2c CVS (out of kernel), which
+> is intended to become 2.4's soon. Being a member of the LM Sensors dev
+> team, I took a look at the repport. My knowledge is somewhat limited but
+> I'll do my best to help (unless Greg wants to handle it alone? ;-)).
+> 
+> For the user/kernel bug, I'm not sure I understand how copy_from_user is
+> supposed to work. If I understand what the proposed patch does, it
+> simply allocates a second buffer, copy_from_user to that buffer instead
+> of to the original one, and then copies from that second buffer to the
+> original one (kernel to kernel). I just don't see how different it is
+> from what the current code does, as far as user/kernel issues are
+> concerned. I must be missing something obvious, can someone please bring
+> me some light?
 
-I was so happy that 8042 could be removed and reinserted after S3 
-restoring the mouse.
+The current code takes rdwr_arg.msgs (which is a userspace pointer)
+and then reads rdwr_arg.msgs[i].buf directly, which must not be done.
+This is done in two places - when copying the user data before
+i2c_transfer(), and when copying the result back to the userspace
+after it.
 
-However -mm3 and -mm4 can't config 8042 anymore.
+Because both the userspace pointer and the kernel buffer pointer are
+needed, a second copy must be made. If you want to conserve memory,
+you may just allocate an array of pointers to keep the userspace
+buffer pointers during the transfer.
 
-===== serio/Kconfig 1.8 vs edited =====
---- 1.8/drivers/input/serio/Kconfig     Mon Jun  9 20:01:42 2003
-+++ edited/serio/Kconfig        Mon Aug  4 19:44:35 2003
-@@ -19,7 +19,7 @@
-          as a module, say M here and read <file:Documentation/modules.txt>.
+BTW, an optimization is possible here: the whole rdwr_arg.msgs array
+can be copied into the kernel memory with one copy_from_user() instead
+of copying its items one by one.
 
- config SERIO_I8042
--       tristate "i8042 PC Keyboard controller"
-+       tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
-        default y
-        depends on SERIO
-        ---help---
+> For the mem leak bug, it's clearly there. I admit the proposed patch
+> fixes it, but I think there is a better way to fix it. Compare what the
+> proposed patch does:
+> 
+> --- i2c-dev.c	Sun Aug  3 18:24:33 2003
+> +++ i2c-dev.c.proposed	Sun Aug  3 19:13:58 2003
+> @@ -226,6 +226,7 @@
+>  		res = 0;
+>  		for( i=0; i<rdwr_arg.nmsgs; i++ )
+>  		{
+> +			rdwr_pa[i].buf = NULL;
+>  		    	if(copy_from_user(&(rdwr_pa[i]),
+>  					&(rdwr_arg.msgs[i]),
+>  					sizeof(rdwr_pa[i])))
+> @@ -254,8 +255,9 @@
+>  		}
+>  		if (res < 0) {
+>  			int j;
+> -			for (j = 0; j < i; ++j)
+> -				kfree(rdwr_pa[j].buf);
+> +			for (j = 0; j <= i; ++j)
+> +				if (rdwr_pa[j].buf)
+> +					kfree(rdwr_pa[j].buf);
+>  			kfree(rdwr_pa);
+>  			return res;
+>  		}
+> 
+> with what I suggest:
+> 
+> --- i2c-dev.c	Sun Aug  3 18:24:33 2003
+> +++ i2c-dev.c.khali	Sun Aug  3 19:15:04 2003
+> @@ -247,8 +247,9 @@
+>  			if(copy_from_user(rdwr_pa[i].buf,
+>  				rdwr_arg.msgs[i].buf,
+>  				rdwr_pa[i].len))
+>  			{
+> +				kfree(rdwr_pa[i].buf);
+>  			    	res = -EFAULT;
+>  				break;
+>  			}
+>  		}
+> 
+> Contrary to the proposed fix, my fix does not slow down the non-faulty
+> cases. I also believe it will increase the code size by fewer bytes than
+> the proposed fix (not verified though).
 
-Regards 
-Michael
+This fix should work too. Yet another way is to do ++i there, but that
+would be too obscure.
 
--- 
-Powered by linux-2.6-test2-mm4. Compiled with gcc-2.95-3 - mature and rock solid
+> So, what about it?
 
-2.4/2.6 kernel testing: ACPI PCI interrupt routing, PCI IRQ sharing, swsusp
-2.6 kernel testing:     PCMCIA yenta_socket, Suspend to RAM with ACPI S1-S3
+Here is my version (with the mentioned optimization - warning: not
+even compiled):
 
-More info on swsusp: http://sourceforge.net/projects/swsusp/
-
+--- i2c-dev.c.old	2003-07-28 16:14:34 +0400
++++ i2c-dev.c	2003-08-04 19:28:25 +0400
+@@ -171,6 +171,7 @@
+ 	struct i2c_smbus_ioctl_data data_arg;
+ 	union i2c_smbus_data temp;
+ 	struct i2c_msg *rdwr_pa;
++	u8 **data_ptrs;
+ 	int i,datasize,res;
+ 	unsigned long funcs;
+ 
+@@ -223,21 +224,28 @@
+ 
+ 		if (rdwr_pa == NULL) return -ENOMEM;
+ 
++		if (copy_from_user(rdwr_pa, rdwr_arg.msgs,
++				   rdwr_arg.nmsgs * sizeof(struct i2c_msg))) {
++			kfree(rdwr_pa);
++			return -EFAULT;
++		}
++
++		data_ptrs = (u8 **) kmalloc(rdwr_arg.nmsgs * sizeof(u8 *),
++					    GFP_KERNEL);
++		if (data_ptrs == NULL) {
++			kfree(rdwr_pa);
++			return -ENOMEM;
++		}
++
+ 		res = 0;
+ 		for( i=0; i<rdwr_arg.nmsgs; i++ )
+ 		{
+-		    	if(copy_from_user(&(rdwr_pa[i]),
+-					&(rdwr_arg.msgs[i]),
+-					sizeof(rdwr_pa[i])))
+-			{
+-			        res = -EFAULT;
+-				break;
+-			}
+ 			/* Limit the size of the message to a sane amount */
+ 			if (rdwr_pa[i].len > 8192) {
+ 				res = -EINVAL;
+ 				break;
+ 			}
++			data_ptrs[i] = rdwr_pa[i].buf;
+ 			rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
+ 			if(rdwr_pa[i].buf == NULL)
+ 			{
+@@ -245,9 +253,10 @@
+ 				break;
+ 			}
+ 			if(copy_from_user(rdwr_pa[i].buf,
+-				rdwr_arg.msgs[i].buf,
++				data_ptrs[i],
+ 				rdwr_pa[i].len))
+ 			{
++				kfree(rdwr_pa[i].buf);
+ 			    	res = -EFAULT;
+ 				break;
+ 			}
+@@ -256,6 +265,7 @@
+ 			int j;
+ 			for (j = 0; j < i; ++j)
+ 				kfree(rdwr_pa[j].buf);
++			kfree(data_ptrs);
+ 			kfree(rdwr_pa);
+ 			return res;
+ 		}
+@@ -270,7 +280,7 @@
+ 			if( res>=0 && (rdwr_pa[i].flags & I2C_M_RD))
+ 			{
+ 				if(copy_to_user(
+-					rdwr_arg.msgs[i].buf,
++					data_ptrs[i],
+ 					rdwr_pa[i].buf,
+ 					rdwr_pa[i].len))
+ 				{
+@@ -279,6 +289,7 @@
+ 			}
+ 			kfree(rdwr_pa[i].buf);
+ 		}
++		kfree(data_ptrs);
+ 		kfree(rdwr_pa);
+ 		return res;
+ 

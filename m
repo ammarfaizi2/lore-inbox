@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143392AbREKU0b>; Fri, 11 May 2001 16:26:31 -0400
+	id <S143394AbREKUgL>; Fri, 11 May 2001 16:36:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143393AbREKU0V>; Fri, 11 May 2001 16:26:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39437 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S143392AbREKU0P>; Fri, 11 May 2001 16:26:15 -0400
-Subject: Re: Athlon possible fixes
-To: jlaako@pp.htv.fi (Jussi Laako)
-Date: Fri, 11 May 2001 21:22:52 +0100 (BST)
-Cc: linux-kernel@borntraeger.net (Christian =?iso-8859-1?Q?Borntr=E4ger?=),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3AFC46FA.D60CA20E@pp.htv.fi> from "Jussi Laako" at May 11, 2001 11:09:30 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S143393AbREKUgC>; Fri, 11 May 2001 16:36:02 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:17927 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S143394AbREKUft>;
+	Fri, 11 May 2001 16:35:49 -0400
+Date: Fri, 11 May 2001 13:35:46 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Patch for 2.4.4-ac7
+Message-ID: <20010511133546.A9304@lucon.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14yJR6-0001ec-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ahmm, 2.4.3 doesn't work. Gives some IDE DMA timeouts on boot. Kernel w=
-> as
-> compiled with Pentium-MMX processor setting, but I don't know if that's
-> enough to disable the Athlon code parts (autodetected at runtime?).
+This should fix
 
-That sounds totally unrelated to any Athlon optimisations
+http://boudicca.tux.org/hypermail/linux-kernel/this-week/0901.html
 
-> So only working kernel (without noautotune) on that A7V133 machine is
-> RedHat's 2.4.2-2 shipped with RedHat 7.1... But that's not good either
-> because the system has large reiserfs volume and 2.4.2-2 has some reise=
 
-I wish I knew why the Red Hat one worked 8)
-
-Alan
-
+H.J.
+----
+--- linux-2.4.4-ac7/mm/filemap.c.module	Fri May 11 13:32:20 2001
++++ linux-2.4.4-ac7/mm/filemap.c	Fri May 11 13:33:03 2001
+@@ -9,6 +9,8 @@
+  * most "normal" filesystems (but you don't /have/ to use this:
+  * the NFS filesystem used to do this differently, for example)
+  */
++#include <linux/config.h>
++#include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/shm.h>
+ #include <linux/mman.h>

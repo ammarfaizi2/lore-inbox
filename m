@@ -1,86 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbUFCMR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUFCMRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbUFCMR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 08:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUFCMR3
+	id S263429AbUFCMRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 08:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUFCMRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 08:17:29 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:43018 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263166AbUFCMRL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 08:17:11 -0400
-Date: Thu, 3 Jun 2004 22:17:04 +1000
-To: davej@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [CPUFREQ] Make powernow-k7 work with CONFIG_ACPI_PROCESSOR == m
-Message-ID: <20040603121704.GB8164@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="O5XBE6gyVG5Rl6Rj"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Thu, 3 Jun 2004 08:17:15 -0400
+Received: from ozlabs.org ([203.10.76.45]:51351 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263640AbUFCMQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 08:16:24 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16575.5888.948512.836469@cargo.ozlabs.ibm.com>
+Date: Thu, 3 Jun 2004 22:18:08 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
+       trini@kernel.crashing.org
+Subject: [PATCH][PPC32] Reduce WARN_ON(0) to nothing
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The last patch I sent means that we have WARN_ON(0) in a couple of
+places when CONFIG_PREEMPT=n.  This patch makes that reduce to
+nothing (rather than a conditional trap on a 0 value), and also makes
+BUG_ON(0) reduce to nothing for completeness.
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Hi:
-
-The last round of updates to powernow-k7.c broke it when
-CONFIG_ACPI_PROCESSOR is built as a module.  This patch
-fixes that.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---O5XBE6gyVG5Rl6Rj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-===== arch/i386/kernel/cpu/cpufreq/powernow-k7.c 1.51 vs edited =====
---- 1.51/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2004-05-08 00:34:07 +10:00
-+++ edited/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2004-06-03 22:11:08 +10:00
-@@ -28,7 +28,7 @@
- #include <asm/io.h>
- #include <asm/system.h>
+diff -urN linux-2.5/include/asm-ppc/bug.h pmac-2.5/include/asm-ppc/bug.h
+--- linux-2.5/include/asm-ppc/bug.h	2003-06-08 08:08:29.000000000 +1000
++++ pmac-2.5/include/asm-ppc/bug.h	2004-06-03 21:35:42.385963144 +1000
+@@ -23,26 +23,30 @@
+ 		: : "i" (__LINE__), "i" (__FILE__), "i" (__FUNCTION__)); \
+ } while (0)
  
--#ifdef CONFIG_ACPI_PROCESSOR
-+#if defined(CONFIG_ACPI_PROCESSOR) || defined(CONFIG_ACPI_PROCESSOR_MODULE)
- #include <linux/acpi.h>
- #include <acpi/processor.h>
+-#define BUG_ON(x) do {						\
+-	__asm__ __volatile__(					\
+-		"1:	twnei %0,0\n"				\
+-		".section __bug_table,\"a\"\n\t"		\
+-		"	.long 1b,%1,%2,%3\n"			\
+-		".previous"					\
+-		: : "r" (x), "i" (__LINE__), "i" (__FILE__),	\
+-		    "i" (__FUNCTION__));			\
++#define BUG_ON(x) do {							\
++	if (!__builtin_constant_p(x) || (x)) {				\
++		__asm__ __volatile__(					\
++			"1:	twnei %0,0\n"				\
++			".section __bug_table,\"a\"\n\t"		\
++			"	.long 1b,%1,%2,%3\n"			\
++			".previous"					\
++			: : "r" (x), "i" (__LINE__), "i" (__FILE__),	\
++			    "i" (__FUNCTION__));			\
++	}								\
+ } while (0)
+ 
+-#define PAGE_BUG(page) do { BUG(); } while (0)
++#define PAGE_BUG(page)	BUG()
+ 
+-#define WARN_ON(x) do {						\
+-	__asm__ __volatile__(					\
+-		"1:	twnei %0,0\n"				\
+-		".section __bug_table,\"a\"\n\t"		\
+-		"	.long 1b,%1,%2,%3\n"			\
+-		".previous"					\
+-		: : "r" (x), "i" (__LINE__ + BUG_WARNING_TRAP),	\
+-		    "i" (__FILE__), "i" (__FUNCTION__));	\
++#define WARN_ON(x) do {							\
++	if (!__builtin_constant_p(x) || (x)) {				\
++		__asm__ __volatile__(					\
++			"1:	twnei %0,0\n"				\
++			".section __bug_table,\"a\"\n\t"		\
++			"	.long 1b,%1,%2,%3\n"			\
++			".previous"					\
++			: : "r" (x), "i" (__LINE__ + BUG_WARNING_TRAP),	\
++			    "i" (__FILE__), "i" (__FUNCTION__));	\
++	}								\
+ } while (0)
+ 
  #endif
-@@ -63,7 +63,7 @@
- 	u8 numpstates;
- };
- 
--#ifdef CONFIG_ACPI_PROCESSOR
-+#if defined(CONFIG_ACPI_PROCESSOR) || defined(CONFIG_ACPI_PROCESSOR_MODULE)
- union powernow_acpi_control_t {
- 	struct {
- 		unsigned long fid:5,
-@@ -293,7 +293,7 @@
- }
- 
- 
--#ifdef CONFIG_ACPI_PROCESSOR
-+#if defined(CONFIG_ACPI_PROCESSOR) || defined(CONFIG_ACPI_PROCESSOR_MODULE)
- 
- struct acpi_processor_performance *acpi_processor_perf;
- 
-@@ -642,7 +642,7 @@
- 
- static void __exit powernow_exit (void)
- {
--#ifdef CONFIG_ACPI_PROCESSOR
-+#if defined(CONFIG_ACPI_PROCESSOR) || defined(CONFIG_ACPI_PROCESSOR_MODULE)
- 	if (acpi_processor_perf) {
- 		acpi_processor_unregister_performance(acpi_processor_perf, 0);
- 		kfree(acpi_processor_perf);
-
---O5XBE6gyVG5Rl6Rj--

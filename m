@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290732AbSAYRED>; Fri, 25 Jan 2002 12:04:03 -0500
+	id <S290733AbSAYRSz>; Fri, 25 Jan 2002 12:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290733AbSAYRDx>; Fri, 25 Jan 2002 12:03:53 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1811 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290732AbSAYRDn>;
-	Fri, 25 Jan 2002 12:03:43 -0500
-Date: Fri, 25 Jan 2002 15:03:16 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: David Weinehall <tao@acc.umu.se>
-Cc: <rwhron@earthlink.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18pre4aa1
-In-Reply-To: <20020125061801.W1735@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.33L.0201251502230.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290736AbSAYRSp>; Fri, 25 Jan 2002 12:18:45 -0500
+Received: from tux.gsfc.nasa.gov ([128.183.191.134]:42187 "EHLO
+	tux.gsfc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S290733AbSAYRSj>; Fri, 25 Jan 2002 12:18:39 -0500
+Date: Fri, 25 Jan 2002 12:18:37 -0500
+From: John Kodis <kodis@mail630.gsfc.nasa.gov>
+To: linux-kernel@vger.kernel.org
+Cc: palmerj@zanshin.gsfc.nasa.gov
+Subject: Mounting OS-X "Unix" filesystems on Linux
+Message-ID: <20020125171837.GA31376@tux.gsfc.nasa.gov>
+Mail-Followup-To: John Kodis <kodis@mail630.gsfc.nasa.gov>,
+	linux-kernel@vger.kernel.org, palmerj@zanshin.gsfc.nasa.gov
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jan 2002, David Weinehall wrote:
+I'm trying to mount an OS-X Unix filesystem on Linux.  I haven't had
+any luck at this, and wondered whether this is a known problem, or if
+I'm doing something wrong.
 
-> One thing that struck me about this; doesn't both the rmap-patches and
-> the aa-patches contain other changes than merely changes to the VM? If
-> so, couldn't these changes tip the result in an unfair direction?! After
-> all, what we want is a VM-to-VM shoot-out, not a VM-to-VM+whatever
-> shoot-out. After all, one would assume that the non VM-related changes
-> would be merged to the kernel no matter what VM is used, right?
+I formatted a zip disk on a Mac OS-X, selecting the "Unix" filesystem
+type and no partitions.  I then inserted this disk in the /dev/hdd,
+the zip drive on my PC.  I tried mounting hdd and hdd1 through hdd4
+using types of auto, ufs, udf, sysv, and one or two others, all to no
+avail.
 
-The -aa kernel seems to contain patches to a few dozen subsystems.
-
-The -rmap patch is pretty much only VM changes.
-
-You're right that this is not a strict VM vs VM comparison...
-
-kind regards,
-
-Rik
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+John Kodis                                    Goddard Space Flight Center
+kodis@mail630.gsfc.nasa.gov                      Greenbelt, Maryland, USA
+Phone: 301-286-7376                                     Fax: 301-286-1771

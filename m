@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbTDHUY7 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 16:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDHUY7 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 16:24:59 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:40875 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S261747AbTDHUY7 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 16:24:59 -0400
-Date: Tue, 08 Apr 2003 14:36:19 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Robert Schiele <rschiele@uni-mannheim.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] aic7* claims all checked EISA io ranges (was: [MAILER-DAEMON@rumms.uni-mannheim.de: Returned mail: see transcript for details])
-Message-ID: <3566580000.1049834178@aslan.btc.adaptec.com>
-In-Reply-To: <20030408071845.GA10002@schiele.local>
-References: <20030408071845.GA10002@schiele.local>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
+	id S261705AbTDHUhD (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 16:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDHUhD (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 16:37:03 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:5115 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP id S261705AbTDHUhC (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 16:37:02 -0400
+From: Arun Dharankar <ADharankar@ATTBI.Com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux kernel crash dumps (LKCD) and PowerPC ports.
+Date: Tue, 8 Apr 2003 16:47:32 -0400
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200304081647.32146.ADharankar@ATTBI.Com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello.
-> 
-> Some days ago a bug was introduced in aic7xxx by applying the aic7xxx driver
-> upgrade to both the 2.4 and the 2.5 tree.
+Greetings.
 
-This particular defect was corrected in all versions of the aic7xxx
-driver released by me after March 9th.  See the driver CHANGELOG in
-the driver source distribution for details.
+>From what I able to find from some searching around, the implementation
+by MCLX ("http://oss.missioncriticallinux.com/projects/mcore/") is being
+carried on at http://lists.insecure.org/lists/linux-kernel/2003/Feb/0987.html.
 
-http://people.FreeBSD.org/~gibbs/linux/SRC/
+Looking at these patches, I can only see x86 architecture support for
+in memory kernel crash dump support. Is anyone actively working on the
+PowerPC architecture?
 
---
-Justin
+Best regards,
+-Arun.
+
+
 

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317312AbSIMHCi>; Fri, 13 Sep 2002 03:02:38 -0400
+	id <S319168AbSIMHI0>; Fri, 13 Sep 2002 03:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318538AbSIMHCh>; Fri, 13 Sep 2002 03:02:37 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8714 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S317312AbSIMHCh>; Fri, 13 Sep 2002 03:02:37 -0400
-Message-Id: <200209130702.g8D72sp09062@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Jan Kasprzak <kas@informatics.muni.cz>, kernel@street-vision.com
-Subject: Re: AMD 760MPX DMA lockup (partly solved)
-Date: Fri, 13 Sep 2002 09:58:00 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <20020912161258.A9056@fi.muni.cz> <200209121815.g8CIFdp06612@Port.imtp.ilyichevsk.odessa.ua> <20020912211452.C29717@fi.muni.cz>
-In-Reply-To: <20020912211452.C29717@fi.muni.cz>
+	id <S319196AbSIMHI0>; Fri, 13 Sep 2002 03:08:26 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:60617 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319168AbSIMHIZ>;
+	Fri, 13 Sep 2002 03:08:25 -0400
+Date: Fri, 13 Sep 2002 09:19:20 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Steven Cole <elenstev@mesatop.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Steven Cole <scole@lanl.gov>
+Subject: Re: [PATCH] kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y]
+In-Reply-To: <1031863543.3837.110.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209130914190.28568-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 September 2002 17:14, Jan Kasprzak wrote:
-> : This is 2.4.20-pre1, dual AMD 2000MP, only difference is it is the Tyan
-> : version of the MPX, not the MSI.
-> :
-> : Justin
->
->         Justin, thanks for this! I've tried 2.4.20-pre1 with your
-> .config (and then with my .config), and it works!
->
->         Further investigation showed that the problem first appeared
-> somewhere between 2.4.20-pre2 (works for me) and 2.4.20-pre5 (has the
-> lock-up problem I've described). I was not able to test -pre3 and -pre4,
-> because these kernel died on me during boot after the
-> "Initializing RT netlink socket" message.
 
-It would be interesting to test 2.4.20-pre5 on Justin's box
-(if he can risk fs damage)
---
-vda
+On 12 Sep 2002, Robert Love wrote:
+
+> > it *is* a great debugging check, at zero added cost. Scheduling from an
+> > atomic region *is* a critical bug that can and will cause problems in 99%
+> > of the cases. Rather fix the asserts that got triggered instead of backing
+> > out useful debugging checks ...
+> 
+> There are a lot of shitty drivers that this is going to catch. [...]
+
+of course. And your point in making it in_interrupt() had what purpose -
+hiding that tons of code breaks preemption? [and tons of code breaks on
+SMP.] Your patch was removing precisely the tool that can be used to
+improve SMP quality on UP boxes as well.
+
+> [...] Yes, that is great... but we cannot BUG().  There really are a LOT
+> of them. In the least, we need to show_trace().
+
+yes. And we also need kallsyms and kksymoops in the kernel, so that people
+can send in meaningful traces.
+
+	Ingo
+

@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129539AbQK3QpG>; Thu, 30 Nov 2000 11:45:06 -0500
+        id <S130322AbQK3Qz5>; Thu, 30 Nov 2000 11:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130367AbQK3Qo5>; Thu, 30 Nov 2000 11:44:57 -0500
-Received: from windsormachine.com ([206.48.122.28]:28428 "EHLO
-        router.windsormachine.com") by vger.kernel.org with ESMTP
-        id <S129539AbQK3Qov>; Thu, 30 Nov 2000 11:44:51 -0500
-Message-ID: <3A267CDB.DEC0A214@windsormachine.com>
-Date: Thu, 30 Nov 2000 11:14:19 -0500
-From: Mike Dresser <mdresser@windsormachine.com>
-Organization: Windsor Machine & Stamping
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Guennadi Liakhovetski <gvlyakh@mail.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DMA for triton again...
-In-Reply-To: <E141W6K-000AgZ-00@f6.mail.ru>
+        id <S130380AbQK3Qzr>; Thu, 30 Nov 2000 11:55:47 -0500
+Received: from uu194-7-68-2.unknown.uunet.be ([194.7.68.2]:28408 "EHLO
+        bartok.iverlek.kotnet.org") by vger.kernel.org with ESMTP
+        id <S130322AbQK3Qpc>; Thu, 30 Nov 2000 11:45:32 -0500
+Date: Thu, 30 Nov 2000 17:11:37 +0100
+From: Arnaud Installe <ainstalle@filepool.com>
+To: Ray Bryant <raybry@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: high load & poor interactivity on fast thread creation
+Message-ID: <20001130171137.A1851@bartok.filepool.com>
+In-Reply-To: <20001130081443.A8118@bach.iverlek.kotnet.org> <3A266895.F522A0E2@austin.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A266895.F522A0E2@austin.ibm.com>; from raybry@austin.ibm.com on Thu, Nov 30, 2000 at 08:47:49AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guennadi Liakhovetski wrote:
+On Thu, Nov 30, 2000 at 08:47:49AM -0600, Ray Bryant wrote:
+> The IBM implementations of the Java language use native threads --
+> the result is that every time you do a Java thread creation, you
+> end up with a new cloned process.  Now this should be pretty fast,
 
-> Thanks!
->
-> > Chipset is a 430FX, Same hard drive as what you have.  Pentium > 133, 48 meg ram.  Kernel 2.2.17 with raid patch, and ide patch.
->
-> I don't think I need tha raid patch, do I?
+Well, I think the problem is that it is *too* fast.  :-/  What I think
+happens is that a lot of threads get created at the same time, and they
+all run a bit of initialization code.  This way a lot of processes are in
+the running state, so that the load average gets *very* high, which makes
+the system very unresponsive.
 
-No, its just left overs from my playing with a Promise Ultra/66 card.  Even without the raid and ide patches, i can use DMA
+Could this be correct ?  Also, I haven't seen this happen with NT.  Could
+it be that Java on NT uses user-mode threading and creates threads much
+more slowly, resulting in a lower load ?
 
-> Intel Morrison64 (not Morrison32!) aka Advanced/MN (in some sources Advanced/AL). BIOS AMI 1.00.03.CA0 (upgraded to 1.00.04.CA0).
->
+> so I am surprised that it stalls like that.  It is possible this
+> is a scheduler effect.  Do you have a program example you can
+> share with us?
 
-Opposite side of the spectrum from the utter crap this DataExpert is. =)  Had to get a modified bios, to get a 13.6 gig to exist in the machine without locking it up
-on the POST.  Yes, you can tell it no bios, but without the ide patches, it's _very_ slow.
+So I suppose it is a scheduler effect.  Can this be solved on the kernel
+side (a /proc/sys setting perhaps ?), or should a check be built-in into
+the software that no more than a certain number of threads are created per
+time unit ?
 
-> What version of hdparm are you using? By the output it looks like 3.9, patched? Did DMA work from the very beginning? Can you send me a copy of your .config file?
+> Also, it is a little old now (by Internet standards) but you 
+> might take a look at this paper we did at the beginning of 
+> the year: 
+>  
+> http://www-4.ibm.com/software/developer/library/java2/index.html
 
-standard hdparm 3.9, from debian woody.  The difference is i used -i, instead of -I, i think.  I'll see how mangled my .config is.
-Looks somewhat clean, a few modules i don't use.  I'll send it in a seperate email.
+I've already read this one.  I'll have to re-read it to freshen up my
+memory.
 
-I've got maybe 3 or 4 of these machines in service as backup servers for small lans.  Small 1.6 gig boot drive, 13.6 gig data drive, a cdrom, and a IDE 7/14 gig HP
-tape drive.  Speeds aren't too bad, and DMA seems to work on the parts that support it.
+							Arnaud
 
+-- 
+Arnaud Installe						<ainstalle@filepool.com>
 
+Absence is to love what wind is to fire.  It extinguishes the small,
+it enkindles the great.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,80 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285416AbRLGFmQ>; Fri, 7 Dec 2001 00:42:16 -0500
+	id <S285418AbRLGFtI>; Fri, 7 Dec 2001 00:49:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285417AbRLGFmG>; Fri, 7 Dec 2001 00:42:06 -0500
-Received: from adsl-63-203-198-52.dsl.snfc21.pacbell.net ([63.203.198.52]:901
-	"EHLO lame.durables.org") by vger.kernel.org with ESMTP
-	id <S285416AbRLGFlV>; Fri, 7 Dec 2001 00:41:21 -0500
-Subject: [PATCH] Sony DSC-F707 support in usb-storage
-From: Robert Walsh <rjwalsh@durables.org>
-To: mdharm-usb@one-eyed-alien.net
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-yqSp72ucjUMBaka/lPuK"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 06 Dec 2001 21:41:19 -0800
-Message-Id: <1007703679.3008.0.camel@spoon>
-Mime-Version: 1.0
+	id <S285419AbRLGFs6>; Fri, 7 Dec 2001 00:48:58 -0500
+Received: from www.wen-online.de ([212.223.88.39]:46346 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S285418AbRLGFst>;
+	Fri, 7 Dec 2001 00:48:49 -0500
+Date: Fri, 7 Dec 2001 06:51:06 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Christian Lavoie <clavoie@bmed.mcgill.ca>
+cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17-pre5 will not boot
+In-Reply-To: <20011207051939Z282747-752+9102@vger.kernel.org>
+Message-ID: <Pine.LNX.4.33.0112070649260.747-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 7 Dec 2001, Christian Lavoie wrote:
 
---=-yqSp72ucjUMBaka/lPuK
-Content-Type: multipart/mixed; boundary="=-zt42cI/pN3s9t9Gpk7iF"
+> The kernel was more or less1024kb large (can't remember the exact number),
+> and my loadlin can't seem to handle that.
 
+Yes, loadlin has always croaked on >1MB kernels here.
 
---=-zt42cI/pN3s9t9Gpk7iF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi Matthew,
-
-This small patch against the 2.4.16 kernel allows the USB storage driver
-to recognize the Sony DSC-F707 camera.
-
-Regards,
- Robert.
-
---=20
-Robert Walsh
-Amalgamated Durables, Inc.  -  "We bring dead things to life"
-Email: rjwalsh@durables.org
-
---=-zt42cI/pN3s9t9Gpk7iF
-Content-Description: 
-Content-Disposition: attachment; filename=f707patch
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
---- linux/drivers/usb/storage/unusual_devs.h	Thu Dec  6 17:35:08 2001
-+++ linux-rj/drivers/usb/storage/unusual_devs.h	Thu Dec  6 17:35:20 2001
-@@ -162,9 +162,9 @@
- 		US_FL_SCM_MULT_TARG ),
-=20
- /* This entry is needed because the device reports Sub=3Dff */
--UNUSUAL_DEV(  0x054c, 0x0010, 0x0106, 0x0322,=20
-+UNUSUAL_DEV(  0x054c, 0x0010, 0x0106, 0x0401,=20
- 		"Sony",
--		"DSC-S30/S70/S75/505V/F505",=20
-+		"DSC-S30/S70/S75/505V/F505/F707",=20
- 		US_SC_SCSI, US_PR_CB, NULL,
- 		US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
-=20
-
---=-zt42cI/pN3s9t9Gpk7iF--
-
---=-yqSp72ucjUMBaka/lPuK
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8EFZ/bZtqSALM5CYRAvw1AJ9KCSeWYfSxm5pDImaT8VgHM8I0PwCdF5tA
-s4ieSVIRonFBq7UK/TAAGJA=
-=7ud9
------END PGP SIGNATURE-----
-
---=-yqSp72ucjUMBaka/lPuK--
+	-Mike
 

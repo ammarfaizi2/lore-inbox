@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbUCPQE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 11:04:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUCPQEz
+	id S263311AbUCPQH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 11:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUCPQFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 11:04:55 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:59665 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263309AbUCPQEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 11:04:31 -0500
-Message-ID: <40572922.10109@techsource.com>
-Date: Tue, 16 Mar 2004 11:19:46 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Muli Ben-Yehuda <mulix@mulix.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler: Process priority fed back to parent?
-References: <40571A62.8050204@techsource.com> <20040316154611.GA31510@mulix.org>
-In-Reply-To: <20040316154611.GA31510@mulix.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Mar 2004 11:05:19 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:56192 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263359AbUCPQEp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 11:04:45 -0500
+Message-Id: <200403161604.i2GG4Vcl004724@eeyore.valparaiso.cl>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: unionfs 
+In-Reply-To: Your message of "Mon, 15 Mar 2004 18:20:11 EST."
+             <40563A2B.4040800@nortelnetworks.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 16 Mar 2004 12:04:30 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Friesen <cfriesen@nortelnetworks.com> said:
+> Horst von Brand wrote:
+> > Assuming one RW on top of a RO only now: What should happen when a
+> > file/directory is missing from the top? If the bottom one "shows through",
+> > you can't delete anything; if it doesn't, you win nothing (because you will
+> > have to keep a complete copy RW on top).
 
+> I don't see how you win nothing.  I create an overlay filesystem. 
+ 
+Completely empty is what you get then... and you have to explicitly link in
+each file. Or everything shows up here.
+ 
+>                                                                   I 
+> delete a bunch of files in the overlay and it doesn't show through. 
 
-Muli Ben-Yehuda wrote:
-> On Tue, Mar 16, 2004 at 10:16:50AM -0500, Timothy Miller wrote:
-> 
-> 
->>This way, after gcc has run a few times, it'll be flagged as a CPU-bound 
->>process and every time it's run after that point, it is always run at an 
->>appropriate priority.  Similarly, the first time xmms is run, its 
->>interactivity estimate won't be right, but after it's determined to be 
->>interactive, then the next time the program is launched, it STARTS with 
->>an appropriate priority:  no ramp-up time.
-> 
-> 
-> This is something that I've thought of doing in the past. The reason I
-> didn't pursue it further is that it's impossible to get it right for
-> all cases, and it attacks the problem in the wrong place. The kernel
-> shouldn't need to guess(timate) what the process is going to do. The
-> userspace programmer, who knows what his process is going to do,
-> should tell the kernel. 
+Next time you mount it, what happens? How do you know the "top files" where
+deleted, and should not show up? 
 
-I agree... somewhat.  It would be nice if we could trust every program 
-to always do the right thing, always accurately indicate its priority, 
-and always yield the CPU at the best time.  But if that were reality, 
-we'd still be using cooperative multitasking.
+What happens if I mount the live 2.6.4 kernel source over a CD containing
+2.5.30? What happens to identical files, files that moved, changed files,
+deleted files? Pray tell, how does the kernel find out which is which?
 
-Unfortunately, the OS has to play babysitter to processes, because 
-they're guaranteed to misbehave.  Preemption exists to ensure fairness 
-amongst processes.  Thus, while you're right that it would be nice to 
-have processes report their CPU requirements, if we were to actually DO 
-that, it would be a disaster.
+How do you back up a beast like this?
+ 
+>                                                                     All 
+> my other files are still links to the originals, with the
 
+Something missing here?
 
+In any case, there are tools that create a farm of symlinks, and when you
+try to write to a file (pointing to a RO area/file), you get an error. This
+gives you 90% of what you want, _without_ aggravating the filesystem
+hackers.
+
+> I would dearly love to use something like to make it easy to track 
+> changes made all over a source tree.  If I could sync them up at the 
+> begining, then make all my changes in the overly, then doing a diff is 
+> really easy since you just look for places where the inodes are 
+> different between the two filesystems.  Like having hard links, but the 
+> filesystem breaks them for you when you write.
+
+This is called BitKeeper, CVS, Subversion, arch, RCS, SCCS, ... Better yet,
+it keeps the history of each file (not just the one version on RO media),
+with annotations. You decide when a version is ready for archiving.
+
+Sure, this would save disk space. But at today's prices, it just is not
+worth the trouble.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSEDBzD>; Fri, 3 May 2002 21:55:03 -0400
+	id <S315762AbSEDCAn>; Fri, 3 May 2002 22:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315761AbSEDBzC>; Fri, 3 May 2002 21:55:02 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:57379 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S315760AbSEDBzC>; Fri, 3 May 2002 21:55:02 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A781780F8@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, "'ak@muc.de'" <ak@muc.de>
-Subject: RE: my slab cache broken on sparc64
-Date: Fri, 3 May 2002 20:54:42 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315763AbSEDCAm>; Fri, 3 May 2002 22:00:42 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7296 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315762AbSEDCAl>;
+	Fri, 3 May 2002 22:00:41 -0400
+Date: Fri, 03 May 2002 18:48:41 -0700 (PDT)
+Message-Id: <20020503.184841.64937487.davem@redhat.com>
+To: jamagallon@able.es
+Cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: Re: undefined reference to `in_ntoa'
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020504015655.GA8544@werewolf.able.es>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->get_user() MUST be used only on "user pointers", it is being
->used on a kernel pointer here.
->
->It would work if the access was surrounded by:
->
->	old_fs = get_fs();
->	set_fs(KERNEL_DS);
->	... get_user(kernel_pointer) ...
->	set_fs (old_fs);
->
->But it is not.
+   From: "J.A. Magallon" <jamagallon@able.es>
+   Date: Sat, 4 May 2002 03:56:55 +0200
 
-Ok, now I see it.   I'll change mine and try that out, though Andi Kleen
-indicated he would fix it for real.  :o)
+   
+   It is only used in fs/nfs/nfsroot.c, and never defined (grep -r just shows that).
 
-Thanks, Wow, two e-mails and a fix, that's got to be some kind of record
-:o)
-Bruce H.
+I've sent Marcelo the following fix for this already.
+Sorry about that.
+
+--- fs/nfs/nfsroot.c.~2~	Fri May  3 13:56:10 2002
++++ fs/nfs/nfsroot.c	Fri May  3 13:56:30 2002
+@@ -343,8 +343,8 @@
+ {
+ 	struct sockaddr_in sin;
+ 
+-	printk(KERN_NOTICE "Looking up port of RPC %d/%d on %s\n",
+-		program, version, in_ntoa(servaddr));
++	printk(KERN_NOTICE "Looking up port of RPC %d/%d on %u.%u.%u.%u\n",
++		program, version, NIPQUAD(servaddr));
+ 	set_sockaddr(&sin, servaddr, 0);
+ 	return rpc_getport_external(&sin, program, version, proto);
+ }

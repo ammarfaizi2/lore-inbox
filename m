@@ -1,37 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264654AbSKDL6G>; Mon, 4 Nov 2002 06:58:06 -0500
+	id <S264651AbSKDLw6>; Mon, 4 Nov 2002 06:52:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264656AbSKDL6G>; Mon, 4 Nov 2002 06:58:06 -0500
-Received: from p508B7C3B.dip.t-dialin.net ([80.139.124.59]:24242 "EHLO
-	p508B7C3B.dip.t-dialin.net") by vger.kernel.org with ESMTP
-	id <S264654AbSKDL6G>; Mon, 4 Nov 2002 06:58:06 -0500
-Date: Mon, 4 Nov 2002 13:04:32 +0100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Q] SGI Visual Workstation datasheets
-Message-ID: <20021104130432.A19377@bacchus.dhis.org>
-References: <20021104103651.GA305@pazke.ipt>
+	id <S264652AbSKDLw6>; Mon, 4 Nov 2002 06:52:58 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:8188 "EHLO dagobert.svc.sysgo.de")
+	by vger.kernel.org with ESMTP id <S264651AbSKDLw4>;
+	Mon, 4 Nov 2002 06:52:56 -0500
+Date: Mon, 4 Nov 2002 12:55:15 +0100
+From: Soewono Effendi <SEffendi@sysgo.de>
+To: linux-kernel mlist <linux-kernel@vger.kernel.org>
+Subject: error compiling v2.5.45 using xtreme minimal .config
+Message-Id: <20021104125515.6578f429.SEffendi@sysgo.de>
+Organization: SYSGO Real-Time Solutions GmbH
+X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021104103651.GA305@pazke.ipt>; from pazke@orbita1.ru on Mon, Nov 04, 2002 at 01:36:51PM +0300
-X-Accept-Language: de,en,fr
+Content-Type: multipart/mixed;
+ boundary="Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 01:36:51PM +0300, Andrey Panin wrote:
+This is a multi-part message in MIME format.
 
-> arch/i386/config.in contains line below:
-> "If you want to see it working mail an VW540 to hch@infradead.org 8)"
-> 
-> arch/i386/mach-visws/visws-apic.c also contains interesting line:
-> "Copyright (C) 1999 Bent Hagemark, Ingo Molnar"
-> 
-> May be you have some VISWS docs hidden in your attic ?
+--Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Almost certainly chained by an NDA.  Bent btw. has long left SGI.
+Hi all,
 
-  Ralf
+I just tested to compile linux-2.5.45 with this xtreme minimal .config (also attached)
+Basically I turned off everything that was "off-able" (not sure it this word exists ;))
+ using "make menuconfig".
+-----8<-------
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_M586=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_F00F_BUG=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_NOHIGHMEM=y
+CONFIG_BINFMT_ELF=y
+CONFIG_INPUT=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_RAMFS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_X86_BIOS_REBOOT=y
+-----8<-------
+Note: This configuration might produce "not so useful" kernel, 
+but that's how I tested the kernel configuration.
+
+I got the following error:
+
+  Generating build number
+  Generating include/linux/compile.h (updated)
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group  -o vmlinux
+net/built-in.o: In function `sock_ioctl':
+net/built-in.o(.text+0x956): undefined reference to `dev_ioctl'
+net/built-in.o: In function `__kfree_skb':
+net/built-in.o(.text+0x32ae): undefined reference to `__secpath_destroy'
+
+Best regards,
+>> S. Effendi
+
+--Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30
+Content-Type: application/octet-stream;
+ name=".config"
+Content-Disposition: attachment;
+ filename=".config"
+Content-Transfer-Encoding: base64
+
+IwojIEF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVkIG1ha2UgY29uZmlnOiBkb24ndCBlZGl0CiMKQ09O
+RklHX1g4Nj15CkNPTkZJR19VSUQxNj15CkNPTkZJR19HRU5FUklDX0lTQV9ETUE9eQoKIwojIENv
+ZGUgbWF0dXJpdHkgbGV2ZWwgb3B0aW9ucwojCiMgQ09ORklHX0VYUEVSSU1FTlRBTCBpcyBub3Qg
+c2V0CgojCiMgR2VuZXJhbCBzZXR1cAojCiMgQ09ORklHX05FVCBpcyBub3Qgc2V0CiMgQ09ORklH
+X1NZU1ZJUEMgaXMgbm90IHNldAojIENPTkZJR19CU0RfUFJPQ0VTU19BQ0NUIGlzIG5vdCBzZXQK
+IyBDT05GSUdfU1lTQ1RMIGlzIG5vdCBzZXQKCiMKIyBMb2FkYWJsZSBtb2R1bGUgc3VwcG9ydAoj
+CiMgQ09ORklHX01PRFVMRVMgaXMgbm90IHNldAoKIwojIFByb2Nlc3NvciB0eXBlIGFuZCBmZWF0
+dXJlcwojCiMgQ09ORklHX00zODYgaXMgbm90IHNldAojIENPTkZJR19NNDg2IGlzIG5vdCBzZXQK
+Q09ORklHX001ODY9eQojIENPTkZJR19NNTg2VFNDIGlzIG5vdCBzZXQKIyBDT05GSUdfTTU4Nk1N
+WCBpcyBub3Qgc2V0CiMgQ09ORklHX002ODYgaXMgbm90IHNldAojIENPTkZJR19NUEVOVElVTUlJ
+SSBpcyBub3Qgc2V0CiMgQ09ORklHX01QRU5USVVNNCBpcyBub3Qgc2V0CiMgQ09ORklHX01LNiBp
+cyBub3Qgc2V0CiMgQ09ORklHX01LNyBpcyBub3Qgc2V0CiMgQ09ORklHX01FTEFOIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfTUNSVVNPRSBpcyBub3Qgc2V0CiMgQ09ORklHX01XSU5DSElQQzYgaXMgbm90
+IHNldAojIENPTkZJR19NV0lOQ0hJUDIgaXMgbm90IHNldAojIENPTkZJR19NV0lOQ0hJUDNEIGlz
+IG5vdCBzZXQKIyBDT05GSUdfTUNZUklYSUlJIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9DTVBYQ0hH
+PXkKQ09ORklHX1g4Nl9YQUREPXkKQ09ORklHX1g4Nl9MMV9DQUNIRV9TSElGVD01CkNPTkZJR19S
+V1NFTV9YQ0hHQUREX0FMR09SSVRITT15CkNPTkZJR19YODZfUFBST19GRU5DRT15CkNPTkZJR19Y
+ODZfRjAwRl9CVUc9eQpDT05GSUdfWDg2X1dQX1dPUktTX09LPXkKQ09ORklHX1g4Nl9JTlZMUEc9
+eQpDT05GSUdfWDg2X0JTV0FQPXkKQ09ORklHX1g4Nl9QT1BBRF9PSz15CkNPTkZJR19YODZfVVNF
+X1NUUklOR180ODY9eQpDT05GSUdfWDg2X0FMSUdOTUVOVF8xNj15CiMgQ09ORklHX0hVR0VUTEJf
+UEFHRSBpcyBub3Qgc2V0CiMgQ09ORklHX1NNUCBpcyBub3Qgc2V0CiMgQ09ORklHX1BSRUVNUFQg
+aXMgbm90IHNldAojIENPTkZJR19YODZfVVBfQVBJQyBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9N
+Q0UgaXMgbm90IHNldAojIENPTkZJR19DUFVfRlJFUSBpcyBub3Qgc2V0CiMgQ09ORklHX1RPU0hJ
+QkEgaXMgbm90IHNldAojIENPTkZJR19JOEsgaXMgbm90IHNldAojIENPTkZJR19NSUNST0NPREUg
+aXMgbm90IHNldAojIENPTkZJR19YODZfTVNSIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X0NQVUlE
+IGlzIG5vdCBzZXQKQ09ORklHX05PSElHSE1FTT15CiMgQ09ORklHX0hJR0hNRU00RyBpcyBub3Qg
+c2V0CiMgQ09ORklHX0hJR0hNRU02NEcgaXMgbm90IHNldAojIENPTkZJR19NQVRIX0VNVUxBVElP
+TiBpcyBub3Qgc2V0CiMgQ09ORklHX01UUlIgaXMgbm90IHNldAoKIwojIFBvd2VyIG1hbmFnZW1l
+bnQgb3B0aW9ucyAoQUNQSSwgQVBNKQojCgojCiMgQUNQSSBTdXBwb3J0CiMKIyBDT05GSUdfQUNQ
+SSBpcyBub3Qgc2V0CiMgQ09ORklHX1BNIGlzIG5vdCBzZXQKCiMKIyBCdXMgb3B0aW9ucyAoUENJ
+LCBQQ01DSUEsIEVJU0EsIE1DQSwgSVNBKQojCiMgQ09ORklHX1BDSSBpcyBub3Qgc2V0CiMgQ09O
+RklHX1BDSV9HT0JJT1MgaXMgbm90IHNldAojIENPTkZJR19QQ0lfR09ESVJFQ1QgaXMgbm90IHNl
+dAojIENPTkZJR19QQ0lfR09BTlkgaXMgbm90IHNldAojIENPTkZJR19TQ3gyMDAgaXMgbm90IHNl
+dAojIENPTkZJR19JU0EgaXMgbm90IHNldAojIENPTkZJR19NQ0EgaXMgbm90IHNldAojIENPTkZJ
+R19IT1RQTFVHIGlzIG5vdCBzZXQKCiMKIyBFeGVjdXRhYmxlIGZpbGUgZm9ybWF0cwojCiMgQ09O
+RklHX0tDT1JFX0VMRiBpcyBub3Qgc2V0CiMgQ09ORklHX0tDT1JFX0FPVVQgaXMgbm90IHNldAoj
+IENPTkZJR19CSU5GTVRfQU9VVCBpcyBub3Qgc2V0CkNPTkZJR19CSU5GTVRfRUxGPXkKIyBDT05G
+SUdfQklORk1UX01JU0MgaXMgbm90IHNldAoKIwojIE1lbW9yeSBUZWNobm9sb2d5IERldmljZXMg
+KE1URCkKIwojIENPTkZJR19NVEQgaXMgbm90IHNldAoKIwojIFBhcmFsbGVsIHBvcnQgc3VwcG9y
+dAojCiMgQ09ORklHX1BBUlBPUlQgaXMgbm90IHNldAoKIwojIFBsdWcgYW5kIFBsYXkgY29uZmln
+dXJhdGlvbgojCiMgQ09ORklHX1BOUCBpcyBub3Qgc2V0CgojCiMgQmxvY2sgZGV2aWNlcwojCiMg
+Q09ORklHX0JMS19ERVZfRkQgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0xPT1AgaXMgbm90
+IHNldAojIENPTkZJR19CTEtfREVWX1JBTSBpcyBub3Qgc2V0CiMgQ09ORklHX0xCRCBpcyBub3Qg
+c2V0CgojCiMgQVRBL0FUQVBJL01GTS9STEwgZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJR19JREUg
+aXMgbm90IHNldAoKIwojIFNDU0kgZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJR19TQ1NJIGlzIG5v
+dCBzZXQKCiMKIyBNdWx0aS1kZXZpY2Ugc3VwcG9ydCAoUkFJRCBhbmQgTFZNKQojCiMgQ09ORklH
+X01EIGlzIG5vdCBzZXQKCiMKIyBGdXNpb24gTVBUIGRldmljZSBzdXBwb3J0CiMKCiMKIyBJMk8g
+ZGV2aWNlIHN1cHBvcnQKIwojIENPTkZJR19JMk8gaXMgbm90IHNldAoKIwojIEFtYXRldXIgUmFk
+aW8gc3VwcG9ydAojCiMgQ09ORklHX0hBTVJBRElPIGlzIG5vdCBzZXQKCiMKIyBJU0ROIHN1YnN5
+c3RlbQojCgojCiMgVGVsZXBob255IFN1cHBvcnQKIwojIENPTkZJR19QSE9ORSBpcyBub3Qgc2V0
+CgojCiMgSW5wdXQgZGV2aWNlIHN1cHBvcnQKIwpDT05GSUdfSU5QVVQ9eQoKIwojIFVzZXJsYW5k
+IGludGVyZmFjZXMKIwojIENPTkZJR19JTlBVVF9NT1VTRURFViBpcyBub3Qgc2V0CiMgQ09ORklH
+X0lOUFVUX0pPWURFViBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX1RTREVWIGlzIG5vdCBzZXQK
+IyBDT05GSUdfSU5QVVRfRVZERVYgaXMgbm90IHNldAojIENPTkZJR19JTlBVVF9FVkJVRyBpcyBu
+b3Qgc2V0CgojCiMgSW5wdXQgSS9PIGRyaXZlcnMKIwojIENPTkZJR19HQU1FUE9SVCBpcyBub3Qg
+c2V0CkNPTkZJR19TT1VORF9HQU1FUE9SVD15CiMgQ09ORklHX1NFUklPIGlzIG5vdCBzZXQKCiMK
+IyBJbnB1dCBEZXZpY2UgRHJpdmVycwojCiMgQ09ORklHX0lOUFVUX0tFWUJPQVJEIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfSU5QVVRfTU9VU0UgaXMgbm90IHNldAojIENPTkZJR19JTlBVVF9KT1lTVElD
+SyBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX1RPVUNIU0NSRUVOIGlzIG5vdCBzZXQKIyBDT05G
+SUdfSU5QVVRfTUlTQyBpcyBub3Qgc2V0CgojCiMgQ2hhcmFjdGVyIGRldmljZXMKIwojIENPTkZJ
+R19WVCBpcyBub3Qgc2V0CiMgQ09ORklHX1NFUklBTF9OT05TVEFOREFSRCBpcyBub3Qgc2V0Cgoj
+CiMgU2VyaWFsIGRyaXZlcnMKIwoKIwojIE5vbi04MjUwIHNlcmlhbCBwb3J0IHN1cHBvcnQKIwoj
+IENPTkZJR19VTklYOThfUFRZUyBpcyBub3Qgc2V0CgojCiMgSTJDIHN1cHBvcnQKIwojIENPTkZJ
+R19JMkMgaXMgbm90IHNldAoKIwojIE1pY2UKIwojIENPTkZJR19CVVNNT1VTRSBpcyBub3Qgc2V0
+CiMgQ09ORklHX1FJQzAyX1RBUEUgaXMgbm90IHNldAoKIwojIFdhdGNoZG9nIENhcmRzCiMKIyBD
+T05GSUdfV0FUQ0hET0cgaXMgbm90IHNldAojIENPTkZJR19OVlJBTSBpcyBub3Qgc2V0CiMgQ09O
+RklHX1JUQyBpcyBub3Qgc2V0CiMgQ09ORklHX0dFTl9SVEMgaXMgbm90IHNldAojIENPTkZJR19E
+VExLIGlzIG5vdCBzZXQKIyBDT05GSUdfUjM5NjQgaXMgbm90IHNldAojIENPTkZJR19BUFBMSUNP
+TSBpcyBub3Qgc2V0CgojCiMgRnRhcGUsIHRoZSBmbG9wcHkgdGFwZSBkZXZpY2UgZHJpdmVyCiMK
+IyBDT05GSUdfRlRBUEUgaXMgbm90IHNldAojIENPTkZJR19BR1AgaXMgbm90IHNldAojIENPTkZJ
+R19EUk0gaXMgbm90IHNldAojIENPTkZJR19NV0FWRSBpcyBub3Qgc2V0CiMgQ09ORklHX1JBV19E
+UklWRVIgaXMgbm90IHNldAoKIwojIE11bHRpbWVkaWEgZGV2aWNlcwojCiMgQ09ORklHX1ZJREVP
+X0RFViBpcyBub3Qgc2V0CgojCiMgRmlsZSBzeXN0ZW1zCiMKIyBDT05GSUdfUVVPVEEgaXMgbm90
+IHNldAojIENPTkZJR19BVVRPRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19BVVRPRlM0X0ZTIGlz
+IG5vdCBzZXQKIyBDT05GSUdfUkVJU0VSRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19FWFQzX0ZT
+IGlzIG5vdCBzZXQKIyBDT05GSUdfSkJEIGlzIG5vdCBzZXQKIyBDT05GSUdfRkFUX0ZTIGlzIG5v
+dCBzZXQKIyBDT05GSUdfQ1JBTUZTIGlzIG5vdCBzZXQKIyBDT05GSUdfVE1QRlMgaXMgbm90IHNl
+dApDT05GSUdfUkFNRlM9eQojIENPTkZJR19JU085NjYwX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdf
+SkZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfTUlOSVhfRlMgaXMgbm90IHNldAojIENPTkZJR19W
+WEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfTlRGU19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX0hQ
+RlNfRlMgaXMgbm90IHNldAojIENPTkZJR19QUk9DX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfUU5Y
+NEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfUk9NRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19F
+WFQyX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfU1lTVl9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1VE
+Rl9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1VGU19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1hGU19G
+UyBpcyBub3Qgc2V0CgojCiMgUGFydGl0aW9uIFR5cGVzCiMKIyBDT05GSUdfUEFSVElUSU9OX0FE
+VkFOQ0VEIGlzIG5vdCBzZXQKQ09ORklHX01TRE9TX1BBUlRJVElPTj15CgojCiMgU291bmQKIwoj
+IENPTkZJR19TT1VORCBpcyBub3Qgc2V0CgojCiMgVVNCIHN1cHBvcnQKIwoKIwojIEtlcm5lbCBo
+YWNraW5nCiMKIyBDT05GSUdfREVCVUdfS0VSTkVMIGlzIG5vdCBzZXQKCiMKIyBTZWN1cml0eSBv
+cHRpb25zCiMKQ09ORklHX1NFQ1VSSVRZX0NBUEFCSUxJVElFUz15CgojCiMgQ3J5cHRvZ3JhcGhp
+YyBvcHRpb25zCiMKIyBDT05GSUdfQ1JZUFRPIGlzIG5vdCBzZXQKCiMKIyBMaWJyYXJ5IHJvdXRp
+bmVzCiMKIyBDT05GSUdfQ1JDMzIgaXMgbm90IHNldApDT05GSUdfWDg2X0JJT1NfUkVCT09UPXkK
+
+--Multipart_Mon__4_Nov_2002_12:55:15_+0100_081f0e30--

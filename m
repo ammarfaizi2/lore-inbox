@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310858AbSCRNxi>; Mon, 18 Mar 2002 08:53:38 -0500
+	id <S310850AbSCRNxI>; Mon, 18 Mar 2002 08:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310859AbSCRNx3>; Mon, 18 Mar 2002 08:53:29 -0500
-Received: from ns.suse.de ([213.95.15.193]:25605 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310858AbSCRNxO>;
-	Mon, 18 Mar 2002 08:53:14 -0500
-Date: Mon, 18 Mar 2002 14:53:13 +0100
-From: Dave Jones <davej@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [-ENOCOMPILE] ataraid as module in linux-2.5.7-pre2
-Message-ID: <20020318145313.E3025@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200203180938.g2I9c1q27846@Port.imtp.ilyichevsk.odessa.ua> <20020318142240.D3025@suse.de> <200203181341.g2IDfbq28679@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
+	id <S310858AbSCRNw7>; Mon, 18 Mar 2002 08:52:59 -0500
+Received: from boa.mtg-marinetechnik.de ([62.153.155.10]:16377 "EHLO
+	anaconda.mtg-marinetechnik.de") by vger.kernel.org with ESMTP
+	id <S310850AbSCRNwo>; Mon, 18 Mar 2002 08:52:44 -0500
+Message-ID: <3C95F129.7D9744B5@gmx.net>
+Date: Mon, 18 Mar 2002 14:52:41 +0100
+From: Richard Ems <r.ems.mtg@gmx.net>
+Reply-To: r.ems@gmx.net
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
+X-Accept-Language: en, de, es
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 freezes on heavy IO
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > I didn't mean "hey it's broken, _fix _them _for _me_".
- > I don't use any of these things, I'll disable them in .config
- > and that's all.
+Hi all!
 
- Yup, I know 8-)
+I'm seeing my system freeze on heavy IO. Only the reset button brings it
+back to life again (ALT-SysRq-b also worked once). I'm running SuSE's
+2.4.18-30 on a Pentium III (Coppermine) with 256 MB RAM (yes, I should
+try vanilla 2.4.18, I will ...)
+No SCSI, all IDE. LVM and ext3.
+I don't get any oopses, no entries in /var/log/messages, nothing. I
+mounted the ext3 partitions with the debug option but still no messages.
+What options can I turn on to search for the problem? Any kernel boot
+options? LVM/ext3 options?
 
- > Should I restrain from posting compile errors for 2.5?
+Many thanks, Richard
 
- Only if they're regressions from previous kernels.
- I try to keep the page at the URL in the previous mail up to date,
- though in the last week, I've fallen behind a little.. I'll try
- and catch up soon.
-
- Thanks,
- Dave.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+   Richard Ems
+   ... e-mail: r.ems@gmx.net
+   ... Computer Science, University of Hamburg
+
+   Unix IS user friendly. It's just selective about who its friends are.

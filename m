@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135635AbRDSLzz>; Thu, 19 Apr 2001 07:55:55 -0400
+	id <S135634AbRDSLzN>; Thu, 19 Apr 2001 07:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135636AbRDSLzo>; Thu, 19 Apr 2001 07:55:44 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64426 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135635AbRDSLzc>;
-	Thu, 19 Apr 2001 07:55:32 -0400
-Date: Thu, 19 Apr 2001 07:55:20 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-kernel@vger.kernel.org
-cc: Andreas Dilger <adilger@turbolinux.com>,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: ext2 inode size (on-disk)
-In-Reply-To: <20001202014045.F2272@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.GSO.4.21.0104190719240.16930-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135635AbRDSLzD>; Thu, 19 Apr 2001 07:55:03 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3590 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S135634AbRDSLyv>;
+	Thu, 19 Apr 2001 07:54:51 -0400
+Date: Thu, 19 Apr 2001 13:54:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: block devices don't work without plugging in 2.4.3
+Message-ID: <20010419135417.Q16822@suse.de>
+In-Reply-To: <20010419125140.M16822@suse.de> <200104191123.f3JBNfM17858@oboe.it.uc3m.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200104191123.f3JBNfM17858@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Thu, Apr 19, 2001 at 01:23:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Erm... Folks, can ->s_inode_size be not a power of 2? Both
-libext2fs and kernel break in that case. Example:
+On Thu, Apr 19 2001, Peter T. Breuer wrote:
+> > Besides, the above hunk was removed because it is wrong. For devices
+> > using plugging, we would re-call the request_fn while the device was
+> > already active and serving requests. Not only is this a performance hit
+> 
+> Not sure about that ...
 
-dd if=/dev/zero of=foo bs=1024 count=20480
-mkfs -I 192 foo
+It _is_ wrong. The code was correct for devices not using plugging, they
+want request_fn to be called on each request add. However, for a
+plugging driver in a !q->plugged state it was wrong.
 
-corrupts memory and segfaults. Reason: ext2_read_inode() (same problem
-is present in the kernel version of said beast) finds inode offset within
-cylinder group piece of inode table, splits it into block*block_size+offset,
-reads the block and works with the structure at given offset.
+> > we don't need to take, it also gave problems on some drivers.
+> 
+> Well, I know scsi used to be treating the first element while still on
+> the queue, but presumably you are not referring to that.
 
-I.e. it does
-	group = (ino-1) / inodes_per_group;
-	number_in_group = (ino-1) % inodes_per_group;
-	offset_in_group = number_in_group * inode_size;
-	block_number = inode_table_base[group] + offset_in_group/block_size;
-	offset_in_block = offset_in_group % block_size
+Not so, IDE does this. And btw, this is still assumed the default
+behaviour unless explicitly disabled, for data protection reasons. SCSI
+always peals the request off the queue before starting processing.
 
-Guess what happens if inode crosses block boundary? Exactly.
+> So the consensus is that I should enable plugging while the plugging
+> function is still here and do nothing when it goes? I must say I don't
+> think it should really "go", since that means I have to add a no-op
+> macro to replace it, and I don't like #ifdefs. 
 
-AFAICS we have two sane solutions:
+The moral would be that you should never do anything. You didn't enable
+plugging with blk_queue_pluggable, only disabled it by using a noop
+plug.
 
-	a) require inode size to be a power of 2
+> BTW, I don't need request merging (and therefore don't need plugging)
+> because requests eventually go out over the net. Nevertheless, I have
+> always been interested in seeing the difference it could cause. I
 
-	b) switch to
+Plugging will really not hurt you. If you really don't want plugging and
+don't care for merging, then using a request_fn is the wrong approach
+anyway. In that case, you simply want to use a make_request_fn style
+request handling.
 
-	group = (ino-1) / inodes_per_group;
-	number_in_group = (ino-1) % inodes_per_group;
-	block_in_group = number_in_group / inodes_per_block;
-	number_in_block = number_in_group % inodes_per_block;
-	block = inode_table_fragments[group] + block_in_group;
-	offset_in_block = number_in_block * inode_size;
-
-	i.e. instead of current "pack inodes into piece of inode table and
-pad it in the end" do "pack inodes into blocks padding the end of every block".
-
-Something has to be done - right now mke2fs effectively mandates "inode size
-is a power of 2" and as far as I'm concerned it's OK, but segfaulting is
-a bit too drastic way of telling user "don't do it"...
-								Al
-
-PS: can we assume that inodes_per_group is a multiple of inodes_per_block
-or it isn't guaranteed?
+-- 
+Jens Axboe
 

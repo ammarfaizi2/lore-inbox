@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbTKAAOw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 19:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTKAAOw
+	id S262071AbTKAA1n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 19:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTKAA1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 19:14:52 -0500
-Received: from 64.221.211.208.ptr.us.xo.net ([64.221.211.208]:10214 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S261970AbTKAAOv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 19:14:51 -0500
-Subject: [2.6] GUI config targets fail with "make O=..."
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1067645690.10240.25.camel@serpentine.internal.keyresearch.com>
+	Fri, 31 Oct 2003 19:27:43 -0500
+Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:2944
+	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
+	id S262071AbTKAA1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 19:27:42 -0500
+Date: Fri, 31 Oct 2003 19:26:51 -0500
+From: Ben Slusky <sluskyb@paranoiacs.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jariruusu@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove useless highmem bounce from loop/cryptoloop
+Message-ID: <20031101002650.GA7397@fukurou.paranoiacs.org>
+References: <20031030134137.GD12147@fukurou.paranoiacs.org> <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 31 Oct 2003 16:14:50 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031031015500.44a94f88.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Sam -
+On Fri, 31 Oct 2003 01:55:00 -0800, Andrew Morton wrote:
+> Ben Slusky <sluskyb@paranoiacs.org> wrote:
+> > The current memory allocation procedure really is inadequate. It worked
+> > ok up thru 2.4 because the loop device was used almost exclusively
+> > as a nifty hack to make an initrd or to double-check the ISO you just
+> > created.
+> 
+> mm..  Last time I looked the 2.4 loop driver is fairly robust from the
+> memory management point of view.
 
-There's something in the 2.6 kbuild infrastructure that does some rather
-wrong things for the gconfig and xconfig targets when object files
-should go to a separate directory.
+Memory management is fine after we've allocated the memory. The problem is
+in the approach of going back to square one if only n-1 out of n pages
+could be allocated. That approach is inherently prone to deadlock.
 
-It looks like HOSTCXXFLAGS is being mangled somehow.  Here are the
-interesting details:
+> Here's the patch; feel free to benchmark it.  It kills 200 lines of code
+> and unifies the block-backed and file-backed codepaths.  That surely is a
+> good thing.
 
-make -C /home/bos/bk/kernel/key O=/tmp/build-i686-smp xconfig
+I will benchmark it soon... meantime I have a real concern about what
+you've done to block-backed loop reads. Now the loop thread has to read
+and transform (decrypt) each bio, whereas in the old code reading was
+done asynchronously in the backing block device driver, leaving the loop
+thread free to do some transforms at the same time. I don't see how this
+could not hurt performance.
 
-This results in the following invocation of g++, which chokes:
+> It fixes bug 1198 too, it appears.
 
-g++ -Wp,-MD,scripts/kconfig/.qconf.o.d  -O2 \
-	-I/home/bos/bk/kernel/key//usr/lib/qt-3.1/include \
-	-c -o scripts/kconfig/qconf.o \
-	/home/bos/bk/kernel/key/scripts/kconfig/qconf.cc
+The file-backed loop code path allocates memory in a sane fashion.
+File-backed loops never manifested the bug.
 
-There are two problems here.  The first is the mangling of -I$(QTDIR) so
-that it has a bizarre prefix.  The second is that -I$O/scripts/kconfig
-is missing, so the compiler can't find the generated file lkc_defs.h
-(which is generated correctly).
-
-Any ideas on how to fix this?
-
-	<b
+-- 
+Ben Slusky                      | A free society is a society
+sluskyb@paranoiacs.org          | where it is safe to be
+sluskyb@stwing.org              | unpopular.
+PGP keyID ADA44B3B              |               -Adlai Stevenson
 

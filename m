@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUFTQYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUFTQ0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbUFTQYN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 12:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUFTQYN
+	id S264833AbUFTQ0p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 12:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUFTQ0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 12:24:13 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:14025 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264502AbUFTQYM (ORCPT
+	Sun, 20 Jun 2004 12:26:44 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:25033 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S264702AbUFTQ0b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 12:24:12 -0400
-Date: Sun, 20 Jun 2004 12:24:05 -0400
+	Sun, 20 Jun 2004 12:26:31 -0400
+Date: Sun, 20 Jun 2004 12:26:11 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
-To: Rob Landley <rob@landley.net>
-Cc: Nick Bartos <spam99@2thebatcave.com>, linux-kernel@vger.kernel.org
-Subject: Re: Using kernel headers that are not for the running kernel
-Message-ID: <20040620162405.GA16038@havoc.gtf.org>
-References: <53712.192.168.1.12.1087514884.squirrel@192.168.1.12> <200406190546.50166.rob@landley.net>
+To: Ian Molton <spyro@f2s.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, rmk+lkml@arm.linux.org.uk,
+       david-b@pacbell.net, linux-kernel@vger.kernel.org, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-ID: <20040620162611.GB16038@havoc.gtf.org>
+References: <40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave> <40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave> <40D4849B.3070001@pacbell.net> <20040619214126.C8063@flint.arm.linux.org.uk> <1087681604.2121.96.camel@mulgrave> <20040619234933.214b810b.spyro@f2s.com> <1087738680.10858.5.camel@mulgrave> <20040620165042.393f2756.spyro@f2s.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406190546.50166.rob@landley.net>
+In-Reply-To: <20040620165042.393f2756.spyro@f2s.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 05:46:50AM -0500, Rob Landley wrote:
-> The linux-kernel maintainers apparently decided that C libraries using kernel 
-> headers to actually interface with the kernel was a bad idea.  Apparently, 
-> interfacing with the kernel from a C library is not a proper use for kernel 
-> headers, or something.  (I tried to follow the logic in this discussion, but 
-> never actually found any, despite repeated attempts.  It always seemed to 
-> boil down to "can't be bothered", "userspace shouldn't use kernel headers and 
-> this includes the C library", etc...)
+On Sun, Jun 20, 2004 at 04:50:42PM +0100, Ian Molton wrote:
+> Those two statements are contradictory. clearly the iseries cant use the
+> DMA API *now* so I dont see how that makes any difference. We're talking
+> about adding propper support for *addresssable* memory mapped devices
+> with limited size DMA-able windows to the DMA API, not adding support
+> for a whole new weird way of talking to devices. These devices work the
+> same way as all the other devices that use the DMA API but are simply
+> restricted in the range of addresses they can DMA from. they require no
+> special 'accessors'.
+> 
+> iseries cant work the usual way now and wont with these modifications -
+> so nothing is made worse.
 
-No, the problem is that the only thing that needs to be shared are the
-_ABI_ headers, which are unfortunately mixed in with kernel-internal
-headers and definitions.  This leads to use of kernel-internal
-definitions in userspace, which leads to breakage.  This also leads to
-restrictions on changing -kernel-internal- headers, because some
-userspace wanker is complaining.
+Are you purposefully ignoring James?
 
-Kernel-internal headers and definitions should absolutely never be used
-in userspace.
+He is saying the DMA API must be uniform across all platforms.  Your
+proposal 
 
-H. Peter Anvin has suggested an include/abi which could be shared, and
-this seem quite reasonable to me.  However, the monumental task of
-separating kernel-internal definitions from ABI definitions still
-remains.
+1) breaks this
 
-	Jeff, really glad the linux-libc-headers guys started his effort
-
-
+2) is unneeded, as many other drivers in this same situation simply use
+ioremap
 

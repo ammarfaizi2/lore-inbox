@@ -1,55 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbTGDPTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 11:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbTGDPTk
+	id S266053AbTGDP1u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 11:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266054AbTGDP1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 11:19:40 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:39653 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S266048AbTGDPTj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 11:19:39 -0400
-Date: Fri, 4 Jul 2003 17:34:07 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.74] bad: scheduling while atomic!
-Message-ID: <20030704153407.GA3540@k3.hellgate.ch>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Fri, 4 Jul 2003 11:27:50 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:28620 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S266053AbTGDP1q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 11:27:46 -0400
+Date: Fri, 04 Jul 2003 08:41:38 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
+Message-ID: <7910000.1057333295@[10.10.2.4]>
+In-Reply-To: <20030704095004.GB26348@holomorphy.com>
+References: <20030703023714.55d13934.akpm@osdl.org> <3F054109.2050100@aitel.hist.no> <20030704093531.GA26348@holomorphy.com> <20030704095004.GB26348@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Operating-System: Linux 2.5.74 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't had the time to investigate this, so I don't have much
-information to share beyond the trace below. I think I have seen this at
-least with 2.5.73, too. The system looks okay, then, usually hours later
-(if at all, it's a rare event), something triggers a flood of those call
-traces (many of them per second).
+> On Fri, Jul 04, 2003 at 02:35:31AM -0700, William Lee Irwin III wrote:
+>> Okay, now for the "final solution" wrt. sparse physical APIC ID's
+>> in addition to what I hope is a fix for your bug. This uses a separate
+>> bitmap type (of a NR_CPUS -independent width MAX_APICS) for physical
+>> APIC ID bitmaps.
+>> \begin{cross-fingers}
 
-The syslog seems to suggest it might be related to IDE DMA:
+Is it really necessary to turn half the apic code upside down in order
+to fix this? What's the actual bugfix that's buried in this cleanup?
 
-Jul  4 17:17:28 [kernel] hda: dma_timer_expiry: dma status == 0x61
-Jul  4 17:17:44 [kernel] hda: timeout waiting for DMA
-Jul  4 17:17:44 [kernel]  [<c0107000>] default_idle+0x0/0x40
-Jul  4 17:17:44 [kernel] bad: scheduling while atomic!
+Despite the fact you seem to have gone out of your way to make this
+hard to review, there are a few things I can see that strike me as odd.
+Not necessarily wrong, but requiring more explanation.
 
-Compiler is gcc 3.2.3.
+> -			if (i >= 0xf)
+> +			if (i >= APIC_BROADCAST_ID)
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0107000>] default_idle+0x0/0x40
- [<c011f110>] schedule+0x500/0x510
- [<c0107063>] poll_idle+0x23/0x40
- [<c0118073>] apm_cpu_idle+0xa3/0x140
- [<c0117fd0>] apm_cpu_idle+0x0/0x140
- [<c0107000>] default_idle+0x0/0x40
- [<c01070b8>] cpu_idle+0x38/0x40
- [<c0105000>] rest_init+0x0/0x30
- [<c037c738>] start_kernel+0x138/0x140
- [<c037c4c0>] unknown_bootoption+0x0/0x100
+Is that always correct? it's not equivalent.
 
+> -	for (bit = 0; kicked < NR_CPUS && bit < 8*sizeof(cpumask_t); bit++) {
+> +	for (bit = 0; kicked < NR_CPUS && bit < MAX_APICS; bit++) {
+
+Is that the actual one-line bugfix this is all about?
+
+> diff -prauN mm1-2.5.74-1/include/asm-i386/mach-bigsmp/mach_apic.h physid-2.5.74-1/include/asm-i386/mach-bigsmp/mach_apic.h
+> --- mm1-2.5.74-1/include/asm-i386/mach-bigsmp/mach_apic.h	2003-07-03 12:23:56.000000000 -0700
+> +++ physid-2.5.74-1/include/asm-i386/mach-bigsmp/mach_apic.h	2003-07-04 02:47:45.000000000 -0700
+> @@ -29,15 +29,15 @@ static inline cpumask_t target_cpus(void
+>  #define INT_DELIVERY_MODE dest_LowestPrio
+>  #define INT_DEST_MODE 1     /* logical delivery broadcast to all procs */
+>  
+> -#define APIC_BROADCAST_ID     (0x0f)
+> +#define APIC_BROADCAST_ID     (0xff)
+
+So ... you've tested that change on a bigsmp machine, right? 
+At least, provide some reasoning here. Like this comment further down the
+patch ...
+
+> +/*
+> + * this isn't really broadcast, just a (potentially inaccurate) upper
+> + * bound for valid physical APIC id's
+> + */
+
+Which makes the change just look wrong to me. If you're thinking 
+"physical clustered mode" that terminology just utterly confusing crap, 
+and the change is wrong, as far as I can see. 
+
+> +++ physid-2.5.74-1/include/asm-i386/mach-numaq/mach_apic.h	
+> 2003-07-04 02:45:17.000000000 -0700
+>
+> -static inline cpumask_t apicid_to_cpu_present(int logical_apicid)
+> +static inline physid_mask_t apicid_to_cpu_present(int logical_apicid)
+>  {
+>  	int node = apicid_to_node(logical_apicid);
+>  	int cpu = __ffs(logical_apicid & 0xf);
+>  
+> -	return cpumask_of_cpu(cpu + 4*node);
+> +	return physid_mask_of_physid(cpu + 4*node);
+>  }
+
+Hmmmm. What are you using physical apicids here for? They seem
+irrelevant to this function. 
+
+M.

@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129520AbQLBRLM>; Sat, 2 Dec 2000 12:11:12 -0500
+	id <S129925AbQLBRLW>; Sat, 2 Dec 2000 12:11:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129475AbQLBRKx>; Sat, 2 Dec 2000 12:10:53 -0500
-Received: from mailout1-1.nyroc.rr.com ([24.92.226.146]:31661 "EHLO
+	id <S129889AbQLBRLM>; Sat, 2 Dec 2000 12:11:12 -0500
+Received: from mailout1-0.nyroc.rr.com ([24.92.226.81]:42925 "EHLO
 	mailout1-1.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S129404AbQLBRKq>; Sat, 2 Dec 2000 12:10:46 -0500
+	id <S129516AbQLBRK7>; Sat, 2 Dec 2000 12:10:59 -0500
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
 From: "Gnea" <gnea@rochester.rr.com>
-To: linux-kernel@vger.kernel.org, Gerard Sharp <gsharp@ihug.co.nz>
-Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11
+To: Buddha Buck <bmbuck@14850.com>, linux-kernel@vger.kernel.org
+Subject: Re: HOW-DO-I: Diagnosing hardware problems
 X-Mailer: Pronto v2.2.2
-Date: 02 Dec 2000 11:25:48 EST
+Date: 02 Dec 2000 11:34:15 EST
 Reply-To: "Gnea" <gnea@rochester.rr.com>
-In-Reply-To: <3A2785BB.EB36DDE0@ihug.co.nz>
-In-Reply-To: <3A2785BB.EB36DDE0@ihug.co.nz>
-Message-ID: <20001202162105.AAA28297@mail2.nyroc.rr.com@celery>
+In-Reply-To: <5.0.0.25.0.20001130095146.00c3aae0@armstrong.cse.buffalo.edu>
+In-Reply-To: <5.0.0.25.0.20001130095146.00c3aae0@armstrong.cse.buffalo.edu>
+Message-ID: <20001202162932.AAA12198@mail2.nyroc.rr.com@celery>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 02 Dec 2000 00:04:27 +1300, Gerard Sharp blurted forth:
+On Thu, 30 Nov 2000 10:12:34 -0500, Buddha Buck blurted forth:
 
-> Hello.
->  [1.] One line summary of the problem:    
->  Intermittent corruption of 4 bytes in SMP kernels using HPT366
+> Hi,
 [snip]
->  [7.] Environment
->  Redhat 6.2 basis.
->  Abit BP6 Motherboard.
->  Dual Celeron 466's
->  128 Mb ram; 13.6 Gb Seagate Barracuda HDD
->  "hda: ST313620A, ATA DISK drive"
->  CD-ROM on hdd
+>  When this first started (under 2.4.0pre10), I was getting oopses, showing 
+>  the system was dying in wake_up, while trying to schedule during an 
+>  interrupt (I think that's what the oops said).  Some oopses would be 
+>  logged, and not kill the system, others would kill the system, and not be 
+>  logged.  When I downgraded to 2.2.17+ide, I stopped getting oopses, and the 
+>  lockups stopped, for a while.  Now the system (under both 2.2.18 and 
+>  2.4.0pre11) lockups but doesn't oops, not even to the console.
 [snip]
 
-Have you tried updating the bios on the bp6? This solved a LOT of
-problems for me, and afaik, ru is the latest... if you need a hand with
-it, i've put together a dos boot disk with everything you'll need at:
-http://garson.org/~gnea/bp6-biosupdate.img
-
-just dd if=bp6-biosupdate.img of=/dev/fd0 and boot it, run awdflash.exe
-and tell it to use bp6_ru.bin when it asks for a file... have it back
-up the current bios (just in case) and reboot when ready.. you'll of
-course need to go into the bios on reboot and reset everything to
-defaults, then go thru and re-tweak (this is the proper method.. not
-doing so can create further problems) all of your settings until it's
-satisfactorily set... also, the overclocking might be a bad thing in
-this case unless you have the proper cooling for it (lm-sensors is
-great for this sort of thing :) there's a neat wm applet called wmbp6
-too) so u may want to try clocking it straight at 300 for awhile and
-see what effect that has.. hope this helps
+sounds like a bad CPU fan, take the cover off of the computer and start
+it up, observe how fast the fan on the CPU is running. if it's not
+running at all, that's your problem. turn the computer off and do not
+start it again until you've replaced it, you can seriously burn stuff
+out if it continues to run like that.  also, is there a lot of clutter
+in the case? wires everywhere? u may want to consider getting some
+twist-ties or rubber bands or whatever and using them to clean up the
+mess to allow proper ventilation of the system and get heat out of
+there... this sounds like the most logical problem/solution to me, but
+of course i could be wrong.. give this a go and see what happens.
 
 -- 
 	.oO gnea at rochester dot rr dot com Oo.

@@ -1,95 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261351AbTCGEQq>; Thu, 6 Mar 2003 23:16:46 -0500
+	id <S261344AbTCGEeZ>; Thu, 6 Mar 2003 23:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261348AbTCGEQp>; Thu, 6 Mar 2003 23:16:45 -0500
-Received: from ohsmtp02.ogw.rr.com ([65.24.7.37]:1213 "EHLO
-	ohsmtp02.ogw.rr.com") by vger.kernel.org with ESMTP
-	id <S261351AbTCGEQo>; Thu, 6 Mar 2003 23:16:44 -0500
-Message-ID: <001f01c2e463$9e9ed5e0$de00000a@woh.rr.com>
-From: "Steven Schaefer" <sschaefer1@woh.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: mmap(.., .., PROT_READ, MAP_PRIVATE, .., ..) functionality question
-Date: Thu, 6 Mar 2003 23:40:02 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261346AbTCGEeZ>; Thu, 6 Mar 2003 23:34:25 -0500
+Received: from quake.mweb.co.za ([196.2.45.76]:32743 "EHLO quake.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S261344AbTCGEeX>;
+	Thu, 6 Mar 2003 23:34:23 -0500
+Date: Fri, 7 Mar 2003 06:39:40 +0200
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Corruption problem with ext3 and htree
+Message-Id: <20030307063940.6d81780e.azarah@gentoo.org>
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please email me directly (or CC me) since I am not subscribed to the mail
-list.
+Hi
 
-I have a question on the functionality of mmap() when used with PROT_READ,
-and MAP_PRIVATE flag.
+For some time now I have been having a problem with ext3 and htree.
 
-Currently I am reading in the entire contents of a file into memory and
-processing it thru "zlib" compression library.  In order to create RFC1952
-compatible data the file's contents has to be read once by the compression
-routine and once by the checksum routine.  "zlib" provides a simple
-implementation where it uses mmap() to map the file into memory and passes
-that address off to the two routines.  This brings up my design
-consideration and thus my question.
+I use Gentoo, with portage as package system.  My root is on ext3
+without htree, and my portage tmp/build directory is on another
+drive with ext3 and htree.
 
-Doesn't mmap(), mind you with PROT_READ and MAP_PRIVATE, first copy the
-contents of the file into the swap space and then when the data is accessed
-into physical RAM before the CPU can get to it?  If so, in essence wouldn't
-I be doubling the disk access time???  I have found numerous messages
-talking about mmap() but only with read/write considerations.
+Now, when you install something, it unpacks and compile and then
+install it to the build root on the tmp partition (ext3 with htree),
+and then 'merge' it to / (ext3 without htree) from that build root.
 
-I'm trying to decide whether or not using read() to copy the contents into
-system memory (heavy on the physical memory) is worth the sacrifice of
-having the extra disk access (light on the physical memory).  So how does
-mmap() handle the mapped file?
+Every time I get the following when it 'merge' the installed image
+to /:
 
-Imagine for a moment it does not first copy the file contents to swap space.
-The fact that I would need to read the data twice, once for each function;
-wouldn't the memory access to the file contents cause mmap() to access the
-file twice from the hard drive be a draw back or does it somehow cache it in
-memory after the first access?  If it did cache it, is it going to cache it
-on the swap partition or in memory?
+-------------------------------------------------------
+>>> /usr/share/man/man3/threads::shared.3pm.gz
+>>> /usr/share/man/man3/bigrat.3pm.gz
+Traceback (most recent call last):
+  File "/usr/bin/emerge", line 1833, in ?
+    mydepgraph.merge(mydepgraph.altlist())
+  File "/usr/bin/emerge", line 1125, in merge
+    retval=portage.doebuild(y,"merge",myroot,edebug)
+  File "/usr/lib/python2.2/site-packages/portage.py", line 1467, in
+doebuild    return
+merge(settings["CATEGORY"],settings["PF"],settings["D"],settings["BUILD
+DIR"]+"/build-info",myroot,myebuild=settings["EBUILD"])  File
+"/usr/lib/python2.2/site-packages/portage.py", line 1575, in merge   
+return mylink.merge(pkgloc,infloc,myroot,myebuild)  File
+"/usr/lib/python2.2/site-packages/portage.py", line 4147, in merge   
+return self.treewalk(mergeroot,myroot,inforoot,myebuild)  File
+"/usr/lib/python2.2/site-packages/portage.py", line 3849, in treewalk   
+if
+self.mergeme(srcroot,destroot,outfile,secondhand,"",cfgfiledict,mymtime
+):  File "/usr/lib/python2.2/site-packages/portage.py", line 4021, in
+mergeme    if
+self.mergeme(srcroot,destroot,outfile,secondhand,offset+x+"/",cfgfiledi
+ct,thismtime):  File "/usr/lib/python2.2/site-packages/portage.py", line
+4021, in mergeme    if
+self.mergeme(srcroot,destroot,outfile,secondhand,offset+x+"/",cfgfiledi
+ct,thismtime):  File "/usr/lib/python2.2/site-packages/portage.py", line
+4021, in mergeme    if
+self.mergeme(srcroot,destroot,outfile,secondhand,offset+x+"/",cfgfiledi
+ct,thismtime):  File "/usr/lib/python2.2/site-packages/portage.py", line
+4021, in mergeme    if
+self.mergeme(srcroot,destroot,outfile,secondhand,offset+x+"/",cfgfiledi
+ct,thismtime):  File "/usr/lib/python2.2/site-packages/portage.py", line
+3944, in mergeme    mystat=os.lstat(mysrc)
+OSError: [Errno 2] No such file or directory:
+'/space/var/tmp/portage/perl-5.8.0-r10/image/usr/share/man/man3/Hash::U
+til.tmp' 
+nosferatu ext3 # rm
+/space/var/tmp/portage/perl-5.8.0-r10/image/usr/share/man/man3/Hash\:\:
+Util. Hash::Util.3pm.gz  Hash::Util.tmp     
+nosferatu ext3 # rm
+/space/var/tmp/portage/perl-5.8.0-r10/image/usr/share/man/man3/Hash\:\:
+Util.tmp/.deps              Makefile           Makefile.in       
+gal-view-menus.h   gal-view-menus.o   .libs              Makefile.am    
+   gal-view-menus.c   gal-view-menus.lo  libmenus.la        nosferatu
+ext3 #
+-------------------------------------------------------
 
-I list a few links that I found references to mmap() discussions, that of
-course didn't specifically answer my question.
+Basically, the .tmp file for the manpage 
+(/space/var/tmp/portage/perl-5.8.0-r10/image/usr/share/man/man3/Hash::U
+til.tmp) gets created as a directory that points to some other dir on
+the ext3 with htree partition.
 
-http://groups.google.com/groups?q=mmap+group:mlist.linux.
-*&start=180&hl=en&lr
-=&ie=UTF-8&selm=linux.kernel.1007839431.371.0.camel%40quinn.rcn.nmt.edu&rnum
-=185
+I can recreate this every time.  I can try a few things to try and
+figure this out.
 
-http://groups.google.com/groups?q=mmap+group:mlist.linux.
-*&start=70&hl=en&lr
-=&ie=UTF-8&selm=linux.kernel.991739488742.20020313181735%40spylog.ru&rnum=75
-
-http://groups.google.com/groups?q=mmap+group:mlist.linux.
-*&start=90&hl=en&lr
-=&ie=UTF-8&selm=linux.kernel.1781804867952.20020314122715%40spylog.ru&rnum=9
-6
-
-http://groups.google.com/groups?q=mmap+group:mlist.linux.
-*&start=160&hl=en&lr
-=&ie=UTF-8&selm=linux.kernel.5.1.0.14.2.20020603141650.01acc8c0%40mira-sjcm-
-3.cisco.com&rnum=169
-
-http://groups.google.com/groups?q=mmap+group:mlist.linux.
-*&start=180&hl=en&lr
-=&ie=UTF-8&selm=linux.kernel.9spg3c%247bb%241%40penguin.transmeta.com&rnum=1
-87
-
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0208.1/0884.html
-
-http://groups.google.com/groups?q=mmap+group:mlist.linux.*&hl=en&lr
-=&ie=UTF-8&selm=linux.kernel.861732271654.20020313161718%40spylog.ru&rnum=3
-
-http://groups.google.com/groups?q=mmap+group:mlist.linux.
-*&start=40&hl=en&lr
-=&ie=UTF-8&selm=linux.kernel.3B269B5D.35A554A9%40scali.no&rnum=50
+Specs:
+   P4 2.4 with Asus P4T533-C
+   linux-2.5.64 (also with all the previous, and 2.4 ...)
 
 
+Regards,
 
+-- 
+
+Martin Schlemmer
+Gentoo Linux Developer, Desktop/System Team Developer
+Cape Town, South Africa
 

@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317483AbSGOL7X>; Mon, 15 Jul 2002 07:59:23 -0400
+	id <S317444AbSGOMGM>; Mon, 15 Jul 2002 08:06:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317484AbSGOL7W>; Mon, 15 Jul 2002 07:59:22 -0400
-Received: from noc.easyspace.net ([62.254.202.67]:50184 "EHLO
-	noc.easyspace.net") by vger.kernel.org with ESMTP
-	id <S317483AbSGOL7W>; Mon, 15 Jul 2002 07:59:22 -0400
-Date: Mon, 15 Jul 2002 13:02:01 +0100
-From: Sam Vilain <sam@vilain.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dax@gurulabs.com, linux-kernel@vger.kernel.org
+	id <S317446AbSGOMGM>; Mon, 15 Jul 2002 08:06:12 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:38288 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S317444AbSGOMGL>;
+	Mon, 15 Jul 2002 08:06:11 -0400
+Date: Mon, 15 Jul 2002 15:09:04 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Sam Vilain <sam@vilain.net>
+Cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-In-Reply-To: <1026736251.13885.108.camel@irongate.swansea.linux.org.uk>
-References: <1026490866.5316.41.camel@thud>
-	<1026679245.15054.9.camel@thud>
-	<E17U1BD-0000m0-00@hofmann>
-	<1026736251.13885.108.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
+Message-ID: <20020715150904.S28720@mea-ext.zmailer.org>
+References: <1026490866.5316.41.camel@thud> <1026679245.15054.9.camel@thud> <E17U1BD-0000m0-00@hofmann> <1026736251.13885.108.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17U4YE-0000TL-00@hofmann>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026736251.13885.108.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Jul 15, 2002 at 01:30:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
+On Mon, Jul 15, 2002 at 01:30:51PM +0100, Alan Cox wrote:
+> On Mon, 2002-07-15 at 09:26, Sam Vilain wrote:
 > > You are testing for a mail server - how many mailboxes are in your spool 
 > > directory for the tests?  Try it with about five to ten thousand
 > > mailboxes and see how your results vary.
+> 
 > If your mail server can't get heirarchical mail spools right, get one
 > that can. 
 
-Translation
+   Long ago (10-15 internet-years ago..) I followed testing of
+   FFS-family of filesystems in Squid cache.
 
-   "Yes, we know that there is no directory hashing in ext2/3.  You'll have to find another solution to the problem, I'm afraid.  Why not ease the burden on the filesystem by breaking up the task for it, and giving it to it in small pieces.  That way it's much less likely to choke."
+   We noticed at Solaris machines using UFS, than when the directory
+   data size grew above the number of blocks directly addressable by
+   the direct-index pointers in the i-node, system speed plummeted.
+   (Or perhaps it was something a bit smaller, like 32 kB)
 
- :-)
+   Consider:  4 kB block size, 12 direct indexes: 48 kB directory size.
 
-Sure, you could set up hierarchical mail spools.  But it sure stinks of a temporary solution for a long-term problem.  What about the next application that grows to massive proportions?
+   Spend 16 bytes for each file name + auxiliary data: 3000 files/subdirs
 
-Hey, while I've got your attention, how do you go about debugging your kernel?  I'm trying to add fair scheduling to the new O(1) scheduler, something of a token bucket filter counting jiffies used by a process/user/s_context (in scheduler_tick()) and tweaking their priority accordingly (in effective_prio()).  It'd be really nice if I could run it under UML or something like that so I can trace through it with gdb, but I couldn't get the UML patch to apply to your tree.  Any hints?
---
-   Sam Vilain, sam@vilain.net     WWW: http://sam.vilain.net/
-    7D74 2A09 B2D3 C30F F78E      GPG: http://sam.vilain.net/sam.asc
-    278A A425 30A9 05B5 2F13
+   Optimal would be to store the files inside only the first block,
+   e.g. the directory shall not grow over 4k (or 1k, or ..)
 
+   Name subdirs as:  00 thru 7F (128+2, 12 bytes ?)
+   Possibly do that in 2 layers:  128^2 = 16384 subdirs, each
+   with 50 long named users (even more files?): 820 000 users.
+
+   Tune the subdir hashing function to suit your application, and
+   you should be happy.
+
+
+   Putting all your eggs in one basket (files in one directory)
+   is not a smart thing.
+
+
+> Alan
+
+/Matti Aarnio

@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbUKRTXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262931AbUKRTUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262908AbUKRTXI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 14:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbUKRTVI
+	id S262931AbUKRTUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 14:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbUKRTTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 14:21:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9947 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262911AbUKRTQn (ORCPT
+	Thu, 18 Nov 2004 14:19:14 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:57864 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262928AbUKRTSP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:16:43 -0500
-Date: Thu, 18 Nov 2004 11:16:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-cc: hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu>
-Message-ID: <Pine.LNX.4.58.0411181108140.2222@ppc970.osdl.org>
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
- <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
- <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
- <E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Nov 2004 14:18:15 -0500
+Date: Thu, 18 Nov 2004 14:14:35 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Cc: cgoos@syskonnect.de, mlindner@syskonnect.de, jgarzik@pobox.com
+Subject: [patch netdev-2.6] skge: return 0 on success from SkGeChangeMtu
+Message-ID: <20041118141435.B16007@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	cgoos@syskonnect.de, mlindner@syskonnect.de, jgarzik@pobox.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The SKGE driver needs to return 0 from SkGeChangeMtu() on success.
 
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+The proper sucessful return code for the change_mtu() method is zero.
+For some reason, SkGeChangeMtu() is returning the new mtu value
+instead.  The comments would seem to indicate past problems, but the
+current correct behaviour is clear.
 
-On Thu, 18 Nov 2004, Miklos Szeredi wrote:
-> 
-> Will the clients be allowed to fill up the _whole_ memory with dirty
-> pages?
+ drivers/net/sk98lin/skge.c |   14 +-------------
+ 1 files changed, 1 insertion(+), 13 deletions(-)
 
-Sure. It's not a situation that is easy to get into, but it's a nasty 
-case.
-
-> Page writeback will start sooner than that, and then the
-> client will not be able to dirty more pages until some are freed.
-
-Ehh - the _CPU_ handles dirtying pages all on its own. The OS never even 
-knows that a page got dirtied, so "starting writeout early" is not much of 
-an option.
-
-We actually had (for a short while) code that tracked the dirty bit in 
-software (ie make it unwritable by default, and take the write fault), but 
-people showed that that was actually a real performance problem on some 
-loads.
-
-> BTW, I've never myself seen a deadlock, and I've not had any report of
-> it.
-
-Almost nobody uses shared writable mappings. Certainly not on "odd" 
-things. They are historically used by things like innd for the active 
-file, by some odd applications that want to do their own memory 
-management, and by databases. That's pretty much it.
-
-So it's entirely possible that you have never even _seen_ a shared 
-writable mapping even if you stressed the filesystem very hard. They 
-really are that rare.
-
-There's a few VM testers out there that do nasty things with writable 
-shared mappings. You could try them just for fun, but personally, if we 
-are seriously talking about merging FUSE, I'd actually prefer for writable 
-mappings to not be supported at all.
-
-It wouldn't be the only filesystem that doesn't support the thing. I think 
-even NFS didn't support them until I did the pagecache rewrite. Nobody 
-really complained (well, _very_ few did).
-
-IOW, from a merging standpoint, simple really _is_ better. Even if you
-really really want to use exotic features like "direct IO" and writable
-mappings some day, let's just put it this way: it's a lot easier to merge
-something that has no questions about strange cases, and then _later_ add
-in the strange cases, than it is to merge it all on day #1.
-
-I'm a sucker. Ask anybody. I'll accept the exact same patch that I
-rejected earlier if you just do it the right way. I'm convinced that some
-people actually do it on purpose just for the amusement value ("Look, he
-did it _again_. What a doofus!")
-
-		Linus
+--- 1.54/drivers/net/sk98lin/skge.c	2004-11-03 17:31:05 -05:00
++++ 1.55/drivers/net/sk98lin/skge.c	2004-11-18 11:12:36 -05:00
+@@ -2849,19 +2849,7 @@
+ 	SkEventDispatcher(pAC, pAC->IoBase);
+ 	spin_unlock_irqrestore(&pAC->SlowPathLock, Flags);
+ 	
+-	/*
+-	** While testing this driver with latest kernel 2.5 (2.5.70), it 
+-	** seems as if upper layers have a problem to handle a successful
+-	** return value of '0'. If such a zero is returned, the complete 
+-	** system hangs for several minutes (!), which is in acceptable.
+-	**
+-	** Currently it is not clear, what the exact reason for this problem
+-	** is. The implemented workaround for 2.5 is to return the desired 
+-	** new MTU size if all needed changes for the new MTU size where 
+-	** performed. In kernels 2.2 and 2.4, a zero value is returned,
+-	** which indicates the successful change of the mtu-size.
+-	*/
+-	return NewMtu;
++	return 0;
+ 
+ } /* SkGeChangeMtu */
+ 

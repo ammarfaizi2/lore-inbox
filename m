@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263273AbTFDMGg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 08:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTFDMGg
+	id S263281AbTFDMHe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 08:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTFDMHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 08:06:36 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:25828 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S263273AbTFDMGf (ORCPT
+	Wed, 4 Jun 2003 08:07:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:8964 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263277AbTFDMHc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 08:06:35 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Jesse Pollard <jesse@cats-chateau.net>
-Date: Wed, 4 Jun 2003 14:19:34 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: select for UNIX sockets?
-Cc: linux-kernel@vger.kernel.org, khc@pm.waw.pl
-X-mailer: Pegasus Mail v3.50
-Message-ID: <37356546941@vcnet.vc.cvut.cz>
+	Wed, 4 Jun 2003 08:07:32 -0400
+Date: Wed, 4 Jun 2003 14:20:15 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+Subject: Re: -rc7   Re: Linux 2.4.21-rc6
+Message-ID: <20030604122015.GR4853@suse.de>
+References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <200306041235.07832.m.c.p@wolk-project.de> <20030604104215.GN4853@suse.de> <200306041246.21636.m.c.p@wolk-project.de> <20030604104825.GR3412@x30.school.suse.de> <3EDDDEBB.4080209@cyberone.com.au> <20030604120053.GQ4853@suse.de> <20030604120932.GS3412@x30.school.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030604120932.GS3412@x30.school.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  4 Jun 03 at 6:55, Jesse Pollard wrote:
-> On Monday 02 June 2003 19:08, Krzysztof Halasa wrote:
-> > Hi,
-> >
-> > Should something like this work correctly?
-> >
-> > while(1) {
-> >         FD_ZERO(&set);
-> >         FD_SET(fd, &set);
-> >         select(FD_SETSIZE, NULL, &set, NULL, NULL); <<<<<<< for writing
-> >
-> >         if (FD_ISSET(fd, &set))
-> >                 sendto(fd, &datagram, 1, 0, ...);
-> > }
-> >
-> > fd is a normal local datagram socket. It looks select() returns with
-> > "fd ready for write" and sendto() then blocks as the queue is full.
-> >
-> > I don't know if it's expected behaviour or just a not yet known bug.
-> > Of course, I have a more complete test program if needed.
-> >
-> > 2.4.21rc6, haven't tried any other version.
-> >
-> > strace shows:
-> >
-> > select(1024, NULL, [3], NULL, NULL)     = 1 (out [3])
-> > sendto(3, "\0", 1, 0, {sa_family=AF_UNIX, path="/tmp/tempUn"}, 13 <<<
-> > blocks
+On Wed, Jun 04 2003, Andrea Arcangeli wrote:
+> On Wed, Jun 04, 2003 at 02:00:53PM +0200, Jens Axboe wrote:
+> > since you have a single writer and maybe a reader or two. The single
+> > writer cannot starve anyone else.
 > 
-> Could. There may be room for the buffer, but unless it is set to nonblock, 
-> you may have a stream open to another host that may not accept the data (busy,
-> network congestion...) With the required acks, the return may (should?) be
-> delayed until the ack arrives.
+> unless you're changing an atime and you've to mark_buffer_dirty or
+> similar (balance_dirty will write stuff the same way from cp and the
+> reader then).
 
-Besides that select() on unconnected socket is nonsense... If you'll
-change code to do connect(), select(), send(), then it should work,
-unless I missed something.
-                                    Petr Vandrovec
-                                    vandrove@vc.cvut.cz
+Yes you are right, could be.
+
+But the whole thing still smells fishy. Read starvation causing mouse
+stalls, hmm.
+
+-- 
+Jens Axboe
 

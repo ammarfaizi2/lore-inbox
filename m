@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265109AbSJROP7>; Fri, 18 Oct 2002 10:15:59 -0400
+	id <S265105AbSJRONN>; Fri, 18 Oct 2002 10:13:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265110AbSJROP7>; Fri, 18 Oct 2002 10:15:59 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6410 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265109AbSJROP6>; Fri, 18 Oct 2002 10:15:58 -0400
-Date: Fri, 18 Oct 2002 15:21:55 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: jbradford@dial.pipex.com
-Cc: _deepfire@mail.ru, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 and lowmemory boxens
-Message-ID: <20021018152155.A5437@flint.arm.linux.org.uk>
-References: <E182V29-000Pfa-00@f15.mail.ru> <200210181154.g9IBsG2A001135@darkstar.example.net>
+	id <S265106AbSJRONN>; Fri, 18 Oct 2002 10:13:13 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:2178 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S265105AbSJRONM>;
+	Fri, 18 Oct 2002 10:13:12 -0400
+Date: Fri, 18 Oct 2002 17:19:10 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Privilege Elevation?
+Message-ID: <20021018141910.GE1111@mea-ext.zmailer.org>
+References: <200210181533.40159.roy@karlsbakk.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210181154.g9IBsG2A001135@darkstar.example.net>; from jbradford@dial.pipex.com on Fri, Oct 18, 2002 at 12:54:15PM +0100
+In-Reply-To: <200210181533.40159.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 12:54:15PM +0100, jbradford@dial.pipex.com wrote:
-> >  the one problem was the ppp over serial not working, but i suspect
-> >  that it just needs to be recompiled with 2.5 headers (am i right?).
+On Fri, Oct 18, 2002 at 03:33:40PM +0200, Roy Sigurd Karlsbakk wrote:
+> hi all
 > 
-> I have found that 16450-based serial ports are unreliable under
-> 2.5.x.  Enabling interrupt un-masking didn't help, and I suspect that
-> it is just the generally more bloated kernel making the cache, (or in
-> the case of a 386, the pre-fetch unit :-) ), less efficient, and
-> causing data to be lost.
+> I just saw this article @/. 
+> (http://bsd.slashdot.org/article.pl?sid=02/10/17/2347226&mode=nested&tid=122) 
+> "OpenBSD Gains Privilege Elevation".
 
-Well, finding the cause of this is going to be such a pain in the ass.
-With the major IDE change after the serial code went in 2.5, there is
-no one kernel I can say "could you try to see what effect that kernel
-has" to narrow it down to whether it is really due to the new serial
-or due to other changes elsewhere.
+  Actual documentation would be nice to review.
+  The  systrace(4)  manpage is not very forthcoming on details.
+  Any other documents available ?
 
-You seem to imply that you loose received characters when you get IDE
-activity.  It would be nice to find out if how old serial + new IDE or
-new serial + old IDE behave.  (Such kernels do not exist.)  Unfortunately,
-neither is possible without lots of work, and there presently aren't
-enough hours in the day to put together such kernels without co-operation
-of other kernel developers.
+> Are similar security systems planned for linux?
+> 
+> roy
+> -- 
+> Roy Sigurd Karlsbakk, Datavaktmester
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+/Matti Aarnio

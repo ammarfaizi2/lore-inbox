@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264237AbTEGTxd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbTEGTxd
+	id S264246AbTEGTyb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264243AbTEGTyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:53:33 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:5800 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264237AbTEGTxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:53:32 -0400
-Date: Wed, 7 May 2003 15:35:12 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.69
-Message-ID: <20030507193512.GV679@phunnypharm.org>
-References: <Pine.LNX.4.44.0305041739020.1737-100000@home.transmeta.com> <Pine.GSO.4.21.0305072138510.12013-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0305072138510.12013-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.5.4i
+	Wed, 7 May 2003 15:54:31 -0400
+Received: from roc-24-169-2-225.rochester.rr.com ([24.169.2.225]:62115 "EHLO
+	death.krwtech.com") by vger.kernel.org with ESMTP id S264245AbTEGTy1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:54:27 -0400
+Date: Wed, 7 May 2003 16:06:51 -0400 (EDT)
+From: Ken Witherow <ken@krwtech.com>
+X-X-Sender: ken@death
+Reply-To: Ken Witherow <ken@krwtech.com>
+To: Thomas Horsten <thomas@horsten.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.69 Changes to Kconfig and i386 Makefile to include
+ support for various K7 optimizations
+In-Reply-To: <Pine.LNX.4.40.0305072126450.30616-100000@jehova.dsm.dk>
+Message-ID: <Pine.LNX.4.55.0305071605590.709@death>
+References: <Pine.LNX.4.40.0305072126450.30616-100000@jehova.dsm.dk>
+Organization: KRW Technologies
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 09:44:08PM +0200, Geert Uytterhoeven wrote:
-> On Sun, 4 May 2003, Linus Torvalds wrote:
-> > Summary of changes from v2.5.68 to v2.5.69
-> > ============================================
-> > 
-> > Ben Collins:
-> >   o [VIDEO]: Revert cfbimgblt.c back to a working state on 64-bit
-> >   o [VIDEO]: Revert atyfb back to known working clean base
-> 
-> For future changes, could you please run these `reversals' through 
-> linux-fbdev-devel, instead of silently passing them behind our backs? Thanks!
+On Wed, 7 May 2003, Thomas Horsten wrote:
 
-This was far from silent. These were discussed with James, DaveM and
-Linus, and agreed to by James.
+> +config K7_ATHLONXP
+> +	bool "Athlon XP"
+> +	help
+> +	  Select this if you have an Athlon XP CPU, to enable optimizations
+> +	  specific to that processor.
+> +
+> +config K7_ATHLONMP
+> +	bool "Athlon MP"
+> +	help
+> +	  Select this if you have an Athlon XP CPU, to enable optimizations
+> +	  specific to that processor.
+
+I do believe Athlon XP when you mean MP is a copy/paste typo :)
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+       Ken Witherow <phantoml AT rochester.rr.com>
+           ICQ: 21840670  AIM: phantomlordken
+               http://www.krwtech.com/ken
+

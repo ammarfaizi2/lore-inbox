@@ -1,204 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbUL3POT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbUL3PXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbUL3POT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 10:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbUL3POT
+	id S261653AbUL3PXn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 10:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUL3PXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 10:14:19 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:665 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261651AbUL3PNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 10:13:23 -0500
-Message-ID: <41D429C5.F32D7161@tv-sign.ru>
-Date: Thu, 30 Dec 2004 19:16:05 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Thu, 30 Dec 2004 10:23:42 -0500
+Received: from mail.hometree.net ([194.77.152.181]:35740 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S261653AbUL3PXi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 10:23:38 -0500
 To: linux-kernel@vger.kernel.org
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] rcu: speed up quiescent state detection
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Fwd: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
+Date: Thu, 30 Dec 2004 15:23:36 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <cr16ho$eh1$1@tangens.hometree.net>
+References: <105c793f04122907116b571ebf@mail.gmail.com> <105c793f041230065818ba608f@mail.gmail.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1104420216 14881 194.77.152.164 (30 Dec 2004 15:23:36 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 30 Dec 2004 15:23:36 +0000 (UTC)
+X-Copyright: (C) 1996-2005 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On top of Manfred's 'rcu: simplify quiescent state detection', see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110433412126392
+Andrew Haninger <ahaning@gmail.com> writes:
 
-Let's suppose that cpu is running idle thread or user level process,
-and the grace period was started.
+This might be a touchpad that simulates the scroll wheel on the right
+side and horizontal scrolling on the bottom.
 
-Afaics, currently we need 2 local timer interrupts to happen before
-this cpu can end its grace period.
+Does your touchpad emit mouse button events when touching on the 
+right / bottom side?
 
-1st timer_interrupt:
-	__rcu_pending():
-		if (rdp->quiescbatch != rcp->cur)
-			return 1;
-	rcu_check_callbacks():
-		if (user || idle)
-			->passed_quiesc = 1;
-		tasklet_schedule(rcu_tasklet)
-		do_softirq():
-			__rcu_process_callbacks():
-				rcu_check_quiescent_state()
-					if (rdp->quiescbatch != rcp->cur) {
-						->qs_pending = 1;
-						->passed_quiesc = 0;
-						return;
-					}
+I have a Toshiba Satellite with another touchpad (a Synaptics) and
+this can be programmed to do so. I'd think that Toshiba noadays uses
+touchpads that have this hard-coded (maybe there is a command to turn
+this on/off).
 
-Only the next interrupt will notice ->qs_pending in __rcu_pending() and
-increment ->completed in rcu_check_quiescent_state().
+	Regards
+		Henning
 
-I think it is better to set ->qs_pending = 1 directly in __rcu_pending():
+>I forgot to CC the list in case anyone else was interested in this
+>information as well.
 
-	int __rcu_pending()
-	{
-		if (qs_pending) return 1;
+>Sorry about the dupe, Dmitry.
 
-		if (quiescbatch != rcp->cur) {
-			quiescbatch = rcp->cur;
-			passed_quiesc = 0;
-			barrier();
-			qs_pending = 1;
-			return 1;
-		}
-		... other checks ...
-	}
+>-Andy
 
-	void rcu_check_quiescent_state()
-	{
-		if (!qs_pending) return;
-		barrier();
-		if (!passed_quiesc) return;
+>---------- Forwarded message ----------
+>From: Andrew Haninger <ahaning@gmail.com>
+>Date: Thu, 30 Dec 2004 09:53:33 -0500
+>Subject: Re: Toshiba PS/2 touchpad on 2.6.X not working along bottom
+>and right sides
+>To: Dmitry Torokhov <dtor_core@ameritech.net>
 
-		cpu_quiet();
+>> > I recently installed Linux 2.6.10 on my Gateway Solo 2500 notebook
+>> > after using it happily with 2.4.27 (aside from some ACPI sleeping
+>> > issues). Since installing the new kernel, I've noticed an odd problem
+>> > with the Toshiba PS/2 touchpad which is used as a cursor. If I move my
+>> > finger left and right along the 'bottom' portion of the touchpad or up
+>> > and down along the right side, there is no movement from the mouse
+>> > cursor at all. This behavior shows up using gdm and XFree86. Running
+>> > 'xev' produces no output when these sides are used. However, if I move
+>> > my finger left-right along the top side or up-down along the left
+>> > side, the cursor moves just fine. Tapping the pad to click in the
+>> > non-working areas and moving the finger from outside of these areas
+>> > and then into them, however, works fine
+>>
+>> What does dmesg and /proc/bus/input/devices say about your touchpad?
 
-		qs_pending = 0;
-	}
+>root@laptop:~# dmesg | grep "PS"
+>mice: PS/2 mouse device common for all mice
+>input: PS2T++ Logitech TouchPad 3 on isa0060/serio1
 
-This way grace period for that cpu will be completed after 1st interupt.
+>root@laptop:~# cat /proc/bus/input/devices
+>I: Bus=0011 Vendor=0002 Product=0003 Version=0061
+>N: Name="PS2T++ Logitech TouchPad 3"
+>P: Phys=isa0060/serio1/input0
+>H: Handlers=mouse0
+>B: EV=7
+>B: KEY=70000 0 0 0 0 0 0 0 0
+>B: REL=143
 
-Note that when fork()->scheduler_tick()->rcu_pending() runs in process
-context, it does this with interrupts disabled, so there is no race with
-timer interrupt (Although i think that it is better to call rcu_pending()
-directly from update_process_times() instead).
+>Actually, this was more information than I was able to find earlier.
+>I'll be able to do some more useful searches now.
 
-What do you think?
+>Thanks.
+>--
+>Andy
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-Oleg.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+RedHat Certified Engineer -- Jakarta Turbine Development  -- hero for hire
+   Linux, Java, perl, Solaris -- Consulting, Training, Development
 
---- 2.6.10/include/linux/rcupdate.h~	2004-12-30 18:31:43.486279168 +0300
-+++ 2.6.10/include/linux/rcupdate.h	2004-12-30 20:21:49.589998752 +0300
-@@ -124,30 +124,7 @@ static inline void rcu_bh_qsctr_inc(int 
- 	rdp->passed_quiesc = 1;
- }
- 
--static inline int __rcu_pending(struct rcu_ctrlblk *rcp,
--						struct rcu_data *rdp)
--{
--	/* This cpu has pending rcu entries and the grace period
--	 * for them has completed.
--	 */
--	if (rdp->curlist && !rcu_batch_before(rcp->completed, rdp->batch))
--		return 1;
--
--	/* This cpu has no pending entries, but there are new entries */
--	if (!rdp->curlist && rdp->nxtlist)
--		return 1;
--
--	/* This cpu has finished callbacks to invoke */
--	if (rdp->donelist)
--		return 1;
--
--	/* The rcu core waits for a quiescent state from the cpu */
--	if (rdp->quiescbatch != rcp->cur || rdp->qs_pending)
--		return 1;
--
--	/* nothing to do */
--	return 0;
--}
-+extern int __rcu_pending(struct rcu_ctrlblk *rcp, struct rcu_data *rdp);
- 
- static inline int rcu_pending(int cpu)
- {
---- 2.6.10/kernel/rcupdate.c~	2004-12-30 19:45:36.290390512 +0300
-+++ 2.6.10/kernel/rcupdate.c	2004-12-30 20:20:59.955544336 +0300
-@@ -207,6 +207,39 @@ static void cpu_quiet(int cpu, struct rc
- 	}
- }
- 
-+int __rcu_pending(struct rcu_ctrlblk *rcp, struct rcu_data *rdp)
-+{
-+	/* The rcu core waits for a quiescent state from the cpu */
-+	if (rdp->qs_pending)
-+		return 1;
-+
-+	if (rdp->quiescbatch != rcp->cur) {
-+		/* start new grace period: */
-+		rdp->quiescbatch = rcp->cur;
-+		rdp->passed_quiesc = 0;
-+		barrier();
-+		rdp->qs_pending = 1;
-+		return 1;
-+	}
-+
-+	/* This cpu has pending rcu entries and the grace period
-+	 * for them has completed.
-+	 */
-+	if (rdp->curlist && !rcu_batch_before(rcp->completed, rdp->batch))
-+		return 1;
-+
-+	/* This cpu has no pending entries, but there are new entries */
-+	if (!rdp->curlist && rdp->nxtlist)
-+		return 1;
-+
-+	/* This cpu has finished callbacks to invoke */
-+	if (rdp->donelist)
-+		return 1;
-+
-+	/* nothing to do */
-+	return 0;
-+}
-+
- /*
-  * Check if the cpu has gone through a quiescent state (say context
-  * switch). If so and if it already hasn't done so in this RCU
-@@ -215,14 +248,6 @@ static void cpu_quiet(int cpu, struct rc
- static void rcu_check_quiescent_state(struct rcu_ctrlblk *rcp,
- 			struct rcu_state *rsp, struct rcu_data *rdp)
- {
--	if (rdp->quiescbatch != rcp->cur) {
--		/* start new grace period: */
--		rdp->qs_pending = 1;
--		rdp->passed_quiesc = 0;
--		rdp->quiescbatch = rcp->cur;
--		return;
--	}
--
- 	/* Grace period already completed for this cpu?
- 	 * qs_pending is checked instead of the actual bitmap to avoid
- 	 * cacheline trashing.
-@@ -234,9 +259,9 @@ static void rcu_check_quiescent_state(st
- 	 * Was there a quiescent state since the beginning of the grace
- 	 * period? If no, then exit and wait for the next call.
- 	 */
-+	barrier();
- 	if (!rdp->passed_quiesc)
- 		return;
--	rdp->qs_pending = 0;
- 
- 	spin_lock(&rsp->lock);
- 	/*
-@@ -247,6 +272,8 @@ static void rcu_check_quiescent_state(st
- 		cpu_quiet(rdp->cpu, rcp, rsp);
- 
- 	spin_unlock(&rsp->lock);
-+
-+	rdp->qs_pending = 0;
- }
+What is more important to you...
+   [ ] Product Security
+or [ ] Quality of Sales and Marketing Support
+              -- actual question from a Microsoft customer survey

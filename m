@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269436AbRHLVn5>; Sun, 12 Aug 2001 17:43:57 -0400
+	id <S269437AbRHLVqj>; Sun, 12 Aug 2001 17:46:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269437AbRHLVnr>; Sun, 12 Aug 2001 17:43:47 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:22283 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S269436AbRHLVnj>; Sun, 12 Aug 2001 17:43:39 -0400
-Date: Sun, 12 Aug 2001 23:43:28 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Bjorn Wesen <bjorn@sparta.lu.se>
-cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: alloc_area_pte: page already exists
-In-Reply-To: <Pine.LNX.3.96.1010812140743.1163B-100000@medusa.sparta.lu.se>
-Message-ID: <Pine.LNX.4.30.0108122311230.27979-100000@cola.teststation.com>
+	id <S269438AbRHLVqT>; Sun, 12 Aug 2001 17:46:19 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:8031 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S269437AbRHLVqL>; Sun, 12 Aug 2001 17:46:11 -0400
+Message-ID: <3B76F895.8030108@kalifornia.com>
+Date: Sun, 12 Aug 2001 14:43:49 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: louisg00@bellsouth.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: GRUB boot loader
+In-Reply-To: <20010811205504.ILPA846.imf00bis.bellsouth.net@[127.0.0.1]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Aug 2001, Bjorn Wesen wrote:
+louisg00@bellsouth.net wrote:
 
-> I looked into this and I can't figure out how to actually use this. It
-> seems as if schedule_task doesn't take a copy of the incoming tq_struct
-> but actually uses it as-is - and this poses a problem of creating the
-> tq_struct in the first place.
-> 
-> You can't kmalloc it, because then the task called by the tq_struct will
-> need to kfree itself and I'm pretty sure the kernel won't enjoy that.
+>I am playing around with RH beta roswell and noticed that is has GRUB instead of lilo. I know lilo is still available but I like GRUB's boot screen. My question is how do you upgrade kernels with this thing? Is there a howto somewhere? Also, I have a duel boot system with win98 but I can't boot it. The two os's show up on the boot screen but only linux boots.
+>
+>Anyone can show me where to get docs.
+>
+>Thanks
+>
 
-I think you can kmalloc it as __run_task_queue (assuming that is the only
-consumer of tasks ...) moves the queued tasks to a private list and then
-never references an element after the 'routine' of that element has been
-called.
+http://www.google.com/search?q=grub+howto
 
-smbfs does this in fs/smbfs/sock.c (and if that's wrong I'd like to know :)
-and so does reiserfs in fs/reiserfs/journal.c.
+Should score you a few.
 
-/Urban
+-b
+
+-- 
+Please note - If you do not have the same beliefs as we do, you are
+going to burn in Hell forever.
+
+
 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275264AbTHGKr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 06:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275271AbTHGKr3
+	id S275271AbTHGK46 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 06:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275276AbTHGK46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 06:47:29 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:27332 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S275264AbTHGKr2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 06:47:28 -0400
-Date: Thu, 7 Aug 2003 20:45:53 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Charles Lepple <clepple@ghz.cc>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2: unable to suspend (APM)
-Message-Id: <20030807204553.3c5f432e.sfr@canb.auug.org.au>
-In-Reply-To: <3F31BDA3.7040700@ghz.cc>
-References: <20030806231519.H16116@flint.arm.linux.org.uk>
-	<3F31BDA3.7040700@ghz.cc>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 7 Aug 2003 06:56:58 -0400
+Received: from excalibur.iks-jena.de ([217.17.192.67]:54197 "EHLO
+	excalibur.iks-jena.de") by vger.kernel.org with ESMTP
+	id S275271AbTHGK46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 06:56:58 -0400
+Date: Thu, 7 Aug 2003 12:56:56 +0200
+From: Erik Heinz <erik@iks-jena.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-rc1
+Message-ID: <20030807105656.GA2003@iks-jena.de>
+References: <Pine.LNX.4.44.0308051543130.12501-100000@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308051543130.12501-100000@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 06 Aug 2003 22:46:59 -0400 Charles Lepple <clepple@ghz.cc> wrote:
->
-> Also saw your post about the 3c59x cardbus adapter. I can't recall ever 
-> being able to suspend the machine with that card inserted (including 
-> under 2.4-- I always had to eject the card before suspend or hibernate). 
+On Tue, Aug 05, 2003 at 03:44:09PM -0300, Marcelo Tosatti wrote:
+> 
+> Here goes the first release candidate of 2.4.22.
 
-The IBM Thinkpad documentation mentions this (or used to) you cannot
-suspend a Thinkpad (using APM?) while there is a card powered in the
-PCMCIA/Cardbus slot.  You could try doing "cardctrl eject" before
-suspending - I find that this works for me (Thinkpad T22).
+I am still having problems with modular IDE. 
+When trying to insmod ide-detect.o, I get:
 
-The message "apm: suspend: Unable to enter requested state" is an
-indication of an error from the BIOS.
+/lib/modules/2.4.22-rc1/kernel/drivers/ide/ide-detect.o: 
+  unresolved symbol ide_add_generic_settings
+
+
+Thank you,
+Erik
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+| Erik Heinz, IKS GmbH Jena * erik@iks-jena.de * privat: erik@jena.thur.de  |
++---------------------------------------------------------------------------+

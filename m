@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291576AbSBAHI6>; Fri, 1 Feb 2002 02:08:58 -0500
+	id <S291600AbSBAIB7>; Fri, 1 Feb 2002 03:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291575AbSBAHIs>; Fri, 1 Feb 2002 02:08:48 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:2536 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S291576AbSBAHId>;
-	Fri, 1 Feb 2002 02:08:33 -0500
-Date: Fri, 1 Feb 2002 10:04:50 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Anton Blanchard <anton@samba.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Momchil Velikov <velco@fadata.bg>, John Stoffel <stoffel@casc.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <20020131231242.GA4138@krispykreme>
-Message-ID: <Pine.LNX.4.33.0202010958220.2111-100000@localhost.localdomain>
+	id <S291601AbSBAIBt>; Fri, 1 Feb 2002 03:01:49 -0500
+Received: from dsl-213-023-043-113.arcor-ip.net ([213.23.43.113]:4009 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291600AbSBAIBm>;
+	Fri, 1 Feb 2002 03:01:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        Stuart Young <sgy@amc.com.au>
+Subject: Re: Wanted: Volunteer to code a Patchbot
+Date: Fri, 1 Feb 2002 09:05:52 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200201312205.g0VM54cS001547@tigger.cs.uni-dortmund.de>
+In-Reply-To: <200201312205.g0VM54cS001547@tigger.cs.uni-dortmund.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16WYhk-0000V1-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On January 31, 2002 11:05 pm, Horst von Brand wrote:
+> Stuart Young <sgy@amc.com.au> said:
+> 
+> [...]
+> 
+> > Possibly, but then it'll reply to the spammer and you'll get bounces left 
+> > and right. Perhaps it's a simple case that the patcher submitting will
+> > have to have registered the email address before submitting their patch. 
+> > Only needs to be done once (not every time a patch is submitted, that's 
+> > mad!), and weeds out the noise.
+> 
+> And then lkml will be swamped with questions as to why the automated patch
+> system doesn't work, or it will just not be used at all because it is more
+> work than just firing off a patch at lkml.
 
-On Fri, 1 Feb 2002, Anton Blanchard wrote:
+The plan is to have both open and registered-users-only patchbots.  The 
+second kind is the kind to which maintainers themselves submit to, so the 
+forwarded stream of patches is guaranteed to come from trustworthy sources.  
+Maintainers themselves can configure their own patchbots to be open or closed 
+as they see fit.  In essense, neither submitters not maintainers will see any 
+change at all in their procedures, except for the address to which they send 
+the patch.[1]
 
-> There were a few solutions (from davem and ingo) to allocate a larger
-> hash but with the radix patch we no longer have to worry about this.
+There will be a very significant change in the results of this process from 
+the submitter's point of view, since everybody will know where to look to see 
+what patches have been submitted, to whom, when, why etc.
 
-there is one big issue we forgot to consider.
+There are a lot of things we can do with the patches once they're all sitting 
+in the patchbot's database, including tracking the state - applied, rejected, 
+being revised, etc.  That's for later, the task at hand is simply to clarify 
+and streamline the lines of communication between submitters and maintainers.
 
-in the case of radix trees it's not only search depth that gets worse with
-big files. The thing i'm worried about is the 'big pagecache lock' being
-reintroduced again. If eg. a database application puts lots of data into a
-single file (multiple gigabytes - why not), then the
-mapping->i_shared_lock becomes a 'big pagecache lock' again, causing
-serious SMP contention for even the read() case. Benchmarks show that it's
-the distribution of locks that matters on big boxes.
+[1] Submitters *may* chose to fill in a few lines of metadata in their patch 
+to specify, for example, a one-line description which is different from the 
+email subject, or that they are not interested in confirmation.  Such 
+metadata is not required - the patchbots will accept patches in exactly the 
+format we are used to.
 
-dbench hides this issue, because it uses many temporary files, so the
-locking overhead is distributed. Would you be willing to run benchmarks
-that measure the scalability of reading from one bigger file, from
-multiple CPUs?
-
-with hash based locking, the locking overhead is *always* distributed.
-
-with radix trees the locking overhead is distributed only if multiple
-files are used. With one big file (or a few big files), the i_shared_lock
-will always bounce between CPUs wildly in read() workloads, degrading
-scalability just as much as it is degraded with the pagecache_lock now.
-
-	Ingo
-
+-- 
+Daniel

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282048AbRKZTAL>; Mon, 26 Nov 2001 14:00:11 -0500
+	id <S282010AbRKZShl>; Mon, 26 Nov 2001 13:37:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282064AbRKZS7F>; Mon, 26 Nov 2001 13:59:05 -0500
-Received: from AGrenoble-101-1-5-3.abo.wanadoo.fr ([80.11.136.3]:10638 "EHLO
-	strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S282072AbRKZS4w> convert rfc822-to-8bit; Mon, 26 Nov 2001 13:56:52 -0500
-Message-ID: <3C029159.80908@wanadoo.fr>
-Date: Mon, 26 Nov 2001 20:00:41 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S282016AbRKZSgK>; Mon, 26 Nov 2001 13:36:10 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:24653 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S282027AbRKZSev>; Mon, 26 Nov 2001 13:34:51 -0500
+Date: Mon, 26 Nov 2001 13:34:50 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Momchil Velikov <velco@fadata.bg>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] Scalable page cache
+Message-ID: <20011126133450.C13955@redhat.com>
+In-Reply-To: <20011126131641.A13955@redhat.com> <Pine.LNX.4.33.0111262115261.17043-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111262115261.17043-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Nov 26, 2001 at 09:29:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+On Mon, Nov 26, 2001 at 09:29:39PM +0100, Ingo Molnar wrote:
+> this is a misunderstanding of the problem. The reason why the
+> pagecache_lock is a performance problem is *not* contention, the reason is
+> *not* the length of chains, or any other reason you listed. The problem is
+> SMP cacheline invalidation costs, due to using the same cacheline from
+> multiple CPUs. Thus the spreading out of locking gives good SMP cacheline
+> usage properties.
 
+Please reply to the rest of the message.  Perhaps that item is a 
+misunderstanding, but the rest of it is applicable across the board.
 
-> Agreed. I stick with the -rc naming convention for 2.4+... 
-
-
-Thanks a lot - much better that way.
-
-François
-
-
-
+		-ben

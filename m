@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbTILTBW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 15:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTILTBW
+	id S261796AbTILSos (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 14:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTILSnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 15:01:22 -0400
-Received: from mid-2.inet.it ([213.92.5.19]:55286 "EHLO mid-2.inet.it")
-	by vger.kernel.org with ESMTP id S261878AbTILTBV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 15:01:21 -0400
-Message-ID: <002201c37960$d9cfc740$f0ae7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: "Timothy Miller" <miller@techsource.com>
-Cc: "Arjan van de Ven" <arjanv@redhat.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <01c601c3777f$97c92680$5aaf7450@wssupremo> <20030910114414.B14352@devserv.devel.redhat.com> <01f801c37783$9ead8960$5aaf7450@wssupremo> <20030910121453.B9878@devserv.devel.redhat.com> <024601c37785$e3e07680$5aaf7450@wssupremo> <3F621355.3050009@techsource.com>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Fri, 12 Sep 2003 21:05:34 +0200
+	Fri, 12 Sep 2003 14:43:18 -0400
+Received: from fep02-svc.mail.telepac.pt ([194.65.5.201]:34696 "EHLO
+	fep02-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id S261861AbTILSl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:41:59 -0400
+Message-ID: <3F6213AF.1010609@vgertech.com>
+Date: Fri, 12 Sep 2003 19:42:55 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en-us, pt
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Misha Nasledov <misha@nasledov.com>
+CC: Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org
+Subject: Re: bttv bug
+References: <20030910064158.GA19930@nasledov.com> <20030910074123.GH18280@vitelus.com> <3F5F99AD.6080502@vgertech.com> <20030912023814.GA5274@nasledov.com>
+In-Reply-To: <20030912023814.GA5274@nasledov.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pardon my ignorance here, but the impression I get is that changing a
-> page table entry is not as simple as just writing to a bit somewhere.  I
-> suppose it is if the page descriptor is not loaded into the TLB, but if
-> it is, then you have to ensure that the TLB entry matches the page
-> table; this may not be a quick operation.
->
-> I can think of a lot of other possible complications to this.
+Hi!
 
-I stopped writing about this question a lot of time ago.
-However, here we are.
+Misha Nasledov wrote:
 
-If you modify the page tables as in my example (and then if you do so only
-for B's pagetable)
-you can be sure the things you're modifying were not present in Firmware
-TLBs, not yet.
+[..snip..]
 
-Because those pagetable entries refer to a logical address interval
-you've just allocated in B address space.
+> 
+> So am I pretty much on my own with this problem? Does anyone use a Bt878 card
+> with an nvidia card under 2.6? It's strange that it used to work just fine,
 
-Bye,
-Luca
+
+I have these:
+# lspci|grep Brook
+00:09.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
+Capture (rev 11)
+00:09.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
+(rev 11)
+
+And this card (hauppagge wintv) works fine with 2.4 but doesn't work (at 
+least for long...) in vanilla 2.6.0-test1 -> test3. I'll try a newer 
+kernel shortly :-)
+
+I also have a nvidia card but I don't have any nvidia drivers installed.
+
+One more note: in my setup I must use "NoMTRR":
+
+Section "Screen"
+         Identifier      "Default Screen"
+         Device          "nVidia Corporation [NV15]"
+         Monitor         "Generic Monitor"
+
+         Option          "NoMTRR"
+... etc...
+
+Or I'll get screen corruption sooner or later.
+
+
+Good luck,
+Nuno Silva
 

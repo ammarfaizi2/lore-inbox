@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAKKoy>; Thu, 11 Jan 2001 05:44:54 -0500
+	id <S129324AbRAKKw1>; Thu, 11 Jan 2001 05:52:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbRAKKoo>; Thu, 11 Jan 2001 05:44:44 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:18724 "EHLO
-	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129406AbRAKKoe>; Thu, 11 Jan 2001 05:44:34 -0500
-Date: Thu, 11 Jan 2001 12:51:36 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Nguyen Truong Sinh <n.t.sinh@vnnews.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Message from new kernel
-In-Reply-To: <012101c07b96$a4d04f80$0e6419ac@db.vnnews.com>
-Message-ID: <Pine.LNX.4.21.0101111250450.15742-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129406AbRAKKwR>; Thu, 11 Jan 2001 05:52:17 -0500
+Received: from jalon.able.es ([212.97.163.2]:19169 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129324AbRAKKwF>;
+	Thu, 11 Jan 2001 05:52:05 -0500
+Date: Thu, 11 Jan 2001 11:51:56 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0-ac6
+Message-ID: <20010111115156.A25299@werewolf.able.es>
+In-Reply-To: <E14GX1V-0001T5-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14GX1V-0001T5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 11, 2001 at 02:59:26 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2001, Nguyen Truong Sinh wrote:
 
-> I am using Redhat 7.0 for my system. After install new kernel (2.4.0). My system always inform 
-> NET: 3 messages suppressed
+On 2001.01.11 Alan Cox wrote:
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
 > 
-> What does it mean ? and how to fix it, I don't want it appears on the console at all.
+> 2.4.0-ac6
 
-man syslog
+The PentiumIII misnaming in arch/i386/Makefile is still there:
 
-messages supressed means it didn't write all three messages, but a line
-saying that the three messages where the same as the previous one in the
-logs.
+--- linux-2.4.0-ac6/arch/i386/Makefile.org      Thu Jan 11 11:48:09 2001
++++ linux-2.4.0-ac6/arch/i386/Makefile  Thu Jan 11 11:48:21 2001
+@@ -50,7 +50,7 @@
+ CFLAGS += -march=i686
+ endif
+ 
+-ifdef CONFIG_M686FXSR
++ifdef CONFIG_MPENTIUMIII
+ CFLAGS += -march=i686
+ endif
 
-> 
-> Thanks.
 
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-	Igmar
+Linux werewolf 2.4.0-ac5 #1 SMP Wed Jan 10 23:36:11 CET 2001 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

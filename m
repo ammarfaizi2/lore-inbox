@@ -1,61 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262891AbUKTHN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbUKTHUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262891AbUKTHN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 02:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUKTHNX
+	id S261692AbUKTHUw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 02:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbUKTHUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 02:13:23 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:11099 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263004AbUKTHNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 02:13:08 -0500
-Message-ID: <419EEE7F.3070509@yahoo.com.au>
-Date: Sat, 20 Nov 2004 18:13:03 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: wli@holomorphy.com, torvalds@osdl.org, clameter@sgi.com,
-       benh@kernel.crashing.org, hugh@veritas.com, linux-mm@kvack.org,
+	Sat, 20 Nov 2004 02:20:52 -0500
+Received: from holomorphy.com ([207.189.100.168]:35971 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261692AbUKTHUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 02:20:34 -0500
+Date: Fri, 19 Nov 2004 23:15:14 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Lameter <clameter@sgi.com>,
+       akpm@osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: page fault scalability patch V11 [0/7]: overview
-References: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>	<Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org>	<20041120020306.GA2714@holomorphy.com>	<419EBBE0.4010303@yahoo.com.au>	<20041120035510.GH2714@holomorphy.com>	<419EC205.5030604@yahoo.com.au>	<20041120042340.GJ2714@holomorphy.com>	<419EC829.4040704@yahoo.com.au>	<20041120053802.GL2714@holomorphy.com>	<419EDB21.3070707@yahoo.com.au>	<20041120062341.GM2714@holomorphy.com>	<419EE911.20205@yahoo.com.au> <20041119225701.0279f846.akpm@osdl.org>
-In-Reply-To: <20041119225701.0279f846.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20041120071514.GO2714@holomorphy.com>
+References: <20041120020306.GA2714@holomorphy.com> <419EBBE0.4010303@yahoo.com.au> <20041120035510.GH2714@holomorphy.com> <419EC205.5030604@yahoo.com.au> <20041120042340.GJ2714@holomorphy.com> <419EC829.4040704@yahoo.com.au> <20041120053802.GL2714@holomorphy.com> <419EDB21.3070707@yahoo.com.au> <20041120062341.GM2714@holomorphy.com> <419EE911.20205@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <419EE911.20205@yahoo.com.au>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->>per thread rss
-> 
-> 
-> Given that we have contention problems updating a single mm-wide rss and
-> given that the way to fix that up is to spread things out a bit, it seems
-> wildly arbitrary to me that the way in which we choose to spread the
-> counter out is to stick a bit of it into each task_struct.
-> 
-> I'd expect that just shoving a pointer into mm_struct which points at a
-> dynamically allocated array[NR_CPUS] of longs would suffice.  We probably
-> don't even need to spread them out on cachelines - having four or eight
-> cpus sharing the same cacheline probably isn't going to hurt much.
-> 
-> At least, that'd be my first attempt.  If it's still not good enough, try
-> something else.
-> 
-> 
+William Lee Irwin III wrote:
+>> touch_nmi_watchdog() is only "protection" against local interrupt
+>> disablement triggering the NMI oopser because alert_counter[]
+>> increments are not atomic. Yet even supposing they were made so, the
 
-That is what Bill thought too. I guess per-cpu and per-thread rss are
-the leading candidates.
+On Sat, Nov 20, 2004 at 05:49:53PM +1100, Nick Piggin wrote:
+> That would be a bug in touch_nmi_watchdog then, because you're
+> racy against your own NMI too.
+> So I'm actually not very very wrong at all. I'm technically wrong
+> because touch_nmi_watchdog has a theoretical 'bug'. In practice,
+> multiple races with the non atomic increments to the same counter,
+> and in an unbroken sequence would be about as likely as hardware
+> failure.
+> Anyway, this touch nmi thing is going off topic, sorry list.
 
-Per thread rss has the benefits of cacheline exclusivity, and not
-causing task bloat in the common case.
-
-Per CPU array has better worst case /proc properties, but shares
-cachelines (or not, if using percpu_counter as you suggested).
+No, it's on-topic.
+(1) The issue is not theoretical. e.g. sysrq t does trigger NMI oopses,
+	merely not every time, and not on every system. It is not
+	associated with hardware failure. It is, however, tolerable
+	because sysrq's require privilege to trigger and are primarly
+	used when the box is dying anyway.
+(2) NMI's don't nest. There is no possibility of NMI's racing against
+	themselves while the data is per-cpu.
 
 
-I think I'd better leave it to others to finish off the arguments ;)
+William Lee Irwin III wrote:
+>> net effect of "covering up" this gross deficiency is making the
+>> user-observable problems it causes undiagnosable, as noted before.
+
+On Sat, Nov 20, 2004 at 05:49:53PM +1100, Nick Piggin wrote:
+> Well the loops that are in there now aren't covered up, and they
+> don't seem to be causing problems. Ergo there is no problem (we're
+> being _practical_ here, right?)
+
+They are causing problems. They never stopped causing problems. None
+of the above attempts to reduce rwlock starvation has been successful
+in reducing it to untriggerable-in-the-field levels, and empirical
+demonstrations of starvation recurring after those available at the
+time of testing were put into place did in fact happen. Reduction of
+frequency and making starvation more difficult to trigger are all that
+they've achieved thus far.
+
+
+William Lee Irwin III wrote:
+>> Kevin Marin was the first to report this issue to lkml. I had seen
+>> instances of it in internal corporate bugreports and it was one of
+>> the motivators for the work I did on pidhashing (one of the causes
+>> of the timeouts was worst cases in pid allocation). Manfred Spraul
+>> and myself wrote patches attempting to reduce read-side hold time
+>> in /proc/ algorithms, Ingo Molnar wrote patches to hierarchically
+>> subdivide the /proc/ iterations, and Dipankar Sarma and Maneesh
+>> Soni wrote patches to carry out the long iterations in /proc/ locklessly.
+>> The last several of these affecting /proc/ have not gained acceptance,
+>> though the work has not been halted in any sense, as this problem
+>> recurs quite regularly. A considerable amount of sustained effort has
+>> gone toward mitigating and resolving rwlock starvation.
+
+On Sat, Nov 20, 2004 at 05:49:53PM +1100, Nick Piggin wrote:
+> That's very nice. But there is no problem _now_, is there?
+
+There is and has always been. All of the above merely mitigate the
+issue, with the possible exception of the tasklist RCU patch, for
+which I know of no testing results. Also note that almost none of
+the work on /proc/ has been merged.
+
+
+William Lee Irwin III wrote:
+>> Aggravating the rwlock starvation destabilizes, not pessimizes,
+>> and performance is secondary to stability.
+
+On Sat, Nov 20, 2004 at 05:49:53PM +1100, Nick Piggin wrote:
+> Well luckily we're not going to be aggravating the rwlock stavation.
+> If you found a problem with, and fixed do_task_stat: ?time, ???_flt,
+> et al, then you would apply the same solution to per thread rss to
+> fix it in the same way.
+
+You are aggravating the rwlock starvation by introducing gratuitous
+full tasklist iterations. There is no solution to do_task_stat()
+because it was recently introduced. There will be one as part of a port
+of the usual mitigation patches when the perennial problem is reported
+against a sufficiently recent kernel version, as usual. The already-
+demonstrated problematic iterations have not been removed.
+
+
+-- wli

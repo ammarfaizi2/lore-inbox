@@ -1,57 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbUKXStY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbUKXStX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbUKXStY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 13:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbUKXSs2
+	id S262769AbUKXStX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 13:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbUKXSsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 13:48:28 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:26849 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262809AbUKXSn5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 13:43:57 -0500
-Subject: Re: file as a directory
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <4d8e3fd304112407023ff0a33d@mail.gmail.com>
-References: <2c59f00304112205546349e88e@mail.gmail.com>
-	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>
-	 <41A23496.505@namesys.com> <1101287762.1267.41.camel@pear.st-and.ac.uk>
-	 <4d8e3fd304112407023ff0a33d@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1101309954.2779.15.camel@pear.st-and.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 24 Nov 2004 15:25:54 +0000
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 13:48:21 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:46224 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S262775AbUKXSle
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 13:41:34 -0500
+Message-ID: <41A4D5A4.3010605@blue-labs.org>
+Date: Wed, 24 Nov 2004 13:40:36 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041012
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-rc2 and x86_64; spontaneous reboots
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-24 at 15:02, Paolo Ciarrocchi wrote:
-> On 24 Nov 2004 09:16:03 +0000, Peter Foldiak
-> <peter.foldiak@st-andrews.ac.uk> wrote:
-> [...] 
-> > I would really like to implement this for the next version of Hans' file
-> > system.
-> 
-> I don't undersand how you want to use Xpath for not XML file.
-> I agree with you that the idea behind Xpath is cool but I fail to
-> unserstand how it can be applied to anything but XML
+Is anyone else experiencing spontaneous reboots within a few minutes of 
+bootup?  (If the system survives past the first 10 minutes, it stays up 
+for a long time, but it reliably does an instant reboot with no panic or 
+other indication a good 9 out of 10 times.  The system is purely idle, 
+nothing going on.  memtest86+ runs for hours with no failures.
 
-My message was mainly about XML, for which it is easy.
-For non-XML, you need some other way of knowing the file format. The
-example that originally came up in this thread was
-
-/etc/passwd/[username]
-
-In this case, the passwd file has a known format.
-Other file types, like LaTex, html, jpeg also have (at least partially)
-known formats. Some selection should be possible even for unknown
-formats (e.g. byte range, line-range). There could also be some way of
-specifying a new format but I don't know how to do this well. You could
-give names (like filenames) to parts of files.
-But I think the first step would be to concentrate on XML, and worry
-about the rest later.   Peter
-
+David

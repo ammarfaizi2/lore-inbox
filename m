@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbUJZCmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbUJZD5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbUJZCmT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 22:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUJZBve
+	id S262100AbUJZD5c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 23:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUJZDxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 21:51:34 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:4051 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261916AbUJZBT0 (ORCPT
+	Mon, 25 Oct 2004 23:53:22 -0400
+Received: from hera.kernel.org ([63.209.29.2]:50816 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262066AbUJZDs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:19:26 -0400
-Message-ID: <417D8701.8020905@techsource.com>
-Date: Mon, 25 Oct 2004 19:06:41 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Need help and advice... [was: HARDWARE: Open-Source-Friendly Graphics
- Cards -- Viable?]
-References: <417D21C8.30709@techsource.com> <200410251535.27852.rmiller@duskglow.com> <417D80B0.6080007@techsource.com> <200410251734.39703.rmiller@duskglow.com>
-In-Reply-To: <200410251734.39703.rmiller@duskglow.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 23:48:57 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Is anyone using the load_ramdisk= option in the kernel still?
+Date: Tue, 26 Oct 2004 03:48:40 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <clkheo$otl$1@terminus.zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1098762521 25526 127.0.0.1 (26 Oct 2004 03:48:41 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 26 Oct 2004 03:48:41 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm probably doing this too early, but it's been pointed out in so many 
-words that I won't scale.  I've spent two full work days digesting all 
-of the discussions on LKML, kerneltrap, and slashdot.  That's been as 
-fun as you can imagine, but when the time comes for me to start working 
-on the design, I can't do that at all anymore.
+Hi all,
 
-What I'll need are representatives of the community who work with me to 
-make sure that my design does what everyone needs it to do, and I need 
-representatives who engage in mailing lists and extract for me 
-information that I should see.
+I've come to the conclusion that in order to stay backwards
+compatible while moving root-mounting stuff to userspace, in the
+initial patch everything in prepare_namespace() and south needs to be
+fully supported in userspace.  This looks perfectly doable, but is a
+fair bit of work.
 
-I'm sure there are lots of people who would love to have that kind of 
-influence over a company whose hardware they want to buy.  I need the 
-subset of those people who have expertise in 3D graphics, most of whom 
-I'm sure are on OpenGL and X.org mailing lists right now.  If there's 
-anyone here who can get me connected with those people, I would 
-appreciate it very much.
+The one piece of ugliness I've encountered has to do with the
+load_ramdisk= option; this causes a ramdisk to be loaded from an
+external device, usually a floppy.  The ugliness has to do with the
+fact that it requires the kernel itself to deduce the size of the
+ramdisk, which is filesystem-specific.  Although this code is
+currently run for initrds as well, it doesn't need to, since the
+kernel knows the size of an initrd.
 
+This code isn't complex by any means, but it's ugly and complex, and
+I'm trying to make something a bit cleaner than just copying the
+existing in-kernel code to userspace.
 
-I feel like I'm being presumptuous.  Although everyone at Tech Source is 
-excited by the idea, and there seems to be a ground-swell of interest, 
-the economic feasibility of this is still in the air.  I don't want to 
-waste anyone's time.  However, a lot of excellent ideas have been put 
-forth, and I'd like discussion to continue, but in a way that I can handle.
+So, in short:
 
-I humbly request advice on how I might go about handling all of this in 
-the best way.
+a) Does anyone use the load_ramdisk= option anymore, or is it
+legitimate to drop?
 
-I also think the discussion should transition off LKML and onto its own 
-forum.
+b) If it is necessary to retain, does anyone care if this option would
+only support gzip format in the future, i.e. NOT support uncompressed
+filesystem images?  Since a gzip stream is self-terminating, this
+takes care of the problem of finding the end, but adds a sizable chunk
+of code to the kinit binary.
 
-Also, I want to thank everyone for talking to me about this.  Members of 
-this list and people posting to kerneltrap and slashdot have been very 
-informative and helpful.  I also want to mention Jeremy Andrews of 
-kerneltrap.org who first turned my posting into news.  I've wanted to do 
-a project like this for a long time, but the past few days of online 
-discussion have really helped push it towards becoming reality.
+	-hpa
 

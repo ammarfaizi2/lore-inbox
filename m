@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbUBWJav (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 04:30:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbUBWJav
+	id S261896AbUBWJc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 04:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUBWJc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 04:30:51 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:15489 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261896AbUBWJau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 04:30:50 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Mike Strosaker <strosake@austin.ibm.com>
-Subject: Re: [PATCH] arch-specific callout in panic()
-Date: Mon, 23 Feb 2004 10:25:05 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 04:32:57 -0500
+Received: from post.tau.ac.il ([132.66.16.11]:33959 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S261896AbUBWJcz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 04:32:55 -0500
+Date: Mon, 23 Feb 2004 11:32:06 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: linux-kernel@vger.kernel.org
+Subject: Re: distinguish two identical network cards
+Message-ID: <20040223093206.GB26628@pc-math-vis1>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <OF3A73498C.45F49506-ONC1256E43.002FC840@fiducia.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402231025.05630.arnd@arndb.de>
+In-Reply-To: <OF3A73498C.45F49506-ONC1256E43.002FC840@fiducia.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.24.0.4; VDF: 6.24.0.14; host: localhost)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Strosaker <strosake@austin.ibm.com> wrote:
->@@ -53,7 +53,8 @@
->        static char buf[1024];
->        va_list args;
->  #if defined(CONFIG_ARCH_S390)
->-        unsigned long caller = (unsigned long) __builtin_return_address(0);
->+       extern unsigned long panic_caller;
->+        panic_caller = (unsigned long) __builtin_return_address(0);
->  #endif
->
->        bust_spinlocks(1);
-...
->+       machine_panic();
->+
+On Mon, Feb 23, 2004 at 09:49:35AM +0100, andreas.hartmann@fiducia.de wrote:
+> Hello!
+> 
+> I've got a little problem with XSeries machines, containing two identical
+> builtin Broadcom NIC's. Is there any chance to get some information, which one
+> of the two cards is the upper, and which one is the lower card?
+> I need this information, because I want to install a lot of these machines
+> automatically.
+> 
 
-Why don't you just pass __builtin_return_address(0) to machine_panic for
-everyone? It will get you rid of the #ifdef completely and the argument
-can still be ignored.
-Also, arch_panic() might be a little clearer than machine_panic().
+Two things I can think about.
 
-	Arnd <><
+First thing is that you can look at the link lights on the card and try
+doing a ping and see which one blinks.
 
+Second, if the machines are the same they should scan the bus in the
+same direction and IIRC linux numbers the cards in the order of
+detection, especially if they are the same (use the same driver) and
+thus it should be consistent with the numbering order of the cards
+(they will always get the same number on consecutive boots).
+
+> 
+> Thank you for every hint,
+> kind regards,
+> Andreas Hartmann
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

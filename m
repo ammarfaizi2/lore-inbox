@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261728AbSI0OwB>; Fri, 27 Sep 2002 10:52:01 -0400
+	id <S261706AbSI0PAC>; Fri, 27 Sep 2002 11:00:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261722AbSI0OwA>; Fri, 27 Sep 2002 10:52:00 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:57551 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261714AbSI0Ov7>; Fri, 27 Sep 2002 10:51:59 -0400
-Date: Fri, 27 Sep 2002 11:56:49 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Jens Axboe <axboe@suse.de>, Matthew Jacob <mjacob@feral.com>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Warning - running *really* short on DMA buffers while doing file
- transfers
-In-Reply-To: <389902704.1033133455@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.44L.0209271155510.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261709AbSI0PAC>; Fri, 27 Sep 2002 11:00:02 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:8713 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261706AbSI0PAB>; Fri, 27 Sep 2002 11:00:01 -0400
+Date: Fri, 27 Sep 2002 16:05:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Put modules into linear mapping
+Message-ID: <20020927160520.A27591@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+References: <20020927140930.GA12610@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020927140930.GA12610@averell>; from ak@muc.de on Fri, Sep 27, 2002 at 04:09:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Sep 2002, Justin T. Gibbs wrote:
+On Fri, Sep 27, 2002 at 04:09:30PM +0200, Andi Kleen wrote:
+> +	unsigned long mptr = (unsigned long)mod;
+> +	if (mptr >= VMALLOC_START && mptr+mod->size <= VMALLOC_END)
 
-> writes *unless* you are creating an ISO image on your disk.  In my opinion
-> it is much more important to optimize for the more common, concurrent
-> read case, than it is for the sequential write case with intermittent
-> reads.
-
-You're missing the point.  The only reason the reads are
-intermittent is that the application can't proceed until
-the read is done and the read is being starved by writes.
-
-If the read was serviced immediately, the next read could
-get scheduled quickly and they wouldn't be intermittant.
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+Any chance you could add is is_vmalloc() macro to vmalloc.h for this?
 

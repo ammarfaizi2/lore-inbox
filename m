@@ -1,67 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274162AbRIVHB4>; Sat, 22 Sep 2001 03:01:56 -0400
+	id <S274215AbRIVHXK>; Sat, 22 Sep 2001 03:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274195AbRIVHBq>; Sat, 22 Sep 2001 03:01:46 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:13063 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S274162AbRIVHBm>; Sat, 22 Sep 2001 03:01:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: Re: broken VM in 2.4.10-pre9
-Date: Sat, 22 Sep 2001 09:09:10 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rob Fuller <rfuller@nsisoftware.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.33L.0109200903100.19147-100000@imladris.rielhome.conectiva> <20010921080549Z16344-2758+350@humbolt.nl.linux.org> <20010921112722.A3646@cs.cmu.edu>
-In-Reply-To: <20010921112722.A3646@cs.cmu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010922070205Z16210-2757+1207@humbolt.nl.linux.org>
+	id <S274321AbRIVHXC>; Sat, 22 Sep 2001 03:23:02 -0400
+Received: from co3000407-a.belrs1.nsw.optushome.com.au ([203.164.252.88]:28855
+	"EHLO bozar") by vger.kernel.org with ESMTP id <S274215AbRIVHWs>;
+	Sat, 22 Sep 2001 03:22:48 -0400
+Date: Sat, 22 Sep 2001 17:22:21 +1000
+From: Andre Pang <ozone@algorithm.com.au>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org, safemode@speakeasy.net,
+        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
+        george@mvista.com
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+Mail-Followup-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+	safemode@speakeasy.net, Dieter.Nuetzel@hamburg.de,
+	iafilius@xs4all.nl, ilsensine@inwind.it, george@mvista.com
+In-Reply-To: <1000939458.3853.17.camel@phantasy> <1001131036.557760.4340.nullmailer@bozar.algorithm.com.au> <1001139027.1245.28.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1001139027.1245.28.camel@phantasy>
+User-Agent: Mutt/1.3.20i
+Message-Id: <1001143341.117502.5311.nullmailer@bozar.algorithm.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 21, 2001 05:27 pm, Jan Harkes wrote:
-> On Fri, Sep 21, 2001 at 10:13:11AM +0200, Daniel Phillips wrote:
-> >   - small inactive list really means large active list (and vice versa)
-> >   - aging increments need to depend on the size of the active list
-> >   - "exponential" aging may be completely bogus
-> 
-> I don't think so, whenever there is sufficient memory pressure, the scan
-> of the active list is not only done by kswapd, but also by the page
-> allocations.
-> 
-> This does have the nice effect that with a large active list on a system
-> that has a working set that fits in memory, pages basically always age
-> up, and we get an automatic used-once/drop-behind behaviour for
-> streaming data because the age of these pages is relatively low.
-> 
-> As soon as the rate of new allocations increases to the point that
-> kswapd can't keep up, which happens if the number of cached used-once
-> pages is too small, or the working set expands so that it doesn't fit in
-> memory. The memory shortage then causes all pages to agressively get
-> aged down, pushing out the less frequently used pages of the working set.
-> 
-> Exponential down aging simply causes us to loop fewer times in
-> do_try_to_free_pages is such situations.
+On Sat, Sep 22, 2001 at 02:10:18AM -0400, Robert Love wrote:
 
-In such a situation that's a horribly inefficient way to accomplish this and 
-throws away a lot of valuable information.  Consider that we're doing nothing 
-but looping in the vm in this situation, so nobody gets a chance to touch 
-pages, so nothing gets aged up.  So we are really just deactivating all the 
-pages that lie below a given theshold.
+> > i did a test of it on linux-2.4.10-pre13 with Benno Senoner's
+> > lowlatency program, which i hacked up a bit to output
+> > /proc/latencytimes after each of the graphs.  test results are at
+> > 
+> >     http://www.algorithm.com.au/hacking/linux-lowlatency/2.4.10-pre13-pes/
+> > 
+> > and since i stared at the results in disbelief, i won't even try
+> > to guess what's going on :).  maybe you can make some sense of
+> > it?
+> 
+> Well, its not hard to decipher...and really, its actually fairly good.
+> the latency test program is giving you a max latency of around 12ms in
+> each test, which is OK.
 
-Say that the threshold happens to be 16.  We loop through the active list 5 
-times and now we have not only deactivated the pages we needed but collapsed 
-all ages between 16 and 31 to the same value, and all ages between 32 and 63 
-to just two values, losing most of the relative weighting information.
+arrgh!  i just realised my script buggered up and was producing the same
+graph for all the results.  please have a look at the page again, sorry.
 
-Would it not make more sense to go through the active list once, deactivate 
-all pages with age less than some computed threshold, and subtract that 
-threshold from the rest?
+apart from that, i'm still confused.  compared to other graphs produced
+by the latencytest program, my system seems to have huge latencies.
+unless i'm reading it wrongly, the graph is saying that i'm getting
+latencies of up to 30ms, and a lot of overruns.  compare this to
 
---
-Daniel
+    http://www.gardena.net/benno/linux/audio/2.4.0-test2/3x256.html
+
+which shows latencytest on 2.4.0-test2, and
+
+    http://www.gardena.net/benno/linux/audio/2.2.10-p133-3x128/3x128.html
+
+which are the results for latencytest on 2.2.10.  admittedly these
+kernels are much older, but i'm consistently getting far more latency
+than those kernels.  that's the bit i'm confused about :)  i've tried
+Andrew Morton's low-latency patches as well, to no avail.  i've made
+sure i've tuned my hard disks correctly, and i don't have any other
+realtime processes running.
+
+am i concerned with a different issue than the one you're addressing?
+
+> the preemption-test patch is showing _MAX_ latencies of 0.8ms through
+> 12ms.  this is fine, too.
+
+yep, i agree with that ... so why is latencytest showing scheduling
+latencies of > 30ms?  i get the feeling i'm confusing two different
+issues here.  from what i understand, /proc/latencytimes shows the
+how long it takes for various functions in the kernel to finish, and
+the latencytest result shows how long it takes for it to be
+re-scheduled (represented by the white line on the graph).
+
+
+-- 
+#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save

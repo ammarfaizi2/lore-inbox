@@ -1,99 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267363AbSLSUe4>; Thu, 19 Dec 2002 15:34:56 -0500
+	id <S266257AbSLSUas>; Thu, 19 Dec 2002 15:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267374AbSLSUe4>; Thu, 19 Dec 2002 15:34:56 -0500
-Received: from www.microgate.com ([216.30.46.105]:56837 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S267363AbSLSUey>; Thu, 19 Dec 2002 15:34:54 -0500
-Subject: [PATCH] 2.5.52 n_hdlc.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "torvalds@transmeta.com" <torvalds@transmeta.com>
-Content-Type: text/plain
+	id <S266259AbSLSUas>; Thu, 19 Dec 2002 15:30:48 -0500
+Received: from zeke.inet.com ([199.171.211.198]:27311 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S266257AbSLSUar>;
+	Thu, 19 Dec 2002 15:30:47 -0500
+Message-ID: <3E022E56.30509@inet.com>
+Date: Thu, 19 Dec 2002 14:38:46 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Bradford <john@grabjohn.com>
+CC: dank@kegel.com, linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+References: <200212192008.gBJK8g7P002563@darkstar.example.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 19 Dec 2002 14:42:30 -0600
-Message-Id: <1040330551.931.8.camel@diemos.microgate.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make global func/var static to avoid namespace polution
+John Bradford wrote:
+>>Ok, have you looked at other bug tracking programs?  Can you find 
+>>something you can build on?  Take a look at this list of issue tracking 
+>>software:
+>>http://www.a-a-p.org/tools_tracking.html
+>>It has a lot of possibilities... different combinations of features and 
+>>implementation languages.
+>>
+>>Could you perhaps expound a bit on your statement "there is nothing 
+>>about [bugzilla] that I think [is] right at the moment"?
+> 
+> 
+> * It uses Javascript in the search forms
+> * The search forms are not intuitive to use
+> * It's difficult to check that you're not reporting a duplicate bug
+> * It's almost all only web-based
+> * There is no way that you can track different versions to the extent
+>   we need to.
+> 
+> The last point is the one that I think is most important.
+[snip explanation of version issue]
 
---- linux-2.5.52/drivers/char/n_hdlc.c	Sun Dec 15 20:07:51 2002
-+++ linux-2.5.52-mg/drivers/char/n_hdlc.c	Thu Dec 19 12:01:23 2002
-@@ -9,7 +9,7 @@
-  *	Al Longyear <longyear@netcom.com>, Paul Mackerras <Paul.Mackerras@cs.anu.edu.au>
-  *
-  * Original release 01/11/99
-- * $Id: n_hdlc.c,v 4.2 2002/10/10 14:52:41 paulkf Exp $
-+ * $Id: n_hdlc.c,v 4.3 2002/12/19 18:58:56 paulkf Exp $
-  *
-  * This code is released under the GNU General Public License (GPL)
-  *
-@@ -78,7 +78,7 @@
-  */
- 
- #define HDLC_MAGIC 0x239e
--#define HDLC_VERSION "$Revision: 4.2 $"
-+#define HDLC_VERSION "$Revision: 4.3 $"
- 
- #include <linux/version.h>
- #include <linux/config.h>
-@@ -171,9 +171,9 @@
- /*
-  * HDLC buffer list manipulation functions
-  */
--void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list);
--void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf);
--N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list);
-+static void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list);
-+static void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf);
-+static N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list);
- 
- /* Local functions */
- 
-@@ -185,10 +185,10 @@
- 
- /* debug level can be set by insmod for debugging purposes */
- #define DEBUG_LEVEL_INFO	1
--int debuglevel=0;
-+static int debuglevel=0;
- 
- /* max frame size for memory allocations */
--ssize_t	maxframe=4096;
-+static ssize_t	maxframe=4096;
- 
- /* TTY callbacks */
- 
-@@ -903,7 +903,7 @@
-  * Arguments:	 	list	pointer to buffer list
-  * Return Value:	None	
-  */
--void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list)
-+static void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list)
- {
- 	memset(list,0,sizeof(N_HDLC_BUF_LIST));
- 	spin_lock_init(&list->spinlock);
-@@ -920,7 +920,7 @@
-  * 
-  * Return Value:	None	
-  */
--void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf)
-+static void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf)
- {
- 	unsigned long flags;
- 	spin_lock_irqsave(&list->spinlock,flags);
-@@ -950,7 +950,7 @@
-  * 
-  * 	pointer to HDLC buffer if available, otherwise NULL
-  */
--N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list)
-+static N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list)
- {
- 	unsigned long flags;
- 	N_HDLC_BUF *buf;
+And what about GNATS?  What about the others on 
+http://www.a-a-p.org/tools_tracking.html ?  A number of those address 
+the web-based concern.  Do any of them answer your other concerns?  If 
+there are, where do those fail that bugzilla, GNATS, etc. get it right?
 
+But I see that starting from scratch is just the way you work: 
+http://grabjohn.com/question.php?q=6
 
+Well, have fun, good luck, and I do hope you come up with something 
+useful and maintainable.
+
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

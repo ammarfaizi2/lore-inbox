@@ -1,156 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281863AbRKSBBX>; Sun, 18 Nov 2001 20:01:23 -0500
+	id <S281865AbRKSBIW>; Sun, 18 Nov 2001 20:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281865AbRKSBBN>; Sun, 18 Nov 2001 20:01:13 -0500
-Received: from mailgate.indstate.edu ([139.102.15.118]:35463 "EHLO
-	mailgate.indstate.edu") by vger.kernel.org with ESMTP
-	id <S281863AbRKSBBB>; Sun, 18 Nov 2001 20:01:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rich Baum <baumr1@coral.indstate.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] fix compile warnings in 2.4.15pre6
-Date: Sun, 18 Nov 2001 20:02:47 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+	id <S281866AbRKSBIC>; Sun, 18 Nov 2001 20:08:02 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:19709 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S281865AbRKSBHo>;
+	Sun, 18 Nov 2001 20:07:44 -0500
+Date: Sun, 18 Nov 2001 20:07:33 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+cc: John Jasen <jjasen@realityfailure.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+In-Reply-To: <Pine.SGI.4.31L.02.0111181351370.12354143-100000@irix2.gl.umbc.edu>
+Message-ID: <Pine.SGI.4.31L.02.0111182006470.12243284-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <D4EAEC1917@coral.indstate.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fixes some compile warnings in 2..4.15pre6.  The warnings 
-are for using labels at the end of compound statements and for tokens at the 
-end of #undef statements.  Please consider applying this patch to 2.4.15 
-final.
+On Sun, 18 Nov 2001, John Jasen wrote:
 
-Thanks, 
-Rich
+> // RH 2.2.19-6.2.1
+> 439.35user 54.86system 8:19.45elapsed 98%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (357039major+484758minor)pagefaults 0swaps
+>
+> // 2.4.12
 
+5230.73user 52.88system 1:28:09elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (346527major+482788minor)pagefaults 0swaps
 
-diff -urN linux/drivers/atm/firestream.c linux-rb/drivers/atm/firestream.c
---- linux/drivers/atm/firestream.c	Sun Nov 18 15:07:44 2001
-+++ linux-rb/drivers/atm/firestream.c	Sun Nov 18 19:42:53 2001
-@@ -758,6 +758,7 @@
- 			kfree (td);
- 			break;
- 		default:
-+			break;
- 			/* Here we get the tx purge inhibit command ... */
- 			/* Action, I believe, is "don't do anything". -- REW */
- 		}
-diff -urN linux/drivers/media/video/meye.c linux-rb/drivers/media/video/meye.c
---- linux/drivers/media/video/meye.c	Thu Oct 25 15:53:47 2001
-+++ linux-rb/drivers/media/video/meye.c	Sun Nov 18 19:17:56 2001
-@@ -903,6 +903,7 @@
- 		mchip_free_frame();
- 	}
- out:
-+	return;
- }
- 
- /****************************************************************************
-/
-diff -urN linux/drivers/media/video/zr36067.c 
-linux-rb/drivers/media/video/zr36067.c
---- linux/drivers/media/video/zr36067.c	Sun Nov 18 15:07:46 2001
-+++ linux-rb/drivers/media/video/zr36067.c	Sun Nov 18 19:43:39 2001
-@@ -1418,6 +1418,7 @@
- 		post_office_write(zr, 3, 0, 0);
- 		udelay(2);
- 	default:
-+		break;
- 	}
- 	return 0;
- }
-diff -urN linux/drivers/scsi/cpqfcTSworker.c 
-linux-rb/drivers/scsi/cpqfcTSworker.c
---- linux/drivers/scsi/cpqfcTSworker.c	Thu Oct 25 15:53:50 2001
-+++ linux-rb/drivers/scsi/cpqfcTSworker.c	Sun Nov 18 19:21:00 2001
-@@ -2912,6 +2912,7 @@
-   }
- 
- Done:  
-+  	return;
- }
- 
- static void 
-@@ -3029,7 +3030,7 @@
- 
- 
- Done:
--
-+	return;
- }
- 
- 
-diff -urN linux/drivers/scsi/sym53c8xx_2/sym_hipd.c 
-linux-rb/drivers/scsi/sym53c8xx_2/sym_hipd.c
---- linux/drivers/scsi/sym53c8xx_2/sym_hipd.c	Sun Nov 18 15:07:50 2001
-+++ linux-rb/drivers/scsi/sym53c8xx_2/sym_hipd.c	Sun Nov 18 19:19:07 2001
-@@ -4691,6 +4691,7 @@
- 	OUTL_DSP (SCRIPTA_BA (np, clrack));
- 	return;
- out_stuck:
-+	return;
- }
- 
- /*
-@@ -5226,6 +5227,7 @@
- 
- 	return;
- fail:
-+	return;
- }
- 
- /*
-diff -urN linux/drivers/scsi/sym53c8xx_2/sym_nvram.c 
-linux-rb/drivers/scsi/sym53c8xx_2/sym_nvram.c
---- linux/drivers/scsi/sym53c8xx_2/sym_nvram.c	Sun Nov 18 15:07:50 2001
-+++ linux-rb/drivers/scsi/sym53c8xx_2/sym_nvram.c	Sun Nov 18 19:19:38 2001
-@@ -505,10 +505,10 @@
- 	return retv;
- }
- 
--#undef SET_BIT 0
--#undef CLR_BIT 1
--#undef SET_CLK 2
--#undef CLR_CLK 3
-+#undef SET_BIT /* 0 */
-+#undef CLR_BIT /* 1 */
-+#undef SET_CLK /* 2 */
-+#undef CLR_CLK /* 3 */
- 
- /*
-  *  Try reading Symbios NVRAM.
-diff -urN linux/fs/ntfs/fs.c linux-rb/fs/ntfs/fs.c
---- linux/fs/ntfs/fs.c	Thu Oct 25 02:02:26 2001
-+++ linux-rb/fs/ntfs/fs.c	Sun Nov 18 19:21:50 2001
-@@ -852,7 +852,7 @@
- 		}
- 		break;
- 	default:
--		/* Nothing. Just clear the inode and exit. */
-+		break;	/* Nothing. Just clear the inode and exit. */
- 	}
- 	ntfs_clear_inode(&inode->u.ntfs_i);
- unl_out:
-diff -urN linux/net/802/cl2llc.c linux-rb/net/802/cl2llc.c
---- linux/net/802/cl2llc.c	Sun Nov 18 15:34:16 2001
-+++ linux-rb/net/802/cl2llc.c	Sun Nov 18 19:22:38 2001
-@@ -97,6 +97,7 @@
- 					llc_interpret_pseudo_code(lp, REJECT1, skb, NO_FRAME);
- 				break;
- 			default:
-+				break;
- 		}
- 		if(lp->llc_callbacks)
- 		{
-@@ -498,6 +499,7 @@
- 					lp->f_flag = fr->i_hdr.i_pflag;
- 				break;
- 			default:
-+				break;
- 		}
- 		pc++;	
- 	}
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263230AbTDVPQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 11:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbTDVPQ0
+	id S263201AbTDVPN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 11:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbTDVPNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 11:16:26 -0400
-Received: from 217-126-36-165.uc.nombres.ttd.es ([217.126.36.165]:42207 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id S263230AbTDVPQW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 11:16:22 -0400
-Date: Tue, 22 Apr 2003 17:28:18 +0200 (CEST)
-From: Pau Aliagas <linuxnow@newtral.org>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cannot boot 2.5.67 
-In-Reply-To: <200304171756.h3HHuqb9006030@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.44.0304221722160.1536-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Apr 2003 11:13:25 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20446
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263201AbTDVPNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 11:13:25 -0400
+Subject: Re: Linux 2.4.20 + SiS + Adaptec AHA-7850
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: war <war@lucidpixels.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0304212236380.12135@p300>
+References: <Pine.LNX.4.55.0304212236380.12135@p300>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051021577.14880.23.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Apr 2003 15:27:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Apr 2003 Valdis.Kletnieks@vt.edu wrote:
-
-> On Thu, 17 Apr 2003 19:46:34 +0200, Mads Christensen <mfc@krycek.org>  said:
+On Maw, 2003-04-22 at 03:38, war wrote:
+> Does not work...
+> Boots up, probes each ID, fails, takes 15-20 sec per timeout for each ID,
+> then actually does boot after (15-20sec)*7ID for that board.
 > 
-> > You have to get
-> > CONFIG_INPUT=y, CONFIG_VT=y and CONFIG_VT_CONSOLE=y
-> > inorder for you to see anything =)
-> 
-> OK.. Can we *please* fix the 2.5.68 Kconfig to default these 3 values
-> so we don't have to keep saying this?  The embedded people that want
-> 'n' or 'm' can type it themselves. ;)
+> I used same exact (SCSI-CONFIG) for VIA board, worked fine, guess there
+> are problems with IRQs or something?
 
-After fixing these parametres (make oldconfig did not set them), I still 
-cannot boot 2.5.68. I've tried it with pci=noapci and also with apci=off, 
-as the boot message suggestes.
+If you are using SiS SMP boards or have built for local apic support it
+will fail with most SiS boards. Linux and SiS APIC don't get on with one
+another (we trigger a chip quirk). Boot with "noapic" option if so.
 
-I have a Dell Latitude Laptop with a Xircom Cardbus ethernet + modem card.
-If I boot with the card inserted booting stops like this:
-........
-socket status = 30000006
-
-Even SysRq does not work.
-
-If I remove it I see:
-socket status = 30000020
-Intel PCIC probe: not found.
-Unable to open initial console.
-Kernel panic: No init found. Try passing init= option to kernel.
-
-Here SysRq works.
-
-I assume it must be a FAQ but cannot find it.
-
-Pau
+2.5.x does handle this
 

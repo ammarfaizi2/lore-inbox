@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129429AbRBSU3P>; Mon, 19 Feb 2001 15:29:15 -0500
+	id <S129230AbRBSVTA>; Mon, 19 Feb 2001 16:19:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129872AbRBSU3F>; Mon, 19 Feb 2001 15:29:05 -0500
-Received: from jkd.penguinfarm.com ([12.32.79.69]:29700 "HELO
-	jkd.penguinfarm.com") by vger.kernel.org with SMTP
-	id <S129429AbRBSU2s>; Mon, 19 Feb 2001 15:28:48 -0500
-Content-Type: text/plain;
-  charset="US-ASCII"
-From: Jason Straight <junfan@penguinfarm.com>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-Subject: Re: Journaled FS on RAID stability..2.4?
-Date: Mon, 19 Feb 2001 15:27:46 -0500
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10102191516060.18450-100000@athena.intergrafix.net>
-In-Reply-To: <Pine.LNX.4.10.10102191516060.18450-100000@athena.intergrafix.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S129273AbRBSVSv>; Mon, 19 Feb 2001 16:18:51 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:11012 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129230AbRBSVSc>; Mon, 19 Feb 2001 16:18:32 -0500
+Date: Mon, 19 Feb 2001 22:18:28 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The lack of specification (was Re: [LONG RANT] Re: Linux stifles innovation... )
+In-Reply-To: <200102192017.f1JKHO952286@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.3.96.1010219220603.16223B-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Message-Id: <01021915274602.00979@jkd.penguinfarm.com>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 February 2001 15:16, you wrote:
-> what raid level?
->
+> One of these things must happen:
+> 
+> a. follow the specification, even if that makes code slow and contorted
+> b. change the specification
+> c. ignore the specification
+> d. get rid of the specification
+> 
+> Option "a" will not be accepted around here. Sorry.
 
-Raid 0
+It should be followed in stable releases. (and usually is - except for few
+cases - and except that there is no specification, just unwritten rules).
+
+> The best you can
+> hope for is option "b". Since that is hard work (want to help?) we
+> often end up not using a specification... hopefully by just not
+> having one, instead of by ignoring one.
 
 
-> -Tony
-> .-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-> Anthony J. Biacco                       Network Administrator/Engineer
-> thelittleprince@asteroid-b612.org       Intergrafix Internet Services
->
->     "Dream as if you'll live forever, live as if you'll die today"
-> http://www.asteroid-b612.org                http://www.intergrafix.net
-> .-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
->
-> On Mon, 19 Feb 2001, Jason Straight wrote:
-> > On Monday 19 February 2001 14:58, Admin Mailing Lists wrote:
-> > > Can anyone give testimonials on a journaled FS on software-raid?
-> > > I'd like to raid-0 2 SCSI 18Gers, adaptec 2940 u2w controller, kernel
-> > > 2.4.x.
-> > > Also pros and cons for reiser-fs/ext3 on this solution would be
-> > > appreciated
-> > >
-> > > Thanx,
-> > >
-> > > -Tony
-> > > .-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-> > > Anthony J. Biacco                       Network Administrator/Engineer
-> > > thelittleprince@asteroid-b612.org       Intergrafix Internet Services
-> > >
-> > >     "Dream as if you'll live forever, live as if you'll die today"
-> > > http://www.asteroid-b612.org                http://www.intergrafix.net
-> > > .-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-> > >
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > > in the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> > I am running squid on a dual 533 celeron with 4 7200RPM 40GB IBM IDE
-> > drives, using kernel 2.4.1 and reiserfs for a couple weeks now. Seems
-> > good - only got 30GB on it right now.
-> >
-> >
-> >
-> > --
-> > Jason Straight
+> > Now implementators of TCP will say: that driver is buggy. Everybody should
+> > set state=TASK_RUNNING before calling schedule to yield the process. 
+> > 
+> > Implementators of driver will say: TCP is buggy - no one should call my
+> > driver in TASK_[UN]INTERRUPTIBLE state.
+> > 
+> > Who is right? If there is no specification....
+> 
+> The driver is buggy, unless the TCP maintainer can be convinced
+> that TCP is buggy. TCP is a big chunk of code that most people use,
+> while the driver is not so huge or critical.
+> 
+> The TCP maintainers do not seem to be sadistic bastards hell-bent on
+> breaking your drivers. API changes usually have a good reason.
 
--- 
-Jason Straight
+Why should block device developers read TCP/IP code? And only after
+reading significant amount of it they realize that they can be called in
+TASK_INTERRUPTIBLE state. 
+
+They will most likely read other block drivers, find using schedule
+without setting state and use it also that way. 
+
+The only way to tell developers to always set state before using schedule
+is to write it to specification.
+
+Mikulas
+
+

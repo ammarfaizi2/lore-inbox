@@ -1,71 +1,121 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316798AbSEWUGq>; Thu, 23 May 2002 16:06:46 -0400
+	id <S317002AbSEWUev>; Thu, 23 May 2002 16:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317000AbSEWUGp>; Thu, 23 May 2002 16:06:45 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52238 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316798AbSEWUGo>; Thu, 23 May 2002 16:06:44 -0400
-Date: Thu, 23 May 2002 13:05:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Q: backport of the free_pgtables tlb fixes to 2.4
-In-Reply-To: <20020523195757.GW21164@dualathlon.random>
-Message-ID: <Pine.LNX.4.33.0205231300530.4338-100000@penguin.transmeta.com>
+	id <S317004AbSEWUeu>; Thu, 23 May 2002 16:34:50 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:2576 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317002AbSEWUes>;
+	Thu, 23 May 2002 16:34:48 -0400
+Message-ID: <3CED438B.6090906@evision-ventures.com>
+Date: Thu, 23 May 2002 21:31:23 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+In-Reply-To: <Pine.LNX.4.33.0205231251430.2815-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 23 May 2002, Andrea Arcangeli wrote:
-> > 	munmap
-> > 	.. speculation starts ..
+Uz.ytkownik Linus Torvalds napisa?:
+> On Thu, 23 May 2002, Martin Dalecki wrote:
 > 
-> the question is: can you explain how the speculative tlb fill can start?
-
-Any indirect branch can be (and will be) predicted using the BTB. The
-speculation starts before the BTB contents have actually been verified,
-resulting in iTLB speculation.
-
-Since the BTB can (and does) contain mostly user addresses (from previous
-execution in user land), it's apparently quite common to speculatively
-fetch user TLB entries even when you're in kernel mode.
-
-(This is also, btw, probably anothre reason why you only see this bug in 
-practice on a P4: much bigger BTB)
-
-> see below.
+>>Hey and finally if someone want's to use /dev/port for
+>>developement on some slow control experimental hardware for example.
+>>Why doesn't he just delete the - signs at the front lines
+>>of the patch deleting it plus module register/unregister trivia and
+>>compile it as a *separate* character device module ?
 > 
-> > 	.. TLB looks up pgd entry ..
-> > 	clear pgd entry
-> > 	free pmd
-> > 
-> > 			alloc page - get old pmd
-> > 			scribble on page
-> > 
-> > 	.. TLB looks up pmd entry ..
-> > 	.. tlb fill ends ...
-> > 	invalidate_tlb
-> 	^^^^^^^^^^^^^^
 > 
-> I assume the userspace access could be imagined right after the
-> invalidate_tlb in the above example, and that's the one supposed to
-> trigger the speculative tlb fill but how can it pass the invalidate_tlb?
-> see below.
+> That's not a productive approach, Martin.
 
-It doesn't pass the invalidate_tlb.
+"I will submitt my dual 8255 PIO ISA card driver from 1.xx days
+immediately for kernel inclusion"
 
-By the time the invalidate_tlb happens, the TLB fill has already finished, 
-and has already picked up garbage.
+This was the exmaple I had in my mind as I wrote the above.
+Slow controll means in experimental physics - controll of
+devices which don't have hard real time constrains.
+Once in my life I wrote a driver for such a beast which was
+controlling an experimental tomography device. But I have
+found it specific and trivial enough to don't bother to
+submitt it to the general public. It was *trivial* to
+implement becouse I could trick the LP driver to do what
+I wanted by deleting most of the code in it.
+I assume that this kind of application is what Pete was
+talking about as he was speaking about "quite frequently"
+and finally "Solaris does without it so we could as well".
 
-READ my explanation. The garbage can (and does) contain the Global bit, so
-even though we then flush the TLB, the garbage remains.
+This was what I had in my mind with the advantage of having
+full access to the source code of the system. I certainly
+don't buy myself in the philosophical zealots view of
+of open source OS supreriority quite frequently propagated here
+by some individuals.
 
-> In all cases either the 2.4 fix is wrong,
+And please note even at the time then I didn't write
+the application by using the cards from user land
+directly - I just wrote the damn driver for it, becouse
+the "cheating" smelled to me immediately.
 
-No. Understand the patch, _then_ complain.
+> Yes, with open source you can do whatever you want.
+> 
+> HOWEVER, there is a huge amount of advantage to having a common base that 
+> is big enough to matter: why do you think MS does well commercially? 
+> 
+> It's important to _not_ have to force people to do site-specific (or 
+> problem-specific) hacks, even if they could do so. Because having to have 
+> site-specific hacks detracts from the general usability of the code.
+> 
+> So when simplifying, it's not just important to say "we could do without 
+> this". You have to also say "and nobody can reasonably expect to need it".
 
-		Linus
+What I'm saying is: It has already caused people who write applications
+to control things like the system clock settings or keyboard speed
+to write the applications in a way which:
+
+1. doesn't use the proper system interfaces,
+2. is attracted to the particular hardware implementation
+3. is inherently not portable across different systems. (Alan got this wrong).
+4. a damn comon thing to do.
+
+As a consequence of this it has caused the system
+interfaces for those purposes to never mature.
+USB keyboards to name one.
+
+The single only guy who wanted to use it for some sane purpose
+and  had some serious intentions about it noticed immediately
+that it is BTW seriously broken from day one on!
+
+So in regard of the above I have decided for myself that
+the sanest way to fix it is to remove it.
+
+> Which doesn't seem to be the case with /dev/ports. So it stays.
+> 
+> 		Linus
+
+I think one doesn't have only to provide things. One has
+to prevent damage as well. And hwclock and kbdrate are
+seriously damaged already for example. Once just didn't
+notice until now becouse it all kind of "works".
+Please look at the code there.
+
+If you reffer to MS as a success story of about how to
+be a bitch to everybody ... well please tell me: Why do we use
+page protection for example at all. The implementers of
+DOS where not even dreaming about it and Win98 didn't care.
+All of the follow up operating systems from Redmond are
+making it seriously difficult to get direct hardware access.
+For scincetific applicatons there are even some special third
+party expensive drivers out there which are supposed to
+permitt just that - port access from user space.
+
+This is one of the reasons I did implement the host controll
+software for the tomography device under Linux and NOT any
+windows or doors system. And it was in fact the first Linux
+in experimental medicine around there! (The circle was quite
+wide those days...)
+
 

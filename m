@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284998AbRL3VBy>; Sun, 30 Dec 2001 16:01:54 -0500
+	id <S285017AbRL3VDe>; Sun, 30 Dec 2001 16:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284987AbRL3VBp>; Sun, 30 Dec 2001 16:01:45 -0500
-Received: from t2.redhat.com ([199.183.24.243]:53744 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S284998AbRL3VB3>; Sun, 30 Dec 2001 16:01:29 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011229191444.A16473@suse.de> 
-In-Reply-To: <20011229191444.A16473@suse.de> 
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1-dj8 
-Mime-Version: 1.0
+	id <S284987AbRL3VDZ>; Sun, 30 Dec 2001 16:03:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65033 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285000AbRL3VDK>; Sun, 30 Dec 2001 16:03:10 -0500
+Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
+To: jjs@pobox.com (J Sloan)
+Date: Sun, 30 Dec 2001 21:12:51 +0000 (GMT)
+Cc: timothy.covell@ashavan.org, skraw@ithnet.com (Stephan von Krawczynski),
+        davidel@xmailserver.org (Davide Libenzi),
+        Dieter.Nuetzel@hamburg.de (Dieter =?ISO-8859-1?Q?N=FCtzel?=),
+        rml@tech9.net (Robert Love),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <3C2F7D49.9040606@pobox.com> from "J Sloan" at Dec 30, 2001 12:47:05 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 30 Dec 2001 21:01:28 +0000
-Message-ID: <1365.1009746088@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16KnGF-0002WU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On my 4-way ppro, make -j4 is much faster
+> than a simple "make" for kernel compilation.
+> Almost linearly so -
 
-(for the benefit of the peanut gallery)
-
-davej@suse.de said:
-> o   Remove bogus <asm/segment.h> includes.		(David Woodhouse) 
-
-In a fit of stupidity, I sent you the wrong patch - the one I sent was the
-original version which removed far too many instances of asm/segment.h.
-
-I've just sent you the correct one.
-
---
-dwmw2
-
-
+Make does lots of I/O and also has lots of stuff that can run in parallel
+and balance out easily. The real test case for you to try are 5, 6, 7, and 8
+copies of seti

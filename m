@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266116AbUAGBVy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 20:21:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUAGBVx
+	id S266115AbUAGBVj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 20:21:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUAGBVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 20:21:53 -0500
-Received: from dp.samba.org ([66.70.73.150]:4767 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266116AbUAGBVv (ORCPT
+	Tue, 6 Jan 2004 20:21:39 -0500
+Received: from smtp0.libero.it ([193.70.192.33]:14057 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S266115AbUAGBVi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 20:21:51 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Fw: 2.6.1-rc1-mm[1|2] on Alpha build failure 
-Cc: Nathan Poznick <kraken@drunkmonkey.org>
-Cc: linux-kernel@vger.kernel.org, rth@twiddle.net
-In-reply-to: Your message of "Tue, 06 Jan 2004 16:44:38 -0800."
-             <20040106164438.6f5756ff.akpm@osdl.org> 
-Date: Wed, 07 Jan 2004 12:16:48 +1100
-Message-Id: <20040107012149.0C83D2C097@lists.samba.org>
+	Tue, 6 Jan 2004 20:21:38 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16379.28133.153772.626400@gargle.gargle.HOWL>
+Date: Wed, 7 Jan 2004 03:24:37 +0100
+To: Duncan Sands <baldrick@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: speedtouch for 2.6.0
+In-Reply-To: <200401062121.18531.baldrick@free.fr>
+References: <16366.61517.501828.389749@gargle.gargle.HOWL>
+	<200312301702.26973.baldrick@free.fr>
+	<16378.65140.114558.996798@gargle.gargle.HOWL>
+	<200401062121.18531.baldrick@free.fr>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+From: "Guldo K" <guldo@tiscali.it>
+Reply-to: "Guldo K" <guldo@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040106164438.6f5756ff.akpm@osdl.org> you write:
-> A change to include/asm-alpha/smp.h went in during 2.6.1-rc1-mm1 which
-> appears to have broken compilation on Alpha.  Specifically, the addition
-> of:
-> #define cpu_possible_map       cpu_present_map
+Duncan Sands writes:
+ > Looks like your libc has 2.6 kernel headers.  I refer you to my
+ > previous answer:
+<cut>
 
-Arg, it's "cpu_present_mask" not "cpu_present_map" on Alpha.
+Thanks a lot!
+I didn't realized what exactly was needed...
+I thought I could compile in 2.4.22, since 2.6.0
+was not working...
+Anyway I fixed it, thanks to the user module that
+let me set up that cvs dir.
+So now I'm writing on my neatly working Debian Sid,
+with my nice kernel-driver-adsl-connection on
+my 2.6.0 Linux.
+I really thank you *VERY MUCH* for your GREAT help.
+:-)))
 
-My bad, but fix is trivial:
+All the best,
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.1-rc1-mm2/include/asm-alpha/smp.h working-2.6.1-rc1-mm2-fix-alpha/include/asm-alpha/smp.h
---- linux-2.6.1-rc1-mm2/include/asm-alpha/smp.h	2004-01-06 16:30:42.000000000 +1100
-+++ working-2.6.1-rc1-mm2-fix-alpha/include/asm-alpha/smp.h	2004-01-07 12:16:13.000000000 +1100
-@@ -48,7 +48,7 @@ extern struct cpuinfo_alpha cpu_data[NR_
- extern cpumask_t cpu_present_mask;
- extern cpumask_t cpu_online_map;
- extern int smp_num_cpus;
--#define cpu_possible_map	cpu_present_map
-+#define cpu_possible_map	cpu_present_mask
- 
- #define cpu_online(cpu)		cpu_isset(cpu, cpu_online_map)
- 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+*Guldo*
+

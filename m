@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285267AbRLNAAE>; Thu, 13 Dec 2001 19:00:04 -0500
+	id <S285272AbRLNAEo>; Thu, 13 Dec 2001 19:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285265AbRLMX7y>; Thu, 13 Dec 2001 18:59:54 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:5578
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S285267AbRLMX7r>; Thu, 13 Dec 2001 18:59:47 -0500
-Date: Thu, 13 Dec 2001 18:49:36 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML2 1.9.9 is available
-Message-ID: <20011213184936.A20701@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+	id <S285269AbRLNAEf>; Thu, 13 Dec 2001 19:04:35 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:6389 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S285265AbRLNAEU>;
+	Thu, 13 Dec 2001 19:04:20 -0500
+Date: Thu, 13 Dec 2001 17:03:50 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: optimize DNAME_INLINE_LEN
+Message-ID: <20011213170350.G940@lynx.no>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C192A37.4547D2A7@colorfullife.com> <20011213160706.E940@lynx.no> <20011214002957.A24984@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011214002957.A24984@wotan.suse.de>; from ak@suse.de on Fri, Dec 14, 2001 at 12:29:57AM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+On Dec 14, 2001  00:29 +0100, Andi Kleen wrote:
+> On Thu, Dec 13, 2001 at 04:07:06PM -0700, Andreas Dilger wrote:
+> > Alternately (also ugly) you could just define struct dentry the as now,
+> > but have a fixed size declaration for d_iname, like:
+> > 
+> > #define DNAME_INLINE_MIN 16
+> > 
+> > 	unsigned char d_iname[DNAME_INLINE_MIN];
+>                    Using [0] here would also work 
 
-Release 1.9.9: Thu Dec 13 18:36:26 EST 2001
-	* Minor cleanups by Richard Todd.
-	* Passed Keith Owens's regression tests against CML1 make oldconfig.
+Well, not really.  If we wanted to have a minimum size for the d_iname
+field, then if we declare it as zero and it just squeaks into a chacheline,
+then we may be stuck with 0 bytes of inline names, and _all_ names will
+be kmalloced.
 
-Bug queue is empty.  The code has passed scrutiny and hands-on use by the rest
-of the kbuild team.  There's a known rulebase glitch near extra-device handling
-of SCSI disks which is not critical and should be a one-line fix by somebody
-who knows what is actually going on there.
+> #define d_... has a similar problem => the potential to break previously
+> compiling source code.
 
-Things have come together nicely: (a) the code is ready and tested, (b) the rulebase 
-needs only trivial cleanups, and (c) the Configure.help file is down to only 14 missing
-entries, with 6 of the remaining promised any time now.  It looks like we'll actually
-be ready to do a major-number release after 1.9.9.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Again, not really.  The #define d_... scheme would leave all of the fields
+in their original locations, just giving them new names within the named
+struct, and the defines would be the backwards compatible (and probably
+still preferrable) way to access these fields.  I don't _think_ it would
+cause any compiler struct alignment issues to just put the same fields
+in another struct, but I could be wrong.
 
-"America is at that awkward stage.  It's too late to work within the system,
-but too early to shoot the bastards."
-	-- Claire Wolfe
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

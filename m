@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbUDEGZS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 02:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263143AbUDEGZS
+	id S263147AbUDEGlU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 02:41:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263148AbUDEGlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 02:25:18 -0400
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:61445 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S263142AbUDEGZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 02:25:12 -0400
-Subject: 2.6.5-as1, and ck staircase5.2 seperatly
-From: Antony Suter <suterant@users.sourceforge.net>
-To: List LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LRzLQt0pjr8Xr2pHVwIp"
-Message-Id: <1081146303.9127.44.camel@hikaru.lan>
+	Mon, 5 Apr 2004 02:41:20 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:3718 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S263147AbUDEGlS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 02:41:18 -0400
+Subject: Re: 2.6.5-mm1 [PATCH]
+From: Ray Lee <ray-lk@madrabbit.org>
+To: akpm@osdl.org
+Cc: mpm@selenic.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Message-Id: <1081147276.1374.13.camel@orca.madrabbit.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 05 Apr 2004 16:25:03 +1000
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 04 Apr 2004 23:41:17 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---=-LRzLQt0pjr8Xr2pHVwIp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Probably the least important email you'll receive all day, but...
+
+> no-quota-inode-shrinkage.patch 
+>  shrink inode when quota is disabled
+
+Could I suggest an alternate version, below? It limits the knowledge of
+the CONFIG_QUOTA option to the quota header file, and still shrinks the
+inode by two pointers. The only functional difference between this and
+Matt Mackall's version is the below will still leave in a call to
+memset, but with a zero length. On the plus side, it keeps fs/inode.c
+free of preprocessor noise, which seems worth the trade-off.
+
+ quota.h |    4 ++++
+ 1 files changed, 4 insertions(+)
+
+diff -NurX ../dontdiff linus-2.6/include/linux/quota.h linus-2.6-inode-shrinkage/include/linux/quota.h
+--- linus-2.6/include/linux/quota.h	2004-04-03 08:46:35.000000000 -0800
++++ linus-2.6-inode-shrinkage/include/linux/quota.h	2004-04-03 08:45:19.000000000 -0800
+@@ -57,7 +57,11 @@
+ #define kb2qb(x) ((x) >> (QUOTABLOCK_BITS-10))
+ #define toqb(x) (((x) + QUOTABLOCK_SIZE - 1) >> QUOTABLOCK_BITS)
+ 
++#ifdef CONFIG_QUOTA
+ #define MAXQUOTAS 2
++#else
++#define MAXQUOTAS 0
++#endif
+ 
+ #define USRQUOTA  0		/* element used for user quotas */
+ #define GRPQUOTA  1		/* element used for group quotas */
 
 
-Resyncing for 2.6.5. An update here is AA rounding off some very nice VM
-work.
-
-One of my aims is to keep CK's new staircase cpu scheduler in sync with
-the current kernel, for people to play with more easily, while he is
-away for 2 months. So it is here as a seperate download as well.
-
-Patches applied on a base of linux-2.6.5:
-- Con Kolivas' alternate staircase cpu scheduler 5.2
-- Jens Axboe's cfq io scheduler
-- Andrea Archangeli's 2.6.5-aa1.bz2
-- William Lee Irwin III's patches from linux-2.6.0-test11-wli-1 {
-    - #17 convert copy_strings() to use kmap_atomic() instead of kmap()
-    - #19 node-local i386 per_cpu areas
-    - #22 increase static vfs hashtable and VM array sizes
-    - #24 /proc/ BKL gunk plus page wait hashtable sizing adjustment
-    - #25 invalidate_inodes() speedup
-}
-
-Linqs:
-http://www.users.on.net/sutera/2.6.5-as1.patch.gz
-http://www.users.on.net/sutera/2.6.5-as1.patch.gz.sign
-http://www.users.on.net/sutera/ck-2.6.5-staircase5.2.patch.gz
-http://www.users.on.net/sutera/ck-2.6.5-staircase5.2.patch.gz.sign
-
-For best desktop performance, compile with PREEMPT on, and run with
-"elevator=3Dcfq" on your kernel command line.
-
---=20
-- Antony Suter  (suterant users sourceforge net)  "Bonta"
-- "...through shadows falling, out of memory and time..."
-
---=-LRzLQt0pjr8Xr2pHVwIp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAcPu/Zu6XKGV+xxoRAmDNAJ9j+h3tmraPR5MngOd5J/KuSYIg7wCfXUo3
-VZL10RMSM24+QT00DkMa0JA=
-=bFrc
------END PGP SIGNATURE-----
-
---=-LRzLQt0pjr8Xr2pHVwIp--
+--
+Ray Lee
 

@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310258AbSDDTXp>; Thu, 4 Apr 2002 14:23:45 -0500
+	id <S310468AbSDDTZp>; Thu, 4 Apr 2002 14:25:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310241AbSDDTXg>; Thu, 4 Apr 2002 14:23:36 -0500
-Received: from pool-151-204-76-218.delv.east.verizon.net ([151.204.76.218]:7441
-	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
-	id <S310435AbSDDTXX>; Thu, 4 Apr 2002 14:23:23 -0500
-Date: Thu, 4 Apr 2002 14:23:42 -0500
-From: Malcolm Mallardi <magamo@ranka.2y.net>
-To: linux-kernel@vger.kernel.org
-Subject: [MIPS] 2.4.19-pre5 compile issue?
-Message-ID: <20020404142342.A14268@trianna.upcommand.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S310434AbSDDTZi>; Thu, 4 Apr 2002 14:25:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27141 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310435AbSDDTZX>;
+	Thu, 4 Apr 2002 14:25:23 -0500
+Message-ID: <3CACA8A9.2000701@mandrakesoft.com>
+Date: Thu, 04 Apr 2002 14:25:29 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: flaniganr@intel.co.jp, linux-kernel@vger.kernel.org,
+        dhinds@zen.stanford.edu, Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] 2.5.8-pre1 wavelan_cs
+In-Reply-To: <87vgb8x8bt.fsf@hazuki.jp.intel.com> <3CABFE55.9@mandrakesoft.com> <20020404094057.B26632@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Compiling 2.4.19-pre5 on a R5000 Indy IP22  I get this error:
+Jean Tourrilhes wrote:
+> On Thu, Apr 04, 2002 at 02:18:45AM -0500, Jeff Garzik wrote:
+> 
+>>flaniganr@intel.co.jp wrote:
+>>
+>>>not sure if i did this right, so if you 
+>>>have any suggestions/comments please tell me.
+>>>
+>>>Basically 2.5.8-pre1 fails to compile with:
+>>>
+>>>In file included from wavelan_cs.c:59:
+>>>wavelan_cs.p.h:495:33: warning: extra tokens at end of #undef directive
+>>>wavelan_cs.c: In function `wv_pcmcia_config':
+>>>wavelan_cs.c:4480: structure has no member named `rmem_start'
+>>>wavelan_cs.c:4482: structure has no member named `rmem_end'
+>>>make[3]: *** [wavelan_cs.o] Error 1
+>>>
+>>not needed, just delete the unused references to rmem_{start,end}.
+>>(see attached patch)
+>>
+>>	Jeff
+>>
+> 
+> 	Correct. It was just information displayed by ifconfig.
+> 	Jeff, will you take care of it or do you need an "official"
+> patch (I would just resend your patch + the one of Robert).
 
-gcc -I /usr/src/linux-2.4.18/include/asm/gcc -D__KERNEL__i -I/usr/src/linux-2.4.1
-8/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno
--strict-aliasing -fno-common -G 0 -mno-abicalls -fno-pic -mcpu=r5000
--mips2 -Wa,
---trap -pipe   -DKBUILD_BASENAME=signal  -c -o signal.o signal.c
-signal.c: In function `do_signal':
-signal.c:573: `PER_LINUX' undeclared (first use in this function)
-signal.c:573: (Each undeclared identifier is reported only once
-signal.c:573: for each function it appears in.)
-make[1]: *** [signal.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.18/arch/mips/kernel'
-make: *** [_dir_arch/mips/kernel] Error 2
 
-	Anyone have any ideas?
+I've already taken care of it, in fact :)
 
---
-Malcolm D. Mallardi - Dark Freak At Large
-"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
-AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
-http://ranka.2y.net:8008/~magamo/index.htm
+	Jeff
+
+
+
+
+

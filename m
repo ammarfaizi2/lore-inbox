@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261933AbSJHK6H>; Tue, 8 Oct 2002 06:58:07 -0400
+	id <S261931AbSJHLJi>; Tue, 8 Oct 2002 07:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261981AbSJHK6H>; Tue, 8 Oct 2002 06:58:07 -0400
-Received: from p508E88F3.dip.t-dialin.net ([80.142.136.243]:28128 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S261933AbSJHK6G>; Tue, 8 Oct 2002 06:58:06 -0400
-From: Martin Loschwitz <madkiss@madkiss.org>
-Date: Tue, 8 Oct 2002 13:03:44 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] DevFS broken in 2.5.41?
-Message-ID: <20021008110343.GA1233@minerva.local.lan>
+	id <S261981AbSJHLJi>; Tue, 8 Oct 2002 07:09:38 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:61432 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261931AbSJHLJg>; Tue, 8 Oct 2002 07:09:36 -0400
+Subject: Re: The end of embedded Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: simon@baydel.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DA2BD70.14919.2C6951@localhost>
+References: <3DA1CF36.19659.13D4209@localhost> 
+	<3DA2BD70.14919.2C6951@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Oct 2002 12:25:14 +0100
+Message-Id: <1034076314.26473.47.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-10-08 at 11:11, simon@baydel.com wrote:
+> This is my dilemma and I am sure it is shared by others. For this 
+> reason I cannot see how anything but an embedded PC with 
+> applications or a perhaps a very simple hardware device could be 
+> considered as an opportunity for  embedded Linux. 
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Certainly the sort of things I was talking about didnt extend to unique
+gate arrays for one internal board. [BTW that also came up in the large
+computing world too - we never merged a driver for the AP-1000+ fddi
+because there were only two cards on the planet 8)]
 
-Hi,
+Alan
 
-while booting 2.5.41, i get the following error message:
-
-Oct  7 22:46:32 minerva kernel: i2c-dev.o: i2c /dev entries driver module v=
-ersion 2.6.4 (20020719)
-Oct  7 22:46:32 minerva kernel: devfs_mk_dir(i2c): could not append to dir:=
- c153e7c0 "", err: -17
-Oct  7 22:46:32 minerva kernel: Advanced Linux Sound Architecture Driver Ve=
-rsion 0.9.0rc3 (Fri Oct 04 13:09:13 2002 UTC).
-
-Is this a DevFS-related issue or is i2c somehow broken?
-
---=20
-  .''`.   Name: Martin Loschwitz
- : :'  :  E-Mail: madkiss@madkiss.org
- `. `'`   www: http://www.madkiss.org/=20
-   `-     Use Debian GNU/Linux - http://www.debian.org   =20
-
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9oruPHPo+jNcUXjARAuPDAKC1z6KzgbGTuBt6bdDbH8++BZG5HACgjYdL
-lPjS/d5YKi8t0uG1Iw4xlYI=
-=02z4
------END PGP SIGNATURE-----
-
---qMm9M+Fa2AknHoGS--

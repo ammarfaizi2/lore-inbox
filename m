@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130250AbQKMXpt>; Mon, 13 Nov 2000 18:45:49 -0500
+	id <S130198AbQKMXuk>; Mon, 13 Nov 2000 18:50:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130315AbQKMXpm>; Mon, 13 Nov 2000 18:45:42 -0500
-Received: from quasar.osc.edu ([192.148.249.15]:60055 "EHLO quasar.osc.edu")
-	by vger.kernel.org with ESMTP id <S130250AbQKMXpe>;
-	Mon, 13 Nov 2000 18:45:34 -0500
-Date: Mon, 13 Nov 2000 18:15:30 -0500
-From: Pete Wyckoff <pw@osc.edu>
-To: vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: ns558 pci/isa change
-Message-ID: <20001113181530.A7954@quasar.osc.edu>
-Mime-Version: 1.0
+	id <S130258AbQKMXub>; Mon, 13 Nov 2000 18:50:31 -0500
+Received: from [47.140.48.50] ([47.140.48.50]:30894 "EHLO
+	zrtps06s.us.nortel.com") by vger.kernel.org with ESMTP
+	id <S130251AbQKMXuQ>; Mon, 13 Nov 2000 18:50:16 -0500
+Message-ID: <3A1070D5.FA0462EC@nortelnetworks.com>
+Date: Mon, 13 Nov 2000 17:53:09 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: quick question regarding system time
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHKEJDCJAA.law@sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.9i
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My joystick stopped working at 2.4.0-test10 due to a patch to
-drivers/char/joystick/ns558.c that moves pci probing ahead of
-isa probing.
 
-The problem is that pci_module_init can return -ENODEV into i,
-which is then used to index the ISA portlist.  ISA probing assumes
-that i is initialized to zero.
+I'm working on some timer routines to allow arbitrary numbers of timers
+all based off the single real timer provided by "setitimer".  However, I
+haven't been able to figure out from the documentation what happens to
+the countdown timer used by setitimer when the system clock is changed
+(by root, for instance).  If I move the system clock forward or backward
+a few seconds, is the itimer affected by this at all (I hope not) or can
+I simply ignore it (I hope so).
 
-Trivial fix attached, with plenty of context.
+Thanks,
 
-		-- Pete
+Chris
 
---- drivers/char/joystick/ns558.c.orig	Mon Nov 13 18:04:16 2000
-+++ drivers/char/joystick/ns558.c	Mon Nov 13 18:11:41 2000
-@@ -299,37 +299,38 @@
- deactivate:
- 	if (dev->deactivate)
- 		dev->deactivate(dev);
- 	return next;
- }
- #endif
- 
- int __init ns558_init(void)
- {
--	int i = 0;
-+	int i;
- #ifdef NSS558_ISAPNP
- 	struct pci_dev *dev = NULL;
- 	struct pnp_devid *devid;
- #endif
- 
- /*
-  * Probe for PCI ports.  Always probe for PCI first,
-  * it is the least-invasive probe.
-  */
- 
- 	i = pci_module_init(&ns558_pci_driver);
- 	if (i == 0)
- 		have_pci_devices = 1;
- 
- /*
-  * Probe for ISA ports.
-  */
- 
-+	i = 0;
- 	while (ns558_isa_portlist[i]) 
- 		ns558 = ns558_isa_probe(ns558_isa_portlist[i++], ns558);
- 
- /*
-  * Probe for PnP ports.
-  */
- 
- #ifdef NSS558_ISAPNP
- 	for (devid = pnp_devids; devid->vendor; devid++) {
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

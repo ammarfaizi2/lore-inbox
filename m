@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263164AbUJ2JCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263168AbUJ2JEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbUJ2JCF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 05:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUJ2JCE
+	id S263168AbUJ2JEA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 05:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUJ2JD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 05:02:04 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:15876 "EHLO
+	Fri, 29 Oct 2004 05:03:59 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:17156 "EHLO
 	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261390AbUJ2JB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 05:01:58 -0400
-Subject: Re: How to safely reduce stack usage in nfs code?
+	id S261390AbUJ2JDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 05:03:53 -0400
+Subject: Re: [PATCH[ Export __PAGE_KERNEL_EXEC for modules (vmmon)
 From: Arjan van de Ven <arjan@infradead.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410290020.01400.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <200410290020.01400.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20041028221148.GE24972@vana.vc.cvut.cz>
+References: <20041028221148.GE24972@vana.vc.cvut.cz>
 Content-Type: text/plain
-Message-Id: <1099040501.2641.9.camel@laptop.fenrus.org>
+Message-Id: <1099040620.2641.11.camel@laptop.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 29 Oct 2004 11:01:41 +0200
+Date: Fri, 29 Oct 2004 11:03:41 +0200
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 2.6 (++)
 X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
@@ -36,13 +35,14 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-29 at 00:20 +0300, Denis Vlasenko wrote:
+On Fri, 2004-10-29 at 00:11 +0200, Petr Vandrovec wrote:
+> Hello Ingo,
+>   recently support for NX on i386 arrived to 2.6.x kernel, and I have
+> some problems building code which uses vmap since then - PAGE_KERNEL_EXEC
 
-> I can convert these into kmalloc'ed variants but hesitate to do so
-> because of possible 'need to kmalloc in order to free memory for kmalloc'
-> deadlocks.
+why are you vmap'ing *executable* kernel memory?
+That sounds very wrong.... very very wrong. The module loader needs it,
+sure, but that's not modular. What on earth are you doing ????
 
-how about a memory pool?
 
-It's not THE solution but I suspect the depth of callchains of these isn't too deep so it would work
 

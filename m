@@ -1,94 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264520AbTIDCVw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 22:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264514AbTIDCVw
+	id S264470AbTIDCdv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 22:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTIDCdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 22:21:52 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:13320 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S264520AbTIDCUw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 22:20:52 -0400
+	Wed, 3 Sep 2003 22:33:51 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:3498 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264470AbTIDCdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 22:33:49 -0400
+Date: Wed, 03 Sep 2003 19:31:13 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Scaling noise
-From: Steven Cole <elenstev@mesatop.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Antonio Vargas <wind@cocodriloo.com>, Larry McVoy <lm@bitmover.com>,
-       CaT <cat@zip.com.au>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200309040350.31949.phillips@arcor.de>
-References: <20030903040327.GA10257@work.bitmover.com>
-	 <20030903124716.GE2359@wind.cocodriloo.com>
-	 <1062603063.1723.91.camel@spc9.esa.lanl.gov>
-	 <200309040350.31949.phillips@arcor.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062641965.3483.78.camel@spc>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 03 Sep 2003 20:19:26 -0600
+Message-ID: <7420000.1062642672@[10.10.2.4]>
+In-Reply-To: <20030904013253.GB4306@holomorphy.com>
+References: <20030903180547.GD5769@work.bitmover.com> <20030903181550.GR4306@holomorphy.com> <1062613931.19982.26.camel@dhcp23.swansea.linux.org.uk> <20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay> <20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay> <20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay> <20030904010653.GD5227@work.bitmover.com> <20030904013253.GB4306@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-03 at 19:50, Daniel Phillips wrote:
-> On Wednesday 03 September 2003 17:31, Steven Cole wrote:
-> > On Wed, 2003-09-03 at 06:47, Antonio Vargas wrote:
-> > > As you may probably know, CC-clusters were heavily advocated by the
-> > > same Larry McVoy who has started this thread.
-> >
-> > Yes, thanks.  I'm well aware of that.  I would like to get a discussion
-> > going again on CC-clusters, since that seems to be a way out of the
-> > scaling spiral.  Here is an interesting link:
-> > http://www.opersys.com/adeos/practical-smp-clusters/
+> On Wed, Sep 03, 2003 at 06:06:53PM -0700, Larry McVoy wrote:
+>> Here's a thought.  Maybe the next kernel summit needs to have a CC cluster
+>> BOF or whatever.  I'd be happy to show up, describe what it is that I see
+>> and have you all try and poke holes in it.  If the net result was that you
+>> walked away with the same picture in your head that I have that would be
+>> cool.  Heck, I'll sponser it and buy beer and food if you like.
 > 
-> As you know, the argument is that locking overhead grows by some factor worse 
-> than linear as the size of an SMP cluster increases, so that the locking 
-> overhead explodes at some point, and thus it would be more efficient to 
-> eliminate the SMP overhead entirely and run a cluster of UP kernels, 
-> communicating through the high bandwidth channel provided by shared memory.
+> It'd be nice if there were a prototype or something around to at least
+> get a feel for whether it's worthwhile and how it behaves.
 > 
-> There are other arguments, such as how complex locking is, and how it will 
-> never work correctly, but those are noise: it's pretty much done now, the 
-> complexity is still manageable, and Linux has never been more stable.
+> Most of the individual mechanisms have other uses ranging from playing
+> the good citizen under a hypervisor to just plain old filesharing, so
+> it should be vaguely possible to get a couple kernels talking and
+> farting around without much more than 1-2 P-Y's for bootstrapping bits
+> and some unspecified amount of pain for missing pieces of the above.
 > 
-> There was a time when SMP locking overhead actually cost something in the high 
-> single digits on Linux, on certain loads.  Today, you'd have to work at it to 
-> find a real load where the 2.5/6 kernel spends more than 1% of its time in 
-> locking overhead, even on a large SMP machine (sample size of one: I asked 
-> Bill Irwin how his 32 node Numa cluster is running these days).  This blows 
-> the ccCluster idea out of the water, sorry.  The only way ccCluster gets to 
-> live is if SMP locking is pathetic and it's not.
+> Unfortunately, this means
+> (a) the box needs a hypervisor (or equivalent in native nomenclature)
+> (b) substantial outlay of kernel hacking time (who's doing this?)
+> 
+> I'm vaguely attached to the idea of there being _something_ to assess,
+> otherwise it's difficult to ground the discussions in evidence, though
+> worse comes to worse, we can break down to plotting and scheming again.
 
-I would never call the SMP locking pathetic, but it could be improved.
-Looking at Figure 6 (Star-CD, 1-64 processors on Altix) and Figure 7
-(Gaussian 1-32 processors on Altix) on page 13 of "Linux Scalability for
-Large NUMA Systems", available for download here:
-http://archive.linuxsymposium.org/ols2003/Proceedings/
-it appears that for those applications, the curves begin to flatten
-rather alarmingly.  This may have little to do with locking overhead.
+I don't think the initial development baby-steps are *too* bad, and don't
+even have to be done on a NUMA box - a pair of PCs connected by 100baseT
+would work. Personally, I think the first step is to do task migration - 
+migrate a process without it realising from one linux instance to another. 
+Start without the more complex bits like shared filehandles, etc. Something 
+that just writes 1,2,3,4 to a file. It could even just use shared root NFS, 
+I think that works already.
 
-One possible benefit of using ccClusters would be to stay on that lower
-part of the curve for the nodes, using  perhaps 16 CPUs in a node.  That
-way, a 256 CPU (e.g. Altix 3000) system might perform better than if a
-single kernel were to be used.  I say might.  It's likely that only
-empirical data will tell the tale for sure.
+Basically swap it out on one node, and in on another, though obviously
+there's more state to take across than just RAM. I was talking to Tridge
+the other day, and he said someone had hacked up something in userspace
+which kinda worked ... I'll get some details.
 
-> 
-> As for Karim's work, it's a quintessentially flashy trick to make two UP 
-> kernels run on a dual processor.  It's worth doing, but not because it blazes 
-> the way forward for ccClusters.  It can be the basis for hot kernel swap: 
-> migrate all the processes to one of the two CPUs, load and start a new kernel 
-> on the other one, migrate all processes to it, and let the new kernel restart 
-> the first processor, which is now idle.
-> 
-Thank you for that very succinct summary of my rather long-winded
-exposition on that subject which I posted here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105214105131450&w=2
-Quite a bit of the complexity which I mentioned, if it were necessary at
-all, could go into user space helper processes which get spawned for the
-kernel going away, and before init for the on-coming kernel. Also, my
-comment about not being able to shoe-horn two kernels in at once for
-32-bit arches may have been addressed by Ingo's 4G/4G split.
+I view UP -> SMP -> NUMA -> SSI on NUMA -> SSI on many PCs -> beowulf cluster
+as a continuum ... the SSI problems are easier on NUMA, because you can
+wimp out on things like shmem much easier, but it's all similar.
 
-Steven
+M.
 

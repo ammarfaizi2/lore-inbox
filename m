@@ -1,43 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130012AbRAIPHv>; Tue, 9 Jan 2001 10:07:51 -0500
+	id <S129324AbRAIPLm>; Tue, 9 Jan 2001 10:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRAIPHl>; Tue, 9 Jan 2001 10:07:41 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:42207 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130012AbRAIPH0>;
-	Tue, 9 Jan 2001 10:07:26 -0500
-Date: Tue, 9 Jan 2001 10:19:23 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: Scott Laird <laird@internap.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Delay in authentication.
-In-Reply-To: <Pine.LNX.4.21.0101081253110.13252-100000@lairdtest1.internap.com>
-Message-ID: <Pine.LNX.4.31.0101091015120.18106-100000@rc.priv.hereintown.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130012AbRAIPLZ>; Tue, 9 Jan 2001 10:11:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:32128 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129324AbRAIPLJ>; Tue, 9 Jan 2001 10:11:09 -0500
+Date: Tue, 9 Jan 2001 10:10:16 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Richard Henderson <rth@twiddle.net>, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        richbaum@acm.org, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] More compile warning fixes for 2.4.0
+In-Reply-To: <200101091002.f09A2gw281603@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.3.95.1010109094113.8427A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Scott Laird wrote:
+On Tue, 9 Jan 2001, Albert D. Cahalan wrote:
 
->
-> Is syslog running correctly?  When syslog screws up, it very frequently
-> results in this sort of problem.
->
+> [about labels w/o statements after them]
+> 
+> >> Is this really a kernel bug? This is common idiom in C, so gcc
+> >> shouldn't warn about it. If it does, it is a bug in gcc IMHO.
+> >
+> > No, it is not a common idiom in C.  It has _never_ been valid C.
+> >
+> > GCC originally allowed it due to a mistake in the grammar; we
+> > now warn for it.  Fix your source.
+> 
+> Since neither -ansi nor -std=foo was specified, gcc should just
+> shut up and be happy. Consider this as another GNU extension.
+> 
 
-I would guess that syslog is okay.  I'm getting plenty of entries in my
-various logs, along with a few boxes remote logging into this server.
+It has to do with ; "a label at the end of a compound statement..."
+This has never been correctly allowed. Many don't realilize that
+	case 'X':
+	case 'Y':
+	default:
 
-Another interesting thing I have noticed about this delay.  If I remove
-the data in the password field from the shadow file ("username::...")
-there is no pause during login.
+... are all labels. Modern compilers are now enforcing the rules.
+When a 'switch' is a compound statement, tt follows the rules for
+other compound statements. For instance, you can code (correctly)
 
--Chris
--- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
+	switch(a) case 1: a--;
+
+... this, with no braces at all. If a == 1, it gets changed to 0,
+otherwise it is untouched. If we need another test, it becomes
+a compound statement requiring braces as:
+
+	switch(a) { case 1: a--; default: }
+
+Observe that we have tricked the compiler into generating code without
+using a ';' denoting the end of a statement. The standards makers don't
+like this and and now requiring that the above be coded as:
+
+	switch(a) { case 1: a--; default: ; }
+	                                  ^___ no tricks allowed.
+
+A 'program unit', denoted by {} braces has never required a terminating
+semicolon, so putting a ';' at the end of the physical statement
+just won't do it in this case.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

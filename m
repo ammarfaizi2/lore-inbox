@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbTIFDhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 23:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbTIFDhU
+	id S265659AbTIFEO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 00:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbTIFEO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 23:37:20 -0400
-Received: from citrine.spiritone.com ([216.99.193.133]:40365 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262095AbTIFDhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 23:37:18 -0400
-Date: Fri, 05 Sep 2003 20:36:32 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: Mike Fedyk <mfedyk@matchmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Nick's scheduler policy v12
-Message-ID: <6470000.1062819391@[10.10.2.4]>
-In-Reply-To: <3F5935EB.4000005@cyberone.com.au>
-References: <3F58CE6D.2040000@cyberone.com.au> <195560000.1062788044@flay> <20030905202232.GD19041@matchmail.com> <207340000.1062793164@flay> <3F5935EB.4000005@cyberone.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sat, 6 Sep 2003 00:14:26 -0400
+Received: from [218.70.98.78] ([218.70.98.78]:45582 "HELO mail.farstone.com")
+	by vger.kernel.org with SMTP id S265659AbTIFEOZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 00:14:25 -0400
+From: postmaster@farstone.com
+To: linux-kernel@vger.kernel.org
+Date: Sat, 06 Sep 2003 12:21:40 +0800
+Subject: failure notice
+Message-Id: <S265659AbTIFEOZ/20030906041425Z+661@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yep, as Mike mentioned, renicing X causes it to get bigger
-> timeslices with the stock scheduler. If you had 2 nice -20 processes,
-> they would each get a timeslice of 200ms, so you're harming their
-> latency.
+Hi. This is the smtp delivery program.
+I'm afraid I wasn't able to deliver your message to the following addresses.
 
-Well, if I can be naive for a second (and I'll fully admit I don't
-understand the implications of this), there are two things here - 
-either give it more of a timeslice (bandwidth increase), or make it 
-more interactive (latency increase). Those two seem to be separable,
-but we don't bother. Seems better to pass a more subtle hint to the
-scheduler that this is interactive - nice seems like a very large
-brick between the eyes.
+This is a permanent error; I've given up. Sorry it didn't work out.
 
->> There may be some more details around this, and I'd love to hear them,
->> but I fundmantally believe that explitit fiddling with particular
->> processes because we believe they're somehow magic is wrong (and so
->> does Linus, from previous discussions).
-> 
-> Well it would be nice if someone could find out how to do it, but I
-> think that if we want X to be able to get 80% CPU when 2 other CPU hogs
-> are running, you have to renice it.
+deliver failure: the message matchs up to the filter, mail server discards it. (#2.0.2) 
 
-OK. So you renice it ... then your two cpu jobs exit, and you kick off
-xmms. Every time you waggle a window, X will steal the cpu back from
-xmms, and it'll stall, surely? That's what seemed to happen before.
-I don't see how you can fix anything by doing static priority alterations
-(eg nice), because the workload changes.
+--- Below this line is a copy of the message.
 
-I'm probably missing something ... feel free to slap me ;-)
+Received: from [218.104.98.81] (envelope-sender <linux-kernel@vger.kernel.org>)
+	by [218.70.98.78] with ESMTP
+	for <info@farstone.com>; Sat, 06 Sep 2003 12:21:38 +0800
+From: <linux-kernel@vger.kernel.org>
+To: <info@farstone.com>
+Subject: Re: That movie
+Date: Sat, 6 Sep 2003 12:13:42 +0800
+X-MailScanner: Found to be clean
+Importance: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MSMail-Priority: Normal
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="_NextPart_000_010D8560"
 
-M.
 

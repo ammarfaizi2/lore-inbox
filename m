@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282940AbRLDJVz>; Tue, 4 Dec 2001 04:21:55 -0500
+	id <S282967AbRLDJX0>; Tue, 4 Dec 2001 04:23:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282948AbRLDJVQ>; Tue, 4 Dec 2001 04:21:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39952 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282940AbRLDJVJ>; Tue, 4 Dec 2001 04:21:09 -0500
-Subject: Re: possible to do non-blocking write to NFS?
-To: cfriesen@nortelnetworks.com (Christopher Friesen)
-Date: Tue, 4 Dec 2001 09:30:04 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C0BA20F.946E0F1B@nortelnetworks.com> from "Christopher Friesen" at Dec 03, 2001 11:02:23 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282961AbRLDJXT>; Tue, 4 Dec 2001 04:23:19 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:42155 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S282960AbRLDJWw>; Tue, 4 Dec 2001 04:22:52 -0500
+Date: Tue, 4 Dec 2001 09:22:51 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: <nbecker@fred.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: nfs: task can't get a request slot
+In-Reply-To: <x88u1v8jt40.fsf@rpppc1.hns.com>
+Message-ID: <Pine.LNX.4.33.0112040921170.2274-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BBts-0001OS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any way to write to an NFS-mounted filesystem in a way that will avoid
-> all of the NFS retries?  Basically I want to try a write, and if the server is
-> not accessable I want to return immediately with an error code.
+Have a look at adglinux1 and see if its NFS server is still alive.
+Your hung processes should "unhang" when rpppc1 can see the server again.
 
-Mount the file system soft. Remember that the error you see may well be on
-fsync or close. Also it'll still take some time to decide the other end is
-dead not just slow
+On Dec 3 nbecker@fred.net wrote:
 
-Alan
+[snip]
+>What does this mean?
+>
+>Dec  3 08:53:54 rpppc1 kernel: nfs: server adglinux1 not responding, still trying
+>Dec  3 08:53:54 rpppc1 kernel: nfs: server adglinux1 not responding, still trying
+>Dec  3 08:55:09 rpppc1 rpc.mountd: authenticated mount request from 139.85.108.152:890 for /disk1/nbecker (/disk1)
+>Dec  3 08:55:43 rpppc1 kernel: nfs: task 3408 can't get a request slot
+>Dec  3 08:55:43 rpppc1 kernel: nfs: task 3409 can't get a request slot
+[snip]
+

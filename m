@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUJXLZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbUJXLZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUJXLZk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 07:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbUJXLRY
+	id S261465AbUJXLZj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 07:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbUJXLRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 07:17:24 -0400
-Received: from nl-ams-slo-l4-01-pip-5.chellonetwork.com ([213.46.243.21]:33851
-	"EHLO amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261450AbUJXLPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 07:15:54 -0400
-Date: Sun, 24 Oct 2004 13:15:52 +0200 (CEST)
+	Sun, 24 Oct 2004 07:17:50 -0400
+Received: from nl-ams-slo-l4-01-pip-7.chellonetwork.com ([213.46.243.25]:53596
+	"EHLO amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261448AbUJXLOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 07:14:51 -0400
+Date: Sun, 24 Oct 2004 13:14:47 +0200 (CEST)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Antonino Daplas <adaplas@pol.net>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Atyfb: kill assignment warnings on Atari due to __iomem
- changes
-Message-ID: <Pine.LNX.4.61.0410241314550.27526@anakin>
+To: Karsten Keil <kkeil@suse.de>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       isdn4linux@listserv.isdn4linux.de
+Subject: [PATCH] Elsa ISDN: Kill warnings if !PCI
+Message-ID: <Pine.LNX.4.61.0410241311120.27282@anakin>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Atyfb: kill assignment warnings on Atari due to __iomem changes
+Elsa ISDN: Kill warnings if !PCI
 
---- linux-2.6.10-rc1/drivers/video/aty/atyfb_base.c.orig	2004-10-23 10:33:27.000000000 +0200
-+++ linux-2.6.10-rc1/drivers/video/aty/atyfb_base.c	2004-10-24 12:59:07.000000000 +0200
-@@ -2344,9 +2344,9 @@ int __init atyfb_do_init(void)
- 		info->screen_base = ioremap(phys_vmembase[m64_num],
- 					 		   phys_size[m64_num]);	
- 		info->fix.smem_start = (unsigned long)info->screen_base;	/* Fake! */
--		default_par->ati_regbase = (unsigned long)ioremap(phys_guiregbase[m64_num],
--							  0x10000) + 0xFC00ul;
--		info->fix.mmio_start = default_par->ati_regbase; /* Fake! */
-+		default_par->ati_regbase = ioremap(phys_guiregbase[m64_num],
-+						   0x10000) + 0xFC00ul;
-+		info->fix.mmio_start = (unsigned long)default_par->ati_regbase; /* Fake! */
+I'm not 100% sure this is correct, though. Can setup_elsa() be called multiple
+times? If yes, dev_qs[13]000 have to be static.
+
+--- linux-2.6.10-rc1/drivers/isdn/hisax/elsa.c.orig	2004-10-23 10:33:02.000000000 +0200
++++ linux-2.6.10-rc1/drivers/isdn/hisax/elsa.c	2004-10-24 12:54:59.000000000 +0200
+@@ -834,9 +834,6 @@ probe_elsa(struct IsdnCardState *cs)
+ 	return (CARD_portlist[i]);
+ }
  
- 		aty_st_le32(CLOCK_CNTL, 0x12345678, default_par);
- 		clock_r = aty_ld_le32(CLOCK_CNTL, default_par);
-
+-static 	struct pci_dev *dev_qs1000 __devinitdata = NULL;
+-static 	struct pci_dev *dev_qs3000 __devinitdata = NULL;
+-
+ #ifdef __ISAPNP__
+ static struct isapnp_device_id elsa_ids[] __initdata = {
+ 	{ ISAPNP_VENDOR('E', 'L', 'S'), ISAPNP_FUNCTION(0x0133),
+@@ -1022,6 +1019,9 @@ setup_elsa(struct IsdnCard *card)
+ 		       cs->irq);
+ 	} else if (cs->typ == ISDN_CTYPE_ELSA_PCI) {
+ #ifdef CONFIG_PCI
++		struct pci_dev *dev_qs1000 = NULL;
++		struct pci_dev *dev_qs3000 = NULL;
++
+ 		cs->subtyp = 0;
+ 		if ((dev_qs1000 = pci_find_device(PCI_VENDOR_ID_ELSA,
+ 			PCI_DEVICE_ID_ELSA_MICROLINK, dev_qs1000))) {
 Gr{oetje,eeting}s,
 
 						Geert

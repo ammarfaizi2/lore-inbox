@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268468AbUH3TDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268794AbUH3TIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268468AbUH3TDv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUH3TA7
+	id S268794AbUH3TIl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268772AbUH3TIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:00:59 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:9434 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268754AbUH3S46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:56:58 -0400
-X-Comment: AT&T Maillennium special handling code - c
-Message-ID: <41337744.1070003@namesys.com>
-Date: Mon, 30 Aug 2004 11:51:48 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Zarochentsev <zam@namesys.com>
-CC: Jamie Lokier <jamie@shareable.org>, Rik van Riel <riel@redhat.com>,
-       Christophe Saout <christophe@saout.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <20040826154446.GG5733@mail.shareable.org> <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com> <20040826165351.GM5733@mail.shareable.org> <20040830173757.GU5108@backtop.namesys.com>
-In-Reply-To: <20040830173757.GU5108@backtop.namesys.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 30 Aug 2004 15:08:41 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:26029 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268271AbUH3TF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:05:29 -0400
+Subject: Re: HCI USB on USB 2.0: hci_usb_intr_rx_submit (works with USB 1.1)
+From: "Raf D'Halleweyn (list)" <list@noduck.net>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Max Krasnyansky <maxk@qualcomm.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1093068439.3544.2.camel@notepaq>
+References: <1091581193.15561.3.camel@alto.dhalleweyn.com>
+	 <1092049263.21815.18.camel@pegasus>
+	 <1092966777.5230.4.camel@alto.dhalleweyn.com>
+	 <1092990717.18082.60.camel@pegasus>  <1093014039.28268.10.camel@base>
+	 <1093068439.3544.2.camel@notepaq>
+Content-Type: text/plain
+Date: Mon, 30 Aug 2004 15:05:27 -0400
+Message-Id: <1093892727.8617.2.camel@alto.dhalleweyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.93 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Zarochentsev wrote:
 
->On Thu, Aug 26, 2004 at 05:53:51PM +0100, Jamie Lokier wrote:
->  
->
->>Rik van Riel wrote:
->>    
->>
->>>And if an unaware application reads the compound file
->>>and then writes it out again, does the filesystem
->>>interpret the contents and create the other streams ?
->>>      
->>>
->>Yes, exactly that.  The streams are created on demand of course, and
->>by userspace helpers when that's appropriate which I suspect it almost
->>always is.
->>
->>    
->>
->>>Unless I overlook something (please tell me what), the
->>>scheme just proposed requires filesystems to look at
->>>the content of files that is being written out, in
->>>order to make the streams work.
->>>      
->>>
->>Yes.  Hence the idea of coherent views between two files: writing to
->>one affects the content of the other, although the calcalation is only
->>done on demand (or when the fs wants to migrate the representation --
->>for example, creating the flat container prior to deleting the
->>regeneratable pieces in order to save space).
->>
->>I haven't seen anything from Namesys that says they'll do that.
->>
-We do that, err, it is our design to do that. Hmm, the plugins to do 
-that seem to all be in the next to implement list and not on the 
-implemented already list.....
+Marcel,
 
-However, with respect to streams, those are just files in a 
-file-directory object in our scheme. If you want them unified, well, 
-then you cat compound-document/pseudos/glued, or you link 
-compound-document/pseudos/glued to compound-document/pseudos/body, where 
-body is our term for the default stream, and then you just cat 
-compound-document
+I am sorry, I messed up: I have two D-Link dongles, I thought they were
+the same. They are not!
 
-If you have the impression I am being vaporwarish, well, you are 
-right.... glued is not yet on the already implemented list.
+I also seem to be having a problem with some of the my USB2.0 ports
+(other devices act weird on it also). I will figure out those problems
+first.
 
-Hans
+Thanks anyway!
+
+Raf.
+
+On Sat, 2004-08-21 at 08:07 +0200, Marcel Holtmann wrote:
+> Hi Ralf,
+> 
+> > Okay, I had bluez-bluefw installed (Debian package) but it seems that
+> > bluez now uses the standard firmware loading mechanism (request_firmware
+> > ()). As such, I copied the BCM2033-FW.bin and BCM2033-MD.hex files from
+> > that package into /usr/lib/hotplug/firmware and removed bluez-bluefw.
+> > 
+> > However, I cannot find any evidence of the firmware actually being
+> > loaded. I believe that my hotplug install is correctly installed (it can
+> > load the ipw2100 firmware). I added some debugging
+> > to /etc/hotplug/firmware.agent, but couldn't find any evidence of any
+> > firmware being requested for the dongle.
+> > 
+> > Any suggestions what I could try next? Should I add USB_DEVICE(0x0a12,
+> > 0x0001) to the usb_device_id array in bcm203x.c?
+> 
+> this is getting weird, because 0a12:0001 is a CSR based dongle and not a
+> Broadcom one. So firmware loading is not needed. It should simply work.
+> Give 2.6.8 a try.
+> 
+> Regards
+> 
+> Marcel
+
+

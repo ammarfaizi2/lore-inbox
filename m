@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266888AbRGFXKw>; Fri, 6 Jul 2001 19:10:52 -0400
+	id <S262436AbRGFXrQ>; Fri, 6 Jul 2001 19:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266889AbRGFXKn>; Fri, 6 Jul 2001 19:10:43 -0400
-Received: from juicer03.bigpond.com ([139.134.6.79]:4338 "EHLO
-	mailin6.bigpond.com") by vger.kernel.org with ESMTP
-	id <S266888AbRGFXK1>; Fri, 6 Jul 2001 19:10:27 -0400
-Message-Id: <m15ISwa-000CGGC@localhost>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: kaos@ocs.com.au, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: modules and 2.5 
-In-Reply-To: Your message of "Tue, 03 Jul 2001 01:13:45 -0400."
-             <3B415489.77425364@mandrakesoft.com> 
-Date: Fri, 06 Jul 2001 20:34:40 +1000
+	id <S262058AbRGFXrH>; Fri, 6 Jul 2001 19:47:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48616 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262436AbRGFXqw>;
+	Fri, 6 Jul 2001 19:46:52 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15174.19941.681583.314691@pizda.ninka.net>
+Date: Fri, 6 Jul 2001 16:46:45 -0700 (PDT)
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, bcrl@redhat.com (Ben LaHaise),
+        hiren_mehta@agilent.com ("MEHTA,HIREN (A-SanJose,ex1)"),
+        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
+In-Reply-To: <d3d77ew5dd.fsf@lxplus015.cern.ch>
+In-Reply-To: <15164.18270.460245.219060@pizda.ninka.net>
+	<E15Fv14-0008TB-00@the-village.bc.nu>
+	<15164.59159.645521.383074@pizda.ninka.net>
+	<d3pubfw0fi.fsf@lxplus015.cern.ch>
+	<15172.64662.696505.761486@pizda.ninka.net>
+	<d3d77ew5dd.fsf@lxplus015.cern.ch>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3B415489.77425364@mandrakesoft.com> you write:
-> A couple things that would be nice for 2.5 is
-> - let MOD_INC_USE_COUNT work even when module is built into kernel, and
-> - let THIS_MODULE exist and be valid even when module is built into
-> kernel
 
-Hi Jeff,
+Jes Sorensen writes:
+ > David> And this still leaves the 64-bit dma_addr_t overhead issue.
+ > 
+ > The 64 bit dma_addr_t is only an issue on 32 bit architectures with
+ > highmem enabled. I never suggested making dma_addr_t 64 bit on 32 bit
+ > architectures as a general thing.
 
-What use are module use counts, if not used to prevent unloading?
+What about for drivers of SAC-only devices, they eat the overhead
+when highmem is enabled too?
 
-> The reasoning behind this is that module use counts are useful sometimes
-> even when the driver is built into the kernel.  Other facilities like
-> inter_xxx are [obviously] useful when built into the kernel, so it makes
+This says nothing about the real reason the IA64 solution is
+unacceptable, the inputs to the mapping functions which must
+be "page+offset+len" triplets as there is no logical "virtual
+address" to pass into the mapping routines on 32-bit systems.
 
-Let's be clear: inter_module_xxx is Broken as Designed.  It's a
-terrible interface that has the added merit of being badly
-implemented.
+Face it, the ia64 stuff is not what we can use across the board.  It
+simply doesn't deal with all the necessary issues.  Therefore,
+encouraging driver author's to use this ia64 hacked up scheme is
+not such a hot idea until we have a real API implemented.
 
-If you have a module B which has a soft dependency ("must use if
-there") on module A, inter_xxx doesn't help without opening a can of
-worms (if module B inserted after module A, oops).
-
-The best ways out of this are:
-1) Create two versions of module B: an A+B one, and a B-alone one.
-2) Place infrastructure in the core kernel.
-   (This is what I did for ipt_REJECT needing to know about NAT).
-
-Also, I far prefer the simplicity of get_symbol and put_symbol.
-
-Cheers,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+Later,
+David S. Miller
+davem@redhat.com

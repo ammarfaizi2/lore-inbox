@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265066AbSLBWL4>; Mon, 2 Dec 2002 17:11:56 -0500
+	id <S265092AbSLBWMC>; Mon, 2 Dec 2002 17:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265092AbSLBWL4>; Mon, 2 Dec 2002 17:11:56 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:57870 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265066AbSLBWLz>; Mon, 2 Dec 2002 17:11:55 -0500
-Date: Mon, 2 Dec 2002 22:18:57 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [STATUS] fbdev api.
-In-Reply-To: <9814769328.20021202225728@uni.de>
-Message-ID: <Pine.LNX.4.44.0212022214400.20834-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265093AbSLBWMC>; Mon, 2 Dec 2002 17:12:02 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:28642 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S265092AbSLBWMB>; Mon, 2 Dec 2002 17:12:01 -0500
+Date: Mon, 2 Dec 2002 23:18:58 +0100
+From: Erik Hensema <erik@hensema.xs4all.nl>
+To: andrew@erlenstar.demon.co.uk
+Cc: linux-kernel@vger.kernel.org, Rene Herman <rene.herman@keyaccess.nl>
+Subject: bincancels in linux.kernel
+Message-ID: <20021202221858.GA3289@hensema.net>
+Reply-To: erik@hensema.xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew,
 
-> JS> I have a new patch avaiable. It is against 2.5.50. The patch is at
-> JS> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
-> JS> [...]
-> JS> The diffstat is:
-> 
-> JS>  CREDITS                                |   10 
-> 
-> Hunk #1 succeeded at 2836 (offset -6 lines).
-> 
-> JS>  [...]
-> JS>  arch/i386/vmlinux.lds.s                |  114
->                ^^^^^^^^^^^^^^
-> really intended?
-> 
-> JS>  [...]
-> JS>  drivers/char/tty_io.c                  |    7
-> 
-> Hunk #1 succeeded at 1503 (offset -6 lines).
-> 
-> JS>  [...]
-> JS>  drivers/video/Kconfig                  |  411 --
-> 
-> Hunk #19 succeeded at 864 with fuzz 1 (offset -7 lines).
+You're bincancelling messages in linux.kernel, a newsgroup fed by a
+mail2news gateway. The gated list is linux-kernel@vger.kernel.org (Cc), a
+list to which sometimes binary patches are posted. 
+IMHO binaries are acceptable in linux.kernel. Could you consider stopping
+bincancels in linux.kernel or even linux.*? Thanks,
 
-It does work but I made the patch against Linus tree with a few extra 
-fixes due to the pci/quirks bug. I will post a exact patch.
-
-
-
+-- 
+Erik Hensema (erik@hensema.net)

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267385AbTCEQaO>; Wed, 5 Mar 2003 11:30:14 -0500
+	id <S267278AbTCEQlp>; Wed, 5 Mar 2003 11:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267392AbTCEQaO>; Wed, 5 Mar 2003 11:30:14 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:25230 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267385AbTCEQaN>; Wed, 5 Mar 2003 11:30:13 -0500
-Date: Wed, 5 Mar 2003 10:40:40 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get() 
-In-Reply-To: <200303051624.h25GOqGi006862@locutus.cmf.nrl.navy.mil>
-Message-ID: <Pine.LNX.4.44.0303051039140.31461-100000@chaos.physics.uiowa.edu>
+	id <S267284AbTCEQlo>; Wed, 5 Mar 2003 11:41:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10507 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267278AbTCEQln>; Wed, 5 Mar 2003 11:41:43 -0500
+Message-ID: <3E662B2E.6080304@zytor.com>
+Date: Wed, 05 Mar 2003 08:51:58 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: DervishD <raul@pleyades.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unable to boot a raw kernel image :??
+References: <20021129132126.GA102@DervishD> <3DF08DD0.BA70DA62@gmx.de> <b453er$qo7$1@cesium.transmeta.com> <20030305161244.GB19439@DervishD>
+In-Reply-To: <20030305161244.GB19439@DervishD>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Mar 2003, chas williams wrote:
-
-> shocking!  so how about this then:
+DervishD wrote:
+>     Hi Peter :)
 > 
-> atm-y   := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
-> mpoa-y  := mpc.o mpoa_caches.o mpoa_proc.o
+>  H. Peter Anvin dixit:
 > 
-> obj-$(CONFIG_ATM) += atm.o
-> atm-$(CONFIG_PROC_FS) += proc.o
-> atm-$(subst m,y,$(CONFIG_ATM_CLIP)) += ipcommon.o
-> atm-$(subst m,y,$(CONFIG_NET_SCH_ATM)) += ipcommon.o
-> obj-$(CONFIG_ATM_CLIP) += clip.o
-> obj-$(CONFIG_ATM_LANE) += lec.o
-> obj-$(CONFIG_ATM_MPOA) += mpoa.o
-> obj-$(CONFIG_PPPOATM) += pppoatm.o
+>>That, and the 1 MB limitation, is the reason it either needs to get
+>>nuked or get some massive surgery.  I am currently trying to get Linus
+>>to accept a patch to put it out of its misery.
+> 
+>     Please, try to convince Marcello and Alan, too. The 2.4 branch
+> will be a happier branch (well, assuming that the Linux kernel has
+> feelings, of course) without the raw kernel image booting. Anyway, it
+> doesn't seem to work for El Torito emulated floppies... I will be the
+> first who cry for this ancient code, but I think now it doesn't make
+> sense. Anyone uses floppies yet? Here in Spain a floppy is more
+> expensive than a 80 min. CD...
+> 
 
-Better, but I still think you should group the statements which define 
-what atm.o is composed of, i.e. move the atm-$... up, or the atm-y down ;)
+It doesn't work for anything but old legacy floppies.  I have already
+sent the code to Alan for 2.5-ac and to Andi for x86-64 (where it has
+already been integrated); if anyone wants to try to persuade Marcelo to
+integrate it, be my guest, the current patch is at:
 
-It's up to you, though, of course.
+ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/nobootsect-2.5.63-bk7-1.diff
 
---Kai
+It's already enough work to keep this patch up to date and trying to get
+Linus to take it.
+
+	-hpa
 
 

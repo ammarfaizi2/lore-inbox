@@ -1,67 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317230AbSG2NwE>; Mon, 29 Jul 2002 09:52:04 -0400
+	id <S317251AbSG2Nz2>; Mon, 29 Jul 2002 09:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317251AbSG2NwE>; Mon, 29 Jul 2002 09:52:04 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:25872 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317230AbSG2NwE>; Mon, 29 Jul 2002 09:52:04 -0400
-Message-ID: <3D454823.4010204@evision.ag>
-Date: Mon, 29 Jul 2002 15:50:27 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S317253AbSG2Nz2>; Mon, 29 Jul 2002 09:55:28 -0400
+Received: from daimi.au.dk ([130.225.16.1]:24096 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S317251AbSG2Nz1>;
+	Mon, 29 Jul 2002 09:55:27 -0400
+Message-ID: <3D454A03.363B1BA4@daimi.au.dk>
+Date: Mon, 29 Jul 2002 15:58:27 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
-References: <200207291344.g6TDiCR11064@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Linux 2.4.19-rc1-ac5
+References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
+		<3D340775.7F7AAFB9@daimi.au.dk> <3D35A554.5E7BBF59@daimi.au.dk> 
+		<3D4478DA.53CF8999@daimi.au.dk> <1027944055.842.29.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> axboe@suse.de said:
+Alan Cox wrote:
 > 
->>Ok... I had two issues with the patch. 1) it did
->>	rq->flags &= REQ_QUEUED; 
+> On Mon, 2002-07-29 at 00:06, Kasper Dupont wrote:
+> roc;
+> > #ifdef CONFIG_IDEDMA_AUTO
+> >                 if (!noautodma)
+> >                         hwif->autodma = 1;
+> > #endif /* CONFIG_IDEDMA_AUTO */
+> >         }
+> > #endif /* CONFIG_BLK_DEV_IDEDMA */
+> >
+> > CONFIG_IDEDMA_AUTO will always be turned off by
+> > make *config, but if I enable this option by
+> > changing .config with a texteditor DMA actually
+> > works.
+> >
 > 
-> 
-> Yes, that was inherited from SCSI.  Previously it just cleared flags and then 
-> set REQ_BARRIER|REQ_SPECIAL.  Now I needed to clear flags but preserve the 
-> state of REQ_QUEUED, which is what that code is doing, otherwise the 
-> blk_rq_tagged() would always fail lower down.
-> 
-> 
->>I'll back down, it's not a matter of life and death after all. Here's
->>the minimal patch that corrects the flag thing, and also makes
->>blk_insert_request() conform to kernel style. Are we all happy? 
-> 
-> 
-> I'm happy (as long as it works on my SCSI card).
-> 
-> James
+> I'll take a look. That looks like an escaped piece of history
 
+Hmm, I don't see where the historic part of this is.
+It looks like it is a new option, but there is just
+no way to enable it. Before the change the code would
+work as if the option was enabled.
 
-BTW.> I just noticed quite a "bunch" of single line functions in the
-SCIS code. Sort of like:
+FYI I'm currently using this workaround:
 
-int scsi_warp_foo(xxx)
-{
-      foor(whis and that);
-}.
+diff -Nur linux.old/drivers/ide/alim15x3.c linux.new/drivers/ide/alim15x3.c
+--- linux.old/drivers/ide/alim15x3.c	Mon Jul 29 02:56:13 2002
++++ linux.new/drivers/ide/alim15x3.c	Mon Jul 29 02:57:07 2002
+@@ -34,6 +34,9 @@
+ #include <linux/stat.h>
+ #include <linux/proc_fs.h>
+ 
++/* For some reason this is needed and cannot be enabled in .config */
++#define CONFIG_IDEDMA_AUTO
++
+ static int ali_get_info(char *buffer, char **addr, off_t offset, int count);
+ extern int (*ali_display_info)(char *, char **, off_t, int);  /* ide-proc.c */
+ static struct pci_dev *bmide_dev;
 
-EXPORT_SYMBOL(scsi_wrap_foo);
-
-All of them just eat space on the stack during execution.
-Would you mind moving them over to scsi.h and making them static inline?
-
-We all know that SCSI has sometimes problems with the limited stack 
-depth during kernel code execution time, esp on "Black Big Boxen"...
-Well the above "tactics" doesn't hlep buch, but a bit is a bit is a bit 
-and "a man/farmer doesn't foregive someone still alive"... :-).
-
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

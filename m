@@ -1,111 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275347AbTHMSuK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 14:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275348AbTHMSuK
+	id S275323AbTHMSit (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 14:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275325AbTHMSiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 14:50:10 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:60429 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S275347AbTHMStE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 14:49:04 -0400
-Message-ID: <3F3A8B8D.9080701@techsource.com>
-Date: Wed, 13 Aug 2003 15:03:41 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Wed, 13 Aug 2003 14:38:12 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:50053 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S275337AbTHMSgg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 14:36:36 -0400
+Date: Wed, 13 Aug 2003 12:38:20 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Paul Blazejowski <paulb@blazebox.homeip.net>,
+       Rahul Karnik <rahul@genebrew.com>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Linux [2.6.0-test3/mm1] aic7xxx problems.
+Message-ID: <3245752704.1060799900@aslan.btc.adaptec.com>
+In-Reply-To: <1060711760.854.6.camel@blaze.homeip.net>
+References: <1060543928.887.19.camel@blaze.homeip.net>	 <2425882704.1060622541@aslan.btc.adaptec.com>	 <1060623576.2826.9.camel@blaze.homeip.net> <3F37F1A4.2030404@genebrew.com>	 <31044.199.181.174.146.1060650619.squirrel@www.blazebox.homeip.net>	 <3F384819.4070108@genebrew.com> <1060711760.854.6.camel@blaze.homeip.net>
+X-Mailer: Mulberry/3.1.0b5 (Linux/x86)
 MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: Albert Cahalan <albert@users.sf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       bernd@firmix.at, Anthony.Truong@mascorp.com, alan@lxorguk.ukuu.org.uk,
-       schwab@suse.de, ysato@users.sourceforge.jp, willy@w.ods.org,
-       Valdis.Kletnieks@vt.edu, william.gallafent@virgin.net
-Subject: Re: generic strncpy - off-by-one error
-References: <1060741101.948.245.camel@cube> <20030813024752.GA20369@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I've tried all these options...regardless of ACPI being enabled or
+> disabled the driver still does not see the SCSI drive, both of my cdroms
+> are seen though.
+> 
+> Justin, I would be willing to test the 6.2.36 aic7xxx driver or variant
+> of if it was made available for 2.6.0-test3 kernel.
 
+It will be a little while before I can get my own distributions up
+and running in the 2.6 stream.  I hope to start looking at this next
+week.
 
-Erik Andersen wrote:
-
-> char *strncpy(char * s1, const char * s2, size_t n)
-> {
->     register char *s = s1;
->     while (n) {
-> 	if ((*s = *s2) != 0) s2++;
-> 	++s;
-> 	--n;
->     }
->     return s1;
-> }
-
-
-
-Nice!
-
-
-
-How about this:
-
-
-char *strncpy(char * s1, const char * s2, size_t n)
-{
-	register char *s = s1;
-
-	while (n && *s2) {
-		n--;
-		*s++ = *s2++;
-	}
-	while (n--) {
-		*s++ = 0;
-	}
-	return s1;
-}
-
-
-
-This reminds me a lot of the ORIGINAL, although I didn't pay much 
-attention to it at the time, so I don't remember.  It may be that the 
-original had "n--" in the while () condition of the first loop, rather 
-than inside the loop.
-
-I THINK the original complaint was that n would be off by 1 upon exiting 
-the first loop.  The fix is to only decrement n when n is nonzero.
-
-If s2 is short enough, then we'll exit the first loop on the nul byte 
-and fill in the rest in the second loop.  Since n is only decremented 
-with we actually write to s, we will only ever write n bytes.  No 
-off-by-one.
-
-If s2 is too long, the first loop will exit on n being zero, and since 
-it doesn't get decremented in that case, it'll be zero upon entering the 
-second loop, thus bypassing it properly.
-
-Erik's code is actually quite elegant, and its efficiency is probably 
-essentially the same as my first loop.  But my second loop would 
-probably be faster at doing the zero fill.
-
-
-Now, consider this for the second loop!
-
-	while (n&3) {
-		*s++ = 0;
-		n--;
-	}
-	l = n>>2;
-	while (l--) {
-		*((int *)s)++ = 0;
-	}
-	n &= 3;
-	while (n--) {
-		*s++ = 0;
-	}
-
-
-This is only a win for relatively long nul padding.  How often is the 
-padding long enough?
+--
+Justin
 

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315629AbSFTWHu>; Thu, 20 Jun 2002 18:07:50 -0400
+	id <S315634AbSFTWSj>; Thu, 20 Jun 2002 18:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315631AbSFTWHt>; Thu, 20 Jun 2002 18:07:49 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:22800 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315629AbSFTWHr>;
-	Thu, 20 Jun 2002 18:07:47 -0400
-Date: Thu, 20 Jun 2002 15:06:21 -0700
-From: Greg KH <greg@kroah.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, david-b@pacbell.net
-Subject: Re: [linux-usb-devel] [PATCHlet] 2.5.23 usb, ide
-Message-ID: <20020620220620.GI1470@kroah.com>
-References: <UTC200206201849.g5KInaK27367.aeb@smtp.cwi.nl> <8A6B34966F9@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8A6B34966F9@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 23 May 2002 20:28:59 -0700
+	id <S315690AbSFTWSi>; Thu, 20 Jun 2002 18:18:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48655 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315634AbSFTWSh>; Thu, 20 Jun 2002 18:18:37 -0400
+Date: Thu, 20 Jun 2002 15:18:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Cort Dougan <cort@fsmlabs.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+In-Reply-To: <3D125032.3040809@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0206201511300.872-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 09:40:27PM +0200, Petr Vandrovec wrote:
-> On 20 Jun 02 at 20:49, Andries.Brouwer@cwi.nl wrote:
-> > 
-> > Now that you tell me that these things are set at initialization
-> > and never changed, the initialization must be wrong. And indeed,
-> > it says "__devexit_p(uhci_stop)" and this yields NULL.
-> 
-> Now when kernel tries to shutdown devices on poweroff, should
-> not we change __devexit_p() meaning? Like always build kernel with
-> hotplug enabled?
 
-You should always enable CONFIG_HOTPLUG anyway :)
 
-Seriously, you are correct, we will probably have to go back and audit
-the __devexit functions when we put poweroff support in.
+On Thu, 20 Jun 2002, Martin Dalecki wrote:
+>
+> Yes HT gives 12%. naive SMP gives 50% and good SMP (aka corssbar bus)
+> gives 70% for two CPU. All those numbers are well below the level
+> where more then 2-4 makes hardly any sense...
 
-thanks,
+You don't _understand_.
 
-greg k-h
+If it's "free", you take that 70% for the second CPU, and the additional
+20% for the next two.
+
+Don't bother repeating yourself about Amdahls law. Realize what Moore's
+law says: things get cheaper over time. A _lot_ cheaper.
+
+It's still a fact that people are willing to pay for performance. Even if
+they strictly don't "need" it (but who are you or I to say who "needs"
+performance?).
+
+At which point it doesn't _matter_ if you only get 70% or 30% or 12%
+improvement. If it's within "cheap enough", people will buy it. In fact,
+once it gets "too cheap", people will buy something more expensive just
+because a cheap PC obviously isn't good enough. That's _reality_.
+
+Your "efficiency" arguments have no basis in the real life of economics in
+a developing market. Only embedded people care about absolute cost and
+absolute efficiencies ("it's not worth it for us to go for a more powerful
+CPU, since we don't need it"). The rest of the world takes that 66MHz
+improvement (in a CPU that does multiple gigahertz) and is happy about it.
+Or takes the added 12%, and is happy about it.
+
+Humans are not rational creatures. We're _rationalizing_ creatures, and we
+love rationalizing that big machine that just makes us feel better.
+
+		Linus
+

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265776AbUFDMs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264357AbUFDMye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265776AbUFDMs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 08:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265779AbUFDMs1
+	id S264357AbUFDMye (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 08:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265781AbUFDMye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 08:48:27 -0400
-Received: from gprs214-121.eurotel.cz ([160.218.214.121]:2689 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265776AbUFDMsU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 08:48:20 -0400
-Date: Fri, 4 Jun 2004 14:48:11 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Christoph Hellwig <hch@ucw.cz>, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Lowered priority of "too many keys" message in atkbd
-Message-ID: <20040604124811.GC11950@elf.ucw.cz>
-References: <20040530083126.GA30916@lst.de>
+	Fri, 4 Jun 2004 08:54:34 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.31]:34212 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S265777AbUFDMyd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 08:54:33 -0400
+Date: Fri, 4 Jun 2004 14:54:29 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: HDA DMA Timeout issue
+Message-ID: <20040604125429.GB31375@mail.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20040530083126.GA30916@lst.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> This patch is from the Debian kernel package and I think it's valid
-> because this error doesn't cause any kind of malfunction of the
-> system.
+in my notebook I sometimes see:
 
-Except perhaps dropped key?
+hda: dma_timer_expiry: dma status == 0x20
+hda: DMA timeout retry
+hda: timeout waiting for DMA
+hda: status timeout: status=0xd0 { Busy }
 
-When keypress is lost, I like to know if my fingers are to blame,
-keyboard hardware is to blame, or keyboard is misdesigned.
-								Pavel
+hda: drive not ready for command
+ide0: reset: success
 
-> --- linux/drivers/input/keyboard/atkbd.c	2004-04-05 19:49:28.000000000 +1000
-> +++ linux/drivers/input/keyboard/atkbd.c	2004-04-06 19:55:38.000000000 +1000
-> @@ -284,7 +284,7 @@
->  			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
->  			goto out;
->  		case ATKBD_RET_ERR:
-> -			printk(KERN_WARNING "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
-> +			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
->  			goto out;
->  	}
->  
+It happened when I do scp from network or tar xjf kerneltree
 
+It seems that notebook is just not fast enough to not fulfill DMA request.
+
+Is something I could do?
 
 -- 
-934a471f20d6580d5aad759bf0d97ddc
+Luká¹ Hejtmánek

@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbTLEOKz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 09:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTLEOKz
+	id S264152AbTLEO1b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 09:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbTLEO1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 09:10:55 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:9488 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S264128AbTLEOKy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 09:10:54 -0500
-To: lkml-031128@amos.mailshell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6test11 kernel panic on "head -1 /proc/net/tcp"
-References: <20031128170138.9513.qmail@mailshell.com>
-	<87d6bc2yvq.fsf@devron.myhome.or.jp>
-	<20031129170034.10522.qmail@mailshell.com>
-	<1070242158.1110.150.camel@buffy> <3FCBAE6F.1090405@myrealbox.com>
-	<20031201213624.18232.qmail@mailshell.com>
-	<871xrmudyb.fsf@devron.myhome.or.jp>
-	<20031205112319.31918.qmail@mailshell.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 05 Dec 2003 23:10:40 +0900
-In-Reply-To: <20031205112319.31918.qmail@mailshell.com>
-Message-ID: <87u14fwe1r.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Dec 2003 09:27:31 -0500
+Received: from purple.csi.cam.ac.uk ([131.111.8.4]:7857 "EHLO
+	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S264152AbTLEO1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 09:27:30 -0500
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andy Isaacson <adi@hexapodia.org>, Rob Landley <rob@landley.net>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031205114400.GD10421@parcelfarce.linux.theplanet.co.uk>
+References: <200312041432.23907.rob@landley.net>
+	 <20031204172348.A14054@hexapodia.org>
+	 <Pine.SOL.4.58.0312051119240.9902@green.csi.cam.ac.uk>
+	 <20031205114400.GD10421@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Organization: University of Cambridge
+Message-Id: <1070634436.6622.2.camel@imp>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 05 Dec 2003 14:27:16 +0000
+Content-Transfer-Encoding: 7bit
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lkml-031128@amos.mailshell.com writes:
-
-> 1. From a multi-user mode, after an uptime of 5 days (test11 with your
-> fix).
-> 2. killed the ppp daemon (/etc/init.d/ppp stop). Made sure the ppp0
-> interface is down.
-> 3. did "head -1 /proc/net/tcp" and "cat /proc/net/tcp". Passed fine.
-> 4. re-startted ppp daemon.
-> 5. System is fine. No kernel errors. PPP works flowlessly.
+On Fri, 2003-12-05 at 11:44, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Fri, Dec 05, 2003 at 11:22:01AM +0000, Anton Altaparmakov wrote:
+> > On Thu, 4 Dec 2003, Andy Isaacson wrote:
+> > > On Thu, Dec 04, 2003 at 02:32:23PM -0600, Rob Landley wrote:
+> > > I'm curious -- does NTFS implement sparse files?  Does the Win32 API
+> > > provide any way to manipulate them?  Does the NT kernel have any sparse
+> > > file handling?
+> > 
+> > Yes it does.  The new NTFS Linux driver has full support for sparse files
+> > as does Windows of course.
+> > 
+> > Windows does provide a function which is just "make hole".  It takes
+> > starting offset and length (or was it ending offset instead of length,
+> > can't remember) and makes this sparse (obviously aligning to cluster
+> > boundaries, etc).
 > 
-> So I think my linking of PPP to the fix was wrong. Maybe the PPP failure
-> was unrelated to this.
+> Have fun getting it to play nice with mmap()...
 
-Thanks for trying it.
-Several peoples was reporting the similar PPP failure. Umm...
+I have no intention to provide such "make hole" functionality in the
+Linux kernel NTFS driver so I don't need to...  (-;
+
+Cheers,
+
+	Anton
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ &
+http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,89 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbUB2MQV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 07:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbUB2MQV
+	id S262041AbUB2McJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 07:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUB2McJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 07:16:21 -0500
-Received: from maximus.kcore.de ([213.133.102.235]:13581 "EHLO
-	maximus.kcore.de") by vger.kernel.org with ESMTP id S262038AbUB2MQS
+	Sun, 29 Feb 2004 07:32:09 -0500
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:16590 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S262041AbUB2McF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 07:16:18 -0500
-From: Oliver Feiler <kiza@gmx.net>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [OT] Copyright infringement by Walmart?
-Date: Sun, 29 Feb 2004 13:15:32 +0100
-User-Agent: KMail/1.5
-References: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
-In-Reply-To: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
-X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
-X-PGP-Key: http://kiza.kcore.de/pgpkey
-X-Species: Snow Leopard
-X-Operating-System: Linux
+	Sun, 29 Feb 2004 07:32:05 -0500
+To: Grigor Gatchev <grigor@zadnik.org>
+Cc: Christer Weinigel <christer@weinigel.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: A Layered Kernel: Proposal
+References: <Pine.LNX.4.44.0402252133300.18217-100000@lugburz.zadnik.org>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 29 Feb 2004 13:32:04 +0100
+In-Reply-To: <Pine.LNX.4.44.0402252133300.18217-100000@lugburz.zadnik.org>
+Message-ID: <m365dqoym3.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_rfdQA/88R61Ey5I";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402291315.39967.kiza@gmx.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Grigor Gatchev <grigor@zadnik.org> writes:
 
---Boundary-02=_rfdQA/88R61Ey5I
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+> > In the linux kernel I think that one of the most important things I've
+> > learned from it: middle layers are usually wrong.  Instead of hiding a
+> > device driver behind a middle layer, expose the low level device
+> > driver, but give it a library of common functions to build upon.  That
+> > way the driver is in control all the time and can use all the neat
+> > features of the hardware if it wants to, but for all the common tasks
+> > that have to be done, hand them over to the library.
+> 
+> By principle, the "least common denominator" type container layers are
+> bad, because of not being extendable; you are completely right here. A
+> class-like driver object model seems better to me. And the class-like
+> model is not the only one that is nicely extendable. 
 
-Hello Guennadi,
+> You seem to be knowledgeable on the topic - what driver object model
+> would you suggest for a driver layer model?
 
-On Sunday 29 February 2004 12:13, Guennadi Liakhovetski wrote:
+Thanks for the confidence, bur I really don't know, it's much easier
+to criticize someone elses design than to come up with a good one
+myself. :-)
 
-> Don't know, if I am the first, perhaps not. But I couldn't resist. Just
-> found in today's junk-mail pack an advertisement by Walmart-Germany of
-> "Linux Vollwaschmittel" - a washing powder:-)) The question in the subject
-> is because I am not, really, sure - maybe they did license it
-> appropriately?:-) Anyway, now you know it, I am holding this paper in my
-> hands, and I am going to keep it this time:-) As you know, Walmart is an
-> American supermarket, if it matters. And should I say - I was amazed and
-> amused!:-))
+With that said, I think that they way the Linux kernel is moving
+regarding to IDE/SCSI devices is a good idea.  Linux has been around
+for a while now and the Linux people have tried lots of things that
+turned out not to be such a good idea after all.  Many things are
+still there in the kernel, but if it's important enough, it gets
+cleaned up after a while.
 
-Linux washing powder has been around for some time if I remember correctly,=
-=20
-never used it though. ;)
+  /Christer
 
-Afaik, the name is ok, because the trademark Linux does not apply here. At=
-=20
-least in Germany it is registered in the category "computer'n'stuff"=20
-(someting like that afaik) so selling Linux washing powder should be=20
-perfectly fine, no roalties having to to be paid. But then IANAL and at lea=
-st=20
-I thought this was how it works. Feel free to correct me if I was wrong as=
-=20
-I'd be interested in it myself.
+-- 
+"Just how much can I get away with and still go to heaven?"
 
-Bye,
-Oliver
-
-=2D-=20
-Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx[pro].net)>
-
---Boundary-02=_rfdQA/88R61Ey5I
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBAQdfrOpifZVYdT9IRAkT3AJ4uvZD8ihQBEQN9tne3zJRT1/PqsQCdGA8E
-Yd7+UyE9YB4g/WPn1VwRnM0=
-=1NYa
------END PGP SIGNATURE-----
-
---Boundary-02=_rfdQA/88R61Ey5I--
-
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

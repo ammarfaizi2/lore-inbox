@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267329AbUGNPqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUGNPvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267329AbUGNPqb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 11:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUGNPqb
+	id S267416AbUGNPvl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 11:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267419AbUGNPvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 11:46:31 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:51937 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S267329AbUGNPpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 11:45:49 -0400
-From: Christian Borntraeger <linux-kernel@borntraeger.net>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] removal of sync in panic
-Date: Wed, 14 Jul 2004 17:45:46 +0200
+	Wed, 14 Jul 2004 11:51:41 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:908 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S267416AbUGNPvh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 11:51:37 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: William Stearns <wstearns@pobox.com>
+Subject: Re: [Q] don't allow tmpfs to page out
+Date: Wed, 14 Jul 2004 17:51:11 +0200
 User-Agent: KMail/1.6.2
+References: <200407141654.31817.mbuesch@freenet.de> <Pine.LNX.4.58.0407141141350.6240@sparrow>
+In-Reply-To: <Pine.LNX.4.58.0407141141350.6240@sparrow>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407141745.47107.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200407141751.14292.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a question regarding the sys_sync() call within the panic function. 
---------snip---------------
-        printk(KERN_EMERG "Kernel panic: %s\n",buf);
-        if (in_interrupt())
-                printk(KERN_EMERG "In interrupt handler - not syncing\n");
-        else if (!current->pid)
-                printk(KERN_EMERG "In idle task - not syncing\n");
-        else
-                sys_sync(); <--------------------
-        bust_spinlocks(0);
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-#ifdef CONFIG_SMP
-        smp_send_stop();
-#endif
---------------------------
+Quoting William Stearns <wstearns@pobox.com>:
+> Good afternoon, Michael,
 
+Hi William,
 
-I have seen panic failing two times lately on an SMP system. The box 
-panic'ed but was running happily on the other cpus. The culprit of this 
-failure is the fact, that these panics have been caused by a block device 
-or a filesystem (e.g. using errors=panic). In these cases the  likelihood 
-of a failure/hang of  sys_sync() is high. This is exactly what happened in 
-both cases I have seen. Meanwhile the other cpus are happily continuing  
-destroying data as the kernel has a severe problem but its not aware of 
-that as smp_send_stop happens after sys_sync.
+> 	I suspect a regular ramdisk, as opposed to tmpfs, would do what 
+> you want.
 
-I can imagine several changes but I am not sure if this is a problem which 
-must be fixed and which fix is the best.
-Here are my alternatives:
+No, since a regular ramdisk is static in size.
 
-1. remove sys_sync completely: syslogd and klogd use fsync. No need to help 
-them. Furthermore we have a severe problem which is worth a panic, so we 
-better dont do any I/O.
-2. move smp_send_stop before sys_sync. This at least prevents other cpus of 
-doing harm if sys_sync hangs. Here I am not sure if this is really working.
-3. Add an 
-        if (doing_io())
-                printk(KERN_EMERG "In I/O routine - not syncing\n");
-check like in_interrupt check. Unfortunately I have no clue how this can be 
-achieved and it looks quite ugly.
+> 	Cheers,
+> 	- Bill
 
-Thanks for any ideas and clarifications
-cheers
-
-Christian
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-
+iD8DBQFA9VZvFGK1OIvVOP4RAku8AJ92P7fjMBBAkf36vKTlYQvH1XluzQCfQ573
+LQyLzVpA5o5UfAH/3G2Aq3s=
+=jzzh
+-----END PGP SIGNATURE-----

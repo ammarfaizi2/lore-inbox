@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284305AbSBCB5e>; Sat, 2 Feb 2002 20:57:34 -0500
+	id <S284794AbSBCCQB>; Sat, 2 Feb 2002 21:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbSBCB50>; Sat, 2 Feb 2002 20:57:26 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30984 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284305AbSBCB5K>; Sat, 2 Feb 2002 20:57:10 -0500
-Message-ID: <3C5C98E6.2090701@zytor.com>
-Date: Sat, 02 Feb 2002 17:56:54 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S285073AbSBCCPm>; Sat, 2 Feb 2002 21:15:42 -0500
+Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:51152
+	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S284794AbSBCCPh>; Sat, 2 Feb 2002 21:15:37 -0500
+Message-ID: <002001c1ac58$a948bae0$0300000a@hypnos>
+From: "Jon Anderson" <jon-anderson@rogers.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 760MPX IO/APIC Errors...
+Date: Sat, 2 Feb 2002 21:15:33 -0500
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Erik A. Hendriks" <hendriks@lanl.gov>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>	<3C58CAE0.4040102@zytor.com> <20020131103516.I26855@lanl.gov>	<m1elk6t7no.fsf@frodo.biederman.org> <3C59DB56.2070004@zytor.com>	<m1r8o5a80f.fsf@frodo.biederman.org> <3C5A5F25.3090101@zytor.com>	<m1hep19pje.fsf@frodo.biederman.org> <3C5ADDD1.6000608@zytor.com>	<m1665fame3.fsf@frodo.biederman.org> <3C5C54D2.2030700@zytor.com> <m1k7tv8p2z.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.112.215.28] using ID <jon-anderson@rogers.com> at Sat, 2 Feb 2002 21:15:31 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+This was previouly discussed on this list, but there wasn't really a helpful
+answer that I could find on the archives.
 
-> 
-> It can be argued that general purpose systems have enough ram that
-> putting drivers for all mass produced devices in ram is possible, and
-> practical.  But that is a cop out.
-> 
+Anyway, I'm running an Asus A7M266-D with a single Morgan core Duron
+(default everything, no overclocking).
 
+I get this repeatedly:
+APIC error on CPU0: 04(04)
 
-Indeed.  Worse, it may not be possible for the *boot medium* to hold all 
-those devices...
+This happens with APIC or SMP enabled in the kernel. I recompiled the kernel
+without APIC support, and the errors are gone (no surprise there! :-) There
+doesn't appear to be any instability, or other negative side effects. I've
+basically recompiled the kernel ~5 times without problems.
 
-	-hpa
+What I'd like to know is, what are those APIC errors - causes, etc? Do they
+matter? (Are these actual errors caused by some hardware malfunction that
+may be damaging my CPU/Board?)
 
+Any information anyone could give me would be great,
+
+Thanks,
+
+jon anderson
 

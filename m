@@ -1,134 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261618AbTCKVJw>; Tue, 11 Mar 2003 16:09:52 -0500
+	id <S261607AbTCKVY3>; Tue, 11 Mar 2003 16:24:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261620AbTCKVJw>; Tue, 11 Mar 2003 16:09:52 -0500
-Received: from oasis.frogfoot.net ([66.8.28.51]:40883 "HELO oasis.frogfoot.net")
-	by vger.kernel.org with SMTP id <S261618AbTCKVJt>;
-	Tue, 11 Mar 2003 16:09:49 -0500
-Date: Tue, 11 Mar 2003 23:19:02 +0200
-From: Abraham van der Merwe <abz@frogfoot.net>
-To: kuznet@ms2.inr.ac.ru
-Cc: devik@cdi.cz, ahu@ds9a.nl, linux-kernel@vger.kernel.org,
-       david@uninetwork.co.za, netdev@oss.sgi.com
-Subject: Re: kernel panic: bug in sch_sfq.c
-Message-ID: <20030311211902.GA8699@oasis.frogfoot.net>
-Mail-Followup-To: kuznet@ms2.inr.ac.ru, devik@cdi.cz, ahu@ds9a.nl,
-	linux-kernel@vger.kernel.org, david@uninetwork.co.za,
-	netdev@oss.sgi.com
-References: <20030311155409.GB7641@oasis.frogfoot.net> <200303111608.TAA13074@sex.inr.ac.ru>
+	id <S261620AbTCKVY2>; Tue, 11 Mar 2003 16:24:28 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:41220 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S261607AbTCKVY1>;
+	Tue, 11 Mar 2003 16:24:27 -0500
+Date: Tue, 11 Mar 2003 22:35:04 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Dave Jones <davej@suse.de>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Would the real 82801E_9 please stand up. (fwd)
+Message-ID: <20030311213504.GA4550@win.tue.nl>
+References: <20030311192945.GA16212@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303111608.TAA13074@sex.inr.ac.ru>
-User-Agent: Mutt/1.3.28i
-Organization: Frogfoot Networks
-X-Operating-System: Debian GNU/Linux oasis 2.4.20-rc1 i686
-X-GPG-Public-Key: http://oasis.frogfoot.net/pgpkeys/keys/frogfoot.gpg
-X-Uptime: 22:58:38 up 69 days, 10:25,  8 users,  load average: 0.02, 0.01, 0.00
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
+In-Reply-To: <20030311192945.GA16212@fs.tum.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 11, 2003 at 08:29:45PM +0100, Adrian Bunk wrote:
+> The issue described in Dave's mail below is still present:
+> 
+> 2.4.21-pre5-ac1:
+> #define PCI_DEVICE_ID_INTEL_82801E_9    0x2459
+> #define PCI_DEVICE_ID_INTEL_82801E_11   0x245B
+> 
+> 
+> 2.5.64-ac3:
+> #define PCI_DEVICE_ID_INTEL_82801E_9    0x245b
+> #define PCI_DEVICE_ID_INTEL_82801E_11   PCI_DEVICE_ID_INTEL_82801E_9
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The 82801E has seven device IDs:
+B1:D8:F0	2459	Ethernet Controller 0
+B1:D9:F0	245d	Ethernet Controller 1
+ D30:F0		245e	PCI Hub
+ D31:F0		2450	LPC I/F
+ D31:F1		245b	IDE
+ D31:F2		2452	USB
+ D31:F3		2453	SMBus
 
-Hi kuznet!
+Clearly, the 2.5.64 uses are for IDE and must be 0x245b.
+PCI_DEVICE_ID_INTEL_82801E_9 does not occur in 2.5.64,
+apart from its definition.
 
-> > Also, if I compile the kernel with all debugging enabled (CONFIG_DEBUG_=
-SLAB,
-> > etc) I can reliably trigger the BUG() on line 1263 in mm/slab.c
->=20
-> How does backtrace oops look?
+Conclusion: 2.4 is right.
 
-I didn't write down most of the BUG() panics, but here is one (unfortunately
-it doesn't have any QoS code in the stack trace):
+--- /linux/2.5/linux-2.5.64/linux/include/linux/pci_ids.h       Wed Mar  5 10:47:31 2003
++++ /linux/2.5/linux-2.5.64a/linux/include/linux/pci_ids.h      Tue Mar 11 22:31:53 2003
+@@ -1831,8 +1831,8 @@
+ #define PCI_DEVICE_ID_INTEL_82801E_0	0x2450
+ #define PCI_DEVICE_ID_INTEL_82801E_2	0x2452
+ #define PCI_DEVICE_ID_INTEL_82801E_3	0x2453
+-#define PCI_DEVICE_ID_INTEL_82801E_9	0x245b
+-#define PCI_DEVICE_ID_INTEL_82801E_11	PCI_DEVICE_ID_INTEL_82801E_9
++#define PCI_DEVICE_ID_INTEL_82801E_9	0x2459
++#define PCI_DEVICE_ID_INTEL_82801E_11	0x245b
+ #define PCI_DEVICE_ID_INTEL_82801E_13	0x245d
+ #define PCI_DEVICE_ID_INTEL_82801E_14	0x245e
+ #define PCI_DEVICE_ID_INTEL_82801CA_0	0x2480
 
-------------< snip <------< snip <------< snip <------------
-root@trillian:~/uni-qos# cat panic.txt
-c0192eb1
-c0176c8c
-c017718c
-c0176afa
-c010810f
-c01082b3
-c0105240
-c0105240
-c0105240
-c0105240
-c0105263
-c01052d2
-c0105000
-c0105027
+Andries
 
-0f 0b ef 04 e0 87 1e c0 f7 c5 00 04 00 00 74 36 b8 a5 c2 0f
-
-EIP: 0010:c012642e
-ESP: c0221eb4
-
-KERNEL BUG slab.c:1263
-root@trillian:~/uni-qos#
-------------< snip <------< snip <------< snip <------------
-
-A quick objdump through the kernel's vmlinux image reveals, that the stack
-trace above looks as follows:
-
-------------< snip <------< snip <------< snip <------------
-c0192eb1    alloc_skb
-c0176c8c    speedo_refill_rx_buf
-c017718c    speedo_rx
-c0176afa    speedo_interrupt
-c010810f    handle_IRQ_event
-c01082b3    do_IRQ
-c0105240    default_idle
-c0105240    default_idle
-c0105240    default_idle
-c0105240
-c0105263    default_idle
-c01052d2    cpu_idle
-c0105000    rest_init
-c0105027    rest_init
-------------< snip <------< snip <------< snip <------------
-
-It crashes when it hits BUG(); in slab.c:
-
-------------< snip <------< snip <------< snip <------------
-#if DEBUG
-    if (cachep->flags & SLAB_POISON)
-        if (kmem_check_poison_obj(cachep, objp))
-            BUG();
-------------< snip <------< snip <------< snip <------------
-
---=20
-
-Regards
- Abraham
-
-Nothing is so often irretrievably missed as a daily opportunity.
-		-- Ebner-Eschenbach
-
-___________________________________________________
- Abraham vd Merwe - Frogfoot Networks CC
- 9 Kinnaird Court, 33 Main Street, Newlands, 7700
- Phone: +27 21 686 1674 Cell: +27 82 565 4451
- Http: http://www.frogfoot.net/ Email: abz@frogfoot.net
-
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+blLG0jJV70h31dERAiQ7AJ0b2vqj6ouXT7nlHnSGB2Y8JfLqawCfeKW7
-8CmtViJv+1OGwWaCRYR/M+k=
-=l040
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--

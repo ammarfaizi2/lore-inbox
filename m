@@ -1,59 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266090AbUA2CJR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 21:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266142AbUA2CJR
+	id S266005AbUA2B7V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 20:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266142AbUA2B7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 21:09:17 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:30439 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S266090AbUA2CJQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 21:09:16 -0500
-Date: Thu, 29 Jan 2004 10:05:54 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
-Message-Id: <20040129100554.6453e6c8@localhost>
-In-Reply-To: <1075336478.30623.317.camel@gaston>
-References: <20040119105237.62a43f65@localhost>
-	<1074483354.10595.5.camel@gaston>
-	<1074489645.2111.8.camel@laptop-linux>
-	<1074490463.10595.16.camel@gaston>
-	<1074534964.2505.6.camel@laptop-linux>
-	<1074549790.10595.55.camel@gaston>
-	<20040122211746.3ec1018c@localhost>
-	<1074841973.974.217.camel@gaston>
-	<20040123183030.02fd16d6@localhost>
-	<1074912854.834.61.camel@gaston>
-	<20040126181004.GB315@elf.ucw.cz>
-	<1075154452.6191.91.camel@gaston>
-	<1075156310.2072.1.camel@laptop-linux>
-	<20040128202217.0a1f8222@localhost>
-	<1075336478.30623.317.camel@gaston>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Wed, 28 Jan 2004 20:59:21 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:25317 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266005AbUA2B7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 20:59:18 -0500
+Subject: [PATCH] enable fast symbol lookup via an inverted index in cscope
+From: Louis Zhuang <louis_zhuang@linux.co.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wETkGoBEfEMvKwAZJCS3"
+Organization: Intel Crop.
+Message-Id: <1075341626.19394.12.camel@hawk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Jan 2004 10:00:26 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jan 2004 11:34:53 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-> Ok, had a quick look. I  _HATE_ those horrible macros you did. Why
-> not just call asm functions or just inline the code ?
+--=-wETkGoBEfEMvKwAZJCS3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Good idea, But will try inline first. I can't sure change to call asm
-function can works. But I'll try.
+Dear Andrew,=20
+	'-q' switch will accelerate cscope finding symbol dramatically. Please
+apply following pacth if you like it.=20
+--=20
+Yours truly,
+Louis Zhuang
+---------------------------------------------------------------------------=
+-----
+Software is a process, not a static entity. It is becoming, rather that bei=
+ng.
+It can easily be bad, but never be perfect. Its essence is eternal refactor=
+ing.
+  - Inspired by Judge William H. Hastie
 
-Thanks for look.
+My words are my own...
 
--- 
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
+---------------------------------------------------------------------------=
+-----
+Fault Injection Test Harness Project
+BK tree: http://fault-injection.bkbits.net/linux-2.5
+Home Page: http://sf.net/projects/fault-injection
+
+Open HPI Project
+Home Page: http://sf.net/projects/openhpi
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher=
+.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1502  -> 1.1503=20
+#	            Makefile	1.446   -> 1.447 =20
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/01/29	louis@hawk.sh.intel.com	1.1503
+# [CSCOPE] enable  fast  symbol lookup via an inverted index.
+# --------------------------------------------
+#
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	Thu Jan 29 08:26:24 2004
++++ b/Makefile	Thu Jan 29 08:26:24 2004
+@@ -829,7 +829,7 @@
+       cmd_cscope-file =3D $(all-sources) > cscope.files
+=20
+ quiet_cmd_cscope =3D MAKE    cscope.out
+-      cmd_cscope =3D cscope -k -b
++      cmd_cscope =3D cscope -k -b -q
+=20
+ cscope: FORCE
+ 	$(call cmd,cscope-file)
+
+
+--=-wETkGoBEfEMvKwAZJCS3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAGGk64bBM03cUD/QRAoWOAJsEd0Zlr/SP7w+r7Xnh2WWAilPAVACfeZTH
+gffOBQw3IKCyqGSSTiPYhTs=
+=RNC1
+-----END PGP SIGNATURE-----
+
+--=-wETkGoBEfEMvKwAZJCS3--
+

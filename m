@@ -1,68 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261875AbSJ2Sc4>; Tue, 29 Oct 2002 13:32:56 -0500
+	id <S262145AbSJ2SlN>; Tue, 29 Oct 2002 13:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262020AbSJ2Sc4>; Tue, 29 Oct 2002 13:32:56 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:24083 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S261875AbSJ2Scz>; Tue, 29 Oct 2002 13:32:55 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S262159AbSJ2SlN>; Tue, 29 Oct 2002 13:41:13 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:35853 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262145AbSJ2SlF>;
+	Tue, 29 Oct 2002 13:41:05 -0500
+Date: Tue, 29 Oct 2002 10:44:53 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PNP driver changes for 2.5.44
+Message-ID: <20021029184453.GD27082@kroah.com>
+References: <20021029184010.GA27082@kroah.com> <20021029184318.GB27082@kroah.com> <20021029184419.GC27082@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15806.54736.737949.328809@laputa.namesys.com>
-Date: Tue, 29 Oct 2002 21:39:12 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [ANNOUNCE]: reiser4
-In-Reply-To: <3DBED1C8.5080404@pobox.com>
-References: <15806.51536.985203.709475@laputa.namesys.com>
-	<3DBED1C8.5080404@pobox.com>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-Microsoft: Programs so large they have weather.
+Content-Disposition: inline
+In-Reply-To: <20021029184419.GC27082@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
- > Nikita Danilov wrote:
- > 
- > >Hello,
- > >
- > >Snapshot of reiser4 source code can be found at 
- > >http://www.namesys.com/snapshots/2002.10.29/.
- > >
- > >It is set of patches against current Linus BK tree (2.5.44).
- > >  
- > >
- > 
- > The current Linus BK tree is quite a bit different from 2.5.44 ;-)
- > 
- > Take a look at 2.5.44-bk1 at 
- > ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/
- > 
- > A -bk2 snapshot should appear within the hour, too, with heaps of 
- > additional changes.
- > 
+ChangeSet 1.808.4.3, 2002/10/24 00:25:49-07:00, ambx1@neo.rr.com
 
-Sorry, my fault.
+[PATCH] PnPBIOS changes - 2.5.44 (2/4)
 
-Patches in reiser4 snapshot are against Linus BK repository at
-http://linux.bkbits.net/linux-2.5. Numbers 2, 5, and 44, are, of course,
-just VERSION, PATCHLEVEL, and SUBLEVEL in the Makefile of the said
-repository.
+This patch adds compatible PnP ID support to the PnPBIOS protocol.  None of my
+test systems take advantage of this feature but it is included in the
+specifications so it makes sense to support it.  If anyone does get a compatible
+ID listed for the PnPBIOS I'd be interested to hear about it (if more than 1 id
+is listed when viewing the driverfs file 'id' within the PnPBIOS protocol).  Also
+it fixes the dma and mem resource problem.
 
-Probably we should prepare patches against ftp.kernel.org shapshots
-instead.
 
- >     Jeff
- > 
-
-Nikita.
-
- > 
- > 
- > 
+diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
+--- a/drivers/pnp/pnpbios/core.c	Tue Oct 29 10:38:46 2002
++++ b/drivers/pnp/pnpbios/core.c	Tue Oct 29 10:38:46 2002
+@@ -680,7 +680,7 @@
+ 
+ static void add_dmaresource(struct pnp_dev *dev, int dma)
+ {
+-	int i = 8;
++	int i = 0;
+ 	while (!(dev->dma_resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_DMA) i++;
+ 	if (i < DEVICE_COUNT_DMA) {
+ 		dev->dma_resource[i].start = (unsigned long) dma;
+@@ -701,7 +701,7 @@
+ 
+ static void add_memresource(struct pnp_dev *dev, int mem, int len)
+ {
+-	int i = 0;
++	int i = 8;
+ 	while (!(dev->resource[i].flags & IORESOURCE_UNSET) && i < DEVICE_COUNT_RESOURCE) i++;
+ 	if (i < DEVICE_COUNT_RESOURCE) {
+ 		dev->resource[i].start = (unsigned long) mem;
+@@ -816,6 +816,7 @@
+         } /* while */
+ 	end:
+ 	if ((dev->resource[0].start == 0) &&
++	    (dev->resource[8].start == 0) &&
+ 	    (dev->irq_resource[0].start == -1) &&
+ 	    (dev->dma_resource[0].start == -1))
+ 		dev->active = 0;
+@@ -927,7 +928,6 @@
+ 
+ static unsigned char *node_possible_resource_data_to_dev(unsigned char *p, struct pnp_bios_node *node, struct pnp_dev *dev)
+ {
+-	unsigned char *lastp = NULL;
+ 	int len, depnum, dependent;
+ 
+ 	if ((char *)p == NULL)
+@@ -963,8 +963,7 @@
+ 				break;
+ 			}
+ 			} /* switch */
+-                        lastp = p+3;
+-                        p = p + p[1] + p[2]*256 + 3;
++                        p += len + 3;
+                         continue;
+                 }
+ 		len = p[0] & 0x07;
+@@ -1030,6 +1029,70 @@
+         return NULL;
+ }
+ 
++/* pnp EISA ids */
++
++#define HEX(id,a) hex[((id)>>a) & 15]
++#define CHAR(id,a) (0x40 + (((id)>>a) & 31))
++//
++
++static void inline pnpid32_to_pnpid(u32 id, char *str)
++{
++	const char *hex = "0123456789abcdef";
++
++	id = be32_to_cpu(id);
++	str[0] = CHAR(id, 26);
++	str[1] = CHAR(id, 21);
++	str[2] = CHAR(id,16);
++	str[3] = HEX(id, 12);
++	str[4] = HEX(id, 8);
++	str[5] = HEX(id, 4);
++	str[6] = HEX(id, 0);
++	str[7] = '\0';
++
++	return;
++}
++//
++#undef CHAR
++#undef HEX
++
++static void node_id_data_to_dev(unsigned char *p, struct pnp_bios_node *node, struct pnp_dev *dev)
++{
++	int len;
++	struct pnp_id *dev_id;
++
++	if ((char *)p == NULL)
++		return;
++        while ( (char *)p < ((char *)node->data + node->size )) {
++
++                if( p[0] & 0x80 ) {// large item
++			len = (p[2] << 8) | p[1];
++                        p += len + 3;
++                        continue;
++                }
++		len = p[0] & 0x07;
++                switch ((p[0]>>3) & 0x0f) {
++		case 0x0f:
++		{
++        		return;
++			break;
++		}
++                case 0x03: // compatible ID
++                {
++			if (len != 4)
++				goto __skip;
++			dev_id =  pnpbios_kmalloc(sizeof (struct pnp_id), GFP_KERNEL);
++			if (!dev_id)
++				return;
++			pnpid32_to_pnpid(p[1] | p[2] << 8 | p[3] << 16 | p[4] << 24,dev_id->id);
++			pnp_add_id(dev_id, dev);
++			break;
++                }
++                } /* switch */
++		__skip:
++                p += len + 1;
++
++        } /* while */
++}
+ 
+ /* pnp resource writing functions */
+ 
+@@ -1314,31 +1377,6 @@
+ 	return 0;
+ }
+ 
+-#define HEX(id,a) hex[((id)>>a) & 15]
+-#define CHAR(id,a) (0x40 + (((id)>>a) & 31))
+-//
+-
+-static void inline pnpid32_to_pnpid(u32 id, char *str)
+-{
+-	const char *hex = "0123456789abcdef";
+-
+-	id = be32_to_cpu(id);
+-	str[0] = CHAR(id, 26);
+-	str[1] = CHAR(id, 21);
+-	str[2] = CHAR(id,16);
+-	str[3] = HEX(id, 12);
+-	str[4] = HEX(id, 8);
+-	str[5] = HEX(id, 4);
+-	str[6] = HEX(id, 0);
+-	str[7] = '\0';
+-
+-	return;
+-}
+-//
+-#undef CHAR
+-#undef HEX
+-
+-
+ static void __init build_devlist(void)
+ {
+ 	u8 nodenum;
+@@ -1386,7 +1424,8 @@
+ 		memcpy(dev_id->id,id,8);
+ 		pnp_add_id(dev_id, dev);
+ 		pos = node_current_resource_data_to_dev(node,dev);
+-		node_possible_resource_data_to_dev(pos,node,dev);
++		pos = node_possible_resource_data_to_dev(pos,node,dev);
++		node_id_data_to_dev(pos,node,dev);
+ 
+ 		dev->protocol = &pnpbios_protocol;
+ 

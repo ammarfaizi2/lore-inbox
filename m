@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbTIXWUs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 18:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbTIXWUs
+	id S261555AbTIXWhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 18:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbTIXWhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 18:20:48 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:49052 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261615AbTIXWUr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 18:20:47 -0400
-Date: Wed, 24 Sep 2003 18:20:46 -0400
-From: Yaroslav Halchenko <yoh@onerussian.com>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: Re: USB problem. 'irq 9: nobody cared!'
-Message-ID: <20030924222045.GA32689@washoe.rutgers.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <20030921184149.GA12274@washoe.rutgers.edu> <20030922063324.GF3398@ppp0.net> <20030923050848.GA5917@washoe.rutgers.edu> <20030923094746.GA22232@ppp0.net> <20030924204846.GS11234@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030924204846.GS11234@kroah.com>
-User-Agent: Mutt/1.5.4i
+	Wed, 24 Sep 2003 18:37:08 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:10259 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S261555AbTIXWhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 18:37:02 -0400
+Message-ID: <3F721D2B.7070703@techsource.com>
+Date: Wed, 24 Sep 2003 18:39:39 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Minimizing the Kernel
+References: <200309241732.h8OHWj05015957@green.mif.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, Sep 24, 2003 at 01:48:46PM -0700, Greg KH wrote:
-> On Tue, Sep 23, 2003 at 11:47:46AM +0200, Jan Dittmer wrote:
-> > Yaroslav Halchenko <yoh@onerussian.com> wrote on 2003-09-23 01:08:48
-> > > > > 
-> > > > > http://www.onerussian.com/Linux/bug.USB/
-> > Greg, what is going on here? In a nutshell: Irq 9 gets disabled on boot
-> > and all other devices on this irq consequently doesn't work any more.
-> > Here is the oops from dmesg again:
+
+Andrzej Krzysztofowicz wrote:
+>>>Well for starters dont use gcc 3 or above.. code size has increased
+>>>dramatically with thoose versions. sure they give you more optimization
+>>
+>>Hmm, has anyone tried -Os with gcc3+ ?
+>>Maybe that'd be good for size optimization?
 > 
-> There's no "oops" here, just a warning message.  Things worked just fine
-> after this, right?
-If you mean after issuing that 'warning'? no - USB doesn't work at all.
+> 
+> AFAIK, the -Os optimization in gcc3 gives you larger binary than -Os in
+> gcc2.
+> 
 
-Reverse patch kinda helped, but then I started getting some weird
-behaviour which might be not due to reverse patch but some other
-problems...
+Any ideas why?  I mean, what does all the extra code DO?
 
-> Did you try David Brownell's patch for this issue?
-Can you please point which one exactly? I've tried to locate patch you
-meant but it is too much of USB staff is happening now seems to me.
+And have you considered that some of that extra code might be there for 
+correctness purposes?
 
-Thank you in advance
-
-                                  .-.
-=------------------------------   /v\  ----------------------------=
-Keep in touch                    // \\     (yoh@|www.)onerussian.com
-Yaroslav Halchenko              /(   )\               ICQ#: 60653192
-                   Linux User    ^^-^^    [175555]

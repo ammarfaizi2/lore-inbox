@@ -1,132 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313181AbSHIOI2>; Fri, 9 Aug 2002 10:08:28 -0400
+	id <S312973AbSHIOTZ>; Fri, 9 Aug 2002 10:19:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSHIOI2>; Fri, 9 Aug 2002 10:08:28 -0400
-Received: from dsl-213-023-029-199.arcor-ip.net ([213.23.29.199]:36619 "EHLO
-	spot.local") by vger.kernel.org with ESMTP id <S313181AbSHIOI0>;
-	Fri, 9 Aug 2002 10:08:26 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Oliver Feiler <kiza@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at buffer.c:2497! - mounting hfs formatted CD
-Date: Fri, 9 Aug 2002 16:13:06 +0200
-User-Agent: KMail/1.4.1
-X-PGP-KeyID: 0x561D4FD2
-X-PGP-Key: http://www.lionking.org/~kiza/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
+	id <S312962AbSHIOTZ>; Fri, 9 Aug 2002 10:19:25 -0400
+Received: from handhelds.org ([192.58.209.91]:55736 "HELO handhelds.org")
+	by vger.kernel.org with SMTP id <S312619AbSHIOTX>;
+	Fri, 9 Aug 2002 10:19:23 -0400
+From: George France <france@handhelds.org>
+To: "Martin Brulisauer" <martin@bruli.net>, o.pitzeier@uptime.at,
+       ghoz@sympatico.ca, Jay.Estabrook@compaq.com,
+       pollard@tomcat.admin.navo.hpc.mil
+Subject: Re: kbuild 2.5.26 - arch/alpha
+Date: Fri, 9 Aug 2002 10:23:06 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, "'Bryce'" <bryce@redhat.com>,
+       "Christopher C. Chimelis" <chris@debian.org>,
+       Harry <Harry.Heinisch@hp.com>, Jeff.Wiedemeier@hp.com,
+       Peter Petrakis <voodoo@alphadriven.org>,
+       Rich Payne <rdp@talisman.alphalinux.org>,
+       "Christopher C. Chimelis" <chris@debian.org>
+References: <002b01c23279$84be70a0$1211a8c0@pitzeier.priv.at> <3D53AEF8.16231.E49799D@localhost>
+In-Reply-To: <3D53AEF8.16231.E49799D@localhost>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208091613.20741.kiza@gmx.net>
+Message-Id: <02080910230605.04020@shadowfax.middleearth>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello Martin,
 
-Hi,
+I am glad to have received your e-mail.  I was just thinking about
+you.  For a quick update, as I am attempting to get demos out the
+door for LWE:
 
-I'm getting the following oops while trying to mount a hfs formatted CD 
-(produced on Mac OS X). mount segfaults and I have to reboot to get my CD 
-back.
+Bryce has convinced me to setup a daily diary on advantgo.
 
-I've found postings about this exact problem in the archives happening with 
-2.4.17 and .18, but I didn't find a fix or patch for this. Does any patch 
-exists to fix this problem?
+   http://www.advogato.org/person/France
 
-Here's the output of ksymoops:
+which I plan on updating this afternoon.  In short for me on alpha this
+week:
 
-ksymoops 2.4.5 on i686 2.4.19.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19/ (default)
-     -m /usr/src/linux/System.map (default)
+Monday: I worked on the usb-uhci.c driver which has a few
+               32 bitisms.  I will not have time to submit a tested
+               patch until after LWE. The problem appears to be
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+                   unsigned int io_addr = pci_resource_start()
 
-kernel BUG at buffer.c:2497!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0136e5e>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 000007ff   ebx: 0000000b   ecx: 00000800   edx: c15dc800
-esi: 00000001   edi: 00000b01   ebp: 00000000   esp: dd855dbc
-ds: 0018   es: 0018   ss: 0018
-Process mount (pid: 211, stackpage=dd855000)
-Stack: 00000b01 00000200 00000000 00000001 00004240 c0134fb7 00000b01 00000000
-       00000200 00000b01 d4f38c00 00000000 c01351d8 00000b01 00000000 00000200
-       00000000 e09655c3 00000b01 00000000 00000200 00000b01 00000001 00000000
-Call Trace:    [<c0134fb7>] [<c01351d8>] [<e09655c3>] [<e0964839>] 
-[<e0965443>]
-  [<c01e831d>] [<c01380e0>] [<e0968fe4>] [<e0968fe4>] [<c01382bb>] 
-[<e0968fe4>]
-  [<c0148059>] [<c0148332>] [<c014817d>] [<c01486b4>] [<c010870b>]
-Code: 0f 0b c1 09 c0 6e 25 c0 8b 44 24 20 05 00 fe ff ff 3d 00 0e
+               and possibly
 
+                   unsigned int io_size = pci_resource_len()
 
->>EIP; c0136e5e <grow_buffers+3e/110>   <=====
+              putting a 64bit address into a 32bit slot just does not
+              work very well. :-)  Even after changes the 'int' to 'long',
+              the USB device worked extremely well, but upon inserting or
+              removing a USB device, the SCSI controller on my system
+              hangs for about 30 secs while it resets due to receiving
+              an invalid instruction.  I suspect that there is corruption
+              of some kind on the PCI bus, but I do not have time this 
+             week to track this down.
 
->>eax; 000007ff Before first symbol
->>ecx; 00000800 Before first symbol
->>edx; c15dc800 <_end+12bdc64/2053a464>
->>edi; 00000b01 Before first symbol
->>esp; dd855dbc <_end+1d537220/2053a464>
+Tuesday: My Binutils patch was accepted for adding
+               -mev67, -mev68, -m21264a and -m21264b
+               Chatted with Bryce on several Alpha related issues.
 
-Trace; c0134fb7 <getblk+27/40>
-Trace; c01351d8 <bread+18/70>
-Trace; e09655c3 <[hfs]hfs_buffer_get+23/80>
-Trace; e0964839 <[hfs]hfs_part_find+19/170>
-Trace; e0965443 <[hfs]hfs_read_super+73/190>
-Trace; c01e831d <media_changed+3d/70>
-Trace; c01380e0 <get_sb_bdev+210/280>
-Trace; e0968fe4 <[hfs]hfs_fs+0/1c>
-Trace; e0968fe4 <[hfs]hfs_fs+0/1c>
-Trace; c01382bb <do_kern_mount+5b/110>
-Trace; e0968fe4 <[hfs]hfs_fs+0/1c>
-Trace; c0148059 <do_add_mount+69/140>
-Trace; c0148332 <do_mount+162/180>
-Trace; c014817d <copy_mount_options+4d/a0>
-Trace; c01486b4 <sys_mount+84/d0>
-Trace; c010870b <system_call+33/38>
+Wed: Meet with Jay, Jeff, John and Harry in Nashua.
+         Jeff has 2.5.x (x=29 IIRC) working with smp and non smp systems.
+         after some testing the patches should make it to the kernel soon.
+         I pushed out updates for RH7.2 (Alpha) for  gcc, util-linux, glibc
+         and openssl.
+         I worked on the RSS patches for the autobuild system.
 
-Code;  c0136e5e <grow_buffers+3e/110>
-00000000 <_EIP>:
-Code;  c0136e5e <grow_buffers+3e/110>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0136e60 <grow_buffers+40/110>
-   2:   c1 09 c0                  rorl   $0xc0,(%ecx)
-Code;  c0136e63 <grow_buffers+43/110>
-   5:   6e                        outsb  %ds:(%esi),(%dx)
-Code;  c0136e64 <grow_buffers+44/110>
-   6:   25 c0 8b 44 24            and    $0x24448bc0,%eax
-Code;  c0136e69 <grow_buffers+49/110>
-   b:   20 05 00 fe ff ff         and    %al,0xfffffe00
-Code;  c0136e6f <grow_buffers+4f/110>
-  11:   3d 00 0e 00 00            cmp    $0xe00,%eax
+Thur: I chatted (e-mail) with Peter Petrakis today.  He would like me to upgrade
+         the system which hosts alphanews.net and linuxalpha.org to use RH7.2
+         I hope to have time on Friday (today, yikes!), before I leave for LWE.
+
+As for gcc 3.1 in the kernel, most Alpha kernel hackers use egcs or 2.95. 
+Personally I tend to use 2.95 for my kernels.
+
+I have UNH students that build several complete toolchains everyday
+for alpha including 2.95.x, 3.0.x, 3.1.x and gcc-head.  By complete tool
+chain I mean binutils, gcc, gdb, glibc and all the support programs.
+
+   http://handhelds.org/projects/toolchain/autobuild/build-results.php3
+
+I am certain that they would like to chat with you in great detail about
+toolchain issues related to the Alpha architecture.
+
+I agree that communications in regard to Alpha could and should be better.
+We should probably setup a wiki or webpage to help keep track of  Alpha
+issues or maybe just use one of the existing alpha mailing lists or I could
+setup something on alpha.crl.dec.com next week.
+
+I hope this helps.
+
+Best Regards,
 
 
-1 warning issued.  Results may not be reliable.
+--George
 
+On Friday 09 August 2002 06:00, Martin Brulisauer wrote:
+> On 23 Jul 2002, at 18:29, George France wrote:
+> > On Tuesday 23 July 2002 14:48, Oliver Pitzeier wrote:
+> > > [ ... ]
+> > >
+> > > > You have made me aware that we have unintentionally created a
+> > > > private sort of club.  I apologize. This will have to be corrected.
+> > >
+> > > That's not what I expected to read...
+> > > I think that this "private club" is not wrong at all... It just would
+> > > be nicer if there would be some kind of batch every week where all
+> > > alpha users/developers get a mail...
+> >
+> > I agree. We should send a weekly e-mail with the current status.
+>
+> I did not see any news on the alpha/linux topic in lkml lately.
+>
+> What is the way to keep in touch with the "private club" to help/
+> assist in getting further to a running 2.5.x kernel on alpha? I
+> am still on 2.4.18 on my test system.
+>
+> Did anybody use gcc-3.0.x or gcc-3.1? With gcc-3.0.4 I
+> successfully built 2.4.18 but some applications don't run
+> correctly (eg. MySQL -> Parser). Is the kernel compilable
+> with gcc-3.1? Today I am using gcc-2.95.3 and I think is
+> ok; better than egcs (generates less unaligned traps at
+> runtime without changing the source).
+>
 
-- -- 
-Oliver Feiler  <kiza@(gmx(pro).net|lionking.org|claws-and-paws.com)>
-http://www.lionking.org/~kiza/  <--   homepage
-PGP-key ID 0x561D4FD2    --> /pgpkey.shtml
-http://www.lionking.org/~kiza/journal/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9U84AOpifZVYdT9IRAvpUAJ9BJVIMbDUUbRAdePFx3JvPgCQYuwCeO4xj
-hiUVK/O5/BdI4TJvSUEaJcE=
-=ob1p
------END PGP SIGNATURE-----
 

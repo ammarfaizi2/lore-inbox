@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287764AbSAIVL0>; Wed, 9 Jan 2002 16:11:26 -0500
+	id <S289018AbSAIVQQ>; Wed, 9 Jan 2002 16:16:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289018AbSAIVLR>; Wed, 9 Jan 2002 16:11:17 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:38153 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S287764AbSAIVLE>;
-	Wed, 9 Jan 2002 16:11:04 -0500
-Date: Wed, 9 Jan 2002 13:09:35 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: peter <arevill@bigpond.net.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Steps to open a file/handled by kernel?
-In-Reply-To: <3C3CAEDD.8040707@bigpond.net.au>
-Message-ID: <Pine.LNX.4.33L2.0201091308570.9139-100000@dragon.pdx.osdl.net>
+	id <S289026AbSAIVQG>; Wed, 9 Jan 2002 16:16:06 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:1689 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S289018AbSAIVPv>;
+	Wed, 9 Jan 2002 16:15:51 -0500
+Date: Wed, 09 Jan 2002 21:15:46 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Anton Altaparmakov <aia21@cam.ac.uk>, Greg KH <greg@kroah.com>
+Cc: felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <1382203430.1010610946@[195.224.237.69]>
+In-Reply-To: <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
+In-Reply-To: <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, peter wrote:
+>> Here's what I want to have in my initramfs:
+>>         - /sbin/hotplug
+>>         - /sbin/modprobe
+>>         - modules.dep (needed for modprobe, but is a text file)
+>>
+>> What does everyone else need/want there?
+>
+> It is planned to move partition discovery to userspace which would then
+> instruct the kernel of the positions of various partitions.
+>
+> The program(s) to do this will need to be in pretty much everyones
+> initramfs...
 
-| CC: all replies to: arevill@bigpond.net.au
-| Hi guys, im in discussion with one of my compsci mates to start an
-| intresting little project, its not concrete yet, not at all, i really
-| need to get a good grasp of what im going to have to code before i
-| decide to jump in or not, ill give you a quick run down
-|
-| Basically we want to make a sort of.. auto compression/uncompression of
-| files as there accessed/not accessed, basically to save a hell of alot
-| of space, but before we even BEGIN to do it, i really need to understand
-| the calls and the "arguments" and the stages the kernel/userspace (if it
-| is invovled (if userspace is even the right word!) takes to read from a
-| file (and write to it while we are at it)
-|
-| any information people feel is relevant or any sort of url u can point
-| me to or just a little guide of waht happens would be appreciiated,
-| please CC: all msgs to arevill@bigpond.net.au
+What with mounting root via NFS, hence having to set up
+IP et al, mounting various different
+partition types, avoiding the kludge of fsck etc.,
+being able to recover from a corrupted root, you
+might as well just cpio up your /sbin and stick
+that in, and be able to run single user mode without
+a 'normal' root. <FX: ducks & runs>
 
-maybe this will help:
-  http://www.win.tue.nl/~aeb/linux/vfs/trail.html#toc3
+seriously point: ls /sbin gives a /maximum/ range I'd
+have thought.
 
--- 
-~Randy
-
+--
+Alex Bligh

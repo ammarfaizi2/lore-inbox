@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262408AbTCROQi>; Tue, 18 Mar 2003 09:16:38 -0500
+	id <S262406AbTCROXn>; Tue, 18 Mar 2003 09:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262410AbTCROQi>; Tue, 18 Mar 2003 09:16:38 -0500
-Received: from 39.208-78-194.adsl-fix.skynet.be ([194.78.208.39]:31476 "EHLO
-	mail.macqel.be") by vger.kernel.org with ESMTP id <S262408AbTCROQg>;
-	Tue, 18 Mar 2003 09:16:36 -0500
-Message-Id: <200303181427.h2IERQ110701@mail.macqel.be>
-Subject: Re: sundance DFE-580TX DL10050B patch
-In-Reply-To: <20030317174920.GC9667@gtf.org> from Jeff Garzik at "Mar 17, 2003
- 12:49:20 pm"
-To: Jeff Garzik <jgarzik@pobox.com>
-Date: Tue, 18 Mar 2003 15:27:26 +0100 (CET)
-CC: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-From: "Philippe De Muyter" <phdm@macqel.be>
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262410AbTCROXn>; Tue, 18 Mar 2003 09:23:43 -0500
+Received: from f125.pav2.hotmail.com ([64.4.37.125]:61966 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S262406AbTCROXm>;
+	Tue, 18 Mar 2003 09:23:42 -0500
+X-Originating-IP: [211.28.96.71]
+From: "dean ." <ioooioiiooi@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ALSA + mmap or OSS emulation + mmap producing stutering sound
+Date: Tue, 18 Mar 2003 14:34:33 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F125yXde2kqkOzV8Q3i00001772@hotmail.com>
+X-OriginalArrivalTime: 18 Mar 2003 14:34:33.0274 (UTC) FILETIME=[7E1271A0:01C2ED5B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote :
-> On Mon, Mar 17, 2003 at 06:40:36PM +0100, Philippe De Muyter wrote:
-> > Dave Jones wrote :
-> > > On Mon, Mar 17, 2003 at 02:56:09PM +0100, Philippe De Muyter wrote:
-> > > 
-> > >  > +		writew((dev->dev_addr[i + 1] << 8) + dev->dev_addr[i],
-> > > 
-> > > Don't you want to OR those together instead of add them ?
-> > > 
-> > > 		Dave
-> > > 
-> > You're right.
-> 
-> No.
-> 
-> Adding and or'ing are exactly equivalent for the above case, where you
-> shift an 8-bit value left 8 bits, then add it to another 8-bit value.
+>>>This is due to a broken ALSA update patch for the cs46xx code.  Apply
+>>>the included patch which unbreaks the update.
+>>>
+>>>David
+>>>
+>
+>>>dean . wrote:
+>
+>This does not seem to be the case. The problems described below are
+>replicable in 2.5.64-mm8 which has the suggested patch applied.
+>
+>Luuk
+>
+>
+>
+>
+>>Kernel versions 2.5.61-64 (Havnt tried 60) produce stuttering sound
+>>when using alsa and mmap (xmms alsa output plugin) or oss emu and mmap
+>>(quake3?) produce stuttering sound happening after around the first
+>>half second of playing. This is with the kernels alsa cs46xx module
+>>and a Turtle beach Santa Cruz soundcard. Works fine with 2.5.59 though.
 
-That was implied in Dave's remark and in my answer.
+I had the same result here, the patch didnt help the stuttering
 
-> 
-> The final answer may be obtained from examining the compiler's assembly
-> output, and see which combination ('or' or 'add') produces the best
-> code.
+_________________________________________________________________
+Tired of spam? Get advanced junk mail protection with MSN 8. 
+http://join.msn.com/?page=features/junkmail
 
-We can't do that as that should be done for all the supported processors.
-Furthermore, it is the compiler's job to produce the best machine code.
-
-The only thing we can do to help the compiler is write simple code.  From
-a logical point of view, oring is what is needed here, and from a hardware
-point of view oring is cheaper than adding.
-
-> 	Jeff
-
-Now, back to the real problem :) .  Will you apply my patch ?
-
-Philippe
-
-Philippe De Muyter  phdm@macqel.be  Tel +32 27029044
-Macq Electronique SA  rue de l'Aeronef 2  B-1140 Bruxelles  Fax +32 27029077

@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269068AbUJKP5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269153AbUJKQCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269068AbUJKP5z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269076AbUJKPzq
+	id S269153AbUJKQCH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 12:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUJKPyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:55:46 -0400
-Received: from fire.osdl.org ([65.172.181.4]:60059 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S269073AbUJKPx0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:53:26 -0400
-Subject: Re: Linux 2.6.9-rc4 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097509711.2469.10.camel@cherrybomb.pdx.osdl.net>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
-	 <1097509711.2469.10.camel@cherrybomb.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1097509907.2469.14.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 11 Oct 2004 08:51:48 -0700
+	Mon, 11 Oct 2004 11:54:18 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:2447 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S269043AbUJKPvx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 11:51:53 -0400
+Message-ID: <416AABC6.8040405@ru.mvista.com>
+Date: Mon, 11 Oct 2004 19:50:30 +0400
+From: "Eugeny S. Mints" <emints@ru.mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vadim Lebedev <vadim@mbdsys.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+References: <200410111728.39200.vadim@mbdsys.com>
+In-Reply-To: <200410111728.39200.vadim@mbdsys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, we didn't have two rc3 releases.  See updated stats...
+Vadim Lebedev wrote:
+> Sven-Thorsten Dietrich <sdietrich@mvista.com> wrote in message 
+> news:<2Nir3-4iC-13@gated-at.bofh.it>...
+> 
+>>Announcing the availability of prototype real-time (RT)
+>>enhancements to the Linux 2.6 kernel.
+> 
+> 
+> Reading the sources i believe that __p_mutex_up  is not constant time
+> operation because of __p_mutex_down....
+> 
+> It is clear that
+> __p_mutex_down is not constant time operation because of insertion
+> into the priority-sorted sleepers list.  However both __p_mutex_down
+> and __p_mutex_up are synchronize on the same global spinlock
+> (m_spin_lock) ....  so if the __p_mutex_down is holding this spinlock
+> while inserting NO other process(or) is able to perform any __p_mutex
+> operation...
 
-> 2.6.9-rc3      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-> 2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
-> 2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
-> 2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
+Current pmutex implementation was chosen only as prototype 
+implementation. kmutex abstraction layer allows to switch easily between 
+any (alternative) mutex implementations and to choose optimal one on a 
+benchmarking basis.
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
+> 
+> Maybe the better idea would be to have a per-mutex spinlock? or even
+> better, given that the task->rt_priority have a finite range maybe each
+> mutex can have a table of sleeper lists indexed by rt_priority?
+> 
+> 
+> Vadim
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.9-rc4      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
-2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
-2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
-2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-
--- 
-John Cherry
-cherry@osdl.org
-503-626-2455x29
-Open Source Development Labs
 

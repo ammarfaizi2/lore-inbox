@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287524AbSABNMO>; Wed, 2 Jan 2002 08:12:14 -0500
+	id <S287267AbSABNJE>; Wed, 2 Jan 2002 08:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287457AbSABNME>; Wed, 2 Jan 2002 08:12:04 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:44325 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S287454AbSABNLx>; Wed, 2 Jan 2002 08:11:53 -0500
-Date: Wed, 2 Jan 2002 08:11:39 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: Florian Weimer <fw@deneb.enyo.de>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102081139.Y4087@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <87y9jh3v27.fsf@deneb.enyo.de> <874rm5yqzr.fsf@fadata.bg>
+	id <S287454AbSABNIp>; Wed, 2 Jan 2002 08:08:45 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:36871 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S287267AbSABNIm>;
+	Wed, 2 Jan 2002 08:08:42 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Albert Cranford <ac9410@bellsouth.net>
+Cc: ollie@sis.com.tw, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.18-pre1 sound/trident fix with newer binutils 
+In-Reply-To: Your message of "Wed, 02 Jan 2002 07:46:12 CDT."
+             <3C330114.D4F66B45@bellsouth.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <874rm5yqzr.fsf@fadata.bg>; from velco@fadata.bg on Wed, Jan 02, 2002 at 12:41:28PM +0200
+Date: Thu, 03 Jan 2002 00:08:22 +1100
+Message-ID: <6233.1009976902@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 12:41:28PM +0200, Momchil Velikov wrote:
-> >>>>> "Florian" == Florian Weimer <fw@deneb.enyo.de> writes:
-> 
-> Florian> Momchil Velikov <velco@fadata.bg> writes:
-> >> -		strcpy(namep, RELOC("linux,phandle"));
-> >> +		memcpy (namep, RELOC("linux,phandle"), sizeof("linux,phandle"));
-> 
-> Florian> Doesn't this still trigger undefined behavior, as far as the C
-> Florian> standard is concerned?  It's probably a better idea to fix the linker,
-> Florian> so that it performs proper relocation.
-> 
-> Well, strictly speaking it _is_ undefined, however adding/subtracting
-> __PAGE_OFFSET is far too common operation and one can resonably expect
-> to get away with it in the _vast_ majority of cases. IMHO, it is
-> better to fix the particular case, which triggers the undefined
-> behaviour, as these cases are bound to be _very_ rare.
+On Wed, 02 Jan 2002 07:46:12 -0500, 
+Albert Cranford <ac9410@bellsouth.net> wrote:
+>Hello Ollie,
+>Small problem.
+>I cannot build kernel with binutils-2.11.92.0.12.3
+>
+>drivers/sound/trident.o(.data+0x154): undefined reference to `local symbols in discarded section .text.exit'
+>+#ifdef DEVEXIT_LINKED
+>        remove:         trident_remove,
+>+#endif
 
-IMHO the best thing is to change the RELOC macro, so that gcc cannot optimize
-this.
-E.g.:
--#define PTRRELOC(x)     ((typeof(x))((unsigned long)(x) + offset))
-+#define PTRRELOC(x)     ({ unsigned long __x = (unsigned long)(x);	\
-			    asm ("" : "=r" (__x) : "0" (__x));		\
-			    (typeof(x))(__x + offset); })
-This way gcc cannot assume anything about it.
+What is DEVEXIT_LINKED?  The correct form is
+	remove:		__devexit_p(trident_remove),
 
-	Jakub

@@ -1,141 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272007AbTG2SPc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 14:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271970AbTG2SPb
+	id S271972AbTG2Sgb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 14:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272000AbTG2Sgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 14:15:31 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:64214 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S272037AbTG2SPT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 14:15:19 -0400
-content-class: urn:content-classes:message
+	Tue, 29 Jul 2003 14:36:31 -0400
+Received: from 81-202-66-245.user.ono.com ([81.202.66.245]:58000 "EHLO
+	subhal1.tecnoxarxa.com") by vger.kernel.org with ESMTP
+	id S271972AbTG2Sga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 14:36:30 -0400
+Message-ID: <3F26C174.9070702@tecnoxarxa.com>
+Date: Tue, 29 Jul 2003 20:48:20 +0200
+From: german aracil boned <german@tecnoxarxa.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: [PATCH] [RESEND] Use of Performance Monitoring Counters based on Model number
-Date: Tue, 29 Jul 2003 11:15:10 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D157@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [RESEND] Use of Performance Monitoring Counters based on Model number
-Thread-Index: AcNV/VeTZon0D9G9Sf6INTirCqSVzw==
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: <torvalds@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-X-OriginalArrivalTime: 29 Jul 2003 18:15:10.0954 (UTC) FILETIME=[5948DCA0:01C355FD]
+To: linux-kernel@vger.kernel.org
+Subject: NEW SYSTEM FOR THE NET (OFF-TOPIC)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please watches the project TL System. His system of archives is created 
+with Firebird!!!!
 
+This is an operating system of nets. Thought to work with multiple 
+platforms.
+The place where to be able to see it:
 
+http://sourceforge.net/projects/tlsystem/
 
-Attaching a modified version of this patch, based on the feedback that I
-got for my previous post.
+A detail of his system of archives:
 
-Feedback and Resolution:
-1) If you're going to do this you should fix up arch/i386/oprofile/ to
-error out similarly at least
--  Done. Made a similar change in oprofile code. Infact it already had a
-check for 0xf, 0x3. Added one for 0x6, 0xd.
+PROPERTIES AND PARTICULARITIES OF THE FILE SYSTEM
+-----------------------------------------------------------------------
 
-2) How about some macros for those magic numbers?  
-#define INTEL_MODEL_THINGABABOBBERPERON 0xd
--  Not sure whether I need to add macros for family and models. We don't
-seem to have macros for them anywhere else in kernel code.
+- FILES, DIRECTORIES AND OTHER ONES
+In the system of archives they can create for oneself directories, files 
+and link to databases and link to another TL Systems. The files keep in 
+blobs in the table SYS_FILES_BLOB. The first blob of the file is the 
+numbered with a 0 and he contains additional information of the file. 
+There the user can introduce a comment of text for example. When he has 
+to do with to a database or another system a link, a blob be believed 
+that he contains the precise information to be able to establish the 
+connection ( numbered I eat 1 ). In TL the System can perform on a file 
+also like directory. Could have stored within this old versions of the 
+same or related files with the. When a file, perform on form of this, it 
+becomes of the mixed type ( Directory File ) The information that he 
+contains like file is respected, but they can call him as it stops a 
+directory to be able to enter within this another files, link or 
+directories. There can be over a file, directory or link with the same 
+name in a same directory. The system permit the easy implementation of 
+mirrors placed in any point of the net or simple replications to act of 
+backup.
 
-3) It'd also be nice to let the user know why things aren't working
-instead of silent failure.
--  Done. Added a message while in nmi_init. 
+- A FILE'S PROPERTIES
+All of them have a user and group principal owners. And besides, they 
+can belong to another groups. But the permissions of access and 
+restrictions determine themselves for the user.
 
-Let me know if you have any questions. Please Apply.
-
-Thanks,
--Venkatesh
-
-> -----Original Message-----
-> From: Pallipadi, Venkatesh 
-> Sent: Wednesday, July 16, 2003 10:08 AM
-> To: 'torvalds@osdl.org'
-> Cc: 'linux-kernel@vger.kernel.org'; Mallick, Asit K
-> Subject: [PATCH] Use of Performance Monitoring Counters based 
-> on Model number
-> 
-> 
-> 
-> 
-> Attached is a small patch to make Linux kernel use of 
-> performance monitoring MSRs based on known processor models. 
-> Future processor implementation models may not support the 
-> same MSR layout.
-> 
-> Please apply.
-> 
-> Thanks,
-> -Venkatesh
-
-
-
-
---- linux-2.6.0-test1/arch/i386/kernel/nmi.c.orig	2003-07-13
-20:34:40.000000000 -0700
-+++ linux-2.6.0-test1/arch/i386/kernel/nmi.c	2003-07-17
-17:26:45.000000000 -0700
-@@ -162,9 +162,15 @@
- 	case X86_VENDOR_INTEL:
- 		switch (boot_cpu_data.x86) {
- 		case 6:
-+			if (boot_cpu_data.x86_model > 0xd)
-+				break;
-+
- 			wrmsr(MSR_P6_EVNTSEL0, 0, 0);
- 			break;
- 		case 15:
-+			if (boot_cpu_data.x86_model > 0x3)
-+				break;
-+
- 			wrmsr(MSR_P4_IQ_CCCR0, 0, 0);
- 			wrmsr(MSR_P4_CRU_ESCR0, 0, 0);
- 			break;
-@@ -348,9 +354,19 @@
- 	case X86_VENDOR_INTEL:
- 		switch (boot_cpu_data.x86) {
- 		case 6:
-+			if (boot_cpu_data.x86_model > 0xd) {
-+				printk (KERN_INFO "Performance Counter
-support for this CPU model not yet added.\n");
-+				return;
-+			}
-+
- 			setup_p6_watchdog();
- 			break;
- 		case 15:
-+			if (boot_cpu_data.x86_model > 0x3) {
-+				printk (KERN_INFO "Performance Counter
-support for this CPU model not yet added.\n");
-+				return;
-+			}
-+
- 			if (!setup_p4_watchdog())
- 				return;
- 			break;
---- linux-2.6.0-test1/arch/i386/oprofile/nmi_int.c.orig	2003-07-17
-17:20:30.000000000 -0700
-+++ linux-2.6.0-test1/arch/i386/oprofile/nmi_int.c	2003-07-17
-17:21:06.000000000 -0700
-@@ -285,6 +285,9 @@
- {
- 	__u8 cpu_model = current_cpu_data.x86_model;
- 
-+	if (cpu_model > 0xd)
-+		return 0;
-+
- 	if (cpu_model > 5) {
- 		nmi_ops.cpu_type = "i386/piii";
- 	} else if (cpu_model > 2) {
-
+- USERS AND GROUPS
+A user has a principal group. But it can belong to a group over. 
+Permissions for the system of archives in TL System they determine for 
+the user group. If a file belongs to the group X and the user also, the 
+restrictions that this have for that group will be applied.
 

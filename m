@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318778AbSIHOCD>; Sun, 8 Sep 2002 10:02:03 -0400
+	id <S319610AbSIHOFJ>; Sun, 8 Sep 2002 10:05:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319607AbSIHOCD>; Sun, 8 Sep 2002 10:02:03 -0400
-Received: from 62-190-217-197.pdu.pipex.net ([62.190.217.197]:47621 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S318778AbSIHOCC>; Sun, 8 Sep 2002 10:02:02 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209081414.g88EELZK002695@darkstar.example.net>
-Subject: Re: ide drive dying?
-To: linux-kernel@vger.kernel.org
-Date: Sun, 8 Sep 2002 15:14:20 +0100 (BST)
-In-Reply-To: <alfaco$3u0$1@forge.intermeta.de> from "Henning P. Schmiedehausen" at Sep 08, 2002 10:56:24 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S319611AbSIHOFJ>; Sun, 8 Sep 2002 10:05:09 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:8971 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S319610AbSIHOFH>;
+	Sun, 8 Sep 2002 10:05:07 -0400
+Date: Sun, 8 Sep 2002 16:09:24 +0200 (CEST)
+From: venom@sns.it
+To: Pavel Machek <pavel@suse.cz>
+cc: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, <ahu@ds9a.nl>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
+In-Reply-To: <20020906102849.A35@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.43.0209081608120.12993-100000@cibs9.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >The firmware update is for many more drives than that, My own
-> 
-> >     Model=IBM-DTLA-305040, FwRev=TW4OA60A
-> 
-> >is also recommended, as well as many with a FwRev=xxxOyzzz with zzz<66A.
-> >Now i have to find a windows machine to try it out on...
-> 
-> You don't need to. All you need is someone run this tool and send you
-> the image it creates. I put mine as boot.img on a CD so I can upgrade
-> all the disks I have in boxes without floppy disk drives. It's a self
-> booting DOS disk.
+On Fri, 6 Sep 2002, Pavel Machek wrote:
 
-As the old firmware is known to be buggy, and those bugs are relevant when using Linux, and updated firmware is available, is it worth checking for the known buggy firmware version in the ide driver?
+> Date: Fri, 6 Sep 2002 10:28:50 +0000
+> From: Pavel Machek <pavel@suse.cz>
+> To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+> Cc: venom@sns.it, ahu@ds9a.nl, linux-kernel@vger.kernel.org
+> Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
+>
+> Hi!
+>
+> > > I usually run byte bench regularly with every new kernel, so I see some
+> > > strange results here.
+> > >
+> > > From your numbers, I would say you are using a PIII 600/900 Mhz (more or
+> > > less). It is not an AMD AThlon or a PIV, since float and double are too
+> > > slow, not it is a K6 because they are too fast.
+> > Yes, I ran the test on a HP Omnibook 600 (PIII@900)
+>
+> APM or ACPI? How did you guarantee not going powersave?
+>
+I suppose Paolo disabled power saving both from bios and from kernel, of
+course. If not, then the differences I noticed could be explained easilly,
+Thanx
 
-I realise that we cannot check every drive in the world for compatibility, but if this is a known issue...
+Luigi
 
-John.
+

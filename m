@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbTKZXWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 18:22:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbTKZXWJ
+	id S264382AbTKZX1j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 18:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbTKZX1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 18:22:09 -0500
-Received: from 217-124-42-65.dialup.nuria.telefonica-data.net ([217.124.42.65]:30848
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S264370AbTKZXWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 18:22:05 -0500
-Date: Thu, 27 Nov 2003 00:22:00 +0100
-From: Jose Luis Domingo Lopez <linux-net@24x7linux.com>
-To: linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.6.0-test10-mm1] Typo in Documentation/networking/ip-sysctl.txt
-Message-ID: <20031126232200.GA10178@localhost>
-Mail-Followup-To: linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 26 Nov 2003 18:27:39 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:22776 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S264382AbTKZX1i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 18:27:38 -0500
+Message-ID: <02d801c3b474$e09e42a0$02c8a8c0@steinman>
+Reply-To: "Adam Kropelin" <akropel1@rochester.rr.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <sam@mars.ravnborg.org>
+Subject: Parallel build not working since -test6?
+Date: Wed, 26 Nov 2003 18:27:37 -0500
+Organization: Kroptech
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all:
+Lately I've noticed my kernel compilations taking longer than usual. Tonight
+I finally realized the cause... Parallel building (i.e. make -jN) is no
+longer working for me. I traced it back and the last kernel it worked in
+was -test5. It ceased working in -test6.
 
-There is a small typo in Documentation/networking/ip-sysctl.txt. It
-still says HZ for i386 architecture is 100, when it is no longer true.
-The following patch should update it to current HZ=1000 for i386.
+Not to point fingers, but I do notice that the kbuild separate output
+directory patch went into -test6...
 
-Although the hint following the text points to the correct place to
-check for the correct value, HZ=100 for i386 is not correct in 2.6.x.
+Build environment details:
+arch: i386
+make: GNU Make version 3.79.1
+gcc: gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
+output directory: default (i.e. source dir)
 
-Greetings.
+I can narrow it down to a -bk if that's useful or if someone has a patch to
+back out the separate output dir kbuild changes I can give that a whirl...
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test10-mm1)
+--Adam
 
-
---- linux-2.6.0-test10-mm1/Documentation/networking/ip-sysctl.txt	2003-07-14 05:33:46.000000000 +0200
-+++ linux-2.6.0-test10-mm1-patches/Documentation/networking/ip-sysctl.txt	2003-11-27 00:08:29.000000000 +0100
-@@ -490,7 +490,7 @@
- 	Allows you to write a number, which can be used as required.
- 	Default value is 0.
- 
--(1) Jiffie: internal timeunit for the kernel. On the i386 1/100s, on the
-+(1) Jiffie: internal timeunit for the kernel. On the i386 1/1000s, on the
- Alpha 1/1024s. See the HZ define in /usr/include/asm/param.h for the exact
- value on your system. 
- 

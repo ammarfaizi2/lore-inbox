@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263266AbTIAVDT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 17:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263268AbTIAVDT
+	id S263285AbTIAVLB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 17:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263287AbTIAVLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 17:03:19 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54510 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263266AbTIAVDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 17:03:15 -0400
-Date: Mon, 1 Sep 2003 23:03:07 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: isdn4linux@listserv.isdn4linux.de
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.6 patch] add a missing return to drivers/isdn/hisax/ipacx.c
-Message-ID: <20030901210307.GE23729@fs.tum.de>
+	Mon, 1 Sep 2003 17:11:01 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38672
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S263285AbTIAVK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 17:10:59 -0400
+Date: Mon, 1 Sep 2003 14:11:08 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org, webmaster@kernel.org
+Subject: Re: -mm patches on www.kernel.org ?
+Message-ID: <20030901211108.GE31760@matchmail.com>
+Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+	linux-kernel@vger.kernel.org, webmaster@kernel.org
+References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below adds a missing return to drivers/isdn/hisax/ipacx.c.
+On Mon, Sep 01, 2003 at 04:05:16PM +0200, Maciej Soltysiak wrote:
+> Hello,
+> 
+> would not it be nice to have Andrew's -mm patches on the web
+> for people to easily get them?
+> 
+> How about putting links to -mm kernels, which are important
+> testbeds as -ac ?
+> 
 
-I've tested the compilation with 2.6.0-test4-mm4.
-
-Please apply
-Adrian
-
---- linux-2.6.0-test4-mm4-no-smp/drivers/isdn/hisax/ipacx.c.old	2003-09-01 22:59:28.000000000 +0200
-+++ linux-2.6.0-test4-mm4-no-smp/drivers/isdn/hisax/ipacx.c	2003-09-01 22:59:49.000000000 +0200
-@@ -728,13 +728,15 @@
- 
- int
- ipacx_setup(struct IsdnCardState *cs, struct dc_hw_ops *ipacx_dc_ops,
- 	    struct bc_hw_ops *ipacx_bc_ops)
- {
- 	u8 val;
- 
- 	cs->dc_hw_ops = ipacx_dc_ops;
- 	cs->bc_hw_ops = ipacx_bc_ops;
- 	val = ipacx_read_reg(cs, IPACX_ID) & 0x3f;
- 	printk(KERN_INFO "HiSax: IPACX Design Id: %#x\n", val);
-+
-+	return 0;
- }
- 
+check people/akpm/patches

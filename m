@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTLCUvt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:51:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTLCUvt
+	id S261735AbTLCUs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTLCUs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:51:49 -0500
-Received: from scrye.com ([216.17.180.1]:63150 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S261193AbTLCUvq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 15:51:46 -0500
-MIME-Version: 1.0
+	Wed, 3 Dec 2003 15:48:29 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:39433 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261735AbTLCUs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 15:48:27 -0500
+Date: Wed, 3 Dec 2003 21:45:18 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS for 2.4
+Message-ID: <20031203204518.GA11325@alpha.home.local>
+References: <20031202002347.GD621@frodo> <Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet> <bqlbuj$j03$1@gatekeeper.tmr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Wed, 3 Dec 2003 13:51:40 -0700
-From: Kevin Fenzi <kevin@tummy.com>
-To: Mark Haverkamp <markh@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux aacraid devel <linux-aacraid-devel@dell.com>
-Subject: Re: aacraid and large memory problem (2.6.0-test11)
-In-Reply-To: <1070396482.16903.11.camel@markh1.pdx.osdl.net>
-References: <20031202193520.74481F7CC8@voldemort.scrye.com>
-	<1070396482.16903.11.camel@markh1.pdx.osdl.net>
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Message-Id: <20031203205141.EB67EF7C86@voldemort.scrye.com>
+Content-Disposition: inline
+In-Reply-To: <bqlbuj$j03$1@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Dec 03, 2003 at 07:01:39PM +0000, bill davidsen wrote:
+ 
+> Yes, a development tree is much different than a stable tree, and even
+> though the number has gone to 2.6, it's very much a development tree, in
+> that it's still being used by the same people, and probably not getting
+> a lot of new testing. Stability is unlikely to be production quality
+> until fixes go in for problems in mass testing, which won't happen until
+> it shows up in a vendor release, which won't happen until the vendors
+> test and clean up what they find... In other words, I don't expect it to
+> be "really stable" for six months at least, maybe a year.
 
->>>>> "Mark" == Mark Haverkamp <markh@osdl.org> writes:
+There even are people using 2.2 on production and/or desktop computers. I
+know some of them. Many people jumped from 2.2 to 2.4 because of USB, but
+since it was backported into 2.2.18, many people prefered to stick to 2.2.
 
-Mark> On Tue, 2003-12-02 at 11:35, Kevin Fenzi wrote:
->> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
->> 
->> 
->> Greetings,
->> 
->> Booting 2.6.0-test11 on a machine with 8GB memory and using the
->> aacraid driver results in a hang on boot. Passing mem=2048M causes
->> it to boot normally. 4GB also hangs. 2.6.0-test8 booted normally on
->> this same hardware.
->> 
->> 8GB memory, dual xeon 3.06mhz with hyperthreading, RedHat 9 on it
->> currently.
->> 
->> Happy to provide details on setup/software, etc.
->> 
->> Perhaps this patch in 2.6.0-test9 is the culprit?
->> http://www.linuxhq.com/kernel/v2.6/0-test9/drivers/scsi/aacraid/comminit.c
+> As for "much faster," let's say that I don't see that on any apples to
+> apples benchmark. If you measure new threading against 2.4 threading
+> there is a significant gain, but for anything else the gains just don't
+> seem to warrant a "much" and there are some regressions shown in other
+> people's data.
 
-Mark> This patch is what made aacraid work with over 4 gig of memory
-Mark> for me. I have an 8 proc system with 16gig of memory and without
-Mark> this patch I get data corruption in high memory.
+I second this. I've already tested several 2.5 and 2.6-test, and I'm
+really deceived by the scheduler. It looks a lot more as a hack to
+satisfy xmms users than something usable. I'm doing 'ls -ltr' all the
+day in directories filled with 2000 files, and it takes ages to complete.
+I'm even at the point to which I add a "|tail" to make things go faster.
 
-Mark> I don't boot on the aacraid though.
+For instance, time typically reports 0.03u, 0.03s, 2.8 real. It seems as
+each line sent to xterm consumes one full clock tick doing nothing. I
+never reported it yet because I don't have time to investigate, and it
+seems more important that people don't hear skips in xmms while compiling
+their kernel with "make -j 256" on a 16 MB machine. Second test : launch
+10 times : xterm -e "find /" & and look how some windows freeze for up
+to 10 seconds... I don't think this is a problem right now. We've seen
+lots of work in the scheduler area, many people proposing theirs, and
+this will stabilize once 2.6 is out and people start to describe what
+they really do with it and what they feel.
 
-Is there any way you can try booting from it and see if it's a boot
-issue for you as well?
+Don't take me wrong, I don't want to whine nor offend anyone here. I
+think that Ingo and other people like Con have done a very great job
+at optimizing this scheduler. I just wish we could choose one depending
+on what we want to do with it.
 
-I can try booting the one here from something else and see if it works
-with that. 
+Just my 2 cents,
+Willy
 
-kevin
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQE/zkzd3imCezTjY0ERAtdRAJ9NIp56DWRFI6zxpbgyLtKQzkYcIACfYKil
-Z6XcmnrXQ9Qsiy24d7ac044=
-=a+PX
------END PGP SIGNATURE-----

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272362AbTHIOEz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 10:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272363AbTHIOEz
+	id S272359AbTHIOEi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 10:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272362AbTHIOEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 10:04:55 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:28632
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S272362AbTHIOEx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 10:04:53 -0400
-Date: Sat, 9 Aug 2003 10:04:52 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH 2.6: fix X86_VENDOR_ID offset in head.S
-Message-ID: <20030809140452.GA5268@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Sat, 9 Aug 2003 10:04:38 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:48136 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S272359AbTHIOEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 10:04:37 -0400
+Date: Sat, 9 Aug 2003 09:52:48 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Thomas Molina <tmolina@cablespeed.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 973] Re: Linux 2.6.0-test3:  Presario laptop panic
+In-Reply-To: <Pine.LNX.4.44.0308090945150.2587-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.53.0308090952200.32166@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0308090945150.2587-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While reviewing my 2.4 backport of the 2.6 cpu capabilities (including
-the Via RNG support), Mikael Pettersson noticed a bug in both my
-backport, and 2.6:  when NCAPINTS (x86_capability array size) is
-increased, one must adjust the offset in arch/i386/kernel/head.S also.
+On Sat, 9 Aug 2003, Thomas Molina wrote:
 
-Contributed by Mikael Pettersson.
+> Please see Bugzilla for the gory details.  Synopsis is that my Preario 
+> laptop panics on boot:
+> 
+> Unable to handle kernel pagin request at virtual address c035800
+> 
+> EIP 0060:[<c014CE95>]
+> EIP is at store_stackinfo+0x85/0xc0
+> 
+> This behaviour continues since 2.5.74-bk1.  
 
+Thanks for the update, i'll debug it during the course of the weekend.
 
-===== arch/i386/kernel/head.S 1.27 vs edited =====
---- 1.27/arch/i386/kernel/head.S	Mon May 12 21:59:20 2003
-+++ edited/arch/i386/kernel/head.S	Sat Aug  9 09:59:50 2003
-@@ -35,7 +35,7 @@
- #define X86_HARD_MATH	CPU_PARAMS+6
- #define X86_CPUID	CPU_PARAMS+8
- #define X86_CAPABILITY	CPU_PARAMS+12
--#define X86_VENDOR_ID	CPU_PARAMS+28
-+#define X86_VENDOR_ID	CPU_PARAMS+36
- 
- /*
-  * Initialize page tables
+	Zwane
 

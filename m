@@ -1,79 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbUKXPqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbUKXPqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbUKXPqp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 10:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbUKXPpI
+	id S262689AbUKXPqo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 10:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUKXPp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 10:45:08 -0500
+	Wed, 24 Nov 2004 10:45:29 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:42400 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262760AbUKXPnb (ORCPT
+	by vger.kernel.org with ESMTP id S262764AbUKXPnc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 10:43:31 -0500
-Date: Wed, 24 Nov 2004 16:05:20 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: status of cdrom patches for 2.4 ?
-Message-ID: <20041124150520.GG13847@suse.de>
-References: <41A3C391.8070609@ttnet.net.tr> <20041124074336.GB8718@logos.cnet> <20041124125319.GB13847@suse.de> <41A49DA5.9090900@ttnet.net.tr>
-Mime-Version: 1.0
+	Wed, 24 Nov 2004 10:43:32 -0500
+Date: Wed, 24 Nov 2004 07:32:49 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: ncunningham@linuxmail.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 31/51: Export tlb flushing
+Message-ID: <181630000.1101310366@[10.10.2.4]>
+In-Reply-To: <1101297506.5805.314.camel@desktop.cunninghams>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101297506.5805.314.camel@desktop.cunninghams>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41A49DA5.9090900@ttnet.net.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24 2004, O.Sezer wrote:
-> Jens Axboe wrote:
-> >On Wed, Nov 24 2004, Marcelo Tosatti wrote:
-> >
-> >>On Wed, Nov 24, 2004 at 01:11:13AM +0200, O.Sezer wrote:
-> >>
-> >>>Hi all:
-> >>>
-> >>>What are the status of the cdrom patches for 2.4 series?
-> >>>Namely the dvd patches which are dropped while in the
-> >>>27-rc era, and the cd-mrw patch which never had a chance
-> >>>trying to go in to 2.4. Jens? Mancelo?
-> >>
-> >>There were problems with the DVD-RW patches so I reverted them.
+--Nigel Cunningham <ncunningham@linuxmail.org> wrote (on Wednesday, November 24, 2004 23:59:50 +1100):
+
+> This patch adds a do_flush_tlb_all function that does the
+> SMP-appropriate thing for suspend after the image is restored.
+
+Is software suspend only designed for i386, or is that the only arch that 
+didn't have such a function already? Seems like too low a level to be 
+exporting to me.
+
+M.
+ 
+> diff -ruN 818-tlb-flushing-functions-old/arch/i386/kernel/smp.c 818-tlb-flushing-functions-new/arch/i386/kernel/smp.c
+> --- 818-tlb-flushing-functions-old/arch/i386/kernel/smp.c	2004-11-06 09:27:19.225681536 +1100
+> +++ 818-tlb-flushing-functions-new/arch/i386/kernel/smp.c	2004-11-04 16:27:41.000000000 +1100
+> @@ -476,7 +476,7 @@
+>  	preempt_enable();
+>  }
+>  
+> -static void do_flush_tlb_all(void* info)
+> +void do_flush_tlb_all(void* info)
+>  {
+>  	unsigned long cpu = smp_processor_id();
+>  
+> diff -ruN 818-tlb-flushing-functions-old/include/asm-i386/tlbflush.h 818-tlb-flushing-functions-new/include/asm-i386/tlbflush.h
+> --- 818-tlb-flushing-functions-old/include/asm-i386/tlbflush.h	2004-11-03 21:55:01.000000000 +1100
+> +++ 818-tlb-flushing-functions-new/include/asm-i386/tlbflush.h	2004-11-04 16:27:41.000000000 +1100
+> @@ -82,6 +82,7 @@
+>  #define flush_tlb() __flush_tlb()
+>  #define flush_tlb_all() __flush_tlb_all()
+>  #define local_flush_tlb() __flush_tlb()
+> +#define local_flush_tlb_all() __flush_tlb_all();
+>  
+>  static inline void flush_tlb_mm(struct mm_struct *mm)
+>  {
+> @@ -114,6 +115,10 @@
+>  extern void flush_tlb_current_task(void);
+>  extern void flush_tlb_mm(struct mm_struct *);
+>  extern void flush_tlb_page(struct vm_area_struct *, unsigned long);
+> +extern void do_flush_tlb_all(void * info);
+> +
+> +#define local_flush_tlb_all() \
+> +	do_flush_tlb_all(NULL);
+>  
+>  #define flush_tlb()	flush_tlb_current_task()
+>  
 > 
-> Yup.  Pat then posted a patch which supposedly fixed it by placing
-> something like
-> 	else if (CDROM_CAN(CDC_DVD_RAM))
-> 		ret = 0;
-> in cdrom_open_write():
-> http://marc.theaimsgroup.com/?t=109156838400001&r=1&w=2
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=109156820507518&w=2
 > 
-> Jens' MRW patch also introduces a new function: cdrom_dvdram_open_write
-> (which, in turn, calls cdrom_media_erasable), CDROM_CAN(CDC_DVD_RAM)
-> check in cdrom_open_write() is assigned to it; which again is supposed
-> to fix it.
-
-Fix that issue. More might crop up.
-
-> >>Jens, what do you think?
-> >
-> >
-> >I don't think it's worth the bother, the support is in 2.6. And I don't
-> >want to maintain new atapi stuff for 2.4. Pat used to care about the
-> >patches, but as he is no longer with Iomega I don't think there's anyone
-> >to look after it.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> Which is truly a pity. Yes I can understand that a maintainer needs
-> to concentrate on new trees etc, but it's pity.  Especially hearing
-> the pre-recorded "Hey 2.6 already has it, upgrade to it" message is
-> always nice ;)
+> 
 
-You conveniently ignore that 2.4 is in bug fix mode, and a strict one
-now even. And then you want to add new features to a driver that is both
-used on almost every machine and also drives the most picky and buggy
-hardware out there? So please can the 'pre-recorded' message crap. You
-are not the one that will have to pick up the pieces if something
-breaks.
-
--- 
-Jens Axboe
 

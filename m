@@ -1,86 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265339AbTIDRue (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 13:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbTIDRud
+	id S265373AbTIDR7O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 13:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbTIDR7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 13:50:33 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22486 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265329AbTIDRu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 13:50:27 -0400
-Date: Thu, 4 Sep 2003 19:50:20 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       campbell@torque.net, linux-scsi@vger.kernel.org
-Subject: [new patch] Re: 2.6.0-test4-mm5: SCSI imm driver doesn't compile
-Message-ID: <20030904175019.GB1374@fs.tum.de>
-References: <20030902231812.03fae13f.akpm@osdl.org> <20030903170256.GA18025@fs.tum.de> <20030904133056.GA2411@conectiva.com.br>
+	Thu, 4 Sep 2003 13:59:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46794 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265373AbTIDR7E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 13:59:04 -0400
+Subject: [TRIVIAL][PATCH] fix parallel builds for aic7xxx]
+From: John Cherry <cherry@osdl.org>
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-Z5/ejSqIbNAwYpfUpx7n"
+Organization: 
+Message-Id: <1062698342.9322.73.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030904133056.GA2411@conectiva.com.br>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 04 Sep 2003 10:59:02 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 10:30:56AM -0300, Arnaldo Carvalho de Melo wrote:
->...
-> I just converted it to the more safe c99 init style, but haven't noticed
-> the original bug, that is "EPP 16 bit" was duplicated... But this is already
-> fixed by Andrew Morton on current Linus bk tree.
-> 
-> Thanks Andrew for fixing, Adrian for noticing.
 
-Andrews patch removed the first IMM_EPP_16 line in the array.
-
-This isn't correct especially in the !CONFIG_SCSI_IZIP_EPP16 case,
-reading all uses of this array (IMM_MODE_STRING is used to print the
-corresponding string in printks).
-
-If I'm not misunderstanding it, CONFIG_SCSI_IZIP_EPP16 means "use 16bit 
-even when 32bit is requested".
-
-It seems the right solution is
+--=-Z5/ejSqIbNAwYpfUpx7n
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
 
-static char *IMM_MODE_STRING[] =
-{
-        [IMM_AUTODETECT] = "Autodetect",
-        [IMM_NIBBLE]     = "SPP",
-        [IMM_PS2]        = "PS/2",
-        [IMM_EPP_8]      = "EPP 8 bit",
-        [IMM_EPP_16]     = "EPP 16 bit",
-#ifdef CONFIG_SCSI_IZIP_EPP16
-        [IMM_EPP_32]     = "EPP 16 bit",
-#else
-        [IMM_EPP_32]     = "EPP 32 bit",
-#endif
-        [IMM_UNKNOWN]    = "Unknown",
-};
+My compile regression scripts were getting random build failures for
+aic7xxx.  The two makefiles could not handle parallel build. 
+Occasionally they would succeed...timing dependent.  The following two
+patches fix this.
 
+Part 1 - drivers/scsi/aic7xxx/Makefile
+Part 2 - drivers/scsi/aic7xxx/aicasm/Makefile
 
-A patch against the current BK tree is below.
+John
+ 
 
+--=-Z5/ejSqIbNAwYpfUpx7n
+Content-Disposition: attachment; filename=part1
+Content-Type: text/plain; name=part1; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> - Arnaldo
+--- a/drivers/scsi/aic7xxx/Makefile	2003-08-08 21:42:16.000000000 -0700
++++ b/drivers/scsi/aic7xxx/Makefile	2003-08-14 16:55:13.000000000 -0700
+@@ -58,7 +58,9 @@
+ 	-p $(obj)/aic7xxx_reg_print.c -i aic7xxx_osm.h
+ 
+ ifeq ($(CONFIG_AIC7XXX_BUILD_FIRMWARE),y)
+-$(aic7xxx-gen-y): $(src)/aic7xxx.seq $(src)/aic7xxx.reg $(obj)/aicasm/aicasm
++$(aic7xxx-gen-y): $(src)/aic7xxx.seq 
++
++$(src)/aic7xxx.seq: $(obj)/aicasm/aicasm $(src)/aic7xxx.reg
+ 	$(obj)/aicasm/aicasm -I$(src) -r $(obj)/aic7xxx_reg.h \
+ 			      $(aicasm-7xxx-opts-y) -o $(obj)/aic7xxx_seq.h \
+ 			      $(src)/aic7xxx.seq
+@@ -72,7 +74,9 @@
+ 	-p $(obj)/aic79xx_reg_print.c -i aic79xx_osm.h
+ 
+ ifeq ($(CONFIG_AIC79XX_BUILD_FIRMWARE),y)
+-$(aic79xx-gen-y): $(src)/aic79xx.seq $(src)/aic79xx.reg $(obj)/aicasm/aicasm
++$(aic79xx-gen-y): $(src)/aic79xx.seq
++
++$(src)/aic79xx.seq: $(obj)/aicasm/aicasm $(src)/aic79xx.reg
+ 	$(obj)/aicasm/aicasm -I$(src) -r $(obj)/aic79xx_reg.h \
+ 			      $(aicasm-79xx-opts-y) -o $(obj)/aic79xx_seq.h \
+ 			      $(src)/aic79xx.seq
 
-cu
-Adrian
+--=-Z5/ejSqIbNAwYpfUpx7n
+Content-Disposition: attachment; filename=part2
+Content-Type: text/plain; name=part2; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
---- linux-2.6.0-test4/drivers/scsi/imm.h.old	2003-09-04 19:47:23.000000000 +0200
-+++ linux-2.6.0-test4/drivers/scsi/imm.h	2003-09-04 19:48:05.000000000 +0200
-@@ -100,8 +100,9 @@
- 	[IMM_NIBBLE]	 = "SPP",
- 	[IMM_PS2]	 = "PS/2",
- 	[IMM_EPP_8]	 = "EPP 8 bit",
--#ifdef CONFIG_SCSI_IZIP_EPP16
- 	[IMM_EPP_16]	 = "EPP 16 bit",
-+#ifdef CONFIG_SCSI_IZIP_EPP16
-+	[IMM_EPP_32]	 = "EPP 16 bit",
- #else
- 	[IMM_EPP_32]	 = "EPP 32 bit",
- #endif
+--- a/drivers/scsi/aic7xxx/aicasm/Makefile	2003-08-08 21:40:42.000000000 -0700
++++ b/drivers/scsi/aic7xxx/aicasm/Makefile	2003-08-14 16:39:00.000000000 -0700
+@@ -49,14 +49,18 @@
+ clean:
+ 	rm -f $(clean-files)
+ 
+-aicasm_gram.c aicasm_gram.h: aicasm_gram.y
++aicasm_gram.c: aicasm_gram.h 
++	mv $(<:.h=).tab.c $(<:.h=.c)
++
++aicasm_gram.h: aicasm_gram.y
+ 	$(YACC) $(YFLAGS) -b $(<:.y=) $<
+-	mv $(<:.y=).tab.c $(<:.y=.c)
+ 	mv $(<:.y=).tab.h $(<:.y=.h)
+ 
+-aicasm_macro_gram.c aicasm_macro_gram.h: aicasm_macro_gram.y
++aicasm_macro_gram.c: aicasm_macro_gram.h
++	mv $(<:.h=).tab.c $(<:.h=.c)
++
++aicasm_macro_gram.h: aicasm_macro_gram.y
+ 	$(YACC) $(YFLAGS) -b $(<:.y=) -p mm $<
+-	mv $(<:.y=).tab.c $(<:.y=.c)
+ 	mv $(<:.y=).tab.h $(<:.y=.h)
+ 
+ aicasm_scan.c: aicasm_scan.l
 
+--=-Z5/ejSqIbNAwYpfUpx7n--
 

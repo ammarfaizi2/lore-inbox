@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262799AbUBZNey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 08:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUBZNey
+	id S262792AbUBZNkH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 08:40:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUBZNkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 08:34:54 -0500
-Received: from main.gmane.org ([80.91.224.249]:2176 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262799AbUBZNeu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 08:34:50 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: How to emulate 'chroot /jail/ su httpd -c' ?
-Date: Thu, 26 Feb 2004 14:34:45 +0100
-Message-ID: <yw1xllmqhslm.fsf@kth.se>
-References: <200402261956.BEF40183.2B918856@anet.ne.jp>
+	Thu, 26 Feb 2004 08:40:07 -0500
+Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:6532 "EHLO
+	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
+	id S262792AbUBZNkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 08:40:00 -0500
+Date: Thu, 26 Feb 2004 05:39:59 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org
+Subject: Re: Intel vs AMD64
+Message-ID: <20040226133959.GA19254@dingdong.cryptoapps.com>
+References: <7F740D512C7C1046AB53446D37200173EA28A5@scsmsx402.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:C7KNyKc0IdXCufd+cpBfphDJTdA=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7F740D512C7C1046AB53446D37200173EA28A5@scsmsx402.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tetsuo Handa <a5497108@anet.ne.jp> writes:
+On Wed, Feb 25, 2004 at 09:32:08PM -0800, Nakajima, Jun wrote:
 
-> Hello,
->
-> Sorry for querying userland program in this list.
->
-> I have the following line in /etc/rc.d/init.d/httpd
->
-> daemon chroot /jail/ su httpd -c $httpd $OPTIONS
->
-> This needs /bin/su after /usr/sbin/chroot, but I don't
-> want to place /bin/su (and related files) in the jail.
-> So, I want to do this with one program.
+> Yes, "implementation specific" is one of the differences between
+> IA-32e and AMD64, i.e. that behavior is architecturally defined on
+> AMD64, but on IA-32e (as I posted):
 
-If you remove the suid bit from the su program in the chroot it should
-be rather harmless.
+>   Near branch with 66H prefix:
+>     As documented in PRM the behavior is implementation specific and
+>     should avoid using 66H prefix on near branches.
 
--- 
-Måns Rullgård
-mru@kth.se
+
+Not that it really matters that much --- but I'm curious to know why
+Intel made this decision?
+
+It seems really dumb to make such differences when Intel is already
+sorely lagging behind their competitor here, I would think given the
+circumstances Intel would try to be as compatible as possible on all
+fronts.
+
+I'd almost be nervous about getting an IA-32e CPU right now given that
+the AMD64 chips work just fine, have had lots of testing and there is
+plenty of code out there which is *known* to work reliably.
+
+
 

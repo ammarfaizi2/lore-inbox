@@ -1,153 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269069AbVBFEuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVBFFAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269069AbVBFEuj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 23:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272706AbVBFEui
+	id S262701AbVBFFAu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 00:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271524AbVBFFAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 23:50:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64432 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S269069AbVBFEt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 23:49:56 -0500
-Message-ID: <4205A1E5.9090808@pobox.com>
-Date: Sat, 05 Feb 2005 23:49:41 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peer.Chen@uli.com.tw
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       andrebalsa@mailingaddress.org, Clear.Zhang@uli.com.tw,
-       Emily.Jiang@uli.com.tw, Eric.Lo@uli.com.tw
-Subject: Re: [patch] scsi/ahci: Add support for ULi M5287
-References: <OFFB59EB4E.1CCBBD25-ON48256F70.003999B0@uli.com.tw>
-In-Reply-To: <OFFB59EB4E.1CCBBD25-ON48256F70.003999B0@uli.com.tw>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 6 Feb 2005 00:00:50 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:16142 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262701AbVBFFAh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 00:00:37 -0500
+Date: Sun, 06 Feb 2005 14:01:35 +0900 (JST)
+Message-Id: <20050206.140135.112327413.yoshfuji@linux-ipv6.org>
+To: davem@davemloft.net
+Cc: herbert@gondor.apana.org.au, mirko.parthey@informatik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20050205200242.2b629de7.davem@davemloft.net>
+References: <20050205064643.GA29758@gondor.apana.org.au>
+	<20050205.195039.05988480.yoshfuji@linux-ipv6.org>
+	<20050205200242.2b629de7.davem@davemloft.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peer.Chen@uli.com.tw wrote:
-> Hi,Jeff
+In article <20050205200242.2b629de7.davem@davemloft.net> (at Sat, 5 Feb 2005 20:02:42 -0800), "David S. Miller" <davem@davemloft.net> says:
+
+> > Yes, IPv6 needs "split device" semantics
+> > (for per-device statistics such as Ip6InDelivers etc),
+> > and I like later solution.
 > 
-> We add the support for ULi's AHCI controller M5287 in drivers/scsi/ahci.c,
-> This patch is applied to kernel 2.6.10-rc3. Please apply to new kernels.
+> Ok.  I never read whether ipv6, like ipv4, is specified to support
+> a model of host based ownership of addresses.  Does anyone know?
 
-Ideally I would like to eliminate vendor-specific code, where possible.
+I'm not sure it is explicitly specified, but there're some hints:
 
-Does the AHCI driver work at all, with simply the addition of the PCI ID?
+1. we need to allow multiple addresses on multiple interfaces.
+   e.g. link-local address
 
-Detailed comments below.
+2. if a packet has come from A to link-local address on the other side B,
+   we should not receive it.
+         +-------+
+    ---->|A     B|
+         +-------+
 
+   Currently, it does not happen in usual because ndisc does NOT handle
+   addresses on other device.
 
-> --- linux-2.6.10-rc3/drivers/scsi/ahci.c.orig   2004-12-11
-> 03:14:17.170955840 +0800
-> +++ linux-2.6.10-rc3/drivers/scsi/ahci.c  2004-12-11 03:31:40.979272856
-> +0800
-> @@ -241,6 +241,8 @@ static struct pci_device_id ahci_pci_tbl
->         board_ahci },
->       { PCI_VENDOR_ID_INTEL, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
->         board_ahci },
-> +     { PCI_VENDOR_ID_AL, 0x5287, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-> +       board_ahci },
->       { }   /* terminate list */
->  };
+3. mib document states that we should take statistics on interface which 
+   the address belongs to; not the interface where the packet has come
+   from:
 
-OK
+cited from RFC2011bis:
+Local (*) packets on the input side are counted on the interface
+associated with their destination address, which may not be the
+interface on which they were received.  This requirement is caused by
+the possibility of losing the original interface during processing,
+especially re-assembly.
 
-
-> @@ -555,7 +557,6 @@ static void ahci_intr_error(struct ata_p
->             writel(0x300, port_mmio + PORT_SCR_CTL);
->             readl(port_mmio + PORT_SCR_CTL); /* flush */
->       }
-> -
->       /* re-start DMA */
->       tmp = readl(port_mmio + PORT_CMD);
->       tmp |= PORT_CMD_START | PORT_CMD_FIS_RX;
-> @@ -711,12 +712,29 @@ static int ahci_host_init(struct ata_pro
->       unsigned int i, j, using_dac;
->       int rc;
->       void __iomem *port_mmio;
-> +     u8 rev_id;        //peer add for m5287 rev 02h
-> 
-> +     pci_read_config_byte(pdev, PCI_REVISION_ID, &rev_id);
->       cap_save = readl(mmio + HOST_CAP);
->       cap_save &= ( (1<<28) | (1<<17) );
->       cap_save |= (1 << 27);
-> 
->       /* global controller reset */
-> +//peer add for m5287 rev 02h
-> +     if(pdev->vendor==PCI_VENDOR_ID_AL && pdev->device==0x5287 && rev_id
-> ==0x02)
-> +     {
-> +           tmp = readl(mmio + HOST_CTL);
-> +           writel(tmp & ~HOST_RESET, mmio + HOST_CTL);
-> +           readl(mmio + HOST_CTL); /* flush */
-> +           writel(tmp | HOST_RESET, mmio + HOST_CTL);
-> +           readl(mmio + HOST_CTL); /* flush */
-> +           writel(tmp & ~HOST_RESET, mmio + HOST_CTL);
-> +           readl(mmio + HOST_CTL); /* flush */
-> +
-> +     }
-> +//peer add end
-> +     else
-> +     {
->       tmp = readl(mmio + HOST_CTL);
->       if ((tmp & HOST_RESET) == 0) {
->             writel(tmp | HOST_RESET, mmio + HOST_CTL);
-> @@ -735,6 +753,7 @@ static int ahci_host_init(struct ata_pro
->             return -EIO;
->       }
-> 
-> +     }
->       writel(HOST_AHCI_EN, mmio + HOST_CTL);
->       (void) readl(mmio + HOST_CTL);      /* flush */
->       writel(cap_save, mmio + HOST_CAP);
-
-My conclusion from this change is that you are simply impatient with the 
-1-second delay for host reset ;-)
-
-That is a fair criticism.  I confess that the reason for the 1-second 
-delay is pure laziness.  However, my suggestion would be:
-
-1) eliminate the ULi-specific code
-
-2) rewrite the host reset code so that it
-	a) performs the host reset as you (ULi) have written
-	b) polls host reset register for completion, as described
-	   in AHCI specification
-
-This will perform a very rapid reset, and eliminate the annoying delay.
+(*): here it means incoming, but not forwarding.
 
 
-> @@ -796,6 +815,18 @@ static int ahci_host_init(struct ata_pro
->             /* make sure port is not active */
->             tmp = readl(port_mmio + PORT_CMD);
->             VPRINTK("PORT_CMD 0x%x\n", tmp);
-> +//peer add for m5287 rev 02h
-> +           if(pdev->vendor==PCI_VENDOR_ID_AL && pdev->device==0x5287 &&
-> rev_id==0x02)
-> +           {
-> +                 //set start bit then issue comreset when initialize
-> +                 writel((tmp|PORT_CMD_START), port_mmio + PORT_CMD);
-> +                 writel(0x01, port_mmio + PORT_SCR_CTL);
-> +                 readl(port_mmio + PORT_SCR_CTL); /* flush */
-> +                 msleep(1);
-> +                 writel(0x0, port_mmio + PORT_SCR_CTL);
-> +                 readl(port_mmio + PORT_SCR_CTL); /* flush */
-> +           }
-> +//peer add end
+BTW, BSD has similar reference to interface structure in routeing entry.
 
-3) should we do this for all AHCI controllers?
-
-4) performing host reset should perform COMRESET, until staggered spinup 
-is select.  So the COMRESET portion of your code appears incorrect 
-W.R.T. the AHCI specification.
-
-Please comment.
-
-Thanks and regards,
-
-	Jeff
-
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

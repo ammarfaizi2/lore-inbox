@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270827AbTHNQ2s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 12:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270810AbTHNQ2s
+	id S272356AbTHNQcy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 12:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272415AbTHNQcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 12:28:48 -0400
-Received: from maja.beep.pl ([195.245.198.10]:40721 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S270827AbTHNQ2n convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 12:28:43 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: finding which pci device works as ide controller for root fs
-Date: Thu, 14 Aug 2003 18:26:30 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Thu, 14 Aug 2003 12:32:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54278 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S272356AbTHNQcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 12:32:52 -0400
+Date: Thu, 14 Aug 2003 17:32:49 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Make modules work in Linus' tree on ARM
+Message-ID: <20030814173249.C332@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20030814130810.A332@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308140917350.8148-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308141826.30735.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0308140917350.8148-100000@home.osdl.org>; from torvalds@osdl.org on Thu, Aug 14, 2003 at 09:19:17AM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Aug 14, 2003 at 09:19:17AM -0700, Linus Torvalds wrote:
+> 
+> On Thu, 14 Aug 2003, Russell King wrote:
+> > 
+> > After reviewing the /proc/kcore and kclist issues, I've decided that I'm
+> > no longer prepared to even _think_ about supporting /proc/kcore on ARM -
+> 
+> I suspect we should just remove it altogether.
+> 
+> Does anybody actually _use_ /proc/kcore? It was one of those "cool 
+> feature" things, but I certainly haven't ever used it myself except for 
+> testing, and it's historically often been broken after various kernel 
+> infrastructure updates, and people haven't complained..
 
-I need /dev/hdX -> pci id mapping for geninitrd script - with modular IDE I 
-need to load some IDE controller driver from initrd to mount root fs.
-
-Now I'm loading all modules for IDE devices found from:
-awk ' { print $2 } ' /proc/bus/pci/devices
-+ simple file which maps PCI ID to module name like
-808684cb piix
-
-How to find controller which is used for root fs (and do not load other 
-modules)? I suppose that on 2.4 this is impossible from userspace but on 2.6 
-maybe sysfs will be useful.
-
-[arekm@mobarm arekm]$ ls -l /sys/block/hda/device
-lrwxrwxrwx    1 root     root           46 2003-08-14 00:49 
-/sys/block/hda/device -> ../../devices/pci0000:00/0000:00:11.1/ide0/0.0
-
-Is it possible to get PCI ID from sysfs for specified device?
+I was thinking afterwards about a patch to allow /proc/kcore to be
+entirely disabled and dropped out of the kernel - we already select
+between a.out and ELF.
 
 -- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm@sse.pl   AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272352AbRHYASq>; Fri, 24 Aug 2001 20:18:46 -0400
+	id <S272356AbRHYAV4>; Fri, 24 Aug 2001 20:21:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272353AbRHYASg>; Fri, 24 Aug 2001 20:18:36 -0400
-Received: from web10906.mail.yahoo.com ([216.136.131.42]:60687 "HELO
+	id <S272355AbRHYAVq>; Fri, 24 Aug 2001 20:21:46 -0400
+Received: from web10906.mail.yahoo.com ([216.136.131.42]:43026 "HELO
 	web10906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272352AbRHYAS3>; Fri, 24 Aug 2001 20:18:29 -0400
-Message-ID: <20010825001844.15318.qmail@web10906.mail.yahoo.com>
-Date: Fri, 24 Aug 2001 17:18:44 -0700 (PDT)
+	id <S272356AbRHYAV3>; Fri, 24 Aug 2001 20:21:29 -0400
+Message-ID: <20010825002145.15725.qmail@web10906.mail.yahoo.com>
+Date: Fri, 24 Aug 2001 17:21:45 -0700 (PDT)
 From: Brad Chapman <kakadu_croc@yahoo.com>
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-To: "David S. Miller" <davem@redhat.com>
+To: Tobias Diedrich <ranma@gmx.at>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010824.170748.41633430.davem@redhat.com>
+In-Reply-To: <20010825021651.I8296@router.ranmachan.dyndns.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "David S. Miller" <davem@redhat.com> wrote:
->    From: Brad Chapman <kakadu_croc@yahoo.com>
->    Date: Fri, 24 Aug 2001 16:59:27 -0700 (PDT)
->    
->    	- stay with the old-style macros (:P, :P, :P)
+--- Tobias Diedrich <ranma@gmx.at> wrote:
+> Brad Chapman wrote:
 > 
-> I've been trying to stay out of this until Linus returns
-> and has his word... but I can say with a level of certainty
-> that this won't sit well with Linus at all.
+> > 	This way, some hackers can use the two-arg min()/max() inside an #ifdef block,
+> > other hackers can use the three-arg min()/max() inside an #ifdef block, 
+> > and people who don't care can select either.
 > 
-> Later,
-> David S. Miller
-> davem@redhat.com
+> Umm, you know this means some drivers will work only with one setting, unless
+> you always code both versions, which would be stupid ? 
+> 
+> -- 
+> Tobias						   PGP-Key: 0x9AC7E0BC
 
-Mr. Miller,
+Mr. Diedrich,
 
-	Ack. When Linus returns, I'm sure he'll give us all very good reasons 
-why he thought it needed to be changed.
+	Yes, I'm aware of that. That's why we should try to centralize the #ifdef
+somewhere, so that everybody sees a unified interface, but at the same time, 
+do this correctly _and_ _without_ the use of typeof().
 
-	BTW, what is your opinion on the various ways I suggested to satisfy 
-people over the min()/max() issue? Mr. LaHaise nearly threw up when I suggested 
-using #ifdef, so we can safely scratch that one ;-). What do you think, sir?
+	BTW what is your opinion on the things I suggested?
 
-Brad 
+Brad
 
 
 =====

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316254AbSEVRFu>; Wed, 22 May 2002 13:05:50 -0400
+	id <S316258AbSEVRHG>; Wed, 22 May 2002 13:07:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316258AbSEVRFu>; Wed, 22 May 2002 13:05:50 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26884 "EHLO
+	id <S316260AbSEVRHF>; Wed, 22 May 2002 13:07:05 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29188 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316254AbSEVRFs>; Wed, 22 May 2002 13:05:48 -0400
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-To: jsimmons@transvirtual.com (James Simmons)
-Date: Wed, 22 May 2002 18:25:47 +0100 (BST)
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.10.10205220924310.4611-100000@www.transvirtual.com> from "James Simmons" at May 22, 2002 09:30:48 AM
+	id <S316258AbSEVRHE>; Wed, 22 May 2002 13:07:04 -0400
+Subject: Re: multithreaded device driver
+To: zwane@linux.realnet.co.sz (Zwane Mwaikambo)
+Date: Wed, 22 May 2002 18:26:54 +0100 (BST)
+Cc: lylai@csie.nctu.edu.tw (lylai),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.44.0205221829430.23578-100000@netfinity.realnet.co.sz> from "Zwane Mwaikambo" at May 22, 2002 06:31:27 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17AZrv-0002Ia-00@the-village.bc.nu>
+Message-Id: <E17AZt0-0002Il-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan you are thinking to PC here. On embedded devices that run X it is
-> just extra over head to use the VT interface. It would be much lighter
-> weigth to use the /dev/input/event interface. Personally I like to see
-> KBDRATE and alot of other junk go away in the console code. Intead we
-> just use the input api and /dev/fb with DRI. I have talked to Jim Getty
-> about this and likes to see things head in this direction.
+> On 23 May 2002, lylai wrote:
+> > Does linux kernel provide kernel level thread headers that I can use to
+> > write a multithreaded device driver?
+> > 
+> > Do I need to program a device driver to be multithreaded to achieve
+> > paralle I/O?
+> > 
+> > Thank you for your help.
+> 
+> Worth looking at linux/drivers/net/8139too.c, that uses threads. Other 
+> methods of offloading work from a central point like an ISR could be done 
+> with Bottom Halves (tasklets) but that won't be parallelised.
 
-DRI ? What good is DRI to me on an embedded box. What good is an fb driver
-when my hardware does text mode ? Why do I want the whole input layer loaded
-for a single fixed keyboard controller, or a serial interface driven by user
-mode ?
-
-
+Generally speaking you want to avoid threads for anything which is not
+fantastically slow, polled and messy. Any normal code path wants to be in
+the ISR handlers and when it has to deal with state coded properly as
+state machines.

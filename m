@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132880AbRDIXlF>; Mon, 9 Apr 2001 19:41:05 -0400
+	id <S132881AbRDIXyt>; Mon, 9 Apr 2001 19:54:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132879AbRDIXkp>; Mon, 9 Apr 2001 19:40:45 -0400
-Received: from 63-224-228-227.customers.uswest.net ([63.224.228.227]:11109
-	"HELO galen.magenet.net") by vger.kernel.org with SMTP
-	id <S132880AbRDIXkj>; Mon, 9 Apr 2001 19:40:39 -0400
-Date: Mon, 9 Apr 2001 16:40:32 -0700
-From: Joseph Carter <knghtbrd@debian.org>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Michael Peddemors <michael@linuxmagic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: goodbye
-Message-ID: <20010409164032.B853@debian.org>
-In-Reply-To: <15057.16344.113642.668424@pizda.ninka.net> <Pine.LNX.4.21.0104090250001.3595-100000@imladris.rielhome.conectiva> <20010410010008.W805@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="p4qYPpj5QlsIQJ0K"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010410010008.W805@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Tue, Apr 10, 2001 at 01:00:08AM +0300
-X-Operating-System: Linux galen 2.4.3-ac3
-X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
+	id <S132883AbRDIXyj>; Mon, 9 Apr 2001 19:54:39 -0400
+Received: from c526559-a.rchdsn1.tx.home.com ([24.0.107.130]:54912 "EHLO
+	ledzep.dyndns.org") by vger.kernel.org with ESMTP
+	id <S132881AbRDIXyW>; Mon, 9 Apr 2001 19:54:22 -0400
+Message-ID: <3AD24BAC.AC8B2CD5@home.com>
+Date: Mon, 09 Apr 2001 18:54:20 -0500
+From: Jordan <ledzep37@home.com>
+Organization: University of Texas at Dallas - Student
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac3-preempt-reiserfs-3.6.25 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: vmlinuz won't build with cmd64X.C
+In-Reply-To: <3AD1F347.8140B08B@home.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry, figured it out.
 
---p4qYPpj5QlsIQJ0K
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Jordan
 
-On Tue, Apr 10, 2001 at 01:00:08AM +0300, Matti Aarnio wrote:
-> 	Dave said "remove DUL", I did that.
->=20
-> 	VGER uses now   RBL and RSS,  no others.
-
-Thank you, I don't believe there is anyone on this list who is likely to
-object to these lists.
-
---=20
-Joseph Carter <knghtbrd@debian.org>                Free software developer
-
-C'mon! political protest! sheesh. Where's that anarchist spirit? ;-)
-        -- Decklin Foster
-
-
---p4qYPpj5QlsIQJ0K
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
-
-iEYEARECAAYFAjrSSHAACgkQj/fXo9z52rPk7wCfYKaes8nc21VTQ6QWCef1iUsC
-d2UAn1DC5/4WVzcoQ1ARuwuzZKE/zQKW
-=Mysp
------END PGP SIGNATURE-----
-
---p4qYPpj5QlsIQJ0K--
+Jordan wrote:
+> 
+> I went in to my .config and disabled 640 and 640 enhanced in favor of
+> trying the 64x ide support.  I especially liked the fact that from the
+> code it look to have a /proc table similar the the via driver for my
+> onboard controller.  Then during compile I can not get the 64x to
+> correctly build itself into the kernel.  Actually it build into the
+> kernel but during the final steps the whole build fails becuase of these
+> errors:
+> 
+> make[2]: Leaving directory `/usr/src/linux/arch/i386/lib'
+> make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
+> ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
+> arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+> init/version.o \
+>         --start-group \
+>         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+> mm/mm.o fs/fs.o ipc/ipc.o \
+>         drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
+> drivers/net/net.o drivers/media/media.o  drivers/parport/driver.o
+> drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o
+> drivers/scsi/scsidrv.o drivers/cdrom/driver.o
+> drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o
+> drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o
+> drivers/acpi/acpi.o \
+>         net/network.o \
+>         /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
+> /usr/src/linux/arch/i386/lib/lib.a \
+>         --end-group \
+>         -o vmlinux
+> drivers/ide/idedriver.o: In function `ide_setup':
+> drivers/ide/idedriver.o(.text.init+0x712): undefined reference to
+> `cmd640_vlb'
+> drivers/ide/idedriver.o: In function `probe_for_hwifs':
+> drivers/ide/idedriver.o(.text.init+0x918): undefined reference to
+> `ide_probe_for_cmd640x'
+> drivers/ide/idedriver.o: In function `pci_init_cmd64x':
+> drivers/ide/idedriver.o(.text.init+0xb2a): undefined reference to
+> `cmd64x_display_info'
+> make: *** [vmlinux] Error 1
+> 
+> I am running 2.4.3-ac3.  Thanks for any help, I would really like to be
+> able to try 64x as opposed to 640.
+> 
+> Jordan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

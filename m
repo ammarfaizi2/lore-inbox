@@ -1,76 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUCRChR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 21:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUCRChR
+	id S262356AbUCRCnz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 21:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUCRCnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 21:37:17 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42659 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262347AbUCRChL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 21:37:11 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Dave Croal <dcroal@cantecsystems.com>
-Subject: Re: PROBLEM: alim15x3 later than 2.6.1 won't allow DMA to be turned on
-Date: Thu, 18 Mar 2004 03:45:42 +0100
-User-Agent: KMail/1.5.3
-References: <40590737.9060001@cantecsystems.com>
-In-Reply-To: <40590737.9060001@cantecsystems.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Mar 2004 21:43:55 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:9867
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262368AbUCRCnx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 21:43:53 -0500
+Date: Thu, 18 Mar 2004 03:44:41 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+Message-ID: <20040318024441.GH2113@dualathlon.random>
+References: <Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com> <20040227122936.4c1be1fd.akpm@osdl.org> <20040227211548.GI8834@dualathlon.random> <162060000.1077919387@flay> <20040228023236.GL8834@dualathlon.random> <20040228045713.GA388@ca-server1.us.oracle.com> <20040228061838.GO8834@dualathlon.random> <472800000.1077950719@[10.10.2.4]> <20040228070521.GQ8834@dualathlon.random> <1077959940.24528.28.camel@nighthawk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403180345.42571.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <1077959940.24528.28.camel@nighthawk>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 of March 2004 03:19, Dave Croal wrote:
-> The alim15x3 module in kernels 2.6.3 and 2.6.4 does not allow me to turn
-> on DMA via hdparm:
->
-> hdparm -d1 /dev/hda
-> HDIO_SET_DMA failed: Operation not permitted using_dma = 0 (off)
->
-> dmesg |grep -i ali
-> ALI15X3: IDE controller at PCI slot 0000:00:0f.0
-> ALI15X3: chipset revision 32
-> ALI15X3: not 100% native mode: will probe irqs later
-> ALI15X3: port 0x01f0 already claimed by ide0
-> ALI15X3: port 0x0170 already claimed by ide1
-> ALI15X3: neither IDE port enabled (BIOS)
->
-> ---
->
-> In kernel 2.6.1 it worked OK:
->
-> hdparm -d1 /dev/hda
-> /dev/hda:
->   setting using_dma to 1 (on)
->   using_dma    =  1 (on)
->
-> dmesg |grep -i ali
-> ALI15X3: IDE controller at PCI slot 0000:00:0f.0
-> ALI15X3: chipset revision 32
-> ALI15X3: not 100% native mode: will probe irqs later
->      ide0: BM-DMA at 0x78c0-0x78c7, BIOS settings: hda:DMA, hdb:pio
->      ide1: BM-DMA at 0x78c8-0x78cf, BIOS settings: hdc:DMA, hdd:pio
-> ide0: I/O resource 0x3F6-0x3F6 not free.
-> hda: ERROR, PORTS ALREADY IN USE
-> register_blkdev: cannot get major 3 for ide0
-> ide1: I/O resource 0x376-0x376 not free.
-> hdc: ERROR, PORTS ALREADY IN USE
-> register_blkdev: cannot get major 22 for ide1
-> Module alim15x3 cannot be unloaded due to unsafe usage in
-> include/linux/module.h:483
+On Sat, Feb 28, 2004 at 01:19:01AM -0800, Dave Hansen wrote:
+> On Fri, 2004-02-27 at 23:05, Andrea Arcangeli wrote:
+> > > I'm not sure it's that straightforward really - doing the non-pgd aligned
+> > > split is messy. 2.5 might actually be much cleaner than 3.5 though, as we
+> > > never updated the mappings of the PMD that's shared between user and kernel.
+> > > Hmmm ... that's quite tempting.
+> > 
+> > I read the 3.5:0.5 PAE sometime last year and it was pretty
+> > strightforward too, the only single reason I didn't merge it is that
+> > it had the problem that it changed common code that every archs depends
+> > on, so it broke all other archs, but it's not really a matter of
+> > difficult code, as worse it just needs a few liner change in every arch
+> > to make them compile again. So I'm quite optimistic 2.5:1.5 will be
+> > doable with a reasonably clean patch and with ~zero performance downside
+> > compared to 3:1 and 2:2.
+> 
+> The only performance problem with using PMDs which are shared between
+> kernel and user PTE pages is that you have a potential to be required to
+> instantiate the kernel portion of the shared PMD each time you need a
+> new set of page tables.  A slab for these partial PMDs is quite helpful
+> in this case.  
 
-These are errors - ide0 and ide1 are already used by generic IDE driver.
-It was fixed in 2.6.2 but side-effect of the fix is that you must make sure
-that ide_generic driver is not compiled in or loaded if it's modular.
+that's a bigger cost during context switch but it's still zero cost for
+the syscalls, and it never flushes away the user address space
+unnecessairly. So I doubt it's measurable (unlike 4:4 which is a big hit).
 
-Please make sure CONFIG_IDE_GENERIC is 'n' in your .config.
+> The real logistical problem with partial PMDs is just making sure that
+> all of the 0 ... PTRS_PER_PMD loops are correct.  The last few times
+> I've implemented it, I just made PTRS_PER_PMD take a PGD index, and made
+> sure to start all of the loops from things like pmd_index(PAGE_OFFSET)
+> instead of 0.  
 
-Regards,
-Bartlomiej
+it is indeed tricky, though your last patch for 3.5G on PAE looked fine.
+But now I would like to include the 2.5:1.5 not 3.5:0.5 ;), maybe we can
+support 3.5:0.5 too at the same time (though 3.5:0.5 is secondary).
 
+> Here are a couple of patches that allowed partial user/kernel PMDs. 
+> These conflicted with 4:4 and got dropped somewhere along the way, but
+> the generic approaches worked.  I believe they at least compiled on all
+> of the arches, too.  
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/patches/2.5.68/2.5.68-mjb1/540-separate_pmd
+> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/patches/2.5.68/2.5.68-mjb1/650-banana_split
+
+would you be willing to implement config 15GB too (2.5:1.5)? In the next
+days I'm going to work on the rbtree for the objrmap (just in case
+somebody wants to swap the shm with vlm instead of mlocking it), but I
+would like to get this done too ;).
+
+you see my current tree in 2.6.5-rc1-aa1 on the ftp site, but you can
+use any other kernel too since the code you will touch should be the
+same for all 2.6.
+
+It's up to you, only if you are interested, thanks.

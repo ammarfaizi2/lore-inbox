@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269261AbRGaLf5>; Tue, 31 Jul 2001 07:35:57 -0400
+	id <S269263AbRGaLl6>; Tue, 31 Jul 2001 07:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269262AbRGaLfh>; Tue, 31 Jul 2001 07:35:37 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:34299 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S269261AbRGaLf2>;
-	Tue, 31 Jul 2001 07:35:28 -0400
-Date: Tue, 31 Jul 2001 13:34:43 +0200
-From: David Weinehall <tao@acc.umu.se>
+	id <S269264AbRGaLls>; Tue, 31 Jul 2001 07:41:48 -0400
+Received: from weta.f00f.org ([203.167.249.89]:36486 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269263AbRGaLlj>;
+	Tue, 31 Jul 2001 07:41:39 -0400
+Date: Tue, 31 Jul 2001 23:42:20 +1200
+From: Chris Wedgwood <cw@f00f.org>
 To: Hans Reiser <reiser@namesys.com>
 Cc: Rik van Riel <riel@conectiva.com.br>, Christoph Hellwig <hch@caldera.de>,
-        linux-kernel@vger.kernel.org, Vitaly Fertman <vitaly@namesys.com>,
-        Linus Torvalds <torvalds@transmeta.com>
+        linux-kernel@vger.kernel.org
 Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <20010731133443.N9244@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.33L.0107301858350.5582-100000@duckman.distro.conectiva> <3B65E0FE.CC84FF98@namesys.com>
+Message-ID: <20010731234220.B7379@weta.f00f.org>
+In-Reply-To: <Pine.LNX.4.33L.0107301904060.5582-100000@duckman.distro.conectiva> <3B65E177.D77ACA45@namesys.com> <20010731223203.B7257@weta.f00f.org> <3B668FA2.5E76BE1E@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3B65E0FE.CC84FF98@namesys.com>; from reiser@namesys.com on Tue, Jul 31, 2001 at 02:34:38AM +0400
+In-Reply-To: <3B668FA2.5E76BE1E@namesys.com>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 02:34:38AM +0400, Hans Reiser wrote:
+On Tue, Jul 31, 2001 at 02:59:46PM +0400, Hans Reiser wrote:
 
-[snipping earlier discussion]
+    Sigh, I see I cannot persuade in this argument.  It seems Linus is
+    right, and debugging checks don't belong in debugged code even if
+    they would make it easier for persons hacking on the code to debug
+    their latest hacks.
 
-> I am saying that you can put so many internal checks into a filesytem
-> that it is unusable for any real usage.  Guess what?  ReiserFS does
-> that!  But we surround the checks with a #define.  The only limit we
-> have on the checks, is that after the relevant bug disappears we cut
-> out the ones that make things so slow that it noticeably
-> inconveniences our debugging.  It has to slow things down quite a lot
-> that we can't stand to wait for it while debugging, but there are some
-> kinds of checks that you can do that are that slow.
-> 
-> ReiserFS checks more things than the rest of the kernel does.  We can
-> do this because we use the #define, and pay no price for it.  You
-> should do this also in your code....
-> 
-> Every major kernel component should have a #define which if on checks
-> every imaginable thing the developer can think of to check regardless
-> of how slow it makes the code go to check it.  Then, when users (or at
-> least as usefully, developers adding a new feature) have bugs in that
-> component, they can turn it on.
+In six months time, or whenever people feel more confident about
+resierfs stability (there are still many bigs to be found) then these
+checks can be relaxed.
 
-Ugh! I think you need to have a little chat with Linus about this
-opinion of yours on how to use #ifdef / #endif in code... I'm not all
-that sure he'll agree with you.
+Right now, reiserfs is still relatively new --- and its much more
+complex and ext2, so having additional sanity checks is a good idea.
 
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+
+
+  --cw
+

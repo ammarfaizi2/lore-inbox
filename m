@@ -1,72 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264337AbUDTX2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264279AbUDTWKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbUDTX2S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 19:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbUDTXZF
+	id S264279AbUDTWKB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:10:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbUDTWJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 19:25:05 -0400
-Received: from holomorphy.com ([207.189.100.168]:1691 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264337AbUDTXXi (ORCPT
+	Tue, 20 Apr 2004 18:09:46 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:3307 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264548AbUDTVWj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 19:23:38 -0400
-Date: Tue, 20 Apr 2004 16:23:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marcelo Tosatti <marcelo@hera.kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.26 released
-Message-ID: <20040420232312.GQ743@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marcelo Tosatti <marcelo@hera.kernel.org>,
-	linux-kernel@vger.kernel.org
-References: <200404141314.i3EDEbxv023592@hera.kernel.org>
+	Tue, 20 Apr 2004 17:22:39 -0400
+Subject: Re: Failing back to INSANE timesource :) Time stopped today.
+From: john stultz <johnstul@us.ibm.com>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Niclas Gustafsson <niclas.gustafsson@codesense.com>,
+       lkml <linux-kernel@vger.kernel.org>, Patricia Gaughen <gone@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.55.0404201431360.28193@jurand.ds.pg.gda.pl>
+References: <1081416100.6425.45.camel@gmg.codesense.com>
+	 <1081465114.4705.4.camel@cog.beaverton.ibm.com>
+	 <1081932857.17234.37.camel@gmg.codesense.com>
+	 <Pine.LNX.4.55.0404151633100.17365@jurand.ds.pg.gda.pl>
+	 <1082048278.17234.144.camel@gmg.codesense.com>
+	 <1082452873.20179.34.camel@gmg.codesense.com>
+	 <Pine.LNX.4.55.0404201431360.28193@jurand.ds.pg.gda.pl>
+Content-Type: text/plain
+Message-Id: <1082495923.10026.36.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404141314.i3EDEbxv023592@hera.kernel.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 20 Apr 2004 14:18:44 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 06:14:37AM -0700, Marcelo Tosatti wrote:
-> final:
-> - 2.4.26-rc4 was released as 2.4.26 with no changes.
+On Tue, 2004-04-20 at 05:40, Maciej W. Rozycki wrote:
+> On Tue, 20 Apr 2004, Niclas Gustafsson wrote:
+> 
+> > I've now been running the system since last week, about 6 days now with
+> > sometimes quite high load, both in regard to CPU usage and network
+> > traffic.
+> > And it seems to be running just fine with the patch from Maciej.
+> 
+>  I'm glad to read this.
 
-Spotted by Joel Becker. Lookup through raw_phys_apicid[] needs bounds
-checks, otherwise the APIC ID returned may be fetched from memory
-beyond the end of the array resulting in various boot-time catastrophes.
-I took the liberty of slightly rearranging cpu_present_to_apicid() in
-the interest of clarity and/or Documentation/CodingStyle in the process.
+It appears to be working here in our labs as well.
 
 
--- wli
+> > I've got a couple of questions, 
+> > 
+> > When was this bug introduced? Was it 2.6.1 ( or rather somewhere in
+> > 2.5)? Or was it already present in 2.4?
+> 
+>  Well, the bug has been introduced by IBM in their firmware (SMM code).  
+> ;-)  The patch only works it around.  Functionally the changed code is the
+> same for your configuration.
+> 
+>  If you are asking about the problematic code, then it's there since
+> 2.3.x, so it's in 2.4, too.  It's a part of the NMI watchdog support,
+> though it's used for ordinary timer interrupts for certain systems as
+> well.
+
+Are you saying that 2.4 will exhibit this problem as well, or that 2.4
+already has an equivalent workaround?
 
 
-diff -puN include/asm-i386/smpboot.h~smp_boot_cpus include/asm-i386/smpboot.h
---- linux-2.4.21/include/asm-i386/smpboot.h~smp_boot_cpus	2004-04-20 15:52:15.000000000 -0700
-+++ linux-2.4.21-wli/include/asm-i386/smpboot.h	2004-04-20 16:00:02.000000000 -0700
-@@ -73,11 +73,18 @@ extern unsigned char raw_phys_apicid[NR_
-  */
- static inline int cpu_present_to_apicid(int mps_cpu)
- {
--	if (clustered_apic_mode == CLUSTERED_APIC_XAPIC)
--		return raw_phys_apicid[mps_cpu];
--	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
--		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
--	return mps_cpu;
-+	switch (clustered_apic_mode) {
-+		case CLUSTERED_APIC_XAPIC:
-+			if (mps_cpu >= NR_CPUS)
-+				return BAD_APICID;
-+			else
-+				return raw_phys_apicid[mps_cpu];
-+		case CLUSTERED_APIC_NUMAQ:
-+			return (mps_cpu & ~0x3) << 2 | 1 << (mps_cpu & 0x3);
-+		case CLUSTERED_APIC_NONE:
-+		default:
-+			return mps_cpu;
-+	}
- }
- 
- static inline unsigned long apicid_to_phys_cpu_present(int apicid)
+> > When will this patch be merged into the 2.6-tree?  I don't have to
+> > stress the impact of this problem on IBM servers as they are rendered
+> > quite useless.
+> 
+>  Apparently there are problems with the workaround on certain AMD
+> Athlon-based systems.  I suppose they need to be resolved somehow first.
 
-_
+Can you point me to any threads on this issue. I'd like to do what I can
+to help get this workaround in.
+
+> > Which other IBM models are affected? Can I run 2.6.5 on my 345:s or
+> > 335:s?  Do they use the same buggy SMM firmware?
+> 
+>  Ask IBM.  The reason is an incorrect handling of PIC (8259A) state
+> saving/restoration.
+
+I'm following up w/ our hardware group about this issue.
+
+Thanks so much for the help!
+-john
+

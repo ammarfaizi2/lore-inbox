@@ -1,49 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290376AbSAPHD6>; Wed, 16 Jan 2002 02:03:58 -0500
+	id <S290380AbSAPHH2>; Wed, 16 Jan 2002 02:07:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290375AbSAPHDr>; Wed, 16 Jan 2002 02:03:47 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:42432 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S290376AbSAPHDf>; Wed, 16 Jan 2002 02:03:35 -0500
-Date: Wed, 16 Jan 2002 00:03:28 -0700
-Message-Id: <200201160703.g0G73Sr27779@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: nahshon@actcom.co.il
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: SCSI host numbers?
-In-Reply-To: <200201151219.g0FCJUD15091@lmail.actcom.co.il>
-In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
-	<200201132041.g0DKfeg30866@lmail.actcom.co.il>
-	<200201140636.g0E6a4b16527@vindaloo.ras.ucalgary.ca>
-	<200201151219.g0FCJUD15091@lmail.actcom.co.il>
+	id <S290378AbSAPHHS>; Wed, 16 Jan 2002 02:07:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:16400 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S290375AbSAPHHL>;
+	Wed, 16 Jan 2002 02:07:11 -0500
+Date: Wed, 16 Jan 2002 08:07:05 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: block completion races
+Message-ID: <20020116080705.F3805@suse.de>
+In-Reply-To: <3C44DC7B.D960D15D@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C44DC7B.D960D15D@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itai Nahshon writes:
-> On Monday 14 January 2002 08:36 am, Richard Gooch wrote:
-> > So how about in scsi_host_no_init() we call alloc_unique_number() N
-> > times until we've allocated the required number of host numbers for
-> > manual control. These will never be freed. Then all other host
-> > allocations can be done dynamically. We would just need a flag in the
-> > host structure to disable deallocation of the number if it's one of
-> > the reserved numbers.
+On Tue, Jan 15 2002, Andrew Morton wrote:
+> void end_that_request_last(struct request *req)
+> {
+>         if (req->waiting != NULL)
+>                 complete(req->waiting);
 > 
-> See that dynamic hosts are also added to the list and *never* removed
-> from it (even when the host is unregistered). With that behaviour your
-> unique number functions would be an overkill because we must never
-> free host nubers.
+>         blkdev_release_request(req);
+> }
 > 
-> I suggest these changes:
->     max_scsi_host initialized in scsi_host_no_init.
->     max_scsi_host never decremented.
-> That would fix the problem that I reported.
+> 
+> I think a bug.  Sometimes (eg, cdrom_queue_packet_command())
+> the request is allocated on a task's kernel stack.  As soon as
+> we call complete(), that task can wake and release the request
+> while blkdev_release_request() is diddling it on this CPU.
+> 
+> Do you see any problem with releasing the request before running
+> complete()?.  Also I think it's best to uninline blkdev_release_request().
+> It's 104 bytes long, and we have four copies of it in ll_rw_blk.c.  A
+> patch is here.
 
-But if you load, unload and reload a host driver, and it's not listed
-in scsihosts=, then won't it get a different host number each time?
+Agreed, patch is fine with me.
 
-				Regards,
+> Also, there is this code in ide_do_drive_cmd():
+> 
+>         if (action == ide_wait) {
+>                 wait_for_completion(&wait);     /* wait for it to be serviced */
+>                 return rq->errors ? -EIO : 0;   /* return -EIO if errors */
+>         }
+> 
+> Is it safe to use `rq' here?  It has just been recycled in
+> end_that_request_last() and we don't own it any more.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Not really, I guess it would be easiest to make end_that_request_last
+return errors status.
+
+> --- linux-2.4.18-pre4/drivers/block/ll_rw_blk.c	Tue Jan 15 15:08:24 2002
+> +++ linux-akpm/drivers/block/ll_rw_blk.c	Tue Jan 15 17:39:22 2002
+> @@ -546,7 +546,7 @@ static inline void add_request(request_q
+>  /*
+>   * Must be called with io_request_lock held and interrupts disabled
+>   */
+> -inline void blkdev_release_request(struct request *req)
+> +void blkdev_release_request(struct request *req)
+>  {
+>  	request_queue_t *q = req->q;
+>  	int rw = req->cmd;
+> @@ -1084,10 +1084,11 @@ int end_that_request_first (struct reque
+>  
+>  void end_that_request_last(struct request *req)
+>  {
+> -	if (req->waiting != NULL)
+> -		complete(req->waiting);
+> +	struct completion *waiting = req->waiting;
+>  
+>  	blkdev_release_request(req);
+> +	if (waiting != NULL)
+> +		complete(waiting);
+>  }
+>  
+>  #define MB(kb)	((kb) << 10)
+
+I've applied this.
+
+-- 
+Jens Axboe
+

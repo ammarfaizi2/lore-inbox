@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbUKKQph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbUKKQrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbUKKQph (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 11:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbUKKQph
+	id S262285AbUKKQrw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 11:47:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUKKQrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 11:45:37 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:15783 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262281AbUKKQpa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 11:45:30 -0500
-Subject: Re: Oops with CIFS (2.6.10-rc1-BK)
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-cifs-client@lists.samba.org
-Content-Type: text/plain
-Organization: IBM - Linux Technology Center
-Message-Id: <1100191367.16432.106.camel@stevef95.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 11 Nov 2004 10:42:48 -0600
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Nov 2004 11:47:52 -0500
+Received: from dfw-gate4.raytheon.com ([199.46.199.233]:34911 "EHLO
+	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
+	id S262285AbUKKQro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 11:47:44 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+From: Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
+Date: Thu, 11 Nov 2004 10:46:31 -0600
+Message-ID: <OF3F836225.78DCFCB0-ON86256F49.005C260B-86256F49.005C2643@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/11/2004 10:46:32 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> mounted the share with -t cifs. the share was mounted successfully, i
-> could use it and then the oops occured. i could not
-> reproduce it up to now but i thought perhaps the output
-> could be useful somehow. here it goes:
+>i have released the -V0.7.25-0 Real-Time Preemption patch, which can be
+>downloaded from the usual place:
 >
-> http://nerdbynature.de/bits/prinz/cifs/dmesg.txt
-> http://nerdbynature.de/bits/prinz/cifs/config.txt
+>    http://redhat.com/~mingo/realtime-preempt/
+>
+>this release includes fixes, new features and latency improvements.
 
-Oops is in cifs_readdir, a routine which has a set of problems which
-require a substantial rewrite which is taking me far more time than I
-expected (partly due to time spent debugging on various unrelated Samba
-server issues).
+It may be coincidence, but when I did
+  chrt -p -f 99 2
+(to set IRQ 0 to max RT priority, like the other IRQ's)
 
-Since the new readdir code is quite different, I would like to try it on
-the new code when it is closer to ready to merge.  The two big issues
-being addressed are:
-1) removing the convert-file-name-in-place approach in that routine
-which is a very bad idea for various Asian code pages especially for
-long file names.
-2) working around the netapp server issue (handling illegal values for
-the field last search entry in buffer)
-3) make configurable calling new_inode for entries during findfirst. 
-Although this saves a lot of time and a huge amount of network traffic
-when the client follows up immediately by calling lookup - there are a
-few cases in which this is slower than only calling new_inode when doing
-the lookups (SMB QPathInfo)
-4) Add support for SMB FindFirst level 261 (which returns a unique
-number somewhat similar to an inode number) for servers which do not
-have protocol support the SNIA CIFS Unix Extensions but do have support
-for this new infolevel (introduced in WindowsXP, also in Samba,
-Windows2003 and other servers and appliances now).  This allows stable
-inode numbers to be returned from the server (even if the server does
-not support the Unix Extensions), and makes it easier to identify
-hardlinked files across the network, a requirement for some
-applications.
+I got the following deadlock.
+
+==========================================
+[ BUG: lock recursion deadlock detected! |
+------------------------------------------
+already locked:  [c140c2e0] {&base->lock}
+.. held by:       ksoftirqd/0:    4 [c17953f0, 105]
+... acquired at:  run_timer_softirq+0x108/0x470
+
+------------------------------
+| showing all locks held by: |  (ksoftirqd/0/4 [c17953f0, 105]):
+------------------------------
+
+#001:             [c140c2e0] {&base->lock}
+... acquired at:  run_timer_softirq+0x108/0x470
+
+#002:             [c0576b6c] {&timer->lock}
+... acquired at:  __mod_timer+0x47/0x1d0
+
+There are a LOT of messages that stream out after this problem.
+I will be sending the full serial console log separately.
+
+Will reboot shortly and see if this is a repeatable problem or not.
+
+  --Mark
 

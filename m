@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbUJ3Xna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUJ3XrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbUJ3Xna (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 19:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUJ3Xn3
+	id S261425AbUJ3XrU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 19:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbUJ3XrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 19:43:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3260 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261415AbUJ3XnK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 19:43:10 -0400
-Message-ID: <418426FF.1050801@pobox.com>
-Date: Sat, 30 Oct 2004 19:42:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthijs Melchior <mmelchior@xs4all.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc1] ahci: Intel ICH6R (925X) corrections
-References: <417A7E0D.6060704@xs4all.nl> <418423C8.309@xs4all.nl>
-In-Reply-To: <418423C8.309@xs4all.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 30 Oct 2004 19:47:20 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:23983 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261415AbUJ3XrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 19:47:18 -0400
+Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP
+	kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Tim_T_Murphy@Dell.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1099093258.5965.41.camel@at2.pipehead.org>
+References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC4@ausx2kmps304.aus.amer.dell.com>
+	 <20041029212029.I31627@flint.arm.linux.org.uk>
+	 <1099093258.5965.41.camel@at2.pipehead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1099176190.25178.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 30 Oct 2004 23:43:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthijs Melchior wrote:
-> This patch makes the following changes to drivers/scsi/ahci.c
+On Sad, 2004-10-30 at 00:40, Paul Fulghum wrote:
+> On Fri, 2004-10-29 at 15:20, Russell King wrote:
+> > At a guess, you've enabled "low latency" setting on this port ?
 > 
-> - Add definition for SActive register
-> - Add most interrupt sources to default interrupt mask
-> - Write low 32 bits of FIS address to PxFB, where they belong
-> - Set command active bit in PxSACT before setting command issue bit in PxCI
-> - Announce Sub Class Code in driver info message [IDE, SATA or RAID]
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- a/drivers/scsi/ahci.c	2004-10-23 01:37:22.000000000 +0200
-> +++ b/drivers/scsi/ahci.c	2004-10-31 00:20:13.000000000 +0200
-> @@ -90,6 +90,7 @@
->  	PORT_SCR_STAT		= 0x28, /* SATA phy register: SStatus */
->  	PORT_SCR_CTL		= 0x2c, /* SATA phy register: SControl */
->  	PORT_SCR_ERR		= 0x30, /* SATA phy register: SError */
-> +        PORT_SCR_ACT            = 0x34, /* SATA phy register: SActive */
->  
->  	/* PORT_IRQ_{STAT,MASK} bits */
->  	PORT_IRQ_COLD_PRES	= (1 << 31), /* cold presence detect */
-> @@ -116,6 +117,9 @@
->  				  PORT_IRQ_HBUS_DATA_ERR |
->  				  PORT_IRQ_IF_ERR,
->  	DEF_PORT_IRQ		= PORT_IRQ_FATAL | PORT_IRQ_PHYRDY |
-> +                                  PORT_IRQ_CONNECT | PORT_IRQ_SG_DONE |
-> +                                  PORT_IRQ_UNK_FIS | PORT_IRQ_SDB_FIS |
-> +                                  PORT_IRQ_DMAS_FIS | PORT_IRQ_PIOS_FIS |
->  				  PORT_IRQ_D2H_REG_FIS,
->  
+> Would it make sense to do something like (in tty_io.c) the following?
 
-oh BTW, several parts of your patch had all the tabs converted to spaces 
-for some reason.  I hand-converted them back.
-
-	Jeff
-
-
+Not really because it can legally occur if you flip the low latency
+flag while a transaction is queued. It might work if you waited for
+scheduled work to complete in the flag changing.
 

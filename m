@@ -1,122 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbTEHTst (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 15:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTEHTst
+	id S261968AbTEHTxz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 15:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTEHTxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 15:48:49 -0400
-Received: from pengo.systems.pipex.net ([62.241.160.193]:45510 "HELO
-	pengo.systems.pipex.net") by vger.kernel.org with SMTP
-	id S262058AbTEHTsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 15:48:46 -0400
-From: shaheed <srhaque@iee.org>
-To: mingo@elte.hu, rml@tech9.net
-Subject: [PATCH] 2.5.69 support for restricting cpu usage to callers of  sys_setaffinity
-Date: Thu, 8 May 2003 20:58:43 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 8 May 2003 15:53:55 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42508 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261968AbTEHTxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 15:53:54 -0400
+Date: Thu, 8 May 2003 22:06:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ben Collins <bcollins@debian.org>
+Cc: Pavel Machek <pavel@ucw.cz>, "David S. Miller" <davem@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Arnd Bergmann <arnd@arndb.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+Message-ID: <20030508200630.GC2308@atrey.karlin.mff.cuni.cz>
+References: <20030507104008$12ba@gated-at.bofh.it> <200305071154.h47BsbsD027038@post.webmailer.de> <20030507124113.GA412@elf.ucw.cz> <20030507135600.A22642@infradead.org> <1052318339.9817.8.camel@rth.ninka.net> <20030508151643.GO679@phunnypharm.org> <20030508193430.GC933@elf.ucw.cz> <20030508192730.GX679@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305082058.43565.srhaque@iee.org>
+In-Reply-To: <20030508192730.GX679@phunnypharm.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-Following on from 
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0304.1/1634.html
-
-here is a patch against 2.5.69 to add support for restricting cpu usage to 
-callers of sys_setaffinity. Please review and apply.
-
-Thanks, Shaheed
-
-1. The patch is against a clean 2.5.69
-
-2. There is a new boot flag "restricted_cpus". This takes a bit mask
-of CPUs. 
-
-3. The initial task has it's cpus_allowed mask set to ~restricted_cpus in the 
-fork initialisation code (it cannot be done in TASK_INIT since the value is 
-not 
-static). This should mean that any task that does not override cpus_allowed 
-with sys_setaffinity does not get to run on the restricted processors. 
-
-4. The parsing of the boot flag does a sanity check to prevent all available 
-CPUs being restricted. 
-
-5. Patch follows... 
+> On Thu, May 08, 2003 at 09:34:30PM +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > This would also solve the current problem where a module that is
+> > > compiled with compat ioctl's using register_ioctl32_conversion() is not
+> > > usable on a kernel compiled without CONFIG_COMPAT, even though it very
+> > > well should be.
+> > 
+> > CONFIG_COMPAT is pretty much constant depending only on
+> > architecture. I see no point in complicating this.
+> 
+> I don't think so. Sparc64 and ia64 I know allow you to disable 32bit
+> compatibility. I'd be surprised if the other 32/64 architectures
+didn't.
 
 
---- linux-2.5.69-vanilla/Documentation/kernel-parameters.txt	Sun May  4 
-23:53:57 2003
-+++ linux-2.5.69/Documentation/kernel-parameters.txt	Thu May  8 10:14:51 2003
-@@ -809,6 +809,10 @@
- 
- 	reserve=	[KNL,BUGS] Force the kernel to ignore some iomem area
- 
-+	restricted_cpus=
-+	                [KNL] Don't use these CPUs for processes by default.
-+			Format: <cpu_mask>
-+
- 	resume=		[SWSUSP] Specify the partition device for software suspension
- 
- 	riscom8=	[HW,SERIAL]
---- linux-2.5.69-vanilla/kernel/fork.c	Sun May  4 23:53:02 2003
-+++ linux-2.5.69/kernel/fork.c	Thu May  8 13:44:02 2003
-@@ -62,6 +62,30 @@
-  */
- static task_t *task_cache[NR_CPUS] __cacheline_aligned;
- 
-+/*
-+ * The boot flag "restricted_cpus" is negated to form the default per-task
-+ * cpus_allowed mask. This has the effect of only allowing processes which
-+ * call sys_setaffinity() to run on restricted_cpus.
-+ */ 
-+static unsigned long restricted_cpus = 0;
-+
-+/*
-+ * set_restricted_cpus - process boot flag to set restricted_cpus.
-+ *
-+ * NOTE: This function is a __setup and __init function.
-+ */
-+int __init set_restricted_cpus(char *options)
-+{
-+	char *value = options;
-+
-+	if (!value || !*value)
-+		return 0;
-+	restricted_cpus = simple_strtoul(value, &value, 0);
-+	return 0;
-+}
-+
-+__setup("restricted_cpus=", set_restricted_cpus);
-+
- int nr_processes(void)
- {
- 	int cpu;
-@@ -208,6 +232,19 @@
- 
- 	init_task.rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
- 	init_task.rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
-+
-+	/*
-+	 * Make sure that the user has not restricted all available CPUs,
-+	 * otherwise a functioning system won't result! Note that at this
-+	 * point, only the boot CPU is actually online...
-+	 */
-+	if (~restricted_cpus & cpu_online_map) {
-+		printk(KERN_ERR "restricted CPUs 0x%lx\n", restricted_cpus);
-+	} else {
-+		printk(KERN_ERR "cannot restrict all CPUs!\n");
-+		restricted_cpus = 0;
-+	}
-+	init_task.cpus_allowed = ~restricted_cpus;
- }
- 
- static struct task_struct *dup_task_struct(struct task_struct *orig)
+Really? I thought sparc64 has no real 64-bit userland?
 
+Okay, it might make sense on x86-64, but I do not think savings are
+worth the trouble.
+					Pavel
+> 
+
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

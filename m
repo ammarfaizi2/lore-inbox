@@ -1,93 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269242AbUJQRyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269239AbUJQSCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269242AbUJQRyk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 13:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269243AbUJQRyk
+	id S269239AbUJQSCs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269243AbUJQSCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 13:54:40 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:30841 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269242AbUJQRyF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 13:54:05 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=gJNJvZKP0vEhB3K9N6vYCgk1eAySHHuSNY4wVM3nGg2ujaT5Qo08MFx1XlnM5sNMJp7i4e/+Q+eHKKqSkzpBiJ85x0/Nl2TYaMs22PjbHi4lqzclVWWzF3AAIylZADyjrRogj0nv2AuAeHqiZnhP2J0NYnKpxM4pPN9SloVADG8
-Message-ID: <5d6b657504101710542e054f53@mail.gmail.com>
-Date: Sun, 17 Oct 2004 19:54:04 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Cc: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041017172244.GM7468@marowsky-bree.de>
+	Sun, 17 Oct 2004 14:02:48 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:56986 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269239AbUJQSCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 14:02:46 -0400
+Subject: Re: Building on case-insensitive systems
+From: Albert Cahalan <albert@users.sf.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Dan Kegel <dank@kegel.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041017092730.GA9081@mars.ravnborg.org>
+References: <1097989574.2674.14246.camel@cube> <4171F741.2070209@kegel.com>
+	 <1097991836.2666.14274.camel@cube>
+	 <20041017092730.GA9081@mars.ravnborg.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1098035748.2666.14288.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Oct 2004 13:55:49 -0400
 Content-Transfer-Encoding: 7bit
-References: <20041016062512.GA17971@mark.mielke.cc>
-	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
-	 <20041017133537.GL7468@marowsky-bree.de>
-	 <5d6b657504101707175aab0fcb@mail.gmail.com>
-	 <20041017172244.GM7468@marowsky-bree.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Oct 2004 19:22:44 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
-> On 2004-10-17T16:17:06, Buddy Lucas <buddy.lucas@gmail.com> wrote:
+On Sun, 2004-10-17 at 05:27, Sam Ravnborg wrote:
+> On Sun, Oct 17, 2004 at 01:43:56AM -0400, Albert Cahalan wrote:
+> > > 
+> > > You are betting that you can force developers to switch away
+> > > from Windows and MacOSX workstations.
+> > 
+> > Actually, I'm betting that "required to build product"
+> > is a magic phrase that overrides corporate IT's desire
+> > to brutally enforce a Microsoft-only environment.
 > 
-> > > The SuV spec is actually quite detailed about the options here:
-> > >
-> > >         A descriptor shall be considered ready for reading when a call
-> > >         to an input function with O_NONBLOCK clear would not block,
-> > >         whether or not the function would transfer data successfully.
-> > >         (The function might return data, an end-of-file indication, or
-> > >         an error other than one indicating that it is blocked, and in
-> > >         each of these cases the descriptor shall be considered ready for
-> > >         reading.)
-> > But it says nowhere that the select()/recvmsg() operation is atomic, right?
-> 
-> See, Buddy, the point here is that Linux _does_ violate the
-> specification. You can try weaseling out of it, but it's not going to
-> work.
+> Seems you are not part of one of these organisations.
+> That argument will not suffice.
 
-Sigh. Read the quote to which I responded again. Not a word about
-atomicity. Nowhere does it say that a descriptor which was ready for
-reading at select() time is still readable at recvmsg() time. There is
-no doubt that it would be very nice if select() would say something
-useful, but that's not the issue here.
+I was, twice, and it did suffice. Try it:
 
-> This isn't per se the same as saying that it's not a sensible violation,
-> but very clearly the specs disagree with the current Linux behaviour.
+"needed for revenue generation"
+"required to meet customer needs"
+...
 
-So document it.
+Don't be taking away the ammo.
 
-> It's impossible to claim that you are allowed by the spec to block on a
-> recvmsg directly following a successful select. You are not. You could
-> claim that, but you'd be wrong.
-
-Empty statement.
-
-> If the packet has been dropped in between, which _could_ have happened
-> because UDP is allowed to be dropped basically anywhere, EIO may be
-> returned. But blocking or returning EAGAIN/EWOULDBLOCK is verboten. The
-> spec is very clearly on that.
-
-Obviously returning EAGAIN/EWOULDBLOCK while reading from a blocking
-fd is not what we want (in the situation at hand). I don't see how it
-relates to the discussion.
-
-> (Now I'd claim that returning EIO after a succesful select is also
-> slightly suboptimal - the performance optimizations should be turned off
-> for blocking sockets, IMHO, and the data which caused the select() to
-> return should be considered comitted - but it would be allowed.)
-> I'm not so sure what's so hard to accept about that. It may be well that
-> Linux is following the de-facto industry standard (or even setting it)
-> here, and I'd agree that if you don't want blocking use O_NONBLOCK, but
-> in no way can Linux claim POSIX/SuV spec compliance for this behaviour.
-
-It doesn't.
+When the argument doesn't work, your organization
+is obviously not fully committed to making a profit.
+Politics are getting in the way. It's OK though,
+since that just puts you at a market disadvantage.
+Soon enough, the competiter will be hiring.
 
 
-Cheers,
-Buddy

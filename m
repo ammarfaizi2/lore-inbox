@@ -1,91 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274611AbRITS7R>; Thu, 20 Sep 2001 14:59:17 -0400
+	id <S274614AbRITTA1>; Thu, 20 Sep 2001 15:00:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274612AbRITS7H>; Thu, 20 Sep 2001 14:59:07 -0400
-Received: from air-1.osdlab.org ([65.201.151.5]:9482 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S274611AbRITS6x>;
-	Thu, 20 Sep 2001 14:58:53 -0400
-Message-ID: <3BAA3C17.557A2C4E@osdlab.org>
-Date: Thu, 20 Sep 2001 11:57:27 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus <torvalds@transmeta.com>, lkml <linux-kernel@vger.kernel.org>,
-        sfr@canb.auug.org.au, crutcher+kernel@datastacks.com
-Subject: [PATCH:v2] fix register_sysrq() in 2.4.9++
-In-Reply-To: <E15k86n-0005lE-00@the-village.bc.nu>
-Content-Type: multipart/mixed;
- boundary="------------EBFBE5401D3A3A1B30B564D4"
+	id <S274612AbRITTAH>; Thu, 20 Sep 2001 15:00:07 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:29940 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274615AbRITS7s>;
+	Thu, 20 Sep 2001 14:59:48 -0400
+Date: Thu, 20 Sep 2001 20:59:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010920205942.V729@athlon.random>
+In-Reply-To: <20010920201832.M729@athlon.random> <Pine.GSO.4.21.0109201418450.3498-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0109201418450.3498-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Sep 20, 2001 at 02:33:34PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------EBFBE5401D3A3A1B30B564D4
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Alan Cox wrote:
+On Thu, Sep 20, 2001 at 02:33:34PM -0400, Alexander Viro wrote:
 > 
-> > Yeah, I considered that, and it doesn't matter to me whether it
-> > reports 0 or -1, but it's the data pointer that (mostly) requires
-> > the #ifdefs, unless the data is always present or a dummy data pointer
-> > is used.... ?
 > 
-> #define it to an inline without some arguments ?
-~~~~~~~~~~~~~~~~~~
-I can't get that to work, but someone else may be able to...
+> On Thu, 20 Sep 2001, Andrea Arcangeli wrote:
+> 
+> > > > +				truncate_inode_pages(rd_inode[minor]->i_mapping, 0);
+> > > >  				rd_inode[minor] = NULL;
+> > > >  				rd_blocksizes[minor] = rd_blocksize;
+> > > > +			unlock:
+> > > >  				up(&bdev->bd_sem);
+> > > 
+> > > Now think what happens if you go through that code twice.  What argument will
+> > > be passed to iput() the second time you call it?
+> > 
+> > the second time we won't go through that code.
+> 
+> IOW, subsequent calls of ioctl(fd, BLKFLSBUF) will not work.  Which is
+> better than oopsing, but doesn't look right.
 
-Here's another version for you to consider.
+The second call will do the work if there's something to do. If somebody
+did an open/read/writes/close in the middle, it should do the work as
+usual. I actually can see a problem if you use the different inodes, but
+that will be sorted out too automatically as soon as we stop pinning the
+inodes.
 
-The [un]register_sysrq_key() calls return 0 when CONFIG_MAGIC_SYSRQ
-is not defined/configured.
-However, it sacrifices one small data structure of 3 pointers.
+> Question: why the hell do we bother with iput() and decrementing counters
+> at all?
 
-~Randy
---------------EBFBE5401D3A3A1B30B564D4
-Content-Type: text/plain; charset=us-ascii;
- name="sysrq-if2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysrq-if2.patch"
+Yes, that part should be rewritten using the bdev as you did recently,
+the ipinning of the ramdisk also in the previous 2.4 kernels (before
+your recent patch) had the same problem of my ipinning in the blkdev
+highlevel (it looked only a cleanup but it wasn't).
 
---- linux/arch/i386/kernel/apm.c.org	Mon Sep 17 10:15:45 2001
-+++ linux/arch/i386/kernel/apm.c	Thu Sep 20 11:51:25 2001
-@@ -703,6 +703,8 @@
- 	help_msg:       "Off",
- 	action_msg:     "Power Off\n"
- };
-+#else
-+struct sysrq_key_op sysrq_poweroff_op;
- #endif
- 
- 
---- linux/include/linux/sysrq.h.org	Mon Sep 17 10:21:07 2001
-+++ linux/include/linux/sysrq.h	Thu Sep 20 11:42:15 2001
-@@ -87,8 +87,17 @@
- }
- 
- #else
--#define register_sysrq_key(a,b)		do {} while(0)
--#define unregister_sysrq_key(a,b)	do {} while(0)
-+
-+static inline int register_sysrq_key(int key, struct sysrq_key_op *op_p)
-+{
-+	return 0;
-+}
-+
-+static inline int unregister_sysrq_key(int key, struct sysrq_key_op *op_p)
-+{
-+	return 0;
-+}
-+
- #endif
- 
- /* Deferred actions */
-
---------------EBFBE5401D3A3A1B30B564D4--
-
+Andrea

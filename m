@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVC3EcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVC3Evn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVC3EcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 23:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVC3EcN
+	id S261545AbVC3Evn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 23:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVC3Evn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 23:32:13 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:57797 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261543AbVC3EcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 23:32:07 -0500
-Message-ID: <424A2BD0.5010609@comcast.net>
-Date: Tue, 29 Mar 2005 23:32:16 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+	Tue, 29 Mar 2005 23:51:43 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:47978 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261545AbVC3Evl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 23:51:41 -0500
+Date: Tue, 29 Mar 2005 22:50:10 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Aligning file system data
+In-reply-to: <3ND9P-2LV-1@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <424A3002.0@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=UTF-8
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Aligning file system data
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <3ND9P-2LV-1@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+John Richard Moser wrote:
+> How likely is it that I can actually align stuff to 31.5KiB on the
+> physical disk, i.e. have each block be a track?
 
-How likely is it that I can actually align stuff to 31.5KiB on the
-physical disk, i.e. have each block be a track?
+I don't think this is very likely. Even being able to find out what the 
+physical disk arrangement is, or whether it is consistent in terms of 
+track size, etc. seems unlikely.
 
-Rather than leveraging the track cache, would it be less expensive for
-me to simply read in blocks totaling about 16 or 32KiB all at once?
+> 
+> Rather than leveraging the track cache, would it be less expensive for
+> me to simply read in blocks totaling about 16 or 32KiB all at once?
 
+For block sizes that small I think that the kernel should be smart 
+enough to do this itself, there is no need to concern with such low 
+level details in the application.
 
-Let's say I have two situations...
+> How much more latency is involved in (B) than in (C)?  Does crossing a
+> track boundary incur anything expensive?
 
-A)
-  My blocks are all 31.5KiB (512 bytes/sector * 63 sectors) and aligned
-to tracks.  The track cache on the disk stores the entire block, so
-repeted reads to the disk are 0mS seek.  I leverage this to read a
-couple sectors at a time and seek as I care within the block while it's
-cached, making several requests to the ATA device.
+Given that both the disk and the kernel will likely read far more than 
+32KB ahead I can't see much difference other than the overhead inside 
+your application..
 
-B)
-  My blocks are all 32KiB and cross track boundaries.  All of them exist
-in part in two separate tracks.  Upon reading a block, I request the
-entire block and work with it in main memory.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Which situation has less overhead?
-
-C)
-  My blocks are all 31.5KiB and perfectly aligned within tracks.  I read
-the entire block as in (B) and work with it in main memory.
-
-How much more latency is involved in (B) than in (C)?  Does crossing a
-track boundary incur anything expensive?
-
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCSivPhDd4aOud5P8RAszeAJ4wPonhpXas8IprMBUq8/NdM57aegCdEBva
-24LXB3O+7GEE0XKxPBFr1L0=
-=iTEm
------END PGP SIGNATURE-----

@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbUK3I6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbUK3I73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbUK3I6F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 03:58:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUK3I5l
+	id S262031AbUK3I73 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 03:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUK3I6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 03:57:41 -0500
-Received: from psych.st-and.ac.uk ([138.251.11.1]:36789 "EHLO
-	psych.st-andrews.ac.uk") by vger.kernel.org with ESMTP
-	id S262027AbUK3I5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 03:57:32 -0500
-Subject: Re: file as a directory
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-To: Kevin Fox <Kevin.Fox@pnl.gov>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Christian Mayrhuber <christian.mayrhuber@gmx.net>,
-       reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1101771315.1261.4.camel@zathras.emsl.pnl.gov>
-References: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
-	 <41ABA9D3.7020602@st-andrews.ac.uk>
-	 <1101771315.1261.4.camel@zathras.emsl.pnl.gov>
-Content-Type: text/plain
-Message-Id: <1101804850.17807.16.camel@pear.st-and.ac.uk>
+	Tue, 30 Nov 2004 03:58:14 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:21430 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262028AbUK3I5q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 03:57:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=HXW+LQEczzglC9ymgDjkGULYRhlI1HiQ8nFm4NVbrhZOvXWlbxWn7+o3aitIfIE8sGOZlYTq0xd9+MImeXnf0JjT+e2j1gICtO2L4pPLwLJ9+UxzWXtSsp2TlEZL8BfNIoPF8/PCikPobyd9qVFZjqvnHx+C0GSpDKST9AVqrNw=
+Message-ID: <81b0412b041130005774dd27a5@mail.gmail.com>
+Date: Tue, 30 Nov 2004 09:57:45 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+Reply-To: Alex Riesen <raa.lkml@gmail.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+In-Reply-To: <81b0412b04113000087fc8391e@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 30 Nov 2004 08:54:10 +0000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Transfer-Encoding: 7bit
+References: <19865.1101395592@redhat.com>
+	 <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+	 <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
+	 <20041127032403.GB10536@kroah.com>
+	 <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+	 <1101721336.21273.6138.camel@baythorne.infradead.org>
+	 <81b0412b04113000087fc8391e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-29 at 23:35, Kevin Fox wrote:
-> Heh. So, you can have a filename that can contain XPath looking junk.
-> Now, what happens when you have an XML file that points to another XML
-> file using XPath? How do you separate the file name XPath from the XML
-> XPath?
-
-My suggestion was simply about unifying the namespace for selection in
-the file system and selection within XML files using a syntax related to
-(but not necessarily identical with) XPath.
- I was not suggesting you should do anything special with the content of
-the XML files, even if the XML file contains an XPath reference.
-(The latter could be interesting to think about as a separate issue
-later, but it is certainly not part of my simpler suggestion.)
- Peter
-
+I should have read the whole thread before posting. My apologies, Linus

@@ -1,94 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262237AbTE0BFq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 21:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTE0BFq
+	id S262488AbTE0BGc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 21:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbTE0BF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 21:05:46 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16082
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262237AbTE0BEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 21:04:36 -0400
-Date: Tue, 27 May 2003 03:17:50 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: davem@redhat.com, davidsen@tmr.com, haveblue@us.ibm.com,
-       habanero@us.ibm.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-Message-ID: <20030527011750.GG3767@dualathlon.random>
-References: <60830000.1053575867@[10.10.2.4]> <Pine.LNX.3.96.1030522130544.19863B-100000@gatekeeper.tmr.com> <20030522.154410.104047403.davem@redhat.com> <20030526222406.GU3767@dualathlon.random> <20030526162616.6ceacaba.akpm@digeo.com> <20030526233446.GZ3767@dualathlon.random>
+	Mon, 26 May 2003 21:05:57 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:45689 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262431AbTE0BES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 21:04:18 -0400
+Date: Mon, 26 May 2003 18:17:33 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, torvalds@transmeta.com,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: [patch?] truncate and timestamps
+Message-Id: <20030526181733.2d43976e.akpm@digeo.com>
+In-Reply-To: <1053992553.17151.18.camel@dhcp22.swansea.linux.org.uk>
+References: <UTC200305230017.h4N0Hqn05589.aeb@smtp.cwi.nl>
+	<Pine.LNX.4.44.0305221726300.19226-100000@home.transmeta.com>
+	<20030523011751.GC14406@parcelfarce.linux.theplanet.co.uk>
+	<1053992553.17151.18.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030526233446.GZ3767@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 May 2003 01:17:31.0080 (UTC) FILETIME=[BEBD3C80:01C323ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 01:34:46AM +0200, Andrea Arcangeli wrote:
-> On Mon, May 26, 2003 at 04:26:16PM -0700, Andrew Morton wrote:
-> > Andrea Arcangeli <andrea@suse.de> wrote:
-> > >
-> > >  	if (IRQ_ALLOWED(phys_id, allowed_mask) && idle_cpu(phys_id))
-> > >  		return cpu;
-> > 
-> > How hard would it be to make this HT-aware?
-> > 
-> > 	idle_cpu(phys_id) && idle_cpu_siblings(phys_id)
-> > 
-> > or whatever.
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> On Gwe, 2003-05-23 at 02:17, viro@parcelfarce.linux.theplanet.co.uk
+> wrote:
+> > Andries had shown that there is _no_ consensus.  Ergo, POSIX can take
+> > a hike and we should go with the behaviour convenient for us.  It's that
+> > simple...
 > 
-> yeah! that was the obvious next step. as fast path the additional && is
-> sure good. Maybe that's enough after all, and we might search only for
-> fully idle cpus, however I wouldn't dislike to search for a fallback
-> (partially) logical idle cpu if none physical cpu is (fully) idle.
+> Skipping the update on a truncate not changing size is a performance win
+> although not a very useful one.
 
-I'm going to try this (if it compiles ;). the ksoftirqd check is the one
-for the NAPI workload brought to attention by Dave. the idea is that
-statistically the softirq load will follow the hardirq load. Both wants
-to go into an idle cpu. But we don't want to mistake the softirq load
-for unrelated cpu load. So we don't want to separate a ksoftirqd load
-from the irq load or we could keep bouncing over and over again.
+It makes the AIM7 & AIM9 numbers look good ;)
 
-For HT I take the trivial approch you mentioned above that is to switch
-only if the physical cpu is completely idle.
+An open(O_TRUNC) of a zero-length file is presumably not totally uncommon,
+so not calling into the fs there may benefit some things.
 
---- ./arch/i386/kernel/io_apic.c.~1~	2003-05-27 02:45:34.000000000 +0200
-+++ ./arch/i386/kernel/io_apic.c	2003-05-27 03:00:32.000000000 +0200
-@@ -217,13 +217,18 @@ extern unsigned long irq_affinity [NR_IR
- #define IRQ_ALLOWED(cpu,allowed_mask) \
- 		((1UL << cpu) & (allowed_mask))
+> I don't think we can ignore the standard
+> however. For one it simply means all the vendors have to fix it so they
+> can sell to Government etc. 
+
+I think this patch will put us back to the 2.4 behaviour while preserving
+the speedup.  It's a bit dopey (why do the timestamp update in the fs at
+all?) but changing this stuff tends to cause subtle problems...
+
+
+
+
+diff -puN fs/attr.c~truncate-timestamp-fix fs/attr.c
+--- 25/fs/attr.c~truncate-timestamp-fix	2003-05-22 22:10:18.000000000 -0700
++++ 25-akpm/fs/attr.c	2003-05-22 22:14:06.000000000 -0700
+@@ -68,10 +68,17 @@ int inode_setattr(struct inode * inode, 
+ 	int error = 0;
  
-+#define ksoftirqd_is_running(phys_id) (cpu_curr(phys_id) == ksoftirqd_task(phys_id))
-+#define __irq_idle_cpu(phys_id) (idle_cpu(phys_id) || ksoftirqd_is_running(phys_id))
-+#define irq_idle_cpu(phys_id) (__irq_idle_cpu(phys_id) &&
-+			       (smp_num_siblings <= 1 || __irq_idle_cpu(cpu_sibling_map[phys_id])))
-+
- static unsigned long move(unsigned int curr_cpu, unsigned long allowed_mask, unsigned long now, int direction)
- {
- 	unsigned int cpu = curr_cpu;
- 	unsigned int phys_id;
+ 	if (ia_valid & ATTR_SIZE) {
+-		if (attr->ia_size != inode->i_size)
++		if (attr->ia_size != inode->i_size) {
+ 			error = vmtruncate(inode, attr->ia_size);
+-		if (error || (ia_valid == ATTR_SIZE))
+-			goto out;
++			if (error || (ia_valid == ATTR_SIZE))
++				goto out;
++		} else {
++			/*
++			 * We skipped the truncate but must still update
++			 * timestamps
++			 */
++			ia_valid |= ATTR_MTIME|ATTR_CTIME;
++		}
+ 	}
  
- 	phys_id = cpu_logical_map(cpu);
--	if (IRQ_ALLOWED(phys_id, allowed_mask) && idle_cpu(phys_id))
-+	if (IRQ_ALLOWED(phys_id, allowed_mask) && irq_idle_cpu(phys_id))
- 		return cpu;
- 
- 	goto inside;
-@@ -243,7 +248,7 @@ inside:
- 		}
- 
- 		phys_id = cpu_logical_map(cpu);
--	} while (!IRQ_ALLOWED(phys_id, allowed_mask) || !idle_cpu(phys_id));
-+	} while (!IRQ_ALLOWED(phys_id, allowed_mask) || !irq_idle_cpu(phys_id));
- 
- 	return cpu;
- }
+ 	lock_kernel();
 
-> 
-> Andrea
+_
 
-
-Andrea

@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287833AbSABOFi>; Wed, 2 Jan 2002 09:05:38 -0500
+	id <S287707AbSABOIk>; Wed, 2 Jan 2002 09:08:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287828AbSABOFf>; Wed, 2 Jan 2002 09:05:35 -0500
-Received: from admin.nni.com ([216.107.0.51]:53264 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S287832AbSABODq>;
-	Wed, 2 Jan 2002 09:03:46 -0500
-From: "Andrew Rodland" <arodland@noln.com>
-Subject: Re: CML2 funkiness
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro Web Mailer v.3.5
-Date: Wed, 02 Jan 2002 09:03:45 -0500
-Message-ID: <web-54668623@admin.nni.com>
-In-Reply-To: <200201010217.g012H2d00406@lists.us.dell.com>
+	id <S287832AbSABOI2>; Wed, 2 Jan 2002 09:08:28 -0500
+Received: from mail106.mail.bellsouth.net ([205.152.58.46]:51907 "EHLO
+	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S287707AbSABOGg>; Wed, 2 Jan 2002 09:06:36 -0500
+Message-ID: <3C3313E4.10B5E0D2@bellsouth.net>
+Date: Wed, 02 Jan 2002 09:06:28 -0500
+From: Albert Cranford <ac9410@bellsouth.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: ollie@sis.com.tw, linux-kernel@vger.kernel.org,
+        Keith Owens <kaos@ocs.com.au>
+Subject: [PATCH]take2 2.4.18-pre1 sound/trident fix with newer binutils
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First off, I'd like to apologize for lack of all the
- information I'd like to have, I'm at school, and
- temporarily semidisconnected at home.
+Take 2.  Mistake in previous patch.  Sorry.
+Hello Ollie,
+Small problem.
+I cannot build kernel with binutils-2.11.92.0.12.3
 
-CML2 is definitely still not quite right for me
-(2.4.17 + kpreempt-rml, latest CML2 as of 3ish days ago).
+Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc -E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
+drivers/sound/trident.o(.data+0x154): undefined reference to `local symbols in discarded section .text.exit'
 
-Menuconfig and friends seem okay, as far as I can tell (and
- they've apparently been tested pretty well), but oldconfig
- is wacky...
+Please submit the attached patch to Marcelo and Linus
+for 2.4 and 2.5 respectfully.  This patch also works
+with older binutils-2.11.2
+Thanks,
+Albert
+--- trident.c.orig      Wed Jan  2 06:36:12 2002
++++ trident.c   Wed Jan  2 08:59:09 2002
+@@ -4141,7 +4141,7 @@
+        goto out;
+ }
+ 
+-static void __exit trident_remove(struct pci_dev *pci_dev)
++static void __devexit trident_remove(struct pci_dev *pci_dev)
+ {
+        int i;
+        struct trident_card *card = pci_get_drvdata(pci_dev);
+@@ -4194,7 +4194,7 @@
+        name:           TRIDENT_MODULE_NAME,
+        id_table:       trident_pci_tbl,
+        probe:          trident_probe,
+-       remove:         trident_remove,
++       remove:         __devexit_p(trident_remove),
+        suspend:        trident_suspend,
+        resume:         trident_resume
+ };
+@@ -4214,7 +4214,7 @@
+        return 0;
+ }
+ 
+-static void __exit trident_cleanup_module (void)
++static void __devexit trident_cleanup_module (void)
+ {
+        pci_unregister_driver(&trident_pci_driver);
+ }
+-- 
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net
 
-Basically, it seems to have random (but deterministic)
- amnesia: It forgets the answers to certain questions,
- apparently on write-out.
-
-So, "mv config .config ; make mrproper ; mv config .config
- ; make oldconfig" does odd things to my config, but more
- in-your-face, on "make oldconfig ; make oldconfig" (ad
- inifinitum if you want), it will continue asking the same
- questions, and never remember the answer.
-
-I'm 99% sure the problem is on the write-out, rather than
- the read in, but I'll go do some extra digging tonight.
- Python isn't really my language. Yet, at least. :)
-
-Anyway, thanks for reading. If you need more information,
- let me know. I'm subscribed to the 100k digest.
-
---Andrew Rodland

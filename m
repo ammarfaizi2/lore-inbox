@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269987AbTHJQUP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 12:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269994AbTHJQUO
+	id S270014AbTHJQ2h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 12:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbTHJQ21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 12:20:14 -0400
-Received: from colossus.systems.pipex.net ([62.241.160.73]:35459 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S269987AbTHJQUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 12:20:12 -0400
-Date: Sun, 10 Aug 2003 17:19:51 +0100
-From: Stig Brautaset <stig@brautaset.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3: Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
-Message-ID: <20030810161951.GA1009@brautaset.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sun, 10 Aug 2003 12:28:27 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:53516 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S270014AbTHJQ2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 12:28:24 -0400
+Date: Mon, 11 Aug 2003 02:28:08 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
+cc: Fruhwirth Clemens <clemens-dated-1061346967.29a4@endorphin.org>,
+       <linux-kernel@vger.kernel.org>, <mbligh@aracnet.com>,
+       <kernel@gozer.org>, <axboe@suse.de>
+Subject: Re: [PATCH] loop: fixing cryptoloop troubles.
+In-Reply-To: <20030810160706.5D083400211@mwinf0501.wanadoo.fr>
+Message-ID: <Mutt.LNX.4.44.0308110226530.8288-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I just got this message on a 2.6.0-test3 kernel:
+On Sun, 10 Aug 2003, Pascal Brisset wrote:
 
-Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
-Call Trace:
- [<c0117c01>] __might_sleep+0x61/0x80
- [<c010ba18>] save_v86_state+0x68/0x210
- [<c01362f5>] generic_file_aio_write+0x85/0xb0
- [<c010c547>] handle_vm86_fault+0xb7/0xa10
- [<c0181a2f>] ext3_file_write+0x3f/0xd0
- [<c010a330>] do_general_protection+0x0/0xa0
- [<c0109625>] error_code+0x2d/0x38
- [<c010947b>] syscall_call+0x7/0xb
+> But I'd rather see a semantically correct reference implementation.
 
-I'm unsure what other information is needed, if any. 
-I'm not on list, so CC me on replies please.
+Ok, please take into account the case where src == dst.
 
 
-
+- James
 -- 
-brautaset.org
+James Morris
+<jmorris@intercode.com.au>
+

@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbTIHQAE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 12:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTIHQAE
+	id S262541AbTIHP7w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 11:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbTIHP7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 12:00:04 -0400
-Received: from dyn-ctb-210-9-244-100.webone.com.au ([210.9.244.100]:50185 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S262630AbTIHQAA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 12:00:00 -0400
-Message-ID: <3F5CA77E.6050104@cyberone.com.au>
-Date: Tue, 09 Sep 2003 01:59:58 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Nick's scheduler policy v14
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 8 Sep 2003 11:59:52 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:10627 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262541AbTIHP7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 11:59:51 -0400
+Subject: Re: [2.4.23-pre3] Possible bug in fs/buffer.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <je3cf7uw0f.fsf@sykes.suse.de>
+References: <200309081715.09657@bilbo.math.uni-mannheim.de>
+	 <je3cf7uw0f.fsf@sykes.suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1063036721.21084.55.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Mon, 08 Sep 2003 16:58:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
-kerneltrap gave me a more permanent place to host my patches.
+On Llu, 2003-09-08 at 16:42, Andreas Schwab wrote:
+> It's neither ugly, nor bogus.  The only 100% reliable way to assign the
+> maximum value to an unsigned integer is to use -1.
 
-http://www.kerneltrap.org/~npiggin/v14/
-
-I'm starting to attack SMP and NUMA balancing, which is silly because I
-only have a 2xSMP to test on (I'll try to get some NUMA time from OSDL).
-
-I have provided rollups with and without the "core policy". Everything
-else consists of cleanups and balancing changes, so its probably what
-SMP/NUMA testers will want to use to start with.
-
+Its not 100% reliable either 8). Properly you should use the limits.h
+values. The kernel assumes 2's complement so just adding a cast would
+probably keep gcc happy
 

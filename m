@@ -1,61 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312480AbSDSNsr>; Fri, 19 Apr 2002 09:48:47 -0400
+	id <S310835AbSDSOBS>; Fri, 19 Apr 2002 10:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312444AbSDSNrv>; Fri, 19 Apr 2002 09:47:51 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:2519 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S312447AbSDSNre>; Fri, 19 Apr 2002 09:47:34 -0400
-Date: Fri, 19 Apr 2002 14:46:13 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 2.5.8 sort kernel tables
-Message-ID: <20020419144613.C13926@kushida.apsleyroad.org>
-In-Reply-To: <20020418135931.GU21206@holomorphy.com> <Pine.LNX.4.44.0204181507150.8537-100000@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312444AbSDSOBR>; Fri, 19 Apr 2002 10:01:17 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:21512 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S310835AbSDSOBR>;
+	Fri, 19 Apr 2002 10:01:17 -0400
+Date: Fri, 19 Apr 2002 10:01:15 -0400 (EDT)
+From: Rob Radez <rob@osinvestor.com>
+X-X-Sender: <rob@pita.lan>
+To: <linux-kernel@vger.kernel.org>
+Subject: Updated Watchdog Updates
+Message-ID: <Pine.LNX.4.33.0204190959500.17511-100000@pita.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-> Though we should probably just stick a simple qsort in the library
-> somewhere.
+I just put up http://osinvestor.com/wd-2.4.19-pre7-7.diff and
+http://osinvestor.com/wd-2.4.19-pre7-ac1-1.diff
 
-Since we're comparing sort algorithms, I am quite fond of Heapsort.
-Simple, no recursion or stack, and worst case O(n log n).  It's not
-especially fast, but the worst case behaviour is nice:
+Changes are pretty minor, mostly changing some values from defines to
+values that can be changed on module load/kernel boot.
 
-/* This function is a classic in-place heapsort.  It sorts the array
-   `nums' of integers, which has `count' elements. */
+Regards,
+Rob Radez
 
-void my_heapsort (int count, int * nums)
-{
-	int i;
-	for (i = 1; i < count; i++) {
-		int j = i, tmp = nums [j];
-		while (j > 0 && tmp > nums [(j-1)/2]) {
-			nums [j] = nums [(j-1)/2];
-			j = (j-1)/2;
-		}
-		nums [j] = tmp;
-	}
-	for (i = count - 1; i > 0; i--) {
-		int j = 0, k = 1, tmp = nums [i];
-		nums [i] = nums [0];
-		while (k < i && (tmp < nums [k]
-				 || (k+1 < i && tmp < nums [k+1]))) {
-			k += (k+1 < i && nums [k+1] > nums [k]);
-			nums [j] = nums [k];
-			j = k;
-			k = 2*j+1;
-		}
-		nums [j] = tmp;
-	}
-}
-
-cheers,
--- Jamie

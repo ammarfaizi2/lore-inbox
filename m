@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbTGANLv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 09:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTGANLv
+	id S262318AbTGANXi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 09:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTGANXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 09:11:51 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:24969 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S262321AbTGANLu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 09:11:50 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] patch-O1int-0306302317 for 2.5.73 interactivity
-Date: Tue, 1 Jul 2003 23:29:49 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200307010029.19423.kernel@kolivas.org> <200307012204.47605.kernel@kolivas.org> <1057065479.1171.3.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1057065479.1171.3.camel@teapot.felipe-alfaro.com>
+	Tue, 1 Jul 2003 09:23:38 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:525 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S262318AbTGANXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 09:23:37 -0400
+Message-ID: <3F018F7A.3050301@techsource.com>
+Date: Tue, 01 Jul 2003 09:41:14 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Fredrik Tolf <fredrik@dolda2000.cjb.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PTY DOS vulnerability?
+References: <200306301613.11711.fredrik@dolda2000.cjb.net>	 <1056995729.17590.19.camel@dhcp22.swansea.linux.org.uk>	 <200306302331.38071.fredrik@dolda2000.cjb.net> <1057008994.17589.40.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307012329.49069.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003 23:17, Felipe Alfaro Solana wrote:
-> On Tue, 2003-07-01 at 14:04, Con Kolivas wrote:
-> > >When I say "X feels jerky", I mean that I can notice the scheduler is
-> > >not giving the X server enough CPU cycles (I mean, a continuous,
-> > >smaller, but more frequent CPU timeslice) to perform window movement and
-> > >redrawing fast enough to get ~25fps. Also, I don't think it's related to
-> > >the video card. The combo patch I did with Mike's + Ingo's enhacements
-> > >works beautifully for me.
-> >
-> > Actually just the bastardised Ingo patch will do that on it's own.
-> > However that's never going to be incorporated.
->
-> So, I guess we won't have the option to choose between different CPU
-> schedulers (desktop or server, for example), like we have in -mm kernels
-> with IO schedulers (deadline or anticipatory).
->
-> Seriously talking, I prefer to have the best performance in my server
-> boxes, but for my laptop, I prefer shorter timeslices, lower peformance
-> and better turnaround times and a wiser CPU scheduler. Just my two
-> cents.
->
-> It's sad to say but I feel the vanilla 2.5 CPU scheduler doesn't match
-> my end-user preferences :-(
+How about giving each user his own set of virtual ptys?
 
-There will always be alternate trees. Whether options like this make it into 
-mainline will be up to the maintainer of course, but given that we seem to 
-have a "swappiness" dial in mainline then I suspect we may have more dials in 
-2.6 than before.
+Alan Cox wrote:
+> On Llu, 2003-06-30 at 22:31, Fredrik Tolf wrote:
+> 
+>>That is true, though, of course. Stupid me not to think about 
+>>that. However, that means that an administrator who could find 
+>>himself being under such an attack might not think about it 
+>>either. Also, from the outside, the ssh client just does 
+>>nothing, making it look as if the server is unresponsive. Of 
+>>course, the exact error is logged to the server's syslog, but if 
+>>you can't view it, then you won't know about it.
+>>
+>>So all in all, do you think I should implement a per-user 
+>>resource limit on PTYs?
+> 
+> 
+> There are a whole collection of things that would benefit from that kind
+> of management - go for it but make it possible to add other stuff too
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-Con
 

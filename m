@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbUCPSh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 13:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUCPShz
+	id S261170AbUCPSgq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 13:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUCPSgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 13:37:55 -0500
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:35061 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S261203AbUCPShu
+	Tue, 16 Mar 2004 13:36:46 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:53225 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261170AbUCPSgl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 13:37:50 -0500
-Subject: spurious 8259A interrupt
-From: Emmanuel Fleury <fleury@cs.auc.dk>
+	Tue, 16 Mar 2004 13:36:41 -0500
+Date: Tue, 16 Mar 2004 15:14:02 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1079462154.24676.29.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 16 Mar 2004 19:35:55 +0100
-Content-Transfer-Encoding: 7bit
+Subject: Linux 2.4.26-pre4
+Message-ID: <Pine.LNX.4.44.0403161458060.1564-100000@dmt.cyclades>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I noticed today that I had several "spurious 8259A interrupt":
+Hi, 
 
-Dec 20 15:02:45 hermes vmunix: spurious 8259<3>[drm:radeon_cp_init]
-*ERROR* radeon_cp_init called without lock held
-...
-Dec 20 16:54:17 hermes vmunix: spurious 8259A interrupt: IRQ7.
-...
-Jan  3 11:29:06 hermes vmunix: spurious 8259A interrupt: I<6>cs: memory
-probe 0xa0000000-0xa0ffffff: clean.
-...
-Feb 29 12:59:39 hermes vmunix: spurious 8259A in<4>atkbd.c: Keyboard on
-isa0060/serio0 reports too many keys pressed.
-...
-Mar  1 00:03:12 hermes vmunix: spurious 8259A interrupt:
-I<3>[drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-...
-Mar  8 03:11:24 hermes vmunix: spurious 8259A interrupt:
-I<7>orinoco_lock() called with hw_unavailable (dev=d5a80000)
+Here goes the fourth -pre of 2.4.26. 
+
+Pretty small (great!), containing a few network updates, SPARC64 fixes,
+Bluetooth fixes, IDE update (fixes for AMD chipset driver and inclusion of
+Medley software RAID driver by Thomas Horsten), amongst others.
 
 
-After some Googling, I found out this:
-http://test.linuxfromscratch.org/faq/#spurious-8259A-interrupt
+Summary of changes from v2.4.26-pre3 to v2.4.26-pre4
+============================================
 
-So, I know it is no harm. But, it is possibly due to a device driver
-which is not properly doing its job. Can somebody tell me how to correct
-this bug (without have the work around of tingling klogd).
+<colin:gibbsonline.net>:
+  o [NET_SCHED]: Use time_after, fixes htb on 64-bit arch
 
-Regards
--- 
-Emmanuel Fleury
+<mlord:pobox.com>:
+  o Yet another vmalloc() fixup
 
-Computer Science Department, |  Office: B1-201
-Aalborg University,          |  Phone:  +45 96 35 72 23
-Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
-9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
+<tuncer.ayaz:gmx.de>:
+  o [IPVS]: Fix typo in Config.in
+
+Angelo Dell'Aera:
+  o [TCP]: Kill westwood bw_sample, set but not used
+
+Bartlomiej Zolnierkiewicz:
+  o small cleanup for AMD/nVidia IDE driver
+  o IDE AMD/nForce driver update
+  o amd74xx.c: fix for !CONFIG_PROCFS
+  o fix IDE build for CONFIG_PROC_FS=n
+  o new Medley software RAID driver
+
+David S. Miller:
+  o [SPARC64]: Handle failed vmalloc_area_pages in module_map correctly
+  o [SPARC64]: Update defconfig
+
+Marcel Holtmann:
+  o [Bluetooth] Fix race for incoming connections
+  o [Bluetooth] Fix error handling for not connected socket
+  o [Bluetooth] Fix several copy_to_user() glitches
+  o [Bluetooth] Fix non-blocking socket race conditions
+  o [Bluetooth] Copy all L2CAP signal frames to the raw sockets
+  o [Bluetooth] Send HCI_Reset for some Broadcom dongles
+
+Marcelo Tosatti:
+  o Changed EXTRAVERSION to -pre4
+
+Theodore Y. T'so:
+  o zerout JBD journal descriptor blocks
+
 

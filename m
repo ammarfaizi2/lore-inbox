@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284916AbRL2ARx>; Fri, 28 Dec 2001 19:17:53 -0500
+	id <S284917AbRL2AVe>; Fri, 28 Dec 2001 19:21:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284905AbRL2ARo>; Fri, 28 Dec 2001 19:17:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4625 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284182AbRL2ARd>; Fri, 28 Dec 2001 19:17:33 -0500
-Message-ID: <3C2D0B86.1010705@zytor.com>
-Date: Fri, 28 Dec 2001 16:17:10 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S284905AbRL2AVY>; Fri, 28 Dec 2001 19:21:24 -0500
+Received: from dsl-213-023-043-233.arcor-ip.net ([213.23.43.233]:4366 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284917AbRL2AVL>;
+	Fri, 28 Dec 2001 19:21:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org
+Subject: Re: UML has been sent to Linus
+Date: Sat, 29 Dec 2001 01:24:25 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200112280635.fBS6Zl728162@karaya.com>
+In-Reply-To: <200112280635.fBS6Zl728162@karaya.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: zImage not supported for 2.2.20?
-In-Reply-To: <UTC200112290001.AAA139460.aeb@cwi.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16K7IZ-0000BL-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+On December 28, 2001 07:35 am, Jeff Dike wrote:
+> I put together a patch against 2.5.1 and sent it in.
 
->>Does anyone have the patch to look at ?
->>
-> 
-> See http://www.cck.uni-kl.de/misc/tecra710/toshiba-small.diff
-> 
-> Andries
-> 
+This is good news.  I want to add something here that's a little less lame 
+than 'me too'...
 
-Okay, now we have a model number: Toshiba Tecra 710CDT; I think I can 
-actually get my hands on one if need be (we have one floating around 
-TMTA I believe.)
+Besides being an essential development tool I use every day, I believe there 
+is great potential for UML as a 'perfect jail'.  There are interesting 
+applications we'll start to see when UML is more widely available, such as 
+simulation of clusters, or 'Linux Bubbles' under Windows.
 
-I'm fairly certain the code as it exists is good.  If not, I would 
-rather like to add a WBINVD (which needs to be patched 
-out/conditionalized on i386, sigh) in between the low write and high 
-read in the A20 wait loop.
+I think you've done a great job maintaining UML out-of-tree for more than a 
+year, with very little assistance, and I hope you won't have to shoulder that 
+extra burden much longer.
 
-	-hpa
-
+--
+Daniel

@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265036AbTGBPJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 11:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbTGBPJ2
+	id S265025AbTGBPOm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 11:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbTGBPOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 11:09:28 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:14230 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265036AbTGBPJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 11:09:26 -0400
-Subject: Re: [dm-devel] Re: [RFC 3/3] dm: v4 ioctl interface
-To: dm-devel@sistina.com, Joe Thornber <thornber@sistina.com>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF471CC3D2.35231415-ON85256D57.00541ED2@pok.ibm.com>
-From: "Steve Dobbelstein" <steved@us.ibm.com>
-Date: Wed, 2 Jul 2003 10:23:45 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 07/02/2003 11:23:47 AM
+	Wed, 2 Jul 2003 11:14:42 -0400
+Received: from lns-th2-5f-81-56-227-145.adsl.proxad.net ([81.56.227.145]:17280
+	"EHLO smtp.ced-2.eu.org") by vger.kernel.org with ESMTP
+	id S265025AbTGBPOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 11:14:41 -0400
+Message-ID: <3F02FA3E.2080004@ifrance.com>
+Date: Wed, 02 Jul 2003 17:29:02 +0200
+From: =?ISO-8859-1?Q?C=E9dric?= <cedriccsm2@ifrance.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20030624
+X-Accept-Language: fr-fr, fr, en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: John Bradford <john@grabjohn.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 cd-writer problem
+References: <200307012029.h61KTUZk001416@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200307012029.h61KTUZk001416@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+John Bradford wrote:
+>>I'm having trouble with my cd-writer :
+>>It is recognized with linux 2.4.18, and isnt with 2.4.21. My box freeze 
+>>at its detection.
+>>I've tried ide-scsi, which complains about a timeout, and freeze too.
+> 
+> Have you tried any kernels between 2.4.18 and 2.4.21 to try to
+> identify which change caused the problem?  Also, details of which IDE
+> chipset you've got would be useful.
 
-On Wednesday 02 July 2003 06:00, Joe Thornber wrote:
-> dm_swap_table() will now fail for a table with no targets.
-> --- diff/drivers/md/dm.c           2003-07-01 15:36:42.000000000 +0100
-> +++ source/drivers/md/dm.c         2003-07-02 11:53:22.000000000 +0100
-> @@ -664,10 +664,10 @@
->            md->map = t;
->
->            size = dm_table_get_size(t);
-> -          set_capacity(md->disk, size);
-> -          if (size == 0)
-> -                      return 0;
-> +          if (!size)
-> +                      return -EINVAL;
->
-> +          set_capacity(md->disk, size);
->            dm_table_event_callback(md->map, event_callback, md);
->
->            dm_table_get(t);
-> @@ -759,8 +759,10 @@
->
->            __unbind(md);
->            r = __bind(md, table);
-> -          if (r)
-> +          if (r) {
-> +                      up_write(&md->lock);
->                        return r;
-> +          }
->
->            up_write(&md->lock);
->            return 0;
+I've tried 2.4.20, and got the same freeze.
+I didn't try 2.4.19.
 
-Why the "if (r)"?  Isn't this just the same as:
+My IDE chipset is VIA® VT8233A (associed with VIA® KT333)
 
-            __unbind(md);
-            r = __bind(md, table);
-            up_write(&md->lock);
-            return r;
-
---
-Steve Dobbelstein
-steved@us.ibm.com
-http://evms.sourceforge.net/
-
-
+-- 
+Cédric
 

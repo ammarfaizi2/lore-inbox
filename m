@@ -1,64 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282404AbRKXIid>; Sat, 24 Nov 2001 03:38:33 -0500
+	id <S282405AbRKXJD1>; Sat, 24 Nov 2001 04:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282403AbRKXIiY>; Sat, 24 Nov 2001 03:38:24 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61159 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S282404AbRKXIiL>;
-	Sat, 24 Nov 2001 03:38:11 -0500
-Date: Sat, 24 Nov 2001 03:38:07 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.15-pre9 breakage (inode.c)
-In-Reply-To: <20011124092126.D1419@athlon.random>
-Message-ID: <Pine.GSO.4.21.0111240321470.4000-100000@weyl.math.psu.edu>
+	id <S282406AbRKXJDS>; Sat, 24 Nov 2001 04:03:18 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:9857 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S282405AbRKXJDM>; Sat, 24 Nov 2001 04:03:12 -0500
+Message-ID: <00de01c174c6$d4d092b0$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Andre Hedrick" <andre@linux-ide.org>
+Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>,
+        "lkml" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10111232239100.32407-100000@master.linux-ide.org>
+Subject: Re: IDE is still crap.. or something
+Date: Sat, 24 Nov 2001 10:03:02 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message -----
+From: "Andre Hedrick" <andre@linux-ide.org>
+To: "Martin Eriksson" <nitrax@giron.wox.org>
+Cc: "Marcelo Tosatti" <marcelo@conectiva.com.br>; "lkml"
+<linux-kernel@vger.kernel.org>
+Sent: Saturday, November 24, 2001 8:06 AM
+Subject: Re: IDE is still crap.. or something
 
 
-On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
+> On Fri, 23 Nov 2001, Martin Eriksson wrote:
+>
+> > > > any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14
+IDE
+> > > > patch (after fixing the rejects) but no go.
+>
+> Mr. Martin Eriksson,
+>
+> As for your subject -- "IDE" died a long time ago, but since it died
+> before you entered university, I am not at all surprized.  Now as for
+> jumping on the case of the talented Mr. Marcelo Tosatti.  He has not found
+> it neccessary to enter university at this time, as he could likely teach
+> the content scheduled in the next year to you.
+>
+> Why are you doing thoughtless things like overriding the ruleset for
+> optimizing the HOST/Device pair?  I seriously doubt that you know the
+> history of those option?  Of the lot, one of them is retired as of ATA-2;
+> however it still is optional for a while.  The other is foolish in most
+> cases unless dealing with ATA-2 hardware, or have audio driver problems.
+> The next is settable by the kernel if you allow it to do the work for you.
+> The last is also set by the kernel, should you allow it to operate.  There
+> is no valid reason for you to do anything w/ hdparm.
 
-> I don't think it's harder to debug, you need the per-superblock data
-> structures for ->clear_inode() also if you try to ->clear_inode in iput,
-> and I cannot see any valid reason for which the fs would be allowed to
-> screwup the superblock before returning from read_inode. As soon as you
-> call iget the superblock must be sane and there's no point in screwing
-> it up afterwards.
+Well, actually I'm not the "must-use-hdparm -c1 -u1 -d1 -m16 -W1 -X66" kind
+of guy... I just tested some options because my system was slow. I do not
+run hdparm now, and everything works fine (with your ATA patch, and the
+preempt patch). I'm moving the hard disks to the "on-board" controller
+(PIIX) today, to see if that works better (without preempt+ata).
 
-Sigh...
+Also, I *would* be upgrading my linux system *if I had money*, but until
+then, I happily run with my crappy BP6, crappy HD's and crappy HPT366
+controller.
 
-	set per-sb structures
-	...
-	iget()
-	...
-	sanity checks
-	...
-	normal return
-sanity_checks_failed:
-	iput()
-	...
-	free per-sb structures
-	...
-	return NULL;
+> Now this is a global reply to your list of rants.  Now if you can not
+> merge patches and understand what is going on, then please keep the noise
+> down.  Next time please have some credablity when you attempt to make
+> grand pontifications of code quality in Linux.  Lastly you were not to be
+> a target for everyones entertainment but this is where you have come.
 
-Looks sane, doesn't it?  And that's pretty much the only way to go if
-we allocate that stuff dynamically.  With your variant we _must_ call
-invalidate_inodes() here to force eviction from icache.  What's more,
-not calling it will screw up non-deterministically - it will survive
-if inode gets evicted in the right interval and produce whatever damage
-it's going to produce if eviction happens too late.
+I'm sorry if the subject set you off.. what I should have written is
+propably "ATA hard disk access slows down my system", but I was tired and
+had previously been reading "comp.sys.ibm.pc.games.space-sim".
 
-Again, what we really want here is "don't keep inodes dropped during
-->read_super() or ->put_super() in icache".  You propose to stick
-invalidate_inodes() in a bunch of places so that it would kill these
-inodes before it's too late.  For some filesystems it would be
-covered by ones you add in fs/super.c, for other it would need
-explicit calls, required positions may depend on the fs internals
-and change with them...  What I propose is "don't wait, kill them
-immediately and forget about the whole thing".
+Also, I'm not meaning to sound important or anything with my sig. Maybe I
+should change it? Hmm...
+
+>
+> Regards,
+>
+> Andre Hedrick
+> Linux ATA Development
+> Linux Disk Certification Project
+
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  Linux developer / Ignorant excuse for a human /
+|  Ranting bastard / Swede
+
 

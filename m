@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbULJTd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbULJTii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbULJTd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 14:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbULJTd4
+	id S261807AbULJTii (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 14:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbULJTih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 14:33:56 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:34495 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261799AbULJTdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 14:33:55 -0500
-Date: Fri, 10 Dec 2004 19:33:55 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Joseph Cosby <jocosby@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops: NULL Pointer With Adaptec AIC-7901X Chipset
-Message-ID: <20041210193355.GA2190@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Joseph Cosby <jocosby@hotmail.com>, linux-kernel@vger.kernel.org
-References: <BAY23-F4D13F4603A0C8EC362326AEA80@phx.gbl>
-Mime-Version: 1.0
+	Fri, 10 Dec 2004 14:38:37 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:49602 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261807AbULJTid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 14:38:33 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+X-Message-Flag: Warning: May contain useful information
+References: <20041210005055.GA17822@kroah.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 10 Dec 2004 11:38:31 -0800
+In-Reply-To: <20041210005055.GA17822@kroah.com> (Greg KH's message of "Thu,
+ 9 Dec 2004 16:50:56 -0800")
+Message-ID: <52brd29c5k.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [RFC PATCH] debugfs - yet another in-kernel file system
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY23-F4D13F4603A0C8EC362326AEA80@phx.gbl>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 10 Dec 2004 19:38:32.0139 (UTC) FILETIME=[D4C421B0:01C4DEEF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 12:25:51PM -0700, Joseph Cosby wrote:
-> I'm getting a NULL Pointer oops with the AIC-7901X chipset from Adaptec.
-> 
-> Using a 2.6.9 kernel, and patching in the driver from Adaptec, I am getting 
-> a NULL pointer oops as linux is booting. The Null pointer is the variable 
-> sdev->request_queue, in the module scsi.c, in the function 
-> scsi_adjust_queue_depth.
+    Greg> p.s. I think the recently posted infiband driver can take
+    Greg> advantage of this fs instead of having to create it's own
+    Greg> debug filesystem.
 
-Can you please retry without patching in a known buggy driver?
+Yes, if this gets merged, I'll convert the "ipoib_debugfs" in the
+OpenIB drivers to just use debugfs stuff.
 
+Thanks,
+  Roland

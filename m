@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S273587AbVBEUNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271053AbVBEUOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273587AbVBEUNw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 15:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271810AbVBEUMf
+	id S271053AbVBEUOL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 15:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271020AbVBEUOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 15:12:35 -0500
-Received: from math.ut.ee ([193.40.5.125]:23261 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S271261AbVBEUMN (ORCPT
+	Sat, 5 Feb 2005 15:14:10 -0500
+Received: from mail.tmr.com ([216.238.38.203]:46340 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S273561AbVBEUM5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 15:12:13 -0500
-Date: Sat, 5 Feb 2005 22:12:06 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: hddtemp hangs usb-storage for 66 seconds
-Message-ID: <Pine.SOC.4.61.0502052117570.17047@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 5 Feb 2005 15:12:57 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.11-rc3: intel8x0 alsa outputs no sound
+Date: Sat, 05 Feb 2005 15:28:13 -0500
+Organization: TMR Associates, Inc
+Message-ID: <42052C5D.3010203@tmr.com>
+References: <20050204213337.GA12347@butterfly.hjsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1107633728 27495 192.168.12.10 (5 Feb 2005 20:02:08 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: linux-kernel@vger.kernel.org
+To: John M Flinchbaugh <john@hjsoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+In-Reply-To: <20050204213337.GA12347@butterfly.hjsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Chronos 6-in-1 card reader with USB interface. Currently the 
-slots are empty and running hddtemp /dev/sda (fist slot, CF) puts 
-hddtemp and usb-storage processes into D state. I thought they were 
-stuck but while writing this message it became unstuck.
+John M Flinchbaugh wrote:
+> i'm using a thinkpad r40 w/ intel8x0 sound card.  it worked with 2.6.10.
+> 
+> % ogg123 -d alsa09 file.ogg
+> 
+> i can get no sound through either alsa or oss emulation.
+> 
+> it appears to be playing but nothing can be heard.  i've poked around at
+> the mixers for mutes, master, and pcm volume.
 
-Hardware is 3 different x86 PC-s with both UHCI and OHCI host 
-controllers, 2.6.9..2.6.11-rc3 tested, card reader is identified by 
-lsusb as
-Bus 001 Device 002: ID 0dda:0102 Integrated Circuit Solution, Inc.
+I have the same problem and have been posting to other lists and groups 
+without results. Under FC2 my ASUS 1681 had both sound and wireless. 
+With recent kernels, nothing, both FC3 and kernel.org.
 
-First it logs 5 times the message
-program hddtemp is using a deprecated SCSI ioctl, please convert it to SG_IO
-and then usb-storage remains in D state in usb_stor_msg_common and 
-hddtemp is in D state in blk_execute_rq and then hddtemp exits after 66 
-seconds with error message
-/dev/sda: log sense failed : Invalid argument
-
-Can something be done with usb-storage to give the result quicker? For 
-me the problem happens at boot, the workarounds are removing removing 
-the card readed during boot or fiddling with hddtemp conf everytime I 
-rearrange storage devices (both are bad but not unbearable).
-
-strace fragment of hddtemp:
-
-20211 open("/dev/sda", O_RDONLY|O_NONBLOCK) = 3 <0.078510>
-20211 ioctl(0x3, 0x30d, 0x80538a0)      = -1 (errno 22) <0.000094>
-20211 ioctl(0x3, 0x5386, 0xbffffd34)    = 0 <0.000063>
-20211 ioctl(0x3, 0x1, 0xbffffc10)       = 0 <0.007336>
-20211 ioctl(0x3, 0x1, 0xbffff650)       = 0 <0.007175>
-20211 ioctl(0x3, 0x1, 0xbffff650)       = 0 <0.007258>
-20211 ioctl(0x3, 0x1, 0xbffff650)       = 0 <0.007242>
-20211 ioctl(0x3, 0x1, 0xbffff4a0)       = 0x2 <66.020693>
-20211 close(3)                          = 0 <0.000177>
-20211 write(2, "/dev/sda: log sense failed : Invalid argument\n", 46) = 46 <0.001035>
-
-So it seems it's 7th SCSI_IOCTL_SEND_COMMAND ioctl that takes so long. 
-At the first glance it seems to be SCSI_IOCTL_SEND_COMMAND with 
-LOG_SENSE command (and the error message confirms this).
-
-hddtemp is debian's 0.3-beta12-9.
+If you have system-config-soundcard (ie. FCx) try to configure. I get a 
+response saying the rate locks at 48000 instead 44100 as requested.
 
 -- 
-Meelis Roos (mroos@linux.ee)
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

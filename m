@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319371AbSIFUYF>; Fri, 6 Sep 2002 16:24:05 -0400
+	id <S319373AbSIFUcO>; Fri, 6 Sep 2002 16:32:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319373AbSIFUYF>; Fri, 6 Sep 2002 16:24:05 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:7414 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319371AbSIFUYE>; Fri, 6 Sep 2002 16:24:04 -0400
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: "David S. Miller" <davem@redhat.com>, gh@us.ibm.com, hadi@cyberus.ca,
-       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-In-Reply-To: <61930391.1031313088@[10.10.2.3]>
-References: <20020906.113611.102227888.davem@redhat.com> 
-	<61930391.1031313088@[10.10.2.3]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 06 Sep 2002 21:29:25 +0100
-Message-Id: <1031344165.10612.79.camel@irongate.swansea.linux.org.uk>
+	id <S319376AbSIFUcO>; Fri, 6 Sep 2002 16:32:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22279 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319373AbSIFUcO>;
+	Fri, 6 Sep 2002 16:32:14 -0400
+Date: Fri, 6 Sep 2002 21:36:52 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Corey Minyard <minyard@acm.org>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Version 2 of the Linux IPMI driver
+Message-ID: <20020906213652.G26580@parcelfarce.linux.theplanet.co.uk>
+References: <20020906201856.F26580@parcelfarce.linux.theplanet.co.uk> <3D790F2E.1050306@acm.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D790F2E.1050306@acm.org>; from minyard@acm.org on Fri, Sep 06, 2002 at 03:25:18PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 19:51, Martin J. Bligh wrote:
-> The secondary point is "what are customers doing in the field?"
-> (not what *should* they be doing ;-)). Moreover, I think the
-> Apache + Tux combination has been fairly well beaten on already
-> by other people in the past, though I'm sure it could be done
-> again.
+On Fri, Sep 06, 2002 at 03:25:18PM -0500, Corey Minyard wrote:
+> You access a device as a filesystem?  That's bizarre.  It's a device, 
+> and they call them "devices" in the kernel for a reason.  Why would you 
+> want to do this?  Especially with devfs, the whole device numbering 
+> problem goes away.  You could easily make it a misc device.
 
-Tux has been proven in the field. A glance at some of the interesting
-porn domain names using it would show that 8)
+The point is to get away from using character devices where we don't need
+them (and we really don't need them in most places).  Plus, there's no
+dependency on devfs with this approach.
 
+> Plus, your patch misses a lot of places where IPMI is going.
+
+Oh, I'm quite aware of the limitations of my driver.  I just don't
+want to see yet another character device + ioctl interface going into
+the kernel when it's really not necessary.  
+
+> And it wasn't stupid to call your "driver" BMC.  That's exactly what it 
+> is.  It's not IPMI, it's a KCS BMC interface (hooked in as a filesystem).
+
+Right, but it should probably be addressed as /dev/ipmi since what we're
+doing is sending IPMI messages.
+
+-- 
+Revolutions do not require corporate support.

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLOCeP>; Thu, 14 Dec 2000 21:34:15 -0500
+	id <S129257AbQLOCss>; Thu, 14 Dec 2000 21:48:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbQLOCeF>; Thu, 14 Dec 2000 21:34:05 -0500
-Received: from melete.ch.intel.com ([143.182.246.25]:269 "EHLO
-	melete.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S129267AbQLOCd5>; Thu, 14 Dec 2000 21:33:57 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE52E@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Is there a Linux power management mailing list?
-Date: Thu, 14 Dec 2000 18:03:23 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S129267AbQLOCsi>; Thu, 14 Dec 2000 21:48:38 -0500
+Received: from mta5.rcsntx.swbell.net ([151.164.30.29]:55800 "EHLO
+	mta5.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id <S129257AbQLOCs2>; Thu, 14 Dec 2000 21:48:28 -0500
+Date: Thu, 14 Dec 2000 20:20:13 -0600
+From: "Ryan C. Boren" <rboren@bigfoot.com>
+Subject: Lockup at boot with HPT370 and 2.4.0-test12
+To: linux-kernel@vger.kernel.org
+Message-id: <3A397FDD.BB4DC455@bigfoot.com>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there?
+I have an Abit KT7-RAID mobo which sports an HPT370 ATA-100 IDE
+controller.  When I configure support for the 370 into a 2.4.0-test12
+kernel, the resulting kernel will hang at boot time.  The ide2 and ide3
+channels are detected, but when the kernel gets to the part where it
+usually displays info on the disks attached to those channels, it locks
+hard with the only sign of life being a constantly illuminated HDD LED. 
+2.2.18 + ide.2.2.18.1209.patch works fine, however.  2.2 boots fine and
+the attached disks are perfectly usable.  Hardware RAID (rather,
+Highpoint's approximation of it) is not configured in the BIOS of the
+370.  Looking through linux-kernel archives, I noticed that someone ran
+into this last month sometime.  I didn't see a reply so this is my 'me
+too' post.  If more info or testing is needed, lemme know.
 
-If not, I think there may be a need for one, and I will start it.
-
--- Andy
-
-----------------------------
-Andrew Grover
-Intel/TRL/MAL
-andrew.grover@intel.com
-
-
+/ryan/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVCMPi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVCMQT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVCMPi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 10:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCMPi7
+	id S261340AbVCMQT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 11:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVCMQT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 10:38:59 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:2785 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261307AbVCMPi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 10:38:58 -0500
-Date: Sun, 13 Mar 2005 16:38:24 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: Linux 2.6.11.3
-Message-ID: <20050313153821.GB21247@merlin.emma.line.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	chrisw@osdl.org, torvalds@osdl.org, akpm@osdl.org
-References: <20050313072813.GA20358@kroah.com>
-Mime-Version: 1.0
+	Sun, 13 Mar 2005 11:19:28 -0500
+Received: from zork.zork.net ([64.81.246.102]:192 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261340AbVCMQT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 11:19:27 -0500
+From: Sean Neakums <sneakums@zork.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-mm3: machine check on sleep, PowerBook5.4
+References: <20050312034222.12a264c4.akpm@osdl.org>
+	<6upsy37o0v.fsf@zork.zork.net> <1110717016.5787.143.camel@gaston>
+	<1110717351.5787.146.camel@gaston>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew
+	Morton <akpm@osdl.org>, Linux Kernel list
+	<linux-kernel@vger.kernel.org>
+Date: Sun, 13 Mar 2005 16:19:20 +0000
+In-Reply-To: <1110717351.5787.146.camel@gaston> (Benjamin Herrenschmidt's
+	message of "Sun, 13 Mar 2005 23:35:51 +1100")
+Message-ID: <6uzmx75xiv.fsf@zork.zork.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050313072813.GA20358@kroah.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.8i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Mar 2005, Greg KH wrote:
+Both patches give me a successful sleep, although I had to alter the
+second to not #if 0 core99_ata100_enable -- there's another call to
+that function in pmac_feature.c's set_initial_features().
 
-> A bitkeeper tree for the 2.6.11.y releases can be found at:
-> 	bk://linux-release.bkbits.net/linux-2.6.11
-
-Do we then start switching trees with every new minor release?
+I will try to gather some power numbers.
 
 -- 
-Matthias Andree
+Dag vijandelijk luchtschip de huismeester is dood

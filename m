@@ -1,107 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266876AbUJAXj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUJAXnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266876AbUJAXj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 19:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUJAXjJ
+	id S266352AbUJAXnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 19:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUJAXnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 19:39:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10436 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266352AbUJAXjA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 19:39:00 -0400
-Date: Fri, 1 Oct 2004 16:41:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>, ckrm-tech@lists.sourceforge.net
-Cc: pj@sgi.com, efocht@hpce.nec.com, mbligh@aracnet.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041001164118.45b75e17.akpm@osdl.org>
-In-Reply-To: <411685D6.5040405@watson.ibm.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040805190500.3c8fb361.pj@sgi.com>
-	<247790000.1091762644@[10.10.2.4]>
-	<200408061730.06175.efocht@hpce.nec.com>
-	<20040806231013.2b6c44df.pj@sgi.com>
-	<411685D6.5040405@watson.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 19:43:16 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:47074 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S266352AbUJAXnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 19:43:11 -0400
+Date: Sat, 2 Oct 2004 00:43:08 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Marcin =?iso-8859-2?Q?Gibu=B3a?= <mg@iceni.pl>
+cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Windows Logical Disk Manager error
+In-Reply-To: <1096641835.17297.45.camel@imp.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0410020041030.14363@hermes-1.csi.cam.ac.uk>
+References: <200409231254.12287@senat> <200410010149.19951@senat> 
+ <1096619799.17297.22.camel@imp.csi.cam.ac.uk>  <200410011626.09995@senat>
+ <1096641835.17297.45.camel@imp.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1870869256-1174902921-1096674188=:14363"
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Paul, I'm having second thoughts regarding a cpusets merge.  Having gone
-back and re-read the cpusets-vs-CKRM thread from mid-August, I am quite
-unconvinced that we should proceed with two orthogonal resource
-management/partitioning schemes.
+--1870869256-1174902921-1096674188=:14363
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-And CKRM is much more general than the cpu/memsets code, and hence it
-should be possible to realize your end-users requirements using an
-appropriately modified CKRM, and a suitable controller.
+On Fri, 1 Oct 2004, Anton Altaparmakov wrote:
+> On Fri, 2004-10-01 at 15:26, Marcin Gibu=FF=FFa wrote:
+> > > I would not advise you to use volume6 without the md driver.  You are
+> > > then missing the last 32kb off the end and you never know when they
+> >=20
+> > Well, I can't even build it... mdadm failes and driver complains with
+> > md: Dev sda2 smaller than chunk_size: 0k < 32k
+> > Different chunk size doesn't make any difference.
+>=20
+> That is a bug in the md driver then.
+>=20
+> > > direction.  Fortunately you can fix this case by using the "--roundin=
+g=3D"
+> > > parameter to mdadm.  So if you have a cluster size of 4k try
+> > > --rounding=3D4.  (If you don't know your cluster size enable debuggin=
+g in
+> > > the ntfs driver and then do the mount and "dmesg | grep cluster_size"
+> > > will tell you the answer.  To enable debugging in the driver it must =
+be
+> > > compiled with debugging enabled and you need to, as root, do: "echo 1=
+ >
+> > > /proc/sys/fs/ntfs-debug" after loading the module if modular and befo=
+re
+> > > doing the mount command.)
+> >=20
+> > According to ntfs driver output my cluster size is indeed 4kb, but it s=
+till=20
+> > failes to read mounted fs.
+> >=20
+> > Error is now:
+> > NTFS-fs error (device md1): ntfs_readdir(): Actual VCN (0x2000650068005=
+4) of=20
+> > index buffer is different from expected VCN (0x4). Directory inode 0x5 =
+is=20
+> > corrupt or driver bug.
+>=20
+> So the number has changed.  Means it is aligning the two pieces
+> differently.  But still not correctly.  Actually, having looked at the
+> dump of your LDM database again, it is not rounding anything at all. It
+> behaves exactly like the NT4 fault tolerant arrays, i.e. it uses all
+> 512-byte sectors to store data.
+>=20
+> You can see it from:
+>=20
+> Volume2 Size: 0x05AB2EA2 (46437 MB)
+>     Volume2-01
+>       Disk2-01   VolumeOffset: 0x00000000 Offset: 0x00000000 Length:
+> 0x033A186B
+>       Disk2-02   VolumeOffset: 0x033A186B Offset: 0x033A18AA Length:
+> 0x02711637
+>=20
+> Disk2-01 contains 0x033a186B sectors =3D=3D 5413987 in decimal an you can
+> see the number is odd and hence the Linux md driver cannot work as it
+> uses 1024 bytes minimum so it can never work.  )-:
+>=20
+> Disk2-02 starts at the offset Disk2-01 stops and hence the Linux md
+> driver again cannot work.
+>=20
+> Sorry but with current Linux md driver and tools it is not possible to
+> make your linear arrays work.
 
-I'd view the difficulty of implementing this as a test of the wisdom of
-CKRM's design, actually.
+I should add an AFAIK here.  I am by no means familiar (enough) with EVMS,=
+=20
+LVM1/2, and the kernel Device Mapper itself, to be able to tell if there=20
+isn't some clever way of making it work with existing drivers and tools...
 
-The clearest statement of the end-user cpu and memory partitioning
-requirement is this, from Paul:
+Best regards,
 
-> Cpusets - Static Isolation:
-> 
->     The essential purpose of cpusets is to support isolating large,
->     long-running, multinode compute bound HPC (high performance
->     computing) applications or relatively independent service jobs,
->     on dedicated sets of processor and memory nodes.
->     
->     The (unobtainable) ideal of cpusets is to provide perfect
->     isolation, for such jobs as:
-> 
->      1) Massive compute jobs that might run hours or days, on dozens
-> 	or hundreds of processors, consuming gigabytes or terabytes
-> 	of main memory.  These jobs are often highly parallel, and
-> 	carefully sized and placed to obtain maximum performance
-> 	on NUMA hardware, where memory placement and bandwidth is
-> 	critical.
-> 
->      2) Independent services for which dedicated compute resources
->         have been purchased or allocated, in units of one or more
-> 	CPUs and Memory Nodes, such as a web server and a DBMS
-> 	sharing a large system, but staying out of each others way.
-> 
->     The essential new construct of cpusets is the set of dedicated
->     compute resources - some processors and memory.  These sets have
->     names, permissions, an exclusion property, and can be subdivided
->     into subsets.
-> 
->     The cpuset file system models a hierarchy of 'virtual computers',
->     which hierarchy will be deeper on larger systems.
-> 
->     The average lifespan of a cpuset used for (1) above is probably
->     between hours and days, based on the job lifespan, though a couple
->     of system cpusets will remain in place as long as the system is
->     running.  The cpusets in (2) above might have a longer lifespan;
->     you'd have to ask Simon Derr of Bull about that.
-> 
-
-Now, even that is not a very good end-user requirement because it does
-prejudge the way in which the requirement's solution should be implemented.
- Users don't require that their NUMA machines "model a hierarchy of
-'virtual computers'".  Users require that their NUMA machines implement
-some particular behaviour for their work mix.  What is that behaviour?
-
-For example, I am unable to determine from the above whether the users
-would be 90% satisfied with some close-enough ruleset which was implemented
-with even the existing CKRM cpu and memory governors.
-
-So anyway, I want to reopen this discussion, and throw a huge spanner in
-your works, sorry.
-
-I would ask the CKRM team to tell us whether there has been any progress in
-this area, whether they feel that they have a good understanding of the end
-user requirement, and to sketch out a design with which CKRM could satisfy
-that requirement.
-
-Thanks.
+=09Anton
+--=20
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+--1870869256-1174902921-1096674188=:14363--

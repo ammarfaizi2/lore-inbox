@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269756AbRHMDJT>; Sun, 12 Aug 2001 23:09:19 -0400
+	id <S269779AbRHMDXo>; Sun, 12 Aug 2001 23:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269760AbRHMDJK>; Sun, 12 Aug 2001 23:09:10 -0400
-Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:30985 "HELO
-	saturn.tlug.org") by vger.kernel.org with SMTP id <S269756AbRHMDJF>;
-	Sun, 12 Aug 2001 23:09:05 -0400
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-From: Mike Frisch <mfrisch@saturn.tlug.org>
+	id <S269777AbRHMDXf>; Sun, 12 Aug 2001 23:23:35 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:29708 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S269775AbRHMDXU>; Sun, 12 Aug 2001 23:23:20 -0400
+Message-Id: <200108130323.f7D3NIV04420@jordan.goethel.local>
+Content-Type: text/plain; charset=US-ASCII
+From: Sven Goethel <sgoethel@jausoft.com>
+Organization: Jausoft - Sven Goethel Software Development
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <3B772126.F23DB1D7@randomlogic.com>
-In-Reply-To: <20010812155520.A935@ulthar.internal.mclure.org>
-	<Pine.LNX.4.33.0108121557060.2102-100000@penguin.transmeta.com>
-	<20010812161544.A947@ulthar.internal.mclure.org> 
-	<3B772126.F23DB1D7@randomlogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 12 Aug 2001 23:08:38 -0400
-Message-Id: <997672119.956.3.camel@frisch>
-Mime-Version: 1.0
+Subject: Re: Linux 2.4.8-ac2
+Date: Mon, 13 Aug 2001 05:23:16 +0200
+X-Mailer: KMail [version 1.2.3]
+Cc: torvalds@transmeta.com (Linus Torvalds)
+In-Reply-To: <E15W4nB-0006RQ-00@the-village.bc.nu>
+In-Reply-To: <E15W4nB-0006RQ-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Aug 2001 17:36:54 -0700, Paul G. Allen wrote:
-> Call me dumb, but what was wrong with the SB Live! code in the 2.4.7
-> trees? Mine works fine and has since I first installed RH 7.1 on this
-> system. The only problem I had was when I compiled it into the kernel
-> (instead of compiling as a module), sound would not work and I could not
-> configure it with sndconfig.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-While the SB Live! code seemed to work flawlessly on my Intel BX board,
-since moving to the A7A266 (ALi MaGiK based), I am pretty much convinced
-it has been the cause of my intermittent lockup problems.  Without the
-emu10k1 driver loaded, I cannot get the machine to lockup and everytime
-it has locked up the sound card has been in use.
+On Monday 13 August 2001 01:37, Alan Cox wrote:
+> > i just want to ask you (sorry for this consumer behavior)
+> > if you intend to integrate the xfs filesystem in your ac-series
+>
+> I've discussed it with Martin Petersen a bit. Its not clear it makes
+> sense, since they kind of do chunks of their own vm (partly because they
+> had to) and other bits like acls that want to be out for the first one.
+> Right no I don't know what will occur. I think in part it depends when
+> Linus starts 2.5
+>
+> > also .. do you know if it is planed to integrate the xfs fs
+> > into the main branch of the kernel ?
+>
+> You'd have to ask Linus
+>
 
-Right now, I am running the ALSA driver (as somebody else had
-mentioned), but not enough yet to know if it's going to cause a problem.
+thanxs alan
 
-Mike.
+so i ask linus here ..
 
+hello ;-)
+
+dear linus
+
+how about integrating the xfs fs into the main kernel branch ?
+
+i guess 'ya all know how nice this would be ..
+
+sorry for acting just like a wanting customer
+
+thanxs for all the great work - cheers, sven
+- -- 
+mailto:sgoethel@jausoft.com
+www   : http://www.jausoft.com ; pgp: http://www.jausoft.com/gpg/
+voice : +49-521-2399440 ; fax : +49-521-2399442
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7d0glHdOA30NoFAARAsJGAJ992d5j7Q7EOmxmfjGWaVLUfknlLQCgtLOa
+wihwthQ6GewYn+lvAaARwt8=
+=32Be
+-----END PGP SIGNATURE-----

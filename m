@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbSL3GjC>; Mon, 30 Dec 2002 01:39:02 -0500
+	id <S266735AbSL3GkL>; Mon, 30 Dec 2002 01:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266735AbSL3GjC>; Mon, 30 Dec 2002 01:39:02 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:32737 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S261354AbSL3GjA>;
-	Mon, 30 Dec 2002 01:39:00 -0500
-Message-ID: <3E0FEBE2.1030506@wmich.edu>
-Date: Mon, 30 Dec 2002 01:46:58 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021218
-MIME-Version: 1.0
-To: Anomalous Force <anomalous_force@yahoo.com>
-CC: david.lang@digitalinsight.com, jdike@karaya.com, wa@almesberger.net,
-       alan@lxorguk.ukuu.org.uk, riel@conectiva.com.br, ebiederm@xmission.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: holy grail
-References: <20021230050014.48247.qmail@web13201.mail.yahoo.com>
-In-Reply-To: <20021230050014.48247.qmail@web13201.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S266736AbSL3GkK>; Mon, 30 Dec 2002 01:40:10 -0500
+Received: from holomorphy.com ([66.224.33.161]:51174 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266735AbSL3GkJ>;
+	Mon, 30 Dec 2002 01:40:09 -0500
+Date: Sun, 29 Dec 2002 22:46:10 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: kernel-janitors@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Current unclaimed 2.5 bugs on bugme.osdl.org
+Message-ID: <20021230064610.GL29422@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	kernel-janitors@lists.sourceforge.net,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <129460000.1041214462@titus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <129460000.1041214462@titus>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anomalous Force wrote:
-> --- Anomalous Force <anomalous_force@yahoo.com> wrote:
-> 
-> 
->>lets talk clusters... the teragrid system being built out of 2024
->>redhat 7.2 installs (ncsa alone, not counting the 3 other cluster
->>sites).
-> 
-> 
-> i stand corrected, 512 installs (2024 total itanium procs) at ncsa.
-> 96 more in in argonne illinois, 192 at the san diego supercomputing
-> center, and another 96 in pasadena.
-> 
-> 
-> =====
-> Main Entry: anom·a·lous 
-> 1 : inconsistent with or deviating from what is usual, normal, or expected: IRREGULAR, UNUSUAL
-> 2 (a) : of uncertain nature or classification (b) : marked by incongruity or contradiction : PARADOXICAL
-> synonym see IRREGULAR
-> 
-> __________________________________________________
-> Do you Yahoo!?
-> Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-> http://mailplus.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+On Sun, Dec 29, 2002 at 06:14:22PM -0800, Martin J. Bligh wrote:
+> 188 nor mbligh@aracnet.com OPEN proc_pid_readdir() holds the tasklist_lock 
+> for excessive ...
+
+Mine.
 
 
 
-How is avoiding a hardware reboot the holy grail?
-
-Interesting despite the complexity required to impliment but hardly a 
-very important feature, much less something everyone has been trying to 
-do.
-
-
+Bill

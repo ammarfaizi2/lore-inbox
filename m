@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270969AbRHXIaQ>; Fri, 24 Aug 2001 04:30:16 -0400
+	id <S270990AbRHXIqv>; Fri, 24 Aug 2001 04:46:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270973AbRHXIaH>; Fri, 24 Aug 2001 04:30:07 -0400
-Received: from mail.teraport.de ([195.143.8.72]:54917 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S270969AbRHXI35>;
-	Fri, 24 Aug 2001 04:29:57 -0400
-Message-ID: <3B861089.B3640617@TeraPort.de>
-Date: Fri, 24 Aug 2001 10:30:01 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac9 i686)
-X-Accept-Language: en, de
+	id <S270992AbRHXIql>; Fri, 24 Aug 2001 04:46:41 -0400
+Received: from mailrelay.inpharmatica.co.uk ([193.115.214.5]:8200 "EHLO
+	gallions-reach.inpharmatica.co.uk") by vger.kernel.org with ESMTP
+	id <S270990AbRHXIqV>; Fri, 24 Aug 2001 04:46:21 -0400
+Message-ID: <3B861432.8080604@purplet.demon.co.uk>
+Date: Fri, 24 Aug 2001 09:45:38 +0100
+From: Mike Jagdis <jaggy@purplet.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en, fr, de
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: laughing@shared-source.org
-Subject: Re: Linux 2.4.8-ac10
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 08/24/2001 10:30:06 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 08/24/2001 10:30:13 AM,
-	Serialize complete at 08/24/2001 10:30:13 AM
+To: Stephen von Voros <stevon@hicom.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SvV re: diald 0.99.4 and RH
+In-Reply-To: <MLEPIMPCNOKIBHIBMPMFIEJFCAAA.stevon@hicom.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linux 2.4.8-ac10
-> 
-> From: Alan Cox (laughing@shared-source.org)
-> o Put config hooks in to make qlogicfc firmware (me)
->         optionally loadable for weird hardware
->         | Needs a suitable firmware file adding ..
+Stephen von Voros wrote:
+> How do I install the diald daemon into the 2.4.3
+> kernel?
 
- shouldn't the question about the FW only be asked if the FC driver is
-actually requested? I have not requested the driver, but get asked (make
-oldconfig) about the FW.
+You don't. It's a prgram not a kernel module.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+				Mike
+

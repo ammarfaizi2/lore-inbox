@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264715AbSLaTmd>; Tue, 31 Dec 2002 14:42:33 -0500
+	id <S261600AbSLaUaY>; Tue, 31 Dec 2002 15:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSLaTmc>; Tue, 31 Dec 2002 14:42:32 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:27409 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S264715AbSLaTmc>; Tue, 31 Dec 2002 14:42:32 -0500
-Message-Id: <200212311950.gBVJos202971@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: David Brownell <david-b@pacbell.net>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic device DMA (dma_pool update) 
-In-Reply-To: Message from David Brownell <david-b@pacbell.net> 
-   of "Tue, 31 Dec 2002 11:29:35 PST." <3E11F01F.7040205@pacbell.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Dec 2002 13:50:54 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S264739AbSLaUaY>; Tue, 31 Dec 2002 15:30:24 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:54790
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S261600AbSLaUaX>; Tue, 31 Dec 2002 15:30:23 -0500
+Message-ID: <3E120054.2070405@rackable.com>
+Date: Tue, 31 Dec 2002 12:38:44 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.50 responsiveness
+References: <UTC200212311911.gBVJBxe03777.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Dec 2002 20:38:44.0092 (UTC) FILETIME=[9C5DEBC0:01C2B10C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-david-b@pacbell.net said:
-> You didn't make anything store or return the dma_addr_t ... that was
-> the issue I was referring to, it's got to be either (a) passed up from
-> the very lowest level, like the pci_*() calls assume, or else (b)
-> cheaply derived from the virtual address.  My patch added slab support
-> in common cases where (b) applies. 
+Andries.Brouwer@cwi.nl wrote:
 
-That's fairly simply done as part of the wrappers: The allocator stores the 
-vaddr, paddr and size in a hash table.  Thus, the paddr can be deduced when 
-kmem_cache_alloc is called by the allocation wrapper using the linearity 
-property.
+>Fetched Solaris 9 CDROM images yesterday, unpacked, copied, etc.
+>Manipulating these 600+ MB files totally kills the machine
+>(with 256 MB memory). Keystrokes are reacted to after half a minute.
+>It is impossible to use the mouse since the kernel is too slow
+>to accept mouse packets within its self-imposed timeout, so that
+>the logs are full of
+>psmouse.c: Lost synchronization, throwing 1 bytes away.
+>psmouse.c: Lost synchronization, throwing 3 bytes away.
+>psmouse.c: Lost synchronization, throwing 1 bytes away.
+>psmouse.c: Lost synchronization, throwing 3 bytes away.
+>The clock lost somewhat over 10 minutes.
+>
+>This is really primitive behaviour.
+>
+>Andries
+>
+>
+>[everything vanilla - no settings changed, no hdparm used]
+>  
+>
 
-I've got to say though that the most sensible course of action is still to 
-generalise pci_pool, which can be done easily and safely.  I think replacing 
-it with a slab based scheme is probably a 2.7 thing.
+  Was the cdrom in dma mode?  Does ""hdparm -d 1 /dev/cdrom"  work?  
 
-James
+  How much swap do you have?
 
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
 
 

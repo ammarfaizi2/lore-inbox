@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTJaNNK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 08:13:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTJaNNJ
+	id S263259AbTJaNDR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 08:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTJaNDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 08:13:09 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:47597 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S263281AbTJaNNF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 08:13:05 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: mru@kth.se (=?iso-8859-1?q?M=E5ns?= =?iso-8859-1?q?=20Rullg=E5rd?=),
+	Fri, 31 Oct 2003 08:03:17 -0500
+Received: from mail5.bluewin.ch ([195.186.1.207]:2006 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263259AbTJaNCp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 08:02:45 -0500
+Date: Fri, 31 Oct 2003 13:59:42 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Rik van Riel <riel@redhat.com>, Chris Vine <chris@cvine.freeserve.co.uk>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9 vs sound
-Date: Fri, 31 Oct 2003 08:13:02 -0500
-User-Agent: KMail/1.5.1
-References: <200310301008.27871.gene.heskett@verizon.net> <200310302049.45009.gene.heskett@verizon.net> <yw1xr80tzs0e.fsf@kth.se>
-In-Reply-To: <yw1xr80tzs0e.fsf@kth.se>
-Organization: None that appears to be detectable by casual observers
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Message-ID: <20031031125942.GA11854@k3.hellgate.ch>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	Rik van Riel <riel@redhat.com>,
+	Chris Vine <chris@cvine.freeserve.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <200310292230.12304.chris@cvine.freeserve.co.uk> <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <20031031112615.GA10530@k3.hellgate.ch> <200310312337.34778.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310310813.02970.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.58.154] at Fri, 31 Oct 2003 07:13:03 -0600
+In-Reply-To: <200310312337.34778.kernel@kolivas.org>
+X-Operating-System: Linux 2.6.0-test9 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 October 2003 04:16, Måns Rullgård wrote:
->Gene Heskett <gene.heskett@verizon.net> writes:
->> Ok thanks, followup Q:  Whats the version number thats in the
->> kernel srcs?
->> The latest dl's available are version 9.8.
->
->No, it's 0.9.8.  The version in the kernel is approximately 0.9.7,
->with some patches, IIRC.
+On Fri, 31 Oct 2003 23:37:34 +1100, Con Kolivas wrote:
+> Yes it will show improvement, and I would like to hear how much given how 
 
-Well, I've got it (alsa) all compiled in without any luck.  But, I 
-haven't deleted/commented out, any of the rather voluminous oss "shut 
-this off and shut that off" lines in my modules.conf either.
+I've been sitting on my data because I was waiting for the missing
+pieces from my test box, but here's a data point: For my test case,
+your patch improves run time from 500 to 440 seconds.
 
-Some of the tutorials in those links would seem to indicate that 
-/etc/modules.conf has been renamed, which I have not, and my modutils 
-are still the same as I've been using for a few months with 2.4.  I 
-saw an announcement regarding a new modutils tool set last night, do 
-I need to install that, and does that then fubar a 2.4.23-pre8 boot?
+> simple it is, but I agree with you. There is an intrinsic difference in the 
+> vm in 2.6 that makes it too hard for multiple running applications to have a 
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+My (probably surprising to many) finding is that there _isn't_
+an intrinsic difference which makes 2.6 suck. There are a number of
+_separate_ issues, and they are only related in their contribution to
+making 2.6 thrashing behavior abysmal.
 
+What I'm trying to find out is whether the issues are intrinsic to
+a change in some mechanisms (which typically means it's a price we
+have to pay for other benefits) or if they are just problems with the
+implementation. I had tracked down vm_swappiness as one problem, and
+your solution shows that the implementation could indeed be improved
+without touching the fundamental VM workings at all.
+
+Roger

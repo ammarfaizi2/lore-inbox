@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbUCUP1F (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 10:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUCUP1E
+	id S263663AbUCUPVv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 10:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUCUPVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 10:27:04 -0500
-Received: from 62.79.102.158.adsl.arc.worldonline.dk ([62.79.102.158]:15889
-	"EHLO mail.bitplanet.net") by vger.kernel.org with ESMTP
-	id S263664AbUCUP1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 10:27:03 -0500
-Message-ID: <405DB433.30409@bitplanet.net>
-Date: Sun, 21 Mar 2004 16:26:43 +0100
-From: =?UTF-8?B?S3Jpc3RpYW4gSMO4Z3NiZXJn?= <krh@bitplanet.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
+	Sun, 21 Mar 2004 10:21:51 -0500
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:46752 "HELO
+	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S263663AbUCUPVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 10:21:50 -0500
+X-qfilter-stat: ok
+X-Analyze: Velop Mail Shield v0.0.4
+Date: Sun, 21 Mar 2004 12:21:47 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Links to Red Hat on www.kernel.org?
+In-Reply-To: <405DA830.3070801@cwv.tor.istop.com>
+Message-ID: <Pine.LNX.4.58.0403211221010.321@pervalidus.dyndns.org>
+References: <405DA830.3070801@cwv.tor.istop.com>
+X-Archive: encrypt
 MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI IRQ routing problems with Thinkpad T40
-References: <A6974D8E5F98D511BB910002A50A6647615F5EEF@hdsmsx402.hd.intel.com> <1079839652.7279.845.camel@dhcppc4>
-In-Reply-To: <1079839652.7279.845.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
->>I've been trying to track down a problem where an interrupt from a
->>cardbus card is being routed incorrectly.
-> 
-> Kristian,
-> Please test the "proposed final patch" here:
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=1564
+On Sun, 21 Mar 2004, Colin wrote:
 
-Great, that fixes it.
+> Since support for the free version Red Hat ends at the end of April, isn't
+> it time to recommend Fedora or some other free distributions?
 
-Thanks,
-Kristian
+They don't recommend any distributions, just have mirrors for
+Debian and Red Hat (and none for Fedora).
+
+-- 
+http://www.pervalidus.net/contact.html

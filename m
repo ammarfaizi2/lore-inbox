@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271206AbRHOPBG>; Wed, 15 Aug 2001 11:01:06 -0400
+	id <S271208AbRHOPBZ>; Wed, 15 Aug 2001 11:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271216AbRHOPAz>; Wed, 15 Aug 2001 11:00:55 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:16912 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S271206AbRHOPAo>;
-	Wed, 15 Aug 2001 11:00:44 -0400
-Date: Wed, 15 Aug 2001 17:00:11 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-cc: Alexander Viro <viro@math.psu.edu>, "Magnus Naeslund(f)" <mag@fbab.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8 Resource leaks + limits
-In-Reply-To: <Pine.LNX.4.30.0108151427400.2660-100000@fs131-224.f-secure.com>
-Message-ID: <Pine.LNX.4.33.0108151658510.23743-100000@boris.prodako.se>
+	id <S271216AbRHOPBH>; Wed, 15 Aug 2001 11:01:07 -0400
+Received: from zeke.inet.com ([199.171.211.198]:38867 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S271208AbRHOPAy>;
+	Wed, 15 Aug 2001 11:00:54 -0400
+Message-ID: <3B7A8EA6.33C07179@inet.com>
+Date: Wed, 15 Aug 2001 10:00:54 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Udo A. Steinberg" <reality@delusion.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.8-ac5
+In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk> <3B79B43D.B9350226@delusion.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Aug 2001, Szabolcs Szakacsits wrote:
+"Udo A. Steinberg" wrote:
+> 
+> Alan Cox wrote:
+> > *
+> > *       This is a fairly experimental -ac so please treat it with care
+> > *
+> >
+> > 2.4.8-ac5
+> 
+> Hi Alan,
+> 
+> 2.4.8-ac5 makes the kpnpbios kernel thread go zombie here every time right
+> during boot. I know that 2.4.8-ac1 didn't have this problem, but didn't try
+> -ac2 to -ac4. If you want me to check which -ac release was the last that
+> got it right, just say and I'll check.
 
-> On Wed, 15 Aug 2001, Alexander Viro wrote:
-> > > The more serious part of my little alloc adventure is much more dangerous:
-> > > Whattaheck happened to my resources?
-> > > I _still_ can't log in to that box as a luser (root works).
-> > May be memory fragmentation. You need an order 1 allocation for fork(), just
-> > to allocate task_struct...
->
-> No, 2.4.8 seems to like to soft lockup in cases after it used up all
-> swap. I also run some trivial memory stressing tests on a UP, 128 MB,
+I noticed a [kpnpbios <defunct>] on the 2.4.8-ac3 I built at home.
 
-This may be related to another thread.  See the mail "Re: kswapd using all
-cpu for long periods in 2.4.9-pre4" posted by Linus a couple of hours ago.
-
-/Tobias
-
+Eli 
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

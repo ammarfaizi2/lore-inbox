@@ -1,90 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275267AbRIZP0V>; Wed, 26 Sep 2001 11:26:21 -0400
+	id <S275265AbRIZP0B>; Wed, 26 Sep 2001 11:26:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275270AbRIZP0M>; Wed, 26 Sep 2001 11:26:12 -0400
-Received: from mail.medav.de ([213.95.12.190]:39693 "HELO mail.medav.de")
-	by vger.kernel.org with SMTP id <S275266AbRIZP0E> convert rfc822-to-8bit;
-	Wed, 26 Sep 2001 11:26:04 -0400
-From: "Daniela Engert" <dani@ngrt.de>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "Jeroen Ruigrok/Asmodai" <asmodai@wxs.nl>
-Date: Wed, 26 Sep 2001 17:24:46 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.00
-In-Reply-To: <20010926161613.V4995@daemon.ninth-circle.org>
+	id <S275266AbRIZPZv>; Wed, 26 Sep 2001 11:25:51 -0400
+Received: from [213.236.192.200] ([213.236.192.200]:63420 "EHLO
+	mail.circlestorm.org") by vger.kernel.org with ESMTP
+	id <S275265AbRIZPZm>; Wed, 26 Sep 2001 11:25:42 -0400
+Message-ID: <009b01c1469f$cc704a20$d2c0ecd5@dead2>
+From: "Dead2" <dead2@circlestorm.org>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Asus CUV266-D problems
+Date: Wed, 26 Sep 2001 17:27:46 +0200
+Organization: CircleStorm Productions
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Comments on Andre's posting
-Message-Id: <20010926143012.363B166DA@mail.medav.de>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I'm having big problems with booting on this motherboard.
 
-As the developer of the OS/2 ATA/ATAPI drivers I'd like to add a few
-comments.
+It is a dual motherboard with 2x Intel P3 866Mhz cpus
+Asus CUV 266-D  Bios rev. 1003
 
-On Wed, 26 Sep 2001 16:16:13 +0200, Jeroen Ruigrok/Asmodai wrote:
+I have tried to boot with the following kernels:
+2.4.0 (SuSE 7.1 Install CD)
+2.4.4? (SuSE 7.2 Install CD)
+2.4.10 Custom compiled with SMP, but no extra ACPI or APM
 
->3) Also, I have had contacts with Highpoint and Promise a long while now
+2.4.0 boots and works for a while, but installation always fails..
+It just stops, and never gives any error messages.
 
-I've learned Highpoint being very helpful but Promise being extremely
-tight-lipped.
+2.4.4 boots and works for a while, but installation always fails..
+It most often stops, but some times it complains about some HDD
+error (too fast for me to see what it actually says) then reboots.
 
->   And quite frankly I have to laugh that you had to sign a NDA.
+2.4.10 boots, but only with MPS 1.1, and most of the bios in safety mode.
+When it gets to checking the HDD it fails and mounts it read-only.
 
-Good point!
+I can see ACPI errors occuring while booting, but they run along too fast
+for me to fine-read.. (any way to pause/delay it?)
+Something about unexpected or unknown ACPI-IO *i think*
 
->   Promise and Highpoint Technologies were quite willing to hand us the
->   documentation without an NDA.  We just felt it was the honourable
->   thing to do to not spread these docs.  Call it a matter of trust and
->   mutual respect.
+I have tried to change the HDD with another one, and have confirmed
+that both are working in another comp. (Western Digital WD200)
 
-So did I with manufacturer docs I was given.
+I'll type _some_ of what lspci outputs, please forgive any spellings and
+shorts:
+00:00.0 Host bridge: VIA Tech, Inc. VT8633 [Apollo Pro266] (rev 01)
+            subsystem: Asustek Computer, Inc.: Unknown device 8064
+            Flags: bus master, medium devsel, latency 0
+            Memory at fe000000 (32-bit, prefetch) [size=8M]
+            Capabilities: [a0] AGP version 2.0
+            Capabilities: [c0] Power Management ver. 2
 
->4) 48-bit addressing is already in the pipeline since Soren has the
->   official specifications from the t13 Technical Committee [which for
->   all I know, are freely downloadable].
+00:01.0 PCI bridge: VIA Tech, Inc. VT8633 [Apollo Pro266 AGP] (prog-if 00
+[normal decode])
+            Flags: bus master, 66Mhz, medium devsel, latency 0
+            Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+            Memory behind bridge: f6000000-f7efffff
+            Prefetchable memory behind bridge: fbf00000-fdffffff
+            Capabilities: [80] Power management ver. 2
 
-True. There are no secrets.
+00:11.0 ISA bridge: VIA Tech, Inc. VT8233 PCI to ISA Bridge
+            subsystem: Asustek Computer, Inc.: Unknown device 8052
+            Flags: bus master, stepping, medium devsel, latency 0
+            Capabilities: [c0] Power Management ver. 2
 
->For some reason I cannot help but put big questionmarks behind Andre's
->exclamation that he was so quick to add ATA-100 after release of the
->information.  Congratulations to you Andre for being so quick, I hope
->your eagerness for speed doesn't in fact put stability in jeopardy.
+00:11.1 IDE interface: VIA Tech, Inc. Bus Master IDE (rev 06)
+            Flags: bus master, stepping, medium devsel, latency 32
+            I/O ports at a800 [size=16]
+            Capabilities: [c0] Power Management ver. 2
 
-Exactly. Andre: your Promise Ultra100 TX2 code is not correct. It
-should not base vital decisions on contents of non-existent registers.
+In addition these are listed, please ask me if you need more details:
+00:0e.0 PCI bridge: Digital Equip. Corp. DECchip 21152 (rev 03)
+00:10.0 PCI bridge: Digital Equip. Corp. DECchip 21152 (rev 03)
+01:00.0 VGA compat. contr.: nVidia Corp. Vanta [NV6] (rev 15)
+02:04.0 Ethernet Controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 05)
+02:05.0 Ethernet Controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 05)
+03:04.0 Ethernet Controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 05)
+03:05.0 Ethernet Controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 05)
 
->Also, funny how you seem to funnel your anger or something to that
->extent into making sure everything gets licensed in such a way that
->others cannot use it.  If that is the free software spirit you envision
->then you scared me.  The only, reasonable, thing Soren asked for was
->proper attribution and credit of/for work he performed and work which
->was put under a BSD License.  To be honest, if a BSD (FreeBSD, NetBSD,
->OpenBSD) would've used GPLd code and filed off the copyright we would've
->seen a large rant about how unethical the BSD developers are, the pinko
->commies!
+There are two Intel Dual server NIC's in the box..  meaning each card has
+1x DEC21152, and 2x Intel82557 on them.
 
-Well, I had to learn Andre is using code that I had developped and
-given to him verbatim in his drivers without any credits. But I just
-don't care. If it's to the benefit of the Linux users (and probably
-even more) I'm happy with that.
+If you need any other info, please let me know.
 
-My policy in helping other developers is something like tit-for-tat.
-Let's share information, let's share experiences (there are so many
-bugs/issues in the hardware to deal with), let's help each other!
+Please give me feedback on what this might be, and how this can be solved.
 
-Ciao,
-  Dani
 
-(The OS/2 ATA/ATAPI gal)
+- Hans K. Rosbach aka Dead2
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Daniela Engert, systems engineer at MEDAV GmbH
-Gräfenberger Str. 34, 91080 Uttenreuth, Germany
-Phone ++49-9131-583-348, Fax ++49-9131-583-11
 
 

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129780AbRAWTi5>; Tue, 23 Jan 2001 14:38:57 -0500
+	id <S129789AbRAWTmu>; Tue, 23 Jan 2001 14:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129789AbRAWTir>; Tue, 23 Jan 2001 14:38:47 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:19204 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129780AbRAWTig>; Tue, 23 Jan 2001 14:38:36 -0500
-Date: Tue, 23 Jan 2001 15:48:24 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1-test10
+	id <S130157AbRAWTml>; Tue, 23 Jan 2001 14:42:41 -0500
+Received: from balance.uoregon.edu ([128.223.94.47]:29445 "EHLO
+	balance.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S129789AbRAWTmW>; Tue, 23 Jan 2001 14:42:22 -0500
+Date: Tue, 23 Jan 2001 11:38:39 -0800 (PST)
+From: Dan Graham <graham@balance.uoregon.edu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Under 2.4.0 I can mount same partition twice.
 In-Reply-To: <Pine.LNX.4.10.10101231115130.10492-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.21.0101231545080.9728-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101231132000.934-100000@balance.uoregon.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello;
+  I don't know if this is a bug or a feature.  While I was
+playing around with 2.4.0 I (mistakenly) mounted an ext2
+partition twice.  
 
-On Tue, 23 Jan 2001, Andre Hedrick wrote:
+The excerpt from mount looks like this.
+/dev/hda1 on /a1 type ext2 (rw)
+/dev/hda1 on /mnt type ext2 (rw)
 
-> Just my nickel on the issue.
+Under 2.2.13 I get 
 
-Andre, 
+mount: /dev/hda1 already mounted or /mnt busy
+mount: according to mtab, /dev/hda1 is mounted on /a1
 
-This patch I'm talking about is for a different issue from what was
-discussed in the IO clustering thread.
+Is this a bug or a feature? 
+
+System is an ABIT VP6, dual PIII 733Mhz, 1gb RAM, 
+30g ATA 100 drive, IBM Deskstar.  DMA is on.
+
+Dan 
+graham@balance.uoregon.edu
 
 
 -

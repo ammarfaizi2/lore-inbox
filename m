@@ -1,57 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268886AbUIXQkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268978AbUIXQkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268886AbUIXQkj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 12:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268900AbUIXQiD
+	id S268978AbUIXQkh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 12:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268911AbUIXQhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 12:38:03 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:65402 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268929AbUIXQXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 12:23:54 -0400
-Message-ID: <41544876.4040302@yahoo.com.au>
-Date: Sat, 25 Sep 2004 02:16:54 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Fri, 24 Sep 2004 12:37:14 -0400
+Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:25515 "EHLO
+	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S268900AbUIXQP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 12:15:59 -0400
+Date: Fri, 24 Sep 2004 17:15:50 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 10/10] Re: [2.6-BK-URL] NTFS: 2.1.19 sparse annotation,
+ cleanups and a bugfix
+In-Reply-To: <Pine.LNX.4.60.0409241714520.19983@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0409241715170.19983@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0409241707370.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241711400.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241712320.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241712490.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713070.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713220.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713380.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241713540.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241714190.19983@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.60.0409241714520.19983@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Steven Pratt <slpratt@austin.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] Simplified Readahead
-References: <4152F46D.1060200@austin.ibm.com> <20040923194216.1f2b7b05.akpm@osdl.org> <41543FE2.5040807@austin.ibm.com>
-In-Reply-To: <41543FE2.5040807@austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Pratt wrote:
-> Andrew Morton wrote:
-> 
->> Steven Pratt <slpratt@austin.ibm.com> wrote:
->>  
->>
->>> would like to offer up an alternative simplified design which will 
->>> not only make the code easier to maintain,
->>>   
->>
->>
->> We won't know that until all functionality is in place.
->>  
->>
-> Ok, but both you and Nick indicated that the queue congestion isn't 
-> needed,
+This is patch 10/10 in the series.  It contains the following ChangeSet:
 
-I would have thought that always doing the readahead would provide a
-more graceful degradation, assuming the readahead algorithm is fairly
-accurate, and copes with things like readahead thrashing (which we
-hope is the case).
+<aia21@cantab.net> (04/09/24 1.1956)
+   NTFS: Fix a stupid bug where I forgot to actually do the attribute lookup
+         and then went and used the looked up attribute...  Ooops.
+   
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
->> I do think we should skip the I/O for POSIX_FADV_WILLNEED against a
->> congested queue.  I can't immediately think of a good reason for skipping
->> the I/O for normal readahead.
->>  
+Best regards,
 
-I don't see why you should skip the readahead for FADVISE_WILLNEED
-either. Presumably if someone needs this, they really need it. We
-should aim for optimal behaviour when the apis are being used correctly...
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+
+===================================================================
+
+diff -Nru a/fs/ntfs/inode.c b/fs/ntfs/inode.c
+--- a/fs/ntfs/inode.c	2004-09-24 17:06:34 +01:00
++++ b/fs/ntfs/inode.c	2004-09-24 17:06:34 +01:00
+@@ -2287,6 +2287,7 @@
+ 	ntfs_inode *ni = NTFS_I(vi);
+ 	ntfs_attr_search_ctx *ctx;
+ 	MFT_RECORD *m;
++	int err;
+ 
+ 	m = map_mft_record(ni);
+ 	if (IS_ERR(m)) {
+@@ -2303,6 +2304,24 @@
+ 		// FIXME: We can't report an error code upstream.  So what do
+ 		// we do?!?  make_bad_inode() seems a bit harsh...
+ 		unmap_mft_record(ni);
++		return;
++	}
++	err = ntfs_attr_lookup(ni->type, ni->name, ni->name_len,
++			CASE_SENSITIVE, 0, NULL, 0, ctx);
++	if (unlikely(err)) {
++		if (err == -ENOENT) {
++			ntfs_error(vi->i_sb, "Open attribute is missing from "
++					"mft record.  Inode 0x%lx is corrupt.  "
++					"Run chkdsk.", vi->i_ino);
++			make_bad_inode(vi);
++		} else {
++			ntfs_error(vi->i_sb, "Failed to lookup attribute in "
++					"inode 0x%lx (error code %d).",
++					vi->i_ino, err);
++			// FIXME: We can't report an error code upstream.  So
++			// what do we do?!?  make_bad_inode() seems a bit
++			// harsh...
++		}
+ 		goto out;
+ 	}
+ 	/* If the size has not changed there is nothing to do. */

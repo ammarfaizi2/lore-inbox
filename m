@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263002AbRFQVo0>; Sun, 17 Jun 2001 17:44:26 -0400
+	id <S263003AbRFQWIF>; Sun, 17 Jun 2001 18:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263003AbRFQVoF>; Sun, 17 Jun 2001 17:44:05 -0400
-Received: from mail007.syd.optusnet.com.au ([203.2.75.231]:12252 "EHLO
-	mail007.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S263002AbRFQVn4> convert rfc822-to-8bit; Sun, 17 Jun 2001 17:43:56 -0400
-From: alterity <alterity@dingoblue.net.au>
-To: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+	id <S263012AbRFQWHq>; Sun, 17 Jun 2001 18:07:46 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:8320 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S263003AbRFQWHi>;
+	Sun, 17 Jun 2001 18:07:38 -0400
+Date: Mon, 18 Jun 2001 01:09:08 +0300
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 VM & swap question
-Date: Mon, 18 Jun 2001 07:43:19 +1000
-Organization: alterity inc.
-Reply-To: alterity@dingoblue.net.au
-Message-ID: <fr8qitgqmqsnt9u38bj7di2dtj5vpbr8sc@4ax.com>
-In-Reply-To: <20010617104836.B11642@opus.bloom.county> <20010617205835.A12767@unthought.net>
-In-Reply-To: <20010617205835.A12767@unthought.net>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
+Subject: Re: Client receives TCP packets but does not ACK
+Message-ID: <20010618010908.A12284@spiral.extreme.ro>
+Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010617224015.A8341@spiral.extreme.ro> <200106172113.f5HLDhJ377473@saturn.cs.uml.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200106172113.f5HLDhJ377473@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Sun, Jun 17, 2001 at 05:13:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jun 2001 20:58:35 +0200, you wrote:
+On Sun, Jun 17, 2001 at 05:13:43PM -0400, Albert D. Cahalan wrote:
+> > Is there any logical reason why if, given fd is a connected, AF_INET,
+> > SOCK_STREAM socket, and one does a write(fd, buffer, len); close(fd);
+> > to the peer, over a rather slow network (read modem, satelite link, etc),
+> > the data gets lost (the remote receives the disconnect before the last
+> > packet). According to socket(7), even if SO_LINGER is not set, the data
+> > is flushed in the background.
+> > 
+> > Is it Linux or TCP specific? Or some obvious techincal detail I'm missing?
+> 
+> The UNIX API (Linux, BSD, Solaris, OSF/1...) requires that you
+> put that write() call in a loop, because you can get partial
+> writes. Repeat until done... the OS might do 1 byte at a time.
 
->I have a database server with 1G phys and 1G swap. It uses 950+ MB for cache,
->as it should, and doesn't even *touch* swap.  This is 2.4.5.
-
-I thought the new rule is: 
-	total_memory = max(physical, swap);
-
-And the old rule was:
-	total_memory = physical + swap;
-
-Hence under a 1G physical and 1G swap setup, the kernel would never
-access swap. 
-
-Is this the case, or am I a couple of megabytes short in my
-understanding of things?
-
-
-
-
-Al
-
+Not so true. The write is completed successfuly, ie.
+size == write(fd, buf, size); so the data actually gets to the kernel's
+network buffer, only the background polling is not done properly, in the
+way I see things.

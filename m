@@ -1,33 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310603AbSCPUgb>; Sat, 16 Mar 2002 15:36:31 -0500
+	id <S310604AbSCPUgl>; Sat, 16 Mar 2002 15:36:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310602AbSCPUgV>; Sat, 16 Mar 2002 15:36:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26634 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310598AbSCPUgF>; Sat, 16 Mar 2002 15:36:05 -0500
-Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
-To: gordonl@world.std.com (Gordon J Lee)
-Date: Sat, 16 Mar 2002 20:51:20 +0000 (GMT)
-Cc: greg@kroah.com (Greg KH), linux-kernel@vger.kernel.org
-In-Reply-To: <3C938693.6D29979C@world.std.com> from "Gordon J Lee" at Mar 16, 2002 12:53:23 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310602AbSCPUgc>; Sat, 16 Mar 2002 15:36:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14345 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310601AbSCPUgR> convert rfc822-to-8bit; Sat, 16 Mar 2002 15:36:17 -0500
+Date: Sat, 16 Mar 2002 12:34:29 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <yodaiken@fsmlabs.com>
+cc: Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+In-Reply-To: <20020316131219.C20436@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.4.33.0203161223290.31971-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16mL96-000780-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g2GKZxN25763
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >From your earlier post, I presume that the bug here was simply a presentation
-> layer bug in /proc/cpuinfo, and that kernel versions previous to 2.4.19-pre3-ac1
-> can actually use all of the logical processors.  Is this correct ?
 
-Not exactly no.
+On Sat, 16 Mar 2002 yodaiken@fsmlabs.com wrote:
+> 
+> To me, once you have a G of memory, wasting a few meg on unused process 
+> memory seems no big deal.
 
-> If so, at which 2.4.x kernel did support for hyperthreading show up?
+It's not the process memory, and it is a whole lot than a "few meg" if 
+your page size is 2M.
 
-2.4.19pre, and you want -ac patches for autodetect right now - that should
-all be in the main tree for 2.4.19 proper
+Look at "free" output one day, and notice that "cached" line? On my 2G 
+machine, I usually have about a gig cached or so. Guess what the most 
+common thing in that case is? Yeah, the kernel. 
+
+And my kernel tree (with bk overhead etc) is right not about 25.000 files. 
+That's without object files etc. At 2M a pop in the page cache, that's a 
+whole lot more memory for caching than I have in my machine.
+
+Ok, so assume you compress that, and you only actually use the full 2M 
+when mapping into user space, you now added a lot of complexity, but at 
+least you make the ridiculous memory use go down. 
+
+But even in the process space, I've got about 150 processes quite 
+normally, and while most of them are idle, if we had 2M pages most of them 
+would waste at least 2M of memory (probably more - the stack doesn't even 
+need half a page, and the data section would probably waste half a page on 
+average).
+
+That's 300M just wasted.
+
+Tell me that's peanuts even if you've got a few gigs of ram on your 
+machine. 
+
+Admit it, you're just wrong. 2M page sizes are _not_ useful for the common
+case, and won't be for years to come.
+
+In short, youäre 
+
+> They say:
+> 	Hammer microarchitecture features a flush filter allowing multiple
+> 	processes to share TLB without SW intervention.
+> 
+> Not a lot of technical detail in that.
+
+I suspect it's some special case for windows with a special MSR that 
+enables something illegal that just works well for whatever patterns 
+windows does.
+
+		Linus
 

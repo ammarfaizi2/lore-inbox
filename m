@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132855AbRDDRDK>; Wed, 4 Apr 2001 13:03:10 -0400
+	id <S132859AbRDDRRo>; Wed, 4 Apr 2001 13:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132849AbRDDRDA>; Wed, 4 Apr 2001 13:03:00 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:47636 "EHLO
+	id <S132860AbRDDRRY>; Wed, 4 Apr 2001 13:17:24 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:1816 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132856AbRDDRCt>; Wed, 4 Apr 2001 13:02:49 -0400
-Date: Wed, 4 Apr 2001 19:00:43 +0200
+	id <S132859AbRDDRRX>; Wed, 4 Apr 2001 13:17:23 -0400
+Date: Wed, 4 Apr 2001 19:16:04 +0200
 From: Andrea Arcangeli <andrea@suse.de>
 To: Kanoj Sarcar <kanoj@google.engr.sgi.com>
-Cc: mingo@elte.hu, Hubertus Franke <frankeh@us.ibm.com>,
+Cc: Ingo Molnar <mingo@elte.hu>, Hubertus Franke <frankeh@us.ibm.com>,
         Mike Kravetz <mkravetz@sequent.com>,
         Fabio Riccardi <fabio@chromium.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
         lse-tech@lists.sourceforge.net
 Subject: Re: [Lse-tech] Re: a quest for a better scheduler
-Message-ID: <20010404190043.N20911@athlon.random>
-In-Reply-To: <Pine.LNX.4.30.0104041527190.5382-100000@elte.hu> <200104041639.JAA78761@google.engr.sgi.com>
+Message-ID: <20010404191604.O20911@athlon.random>
+In-Reply-To: <20010404170846.V20911@athlon.random> <200104041650.JAA95432@google.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200104041639.JAA78761@google.engr.sgi.com>; from kanoj@google.engr.sgi.com on Wed, Apr 04, 2001 at 09:39:23AM -0700
+In-Reply-To: <200104041650.JAA95432@google.engr.sgi.com>; from kanoj@google.engr.sgi.com on Wed, Apr 04, 2001 at 09:50:58AM -0700
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 04, 2001 at 09:39:23AM -0700, Kanoj Sarcar wrote:
-> example, for NUMA, we need to try hard to schedule a thread on the 
-> node that has most of its memory (for no reason other than to decrease
-> memory latency). Independently, some NUMA machines build in multilevel 
-> caches and local snoops that also means that specific processors on
-> the same node as the last_processor are also good candidates to run 
-> the process next.
+On Wed, Apr 04, 2001 at 09:50:58AM -0700, Kanoj Sarcar wrote:
+> > 
+> > I didn't seen anything from Kanoj but I did something myself for the wildfire:
+> > 
+> > 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.3aa1/10_numa-sched-1
+> > 
+> > this is mostly an userspace issue, not really intended as a kernel optimization
+> > (however it's also partly a kernel optimization). Basically it splits the load
+> > of the numa machine into per-node load, there can be unbalanced load across the
+> > nodes but fairness is guaranteed inside each node. It's not extremely well
+> > tested but benchmarks were ok and it is at least certainly stable.
+> >
+> 
+> Just a quick comment. Andrea, unless your machine has some hardware
+> that imply pernode runqueues will help (nodelevel caches etc), I fail 
+> to understand how this is helping you ... here's a simple theory though. 
 
-yes. That will probably need to be optional and choosen by the architecture
-at compile time too. The probably most important factor to consider is the
-penality of accessing remote memory, I think I can say on all recent and future
-machines with a small difference between local and remote memory (and possibly
-as you say with a decent cache protocol able to snoop cacheline data from the
-other cpus even if they're not dirty) it's much better to always try to keep
-the task in its last node. My patch is actually assuming recent machines and it
-keeps the task in its last node if not in the last cpu and it keeps doing
-memory allocation from there and it forgets about its original node where it
-started allocating the memory from.  This provided the best performance during
-userspace CPU bound load as far I can tell and it also better distribute the load.
+It helps by keeping the task in the same node if it cannot keep it in
+the same cpu anymore.
 
-Kanoj could you also have a look at the NUMA related common code MM fixes I did
-in this patch? I'd like to get them integrated (just skip the arch/alpha/*
-include/asm-alpha/* stuff while reading the patch, they're totally orthogonal).
+Assume task A is sleeping and it last run on cpu 8 node 2. It gets a wakeup
+and it gets running and for some reason cpu 8 is busy and there are other
+cpus idle in the system. Now with the current scheduler it can be moved in any
+cpu in the system, with the numa sched applied we will try to first reschedule
+it in the idles cpus of node 2 for example. The per-node runqueue are mainly
+necessary to implement the heuristic.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.3aa1/00_alpha-numa-1
+> cpus on nodes where they have allocated most of their memory on. I am 
+> not sure what the situation will be under huge loads though.
 
-If you prefer I can extract them in a more finegrinded patch just dropping
-the alpha stuff by hand.
+after all cpus are busy we try to reschedule only on the cpus of the local
+node, that's why it can generate some unbalance yes, but it will tend to
+rebalance over the time because some node will end with all tasks with
+zero counter first if it's less loaded, and so then it will start
+getting tasks with has_cpu 0 in the runqueues out of other nodes.
+
+You may want to give it a try on your machines and see what difference it
+makes, I'd be curious to know of course.
 
 Andrea

@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288477AbSAYXuH>; Fri, 25 Jan 2002 18:50:07 -0500
+	id <S287858AbSAYXqg>; Fri, 25 Jan 2002 18:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288557AbSAYXtr>; Fri, 25 Jan 2002 18:49:47 -0500
-Received: from jalon.able.es ([212.97.163.2]:31887 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S288477AbSAYXtj>;
-	Fri, 25 Jan 2002 18:49:39 -0500
-Date: Sat, 26 Jan 2002 00:49:28 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Timothy Covell <timothy.covell@ashavan.org>,
-        Xavier Bestel <xavier.bestel@free.fr>, Robert Love <rml@tech9.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: booleans and the kernel
-Message-ID: <20020126004928.A3780@werewolf.able.es>
-In-Reply-To: <200201250720.g0P7KeL09793@home.ashavan.org.> <Pine.GSO.4.21.0201250244070.23657-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.GSO.4.21.0201250244070.23657-100000@weyl.math.psu.edu>; from viro@math.psu.edu on vie, ene 25, 2002 at 08:48:37 +0100
-X-Mailer: Balsa 1.3.0
+	id <S288477AbSAYXq0>; Fri, 25 Jan 2002 18:46:26 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:29402 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S287858AbSAYXqL>; Fri, 25 Jan 2002 18:46:11 -0500
+Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.13
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFF9BEB397.80E8A076-ON86256B4C.0081C4B0@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 25 Jan 2002 17:45:57 -0600
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 01/25/2002 06:46:10 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Release 1.0.13 of JFS was made available today.
 
-On 20020125 Alexander Viro wrote:
->
->Seriously, learn C.  The fact that you don't understand it is _your_
->problem - l-k is not a place to teach you the langauge.
->
+Drop 51 on January 25, 2002 (jfs-2.4-1.0.13-patch.tar.gz or
+jfs-2.5.2-1.0.13-patch.gz and jfsutils-1.0.1.tar.gz)
+includes fixes to the file system and utilities.
 
-Please, stop with that thing of 'learn C'. C can have bad design points.
-It is not perfect. Deal with it, but do not make it a god.
+Function and Fixes in release 1.0.13
 
-For this special case, what is so bad in halting people to write code
-like
+Utilities changes
 
-a = b + (c>7);
+- update xchklog and xchkdump parameters and man pages
+- reduce/eliminate instances of 'access beyond end of
+  device' error message
+- compatibility fix for different versions of automake
+- fix typo in spec file
+- defines cleanup (Christoph Hellwig)
+- unicode cleanup (Christoph Hellwig)
+- endian portability fix (Christoph Hellwig)
+- convert types uxx, uintxx, sxx, intxx to C99 types (code cleanup)
 
-and write it like
+File System changes
 
-a = b + (c>7 ? 1 : 0);
+- chmod changes on newly created directories are lost after umount
+  (bug 2535)
+- Page locking race fixes (Christoph Hellwig)
+- Improve metapage locking (Christoph Hellwig)
+- Fix timing window. Lock page while metapage is active to avoid
+  page going away before the metadata is released. (Fixed crash
+  during mount/umount testing)
+- Make changes for 2.5.2 kernel
+- Fix race condition truncating large files
 
-Let the compiler do its work.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre7-slb #3 SMP Thu Jan 24 02:54:46 CET 2002 i686
+For more details about JFS, please see the README or changelog.jfs
+
+
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
+
+
+

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269918AbTGKMXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 08:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269915AbTGKMXu
+	id S269913AbTGKMX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 08:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269914AbTGKMX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 08:23:50 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:33709 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S269914AbTGKMXs (ORCPT
+	Fri, 11 Jul 2003 08:23:28 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:21677 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S269913AbTGKMX1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 08:23:48 -0400
-Date: Fri, 11 Jul 2003 14:38:29 +0200 (MEST)
+	Fri, 11 Jul 2003 08:23:27 -0400
+Date: Fri, 11 Jul 2003 14:30:17 +0200 (MEST)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: linux-net@vger.kernel.org
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: IPV6 warnings in 2.4.22-pre4
-Message-ID: <Pine.GSO.4.21.0307111434400.8989-100000@vervain.sonytel.be>
+To: David Mosberger <davidm@napali.hpl.hp.com>,
+       Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: incbin (was: Re: Linux 2.5.75)
+In-Reply-To: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
+Message-ID: <Pine.GSO.4.21.0307111425371.8989-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 10 Jul 2003, Linus Torvalds wrote:
+> David Mosberger:
+>   o Use ".incbin" for initramfs image build
 
-When compiling 2.4.22-pre4 for m68k, I see these suspicious warnings:
+Why was this change necessary? It requires me to build a new toolchain (yes I
+know Documentation/Changes says you need at least 2.12):
 
-| ip6t_rt.c:134: warning: assignment from incompatible pointer type
-| ip6t_ipv6header.c:43: warning: unused variable `opt'
-| ip6t_frag.c:151: warning: assignment from incompatible pointer type
-| ip6t_esp.c:127: warning: assignment from incompatible pointer type
-| ip6t_ah.c:137: warning: assignment from incompatible pointer type
+| tux$ make usr/
+|   AS      usr/initramfs_data.o
+| usr/initramfs_data.S: Assembler messages:
+| usr/initramfs_data.S:2: Error: Unknown pseudo-op:  `.incbin'
+| make[1]: *** [usr/initramfs_data.o] Error 1
+| make: *** [usr/] Error 2
+| tux$ m68k-linux-ld -v
+| GNU ld version 2.9.5 (with BFD 2.9.5.0.37)
+| tux$ 
 
 Gr{oetje,eeting}s,
 

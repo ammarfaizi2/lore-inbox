@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVARMPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVARMVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVARMPL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 07:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVARMPL
+	id S261265AbVARMVc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 07:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVARMVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 07:15:11 -0500
-Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:20388 "EHLO
-	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
-	id S261263AbVARMPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 07:15:04 -0500
-Date: Tue, 18 Jan 2005 13:15:00 +0100
-From: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4: "access beyond end of device" after ext2 mount
-Message-ID: <20050118121500.GF2839@darkside.22.kls.lan>
-Mail-Followup-To: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-References: <20050115233530.GA2803@darkside.22.kls.lan> <20050117194635.GD22202@logos.cnet> <20050118105547.GD8747@pclin040.win.tue.nl> <20050118084526.GB25979@logos.cnet>
+	Tue, 18 Jan 2005 07:21:32 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41638 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261265AbVARMV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 07:21:26 -0500
+Date: Tue, 18 Jan 2005 12:21:26 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: PCI patches not being reviewed
+Message-ID: <20050118122126.GM30982@parcelfarce.linux.theplanet.co.uk>
+References: <20050118022031.GL30982@parcelfarce.linux.theplanet.co.uk> <20050118062721.GA8951@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050118084526.GB25979@logos.cnet>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050118062721.GA8951@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 06:45:26AM -0200, Marcelo Tosatti wrote:
-> So this is either not a Linux error and not a disk error, its just that the
-> "use with filesystem" then "direct access" is a unfortunate combination.
-> What would be the correct fix for this for this, if any? 
+On Mon, Jan 17, 2005 at 10:27:22PM -0800, Greg KH wrote:
+> On Tue, Jan 18, 2005 at 02:20:31AM +0000, Matthew Wilcox wrote:
+> > 
+> > Greg, you're merging a lot of patches that aren't going through
+> > the linux-pci mailing list for review.  Please redirect patches that
+> > are sent to you directly so others can also review them.
+> 
+> I'm sorry, were there any that were recently applied that you feel
+> needed more review?
 
-Well, I personally think at least the EOF behaviour should be fixed
-somehow.
-I understand the point that the device's blocksize affects the device's
-length... obviously a block device can only consist of full blocks,
-not half a block or something like that.
-However, if that's right, a block device's length should IMHO also be
-affected by it's blocksize - thus, the block device should return an
-EOF after the last block was read.
+Yes, the PCI Express bridge driver is quite buggy.  I also think it's
+the wrong approach to take -- weren't you working on a generic way to
+have multiple drivers attach to the same device?
 
-In my case this would mean, it should return an EOF if blocksize is
-1024 and 4996183 blocks (9992366 sectors) are read or better, if the
-4996184th block is attempted to read and it should return an EOF if
-blocksize is 4096 and 1249045 blocks (9992360 sectors) are read or
-better, if the 1249046th block is attempted to read.
+> All major ones have been posted to linux-kernel
+> first, which, according to the MAINTAINERS file, is the list for pci
+> issues to be disccused on.  I'd be glad to change that entry, if you
+> think it would help out any.
 
-Another approach could be to allow 'fractions of blocks' :)
-Then, the device could have a blocksize of 4096 and consist of
-1249045 full blocks and a 6/8 block. However, I'm not sure, if this
-is possible at all.
+That would certainly help; I'm not sure how anyone has time to read
+linux-kernel.  Here's a patch:
 
-> v2.6 should suffer from the same issues?
+Index: linux-2.6/MAINTAINERS
+===================================================================
+RCS file: /var/cvs/linux-2.6/MAINTAINERS,v
+retrieving revision 1.34
+diff -u -p -r1.34 MAINTAINERS
+--- linux-2.6/MAINTAINERS	12 Jan 2005 20:14:52 -0000	1.34
++++ linux-2.6/MAINTAINERS	18 Jan 2005 12:16:43 -0000
+@@ -1745,7 +1745,7 @@ S:	Maintained
+ PCI SUBSYSTEM
+ P:	Greg Kroah-Hartman
+ M:	greg@kroah.com
+-L:	linux-kernel@vger.kernel.org
++L:	linux-pci@atrey.karlin.mff.cuni.cz
+ S:	Supported
+ 
+ PCI HOTPLUG CORE
 
-I don't know, but if it doesn't, one could just backport 2.6's
-solution :)
-
-
-Mario
 -- 
-Independence Day: Fortunately, the alien computer operating system works just
-fine with the laptop. This proves an important point which Apple enthusiasts
-have known for years. While the evil empire of Microsoft may dominate the
-computers of Earth people, more advanced life forms clearly prefer Mac's.
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

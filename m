@@ -1,60 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVANLL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVANLRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVANLL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 06:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVANLL1
+	id S261955AbVANLRp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 06:17:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVANLRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 06:11:27 -0500
-Received: from colin2.muc.de ([193.149.48.15]:50436 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261954AbVANLLW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 06:11:22 -0500
-Date: 14 Jan 2005 12:11:21 +0100
-Date: Fri, 14 Jan 2005 12:11:21 +0100
-From: Andi Kleen <ak@muc.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: clameter@sgi.com, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview II
-Message-ID: <20050114111121.GA81555@muc.de>
-References: <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com> <20050114043944.GB41559@muc.de> <m14qhkr4sd.fsf_-_@muc.de> <1105678742.5402.109.camel@npiggin-nld.site> <20050114104732.GB72915@muc.de> <41E7A58C.5010805@yahoo.com.au>
-Mime-Version: 1.0
+	Fri, 14 Jan 2005 06:17:45 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:58637 "EHLO
+	statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S261955AbVANLRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 06:17:42 -0500
+Message-ID: <41E7AA0E.4030103@s5r6.in-berlin.de>
+Date: Fri, 14 Jan 2005 12:16:30 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Reply-To: Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+CC: Nishanth Aravamudan <nacc@us.ibm.com>, kj <kernel-janitors@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [UPDATE PATCH] ieee1394/sbp2: use ssleep() instead of	schedule_timeout()
+References: <20050107213400.GD2924@us.ibm.com>	 <17a9eec54394ded0a28295a6548a5c65@localhost>	 <20050110173945.GB3099@us.ibm.com> <1105678375.7830.81.camel@kino.dennedy.org>
+In-Reply-To: <1105678375.7830.81.camel@kino.dennedy.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E7A58C.5010805@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 09:57:16PM +1100, Nick Piggin wrote:
-> Andi Kleen wrote:
-> >>I have a question for the x86 gurus. We're currently using the lock
-> >>prefix for set_64bit. This will lock the bus for the RMW cycle, but
-> >>is it a prerequisite for the atomic 64-bit store? Even on UP?
-> >
-> >
-> >An atomic 64bit store doesn't need a lock prefix. A cmpxchg will
-> >need to though.
+Dan Dennedy wrote:
+> On Mon, 2005-01-10 at 09:39 -0800, Nishanth Aravamudan wrote:
+>> On Sun, Jan 09, 2005 at 10:01:21AM +0100, Stefan Richter wrote:
+>> > Nishanth Aravamudan wrote:
+>> > >@@ -902,8 +902,7 @@ alloc_fail:
+>> > >	 * connected to the sbp2 device being removed. That host would
+>> > >	 * have a certain amount of time to relogin before the sbp2 device
+>> > >	 * allows someone else to login instead. One second makes sense. */
+>> > >-	set_current_state(TASK_INTERRUPTIBLE);
+>> > >-	schedule_timeout(HZ);
+>> > >+	ssleep(1);
+>> > 
+>> > Maybe the current code is _deliberately_ accepting interruption by 
+>> > signals but trying to complete sbp2_probe() anyway. However it seems 
+>> > more plausible to me to abort the device probe, for example like this:
+>> > if (msleep_interruptible(1000)) {
+>> > 	sbp2_remove_device(scsi_id);
+>> > 	return -EINTR;
+>> > }
+[...]
+>> I am trying to audit all usage of schedule_timeout() and the
+>> semantic interpretation (to me) of using TASK_INTERRUPTIBLE is that you wish to
+>> sleep a certain amount of time, but also are prepared for an early return on
+>> either signals or wait-queue events. [...]
 > 
-> Are you sure the cmpxchg8b need a lock prefix? Sure it does to
+> Sounds like a sign-off. Any other input before I request Stefan to make
+> the final decision?
 
-If you want it to be atomic on SMP then yes.
+Don't count on me here. I do not even know /which/ situations might
+introduce signals or wait queue events at this point. The only one that
+occurred to me is when nodemgr is about to be killed. In this situation,
+it is hardly beneficial to continue with the login. But there may be
+other events I do not know about which should not result in sbp2 giving
+up. Sorry, I should have been clear about this in my previous post.
 
-> get the proper "atomic cmpxchg" semantics, but what about a
-> simple 64-bit store... If it boils down to 8 byte load, 8 byte
+>> > Anyway, signal handling does not appear to be critical there.
 
-A 64bit store with a 64bit store instruction is atomic. But 
-to do that on 32bit x86 you need SSE/MMX (not an option in the kernel)
-or cmpxchg8 
+Or rather, it is not that important (although desirable) to always wait
+for 1000ms. This is just necessary for when another initiator was logged
+in into the target but did not reconnect or login again immediately
+after a bus reset. (Assuming the other initiator or the local host or
+the target require exclusive login, which is more common than concurrent
+login.)
 
-> store on the memory bus, and that store is atomic, then maybe
-> a lock isn't needed at all?
+>> Just out of curiousity, doesn't that run the risk, though, of
+>> signal_pending(current) being true for quite a bit of time following the
+>> timeout?
+> 
+> How much of this is "curiosity" vs a real risk?
 
-More complex operations than store or load are not atomic without
-LOCK (and not all operations can have a lock prefix). There are a few 
-instructions with implicit lock. If you want the gory details read 
-chapter 7 in the IA32 Software Developer's Manual Volume 3.
-
--Andi
-
+Well, what might those events be? May we hold them off for one second?
+(Or perhaps even longer if we are about to login to several targets.)
+Should sbp2 proceeed to login when such events occur? I can't answer
+this for sure. Sorry,
+-- 
+Stefan Richter
+-=====-=-=-= ---= -===-
+http://arcgraph.de/sr/

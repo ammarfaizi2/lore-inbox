@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTGXMYC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 08:24:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTGXMYC
+	id S263875AbTGXMlE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 08:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTGXMlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 08:24:02 -0400
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:25051 "EHLO
-	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id S263637AbTGXMXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 08:23:10 -0400
-From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200307241237.h6OCbBNn010280@wildsau.idv.uni.linz.at>
-Subject: Re: how to PAE enable kernel?
-In-Reply-To: <200307241233.h6OCX8UF010106@wildsau.idv.uni.linz.at>
-To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Date: Thu, 24 Jul 2003 14:37:11 +0200 (MET DST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 08:41:04 -0400
+Received: from mail.gmx.de ([213.165.64.20]:7649 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263875AbTGXMlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 08:41:03 -0400
+Date: Thu, 24 Jul 2003 14:56:09 +0200
+From: Dominik Brugger <ml.dominik83@gmx.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: OHCI problems with suspend/resume
+Message-Id: <20030724145609.4a8c8e67.ml.dominik83@gmx.net>
+In-Reply-To: <20030724143731.5fe40b4e.ml.dominik83@gmx.net>
+References: <20030723220805.GA278@elf.ucw.cz>
+	<20030724143731.5fe40b4e.ml.dominik83@gmx.net>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> hi,
-> 
-> we have a system with 4G, however, only approx 1G will be used.
-> dmesg issues the hint "use a PAE enabled kernel". silly question,
-> but how do I PAE enable a kernel? I have found a lot of messages
-> about PAE enabled kernels on the net, but not *how* to enable this
-> feature.
-> 
-> any hints please?
+Hello again,
 
-oh.
+I have a few things to add:
 
-I see. I have to use enable 64GB, since 4 of the 4G lives above the
-the 4G physical address limit. correct? sorry for interrupting ...
- 
-> thanks in advance,
-> herbert
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+1) If uhci_hcd was never loaded before suspend, one has to press a key on the keyboard after `echo 3 > /proc/acpi/sleep` in order to get the machine suspended. Wakeup does not work in that case, reboot required.
+
+2) It makes no difference whether the Logitech USB Mouse is connected or not.
+
+-Dominik Brugger

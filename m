@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbUC3Fy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 00:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUC3Fy5
+	id S263225AbUC3GBO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 01:01:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUC3GBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 00:54:57 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:61623 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S261681AbUC3Fyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 00:54:52 -0500
-Date: Mon, 29 Mar 2004 22:55:32 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-Message-ID: <20040330055532.GA21154@bounceswoosh.org>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <4066021A.20308@pobox.com> <20040329113641.GE1453@openzaurus.ucw.cz>
+	Tue, 30 Mar 2004 01:01:14 -0500
+Received: from gate.crashing.org ([63.228.1.57]:60565 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263225AbUC3GBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 01:01:13 -0500
+Subject: [PATCH] ppc64: More incorrect syscall error test
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1080626458.1213.22.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20040329113641.GE1453@openzaurus.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Mar 2004 16:00:58 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29 at 13:36, Pavel Machek wrote:
->32MB is one second if everything goes okay... That will be horrible for latency, right?
+Oops, there was two different code path affected by this
+bug (strace and normal) and I fixed only one. Here's the
+other one:
 
-It'll be somewhere between half a second and 1.5 seconds, depending on
-how old your hard drive is, all other things being removed from the
-equation.  The media rate of modern IDE drives is about 60MB/s right
-now, and going up slightly soon.  The top SCSI drives are around
-85MB/s if I remember correctly.
+===== arch/ppc64/kernel/entry.S 1.34 vs edited =====
+--- 1.34/arch/ppc64/kernel/entry.S	Tue Mar 30 14:53:28 2004
++++ edited/arch/ppc64/kernel/entry.S	Tue Mar 30 15:59:43 2004
+@@ -194,7 +194,7 @@
+ _GLOBAL(ret_from_syscall_2)
+ 	std	r3,RESULT(r1)	/* Save result */	
+ 	li	r10,-_LAST_ERRNO
+-	cmpl	0,r3,r10
++	cmpld	0,r3,r10
+ 	blt	60f
+ 	neg	r3,r3
+ 57:	ld	r10,_CCR(r1)	/* Set SO bit in CR */
 
-On average, 1s is about right.
-
-It becomes a tradeoff between a big hit now and a lot of little hits
-over time.  If you don't expect to have any idle time soon, you're
-probably better off flushing as big a chunk as possible to free RAM
-for the upcoming/continuous workload.  If you think you might have
-idle time, the lower MB/s of smaller requests will keep you more
-granular and improve latency, even though overall work completed per
-unit time will be slightly lower.
-
-For a bursty access pattern, you're probably best off with small
-requests that fit within the drive's cache, but I don't have any sort
-of measurable data on this.
-
-Most of the OS testing that we're subjected to doesn't attempt large
-requests.
-
---eric
-
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
 

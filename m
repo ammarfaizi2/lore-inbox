@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281028AbRKGWZR>; Wed, 7 Nov 2001 17:25:17 -0500
+	id <S280997AbRKGW2R>; Wed, 7 Nov 2001 17:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281026AbRKGWZH>; Wed, 7 Nov 2001 17:25:07 -0500
-Received: from stingr.net ([212.193.33.37]:6405 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id <S281022AbRKGWYy>;
-	Wed, 7 Nov 2001 17:24:54 -0500
-Date: Thu, 8 Nov 2001 01:24:52 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Message-ID: <20011108012452.A14971@stingr.net>
-Mail-Followup-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0111062157050.25683-100000@mustard.heime.net> <Pine.GSO.4.33.0111061611080.17287-100000@sweetums.bluetronic.net>
+	id <S281022AbRKGW2I>; Wed, 7 Nov 2001 17:28:08 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42236
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281024AbRKGW14>; Wed, 7 Nov 2001 17:27:56 -0500
+Date: Wed, 7 Nov 2001 14:27:50 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 vs resiserfs vs xfs
+Message-ID: <20011107142750.A545@mikef-linux.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>, <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <3BE99650.70AF640E@zip.com.au>, <3BE99650.70AF640E@zip.com.au> <20011107133301.C20245@mikef-linux.matchmail.com> <3BE9AF15.50524856@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0111061611080.17287-100000@sweetums.bluetronic.net>
-User-Agent: Agent Orange
-X-Mailer: mIRC32 v5.91 K.Mardam-Bey
-X-RealName: Stingray Greatest Jr
-Organization: Stingray Software
+In-Reply-To: <3BE9AF15.50524856@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+On Wed, Nov 07, 2001 at 02:00:53PM -0800, Andrew Morton wrote:
+> Mike Fedyk wrote:
+> > 
+> > I have a switch "data=journal" that ext2 will choke on when I boot into an
+> > ext2 only kernel.
+> > 
+> > Is there another way to change the journaling mode besides modifying
+> > /etc/fstab?
+> 
+> Try  adding `rootflags=data=journal' to your kernel boot
+> commandline.
+>
 
-Replying to Ricky Beam:
-> And those who *will* complain that binary structures are hard to work with,
-> (you're idiots too :-)) a struct is far easier to deal with than text
-> processing, esp. for anyone who knows what they are doing.  Yes, changes
+Does that work for non-root ext3 mounts also?  ie, will ext3 default to
+data=journaled mode for future mounts?
 
-Just read the whole thread, and got my head explode. Let me reply to random
-picked msg.
+> > It'd be nice if it could be a compile time switch for default journal mode...
+> 
+> It can be done via lilo.conf and /etc/fstab.
 
-First, to these who know about kernel-user interaction in, for example,
-windows. Win32 API has functions, which fill structs, defined in SDK headers.
-
-Linux kernel is much more light-w ... or maybe for any other reason it does
-not have that functions. pity. they can achieve performance you need. and no
-need for parsing, yeah. (we also do have X, which implementation is much
-more slow than winNT gui).
-
-but.
-
-How much time you will parse a single integer ? Without any text around
-needs to be thrown away, optionally with 0x and considered it __int64 ?
-
-This is much better than current /proc, yeah ? Anyway, Linus will keep proc
-ASCII, and we don't have another Linus.
-
-So proposed standard for /proc - is a good idea. Let's get rid of
-progressbars, percent-o-meters with pseudographics. Maybe we should switch
-from single file, for ex, cpuinfo, to dir with many INDIVIDUAL files
-containing single number or feature-set in it. Splitting away parts that
-need to be formatted in-kernel and then parsed in-user maybe a good decision
-'coz ... maybe they are rarely used ?
-
-Another point. Including formatting code in EVERY kernel part that resides in
-/proc maybe (as for me) a bad idea - so one can do simple interface,
-formatting functions, and switch modules to use them
-
-Another point is writable /proc files - but no one in this thread said
-something clever about it and ... maybe discuss it later ?
-
-- -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
------BEGIN PGP SIGNATURE-----
-
-iEYEAREDAAYFAjvptKwACgkQyMW8naS07KSA2QCgm0z0ICxmJxqjImrPMk7Denzx
-CjIAnRCQ6WYMXa0lOMFFyYoHJpZ0jRuy
-=8+oN
------END PGP SIGNATURE-----
+Mike

@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVAMKCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVAMKIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVAMKCr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 05:02:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVAMKCr
+	id S261304AbVAMKIy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 05:08:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVAMKIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 05:02:47 -0500
-Received: from imag.imag.fr ([129.88.30.1]:5801 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S261538AbVAMKCp (ORCPT
+	Thu, 13 Jan 2005 05:08:54 -0500
+Received: from gprs215-81.eurotel.cz ([160.218.215.81]:21160 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261304AbVAMKIw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 05:02:45 -0500
-Message-ID: <41E6472B.5020701@imag.fr>
-Date: Thu, 13 Jan 2005 11:02:19 +0100
-From: Raphael Jacquot <raphael.jacquot@imag.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050109 Fedora/1.7.5-3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: sander@humilis.net
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Subject: Re: NUMA or not on dual Opteron
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <200501121824.44327.rathamahata@ehouse.ru> <Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org> <20050113094537.GB2547@favonius>
-In-Reply-To: <20050113094537.GB2547@favonius>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Thu, 13 Jan 2005 11:02:24 +0100 (CET)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Thu, 13 Jan 2005 05:08:52 -0500
+Date: Thu, 13 Jan 2005 11:08:39 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ncunningham@linuxmail.org
+Subject: Re: [PATCH] Fix a bug in timer_suspend() on x86_64
+Message-ID: <20050113100838.GA3525@elf.ucw.cz>
+References: <20050106002240.00ac4611.akpm@osdl.org> <200501130002.37311.rjw@sisk.pl> <1105572485.2941.1.camel@desktop.cunninghams> <200501130159.16818.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501130159.16818.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander wrote:
-> Linus Torvalds wrote (ao):
-> 
->>On Wed, 12 Jan 2005, Sergey S. Kostyliov wrote:
->>
->>>2.6.10-rc1 hangs at boot stage for my dual opteron machine
->>
->>Oops, yes. There's some recent NUMA breakage - either disable
->>CONFIG_NUMA, or apply the patches that Andi Kleen just posted on the
->>mailing list (the second option much preferred, just to verify that
->>yes, that does fix it).
-> 
-> 
-> I was under the impression that NUMA is useful on > 2-way systems only.
-> Is this true, and if not, under what circumstances is NUMA useful on
-> 2-way Opteron systems?
-> 
-> In other words: why should one want NUMA to be enabled or disabled for
-> dual Opteron?
-> 
-> Thanks in advance.
-> 
+Hi!
 
-Numa needs to be enabled on bi-opteron systems because each processor 
-controls part of the memory. unlike the intel memory architecture, where 
-processors share the same bus to access memory.
-Numa in opteron systems is thus required to allow sharing of memory .
+> This patch is intended to fix a bug in timer_suspend() on x86_64 that causes 
+> hard lockups on suspend with swsusp and provide some optimizations.  It is 
+> based on the Nigel Cunningham's patches to to reduce delay in 
+> arch/kernel/time.c.  The patch is against 2.6.10-mm3 and 2.6.11-rc1.  Please 
+> consider for applying.
+> 
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+Acked-by: Pavel Machek.
+								Pavel
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

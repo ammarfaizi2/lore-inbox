@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266267AbUBBVDX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 16:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbUBBTqM
+	id S265886AbUBBVSe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 16:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265901AbUBBVSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:46:12 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:16469 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265921AbUBBTpN
+	Mon, 2 Feb 2004 16:18:34 -0500
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:39596 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S265886AbUBBVSb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:45:13 -0500
-X-BrightmailFiltered: true
-Date: Mon, 2 Feb 2004 20:45:12 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 12/42]
-Message-ID: <20040202194512.GL6785@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+	Mon, 2 Feb 2004 16:18:31 -0500
+Date: Mon, 02 Feb 2004 16:18:27 -0500
+From: jgluckca@netscape.net (John)
+To: linux-kernel@vger.kernel.org
+Subject: ACPI and laptop question
+MIME-Version: 1.0
+Message-ID: <182E8021.2C94112E.009D6C5C@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 67.61.182.160
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-include/linux/autoconf.h:2070:1: warning: "CONFIG_SERIAL_SHARE_IRQ" redefined
-vac-serial.c:13:1: warning: this is the location of the previous definition
+My first time posting here...
 
-Don't define CONFIG_SERIAL_SHARE_IRQ if it's already defined by the
-build system.
+I have a problem that I'm trying to find a solution to...
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/char/vac-serial.c linux-2.4/drivers/char/vac-serial.c
---- linux-2.4-vanilla/drivers/char/vac-serial.c	Tue Nov 11 17:51:12 2003
-+++ linux-2.4/drivers/char/vac-serial.c	Sat Jan 31 19:19:50 2004
-@@ -10,7 +10,9 @@
- #define CONFIG_SERIAL_NOPAUSE_IO
- #define SERIAL_DO_RESTART
- 
-+#ifndef CONFIG_SERIAL_SHARE_IRQ
- #define CONFIG_SERIAL_SHARE_IRQ
-+#endif
- 
- /* Set of debugging defines */
- 
+When Linux starts, the startup script checks to see if the filesystem is due to be checked. If I'm running on AC, it's fine to check the filessystem. However, on batteries, I want to prevent the check from happening.
+
+I'm running a 2.6 series kernel.
+
+Once everything is up and ruuning, the /proc filesystem is mounted and I could do something like this in a script:
+
+# If runninng on batteries, /proc/acpi/ac_adapter/ACAD/state
+# will have a line that reads: "state:                   off-line"
+# We use this to avoid a fsck if on batteries.
+# The next time we go to AC power, the fsck will get done.
+
+if [ -f /proc/acpi/ac_adapter/ACAD/state ]; then
+    ac_state=$(grep -o 'off-line' /proc/acpi/ac_adapter/ACAD/state)
+      echo "AC adapter is $ac_state"
+else
+      echo "AC adapter state file not found"                
+fi
+
+Unfortunately, the root filesystem check is done before /proc is mounted, so that won't work.
+
+Next I looked at the kernel files to see what it does. I founnd a include/linux/acpi.h which seems to interface with the ACPI subsystem but I can't seem to find any doc on this.
+
+I poked around in the kernel and found various functions driver/acpi/ac.c but I don't think these are avialable as system calls. So.. I can't write a C program to get the ac adapter state.
+
+If anyone cann tell me how to get the ac adapter state __before__ /proc is mounted it would be greatly appreciated.
+
+Please cc my e-mail as I'm not subscribed to this list.
+
+Thanks
+
+John
+
+
+
+
 -- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-"Sei l'unica donna della mia vita".
-(Adamo)
+The past is history
+The future is a mystery
+Now is a gift
+That's why it's called the present
+
+
+
+__________________________________________________________________
+New! Unlimited Netscape Internet Service.
+Only $9.95 a month -- Sign up today at http://isp.netscape.com/register
+Act now to get a personalized email address!
+
+Netscape. Just the Net You Need.

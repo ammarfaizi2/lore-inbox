@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267608AbTBURhQ>; Fri, 21 Feb 2003 12:37:16 -0500
+	id <S267607AbTBURiv>; Fri, 21 Feb 2003 12:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267611AbTBURhP>; Fri, 21 Feb 2003 12:37:15 -0500
-Received: from moutvdom.kundenserver.de ([212.227.126.250]:45273 "EHLO
-	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S267608AbTBURhO>; Fri, 21 Feb 2003 12:37:14 -0500
-From: Thomas Stuefe <thomas.stuefe@online.de>
-To: linux-kernel@vger.kernel.org
-Subject: compile error: isdn, capi2.0, AVM b1 card (b1pci.c)
-Date: Fri, 21 Feb 2003 13:19:30 +0100
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302211319.30639.thomas.stuefe@online.de>
+	id <S267612AbTBURiu>; Fri, 21 Feb 2003 12:38:50 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:2003 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S267607AbTBURio>; Fri, 21 Feb 2003 12:38:44 -0500
+Message-Id: <5.1.0.14.2.20030221094037.0d4c4ee0@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 21 Feb 2003 09:44:42 -0800
+To: Christoph Hellwig <hch@infradead.org>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       "David S. Miller" <davem@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030221084543.A25765@infradead.org>
+References: <5.1.0.14.2.20030220165016.0d47c688@mail1.qualcomm.com>
+ <Your <5.1.0.14.2.20030220092216.0d3fefd0@mail1.qualcomm.com>
+ <20030221004041.05C1F2C2D5@lists.samba.org>
+ <5.1.0.14.2.20030220165016.0d47c688@mail1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+At 12:45 AM 2/21/2003, Christoph Hellwig wrote:
+>On Thu, Feb 20, 2003 at 05:17:52PM -0800, Max Krasnyansky wrote:
+>> Yeah, I think 'try' is definitely be a misnomer in this case.
+>> How about something like this ?
+>> 
+>> static inline void __module_get(struct module *mod)
+>> {
+>> #ifdef CONFIG_MODULE_DETECT_API_VIOLATION
+>>         if (!module_refcount(mod))
+>>                 __unsafe(mod);
+>> #endif
+>>         local_inc(&mod->ref[get_cpu()].count);
+>>         put_cpu();
+>> }
+>> 
+>> We will be able to compile the kernel with CONFIG_MODULE_DETECT_API_VIOLATION
+>> and easily find all modules that call __module_get() without holding a reference.
+>
+>Drop the ifdef, add and add an unlikely instead?
+Well, module_refcount() is fairly expensive (loop for NR_CPUS). So I'd keep the ifdef.
 
-For kernel 2.5.62 I get the following error:
-
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
-init/do_mounts.o init/initramfs.o
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o 
---start-group  usr/built-in.o  arch/i386/kernel/built-in.o  
-arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  
-mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  
-crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  
-sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o 
-vmlinux
-drivers/built-in.o: In function `b1pci_pci_remove':
-drivers/built-in.o(.text+0x90665): undefined reference to `b1pciv4_remove'
-
---------
-
-Reason:
-
-The combination 
-
-ISDN_DRV_AVMB1_B1PCI = Y
-ISDN_DRV_AVMB1_B1PCIV4 = N
-
-does not seem to work, as ISDN_DRV_AVMB1_B1PCIV4 undefines the static function 
-b1pciv4_remove(). 
-
-If those flags need to be set both, why not make one flag instead of two?
-
-bye thomas
-
+Max
 

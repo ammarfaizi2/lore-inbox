@@ -1,80 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbVBXTXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbVBXTWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbVBXTXL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 14:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbVBXTXL
+	id S262455AbVBXTWx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 14:22:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVBXTWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 14:23:11 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:47278 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262457AbVBXTWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 14:22:50 -0500
-Subject: Re: [PATCH] A new entry for /proc
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton OSDL <akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 24 Feb 2005 13:56:19 -0500
-Message-Id: <1109271379.5125.180.camel@cube>
+	Thu, 24 Feb 2005 14:22:53 -0500
+Received: from calma.pair.com ([209.68.1.95]:24076 "HELO calma.pair.com")
+	by vger.kernel.org with SMTP id S262455AbVBXTWj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 14:22:39 -0500
+Date: Thu, 24 Feb 2005 14:22:37 -0500
+From: "Chad N. Tindel" <chad@tindel.net>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: "Chad N. Tindel" <chad@tindel.net>, Chris Friesen <cfriesen@nortel.com>,
+       Mike Galbraith <EFAULT@gmx.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+Message-ID: <20050224192237.GA31894@calma.pair.com>
+References: <20050224075756.GA18639@calma.pair.com> <30111.1109237503@www1.gmx.net> <20050224175331.GA18723@calma.pair.com> <421E1AC1.1020901@nortel.com> <20050224183851.GA24359@calma.pair.com> <421E2528.8060305@grupopie.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <421E2528.8060305@grupopie.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[quoting various people...]
+> If you keep a learning attitude, there is a chance for this discussion 
+> to go on. However, if you keep the "Come now, don't bullshit me, this is 
+> a broken architecture and you're just trying to cover up" attitude, 
+> you're just going to get discarded as a troll.
 
-> Here is a new entry developed for /proc that prints for each process
-> memory area (VMA) the size of rss. The maps from original kernel is   
-> able to present the virtual size for each vma, but not the physical   
-> size (rss). This entry can provide an additional information for tools
-> that analyze the memory consumption. You can know the physical memory
-> size of each library used by a process and also the executable file.
->
-> Take a look the output:
-> # cat /proc/877/smaps 
-> 08048000-08132000 r-xp  /usr/bin/xmms
-> Size:     936 kB
-> Rss:     788 kB 
-> 08132000-0813a000 rw-p  /usr/bin/xmms
-> Size:      32 kB
-> Rss:      32 kB 
-> 0813a000-081dd000 rw-p
-> Size:     652 kB
-> Rss:     616 kB
+I'm not trying to troll here; I suppose I'm just coming from a different 
+background.  I'll try to adjust my tone.
 
-The most important thing about a /proc file format is that it has
-a documented means of being extended in the future. Without such
-documentation, it is impossible to write a reliable parser.
+> I personally like the linux way: "root has the ability to shoot himself 
+> in the foot if he wants to". This is my computer, damn it, I am the one 
+> who tells it what to do.
 
-The "Name: value" stuff is rather slow. Right now procps (ps, top, etc.)
-is using a perfect hash function to parse the /proc/*/status files.
-("man gperf") This is just plain gross, but needed for decent performance.
+I'm all for allowing people to shoot themselves in the foot.  That doesn't
+mean that it is OK for a single userspace thread to mess up a 64-way box.
 
-Extending the /proc/*/maps file might be possible. It is commonly used
-by debuggers I think, so you'd better at least verify that gdb is OK.
-The procps "pmap" tool uses it too. To satisfy the procps parser:
+> This is much, much better than the "users are stupid, we must protect 
+> them from themselves" kind of way that other OS'es use.
 
-a. no more than 31 flags
-b. no '/' prior to the filename
-c. nothing after the filename
-d. no new fields inserted prior to the inode number
+Isn't this what the kernel attempts to do in many other places?  What else
+could possibly be the point of sending SIGSEGV and causing applications
+to dump core when they make a mistake referencing memory?  Isn't it the
+kernel's job to protect one application from another? 
 
-> If there were a use for it, that use might want to distinguish between
-> the "shared rss" of pagecache pages from a file, and the "anon rss" of
-> private pages copied from file or originally zero - would need to get
-> the struct page and check PageAnon.  And might want to count swap
-> entries too.  Hard to say without real uses in mind.
-...
-> It's a mixture of two different styles, the /proc/<pid>/maps
-> many-hex-fields one-vma-per-line style and the /proc/meminfo
-> one-decimal-kB-per-line style.  I think it would be better following
-> the /proc/<pid>/maps style, but replacing the major,minor,ino fields
-> by size and rss (anon_rss? swap?) fields (decimal kB? I suppose so).
+I see what you're saying about the swap daemon.  How about if I make my
+statement less black and white.  Some kernel threads should always have 
+priority over userspace.  
 
-The more info the better. See the pmap "-x" option, currently missing
-some data that the kernel does not supply. There are numerous other     
-pmap options that are completely unimplemented because of the lack of   
-info. See the Solaris 10 man page for pmap, available on Sun's web site.
+I believe the mindset required for a home system that is doing audio recordings
+is different than the one for enterprise-level systems.  How do we unify
+the two?
 
-
+Chad

@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266247AbUFUOPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266241AbUFUOZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266247AbUFUOPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 10:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUFUOPS
+	id S266241AbUFUOZX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 10:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264165AbUFUOZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 10:15:18 -0400
-Received: from amazonas-2333.adsl.datanet.hu ([195.56.231.47]:33824 "HELO gw")
-	by vger.kernel.org with SMTP id S266247AbUFUOPI (ORCPT
+	Mon, 21 Jun 2004 10:25:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4256 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266248AbUFUOZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 10:15:08 -0400
-Date: Mon, 21 Jun 2004 16:15:06 +0200
-From: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7 shows K7 with Pentium Pro erratum [Re: New version of early CPU detect] II
-Message-ID: <priv$1087826841.koan@noc.xeon.eu.org>
-Mail-Followup-To: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>,
-	Andi Kleen <ak@suse.de>, akpm@osdl.org, manfred@colorfullife.com,
-	linux-kernel@vger.kernel.org
-References: <20040423043001.4bb05d5f.ak@suse.de> <20040621120416.GA2722@noc.xeon.eu.org> <20040621173155.74982100.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040621173155.74982100.ak@suse.de>
-User-Agent: Mutt/1.5.6i
+	Mon, 21 Jun 2004 10:25:15 -0400
+Date: Mon, 21 Jun 2004 10:25:10 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Eric BEGOT <eric_begot@yahoo.fr>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: 2.6.7-mm1
+In-Reply-To: <40D6CAF0.2020402@yahoo.fr>
+Message-ID: <Xine.LNX.4.44.0406211024300.23695-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-06-21 at 17:31:55, Andi Kleen wrote:
-> Please ignore the previous patch I sent. This patch should actually fix it.
+On Mon, 21 Jun 2004, Eric BEGOT wrote:
 
-> +++ linux-2.6.7-work/arch/i386/kernel/cpu/common.c	2004-06-21 17:30:57.000000000 +0200
-...
-> @@ -483,6 +482,7 @@
->  	rise_init_cpu();
->  	nexgen_init_cpu();
->  	umc_init_cpu();
-> +	early_cpu_detect();
+> I can't compile 2.6.7-mm1. here are the errors :
+> 
+> CC      security/selinux/hooks.o
+> 
+> security/selinux/hooks.c:4129: error: `selinux_netlink_send' undeclared here (not in a function)
+> 
+> security/selinux/hooks.c:4129: error: initializer element is not constant
+> 
+> security/selinux/hooks.c:4129: error: (near initialization for `selinux_ops.netlink_send')
+> 
+> security/selinux/hooks.c:4130: error: `selinux_netlink_recv' undeclared here (not in a function)
+> 
+> security/selinux/hooks.c:4130: error: initializer element is not constant
+> 
+> security/selinux/hooks.c:4130: error: (near initialization for `selinux_ops.netlink_recv')
+> 
+> make[2]: *** [security/selinux/hooks.o] Error 1
+> 
+> make[1]: *** [security/selinux] Error 2
+> 
+> make: *** [security] Error 2
+> 
+> 
+> With the same config, the 2.6.7 compiles perfectly. I join my .config.
+
+Works ok for me.  What arch are you using?
+
+Also, didn't see any attached config.
 
 
-Yup, it does!  Thanks!
-
+- James
 -- 
-Janos | romfs is at http://romfs.sourceforge.net/ | Don't talk about silence.
+James Morris
+<jmorris@redhat.com>
+
+
+

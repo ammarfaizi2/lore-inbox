@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319578AbSH3Ovn>; Fri, 30 Aug 2002 10:51:43 -0400
+	id <S319575AbSH3Otv>; Fri, 30 Aug 2002 10:49:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319579AbSH3Ovm>; Fri, 30 Aug 2002 10:51:42 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:29756 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S319578AbSH3Ovi>; Fri, 30 Aug 2002 10:51:38 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200208301455.g7UEtsS16348@devserv.devel.redhat.com>
-Subject: Linux 2.2.22rc2
+	id <S319576AbSH3Otv>; Fri, 30 Aug 2002 10:49:51 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:5261 "EHLO
+	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S319575AbSH3Otu>; Fri, 30 Aug 2002 10:49:50 -0400
 To: linux-kernel@vger.kernel.org
-Date: Fri, 30 Aug 2002 10:55:54 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL6]
+Cc: rusty@rustcorp.com.au
+Subject: [Patch] Futex misses kill_sb
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
+X-Baby-2: None
+X-Love-1: Gone
+X-Love-2: Crazy-Cat
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 30 Aug 2002 16:52:37 +0200
+Message-ID: <wrpptw05rgq.fsf@hina.wild-wind.fr.eu.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is going straight to rc1 because it contains a lot of security fixes
-for local security problems found by Silvio's audit Solar Designer and
-a couple of other folks. The other stuff is minor and is the entire 2.2
-pending queue anyway.
+Hi all,
 
-Special thanks go to Openwall who did pretty much all of the security 
-backporting work. This is mostly their kernel update not mine.
+The enclosed patch fixes a missing .kill_sb in futexes' fs_type
+declaration. Without this patch, kernel oopses if someone ever tries
+to mount futexfs...
 
-2.2.22-rc2
-o	Fix isofs over loopback problems		(Balazs Takacs)
-o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
-o	Fix error reporting in OOM cases		(Julian Anastasov)
-o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
-o	Set atime on AF_UNIX sockets			(Solar Designer)
-o	Restore SPARC MD boot configuration		(Tomas Szepe)
-o	Multiple further sign/overflow fixes		(Solar Designer)
-o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
+Thanks for any comments.
 
-2.2.22-rc1
-o	Backport 2.4 neighbour sending fix		(Chris Friesen)
-o	Fix a sign handling slackness in apm		(Silvio Cesare)
-o	Fix a sign handling error in rio500		(Silvio Cesare)
-o	Indent depca ready for cleanups			(me)
-o	Update VIA C3 recognition			(Diego Rodriguez)
-o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
-o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
-o	3ware IDE RAID update				(Adam Radford)
-o	Note ioctl clash on 0x5402			(Pavel Machek)
-o	Typo fix					(Dan Aloni)
-o	Update Riley's contact info			(Riley Williams)
-o	Alpha ptrace fixes				(Solar Designer)
-o	Multiple security fix backports			(Solar Designer)
+        M.
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.542   -> 1.543  
+#	      kernel/futex.c	1.12    -> 1.13   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/30	maz@if.wild-wind.fr.eu.org	1.543
+# futex.c:
+#   Fixed missing .kill_sb
+# --------------------------------------------
+#
+diff -Nru a/kernel/futex.c b/kernel/futex.c
+--- a/kernel/futex.c	Fri Aug 30 19:26:44 2002
++++ b/kernel/futex.c	Fri Aug 30 19:26:44 2002
+@@ -359,6 +359,7 @@
+ static struct file_system_type futex_fs_type = {
+ 	.name		= "futexfs",
+ 	.get_sb		= futexfs_get_sb,
++	.kill_sb	= kill_anon_super,
+ };
+ 
+ static int __init init(void)
+
+-- 
+Places change, faces change. Life is so very strange.

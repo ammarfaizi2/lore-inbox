@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319227AbSIKQwi>; Wed, 11 Sep 2002 12:52:38 -0400
+	id <S319229AbSIKQ6S>; Wed, 11 Sep 2002 12:58:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319229AbSIKQwi>; Wed, 11 Sep 2002 12:52:38 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:14859 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S319227AbSIKQwh>; Wed, 11 Sep 2002 12:52:37 -0400
-Message-ID: <3D7F75F5.9070404@namesys.com>
-Date: Wed, 11 Sep 2002 20:57:25 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S319230AbSIKQ6R>; Wed, 11 Sep 2002 12:58:17 -0400
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:50127 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S319229AbSIKQ6R>; Wed, 11 Sep 2002 12:58:17 -0400
+Message-ID: <0b1701c259b5$16d6be40$1125a8c0@wednesday>
+From: "jdow" <jdow@earthlink.net>
+To: "Davide Libenzi" <davidel@xmailserver.org>,
+       "Xuan Baldauf" <xuan--lkml@baldauf.org>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Reiserfs List" <reiserfs-list@namesys.com>
+References: <Pine.LNX.4.44.0209110929390.1576-100000@blue1.dev.mcafeelabs.com>
+Subject: Re: Heuristic readahead for filesystems
+Date: Wed, 11 Sep 2002 10:03:02 -0700
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: rwhron@earthlink.net, linux-kernel@vger.kernel.org,
-       mason <mason@namesys.com>, akpm@digeo.com
-Subject: Re: Performance differences in recent kernels
-References: <Pine.LNX.4.33L2.0209110748010.29148-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+From: "Davide Libenzi" <davidel@xmailserver.org>
+> On Wed, 11 Sep 2002, Xuan Baldauf wrote:
+> 
+> > Hello,
+> >
+> > I wonder wether Linux implements a kind of heuristic
+> > readahead for filesystems:
+> >
+> > If an application reads a directory with getdents() and if
+> > in the past, it stat()ed a significant part of the directory
+> > entries, it is likely that it will stat() every entry of
+> > every directory it reads with getdents() in the future. Thus
+> > readahead for the stat data could improve the perfomance,
+> > especially if the stat data is located closely to each other
+> > on disk.
+> >
+> > If an application did a stat()..open()..read() sequence on a
+> > file, it is likely that, after the next stat(), it will open
+> > and read the mentioned file. Thus, one could readahead the
+> > start of a file on stat() of that file.
+> >
+> > Combined: If an application walks a directory tree and
+> > visits each file, it is likely that it will continue up to
+> > the end of that tree.
+> 
+> M$ Win XP does exactly something like this and keep applications
+> ( windows\prefetch ) and boot profiles that it uses to prefetch disk data
+> and avoid long page fault latencies. It does kind-of-work but care should
+> be taken adopting a similar technique on Linux ( patents ).
 
->On Wed, 11 Sep 2002, Hans Reiser wrote:
->
->| AIM is a proprietary benchmark, yes?  If we send you a copy of reiser4
->| next month, would you be willing to give it a run?
->
->No, it's now GPL and available at
->  http://caldera.com/developers/community/contrib/aim.html
->
->  
->
-Thanks much to caldera for doing this.   I have wanted to try the 
-benchmark for years, but it was too expensive for us.
+Davide, when was the patent on readahead taken out? It has either expired
+or I can prove prior art I did myself on the old StarDrive and HardFrame
+controllers for the Amiga made by Microbotics, Inc.
 
-We'll use it for debugging and benchmarking reiser4 also.
+{^_^}    Joanne Dow, jdow@earthlink.net
 
-Hans
 

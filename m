@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266921AbTGTPGz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 11:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266823AbTGTPGz
+	id S266807AbTGTPFN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 11:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266823AbTGTPFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 11:06:55 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:33548 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S266921AbTGTPGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 11:06:39 -0400
-Date: Mon, 21 Jul 2003 01:21:24 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Sean Neakums <sneakums@zork.net>
-cc: netdev@oss.sgi.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.0-test1-mm1] TCP connections over ipsec hang after a few
- seconds
-In-Reply-To: <6u8yqt8jq3.fsf@zork.zork.net>
-Message-ID: <Mutt.LNX.4.44.0307210116070.24197-100000@excalibur.intercode.com.au>
+	Sun, 20 Jul 2003 11:05:13 -0400
+Received: from zork.zork.net ([64.81.246.102]:49622 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S266807AbTGTPFL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 11:05:11 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: More ACPI funnies in 2.6.0test1
+References: <1058714000.2488.2.camel@aurora.localdomain>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sun, 20 Jul 2003 16:20:10 +0100
+In-Reply-To: <1058714000.2488.2.camel@aurora.localdomain> (Trever L. Adams's
+ message of "20 Jul 2003 11:13:20 -0400")
+Message-ID: <6u1xwl8bth.fsf@zork.zork.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jul 2003, Sean Neakums wrote:
+"Trever L. Adams" <tadams-lists@myrealbox.com> writes:
 
-> I am seeing a lot of "pmtu discvovery on SA AH/03537192/c0a80003" type
-> messages (I forgot to check for them when on 100baseT; will recheck
-> that).  Are these indicative of such a problem?
+> 1) My disk seems to be more active, I hear it clicking much more
 
-Yes.
-
-With the 100baseT configuration, are the systems on the same segment?
-
-It might help to provide tcpdumps from each end, ifconfig output for each 
-interface and setkey configuration (without the wlan bridging).
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+Any chance this is due to increased logging activity to files that are
+marked synchronous (with a -) in syslog.conf?
 

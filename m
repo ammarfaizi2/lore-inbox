@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264846AbTFQUWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 16:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264837AbTFQUWZ
+	id S264897AbTFQUZI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 16:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbTFQUZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 16:22:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25746 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264828AbTFQUWU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 16:22:20 -0400
-Message-ID: <3EEF7BB3.9050700@pobox.com>
-Date: Tue, 17 Jun 2003 16:36:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Tue, 17 Jun 2003 16:25:08 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:56082 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264897AbTFQUYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 16:24:12 -0400
+Date: Tue, 17 Jun 2003 21:38:06 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: linux-kernel@vger.kernel.org, <spyro@f2s.com>
+Subject: Re: FRAMEBUFFER (and console)
+In-Reply-To: <4B38D4B6A6E@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.44.0306172137050.21214-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Linux NICS <linux.nics@intel.com>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: Linux 2.5.72: ixgb_ethtool: strange SUPPORTED_10000baseT_Full
-References: <20030617203407.GC29247@fs.tum.de>
-In-Reply-To: <20030617203407.GC29247@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> The correct solution seems to be to remove the #define from 
-> ixgb_ethtool.c ?
 
+> Maybe he just enabled vga16 + XXXfb. First vga16 comes up, and start
+> painting characters. Few microseconds after that XXXfb (for example
+> matroxfb) comes up, registers itself as /dev/fb1 and reprograms hardware
+> to non-VGA mode. 
 
-correct.
-
-wanna send a patch?  ;-)
-
-	Jeff
-
-
+It would be nice to do it even soon :-) Its just not setup that way :-(
 

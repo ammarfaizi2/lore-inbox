@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316456AbSGIQgN>; Tue, 9 Jul 2002 12:36:13 -0400
+	id <S316909AbSGIQiS>; Tue, 9 Jul 2002 12:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316605AbSGIQgM>; Tue, 9 Jul 2002 12:36:12 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:37040 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316434AbSGIQgK>;
-	Tue, 9 Jul 2002 12:36:10 -0400
-Date: Tue, 9 Jul 2002 18:38:41 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Piotr Sawuk <a9702387@unet.univie.ac.at>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: joystick.c
-Message-ID: <20020709183841.A10953@ucw.cz>
-References: <3D2AB938.52461BDE@unet.univie.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D2AB938.52461BDE@unet.univie.ac.at>; from a9702387@unet.univie.ac.at on Tue, Jul 09, 2002 at 10:21:44AM +0000
+	id <S316970AbSGIQiR>; Tue, 9 Jul 2002 12:38:17 -0400
+Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:51936 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316909AbSGIQiO>; Tue, 9 Jul 2002 12:38:14 -0400
+Date: Tue, 9 Jul 2002 10:40:56 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: compile error in init/main.c
+Message-ID: <Pine.LNX.4.44.0207091039260.10105-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 10:21:44AM +0000, Piotr Sawuk wrote:
+Hi,
 
-> Sorry if I'm off-topic here, since I don't read this list.
-> also when replying please send me a copy...
-> 
-> in function js_correct(value,corr) I've found the instructions:
-> 
-> if (value < -32767) return -32767;
-> if (value > 32767) return 32767;
-> 
-> what's the use of these? I'm asking because my new usb-joystick
-> is returning those values somewhere in the middle of it's threshold
-> and I was wondering if disabling the above would do any good?
+What's this compile error supposed to mean?
 
-The data coming from the joystick is defined to be bound by this range.
-It's signed 16 bit anyway.
+init/main.c: In function `rest_init':
+init/main.c:325: stray '\' in program
+init/main.c: In function `init':
+init/main.c:499: stray '\' in program
 
-> however, the actual reason why I've looked into that file was
-> because wine reported strange joystick-events 6,7,8,9 and I
-> just can't figure out what those are supposed to do. I've found
-> JS_EVENT 1 and 2 in the linux/joystick.h include, but no mention
-> of anything related to the number '6'. does anyone know anything
-> about those joystick events?
+Both lines are unlock_kernel()
 
-What joystick is it? This looks like a problem with the HID driver.
+.config is configallmod, gcc is 3.0.4
 
+							Regards,
+							Thunder
 -- 
-Vojtech Pavlik
-SuSE Labs
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

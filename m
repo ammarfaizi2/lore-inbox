@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281865AbRLLUPC>; Wed, 12 Dec 2001 15:15:02 -0500
+	id <S282080AbRLLUch>; Wed, 12 Dec 2001 15:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281877AbRLLUOn>; Wed, 12 Dec 2001 15:14:43 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:27894 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S281865AbRLLUOf>;
-	Wed, 12 Dec 2001 15:14:35 -0500
-Date: Wed, 12 Dec 2001 21:14:27 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: FBdev remains in unusable state
-In-Reply-To: <BCDCADB4194@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.30.0112122108150.17543-100000@balu>
+	id <S281932AbRLLUc1>; Wed, 12 Dec 2001 15:32:27 -0500
+Received: from cs182072.pp.htv.fi ([213.243.182.72]:2688 "EHLO
+	cs182072.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S281910AbRLLUcP>; Wed, 12 Dec 2001 15:32:15 -0500
+Message-ID: <3C17BEB0.FDE8E9EB@welho.com>
+Date: Wed, 12 Dec 2001 22:31:44 +0200
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kuznet@ms2.inr.ac.ru
+CC: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
+In-Reply-To: <200112111751.UAA02766@ms2.inr.ac.ru>
+Content-Type: multipart/mixed;
+ boundary="------------B4BB1D6FA5E496C27784F1D4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------B4BB1D6FA5E496C27784F1D4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Wed, 12 Dec 2001, Petr Vandrovec wrote:
-> On 12 Dec 01 at 19:49, Pozsar Balazs wrote:
-> >
-> > The video card is a matrox G450, and I am using the vesa framebuffer.
-> > (I know there's a seperate mga fb driver, but this should work for this
-> > combination)
->
-> No. vesafb does not work together with mga driver in X (although
-> I believe that vesafb works with XFree mga driver, only Matrox driver
-> is binary bad citizen).
+Alexey,
 
-I don't clearly understand you. I am using mga driver which is in the
-official xfrr86 release.
+Looks like there are still problems after applying your quick patch.
+Back at the lab we observed a case where the FIN-ACK packet is dropped
+and Linux fails to retransmit it. See the attached dump for the details
+(Linux is 10.0.5.11). The action ends there, with Linux timing out to
+CLOSED state and the remote stuck in FIN-WAIT-2.
 
-> > Is this a bug in the kernel fb code, or in X? Are there any workarounds?
-> > How could I restore textmode?
->
-> Neither. X restore R/W registers to their previous values, while write-only
-> registers to their values for normal text mode. Yes, there is a
-> 'workaround'. Use (much faster) matroxfb.
+Cheers,
 
-What if setting those W-only registers to their appropiate values on
-console-switches?
-Why isn't it done by the vesafb driver?
-How is the mga fb driver handle handling this situation better?
+	MikaL
+--------------B4BB1D6FA5E496C27784F1D4
+Content-Type: text/plain; charset=us-ascii;
+ name="last-ack.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="last-ack.txt"
 
+11:11:57.149389 10.0.5.3.3071 > 10.0.5.11.1327: P 254033:255481(1448) ack 1 win 7300 <timestamp 3704210538 8515686,eol> (DF) (ttl 63, id 860, len 1500)
+11:11:57.149451 10.0.5.11.1327 > 10.0.5.3.3071: . [tcp sum ok] 1:1(0) ack 255481 win 65160 <nop,nop,timestamp 8544990 3704210538> (DF) (ttl 64, id 30696, len 52)
+11:11:57.661595 10.0.5.3.3071 > 10.0.5.11.1327: FP 255481:256001(520) ack 1 win 7300 <timestamp 3705679288 8515686,eol> (DF) (ttl 63, id 861, len 572)
+11:11:57.661660 10.0.5.11.1327 > 10.0.5.3.3071: F [tcp sum ok] 1:1(0) ack 256002 win 65160 <nop,nop,timestamp 8545041 3705679288> (DF) (ttl 64, id 30697, len 52)
+11:12:11.340666 10.0.5.3.3071 > 10.0.5.11.1327: FP 255481:256001(520) ack 1 win 7300 <timestamp 3727069913 8515686,eol> (DF) (ttl 63, id 863, len 572)
+11:12:11.340698 10.0.5.11.1327 > 10.0.5.3.3071: . [tcp sum ok] 2:2(0) ack 256002 win 65160 <nop,nop,timestamp 8546409 3727069913,nop,nop,sack sack 1 {255481:256002} > (DF) (ttl 64, id 30698, len 64)
 
-ps: My problem is that I have to use exactly the same kernel on different
-machines, and I need fb. If not all machines have mga, than mga fb is
-no-go.
-
-thanks,
--- 
-Pozsar Balazs
+--------------B4BB1D6FA5E496C27784F1D4--
 

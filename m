@@ -1,94 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270831AbTHOUf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 16:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270833AbTHOUf1
+	id S270823AbTHOUhK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 16:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270822AbTHOUhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 16:35:27 -0400
-Received: from main.gmane.org ([80.91.224.249]:37054 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270831AbTHOUfR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 16:35:17 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Centrino support
-Date: Fri, 15 Aug 2003 13:35:17 -0700
-Message-ID: <m2oeyq3bi2.fsf@tnuctip.rychter.com>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
+	Fri, 15 Aug 2003 16:37:10 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9741
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270833AbTHOUgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 16:36:21 -0400
+Date: Fri, 15 Aug 2003 13:36:20 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: Compile problem with CONFIG_X86_CYCLONE_TIMER Re: 2.6.0-test3-mm2
+Message-ID: <20030815203620.GO1027@matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030813013156.49200358.akpm@osdl.org> <20030815193834.GL1027@matchmail.com> <20030815202322.GN1027@matchmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@sea.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:Exp7zN4QUesP6u+9f4ZZhPhqvV0=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030815202322.GN1027@matchmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+On Fri, Aug 15, 2003 at 01:23:22PM -0700, Mike Fedyk wrote:
+> On Fri, Aug 15, 2003 at 12:38:34PM -0700, Mike Fedyk wrote:
+> > arch/i386/kernel/timers/timer_cyclone.c: In function `init_cyclone':
+> > arch/i386/kernel/timers/timer_cyclone.c:157: `FIX_CYCLONE_TIMER' undeclared (first use in this function)
+> > arch/i386/kernel/timers/timer_cyclone.c:157: (Each undeclared identifier is reported only once
+> > arch/i386/kernel/timers/timer_cyclone.c:157: for each function it appears in.)
+> > make[3]: *** [arch/i386/kernel/timers/timer_cyclone.o] Error 1
+> > make[2]: *** [arch/i386/kernel/timers] Error 2
+> > make[1]: *** [arch/i386/kernel] Error 2
+> > make[1]: Leaving directory `/src/linux-2.6.0-test3-mm2'
+> > make: *** [stamp-build] Error 2
+> > Command exited with non-zero status 2
+> > 	Command being timed: "fakeroot make-kpkg kernel_image"
+> > 	User time (seconds): 61.96
+> > 	System time (seconds): 13.53
+> > 	Percent of CPU this job got: 76%
+> > 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:38.10
+> > 	Average shared text size (kbytes): 0
+> > 	Average unshared data size (kbytes): 0
+> > 	Average stack size (kbytes): 0
+> > 	Average total size (kbytes): 0
+> > 	Maximum resident set size (kbytes): 0
+> > 	Average resident set size (kbytes): 0
+> > 	Major (requiring I/O) page faults: 293436
+> > 	Minor (reclaiming a frame) page faults: 143725
+> > 	Voluntary context switches: 0
+> > 	Involuntary context switches: 0
+> > 	Swaps: 0
+> > 	File system inputs: 0
+> > 	File system outputs: 0
+> > 	Socket messages sent: 0
+> > 	Socket messages received: 0
+> > 	Signals delivered: 0
+> > 	Page size (bytes): 4096
+> > 	Exit status: 2
+> > 
+> 
+> I thought it might have been a problem with my kernel tree, but after
+> untarring and patching to 2.6.0-test3-mm2, it is still giving the problem.
+> 
 
->>>>> "Bryan" =3D=3D Bryan O'Sullivan <bos@serpentine.com>:
- Bryan> On Fri, 2003-08-15 at 11:13, Jan Rychter wrote:
- >> Well, that was almost 5 months ago. So I figured I'd ask if there's
- >> any progress -- so far the built-in wireless in my notebook still
- >> doesn't work with Linux and the machine is monstrously power-hungry
- >> because Linux doesn't scale the CPU frequency.
-
- Bryan> Intel shows no inclination to release Centrino wireless drivers
- Bryan> for Linux.  There have been vague insinuations that this is due
- Bryan> to excessive software controllability, but no public
- Bryan> explanations have been given, beyond "we're not doing it at this
- Bryan> moment".
-
- Bryan> If you want built-in wireless in the nearish term, you'll have
- Bryan> to get a supported MiniPCI card and replace your Centrino card.
-
-That's what I find extremely annoying. Especially in the context of
-Intel's trumpeted announcements about support for Linux (see the URL in
-my previous E-mail). I mean, you either support Linux, or you
-don't. Intel announced that support is coming and then hasn't delivered
-it.
-
-This is offtopic on this list, but frankly, I'm surprised why RedHat (or
-any other Linux company for that matter) hasn't filed an unfair
-competition suit yet. Intel's approach basically favors Microsoft over
-other companies by giving them a year or so headway before anybody else
-has a chance of getting the hardware supported. That surely sounds like
-an unfair practice to me.
-
- Bryan> As far as CPU is concerned, if you're using recent 2.5 or 2.6
- Bryan> kernels, there's Pentium M support in cpufreq.  Jeremy
- Bryan> Fitzhardinge has written a userspace daemon that varies the
- Bryan> Pentium M CPU frequency in response to load.
-
-I keep dreaming about the day when I'll be able to have a modern laptop
-with a stable Linux kernel. As for now, it has taken me (on one of my
-laptops) about 1.5 years to get to a point where 2.4 works, most of my
-hardware works, and software suspend (pretty much a requirement for
-laptops) works. I'm not about to give that up easily, so I'm not that
-eager to jump to 2.5/2.6.
-
-Question time:
-
-1. Will cpufreq make it into the standard 2.4 kernels?
-2. If not, will Alan incorporate swsusp into -ac kernels? (given that
-   -ac kernels seem to have cpufreq included)
-3. Where does one get 2.4 cpufreq?
-
-thanks,
-=2D-J.
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/PUQGLth4/7/QhDoRAkrXAKDcvBdOeO2/q+OTsgAPwFo9m4sn7wCdGwa1
-RzNfrFQdRMDAs9VUziI/Pek=
-=dsif
------END PGP SIGNATURE-----
---=-=-=--
-
+It depends on CONFIG_X86_GENERICARCH, so once that's not set, then
+CONFIG_X86_CYCLONE_TIMER is not set either.

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317874AbSHPBoZ>; Thu, 15 Aug 2002 21:44:25 -0400
+	id <S317888AbSHPBpE>; Thu, 15 Aug 2002 21:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSHPBoZ>; Thu, 15 Aug 2002 21:44:25 -0400
-Received: from relay1.pair.com ([209.68.1.20]:49682 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S317874AbSHPBoZ>;
-	Thu, 15 Aug 2002 21:44:25 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <3D5C5B0E.9EEA37EB@kegel.com>
-Date: Thu, 15 Aug 2002 18:53:18 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3custom i686)
-X-Accept-Language: en
+	id <S317898AbSHPBpE>; Thu, 15 Aug 2002 21:45:04 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:15264 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317888AbSHPBpC>;
+	Thu, 15 Aug 2002 21:45:02 -0400
+Date: Thu, 15 Aug 2002 21:48:57 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jeff Dike <jdike@karaya.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Eliminate root_dev_names - part 1 of 2
+In-Reply-To: <200208151938.OAA02692@ccure.karaya.com>
+Message-ID: <Pine.GSO.4.21.0208152146100.11149-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: 
- async-io API registration for 2.5.29)]
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> See the SuS API:
+
+
+On Thu, 15 Aug 2002, Jeff Dike wrote:
+
+> This patch changes all instances of get_gendisk to get_gendisk_by_kdev_t.
 > 
->         http://www.opengroup.org/onlinepubs/007908799/xsh/aio.h.html
+> The following patch, which actually removes the root_dev_names array,
+> introduces get_gendisk_by_name, so this keeps the naming somewhat consistent.
 
-There's a new release of the SuS, see
+Leave it alone for now.  I'm one driver away from per-disk gendisks
+(i2o is the last remaining) and as soon as I'm done with it there will
+be a lot of changes in that area.  I.e. tonight.
 
-http://www.opengroup.org/onlinepubs/007904975/basedefs/aio.h.html
+BTW, disk_name() and get_gendisk() will disappear from the export
+list, being replaced by partition_name() (taken out of md.c, exported
+and sans the "cache" - it doesn't give any benefits anymore).
 
-Harder to miss lio_listio() with the new one.
-- Dan

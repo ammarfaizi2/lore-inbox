@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315438AbSEGMyt>; Tue, 7 May 2002 08:54:49 -0400
+	id <S315437AbSEGMxZ>; Tue, 7 May 2002 08:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSEGMys>; Tue, 7 May 2002 08:54:48 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:35802 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S315438AbSEGMyj>;
-	Tue, 7 May 2002 08:54:39 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S315438AbSEGMxY>; Tue, 7 May 2002 08:53:24 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:42251 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S315437AbSEGMxU>; Tue, 7 May 2002 08:53:20 -0400
+Date: Mon, 6 May 2002 23:25:37 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Reza Roboubi <reza@parvan.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: REPOSTING: vm: detecting age of page
+In-Reply-To: <22C8433D3EEC964DB1E84A293A42774B040776@neural.parvan.net>
+Message-ID: <Pine.LNX.4.44L.0205062323500.32261-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15575.52723.240506.668782@argo.ozlabs.ibm.com>
-Date: Tue, 7 May 2002 22:52:03 +1000 (EST)
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.13 IDE 54
-In-Reply-To: <3CD5564A.6030308@evision-ventures.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
+On Mon, 6 May 2002, Reza Roboubi wrote:
 
-> Sun May  5 16:32:22 CEST 2002 ide-clean-54
-> 
-> - Finish the changes from patch 53. ide_dma_actaion_t is gone now as well as
->    whole hidden code paths associated with it. I hope I didn't mess too many
->    things up with this, since the sheer size of the changes make them sensitive.
+> I read the following about the /proc/sys/vm/swapctl values:
+>
+>  * If the page was used since the last time we scanned, its age is
+> increased by sc_page_advance (default 3). Where the maximum value is
+> given by sc_max_page_age (default 20).
+>
+>  * Otherwise (meaning it wasn't used) its age is decreased by
+> sc_page_decline (default 1).
+>
+> Question:
+> How can the intel hardware detect page access if the page is mapped into
+> the process' VM(and resident in RAM)?  If detecting such access is
+> impossible, then how does kswapd decide the page "age" in this case?
 
-I'm wondering how you would suggest that I change ide-pmac.c now so
-that it compiles and works again.
+Traditionally page aging would be done on the physical page while
+scanning the virtual address space of processes.
 
-With this patch we have calls to udma_enable scattered throughout
-ide.c, and udma_enable assumes that it is to do its stuff by poking
-particular I/O ports.  You seem to have taken away the ability to have
-a chipset provide its own methods for setting up, enabling and
-disabling DMA.
+Of course, this had (in 2.0) the side effect of down aging a page
+from libc.so which wasn't used in 20 processes but was used in the
+3 processes that weren't asleep ;)
 
-The comment above udma_enable seems to indicate that you think it
-should be ifdef'd per-architecture.  That won't work for us (besides
-being ugly), because we can have two ATA host adaptors in the one
-machine that need to be programmed quite differently.  Consider for
-instance a powermac with the built-in IDE interface (which would use
-the ide-pmac.c code) and a plug-in PCI IDE card, for which the
-udma_enable code is presumably correct.
+In the (new, experimental) reverse mapping VM Linux has pointers
+from the physical pages back to the virtual mappings to the page
+so it can actually get the page aging right.
 
-So we definitely need to have the DMA setup/enable/disable methods
-able to be specified per host adaptor.
+kind regards,
 
-If I have missed something, please let me know.  But it looks to me
-very much as though this patch makes it impossible for me to use my
-powermac IDE interfaces.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Paul.
+http://www.surriel.com/		http://distro.conectiva.com/
+

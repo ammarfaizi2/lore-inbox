@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbUJ2KAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263207AbUJ2KDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263191AbUJ2KAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 06:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUJ2KAL
+	id S263207AbUJ2KDl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 06:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbUJ2KDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 06:00:11 -0400
-Received: from gprs214-50.eurotel.cz ([160.218.214.50]:55168 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263191AbUJ2KAG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 06:00:06 -0400
-Date: Fri, 29 Oct 2004 11:59:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Li, Shaohua" <shaohua.li@intel.com>
-Cc: "Zhu, Yi" <yi.zhu@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [swsusp] print error message when swapping is disabled
-Message-ID: <20041029095952.GB1003@elf.ucw.cz>
-References: <16A54BF5D6E14E4D916CE26C9AD305756F342F@pdsmsx402.ccr.corp.intel.com>
+	Fri, 29 Oct 2004 06:03:41 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:64167 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S263207AbUJ2KDY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 06:03:24 -0400
+Subject: [PATCH 1/3] net: generic netdev_ioaddr
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: davem@davemloft.net
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1099044244.9566.0.camel@localhost>
+References: <1099044244.9566.0.camel@localhost>
+Date: Fri, 29 Oct 2004 13:04:38 +0300
+Message-Id: <1099044278.9566.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305756F342F@pdsmsx402.ccr.corp.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This patch introduces a generic netdev_ioaddr in include/linux/netdevice.h.
+It is pulled from driver/net/natsemi.c.
 
-> >> > Another case is PSE disabled. Should notify this to user also.
-> >>
-> >> Here is a patch to address it.
-> >
-> >Patch is okay (but I rararely see this kind of failure in
-> >wild). Please submit via akpm.
-> >
-> Enable DEBUG_PAGEALLOC will disable PSE. 
-> Possibly a stupid question, why swsusp need PSE? I didn't see any
-> relationship between the two.
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-swsusp relies on fact that kernel 1:1 mapping is self-contained in
-top-level pagedir. That is not true without PSE, right?
+ netdevice.h |    5 +++++
+ 1 files changed, 5 insertions(+)
 
-[Hmm, probably bigger comment explaining this would be nice...]
+Index: 2.6.10-rc1-mm1/include/linux/netdevice.h
+===================================================================
+--- 2.6.10-rc1-mm1.orig/include/linux/netdevice.h	2004-10-29 11:07:56.000000000 +0300
++++ 2.6.10-rc1-mm1/include/linux/netdevice.h	2004-10-29 11:37:56.000000000 +0300
+@@ -500,6 +500,11 @@
+ 				& ~NETDEV_ALIGN_CONST);
+ }
+ 
++static inline void __iomem *netdev_ioaddr(struct net_device *dev)
++{
++	return (void __iomem *) dev->base_addr;
++}
++
+ #define SET_MODULE_OWNER(dev) do { } while (0)
+ /* Set the sysfs physical device reference for the network logical device
+  * if set prior to registration will cause a symlink during initialization.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+

@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUG0T0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266514AbUG0T0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUG0T0s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUG0T0r
+	id S266514AbUG0T0h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUG0T0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:26:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62621 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266511AbUG0T0Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:26:16 -0400
-Date: Tue, 27 Jul 2004 20:26:15 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Gene Heskett <gene.heskett@verizon.net>
+	Tue, 27 Jul 2004 15:26:35 -0400
+Received: from [195.199.63.65] ([195.199.63.65]:50611 "EHLO cinke.fazekas.hu")
+	by vger.kernel.org with ESMTP id S266502AbUG0TZ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 15:25:56 -0400
+Date: Tue, 27 Jul 2004 21:25:33 +0200 (CEST)
+From: Balint Marton <cus@fazekas.hu>
+To: Andi Kleen <ak@muc.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2 crashes
-Message-ID: <20040727192615.GG12308@parcelfarce.linux.theplanet.co.uk>
-References: <200407271233.04205.gene.heskett@verizon.net> <20040727142918.GE12308@parcelfarce.linux.theplanet.co.uk> <200407271315.22075.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407271315.22075.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.1i
+Subject: Re: [PATCH] get_random_bytes returns the same on every boot
+In-Reply-To: <m3ekmxmjm6.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.58.0407272020591.23550@cinke.fazekas.hu>
+References: <2kUHO-6hJ-15@gated-at.bofh.it> <m3ekmxmjm6.fsf@averell.firstfloor.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 27, 2004 at 01:15:22PM -0400, Gene Heskett wrote:
-> On Tuesday 27 July 2004 10:29, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >On Tue, Jul 27, 2004 at 12:33:04PM -0400, Gene Heskett wrote:
-> >> Greetings everybody;
-> >>
-> >> I have now had 4 crashes while running 2.6.8-rc2, the last one
-> >> requiring a full powerdown before the intel-8x0 could
-> >> re-establish control over the sound.
-> >>
-> >> All have had an initial Opps located in prune_dcache, and were
-> >> logged as follows:
-> >> Jul 27 07:58:58 coyote kernel: Unable to handle kernel NULL
-> >> pointer dereference at virtual address 00000000
-> >
-> >... which means that dentry_unused list got corrupted, which doesn't
-> > really help.  Could you try to narrow it down to 2.6.8-rc1-bk<day>?
-> 
-> I got the bright idea of doing some cmp's on that code module, and 
-> its identical all the way back to 2.6.7-mm1, (I have them all) but 
-> differs at 2.6.7:
+On Tue, 27 Jul 2004, Andi Kleen wrote:
+> That still is an easily predictible value and may not even be 
+> unique when lots of systems are powered up at the same time
+> (e.g. after a power failure) 
+Yes, my patch is not an ultimate solution, rather a step in the working
+way :)
+ 
+> Also BTW your problem presents a strong case why compiling in
+> DHCP probes is bad and such stuff should run from initrd/initramfs.
+I wouldn't say, its bad, it is only not supported yet under all
+circumstances. But DHCP support may be improved for example by adding the
+MAC address as entropy bytes to the secondary pool. Since we don't
+add bytes to the primary pool, we don't harm things that really require
+secure random data. Any opinions about this workaround?
 
-Doesn't help - all we know is that at some point in a cyclic list we'd
-got NULL instead of a pointer to the next list element.  Could've happened
-for any number of reasons.
-
-What filesystems do you have on that box, BTW?
+Cus

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSJLNoc>; Sat, 12 Oct 2002 09:44:32 -0400
+	id <S261206AbSJLNzD>; Sat, 12 Oct 2002 09:55:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261206AbSJLNoc>; Sat, 12 Oct 2002 09:44:32 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:64765 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S261205AbSJLNob>; Sat, 12 Oct 2002 09:44:31 -0400
-Date: Sat, 12 Oct 2002 09:50:19 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Stig Brautaset <stig@brautaset.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: 2.5.42: unresolved symbols ext2
-Message-ID: <20021012095019.A18204@redhat.com>
-References: <fa.j2ck6sv.162gurn@ifi.uio.no> <20021012104504.GA18928@arwen.brautaset.org>
+	id <S261207AbSJLNzD>; Sat, 12 Oct 2002 09:55:03 -0400
+Received: from colossus.systems.pipex.net ([62.241.160.73]:45993 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id <S261206AbSJLNzD>; Sat, 12 Oct 2002 09:55:03 -0400
+Subject: Small oddity of the week: 2.4.20-pre
+From: Alastair Stevens <alastair@camlinux.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 12 Oct 2002 15:00:50 +0100
+Message-Id: <1034431251.2688.64.camel@dolphin.entropy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021012104504.GA18928@arwen.brautaset.org>; from stig@brautaset.org on Sat, Oct 12, 2002 at 11:45:04AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 11:45:04AM +0100, Stig Brautaset wrote:
-> Oops, that was compiled with the debian make-kpkg tool. Here's the
-> output from vanilla make modules_install:
+Guys - I use the excellent Mindi/Mondo backup & rescue tools on my RH7.3
+box, which have worked perfectly throughout a whole range of recent
+kernels, up to and including 2.4.19. But, since I started running
+2.4.20-pre5 (and now -pre9), Mindi refused to work any more.
 
-Whoops, looks like I missed a couple of exports.  Please apply the patch 
-below that adds exports for generic_file_aio_{read,write}.
+I consulted the developer, and we tracked the problem down to this
+pathetically innocent command sequence in the script:
 
-		-ben
+    fdisk -l | grep -w "/dev/hda6"
 
-diff -urN v2.5.42/mm/filemap.c v2.5.42-syms/mm/filemap.c
---- v2.5.42/mm/filemap.c	Sat Oct 12 09:42:35 2002
-+++ v2.5.42-syms/mm/filemap.c	Sat Oct 12 09:44:23 2002
-@@ -893,6 +893,8 @@
- 	return __generic_file_aio_read(iocb, &local_iov, 1, &iocb->ki_pos);
- }
- 
-+EXPORT_SYMBOL(generic_file_aio_read);
-+
- ssize_t
- generic_file_read(struct file *filp, char *buf, size_t count, loff_t *ppos)
- {
-@@ -1652,6 +1654,8 @@
- 	return generic_file_write(iocb->ki_filp, buf, count, &iocb->ki_pos);
- }
- 
-+EXPORT_SYMBOL(generic_file_aio_write);
-+
- ssize_t generic_file_write(struct file *file, const char *buf,
- 			   size_t count, loff_t *ppos)
- {
+For some reason, this now produces, entirely at _random_, either one or
+two lines of output! It was the duplicated output that broke Mindi. It's
+easily accommodated in the script, but this randomness was never
+exhibited on any earlier kernels. Is it me, or is this weird?
+
+I hope this is useful in some way - anyone got any ideas?
+
+Cheers
+Alastair
+
+-- 
+ \\ Alastair Stevens                        Cambridge
+  \\ Technical Director                        /     \..-^..^...
+   \\                                          |Linux solutions \
+    \\ 01223 813774                            \     /........../
+     \\ www.camlinux.co.uk                      '-=-'
+      --
+

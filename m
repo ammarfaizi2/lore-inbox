@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUJHBs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267776AbUJHBtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268158AbUJHBs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 21:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbUJHBrQ
+	id S267776AbUJHBtB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 21:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJHBqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 21:47:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19939 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268158AbUJHBm2 (ORCPT
+	Thu, 7 Oct 2004 21:46:31 -0400
+Received: from relay.pair.com ([209.68.1.20]:13329 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S267776AbUJHBlm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 21:42:28 -0400
-Date: Thu, 7 Oct 2004 18:40:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: nickpiggin@yahoo.com.au, chrisw@osdl.org, linux-kernel@vger.kernel.org,
-       piggin@cyberone.com.au
-Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
-Message-Id: <20041007184037.4d70c8da.akpm@osdl.org>
-In-Reply-To: <20041007175110.Q2357@build.pdx.osdl.net>
-References: <20041007142019.D2441@build.pdx.osdl.net>
-	<20041007164044.23bac609.akpm@osdl.org>
-	<4165E0A7.7080305@yahoo.com.au>
-	<20041007173748.0be87160.akpm@osdl.org>
-	<20041007175110.Q2357@build.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 21:41:42 -0400
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <4165F050.5050904@cybsft.com>
+Date: Thu, 07 Oct 2004 20:41:36 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+References: <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <4165832E.1010401@cybsft.com> <4165A729.5060402@cybsft.com> <20041007215546.GA8541@elte.hu>
+In-Reply-To: <20041007215546.GA8541@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chrisw@osdl.org> wrote:
->
->  Node 1 DMA free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB
->  protections[]: 0 0 0
->  Node 1 Normal free:25272kB min:1020kB low:2040kB high:3060kB active:624172kB inactive:282700kB present:1047936kB
->  protections[]: 0 0 0
->  Node 1 HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
->  protections[]: 0 0 0
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> 
+>>>For me, this one wants to panic on boot when trying to find the root 
+>>>filesystem. Acts like either the aic7xxx module is missing (which I 
+>>>don't think is the case) or hosed, or it's having trouble with the label 
+>>>for the root partition (Fedora system). Will investigate further when I 
+>>>get home tonight, unless something jumps out at anyone.
+>>>
+>>>kr
+>>
+>>For clarification: This appears to be a problem in 2.6.9-rc3-mm3 also.
+> 
+> 
+> try root=/dev/sda3 (or whereever your root fs is) instead of
+> root=LABEL=/, in /etc/grub.conf.
+> 
+> 	Ingo
+> 
 
-hm.  empty zones all over the zonelist.   We may not be handling that right.
+Thanks. Tried that just to be sure. However, I don't seem to be the only 
+one having this problem with aic7xxx.
 
->  Node 0 DMA free:728kB min:12kB low:24kB high:36kB active:788kB inactive:7848kB present:16384kB
->  protections[]: 0 0 0
->  Node 0 Normal free:27200kB min:1004kB low:2008kB high:3012kB active:332792kB inactive:422744kB present:1032188kB
->  protections[]: 0 0 0
->  Node 0 HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
->  protections[]: 0 0 0
-
-I can't see anything here which would cause kswapd to go nuts.
+kr

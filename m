@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbUJZVLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbUJZVLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbUJZVLO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 17:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUJZVLO
+	id S261465AbUJZVLV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 17:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUJZVLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 17:11:14 -0400
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:21485 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S261471AbUJZVHs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 17:07:48 -0400
-Subject: Re: [PATCH 2.6.9-bk7] Select cpio_list or source directory for
-	initramfs image updates [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041026221216.GA30918@mars.ravnborg.org>
-References: <200410200849.i9K8n5921516@mail.osdl.org>
-	 <1098533188.668.9.camel@nosferatu.lan>
-	 <20041026221216.GA30918@mars.ravnborg.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AcwpL8BgY+MTw6yKxJG2"
-Date: Tue, 26 Oct 2004 23:07:29 +0200
-Message-Id: <1098824849.12420.60.camel@nosferatu.lan>
+	Tue, 26 Oct 2004 17:11:21 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:16909 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261465AbUJZVIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 17:08:44 -0400
+Date: Tue, 26 Oct 2004 23:14:42 +0200
+To: Timothy Miller <miller@techsource.com>
+Cc: pbecke <pbecke@javagear.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041026211442.GB27123@hh.idb.hist.no>
+References: <6.1.2.0.1.20041026082223.0231edd8@mail.javagear.com> <417E70D2.2010302@techsource.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417E70D2.2010302@techsource.com>
+User-Agent: Mutt/1.5.6+20040722i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 26, 2004 at 11:44:18AM -0400, Timothy Miller wrote:
+> 
+> >In general an open source video card is a great idea, however, I am a 
+> >bit concerned about your plans to keep the FPGA code secret.  I realize 
+> >that your company wants to make a profit, 
+> 
+> And that is the POINT here.  The question isn't whether or not we can 
+> become a charity and give away all of our IP.  The question is whether 
+> or not it's possible to sell open-source-friendly products.  Designing 
+> and manufacturing hardware is EXPENSIVE.  Especially at the volumes I 
+> expect.
+> 
+No problem with this at all.  Of course, those who really want
+to try "open firmware" development can buy cards from you
+and reprogram the FPGA with a totally different and open
+firmware.  They will then see how hard this is.  And you
+still sell the hardware - even if they succeed to some extent.
 
---=-AcwpL8BgY+MTw6yKxJG2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Also do not make the mistake of believing that software is free to 
+> PRODUCE.  If it were, then free software fans wouldn't love the GPL 
+> which protects their investment of time from being ripped off by greedy 
+> companies that would like to steal their work. 
 
-On Wed, 2004-10-27 at 00:12 +0200, Sam Ravnborg wrote:
-> On Sat, Oct 23, 2004 at 02:06:28PM +0200, Martin Schlemmer [c] wrote:
-> > Hi,
-> >=20
-> > Here is some updates after talking to Sam Ravnborg.  He did not yet com=
-e
-> > back to me, I am not sure if I understood 100% what he meant, but hopef=
-ully
-> > somebody else will be so kind as to comment.
->=20
-> Hi Martin.
-> Took a look at your patch and did not like it.
-> Attached my version which I will push towards Linus soon.
->=20
+Well said.
 
-Thats ok - I never said I was an expert with kbuild =3D)
-
-> Main difference is that I move logic to gen_initramfs_list-sh.
-> Then I also use filechk - so I actually generate the file - but
-> do not update the final file unless needed.
->=20
-
-Much more elegant, thanks.
-
-> Current patch will not rebuild image if one of the
-> programs listed are changed. But it should give a good
-> foundation to do so.
->=20
-
-I will see if I get the time to get that implemented elegantly if
-you do not beat me to it.
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
-
---=-AcwpL8BgY+MTw6yKxJG2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBfryRqburzKaJYLYRAmo8AJ9E3YAt5ilQHH87W06OyxdIrgrNPACeO1cf
-N2wK3aCo0e6QouydSw4bnc4=
-=f/0h
------END PGP SIGNATURE-----
-
---=-AcwpL8BgY+MTw6yKxJG2--
-
+Helge Hafting

@@ -1,103 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289866AbSBEXZd>; Tue, 5 Feb 2002 18:25:33 -0500
+	id <S289867AbSBEXi7>; Tue, 5 Feb 2002 18:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289871AbSBEXZY>; Tue, 5 Feb 2002 18:25:24 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48901 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289866AbSBEXZO>; Tue, 5 Feb 2002 18:25:14 -0500
-Date: Tue, 5 Feb 2002 23:25:07 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Fix export of simple_strtol
-Message-ID: <20020205232506.H27706@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S289871AbSBEXit>; Tue, 5 Feb 2002 18:38:49 -0500
+Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:20610 "EHLO
+	Bluesong.NET") by vger.kernel.org with ESMTP id <S289867AbSBEXid>;
+	Tue, 5 Feb 2002 18:38:33 -0500
+Message-Id: <200202052343.g15NhQF17775@Bluesong.NET>
+From: "Jack F. Vogel" <jfv@trane.bluesong.net>
+Reply-To: jfv@bluesong.net
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: [PATCH]: O(1) 2.5.3-K2 Tuneable Parameters
+Date: Tue, 5 Feb 2002 15:43:25 -0800
+X-Mailer: KMail [version 1.3.1]
+Cc: jstultz@us.ibm.com
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_D833TL295ENL4E63IU9F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-It appears that we have a certain amount of randomness about which symbols
-are exported where.  (Maybe someone should feed this into /dev/random ?) 8)
+--------------Boundary-00=_D833TL295ENL4E63IU9F
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Both simple_strtoul and simple_strtol appear in linux/lib/vsprintf.c yet
-we have simple_strtoul exported by kernel/ksyms.c, and simple_strtol
-exported by some architecture specific ksyms.c files.
+Here is the resynch of the tuneable parameters patch to Ingo's
+current delta for 2.5.3. The 2.4.17 will be forthcoming shortly...
 
-The following patch rectifies this by exporting simple_strtol in
-kernel/ksyms.c and removing it from the machine specific files.
-
-[Georg Nikodym pointed this out and sent an initial patch to add
- it to the main kernel ksyms file, I fixed up the architecture
- specific files].
-
---- ref/arch/cris/kernel/ksyms.c	Mon Nov  5 21:42:03 2001
-+++ linux/arch/cris/kernel/ksyms.c	Tue Feb  5 23:14:46 2002
-@@ -36,7 +36,6 @@
- 
- EXPORT_SYMBOL(strtok);
- EXPORT_SYMBOL(strpbrk);
--EXPORT_SYMBOL(simple_strtol);
- EXPORT_SYMBOL(strstr);
- 
- EXPORT_SYMBOL(strchr);
---- ref/arch/i386/kernel/i386_ksyms.c	Fri Nov 16 10:30:00 2001
-+++ linux/arch/i386/kernel/i386_ksyms.c	Tue Feb  5 23:15:36 2002
-@@ -93,7 +93,6 @@
- 
- EXPORT_SYMBOL(strtok);
- EXPORT_SYMBOL(strpbrk);
--EXPORT_SYMBOL(simple_strtol);
- EXPORT_SYMBOL(strstr);
- 
- EXPORT_SYMBOL(strncpy_from_user);
---- ref/arch/mips/kernel/mips_ksyms.c	Mon Sep  3 22:16:37 2001
-+++ linux/arch/mips/kernel/mips_ksyms.c	Tue Feb  5 23:15:48 2002
-@@ -51,7 +51,6 @@
- EXPORT_SYMBOL_NOVERS(memset);
- EXPORT_SYMBOL_NOVERS(memcpy);
- EXPORT_SYMBOL_NOVERS(memmove);
--EXPORT_SYMBOL(simple_strtol);
- EXPORT_SYMBOL_NOVERS(strcat);
- EXPORT_SYMBOL_NOVERS(strchr);
- EXPORT_SYMBOL_NOVERS(strlen);
---- ref/arch/mips64/kernel/mips64_ksyms.c	Mon Aug 27 15:05:27 2001
-+++ linux/arch/mips64/kernel/mips64_ksyms.c	Tue Feb  5 23:16:02 2002
-@@ -48,7 +48,6 @@
- EXPORT_SYMBOL_NOVERS(memset);
- EXPORT_SYMBOL_NOVERS(memcpy);
- EXPORT_SYMBOL_NOVERS(memmove);
--EXPORT_SYMBOL(simple_strtol);
- EXPORT_SYMBOL_NOVERS(strcat);
- EXPORT_SYMBOL_NOVERS(strchr);
- EXPORT_SYMBOL_NOVERS(strlen);
---- ref/arch/sh/kernel/sh_ksyms.c	Fri Sep 28 20:33:47 2001
-+++ linux/arch/sh/kernel/sh_ksyms.c	Tue Feb  5 23:16:13 2002
-@@ -39,8 +39,6 @@
- /* Networking helper routines. */
- EXPORT_SYMBOL(csum_partial_copy);
- 
--EXPORT_SYMBOL(simple_strtol);
--
- EXPORT_SYMBOL(strtok);
- EXPORT_SYMBOL(strpbrk);
- EXPORT_SYMBOL(strstr);
---- ref/kernel/ksyms.c	Tue Jan 15 16:03:04 2002
-+++ linux/kernel/ksyms.c	Tue Feb  5 23:14:33 2002
-@@ -470,6 +470,7 @@
- EXPORT_SYMBOL(bdevname);
- EXPORT_SYMBOL(cdevname);
- EXPORT_SYMBOL(simple_strtoul);
-+EXPORT_SYMBOL(simple_strtol);
- EXPORT_SYMBOL(system_utsname);	/* UTS data */
- EXPORT_SYMBOL(uts_sem);		/* UTS semaphore */
- #ifndef __mips__
-
+Cheers,
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Jack F. Vogel
+IBM  Linux Solutions
+jfv@us.ibm.com  (work)
+jfv@Bluesong.NET (home)
 
+--------------Boundary-00=_D833TL295ENL4E63IU9F
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="schedtune-O1-2.5.3-K2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="schedtune-O1-2.5.3-K2"
+
+ZGlmZiAtTmF1ciBsaW51eC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oIGxpbnV4Lmpmdi9pbmNsdWRl
+L2xpbnV4L3N5c2N0bC5oCi0tLSBsaW51eC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCVR1ZSBKYW4g
+MjkgMjE6NDE6MTAgMjAwMgorKysgbGludXguamZ2L2luY2x1ZGUvbGludXgvc3lzY3RsLmgJVHVl
+IEZlYiAgNSAxNDoxMzozNSAyMDAyCkBAIC03Miw2ICs3MiwyMCBAQAogCUJVU19JU0E9MQkJLyog
+SVNBICovCiB9OwogCisvLyBUdW5lYWJsZSBzY2hlZHVsZXIgbmFtZXM6CitlbnVtCit7CisJTUFY
+X1NMSUNFPTEsICAgIC8qIFRpbWVzbGljZSBzY2FsaW5nICovCisJTUlOX1NMSUNFPTIsCisJQ0hJ
+TERfUEVOQUxUWT0zLAorCVBBUkVOVF9QRU5BTFRZPTQsCisJRVdFSUdIVD01LAorCUJPTlVTX1JB
+VElPPTYsCisJSU5UX0RFTFRBPTcsCisJTUFYX1NMRUVQPTgsCisJU1RBUlZFX0xJTT05Cit9Owor
+CiAvKiBDVExfS0VSTiBuYW1lczogKi8KIGVudW0KIHsKZGlmZiAtTmF1ciBsaW51eC9rZXJuZWwv
+c2NoZWQuYyBsaW51eC5qZnYva2VybmVsL3NjaGVkLmMKLS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5j
+CVR1ZSBGZWIgIDUgMTU6MTY6NDYgMjAwMgorKysgbGludXguamZ2L2tlcm5lbC9zY2hlZC5jCVR1
+ZSBGZWIgIDUgMTU6MDA6NDkgMjAwMgpAQCAtNTUsNiArNTUsNyBAQAogICogbWF4aW11bSB0aW1l
+c2xpY2UgaXMgMzAwIG1zZWNzLiBUaW1lc2xpY2VzIGdldCByZWZpbGxlZCBhZnRlcgogICogdGhl
+eSBleHBpcmUuCiAgKi8KKyNpZmRlZiBDT05GSUdfU0NIRURUVU5FCS8vIEhlcmUganVzdCB0byBt
+YWtlIHBhdGNoIGNsZWFuCiAjZGVmaW5lIE1JTl9USU1FU0xJQ0UJCSggMTAgKiBIWiAvIDEwMDAp
+CiAjZGVmaW5lIE1BWF9USU1FU0xJQ0UJCSgzMDAgKiBIWiAvIDEwMDApCiAjZGVmaW5lIENISUxE
+X1BFTkFMVFkJCTk1CkBAIC02NCw2ICs2NSwyOSBAQAogI2RlZmluZSBJTlRFUkFDVElWRV9ERUxU
+QQkyCiAjZGVmaW5lIE1BWF9TTEVFUF9BVkcJCSgyKkhaKQogI2RlZmluZSBTVEFSVkFUSU9OX0xJ
+TUlUCSgyKkhaKQorI2Vsc2UJLy8gTWFrZSBwYXJhbWV0ZXJzIHR1bmVhYmxlIGF0IHJ1bnRpbWUK
+KworaW50IG1pbl90aW1lc2xpY2UgPSAoIDEwICogSFogLyAxMDAwKTsKK2ludCBtYXhfdGltZXNs
+aWNlID0gKDMwMCAqIEhaIC8gMTAwMCk7CitpbnQgY2hpbGRfcGVuYWx0eSA9IDk1OworaW50IHBh
+cmVudF9wZW5hbHR5ID0gMTAwOworaW50IGV4aXRfd2VpZ2h0ID0gMzsKK2ludCBwcmlvX2JvbnVz
+X3JhdGlvID0gMjU7CitpbnQgaW50ZXJhY3RpdmVfZGVsdGEgPSAyOworaW50IG1heF9zbGVlcF9h
+dmcgPSAoMipIWik7CitpbnQgc3RhcnZhdGlvbl9saW1pdCA9ICgyKkhaKTsKKworI2RlZmluZSBN
+SU5fVElNRVNMSUNFCQkobWluX3RpbWVzbGljZSkKKyNkZWZpbmUgTUFYX1RJTUVTTElDRQkJKG1h
+eF90aW1lc2xpY2UpCisjZGVmaW5lIENISUxEX1BFTkFMVFkJCShjaGlsZF9wZW5hbHR5KQorI2Rl
+ZmluZSBQQVJFTlRfUEVOQUxUWQkJKHBhcmVudF9wZW5hbHR5KQorI2RlZmluZSBFWElUX1dFSUdI
+VAkJKGV4aXRfd2VpZ2h0KQorI2RlZmluZSBQUklPX0JPTlVTX1JBVElPCShwcmlvX2JvbnVzX3Jh
+dGlvKQorI2RlZmluZSBJTlRFUkFDVElWRV9ERUxUQQkoaW50ZXJhY3RpdmVfZGVsdGEpCisjZGVm
+aW5lIE1BWF9TTEVFUF9BVkcJCShtYXhfc2xlZXBfYXZnKQorI2RlZmluZSBTVEFSVkFUSU9OX0xJ
+TUlUCShzdGFydmF0aW9uX2xpbWl0KQorCisjZW5kaWYKIAogLyoKICAqIElmIGEgdGFzayBpcyAn
+aW50ZXJhY3RpdmUnIHRoZW4gd2UgcmVpbnNlcnQgaXQgaW4gdGhlIGFjdGl2ZQpkaWZmIC1OYXVy
+IGxpbnV4L2tlcm5lbC9zeXNjdGwuYyBsaW51eC5qZnYva2VybmVsL3N5c2N0bC5jCi0tLSBsaW51
+eC9rZXJuZWwvc3lzY3RsLmMJU2F0IERlYyAyOSAxNzozMDowNyAyMDAxCisrKyBsaW51eC5qZnYv
+a2VybmVsL3N5c2N0bC5jCVR1ZSBGZWIgIDUgMTQ6NTE6MjcgMjAwMgpAQCAtNTIsNiArNTIsMTAg
+QEAKIGV4dGVybiBpbnQgY29yZV91c2VzX3BpZDsKIGV4dGVybiBpbnQgY2FkX3BpZDsKIAorZXh0
+ZXJuIGludCBtaW5fdGltZXNsaWNlLCBtYXhfdGltZXNsaWNlLCBjaGlsZF9wZW5hbHR5LCBwYXJl
+bnRfcGVuYWx0eTsKK2V4dGVybiBpbnQgcHJpb19ib251c19yYXRpbywgaW50ZXJhY3RpdmVfZGVs
+dGE7CitleHRlcm4gaW50IGV4aXRfd2VpZ2h0LCBtYXhfc2xlZXBfYXZnLCBzdGFydmF0aW9uX2xp
+bWl0OworCiAvKiB0aGlzIGlzIG5lZWRlZCBmb3IgdGhlIHByb2NfZG9pbnR2ZWNfbWlubWF4IGZv
+ciBbZnNfXW92ZXJmbG93IFVJRCBhbmQgR0lEICovCiBzdGF0aWMgaW50IG1heG9sZHVpZCA9IDY1
+NTM1Owogc3RhdGljIGludCBtaW5vbGR1aWQ7CkBAIC0xMTAsNiArMTE0LDcgQEAKIAogc3RhdGlj
+IGN0bF90YWJsZSBrZXJuX3RhYmxlW107CiBzdGF0aWMgY3RsX3RhYmxlIHZtX3RhYmxlW107Citz
+dGF0aWMgY3RsX3RhYmxlIHNjaGVkX3RhYmxlW107CiAjaWZkZWYgQ09ORklHX05FVAogZXh0ZXJu
+IGN0bF90YWJsZSBuZXRfdGFibGVbXTsKICNlbmRpZgpAQCAtMTU0LDYgKzE1OSw3IEBACiAJe0NU
+TF9GUywgImZzIiwgTlVMTCwgMCwgMDU1NSwgZnNfdGFibGV9LAogCXtDVExfREVCVUcsICJkZWJ1
+ZyIsIE5VTEwsIDAsIDA1NTUsIGRlYnVnX3RhYmxlfSwKICAgICAgICAge0NUTF9ERVYsICJkZXYi
+LCBOVUxMLCAwLCAwNTU1LCBkZXZfdGFibGV9LAorICAgICAgICB7Q1RMX0tFUk4sICJzY2hlZCIs
+IE5VTEwsIDAsIDA1NTUsIHNjaGVkX3RhYmxlfSwKIAl7MH0KIH07CiAKQEAgLTI3NSw2ICsyODEs
+MjggQEAKIAl7MH0KIH07CiAKK3N0YXRpYyBjdGxfdGFibGUgc2NoZWRfdGFibGVbXSA9IHsKKwl7
+TUFYX1NMSUNFLCAiTUFYX1RJTUVTTElDRSIsCisJJm1heF90aW1lc2xpY2UsIHNpemVvZihpbnQp
+LCAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY30sCisJe01JTl9TTElDRSwgIk1JTl9USU1FU0xJ
+Q0UiLAorCSZtaW5fdGltZXNsaWNlLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9p
+bnR2ZWN9LAorCXtDSElMRF9QRU5BTFRZLCAiQ0hJTERfRk9SS19QRU5BTFRZIiwKKwkmY2hpbGRf
+cGVuYWx0eSwgc2l6ZW9mKGludCksIDA2NDQsIE5VTEwsICZwcm9jX2RvaW50dmVjfSwKKwl7UEFS
+RU5UX1BFTkFMVFksICJQQVJFTlRfRk9SS19QRU5BTFRZIiwKKwkmcGFyZW50X3BlbmFsdHksIHNp
+emVvZihpbnQpLCAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY30sCisJe0VXRUlHSFQsICJFWElU
+X1dFSUdIVCIsCisJJmV4aXRfd2VpZ2h0LCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2Nf
+ZG9pbnR2ZWN9LAorCXtCT05VU19SQVRJTywgIlBSSU9fQk9OVVNfUkFUSU8iLAorCSZwcmlvX2Jv
+bnVzX3JhdGlvLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LAorCXtJ
+TlRfREVMVEEsICJJTlRFUkFDVElWRV9ERUxUQSIsCisJJmludGVyYWN0aXZlX2RlbHRhLCBzaXpl
+b2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LAorCXtNQVhfU0xFRVAsICJNQVhf
+U0xFRVBfQVZHIiwKKwkmbWF4X3NsZWVwX2F2Zywgc2l6ZW9mKGludCksIDA2NDQsIE5VTEwsICZw
+cm9jX2RvaW50dmVjfSwKKwl7U1RBUlZFX0xJTSwgIlNUQVJWQVRJT05fTElNSVQiLAorCSZzdGFy
+dmF0aW9uX2xpbWl0LCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LAor
+CXswfQorfTsKKwogc3RhdGljIGN0bF90YWJsZSBwcm9jX3RhYmxlW10gPSB7CiAJezB9CiB9Owo=
+
+--------------Boundary-00=_D833TL295ENL4E63IU9F--

@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVDEVMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVDEVQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbVDEVMX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 17:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVDEVMJ
+	id S262042AbVDEVQV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 17:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVDEVNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 17:12:09 -0400
-Received: from exosec.net1.nerim.net ([62.212.114.195]:42336 "EHLO
-	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S262035AbVDEVLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 17:11:10 -0400
-Date: Tue, 5 Apr 2005 23:11:00 +0200
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.29-hf7 (minor update)
-Message-ID: <20050405211100.GA28029@exosec.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Apr 2005 17:13:23 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7808 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262015AbVDEVIJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 17:08:09 -0400
+Message-ID: <4252FC90.8060700@osdl.org>
+Date: Tue, 05 Apr 2005 14:01:04 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, stable@kernel.org,
+       amy.griffis@hp.com, tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       dwmw2@infradead.org
+Subject: Re: [03/08] fix ia64 syscall auditing
+References: <20050405164539.GA17299@kroah.com>	 <20050405164647.GD17299@kroah.com>	 <16978.62622.80542.462568@napali.hpl.hp.com> <1112734158.468.0.camel@localhost.localdomain>
+In-Reply-To: <1112734158.468.0.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Greg KH wrote:
+> On Tue, 2005-04-05 at 13:27 -0700, David Mosberger wrote:
+> 
+>>>>>>>On Tue, 5 Apr 2005 09:46:48 -0700, Greg KH <gregkh@suse.de> said:
+>>
+>>  Greg> -stable review patch.  If anyone has any objections, please
+>>  Greg> let us know.
+>>
+>>Nitpick: the patch introduces trailing whitespace.
+> 
+> 
+> Sorry about that, I've removed it from the patch now.
+> 
+> 
+>>Why doesn't everybody use emacs and enable show-trailing-whitespace? ;-)
+> 
+> 
+> Because some of us use vim and ":set list" to see it, when we remember
+> to... :)
 
-just for completeness, I've updated the hotfix tree to hf7. The
-changelog is ridiculously small (2 patches: 1 doc, 1 minor). The
-2.4.29-hf tree is now up to date with 2.4.30. I will start the
-2.4.30-hf soon (when 2.4.31-pre emerges), and will keep updating
-2.4.29-hf as long as possible. For this, I'll have to make my
-scripts a bit smarter to reduce the dual work, so first 2.4.30-hf
-releases might be delayed a bit.
+others check received patches with a script instead of....
+no, let's not debate $EDITOR.
 
-After one full 2.4 release, it seems that the 2.4-hf tree starts
-to pay off : one patch which was finally removed in 2.4.30-rc4
-never got its way to 2.4-hf and a potential problem affecting
-usb-pwc for one 2.4.30 user theorically should not concern
-2.4.29-hf. May be those will help maintainers and users of recent
-kernels to find where their problem appeared ? Time will tell...
-
-In the mean time, the patches are available at the usual store :
-
-     http://linux.exosec.net/kernel/2.4-hf/
-
-
-Regards,
-Willy
-
---
-Changelog From 2.4.29-hf6 to 2.4.29-hf7 (semi-automated)
----------------------------------------
-'+' = added ; '-' = removed
-
-
-+ bogus-mc_list-deletion-1                                         (Herbert Xu)
-
-  Looks like I made a nasty typo in the 2.4 backport.  When entries
-  are unlinked from mc_list, we link the list up with the regular
-  hash bucket list by using next instead of bind_next!
-
-+ recent-kernels-need-modutils-2414-1                           (Willy Tarreau)
-
-  From Keith Owens:
-  > You need modutils >= 2.4.14 to use the combination of
-  > CONFIG_MODVERSIONS with EXPORT_SYMBOL_GPL() on 2.4 kernels.
-
-
-END.
-
-
+-- 
+~Randy

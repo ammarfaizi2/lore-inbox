@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVAMT6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVAMTyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVAMT6e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:58:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVAMT4T
+	id S261443AbVAMTyo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:54:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVAMTvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:56:19 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:7653 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261485AbVAMTv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:51:27 -0500
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: brking@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org,
+	Thu, 13 Jan 2005 14:51:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55732 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261460AbVAMTuF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:50:05 -0500
+Date: Thu, 13 Jan 2005 11:50:04 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Marek Habersack <grendel@caudium.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113180347.GB17600@muc.de>
-References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com>
-	 <m14qhpxo2j.fsf@muc.de> <41E2AC74.9090904@us.ibm.com>
-	 <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com>
-	 <1105454259.15794.7.camel@localhost.localdomain>
-	 <20050111173332.GA17077@muc.de>
-	 <1105626399.4664.7.camel@localhost.localdomain>
-	 <20050113180347.GB17600@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105641991.4664.73.camel@localhost.localdomain>
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113115004.Z24171@build.pdx.osdl.net>
+References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112174203.GA691@logos.cnet> <1105627541.4624.24.camel@localhost.localdomain> <20050113194246.GC24970@beowulf.thanes.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 18:46:33 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050113194246.GC24970@beowulf.thanes.org>; from grendel@caudium.net on Thu, Jan 13, 2005 at 08:42:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-01-13 at 18:03, Andi Kleen wrote:
-> You are saying that X during its own private broken PCI scan
-> stops scanning when it sees an errno? 
-> 
-> That sounds incredibly broken if true. I'm not sure how much
-> effort the kernel should really take to work around such
-> user breakage. I suppose an ffffffff return would work. 
+* Marek Habersack (grendel@caudium.net) wrote:
+> On Thu, Jan 13, 2005 at 03:36:27PM +0000, Alan Cox scribbled:
+> > On Mer, 2005-01-12 at 17:42, Marcelo Tosatti wrote:
+> > > The kernel security list must be higher in hierarchy than vendorsec.
+> > > 
+> > > Any information sent to vendorsec must be sent immediately for the kernel
+> > > security list and discussed there.
+> > 
+> > We cannot do this without the reporters permission. Often we get
+> I think I don't understand that. A reporter doesn't "own" the bug - not the
+> copyright, not the code, so how come they can own the fix/report?
 
-X needs to be able to find the device layout in order to build its PCI
-mappings. Cached data is probably quite sufficient for this.
+It's not about ownership.  It's about disclosure and common sense.
+If someone reports something to you in private, and you disclose it
+publically (or even privately to someone else) without first discussing
+that with them, you'll lose their confidence.  Consequently they won't
+be so kind to give you forewarning next time.
 
-> > Then you need to switch to wait_event_timeout(). Its not terribly hard
-> > 8)
-> 
-> Just complicating something that should be very simple.
+> > material that even the list isn't allowed to directly see only by
+> > contacting the relevant bodies directly as well. The list then just
+> > serves as a "foo should have told you about issue X" notification.
+> This sounds crazy. I understand that this may happen with proprietary
+> software, or software that is made/supported by a company but otherwise opensource
+> (like OpenOffice, for instance), but the kernel?
 
-You are breaking an established user space API. Its not suprising this
-will break applications is it. 
+Licensing is irrelevant.  Like it or not, the person who is discovering
+the bugs has some say in how you deal with the information.  It's in our
+best interest to work nicely with these folks, not marginalize them.
 
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

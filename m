@@ -1,90 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263928AbRFMArN>; Tue, 12 Jun 2001 20:47:13 -0400
+	id <S263929AbRFMAvm>; Tue, 12 Jun 2001 20:51:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263929AbRFMArC>; Tue, 12 Jun 2001 20:47:02 -0400
-Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:18181 "HELO
-	saturn.tlug.org") by vger.kernel.org with SMTP id <S263928AbRFMAqt>;
-	Tue, 12 Jun 2001 20:46:49 -0400
-Date: Tue, 12 Jun 2001 20:46:47 -0400
-From: Mike Frisch <mfrisch@saturn.tlug.org>
-To: linux-kernel@vger.kernel.org
-Subject: IRQ problems w/VIA Apollo VP2/97 & NCR 53c875
-Message-ID: <20010612204647.A14088@saturn.tlug.org>
-Mail-Followup-To: Mike Frisch <mfrisch@saturn.tlug.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S263930AbRFMAvc>; Tue, 12 Jun 2001 20:51:32 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:23254 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S263929AbRFMAvW>;
+	Tue, 12 Jun 2001 20:51:22 -0400
+Message-ID: <3B26B8FC.106FBA53@candelatech.com>
+Date: Tue, 12 Jun 2001 17:51:08 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ken Brownfield <brownfld@irridia.com>
+CC: Florin Andrei <florin@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19: eepro100 and cmd_wait issues
+In-Reply-To: <200106121921.OAA05009@asooo.flowerfire.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: IRQ conflict on VIA Apollo VP2/97-based motherboard between
-dual controllers on NCR 53c875 (Diamond Fireport 40).  Kernel version is
-2.4.5-ac9.
+Ken Brownfield wrote:
 
---- cut here ---
+> OT: does anyone know what the current state of the Tulip driver is and
+> if there is good hardware out there?  SMC left Tulip and went through at
+> least two other chipsets, so the only Tulip card I could find as of a
+> couple of years ago was Digital's.  But it was astonishingly expensive
+> and not clearly supported by the Linux driver.
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C595/97 [Apollo VP2/97]
-(rev 04)
-        Flags: bus master, 66Mhz, medium devsel, latency 64
+The current state seems to be 'BUSTED', at least for the cards
+that I am trying (ZNYX 4-port, D-LINK 4-port).  (I'm using the 2.4
+drivers, btw.)
 
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA
-[Apollo VP] (rev 25)
-        Flags: bus master, medium devsel, latency 0
+However, I'm hoping that it will be fixed soon, because the D-LINK
+4-port is very cheap compared to other 4-ports out there, and in fact
+I haven't found a 4-port card that is NOT tulip based (please let
+me know if you have 4-port suggestions!)
 
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-(prog-if 8a [Master SecP PriP])
-        Flags: bus master, medium devsel, latency 64
-        I/O ports at 6000 [size=16]
+Other than one really old EEPRO card I have, the EEPRO cards seem to be
+very stable, fast, and feature-complete.
 
---- cut here ---
+Ben
 
-When I attempt to mobprobe the ncr53c8xx module, I get the following
-output:
-
-SCSI subsystem driver Revision: 1.00
-PCI: Found IRQ 11 for device 00:0b.0
-IRQ routing conflict in pirq table for device 00:0b.0
-IRQ routing conflict in pirq table for device 00:0b.1
-
-It appears that something is getting confused and doesn't want to allow
-the two controllers of this card to share the same IRQ.
-
-Here is the relevent output from 'lspci -v':
-
---- cut here ---
-
-00:0b.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR)
-53c875 (rev 14)
-        Subsystem: Diamond Multimedia Systems FirePort 40 Dual SCSI
-Controller
-        Flags: bus master, medium devsel, latency 144, IRQ 10
-        I/O ports at 6c00 [size=256]
-        Memory at e2001000 (32-bit, non-prefetchable) [size=256]
-        Memory at e2002000 (32-bit, non-prefetchable) [size=4K]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
-
-00:0b.1 SCSI storage controller: Symbios Logic Inc. (formerly NCR)
-53c875 (rev 14)
-        Subsystem: Diamond Multimedia Systems FirePort 40 Dual SCSI
-Controller
-        Flags: bus master, medium devsel, latency 144, IRQ 10
-        I/O ports at 7000 [size=256]
-        Memory at e2003000 (32-bit, non-prefetchable) [size=256]
-        Memory at e2004000 (32-bit, non-prefetchable) [size=4K]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
-
---- cut here --
-
-There are no other devices using IRQ10.  Is this a lost cause?  This
-controller and drives in their current configuration can be moved to an
-Intel based machine and works flawlessly.  I have yet to see this
-controller work on this VIA motherboard.
-
-Any assistance is appreciated.
-
-Thanks,
-
-Mike.
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317017AbSGXM2o>; Wed, 24 Jul 2002 08:28:44 -0400
+	id <S317068AbSGXMlA>; Wed, 24 Jul 2002 08:41:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317018AbSGXM2o>; Wed, 24 Jul 2002 08:28:44 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:10661 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S317017AbSGXM2n>; Wed, 24 Jul 2002 08:28:43 -0400
-Date: Wed, 24 Jul 2002 13:31:29 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
-Subject: Re: per-cpu data...
-Message-ID: <20020724133128.A7192@kushida.apsleyroad.org>
-References: <20020712062058.25F21415D@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020712062058.25F21415D@lists.samba.org>; from rusty@rustcorp.com.au on Fri, Jul 12, 2002 at 04:01:52PM +1000
+	id <S317091AbSGXMlA>; Wed, 24 Jul 2002 08:41:00 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:39883 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317068AbSGXMlA>; Wed, 24 Jul 2002 08:41:00 -0400
+Date: Wed, 24 Jul 2002 14:43:53 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: <martin@dalecki.de>
+cc: <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: please DON'T run 2.5.27 with IDE!
+In-Reply-To: <3D3E90E4.3080108@evision.ag>
+Message-ID: <Pine.SOL.4.30.0207241440500.15605-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> (From my reading, ## on "int x" and "__per_cpu" is well-defined).
 
-  DECLARE_PER_CPU (int x[3]);
+On Wed, 24 Jul 2002, Marcin Dalecki wrote:
 
-doesn't work, although you can always do
+> [root@localhost block]# grep \>special *.c
+> elevator.c:         !rq->waiting && !rq->special)
+> ^^^^^^ This one is supposed to have the required barrier effect.
 
-  typedef int three_ints_t[3];
-  DECLARE_PER_CPU (three_ints_t x);
+Go reread, no barrier effect, requests can slip in before your
+REQ_SPECIAL. They cannon only be merged with REQ_SPECIAL.
 
-I encountered the same thing while doing a user-space
-`MAKE_THREAD_SPECIFIC' macro.  The solution I went for looks like this:
+Regards
+--
+Bartlomiej
 
-  #define DECLARE_PER_CPU(type, name) \
-    __attribute__ ((__section (".percpu"))) __typeof__ (type) name##__per_cpu
-
-enjoy,
--- Jamie

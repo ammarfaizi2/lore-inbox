@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280588AbRL0DFM>; Wed, 26 Dec 2001 22:05:12 -0500
+	id <S286198AbRL0D2e>; Wed, 26 Dec 2001 22:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285073AbRL0DFE>; Wed, 26 Dec 2001 22:05:04 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:28686 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S280588AbRL0DE5>;
-	Wed, 26 Dec 2001 22:04:57 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: axboe@suse.de, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG and Kernel Panic on 2.5.2-pre1 with loop and cdrom 
-In-Reply-To: Your message of "Wed, 26 Dec 2001 20:33:07 +0200."
-             <Pine.LNX.4.33.0112262029370.28333-100000@netfinity.realnet.co.sz> 
+	id <S286197AbRL0D2Z>; Wed, 26 Dec 2001 22:28:25 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:11653 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S286196AbRL0D2K>;
+	Wed, 26 Dec 2001 22:28:10 -0500
+Date: Wed, 26 Dec 2001 22:28:09 -0500
+From: Legacy Fishtank <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] [PATCH] Clean up fs.h union for ext2
+Message-ID: <20011226222809.A8233@havoc.gtf.org>
+In-Reply-To: <E16JR71-0000cU-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 27 Dec 2001 14:04:44 +1100
-Message-ID: <11207.1009422284@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16JR71-0000cU-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Dec 27, 2001 at 04:21:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Dec 2001 20:33:07 +0200 (SAST), 
-Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
->eip: cc916780 <== is this because we're in an interrupt handler?
+On Thu, Dec 27, 2001 at 04:21:42AM +0100, Daniel Phillips wrote:
+> --- ../2.4.17.clean/include/linux/fs.h	Fri Dec 21 12:42:03 2001
+> +++ ./include/linux/fs.h	Wed Dec 26 23:30:55 2001
+> @@ -478,7 +478,7 @@
+>  	__u32			i_generation;
+>  	union {
+>  		struct minix_inode_info		minix_i;
+> -		struct ext2_inode_info		ext2_i;
+> +		struct ext2_inode_info		ext2_inode_info;
+>  		struct ext3_inode_info		ext3_i;
+>  		struct hpfs_inode_info		hpfs_i;
+>  		struct ntfs_inode_info		ntfs_i;
 
-Probably because your module structure after reboot is not the same as
-the panic.  Try using the module data saved in /var/log/ksymoops, man
-insmod and look for ksymoops assistance.
+Change in principle looks good except IMHO you should go ahead and
+remove the ext2 stuff from the union...  (with the additional changes
+that implies)
+
+	Jeff
+
 

@@ -1,81 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270380AbTGWPSM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 11:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270383AbTGWPSM
+	id S270383AbTGWPVM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 11:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbTGWPVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 11:18:12 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:13547 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S270380AbTGWPSJ (ORCPT
+	Wed, 23 Jul 2003 11:21:12 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47286 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270383AbTGWPVI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 11:18:09 -0400
-Date: Wed, 23 Jul 2003 17:33:22 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: noaltroot bootparam [was Floppy Fallback]
-Message-ID: <20030723153322.GA25954@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: John Bradford <john@grabjohn.com>,
-	linux-kernel@vger.kernel.org
-References: <200307221904.h6MJ4Gnr001119@81-2-122-30.bradfords.org.uk>
+	Wed, 23 Jul 2003 11:21:08 -0400
+Date: Wed, 23 Jul 2003 17:30:05 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: "David S. Miller" <davem@redhat.com>, ak@suse.de, alan@lxorguk.ukuu.org.uk,
+       James.Bottomley@SteelEye.com, suparna@in.ibm.com,
+       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
+       bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-ID: <20030723153005.GC2530@suse.de>
+References: <20030708213427.39de0195.ak@suse.de> <20030708.150433.104048841.davem@redhat.com> <20030708222545.GC6787@dsl2.external.hp.com> <20030708.152314.115928676.davem@redhat.com> <20030723132037.GA30550@dsl2.external.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307221904.h6MJ4Gnr001119@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030723132037.GA30550@dsl2.external.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 08:04:16PM +0100, John Bradford wrote:
-> > Trond suggested to draft a patch to address the
-> > Floppy Fallback issues (mentioned several times
-> > on lkml) by adding a kernel boot parameter, to
-> > disable the fallback, or to put it more general,
-> > to disable alternate root device attempts ...
-> >
-> > Currently the NFS-Root Floppy Fallback is the 
-> > only _user_ of such a boot parameter, but in 
-> > future, this could be used to limit multiple
-> > root situations to a make-or-brake ...
-> >
-> > please comment!
-
-Hi John!
-
-your comments are welcome,
-
-> I think the best thing to do if it's not possible to mount an
-> NFS-based root filesystem, is to wait 60 seconds, then try to contact
-> the NFS server again.
-
-I totally agree on that ...
-
-> Before the in-kernel bootloader was removed, the current behavior was
-> quite useful - it was quite possible that a hard disk-less machine
-> would boot from a floppy without using a bootloader, and mount it's
-> root filesystem from an NFS server.  In this scenario, it would be
-> impossible to boot the machine with the root on another device,
-> without modifying the boot disk, so a fallback to root on a floppy was
-> useful.
+On Wed, Jul 23 2003, Grant Grundler wrote:
+> On Tue, Jul 08, 2003 at 03:23:14PM -0700, David S. Miller wrote:
+> > dbench type stuff,
 > 
-> However, the in-kernel bootloader was removed in 2.6, so there is now
-> no reason why an alternate root couldn't simply be specified at the
-> boot prompt.
-
-hmm, sorry, obviously forgot to mention that the
-patch is for 2.4.x ...
-
-> If the NFS server is not accessible because of a temporary problem,
-> (too much network traffic, or it's rebooting for example), it makes
-> sense to try again after 60 seconds.
+> realizing dbench is blissfully ignorant of the system (2GB RAM),
+> for grins I ran "dbench 500" to see what would happen. The throughput
+> rate dbench reported continued to decline to ~20MB/s. This is about what
+> I would expect for one disk a 40MB/s SCSI bus.
 > 
-> Not trying the floppy should become the _default_ action.
+> Then dbench started spewing errors:
+> ..
+> (7) ERROR: handle 13781 was not found
+> (6) open clients/client428 failed for handle 13781 (No such file or
+> directory)
+> (7) ERROR: handle 13781 was not found
+> (6) open clients/client423 failed for handle 13781 (No such file or directory)
+> (7) ERROR: handle 13781 was not found
+> (6) open clients/client48 failed for handle 13781 (No such file or directory)
+> (7) ERROR: handle 13781 was not found
+> (6) open clients/client55 failed for handle 13781 (No such file or directory)
+> (7) ERROR: handle 13781 was not found
+> (6) open clients/client419 failed for handle 13781 (No such file or directory)
+> (7) ERROR: handle 13781 was not found
+> (6) open clients/client415 failed for handle 13781 (No such file or directory)
+> ..
+> write failed on handle 13783
+> write failed on handle 13707
+> write failed on handle 13808
+> write failed on handle 13117
+> write failed on handle 13850
+> write failed on handle 14000
+> write failed on handle 13767
+> write failed on handle 13787
+> ..
+> 
+> NFC what that's all about. sorry - I have to punt on digging deeper.
 
-this is something _I_ would prefer _too_, but on the
-other hand there is tradition, and stable, and ... ;)
+You are running out of disk space, most likely :-)
 
-thanks,
-Herbert
+> I really need more guidance on
+> 	(a) how much memory I should be testing with
 
-> John.
+With 2G of RAM, you need lots of clients. Would be much saner to just
+boot with 256M, or something like that.
+
+> 	(b) how many spindles would be useful (I've got ~15 on each box)
+> 	(c) how to tell dbench to use the FS mounted on the target disks.
+> 
+> I've attached the iommu stats in case anyone finds that useful.
+
+To be honest, I don't think dbench is terrible useful for this. It often
+suffers from the butterfly effect, so with the small improvements
+virtual merging should so will most likely be lost in the noise.
+
+-- 
+Jens Axboe
+

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282747AbRK0Cmk>; Mon, 26 Nov 2001 21:42:40 -0500
+	id <S282752AbRK0Cob>; Mon, 26 Nov 2001 21:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282748AbRK0Cma>; Mon, 26 Nov 2001 21:42:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35855 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282747AbRK0CmU>; Mon, 26 Nov 2001 21:42:20 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Journaling pointless with today's hard disks?
-Date: 26 Nov 2001 18:41:35 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tuugv$f72$1@cesium.transmeta.com>
-In-Reply-To: <200111270123.BAA02056@mauve.demon.co.uk> <0111261800340R.02001@localhost.localdomain>
+	id <S282751AbRK0CoV>; Mon, 26 Nov 2001 21:44:21 -0500
+Received: from mail213.mail.bellsouth.net ([205.152.58.153]:39561 "EHLO
+	imf13bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S282750AbRK0CoK>; Mon, 26 Nov 2001 21:44:10 -0500
+Message-ID: <3C02FDF4.22927E4A@mandrakesoft.com>
+Date: Mon, 26 Nov 2001 21:44:04 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, editors@newsforge.com,
+        lwn@lwn.net
+Subject: Re: Linux 2.4.16
+In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva> <20011127083530.A13584@bee.lk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <0111261800340R.02001@localhost.localdomain>
-By author:    Rob Landley <landley@trommello.org>
-In newsgroup: linux.dev.kernel
->
-> On Monday 26 November 2001 20:23, Ian Stirling wrote:
+Anuradha Ratnaweera wrote:
 > 
-> > > Now a cache large enough to hold 2 full tracks could also hold dozens of
-> > > individual sectors scattered around the disk, which could take a full
-> > > second to write off and power down.  This is a "doctor, it hurts when I
-> > > do this" question.  DON'T DO THAT.
+> On Mon, Nov 26, 2001 at 10:30:08AM -0200, Marcelo Tosatti wrote:
 > >
-> > Or, to seek to a journal track, and write the cache to it.
+> > final:
+> > - Fix 8139too oops                            (Philipp Matthias Hahn)
 > 
-> Except that at most you have one seek to write out all the pending cache data 
-> anyway, so what exactly does seeking to a journal track buy you?
-> 
+> Won't that be a good idea to keep the -final the same as the last -pre?
 
-It limits the amount you need to seek to exactly one seek.
+No.  There is absolutely no reason not to fix this oops.
 
-	-hpa
+	Jeff
+
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

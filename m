@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289910AbSAPJpS>; Wed, 16 Jan 2002 04:45:18 -0500
+	id <S289907AbSAPJsi>; Wed, 16 Jan 2002 04:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289907AbSAPJpC>; Wed, 16 Jan 2002 04:45:02 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:35767 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S289906AbSAPJoi>;
-	Wed, 16 Jan 2002 04:44:38 -0500
-Message-Id: <5.1.0.14.2.20020116094806.04f00380@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 16 Jan 2002 09:50:11 +0000
-To: Norbert Preining <preining@logic.at>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [BUG] 2.4.18.3, ide-patch, read_dev_sector hangs in
-  read_cache_page
-Cc: linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
-In-Reply-To: <20020116102738.A21977@alpha.logic.tuwien.ac.at>
-In-Reply-To: <20020116094935.A20738@alpha.logic.tuwien.ac.at>
- <E16QU3F-0005g6-00@libra.cus.cam.ac.uk>
- <20020115160315.A2515@alpha.logic.tuwien.ac.at>
- <20020116094935.A20738@alpha.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S289909AbSAPJsS>; Wed, 16 Jan 2002 04:48:18 -0500
+Received: from lmail.actcom.co.il ([192.114.47.13]:34954 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S289907AbSAPJsL>; Wed, 16 Jan 2002 04:48:11 -0500
+Message-Id: <200201160947.g0G9lxv15813@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: SCSI host numbers?
+Date: Wed, 16 Jan 2002 11:47:54 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu> <200201151219.g0FCJUD15091@lmail.actcom.co.il> <200201160703.g0G73Sr27779@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200201160703.g0G73Sr27779@vindaloo.ras.ucalgary.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:27 16/01/02, Norbert Preining wrote:
->On Mit, 16 Jan 2002, preining wrote:
-> > I have tried to follow the trace of the kernel but it looks to me as
-> > read_cache_page is never called or printk in it are not executed. I filled
->
->Stupid me, somehow KERN_DEBUG was not shown.
->
->I traced it down from
->read_cache_page -> lock_page -> __lock_page -> schedule
->
->There it hangs and I was not able with my stupid methods or printk-ing
->to find the place where it hangs in sched.c (Maybe because of recursive
->calls to sched by printk).
->
->One more thing: Taking off hdf from the ide controller and everything
->works.
->Another: same with 2.4.18-pre4
+On Wednesday 16 January 2002 09:03 am, Richard Gooch wrote:
+> But if you load, unload and reload a host driver, and it's not listed
+> in scsihosts=, then won't it get a different host number each time?
 
-You mean 2.4.18-pre4 (without any patches) dies in the same way on hdf?
+In the fist time that it registers it is added to scsi_host_no_list
+(see code under "if (flag_new) {" in scsi/host.c).
+Than it will get the same number again every time.
 
-If so that is very interesting...
+scsi_host_no_list is discarded only when scsi_mod
+gets unloaded (that is if compiled as module).
 
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+-- Itai

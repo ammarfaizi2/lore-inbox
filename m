@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262517AbRE3AnS>; Tue, 29 May 2001 20:43:18 -0400
+	id <S262500AbRE3Aos>; Tue, 29 May 2001 20:44:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262511AbRE3AnI>; Tue, 29 May 2001 20:43:08 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:783 "EHLO
+	id <S262526AbRE3Aoi>; Tue, 29 May 2001 20:44:38 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:2063 "EHLO
 	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S262500AbRE3AnF>; Tue, 29 May 2001 20:43:05 -0400
+	id <S262500AbRE3AoY>; Tue, 29 May 2001 20:44:24 -0400
 From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200105300044.CAA04542@green.mif.pg.gda.pl>
-Subject: [PATCH] net #6
-To: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jgarzik@mandrakesoft.com (Jeff Garzik), Philip.Blundell@pobox.com
-Date: Wed, 30 May 2001 02:44:03 +0200 (CEST)
+Message-Id: <200105300042.CAA04518@green.mif.pg.gda.pl>
+Subject: [PATCH] net #4
+To: elmer@ylenurme.ee, alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 30 May 2001 02:42:10 +0200 (CEST)
 Cc: linux-kernel@vger.kernel.org (kernel list)
 X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
@@ -21,78 +20,62 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The following patch removes unnecessary #ifdefs from eexpress.c
+The following patch fixes network drivers configuration in some points:
+
+- make sb1000 dependent on CONFIG_ISAPNP. It compiles without CONFIG_ISAPNP,
+  but will not work as the driver relies on ISA PnP board detection
+- de620 does not support build-in configuration (dependency on "m" now).
+  It compiles, but requires io/irq module parameters for board detection
+  (even ether= is not supported by this driver)
+- Aironet fixes:
+  -- Aironet PnP requires CONFIG_ISAPNP (y or m) to work; of course, when
+     CONFIG_ISAPNP=m CONFIG_AIRONET4500_NONCS also should be "m", but
+     this is not supported by CML1; to be fixed in CML2 or in another way
+  -- Aironet I365 and ISA detection for built-in driver is not supported
+     currently, so disable these options if CONFIG_AIRONET4500_NONCS=y
 
 Andrzej
 
-************************** PATCH 6 *******************************
-diff -uNr linux-2.4.5-ac4/drivers/net/eexpress.c linux/drivers/net/eexpress.c
---- linux-2.4.5-ac4/drivers/net/eexpress.c	Wed May 30 01:08:54 2001
-+++ linux/drivers/net/eexpress.c	Wed May 30 01:13:49 2001
-@@ -574,9 +574,7 @@
- static void eexp_timeout(struct net_device *dev)
- {
- 	struct net_local *lp = (struct net_local *)dev->priv;
--#ifdef CONFIG_SMP
--	unsigned long flags;
--#endif
-+	unsigned long __attribute__((unused)) flags;
- 	int status;
- 	
- 	disable_irq(dev->irq);
-@@ -586,10 +584,7 @@
- 	 *	lets make it work first..
- 	 */
- 	 
--#ifdef CONFIG_SMP
- 	spin_lock_irqsave(&lp->lock, flags);
--#endif
--
- 	status = scb_status(dev);
- 	unstick_cu(dev);
- 	printk(KERN_INFO "%s: transmit timed out, %s?\n", dev->name,
-@@ -602,9 +597,7 @@
- 		outb(0,dev->base_addr+SIGNAL_CA);
- 	}
- 	netif_wake_queue(dev);	
--#ifdef CONFIG_SMP
- 	spin_unlock_irqrestore(&lp->lock, flags);
--#endif
- }
+************************* PATCH 5 ***********************************
+diff -uNr linux-2.4.5-ac4/drivers/net/Config.in linux/drivers/net/Config.in
+--- linux-2.4.5-ac4/drivers/net/Config.in	Mon May 28 01:34:54 2001
++++ linux/drivers/net/Config.in	Wed May 30 01:11:56 2001
+@@ -15,7 +15,7 @@
+    fi
+ fi
  
- /*
-@@ -614,9 +607,7 @@
- static int eexp_xmit(struct sk_buff *buf, struct net_device *dev)
- {
- 	struct net_local *lp = (struct net_local *)dev->priv;
--#ifdef CONFIG_SMP
--	unsigned long flags;
--#endif
-+	unsigned long __attribute__((unused)) flags;
+-tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000
++dep_tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000 $CONFIG_ISAPNP
  
- #if NET_DEBUG > 6
- 	printk(KERN_DEBUG "%s: eexp_xmit()\n", dev->name);
-@@ -629,10 +620,7 @@
- 	 *	lets make it work first..
- 	 */
- 	 
--#ifdef CONFIG_SMP
- 	spin_lock_irqsave(&lp->lock, flags);
--#endif
--  
- 	{
- 		unsigned short length = (ETH_ZLEN < buf->len) ? buf->len :
- 			ETH_ZLEN;
-@@ -643,9 +631,7 @@
- 	        eexp_hw_tx_pio(dev,data,length);
- 	}
- 	dev_kfree_skb(buf);
--#ifdef CONFIG_SMP
- 	spin_unlock_irqrestore(&lp->lock, flags);
--#endif
- 	enable_irq(dev->irq);
- 	return 0;
- }
+ #
+ #	Ethernet
+@@ -180,7 +180,7 @@
+    if [ "$CONFIG_NET_POCKET" = "y" ]; then
+       dep_tristate '    AT-LAN-TEC/RealTek pocket adapter support' CONFIG_ATP $CONFIG_ISA
+       tristate '    D-Link DE600 pocket adapter support' CONFIG_DE600
+-      tristate '    D-Link DE620 pocket adapter support' CONFIG_DE620
++      dep_tristate '    D-Link DE620 pocket adapter support' CONFIG_DE620 m
+    fi
+ fi
+ 
+@@ -264,10 +264,14 @@
+    tristate '  Aironet 4500/4800 series adapters' CONFIG_AIRONET4500
+    dep_tristate '   Aironet 4500/4800 ISA/PCI/PNP/365 support ' CONFIG_AIRONET4500_NONCS $CONFIG_AIRONET4500
+    if [ "$CONFIG_AIRONET4500" != "n" -a "$CONFIG_AIRONET4500_NONCS" != "n" ]; then
+-      bool '     Aironet 4500/4800 PNP support ' CONFIG_AIRONET4500_PNP
++      if [ "$CONFIG_AIRONET4500_NONCS" = "m" -a "$CONFIG_ISAPNP" = "m" -o "$CONFIG_ISAPNP" = "y" ]; then
++	 bool '     Aironet 4500/4800 PNP support ' CONFIG_AIRONET4500_PNP
++      fi
+       dep_bool '     Aironet 4500/4800 PCI support ' CONFIG_AIRONET4500_PCI $CONFIG_PCI
+-      dep_bool '     Aironet 4500/4800 ISA broken support (EXPERIMENTAL)' CONFIG_AIRONET4500_ISA $CONFIG_EXPERIMENTAL
+-      dep_bool '     Aironet 4500/4800 I365 broken support (EXPERIMENTAL)' CONFIG_AIRONET4500_I365 $CONFIG_EXPERIMENTAL
++      if [ "$CONFIG_AIRONET4500_NONCS" = "m" ]; then
++	 dep_bool '     Aironet 4500/4800 ISA broken support (EXPERIMENTAL)' CONFIG_AIRONET4500_ISA $CONFIG_EXPERIMENTAL
++	 dep_bool '     Aironet 4500/4800 I365 broken support (EXPERIMENTAL)' CONFIG_AIRONET4500_I365 $CONFIG_EXPERIMENTAL
++      fi
+    fi
+    dep_tristate '   Aironet 4500/4800 PROC interface ' CONFIG_AIRONET4500_PROC $CONFIG_AIRONET4500 m
+ 
 
 
 -- 

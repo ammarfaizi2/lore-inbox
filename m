@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318115AbSGWPO5>; Tue, 23 Jul 2002 11:14:57 -0400
+	id <S318107AbSGWPSX>; Tue, 23 Jul 2002 11:18:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318116AbSGWPO4>; Tue, 23 Jul 2002 11:14:56 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:56825 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318115AbSGWPO4>; Tue, 23 Jul 2002 11:14:56 -0400
-Subject: Re: is flock broken in 2.4 or 2.5 kernels or what does this mean?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Covici <covici@ccs.covici.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m37kjmik0g.fsf@ccs.covici.com>
-References: <m37kjmik0g.fsf@ccs.covici.com>
-Content-Type: text/plain
+	id <S318152AbSGWPSX>; Tue, 23 Jul 2002 11:18:23 -0400
+Received: from mail.uklinux.net ([80.84.72.21]:14090 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S318107AbSGWPSW>;
+	Tue, 23 Jul 2002 11:18:22 -0400
+Envelope-To: <linux-kernel@vger.kernel.org>
+Message-ID: <000901c2325d$089190a0$21228013@local>
+From: "Marconi" <mail@marconi.uklinux.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Linux Kernel 2.4.19rc3 PROBLEM
+Date: Tue, 23 Jul 2002 16:24:25 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 23 Jul 2002 17:31:12 +0100
-Message-Id: <1027441872.31787.139.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-23 at 15:41, John Covici wrote:
-> In the latest release notes of sendmail I have read the following:
-> 
-> 		NOTE: Linux appears to have broken flock() again.  Unless
-> 			the bug is fixed before sendmail 8.13 is shipped,
-> 			8.13 will change the default locking method to
-> 			fcntl() for Linux kernel 2.4 and later.  You may
-> 			want to do this in 8.12 by compiling with
-> 			-DHASFLOCK=0.  Be sure to update other sendmail
-> 			related programs to match locking techniques.
-> 
-> Can anyone tell me what this is all about -- is there any basis in
-> reality for what they are saying?
+The total memory values reported in /proc/meminfo are different in the
+latest 2.4.19 kernel (RC3), does anyone know why?
 
-First I've heard of it, so it would be useful if someone has access to
-the sendmail problem report/test in question that shows it and I'll go
-find out.
+Differences of 2.4.18 /proc/meminfo and 2.4.19rc3 /proc/meminfo (see *)
+
+          total:            used:          free:             shared:
+buffers:      cached:                        total:           used:
+free:             shared:    buffers:   cached:
+Mem:  525393920   520925184  4468736        0            23011328   36332339
+Mem:  527450112  99909632 427540480     0            4526080  54579200
+Swap: 1257181184  8806400     1248374784
+Swap: 1257181184             0 1257181184
+MemTotal:       513080 kB
+*   MemTotal:       515088 kB
+MemFree:          4364 kB
+MemFree:        417520 kB
+MemShared:           0 kB
+MemShared:           0 kB
+Buffers:         22472 kB
+Buffers:          4420 kB
+Cached:         352676 kB
+Cached:          53300 kB
+SwapCached:       2132 kB
+SwapCached:          0 kB
+Active:         180604 kB
+Active:          19224 kB
+Inactive:       262696 kB
+Inactive:        56860 kB
+HighTotal:           0 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+   HighFree:            0 kB
+LowTotal:       513080 kB
+*   LowTotal:       515088 kB
+LowFree:          4364 kB
+LowFree:        417520 kB
+SwapTotal:     1227716 kB
+SwapTotal:     1227716 kB
+SwapFree:      1219116 kB
+SwapFree:      1227716 kB
+
+Regards,
+Andy
 

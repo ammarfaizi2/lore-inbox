@@ -1,343 +1,345 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262983AbUK0DZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUK0D0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbUK0DZf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 22:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUKZTgP
+	id S262380AbUK0D0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 22:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbUKZTeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:36:15 -0500
+	Fri, 26 Nov 2004 14:34:08 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:18626 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262404AbUKZTWk (ORCPT
+	by vger.kernel.org with ESMTP id S262405AbUKZTWk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 26 Nov 2004 14:22:40 -0500
-Message-ID: <41A69247.4080308@treshna.com>
-Date: Fri, 26 Nov 2004 15:17:43 +1300
+Message-ID: <41A6895A.1000304@treshna.com>
+Date: Fri, 26 Nov 2004 14:39:38 +1300
 From: Dru <andru@treshna.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux@syskonnect.de
-Subject: Alpha problem with networking support with sk98lin -> oops on bringing
- up interfaces
+To: linux-kernel@vger.kernel.org
+Subject: Problem with USB drive causing kernel hang
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a alpha box which I can't get nerworking working with my sk98lin 
-cards. I had other weird problems with trying a few other network cards 
-so it might not be just the sk98lin one. The onboard network card works 
-fine on 2.6.9 with a customised build, sk98lin fails every time.
+I have a problem with kernel hangs, there are no kernel messages about 
+the problem. I am using western digital 160GB USB external harddrives. 
+These normally work fine, and are used for backup purposes. The problem 
+is that they stop working after you've done a backup and the kernel 
+hangs if you try and access them again. I've replaced the drives serval 
+times and it doesnt make any difference. I havn't yet tried installing a 
+different USB controller but will try that when i can next take down the 
+server for a while.
 
-Card types: D-Link DGE-530T cards. I've tried different cards of same 
-model so i dont think its a hardware fault.
+Problems shown:
+If usb drive plugged in while computer booting, hot plug causes kernel hang.
+After doing backup to /dev/sda (usb device) no longer exists.
+Restarting hot plug while a device is plugged in or after a reboot 
+causes kernel hang.
+Server needs rebooting after each backup to allow access to /dev/sda again.
+Removing hotplug makes no difference, problems still exist.
 
-Kernels tried:
-2.6.6
-2.6.8.1
-2.6.9
-
-Orginal output from one oops with 2.6.8:
-
-Linux version 2.6.8 (root@azrael) (gcc version 3.3.4 (Debian 
-1:3.3.4-13)) #2 Wed Nov 17 23:25:11 NZDT 2004
-Booting GENERIC on Nautilus using machine vector Nautilus from SRM
-Major Options: LEGACY_START
-Command line: ro root=/dev/hda3
-memcluster 0, usage 1, start        0, end      256
-memcluster 1, usage 0, start      256, end    65459
-memcluster 2, usage 1, start    65459, end    65536
-freeing pages 256:384
-freeing pages 841:65459
-reserving pages 841:842
-8192K Bcache detected; load hit latency 18 cycles, load miss latency 159 
-cycles
-Iron stat_cmd 22100006
-Iron ECC f00
-On node 0 totalpages: 65459
-  DMA zone: 2048 pages, LIFO batch:1
-  Normal zone: 63411 pages, LIFO batch:8
-  HighMem zone: 0 pages, LIFO batch:1
-Built 1 zonelists
-Kernel command line: ro root=/dev/hda3
-PID hash table entries: 2048 (order 11: 32768 bytes)
-HWRPB cycle frequency bogus.  Estimated 796417845 Hz
-Using epoch = 2000
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 131072 (order: 7, 1048576 bytes)
-Inode-cache hash table entries: 65536 (order: 6, 524288 bytes)
-Memory: 512328k/523672k available (2007k kernel code, 8920k reserved, 
-566k data, 288k init)
-Calibrating delay loop... 1586.36 BogoMIPS
-Security Scaffold v1.0.0 initialized
-Mount-cache hash table entries: 512 (order: 0, 8192 bytes)
-NET: Registered protocol family 16
-EISA bus registered
-pci: enabling save/restore of SRM state
-PCI: Bus 1, bridge: 0000:00:01.0
-  IO window: disabled.
-  MEM window: fb000000-fbffffff
-  PREFETCH window: fc000000-feffffff
-Linux Plug and Play Support v0.97 (c) Adam Belay
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 1024 (order 0, 8192 bytes)
-devfs: 2004-01-31 Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x0
-Initializing Cryptographic API
-Activating ISA DMA hang workarounds.
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Serial: 8250/16550 driver $Revision: 1.90 $ 36 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-ttyS35 at I/O 0x8028 (irq = 255) is a 8250
-ttyS2 at I/O 0x8040 (irq = 255) is a 8250
-ttyS3 at I/O 0x8050 (irq = 255) is a 8250
-ttyS4 at I/O 0x8060 (irq = 255) is a 8250
-ttyS5 at I/O 0x8070 (irq = 255) is a 8250
-RAMDISK driver initialized: 16 RAM disks of 8192K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ALI15X3: IDE controller at PCI slot 0000:00:10.0
-ALI15X3: chipset revision 196
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x8c80-0x8c87, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x8c88-0x8c8f, BIOS settings: hdc:DMA, hdd:pio
-hda: SAMSUNG SP0802N, ATA DISK drive
-Using anticipatory io scheduler
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: LG (OEM)CD-ROM CRD-8521B, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: 156368016 sectors (80060 MB) w/2048KiB Cache, CHS=16383/255/63, 
-UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: p2 p3
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
-EISA: Probing bus 0 at eisa0
-NET: Registered protocol family 2
-IP: routing cache hash table of 8192 buckets, 64Kbytes
-TCP: Hash tables configured (established 65536 bind 65536)
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-NET: Registered protocol family 15
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 288k freed
-Adding 1582384k swap on /dev/hda2.  Priority:-1 extents:1
-rtc: SRM (post-2000) epoch (2000) detected
-Real Time Clock Driver v1.12
-inserting floppy driver for 2.6.8
-Floppy drive(s): fd0 is 2.88M
-FDC 0 is a post-1991 82077
-loop: loaded (max 8 devices)
-hdc: ATAPI 52X CD-ROM drive, 128kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.20
-input: PC Speaker
-input: PS/2 Generic Mouse on isa0060/serio1
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-ip_tables: (C) 2000-2002 Netfilter core team
-Capability LSM initialized
-NET: Registered protocol family 10
-Disabled Privacy Extensions on device fffffc00006132e8(lo)
-IPv6 over IPv4 tunneling driver
-sk98lin: Network Device Driver v6.23
-(C)Copyright 1999-2004 Marvell(R).
-eth0: DGE-530T Gigabit Ethernet Adapter
-      PrefPort:A  RlmtMode:Check Link State
-Unable to handle kernel paging request at virtual address fc00539480000000
-ifconfig(695): Oops -1
-pc = [<fc00539480000000>]  ra = [<fffffffc005380d0>]  ps = 0007    Not 
-tainted
-v0 = fffffc001cfa2680  t0 = fffffffc00551425  t1 = 00000000000056d8
-t2 = fffffffc005513fd  t3 = 0000000000000001  t4 = 0000000000000000
-t5 = fffffc001cfa7d58  t6 = 0000000000000007  t7 = fffffc001c0a4000
-s0 = fffffc001cfa0000  s1 = fffffc001cfa2680  s2 = 0000000000000000
-s3 = 0000000000000000  s4 = 0000000000000002  s5 = 0000000000000001
-s6 = fffffc001c0a7cc8
-a0 = fffffc001cfa0000  a1 = fffffd00ff060000  a2 = 0000000000000000
-a3 = 0000000002000000  a4 = fffffc001cfa2680  a5 = fffffc001c0a79cc
-t8 = 000000000000000f  t9 = fffffc0000402ba0  t10= 0000000000000020
-t11= 00000000000004e2  pv = fc00539480000000  at = 00000000419b4404
-gp = fffffffc00559a98  sp = fffffc001c0a7968
-Trace:
-[<fffffc000039f574>] load_elf_interp+0x264/0x300
-[<fffffc000048da38>] rtnetlink_fill_ifinfo+0x3a8/0x518
-[<fffffc000048ded4>] rtmsg_ifinfo+0x68/0xf4
-[<fffffc000048e518>] rtnetlink_event+0x70/0xa4
-[<fffffc000033bdcc>] notifier_call_chain+0x44/0x80
-[<fffffc000048423c>] dev_open+0x160/0x180
-[<fffffc0000485f4c>] dev_change_flags+0x84/0x1bc
-[<fffffc00004d7404>] devinet_ioctl+0x33c/0x87c
-[<fffffc00004da080>] inet_ioctl+0xb0/0x110
-[<fffffc0000479ce8>] sock_ioctl+0x3c4/0x3f4
-[<fffffc0000387464>] sys_ioctl+0x2fc/0x340
-[<fffffc0000314db4>] entSys+0xa4/0xc0
-
-Code:
+I dont know where to go from here, and i dont think i have given enough 
+information in order to fix the problem. But if anyone has any words of 
+advice it will help in solving this problem.
 
 
-Opps with 2.6.9
 
-Unable to handle kernel paging request at virtual address fc0048d880000000
-ifconfig(1193): Oops -1
-pc = [<fc0048d880000000>]  ra = [<fffffffc0048c4d0>]  ps = 0007    Not 
-tainted
-pc is at 0xfc0048d880000000
-ra is at SkPnmiGetStruct+0x3a0/0x570 [sk98lin]
-v0 = fffffc001caf2680  t0 = 00000000000056d8  t1 = 0000000000000001
-t2 = 0000000000000001  t3 = fffffc001caf7d40  t4 = fffffc001caf7d58
-t5 = fffffc001caf7d58  t6 = fffffc001caf7d40  t7 = fffffc001ca20000
-s0 = fffffc001caf0000  s1 = fffffc001caf2680  s2 = 0000000000000000
-s3 = fffffc001ca23c68  s4 = fffffd00ff060000  s5 = fffffffc004a27ad
-s6 = 0000000000000000
-a0 = fffffc001caf0000  a1 = fffffd00ff060000  a2 = 0000000000000000
-a3 = 0000000002000000  a4 = fffffc001caf2680  a5 = fffffc001ca2396c
-t8 = 000000000000000f  t9 = fffffc00003f1ff0  t10= 0000000000000020
-t11= 00000000000004e2  pv = fc0048d880000000  at = 0000000041a686fa
-gp = fffffffc004a94d0  sp = fffffc001ca23908
-Trace:
-[<fffffc000048f314>] rtnetlink_fill_ifinfo+0x474/0x5e0
-[<fffffc000048f9b8>] rtmsg_ifinfo+0x68/0x100
-[<fffffc000048fd34>] rtnetlink_event+0x44/0x90
-[<fffffc00003382d4>] notifier_call_chain+0x54/0x90
-[<fffffc0000484278>] dev_open+0xe8/0x100
-[<fffffc00004860b8>] dev_change_flags+0x78/0x1a0
-[<fffffc00004ce0d4>] devinet_ioctl+0x334/0x700
-[<fffffc00004d0d80>] inet_ioctl+0xb0/0x120
-[<fffffc0000478a64>] sock_ioctl+0x1a4/0x430
-[<fffffc0000387488>] sys_ioctl+0x118/0x340
-[<fffffc0000312c84>] entSys+0xa4/0xc0
+debian:/etc# uname -a
+Linux debian 2.6.8-1-686 #1 Thu Oct 7 03:15:25 EDT 2004 i686 GNU/Linux
 
-Code:
+debian:/proc/bus/usb# cat devices
 
+T:  Bus=04 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480 MxCh= 6
+B:  Alloc=  0/800 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.8-1-686 ehci_hcd
+S:  Product=Intel Corp. 82801DB (ICH4) USB2 EHCI Controller
+S:  SerialNumber=0000:00:1d.7
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=256ms
 
-ksyoops output:
-ksymoops 2.4.9 on alpha 2.6.9.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.9/ (default)
-     -m /boot/System.map-2.6.9 (default)
+T:  Bus=03 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.8-1-686 uhci_hcd
+S:  Product=Intel Corp. 82801DB (ICH4) USB UHCI #3
+S:  SerialNumber=0000:00:1d.2
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.8-1-686 uhci_hcd
+S:  Product=Intel Corp. 82801DB (ICH4) USB UHCI #2
+S:  SerialNumber=0000:00:1d.1
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel paging request at virtual address fc0048d880000000
-ifconfig(1193): Oops -1
-pc = [<fc0048d880000000>]  ra = [<fffffffc0048c4d0>]  ps = 0007    Not 
-tainted
-Using defaults from ksymoops -t elf64-alpha -a alpha
-v0 = fffffc001caf2680  t0 = 00000000000056d8  t1 = 0000000000000001
-t2 = 0000000000000001  t3 = fffffc001caf7d40  t4 = fffffc001caf7d58
-t5 = fffffc001caf7d58  t6 = fffffc001caf7d40  t7 = fffffc001ca20000
-s0 = fffffc001caf0000  s1 = fffffc001caf2680  s2 = 0000000000000000
-s3 = fffffc001ca23c68  s4 = fffffd00ff060000  s5 = fffffffc004a27ad
-s6 = 0000000000000000
-a0 = fffffc001caf0000  a1 = fffffd00ff060000  a2 = 0000000000000000
-a3 = 0000000002000000  a4 = fffffc001caf2680  a5 = fffffc001ca2396c
-t8 = 000000000000000f  t9 = fffffc00003f1ff0  t10= 0000000000000020
-t11= 00000000000004e2  pv = fc0048d880000000  at = 0000000041a686fa
-gp = fffffffc004a94d0  sp = fffffc001ca23908
-Trace:
-[<fffffc000048f314>] rtnetlink_fill_ifinfo+0x474/0x5e0
-[<fffffc000048f9b8>] rtmsg_ifinfo+0x68/0x100
-[<fffffc000048fd34>] rtnetlink_event+0x44/0x90
-[<fffffc00003382d4>] notifier_call_chain+0x54/0x90
-[<fffffc0000484278>] dev_open+0xe8/0x100
-[<fffffc00004860b8>] dev_change_flags+0x78/0x1a0
-[<fffffc00004ce0d4>] devinet_ioctl+0x334/0x700
-[<fffffc00004d0d80>] inet_ioctl+0xb0/0x120
-[<fffffc0000478a64>] sock_ioctl+0x1a4/0x430
-[<fffffc0000387488>] sys_ioctl+0x118/0x340
-[<fffffc0000312c84>] entSys+0xa4/0xc0
-Warning (Oops_read): Code line not seen, dumping what data is available
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.8-1-686 uhci_hcd
+S:  Product=Intel Corp. 82801DB (ICH4) USB UHCI #1
+S:  SerialNumber=0000:00:1d.0
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
+debian:/etc# lsmod
+Module                  Size  Used by
+nls_iso8859_1           4032  0
+nls_cp437               5696  0
+vfat                   14656  0
+fat                    46784  1 vfat
+ide_cd                 42656  0
+isofs                  37240  0
+usb_storage            68832  0
+sd_mod                 21696  0
+sg                     39168  0
+sr_mod                 17316  0
+scsi_mod              125196  4 usb_storage,sd_mod,sg,sr_mod
+cdrom                  40732  2 ide_cd,sr_mod
+lp                     11176  0
+ppp_generic            30164  0
+slhc                    7488  1 ppp_generic
+deflate                 3776  0
+zlib_deflate           22776  1 deflate
+twofish                38688  0
+serpent                13632  0
+aes_i586               39188  0
+blowfish                9984  0
+des                    11712  0
+sha256                  9664  0
+sha1                    8576  0
+crypto_null             2304  0
+xfrm_user              16196  0
+ipcomp                  6688  0
+esp4                    8576  0
+ah4                     6784  0
+af_key                 34032  0
+ipv6                  264612  21
+8139cp                 20672  0
+snd_intel8x0           36460  0
+snd_ac97_codec         70020  1 snd_intel8x0
+snd_pcm                98728  1 snd_intel8x0
+snd_timer              25668  1 snd_pcm
+snd_page_alloc         11752  2 snd_intel8x0,snd_pcm
+snd_mpu401_uart         7968  1 snd_intel8x0
+snd_rawmidi            25156  1 snd_mpu401_uart
+snd_seq_device          8200  1 snd_rawmidi
+snd                    57156  7 
+snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+i810_audio             37588  0
+ac97_codec             18956  1 i810_audio
+soundcore              10336  2 snd,i810_audio
+ehci_hcd               32004  0
+uhci_hcd               33136  0
+usbcore               119012  5 usb_storage,ehci_hcd,uhci_hcd
+shpchp                101996  0
+pciehp                 99084  0
+pci_hotplug            34640  2 shpchp,pciehp
+intel_agp              22816  1
+agpgart                34696  1 intel_agp
+analog                 11968  0
+gameport                4704  2 snd_intel8x0,analog
+parport_pc             35392  1
+parport                41832  2 lp,parport_pc
+floppy                 61200  0
+pcspkr                  3592  0
+evdev                   9600  0
+ip_nat_ftp              5008  0
+ip_conntrack_ftp       72272  1 ip_nat_ftp
+ip_nat_irc              4336  0
+ip_conntrack_irc       71440  1 ip_nat_irc
+ipt_REJECT              7008  4
+ipt_LOG                 6560  18
+ipt_limit               2528  20
+ipt_state               2080  85
+iptable_nat            25228  3 ip_nat_ftp,ip_nat_irc
+iptable_filter          2880  1
+ip_conntrack           35368  6 
+ip_nat_ftp,ip_conntrack_ftp,ip_nat_irc,ip_conntrack_irc,ipt_state,iptable_nat
+ip_tables              18464  6 
+ipt_REJECT,ipt_LOG,ipt_limit,ipt_state,iptable_nat,iptable_filter
+raid0                   8288  1
+raid1                  17856  4
+md                     49864  7 raid0,raid1
+capability              4520  0
+commoncap               7232  1 capability
+8139too                26112  0
+mii                     5120  2 8139cp,8139too
+crc32                   4320  2 8139cp,8139too
+af_packet              22600  4
+rtc                    12760  0
+xfs                   609688  5
+ext2                   71848  0
+ext3                  127240  0
+jbd                    62616  1 ext3
+mbcache                 9348  2 ext2,ext3
+reiserfs              247760  1
+ide_generic             1408  0
+piix                   13440  1
+ide_disk               19296  18
+cmd64x                 12764  2
+ide_core              139940  6 
+ide_cd,usb_storage,ide_generic,piix,ide_disk,cmd64x
+unix                   28692  170
+font                    8320  0
+vesafb                  6656  0
+cfbcopyarea             3840  1 vesafb
+cfbimgblt               3040  1 vesafb
+cfbfillrect             3776  1 vesafb
 
- >>PC;  fc0048d880000000 Before first symbol   <=====
+debian:/etc# lspci -v
+00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host 
+Bridge (rev 11)
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: bus master, fast devsel, latency 0
+        Memory at e0000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [e4] #09 [a104]
+        Capabilities: [a0] AGP version 2.0
 
-Trace; fffffc000048f314 <rtnetlink_fill_ifinfo+474/5e0>
-Trace; fffffc000048f9b8 <rtmsg_ifinfo+68/100>
-Trace; fffffc000048fd34 <rtnetlink_event+44/90>
-Trace; fffffc00003382d4 <notifier_call_chain+54/90>
-Trace; fffffc0000484278 <dev_open+e8/100>
-Trace; fffffc00004860b8 <dev_change_flags+78/1a0>
-Trace; fffffc00004ce0d4 <devinet_ioctl+334/700>
-Trace; fffffc00004d0d80 <inet_ioctl+b0/120>
-Trace; fffffc0000478a64 <sock_ioctl+1a4/430>
-Trace; fffffc0000387488 <sys_ioctl+118/340>
-Trace; fffffc0000312c84 <entSys+a4/c0>
+00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge 
+(rev 11) (prog-if 00 [Normal decode])
+        Flags: bus master, 66Mhz, fast devsel, latency 64
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+        I/O behind bridge: 0000c000-0000cfff
+        Memory behind bridge: e4000000-e40fffff
+        Prefetchable memory behind bridge: d0000000-dfffffff
 
+00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 01) 
+(prog-if 00 [UHCI])
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: bus master, medium devsel, latency 0, IRQ 169
+        I/O ports at d800 [size=32]
 
-2 warnings and 1 error issued.  Results may not be reliable.
+00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 01) 
+(prog-if 00 [UHCI])
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: bus master, medium devsel, latency 0, IRQ 177
+        I/O ports at d000 [size=32]
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] System 
-Controller (rev 19).
-      Master Capable.  Latency=255.
-      Prefetchable 32 bit memory at 0xff064000 [0xff064fff].
-      I/O at 0x8c90 [0x8c93].
-  Bus  0, device   1, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] AGP 
-Bridge (rev 0).
-      Master Capable.  Latency=255.  Min Gnt=12.
-  Bus  0, device   3, function  0:
-    Modem: ALi Corporation M5457 AC'97 Modem Controller (rev 0).
-      IRQ 255.
-      Master Capable.  Latency=255.
-      Non-prefetchable 32 bit memory at 0xff065000 [0xff065fff].
-      I/O at 0x8000 [0x80ff].
-  Bus  0, device   6, function  0:
-    Multimedia audio controller: ALi Corporation M5451 PCI AC-Link 
-Controller Audio Device (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=240.  Min Gnt=2.Max Lat=24.
-      I/O at 0x8400 [0x84ff].
-      Non-prefetchable 32 bit memory at 0xff066000 [0xff066fff].
-  Bus  0, device   7, function  0:
-    ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV] 
-(rev 0).
-  Bus  0, device   9, function  0:
-    Ethernet controller: D-Link System Inc Gigabit Ethernet Adapter (rev 
-17).
-      IRQ 9.
-      Master Capable.  Latency=255.  Min Gnt=23.Max Lat=31.
-      Non-prefetchable 32 bit memory at 0xff060000 [0xff063fff].
-      I/O at 0x8800 [0x88ff].
-  Bus  0, device  11, function  0:
-    Ethernet controller: Digital Equipment Corporation DECchip 21142/43 
-(rev 65).
-      IRQ 11.
-      Master Capable.  Latency=255.  Min Gnt=20.Max Lat=40.
-      I/O at 0x8c00 [0x8c7f].
-      Non-prefetchable 32 bit memory at 0xff068000 [0xff0683ff].
-  Bus  0, device  16, function  0:
-    IDE interface: ALi Corporation M5229 IDE (rev 196).
-      IRQ 15.
-      Master Capable.  Latency=255.  Min Gnt=2.Max Lat=4.
-      I/O at 0x8c80 [0x8c8f].
-  Bus  0, device  17, function  0:
-    Non-VGA unclassified device: ALi Corporation M7101 Power Management 
-Controller [PMU] (rev 0).
-  Bus  0, device  20, function  0:
-    USB Controller: ALi Corporation USB 1.1 Controller (rev 3).
-      IRQ 9.
-      Master Capable.  Latency=248.  Max Lat=80.
-      Non-prefetchable 32 bit memory at 0xff067000 [0xff067fff].
-  Bus  1, device   5, function  0:
-    VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT2 
-Model 64/Model 64 Pro] (rev 21).
-      IRQ 10.
-      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
-      Non-prefetchable 32 bit memory at 0xfb000000 [0xfbffffff].
-      Prefetchable 32 bit memory at 0xfc000000 [0xfdffffff].
+00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 01) 
+(prog-if 00 [UHCI])
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: bus master, medium devsel, latency 0, IRQ 185
+        I/O ports at d400 [size=32]
+
+00:1d.7 USB Controller: Intel Corp. 82801DB USB2 (rev 01) (prog-if 20 
+[EHCI])
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: bus master, medium devsel, latency 0, IRQ 193
+        Memory at e4200000 (32-bit, non-prefetchable) [size=1K]
+        Capabilities: [50] Power Management version 2
+
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB PCI Bridge (rev 81) 
+(prog-if 00 [Normal decode])
+        Flags: bus master, fast devsel, latency 0
+        Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
+        I/O behind bridge: 00008000-0000bfff
+        Memory behind bridge: e4100000-e41fffff
+
+00:1f.0 ISA bridge: Intel Corp. 82801DB LPC Interface Controller (rev 01)
+        Flags: bus master, medium devsel, latency 0
+
+00:1f.1 IDE interface: Intel Corp. 82801DB Ultra ATA Storage Controller 
+(rev 01) (prog-if 8a [Master SecP PriP])
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: bus master, medium devsel, latency 0, IRQ 185
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at f000 [size=16]
+        Memory at 20000000 (32-bit, non-prefetchable) [size=1K]
+
+00:1f.3 SMBus: Intel Corp. 82801DB/DBM SMBus Controller (rev 01)
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: medium devsel, IRQ 201
+        I/O ports at 0500 [size=32]
+
+00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio 
+Controller (rev 01)
+        Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 9031
+        Flags: bus master, medium devsel, latency 0, IRQ 201
+        I/O ports at e000 [size=256]
+        I/O ports at e400 [size=64]
+        Memory at e4201000 (32-bit, non-prefetchable) [size=512]
+        Memory at e4202000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 
+SiS315PRO PCI/AGP VGA Display Adapter (prog-if 00 [VGA])
+        Subsystem: Silicon Integrated Systems [SiS] SiS315PRO PCI/AGP 
+VGA Display Adapter
+        Flags: bus master, 66Mhz, medium devsel, latency 39, IRQ 169
+        BIST result: 00
+        Memory at d0000000 (32-bit, prefetchable) [size=256M]
+        Memory at e4000000 (32-bit, non-prefetchable) [size=256K]
+        I/O ports at c000 [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [40] Power Management version 2
+        Capabilities: [50] AGP version 2.0
+
+02:00.0 RAID bus controller: CMD Technology Inc PCI0649 (rev 02)
+        Subsystem: CMD Technology Inc PCI0649
+        Flags: bus master, medium devsel, latency 64, IRQ 169
+        I/O ports at 8000 [size=8]
+        I/O ports at 8400 [size=4]
+        I/O ports at 8800 [size=8]
+        I/O ports at 8c00 [size=4]
+        I/O ports at 9000 [size=16]
+        Expansion ROM at <unassigned> [disabled] [size=512K]
+        Capabilities: [60] Power Management version 2
+
+02:01.0 RAID bus controller: CMD Technology Inc PCI0649 (rev 02)
+        Subsystem: CMD Technology Inc PCI0649
+        Flags: bus master, medium devsel, latency 64, IRQ 201
+        I/O ports at 9400 [size=8]
+        I/O ports at 9800 [size=4]
+        I/O ports at 9c00 [size=8]
+        I/O ports at a000 [size=4]
+        I/O ports at a400 [size=16]
+        Expansion ROM at <unassigned> [disabled] [size=512K]
+        Capabilities: [60] Power Management version 2
+
+02:02.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+        Subsystem: Edimax Computer Co.: Unknown device 9503
+        Flags: bus master, medium devsel, latency 32, IRQ 185
+        I/O ports at a800 [size=256]
+        Memory at 20000400 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+
+02:03.0 Communication controller: Lucent Microelectronics 56k WinModem 
+(rev 01)
+        Subsystem: Lucent Microelectronics LT WinModem 56k 
+Data+Fax+Voice+Dsvd
+        Flags: bus master, medium devsel, latency 0, IRQ 209
+        Memory at 20000500 (32-bit, non-prefetchable) [size=256]
+        I/O ports at ac00 [size=8]
+        I/O ports at b000 [size=256]
+        Capabilities: [f8] Power Management version 2
+
+02:04.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Flags: bus master, medium devsel, latency 32, IRQ 217
+        I/O ports at b400 [size=256]
+        Memory at 20000600 (32-bit, non-prefetchable) [size=256]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [50] Power Management version 2
+
+debian:/etc#
 
 
 

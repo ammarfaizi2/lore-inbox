@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262783AbSJPSdw>; Wed, 16 Oct 2002 14:33:52 -0400
+	id <S262681AbSJPS2v>; Wed, 16 Oct 2002 14:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262786AbSJPSdw>; Wed, 16 Oct 2002 14:33:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18448 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262783AbSJPSdv>;
-	Wed, 16 Oct 2002 14:33:51 -0400
-Date: Wed, 16 Oct 2002 19:39:49 +0100
+	id <S262709AbSJPS2v>; Wed, 16 Oct 2002 14:28:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13840 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262681AbSJPS2u>;
+	Wed, 16 Oct 2002 14:28:50 -0400
+Date: Wed, 16 Oct 2002 19:34:47 +0100
 From: Matthew Wilcox <willy@debian.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Add PER_HPUX
-Message-ID: <20021016193949.N15163@parcelfarce.linux.theplanet.co.uk>
+Subject: [PATCH] introduce UTS_MACHINE
+Message-ID: <20021016193447.M15163@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,19 +20,40 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Allocate a personality number for HPUX binaries
+We want to be able to override the value reported by uname -m so we don't
+have to duplicate vast amounts of code between parisc & parisc64.
 
-diff -urpNX build-tools/dontdiff linus-2.5/include/linux/personality.h parisc-2.5/include/linux/personality.h
---- linus-2.5/include/linux/personality.h	Fri Aug 30 10:22:04 2002
-+++ parisc-2.5/include/linux/personality.h	Fri Aug 30 14:00:40 2002
-@@ -63,6 +63,7 @@ enum {
- 	PER_SOLARIS =		0x000d | STICKY_TIMEOUTS,
- 	PER_UW7 =		0x000e | STICKY_TIMEOUTS | MMAP_PAGE_ZERO,
- 	PER_OSF4 =		0x000f,			 /* OSF/1 v4 */
-+	PER_HPUX =		0x0010,
- 	PER_MASK =		0x00ff,
- };
+diff -urpNX build-tools/dontdiff linus-2.5/Makefile parisc-2.5/Makefile
+--- linus-2.5/Makefile	Tue Oct  8 10:52:12 2002
++++ parisc-2.5/Makefile	Tue Oct 15 15:53:19 2002
+@@ -38,6 +38,8 @@ ARCH := $(SUBARCH)
  
+ KERNELPATH=kernel-$(shell echo $(KERNELRELEASE) | sed -e "s/-//g")
+ 
++UTS_MACHINE := $(ARCH)
++
+ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+ 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
+ 	  else echo sh; fi ; fi)
+@@ -161,7 +165,8 @@ AFLAGS		:= -D__ASSEMBLY__ $(CPPFLAGS)
+ 
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+ 	CONFIG_SHELL TOPDIR HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+-	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE MAKEFILES GENKSYMS PERL
++	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE MAKEFILES GENKSYMS PERL \
++	UTS_MACHINE
+ 
+ export CPPFLAGS NOSTDINC_FLAGS OBJCOPYFLAGS LDFLAGS
+ export CFLAGS CFLAGS_KERNEL CFLAGS_MODULE 
+diff -urpNX build-tools/dontdiff linus-2.5/init/Makefile parisc-2.5/init/Makefile
+--- linus-2.5/init/Makefile	Tue Oct  8 10:54:20 2002
++++ parisc-2.5/init/Makefile	Tue Oct  8 16:49:22 2002
+@@ -17,4 +17,4 @@ $(obj)/version.o: $(objtree)/include/lin
+ 
+ $(objtree)/include/linux/compile.h: FORCE
+ 	@echo -n '  Generating $@'
+-	@$(srctree)/scripts/mkcompile_h $@ "$(ARCH)" "$(CONFIG_SMP)" "$(CC) $(CFLAGS)"
++	@$(srctree)/scripts/mkcompile_h $@ "$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CC) $(CFLAGS)"
 
 -- 
 Revolutions do not require corporate support.

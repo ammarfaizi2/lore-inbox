@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290009AbSAWTZo>; Wed, 23 Jan 2002 14:25:44 -0500
+	id <S289988AbSAWT01>; Wed, 23 Jan 2002 14:26:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290011AbSAWTZ1>; Wed, 23 Jan 2002 14:25:27 -0500
-Received: from ida-89-127.Reshall.Berkeley.EDU ([169.229.89.127]:10245 "HELO
-	ida-89-127.reshall.berkeley.edu") by vger.kernel.org with SMTP
-	id <S289988AbSAWTYw>; Wed, 23 Jan 2002 14:24:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jonathan Terhorst <terhorst@uclink.berkeley.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/sound/nm256_audio.c -- fixes hard freeze on Dell laptops
-Date: Wed, 23 Jan 2002 11:24:46 -0800
-X-Mailer: KMail [version 1.3.2]
+	id <S289989AbSAWTZk>; Wed, 23 Jan 2002 14:25:40 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:16091 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S290000AbSAWTZC>; Wed, 23 Jan 2002 14:25:02 -0500
+Date: Wed, 23 Jan 2002 20:24:57 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Timothy Covell <timothy.covell@ashavan.org>
+cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Dave Jones <davej@suse.de>, Andreas Jaeger <aj@suse.de>,
+        Martin Peters <mpet@bigfoot.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+In-Reply-To: <200201231813.g0NID5r15047@home.ashavan.org.>
+Message-ID: <Pine.LNX.4.40.0201232021440.2202-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020123192447.948101C25B@ida-89-127.reshall.berkeley.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've looked and looked but can't find the proper person to send this to, so 
-I'm throwing it out here. There's one offending line that causes mine and 
-others' Dell Latitde LS(t) laptops to freeze up. Remove it and everything 
-works perfectly. I'm using 2.4.17 but I think this driver has remained the 
-same for quite some time now.
+On Thu, 24 Jan 2002, Timothy Covell wrote:
 
-*** nm256_audio.c.old   Sun Sep 30 12:26:08 2001
---- nm256_audio.c       Sun Dec 16 23:02:34 2001
-***************
-*** 896,902 ****
+> Hey, don't get me wrong.  I'm all for power-saving.  That's
+> why I own a Via C3 based system.   The Via C3 works
+> great as an NFS server and draws 12 Watts max (avg.
+> is 6 watts).   For just email and web browsing, I'd definitely
+> recommend it.   I'd also recommend it for a small firewall/router
+> system.   However, for A/V apps and heavy compiling, it's
+> definitely not the way to go [BeOS C3 can handle one
+> A/V app at a time, but not several].
+>
+>
+> If the patch is really the way to go, then we should get it
+> put into the main distribution.  But if it is going to hurt
+> my performance, then I'd be happy to stick with vanilla
+> kapmd (hlt based) power saving.
 
-      /* Reset the mixer.  'Tis magic!  */
-      nm256_writePort8 (card, 2, 0x6c0, 1);
--     nm256_writePort8 (card, 2, 0x6cc, 0x87);
-      nm256_writePort8 (card, 2, 0x6cc, 0x80);
-      nm256_writePort8 (card, 2, 0x6cc, 0x0);
+eenabling the discconect function causes a performance drop of about 2-3 %
+as far as i heared ... but this patch is only for athlon processors on an
+board with via chipset ... nothing to do with a via c3 cpu :)
+what the patch does is that it make the idle calls take effect on this
+combination of chipset and cpu ...
 
---- 896,901 ----
+daniel
 
-Jonathan
-terhorst@uclink.berkeley.edu
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

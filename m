@@ -1,102 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264138AbUFWDwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266101AbUFWD4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264138AbUFWDwF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 23:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266101AbUFWDwE
+	id S266101AbUFWD4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 23:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbUFWD4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 23:52:04 -0400
-Received: from bay16-f33.bay16.hotmail.com ([65.54.186.83]:7947 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264138AbUFWDv6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 23:51:58 -0400
-X-Originating-IP: [64.81.213.196]
-X-Originating-Email: [dinoklein@hotmail.com]
-From: "Dino Klein" <dinoklein@hotmail.com>
-To: raul@pleyades.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.7] Parallel port detection via ACPI
-Date: Wed, 23 Jun 2004 00:51:57 -0300
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY16-F33X3gjv5Or5500010eb0@hotmail.com>
-X-OriginalArrivalTime: 23 Jun 2004 03:51:57.0683 (UTC) FILETIME=[6E686430:01C458D5]
+	Tue, 22 Jun 2004 23:56:55 -0400
+Received: from dialup-4.246.250.177.Dial1.SanJose1.Level3.net ([4.246.250.177]:24963
+	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
+	id S266101AbUFWD4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 23:56:23 -0400
+Reply-To: <syphir@syphir.sytes.net>
+From: "C.Y.M." <syphir@syphir.sytes.net>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel Oops introduced in kernel-2.6.7-bk4+
+Date: Tue, 22 Jun 2004 20:57:09 -0700
+Organization: CooLNeT
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAqxghqCbPzkC/s9JQk+S1aAEAAAAA@syphir.sytes.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <40D8F1EE.4080106@pobox.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcRYzme67XQ1lLbBTXe+dDGI67FKJgABrQbg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
-I'll CC the list since someone might have some comments about your 
-situation.
-I took a quick look at parport_pc.c from 2.4.26, and it looked pretty much 
-the same; my guess is tha the changes should be just about identical. I'll 
-give it a try and if it compiles, I'll post something; unfortunately I won't 
-be able to try it out, since I don't have an available machine one which to 
-boot 2.4.
+When bk6 comes out tomorrow, I will give it a try and write down the Oops
+message by hand when/if it occurs again.  It seems that on June 20th, there
+was a large list of changes.  But I have a feeling this has to do with
+something using an invalid irq.  Starting with kernel 2.6.7-bk3, the ACPI on
+the VIA chipsets seem to now be handling irqs differently.  The ACPI
+messages in dmesg have significantly changed:
 
->From: DervishD <raul@pleyades.net>
->To: Dino Klein <dinoklein@hotmail.com>
->Subject: Re: [PATCH 2.6.7] Parallel port detection via ACPI
->Date: Tue, 22 Jun 2004 17:53:23 +0200
->
->     Hi Dino :)
->
->  * Dino Klein <dinoklein@hotmail.com> dixit:
-> > I posted the following message on linux-parport at infradead.org; 
->however
-> > the list seems to be inactive. Here it is again, for anyone interested.
->
->     I'm interested, and as soon as one of my linux machines is boot
->again I can test your patch (if the sysadmin allows me...).
->
->     I'm interested because I have a long standing problem with the
->parallel port, and it happens in all machines I have at hand. The
->problem is that, no matter how is configured the parallel port in the
->BIOS, Linux always says it is in SPP mode. No matter the motherboard,
->no matter the BIOS vendor, no matter anything. This is the dmesg
->output from one machine, the others are more or less the same:
->
->kernel: parport0: PC-style at 0x378 (0x778), irq 7 [PCSPP,TRISTATE]
->kernel: parport0: Printer, Lexmark International Lexmark Optra E312
->kernel: lp0: using parport0 (interrupt-driven).
->kernel: Trying to free free DMA3
->
->     Other times I have this other message:
->
->kernel: parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
->kernel: parport_pc: Via 686A parallel port: io=0x378
->kernel: lp0: using parport0 (polling).
->
->     Most of the machines have Lexmark printers attached, but I've
->tested with different printer brands and that doesn't make a
->difference.
->
->     All parallel ports are ECP & EPP capable. I contacted a time ago
->with the maintainers of the parport code, but I had only an answer,
->saying that I should put the ports in the BIOS as ECP or EPP, not as
->'ECP+EPP'. No problem, I did it and it didn't make a difference.
->
-> > It utilizes the ACPI subsystem
-> > to get the resources assigned to the port, and then passes them on
-> > to the detection routine. I've verified that it is working on my
-> > machine by cycling between the modes in the BIOS (spp, epp,
-> > ecp+epp), and observing proper detection in the logs.
->
->     That's exactly what I want! My problem now is that I cannot use
->the parports in any mode different from SPP, and that is very slow,
->and if the printer hangs, breaks, turns off or whatever, the software
->doesn't notice and waits forever!
->
->     Abusing of you: is any way of, using the current code in 2.4.x,
->to make my parallel port work in ECP or EPP mode?
->
->     Thanks a lot in advance, and thanks for the patch :)
->
->     Raúl Núñez de Arenas Coronado
->
->--
->Linux Registered User 88736
->http://www.pleyades.net & http://raul.pleyades.net/
+PCI: Using ACPI for IRQ routing
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
+ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 5 (level, low) -> IRQ 5
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
+ACPI: PCI interrupt 0000:00:0e.0[A] -> GSI 11 (level, low) -> IRQ 11
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
+ACPI: PCI interrupt 0000:00:11.1[A] -> GSI 11 (level, low) -> IRQ 11
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+ACPI: PCI interrupt 0000:00:11.2[D] -> GSI 11 (level, low) -> IRQ 11
+ACPI: PCI interrupt 0000:00:11.3[D] -> GSI 11 (level, low) -> IRQ 11
+ACPI: PCI interrupt 0000:00:11.4[D] -> GSI 11 (level, low) -> IRQ 11
+ACPI: PCI interrupt 0000:00:11.5[C] -> GSI 5 (level, low) -> IRQ 5
+ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
 
-_________________________________________________________________
-MSN Messenger: instale grátis e converse com seus amigos. 
-http://messenger.msn.com.br
+Best Regards..
+C.Y.M.
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jeff Garzik
+> Sent: Tuesday, June 22, 2004 7:59 PM
+> To: syphir@syphir.sytes.net
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Kernel Oops introduced in kernel-2.6.7-bk4+
+> 
+> C.Y.M. wrote:
+> > After installing kernel-2.6.7-bk4 and bk5, my machine fails 
+> to start (with
+> > an Oops) right about when Samba attempts to load from the 
+> init.d script.
+> > Kernel-2.6.7-bk3 works perfectly, so it must be something 
+> that was changed
+> > right about on June 20th.
+> [...]
+> > P.S. I would have included the actual Oops message in this 
+> email but it was
+> > not in any of the logs.  The error is occuring before the 
+> machine can get
+> > started.
+> 
+> 
+> This doesn't help us a while lot :(
+> 
+> See if you can copy the oops by hand, or use a serial console 
+> to copy it 
+> onto another computer.
+> 
+> 	Jeff
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

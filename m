@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261762AbTCZQYv>; Wed, 26 Mar 2003 11:24:51 -0500
+	id <S261756AbTCZQYV>; Wed, 26 Mar 2003 11:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261767AbTCZQYv>; Wed, 26 Mar 2003 11:24:51 -0500
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:56993 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261762AbTCZQYt>; Wed, 26 Mar 2003 11:24:49 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] s390 update (3/9): listing & kerntypes.
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF72A4868D.BBBD469B-ONC1256CF5.005A937E@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Wed, 26 Mar 2003 17:32:12 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 26/03/2003 17:33:46
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S261768AbTCZQYV>; Wed, 26 Mar 2003 11:24:21 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:60068 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261756AbTCZQYU>; Wed, 26 Mar 2003 11:24:20 -0500
+Date: Wed, 26 Mar 2003 17:34:46 +0000
+From: norbert_wolff@t-online.de (Norbert Wolff)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Can not open '/dev/sg0' - attach failed.
+Message-Id: <20030326173446.3980a177.norbert_wolff@t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> No.  Either we add Kerntypes to the architecture-independent code (I'm
-all
-> for it!) or not at all.  Cludging this into s390-specific code is a very,
-> very bad idea.
-Well, even if the Kerntypes gets added to the architecture-independent code
-we still would need some special s390 includes to get all the types we need.
-In particular the common i/o layer includes would have to be added in a
-architecture specific way, either by #ifdef or by special files that get
-include by the common kerntypes file.
+On Wed, 26 Mar 2003 21:00:22 +0530
+"Subramanian, M (MED)" <M.Subramanian@geind.ge.com> wrote:
 
-blue skies,
-   Martin
+> cdrecord error
+> ==============
+> 
+> scsibus: 1 target: 0 lun: 0
+> Cannot open '/dev/sg0'
+> 
+> lsmod
+> 
+> Module                  Size  Used by
+> sg                     26688   0 
+> ide-scsi                8352   0 
+> ide-cd                 26848   0 
+> cdrom                  27232   0  [ide-cd]
 
+High !
+
+Your cdrom-Module seems to use the ide-cd-driver, so cdrecord's lib which needs 
+SCSI-emulation for IDE-Drives (I think your CD-RW is an IDE-one ?) cannot work.
+
+You need to load the sr-Driver (Driver for SCSI-CDRoms) instead of the
+ide-cd-driver.
+
+Regards,
+
+	Norbert
 

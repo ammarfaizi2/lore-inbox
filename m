@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268276AbTBNVQ0>; Fri, 14 Feb 2003 16:16:26 -0500
+	id <S267457AbTBNU4L>; Fri, 14 Feb 2003 15:56:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268210AbTBNVQB>; Fri, 14 Feb 2003 16:16:01 -0500
-Received: from 24-168-145-62.nj.rr.com ([24.168.145.62]:6444 "EHLO
-	mail.larvalstage.com") by vger.kernel.org with ESMTP
-	id <S268046AbTBNVOe>; Fri, 14 Feb 2003 16:14:34 -0500
-Date: Fri, 14 Feb 2003 16:24:06 -0500 (EST)
-From: John Kim <john@larvalstage.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.60-bk4] fix compile breakage on drivers/scsi/fd_mcs.c
-Message-ID: <Pine.LNX.4.53.0302141622300.21601@quinn.larvalstage.com>
+	id <S267463AbTBNUyb>; Fri, 14 Feb 2003 15:54:31 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16394 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267457AbTBNUwd>; Fri, 14 Feb 2003 15:52:33 -0500
+Subject: PATCH: fix non SMP acpi build
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Fri, 14 Feb 2003 21:02:23 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E18jmyV-0005eu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This fixes compile breakage due to recent changes to scsi.h
-
-John Kim
-
-
---- linux-2.5.60-bk4/drivers/scsi/fd_mcs.c	2003-02-10 13:38:20.000000000 -0500
-+++ linux-2.5.60-bk4-new/drivers/scsi/fd_mcs.c	2003-02-14 15:32:46.000000000 -0500
-@@ -732,7 +732,7 @@
- 		outb(0x40 | FIFO_COUNT, Interrupt_Cntl_port);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.60-ref/include/asm-i386/mach-default/mach_apic.h linux-2.5.60-ac1/include/asm-i386/mach-default/mach_apic.h
+--- linux-2.5.60-ref/include/asm-i386/mach-default/mach_apic.h	2003-02-14 21:21:46.000000000 +0000
++++ linux-2.5.60-ac1/include/asm-i386/mach-default/mach_apic.h	2003-02-14 18:12:47.000000000 +0000
+@@ -1,6 +1,8 @@
+ #ifndef __ASM_MACH_APIC_H
+ #define __ASM_MACH_APIC_H
  
- 		outb(0x82, SCSI_Cntl_port);	/* Bus Enable + Select */
--		outb(adapter_mask | (1 << current_SC->target), SCSI_Data_NoACK_port);
-+		outb(adapter_mask | (1 << current_SC->device->id), SCSI_Data_NoACK_port);
++#ifdef CONFIG_LOCAL_APIC
++
+ #define APIC_DFR_VALUE	(APIC_DFR_FLAT)
  
- 		/* Stop arbitration and enable parity */
- 		outb(0x10 | PARITY_MASK, TMC_Cntl_port);
-@@ -744,7 +744,7 @@
- 		status = inb(SCSI_Status_port);
- 		if (!(status & 0x01)) {
- 			/* Try again, for slow devices */
--			if (fd_mcs_select(shpnt, current_SC->target)) {
-+			if (fd_mcs_select(shpnt, current_SC->device->id)) {
- #if EVERY_ACCESS
- 				printk(" SFAIL ");
- #endif
-@@ -1150,7 +1150,7 @@
- 
- static int fd_mcs_queue(Scsi_Cmnd * SCpnt, void (*done) (Scsi_Cmnd *))
- {
--	struct Scsi_Host *shpnt = SCpnt->host;
-+	struct Scsi_Host *shpnt = SCpnt->device->host;
- 
- 	if (in_command) {
- 		panic("fd_mcs: fd_mcs_queue() NOT REENTRANT!\n");
-@@ -1286,7 +1286,7 @@
- 
- static int fd_mcs_abort(Scsi_Cmnd * SCpnt)
- {
--	struct Scsi_Host *shpnt = SCpnt->host;
-+	struct Scsi_Host *shpnt = SCpnt->device->host;
- 
- 	unsigned long flags;
- #if EVERY_ACCESS || ERRORS_ONLY || DEBUG_ABORT
-@@ -1331,7 +1331,7 @@
+ #ifdef CONFIG_SMP
+@@ -98,4 +100,6 @@
+ 	return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
  }
  
- static int fd_mcs_bus_reset(Scsi_Cmnd * SCpnt) {
--	struct Scsi_Host *shpnt = SCpnt->host;
-+	struct Scsi_Host *shpnt = SCpnt->device->host;
++#endif
++
+ #endif /* __ASM_MACH_APIC_H */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.60-ref/arch/i386/kernel/acpi/boot.c linux-2.5.60-ac1/arch/i386/kernel/acpi/boot.c
+--- linux-2.5.60-ref/arch/i386/kernel/acpi/boot.c	2003-02-14 21:45:55.000000000 +0000
++++ linux-2.5.60-ac1/arch/i386/kernel/acpi/boot.c	2003-02-14 18:14:04.000000000 +0000
+@@ -26,6 +26,7 @@
+ #include <linux/init.h>
+ #include <linux/acpi.h>
+ #include <asm/pgalloc.h>
++#include <asm/mpspec.h>
  
- #if DEBUG_RESET
- 	static int called_once = 0;
+ #include <mach_apic.h>
+ #include <mach_mpparse.h>

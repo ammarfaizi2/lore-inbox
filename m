@@ -1,84 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130209AbQKGWte>; Tue, 7 Nov 2000 17:49:34 -0500
+	id <S129727AbQKGWwz>; Tue, 7 Nov 2000 17:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130211AbQKGWtO>; Tue, 7 Nov 2000 17:49:14 -0500
-Received: from jalon.able.es ([212.97.163.2]:1203 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130209AbQKGWtD>;
-	Tue, 7 Nov 2000 17:49:03 -0500
-Date: Tue, 7 Nov 2000 23:48:56 +0100
+	id <S129868AbQKGWwo>; Tue, 7 Nov 2000 17:52:44 -0500
+Received: from jalon.able.es ([212.97.163.2]:7091 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129727AbQKGWwe>;
+	Tue, 7 Nov 2000 17:52:34 -0500
+Date: Tue, 7 Nov 2000 23:52:26 +0100
 From: "J . A . Magallon" <jamagallon@able.es>
-To: root@chaos.analogic.com
-Cc: "Dr . Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
-        Chris Meadors <clubneon@hereintown.net>,
-        Ulrich Drepper <drepper@redhat.com>, kernel@kvack.org,
-        "Dr . David Gilbert" <dg@px.uk.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dual XEON - >>SLOW<< on SMP
-Message-ID: <20001107234856.C1150@werewolf.able.es>
+To: "Jeff V . Merkey" <jmerkey@timpanogas.org>
+Cc: Martin Josefsson <gandalf@wlug.westbo.se>,
+        Tigran Aivazian <tigran@veritas.com>, Anil kumar <anils_r@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4
+Message-ID: <20001107235226.D1150@werewolf.able.es>
 Reply-To: jamagallon@able.es
-In-Reply-To: <Pine.LNX.4.21.0011071401280.4438-100000@sol.compendium-tech.com> <Pine.LNX.3.95.1001107172159.198A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.21.0011072328050.22346-100000@tux.rsn.hk-r.se> <3A08830E.F714C90E@timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.3.95.1001107172159.198A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Nov 07, 2000 at 23:31:19 +0100
+In-Reply-To: <3A08830E.F714C90E@timpanogas.org>; from jmerkey@timpanogas.org on Tue, Nov 07, 2000 at 23:32:46 +0100
 X-Mailer: Balsa 1.0.pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 07 Nov 2000 23:31:19 Richard B. Johnson wrote:
-> On Tue, 7 Nov 2000, Dr. Kelsey Hudson wrote:
-..
-> >  15:        111        130   IO-APIC-level  bttv
-> > NMI:  190856196  190856196 
-> > LOC:  190858464  190858463 
-> > ERR:          0
-> > 
-..
+On Tue, 07 Nov 2000 23:32:46 Jeff V. Merkey wrote:
 > 
->            CPU0       CPU1       
->   0:      10945      11869    IO-APIC-edge  timer
->   1:        419        393    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   8:          0          0    IO-APIC-edge  rtc
->  10:       2990       2904   IO-APIC-level  eth0
->  11:       1066       1124   IO-APIC-level  BusLogic BT-958
->  13:          0          0          XT-PIC  fpu
-> NMI:      22748      22748 
-> LOC:      21731      22229 
-> ERR:          0
+> So how come NetWare and NT can detect this at run time, and we have to
+> use a .config option to specifiy it?  Come on guys.....
 > 
 
-I have also 2xPII@400, on a SuperMicro mobo. I just get:
-
-werewolf:~/soft/in# uptime
- 11:46pm  up  8:38,  0 users,  load average: 0.00, 0.00, 0.00
-werewolf:~/soft/in# cat /proc/interrupts
-           CPU0       CPU1       
-  0:    1553608    1555092    IO-APIC-edge  timer
-  1:       1784       1800    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          0          1    IO-APIC-edge  rtc
-  9:      12053      11483    IO-APIC-edge  aha152x
- 10:      31594      31168   IO-APIC-level  aic7xxx, EMU10K1
- 11:   42836648   42865890   IO-APIC-level  eth0, nvidia
- 12:     134421     134916    IO-APIC-edge  PS/2 Mouse
- 13:          1          0          XT-PIC  fpu
- 14:         16          4    IO-APIC-edge  ide0
- 15:         10          0    IO-APIC-edge  ide1
-NMI:          0
-ERR:          0
-
-The only diff I see is:
-> model name	: Pentium II (Deschutes)
-> stepping	: 1
-> cpu MHz		: 400.000915
-
-model name      : Pentium II (Deschutes)
-stepping        : 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-cpu MHz         : 400.912
-
-Something related to version-detection of processors in kernel init ?
+If you can get NT to boot on a 486, perhaps that shows that NT does not use
+any optimization...so does not worry about what is it running on, just
+prints the name...
 
 -- 
 Juan Antonio Magallon Lacarta                                 #> cd /pub

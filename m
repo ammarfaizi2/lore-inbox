@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbVDATI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVDATLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbVDATI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 14:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVDATI0
+	id S262853AbVDATLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 14:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbVDATLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 14:08:26 -0500
-Received: from mail-5.integraonline.com ([204.130.255.157]:37565 "HELO
-	integraonline.com") by vger.kernel.org with SMTP id S262850AbVDATIZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 14:08:25 -0500
-Message-ID: <002301c536ee$2b70b450$0a011eac@mimir>
-From: "Luke Miller" <millerlu@integraonline.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Virtual Memory tuning and Buffers
-Date: Fri, 1 Apr 2005 11:08:20 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Fri, 1 Apr 2005 14:11:24 -0500
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:14881 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S262853AbVDATLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 14:11:20 -0500
+Date: Fri, 1 Apr 2005 13:09:42 -0600
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Terence Ripperda <tripperda@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: question about do_IRQ + 4k stacks
+Message-ID: <20050401190942.GC2104@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <20050330221042.GZ2104@hygelac> <424B5CFE.6010907@didntduck.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424B5CFE.6010907@didntduck.org>
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.6.7 
+User-Agent: Mutt/1.5.6+20040907i
+X-OriginalArrivalTime: 01 Apr 2005 19:11:18.0843 (UTC) FILETIME=[9582F0B0:01C536EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have a system that is running SUSE 8 kernel 2.4.21-273.  Recently we have
-seen some interesting behavior with the virtual memory system.  When buffer
-memory gets low (below 10 MB) the system re-allocates memory causes buffer
-memory to go up to around 500 MB.  The re-allocation can take up to 30
-minutes.  This system is an NFS server and during the re-allocation all the
-NFSd's go to IO wait and the NFS clients gets delays trying to access files
-on the NFS volumes.  I have generated some graphs that show this pretty
-clearly, they are here:
+On Wed, Mar 30, 2005 at 09:14:22PM -0500, bgerst@didntduck.org wrote:
+> It checks for both process context (system call or kernel thread) or 
+> interrupt context (nested irqs) stack overflows.
 
-http://www.integraonline.com/~millerlu/memory/
+ok, thanks. 
 
-What I am trying to figure out is what is causing this memory allocations
-and what can be done to tune them so it doesn't impact our production
-applications when it happens.
-
-Due to a clustering and file system product, Polyserve, we are unable to
-upgrade to the 2.6 kernel at this time.
-
-Any help would be appreciated.
+so we really only have 3k stacks rather than 4k stacks, right? if any
+code exceeds 3k stacks and is preempted by an interrupt, we can
+trigger this check and hang the system as a result (I notice that at
+least RHEL 4's kernels enable this check by default, not sure about
+other kernels).
 
 Thanks,
-
-Luke
+Terence
 
 

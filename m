@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUE3Mvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263629AbUE3M4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUE3Mvt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 08:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUE3Mvt
+	id S263629AbUE3M4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 08:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbUE3M4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 08:51:49 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:57728 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263626AbUE3Mvs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 08:51:48 -0400
-Date: Sun, 30 May 2004 14:52:11 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
-       Tuukka Toivonen <tuukkat@ee.oulu.fi>
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040530125211.GB1540@ucw.cz>
-References: <MPG.1b2111558bc2d299896a2@news.gmane.org> <20040525201616.GE6512@gucio> <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de> <xb7aczscv0q.fsf@savona.informatik.uni-freiburg.de> <20040529131233.GA6185@ucw.cz> <xb7y8nab65d.fsf@savona.informatik.uni-freiburg.de> <20040530101914.GA1226@ucw.cz> <xb765aeb1i3.fsf@savona.informatik.uni-freiburg.de> <20040530121606.GA1496@ucw.cz> <xb7ekp29jgg.fsf@savona.informatik.uni-freiburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 May 2004 08:56:16 -0400
+Received: from mail020.syd.optusnet.com.au ([211.29.132.131]:35026 "EHLO
+	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263629AbUE3M4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 08:56:15 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [RFC][PATCH][2.6.6] Replacing CPU scheduler active and expired with a single array
+Date: Sun, 30 May 2004 22:56:02 +1000
+User-Agent: KMail/1.6.1
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <40B81F24.9080405@bigpond.net.au> <200405292117.56089.kernel@kolivas.org> <40B92874.50009@bigpond.net.au>
+In-Reply-To: <40B92874.50009@bigpond.net.au>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <xb7ekp29jgg.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405302256.02703.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 30, 2004 at 02:40:31PM +0200, Sau Dan Lee wrote:
+On Sun, 30 May 2004 10:19, Peter Williams wrote:
+> Out of interest, what was the reason?  What problem were you addressing?
 
->  > The keyboard/mouse drivers are not necessarily _time_ critical, but
->  > they're critical. When your keyboard stops working, this often
->  > means your system is as good as dead. (Think a laptop on an
->  > airplane.)
-> 
-> I've used  my laptop  in an airplane,  and it works  without problems.
-> What would make the keyboard stop working in an airplane?
+The interactive credit?
 
-This discussion is futile. Bye.
+There was a problem with difficulty elevating back to interactive state if an 
+interactive task had used too long a burst of cpu (ie Xfree) which was 
+addressed by making the bonus pseudo-exponentially curved for rapid recovery 
+and slow decay - in fact this is probably the most important part of 
+addressing the interactive tasks and had the best effect. The problem was 
+that giving this to all tasks meant that cpu bound tasks that had, as a 
+property of their behaviour, long waits on say pipes or i/o would also get 
+this rapid recovery to interactive state and as soon as they became fully 
+bound to cpu again they would cause noticable stalls. The standard example is 
+the increasing number of jobs in a make, where each job waits longer for i/o 
+as the job numbers increase. However there were much worse examples at even 
+normal - low loads, such as mpeg or divx encoding where the encoder would 
+buffer say 250 frames sleeping and then do them in a burst. (this is the 
+maximum space between key [I] frame or intervals). The interactive credit 
+prevented those tasks that would have long but only infrequent sleeps from 
+getting the curved bonus/penalty.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Hmm... if this is black magic I guess I'm breaking the magician's cardinal 
+rules and revealing my tricks ;-)
+
+Con

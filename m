@@ -1,70 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269453AbTCDOAn>; Tue, 4 Mar 2003 09:00:43 -0500
+	id <S269455AbTCDOBC>; Tue, 4 Mar 2003 09:01:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269454AbTCDOAn>; Tue, 4 Mar 2003 09:00:43 -0500
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:28035 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id <S269453AbTCDOAm>;
-	Tue, 4 Mar 2003 09:00:42 -0500
-Date: Tue, 4 Mar 2003 09:11:09 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: eepro100 ?
-Message-ID: <20030304141109.GI646@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vjQsMS/9MbKYGLq"
+	id <S269457AbTCDOA4>; Tue, 4 Mar 2003 09:00:56 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:27280 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S269455AbTCDOAx>; Tue, 4 Mar 2003 09:00:53 -0500
+Message-ID: <20030304141104.65579.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "David Anderson" <david-anderson2003@mail.com>
+To: axboe@suse.de, david-anderson2003@mail.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Tue, 04 Mar 2003 09:11:04 -0500
+Subject: Re: I/O Request [Elevator; Clustering; Scatter-Gather]
+X-Originating-Ip: 133.145.164.4
+X-Originating-Server: ws1-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---5vjQsMS/9MbKYGLq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks a lot for the reply...
+I am using linux 2.4.
 
+Got mislead with the statement in "Linux Device Drivers"  
 
+"Most high-performance disk controllers can do “scatter/gather” I/O as well, leading to
+large performance gains."
 
-I have 2 machines with eepro100 cards.  I used the original driver for
-them out of habit and on the last 2.4.20 kernel get A LOT of:
+Thanks and Regards,
+David Anderson
 
-eth0: freeing mc frame.
+----- Original Message -----
+From: Jens Axboe <axboe@suse.de>
+Date: Tue, 4 Mar 2003 14:50:00 +0100
+To: David Anderson <david-anderson2003@mail.com>
+Subject: Re: I/O Request [Elevator; Clustering; Scatter-Gather]
 
-in my dmesg log.  Out of curiosity I tried with the alternate driver and
-that seems to have gone away.  Is one depreciated or are they both
-viable and just different?   The help message doesn't really say much on
-the topic.
+> On Tue, Mar 04 2003, David Anderson wrote:
+> > 
+> > Hi, I have been going through some documentation that talks of
+> > clustering, scatter-gather and elevator being used to improve
+> > performance. I am confused between these :
+> > 
+> > This is what I have understood : Elevator The job of the elevator is
+> > to sort I/O requests to disk drives in such a way that the disk head
+> > moving in the same direction for maximum performance. Have been able
+> > to locate the code for the same.
+> > 
+> > Clustering Combines multiple requests to adjecent blocks into a single
+> > request. Have not been able to find the code which carries this out.
+> > Any clue on where this is done in the linux source code ??
+> 
+> Both actions are performed by the elevator in Linux. You did not mention
+> which kernel you are looking at, for 2.4 you need to read
+> drivers/block/ll_rw_blk.c and drivers/block/elevator.c. For 2.5, read
+> the same files and drivers/block/deadline-iosched.c in addition.
+> 
+> > Do Clustering of request and scatter-gather mean the same ?? Confused
+> > to the core... Kindly help me ...
+> 
+> No, the elevator clustering refers to clustering request that are
+> contigious on disk. Scatter-gather may cluster sg entries that are
+> contigious in memory.
+> 
+> -- 
+> Jens Axboe
+> 
 
-< >     EtherExpressPro/100 support (eepro100, original Becker driver)
-< >     EtherExpressPro/100 support (e100, Alternate Intel driver)
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
-Robert
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | PGP Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---5vjQsMS/9MbKYGLq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+ZLP98+1vMONE2jsRAibaAKCeiyntwVa0XB6+L+t6zhw41kCqygCgm2Fo
-aTsMxZZd+NmQ9HLx/+/cVn8=
-=2neH
------END PGP SIGNATURE-----
-
---5vjQsMS/9MbKYGLq--

@@ -1,64 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278190AbRJLWzh>; Fri, 12 Oct 2001 18:55:37 -0400
+	id <S278194AbRJLW70>; Fri, 12 Oct 2001 18:59:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278191AbRJLWz0>; Fri, 12 Oct 2001 18:55:26 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:7781 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278190AbRJLWzR>; Fri, 12 Oct 2001 18:55:17 -0400
-Date: Sat, 13 Oct 2001 00:55:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ortiz Samuel <sambaufr@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nr_local_pages and local_pages
-Message-ID: <20011013005526.G714@athlon.random>
-In-Reply-To: <20011012224527.14338.qmail@web12707.mail.yahoo.com>
+	id <S278195AbRJLW7Q>; Fri, 12 Oct 2001 18:59:16 -0400
+Received: from jalon.able.es ([212.97.163.2]:2948 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S278194AbRJLW7J>;
+	Fri, 12 Oct 2001 18:59:09 -0400
+Date: Sat, 13 Oct 2001 00:59:30 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: J Sloan <jjs@lexus.com>
+Cc: "T . A ." <tkhoadfdsaf@hotmail.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Which kernel (Linus or ac)?
+Message-ID: <20011013005930.I1693@werewolf.able.es>
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <3BC5FA12.F8E5C91E@lexus.com> <OE64cxtniFKULPEhGD100007fff@hotmail.com> <3BC688A2.4C7640B7@pobox.com> <OE394qrvAsp4XgWZGbR0000e29d@hotmail.com> <3BC729E2.E93A416E@lexus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011012224527.14338.qmail@web12707.mail.yahoo.com>; from sambaufr@yahoo.fr on Sat, Oct 13, 2001 at 12:45:27AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3BC729E2.E93A416E@lexus.com>; from jjs@lexus.com on Fri, Oct 12, 2001 at 19:35:30 +0200
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 13, 2001 at 12:45:27AM +0200, Ortiz Samuel wrote:
-> Hi Andrea !                                           
->                                                       
->                                                       
->                                                       
->                                                       
->                                                       
->                                                       
->                                                       
-> I spent some time reading the balance_classzone code,
-> but there are still                                   
->                                                       
->                                                       
->  some stuff I can't get. The main ones are the meaning
-> and use of the                                        
->                                                       
->                                                       
->  following fields in the task structure :             
->                                                       
->                                                       
->                                                       
-> 
-> - nr_local_pages                                      
->                                                       
->                                                       
->                                                       
-> - local_pages
-> 
-> What are they for ? What do they mean ?
 
-we're balancing memory synchronously because we need to recycle some
-memory for ourself in order to succeed the allocation. Now if we succeed
-in freeing some page we keep this page for ourself while we free the
-next pages. So we work for ourself and not for somebody else. With the
-"goto rebalance" this isn't required anymore to avoid failing
-allocations, but still it should be good to provide better fariness, to
-avoid somebody stuck freeing memory hard, and all other tasks eating the
-free ram that such innocent task is producing in a starved loop.
+On 20011012 J Sloan wrote:
+>After this post we should take it offline and
+>let the s/n ratio on lkml settle back down to
+>a dull roar - apologies for the noise, this is
+>the last post on this dead horse.
+>
+>"T. A." wrote:
+>
+>
+>Here is a heads-up for the benefit of those wondering
+>about gcc-2.96:
+>
+>http://www.bero.org/gcc296.html
+>
 
-Andrea
+Nice, a bunch of comments about the front end. But you miss the point
+that what was broken in gcc-2.96 was the back end (the optimizer). 
+And you missed that it needed about 50 updates to get a real compiler.
+gcc that ships with RH 7.1 generates bad code in optimized mode. Do not
+remember the exact post in LKML, but I saw 2 lines of code that made gcc
+put the user initialization of a variable before the automatic one to zero.
+
+If you want a good distro, take Mandrake 8.1.
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.13-pre1-beo #1 SMP Fri Oct 12 11:32:03 CEST 2001 i686

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVASQDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVASQEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbVASQDe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 11:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVASQDe
+	id S261763AbVASQEA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 11:04:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVASQEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 11:03:34 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:44278 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261762AbVASQDT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 11:03:19 -0500
-Message-ID: <41EE8416.502@austin.ibm.com>
-Date: Wed, 19 Jan 2005 10:00:22 -0600
-From: Nathan Fontenot <nfont@austin.ibm.com>
-Reply-To: nfont@austin.ibm.com
-Organization: IBM
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Wed, 19 Jan 2005 11:04:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20871 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261763AbVASQDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 11:03:54 -0500
+Date: Wed, 19 Jan 2005 11:03:28 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
+       jamal <hadi@cyberus.ca>
+Subject: [PATCH][SELINUX] Add Netlink message types for the TC action code.
+Message-ID: <Xine.LNX.4.44.0501191056520.29331-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: Linas Vepstas <linas@austin.ibm.com>, akpm@osdl.org,
-       linuxppc64-dev@ozlabs.org, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64: EEH Recovery
-References: <20050106192413.GK22274@austin.ibm.com>	<20050117201415.GA11505@austin.ibm.com> <16877.63693.915740.385920@cargo.ozlabs.ibm.com>
-In-Reply-To: <16877.63693.915740.385920@cargo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch adds Netlink message types related to the TC action code, 
+allowing finer grained SELinux control of this.
 
-Paul Mackerras wrote:
+Please apply.
 
-> 5. AFAICS userland will get an unplug notification for the device, but
->    nothing to indicate that is due to an EEH slot isolation event.  I
->    think userland should be told about EEH events.
-> 
+Author: jamal <hadi@cyberus.ca>
+Signed-off-by: James Morris <jmorris@redhat.com>
+Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
 
-Currently there is a way for userland to determine if a hotplug event 
-they receive is due to an EEH slot isolation event.  It's not very 
-pretty and requires the rtas_errd daemon to be running.
+---
 
-The RTAS event generated from the EEH event is logged to 
-/var/log/platform by rtas_errd.  Userland scripts would have to search 
-the file for a recent EEH event matching their device to make this 
-determination.  This isn't as nice as a direct notification but is what 
-we have at this point.
+ security/selinux/nlmsgtab.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
--- 
-Nathan Fontenot
+--- 2610-bk1/security/selinux/nlmsgtab.c	2004/12/28 04:01:14	1.1
++++ 2610-bk1/security/selinux/nlmsgtab.c	2004/12/28 04:05:39
+@@ -56,6 +56,9 @@
+ 	{ RTM_NEWTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+ 	{ RTM_DELTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+ 	{ RTM_GETTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
++	{ RTM_NEWACTION,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELACTION,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETACTION,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+ 	{ RTM_NEWPREFIX,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+ 	{ RTM_GETPREFIX,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+ 	{ RTM_GETMULTICAST,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+

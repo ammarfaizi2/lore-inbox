@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUHQHca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268136AbUHQHiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUHQHca (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 03:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUHQHca
+	id S268136AbUHQHiU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 03:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268137AbUHQHiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 03:32:30 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:59588 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S264246AbUHQHc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 03:32:28 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Charbonnel <thomas@undata.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040817073049.GA556@elte.hu>
-References: <20040816032806.GA11750@elte.hu>
-	 <20040816033623.GA12157@elte.hu>
-	 <1092627691.867.150.camel@krustophenia.net>
-	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	 <1092716644.876.1.camel@krustophenia.net>  <20040817073049.GA556@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092728005.816.15.camel@krustophenia.net>
+	Tue, 17 Aug 2004 03:38:20 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:10710 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268136AbUHQHiM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 03:38:12 -0400
+Message-ID: <877aabc4040817003841fadfbb@mail.gmail.com>
+Date: Tue, 17 Aug 2004 13:08:09 +0530
+From: Amit Shah <shahamit@gmail.com>
+Reply-To: Amit Shah <shahamit@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Excessive swapping on 2.6.8.1
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 03:33:26 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 03:30, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > P2 will not boot for me.  It hangs right after detecting my
-> > (surprise!) USB mouse.
-> 
-> hm. Could you take -P1's arch/i386/io_apic.c and put it into the P2 tree
-> - does that fix your bootup? (and does your USB mouse work after that?)
-> 
+Hi all,
 
-I think this is an unrelated problem, still testing.
+I've just switched from 2.6.5 to 2.6.8.1. I have 512MB of RAM. I have a
+lot of apps running under KDE: several konqueror instances, firefox
+with a couple of tabs, kontact (kmail + knode), music players, kopete,
+etc. I'm running Debian Sid on this P4 1.7GHz.
 
-Lee
+When I leave this system running at nights, the system uses 100% of the
+available swap space. swapd also starts adding swap files. Even after
+this, my swap currently shows 100% usage. Just 63M is free:
 
+$ free
+total       used       free     shared    buffers
+cached
+Mem:        515584     508044       7540          0       3280
+54088
+-/+ buffers/cache:     450676      64908
+Swap:       526160     526160          0
+
+
+$ uptime
+12:41:37 up 23:48,  2 users,  load average: 0.50, 0.55, 0.48
+
+Swap usage just before I stopped working last night was definitely not
+more than 50%, I'm sure.
+
+I saw this behavior just once or twice with 2.6.5, that too when I had
+some server processes running, and they were serving {web pages,
+.debs}. Those servers I've moved to other machines since. 2.6.5 after
+that, didn't show such swap usage or such an excessive slowdown.
+
+I'm using the CFQ elevator. My config file for the current setup is at
+
+http://amitshah.nav.to/kernel/config.txt
+
+`dmesg` output is at
+
+http://amitshah.nav.to/kernel/dmesg.txt
+
+I'm also using the Reiser4 patches, but I was using them with 2.6.5 as
+well, so there's nothing really I can think of that has changed besides
+the kernel.
+
+Any ideas as to why this could be happening?
+
+Amit.
+-- 
+Amit Shah
+http://amitshah.nav.to/

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268238AbTBYTLg>; Tue, 25 Feb 2003 14:11:36 -0500
+	id <S267121AbTBYTFL>; Tue, 25 Feb 2003 14:05:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268247AbTBYTLg>; Tue, 25 Feb 2003 14:11:36 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:26087 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP
-	id <S268238AbTBYTLe>; Tue, 25 Feb 2003 14:11:34 -0500
-Date: Tue, 25 Feb 2003 14:21:11 -0500
-From: daveman@bellatlantic.net
-To: Jerry Cooperstein <coop@axian.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Thinkpad Keyboard nuttiness since 2.5.60 with power management
-Message-ID: <20030225192110.GA2036@bellatlantic.net>
-Reply-To: daveman@bellatlantic.net
-References: <20030224230640.GA1225@p3.attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224230640.GA1225@p3.attbi.com>
-User-Agent: Mutt/1.4i
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [157.182.138.149] at Tue, 25 Feb 2003 13:21:43 -0600
+	id <S267187AbTBYTFK>; Tue, 25 Feb 2003 14:05:10 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:53777 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267121AbTBYTFJ>; Tue, 25 Feb 2003 14:05:09 -0500
+Date: Tue, 25 Feb 2003 20:14:55 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: atomic_t (24 bits???)
+In-Reply-To: <Pine.LNX.3.95.1030225140554.20186A-100000@chaos>
+Message-ID: <Pine.LNX.4.44.0302252014340.32518-100000@serv>
+References: <Pine.LNX.3.95.1030225140554.20186A-100000@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 03:06:40PM -0800, Jerry Cooperstein wrote:
-> Since 2.5.60 the keyboard on my Thinkpad 600X randomly
-> autorepeats each stroke multiple times, only when
-> power management is enabled (either APM or ACPI) and
-> only when powered up with no AC power.  With AC power
-> everything is fine, and pulling the plug out has
-> no effects.
-> 
-> Everything was fine in 2.5.59, and I can't find anything
-> in the 2.5.59->2.5.60 patch that could have caused this.
-> Anyone else see this -- or maybe I have a hardware problem
-> the patch is making visible?
-> 
-> Thanks
-> 
-> ======================================================================
->  Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
->  Axian, Inc., Software Consulting and Training
->  4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
->  http://www.axian.com/               
-> ======================================================================
+Hi,
 
-I am seeing a strange keyboard related issue as well on a Thinkpad A20M. It seems if I walk away for say, 20 minutes, come back and try to input a password to KDE's screen saver, the FIRST keystroke I make is not recognized at all. All keystrokes after the first one register perfectly fine. This is on the laptop's built-in keyboard. I too am using ACPI. If I don't wait long enough it doesn't happen, so I do believe it has something to do with power management. I first noticed it in 2.5.61(first 2.5 kernel that would boot for me) and am currently running 2.5.63, where I still see it. I am not using modules.
+On Tue, 25 Feb 2003, Richard B. Johnson wrote:
 
-If anyone would like more info on this, please let me know.
+> In ../linux/include/asm/atomic.h, for versions 2.4.18 and
+> above as far as I've checked, there are repeated warnings
+> "Note that the guaranteed useful range of an atomic_t is
+> only 24 bits."
+> 
+> I fail to see any reason why as atomic_t is typdefed to a
+> volatile int which, on ix86 seems to be 32 bits.
+> 
+> Does anybody know if this is just some old comments from a
+> previous atomic_t type of, perhaps, char[3]?  
 
---David Shepard
+include/asm-sparc/atomic.h
+
+bye, Roman
+

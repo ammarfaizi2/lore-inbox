@@ -1,144 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267157AbSK2UuQ>; Fri, 29 Nov 2002 15:50:16 -0500
+	id <S267151AbSK2Vkk>; Fri, 29 Nov 2002 16:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267158AbSK2UuQ>; Fri, 29 Nov 2002 15:50:16 -0500
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:27545 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S267157AbSK2UuN>; Fri, 29 Nov 2002 15:50:13 -0500
-From: Chris Rankin <cj.rankin@ntlworld.com>
-Message-Id: <200211292057.gATKvZsI001040@twopit.underworld>
-Subject: [OOPS] 2.4.20-SMP with mga.o (rescued by NMI)
-To: linux-kernel@vger.kernel.org
-Date: Fri, 29 Nov 2002 20:57:35 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S267158AbSK2Vkk>; Fri, 29 Nov 2002 16:40:40 -0500
+Received: from postfix2-2.free.fr ([213.228.0.140]:17080 "EHLO
+	postfix2-2.free.fr") by vger.kernel.org with ESMTP
+	id <S267151AbSK2Vkj>; Fri, 29 Nov 2002 16:40:39 -0500
+Date: Fri, 29 Nov 2002 22:48:02 +0100
+From: Romain Lievin <rlievin@free.fr>
+To: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kconfig (gkc): patch & help about Makefile
+Message-ID: <20021129214802.GA8225@free.fr>
+References: <20021110132750.GB6256@free.fr> <Pine.LNX.4.44.0211101502460.2113-100000@serv> <20021128091059.GB388@free.fr> <Pine.LNX.4.44.0211281204030.2113-100000@serv> <20021128141223.GA601@free.fr> <Pine.LNX.4.44.0211282111110.2113-100000@serv> <20021128221239.GA1305@free.fr> <Pine.LNX.4.44.0211282318590.2113-100000@serv>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211282318590.2113-100000@serv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I have just booted into 2.4.20-SMP (1 GB RAM, devfs, with latest ALSA)
-and the kernel deadlocked. The NMI bailed me out, but I think someone
-must have scheduled while holding a spinlock in the mga module (or
-something).
+> > > and if not too many people complain, it would be far easier for me to send 
+> > > it on to Linus. :)
+> > 
+> > OK, I will send you a patch as soon as I would have finished to work on the
+> > Makefile...
+> 
+> Please post it also to lkml, I'd really prefer to people see it and 
+> comment on it. Did you have any feed back so far?
+> 
 
-I'm back running on 2.4.19 for now, but did remember to pass the oops
-through ksymoops while still in 2.4.20. Can anyone see the problem,
-please?
+Well, I have managed to successfully modify the Makefile. I separated the 2
+target as you wanted to. I have written a patch for you and Sam Ravnborg.
 
-Cheers,
-Chris
+Nevertheless, I have a small problem: I did not manage to use gcc rather than
+g++ in the Makefile. This has a side effect: libglade can not connect signals
+to the GUI (because it uses symbol names for doing the binding and symbol 
+decoration is not the same between C & C++).
+I need help for this problem.
 
-ksymoops 2.4.8 on i686 2.4.20.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20/ (default)
-     -m /boot/System.map-2.4.20 (specified)
+> bye, Roman
+> 
+> 
 
-activating NMI Watchdog ... done.
-testing NMI watchdog ... OK.
-cpu: 0, clocks: 1332736, slice: 444245
-cpu: 1, clocks: 1332736, slice: 444245
-NMI Watchdog detected LOCKUP on CPU0, eip c01062eb, registers:
-CPU:    0
-EIP:    0010:[<c01062eb>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000087
-eax: f7694d4c   ebx: f7e4a720   ecx: 00000286   edx: f7e4a738
-esi: f7694c00   edi: f6fc5f60   ebp: f76fb440   esp: f6f9beec
-ds: 0018   es: 0018   ss: 0018
-Process alsactl (pid: 564, stackpage=f6f9b000)
-Stack: f8932ae0 00000038 000001f0 f8935620 00000000 f892e22f f6fd0840 f76fb440 
-       00000000 f6fcacc0 f76fb440 f6fd0840 f6fcacc8 c018c805 f6fd0840 f76fb440 
-       f6f9bf84 c014e7d9 ffffffeb f76fb440 ffffffe9 c027aa00 f76fb440 f6fd0840 
-Call Trace:    [<f8932ae0>] [<f8935620>] [<f892e22f>] [<c018c805>] [<c014e7d9>]
-  [<c0140e53>] [<c0140d78>] [<c0141153>] [<c010774f>]
-Code: f3 90 81 38 00 00 00 01 75 f6 f0 81 28 00 00 00 01 0f 85 e2 
+Thanks, Romain.
+-- 
+Romain Lievin, aka 'roms'  	<roms@lpg.ticalc.org>
+Web site 			<http://lpg.ticalc.org/prj_tilp>
+"Linux, y'a moins bien mais c'est plus cher !"
 
 
->>EIP; c01062eb <__write_lock_failed+7/20>   <=====
-
->>eax; f7694d4c <_end+373608dc/38511bf0>
->>ebx; f7e4a720 <_end+37b162b0/38511bf0>
->>edx; f7e4a738 <_end+37b162c8/38511bf0>
->>esi; f7694c00 <_end+37360790/38511bf0>
->>edi; f6fc5f60 <_end+36c91af0/38511bf0>
->>ebp; f76fb440 <_end+373c6fd0/38511bf0>
->>esp; f6f9beec <_end+36c67a7c/38511bf0>
-
-Trace; f8932ae0 <[mga]mga_unlock+b0/e0>
-Trace; f8935620 <[mga]mga__clients_info+0/100>
-Trace; f892e22f <[mga]mga_agp_enable+4f/a0>
-Trace; c018c805 <devfs_open+195/210>
-Trace; c014e7d9 <path_lookup+39/40>
-Trace; c0140e53 <dentry_open+d3/1e0>
-Trace; c0140d78 <filp_open+68/70>
-Trace; c0141153 <sys_open+53/c0>
-Trace; c010774f <system_call+33/38>
-
-Code;  c01062eb <__write_lock_failed+7/20>
-00000000 <_EIP>:
-Code;  c01062eb <__write_lock_failed+7/20>   <=====
-   0:   f3 90                     repz nop    <=====
-Code;  c01062ed <__write_lock_failed+9/20>
-   2:   81 38 00 00 00 01         cmpl   $0x1000000,(%eax)
-Code;  c01062f3 <__write_lock_failed+f/20>
-   8:   75 f6                     jne    0 <_EIP>
-Code;  c01062f5 <__write_lock_failed+11/20>
-   a:   f0 81 28 00 00 00 01      lock subl $0x1000000,(%eax)
-Code;  c01062fc <__write_lock_failed+18/20>
-  11:   0f 85 e2 00 00 00         jne    f9 <_EIP+0xf9> c01063e4 <copy_siginfo_to_user+74/c0>
-
- NMI Watchdog detected LOCKUP on CPU0, eip c01062eb, registers:
-CPU:    0
-EIP:    0010:[<c01062eb>]    Not tainted
-EFLAGS: 00000087
-eax: f7694d4c   ebx: f7e4a6e0   ecx: 00000286   edx: f7e4a6f8
-esi: f7694c00   edi: f6fc5f60   ebp: f76fb1c0   esp: f716deec
-ds: 0018   es: 0018   ss: 0018
-Process alsactl (pid: 555, stackpage=f716d000)
-Stack: f8932ae0 00000038 000001f0 f8935620 00000000 f892e22f f6fd0840 f76fb1c0 
-       00000000 f6fcacc0 f76fb1c0 f6fd0840 f6fcacc8 c018c805 f6fd0840 f76fb1c0 
-       f716df84 c014e7d9 ffffffeb f76fb1c0 ffffffe9 c027aa00 f76fb1c0 f6fd0840 
-Call Trace:    [<f8932ae0>] [<f8935620>] [<f892e22f>] [<c018c805>] [<c014e7d9>]
-  [<c0140e53>] [<c0140d78>] [<c0141153>] [<c010774f>]
-Code: f3 90 81 38 00 00 00 01 75 f6 f0 81 28 00 00 00 01 0f 85 e2 
 
 
->>EIP; c01062eb <__write_lock_failed+7/20>   <=====
 
->>eax; f7694d4c <_end+373608dc/38511bf0>
->>ebx; f7e4a6e0 <_end+37b16270/38511bf0>
->>edx; f7e4a6f8 <_end+37b16288/38511bf0>
->>esi; f7694c00 <_end+37360790/38511bf0>
->>edi; f6fc5f60 <_end+36c91af0/38511bf0>
->>ebp; f76fb1c0 <_end+373c6d50/38511bf0>
->>esp; f716deec <_end+36e39a7c/38511bf0>
 
-Trace; f8932ae0 <[mga]mga_unlock+b0/e0>
-Trace; f8935620 <[mga]mga__clients_info+0/100>
-Trace; f892e22f <[mga]mga_agp_enable+4f/a0>
-Trace; c018c805 <devfs_open+195/210>
-Trace; c014e7d9 <path_lookup+39/40>
-Trace; c0140e53 <dentry_open+d3/1e0>
-Trace; c0140d78 <filp_open+68/70>
-Trace; c0141153 <sys_open+53/c0>
-Trace; c010774f <system_call+33/38>
 
-Code;  c01062eb <__write_lock_failed+7/20>
-00000000 <_EIP>:
-Code;  c01062eb <__write_lock_failed+7/20>   <=====
-   0:   f3 90                     repz nop    <=====
-Code;  c01062ed <__write_lock_failed+9/20>
-   2:   81 38 00 00 00 01         cmpl   $0x1000000,(%eax)
-Code;  c01062f3 <__write_lock_failed+f/20>
-   8:   75 f6                     jne    0 <_EIP>
-Code;  c01062f5 <__write_lock_failed+11/20>
-   a:   f0 81 28 00 00 00 01      lock subl $0x1000000,(%eax)
-Code;  c01062fc <__write_lock_failed+18/20>
-  11:   0f 85 e2 00 00 00         jne    f9 <_EIP+0xf9> c01063e4 <copy_siginfo_to_user+74/c0>
+
+
+
+
+
+
 

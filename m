@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbRE2T4c>; Tue, 29 May 2001 15:56:32 -0400
+	id <S261617AbRE2TxW>; Tue, 29 May 2001 15:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261685AbRE2T4M>; Tue, 29 May 2001 15:56:12 -0400
-Received: from quasar.osc.edu ([192.148.249.15]:65152 "EHLO quasar.osc.edu")
-	by vger.kernel.org with ESMTP id <S261684AbRE2T4C>;
-	Tue, 29 May 2001 15:56:02 -0400
-Date: Tue, 29 May 2001 15:55:58 -0400
-From: Pete Wyckoff <pw@osc.edu>
-To: okir@monad.swb.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] minor lockd debugging typo
-Message-ID: <20010529155558.C14117@osc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S261645AbRE2TxM>; Tue, 29 May 2001 15:53:12 -0400
+Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:30131 "EHLO
+	fxian.jukie.net") by vger.kernel.org with ESMTP id <S261617AbRE2Twy>;
+	Tue, 29 May 2001 15:52:54 -0400
+Date: Tue, 29 May 2001 15:52:47 -0400 (EDT)
+From: Feng Xian <fxian@fxian.jukie.net>
+X-X-Sender: <fxian@tiger>
+To: <linux-kernel@vger.kernel.org>
+Subject: linux-2.4.3-ac14 spinlock problem?
+Message-ID: <Pine.LNX.4.33.0105291550400.28008-100000@tiger>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rather than print proc twice, you probably intend to show the prog.
-(At least, I had wanted to see the prog in the debugging output. :) )
 
-		-- Pete
+Hi,
 
-diff -X dontdiff -ruN linux-2.4.5-kdb/fs/lockd/mon.c linux-2.4.5/fs/lockd/mon.c
---- linux-2.4.5-kdb/fs/lockd/mon.c      Mon Oct 16 15:58:51 2000
-+++ linux-2.4.5/fs/lockd/mon.c  Tue May 29 15:52:17 2001
-@@ -146,7 +146,7 @@
-        u32     addr = ntohl(argp->addr);
- 
-        dprintk("nsm: xdr_encode_mon(%08x, %d, %d, %d)\n",
--                       htonl(argp->addr), htonl(argp->proc),
-+                       htonl(argp->addr), htonl(argp->prog),
-                        htonl(argp->vers), htonl(argp->proc));
- 
-        /*
+I was running something on my Dell dual p3 box (optiplex gx300). my kernel
+is linux-2.4.3-ac14. I got the following message:
+
+
+__rwsem_do_wake(): wait_list unexpectedly empty
+[4191] c5966f60 = { 00000001 })
+kenel BUG at rwsem.c:99!
+invalid operand: 0000
+CPU:            1
+EIP:            0010:[<c0236b99>]
+EFLAGS: 00010282
+kenel BUG at /usr/src/2.4.3-ac14/include/asm/spinlock.h:104!
+
+
+I upgrade the kernel to 2.4.5, no such problem any more.
+
+Any idea?
+
+Alex
+
+
+-- 
+        Feng Xian
+   _o)     .~.      (o_
+   /\\     /V\      //\
+  _\_V    // \\     V_/_
+         /(   )\
+          ^^-^^
+           ALEX
+

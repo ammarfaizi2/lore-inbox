@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262409AbREUIzr>; Mon, 21 May 2001 04:55:47 -0400
+	id <S262498AbREUVju>; Mon, 21 May 2001 17:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262410AbREUIzi>; Mon, 21 May 2001 04:55:38 -0400
-Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.112]:13874 "HELO
-	email03.aon.at") by vger.kernel.org with SMTP id <S262409AbREUIz1>;
-	Mon, 21 May 2001 04:55:27 -0400
-Message-ID: <3B053183.188C47BD@violin.dyndns.org>
-Date: Fri, 18 May 2001 16:28:19 +0200
-From: Hermann Himmelbauer <dusty@violin.dyndns.org>
-Reply-To: dusty@strike.wu-wien.ac.at
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+	id <S262499AbREUVjj>; Mon, 21 May 2001 17:39:39 -0400
+Received: from mail.digitalme.com ([193.97.97.75]:34442 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S262498AbREUVjW>;
+	Mon, 21 May 2001 17:39:22 -0400
+Message-ID: <3B05DA6B.50205@bigfoot.com>
+Date: Fri, 18 May 2001 22:28:59 -0400
+From: "Trever L. Adams" <trever_Adams@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; rv:0.9+) Gecko/20010518
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andy Arvai <arvai@scripps.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: APIC errors on 2.4.4
-In-Reply-To: <200105180650.XAA04197@astra.scripps.edu>
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [OT]: Multicasting
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Arvai wrote:
-> 
-> Hi,
-> 
-> I'm having IO-APIC errors with 2.4.4. I spent some time searching the
-> web to understand more about this problem and I'm still not sure if
-> it is a hardware problem on the motherboard or a problem with the
-> kernel. I will try the noapic boot option, but are there any
-> patches that might fix this? Here are some of the errors I was
-> getting:
-> 
-> May 15 22:47:43 rad kernel: APIC error on CPU0: 02(01)
-> May 15 22:48:00 rad kernel: APIC error on CPU0: 01(02)
+I know this is off topic.  I am not sure where else to go.  All of my 
+google searches lead me to very dead and very old information on 
+multicasting.  I am sure most of it is not useful, though some of the 
+basics are.
 
-This is a hardware error. I also have a buggy motherboard (586DX) and
-experience the same problems. Looke at /proc/interrupts, there you can
-see how many errors are detected. The problem is that double errors are
-not detected - these can lead to system crashes or block network/isdn
-cards.
+If people have a problem answering on list, please answer off.
 
-If there are only a few APIC errors, it is very unlikely that a double
-error occurs, if there are very many, the probability is high.
+My questions:
 
-It seems that there are quite a lot of motherboards that have a buggy
-APIC.
+What protocols and session management (besides IGMP) does the kernel 
+support (say, does it support source specific multicasting?)?
 
-There is some patch by Alan Cox in the 2.4.4-ac series that does
-something about this problem but I do not know what exactly.
+Are the old how tos on multicast programming still the only things I 
+need to worry about?
 
-The only thing you can do is boot with the "noapic" option, and disable
-IO-Interrupts on the second CPU (I assume you have a SMP system?). This
-will reduce the amount of errors but there is also a performance
-decrease.
+If there are only X groups (in the few thousand if IRC), does the 
+protocl allow only forwarding Y port on X group to the end person, or do 
+they get the entire group?
 
-		Regards,
-		Hermann
+Anyone know of good books for Linux/Unix multicast programming?
 
--- 
- ,_,
-(O,O)     "There is more to life than increasing its speed."
-(   )     -- Gandhi
--"-"--------------------------------------------------------------
+Trever Adams
+
+P.S. I am sure I have left out 1 million and 1 valuable questions that I 
+need/want answers to, please feel free to add in what you think might be 
+good for me to know.
+

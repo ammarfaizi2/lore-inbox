@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285812AbRLYU1e>; Tue, 25 Dec 2001 15:27:34 -0500
+	id <S285940AbRLYUmR>; Tue, 25 Dec 2001 15:42:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285841AbRLYU1O>; Tue, 25 Dec 2001 15:27:14 -0500
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:41744 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S285812AbRLYU1I>; Tue, 25 Dec 2001 15:27:08 -0500
-Message-ID: <000701c18d82$57158ea0$0801a8c0@Stev.org>
-From: "James Stevenson" <mistral@stev.org>
-To: <linux-kernel@vger.kernel.org>, <netfilter-devel@lists.samba.org>
-Subject: file names ?
-Date: Tue, 25 Dec 2001 20:25:48 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S285881AbRLYUmH>; Tue, 25 Dec 2001 15:42:07 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:54760 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S285879AbRLYUl7>;
+	Tue, 25 Dec 2001 15:41:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: "James Stevenson" <mistral@stev.org>, <linux-kernel@vger.kernel.org>,
+        <netfilter-devel@lists.samba.org>
+Subject: Re: file names ?
+Date: Tue, 25 Dec 2001 12:41:14 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <000701c18d82$57158ea0$0801a8c0@Stev.org>
+In-Reply-To: <000701c18d82$57158ea0$0801a8c0@Stev.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16IyNw-0003UO-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On December 25, 2001 12:25, James Stevenson wrote:
+> a small example is a smallish ext2 / filesystem
+> and the rest being a fat filesystem to that
+> it can be accessed from both windows and linux.
+> and there is not enough space on the ext2 to compile a kernel anymore.
 
-i could not help but notice in the kernel source
-in both the ipv4/netfilter and ipv6/netfilter
-dirs there are files the same name which can cause problems
-under certin conditions like non-case sensitive file systems.
+Case-insensitivity is not your only problem. 'ln -s' is used multiple times 
+during the kernel build process, I'd like to see a FAT filesystem try to 
+handle that. I haven't checked, but the compile might also depend on the 
+executable bit actually working, and being able to rename and unlink files in 
+use. Even with filenames that do not collide in a case-insensitive namespace, 
+the build will fail. 
 
-like
-ipt_mark.c
-ipt_MARK.c
+The kernel compile requires a POSIX filesystem, which is a completely sane 
+demand. I'd go as far as saying that all 'real' filesystems are POSIX 
+compliant, and that non-POSIX filesystems should only be used for simple data 
+file storage. 
 
-ipt_tos.c
-ipt_TOS.c
-
-this does not cause a problem for me but i do
-know people who it does cause a problem for
-
-a small example is a smallish ext2 / filesystem
-and the rest being a fat filesystem to that
-it can be accessed from both windows and linux.
-and there is not enough space on the ext2 to compile a kernel anymore.
-
-anyone got any suggestions ?
-
-thanks
-    James
-
---------------------------
-Mobile: +44 07779080838
-http://www.stev.org
-  8:10pm  up 7 days,  3:40,  1 user,  load average: 0.00, 0.00, 0.00
-
-
-
+-Ryan

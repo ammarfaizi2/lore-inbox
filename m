@@ -1,88 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286692AbRL1Cc0>; Thu, 27 Dec 2001 21:32:26 -0500
+	id <S286694AbRL1Ciq>; Thu, 27 Dec 2001 21:38:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286693AbRL1CcH>; Thu, 27 Dec 2001 21:32:07 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:64007 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286692AbRL1Cb6>;
-	Thu, 27 Dec 2001 21:31:58 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: Kernel Build for 2.5, Release 1.12 is available 
-Date: Fri, 28 Dec 2001 13:31:42 +1100
-Message-ID: <19466.1009506702@ocs3.intra.ocs.com.au>
+	id <S286695AbRL1Cig>; Thu, 27 Dec 2001 21:38:36 -0500
+Received: from PHNX1-UBR2-4-hfc-0251-d1dae065.rdc1.az.coxatwork.com ([209.218.224.101]:33929
+	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S286694AbRL1CiU>; Thu, 27 Dec 2001 21:38:20 -0500
+Message-ID: <008a01c18f48$beaa3e90$6caaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011219104253.A11032@kroah.com> <061101c18f35$5e141e60$6800000a@brownell.org>
+Subject: Re: [linux-usb-devel] [PATCH] current state of the 2.5.1 USB tree
+Date: Thu, 27 Dec 2001 19:38:34 -0700
+Organization: LSG, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Yes, I would very much like to see EHCI support in a 2.4.x compatible form,
+even if it's not in the mainline kernel. Last time I tried the CVS code, I
+couldn't even get it compile, but maybe things have improved since then (two
+months ago) :-)
 
-Content-Type: text/plain; charset=us-ascii
+I also have a USB 2.0 external hard drive that I'd sure like to see run at
+something higher than 1 megabyte per second <G>
 
-Release 1.12 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
-release 1.12.
+----- Original Message -----
+From: "David Brownell" <david-b@pacbell.net>
+To: "Greg KH" <greg@kroah.com>; <linux-usb-devel@lists.sourceforge.net>;
+<linux-kernel@vger.kernel.org>
+Sent: Thursday, December 27, 2001 4:22 PM
+Subject: Re: [linux-usb-devel] [PATCH] current state of the 2.5.1 USB tree
 
-This is ready to go to Linus for inclusion in 2.5.[12].  There is one
-item on the todo list but it is not a show stopper, the code works as
-is.
 
-kbuild 2.5 currently supports i386, ia64, sparc32, sparc64, alpha and
-ppc (incomplete).  All are supported on 2.4.16 and 2.4.17, i386 is
-supported on 2.5.1.
-
-This announcement is for the base kbuild 2.5 code, i386 against 2.4.16.
-Patches for other architectures and kernels will be out later today, it
-takes time to generate and test patches for 6 architectures against 3
-different kernel trees.  The sooner Linus takes the base patch, the
-sooner I will be able to rewrite the core code to speed it up, instead
-of spending all my time tracking multiple trees.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
-contains information about the base release of kbuild 2.5.
-
-Changelog:
-
-  CML2 changes to handle install formats.
-
-  Add KBUILD_INCLUDE_PATHS for patches that have their own separate
-  include tree, including asm-$(ARCH).  selinux does this, I am not
-  100% convinced that it is a sensible thing to do but I will support
-  it for now.
-
-  Add KBUILD_BASENAME, used when replacing .text.lock with .subsection.
-
-  Documentation corrections by Ghozlane Toumi.
-
-  Move include of arch/$(ARCH)/Makefile.defs.config from global
-  makefile to top level.  Needed for PPC.  Have a barf bag ready when
-  you read the code in scripts/Makefile-2.5.
-
-  Support include of asm files for other architectures (APUS does this).
-
-  Do not regenerate files on make clean/mrproper.
-
-  Correct bug in $(dir)/$(notdir) with unexpanded variables.
-
-  Handle empty $(arch_head).
-
-  Improve propagation of y/m onto sub-objects.
-
-  As always, Documentation/kbuild/kbuild-2.5.txt is your friend.
-
-TODO:
-
-  Rewrite core code to improve performance.  Not until the existing
-  code is in the kernel.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE8K9mNi4UHNye0ZOoRAjG3AKCU9dCejUPFUj0rI4qy+CgN4VA0rQCdHPIc
-zUqFaLZ5sZQ0F8Oytn+90zk=
-=Jskx
------END PGP SIGNATURE-----
+> > A patch against a clean 2.5.1 tree is at:
+> > http://www.kroah.com/linux/usb/linux-2.5.1-gregkh-1.patch.gz
+> >
+> > This patch contains 5 new USB drivers (stv680, vidcam, ipaq, kl5kusb105,
+> > and the usb 2.0 ehci-hcd driver), documentation for all of these new
+> > drivers, a rewrite of usbdevfs/usbfs, and lots of other smaller fixes
+> > and changes.
+>
+> By the way -- if folk need to see EHCI (60 MByte/sec USB) on 2.4,
+> drop a line.  The code is in CVS, and clearly most of that development
+> was done on the 2.4 kernel.  A number of folk are using that code with
+> success on those highspeed USB storage devices.
+>
+> But most of the USB 2.0 work will be done in the 2.5 tree, so that's
+> going to be the place to watch!
+>
+> - Dave
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
 

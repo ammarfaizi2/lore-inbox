@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319462AbSIGJvH>; Sat, 7 Sep 2002 05:51:07 -0400
+	id <S319463AbSIGJyk>; Sat, 7 Sep 2002 05:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319463AbSIGJvH>; Sat, 7 Sep 2002 05:51:07 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:33468 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S319462AbSIGJvG>; Sat, 7 Sep 2002 05:51:06 -0400
-Date: Sat, 7 Sep 2002 11:51:25 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: Lee Van Dyke <VandykeL@masirv.com>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: Wanted: netfilter:arptables working example.
-Message-ID: <20020907115125.M9675@sunbeam.de.gnumonks.org>
-References: <3D78AC8F.8050409@masirv.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TnYVF1hk1c8rpHiF"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3D78AC8F.8050409@masirv.com>; from VandykeL@masirv.com on Fri, Sep 06, 2002 at 06:24:31AM -0700
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.19-pre10-newnat-pptp
-X-Date: Today is Pungenday, the 24th day of Bureaucracy in the YOLD 3168
+	id <S319464AbSIGJyk>; Sat, 7 Sep 2002 05:54:40 -0400
+Received: from dsl-213-023-038-028.arcor-ip.net ([213.23.38.28]:21943 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319463AbSIGJyj>;
+	Sat, 7 Sep 2002 05:54:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>, Chuck Lever <cel@citi.umich.edu>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Sat, 7 Sep 2002 12:01:23 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0209051023490.5579-100000@dexter.citi.umich.edu> <3D77A22A.DC3F4D1@zip.com.au> <E17naX2-0006O0-00@starship>
+In-Reply-To: <E17naX2-0006O0-00@starship>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ncP5-0006QC-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 07 September 2002 10:01, Daniel Phillips wrote:
+> On Thursday 05 September 2002 20:27, Andrew Morton wrote:
+> > But be aware that invalidate_inode_pages has always been best-effort.
+> > If someone is reading, or writing one of those pages then it
+> > certainly will not be removed.  If you need assurances that the
+> > pagecache has been taken down then we'll need something stronger
+> > in there.
+> 
+> But what is stopping us now from removing a page from the page cache
+> even while IO is in progress?  (Practical issue: the page lock, but
+> that's a self-fullfilling prophesy.)
 
---TnYVF1hk1c8rpHiF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Never mind, I can see that the main function of the page lock here is to 
+allow the filesystem to know there's no IO in progress on a block and so the 
+block can be recovered and used for something else.  Leaving the page in the 
+page cache during IO is a simple means of keeping track of this.
 
-On Fri, Sep 06, 2002 at 06:24:31AM -0700, Lee Van Dyke wrote:
-> Wanted: netfilter arptables working example.
->=20
-> I've looked throught the archives and am unable to find any examples.
+All the same, I have deep misgivings about the logic of the vfs truncate path 
+in general, and given all the trouble it's caused historically, there's good 
+reason to.  I don't know, it may be perfect the way it is, but history would 
+suggest otherwise.
 
-there is none.  david miller has introduced netfilter hooks to arp and port=
-ed
-iptables to arp (called arptables).  However, there is no userspace program
-for configuration (yet?).
-
---=20
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+=
-=20
-V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
-
---TnYVF1hk1c8rpHiF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9ecwcXaXGVTD0i/8RApS8AKCoqk1JFyPR/g24lvgZOCw+WclA1gCfQYLo
-zkcP9ZgbEBk6XYEZtuBlxe8=
-=5Wxb
------END PGP SIGNATURE-----
-
---TnYVF1hk1c8rpHiF--
+-- 
+Daniel

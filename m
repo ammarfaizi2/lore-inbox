@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293588AbSCFPVh>; Wed, 6 Mar 2002 10:21:37 -0500
+	id <S293632AbSCFPY5>; Wed, 6 Mar 2002 10:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293599AbSCFPV1>; Wed, 6 Mar 2002 10:21:27 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39951 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S293588AbSCFPVK>; Wed, 6 Mar 2002 10:21:10 -0500
-Date: Wed, 6 Mar 2002 16:21:06 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
-        "Marcelo W. Tosatti" <marcelo@conectiva.com.br>
-Subject: Re: execve() fails to report errors
-Message-ID: <20020306152106.GD21479@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020305233437.GA130@elf.ucw.cz> <Pine.LNX.3.95.1020306090414.31541A-100000@chaos.analogic.com>
+	id <S293189AbSCFPYo>; Wed, 6 Mar 2002 10:24:44 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:21859 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S293599AbSCFPYO>; Wed, 6 Mar 2002 10:24:14 -0500
+Date: Wed, 6 Mar 2002 10:24:07 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Jeff Dike <jdike@karaya.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Message-ID: <20020306102407.B22650@redhat.com>
+In-Reply-To: <3C84F449.8090404@zytor.com> <200203051812.NAA03363@ccure.karaya.com> <20020305133054.B432@redhat.com> <E16ict0-0002zT-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1020306090414.31541A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16ict0-0002zT-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Mar 06, 2002 at 03:59:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Mar 06, 2002 at 03:59:22PM +0100, Daniel Phillips wrote:
+> Suppose you have 512 MB memory and an equal amount of swap.  You start 8
+> umls with 64 MB each.  With your and Peter's suggestion, the system always
+> goes into swap.  Whereas if the memory is only allocated on demand it
+> probably doesn't.
 
-> > Take this trivial .c program. Obviously correct.
-> > 
-> > 
-> > struct foo {
-> >         char fill[1*1024*1024*1024];
-> > };
-> > 
-> > struct foo a;
-> > 
-> > void
-> > main(void)
-> > {
-> > }
-> > 
-> > Compile. Run. Segfault.
-> > 
-> > Whose fault? Kernels; it fails to corectly report not enough address
-> > space.
-> 
-> I think the bug has to be found earlier on up the food chain.
-> If you do:
+As I said previously, going into swap is preferable over randomly killing 
+new tasks under heavy load.
 
-Well, nothing earlier can know if there  will be enough address space
-at runtime. (It depends on kernel config .. 3GB vs 2GB ...)
-								Pavel
-
+		-ben
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."

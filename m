@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273946AbRIYBCh>; Mon, 24 Sep 2001 21:02:37 -0400
+	id <S274306AbRIYBGh>; Mon, 24 Sep 2001 21:06:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274306AbRIYBCW>; Mon, 24 Sep 2001 21:02:22 -0400
-Received: from mail.courier-mta.com ([66.92.103.29]:5578 "EHLO
-	mail.courier-mta.com") by vger.kernel.org with ESMTP
-	id <S273946AbRIYBCJ>; Mon, 24 Sep 2001 21:02:09 -0400
-In-Reply-To: <fa.k5o58rv.d7683s@ifi.uio.no>
-            <fa.iu7m5ov.i6q3rt@ifi.uio.no>
-In-Reply-To: <fa.iu7m5ov.i6q3rt@ifi.uio.no> 
-From: "Sam Varshavchik" <mrsam@courier-mta.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: two probable security holes
-Date: Tue, 25 Sep 2001 01:02:35 GMT
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.3BAFD7AB.0000609A@ny.email-scan.com>
+	id <S274309AbRIYBG1>; Mon, 24 Sep 2001 21:06:27 -0400
+Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:54505 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S274306AbRIYBGS>; Mon, 24 Sep 2001 21:06:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Dirk Mueller <dmuell@gmx.net>, ReiserFS List <reiserfs-list@namesys.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linux SCSI List <linux-scsi@vger.kernel.org>
+Subject: Re: URGENCY: IBM U160 SCSI disk spin-down from time to time
+Date: Tue, 25 Sep 2001 03:06:08 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Chris Mason <mason@suse.com>, Nikita Danilov <Nikita@namesys.com>,
+        "Vladimir V. Saveliev" <vs@namesys.com>,
+        Hans Reiser <reiser@namesys.com>, support@storage.ibm.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010925010619Z274306-760+16463@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes: 
+Am Dienstag, 24. September 2001 23:49 schrieb Dirk Mueller:
+>
+> > All spin-downs occur during heavy dbench (16/32/+ clients) on the same 
+> > partition (/dev/sda8; the last one).
+>
+> Most likely the drive is overheating
 
->    From: Ken Ashcraft <kash@stanford.edu>
->    Date: Tue, 18 Sep 2001 14:29:57 -0700 (PDT) 
-> 
->    Watch ifr.ifr_name.
->    
-> Hi Ken, I believe there is some bug in your new checker algorithms for
-> this case. 
-> 
->                    struct ifreq ifr;
->                    int err;
->    Start--->
->                    if (copy_from_user(&ifr, (void *)arg, sizeof(ifr)))
->                            return -EFAULT;
->                    ifr.ifr_name[IFNAMSIZ-1] = '\0'; 
-> 
-> ifreq copied safely to kernel space, ifr.ifr_name[] is inside the
-> struct and NOT a user pointer. 
-> 
->                    err = tun_set_iff(file, &ifr); 
-> 
-> Pass address of kernel ifreq. 
-> 
->                    if (*ifr->ifr_name)
->                            name = ifr->ifr_name;
->    
->                    if ((err = dev_alloc_name(&tun->dev, name)) < 0)
->                            goto failed; 
-> 
-> Perfectly fine still, name always points to kernel memory.
->    
->    int dev_alloc_name(struct net_device *dev, const char *name)
->    {
->  ... 
-> 
->            for (i = 0; i < 100; i++) {
->    Error--->
->    	       sprintf(buf,name,i); 
-> 
-> Still fine, as stated "name" is pointing to kernel memory.
+Nope.
+I've forgotten that info.
 
-Ummm...  Is it possible for name to be, oh, something like 
+ALL three disks are actively cooled of there own.
+Even the DDYS (10k RPM) is fewer than "handwarm".
 
-"foo%s%s%s%s%s"? 
+> and is spinning down/up again to recalibrate itself.
 
-In that case, what would that sprintf do? 
+NO, it _only_ restart and recalibrate during reboot (the AHA-2940UW BIOS 
+detection routine).
 
-> Perhaps your code is being confused by "ifreq->if_name" being
-> an array.
+> you should give it a better cooling ;-)
 
--- 
-Sam 
+You're thinking about liquid nitrogen or sodium...;-)
 
+-Dieter

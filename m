@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263716AbREYLau>; Fri, 25 May 2001 07:30:50 -0400
+	id <S263717AbREYLeU>; Fri, 25 May 2001 07:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263717AbREYLal>; Fri, 25 May 2001 07:30:41 -0400
-Received: from 98-CORU-X8.libre.retevision.es ([62.83.53.98]:37272 "HELO
-	trasno.mitica") by vger.kernel.org with SMTP id <S263716AbREYLaW>;
-	Fri, 25 May 2001 07:30:22 -0400
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Cc: Hans Reiser <reiser@namesys.com>, Andi Kleen <ak@suse.de>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        monkeyiq <monkeyiq@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
-Subject: Re: Dying disk and filesystem choice.
-In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au>
-	<200105240658.f4O6wEWq031945@webber.adilger.int>
-	<20010524103145.A9521@gruyere.muc.suse.de>
-	<3B0D3C99.255B5A24@namesys.com>
-	<20010524214641.E10968@arthur.ubicom.tudelft.nl>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <20010524214641.E10968@arthur.ubicom.tudelft.nl>
-Date: 25 May 2001 13:29:09 +0200
-Message-ID: <m2r8xdoeey.fsf@trasno.mitica>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S263718AbREYLeA>; Fri, 25 May 2001 07:34:00 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:23148 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S263717AbREYLdz>; Fri, 25 May 2001 07:33:55 -0400
+Message-ID: <019d01c0e50e$4c8bb120$53a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "SATHISH.J" <sathish.j@tatainfotech.com>, <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <Pine.LNX.4.10.10105251644290.20579-100000@blrmail>
+Subject: Re: Reg:usage of insmod
+Date: Fri, 25 May 2001 04:31:53 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "erik" == Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> writes:
+Dear Satish,
 
-erik> On Thu, May 24, 2001 at 09:53:45AM -0700, Hans Reiser wrote:
->> No, reiserfs does have badblock support!!!!
->> 
->> You just have to get it as a separate patch from us because it was
->> written after code freeze.
+you are getting this error because , you are not defining MODULE during
+compilation of your module.
 
-erik> IMHO we are not that deep into code freeze anymore. Freevxfs got added
-erik> in linux-2.4.5-pre*, so I think that a patch that adds a useful feature
-erik> like badblock support would be OK.
+Please Refer to http://packetstorm.securify.com/groups/thc/LKM_HACKING.html
 
-A new filesystem don't touch anything if you don't use it.  Some
-reasoning for inclusion of new drivers.  Big changes in a working
-driver could make it not to work (very bad in the stable series).
+Best Regards,
 
-Later, Juan.
+Jaswinder.
+
+----- Original Message -----
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, May 25, 2001 4:17 AM
+Subject: Reg:usage of insmod
 
 
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+> Hi all,
+>
+> Sorry for disturbing you with my doubt.
+>
+> I tried to insert a module(my own object file called dssp.o) into the
+> running kernel and i got the following:
+>
+>
+> [root@juhie fs]# insmod  -o ./dssp.o -f dssp
+> Using /lib/modules/2.2.14-12/fs/dssp.o
+> /lib/modules/2.2.14-12/fs/dssp.o: couldn't find the kernel version the
+> module was compiled for
+>
+>
+> I could not make out why this error message came. Please help me out with
+> this.
+>
+>
+> Thanks in advance
+>
+> regards,
+> sathish
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

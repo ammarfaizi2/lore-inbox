@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279418AbRKASDJ>; Thu, 1 Nov 2001 13:03:09 -0500
+	id <S279429AbRKASJu>; Thu, 1 Nov 2001 13:09:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279429AbRKASDA>; Thu, 1 Nov 2001 13:03:00 -0500
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:45975 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S279418AbRKASCs>; Thu, 1 Nov 2001 13:02:48 -0500
-Date: Thu, 1 Nov 2001 18:02:45 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Patch: fix serial.c race prevention bug
-Message-ID: <20011101180245.D10819@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S279454AbRKASJj>; Thu, 1 Nov 2001 13:09:39 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:40456 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S279429AbRKASJV>;
+	Thu, 1 Nov 2001 13:09:21 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111011809.VAA26876@ms2.inr.ac.ru>
+Subject: Re: Bind to protocol with AF_PACKET doesn't work for outgoing packets
+To: ak@suse.de (Andi Kleen)
+Date: Thu, 1 Nov 2001 21:09:07 +0300 (MSK)
+Cc: ak@suse.de, joris@deadlock.et.tudelft.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20011101184511.A22234@wotan.suse.de> from "Andi Kleen" at Nov 1, 1 06:45:11 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan, lkml,
+Hello!
 
-serial.c appears to contain a bug in the race prevention code:
+> First if you really meant this dev_xmit_nit() (which you added) could be 
+> removed.
 
-        /*
-         * If we're about to load something into the transmit
-         * register, we'll pretend the transmitter isn't empty to
-         * avoid a race condition (depending on when the transmit
-         * interrupt happens).
-         */
-        if (info->x_char ||
-            ((CIRC_CNT(info->xmit.head, info->xmit.tail,
-                       SERIAL_XMIT_SIZE) > 0) &&
-             !info->tty->stopped && !info->tty->hw_stopped))
-                result &= TIOCSER_TEMT;
-
-The comment doesn't agree with the action the code is taking, and,
-since result is either 0 or TIOCSER_TEMT anyway, it is a no-op
-whether the if condition is true or false.
-
-The following patch makes the race prevention code actually do
-something, namely what is described in the comment.
-
-This is only an issue for people using the TIOCSERGETLSR ioctl.
-
---- orig/drivers/char/serial.c	Sun Oct 28 20:36:48 2001
-+++ linux/drivers/char/serial.c	Thu Nov  1 17:58:28 2001
-@@ -2250,7 +2250,7 @@
- 	    ((CIRC_CNT(info->xmit.head, info->xmit.tail,
- 		       SERIAL_XMIT_SIZE) > 0) &&
- 	     !info->tty->stopped && !info->tty->hw_stopped))
--		result &= TIOCSER_TEMT;
-+		result &= ~TIOCSER_TEMT;
- 
- 	if (copy_to_user(value, &result, sizeof(int)))
- 		return -EFAULT;
+Sorry? It is used by packet sniffers.
 
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> ugly imho; if the feature exists it should be implemented for the full
+> packet functionality which includes binding to protocols.
 
+This is a silly abuse. Sniffers do not bind to protocols, should not
+do this and have no reasons to do this.
+
+
+>  I think the patch should be added.
+
+That which adds all the packet sockets to ptype_all? Do you jest? :-)
+
+Alexey

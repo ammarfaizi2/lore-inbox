@@ -1,66 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315709AbSGJK6i>; Wed, 10 Jul 2002 06:58:38 -0400
+	id <S315529AbSGJLKo>; Wed, 10 Jul 2002 07:10:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315717AbSGJK6h>; Wed, 10 Jul 2002 06:58:37 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51150 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315709AbSGJK6h>;
-	Wed, 10 Jul 2002 06:58:37 -0400
-Date: Wed, 10 Jul 2002 12:57:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Richard Zidlicky 
-	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: (RE:  using 2.5.25 with IDE) On sparc64.....
-Message-ID: <20020710105734.GI3185@suse.de>
-References: <61DB42B180EAB34E9D28346C11535A783A7B56@nocmail101.ma.tmpw.net> <20020710122414.B2142@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020710122414.B2142@linux-m68k.org>
+	id <S315539AbSGJLKn>; Wed, 10 Jul 2002 07:10:43 -0400
+Received: from mail.gmx.de ([213.165.64.20]:42484 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315529AbSGJLKk>;
+	Wed, 10 Jul 2002 07:10:40 -0400
+Message-ID: <3D2C16CD.6010409@gmx.net>
+Date: Wed, 10 Jul 2002 13:13:17 +0200
+From: Richard Ems <r.ems.home@gmx.net>
+Reply-To: r.ems@gmx.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: e100_wait_exec_cmd && e100_wait_exec_simple: Wait failed
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 10 2002, Richard Zidlicky wrote:
-> On Tue, Jul 09, 2002 at 09:46:10AM -0500, Holzrichter, Bruce wrote:
-> 
-> > Patch below to get 2.4 forward port of IDE to compile on Sparc64...
-> > --- linus-2.5/include/asm-sparc64/ide.h	Tue Jul  9 08:53:10 2002
-> > +++ sparctest/include/asm-sparc64/ide.h	Tue Jul  9 09:11:24 2002
-> 
-> 
-> > @@ -178,6 +182,20 @@
-> >  #endif
-> >  }
-> >  
-> > +#define ide_request_irq(irq,hand,flg,dev,id)
-> > request_irq((irq),(hand),(flg),(dev),(id))
-> > +#define ide_free_irq(irq,dev_id)		free_irq((irq), (dev_id))
-> > +#define ide_check_region(from,extent)		check_region((from),
-> > (extent))
-> > +#define ide_request_region(from,extent,name)	request_region((from),
-> > (extent), (name))
-> > +#define ide_release_region(from,extent)
-> > release_region((from), (extent))
-> > +
-> > +/*
-> > + * The following are not needed for the non-m68k ports
-> > + */
-> > +#define ide_ack_intr(hwif)		(1)
-> > +#define ide_fix_driveid(id)		do {} while (0)
->            ^^^^^^^^^^^^^^^
-> 
-> the comment is misleading, this is actually needed on more than m68k
-> so not a big surprise it doesn't work. Cut&paste from 2.4.
+Hi Andrea, hi list!
 
-Bruce,
+Using SuSE's 8.0 default kernel (k_deflt-2.4.18-58):
 
-I checked in your previous patch already. Care to really forward port
-asm-sparc64/ide.h from 2.4.19-pre10-rc2 and send me an incremental
-patch?
+Intel(R) PRO/100 Fast Ethernet Adapter - Loadable driver, ver 1.8.37
+...
+eth0 e100_wait_exec_cmd: Wait failed.
+...
+last message repeated 23 times
+last message repeated 34 times
+...
+
+
+
+And using SuSE's k_deflt-2.4.18-186:
+Intel(R) PRO/100 Fast Ethernet Adapter - Loadable driver, ver 2.0.30-k1
+...
+eth0 e100_wait_exec_simple: Wait failed
+...
+last message repeated 8 times
+last message repeated 25 times
+...
+
+I also had machine hangs with both drivers during heavy network load.
+Could these hangup's be related to the driver's "error"? Or is it just a 
+  "warning"?
+
+
+from lspci -vvv:
+
+...
+02:08.0 Ethernet controller: Intel Corp. 82801BA/BAM/CA/CAM Ethernet 
+Controller (rev 01)
+         Subsystem: Intel Corp.: Unknown device 3013
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 66 (2000ns min, 14000ns max), cache line size 08
+         Interrupt: pin A routed to IRQ 9
+         Region 0: Memory at f5000000 (32-bit, non-prefetchable) [size=4K]
+         Region 1: I/O ports at 3400 [size=64]
+         Capabilities: [dc] Power Management version 2
+                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+...
+
+Do you need any more information?
+(P III 800 Mhz, 256 MB RAM)
+
+
+Thanks for any help, Richard
+
+P.S.: Please reply to r.ems@gmx.net, I'm not on lkml.
+
 
 -- 
-Jens Axboe
+Richard Ems
+... e-mail: r.ems@gmx.net
+... Computer Science, University of Hamburg
+
+Unix IS user friendly. It's just selective about who its friends are.
 

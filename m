@@ -1,146 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVBWLZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVBWL2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbVBWLZw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 06:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVBWLZw
+	id S261461AbVBWL2f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 06:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVBWL2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 06:25:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60106 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261457AbVBWLZd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 06:25:33 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org> 
-References: <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org>  <20050222190646.GA7079@austin.ibm.com> 
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Olof Johansson <olof@austin.ibm.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, jamie@shareable.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 23 Feb 2005 11:24:49 +0000
-Message-ID: <5109.1109157889@redhat.com>
+	Wed, 23 Feb 2005 06:28:35 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:48083 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261461AbVBWL2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 06:28:32 -0500
+Message-ID: <421C690A.4070102@ak.jp.nec.com>
+Date: Wed, 23 Feb 2005 20:29:14 +0900
+From: Kaigai Kohei <kaigai@ak.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: jlan@sgi.com, lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       guillaume.thouvenin@bull.net, tim@physik3.uni-rostock.de,
+       erikj@subway.americas.sgi.com, limin@dbear.engr.sgi.com,
+       jbarnes@sgi.com
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+References: <42168D9E.1010900@sgi.com>	<20050218171610.757ba9c9.akpm@osdl.org>	<421993A2.4020308@ak.jp.nec.com>	<421B955A.9060000@sgi.com>	<421C2B99.2040600@ak.jp.nec.com> <20050222232002.4d934465.akpm@osdl.org>
+In-Reply-To: <20050222232002.4d934465.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+Hi, Thanks for your comments.
 
-> It shouldn't be. If one read writer is active, another should be able to 
-> come in, regardless of any pending writer trying to access it. At least 
-> that's always been the rule for the rw-spinlocks _exactly_ for this 
-> reaseon.
+Andrew Morton wrote:
+ >> Some process-aggregation model have own philosophy and implemantation,
+ >> so it's hard to integrate. Thus, I think that common 'fork/exec/exit' event handling
+ >> framework to implement any kinds of process-aggregation.
+ >
+ >
+ > We really want to avoid doing such stuff in-kernel if at all possible, of
+ > course.
+ >
+ > Is it not possible to implement the fork/exec/exit notifications to
+ > userspace so that a daemon can track the process relationships and perform
+ > aggregation based upon individual tasks' accounting?  That's what one of
+ > the accounting systems is proposing doing, I believe.
+ >
+ > (In fact, why do we even need the notifications?  /bin/ps can work this
+ > stuff out).
 
-But not with rw-semaphores. I've designed them to be as fair as I can possibly
-make them. This means holding reads up if there's a write pending.
+It's hard to prove that we can't implement the process-aggregation only
+in user-space, but there are some difficulties on imaplementation, I think.
 
-> The rwsem code tries to be fairer, maybe it has broken this case in the 
-> name of fairness. I personally think fairness is overrated, and would 
-> rather have the rwsem implementation let readers come in.
+For example, each process must have a tag or another identifier to explain
+what process-aggregation does it belong, but kernel does not support thoes
+kind of information, currently. Thus, we can't guarantee associating one
+process-aggregation with one process.
+# /proc/<uid>/loginuid might be candidate, but it's out of original purpose.
 
-I've seen writer starvation happening due to a continuous flow of overlapping
-reads... That's one of the reasons I reimplemented rwsems.
+We might be able to make alike system, but is it hard to implement strict
+process-aggregation without any kernel supports?
+I think that well thought out kernel-modification is better than ad-hoc
+implementation on user-space.
 
-Also, fair rwsems are easier to provide an assembly optimised form for that
-doesn't involve the "thundering-herd" approach. Obviously, with the spinlock
-approach, you can implement any semantics you desire once you're holding the
-spinlock. With the optimised form as implemented, you can't determine how many
-active readers there are. This information isn't stored anywhere.
-
-> We have a notion of "atomic get_user()" calls, which is a lot more
-> efficient, and is already used for other cases where we have _real_
-> deadlocks (inode semaphore for reads into shared memory mappigns).
-
-That's okay, provided the data you're trying to access isn't lurking on a disk
-somewhere.
-
-> > Auditing other read-takers of mmap_sem, I found one more exposure that
-> > could be solved by just moving code around.
-> 
-> DavidH - what's the word on nested read-semaphores like this? Are they 
-> supposed to work (like nested read-spinlocks), or do we need to do the 
-> things Olof does?
-
-Nesting rwsems like this is definitely on the not-recommended list.
-
-For the special case of the mmap semaphore, I'd advocate following something
-like Jamie Lokier's solution, and note when a task holds its own mmap_sem
-semaphore read-locked such that page-fault can avoid taking it again.
-
-Something like:
-
-	struct task_struct {
-		...
-		unsigned mmsem_nest;
-		...
-	};
-
-	static inline void lock_mm_for_read(struct mm_struct *mm) {
-		if (current->mm == mm &&
-		    current->mmsem_nest++ != 0)
-			;
-		else
-			down_read(&mm->mmap_sem);
-	}
-
-	static inline void unlock_mm_for_read(struct mm_struct *mm) {
-		if (current->mm == mm &&
-		    --current->mmsem_nest != 0)
-			;
-		else
-			up_read(&mm->mmap_sem);
-	}
-
-	static inline void lock_mm_for_write(struct mm_struct *mm) {
-		down_write(&mm->mmap_sem);
-	}
-
-	static inline void unlock_mm_for_write(struct mm_struct *mm) {
-		up_write(&mm->mmap_sem);
-	}
-
-Though I'd be tempted to say that faulting is the only case in which recursion
-is permitted, and change the first two functions to reflect this and add an
-extra pair specially for page-fault:
-
-	static inline void lock_mm_for_read(struct mm_struct *mm) {
-		down_read(&mm->mmap_sem);
-		if (current->mm == mm &&
-		    current->flags |= PF_MMAP_SEM)
-	}
-
-	static inline void unlock_mm_for_read(struct mm_struct *mm) {
-		if (current->mm == mm &&
-		    current->flags &= ~PF_MMAP_SEM)
-		up_read(&mm->mmap_sem);
-	}
-
-	static inline void lock_mm_for_fault(struct mm_struct *mm) {
-		if (!(current->flags & PF_MMAP_SEM))
-			down_read(&mm->mmap_sem);
-	}
-
-	static inline void unlock_mm_for_fault(struct mm_struct *mm) {
-		if (!(current->flags & PF_MMAP_SEM))
-			up_read(&mm->mmap_sem);
-	}
-
-If current->mm is passed as the argument, the compiler's optimiser should
-discard the first comparison in the if-statement.
-
-Then futex.c would hold:
-
-	lock_mm_for_read(&current->mm);
-	get_futex_key(...) etc.
-	queue_me(...) etc.
-	ret = get_user(...);
-	/* the rest */
-	unlock_mm_for_read(&current->mm);
-
-And do_page_fault() would hold:
-
-	lock_mm_for_fault(&current->mm);
-	...
-	unlock_mm_for_fault(&current->mm);
-
-David
+Thanks.
+-- 
+Linux Promotion Center, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>

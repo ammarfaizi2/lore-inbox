@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTEMPTz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbTEMPTz
+	id S261414AbTEMPUo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbTEMPT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:19:55 -0400
-Received: from pat.uio.no ([129.240.130.16]:12505 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261411AbTEMPTw (ORCPT
+	Tue, 13 May 2003 11:19:58 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:24535 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261414AbTEMPTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:19:52 -0400
-MIME-Version: 1.0
+	Tue, 13 May 2003 11:19:55 -0400
+Date: Tue, 13 May 2003 17:32:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
+       Oleg Drokin <green@namesys.com>, lkhelp@rekl.yi.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69, IDE TCQ can't be enabled
+Message-ID: <20030513153236.GB17033@suse.de>
+References: <200305121455.58022.oliver@neukum.org> <Pine.SOL.4.30.0305121513270.18058-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16065.4109.129542.777460@charged.uio.no>
-Date: Tue, 13 May 2003 17:32:29 +0200
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-In-Reply-To: <20030513152228.GA4388@suse.de>
-References: <20030512155417.67a9fdec.akpm@digeo.com>
-	<20030512155511.21fb1652.akpm@digeo.com>
-	<shswugvjcy9.fsf@charged.uio.no>
-	<20030513135756.GA676@suse.de>
-	<16065.3159.768256.81302@charged.uio.no>
-	<20030513152228.GA4388@suse.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0305121513270.18058-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave Jones <davej@codemonkey.org.uk> writes:
+On Mon, May 12 2003, Bartlomiej Zolnierkiewicz wrote:
+> On Mon, 12 May 2003, Oliver Neukum wrote:
+> 
+> > > Just a note that we have found TCQ unusable on our IBM drives and we had
+> > > some reports about TCQ unusable on some WD drives.
+> > >
+> > > Unusable means severe FS corruptions starting from mount.
+> > > So if your FSs will suddenly start to break, start looking for cause with
+> > > disabling TCQ, please.
+> >
+> > I can confirm that. This drive Model=IBM-DTLA-307045, FwRev=TX6OA60A,
+> > SerialNo=YMCYMT3Y229 has eaten my filesystem with TCQ on 2.5.69
 
-     > unexporting and reexporting also works fine.  Perhaps 'kill'
-     > was an over-strong word to use above, lets replace it with
-     > 'make it break causing possible fs corruption'.
+Oliver, what hardware are you reproducing this on? The DTLA should work.
 
-That is a server bug. There are no rules for congestion control
-etc. in the NFS or SunRPC protocols, so the server is supposed to be
-able to cope with whatever the client manages to throw at it.
+-- 
+Jens Axboe
 
-I presume, though, that you are not seeing the 2.4.x NFS server die in
-this way when you blast it with a 2.5 client?
-
-Cheers,
-  Trond

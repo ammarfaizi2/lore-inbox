@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313998AbSDQBPO>; Tue, 16 Apr 2002 21:15:14 -0400
+	id <S314001AbSDQBUG>; Tue, 16 Apr 2002 21:20:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314001AbSDQBPN>; Tue, 16 Apr 2002 21:15:13 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:8602 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S313998AbSDQBPN>; Tue, 16 Apr 2002 21:15:13 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 16 Apr 2002 18:22:37 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: davidm@hpl.hp.com
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <15548.50859.169392.857907@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.44.0204161807570.1460-100000@blue1.dev.mcafeelabs.com>
+	id <S314002AbSDQBUF>; Tue, 16 Apr 2002 21:20:05 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:58586 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S314001AbSDQBUE>;
+	Tue, 16 Apr 2002 21:20:04 -0400
+Subject: Re: Linux 2.4.19-pre7
+In-Reply-To: <20020417001818.GA9379@crrstv.net> "from skidley at Apr 16, 2002
+ 09:18:18 pm"
+To: skidley <skidley@crrstv.net>
+Date: Tue, 16 Apr 2002 19:17:58 -0600 (MDT)
+Cc: Khalid Aziz <khalid_aziz@hp.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E16xe58-0004dt-00@lyra.fc.hp.com>
+From: Khalid Aziz <khalid@fc.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, David Mosberger wrote:
+It is the SPACEs vs TABs problems. Your mailer or my mailer converted
+TABs to SPACEs. Replaces SPACEs with TABs or try the following patch
+again.
 
-> >>>>> On Tue, 16 Apr 2002 10:18:18 -0700 (PDT), Davide Libenzi <davidel@xmailserver.org> said:
->
->   Davide> i still have pieces of paper on my desk about tests done on
->   Davide> my dual piii where by hacking HZ to 1000 the kernel build
->   Davide> time went from an average of 2min:30sec to an average
->   Davide> 2min:43sec. that is pretty close to 10%
->
-> The last time I measured timer tick overhead on ia64 it was well below
-> 1% of overhead.  I don't really like using kernel builds as a
-> benchmark, because there are far too many variables for the results to
-> have any long-term or cross-platform value.  But since it's popular, I
-> did measure it quickly on a relatively slow (old) Itanium box: with
-> 100Hz, the kernel compile was about 0.6% faster than with 1024Hz
-> (2.4.18 UP kernel).
-
-uhm, this is quite interesting. it's quite possible at this point that
-PROC_CHANGE_PENALTY put an high cs pressure in place, with terrible cache
-effects. pretty sadly i was not running the sampler that would have helped
-me to detect such behaviour.
+--
+Khalid
 
 
+--- linux-2.4.19-pre7/include/asm-i386/serial.h	Tue Apr 16 18:52:50 2002
++++ linux-2.4.19-pre7-fixed/include/asm-i386/serial.h	Tue Apr 16 18:55:06 2002
+@@ -140,8 +140,8 @@
+ #endif
+ 
+ #define SERIAL_PORT_DFNS		\
+-	HCDP_SERIAL_PORT_DEFNS		\
+ 	STD_SERIAL_PORT_DEFNS		\
++	HCDP_SERIAL_PORT_DEFNS		\
+ 	EXTRA_SERIAL_PORT_DEFNS		\
+ 	HUB6_SERIAL_PORT_DFNS		\
+ 	MCA_SERIAL_PORT_DFNS
 
-- Davide
 
-
-
-
+> On Tue, Apr 16, 2002 at 01:56:15PM -0600, Khalid Aziz wrote:
+> > I broke this with a typo in my patch (I inserted a line one line above
+> > where I wanted to). Follwing patch will fix the problem.
+> > 
+> > --
+> > Khalid
+> > 
+> > --- linux-2.4.18-hcdpold/include/asm-i386/serial.h      Tue Apr 16
+> > 12:05:27 2002
+> > +++ linux-2.4.18-hcdp/include/asm-i386/serial.h Tue Apr 16 12:02:54 2002
+> > @@ -140,8 +140,8 @@
+> >  #endif
+> >  
+> >  #define SERIAL_PORT_DFNS               \
+> > -       HCDP_SERIAL_PORT_DEFNS          \
+> >         STD_SERIAL_PORT_DEFNS           \
+> > +       HCDP_SERIAL_PORT_DEFNS          \
+> >         EXTRA_SERIAL_PORT_DEFNS         \
+> >         HUB6_SERIAL_PORT_DFNS           \
+> >         MCA_SERIAL_PORT_DFNS
+> > 
+> > 
+> > 
+> > 
+> failed against 2.4.19-pre7 here
+> -- 
+> Chad Young
+> Linux User #195191 
+> 

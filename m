@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278633AbRKAJpC>; Thu, 1 Nov 2001 04:45:02 -0500
+	id <S278642AbRKAKBN>; Thu, 1 Nov 2001 05:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278632AbRKAJox>; Thu, 1 Nov 2001 04:44:53 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:65159 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S278630AbRKAJom>; Thu, 1 Nov 2001 04:44:42 -0500
-Message-ID: <014501c162ba$05d57980$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Tim Hockin" <thockin@sun.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0110290333300.12058-200000@athy.aslab.com> <3BE07523.5A540AE@sun.com>
-Subject: Re: [PATCH] IDE: hpt366.c and serverworks.c 
-Date: Thu, 1 Nov 2001 10:46:03 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S278639AbRKAKBD>; Thu, 1 Nov 2001 05:01:03 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:40208 "HELO due.stud.ntnu.no")
+	by vger.kernel.org with SMTP id <S278647AbRKAKAw>;
+	Thu, 1 Nov 2001 05:00:52 -0500
+Date: Thu, 1 Nov 2001 11:00:02 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org, J Sloan <jjs@pobox.com>
+Subject: Re: Intel EEPro 100 with kernel drivers
+Message-ID: <20011101110002.A22504@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <3BDCD06E.8AF8FF69@pobox.com> <20011031090125.B10751@stud.ntnu.no> <20011031182212.A21776@castle.nmd.msu.ru> <20011101085523.D2102@stud.ntnu.no> <20011101124751.B26220@castle.nmd.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011101124751.B26220@castle.nmd.msu.ru>; from saw@saw.sw.com.sg on Thu, Nov 01, 2001 at 12:47:51PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does the hpt366 driver work in 2.4.13 ? In that case, might you diff it
-against a clean 2.4.13 kernel?
+Andrey Savochkin:
+> >From the computer where the network card hangs and where you see messages in
+> dmesg.  The network card hangs on only one side, right?
 
------ Original Message -----
-From: "Tim Hockin" <thockin@sun.com>
-To: <andre@aslab.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Wednesday, October 31, 2001 11:03 PM
-Subject: [PATCH] IDE: hpt366.c and serverworks.c
+Yepp, and sorry, I ment, I tried pinging from client-side.
 
+> If the operations stall just for few seconds, it's perfectly ok.
+> If after a few second stop the card itself resumes to operate normally, but
+> NFS operations are blocked for much longer time, it's NFS problem.
+> If the card itself stops operation for a long time, it needs to be fixed.
 
-> Andre,
-> Attached you'll find the patch to hpt366.c (against your base you sent me)
-> and serverworks.c.  Both of these have been in use for some time.
+Ok, it seems like the stock-kernel-driver hangs much longer than the
+intel-driver (intel driver did only hang for a few sec when I tried just
+now).
 
-
+-- 
+Thomas

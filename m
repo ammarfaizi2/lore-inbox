@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbTJUTYb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263254AbTJUTYb
+	id S263274AbTJUT1N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTJUT1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:24:31 -0400
-Received: from mra01.ex.eclipse.net.uk ([212.104.129.110]:44510 "EHLO
-	mra01.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S263244AbTJUTYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:24:02 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
+	Tue, 21 Oct 2003 15:27:13 -0400
+Received: from a0.complang.tuwien.ac.at ([128.130.173.25]:11281 "EHLO
+	a0.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S263274AbTJUT1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 15:27:10 -0400
+X-mailer: xrn 9.03-beta-14
+From: anton@mips.complang.tuwien.ac.at (Anton Ertl)
+Subject: Re: [PATCH] ide write barrier support
 To: linux-kernel@vger.kernel.org
-Subject: Re: Uncorrectable Error on IDE, significant accumulation
-Date: Tue, 21 Oct 2003 20:23:58 +0100
-User-Agent: KMail/1.5.4
-References: <20031020132705.GA1171@synertronixx3> <20031020230510.GD15563%konsti@ludenkalle.de> <200310210203.45512.ianh@iahastie.local.net>
-In-Reply-To: <200310210203.45512.ianh@iahastie.local.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310212024.00096.ianh@iahastie.local.net>
+X-Newsgroups: linux.kernel
+In-reply-to: <IXzh.61g.5@gated-at.bofh.it>
+Date: Tue, 21 Oct 2003 19:24:16 GMT
+Message-ID: <2003Oct21.212416@a0.complang.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 Oct 2003 02:03, Ian Hastie wrote:
-> On Tuesday 21 Oct 2003 00:05, Konstantin Kletschke wrote:
-> > The new K7S5A Pro behaves strange.
-> >
-> > When lilo comes up, it gets keyboard input containing of 4-6 lines
-> > "t:t:t:t:t:t:t:t:t:t:t:t:"...
-> > When hitting backspace whole line gets cleared, enter boots default then.
-> > WTF?
-> > even with no keyboard plugged in. My first thought was disabling
-> > "usb-keyboard support for dos" but... only a usb printer, ethernet and
-> > serial modem are plugged in...
->
-> Kernel configuration optins aren't going to affect LILO
+Jens Axboe <axboe@suse.de> writes:
+>Completely disabling write back caching on IDE drives totally kills
+>performance typically, they are just not meant to be driven this way.
 
-Oh well. *8}  It's that funny thing called the BIOS isn't it.  Doh!!
+It has a significant performance impact, but I would not call it
+"totally kills performance".  In Section 7 of
 
-: USB Function for DOS
-: Enable this item if you plan to use the USB ports on this mainboard in a DOS
-: environment.
+http://www.complang.tuwien.ac.at/papers/czezatke%26ertl00/
 
-Well assuming it implies some kind of 16bit related access mode then I suppose 
-it should be disabled anyway.  However I didn't see a specific "usb-keyboard 
-support for dos" in the manual.  What happens if you disable "USB Function 
-Support" completely?
+you can find some numbers for ext2 with and without write-back caching
+(and for other file systems without write-back caching).  The slowdown
+was about a factor 1.5 for an un-tar benchmark and 1 for an rm
+benchmark (and of course 1 for the read-dominated tar and find
+benchmarks).
 
+IMO the OS should turn off write-back caching on all devices that have
+journaling, log-structured or soft-updated file systems mounted,
+unless the OS ensures correctness through write barriers, explicit
+flushes or somesuch.  I certainly turn off write-back caching on all
+drives with ext3 file systems.
+
+So I hope to see write barrier support in the Linux kernel at some
+point in the future.
+
+Concerning disk behaviour, I have certainly seen disks (with
+write-back caching turned on) that don't write a block for many
+seconds, while they write other, later (from the view of the CPU)
+blocks.  See
+
+http://www.complang.tuwien.ac.at/anton/hdtest/
+
+- anton
 -- 
-Ian.
-
-
+M. Anton Ertl                    Some things have to be seen to be believed
+anton@mips.complang.tuwien.ac.at Most things have to be believed to be seen
+http://www.complang.tuwien.ac.at/anton/home.html

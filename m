@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUIIQCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUIIQBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUIIQCG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 12:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUIIQCF
+	id S266187AbUIIQBn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 12:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUIIQBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 12:02:05 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:5765
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S266143AbUIIQBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 12:01:42 -0400
-Date: Thu, 9 Sep 2004 09:01:16 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: bzolnier@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [patch][9/9] block: remove bio walking
-Message-Id: <20040909090116.11e7a031.davem@davemloft.net>
-In-Reply-To: <20040909154453.GG1737@suse.de>
-References: <200409082127.04331.bzolnier@elka.pw.edu.pl>
-	<200409091553.13918.bzolnier@elka.pw.edu.pl>
-	<20040909150444.C6434@flint.arm.linux.org.uk>
-	<200409091628.25304.bzolnier@elka.pw.edu.pl>
-	<20040909155420.D6434@flint.arm.linux.org.uk>
-	<20040909154453.GG1737@suse.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 9 Sep 2004 12:01:43 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21438 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266117AbUIIQAh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 12:00:37 -0400
+Date: Thu, 9 Sep 2004 18:02:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+Message-ID: <20040909160203.GA23415@elte.hu>
+References: <OFD3DB738F.105F62D0-ON86256F08.005CDE25-86256F08.005CDE44@raytheon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFD3DB738F.105F62D0-ON86256F08.005CDE25-86256F08.005CDE44@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Sep 2004 17:44:53 +0200
-Jens Axboe <axboe@suse.de> wrote:
 
-> On Thu, Sep 09 2004, Russell King wrote:
-> > Essentially, kernel PIO writes data into the page cache, and that action
-> > may leave data in the CPU's caches.  Since the kernels mappings may not
-> > be coherent with mappings in userspace, data written to the kernel
-> > mappings may remain in the data cache, and stale data would be visible
-> > to user space.
-> > 
-> > There has been talk about using flush_dcache_page() to resolve
-> > this issue, but I'm not sure what the outcome was.  Certainly
-> > flush_dcache_page() is supposed to be used before the data in the
-> > kernels page cache is read or written.
-> 
-> Have you ever tested bouncing on arm? It seems to be lacking a
-> flush_dcache_page() indeed, how does this look?
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-This looks like a good fix to me too.
+> Results from this morning's test with -R1 and some follow up on
+> related messages.
+
+lt002.v3k1/lt.10 is particularly interesting:
+
+ 00000001 0.000ms (+0.000ms): spin_lock (rtl8139_poll)
+ 00000001 0.000ms (+0.070ms): spin_lock (<00000000>)
+ 00000001 0.070ms (+0.070ms): rtl8139_rx (rtl8139_poll)
+ 00000001 0.140ms (+0.070ms): alloc_skb (rtl8139_rx)
+ 00000001 0.210ms (+0.070ms): kmem_cache_alloc (alloc_skb)
+ 00000001 0.280ms (+0.073ms): __kmalloc (alloc_skb)
+ 00000001 0.354ms (+0.139ms): eth_type_trans (rtl8139_rx)
+ 00000001 0.493ms (+0.076ms): netif_receive_skb (rtl8139_rx)
+ 00000002 0.570ms (+0.001ms): packet_rcv_spkt (netif_receive_skb)
+
+this too shows the CPU in 'slow motion' in a codepath that normally
+executes 10 times faster than this on a 100 MHz Pentium Classic ...
+
+another interesting thing is that the unit of delay seems to be around
+70 usecs. As if under certain circumstances every main memory access
+created a 70 usecs hit. (a cachemiss perhaps?) The eth_type_trans entry
+perhaps generated 2 main memory accesses (2 cachemisses?) or so.
+
+	Ingo

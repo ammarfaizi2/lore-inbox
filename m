@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbUCCK5p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 05:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUCCK5o
+	id S262430AbUCCK5W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 05:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbUCCK5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 05:57:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47023 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262435AbUCCK5l (ORCPT
+	Wed, 3 Mar 2004 05:57:22 -0500
+Received: from gprs40-155.eurotel.cz ([160.218.40.155]:52194 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262430AbUCCK5V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 05:57:41 -0500
-MIME-Version: 1.0
+	Wed, 3 Mar 2004 05:57:21 -0500
+Date: Wed, 3 Mar 2004 11:56:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Tom Rini <trini@kernel.crashing.org>, George Anzinger <george@mvista.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+Subject: Re: Code freeze on lite patches and schedule for submission into mainline kernel
+Message-ID: <20040303105653.GB342@elf.ucw.cz>
+References: <200403031354.10370.amitkale@emsyssoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16453.47651.915651.491105@neuro.alephnull.com>
-Date: Wed, 3 Mar 2004 05:57:39 -0500
-From: Rik Faith <faith@redhat.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Light-weight Auditing Framework
-In-Reply-To: [Chris Wright <chrisw@osdl.org>] Tue  2 Mar 2004 16:49:51 -0800
-References: <16451.25789.72815.763592@neuro.alephnull.com>
-	<20040301122618.O22989@build.pdx.osdl.net>
-	<chrisw@osdl.org>
-	<16453.354.904646.836231@neuro.alephnull.com>
-	<20040302164951.Q22989@build.pdx.osdl.net>
-X-Key: 7EB57214; 958B 394D AD29 257E 553F  E7C7 9F67 4BE0 7EB5 7214
-X-Url: http://www.redhat.com/
-X-Mailer: VM 7.17; XEmacs 21.4; Linux 2.4.22-1.2163.nptl (neuro)
+Content-Disposition: inline
+In-Reply-To: <200403031354.10370.amitkale@emsyssoft.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue  2 Mar 2004 16:49:51 -0800,
-   Chris Wright <chrisw@osdl.org> wrote:
-> * Rik Faith (faith@redhat.com) wrote:
-> > > Doesn't seem like CONFIG_AUDIT=n disables all the code.
-> >
-> > The bit tests in entry.S are still there, but those are the same tests
-> > that are used for ptrace, and there is nothing that sets the bits.  So,
-> > aside from that test, all of the code should be disabled.
+Hi!
+
+> We have two sets of kgdb patches as of now: [core-lite, i386-lite, 8250] and 
+> [core, i386, ppc, x86_64, eth]. First set of kgdb patches (lite) is fairly 
+> clean. Let's consider it to be a candicate for submission to mainline kernel.
 > 
-> I think, e.g. the code that calls audit_get/putname is still there.
+> I am freezing the lite patches wrt. feature updates. Only bug-fixes and code 
+> cleanups will be allowed in lite patches. You can make any feature 
+> enhancements to second set of patches.
 
-When syscall auditing is disabled, the body of the if will become a nop
-because of a #define, so the compiler will remove the whole if.  I don't
-want to move the if into a macro, since this would make it look like the
-function was called all the time.  I don't want the if in the function
-because I'm trying not to call the function except when necessary.
+Sounds good.
 
-I could put #ifdef CONFIG_AUDITSYSCALL around these statements, but I
-find that often makes code harder to read.  However, in this case, that
-might avoid some confusion.
+> I propose following schedule for pushing kgdb lite into mainline kernel:
+> Take 1: 8th , Take 2: 15th, Take 3: 22nd, Take 4:29th. I'll download the 
+> kernel snapshot (http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/) on 
+> these dates and submit a single patch for possible acceptance into mainline 
+> kenrel and feedback from community. Hopefully we'll succeed by end of this 
+> month.
 
-> > Except where noted below, I have either incorporated all your
-> > suggestions or made notes in the code to do so later.  The new patch is
-> > at: http://people.redhat.com/faith/audit/audit-20040302.1632.patch
-> 
-> Oops, I wasn't clear re: the static initialized data...
-
-Yes, sorry, please see:
-    http://people.redhat.com/faith/audit/audit-20040303.0544.patch
-
+Well, you should have really cc-ed this one to andrew :-). [What?
+Schedule for pushing? No patchbombing? ;-))))))))))]
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

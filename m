@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263537AbTJaSy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 13:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263538AbTJaSy2
+	id S263527AbTJaTQx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 14:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTJaTQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 13:54:28 -0500
-Received: from h80ad273a.async.vt.edu ([128.173.39.58]:36773 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263537AbTJaSy1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 13:54:27 -0500
-Message-Id: <200310311850.h9VIoCr5024057@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: davidm@hpl.hp.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem? 
-In-Reply-To: Your message of "Fri, 31 Oct 2003 10:34:22 PST."
-             <16290.43822.444275.360988@napali.hpl.hp.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com> <20031028013013.GA3991@kroah.com> <200310280300.h9S30Hkw003073@napali.hpl.hp.com> <3FA12A2E.4090308@pacbell.net> <16289.29015.81760.774530@napali.hpl.hp.com> <16289.55171.278494.17172@napali.hpl.hp.com> <3FA28C9A.5010608@pacbell.net>
-            <16290.43822.444275.360988@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-576585988P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 31 Oct 2003 14:16:52 -0500
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:32522 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S263527AbTJaTQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 14:16:51 -0500
+Message-ID: <3FA2B4F4.8040404@enterprise.bidmc.harvard.edu>
+Date: Fri, 31 Oct 2003 14:16:04 -0500
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Javier Villavicencio <jvillavicencio@arnet.com.ar>
+Subject: Re: RadeonFB [Re: 2.4.23pre8 - ACPI Kernel Panic on boot]
+References: <20031029210321.GA11437@dreamland.darkstar.lan>	 <1067491238.1735.4.camel@ktkhome> <1067587196.715.1.camel@gaston>
+In-Reply-To: <1067587196.715.1.camel@gaston>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 31 Oct 2003 13:50:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-576585988P
-Content-Type: text/plain; charset=us-ascii
+Benjamin Herrenschmidt wrote:
 
-On Fri, 31 Oct 2003 10:34:22 PST, David Mosberger said:
+>Ok, first thing: XFree "radeon" _is_ accelerated, though it doesn't
+>do 3D on recent cards
+>
+Hi Ben - Right, sorry, I mean to apply "accelerated" to the 3D effects; 
+the private ATI driver is much faster on glxgears than the version that 
+bundles with XFree.
 
-> And nobody is alarmed by this?  Surely crashing the kernel by plugging
-> in a USB device must be considered a MUST-FIX item.  Perhaps I missed
-> something, but I never saw this mentioned before.
+>Then, the problem you are having is well known
+>
+I'm having two, actually.  The first is that YPAN is getting quite 
+confused.  If I switch VCs, then switch back, the text has been 
+re-arranged, the cursor is often invisible, and sometimes a page or two 
+of new text must be written before anything starts to show up on the 
+screen again.  Experimenting shows that setting VYRES = YRES works 
+around this problem.
 
-Bill Gates. Comdex. Printer. :)
+The second problem is of course the register contents issue when 
+returning from certain graphics programs (e.g. X+fglr) to text mode..  I 
+rather like your idea of doing a re-init when switching from KD_GRAPHICS 
+to KD_TEXT, as the monitor blank during resolution switch will likely 
+overshadow the re-init process.
 
---==_Exmh_-576585988P
-Content-Type: application/pgp-signature
+>Can you verify that running fbset -accel 0 then back 1 cures the
+>problem for you ?
+>  
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+At work now, will try when I return home later...
 
-iD8DBQE/oq7kcC3lWbTT17ARAt30AKCH9gDYJJfsdkVppnq1vpCEDDmmDwCgvP68
-7K0OKtSp+C4KhCtn+Tj5u/w=
-=wHIj
------END PGP SIGNATURE-----
+Kris
 
---==_Exmh_-576585988P--

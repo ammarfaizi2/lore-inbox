@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269647AbUHZVCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269558AbUHZU7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269647AbUHZVCy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 17:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269657AbUHZVBI
+	id S269558AbUHZU7O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269660AbUHZU5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 17:01:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:929 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269661AbUHZU5R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:57:17 -0400
-Date: Thu, 26 Aug 2004 13:54:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 16:57:15 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:41383 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S269626AbUHZUiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:38:21 -0400
 Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <45010000.1093553046@flay>
-Message-ID: <Pine.LNX.4.58.0408261348500.2304@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.58.0408261101110.2304@ppc970.osdl.org> <45010000.1093553046@flay>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Christophe Saout <christophe@saout.de>
+To: Dmitry Baryshkov <mitya@school.ioffe.ru>
+Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       torvalds@osdl.org, reiserfs-list@namesys.com
+In-Reply-To: <20040826203017.GA14361@school.ioffe.ru>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+	 <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com>
+	 <20040826014542.4bfe7cc3.akpm@osdl.org> <412DAC59.4010508@namesys.com>
+	 <1093548414.5678.74.camel@krustophenia.net>
+	 <20040826203017.GA14361@school.ioffe.ru>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iRiqRY6UDa+JwpiIC1hF"
+Date: Thu, 26 Aug 2004 22:38:12 +0200
+Message-Id: <1093552692.13881.43.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-iRiqRY6UDa+JwpiIC1hF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 26 Aug 2004, Martin J. Bligh wrote:
-> 
-> What would "test -d" and "test -f" return on these magic beasties? I can't
-> think of any combinations that wouldn't confuse the crap out of userspace.
+Am Freitag, den 27.08.2004, 00:30 +0400 schrieb Dmitry Baryshkov:
 
-"It's a feature".
+> Another example: Can ext2/etx3/reiserfsv3/xfs be implemented as reiser4
+> plugins? From Hans' words it seems so. If this is correct, then maybe
+> reiser4 core should be updated to completely replace current VFS layer?
+> Then it's a good point to create a branch (in old development model it
+> would be 2.7, dunno for new :), replace VFS layer with reiser4 core, and
+> rewrite all (or at least most used) FS as reiser4 plugins. Then
+> everybody will be happy.
+>=20
+> But this looks too good to be true. Perhaps I misunderstood Hans' words
+> aboud 'new disk format', did I?
 
-The S_ISDIR/S_ISREG tests show real information: it shows not only user
-intent ("you should consider this a file, even if it has attributes"), but
-also whether it is a directory or a container.
+No. You can change the format the reiser4 storage tree is stored in. As
+long as other filesystems don't use the same underlying storage tree
+this is not possible.
 
-And there's a real technical difference there: the streams contained
-within a file are bound to that file. The files contained within a
-directory are _independent_ of that directory. Big difference. HUGE
-difference.
 
-So it's not confusing. If it tests as a file, you think of it as a file.  
-It may have attributes aka named streams associated with it, and you may
-be able to open those attributes by treating the file as a directory, but
-that doesn't really change the fact that it's a file.
+--=-iRiqRY6UDa+JwpiIC1hF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-The _big_ difference is that when you can make the compound object _look_ 
-like a directory, that means that you can now manage the attributes with 
-standard tools. They are still attributes, though.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-		Linus
+iD8DBQBBLko0ZCYBcts5dM0RAifHAJoDtiifngYh4ZiRKhfWPv/yKHeNBACfSpa/
+dzAAXkO7oaVv7W4rgMIhrk8=
+=h/iE
+-----END PGP SIGNATURE-----
+
+--=-iRiqRY6UDa+JwpiIC1hF--
+

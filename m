@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313984AbSDQAdZ>; Tue, 16 Apr 2002 20:33:25 -0400
+	id <S313985AbSDQAfN>; Tue, 16 Apr 2002 20:35:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313985AbSDQAdY>; Tue, 16 Apr 2002 20:33:24 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:62914 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S313984AbSDQAdX>;
-	Tue, 16 Apr 2002 20:33:23 -0400
-Message-ID: <794826DE8867D411BAB8009027AE9EB913D03D4C@FMSMSX38>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Davide Libenzi'" <davidel@xmailserver.org>, davidm@hpl.hp.com
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Why HZ on i386 is 100 ?
-Date: Tue, 16 Apr 2002 17:33:06 -0700
+	id <S313986AbSDQAfM>; Tue, 16 Apr 2002 20:35:12 -0400
+Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:35806 "EHLO
+	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S313985AbSDQAfL>; Tue, 16 Apr 2002 20:35:11 -0400
+Message-ID: <053d01c1e5a7$b4121e70$1125a8c0@wednesday>
+From: "J. Dow" <jdow@earthlink.net>
+To: "Andreas Dilger" <adilger@clusterfs.com>,
+        "Herbert Xu" <herbert@gondor.apana.org.au>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020416222156.GB20464@turbolinux.com> <E16xba3-0005tw-00@gondolin.me.apana.org.au> <20020416225631.GD20464@turbolinux.com>
+Subject: Re: Why HZ on i386 is 100 ?
+Date: Tue, 16 Apr 2002 17:34:58 -0700
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you change HZ to 1000, you need to change PROC_CHANGE_PENALTY
-accordingly.  Otherwise, process would get preempted before its time slice
-gets expired.  The net effect is more context switch than necessary, which
-could explain the 10% difference.
+From: "Andreas Dilger" <adilger@clusterfs.com>
 
+> On Apr 17, 2002  08:37 +1000, Herbert Xu wrote:
+> > Why are we still measuring uptime using the tick variable? Ticks != time.
+> > Surely we should be recording the boot time somewhere (probably on a
+> > file system), and then comparing that with the current time?
+> 
+> Er, because the 'tick' is a valid count of the actual time that the
+> system has been running, while the "boot time" is totally meaningless.
+> What if the system has no RTC, or the RTC is wrong until later in the
+> boot sequence when it can be set by the user/ntpd?  What if you pass
+> daylight savings time?  Does your uptime increase/decrease by an hour?
 
------Original Message-----
-From: Davide Libenzi [mailto:davidel@xmailserver.org]
-Sent: Tuesday, April 16, 2002 11:10 AM
-To: davidm@hpl.hp.com
-Cc: Linus Torvalds; Linux Kernel Mailing List
-Subject: Re: Why HZ on i386 is 100 ?
+Well, Andreas, it seems like a very simple thing to define the time
+quantum, "tick", differently from the resolution of the count reported
+by a call to get the tick counter value. If the latter maintains a
+constant resolution even if the tick time changes then all utilities
+should continue to work. Of course, with a tick time resolution of 10mS
+it gets ugly when setting up a tick time of 1mS. Ideally reporting would
+have an LSB of a microsecond or even a tenth microsecond while the
+increment might still be a hundredth or thousandth of a second. Of course,
+that blows anything that relies on the tick counter to smithereens, I fear.
 
+{^_^}   Joanne "I STILL want a Linux suitable for multimedia applications" Dow.
+        jdow@earthlink.net    (1mS ticks is a GREAT help for multimedia apps.)
 
-On Tue, 16 Apr 2002, David Mosberger wrote:
-
-> >>>>> On Tue, 16 Apr 2002 10:18:18 -0700 (PDT), Davide Libenzi
-<davidel@xmailserver.org> said:
->
->   Davide> i still have pieces of paper on my desk about tests done on
->   Davide> my dual piii where by hacking HZ to 1000 the kernel build
->   Davide> time went from an average of 2min:30sec to an average
->   Davide> 2min:43sec. that is pretty close to 10%
->
-> Did you keep the timeslice roughly constant?
-
-it was 2.5.1 time and it was still ruled by TICK_SCALE that made the
-timeslice to drop from 60ms ( 100HZ ) to 21ms ( 1000HZ ).
-
-
-
-
-- Davide
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

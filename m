@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267752AbUG3RGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267757AbUG3RGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267752AbUG3RGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 13:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267751AbUG3RGk
+	id S267757AbUG3RGb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 13:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267752AbUG3RFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 13:06:40 -0400
-Received: from cantor.suse.de ([195.135.220.2]:57998 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267753AbUG3RGT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 13:06:19 -0400
-Date: Fri, 30 Jul 2004 19:02:27 +0200
-From: Andi Kleen <ak@suse.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com
-Subject: [PATCH] Improve pci_alloc_consistent wrapper on preemptive kernels
-Message-Id: <20040730190227.29913e23.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Jul 2004 13:05:44 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:43477 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S267748AbUG3RFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 13:05:30 -0400
+Message-ID: <410A7FD5.8010906@eidetix.com>
+Date: Fri, 30 Jul 2004 19:05:25 +0200
+From: "David N. Welton" <davidw@eidetix.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Oops in 2.6.7: swap doesn't seem to happen
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[ Please CC replies to me.  Thanks. ]
 
-This is a minor optimization for the pci_alloc_consistent wrapper for
-the generic dma API. When the kernel is compiled preemptive the caller
-can decide if the allocation needs to be GFP_KERNEL or GFP_ATOMIC.
+Trying to rsync a big directory from one place to another.  Not much 
+free memory.
 
-I had this optimization previously in x86-64 private code, but it needs to move
-up now that x86-64 uses the generic DMA API.
+Unable to handle kernel paging request at virtual address 0000186b
+  printing eip:
+c015ef88
+*pde = 00000000
+Oops: 0000 [#7]
+Modules linked in: nfs lockd sunrpc floppy sg scsi_mod capability 
+commoncap 8139cp ohci_hcd nvidia_agp agpgart evdev ehci_hcd usbcore 
+8139too mii crc32 forcedeth isofs zlib_inflate ide_cd cdrom rtc unix
+CPU:    0
+EIP:    0060:[<c015ef88>]    Not tainted
+EFLAGS: 00010202   (2.6.7)
+EIP is at __d_lookup+0x68/0x100
+eax: 0000186b   ebx: 0000186b   ecx: 00000011   edx: f7f00000
+esi: df18df28   edi: 32ae6223   ebp: f6ffff98   esp: df18de58
+ds: 007b   es: 007b   ss: 0068
+Process rsync (pid: 19544, threadinfo=df18c000 task=d4df2f30)
+Stack: c01245f2 f5e49d80 000003e8 32ae6223 00000000 f7f69834 e360102a 
+0000000c
+        e360102a df18df28 f7fcd160 df18dec0 c0155b70 d3d4b050 df18dec8 
+00000001
+        e360102a df18dec0 c6ff6ed4 df18dec8 c015602c df18df28 df18dec8 
+df18dec0
+Call Trace:
+  [<c01245f2>] in_group_p+0x42/0x80
+  [<c0155b70>] do_lookup+0x30/0xb0
+  [<c015602c>] link_path_walk+0x43c/0x850
+  [<c0156659>] path_lookup+0x69/0x110
+  [<c01568c9>] __user_walk+0x49/0x60
+  [<c0151f7c>] vfs_lstat+0x1c/0x60
+  [<c01526ab>] sys_lstat64+0x1b/0x40
+  [<c0113a10>] do_page_fault+0x0/0x4ff
+  [<c0104925>] error_code+0x2d/0x38
+  [<c0103efb>] syscall_call+0x7/0xb
+
+Code: 8b 03 0f 18 00 90 8d 6b 98 8b 7c 24 0c 39 7d 14 74 12 8b 1b
+
+What I notice is that swap is not in use:
+
+             total       used       free     shared    buffers     cached
+Mem:        907512     883488      24024          0      66184    658980
+-/+ buffers/cache:     158324     749188
+Swap:       497972          0     497972
 
 
-diff -urpN -X ../KDIFX linux-2.6.8rc2-mm1/include/asm-generic/pci-dma-compat.h linux-2.6.8rc2-mm1-amd64/include/asm-generic/pci-dma-compat.h
---- linux-2.6.8rc2-mm1/include/asm-generic/pci-dma-compat.h	2004-04-06 13:12:19.000000000 +0200
-+++ linux-2.6.8rc2-mm1-amd64/include/asm-generic/pci-dma-compat.h	2004-07-30 17:02:49.000000000 +0200
-@@ -5,6 +5,13 @@
- #define _ASM_GENERIC_PCI_DMA_COMPAT_H
- 
- #include <linux/dma-mapping.h>
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_PREEMPT
-+#define preempt_atomic() in_atomic()
-+#else
-+#define preempt_atomic() 1
-+#endif
- 
- /* note pci_set_dma_mask isn't here, since it's a public function
-  * exported from drivers/pci, use dma_supported instead */
-@@ -15,11 +22,12 @@ pci_dma_supported(struct pci_dev *hwdev,
- 	return dma_supported(hwdev == NULL ? NULL : &hwdev->dev, mask);
- }
- 
-+/* Would be better to move this out of line. It's already quite big. */
- static inline void *
- pci_alloc_consistent(struct pci_dev *hwdev, size_t size,
- 		     dma_addr_t *dma_handle)
- {
--	return dma_alloc_coherent(hwdev == NULL ? NULL : &hwdev->dev, size, dma_handle, GFP_ATOMIC);
-+	return dma_alloc_coherent(hwdev == NULL ? NULL : &hwdev->dev, size, dma_handle, preempt_atomic() ? GFP_ATOMIC : GFP_KERNEL);
- }
- 
- static inline void
+config and other junk available on request.
+
+Thankyou,
+-- 
+David N. Welton
+davidw@eidetix.com

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311193AbSCZLFL>; Tue, 26 Mar 2002 06:05:11 -0500
+	id <S311206AbSCZLGc>; Tue, 26 Mar 2002 06:06:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311147AbSCZLFC>; Tue, 26 Mar 2002 06:05:02 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:51935 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S310940AbSCZLEx> convert rfc822-to-8bit; Tue, 26 Mar 2002 06:04:53 -0500
-Message-Id: <200203261101.g2QB1PEI027746@codeman.linux-systeme.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <mcp@linux-systeme.de>
-Reply-To: mcp@linux-systeme.de
-Organization: Linux-Systeme GmbH
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18 problems
-Date: Tue, 26 Mar 2002 12:01:10 +0100
-X-Mailer: KMail [version 1.3.2]
-X-PRIORITY: 2 (High)
+	id <S311203AbSCZLGX>; Tue, 26 Mar 2002 06:06:23 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:3089 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S311147AbSCZLGO>;
+	Tue, 26 Mar 2002 06:06:14 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15520.21196.511499.316840@argo.ozlabs.ibm.com>
+Date: Tue, 26 Mar 2002 21:51:56 +1100 (EST)
+To: Theodore Tso <tytso@mit.edu>
+Cc: Andrew Morton <akpm@zip.com.au>, "H . J . Lu" <hjl@lucon.org>,
+        linux-mips@oss.sgi.com, linux kernel <linux-kernel@vger.kernel.org>,
+        GNU C Library <libc-alpha@sources.redhat.com>
+Subject: Re: Does e2fsprogs-1.26 work on mips?
+In-Reply-To: <20020326015440.A12162@thunk.org>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Theodore Tso writes:
 
-kernel: EXT3-fs warning (device ide0(3,10)): ext3_unlink: Deleting 
-nonexistent file (32650)
+> 3)  RLIMIT_FILESIZE should not apply to block devices!!!
 
-Since 2.4.18 i get sometimes the above message. What is it?
+Absolutely.
 
-!! Please CC, i am not subscribed to the lkml!!
+I would go further and say that it should only apply to writes to a
+regular file that would extend the file past the filesize limit.  At
+the moment the check in generic_file_write is simply whether the file
+offset is greater than the limit, or would be greater than the limit
+after the write.  This doesn't seem right to me.  If, for example, my
+RLIMIT_FILESIZE is 1MB, and I have write access to an existing 100MB
+file, I think I should be able to write anywhere in that file as long
+as I don't try to extend it.
 
--- 
-Kind regards
-	Marc-Christian Petersen
+If we did that then the block device case would fall out, since you
+can't extend block devices (not by writing past the end of them
+anyway).
+
+Paul.

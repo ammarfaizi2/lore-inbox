@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUHIVY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267258AbUHIVY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267238AbUHIVY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267264AbUHIVYJ
+	id S267258AbUHIVY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267249AbUHIVX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:24:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24031 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267232AbUHIVV7 (ORCPT
+	Mon, 9 Aug 2004 17:23:58 -0400
+Received: from zero.aec.at ([193.170.194.10]:55044 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S267264AbUHIVXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:21:59 -0400
-Date: Mon, 9 Aug 2004 14:20:12 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: hch@infradead.org, bjorn.helgaas@hp.com, akpm@osdl.org, ehm@cris.com,
-       grif@cs.ucr.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] QLogic ISP2x00: remove needless busyloop
-Message-Id: <20040809142012.23dc22af.davem@redhat.com>
-In-Reply-To: <20040809221529.A10454@infradead.org>
-References: <200408091252.58547.bjorn.helgaas@hp.com>
-	<20040809210335.A9711@infradead.org>
-	<20040809141155.0c94b8c4.davem@redhat.com>
-	<20040809221529.A10454@infradead.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 17:23:19 -0400
+To: Vladislav Bolkhovitin <vst@vlnb.net>
+cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
+References: <2pY7Y-W1-7@gated-at.bofh.it> <2qdJL-3sh-27@gated-at.bofh.it>
+	<2qePx-4eM-21@gated-at.bofh.it> <2qf8S-4pI-31@gated-at.bofh.it>
+	<2qg4V-54c-17@gated-at.bofh.it> <2qgoh-5og-29@gated-at.bofh.it>
+	<2qhkn-649-41@gated-at.bofh.it> <2rkgh-zP-45@gated-at.bofh.it>
+	<2rlFk-1wC-27@gated-at.bofh.it> <2rmhX-20I-17@gated-at.bofh.it>
+	<2roWw-40d-19@gated-at.bofh.it> <2roWw-40d-17@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 09 Aug 2004 23:23:12 +0200
+In-Reply-To: <2roWw-40d-17@gated-at.bofh.it> (Vladislav Bolkhovitin's
+ message of "Mon, 09 Aug 2004 22:30:12 +0200")
+Message-ID: <m3657st39b.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Aug 2004 22:15:29 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
+Vladislav Bolkhovitin <vst@vlnb.net> writes:
 
-> On Mon, Aug 09, 2004 at 02:11:55PM -0700, David S. Miller wrote:
-> > You could remove the qlogicfc driver if you really wanted, by providing
-> > a config option that would provide qlogicfc compatible device numbering
-> > in the qla2xxx driver.
-> 
-> It's called CONFIG_DEVFS.  disable this config option (it's marked OBSOLETE anyway)
-> and your device names are the same.
+> Marcelo Tosatti wrote:
+>> Vladislav, There is no cache coherency issues on x86, it handles the
+>> cache coherency
+>> on hardware.
+>
+> Well, Marcelo, sorry if I'm getting too annoying, but we had a race
+> with cache coherency during SCST (SCSI target mid-level)
+> development. We discovered that on P4 Xeon after atomic_set() there is
+> very small window, when atomic_read() on another CPUs returns the old
+> value. We had to rewrite the code without using atomic_set(). Isn't it
+> cache coherency issue?
 
-I wish to do 2.4.x and 2.6.x development on the same system.
-Is this such a foreign concept for you?
+Add an rmb() after the atomic_set. atomic_set doesn't have one by itself
+(it is non locked on Linux/x86)
+
+> And, BTW, returning to the original topic, would it be better to make
+> set_bit() and friends guarantee not to be reordered on all
+> architectures, instead of just add the comment. Otherwise, what is the
+
+That makes them a *lot* slower on some systems. And most of the
+set_bits in the kernel don't need strong ordering.
+
+> difference with versions with `__` prefix (__set_bit(), for example)?
+> Just adding the comments will lead to creating different functions
+> with gurantees by everyone who need it in all over the kernel. Is it
+> the right thing? In some places in SCST we heavy rely on non-ordering
+> guarantees.
+
+Better add lots of memory barriers then.
+
+-Andi
+

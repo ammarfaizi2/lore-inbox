@@ -1,53 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263225AbUDOSzO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUDOSxc
+	id S263089AbUDOSwj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 14:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDOSts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:53:32 -0400
-Received: from mtaw6.prodigy.net ([64.164.98.56]:16814 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S261638AbUDOSxN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:53:13 -0400
-Message-ID: <407EDA4A.2070509@pacbell.net>
-Date: Thu, 15 Apr 2004 11:54:02 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Thu, 15 Apr 2004 14:49:48 -0400
+Received: from reformers.mr.itd.umich.edu ([141.211.93.147]:22739 "EHLO
+	reformers.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S263089AbUDOSrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 14:47:18 -0400
+Date: Thu, 15 Apr 2004 14:47:07 -0400 (EDT)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@blue.engin.umich.edu
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+In-Reply-To: <192710000.1082052992@flay>
+Message-ID: <Pine.GSO.4.58.0404151421260.28662@blue.engin.umich.edu>
+References: <Pine.LNX.4.44.0404151842530.9612-100000@localhost.localdomain>
+ <192710000.1082052992@flay>
 MIME-Version: 1.0
-To: Colin Leroy <colin@colino.net>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.6-rc1: cdc-acm still (differently) broken
-References: <20040415201117.11524f63@jack.colino.net>
-In-Reply-To: <20040415201117.11524f63@jack.colino.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Colin Leroy wrote:
-> Hi,
-> 
-> I gave 2.6.6-rc1 a try, and found that cdc-acm is now broken is a new way:
-> ... usb_interface_claimed() returns true ... intf->dev.driver is already cdc-acm 
 
-The interface being probed is by definition not going to be claimed
-by any other driver ... it shouldn't check or claim that interface.
+> It has similar problems, IIRC with increasing i_shared_sem contention.
 
-That test has always been buggy -- better to just remove it.  For
-that matter, usb_interface_claimed() calls should all vanish ... it's
-better to fail if claiming the interface fails (one step, not two).
-Care to try an updated patch?
+Agreed.
 
-This started to matter because as of RC1, usbcore got rid of the last of
-some pre-driver-model code for driver binding.  There might be a similar
-bug in the ALSA usb audio driver, according to 'grep'.
+> But I think it solves the same issues as prio_tree,
 
-- Dave
+Agreed.
+
+> is simpler,
+
+Agreed.
+
+> is easier to fix up to do clever locking with.
+
+I haven't thought about it fully, so I am not sure. But, it is likely
+that locking is easier with list-of-lists.
+
+[snip]
+
+> diff -urpN -X /home/fletch/.diff.exclude 820-numa_large_pages/mm/mmap.c 830-list-of-lists/mm/mmap.c
+> --- 820-numa_large_pages/mm/mmap.c	Wed Jun 18 21:49:20 2003
+> +++ 830-list-of-lists/mm/mmap.c	Wed Jun 18 23:29:38 2003
+> @@ -306,6 +306,56 @@ static void __vma_link_rb(struct mm_stru
+>  	rb_insert_color(&vma->vm_rb, &mm->mm_rb);
+>  }
+>
+> +static void vma_add (struct vm_area_struct *vma,
+> +						struct list_head *range_list)
+> +{
+> +	struct address_range *range;
+> +	struct list_head *prev, *next;
+> +	unsigned long start = vma->vm_pgoff;
+> +	unsigned long end = vma->vm_pgoff +
+> +		(((vma->vm_end - vma->vm_start) >> PAGE_SHIFT) - 1);
+> +
+> +	/* First, look for an existing range that matches ours */
+> +	prev = range_list;
+> +	list_for_each(next, range_list) {
+> +		range = list_entry(next, struct address_range, ranges);
+> +		if (range->start > start)
+> +			break;    /* this list is sorted by start */
+> +		if ((range->start == start) && (range->end == end)) {
+> +			goto found;
+> +		}
+> +		prev = next;
+> +	}
+
+Hmm.. We do a linear O(N) search for each vma added. If the range_list
+has 1000 vmas, then it is really bad. Running Ingo's test-mmap3.c or
+Andrew's rmap-test.c (check 3rd test Andrew did - single process,
+10,000 different vmas - with different range->start and range->end)
+will be slow.
+
+The prio_tree patch optimizes these cases with O(log N) insert algorithm.
+
+[snip]
+
+> +static void vma_del (struct vm_area_struct *vma)
+> +{
+[snip]
+> +	next = vma->shared.next;	/* stash the range list we're on */
+> +	list_del(&vma->shared);		/* remove us from the list of vmas */
+> +	if (list_empty(next)) {		/* we were the last vma for range */
+> +		range = list_entry(next, struct address_range, vmas);
+> +		list_del(&range->ranges);
+> +		kfree(range);
+> +	}
+> +}
+
+Agree that vma_del is much simpler.
+
+>  page_referenced_obj(struct page *page)
+>  {
+[snip]
+> +	list_for_each_entry(range, &mapping->i_mmap, ranges) {
+> +		if (range->start > index)
+> +			break;     /* Sorted by start address => we are done */
+> +		if (range->end < index)
+> +			continue;
+
+Again O(N) search...
+
+> +		list_for_each_entry(vma, &range->vmas, shared)
+> +			referenced += page_referenced_obj_one(vma, page);
+> +	}
 
 
+> @@ -512,7 +532,9 @@ static int
+>  try_to_unmap_obj(struct page *page)
+>  {
+[snip]
+> +	list_for_each_entry(range, &mapping->i_mmap, ranges) {
+> +		if (range->start > index)
+> +			break;     /* Sorted by start address => we are done */
+> +		if (range->end < index)
+> +			continue;
 
-> 
-> HTH,
+Here also O(N) search when each vma map a unique set of file pages...
 
+Thanks for posting the code. Your old postings (almost a year ago)
+regarding list-of-lists inspired me to develop prio_tree. Thanks.
 
+Rajesh

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265340AbSJXHwS>; Thu, 24 Oct 2002 03:52:18 -0400
+	id <S265344AbSJXIEc>; Thu, 24 Oct 2002 04:04:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265342AbSJXHwR>; Thu, 24 Oct 2002 03:52:17 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5136 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265340AbSJXHwQ>;
-	Thu, 24 Oct 2002 03:52:16 -0400
-Date: Thu, 24 Oct 2002 00:56:57 -0700
-From: Greg KH <greg@kroah.com>
-To: Keith Owens <kaos@ocs.com.au>
+	id <S265345AbSJXIEc>; Thu, 24 Oct 2002 04:04:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33296 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265344AbSJXIE3>; Thu, 24 Oct 2002 04:04:29 -0400
+Date: Thu, 24 Oct 2002 09:10:37 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: One for the Security Guru's
-Message-ID: <20021024075656.GB20295@kroah.com>
-References: <20021023130251.GF25422@rdlg.net> <24321.1035379233@ocs3.intra.ocs.com.au>
+Subject: Re: [RFC] more pcibios_* removals for 2.5.44
+Message-ID: <20021024091037.A1346@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <20021022183152.GG6471@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <24321.1035379233@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021022183152.GG6471@kroah.com>; from greg@kroah.com on Tue, Oct 22, 2002 at 11:31:52AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 11:20:33PM +1000, Keith Owens wrote:
-> 
-> LSM with its fine grained security model might help in this area, but
-> don't hold your breath.  LSM has not been accepted into the kernel yet.
+On Tue, Oct 22, 2002 at 11:31:52AM -0700, Greg KH wrote:
+> Attached is a patch for 2.5.44 that removes almost all of the remaining
+> usages of pcibios_read_config* and pcibios_write_config* calls.  It also
+> removes them from the pci.h, and drivers/pci/compat.c is gone.
 
-Um, what's sitting in the security and include/linux/security.h files in
-the 2.5 tree then?  :)
+You missed one in the pcmcia code.  I think this one will need a pseudo
+pci-device created just to use the new interface - the right pci device
+structure isn't anywhere in sight.
 
-In short, it's in, but not "every" part of it, yet.
+pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
 
-thanks,
 
-greg k-h
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131774AbQK2SXa>; Wed, 29 Nov 2000 13:23:30 -0500
+        id <S131409AbQK2SZu>; Wed, 29 Nov 2000 13:25:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131912AbQK2SXU>; Wed, 29 Nov 2000 13:23:20 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44039 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S131928AbQK2SXI>; Wed, 29 Nov 2000 13:23:08 -0500
-Date: Wed, 29 Nov 2000 09:52:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jens Axboe <axboe@suse.de>
-cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: plug problem in linux-2.4.0-test11
-In-Reply-To: <20001129152308.A28399@suse.de>
-Message-ID: <Pine.LNX.4.10.10011290949520.11951-100000@penguin.transmeta.com>
+        id <S131127AbQK2SZk>; Wed, 29 Nov 2000 13:25:40 -0500
+Received: from 213-123-77-235.btconnect.com ([213.123.77.235]:1543 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S130304AbQK2SZg>;
+        Wed, 29 Nov 2000 13:25:36 -0500
+Date: Wed, 29 Nov 2000 17:57:04 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: corruption
+In-Reply-To: <Pine.LNX.4.10.10011290940070.11951-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0011291753100.1306-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 Nov 2000, Linus Torvalds wrote:
+> That still leaves the SCSI corruption, which could not have been due to
+> the request issue. What's the pattern there for people?
 
+Linus, I confess that at the time (when I reproduced this problem on my
+SCSI-only 4way/6G machine) I did not realize the importance of observing
+the pattern or even just saving the log. No, I was _not_ just being stupid
+but rather it was _so_ easy to panic Linux at the time (for various
+reasons) that this one looked like just "yet another panic" somewhere.
 
-On Wed, 29 Nov 2000, Jens Axboe wrote:
-> 
-> I agree with your reasoning, even if the s390 behaviour is a bit
-> "non-standard" wrt block devices. Linus, could you apply?
-> 
-> --- drivers/block/ll_rw_blk.c~	Wed Nov 29 15:17:33 2000
-> +++ drivers/block/ll_rw_blk.c	Wed Nov 29 15:18:43 2000
-> @@ -347,10 +347,9 @@
->   */
->  static inline void __generic_unplug_device(request_queue_t *q)
->  {
-> -	if (!list_empty(&q->queue_head)) {
-> -		q->plugged = 0;
-> +	q->plugged = 0;
-> +	if (!list_empty(&q->queue_head))
->  		q->request_fn(q);
-> -	}
->  }
+Now, I am trying hard (lots of kernel compiles, bonnies, diff -urN between
+linux trees, cp -a linuxA linuxB etc etc) to reproduce it and I can't.
 
-I would much rather actually go back to the original setup, which did
-nothing at all if the queue wasn't plugged in the first place.
+All I remember from memory was those messages about "freeing stuff not in
+datazone" etc. They were the same messages as I had on an IDE system and
+the same as Mohammad and others reported on the list recently.
 
-I think that we should strive for a setup that calls "request_fn" only to
-start new IO, and that expects the low-level driver to be able to do the
-whole request queue until it is empty. Then we re-start it the next time
-around.
-
-			Linus
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,93 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbRFPSbS>; Sat, 16 Jun 2001 14:31:18 -0400
+	id <S264646AbRFPSa6>; Sat, 16 Jun 2001 14:30:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264645AbRFPSbI>; Sat, 16 Jun 2001 14:31:08 -0400
-Received: from be02.imake.com ([151.200.87.11]:49164 "EHLO be02.tfsm.com")
-	by vger.kernel.org with ESMTP id <S264644AbRFPSaw>;
-	Sat, 16 Jun 2001 14:30:52 -0400
-Message-ID: <3B2BA68D.984A2808@247media.com>
-Date: Sat, 16 Jun 2001 14:33:50 -0400
-From: Russell Leighton <russell.leighton@247media.com>
-X-Mailer: Mozilla 4.51 [en] (Win98; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: threading question
-In-Reply-To: <E15BHrC-0008Ba-00@the-village.bc.nu>
+	id <S264645AbRFPSaj>; Sat, 16 Jun 2001 14:30:39 -0400
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:18150 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S264644AbRFPSa1>; Sat, 16 Jun 2001 14:30:27 -0400
+Date: Sat, 16 Jun 2001 19:29:57 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Oops] 2.4.5-ac14/2.4.6-pre3+Athlon+gcc3-prerelease+VIAKT133A
+Message-ID: <20010616192957.A2713@debian>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010616161801.A1821@caesar>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010616161801.A1821@caesar>
+User-Agent: Mutt/1.3.18i
+From: Michael <leahcim@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 16, 2001 at 04:18:01PM +0800, Richard Chan wrote:
+> Here's an oops from
+> 
+> 1. Athlon kernel, gcc3 prerelease 14 June compiled
+> 2. Kernel version 2.4.5-ac14
+> 3. Mobo: Soltek 75KAV (VT133A disaster??) with Athlon 1.2G C
+> 
+> Any ideas? Bad compiler or bad kernel?
+> The problems occur in kmem_cache_????.
+> 
+> On this mobo and chipset I have had no luck with locally compiled
+> Athlon kernels at all (whether stock or -ac, RedHat gcc or gcc3-prerelease).
+> Me thinks something is seriously wrong with this mobo/chipset or is it
+> the Athlon code in gcc?
 
-Is there a user-space implemenation (library?) for coroutines that would work from C?
+FWIW, I've got 2 of these boards (with duron 800 chips) 
 
+I use gcc2.95.4 in debian sid.
 
-Alan Cox wrote:
+Got it about the same time the 686b patch went
+into ac1 and its run flawlessly with every ac version I've used since.
 
-> > Can you provide any info and/or examples of co-routines? I'm curious to
-> > see a good example of co-routines' "betterness."
->
-> With co-routines you don't need
->
->         8K of kernel stack
->         Scheduler overhead
->         Fancy locking
->
-> You don't get the automatic thread switching stuff though.
->
-> So you might get code that reads like this (note that aio_ stuff works rather
-> well combined with co-routines as it fixes a lack of asynchronicity in the
-> unix disk I/O world)
->
->         select(....)
->
->         if(FD_ISSET(copier_fd))
->                 run_coroutine(&copier_state);
->
->         ...
->
-> and the copier might be something like
->
->         while(1)
->         {
->                 // Yes 1 at a time is dumb but this is an example..
->                 // Yes Im ignoring EOF for this
->                 if(read(copier_fd, buf[bufptr], 1)==-1)
->                 {
->                         if(errno==-EWOULDBLOCK)
->                         {
->                                 coroutine_return();
->                                 continue;
->                         }
->                 }
->                 if(bufptr==255  || buf[bufptr]=='\n')
->                 {
->                         run_coroutine(run_command, buf);
->                         bufptr=0;
->                 }
->                 else
->                         bufptr++;
->         }
->
-> it lets you express a state machine as a set of multiple such small state
-> machines instead.  run_coroutine() will continue a routine where it last
-> coroutine_return()'d from. Thus in the above case we are expressing read
-> bytes until you see a new line cleanly - not mangled in with keeping state
-> in global structures but by using natural C local variables and code flow
->
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---
----------------------------------------------------
-Russell Leighton    russell.leighton@247media.com
----------------------------------------------------
-
-
+Didn't compile ac14, went straight to 15.
+-- 
+Michael.

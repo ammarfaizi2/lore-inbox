@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268342AbRHGPRJ>; Tue, 7 Aug 2001 11:17:09 -0400
+	id <S268427AbRHGPT3>; Tue, 7 Aug 2001 11:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268427AbRHGPRA>; Tue, 7 Aug 2001 11:17:00 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:28736
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S268511AbRHGPQn>; Tue, 7 Aug 2001 11:16:43 -0400
-Date: Tue, 7 Aug 2001 08:16:52 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Rob Landley <landley@webofficenow.com>
-Cc: Paul Flinders <ptf@ftel.co.uk>, lm@bitmover.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: SIS 630E perf problems?
-Message-ID: <20010807081652.A11619@work.bitmover.com>
-Mail-Followup-To: Rob Landley <landley@webofficenow.com>,
-	Paul Flinders <ptf@ftel.co.uk>, lm@bitmover.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200108061713.f76HDaj16575@work.bitmover.com> <3B6F14E2.3030209@ftel.co.uk> <01080618523906.04153@localhost.localdomain>
-Mime-Version: 1.0
+	id <S268206AbRHGPTT>; Tue, 7 Aug 2001 11:19:19 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:40196
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S268427AbRHGPTH>; Tue, 7 Aug 2001 11:19:07 -0400
+Date: Tue, 07 Aug 2001 11:19:13 -0400
+From: Chris Mason <mason@suse.com>
+To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+cc: linux-mm@kvack.org
+Subject: Re: [RFC] using writepage to start io
+Message-ID: <75850000.997197553@tiny>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <01080618523906.04153@localhost.localdomain>; from landley@webofficenow.com on Mon, Aug 06, 2001 at 06:52:39PM -0400
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've used a few funky SIS chipsets, on and off, for a long time now, and they 
-> always have one leeeetle problem...
+
+
+On Monday, August 06, 2001 11:18:26 PM +0200 Daniel Phillips
+<phillips@bonn-fries.net> wrote:
+
+>> Grin, we're talking in circles.  My point is that by having two
+>> threads, bdflush is allowed to skip over older buffers in favor of
+>> younger ones because somebody else is responsible for writing the
+>> older ones out.
 > 
-> Try benchmarking it with a lower screen resolution (like 640x480x256 colors). 
->  If the video is sharing main memory, it's sharing the memory bandwidth as 
-> well.  So you've basically got a constant ultra-high-priority DMA going to 
-> the screen, sucking up bandwidth and fighting with everything else.  
-> (Everything else MUST lose or the display would sparkle.  
-> 1280x1024x32bitsx70hz is HOW much bandwidth we're talking here?)
+> Yes, and you can't imagine an algorithm that could do that with *one* 
+> thread?
 
-OK, a copuple of updates on this:
+Imagine one?  Yes.  We're mixing a bunch of issues, so I'll list the 3
+different cases again.  memory pressure, write throttling, age limiting.
+Pretending that a single thread could get enough context information about
+which of the 3 (perhaps more than one) it is currently facing, it can make
+the right decisions.
 
-I wasn't running X when I ran the benchmarks.
+The problem with that right now is that a single thread can't keep up (with
+one case, let alone all 3) as the number of devices increases.  We can more
+or less just replay the entire l-k discussion(s) on threading models here.
 
-I played around with the bios settings enough to make the machine not
-pass POST anymore so I reset the CMOS.  Doing that, plus telling the
-system to autodetect DRAM clocks dropped the latencies down to 260ns
-outside of X and 281ns with X running.  Still not fantastic but good
-enough I suppose.
+In my mind, in order for a single thread to get the job done, it can't end
+up waiting on a device while there are still buffers ready for writeout to
+idle devices.
 
-In reference to the fans that someone else mentioned: I think it is the
-CPU fan making the noise.  Regardless, the MTBF of the power supply fans
-is one year.  I have about a dozen of generation 1 of these bookpcs and
-the fans all started failing at 1 year and frying the power supplies.
-Those dinky power supplies are hard to find so you want to avoid this.
-We bought a pile of fans and replaced them all; one benefit is that the
-higher quality fans are much less noisy.  Something to look into.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+As for a generic mechanism to schedule all FS writeback, I've been trying
+to use writepage ;-)  The bad part here it makes the async issues even
+bigger, since the flushing thread ends up calling into the FS (who knows
+what that might lead to).
+
+-chris
+

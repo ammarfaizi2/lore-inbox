@@ -1,70 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132404AbRACRA6>; Wed, 3 Jan 2001 12:00:58 -0500
+	id <S132443AbRACRE6>; Wed, 3 Jan 2001 12:04:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132507AbRACRAt>; Wed, 3 Jan 2001 12:00:49 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:15632 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S132404AbRACRAj>;
-	Wed, 3 Jan 2001 12:00:39 -0500
-Message-ID: <3A5352ED.A263672D@innominate.de>
-Date: Wed, 03 Jan 2001 17:27:25 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132507AbRACREi>; Wed, 3 Jan 2001 12:04:38 -0500
+Received: from [4.22.152.149] ([4.22.152.149]:46124 "HELO
+	spanky.comspacecorp.com") by vger.kernel.org with SMTP
+	id <S132458AbRACREf>; Wed, 3 Jan 2001 12:04:35 -0500
+Date: Wed, 3 Jan 2001 10:28:44 -0600
+Message-Id: <200101031628.f03GSiE19644@spanky.comspacecorp.com>
+From: Bill Priest <bpriest@comspacecorp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Followup:  2.2.1x unknown kernel messages in syslog; 2.4.0 doesn't init sound card
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Wed, 3 Jan 2001, Dr. David Gilbert wrote:
-> 
-> >   I got wondering as to whether the various journaling file
-> > system activities were designed to survive the occasional
-> > unclean shutdown or were designed to allow the user to just pull
-> > the plug as a regular means of shutting down.
-> 
-> 1. a journaling filesystem is designed to be "consistent"
->    (or rather, easily recoverable) all of the time
-> 2. there's no difference between the "2 situations" you
->    describe above
+All,
+		I installed 2.4.0 prerelease and the problem I was seeing
+w/ kernel: "seemingly random characters" went away.  So it would
+appear that this is a 2.2 problem only.
 
-Welllllll... crashes tend to produce different effects from sudden power
-interruptions.  In the first case parts of the system keep running, and
-bizarre results are possible.  An even bigger difference is the matter
-of intent.
+	    One thing I noticed in going to 2.4 was that my sound card
+initialization/parameters were/are not available to be set in either
+xconfig or menuconfig.  I read thru Documentation/Changes and didn't
+see anything relevant.  I have a no-name half MSS/half SB sound card;
+but it did work flawlessly w/ 2.2.  The boot messages indicate that
+the parameters must be set (I don't remember the actual message; I
+can follow up if necessary).  I'm sure there is something I am missing;
+I just can't see it.
 
-Tux2 is explicitly designed to legitimize pulling the plug as a valid
-way of shutting down.  Metadata-only journalling filesystems are not
-designed to be used this way, and even with full-data journalling you
-should bear in mind that your on-disk filesystem image remains in an
-invalid state until the journal recovery program has run successfully. 
-You would not want to upgrade your OS with your filesystem in this
-state, nor would you want to remove a disk drive that didn't have the
-journal file on it.
+original message titled 2.2.1x unknown kernel messages in syslog
+reference:http://uwsg.ucs.indiana.edu/hypermail/linux/kernel/0012.3/0463.html
 
-Being able to shut down by hitting the power switch is a little luxury
-for which I've been willing to invest more than a year of my life to
-attain.  Clueless newbies don't know why it should be any other way, and
-it's essential for embedded devices.
+FYI,
 
-I don't doubt that if the 'power switch' method of shutdown becomes
-popular we will discover some applications that have windows where they
-can be hurt by sudden shutdown, even will full filesystem data state
-being preserved.  Such applications are arguably broken because they
-will behave badly in the event of accidental shutdown anyway, and we
-should fix them.  Well-designed applications are explicitly 'serially
-reuseable', in other words, you can interrupt at any point and start
-again from the beginning with valid and expected results.
-
---
-Daniel
+Bill
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

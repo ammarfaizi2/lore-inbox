@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265291AbUHHMdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265293AbUHHNDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265291AbUHHMdP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 08:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265301AbUHHMdP
+	id S265293AbUHHNDU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 09:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265301AbUHHNDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 08:33:15 -0400
-Received: from cantor.suse.de ([195.135.220.2]:57033 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265291AbUHHMdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 08:33:11 -0400
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-References: <Pine.LNX.4.58.0408072123590.19619@montezuma.fsmlabs.com>
-	<Pine.LNX.4.58.0408072157500.1793@ppc970.osdl.org>
-	<Pine.LNX.4.58.0408080110280.19619@montezuma.fsmlabs.com>
-	<Pine.LNX.4.58.0408072220490.1793@ppc970.osdl.org>
-	<Pine.LNX.4.58.0408080143230.19619@montezuma.fsmlabs.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Is this ANYWHERE, USA?
-Date: Sun, 08 Aug 2004 14:33:07 +0200
-In-Reply-To: <Pine.LNX.4.58.0408080143230.19619@montezuma.fsmlabs.com> (Zwane
- Mwaikambo's message of "Sun, 8 Aug 2004 02:00:32 -0400 (EDT)")
-Message-ID: <je4qndlsho.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Sun, 8 Aug 2004 09:03:20 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:30628 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265293AbUHHNDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 09:03:17 -0400
+Date: Sun, 8 Aug 2004 14:03:09 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andi Kleen <ak@muc.de>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow to disable shmem.o
+In-Reply-To: <m3vffulhou.fsf@averell.firstfloor.org>
+Message-ID: <Pine.LNX.4.44.0408081248560.1443-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> writes:
+Please no, not this half-baked patch anyway.
 
-> Index: linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c
-> ===================================================================
-> RCS file: linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c
-> diff -N linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c
-> --- /dev/null	1 Jan 1970 00:00:00 -0000
-> +++ linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c	8 Aug 2004 05:39:13 -0000
+On Sun, 8 Aug 2004, Andi Kleen wrote:
+> 
+> This patch allows to not compile mm/shmem.o in. It is now dependent on
+> CONFIG_TMPFS, which is the main user.
 
-Why not just make this an assembler source?  It contains no real C code.
-The only downside is that EXPORT_SYMBOL must be moved elsewhere, but on
-the other hand it would make the assembler code more readable,
+Well, one of its users, yes.
 
-> +#define PROC(name)	\
-> +	".align 4\n" \
-> +	".globl " #name"\n" \
-> +	#name":\n"
+> This allows shrinking the kernel a bit more when needed.
 
-and you could use ENTRY from <linux/linkage.h>.
+Good.
 
-Andreas.
+> Disabling TMPFS disables the mmap
+> MAP_ANONYMOUS|MAP_SHARED functionality now. That's ok, because Linux
+> 2.2 also didn't have it iirc.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+That's not an argument for throwing out support for POSIX/SuS
+functionality which 2.4 has supported all along.  But never mind,
+embedded may not need it, and your defaults are the right way round.
+
+> To make sure this doesn't happen by
+> accident I made the TMPFS configuration dependent on CONFIG_EMBEDDED.
+> This means a normal configuration enables TMPFS, which is ok 
+> since it is only minor additional overhead to shmem.o and also quite
+> useful for shared memory.
+
+At the least you need to add a dependency on CONFIG_SYSVIPC.
+And you shouldn't disable standard functionality without
+saying so in the Kconfig help.
+
+You're completely changing the meaning and configurability of
+CONFIG_TMPFS.  Perhaps it's not a useful config option any more
+(too often needed "y", too little saved by "n"), and yours is
+more useful.  But if you want to go this way, you must change
+its name and Documentation and #ifdefs too.
+
+I do agree that mm/shmem.o is larger (did someone at the back say
+"bloated"?) than we'd wish, that embedded in particular would like
+it smaller, and embedded might have no need to support SysV IPC
+and Posix SHM and shared anonymous and tmpfs.
+
+But I prefer Matt's tiny tiny-shmem.c which does support all those,
+using ramfs instead, and says in Kconfig what it's doing.
+But perhaps you're wanting to avoid ramfs too?
+
+A lot (but less than I once imagined) of the overhead in mm/shmem.o
+does come from its support for swap.  I've not been eager to pepper
+it with #ifdef CONFIG_SWAPs; but if there's a real demand for that
+I could give it a try (while abstracting away the #ifdefs as much
+as possible).
+
+Hugh
+

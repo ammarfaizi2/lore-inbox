@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265255AbSLHJmh>; Sun, 8 Dec 2002 04:42:37 -0500
+	id <S265275AbSLHKLC>; Sun, 8 Dec 2002 05:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265275AbSLHJmh>; Sun, 8 Dec 2002 04:42:37 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:21742 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S265255AbSLHJmg>; Sun, 8 Dec 2002 04:42:36 -0500
-Subject: Re: [PATCH 1/3] High-res-timers part 1 (core) take 20
-From: Arjan van de Ven <arjanv@redhat.com>
-To: george anzinger <george@mvista.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DF2F8D9.6CA4DC85@mvista.com>
-References: <3DF2F8D9.6CA4DC85@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Dec 2002 10:50:09 +0100
-Message-Id: <1039341009.1483.3.camel@laptop.fenrus.com>
+	id <S265276AbSLHKLC>; Sun, 8 Dec 2002 05:11:02 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32527 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265275AbSLHKLB>; Sun, 8 Dec 2002 05:11:01 -0500
+Date: Sun, 8 Dec 2002 10:18:38 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reference counting in console uarts
+Message-ID: <20021208101838.A30105@flint.arm.linux.org.uk>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20021208024336.A23637@devserv.devel.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021208024336.A23637@devserv.devel.redhat.com>; from zaitcev@redhat.com on Sun, Dec 08, 2002 at 02:43:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-08 at 08:46, george anzinger wrote:
+On Sun, Dec 08, 2002 at 02:43:36AM -0500, Pete Zaitcev wrote:
+> I boot my 2.5 boxes using "console=ttyS0,9600" argument,
+> and I noticed that something is not right with reference
+> counting in this case. It seems that when the console
+> is open by kernel initially, this is not accounted
+> as an open, and uart_startup is not called. This is ok,
+> because the serial console is set up separately. However, later
+> every script or a program run by init causes a startup
+> and shutdown, literally dozens of them. These oscillations only
+> stop when daemons are started and keep console open.
 
-> +/*
-> + * Here is an SMP helping macro...
-> + */
-> +#ifdef CONFIG_SMP
-> +#define IF_SMP(a) a
-> +#else
-> +#define IF_SMP(a)
-> +#endif
+That is correct.  We are unable to call uart_startup when the serial
+console is initialised because it may need to allocate memory (as
+request_irq does) and the memory allocators may not have been
+initialised.
 
+There are two ways around this problem:
 
-ehmmmmm personally I would consider any need of this ugly and evil
+1. initialise the port into a state where it can send characters in the
+   console write method.
 
-> +	IF_SMP(if (old_base && (new_base != old_base))
-> +	       spin_unlock(&old_base->lock);
-> +		)
+2. don't do the actual hardware shutdown in your shutdown() method (but
+   do the normal software shutdown - ie, free irqs etc)
 
-Like here..... SMP dependent ifdef's of spinlock usage... shudder
+8250 ports in effect implement the first - they don't really care about
+their setup to send characters.  We just disable all interrupts from the
+chip and then perform polled IO to the port.
 
+In essence, you need your console write method to be able to send
+charcters whether or not the port has been initialised or shutdown
+by the conventional tty driver methods.
 
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

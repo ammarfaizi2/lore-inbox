@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUHIVn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUHIVrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267291AbUHIVn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUHIVn5
+	id S267287AbUHIVrv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267279AbUHIVru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:43:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7854 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267252AbUHIVnp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:43:45 -0400
-Date: Mon, 9 Aug 2004 14:47:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: mochel@digitalimplant.org, linux-kernel@vger.kernel.org
-Subject: Re: -mm swsusp: fix highmem handling
-Message-Id: <20040809144708.13955e44.akpm@osdl.org>
-In-Reply-To: <20040809124825.GA602@elf.ucw.cz>
-References: <20040809124825.GA602@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 9 Aug 2004 17:47:50 -0400
+Received: from 81-5-177-201.dsl.eclipse.net.uk ([81.5.177.201]:18055 "EHLO
+	hades.smop.co.uk") by vger.kernel.org with ESMTP id S267292AbUHIVpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 17:45:47 -0400
+Date: Mon, 9 Aug 2004 22:45:33 +0100
+To: linux-kernel@vger.kernel.org
+Cc: Maneesh Soni <maneesh@in.ibm.com>
+Subject: sysfs patches in -mm create bad permissions
+Message-ID: <20040809214533.GA31505@smop.co.uk>
+Reply-To: adrian@smop.co.uk
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Maneesh Soni <maneesh@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Adrian Bridgett <adrian@smop.co.uk>
+X-smop-MailScanner: Found to be clean
+X-smop-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.9, required 5,
+	BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> This fixes highmem handling, and adds some comments so that others do
-> not fall into the same trap I fallen in: code does not continue below
-> swsusp_arch_resume if things go okay.
-> 
-> Please apply,
-> 								Pavel
-> 
-> --- clean-mm/kernel/power/swsusp.c	2004-07-28 23:39:49.000000000 +0200
-> +++ linux-mm/kernel/power/swsusp.c	2004-08-09 11:54:04.000000000 +0200
-> @@ -870,8 +866,12 @@
->  	local_irq_disable();
->  	save_processor_state();
->  	error = swsusp_arch_suspend();
-> +	/* Restore control flow magically appears here */
->  	restore_processor_state();
->  	local_irq_enable();
-> +#ifdef CONFIG_HIGHMEM
-> +	restore_highmem();
-> +#endif
->  	return error;
+Thanks to GregKH for looking at this too. 
 
-restore_highmem() is a noop if !CONFIG_HIGHMEM, so I shall remove the
-above ifdef/endif.
+Odd one this.  It seems like whoever looks at some files in /sys first, owns
+them.  e.g I just created a new user fred, rebooted.  Then "find /sys -user
+fred" shows loads of files.  Permissions are 644 and so the owner is
+important.
+
+In particular, "echo -n disk > /sys/power/state" will cause the machine to
+suspend to disk (hence the security tag).
+
+Found when I suddenly thought, "hang on, shouldn't I be root" :-)
+
+Results so far:
+
+2.6.8-rc2-mm1 - bad
+2.6.8-rc2 - okay
+2.6.8-rc3 - okay
+2.6.8-rc3-mm1 - bad
+
+.config file available on request.  compiled with gcc 3.3.4 (debian 1:3.3.4-6)
+
+Adrian
+-- 
+Email: adrian@smop.co.uk
+Windows NT - Unix in beta-testing. GPG/PGP keys available on public key servers
+Debian GNU/Linux  -*-  By professionals for professionals  -*-  www.debian.org

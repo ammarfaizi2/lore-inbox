@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUIOVbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUIOVb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267515AbUIOVbb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267561AbUIOV1k
+	id S267452AbUIOVb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUIOV3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:27:40 -0400
-Received: from holomorphy.com ([207.189.100.168]:13471 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267543AbUIOVZO (ORCPT
+	Wed, 15 Sep 2004 17:29:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:681 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267537AbUIOVXo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 17:25:14 -0400
-Date: Wed, 15 Sep 2004 14:25:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
-Message-ID: <20040915212508.GY9106@holomorphy.com>
-References: <20040915151815.GA30138@elte.hu> <Pine.LNX.4.58.0409150826150.2333@ppc970.osdl.org>
+	Wed, 15 Sep 2004 17:23:44 -0400
+Date: Wed, 15 Sep 2004 14:27:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: hari@in.ibm.com, Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, suparna@in.ibm.com,
+       mbligh@aracnet.com, ebiederm@xmission.com, litke@us.ibm.com
+Subject: Re: [PATCH][4/6]Register snapshotting before kexec boot
+Message-Id: <20040915142722.46088ad5.akpm@osdl.org>
+In-Reply-To: <20040915125525.GE15450@in.ibm.com>
+References: <20040915125041.GA15450@in.ibm.com>
+	<20040915125145.GB15450@in.ibm.com>
+	<20040915125322.GC15450@in.ibm.com>
+	<20040915125422.GD15450@in.ibm.com>
+	<20040915125525.GE15450@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409150826150.2333@ppc970.osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004, Ingo Molnar wrote:
->> the attached patch is a new approach to get rid of Linux's Big Kernel
->> Lock as we know it today.
+Hariprasad Nellitheertha <hari@in.ibm.com> wrote:
 >
-On Wed, Sep 15, 2004 at 08:40:55AM -0700, Linus Torvalds wrote:
-> I really think this is wrong.
-> Maybe not from a conceptual standpoint, but that implementation with the
-> scheduler doing "reaquire_kernel_lock()" and doing a down() there is just
-> wrong, wrong, wrong.
-> If we're going to do a down() and block immediately after being scheduled,
-> I don't think we should have been picked in the first place.
+> +void __crash_dump_stop_cpus(void)
+> +{
+> +	int i, cpu = smp_processor_id();
+> +	int other_cpus = num_online_cpus()-1;
+> +
+> +	if (other_cpus > 0) {
+> +		atomic_set(&waiting_for_dump_ipi, other_cpus);
+> +
+> +		for (i = 0; i < NR_CPUS; i++)
+> +			crash_dump_expect_ipi[i] = (i != cpu && cpu_online(i));
+> +
+> +		set_nmi_callback(crash_dump_nmi_callback);
+> +		/* Ensure the new callback function is set before sending
+> +		 * out the IPI
+> +		 */
+> +		wmb();
+> +
+> +		crash_dump_send_ipi();
+> +		while (atomic_read(&waiting_for_dump_ipi) > 0)
+> +			cpu_relax();
+> +
+> +		unset_nmi_callback();
+> +	} else {
+> +		local_irq_disable();
+> +		disable_local_APIC();
+> +		local_irq_enable();
+> +	}
+> +}
 
-Well, I'm more concerned that the users all need to be swept anyway.
-This could make sense to do anyway, but the sweeps IMHO are necessary
-because the users almost universally are those that haven't been taught
-to do any locking yet, stale and crusty code that needs porting, or
-things where the locking hasn't quite been debugged or straightened out.
+Is dodgy wrt CPU hotplug, but there's not a lot we can do about that
+in this context, I expect.  Which is a shame, given that CPU hotplug
+is a likely time at which to be taking a crashdump ;)
 
-One thing I like is that this eliminates the implicit dropping on sleep
-as a source of bugs (e.g. it was recently pointed out to me that setfl()
-uses the BKL to protect ->f_flags in a codepath spanning a sleeping
-call to ->fasync()), where the semaphore may be retained while sleeping.
-I originally wanted to make sleeping under the BKL illegal and sweep
-users to repair when it is, but maybe that's unrealistic, particularly
-considering that the sum of my BKL sweeps to date are one removal from
-procfs "protecting" its access of nr_threads.
-
-
--- wli
+Rusty, you may like to review these patches...

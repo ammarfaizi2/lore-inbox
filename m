@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285338AbSA2WdZ>; Tue, 29 Jan 2002 17:33:25 -0500
+	id <S284987AbSA2Wd0>; Tue, 29 Jan 2002 17:33:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285516AbSA2Wc7>; Tue, 29 Jan 2002 17:32:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33541 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S284970AbSA2WbG>;
-	Tue, 29 Jan 2002 17:31:06 -0500
-Message-ID: <3C572102.37D026D7@zip.com.au>
-Date: Tue, 29 Jan 2002 14:24:02 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: linux-kernel@vger.kernel.org
+	id <S284970AbSA2WdD>; Tue, 29 Jan 2002 17:33:03 -0500
+Received: from ns.suse.de ([213.95.15.193]:14095 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S285424AbSA2Wbv>;
+	Tue, 29 Jan 2002 17:31:51 -0500
+Date: Tue, 29 Jan 2002 23:31:50 +0100
+From: Andi Kleen <ak@suse.de>
+To: adilger@turbolabs.com, linux-kernel@vger.kernel.org
 Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201291544420.6701-100000@localhost.localdomain>,
-		<Pine.LNX.4.33.0201291544420.6701-100000@localhost.localdomain> <E16VgQ0-0000AS-00@starship.berlin>
+Message-ID: <20020129233150.D12339@wotan.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain.suse.lists.linux.kernel> <E16VYD8-0003ta-00@the-village.bc.nu.suse.lists.linux.kernel> <p73aduwddni.fsf@oldwotan.suse.de> <20020129152426.Z763@lynx.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020129152426.Z763@lynx.adilger.int>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+On Tue, Jan 29, 2002 at 03:24:26PM -0700, Andreas Dilger wrote:
+> On Jan 29, 2002  22:56 +0100, Andi Kleen wrote:
+> > Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > > Lots of the stuff getting missed is tiny little fixes, obvious 3 or 4
+> > > liners. The big stuff is not the problem most times.
+> >
+> > "Most times". For example the EA patches have badly failed so far, just
+> > because Linus ignored all patches to add sys call numbers for a repeatedly
+> > discussed  and stable API and nobody else can add syscall numbers on i386. 
 > 
-> Note who the email is addressed to.  I have tried many different techniques
-> for communicating with this gentleman, including self-deprecation, and they
-> all seem to have the same result: no patch applied, long wait, eventually
-> some other patch a long time later will obsolete my patch in some way, and
-> the whole thing drifts off into forgotten history.  Err, almost forgotten,
-> because the bad taste remains.
+> But at times, keeping things external to the kernel for a good while isn't
+> a bad thing either.  Basically, once code is part of the kernel, the API
+> is much harder to change than if it was always an optional patch.
 > 
-> And yes, there was a successor to the patch in which I did the job 'properly'
-> by cleaning up some other infrastructure instead of just fixing the bug
-> locally.  There was also a long lag after I created and submitted that
-> version before the bug was actually fixed, and then it was only fixed in 2.4.
-> 
+> For example, the EA patches have matured a lot in the time that they have
+> been external to the kernel (i.e. the move towards a common API with ext2
+> and XFS).  Even so, the ext2 shared EA on-disk representation leaves a
 
-When all this ext2 fuss was going on, I went into ext3, changed
-a few lines, fixed the bug and typed `cvs commit'.
+The problem is that there are already 5-6 different incompatible system calls 
+with either different numbers or different semantics in significant 
+deployment in the wild. EA/ACLs is an important feature for
+samba servers so they are rather popular. While it's IMHO ok to do limited
+testing in private the critical threshold where incompatible system call
+ABIs are just a big problem for linux has long been surpassed. 
+One of the success linux/i386 had in the past was to maintain a very stable
+kernel ABI, but at least in the EA space this archivement is currently
+getting undermined badly. 
 
-I just thought you might enjoy hearing that.
-
--
+-Andi

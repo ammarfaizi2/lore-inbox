@@ -1,126 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263356AbUAFNGO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 08:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUAFNGO
+	id S263345AbUAFNFg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 08:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbUAFNFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 08:06:14 -0500
-Received: from esperance.ozonline.com.au ([203.23.159.248]:63885 "EHLO
-	ozonline.com.au") by vger.kernel.org with ESMTP id S263356AbUAFNF4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 08:05:56 -0500
-Date: Wed, 7 Jan 2004 00:09:05 +1100
-From: Davin McCall <davmac@ozonline.com.au>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] fix issues with loading PCI ide drivers as modules
- (linux 2.6.0)
-Message-Id: <20040107000905.7f5ca592.davmac@ozonline.com.au>
-In-Reply-To: <200401061213.39843.bzolnier@elka.pw.edu.pl>
-References: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
-	<200401051516.03364.bzolnier@elka.pw.edu.pl>
-	<20040106135155.66535c13.davmac@ozonline.com.au>
-	<200401061213.39843.bzolnier@elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 6 Jan 2004 08:05:36 -0500
+Received: from openoffice.demon.nl ([212.238.150.237]:49157 "EHLO
+	sahara.openoffice.nl") by vger.kernel.org with ESMTP
+	id S263345AbUAFNFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 08:05:20 -0500
+Date: Tue, 6 Jan 2004 14:05:18 +0100
+From: Valentijn Sessink <linux-kernel-1073394249@mail.v.sessink.nl>
+To: linux-kernel@vger.kernel.org
+Subject: HiSax freezes 2.6.0-test11
+Message-ID: <20040106130518.GA1182@openoffice.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004 12:13:39 +0100
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+Hello list,
 
-> > But actually I have found an even better solution - "hwif->present" tells
-> > us if the hwif is currently being controlled by some chipset driver (that's
-> > what it's there for!) so I check that instead.
-> 
-> This is wrong, driver owns hwif before probing for drives
-> (when at least one drive is found hwif->present is set to one),
-> so hwif entries can be modified even with hwif->present equal to zero.
+My 2.6.0-test11 "hisax" module freezes my PC, but seems to handle
+interrupts, as ICMP and keyboard leds keep functioning. I sent mail to kkeil
+and kai.germaschewski and to the ISDN mailing list, but no reply. I'm
+willing to test and/or hunt for the bug, but don't know where to look. As
+this interrupt behaviour seems rather specific, maybe someone could help me
+out where to look?
 
-For the purposes of the patch that I provided, it doesn't matter. The hwif will only be used if both !hwif->present and chipset==ide_unknown or ide_forced. If !hwif->present, then there are no drives with active IO and so it is safe for another chipset to take over the interface.
+I tested three HiSax cards: a Sedlbauer speed card, a Sedlbauer
+Speed Win (both ISA cards, the first is non-PnP, the second PnP), and a HFC
+PCI card (Dolphin PCTA128). The Sedlbauer cards do:
 
-Anyway I have re-done the previous patch the way you wanted, so you can take your pick. Personally I prefer the previous one.
+Sedlbauer: resetting card
+Sedlbauer: speed card/win: defined at 0x280-288 IRQ 5
+get_drv 0: 1->2
+put_drv 0: 2->1
+get_drv 0: 1->2
+put_drv 0: 2->1
+get_drv 0: 1->2
+put_drv 0: 2->1
+   ... this repeats, totalling to 9 times
+Sedlbauer Speed Card: IRQ 5 count 0
+get_drv 0: 1->2
+put_drv 0: 2->1
+get_drv 0: 1->2
+put_drv 0: 2->1
+... etcetera, 9 x "get_drv... put_drv".
 
-Note with this new patch, I no longer needed to check initialize/pre_init variable in ide_hwif_configure - because ide_match_hwif() will never return with a hwif whose chipset is ide_generic (only ide_forced or ide_unknown).
+Then a freeze occurs. Please note that this is "modprobe hisax irq=5
+io=0x280", just as the previous kernel.
 
-Davin
+The HFC card is less chatty, but it detects IRQ4, then freezes after "IRQ 4
+count 0"
 
+Reading from the source, this is from config.c. line 766,
+        printk(KERN_INFO "%s: IRQ %d count %d\n", CardType[cs->typ],
+               cs->irq, irq_cnt);
 
-diff -urN linux-2.6.0-vanilla/drivers/ide/ide-probe.c linux-2.6.0/drivers/ide/ide-probe.c
---- linux-2.6.0-vanilla/drivers/ide/ide-probe.c	Thu Nov 27 07:44:24 2003
-+++ linux-2.6.0/drivers/ide/ide-probe.c	Tue Jan  6 23:13:28 2004
-@@ -1343,6 +1343,8 @@
- 			int unit;
- 			if (!hwif->present)
- 				continue;
-+			if (hwif->chipset == ide_unknown || hwif->chipset == ide_forced)
-+				hwif->chipset = ide_generic;
- 			for (unit = 0; unit < MAX_DRIVES; ++unit)
- 				if (hwif->drives[unit].present)
- 					ata_attach(&hwif->drives[unit]);
-diff -urN linux-2.6.0-vanilla/drivers/ide/ide-proc.c linux-2.6.0/drivers/ide/ide-proc.c
---- linux-2.6.0-vanilla/drivers/ide/ide-proc.c	Thu Nov 27 07:44:17 2003
-+++ linux-2.6.0/drivers/ide/ide-proc.c	Tue Jan  6 23:07:52 2004
-@@ -348,8 +348,11 @@
- 	int		len;
- 	const char	*name;
- 
-+	/*
-+	 *  Neither ide_unknown nor ide_forced should be set at this point.
-+	 */
-+	
- 	switch (hwif->chipset) {
--		case ide_unknown:	name = "(none)";	break;
- 		case ide_generic:	name = "generic";	break;
- 		case ide_pci:		name = "pci";		break;
- 		case ide_cmd640:	name = "cmd640";	break;
-diff -urN linux-2.6.0-vanilla/drivers/ide/ide.c linux-2.6.0/drivers/ide/ide.c
---- linux-2.6.0-vanilla/drivers/ide/ide.c	Thu Nov 27 07:43:29 2003
-+++ linux-2.6.0/drivers/ide/ide.c	Tue Jan  6 23:08:17 2004
-@@ -2185,7 +2185,7 @@
- 				memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->io_ports));
- 				hwif->irq      = vals[2];
- 				hwif->noprobe  = 0;
--				hwif->chipset  = ide_generic;
-+				hwif->chipset  = ide_forced;
- 				goto done;
- 
- 			case 0: goto bad_option;
-diff -urN linux-2.6.0-vanilla/drivers/ide/pci/cmd640.c linux-2.6.0/drivers/ide/pci/cmd640.c
---- linux-2.6.0-vanilla/drivers/ide/pci/cmd640.c	Thu Nov 27 07:45:36 2003
-+++ linux-2.6.0/drivers/ide/pci/cmd640.c	Tue Jan  6 13:07:51 2004
-@@ -419,7 +419,7 @@
- 	cmd_hwif1 = &ide_hwifs[1]; /* default, if not found below */
- 	for (i = 0; i < MAX_HWIFS; i++) {
- 		ide_hwif_t *hwif = &ide_hwifs[i];
--		if (hwif->chipset == ide_unknown || hwif->chipset == ide_generic) {
-+		if (hwif->chipset == ide_unknown || hwif->chipset == ide_forced) {
- 			if (hwif->io_ports[IDE_DATA_OFFSET] == 0x1f0)
- 				cmd_hwif0 = hwif;
- 			else if (hwif->io_ports[IDE_DATA_OFFSET] == 0x170)
-diff -urN linux-2.6.0-vanilla/drivers/ide/setup-pci.c linux-2.6.0/drivers/ide/setup-pci.c
---- linux-2.6.0-vanilla/drivers/ide/setup-pci.c	Thu Nov 27 07:43:39 2003
-+++ linux-2.6.0/drivers/ide/setup-pci.c	Tue Jan  6 23:18:50 2004
-@@ -59,7 +59,7 @@
- 	for (h = 0; h < MAX_HWIFS; ++h) {
- 		hwif = &ide_hwifs[h];
- 		if (hwif->io_ports[IDE_DATA_OFFSET] == io_base) {
--			if (hwif->chipset == ide_generic)
-+			if (hwif->chipset == ide_forced)
- 				return hwif; /* a perfect match */
- 		}
- 	}
-diff -urN linux-2.6.0-vanilla/include/linux/ide.h linux-2.6.0/include/linux/ide.h
---- linux-2.6.0-vanilla/include/linux/ide.h	Thu Nov 27 07:43:36 2003
-+++ linux-2.6.0/include/linux/ide.h	Tue Jan  6 23:06:23 2004
-@@ -282,7 +282,7 @@
- 		ide_pdc4030,	ide_rz1000,	ide_trm290,
- 		ide_cmd646,	ide_cy82c693,	ide_4drives,
- 		ide_pmac,	ide_etrax100,	ide_acorn,
--		ide_pc9800
-+		ide_pc9800, ide_forced
- } hwif_chipset_t;
- 
- /*
+but I don't know enough about IRQ handling (and more generally, kernel
+programming) to grasp what's going on here. I tried two kernel
+configurations, the last one without CAPI support (as there's no CAPI for my
+ISDN cards anyway), but that doesn't help.
+
+I'd be glad to solve this, but don't know where to look now. You probably
+know what's going on - do you have patches that I can try? I'm willing to
+recompile my kernel and/or perform tests.
+
+HW info: IBM Aptiva with Cyrix processor, 3 PCI and 3 ISA slots, one
+harddisk. Most of the on board hardware is turned off (no parport, no
+serial, no USB). This machine used to run a rather ancient 2.2.16 (which is
+no problem as it doesn't have any outside connections and runs no user
+services), ISDN worked under that. The machine runs Debian 3.0 with
+module-init-tools. I compiled the kernel with gcc version 2.95.4
+20011002 (Debian prerelease). If recompiling with gcc3.2 is necessary,
+please say so.
+CONFIG_ISDN=m
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_MPP=y
+CONFIG_ISDN_PPP_BSDCOMP=m
+CONFIG_ISDN_AUDIO=y
+CONFIG_ISDN_TTY_FAX=y
+# CONFIG_ISDN_DRV_LOOP is not set
+CONFIG_ISDN_DRV_HISAX=m
+CONFIG_HISAX_EURO=y
+all passive hisax cards are "y", rest is "n". If you need the complete
+kernel info or if you need other information, please say so.
+
+=======
+On a completely unrelated sidenote and very low on my priority list: I had
+some problems with 3c509 on 2.6.0. Compiling CONFIG_PNP=Y, CONFIG_ISAPNP=N
+resulted in a non working driver (I assume this is by design). Then "rmmod
+3c509" on a working driver resulted in oopses and a - when configured with
+IP addresses on a local network - a real panic. It seems the unload code
+leaves things around - if I find time I'll try to find out where.
+
+Best regards,
+
+Valentijn
+-- 
+http://www.openoffice.nl/   Open Office - Linux Office Solutions
+Valentijn Sessink  valentyn+sessink@nospam.openoffice.nl

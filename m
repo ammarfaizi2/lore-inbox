@@ -1,121 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVBXXea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbVBXXec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbVBXXea (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVBXXc6
+	id S262562AbVBXXec (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVBXXd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:32:58 -0500
-Received: from gate.crashing.org ([63.228.1.57]:51852 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262568AbVBXX3J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:29:09 -0500
-Subject: Re: 2.6.11-rc5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050224145049.GA21313@suse.de>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
-	 <20050224145049.GA21313@suse.de>
-Content-Type: text/plain
-Date: Fri, 25 Feb 2005 10:28:27 +1100
-Message-Id: <1109287708.15026.25.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 18:33:56 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:30685 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262558AbVBXX3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:29:38 -0500
+Message-ID: <421E6361.90009@acm.org>
+Date: Thu, 24 Feb 2005 17:29:37 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] I2C patch 3 - Add handling for I2C operation queue entries
+Content-Type: multipart/mixed;
+ boundary="------------030405070502080907060108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 15:50 +0100, Olaf Hering wrote:
->  On Wed, Feb 23, Linus Torvalds wrote:
-> 
-> > This time it's really supposed to be a quickie, so people who can, please 
-> > check it out, and we'll make the real 2.6.11 asap.
-> 
-> radeonfb oopses on intel.
-> Havent checked yet when it started with it.
-> 
-> ACPI: PCI interrupt 0000:00:12.0[A] -> GSI 11 (level, low) -> IRQ 11
-> eth0: VIA Rhine II at 0x1c400, 00:11:5b:83:1e:76, IRQ 11.
-> eth0: MII PHY found at address 1, status 0x7869 advertising 05e1 Link 45e1.
-> usb 5-1: new low speed USB device using uhci_hcd and address 2
-> ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
-> radeonfb: Found Intel x86 BIOS ROM Image
-> radeonfb: Retreived PLL infos from BIOS
-> radeonfb: Reference=27.00 MHz (RefDiv=60) Memory=133.00 Mhz, System=133.00 MHz
-> radeonfb: PLL min 12000 max 35000
-> NET: Registered protocol family 23
-> radeonfb: Monitor 1 type DFP found
-> radeonfb: EDID probed
-> radeonfb: Monitor 2 type no found
-> radeonfb: Assuming panel size 8x1
+This is a multi-part message in MIME format.
+--------------030405070502080907060108
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hrm... that's totally bogus. What machine is this ?
+This is one in a series of patches for adding a non-blocking interface 
+to the I2C driver for supporting the IPMI SMBus driver.
 
-> radeonfb: Can't find mode for panel size, going back to CRT
-> Unable to handle kernel paging request at virtual address f3fb4000
+--------------030405070502080907060108
+Content-Type: text/plain;
+ name="i2c_opq_handling.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i2c_opq_handling.diff"
 
-I'm having a hard time parsing this oops. Looks like fbcon is screwing
-up, I'm not sure what radeonfb has to do with the problem there...
+This patch adds handling of the op q to the I2C main code
+in preparation for the non-blocking changes.
 
-Ben.
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
+Index: linux-2.6.11-rc4/drivers/i2c/i2c-core.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/i2c/i2c-core.c
++++ linux-2.6.11-rc4/drivers/i2c/i2c-core.c
+@@ -54,6 +54,8 @@
+ 	complete(&adap->dev_released);
+ }
+ 
++#define entry_completed(e) (atomic_read(&(e)->completed) <= 0)
++
+ static struct device_driver i2c_adapter_driver = {
+ 	.name =	"i2c_adapter",
+ 	.bus = &i2c_bus_type,
+@@ -134,6 +136,8 @@
+ 	}
+ 
+ 	adap->nr =  id & MAX_ID_MASK;
++	spin_lock_init(&adap->q_lock);
++	INIT_LIST_HEAD(&adap->q);
+ 	init_MUTEX(&adap->bus_lock);
+ 	init_MUTEX(&adap->clist_lock);
+ 	list_add_tail(&adap->list,&adapters);
+@@ -1334,6 +1338,100 @@
+ 	return (func & adap_func) == func;
+ }
+ 
++/* ----------------------------------------------------
++ * Entry handling
++ * ----------------------------------------------------
++ */
++
++/* Get the first entry off the head of the queue and lock it there.
++   The entry is guaranteed to remain first in the list and the handler
++   not be called until i2c_entry_put() is called. */
++static struct i2c_op_q_entry *_i2c_entry_get(struct i2c_adapter * adap)
++{
++	struct i2c_op_q_entry * entry = NULL;
++
++	if (!list_empty(&adap->q)) {
++		struct list_head * link = adap->q.next;
++		entry = list_entry(link, struct i2c_op_q_entry, link);
++		if (entry_completed(entry))
++			entry = NULL;
++		else {
++			int val = atomic_add_return(1, &entry->usecount);
++
++			/* This is subtle.  If we increment the
++			   usecount and the value is 1, that means it
++			   was zero before.  This means the put()
++			   routine has decremented the value to zero
++			   and is between tha decrement and the
++			   spinlock.  In this case, return NULL
++			   because the current list head is complete
++			   and the next list item is not yet
++			   started. */
++			if  (val == 1) {
++				atomic_dec(&entry->usecount);
++				entry = NULL;
++			}
++		}
++	}
++	pr_debug("_i2c_entry_get %p %p\n", adap, entry);
++	return entry;
++}
++
++struct i2c_op_q_entry *i2c_entry_get(struct i2c_adapter * adap)
++{
++	unsigned long flags;
++	struct i2c_op_q_entry * entry;
++
++	spin_lock_irqsave(&adap->q_lock, flags);
++	entry = _i2c_entry_get(adap);
++	spin_unlock_irqrestore(&adap->q_lock, flags);
++	return entry;
++}
++
++void i2c_entry_put(struct i2c_adapter * adap,
++		   struct i2c_op_q_entry * entry)
++{
++	unsigned long flags;
++	struct i2c_op_q_entry * new_entry = NULL;
++
++ restart:
++	pr_debug("i2c_put %p %p\n", adap, entry);
++	/* Subtle reasons why we don't need a lock before the dec, see
++	   the get routine for more details. */
++	if (atomic_dec_and_test(&entry->usecount)) {
++		spin_lock_irqsave(&adap->q_lock, flags);
++		list_del(&entry->link);
++
++		/* Get the next entry to start. */
++		new_entry = _i2c_entry_get(adap);
++		spin_unlock_irqrestore(&adap->q_lock, flags);
++
++		entry->handler(entry);
++
++		if (new_entry) {
++			/* start entry will go here. */
++			if (new_entry->start)
++				complete(new_entry->start);
++			/* Do tail recursion ourself. */
++			entry = new_entry;
++			goto restart;
++		}
++	}
++}
++
++void i2c_op_done(struct i2c_adapter *adap, struct i2c_op_q_entry *e)
++{
++	pr_debug("i2c_op_done: %p %p\n", adap, e);
++	if (atomic_dec_and_test(&e->completed)) {
++		/* We are the lucky winner!  We get to clean up the
++		   entry. */
++		if (e->complete)
++			e->complete(adap, e);
++	}
++
++	i2c_entry_put(adap, e);
++}
++
+ EXPORT_SYMBOL(i2c_add_adapter);
+ EXPORT_SYMBOL(i2c_del_adapter);
+ EXPORT_SYMBOL(i2c_add_driver);
+@@ -1345,6 +1443,7 @@
+ EXPORT_SYMBOL(i2c_clients_command);
+ EXPORT_SYMBOL(i2c_check_addr);
+ 
++EXPORT_SYMBOL(i2c_op_done);
+ EXPORT_SYMBOL(i2c_master_send);
+ EXPORT_SYMBOL(i2c_master_recv);
+ EXPORT_SYMBOL(i2c_control);
+Index: linux-2.6.11-rc4/include/linux/i2c.h
+===================================================================
+--- linux-2.6.11-rc4.orig/include/linux/i2c.h
++++ linux-2.6.11-rc4/include/linux/i2c.h
+@@ -33,6 +33,8 @@
+ #include <linux/i2c-id.h>
+ #include <linux/device.h>	/* for struct device */
+ #include <linux/completion.h>
++#include <linux/list.h>
++#include <linux/spinlock.h>
+ #include <asm/semaphore.h>
+ #include <asm/atomic.h>
+ 
+@@ -184,6 +186,33 @@
+ }
+ 
+ /*
++ * About locking and the non-blocking interface.
++ *
++ * The poll operations are called single-threaded (along with the
++ * xxx_start operations), so if the driver is only polled then there
++ * is no need to do any locking.  If you are using interrupts, then
++ * the timer operations and interrupts can race and you need to lock
++ * appropriately.
++ * 
++ * i2c_op_done() can be called multiple times on the same entry (as
++ * long as each one has a get operation).  This handles poll and
++ * interrupt races calling i2c_op_done().  It will do the right thing.
++ */
++
++/* Called from an non-blocking interface to get the current working
++   entry.  Returns NULL if there is none.  This is primarily for
++   interrupt handlers to determine what they should be working on.
++   Note that if you call i2c_entry_get() and get a non-null entry, you
++   must call i2c_entry_put() on it. */
++struct i2c_op_q_entry *i2c_entry_get(struct i2c_adapter * adap);
++void i2c_entry_put(struct i2c_adapter * adap,
++		   struct i2c_op_q_entry * entry);
++
++/* Called from an non-blocking interface to report that an operation
++   has completed.  Can be called from interrupt context. */
++void i2c_op_done(struct i2c_adapter *adap, struct i2c_op_q_entry *entry);
++
++/*
+  * The following structs are for those who like to implement new bus drivers:
+  * i2c_algorithm is the interface to a class of hardware solutions which can
+  * be addressed using the same bus algorithms - i.e. bit-banging or the PCF8584
+@@ -231,6 +260,9 @@
+ 	int (*client_unregister)(struct i2c_client *);
+ 
+ 	/* data fields that are valid for all devices	*/
++	struct list_head q;
++	spinlock_t q_lock;
++
+ 	struct semaphore bus_lock;
+ 
+ 	int timeout;
 
->  printing eip:
-> c01dec14
-> *pde = 00000000
-> Oops: 0002 [#1]
-> Modules linked in: via_ircc irda crc_ccitt snd_via82xx snd_ac97_codec snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore radeonfb i2c_algo_bit i2c_core via_rhine mii pci_hotplug ohci1394 ehci_hcd ieee1394 uhci_hcd via_agp agpgart usbcore reiserfs dm_mod ext3 jbd
-> CPU:    0
-> EIP:    0060:[<c01dec14>]    Not tainted VLI
-> EFLAGS: 00010202   (2.6.11-rc4-bk10-200502230204-usbtest)
-> EIP is at cfb_imageblit+0x364/0x610
-> eax: 00000000   ebx: f3fb4004   ecx: 00000000   edx: f3fb4000
-> esi: 00000004   edi: df282000   ebp: 00000007   esp: dbef1c1c
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 3180, threadinfo=dbef0000 task=da303580)
-> Stack: 00000001 00000008 00000001 00000008 00000001 c04a7428 0000000a da302628
->        c011b293 00000046 da36e23c da36e000 00000046 0000051f c01043cf c0102eca
->        0000051f 1c46ece9 0000002b c036a2c0 df282000 00000000 0000000f 00000001
-> Call Trace:
->  [<c011b293>] __do_softirq+0x43/0xa0
->  [<c01043cf>] do_IRQ+0x1f/0x30
->  [<c0102eca>] common_interrupt+0x1a/0x20
->  [<c01dd570>] soft_cursor+0x190/0x200
->  [<c01d9124>] bit_cursor+0x464/0x4e0
->  [<c011edbf>] msleep+0x2f/0x40
->  [<c01d4e18>] fbcon_cursor+0x1a8/0x280
->  [<c020eac8>] hide_cursor+0x18/0x30
->  [<c020edd4>] redraw_screen+0x174/0x200
->  [<c01d3caa>] fbcon_prepare_logo+0x39a/0x3a0
->  [<c01d47b0>] fbcon_init+0x260/0x300
->  [<c020ef69>] visual_init+0xe9/0x170
->  [<c02125e6>] take_over_console+0x176/0x350
->  [<c01d38da>] fbcon_takeover+0x5a/0x90
->  [<c01d846a>] fbcon_fb_registered+0x5a/0x70
->  [<c01d8542>] fbcon_event_notify+0x52/0x80
->  [<c0121898>] notifier_call_chain+0x18/0x30
->  [<c01da667>] register_framebuffer+0xd7/0x150
->  [<c0117713>] release_console_sem+0x13/0x90
->  [<c017f7c7>] sysfs_new_dirent+0x17/0x60
->  [<c017f820>] sysfs_make_dirent+0x10/0x70
->  [<c017f59a>] sysfs_add_file+0x3a/0x60
->  [<e0c4a698>] radeonfb_pci_register+0x308/0x510 [radeonfb]
->  [<c01ce482>] pci_device_probe_static+0x32/0x50
->  [<c01ce4c7>] __pci_device_probe+0x27/0x40
->  [<c01ce4fb>] pci_device_probe+0x1b/0x40
->  [<c021ef31>] driver_probe_device+0x21/0x60
->  [<c021f05d>] driver_attach+0x4d/0x80
->  [<c021f44d>] bus_add_driver+0x6d/0xa0
->  [<c021f948>] driver_register+0x28/0x30
->  [<c01ce6c4>] pci_register_driver+0x54/0x70
->  [<c012b1a2>] sys_init_module+0x112/0x190
->  [<c0102c49>] sysenter_past_esp+0x52/0x79
-> Code: 24 60 8b 54 24 58 29 ce 0f be 07 89 f1 d3 f8 21 d0 8b 54 24 4c 8b 4c 24 54 23 0c 82 8b 54 24 64 89 c8 31 d0 89 da 83 c3 04 85 f6 <89> 02 75 06 be 08 00 00 00 47 8b 04 24 48 89 04 24 83 3c 24 ff
->  <6>usbcore: registered new driver hiddev
-> input: USB HID v1.10 Mouse [Logitech Apple Optical USB Mouse] on usb-0000:00:10.2-1
-> usbcore: registered new driver usbhid
-> drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-> 
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+--------------030405070502080907060108--

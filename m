@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbTEMR7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTEMR73
+	id S263302AbTEMRzK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 13:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTEMRyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:59:29 -0400
-Received: from ms-smtp-03.southeast.rr.com ([24.93.67.84]:50316 "EHLO
-	ms-smtp-03.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S263361AbTEMR6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:58:25 -0400
-From: Boris Kurktchiev <techstuff@gmx.net>
-Reply-To: techstuff@gmx.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: Posible memory leak!?
-Date: Tue, 13 May 2003 14:15:37 -0400
-User-Agent: KMail/1.5.1
-Cc: vda@port.imtp.ilyichevsk.odessa.ua
-MIME-Version: 1.0
+	Tue, 13 May 2003 13:54:49 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61091 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262383AbTEMRyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 13:54:15 -0400
+Date: Tue, 13 May 2003 20:06:51 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       "Mudama, Eric" <eric_mudama@maxtor.com>,
+       Oleg Drokin <green@namesys.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
+       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69, IDE TCQ can't be enabled
+Message-ID: <20030513180651.GK17033@suse.de>
+References: <785F348679A4D5119A0C009027DE33C102E0D31D@mcoexc04.mlm.maxtor.com> <20030512193509.GB10089@gtf.org> <20030512194245.GG17033@suse.de> <20030512195331.GD10089@gtf.org> <20030513064059.GL17033@suse.de> <20030513180020.GB3309@suse.de> <20030513180334.GJ17033@suse.de> <20030513180459.GB11073@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305131415.37244.techstuff@gmx.net>
+In-Reply-To: <20030513180459.GB11073@gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-top - 11:03:41 up 4 min,  1 user,  load average: 0.12, 0.20, 0.09
-Tasks:  60 total,   1 running,  58 sleeping,   0 stopped,   1 zombie
-Cpu(s):   8.3% user,   2.3% system,   0.0% nice,  89.4% idle
-Mem:    385904k total,   173996k used,   211908k free,    14244k buffers
-Swap:   128512k total,        0k used,   128512k free,    86732k cached
+On Tue, May 13 2003, Jeff Garzik wrote:
+> On Tue, May 13, 2003 at 08:03:34PM +0200, Jens Axboe wrote:
+> > On Tue, May 13 2003, Dave Jones wrote:
+> > > On Tue, May 13, 2003 at 08:40:59AM +0200, Jens Axboe wrote:
+> > >  > > Weird.  Mine doesn't seem to assert it, nor does the identify page
+> > >  > > indicate it's supported.  Maybe I have a broken drive firmware.
+> > >  > 
+> > >  > Then the linux code won't work on it, have you tried? I've tried a lot
+> > >  > of different IBM models, they all do service interrupts just fine.
+> > > 
+> > > bug in the firmware version on Jeffs drives perhaps ?
+> > 
+> > It's possible, it would help a lot of Jeff would answer the question
+> > above and maybe even share what drive he is using with us.
+> 
+> hehe, just did (answer: no).  I'll post hdparm -I for it tomorrow.
 
-this is what the machine used to look like.
+:) thanks! fwiw, I've tried DTLA, DPTA, and the IC vancouvers here.
 
-this is what happens when the machine has run for about 3 hours, and during 
-that time I have had Netbeans and Day Of Defeat(wine) running for about 15 
-minutes.
-
-top - 14:14:49 up  2:31,  1 user,  load average: 0.03, 0.04, 0.01
-Tasks:  60 total,   2 running,  57 sleeping,   0 stopped,   1 zombie
-Cpu(s):   2.7% user,   0.3% system,   0.0% nice,  97.0% idle
-Mem:    385904k total,   261368k used,   124536k free,    16736k buffers
-Swap:   128512k total,     8768k used,   119744k free,   175476k cached
-
-if i leave the machine on, and say I start transcoding something.. the RAM 
-would not be touched and the swap usage would shoot up to 95%.
+-- 
+Jens Axboe
 

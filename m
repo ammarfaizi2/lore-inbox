@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266180AbUAMXDI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 18:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUAMXDI
+	id S265776AbUAMXHr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 18:07:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUAMXHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 18:03:08 -0500
-Received: from mail.ccur.com ([208.248.32.212]:36876 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S266180AbUAMXCr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 18:02:47 -0500
-Date: Tue, 13 Jan 2004 18:02:20 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: rml@ximian.com, mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] rq->curr==p not equivalent to task_running(rq,p)
-Message-ID: <20040113230220.GA13341@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
+	Tue, 13 Jan 2004 18:07:47 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:54997 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265776AbUAMXHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 18:07:43 -0500
+Date: Tue, 13 Jan 2004 23:06:05 +0000
+From: Dave Jones <davej@redhat.com>
+To: paul.devriendt@amd.com
+Cc: pavel@ucw.cz, cpufreq@www.linux.org.uk, linux@brodo.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Cleanups for powernow-k8
+Message-ID: <20040113230605.GM14674@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, paul.devriendt@amd.com,
+	pavel@ucw.cz, cpufreq@www.linux.org.uk, linux@brodo.de,
+	linux-kernel@vger.kernel.org
+References: <99F2150714F93F448942F9A9F112634C080EF392@txexmtae.amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <99F2150714F93F448942F9A9F112634C080EF392@txexmtae.amd.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-task_running(rq,p) is equivalent to (rq->curr == p) only for some
-architectures.  Boot tested on i386.
+On Tue, Jan 13, 2004 at 04:37:13PM -0600, paul.devriendt@amd.com wrote:
 
-Regards,
-Joe
+ > I have a totally new driver, that I am hoping to release within about
+ > a month. (I did target the end of the year, but I got distracted on
+ > some other stuff). The new driver :
+ >   - uses ACPI to figure out the available p-states. I have seen a *lot*
+ >     of buggy BIOSs where the PSB/PST info is wrong or missing,
 
-diff -Nua 2.6/kernel/sched.c.0 2.6/kernel/sched.c
---- 2.6/kernel/sched.c.0	2004-01-13 17:53:34.000000000 -0500
-+++ 2.6/kernel/sched.c	2004-01-13 17:47:33.000000000 -0500
-@@ -2062,7 +2062,7 @@
- 		 * our priority decreased, or if we are not currently running on
- 		 * this runqueue and our priority is higher than the current's
- 		 */
--		if (rq->curr == p) {
-+		if (task_running(rq, p)) {
- 			if (p->prio > oldprio)
- 				resched_task(rq->curr);
- 		} else if (p->prio < rq->curr->prio)
+I've seen a ridiculous amount of broken PST's from folks running the K7 driver
+too. Given the complete lack of help from some vendors[1], I think I might
+add a minimal ACPI parser there too when I get time, as an alternative
+source of info when the PST is obviously crap.
+
+ > I would appreciate some advice on a question ... should I leave the old
+ > non-ACPI capability there for those people who do not want to enable ACPI
+ > in the kernel ? If so, is this a big ifdef, or is there a better way to do
+ > it ? Or should I just say that it is dependent on ACPI, got to have ACPI ?
+
+Part of the justification for cpufreq (at least on x86) was an alternative
+for when ACPI just doesn't work, or for when folks either don't want to,
+or can't run ACPI (through various other AML bugs for eg).
+
+For minimal parsing of the ACPI P state tables, we shouldn't need the
+full-blown interpretor IMO.
+
+		Dave
+

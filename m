@@ -1,94 +1,238 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTEVWbE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 18:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263353AbTEVWbE
+	id S263340AbTEVWdP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 18:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263353AbTEVWdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 18:31:04 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30650 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263338AbTEVWbC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 18:31:02 -0400
-Date: Fri, 23 May 2003 00:43:51 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Julien Oster <lkml@mf.frodoid.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.69-mm8] ide_dmaq_intr: stat=40, not expected
-In-Reply-To: <frodoid.frodo.874r3m39ae.fsf@usenet.frodoid.org>
-Message-ID: <Pine.SOL.4.30.0305230040540.27109-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 May 2003 18:33:15 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:16754 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263340AbTEVWdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 18:33:10 -0400
+Date: Thu, 22 May 2003 18:46:12 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux390@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>,
+       Florian La Roche <laroche@redhat.com>
+Subject: Patch to add SysRq handling to 3270 console
+Message-ID: <20030522184612.A25939@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 3270 console is superior to 3215 in several respects:
+- It shows brackets correctly
+- It allows for passwords to be not echoed
+- It permits full screen applications
+- Its users do not need to hit Enter twice for every line
 
+Its only deficiency was that SysRq was not implemented.
+The attached patch rectifies that and allows to start
+migration from 3215 for VM users.
 
-Hello,
+Matin et. al., please consider.
 
-Can you compile without IDE TCQ and tell whats the difference?
+I am going to look into tub sleeping with spinlocks soonish,
+but please don't hold this patch for that problem.
 
-Regards,
---
-Bartlomiej
+Yours,
+-- Pete
 
-On Fri, 23 May 2003, Julien Oster wrote:
-
-> Hello,
->
-> I already mentioned it in another thread, but here again, more
-> complete.
->
-> Booting my workstation with 2.5.69-mm8 works, but I get the following
-> message many times per second:
->
-> May 22 23:34:01 frodo kernel: ide_dmaq_intr: stat=42, not expected
-> May 22 23:34:01 frodo kernel: ide_dmaq_intr: stat=40, not expected
-> May 22 23:34:01 frodo last message repeated 34 times
->
-> It's mostly stat=40, sometimes stat=42. Look at the time: it's really
-> very often. (more often than 34 times, there are other normal messages
-> in between)
->
-> The harddisks are attached on a Promise PDC20276 onboard RAID
-> controller, but it's only used as an IDE controller. However, I have
-> Linux RAID Partitions on the disks (all mounted filesystems are). Most
-> are RAID 1, one is RAID 0, but the latter isn't accessed very often.
->
-> Even more interesting: after a while, at least /var/log/kern.log
-> (where the kernel messages are logged to) gets jammed. Here's
-> something pasted right away from "less /var/log/kern.log":
->
-> May 22 23:34:32 frodo kernel: ide_dmaq_intr: stat=40, not expected
-> ^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@
-> ^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@^@
-> [...]
-> <A0><81><CA>^Y^A<9A>|!#n:<C8><F6><F5>^E<AF><EE><B5>@^D<A5>]^L<90><C0><98>=f<F3>A
-> `<C7>^Y^F<A0>%H;4<9A>^L<E9><FA><BE><AD><DD><AA>~<B5>^U<FB>[^GB<83><AC>^@w<B5>eMa
-> y 22 23:41:23 frodo kernel: klogd 1.4.1#11, log source = /proc/kmsg started.
->
-> I cutted it down to a few lines, however the binary garbage is quite a
-> lot. Obviously, something got jammed for good, because as you can see,
-> the next readable line is from the (fine running) 2.4.21-rc2 kernel,
-> which I booted immediately afterwards.
->
-> Note however, that I didn't do a clean shutdown, since I forgot to
-> include my input devices into the kernel (ouch). I just pressed
-> reset. The fsck done by the working 2.4.21-rc2 kernel afterwards also
-> ate up a configuration file from tomcat (unused inode, cleaned).
->
-> All mirrored arrays were reconstructing right after booting
-> 2.5.69-mm8, since they weren't clean before. I pressed reset before
-> the reconstruction got finished (I had no input device and the
-> ide_dmaq_intr-message actually scared me).
->
-> So, taking the unclean shutdown and the reconstructing RAID into
-> account, the jammed files may not be a cause of the strange message
-> the kernel gives me.
->
-> I included my .config and an "lspci -v" output with this mail. Please
-> note that the latter one was created with my currently running
-> 2.4.21-rc2 kernel, but that shouldn't matter I believe.
->
-> Regards,
-> Julien
-
+diff -urN -X dontdiff linux-2.5.69-bk12/arch/s390/kernel/s390_ksyms.c linux-2.5.69-bk12-s390/arch/s390/kernel/s390_ksyms.c
+--- linux-2.5.69-bk12/arch/s390/kernel/s390_ksyms.c	2003-05-17 10:02:23.000000000 -0700
++++ linux-2.5.69-bk12-s390/arch/s390/kernel/s390_ksyms.c	2003-05-22 15:31:35.000000000 -0700
+@@ -13,6 +13,7 @@
+ #include <asm/delay.h>
+ #include <asm/pgalloc.h>
+ #include <asm/setup.h>
++#include <asm/ctrlchar.h>
+ #ifdef CONFIG_IP_MULTICAST
+ #include <net/arp.h>
+ #endif
+@@ -85,3 +86,5 @@
+ EXPORT_SYMBOL(console_device);
+ EXPORT_SYMBOL_NOVERS(do_call_softirq);
+ EXPORT_SYMBOL(sys_wait4);
++EXPORT_SYMBOL(ctrlchar_init);
++EXPORT_SYMBOL(ctrlchar_handle);
+diff -urN -X dontdiff linux-2.5.69-bk12/drivers/s390/char/con3215.c linux-2.5.69-bk12-s390/drivers/s390/char/con3215.c
+--- linux-2.5.69-bk12/drivers/s390/char/con3215.c	2003-05-11 12:56:33.000000000 -0700
++++ linux-2.5.69-bk12-s390/drivers/s390/char/con3215.c	2003-05-22 13:57:25.000000000 -0700
+@@ -32,8 +32,7 @@
+ #include <asm/delay.h>
+ #include <asm/cpcmd.h>
+ #include <asm/setup.h>
+-
+-#include "ctrlchar.h"
++#include <asm/ctrlchar.h>
+ 
+ #define NR_3215		    1
+ #define NR_3215_REQ	    (4*NR_3215)
+@@ -441,7 +440,7 @@
+ 			if (count >= TTY_FLIPBUF_SIZE - tty->flip.count)
+ 				count = TTY_FLIPBUF_SIZE - tty->flip.count - 1;
+ 			EBCASC(raw->inbuf, count);
+-			cchar = ctrlchar_handle(raw->inbuf, count, tty);
++			cchar = ctrlchar_handle(raw->inbuf, count, tty, 1);
+ 			switch (cchar & CTRLCHAR_MASK) {
+ 			case CTRLCHAR_SYSRQ:
+ 				break;
+diff -urN -X dontdiff linux-2.5.69-bk12/drivers/s390/char/ctrlchar.c linux-2.5.69-bk12-s390/drivers/s390/char/ctrlchar.c
+--- linux-2.5.69-bk12/drivers/s390/char/ctrlchar.c	2003-03-24 14:01:49.000000000 -0800
++++ linux-2.5.69-bk12-s390/drivers/s390/char/ctrlchar.c	2003-05-22 13:57:25.000000000 -0700
+@@ -13,7 +13,7 @@
+ #include <linux/sysrq.h>
+ #include <linux/ctype.h>
+ 
+-#include "ctrlchar.h"
++#include <asm/ctrlchar.h>
+ 
+ #ifdef CONFIG_MAGIC_SYSRQ
+ static int ctrlchar_sysrq_key;
+@@ -40,7 +40,8 @@
+  *         with CTRLCHAR_CTRL
+  */
+ unsigned int
+-ctrlchar_handle(const unsigned char *buf, int len, struct tty_struct *tty)
++ctrlchar_handle(const unsigned char *buf, int len, struct tty_struct *tty,
++    int is_console)
+ {
+ 	if ((len < 2) || (len > 3))
+ 		return CTRLCHAR_NONE;
+@@ -52,7 +53,7 @@
+ 
+ #ifdef CONFIG_MAGIC_SYSRQ
+ 	/* racy */
+-	if (len == 3 && buf[1] == '-') {
++	if (is_console && len == 3 && buf[1] == '-') {
+ 		ctrlchar_sysrq_key = buf[2];
+ 		ctrlchar_work.data = tty;
+ 		schedule_work(&ctrlchar_work);
+diff -urN -X dontdiff linux-2.5.69-bk12/drivers/s390/char/ctrlchar.h linux-2.5.69-bk12-s390/drivers/s390/char/ctrlchar.h
+--- linux-2.5.69-bk12/drivers/s390/char/ctrlchar.h	2003-03-24 14:01:46.000000000 -0800
++++ linux-2.5.69-bk12-s390/drivers/s390/char/ctrlchar.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,20 +0,0 @@
+-/*
+- *  drivers/s390/char/ctrlchar.c
+- *  Unified handling of special chars.
+- *
+- *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Fritz Elfert <felfert@millenux.com> <elfert@de.ibm.com>
+- *
+- */
+-
+-#include <linux/tty.h>
+-
+-extern unsigned int
+-ctrlchar_handle(const unsigned char *buf, int len, struct tty_struct *tty);
+-
+-
+-#define CTRLCHAR_NONE  (1 << 8)
+-#define CTRLCHAR_CTRL  (2 << 8)
+-#define CTRLCHAR_SYSRQ (3 << 8)
+-
+-#define CTRLCHAR_MASK (~0xffu)
+diff -urN -X dontdiff linux-2.5.69-bk12/drivers/s390/char/sclp_tty.c linux-2.5.69-bk12-s390/drivers/s390/char/sclp_tty.c
+--- linux-2.5.69-bk12/drivers/s390/char/sclp_tty.c	2003-05-11 12:56:33.000000000 -0700
++++ linux-2.5.69-bk12-s390/drivers/s390/char/sclp_tty.c	2003-05-22 13:57:45.000000000 -0700
+@@ -17,8 +17,8 @@
+ #include <linux/wait.h>
+ #include <linux/slab.h>
+ #include <asm/uaccess.h>
++#include <asm/ctrlchar.h>
+ 
+-#include "ctrlchar.h"
+ #include "sclp.h"
+ #include "sclp_rw.h"
+ #include "sclp_tty.h"
+@@ -485,7 +485,7 @@
+ 	 */
+ 	if (sclp_tty == NULL)
+ 		return;
+-	cchar = ctrlchar_handle(buf, count, sclp_tty);
++	cchar = ctrlchar_handle(buf, count, sclp_tty, 1);
+ 	switch (cchar & CTRLCHAR_MASK) {
+ 	case CTRLCHAR_SYSRQ:
+ 		break;
+diff -urN -X dontdiff linux-2.5.69-bk12/drivers/s390/char/tubtty.c linux-2.5.69-bk12-s390/drivers/s390/char/tubtty.c
+--- linux-2.5.69-bk12/drivers/s390/char/tubtty.c	2003-05-17 10:02:33.000000000 -0700
++++ linux-2.5.69-bk12-s390/drivers/s390/char/tubtty.c	2003-05-22 13:57:46.000000000 -0700
+@@ -10,6 +10,7 @@
+  *  Author:  Richard Hitt
+  */
+ #include <linux/config.h>
++#include <asm/ctrlchar.h>
+ #include "tubio.h"
+ 
+ /* Initialization & uninitialization for tubtty */
+@@ -119,6 +120,8 @@
+ 	td->read_proc = tty3270_read_proc;
+ 	td->write_proc = tty3270_write_proc;
+ 
++	ctrlchar_init();
++
+ 	rc = tty_register_driver(td);
+ 	if (rc) {
+ 		printk(KERN_ERR "tty3270 registration failed with %d\n", rc);
+@@ -865,23 +868,22 @@
+ {
+ 	struct tty_struct *tty;
+ 	int func = -1;
++	int is_console = 0;
++	unsigned int cchar;
+ 
+ 	if ((tty = tubp->tty) == NULL)
+ 		return;
+ 	if (count < 0)
+ 		return;
+-	if (count == 2 && (cp[0] == '^' || cp[0] == '\252')) {
+-		switch(cp[1]) {
+-		case 'c':  case 'C':
+-			func = INTR_CHAR(tty);
+-			break;
+-		case 'd':  case 'D':
+-			func = EOF_CHAR(tty);
+-			break;
+-		case 'z':  case 'Z':
+-			func = SUSP_CHAR(tty);
+-			break;
+-		}
++#ifdef CONFIG_TN3270_CONSOLE
++	if (CONSOLE_IS_3270 && tub3270_con_tubp == tubp)
++		is_console = 1;
++#endif
++	cchar = ctrlchar_handle(cp, count, tty, is_console);
++	if ((cchar & CTRLCHAR_MASK) != CTRLCHAR_NONE) {
++		if ((cchar & CTRLCHAR_MASK) != CTRLCHAR_CTRL)
++			return;
++		func = cchar & 0xFF;
+ 	} else if (count == 2 && cp[0] == 0x1b) {        /* if ESC */
+ 		int inc = 0;
+ 		char buf[GEOM_INPLEN + 1];
+diff -urN -X dontdiff linux-2.5.69-bk12/include/asm-s390/ctrlchar.h linux-2.5.69-bk12-s390/include/asm-s390/ctrlchar.h
+--- linux-2.5.69-bk12/include/asm-s390/ctrlchar.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.5.69-bk12-s390/include/asm-s390/ctrlchar.h	2003-05-22 13:57:46.000000000 -0700
+@@ -0,0 +1,20 @@
++/*
++ *  Implemented in drivers/s390/char/ctrlchar.c
++ *  Unified handling of special chars.
++ *
++ *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Fritz Elfert <felfert@millenux.com> <elfert@de.ibm.com>
++ *
++ */
++
++struct tty_struct;
++
++extern unsigned int ctrlchar_handle(const unsigned char *buf, int len,
++    struct tty_struct *tty, int is_console);
++extern void ctrlchar_init(void);
++
++#define CTRLCHAR_CTRL  (0 << 8)
++#define CTRLCHAR_NONE  (1 << 8)
++#define CTRLCHAR_SYSRQ (2 << 8)
++
++#define CTRLCHAR_MASK (~0xffu)

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTIWRWP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 13:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTIWRWP
+	id S261814AbTIWRXj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 13:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTIWRWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 13:22:15 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:30726 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262115AbTIWRWL (ORCPT
+	Tue, 23 Sep 2003 13:22:46 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:12194 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262119AbTIWRWZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 13:22:11 -0400
-Date: Tue, 23 Sep 2003 19:22:06 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org, John Bradford <john@grabjohn.com>
-Subject: Re: 2.6.0-test5 vs. Japanese keyboards
-Message-ID: <20030923192206.A1504@pclin040.win.tue.nl>
-References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60> <20030921110125.GB18677@ucw.cz> <0a5f01c38043$f9c35c80$44ee4ca5@DIAMONDLX60> <20030921171632.A11359@pclin040.win.tue.nl> <0c2001c38104$34c2a690$44ee4ca5@DIAMONDLX60> <20030922221453.A1064@pclin040.win.tue.nl> <145601c381c8$07956760$44ee4ca5@DIAMONDLX60>
-Mime-Version: 1.0
+	Tue, 23 Sep 2003 13:22:25 -0400
+To: linux-kernel@vger.kernel.org
+Subject: ICH5-SATA drivers freeze system when drives are spun down
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 23 Sep 2003 13:22:23 -0400
+Message-ID: <87k77zqv1s.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <145601c381c8$07956760$44ee4ca5@DIAMONDLX60>; from ndiamond@wta.att.ne.jp on Tue, Sep 23, 2003 at 08:44:12PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > I think no kernel changes are required to use Japanese keyboards
-> > > > today.
-> > > > (But kbd has to be recompiled with NR_KEYS set to 256.)
-> > >
-> > > I'm not convinced yet.  defkeymap.c_shipped is included in the
-> > > downloadable .bz2 file and it is inadequate.
-> >
-> > But defkeymap is inadequeate for German, it is inadequate for French,
-> > why would it be adequate for Japanese?
-> 
-> I think that if defkeymap.c_shipped were inadequate for German and French
-> then you already would have fixed it.  I don't have experience with those
-> keyboards but would guess that defkeymap.c_shipped is probably adequate for
-> loadkeys to load a working keymap for German or French.
 
-Of course. It is also adequate for loadkeys to load a working keymap
-for Japanese.
+I've always used noflushd to spin down the drives I don't use much. Some of my
+older drives are really noise, and there's enough heat in there as it is. I
+just switched to a new system and I find on my new motherboard with a ICH5
+SATA controller the system doesn't behave properly when the drives are spun
+down.
 
-> In order to be capable of loading a working keymap, defkeymap.c_shipped
-> needs patching.
+The entire system freezes periodically for anywhere from half a second to 10s.
+This happens about once a minute or so, sometimes more. During this time the
+entire system is frozen, but when it recovers it processes all the lost i/o.
 
-No.
+I also find when there is i/o that should cause a drive to wake up it takes
+waay too long to wake up. It's as if the drive isn't even being woken up for
+10-15s. Then I get dma timeouts in my logs.
 
-> > It is just the random default you get when no keymap was loaded.
-> 
-> It is that plus more.  It includes limits that prevent certain keymaps from
-> getting set when loaded.
+Is it that the ICH5 controller is buggy and behaves poorly when drives are
+powered off? Or is it the driver that isn't handling something properly? Does
+anyone else use noflushd with the ICH5 driver?
 
-False.
-
-Andries
+-- 
+greg
 

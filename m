@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288004AbSABU6y>; Wed, 2 Jan 2002 15:58:54 -0500
+	id <S287965AbSABVCF>; Wed, 2 Jan 2002 16:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287969AbSABU4h>; Wed, 2 Jan 2002 15:56:37 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:39810
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S287976AbSABUzv>; Wed, 2 Jan 2002 15:55:51 -0500
-Date: Wed, 2 Jan 2002 13:55:20 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Philippe Trottier <tchiwam@invers.fi>
-Cc: linuxppc-user@lists.linuxppc.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-pre18 Troubles with MESH driver
-Message-ID: <20020102205520.GK1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <Pine.LNX.4.43.0201022235360.5061-100000@tchiwam2.invers.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0201022235360.5061-100000@tchiwam2.invers.fi>
-User-Agent: Mutt/1.3.24i
+	id <S287967AbSABVBu>; Wed, 2 Jan 2002 16:01:50 -0500
+Received: from ns.suse.de ([213.95.15.193]:15366 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287985AbSABVAx>;
+	Wed, 2 Jan 2002 16:00:53 -0500
+Date: Wed, 2 Jan 2002 22:00:52 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: <esr@thyrsus.com>, Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <E16LsU0-0005RB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0201022200070.427-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 10:38:09PM +0200, Philippe Trottier wrote:
+On Wed, 2 Jan 2002, Alan Cox wrote:
 
-> There is something that got broken on 2.4.18-pre 1 on the mesh controller,
-> anyone else got that ?
+> You can make an educated guess. However it is at best an educated guess.
+> The DMI tables will tell you what PCI and ISA slots are present (but
+> tend to be unreliable on older boxes).
 
-Yes, it didn't get updated.  Use the linuxppc_2_4[1] tree, or wait for
-2.4.18-pre2 (hopefully).
+And newer ones. I've seen 'Full length ISA slot' reported on a laptop
+for eg.
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-[1] http://penguinppc.org/dev/kernel.shtml

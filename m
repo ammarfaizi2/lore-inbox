@@ -1,93 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSABXj0>; Wed, 2 Jan 2002 18:39:26 -0500
+	id <S288029AbSABXve>; Wed, 2 Jan 2002 18:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288018AbSABXh4>; Wed, 2 Jan 2002 18:37:56 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:58752 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S288009AbSABXhg>; Wed, 2 Jan 2002 18:37:36 -0500
-To: paulus@samba.org
-Cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-	<20020101234350.GN28513@cpe-24-221-152-185.az.sprintbbd.net>
-	<87ital6y5r.fsf@fadata.bg>
-	<15411.36909.387949.863222@argo.ozlabs.ibm.com>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <15411.36909.387949.863222@argo.ozlabs.ibm.com>
-Date: 03 Jan 2002 01:37:45 +0200
-Message-ID: <87zo3wtjcm.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S287972AbSABXu3>; Wed, 2 Jan 2002 18:50:29 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:60684 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S288014AbSABXt7>; Wed, 2 Jan 2002 18:49:59 -0500
+Message-ID: <3C339C98.8080207@lexus.com>
+Date: Wed, 02 Jan 2002 15:49:44 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dieter =?ISO-8859-15?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Robert Love <rml@tech9.net>
+Subject: Re: Linux 2.4.17 vs 2.2.19 vs rml new VM
+In-Reply-To: <20020102231431Z287173-13997+212@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
+Well it is possible that with the several patches
+you mention that I might see results similar to
+what I now see with the low-latency patch.
 
-Paul> Momchil Velikov writes:
->> Well, you may discuss it again, but this time after actually reading
->> the C standard:
->> 
->> "6.3.6 Additive operators
->> ...  
->> 
->> 9 Unless both the pointer operand and the result point to
->> elements of the same array object, or the pointer operand
->> points one past the last element of an array object and the
->> result points to an element of the same array object, the
->> behavior is undefined if the result is used as an operand of a
->> unary * operator that is actually evaluated."
+However -
 
-Paul> One of the reasons why C is a good language for the kernel is that its
-Paul> memory model is a good match to the memory organization used by the
-Paul> processors that linux runs on.  Thus, for these processors, adding an
-Paul> offset to a pointer is in fact simply an arithmetic addition.  Combine
-Paul> that with the fact that the kernel is far more aware of how stuff is
-Paul> laid out in its virtual memory space than most C programs, and you can
-Paul> see that it is reasonable for the kernel to do pointer arithmetic
-Paul> which might be undefined according to the strict letter of the law,
-Paul> but which in fact works correctly on the class of processors that
-Paul> Linux runs on, for all reasonable compiler implementations.
+The preempt patch does NOT play well with the
+tux webserver, which I am using. So, preempt is
+not an option for me until and unless it is cleaned
+up to allow cooperation with tux.
 
-Paul> The rules in the C standard are designed to allow a program to run
-Paul> consistently on a wide variety of machine architectures, including
-Paul> things like the DEC PDP-10 which weren't directly byte-addressable.
-Paul> (Yes the PDP-10 had "byte pointers" but they were a different kind of
-Paul> object from an ordinary pointer.)  The Linux kernel runs on a more
-Paul> restricted range of machines and IMHO we are entitled to assume things
-Paul> because of that.
+tux and low-latency get along just fine.
 
->> Why gcc shouldn't be making some optimization. Because a particular
->> person doesn't like it or ?  What kind of statement is that anyway ?
+cu
 
-Paul> This is the kernel.  If I say strcpy I want the compiler to call a
-Paul> function called strcpy, not to try to second-guess me and do something
-Paul> different.  If I want memcpy I'll write "memcpy".
+jjs
 
-This is C. If you use ``strcpy'', an identifier reserved by the
-standard, it means that you want to move some bytes from here to there
-and please let the compiler decide how to do that.  Much in the same
-way as when you assign structures and compiler uses ``memcpy'' or
-maybe it doesn't if it wouldn't be a win.
+Dieter Nützel wrote:
 
->> Although all uses of the RELOC macro violate the standard, this kind
->> of pointer arithmetic is far too common and usually produces the
->> expected behavior, thus it make sense to optimize the cases where ut
->> breaks
+>On Tuesday, 2. January 2002 20:50, Alan cox wrote:
+>
+>>>I find the low latency patch makes a noticeable
+>>>difference in e.g. q3a and rtcw - OTOH I have
+>>>not been able to discern any tangible difference
+>>>from the stock kernel when using -preempt.
+>>>
+>>The measurements I've seen put lowlatency ahead of pre-empt in quality
+>>of results. Since low latency fixes some of the locked latencies it might
+>>be interesting for someone with time to benchmark
+>>
+>>       vanilla
+>>       low latency
+>>       pre-empt
+>>       both together
+>>
+>
+>Don't forget that you have to use preempt-kernel-rml + lock-break-rml to 
+>achieve the same (more) than the latency patch.
+>
+>Taken from Robert's page and running it for some weeks, now.
+>
+>[-]
+>Lock breaking for the Preemptible Kernel
+>lock-break-rml-2.4.15-1
+>lock-break-rml-2.4.16-3
+>lock-break-rml-2.4.17-2
+>lock-break-rml-2.4.18-pre1-1
+>README
+>ChangeLog
+>With the preemptible kernel, the need for explicit scheduling points, like in 
+>the low-latency patches, are no more. However, since we can not preempt while 
+>locks are held, we can take a similar model as low-latency and "break" (drop 
+>and immediately reacquire) locks to improve system response. The trick is 
+>finding when and where we can safely break the locks (periods of quiescence) 
+>and how to safely recover. The majority of the lock breaking is in the VM and 
+>VFS code. This patch is for users with strong system response requirements 
+>affected by the worst-case latencies caused by long-held locks.
+>[-]
+>
+>Regards,
+>	Dieter
+>
 
-Paul> If the gcc maintainers think they are entitled to change the memory
-Paul> model so as to break pointer arithmetic that "violates" the standard,
-Paul> then we will have to use a different compiler.
 
-Where do you see changes in pointer arithmetic ? Or in the "memory
-model" (whatever that means) ?
-
-I'd dare to state that _very_ few people would join the quest for
-writing the kernel in something other than C.
-
-Paul> As for the original problem, my preferred solution at the moment is to
-Paul> add an label in arch/ppc/lib/string.S so that string_copy() is the
-Paul> same function as strcpy(), and use string_copy instead of strcpy in
-Paul> prom.c.

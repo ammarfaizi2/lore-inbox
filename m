@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288578AbSANBau>; Sun, 13 Jan 2002 20:30:50 -0500
+	id <S288593AbSANBdK>; Sun, 13 Jan 2002 20:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288582AbSANBak>; Sun, 13 Jan 2002 20:30:40 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:60689 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S288578AbSANBag>;
-	Sun, 13 Jan 2002 20:30:36 -0500
-Date: Sun, 13 Jan 2002 18:14:53 -0700
-From: yodaiken@fsmlabs.com
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020113181453.A18218@hq.fsmlabs.com>
-In-Reply-To: <20020108142117.F3221@inspiron.school.suse.de> <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>
+	id <S288595AbSANBdB>; Sun, 13 Jan 2002 20:33:01 -0500
+Received: from holomorphy.com ([216.36.33.161]:55192 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S288594AbSANBck>;
+	Sun, 13 Jan 2002 20:32:40 -0500
+Date: Sun, 13 Jan 2002 17:32:22 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Love <rml@tech9.net>
+Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] update: preemptive kernel for O(1) sched
+Message-ID: <20020113173222.D934@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Love <rml@tech9.net>,
+	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201132325.g0DNPrm05503@zero.tech9.net> <1010965697.813.25.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Sun, Jan 13, 2002 at 07:46:54PM -0500
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <1010965697.813.25.camel@phantasy>; from rml@tech9.net on Sun, Jan 13, 2002 at 06:48:17PM -0500
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 13, 2002 at 07:46:54PM -0500, Bill Davidsen wrote:
-> Finally, I doubt that any of this will address my biggest problem with
-> Linux, which is that as memory gets cheap a program doing significant disk
-> writing can get buffers VERY full (perhaps a while CD worth) before the
-> kernel decides to do the write, at which point the system becomes
-> non-responsive for seconds at a time while the disk light comes on and
-> stays on. That's another problem, and I did play with some patches this
-> weekend without making myself really happy :-( Another topic,
-> unfortunately.
+On Sun, 2002-01-13 at 18:22, Dieter N?tzel wrote:
+>> what about lock-break?
+>> I am running your former one as always with 
+>> lock-break-rml-2.4.18-pre1-1.patch ...;-)
 
-I think this is a critical problem. I'd like to be able to have some
-assurance that a task with a buffer of size N doing read-disk->write-disk
-will maintain data flow at some minimal rate over intervals of 1 or 2
-seconds or something like that.
+On Sun, Jan 13, 2002 at 06:48:17PM -0500, Robert Love wrote:
+> I haven't tested O(1) together with lock-break personally, yet, but I
+> have a confirmation of success from a couple of users.  There are no
+> reasons it shouldn't work.
 
+I have at least run it on my laptop, together with rmap even.
+No pathological behavior that I can tell. Of course, the interactive
+response is wonderful, but I haven't precisely measured anything, as
+I have enough other things to measure precisely it's a bit far afield.
+
+
+Cheers,
+Bill

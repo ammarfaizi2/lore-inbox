@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbTF0KM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 06:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTF0KM0
+	id S264134AbTF0KVM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 06:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTF0KVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 06:12:26 -0400
-Received: from komoseva.globalnet.hr ([213.149.32.250]:39944 "EHLO
-	komoseva.globalnet.hr") by vger.kernel.org with ESMTP
-	id S264124AbTF0KMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 06:12:24 -0400
-Date: Fri, 27 Jun 2003 11:27:08 +0200
-From: Vid Strpic <vms@bofhlet.net>
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI CDROM and NFS or AI?
-Message-ID: <20030627092708.GM20998@home.bofhlet.net>
-Mail-Followup-To: Vid Strpic <vms@bofhlet.net>,
-	Marc Giger <gigerstyle@gmx.ch>, linux-kernel@vger.kernel.org
+	Fri, 27 Jun 2003 06:21:12 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:24891 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264134AbTF0KVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 06:21:10 -0400
+Subject: Re: O_DIRECT
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Stephen Tweedie <sct@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1056706819.2418.11.camel@sisko.scot.redhat.com>
+References: <200306262021.h5QKLhN10771@devserv.devel.redhat.com>
+	 <1056706819.2418.11.camel@sisko.scot.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056710121.2418.19.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="R6sEYoIZpp9JErk7"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.4.21
-X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled May  3 2002 20:49:56)
-X-I-came-from: scary devil monastery
-X-Politics: UNIX fundamentalist
-X-Face: -|!t[0Pql@=P`A=@?]]hx(Oh!2jK='NQO#A$ir7jYOC*/4DA~eH7XpA/:vM>M@GLqAYUg9$ n|mt)QK1=LZBL3sp?mL=lFuw3V./Q&XotFmCH<Rr(ugDuDx,mM*If&mJvqtb3BF7~~Guczc0!G0C`2 _A.v7)%SGk:.dgpOc1Ra^A$1wgMrW=66X|Lyk
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Jun 2003 11:35:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan,
 
---R6sEYoIZpp9JErk7
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 2003-06-27 at 10:40, Stephen C. Tweedie wrote:
 
-On Thu, Jun 26, 2003 at 09:57:28PM +0200, Marc Giger wrote:
-> I think my pc got some kind of AI:-) Yesterday I exported the scsi cdrom
-> via nfs. Today, its very amusingly, my scsi cdrom opens the drawer
-> suddenly. It's surely the fifth times this evening on which I close the
-> drawer again 8).
-> Is this behavior normal;-) Is my PC bored?
-> And No it's not a joke!
+> On Thu, 2003-06-26 at 21:21, Alan Cox wrote:
+> > So its now confirmed with 3 distros, two file systems and several 
+> > compilers. It certainly seems to be the O_DIRECT patches but I'll pull
+> > the back out for the next -ac and check I guess
 
-I know it isn't ... so, have you `setcd` installed in any case?  If not,
-install it, and look:
+Ouch ouch ouch, there's nasty merge conflict between the O_DIRECT patch
+and an existing 64-bit rlimit chunk in -ac3.  You really, really want
+the change below. :-)  Marcelo's tree appears OK, and this is a common
+code path for all filesystems in -ac, so it matches the failure patterns
+that far.
 
-setcd -s /dev/cdrom
-/dev/cdrom:
-Auto open tray:      set
+Cheers,
+ Stephen
 
-If something like this shows, then it's your problem....
+--- mm/filemap.c.~1~	2003-06-27 09:58:08.000000000 +0100
++++ mm/filemap.c	2003-06-27 11:13:07.000000000 +0100
+@@ -2995,8 +2995,8 @@
+ 		}
+ 		/* Fix this up when we got to rlimit64 */
+ 		if (pos > 0xFFFFFFFFULL)
+-			count = 0;
+-		else if(count > limit - (u32)pos) {
++			*count = 0;
++		else if(*count > limit - (u32)pos) {
+ 			/* send_sig(SIGXFSZ, current, 0); */
+ 			*count = limit - (u32)pos;
+ 		}
 
-Setcd utility is, I think, primary for ATAPI CD-ROM's, but it works on
-SCSI too, I just checked ...
 
---=20
-           vms@bofhlet.net, IRC:*@Martin, /bin/zsh. C|N>K
-Linux lorien 2.4.21 #1 Sat Jun 14 01:23:07 CEST 2003 i586
- 11:24:00 up 13 days,  8:05,  9 users,  load average: 0.10, 0.22, 0.23
-Muskarci su kao komarci: Ubodu pa odu (grafit u Odeskoj ulici, Split)
-
---R6sEYoIZpp9JErk7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+/A3sq1AzG0/iPGMRAnczAKC8SChOPXTN85zV1AS+kkAxNB7b9ACgsXYf
-wfMDXdgQR+cA90g22GYP5AA=
-=1XST
------END PGP SIGNATURE-----
-
---R6sEYoIZpp9JErk7--

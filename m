@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310311AbSCBEZY>; Fri, 1 Mar 2002 23:25:24 -0500
+	id <S292379AbSCBE5P>; Fri, 1 Mar 2002 23:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310315AbSCBEZO>; Fri, 1 Mar 2002 23:25:14 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:54170 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S310311AbSCBEYz>; Fri, 1 Mar 2002 23:24:55 -0500
-Date: Fri, 1 Mar 2002 21:39:08 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Mike Anderson <andmike@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: queue_nr_requests needs to be selective
-Message-ID: <20020301213908.B13983@vger.timpanogas.org>
-In-Reply-To: <20020301132254.A11528@vger.timpanogas.org> <20020301165104.C6778@beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020301165104.C6778@beaverton.ibm.com>; from andmike@us.ibm.com on Fri, Mar 01, 2002 at 04:51:04PM -0800
+	id <S293476AbSCBE5G>; Fri, 1 Mar 2002 23:57:06 -0500
+Received: from penguin.linuxhardware.org ([63.173.68.170]:52148 "EHLO
+	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
+	id <S292379AbSCBE47>; Fri, 1 Mar 2002 23:56:59 -0500
+Date: Fri, 1 Mar 2002 23:47:58 -0500 (EST)
+From: Kristopher Kersey <augustus@linuxhardware.org>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panics on IDE Initialization
+In-Reply-To: <Pine.LNX.4.10.10203011615070.2811-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.33.0203012346001.24643-100000@penguin.linuxhardware.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have verified that it is indeed the HighPoint IDE that it's getting hung
+up on.  I simply disabled it in the BIOS and it booted just fine.  Any
+ideas on a fix though would still be appreciated.  I will test this out on
+the ABIT board also since it has a HighPoint on board also.
 
+thanks,
+Kris
 
-We are going to sleep a lot in __get_request_wait().  This 
-means the write queue has no free request blocks.  We are mostly writing 
-to the adapter in this test case, and the data we are writing 
-is already in order when it's posted.    
+On Fri, 1 Mar 2002, Andre Hedrick wrote:
 
-We are also posting via submit_bh() so you should trace 
-that path.  I am seeing 22,000+ buffer heads posted concurrently
-on each 3Ware card of 4K each with this application
-on the patch for 2.4.19-pre2.  I will post the actual data
-for you.  Stand by. 
-
-These 3Ware cards are incredible. 
-
-Jeff
-
-
-On Fri, Mar 01, 2002 at 04:51:04PM -0800, Mike Anderson wrote:
-> Jeff V. Merkey [jmerkey@vger.timpanogas.org] wrote:
-> > 
-> > ..snip..
+>
+> Oh I already have the skinny and working on it.
+> I still have the touch!
+>
+> Also I have a sponsor for the 374 code so now to find somebody for the 372
+> and the variations it shows up in :-/
+>
+> Cheers,
+>
+>
+> On Fri, 1 Mar 2002, Alan Cox wrote:
+>
+> > > I have word that it's the HighPoint controller's fault.  I will verify
+> > > this myself and let you know.
 > >
-> > What is really needed here is to allow queue_nr_requests to be 
-> > configurable on a per adapter/device basis for these high end 
-> > raid cards like 3Ware since in a RAID 0 configuration, 8 drives
-> > are in essence a terabyte (1.3 terrabytes in our configuration) 
-> > and each adapter is showing up as a 1.3 TB device.  64/128
-> > requests are simply not enough to get the full spectrum of 
-> > performance atainable with these cards.
-> > 
-> Not having direct experience on this card it appears that increasing the
-> queue_nr_requests number will not allow you to have more ios in flight.
-> 
-> Unless I am reading the driver wrong you will be limited to
-> TW_MAX_CMDS_PER_LUN (15). This value is used by scsi_build_commandblocks
-> to allocate scsi commands for your scsi_device. This driver does not provide
-> a select_queue_depths function which allows for increase to the default
-> template value. 
-> 
-> Could it be that the experimentation of increasing this number has
-> allowed for better merging.
-> 
-> -Mike
-> -- 
-> Michael Anderson
-> andmike@us.ibm.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > Ok
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> Andre Hedrick
+> Linux Disk Certification Project                Linux ATA Development
+>
+

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293187AbSBWTMu>; Sat, 23 Feb 2002 14:12:50 -0500
+	id <S293181AbSBWTPa>; Sat, 23 Feb 2002 14:15:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293188AbSBWTMk>; Sat, 23 Feb 2002 14:12:40 -0500
-Received: from pogo.esscom.com ([199.89.135.169]:11283 "EHLO esscom.com")
-	by vger.kernel.org with ESMTP id <S293187AbSBWTMa>;
-	Sat, 23 Feb 2002 14:12:30 -0500
-Date: Sat, 23 Feb 2002 12:12:07 -0700 (MST)
-From: Kurt Ferreira <kferreir@esscom.com>
-To: bert hubert <ahu@ds9a.nl>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-In-Reply-To: <20020223193812.A4168@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.21.0202231206400.2620-100000@pogo.esscom.com>
+	id <S293189AbSBWTPK>; Sat, 23 Feb 2002 14:15:10 -0500
+Received: from dial-up-2.energonet.ru ([195.16.109.101]:31360 "EHLO
+	dial-up-2.energonet.ru") by vger.kernel.org with ESMTP
+	id <S293181AbSBWTPA>; Sat, 23 Feb 2002 14:15:00 -0500
+Date: Sat, 23 Feb 2002 22:15:35 +0000 (GMT)
+From: ertzog <ertzog@bk.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.5 not compilling
+Message-ID: <Pine.LNX.4.21.0202232212120.19912-100000@dial-up-2.energonet.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I've just detected a second problem, while compilling 2.5.5
+My parameters You can get several messages back (it is lazy for me to put
+them again)
 
-On Sat, 23 Feb 2002, bert hubert wrote:
+The problem is in fs/filesystems.c while
+__MOD_INC_USE_COUNT(nfsd_linkage->owner);
+and
+__MOD_DEC_USE_COUNT(nfsd_linkage->owner);
 
-> Lots of people found the time to send derogative answers though - and how
-> well known are these in extinguising discussion and allowing us more time to
-> code! 
-> 
-> Typing in the few reasons why this, or any idea, is so well rejected hardly
-> takes more time and *does* extinguish the thread rapidly.
->
+The gcc tells, that there is a pointer to incomplete type
+and it refuses to compile it.
+The problem cures, with compilling in NFS server support,
+because all the code of this file is just got out due the #if directive.
+Can anybody solve this problem?
 
-I think you might not being understanding.  It has been discussed.  In
-some cases over and over.  A search of the mailing list archives give the
-reasons why these (and many like it) have been rejected.  The terse 'no'
-is most likley fustration that the poster did not do his/her homework by
-searching archives before posting.
 
-Kurt
+Best regards.
 

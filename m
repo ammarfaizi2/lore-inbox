@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271859AbRHUWok>; Tue, 21 Aug 2001 18:44:40 -0400
+	id <S271882AbRHUWpv>; Tue, 21 Aug 2001 18:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271882AbRHUWoa>; Tue, 21 Aug 2001 18:44:30 -0400
-Received: from abasin.nj.nec.com ([138.15.150.16]:48650 "HELO
-	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S271859AbRHUWoP>;
-	Tue, 21 Aug 2001 18:44:15 -0400
-From: Sven Heinicke <sven@research.nj.nec.com>
+	id <S271883AbRHUWpm>; Tue, 21 Aug 2001 18:45:42 -0400
+Received: from sweetums.bluetronic.net ([24.162.254.3]:47540 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S271882AbRHUWp2>; Tue, 21 Aug 2001 18:45:28 -0400
+Date: Tue, 21 Aug 2001 18:45:02 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetopia.net>
+X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Qlogic/FC firmware
+In-Reply-To: <Pine.LNX.4.33L.0108211141030.5646-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.GSO.4.33.0108211828150.6389-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15234.58438.146372.874293@abasin.nj.nec.com>
-Date: Tue, 21 Aug 2001 18:44:22 -0400 (EDT)
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on 7899P)
-In-Reply-To: <20010821172029Z16065-32384+285@humbolt.nl.linux.org>
-In-Reply-To: <20010820230909.A28422@oisec.net>
-	<20010821150202Z16034-32383+699@humbolt.nl.linux.org>
-	<15234.37073.974320.621770@abasin.nj.nec.com>
-	<20010821172029Z16065-32384+285@humbolt.nl.linux.org>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Aug 2001, Rik van Riel wrote:
+>I guess using an initrd on these 0.3% of machines shouldn't
+>be too big a problem
 
-Great, with 2.4.8-ac8 I get no memory problems.  Can you tell me what
-file(s) where modified to fix this to I can look for the fixes in
-future vanilla kernels?
+Were's the initrd going to get the firmware?  It's not in the freakin' tree
+anymore.  If I have to go download a firmware image and stick it in an
+initrd, why the hell wouldn't I just plug it directly into the kernel?
+It's *my* kernel.
 
-Thanks!  Now to work on the drive speed problem, it's faster with your
-fix but still slower at writing then my IDE drive on another systems.
+> compared to violating the GPL
 
-       Sven
+Oh for the love of God, will you people stop drooling over the fucking GPL?
+It's *firmware*... it's just a bunch of bits.  It's *not* a program the
+kernel executes.  It's just data. (__init_data to be exact.)
 
-Daniel Phillips writes:
- > On August 21, 2001 06:48 pm, Sven Heinicke wrote:
- > > Yes, highmem was on, the stystem got 4G of memory.  I turned off
- > > highmem and got no messages apart from one:
- > > 
- > > Aug 21 07:29:19 ps1 kernel: (scsi0:A:0:0): Locking max tag count at 64
- > > 
- > > which I was getting before.
- > >
- > > Disk access is faster then before but still slower then the IDE
- > > drive.  Any ideas?
- > 
- > Two separate problems, I think.  I don't know anything about the aic7xxx 
- > driver but I can take a look at the highmem problem.  First, can you try
- > it with highmem enabled, on a recent -ac kernel, say 2.4.8-ac7.
- > 
- > --
- > Daniel
+> and adding
+>to kernel bloat for everybody else.
+
+One man's bloat is another man's functionality.  Besides, it's got a hell of
+a lot of company.  Ask yourself, will you miss 128_K_ in a machine with a
+fiber channel card in it?  It "bloats" the kernel for people using that
+hardware -- machines that don't need it can release it.
+
+--Ricky
+
+(If Sun would get off their ass(es) and support firewire, I'd stop using linux
+ all together.  And before some smartass says they do, point to the ohci and
+ sbp-2 drivers on the Solaris 8 Sparc CD.)
+
+

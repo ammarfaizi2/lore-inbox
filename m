@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283045AbRLQXSM>; Mon, 17 Dec 2001 18:18:12 -0500
+	id <S282993AbRLQXMw>; Mon, 17 Dec 2001 18:12:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283048AbRLQXSC>; Mon, 17 Dec 2001 18:18:02 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:52496 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S283045AbRLQXRz>;
-	Mon, 17 Dec 2001 18:17:55 -0500
-Message-Id: <200112172317.AAA16715@webserver.ithnet.com>
-Date: Tue, 18 Dec 2001 00:17:45 +0100
-Subject: Re: [PATCH] 2.4.16 Fix NULL pointer dereferencing in =?iso-8859-1?q?agpgart=5Fbe.c?=
-In-Reply-To: <1008616583.1705.0.camel@phantasy>
-To: Robert Love <rml@tech9.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S283012AbRLQXMm>; Mon, 17 Dec 2001 18:12:42 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:31759 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S282993AbRLQXMe>; Mon, 17 Dec 2001 18:12:34 -0500
+Date: Mon, 17 Dec 2001 15:15:15 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <Pine.LNX.4.33.0112171449520.1854-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.40.0112171508330.1577-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Stephan von Krawczynski <skraw@ithnet.com>,
-        Yoshiki Hayashi <yoshiki@xemacs.org>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-From: Stephan von Krawczynski <skraw@ithnet.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2001-12-17 at 12:55, Marcelo Tosatti wrote:                 
->                                                                     
-> > Well, Stephan, if you could send me only the part which fixes the 
-oops for                                                              
-> > 2.4.17 then I'll be happy.                                        
-                                                                      
-Robert's patch is it. Plain and simple, was my approach too, but it   
-turned out, Nics was cleaner.                                         
-Anyway, I guess Nic will re-submit it based on the non-oopsing 2.4.17 
-:-)                                                                   
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
-                                                                      
-                                                                      
+On Mon, 17 Dec 2001, Linus Torvalds wrote:
+
+>
+> On Mon, 17 Dec 2001, Davide Libenzi wrote:
+>
+> > On Sat, 15 Dec 2001, Linus Torvalds wrote:
+> >
+> > > I just don't find it very interesting. The scheduler is about 100 lines
+> > > out of however-many-million (3.8 at least count), and doesn't even impact
+> > > most normal performace very much.
+> >
+> > Linus, sharing queue and lock between CPUs for a "thing" highly frequency
+> > ( schedule()s + wakeup()s ) accessed like the scheduler it's quite ugly
+> > and it's not that much funny. And it's not only performance wise, it's
+> > more design wise.
+>
+> "Design wise" is highly overrated.
+>
+> Simplicity is _much_ more important, if something commonly is only done a
+> few hundred times a second. Locking overhead is basically zero for that
+> case.
+
+Few hundred is a nice definition because you can basically range from 0 to
+infinite. Anyway i agree that we can spend days debating about what this
+"few hundred" translate to, and i do not really want to.
+
+
+> 4 cpu's are "high end" today. We can probably point to tens of thousands
+> of UP machines for each 4-way out there. The ratio gets even worse for 8,
+> and 16 CPU's is basically a rounding error.
+>
+> You have to prioritize. Scheduling overhead is way down the list.
+
+You don't really have to serialize/prioritize, old Latins used to say
+"Divide Et Impera" ;)
+
+
+
+
+- Davide
+
+

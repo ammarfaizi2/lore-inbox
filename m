@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264837AbRGEWVR>; Thu, 5 Jul 2001 18:21:17 -0400
+	id <S265180AbRGEWcI>; Thu, 5 Jul 2001 18:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264917AbRGEWVH>; Thu, 5 Jul 2001 18:21:07 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:34503 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S264837AbRGEWUy> convert rfc822-to-8bit;
-	Thu, 5 Jul 2001 18:20:54 -0400
-Message-Id: <200107052220.SAA07341@razor.cs.columbia.edu>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Hua Zhong <huaz@cs.columbia.edu>, Davide Libenzi <davidel@xmailserver.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux/macros.h(new) and linux/list.h(mod) ... 
-In-Reply-To: Your message of "Thu, 05 Jul 2001 22:58:53 BST."
-             <9004.994370333@redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 05 Jul 2001 18:20:54 -0400
-From: Hua Zhong <huaz@cs.columbia.edu>
+	id <S265222AbRGEWb6>; Thu, 5 Jul 2001 18:31:58 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:16824 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265180AbRGEWbs>;
+	Thu, 5 Jul 2001 18:31:48 -0400
+Message-ID: <XFMail.20010705153503.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010705151725.A6021@kroah.com>
+Date: Thu, 05 Jul 2001 15:35:03 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: about include/linux/macros.h ...
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--> From David Woodhouse <dwmw2@infradead.org> :
-> 
-> huaz@cs.columbia.edu said:
-> >  Doesn't it add more overhead?  I think using inline functions are
-> > much better. 
-> 
-> Why should it add overhead? Even the most naïve compiler ought to generate 
-> the same code, surely? I must admit I haven't looked hard at the output - 
-> it didn't even occur to me that it might produce suboptimal code.
 
-right, gcc -O2 does produce the same code (but -O does not).
+On 05-Jul-2001 Greg KH wrote:
+> On Wed, Jul 04, 2001 at 04:33:51PM -0700, Davide Libenzi wrote:
+>> 
+>> What about the creation of such file containing useful macros like min(),
+>> max(), abs(), etc.. that otherwise everyone is forced to define like :
+> 
+> See include/linux/netfilter.h, around line 164 for the reason why there
+> isn't a kernel wide min() or max() macro.
 
-> 
-> >  Yes you have to define it for different types (char, short, int,
-> > long,  signed/unsigned). 
-> 
-> Unfortunately, this being C means that you can't call them all by the same 
-> name. If I have to use unsigned_long_max(x,y) I'd rather type it out myself 
-> :)
+Ok, let's continue like this :
 
-Oops, I must be sleeping at that time :-)
- 
-> --
-> dwmw2
-> 
-> 
+./fs/ufs/util.h:#define min(x,y)                ((x)<(y)?(x):(y))
+./fs/ntfs/macros.h:#define min(a,b)     ((a) <= (b) ? (a) : (b))
+./include/linux/mtd/cfi.h:#define min(x,y) ( (x)<(y)?(x):(y) )
+./include/linux/wanpipe.h:#define min(a,b) (((a)<(b))?(a):(b))
+./include/linux/cyclomx.h:#define min(a,b) (((a)<(b))?(a):(b))
+./include/linux/lvm.h:#define min(a,b) (((a)<(b))?(a):(b))
+./net/khttpd/prototypes.h:#define min(a,b)  ( (a) < (b) ? (a) : (b) )
+./drivers/net/wan/comx.h:#define min(a,b)               ((a) > (b) ? (b) : (a))
+./drivers/net/hamradio/soundmodem/sm.h:#define min(a, b) (((a) < (b)) ? (a):(b))
+./drivers/char/agp/agp.h:#define min(a,b)       (((a)<(b))?(a):(b))
+./drivers/scsi/eata_generic.h:#define min(a,b) ((a<b)?(a):(b))
+./drivers/sound/emu10k1/hwaccess.h:#define min(x,y) ((x) < (y)) ? (x) : (y)
+./drivers/sound/dmasound/dmasound.h:#define min(x, y)   ((x) < (y) ? (x) : (y))
+./drivers/video/cyberfb.h:#define min(a,b)      ((a) < (b) ? (a) : (b))
+./drivers/acorn/scsi/acornscsi.h:#define min(x,y) ((x) < (y) ? (x) : (y))
+./drivers/usb/usb-ohci.h:#define min(a,b) (((a)<(b))?(a):(b))
+./drivers/usb/usb-uhci.h:#define min(a,b) (((a)<(b))?(a):(b))
+./drivers/telephony/ixj.h:#define min(a,b) (((a)<(b))?(a):(b))
+./arch/cris/drivers/usb-host.h:#define min(a,b) (((a)<(b))?(a):(b))            
+./fs/ufs/util.h:#define max(x,y)  ((x)>(y)?(x):(y))
+./fs/ntfs/macros.h:#define max(a,b)     ((a) >= (b) ? (a) : (b))
+./include/linux/wanpipe.h:#define max(a,b) (((a)>(b))?(a):(b))
+./include/linux/cyclomx.h:#define max(a,b) (((a)>(b))?(a):(b))
+./include/linux/lvm.h:#define max(a,b) (((a)>(b))?(a):(b))
+./net/khttpd/prototypes.h:#define max(a,b)  ( (a) > (b) ? (a) : (b) )
+./drivers/net/wan/comx.h:#define max(a,b)               ((a) > (b) ? (a) : (b))
+./drivers/net/hamradio/soundmodem/sm.h:#define max(a, b) (((a) > (b)) ? (a):(b))
+./drivers/video/cyberfb.h:#define max(a,b)      ((a) > (b) ? (a) : (b))
+./drivers/acorn/scsi/acornscsi.h:#define max(x,y) ((x) < (y) ? (y) : (x))
+./drivers/telephony/ixj.h:#define max(a,b) (((a)>(b))?(a):(b))                 
+                                             
 
+
+
+- Davide
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262865AbVDAUFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbVDAUGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262865AbVDAUFO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 15:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbVDAUFN
+	id S262862AbVDAUGE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 15:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbVDAUGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 15:05:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34760 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262865AbVDAUEZ convert rfc822-to-8bit
+	Fri, 1 Apr 2005 15:06:04 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32968 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262862AbVDAUEZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 1 Apr 2005 15:04:25 -0500
 Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Move functionality handling from i2c-core to i2c.h
-In-Reply-To: <11123858541382@kroah.com>
+Subject: [PATCH] I2C: pcf8574 doesn't need a lock
+In-Reply-To: <20050401200324.GA12854@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 12:04:15 -0800
-Message-Id: <11123858552208@kroah.com>
+Date: Fri, 1 Apr 2005 12:04:14 -0800
+Message-Id: <11123858541382@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,91 +24,101 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2340, 2005/04/01 11:49:04-08:00, khali@linux-fr.org
+ChangeSet 1.2339, 2005/04/01 11:48:28-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Move functionality handling from i2c-core to i2c.h
+[PATCH] I2C: pcf8574 doesn't need a lock
 
-So far, the functionality handling of i2c adapters was done in i2c-core
-by two exported functions: i2c_get_functionality and
-i2c_check_functionality. I found that both functions could be reduced to
-one line each, and propose that we turn them into inline function in the
-i2c.h header file, much like other i2c helper functions (e.g.
-i2c_get_clientdata, i2c_set_clientdata and i2c_clientname).
+While investigating the i2c chips drivers that were not properly
+locking, we found that the pcf8574 driver does the exact contrary. It
+uses a lock where it's not needed.
 
-The conversion of i2c_get_functionality suppresses a legacy check which
-shouldn't be needed anymore. Only one driver (s3c2410) was still relying
-on it, and was fixed some days ago.
+While we were there, we did some additional cleanups to the driver:
+1* Merge pcf8574_update_client() in show_read(), as it was the only user
+and the function became trivial once the locking was removed.
+2* Add a validity check on values provided by user-space.
 
-The conversion lets us get rid of two exports. Not only i2c-core gets
-smaller (by 458 bytes), but the client drivers using these functions get
-smaller too (typically by 48 bytes). And of course the new way is likely
-to be faster too, even if it wasn't my primary objective.
+Aurelien Jarno tested the modified code for confirmation and it worked
+just fine.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/i2c/i2c-core.c |   19 -------------------
- include/linux/i2c.h    |   10 ++++++++--
- 2 files changed, 8 insertions(+), 21 deletions(-)
+ drivers/i2c/chips/pcf8574.c |   27 +++++++++------------------
+ 1 files changed, 9 insertions(+), 18 deletions(-)
 
 
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	2005-04-01 11:53:08 -08:00
-+++ b/drivers/i2c/i2c-core.c	2005-04-01 11:53:08 -08:00
-@@ -1236,22 +1236,6 @@
+diff -Nru a/drivers/i2c/chips/pcf8574.c b/drivers/i2c/chips/pcf8574.c
+--- a/drivers/i2c/chips/pcf8574.c	2005-04-01 11:53:38 -08:00
++++ b/drivers/i2c/chips/pcf8574.c	2005-04-01 11:53:38 -08:00
+@@ -56,7 +56,6 @@
+ /* Each client has this additional data */
+ struct pcf8574_data {
+ 	struct i2c_client client;
+-	struct semaphore update_lock;
+ 
+ 	u8 read, write;			/* Register values */
+ };
+@@ -65,7 +64,6 @@
+ static int pcf8574_detect(struct i2c_adapter *adapter, int address, int kind);
+ static int pcf8574_detach_client(struct i2c_client *client);
+ static void pcf8574_init_client(struct i2c_client *client);
+-static struct pcf8574_data *pcf8574_update_client(struct device *dev);
+ 
+ /* This is the driver that will be inserted */
+ static struct i2c_driver pcf8574_driver = {
+@@ -80,7 +78,9 @@
+ /* following are the sysfs callback functions */
+ static ssize_t show_read(struct device *dev, char *buf)
+ {
+-	struct pcf8574_data *data = pcf8574_update_client(dev);
++	struct i2c_client *client = to_i2c_client(dev);
++	struct pcf8574_data *data = i2c_get_clientdata(client);
++	data->read = i2c_smbus_read_byte(client); 
+ 	return sprintf(buf, "%u\n", data->read);
  }
  
+@@ -97,7 +97,12 @@
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct pcf8574_data *data = i2c_get_clientdata(client);
+-	data->write = simple_strtoul(buf, NULL, 10);
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++
++	if (val > 0xff)
++		return -EINVAL;
++
++	data->write = val;
+ 	i2c_smbus_write_byte(client, data->write);
+ 	return count;
+ }
+@@ -157,7 +162,6 @@
  
--/* You should always define `functionality'; the 'else' is just for
--   backward compatibility. */ 
--u32 i2c_get_functionality (struct i2c_adapter *adap)
--{
--	if (adap->algo->functionality)
--		return adap->algo->functionality(adap);
--	else
--		return 0xffffffff;
+ 	/* Fill in the remaining client fields and put it into the global list */
+ 	strlcpy(new_client->name, client_name, I2C_NAME_SIZE);
+-	init_MUTEX(&data->update_lock);
+ 
+ 	/* Tell the I2C layer a new client has arrived */
+ 	if ((err = i2c_attach_client(new_client)))
+@@ -200,19 +204,6 @@
+ 	struct pcf8574_data *data = i2c_get_clientdata(client);
+ 	data->write = PCF8574_INIT;
+ 	i2c_smbus_write_byte(client, data->write);
 -}
 -
--int i2c_check_functionality (struct i2c_adapter *adap, u32 func)
+-static struct pcf8574_data *pcf8574_update_client(struct device *dev)
 -{
--	u32 adap_func = i2c_get_functionality (adap);
--	return (func & adap_func) == func;
--}
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct pcf8574_data *data = i2c_get_clientdata(client);
 -
- EXPORT_SYMBOL(i2c_add_adapter);
- EXPORT_SYMBOL(i2c_del_adapter);
- EXPORT_SYMBOL(i2c_add_driver);
-@@ -1282,9 +1266,6 @@
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
- EXPORT_SYMBOL(i2c_smbus_write_block_data);
- EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
--
--EXPORT_SYMBOL(i2c_get_functionality);
--EXPORT_SYMBOL(i2c_check_functionality);
+-	down(&data->update_lock);
+-	dev_dbg(&client->dev, "Starting pcf8574 update\n");
+-	data->read = i2c_smbus_read_byte(client); 
+-	up(&data->update_lock);
+-	
+-	return data;
+ }
  
- MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
- MODULE_DESCRIPTION("I2C-Bus main module");
-diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
---- a/include/linux/i2c.h	2005-04-01 11:53:08 -08:00
-+++ b/include/linux/i2c.h	2005-04-01 11:53:08 -08:00
-@@ -368,10 +368,16 @@
- 
- 
- /* Return the functionality mask */
--extern u32 i2c_get_functionality (struct i2c_adapter *adap);
-+static inline u32 i2c_get_functionality(struct i2c_adapter *adap)
-+{
-+	return adap->algo->functionality(adap);
-+}
- 
- /* Return 1 if adapter supports everything we need, 0 if not. */
--extern int i2c_check_functionality (struct i2c_adapter *adap, u32 func);
-+static inline int i2c_check_functionality(struct i2c_adapter *adap, u32 func)
-+{
-+	return (func & i2c_get_functionality(adap)) == func;
-+}
- 
- /*
-  * I2C Message - used for pure i2c transaction, also from /dev interface
+ static int __init pcf8574_init(void)
 

@@ -1,142 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbTEKTTa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 15:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbTEKTTa
+	id S261171AbTEKTRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 15:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbTEKTRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 15:19:30 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:12237 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S261174AbTEKTT1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 15:19:27 -0400
-Date: Mon, 12 May 2003 07:28:13 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [PATCH] restore sysenter MSRs at resume
-In-reply-to: <20030511190822.GA1181@atrey.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>, mikpe@csd.uu.se,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1052681292.1869.5.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <200305101641.h4AGfEVE002970@harpo.it.uu.se>
- <Pine.LNX.4.44.0305111158500.12955-100000@home.transmeta.com>
- <20030511190822.GA1181@atrey.karlin.mff.cuni.cz>
+	Sun, 11 May 2003 15:17:16 -0400
+Received: from mail.gmx.net ([213.165.65.60]:7811 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261171AbTEKTRP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 15:17:15 -0400
+Date: Sun, 11 May 2003 21:27:30 +0200
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+In-Reply-To: <200305102231_MC3-1-384E-4E4C@compuserve.com>
+References: <200305102231_MC3-1-384E-4E4C@compuserve.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <S261171AbTEKTRP/20030511191715Z+7439@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok. I haven't updated it for 2.5.69 version, but it doesn't look like
-any changes are required. Here is the relevant part of the full swsusp
-patch.
+On Sat, 10 May 2003 22:28:10 -0400
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
 
-Regards,
-
-Nigel
-
-On Mon, 2003-05-12 at 07:08, Pavel Machek wrote:
-> Hi!
+> > first, as you see in my other reply to Xavier Bestel disabling
+> > "apm idle call" fixed the problem, it seems, but I didn't want
+> > to disable those calls because of thermal reasons.
 > 
-> Nigel, perhaps this is the right time for retransmitting the mtrr
-> patch?
-> 
-> 					Pavel
-> > 
-> > On Sat, 10 May 2003 mikpe@csd.uu.se wrote:
-> > > 
-> > > This patch should be better. It changes apm.c to invoke
-> > > suspend.c's save and restore processor state procedures
-> > > around suspends, which fixes the SYSENTER MSR problem.
-> > 
-> > Applied.
-> > 
-> > However, the fact that the SYSENTER MSR needs to be restored makes me
-> > suspect that the other MSR/MTRR also will need restoring. I don't see 
-> > where we'd be doing that, but it sounds to me like it should be done here 
-> > too..
-> > 
-> > 		Linus
+>   Maybe you could set 2.5 to run at 100 Hz?  I don't know
+> if that's possible, but it could let you test if that's what
+> makes the noise so much more annoying.
 
-diff -ruN linux-2.5.68/arch/i386/kernel/cpu/mtrr/main.c linux-2.5.68-swsusp1925/arch/i386/kernel/cpu/mtrr/main.c
---- linux-2.5.68/arch/i386/kernel/cpu/mtrr/main.c	2003-01-15 17:00:38.000000000 +1300
-+++ linux-2.5.68-swsusp1925/arch/i386/kernel/cpu/mtrr/main.c	2003-04-25 14:13:05.000000000 +1200
-@@ -35,6 +35,7 @@
- #include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/smp.h>
-+#include <linux/suspend.h>
- 
- #include <asm/mtrr.h>
- 
-@@ -644,6 +645,65 @@
-     "write-protect",            /* 5 */
-     "write-back",               /* 6 */
- };
--
-+ 
-+#ifdef SOFTWARE_SUSPEND_MTRR
-+struct mtrr_suspend_state
-+{
-+     mtrr_type ltype;
-+     unsigned long lbase;
-+     unsigned int lsize;
-+};
-+/* We return a pointer ptr on an area of *ptr bytes
-+   beginning at ptr+sizeof(int)
-+   This buffer has to be saved in some way during suspension */
-+int *mtrr_suspend(void)
-+{
-+     int i, len;
-+     int *ptr = NULL;
-+     static struct mtrr_suspend_state *mtrr_suspend_buffer=NULL;
-+     
-+     if(!mtrr_suspend_buffer)
-+     {
-+	  len = num_var_ranges * sizeof (struct mtrr_suspend_state) + sizeof(int);
-+	  ptr = kmalloc (len, GFP_KERNEL);
-+	  if (ptr == NULL)
-+	       return(NULL);
-+	  *ptr = len;
-+	  ptr++;
-+	  mtrr_suspend_buffer = (struct mtrr_suspend_state *)ptr;
-+	  ptr--;
-+     }
-+     for (i = 0; i < num_var_ranges; ++i,mtrr_suspend_buffer++)
-+	  mtrr_if->get (i,
-+		       &(mtrr_suspend_buffer->lbase),
-+		       &(mtrr_suspend_buffer->lsize),
-+		       &(mtrr_suspend_buffer->ltype));
-+     return(ptr);
-+}
-+
-+/* We restore mtrrs from buffer ptr */
-+void mtrr_resume(int *ptr)
-+{
-+     int i, len;
-+     struct mtrr_suspend_state *mtrr_suspend_buffer;
-+     
-+     len = num_var_ranges * sizeof (struct mtrr_suspend_state) + sizeof(int);
-+     if(*ptr != len)
-+     {
-+	  printk ("mtrr: Resuming failed due to different number of MTRRs\n");
-+	  return;
-+     }
-+     ptr++;
-+     mtrr_suspend_buffer=(struct mtrr_suspend_state *)ptr;
-+     for (i = 0; i < num_var_ranges; ++i,mtrr_suspend_buffer++)     
-+	  if (mtrr_suspend_buffer->lsize)	  
-+	       set_mtrr(i,
-+			mtrr_suspend_buffer->lbase,
-+			mtrr_suspend_buffer->lsize,
-+			mtrr_suspend_buffer->ltype);
-+}
-+EXPORT_SYMBOL(mtrr_suspend);
-+EXPORT_SYMBOL(mtrr_resume);
-+#endif
- core_initcall(mtrr_init);
- 
-
-
-
+yep that is true, tried 2.4 with "APM idle calls" enabled and
+there was that noise - just at 100hz :D
+would be interesting to know how many laptops have such issues.

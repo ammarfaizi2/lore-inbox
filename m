@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265876AbUAKMyO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 07:54:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUAKMyO
+	id S265859AbUAKNHI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 08:07:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUAKNHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 07:54:14 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37388 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265876AbUAKMyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 07:54:07 -0500
-Date: Sun, 11 Jan 2004 12:54:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: martin f krafft <madduck@madduck.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
-Message-ID: <20040111125404.E1931@flint.arm.linux.org.uk>
-Mail-Followup-To: martin f krafft <madduck@madduck.net>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net>
+	Sun, 11 Jan 2004 08:07:08 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:62475 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265859AbUAKNHG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 08:07:06 -0500
+Date: Sun, 11 Jan 2004 14:18:57 +0100
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+Message-ID: <20040111131857.GA11246@hh.idb.hist.no>
+References: <1073771855.3958.15.camel@nidelv.trondhjem.org> <Pine.LNX.4.44.0401102338270.7120-100000@poirot.grange>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040111123208.GA4766@piper.madduck.net>; from madduck@madduck.net on Sun, Jan 11, 2004 at 01:32:08PM +0100
+In-Reply-To: <Pine.LNX.4.44.0401102338270.7120-100000@poirot.grange>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 01:32:08PM +0100, martin f krafft wrote:
-> The card is a 3CCFE575BT-D. Under 2.4 with Hinds' pcmcia-cs modules,
-> the driver was called 3c575_cs. Under 2.6 with the kernel drivers,
-> only 3c574_cs exists. I assumed that 3c574_cs would also support the
-> 3c575_cs, but I guess I am wrong.
-
-The situation in vanilla 2.4 and 2.6 kernels is as follows: xxx_cs
-drivers only drive PCMCIA cards.  They do not drive Cardbus cards -
-Cardbus cards look exactly like normal PCI cards, and are therefore
-the drivers are handled by the PCI subsystem.  PCMCIA helps out only
-to detect the card insertion/removal events.
-
-Hope this helps to make things a little clearer.
-
-> A 3CCFE574BT works just fine with 574_cs (although upon removal,
-> ifconfig will hang in the 'D' state forever. I guess that's
-> a separate issue though. I will research this and post another time.
-
-Indeed.
-
-> > Could you insert the card, and then provide the output of lspci -vx ?
+On Sat, Jan 10, 2004 at 11:42:45PM +0100, Guennadi Liakhovetski wrote:
 > 
-> ftp://ftp.madduck.net/scratch/3c575-lspci.gz [1.5Kb]
+> The only my doubt was - yes, you upgrade the __server__, so, you look in
+> Changes, upgrade all necessary stuff, or just upgrade blindly (as does
+> happen sometimes, I believe) a distribution - and the server works, fine.
+> What I find non-obvious, is that on updating the server you have to
+> re-configure __clients__, see? Just think about a network somewhere in a
 
-... which seems to be exactly the same as my 3ccfe575bt card I have here.
-I note though that the product description seems to be wrong (the PCI IDs
-are identical.)  The card is most definitely "3CCFE575BT" and not "3c575".
+If you upgrade the server and read "Changes", then a note in changes might
+say that "you need to configure carefully or some clients could get in trouble."
+(If the current "Changes" don't have that - post a documentation patch.)
 
-Yours:
+If you use a distro, then hopefully the distro takes care of the
+problem for you.  Or at least brings it to your attention somehow.
 
-02:00.0 Ethernet controller: 3Com Corporation 3c575 [Megahertz] 10/100 LAN Card Bus (rev 01)
-        Subsystem: 3Com Corporation 3C575 Megahertz 10/100 LAN Cardbus PC Card
+It should not come as a surprise that changing a server might have an
+effect on the clients - clients and servers are connected after all!
 
-Mine:
-
-04:00.0 Ethernet controller: 3Com Corporation 3CCFE575BT Cyclone CardBus (rev 01)
-        Subsystem: 3Com Corporation 3C575 Megahertz 10/100 LAN Cardbus PC Card
-
-Socket 1:
-  product info: "3Com Corporation", "3CCFE575BT", "LAN Cardbus Card", "001"
-  manfid: 0x0101, 0x5157
-  function: 6 (network)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Helge Hafting

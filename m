@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbUJaV6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbUJaWCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbUJaV6H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 16:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUJaV6H
+	id S261663AbUJaWCO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 17:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbUJaWCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 16:58:07 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:19952 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S261574AbUJaVx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 16:53:27 -0500
-Date: Sun, 31 Oct 2004 14:53:20 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Roland Dreier <roland@topspin.com>, sam@ravnborg.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/take 2] ppc: fix build with O=$(output_dir)
-Message-ID: <20041031215320.GM15699@smtp.west.cox.net>
-References: <52is979pah.fsf@topspin.com> <20041019164449.GF6298@smtp.west.cox.net> <521xfua835.fsf_-_@topspin.com> <20041019182928.GA12544@smtp.west.cox.net> <20041031223949.GB21471@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041031223949.GB21471@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 31 Oct 2004 17:02:14 -0500
+Received: from smtp3.netcabo.pt ([212.113.174.30]:2111 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S261663AbUJaWBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 17:01:37 -0500
+Message-ID: <32954.192.168.1.5.1099259923.squirrel@192.168.1.5>
+In-Reply-To: <20041031120721.GA19450@elte.hu>
+References: <20041030115808.GA29692@elte.hu>
+    <1099158570.1972.5.camel@krustophenia.net>
+    <20041030191725.GA29747@elte.hu>
+    <20041030214738.1918ea1d@mango.fruits.de>
+    <1099165925.1972.22.camel@krustophenia.net>
+    <20041030221548.5e82fad5@mango.fruits.de>
+    <1099167996.1434.4.camel@krustophenia.net>
+    <20041030231358.6f1eeeac@mango.fruits.de>
+    <1099171567.1424.9.camel@krustophenia.net>
+    <20041030233849.498fbb0f@mango.fruits.de>
+    <20041031120721.GA19450@elte.hu>
+Date: Sun, 31 Oct 2004 21:58:43 -0000 (WET)
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Lee Revell" <rlrevell@joe-job.com>,
+       "Paul Davis" <paul@linuxaudiosystems.com>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "LKML" <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "jackit-devel" <jackit-devel@lists.sourceforge.net>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 31 Oct 2004 22:01:30.0122 (UTC) FILETIME=[2D1E76A0:01C4BF95]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 11:39:50PM +0100, Sam Ravnborg wrote:
-> On Tue, Oct 19, 2004 at 11:29:28AM -0700, Tom Rini wrote:
->  
-> > This misses the bit to invoke the checker as well (when I first thought
-> > this up I poked Al Viro about the general question of checker on boot
-> > code, and he wanted it, so...).  And having 2 'magic' rules not just 1
-> > is why I don't like this too much and was hoping Sam would have some
-> > idea of a good fix.
-> 
-> Hi Tom.
-> 
-> Finally took a look.
-> The best approach is to grab a copy of the .c file and compile
-> that in this dir.
-> In this way we avoid unessesary recompile etc. but waste a bit disk space.
-> I do not like symlinks in general and made a copy. (note: uses cat to give
-> appropriate permission)
-> 
-> If you are OK with this let me know if you want me to push it to linus
-> or you go via the ppc tree.
+Ingo Molnar wrote:
+>
+> ok, could you try the -RT-V0.6.0 patch i've just uploaded? It could i
+> believe improve these latencies.
+>
 
-Works for me, and please push it via your tree.  Thanks &
-Acked-by: Tom Rini <trini@kernel.crashing.org>
+Just made a try with RT-V0.6.2 and it locks pretty easily on my P4/UP
+laptop while running my jackd-R + 9*fluidsynth workload. These tests are
+setup to run for 5 min. Not once it got through, and I've tried several
+times now.
 
-if wanted.
+Although it's been 100% reproducible, the system lockup varies in tine
+from the start of the test. Unfortunately it says nothing through
+netconsole, so there's no additional info/dump/trace to give you for
+analysis.
 
+Most of the kernel hacking/debugging options are unset (N), except
+Magic-SysRq. Hitting on SysRq+T, right after when system hangs, comes out
+with absolutely nothing, only this line (via netconsole):
+
+SysRq : Show State
+
+Guess something's got wrong, yet again.
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+
+

@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319576AbSH3OuC>; Fri, 30 Aug 2002 10:50:02 -0400
+	id <S319578AbSH3Ovn>; Fri, 30 Aug 2002 10:51:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319577AbSH3OuB>; Fri, 30 Aug 2002 10:50:01 -0400
-Received: from adsl-nrp3-sao-C8B6CF1E.brdterra.com.br ([200.182.207.30]:51157
-	"EHLO tione.haus") by vger.kernel.org with ESMTP id <S319576AbSH3OuA>;
-	Fri, 30 Aug 2002 10:50:00 -0400
-Date: Fri, 30 Aug 2002 11:54:21 -0300
-From: Christoph Simon <ciccio@kiosknet.com.br>
+	id <S319579AbSH3Ovm>; Fri, 30 Aug 2002 10:51:42 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:29756 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S319578AbSH3Ovi>; Fri, 30 Aug 2002 10:51:38 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200208301455.g7UEtsS16348@devserv.devel.redhat.com>
+Subject: Linux 2.2.22rc2
 To: linux-kernel@vger.kernel.org
-Subject: Compile error with SiS support
-Message-Id: <20020830115421.67aaccc7.ciccio@kiosknet.com.br>
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 30 Aug 2002 10:55:54 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is going straight to rc1 because it contains a lot of security fixes
+for local security problems found by Silvio's audit Solar Designer and
+a couple of other folks. The other stuff is minor and is the entire 2.2
+pending queue anyway.
 
-I just tried to compile the kernel 2.4.19 with support for a SiS
-graphics card. The related options in .config I've set are:
+Special thanks go to Openwall who did pretty much all of the security 
+backporting work. This is mostly their kernel update not mine.
 
-	CONFIG_AGP=y
-	CONFIG_AGP_VIA=y
-	CONFIG_AGP_SIS=y
-	CONFIG_DRM=y
-	CONFIG_DRM_NEW=y
-	CONFIG_DRM_SIS=y
+2.2.22-rc2
+o	Fix isofs over loopback problems		(Balazs Takacs)
+o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
+o	Fix error reporting in OOM cases		(Julian Anastasov)
+o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
+o	Set atime on AF_UNIX sockets			(Solar Designer)
+o	Restore SPARC MD boot configuration		(Tomas Szepe)
+o	Multiple further sign/overflow fixes		(Solar Designer)
+o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
 
-After compiling, it seems that sis_main.o has not be included with
-drm.o:
-
-drivers/char/drm/drm.o: In function `sis_fb_alloc':
-drivers/char/drm/drm.o(.text+0x6d26): undefined reference to `sis_malloc'
-drivers/char/drm/drm.o(.text+0x6d6d): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_fb_free':
-drivers/char/drm/drm.o(.text+0x6eb5): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_final_context':
-drivers/char/drm/drm.o(.text+0x7386): undefined reference to `sis_free'
-make: *** [vmlinux] Error 1
-
-Any easy fix for this?
-
-Thanks,
-
--- 
-Christoph Simon
-ciccio@kiosknet.com.br
+2.2.22-rc1
+o	Backport 2.4 neighbour sending fix		(Chris Friesen)
+o	Fix a sign handling slackness in apm		(Silvio Cesare)
+o	Fix a sign handling error in rio500		(Silvio Cesare)
+o	Indent depca ready for cleanups			(me)
+o	Update VIA C3 recognition			(Diego Rodriguez)
+o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
+o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
+o	3ware IDE RAID update				(Adam Radford)
+o	Note ioctl clash on 0x5402			(Pavel Machek)
+o	Typo fix					(Dan Aloni)
+o	Update Riley's contact info			(Riley Williams)
+o	Alpha ptrace fixes				(Solar Designer)
+o	Multiple security fix backports			(Solar Designer)

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129351AbQKARLR>; Wed, 1 Nov 2000 12:11:17 -0500
+	id <S129096AbQKARM5>; Wed, 1 Nov 2000 12:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129330AbQKARLH>; Wed, 1 Nov 2000 12:11:07 -0500
-Received: from c90610-a.alton1.il.home.com ([24.11.42.157]:772 "EHLO
-	www.linuxnet") by vger.kernel.org with ESMTP id <S129096AbQKARKw>;
-	Wed, 1 Nov 2000 12:10:52 -0500
-Date: Wed, 1 Nov 2000 11:10:46 -0600 (CST)
-From: matthew <matthew@mattshouse.com>
-To: Sean Hunter <sean@dev.sportingbet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test10 Sluggish After Load
-In-Reply-To: <20001101152629.B31394@bart.dev.sportingbet.com>
-Message-ID: <Pine.LNX.4.21.0011011107170.7127-100000@localhost.localdomain>
+	id <S129330AbQKARMr>; Wed, 1 Nov 2000 12:12:47 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:42996 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129096AbQKARMf>; Wed, 1 Nov 2000 12:12:35 -0500
+Date: Wed, 1 Nov 2000 15:11:46 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: matthew <matthew@mattshouse.com>
+cc: Jonathan George <Jonathan.George@trcinc.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.0-test10 Sluggish After Load
+In-Reply-To: <Pine.LNX.4.21.0011011054150.7127-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0011011509490.11112-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Sean Hunter wrote:
+On Wed, 1 Nov 2000, matthew wrote:
 
-> Pardon my speculations (if I am wrong), but isn't this an oracle question?  
+> The "thrashing" has been going on for roughly 10 hours now.  Is
+> there a point at which I can expect it to stop?  The load
+> average is at 441 (down from > 700 last night), and the stress
+> program was killed at 1:00AM CST last night.  This (obviously)
+> isn't an important machine so if you want me to ride it out I
+> will.
 
+Interpolating from those load figures, you'll probably have
+to wait for 5 to 10 more hours ;)
 
-It could be.
+It looks like you were testing the machine /very/ close to
+the thrashing point and the garbage collection afterwards
+pushed it right over the edge.
 
+One possible solution to speed things up would be to send
+-SIGSTOP to 90% of the oracle processes and wake them up
+again slowly later on...  (this is basically what thrashing
+control in an OS does, suspend processes and wake them up
+again later)
 
-> Isn't oracle killing the server by trying to clean up 1800 connections all at
-> once?  When they're all connected, most of the work is done by one or two
-> oracle processes, but when you kill your ddos thing, all of the oracle
-> listeners (of which there is one per connection), steam in and try to clean up.
+regards,
 
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
 
-Yes, but the factor that drove me to the list was that it's been > 400
-load average for 10 hours now.  Even if Oracle tried to clean up 1800
-connections at once, would it take this long?  That's not rhetorical, as
-the answer may well be "yes".
-
-
-> I thought oracle had an internal connection limit (on our servers it is set to
-> 440 connections), anyways.
-
-
-This is set in the init.ora.  I jacked it up to allow > 2000 connections.
-
-Matthew
-
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

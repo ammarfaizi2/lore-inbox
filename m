@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263434AbRFFPcF>; Wed, 6 Jun 2001 11:32:05 -0400
+	id <S263480AbRFFPnh>; Wed, 6 Jun 2001 11:43:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263444AbRFFPbz>; Wed, 6 Jun 2001 11:31:55 -0400
-Received: from mercury.ultramaster.com ([208.222.81.163]:2688 "EHLO
-	mercury.ultramaster.com") by vger.kernel.org with ESMTP
-	id <S263434AbRFFPbi>; Wed, 6 Jun 2001 11:31:38 -0400
-Message-ID: <3B1E4CD0.FAB71F91@dm.ultramaster.com>
-Date: Wed, 06 Jun 2001 11:31:28 -0400
-From: David Mansfield <lkml@dm.ultramaster.com>
-Organization: Ultramaster Group LLC
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre1 i686)
-X-Accept-Language: en
+	id <S263501AbRFFPn1>; Wed, 6 Jun 2001 11:43:27 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:5207 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S263480AbRFFPnJ>; Wed, 6 Jun 2001 11:43:09 -0400
+Message-ID: <000701c0ee9f$515fd6a0$3303a8c0@einstein>
+From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com><991815578.30689.1.camel@nomade><20010606095431.C15199@dev.sportingbet.com><0106061316300A.00553@starship> <200106061528.f56FSKa14465@vindaloo.ras.ucalgary.ca>
+Subject: Re: Break 2.4 VM in five easy steps
+Date: Wed, 6 Jun 2001 17:42:36 +0200
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.4.6-pre1 hard lockup
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This morning I was running 2.4.6-pre1 and it locked up hard in
-X-windows.  The mouse cursor was frozen, and I couldn't ping the box
-from another one on the network.  The sysrq did work - to an extent.  A
-tried the 's u b' combination, and although the sync and remount didn't
-work (filesystems needed fsck at boot - I think this means the sync and
-remount never finished), the re-boot did.
+OK, Linus said if I use swap it should be at least twice as much as RAM.
+there will be much more discussion about it, for me this contraint is a very
+very bad idea.
 
-System activity at the time was running a CPU intensive audio
-application, which implies taking a lot of audio interrupts.  System had
-been up for less than 24 hours.
+Have you ever thought about diskless workstations? Swapping over a network
+sounds ugly.
 
-I wish I had more info.
+Nevertheless, my question is:
+what happens if I plan to use no swap. I  have enough memory installed for
+my purposes and every swapping operation can do only one thing: slowing down
+the system.
+Is there a different behaviour if I completely disable swap?
 
-My system is a 700mhz Athlon, 256mb ram, Adaptec 2940UW, eepro100, and
-sound card is emu10k1 (sb live). 
+greetings
 
--- 
-David Mansfield                                           (718) 963-2020
-david@ultramaster.com
-Ultramaster Group, LLC                               www.ultramaster.com
+Christian Bornträger
+

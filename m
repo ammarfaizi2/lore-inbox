@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277951AbRJRUGM>; Thu, 18 Oct 2001 16:06:12 -0400
+	id <S278119AbRJRUIc>; Thu, 18 Oct 2001 16:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277942AbRJRUGA>; Thu, 18 Oct 2001 16:06:00 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:29202 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277894AbRJRUFJ>;
-	Thu, 18 Oct 2001 16:05:09 -0400
-Date: Thu, 18 Oct 2001 18:05:30 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fork() failing
-In-Reply-To: <Pine.LNX.4.21.0110181633270.12429-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33L.0110181803540.3690-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S278118AbRJRUIQ>; Thu, 18 Oct 2001 16:08:16 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:50629 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S277868AbRJRUGa>; Thu, 18 Oct 2001 16:06:30 -0400
+Message-ID: <3BCF36BE.DE10E221@nortelnetworks.com>
+Date: Thu, 18 Oct 2001 16:08:30 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
+In-Reply-To: <200110181925.XAA04814@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Marcelo Tosatti wrote:
+kuznet@ms2.inr.ac.ru wrote:
 
-> Imagine people changing the point where the
->
-> 	if ((gfp_mask & __GFP_FAIL))
-> 		return;
->
-> check is done (inside the freeing routines).
->
-> I would like to have a _defined_ meaning for a "fail easily" allocation,
-> and a simple unique __GFP_FAIL flag can't give us that IMO.
+> > I (and others) have asked this a couple times here and on the netdev list, and
+> > so far nobody has answered it (not even negatively).
+> 
+> :-) And me answered to this hundred of times: "no way". :-)
 
-Actually, I guess we could define this to be the same point
-where we'd end up freeing memory in order to satisfy our
-allocation.
+Whee, an answer!
 
-This would result in __GFP_FAIL meaning "give me memory if
-it's available, but don't waste time freeing memory if we
-don't have enough free memory now".
+> Ability to add/delete them with "ip neigh" will be removed in the next
+> snapshot as well. The feature is obsolete.
 
-Space-wise these semantics could change (say, pages_low
-vs. pages_min), but they'll stay the same when you look at
-"how hard to try" or "how much effort to spend".
+Oh?  Let me present a scenario in which I use it and then you can tell me how
+better to do it.
 
-regards,
+I'm using the ethertap device (in 2.2, tun/tap in 2.4 should be similar) to pass
+stuff up to userspace. I have an ethernet link.  I want the kernel to proxy arp
+for the ip address assigned to the ethertap device with the mac address of the
+NIC, without enabling proxy arping for any other addresses.
 
-Rik
+Currently I have been doing this by manually setting proxy arping on the NIC for
+the IP address assigned to the ethertap device.  If this feature is going to be
+removed, then how should I be doing this?
+
+Thanks,
+
+Chris
+
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

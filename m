@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVCYSr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVCYS4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbVCYSr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 13:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVCYSr1
+	id S261175AbVCYS4k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 13:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVCYS4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 13:47:27 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:33430 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261726AbVCYSrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 13:47:21 -0500
-Date: Fri, 25 Mar 2005 18:47:18 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: James Bottomley <jejb@steeleye.com>
-Cc: Bruno Cornec <Bruno.Cornec@hp.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, tvignaud@mandrakesoft.com
-Subject: Re: megaraid driver (proposed patch)
-Message-ID: <20050325184718.GA15215@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Bottomley <jejb@steeleye.com>,
-	Bruno Cornec <Bruno.Cornec@hp.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	tvignaud@mandrakesoft.com
-References: <20050325182252.GA4268@morley.grenoble.hp.com> <1111775992.5692.25.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Mar 2005 13:56:39 -0500
+Received: from natpreptil.rzone.de ([81.169.145.163]:48312 "EHLO
+	natpreptil.rzone.de") by vger.kernel.org with ESMTP id S261175AbVCYS4g convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 13:56:36 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.12-rc1 breaks dosemu
+Date: Fri, 25 Mar 2005 19:52:31 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, linux-msdos@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
+References: <20050320021141.GA4449@stusta.de>
+In-Reply-To: <20050320021141.GA4449@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1111775992.5692.25.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200503251952.33558.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 12:39:52PM -0600, James Bottomley wrote:
-> On Fri, 2005-03-25 at 19:22 +0100, Bruno Cornec wrote:
-> > Would you consider to apply the following patch proposed by Thierry
-> > Vignaud as a solution for the MandrakeSoft kernel in the mainstream 2.6 
-> > kernel ?
+On Sünndag 20 März 2005 03:11, Adrian Bunk wrote:
+> xdosemu 1.2.2 runs fine under 2.6.11.5, but fails under 2.6.12-rc1 with 
+> the following error:
 > 
-> Well, to be considered you'd need to cc the megaraid maintainers and the
-> linux-scsi mailing list.
+> <--  snip  -->
 > 
-> > -if MEGARAID_NEWGEN=n
-> 
-> No, this is wrong it would break allyes configs and I'd get shot.
+> $ xdosemu 
+> ERROR: cpu exception in dosemu code outside of VM86()!
+> trapno: 0x0e  errorcode: 0x00000005  cr2: 0xffffff8e
+> eip: 0x000069ee  esp: 0xbfdbffcc  eflags: 0x00010246
+> cs: 0x0073  ds: 0x007b  es: 0x007b  ss: 0x007b
+> Page fault: read instruction to linear address: 0xffffff8e
+> CPU was in user mode
+> Exception was caused by insufficient privilege
 
-Why?  The megaraid drivers shouldn't have any conflicting non-static
-symbols
+I had the same problem and found out that disabling
+address space randomization (echo 0 > 
+/proc/sys/kernel/randomize_va_space) solves this
+reliably. With randomization enabled, I can start up
+dosemu maybe 1 out of 100 times.
 
+I guess the randomization patches changed the mapping
+in a way that dosemu did not expect.
+
+ Arnd <><

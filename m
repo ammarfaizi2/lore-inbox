@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbRCHQtn>; Thu, 8 Mar 2001 11:49:43 -0500
+	id <S129321AbRCHQvX>; Thu, 8 Mar 2001 11:51:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129310AbRCHQtX>; Thu, 8 Mar 2001 11:49:23 -0500
-Received: from pipt.oz.cc.utah.edu ([155.99.2.7]:26830 "EHLO
-	pipt.oz.cc.utah.edu") by vger.kernel.org with ESMTP
-	id <S129309AbRCHQtV>; Thu, 8 Mar 2001 11:49:21 -0500
-Date: Thu, 8 Mar 2001 09:48:39 -0700 (MST)
-From: james rich <james.rich@m.cc.utah.edu>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Questions about Enterprise Storage with Linux
-In-Reply-To: <200103081337.HAA76233@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.GSO.4.05.10103080946530.25324-100000@pipt.oz.cc.utah.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129310AbRCHQvE>; Thu, 8 Mar 2001 11:51:04 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:12301 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S129321AbRCHQud>; Thu, 8 Mar 2001 11:50:33 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Message-ID: <86256A09.005C726C.00@smtpnotes.altec.com>
+Date: Thu, 8 Mar 2001 10:49:21 -0600
+Subject: RE: Microsoft begining to open source Windows 2000?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Mar 2001, Jesse Pollard wrote:
 
-> james rich <james.rich@m.cc.utah.edu>:
-> > On Wed, 7 Mar 2001, Tom Sightler wrote:
-> > 
-> > > 2.  Does linux have any problems with large (500GB+) NFS exports, how about
-> > > large files over NFS?
-> > > 
-> > > 3.  What filesystem would be best for such large volumes?  We currently use
-> > > reirserfs on our internal system, but they generally have filesystems in the
-> > > 18-30GB ranges and we're talking about potentially 10-20x that.  Should we
-> > > look at JFS/XFS or others?
-> > 
-> > I think that for filesystems this size you definately want to look at XFS
-> > of JFS.  Maybe you will decide not to use them - but you should test them.
-> > 
-> > I am currently using XFS and it really works.  It currently has some
-> > issues when used with raid 1, but it is probably the most suited for what
-> > you want.  Exporting an XFS volume over NFS is no problem.  You can also
-> > use xfs_growfs to change the size of your XFS partition.  I haven't had
-> > any instability during all the time I've used XFS.
-> 
-> The biggest difficulty I had with XFS (not on linux as a server) had
-> more to do with NFS/XFS performance. The SGI clients worked fine while
-> the Linux clients were about 10-20% slower. This was a year ago so this
-> may not apply anymore. I haven't seen any Linux NFS benchmarks recently.
 
-Recent changes in CVS appear to have resolved this issue.
+No, the Linux way is to send the patch to everyone else who's developing or
+testing the kernel.  Even if Linus doesn't accept it into the "official" kernel,
+there's nothing to stop you (or anyone else) from using it yourself or
+distributing it to others.  The Microsoft agreement prevents you from changing
+the source, and if they decide to ignore your bug report, there's nothing you
+can do about it.  Oh, and you have to pay (at least 1500 licenses' worth) for
+the "privilege" of doing their debugging work for them.  That's about as far
+from the Linux way of doing things as you can get.
 
-James Rich
-james.rich@m.cc.utah.edu
+Wayne
+
+
+
+
+Venkatesh Ramamurthy <Venkateshr@ami.com> on 03/08/2001 10:04:25 AM
+
+To:   'Alan Cox' <alan@lxorguk.ukuu.org.uk>
+cc:   linux-kernel@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
+
+Subject:  RE: Microsoft begining to open source Windows 2000?
+
+
+
+My initial thought after seeing this article was that microsoft was testing
+its waters on open sourcing. If i have 1500 licenses then i would get the
+source. If i find any bug in thier source , i  would report to microsoft or
+send a patch and they would put it in thier next version. Is this not the
+same way Linux Kernel is developed?. Only thing microsoft does not want to
+immediately go full open sourcing and get embarrased at the hands of linux
+people.
+
 

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbTDOIBz (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTDOIBz (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 04:01:55 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:64900 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S264391AbTDOIBy (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 04:01:54 -0400
-Date: Tue, 15 Apr 2003 10:11:37 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] M68k IDE updates
-In-Reply-To: <20030415044505.GA25139@mail.jlokier.co.uk>
-Message-ID: <Pine.GSO.4.21.0304151010240.26578-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S264394AbTDOIGk (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTDOIGk (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 04:06:40 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:977 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264394AbTDOIGi (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 04:06:38 -0400
+Date: Tue, 15 Apr 2003 10:18:19 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] qdisc oops fix
+Message-ID: <20030415081819.GD15944@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Apr 2003, Jamie Lokier wrote:
-> Geert Uytterhoeven wrote:
-> > > Since __ide_mm_insw doesn't get told whether it is transferring normal
-> > > sector data or drive ID data, it can't necessarily do the right thing
-> > > in both situations.
-> > 
-> > Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
-> > on-disk data to be that way, for compatibility with e.g. TOS.
-> 
-> Isn't that best solved in the TOS filesystem code?
+Marcelo, Alan,
 
-There's also a partition table to read. BTW, Atari uses MS-DOS style
-partitioning.
+The following patch (recently posted by Martin Volf <mv@inv.cz>) indeed
+fixes the described (Message-Id: <20030412102137.38b4d3d9.mv@inv.cz>)
+instability issue.
 
-> That way, Ataris running Linux can read ext2 disks from other systems
-> properly, and other systems can read TOS disks written by Ataris
-> properly.
+Please apply,
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
-That's why there's also an option to swap all diskdata at the IDE level, so you
-can take your Atari disks to a PC and vice versa.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+--- sch_generic.c.orig  2003-01-04 14:42:02.000000000 +0100
++++ sch_generic.c       2003-04-12 08:58:34.000000000 +0200
+@@ -372,7 +372,7 @@
+        struct Qdisc *sch;
+        int size = sizeof(*sch) + ops->priv_size;
+ 
+-       sch = kmalloc(size, GFP_KERNEL);
++       sch = kmalloc(size, GFP_ATOMIC);
+        if (!sch)
+                return NULL;
+        memset(sch, 0, size);

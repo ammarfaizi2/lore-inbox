@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271731AbRHQWBZ>; Fri, 17 Aug 2001 18:01:25 -0400
+	id <S271722AbRHQWDe>; Fri, 17 Aug 2001 18:03:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271725AbRHQWBF>; Fri, 17 Aug 2001 18:01:05 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31104 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271722AbRHQWA5>;
-	Fri, 17 Aug 2001 18:00:57 -0400
-Date: Fri, 17 Aug 2001 14:58:37 -0700 (PDT)
-Message-Id: <20010817.145837.122620550.davem@redhat.com>
-To: riel@conectiva.com.br
-Cc: aia21@cam.ac.uk, alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net,
-        tpepper@vato.org, f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L.0108171844000.2277-100000@duckman.distro.conectiva>
-In-Reply-To: <20010816.164027.85686335.davem@redhat.com>
-	<Pine.LNX.4.33L.0108171844000.2277-100000@duckman.distro.conectiva>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271725AbRHQWDR>; Fri, 17 Aug 2001 18:03:17 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29453 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271722AbRHQWCz>; Fri, 17 Aug 2001 18:02:55 -0400
+Date: Fri, 17 Aug 2001 19:01:57 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Admin Mailing Lists <mlist@intergrafix.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8 Resource leaks + limits
+In-Reply-To: <E15X3A9-0003RS-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0108171900260.2277-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rik van Riel <riel@conectiva.com.br>
-   Date: Fri, 17 Aug 2001 18:44:16 -0300 (BRST)
+On Wed, 15 Aug 2001, Alan Cox wrote:
 
-   On Thu, 16 Aug 2001, David S. Miller wrote:
-   
-   > Linus will reject every such patch, and I have grepping scripts
-   > that will detect crap like this entering the tree in case he
-   > misses something.
-   
-   Well, you're not the NTFS maintainer.
+> > i would think to put global limits in /proc or in a flat text /etc
+> > and per user limits in something like /etc/passwd or /etc/shadow?
+> > Is it against any standard to have extra fields in those files?
+>
+> Take a look at the pam modules, they already handle limit
+> configuration per user, and I think all the major Linux (and
+> also stuff like Solaris) distros run PAM based auth
 
-Yes, but Linus is the kernel maintainer.
+Alan, would you accept the trivial version of per-user
+CPU scheduling for 2.4 if there is a lot of demand ?
 
-Later,
-David S. Miller
-davem@redhat.com
+The code has been running in Conectiva's kernel RPM for
+over a year now, is implemented entirely in the recalculate
+part of the scheduler, leaves the scheduler fast path all
+alone and only needs to be properly ported to newer 2.4
+kernels now...
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

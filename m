@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbTDXITf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 04:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbTDXITf
+	id S261801AbTDXITa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 04:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbTDXITa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 04:19:35 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:50055 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261816AbTDXITd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 04:19:33 -0400
-Date: Thu, 24 Apr 2003 09:31:37 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: John Bradford <john@grabjohn.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030424083137.GF28253@mail.jlokier.co.uk>
-References: <20030424074400.GD28253@mail.jlokier.co.uk> <200304240816.h3O8GGrH000399@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304240816.h3O8GGrH000399@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 24 Apr 2003 04:19:30 -0400
+Received: from dyn-ctb-203-221-73-229.webone.com.au ([203.221.73.229]:41476
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S261801AbTDXIT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 04:19:29 -0400
+Message-ID: <3EA7A0CC.50005@cyberone.com.au>
+Date: Thu, 24 Apr 2003 18:31:08 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Badness in as-iosched:1210
+References: <Pine.LNX.4.50.0304222259300.2085-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0304222259300.2085-100000@montezuma.mastecende.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> With open hardware designs, there would be no problem with
-> documentation not being available to write drivers.
+Zwane Mwaikambo wrote:
 
-See below...
+>I'm not sure wether you want this, it was during error handling from the 
+>HBA driver (source was disk error).
+>
+>scsi1: ERROR on channel 0, id 3, lun 0, CDB: Read (10) 00 00 7f de 60 00 00 80 00 
+>Info fld=0x7fdeb2, Current sdd: sense key Medium Error
+>Additional sense: Unrecovered read error
+>end_request: I/O error, dev sdd, sector 8380032
+>Badness in as_add_request at drivers/block/as-iosched.c:1210
+>
+Thanks I'll have a look.
 
-> Incidently, using the Transmeta CPUs, is it not possible for the user
-> to replace the controlling software with their own code?  I.E. not
-> bother with X86 compatibility at all, but effectively design your own
-> CPU?  Couldn't we make the first Lin-PU this way?
-
-In theory; in practice we have no access to documentation.  See above...
-
-That makes Transmeta part of the _old_ industry :)
-
-I believe present Transmeta CPUs are quite specialised for x86
-behaviour (memory model etc.) anyway.  When you're running on a CPU
-like that, there's probably little to be gained from changing to a
-different front-end instruction set.
-
-Special tricks like non-cache-ping-ponging locks and faster interrupt
-handling might improve performance, but probably require a change of
-the hardware to implement.
-
--- Jamie

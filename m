@@ -1,730 +1,349 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318739AbSIDBbE>; Tue, 3 Sep 2002 21:31:04 -0400
+	id <S318779AbSIDBjE>; Tue, 3 Sep 2002 21:39:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318741AbSIDBbE>; Tue, 3 Sep 2002 21:31:04 -0400
-Received: from dp.samba.org ([66.70.73.150]:14775 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S318739AbSIDBa5>;
-	Tue, 3 Sep 2002 21:30:57 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL PATCH] Remove list_t infection. 
-In-reply-to: Your message of "Tue, 03 Sep 2002 16:14:34 MST."
-             <Pine.LNX.4.33.0209031610200.10759-100000@penguin.transmeta.com> 
-Date: Wed, 04 Sep 2002 10:41:52 +1000
-Message-Id: <20020904013530.8E1ED2C0D2@lists.samba.org>
+	id <S318770AbSIDBjE>; Tue, 3 Sep 2002 21:39:04 -0400
+Received: from rom.cscaper.com ([216.19.195.129]:5029 "HELO mail.cscaper.com")
+	by vger.kernel.org with SMTP id <S318758AbSIDBi5>;
+	Tue, 3 Sep 2002 21:38:57 -0400
+Subject: Re: CRH  Out of Town
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+From: "Joseph N. Hall" <joseph@5sigma.com>
+Content-Type: text/plain; charset=US-ASCII
+Mime-version: 1.0
+Date: Tue, 3 Sep 2002 18:45 -0700
+X-mailer: Mailer from Hell v1.0
+Message-Id: <20020904013857Z318758-685+42497@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.33.0209031610200.10759-100000@penguin.transmeta.com> you
- write:
-> 
-> On Tue, 3 Sep 2002, Jamie Lokier wrote:
-> > 
-> >      1. struct list
-> >      2. struct list_node
-> > 
-> > With these two types, `list_add' et al. can actually _check_ that you
-> > got the arguments the right way around.
-> 
-> Well, the thing is, one of the _advantages_ of "struct list_head" is 
-> exactly the fact that the implementation is 100% agnostic about whether a 
-> list entry is the head, or just part of the list.
+Dear Kernel Folks,
 
-Excellent.  Well I'm glad that's sorted.
+I am trying to determine the cause of the poor performance of a
+an IDE DVD device on my new machine.  I have an IDE Panasonic DF-210-type
+DVD-RAM/R/ROM in a new machine with Soyo KT333 motherboard.  It
+transfers data slowly (below DVD speed), consumes large amounts of
+system time, and slows down the user interface and even system
+clock (which can run as slow as 1/4 speed while the drive is
+going).
 
-Now please apply my patch (which got sidelined by nomenclature fetishers),
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The interrupt ERR count below seems to be mostly related to use
+of the DVD drive.
 
-Name: list_t removal patch
-Author: Rusty Russell
-Section: Misc
-Status: Trivial
+Maybe it's something simple.  If not, I'll be glad to do further
+work to help diagnose the problem.
 
-D: This removes list_t, which is a gratuitous typedef for a "struct
-D: list_head".  Unless there is good reason, the kernel doesn't usually
-D: typedef, as typedefs cannot be predeclared unlike structs.
+Here are some possibly relevant details:
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/device.h .22733-linux-2.5.33.updated/include/linux/device.h
---- .22733-linux-2.5.33/include/linux/device.h	2002-08-28 09:29:52.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/device.h	2002-09-02 15:15:09.000000000 +1000
-@@ -57,9 +57,9 @@ struct bus_type {
- 	rwlock_t		lock;
- 	atomic_t		refcount;
- 
--	list_t			node;
--	list_t			devices;
--	list_t			drivers;
-+	struct list_head	node;
-+	struct list_head	devices;
-+	struct list_head	drivers;
- 
- 	struct driver_dir_entry	dir;
- 	struct driver_dir_entry	device_dir;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/fs.h .22733-linux-2.5.33.updated/include/linux/fs.h
---- .22733-linux-2.5.33/include/linux/fs.h	2002-08-28 09:29:52.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/fs.h	2002-09-02 15:15:09.000000000 +1000
-@@ -322,8 +322,8 @@ struct address_space {
- 	struct list_head	io_pages;	/* being prepared for I/O */
- 	unsigned long		nrpages;	/* number of total pages */
- 	struct address_space_operations *a_ops;	/* methods */
--	list_t			i_mmap;		/* list of private mappings */
--	list_t			i_mmap_shared;	/* list of private mappings */
-+	struct list_head	i_mmap;		/* list of private mappings */
-+	struct list_head	i_mmap_shared;	/* list of private mappings */
- 	spinlock_t		i_shared_lock;  /* and spinlock protecting it */
- 	unsigned long		dirtied_when;	/* jiffies of first page dirtying */
- 	int			gfp_mask;	/* how to allocate the pages */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/list.h .22733-linux-2.5.33.updated/include/linux/list.h
---- .22733-linux-2.5.33/include/linux/list.h	2002-09-01 12:23:07.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/list.h	2002-09-02 15:15:09.000000000 +1000
-@@ -19,12 +19,10 @@ struct list_head {
- 	struct list_head *next, *prev;
- };
- 
--typedef struct list_head list_t;
--
- #define LIST_HEAD_INIT(name) { &(name), &(name) }
- 
- #define LIST_HEAD(name) \
--	list_t name = LIST_HEAD_INIT(name)
-+	struct list_head name = LIST_HEAD_INIT(name)
- 
- #define INIT_LIST_HEAD(ptr) do { \
- 	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
-@@ -36,7 +34,9 @@ typedef struct list_head list_t;
-  * This is only for internal list manipulation where we know
-  * the prev/next entries already!
-  */
--static inline void __list_add(list_t *new, list_t *prev, list_t *next)
-+static inline void __list_add(struct list_head *new,
-+			      struct list_head *prev,
-+			      struct list_head *next)
- {
- 	next->prev = new;
- 	new->next = next;
-@@ -52,7 +52,7 @@ static inline void __list_add(list_t *ne
-  * Insert a new entry after the specified head.
-  * This is good for implementing stacks.
-  */
--static inline void list_add(list_t *new, list_t *head)
-+static inline void list_add(struct list_head *new, struct list_head *head)
- {
- 	__list_add(new, head, head->next);
- }
-@@ -65,7 +65,7 @@ static inline void list_add(list_t *new,
-  * Insert a new entry before the specified head.
-  * This is useful for implementing queues.
-  */
--static inline void list_add_tail(list_t *new, list_t *head)
-+static inline void list_add_tail(struct list_head *new, struct list_head *head)
- {
- 	__list_add(new, head->prev, head);
- }
-@@ -77,7 +77,7 @@ static inline void list_add_tail(list_t 
-  * This is only for internal list manipulation where we know
-  * the prev/next entries already!
-  */
--static inline void __list_del(list_t * prev, list_t * next)
-+static inline void __list_del(struct list_head * prev, struct list_head * next)
- {
- 	next->prev = prev;
- 	prev->next = next;
-@@ -88,7 +88,7 @@ static inline void __list_del(list_t * p
-  * @entry: the element to delete from the list.
-  * Note: list_empty on entry does not return true after this, the entry is in an undefined state.
-  */
--static inline void list_del(list_t *entry)
-+static inline void list_del(struct list_head *entry)
- {
- 	__list_del(entry->prev, entry->next);
- 	entry->next = (void *) 0;
-@@ -99,7 +99,7 @@ static inline void list_del(list_t *entr
-  * list_del_init - deletes entry from list and reinitialize it.
-  * @entry: the element to delete from the list.
-  */
--static inline void list_del_init(list_t *entry)
-+static inline void list_del_init(struct list_head *entry)
- {
- 	__list_del(entry->prev, entry->next);
- 	INIT_LIST_HEAD(entry); 
-@@ -110,7 +110,7 @@ static inline void list_del_init(list_t 
-  * @list: the entry to move
-  * @head: the head that will precede our entry
-  */
--static inline void list_move(list_t *list, list_t *head)
-+static inline void list_move(struct list_head *list, struct list_head *head)
- {
-         __list_del(list->prev, list->next);
-         list_add(list, head);
-@@ -121,7 +121,8 @@ static inline void list_move(list_t *lis
-  * @list: the entry to move
-  * @head: the head that will follow our entry
-  */
--static inline void list_move_tail(list_t *list, list_t *head)
-+static inline void list_move_tail(struct list_head *list,
-+				  struct list_head *head)
- {
-         __list_del(list->prev, list->next);
-         list_add_tail(list, head);
-@@ -131,16 +132,17 @@ static inline void list_move_tail(list_t
-  * list_empty - tests whether a list is empty
-  * @head: the list to test.
-  */
--static inline int list_empty(list_t *head)
-+static inline int list_empty(struct list_head *head)
- {
- 	return head->next == head;
- }
- 
--static inline void __list_splice(list_t *list, list_t *head)
-+static inline void __list_splice(struct list_head *list,
-+				 struct list_head *head)
- {
--	list_t *first = list->next;
--	list_t *last = list->prev;
--	list_t *at = head->next;
-+	struct list_head *first = list->next;
-+	struct list_head *last = list->prev;
-+	struct list_head *at = head->next;
- 
- 	first->prev = head;
- 	head->next = first;
-@@ -154,7 +156,7 @@ static inline void __list_splice(list_t 
-  * @list: the new list to add.
-  * @head: the place to add it in the first list.
-  */
--static inline void list_splice(list_t *list, list_t *head)
-+static inline void list_splice(struct list_head *list, struct list_head *head)
- {
- 	if (!list_empty(list))
- 		__list_splice(list, head);
-@@ -167,7 +169,8 @@ static inline void list_splice(list_t *l
-  *
-  * The list at @list is reinitialised
-  */
--static inline void list_splice_init(list_t *list, list_t *head)
-+static inline void list_splice_init(struct list_head *list,
-+				    struct list_head *head)
- {
- 	if (!list_empty(list)) {
- 		__list_splice(list, head);
-@@ -177,7 +180,7 @@ static inline void list_splice_init(list
- 
- /**
-  * list_entry - get the struct for this entry
-- * @ptr:	the &list_t pointer.
-+ * @ptr:	the &struct list_head pointer.
-  * @type:	the type of the struct this is embedded in.
-  * @member:	the name of the list_struct within the struct.
-  */
-@@ -186,7 +189,7 @@ static inline void list_splice_init(list
- 
- /**
-  * list_for_each	-	iterate over a list
-- * @pos:	the &list_t to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop counter.
-  * @head:	the head for your list.
-  */
- #define list_for_each(pos, head) \
-@@ -194,7 +197,7 @@ static inline void list_splice_init(list
-         	pos = pos->next, prefetch(pos->next))
- /**
-  * list_for_each_prev	-	iterate over a list backwards
-- * @pos:	the &list_t to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop counter.
-  * @head:	the head for your list.
-  */
- #define list_for_each_prev(pos, head) \
-@@ -203,8 +206,8 @@ static inline void list_splice_init(list
-         	
- /**
-  * list_for_each_safe	-	iterate over a list safe against removal of list entry
-- * @pos:	the &list_t to use as a loop counter.
-- * @n:		another &list_t to use as temporary storage
-+ * @pos:	the &struct list_head to use as a loop counter.
-+ * @n:		another &struct list_head to use as temporary storage
-  * @head:	the head for your list.
-  */
- #define list_for_each_safe(pos, n, head) \
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/mm.h .22733-linux-2.5.33.updated/include/linux/mm.h
---- .22733-linux-2.5.33/include/linux/mm.h	2002-09-01 12:23:07.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/mm.h	2002-09-02 15:15:09.000000000 +1000
-@@ -61,7 +61,7 @@ struct vm_area_struct {
- 	 * one of the address_space->i_mmap{,shared} lists,
- 	 * for shm areas, the list of attaches, otherwise unused.
- 	 */
--	list_t shared;
-+	struct list_head shared;
- 
- 	/* Function pointers to deal with this struct. */
- 	struct vm_operations_struct * vm_ops;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/sched.h .22733-linux-2.5.33.updated/include/linux/sched.h
---- .22733-linux-2.5.33/include/linux/sched.h	2002-09-01 12:23:07.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/sched.h	2002-09-02 15:15:09.000000000 +1000
-@@ -264,7 +264,7 @@ struct task_struct {
- 	int lock_depth;		/* Lock depth */
- 
- 	int prio, static_prio;
--	list_t run_list;
-+	struct list_head run_list;
- 	prio_array_t *array;
- 
- 	unsigned long sleep_avg;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/net/sctp/structs.h .22733-linux-2.5.33.updated/include/net/sctp/structs.h
---- .22733-linux-2.5.33/include/net/sctp/structs.h	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/net/sctp/structs.h	2002-09-02 15:17:45.000000000 +1000
-@@ -203,7 +203,7 @@ struct SCTP_protocol {
- 	/* This is a list of groups of functions for each address
- 	 * family that we support.
- 	 */
--	list_t address_families;
-+	struct list_head address_families;
- 
- 	/* This is the hash of all endpoints. */
- 	int ep_hashsize;
-@@ -225,7 +225,7 @@ struct SCTP_protocol {
- 	 *
- 	 * It is a list of struct sockaddr_storage_list.
- 	 */
--	list_t local_addr_list;
-+	struct list_head local_addr_list;
- 	spinlock_t local_addr_lock;
- };
- 
-@@ -250,7 +250,7 @@ typedef struct sctp_func {
- 	__u16		net_header_len;	
- 	int		sockaddr_len;
- 	sa_family_t	sa_family;
--	list_t          list;
-+	struct list_head list;
- } sctp_func_t;
- 
- sctp_func_t *sctp_get_af_specific(const sockaddr_storage_t *address);
-@@ -494,7 +494,7 @@ const sockaddr_storage_t *sctp_source(co
-  * sin_addr -- cast to either (struct in_addr) or (struct in6_addr)
-  */
- struct sockaddr_storage_list {
--	list_t list;
-+	struct list_head list;
- 	sockaddr_storage_t a;
- };
- 
-@@ -582,7 +582,7 @@ void sctp_packet_free(sctp_packet_t *);
-  */
- struct SCTP_transport {
- 	/* A list of transports. */
--	list_t transports;
-+	struct list_head transports;
- 
- 	/* Reference counting. */
- 	atomic_t refcnt;
-@@ -863,7 +863,7 @@ struct SCTP_bind_addr {
- 	 *	has bound.  This information is passed to one's
- 	 *	peer(s) in INIT and INIT ACK chunks.
- 	 */
--	list_t address_list;
-+	struct list_head address_list;
- 
- 	int malloced;        /* Are we kfree()able?  */
- };
-@@ -988,7 +988,7 @@ struct SCTP_endpoint {
- 	 *            is implemented.
- 	 */
- 	/* This is really a list of sctp_association_t entries. */
--	list_t asocs;
-+	struct list_head asocs;
- 
- 	/* Secret Key: A secret key used by this endpoint to compute
- 	 *            the MAC.  This SHOULD be a cryptographic quality
-@@ -1070,7 +1070,7 @@ struct SCTP_association {
- 	sctp_endpoint_common_t base;
- 
- 	/* Associations on the same socket. */
--	list_t asocs;
-+	struct list_head asocs;
- 
- 	/* This is a signature that lets us know that this is a
- 	 * sctp_association_t data structure.  Used for mapping an
-@@ -1104,7 +1104,7 @@ struct SCTP_association {
- 		 *
- 		 * It is a list of SCTP_transport's.
- 		 */
--		list_t transport_addr_list;
-+		struct list_head transport_addr_list;
- 
- 		/* port
- 		 *   The transport layer port number.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/kernel/exit.c .22733-linux-2.5.33.updated/kernel/exit.c
---- .22733-linux-2.5.33/kernel/exit.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/kernel/exit.c	2002-09-02 15:15:09.000000000 +1000
-@@ -407,7 +407,7 @@ void exit_mm(struct task_struct *tsk)
- static inline void forget_original_parent(struct task_struct * father)
- {
- 	struct task_struct *p, *reaper;
--	list_t *_p;
-+	struct list_head *_p;
- 
- 	read_lock(&tasklist_lock);
- 
-@@ -477,7 +477,7 @@ static inline void zap_thread(task_t *p,
- static void exit_notify(void)
- {
- 	struct task_struct *t;
--	list_t *_p, *_n;
-+	struct list_head *_p, *_n;
- 
- 	forget_original_parent(current);
- 	/*
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/kernel/sched.c .22733-linux-2.5.33.updated/kernel/sched.c
---- .22733-linux-2.5.33/kernel/sched.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/kernel/sched.c	2002-09-02 15:15:09.000000000 +1000
-@@ -133,7 +133,7 @@ typedef struct runqueue runqueue_t;
- struct prio_array {
- 	int nr_active;
- 	unsigned long bitmap[BITMAP_SIZE];
--	list_t queue[MAX_PRIO];
-+	struct list_head queue[MAX_PRIO];
- };
- 
- /*
-@@ -152,7 +152,7 @@ struct runqueue {
- 	int prev_nr_running[NR_CPUS];
- 
- 	task_t *migration_thread;
--	list_t migration_queue;
-+	struct list_head migration_queue;
- 
- } ____cacheline_aligned;
- 
-@@ -739,7 +739,7 @@ static void load_balance(runqueue_t *thi
- 	int imbalance, idx, this_cpu = smp_processor_id();
- 	runqueue_t *busiest;
- 	prio_array_t *array;
--	list_t *head, *curr;
-+	struct list_head *head, *curr;
- 	task_t *tmp;
- 
- 	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance);
-@@ -937,7 +937,7 @@ asmlinkage void schedule(void)
- 	task_t *prev, *next;
- 	runqueue_t *rq;
- 	prio_array_t *array;
--	list_t *queue;
-+	struct list_head *queue;
- 	int idx;
- 
- 	if (unlikely(in_interrupt()))
-@@ -1899,7 +1899,7 @@ void __init init_idle(task_t *idle, int 
-  */
- 
- typedef struct {
--	list_t list;
-+	struct list_head list;
- 	task_t *task;
- 	struct completion done;
- } migration_req_t;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/mm/memory.c .22733-linux-2.5.33.updated/mm/memory.c
---- .22733-linux-2.5.33/mm/memory.c	2002-08-28 09:29:54.000000000 +1000
-+++ .22733-linux-2.5.33.updated/mm/memory.c	2002-09-02 15:15:09.000000000 +1000
-@@ -1033,11 +1033,11 @@ no_mem:
- 	return VM_FAULT_OOM;
- }
- 
--static void vmtruncate_list(list_t *head, unsigned long pgoff)
-+static void vmtruncate_list(struct list_head *head, unsigned long pgoff)
- {
- 	unsigned long start, end, len, diff;
- 	struct vm_area_struct *vma;
--	list_t *curr;
-+	struct list_head *curr;
- 
- 	list_for_each(curr, head) {
- 		vma = list_entry(curr, struct vm_area_struct, shared);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/mm/page_alloc.c .22733-linux-2.5.33.updated/mm/page_alloc.c
---- .22733-linux-2.5.33/mm/page_alloc.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/mm/page_alloc.c	2002-09-02 15:15:21.000000000 +1000
-@@ -237,7 +237,7 @@ int is_head_of_free_region(struct page *
-         struct zone *zone = page_zone(page);
-         unsigned long flags;
- 	int order;
--	list_t *curr;
-+	struct list_head *curr;
- 
- 	/*
- 	 * Should not matter as we need quiescent system for
-@@ -652,7 +652,7 @@ void show_free_areas(void)
- 
- 	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
- 		for (type = 0; type < MAX_NR_ZONES; type++) {
--			list_t *elem;
-+			struct list_head *elem;
- 			struct zone *zone = &pgdat->node_zones[type];
-  			unsigned long nr, flags, order, total = 0;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/associola.c .22733-linux-2.5.33.updated/net/sctp/associola.c
---- .22733-linux-2.5.33/net/sctp/associola.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/associola.c	2002-09-02 15:18:21.000000000 +1000
-@@ -296,7 +296,7 @@ void sctp_association_free(sctp_associat
- {
- 	sctp_transport_t *transport;
- 	sctp_endpoint_t *ep;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 	int i;
- 
- 	ep = asoc->ep;
-@@ -482,7 +482,7 @@ sctp_transport_t *sctp_assoc_lookup_padd
- 					  const sockaddr_storage_t *address)
- {
- 	sctp_transport_t *t;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	/* Cycle through all transports searching for a peer address. */
- 
-@@ -508,7 +508,7 @@ void sctp_assoc_control_transport(sctp_a
- 	sctp_transport_t *first;
- 	sctp_transport_t *second;
- 	sctp_ulpevent_t *event;
--	list_t *pos;
-+	struct list_head *pos;
- 	int spc_state = 0;
- 
- 	/* Record the transition on the transport.  */
-@@ -780,7 +780,7 @@ sctp_transport_t *sctp_assoc_lookup_tsn(
- {
- 	sctp_transport_t *active;
- 	sctp_transport_t *match;
--	list_t *entry, *pos;
-+	struct list_head *entry, *pos;
- 	sctp_transport_t *transport;
- 	sctp_chunk_t *chunk;
- 	__u32 key = htonl(tsn);
-@@ -983,8 +983,8 @@ void sctp_assoc_update(sctp_association_
- sctp_transport_t *sctp_assoc_choose_shutdown_transport(sctp_association_t *asoc)
- {
- 	sctp_transport_t *t, *next;
--	list_t *head = &asoc->peer.transport_addr_list;
--	list_t *pos;
-+	struct list_head *head = &asoc->peer.transport_addr_list;
-+	struct list_head *pos;
- 
- 	/* If this is the first time SHUTDOWN is sent, use the active
- 	 * path.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/bind_addr.c .22733-linux-2.5.33.updated/net/sctp/bind_addr.c
---- .22733-linux-2.5.33/net/sctp/bind_addr.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/bind_addr.c	2002-09-02 15:18:29.000000000 +1000
-@@ -65,7 +65,7 @@ int sctp_bind_addr_copy(sctp_bind_addr_t
- 			sctp_scope_t scope, int priority, int flags)
- {
- 	struct sockaddr_storage_list *addr;
--	list_t *pos;
-+	struct list_head *pos;
- 	int error = 0;
- 
- 	/* All addresses share the same port.  */
-@@ -119,7 +119,7 @@ void sctp_bind_addr_init(sctp_bind_addr_
- static void sctp_bind_addr_clean(sctp_bind_addr_t *bp)
- {
- 	struct sockaddr_storage_list *addr;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	/* Empty the bind address list. */
- 	list_for_each_safe(pos, temp, &bp->address_list) {
-@@ -173,7 +173,7 @@ int sctp_add_bind_addr(sctp_bind_addr_t 
-  */
- int sctp_del_bind_addr(sctp_bind_addr_t *bp, sockaddr_storage_t *del_addr)
- {
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 	struct sockaddr_storage_list *addr;
- 
- 	list_for_each_safe(pos, temp, &bp->address_list) {
-@@ -206,7 +206,7 @@ sctpParam_t sctp_bind_addrs_to_raw(const
- 	sctpIpAddress_t rawaddr_space;
- 	int len;
- 	struct sockaddr_storage_list *addr;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	retval.v = NULL;
- 	addrparms_len = 0;
-@@ -284,7 +284,7 @@ int sctp_raw_to_bind_addrs(sctp_bind_add
- int sctp_bind_addr_has_addr(sctp_bind_addr_t *bp, const sockaddr_storage_t *addr)
- {
- 	struct sockaddr_storage_list *laddr;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	list_for_each(pos, &bp->address_list) {
- 		laddr = list_entry(pos, struct sockaddr_storage_list, list);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/endpointola.c .22733-linux-2.5.33.updated/net/sctp/endpointola.c
---- .22733-linux-2.5.33/net/sctp/endpointola.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/endpointola.c	2002-09-02 15:18:39.000000000 +1000
-@@ -257,7 +257,7 @@ sctp_association_t *__sctp_endpoint_look
- {
- 	int rport;
- 	sctp_association_t *asoc;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	rport = paddr->v4.sin_port;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/outqueue.c .22733-linux-2.5.33.updated/net/sctp/outqueue.c
---- .22733-linux-2.5.33/net/sctp/outqueue.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/outqueue.c	2002-09-02 15:18:44.000000000 +1000
-@@ -104,7 +104,7 @@ void sctp_outqueue_init(sctp_association
- void sctp_outqueue_teardown(sctp_outqueue_t *q)
- {
- 	sctp_transport_t *transport;
--	list_t *lchunk, *pos;
-+	struct list_head *lchunk, *pos;
- 	sctp_chunk_t *chunk;
- 
- 	/* Throw away unacknowledged chunks. */
-@@ -948,7 +948,7 @@ static void sctp_sack_update_unack_data(
- int sctp_sack_outqueue(sctp_outqueue_t *q, sctp_sackhdr_t *sack)
- {
- 	sctp_chunk_t *tchunk;
--	list_t *lchunk, *transport_list, *pos;
-+	struct list_head *lchunk, *transport_list, *pos;
- 	__u32 tsn;
- 	__u32 sack_ctsn;
- 	__u32 ctsn;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/protocol.c .22733-linux-2.5.33.updated/net/sctp/protocol.c
---- .22733-linux-2.5.33/net/sctp/protocol.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/protocol.c	2002-09-02 15:18:54.000000000 +1000
-@@ -198,7 +198,7 @@ static void sctp_get_local_addr_list(sct
- static void __sctp_free_local_addr_list(sctp_protocol_t *proto)
- {
- 	struct sockaddr_storage_list *addr;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	list_for_each_safe(pos, temp, &proto->local_addr_list) {
- 		addr = list_entry(pos, struct sockaddr_storage_list, list);
-@@ -223,7 +223,7 @@ int sctp_copy_local_addr_list(sctp_proto
- {
- 	struct sockaddr_storage_list *addr;
- 	int error = 0;
--	list_t *pos;
-+	struct list_head *pos;
- 	long flags __attribute__ ((unused));
- 
- 	sctp_spin_lock_irqsave(&proto->local_addr_lock, flags);
-@@ -327,7 +327,7 @@ int sctp_ctl_sock_init(void)
-  */
- sctp_func_t *sctp_get_af_specific(const sockaddr_storage_t *address)
- {
--	list_t *pos;
-+	struct list_head *pos;
- 	sctp_protocol_t *proto = sctp_get_protocol();
- 	sctp_func_t *retval, *af;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/sm_make_chunk.c .22733-linux-2.5.33.updated/net/sctp/sm_make_chunk.c
---- .22733-linux-2.5.33/net/sctp/sm_make_chunk.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/sm_make_chunk.c	2002-09-02 15:18:59.000000000 +1000
-@@ -1417,7 +1417,7 @@ void sctp_process_init(sctp_association_
- 	sctpParam_t param;
- 	__u8 *end;
- 	sctp_transport_t *transport;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	/* We must include the address that the INIT packet came from.
- 	 * This is the only address that matters for an INIT packet.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/sm_sideeffect.c .22733-linux-2.5.33.updated/net/sctp/sm_sideeffect.c
---- .22733-linux-2.5.33/net/sctp/sm_sideeffect.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/sm_sideeffect.c	2002-09-02 15:19:03.000000000 +1000
-@@ -1053,7 +1053,7 @@ static void sctp_cmd_hb_timers_start(sct
- 				     sctp_association_t *asoc)
- {
- 	sctp_transport_t *t;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	/* Start a heartbeat timer for each transport on the association.
- 	 * hold a reference on the transport to make sure none of
-@@ -1072,7 +1072,7 @@ static void sctp_cmd_hb_timers_start(sct
- void sctp_cmd_set_bind_addrs(sctp_cmd_seq_t *cmds, sctp_association_t *asoc,
- 			     sctp_bind_addr_t *bp)
- {
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	list_for_each_safe(pos, temp, &bp->address_list) {
- 		list_del_init(pos);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/sm_statefuns.c .22733-linux-2.5.33.updated/net/sctp/sm_statefuns.c
---- .22733-linux-2.5.33/net/sctp/sm_statefuns.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/sm_statefuns.c	2002-09-02 15:19:11.000000000 +1000
-@@ -1056,7 +1056,7 @@ static sctp_disposition_t sctp_sf_do_dup
- 	sctp_ulpevent_t *ev;
- 	sctp_chunk_t *repl;
- 	sctp_transport_t *new_addr, *addr;
--	list_t *pos, *pos2, *temp;
-+	struct list_head *pos, *pos2, *temp;
- 	int found, error;
- 
- 	/* new_asoc is a brand-new association, so these are not yet
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/socket.c .22733-linux-2.5.33.updated/net/sctp/socket.c
---- .22733-linux-2.5.33/net/sctp/socket.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/socket.c	2002-09-02 15:19:18.000000000 +1000
-@@ -439,7 +439,7 @@ err_bindx_add:
- #if CONFIG_IP_SCTP_ADDIP
- 	/* Add these addresses to all associations on this endpoint.  */
- 	if (retval >= 0) {
--		list_t *pos;
-+		struct list_head *pos;
- 		sctp_endpoint_t *ep;
- 		sctp_association_t *asoc;
- 		ep = sctp_sk(sk)->ep;
-@@ -560,7 +560,7 @@ err_bindx_rem:
- #if CONFIG_IP_SCTP_ADDIP
- 	/* Remove these addresses from all associations on this endpoint.  */
- 	if (retval >= 0) {
--		list_t *pos;
-+		struct list_head *pos;
- 		sctp_endpoint_t *ep;
- 		sctp_association_t *asoc;
- 
-@@ -666,7 +666,7 @@ static void sctp_close(struct sock *sk, 
- {
- 	sctp_endpoint_t *ep;
- 	sctp_association_t *asoc;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	SCTP_DEBUG_PRINTK("sctp_close(sk: 0x%p...)\n", sk);
- 
-@@ -1238,7 +1238,7 @@ static int sctp_setsockopt(struct sock *
- 	int retval = 0;
- 	char * tmp;
- 	sctp_protocol_t *proto = sctp_get_protocol();
--	list_t *pos;
-+	struct list_head *pos;
- 	sctp_func_t *af;
- 
- 	SCTP_DEBUG_PRINTK("sctp_setsockopt(sk: %p... optname: %d)\n",
-@@ -1661,7 +1661,7 @@ static int sctp_getsockopt(struct sock *
- 	int retval = 0;
- 	sctp_protocol_t *proto = sctp_get_protocol();
- 	sctp_func_t *af;
--	list_t *pos;
-+	struct list_head *pos;
- 	int len;
- 
- 	SCTP_DEBUG_PRINTK("sctp_getsockopt(sk: %p, ...)\n", sk);
-@@ -2649,7 +2649,7 @@ static void __sctp_write_space(sctp_asso
- void sctp_write_space(struct sock *sk)
- {
- 	sctp_association_t *asoc;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	/* Wake up the tasks in each wait queue.  */
- 	list_for_each(pos, &((sctp_sk(sk))->ep->asocs)) {
+# uname -a
+Linux dhcppc4 2.4.20-pre5-ac1 #4 Sun Sep 1 22:06:11 PDT 2002 i686 unknown
+
+# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(tm) XP 2100+
+stepping        : 2
+cpu MHz         : 1729.054
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 3447.19
+
+# cat /proc/interrupts
+           CPU0
+  0:    2389082          XT-PIC  timer
+  1:          4          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:        107          XT-PIC  usb-uhci
+  8:    1293953          XT-PIC  rtc
+ 10:          0          XT-PIC  usb-uhci
+ 11:     124849          XT-PIC  eth0, EMU10K1
+ 12:      46058          XT-PIC  usb-uhci, usb-uhci, ehci-hcd, cmpci
+ 14:      56020          XT-PIC  ide0
+ 15:          7          XT-PIC  ide1
+NMI:          0
+LOC:    2388955
+ERR:        927
+MIS:          0
+
+# dmesg | more
+
+Linux version 2.4.20-pre5-ac1 (root@dhcppc4) (gcc version 2.96 20000731 (Red Hat
+ Linux 7.3 2.96-110)) #4 Sun Sep 1 22:06:11 PDT 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000005fff0000 (usable)
+ BIOS-e820: 000000005fff0000 - 000000005fff3000 (ACPI NVS)
+ BIOS-e820: 000000005fff3000 - 0000000060000000 (ACPI data)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+639MB HIGHMEM available.
+896MB LOWMEM available.
+On node 0 totalpages: 393200
+zone(0): 4096 pages.
+zone(1): 225280 pages.
+zone(2): 163824 pages.
+Kernel command line: auto BOOT_IMAGE=2.4.20.p5ac1 ro root=305 BOOT_FILE=/boot/vm
+linuz-2.4.20-pre5-ac1 hdc=ide-scsi hdd=ide-scsi
+ide_setup: hdc=ide-scsi
+ide_setup: hdd=ide-scsi
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 1729.054 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 3447.19 BogoMIPS
+Memory: 1548660k/1572800k available (1116k kernel code, 23756k reserved, 464k da
+ta, 136k init, 655296k highmem)
+Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Inode cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+ramfs: mounted with options: <defaults>
+ramfs: max_pages=193582 max_file_pages=0 max_inodes=0 max_dentries=193582
+Buffer cache hash table entries: 131072 (order: 7, 524288 bytes)
+Page-cache hash table entries: 524288 (order: 9, 2097152 bytes)
+CPU: Before vendor init, caps: 0383fbff c1c3fbff 00000000, vendor = 2
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 256K (64 bytes/line)
+CPU: After vendor init, caps: 0383fbff c1c3fbff 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 0383fbff c1c3fbff 00000000 00000000
+CPU:             Common caps: 0383fbff c1c3fbff 00000000 00000000
+CPU: AMD Athlon(tm) XP 2100+ stepping 02
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1729.0935 MHz.
+..... host bus clock speed is 266.0142 MHz.
+cpu: 0, clocks: 2660142, slice: 1330071
+CPU0<T0:2660128,T1:1330048,D:9,S:1330071,C:2660142>
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+PCI: PCI BIOS revision 2.10 entry at 0xfb520, last bus=2
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Unknown bridge resource 0: assuming transparent
+Unknown bridge resource 2: assuming transparent
+PCI: Using IRQ router default [1106/3099] at 00:00.0
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16)
+Starting kswapd
+allocated 32 pages and 32 bhs reserved for the highmem bounces
+VFS: Disk quotas vdquot_6.5.1
+Detected PS/2 Mouse Port.
+pty: 2048 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS MULTIPORT SHARE_IRQ SER
+IAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Real Time Clock Driver v1.10e
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+HPT372: IDE controller at PCI slot 00:0f.0
+HPT372: chipset revision 5
+HPT372: not 100% native mode: will probe irqs later
+HPT37X: using 33MHz PCI clock
+    ide2: BM-DMA at 0xd800-0xd807, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0xd808-0xd80f, BIOS settings: hdg:pio, hdh:pio
+VP_IDE: IDE controller at PCI slot 00:11.1
+PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try using pci=bi
+osirq.
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt8233a (rev 00) IDE UDMA133 controller on pci00:11.1
+    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: WDC WD1200JB-00CRA1, ATA DISK drive
+hdb: WDC WD1200JB-00CRA1, ATA DISK drive
+hdc: ASUS CRW-4816A, ATAPI CD/DVD-ROM drive
+hdd: MATSHITADVD-RAM LF-D310, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=14593/255/63, UDMA(100)
+hdb: host protected area => 1
+hdb: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=14593/255/63, UDMA(100)
+ide-floppy driver 0.99.newide
+Partition check:
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+ hdb: hdb1 hdb2 < hdb5 hdb6 >
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+ide-floppy driver 0.99.newide
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 16384 buckets, 128Kbytes
+TCP: Hash tables configured (established 262144 bind 65536)
+Linux IP multicast router 0.06 plus PIM-SM
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+RAMDISK: Compressed image found at block 0
+Freeing initrd memory: 119k freed
+VFS: Mounted root (ext2 filesystem).
+Journalled Block Device driver loaded
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+Freeing unused kernel memory: 136k freed
+Adding Swap: 1052248k swap-space (priority -1)
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.275 $ time 21:01:49 Sep  1 2002
+usb-uhci.c: High bandwidth mode enabled
+usb-uhci.c: USB UHCI at I/O 0xc000, IRQ 5
+usb-uhci.c: Detected 2 ports
+
+# cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies, Inc. VT8367 [KT266] (rev 0).
+      Prefetchable 32 bit memory at 0xe8000000 [0xebffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies, Inc. VT8367 [KT333 AGP] (rev 0).
+      Master Capable.  No bursts.  Min Gnt=12.
+  Bus  0, device   8, function  0:
+    Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 7).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=20.
+      I/O at 0xb000 [0xb01f].
+  Bus  0, device   8, function  1:
+    Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 7).
+      Master Capable.  Latency=32.
+      I/O at 0xb400 [0xb407].
+  Bus  0, device   9, function  0:
+    FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 70).
+      IRQ 5.
+      Master Capable.  Latency=32.  Max Lat=32.
+      Non-prefetchable 32 bit memory at 0xef002000 [0xef0027ff].
+      I/O at 0xb800 [0xb87f].
+  Bus  0, device  13, function  0:
+    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 16).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
+      I/O at 0xbc00 [0xbcff].
+      Non-prefetchable 32 bit memory at 0xef000000 [0xef0000ff].
+  Bus  0, device  14, function  0:
+    USB Controller: VIA Technologies, Inc. USB (rev 80).
+      IRQ 5.
+      Master Capable.  Latency=32.
+      I/O at 0xc000 [0xc01f].
+  Bus  0, device  14, function  1:
+    USB Controller: VIA Technologies, Inc. USB (#2) (rev 80).
+      IRQ 10.
+      Master Capable.  Latency=32.
+      I/O at 0xc400 [0xc41f].
+  Bus  0, device  17, function  2:
+    USB Controller: VIA Technologies, Inc. USB (#3) (rev 35).
+      IRQ 12.
+      Master Capable.  Latency=32.
+      I/O at 0xe400 [0xe41f].
+  Bus  0, device  17, function  3:
+    USB Controller: VIA Technologies, Inc. USB (#4) (rev 35).
+      IRQ 12.
+      Master Capable.  Latency=32.
+      I/O at 0xe800 [0xe81f].
+  Bus  0, device  14, function  2:
+    USB Controller: VIA Technologies, Inc. USB 2.0 (rev 81).
+      IRQ 12.
+      Master Capable.  Latency=32.
+      Non-prefetchable 32 bit memory at 0xef001000 [0xef0010ff].
+  Bus  0, device  15, function  0:
+    RAID bus controller: Triones Technologies, Inc. HPT366/368/370/370A/372 (rev 5).
+      IRQ 10.
+      Master Capable.  Latency=120.  Min Gnt=8.Max Lat=8.
+      I/O at 0xc800 [0xc807].
+      I/O at 0xcc00 [0xcc03].
+      I/O at 0xd000 [0xd007].
+      I/O at 0xd400 [0xd403].
+      I/O at 0xd800 [0xd8ff].
+  Bus  0, device  16, function  0:
+    Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 16).
+      IRQ 12.
+      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=24.
+      I/O at 0xdc00 [0xdcff].
+  Bus  0, device  17, function  0:
+    ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge (rev 0).
+  Bus  0, device  17, function  1:
+    IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 6).
+      Master Capable.  Latency=32.
+      I/O at 0xe000 [0xe00f].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: ATI Technologies Inc Radeon 8500 DV (rev 0).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=8.
+      Prefetchable 32 bit memory at 0xe0000000 [0xe7ffffff].
+      I/O at 0xa000 [0xa0ff].
+      Non-prefetchable 32 bit memory at 0xed100000 [0xed11ffff].
+      Non-prefetchable 32 bit memory at 0xed120000 [0xed12ffff].
+  Bus  1, device   0, function  1:
+    PCI bridge: PCI device 1002:4243 (ATI Technologies Inc) (rev 0).
+      Master Capable.  Latency=32.  Min Gnt=2.
+  Bus  2, device   0, function  0:
+    FireWire (IEEE 1394): Lucent Microelectronics FW323 (rev 4).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=12.Max Lat=24.
+      Non-prefetchable 32 bit memory at 0xed000000 [0xed000fff].
+
+
+# hdparm /dev/hdd
+/dev/hdd:
+ HDIO_GET_MULTCOUNT failed: Invalid argument
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ HDIO_GET_NOWERR failed: Invalid argument
+ readonly     =  0 (off)
+ BLKRAGET failed: Invalid argument
+ HDIO_GETGEO failed: Invalid argument
+ busstate     =  1 (on)
+
+# cat /proc/ide/hdd/settings
+name                    value           min             max             mode
+----                    -----           ---             ---             ----
+bios_cyl                0               0               1023            rw
+bios_head               0               0               255             rw
+bios_sect               0               0               63              rw
+current_speed           66              0               70              rw
+ide-scsi                0               0               1               rw
+init_speed              12              0               70              rw
+io_32bit                1               0               3               rw
+keepsettings            0               0               1               rw
+log                     0               0               1               rw
+nice1                   1               0               1               rw
+number                  3               0               3               rw
+pio_mode                write-only      0               255             w
+slow                    0               0               1               rw
+transform               1               0               3               rw
+unmaskirq               1               0               1               rw
+using_dma               0               0               1               rw
+
+# cat /proc/ide/hdd/model
+MATSHITADVD-RAM LF-D310
+
+
+

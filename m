@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbTK1RIO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 12:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTK1RIO
+	id S262766AbTK1RNa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 12:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbTK1RNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 12:08:14 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:24037 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262719AbTK1RIK
+	Fri, 28 Nov 2003 12:13:30 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:1286 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262766AbTK1RNY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 12:08:10 -0500
-Message-ID: <3FC7803D.2050203@cyberone.com.au>
-Date: Sat, 29 Nov 2003 04:05:01 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Fri, 28 Nov 2003 12:13:24 -0500
+To: Tore Anderson <tore@linpro.no>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] scheduling while atomic when lseek()ing in /proc/net/tcp
+References: <1069974335.14367.17.camel@echo.linpro.no>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 29 Nov 2003 02:12:38 +0900
+In-Reply-To: <1069974335.14367.17.camel@echo.linpro.no>
+Message-ID: <87n0ag2z95.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Felipe W Damasio <felipewd@elipse.com.br>
-CC: Lista da disciplina de Sistemas Operacionais III 
-	<sisopiii-l@cscience.org>,
-       Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [SisopIII-l] Re: [PATCH] fix #endif misplacement
-References: <20031128141927.5ff1f35a.rnsanchez@terra.com.br> <Pine.LNX.4.53.0311281732100.21904@gockel.physik3.uni-rostock.de> <3FC77A59.2090705@elipse.com.br>
-In-Reply-To: <3FC77A59.2090705@elipse.com.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tore Anderson <tore@linpro.no> writes:
 
+>     #include <sys/types.h>
+>     #include <sys/stat.h>
+>     #include <fcntl.h>
+>     #include <unistd.h>
+>     #include <stdio.h>
+> 
+>     int main(void) {
+>             char buf[8192];
+>             int fd, chars;
+>             fd = open("/proc/net/tcp", O_RDONLY);
+>             chars = read(fd, buf, sizeof(buf));
+>             lseek(fd, -chars+1, SEEK_CUR);
+>             close(fd);
+>             return 0;
+>     }
 
-Felipe W Damasio wrote:
+This seems to need initialization of st->state in tcp_seq_start().
+tcp_seq_stop() is run with previous st->state, so it call the unneeded
+unlock etc.
 
->     Hi Tim,
->
-> Tim Schmielau wrote:
->
->> No, this is exactly what is intended: don't use the TSC on NUMA, use 
->> jiffies instead.
->
->
->     The patch didn't hurt this.
->
->> Look at the comment just above those lines.
->
->
->     The patch doesn't uses jiffies indiscriminately: Only if we're on 
-> a NUMA system with !use_tsc.
->
->     Otherwise (on x86 SMP, for example) we use rdtsc...which seems The 
-> Right Thing(tm). Hece move the #endif a bit down.
+ net/ipv4/tcp_ipv4.c |    1 +
+ 1 files changed, 1 insertion(+)
 
+diff -puN net/ipv4/tcp_ipv4.c~tcp_seq-oops-fix net/ipv4/tcp_ipv4.c
+--- linux-2.6.0-test11/net/ipv4/tcp_ipv4.c~tcp_seq-oops-fix	2003-11-29 00:52:15.000000000 +0900
++++ linux-2.6.0-test11-hirofumi/net/ipv4/tcp_ipv4.c	2003-11-29 00:52:28.000000000 +0900
+@@ -2356,6 +2356,7 @@ static void *tcp_get_idx(struct seq_file
+ static void *tcp_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	struct tcp_iter_state* st = seq->private;
++	st->state = TCP_SEQ_STATE_LISTENING;
+ 	st->num = 0;
+ 	return *pos ? tcp_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
 
-The ifdef isn't pretty, but its performance critical code, its easy to
-understand, and there is a big comment above it. I think its OK the
-way it is. Not that you would ever notice any difference probably.
-
-
+_
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

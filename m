@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbREPLJE>; Wed, 16 May 2001 07:09:04 -0400
+	id <S261740AbREPLTF>; Wed, 16 May 2001 07:19:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261876AbREPLIz>; Wed, 16 May 2001 07:08:55 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:5265 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S261874AbREPLIs>;
-	Wed, 16 May 2001 07:08:48 -0400
-Date: Wed, 16 May 2001 12:08:44 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: "Bingner Sam J. Contractor RSIS" <Sam.Bingner@hickam.af.mil>,
-        "'Alex Bligh - linux-kernel'" <linux-kernel@alex.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jonathan Lundell <jlundell@pobox.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: RE: LANANA: To Pending Device Number Registrants
-Message-ID: <3201150370.990014924@[192.168.199.16]>
-In-Reply-To: <4CDA8A6D03EFD411A1D300D0B7E83E8F697322@FSKNMD07.hickam.af.mil>
-In-Reply-To: <4CDA8A6D03EFD411A1D300D0B7E83E8F697322@FSKNMD07.hickam.af.mil>
-X-Mailer: Mulberry/2.1.0a5 (Win32)
+	id <S261879AbREPLSq>; Wed, 16 May 2001 07:18:46 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:42508 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261740AbREPLSf>; Wed, 16 May 2001 07:18:35 -0400
+Message-ID: <3B0261EC.23BE5EF0@idb.hist.no>
+Date: Wed, 16 May 2001 13:18:04 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre2 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Chemolli Francesco (USI)" <ChemolliF@GruppoCredit.it>,
+        linux-kernel@vger.kernel.org
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E504453C04C1D311988D00508B2C5C2DF2F9E1@mail11.gruppocredit.it>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I believe thats why there are persistant superblocks on the RAID
-> partitions. You can switch them around, and it still knows which drive
-> holds which RAID partition...  That's the only way booting off RAID
-> works, and the only reason for the "RAID Autodetect" partition type...
-> you can find those shuffled partitions correctly.  The only time it
-> really looks at the file, is if you try to rebuild the partition I
-> believe... and some other circumstance that dosn't come to mind.
+"Chemolli Francesco (USI)" wrote:
+> 
+> > The argument that "if you use numbering based on where in the
+> > SCSI chain
+> > the disk is, disks don't pop in and out" is absolute crap.
+> > It's not true
+> > even for SCSI any more (there are devices that will aquire
+> > their location
+> > dynamically), and it has never been true anywhere else. Give it up.
+> 
+> We could do something like baptizing disks.. Fix some location
+> (i.e. the absolutely last sector of the disk or the partition table or
+> whatever) and store there some 32-bit ID
+> (could be a random number, a progressive number, whatever).
 
-OK. I obviously asked slightly the wrong question
-as I was talking about a theoretical case and chose
-badly.
+Partition id's seems more interesting than disk id's - we normally
+mount partitions not whole disks.  
 
-What I meant was 'Wouldn't it be better to use some form of
-static identifier / volume serial / MAC address / whatever, which
-/dev/[device-type]/[ID] exactly identifies, and continues to
-identify, even across config changes, than (a) go look
-for these ID's, then (b) sequence them in number disk0..N so
-that if one is removed, all the rest of them shuffle down'.
-IE isn't the point being argued here: 'don't identify
-devices by major/minor device number pairs chosen on
-a rather arbitrary and wasteful basis which describes how
-the given device is physically connected' and not 'the
-devices shall be dynamically ordered 0..N and rely
-on the order of detection, and the number of
-other devices, to determine their numbering'.
+RAID do this well - the raid autodetect partition stores an ID in the
+last block,
+the remaining N-1 blocks are available for a fs.
 
-As has been pointed out elsewhere, if you expose
-/dev/disk/0/serial-number and/or
-/dev/disk/0/interface/scsi/ whatever, in a
-format trivially readable by a script, the problem
-largely goes away (+/- a linear search). However,
-if you don't at least try to keep (say) disk
-names static across reboot with trivial
-reconfig change (like inserting a PCMCIA
-flash card), I can see people are going to
-need to rewrite stuff like mount to look at
-(say) an fstab where the first field is
-not /dev/hda0, it is something which identifies
-a disk beyond /dev/disk/0 and actually goes looks
-at the tree under that for some form of serial
-number (or whatever), or mount -a will produce
-surprising results (for instance there's no
-reason a PCMCIA flash card might not be
-detected before a PCMCIA HD). I understood 2.4
-was meant to be pretty static in terms of
-external interface.
+This could be extended to non-raid use - i.e. use the "raid autodetect"
+partition type for non-raid as well.  The autodetect routine could
+then create /dev/partitions/home, /dev/partitions/usr or
+/dev/partitions/name_of_my_choice
+for autodetect partitions not participating in a RAID.
 
---
-Alex Bligh
+This is better than volume labels, as it will work for all fs'es
+(including those who don't support mount-by-ID) and also raw
+partitions with no fs.
+
+Helge Hafting

@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317763AbSGaFQz>; Wed, 31 Jul 2002 01:16:55 -0400
+	id <S317777AbSGaFZT>; Wed, 31 Jul 2002 01:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSGaFQz>; Wed, 31 Jul 2002 01:16:55 -0400
-Received: from cairu.terra.com.br ([200.176.3.19]:55458 "EHLO
-	cairu.terra.com.br") by vger.kernel.org with ESMTP
-	id <S317763AbSGaFQy>; Wed, 31 Jul 2002 01:16:54 -0400
-Date: Wed, 31 Jul 2002 02:20:15 -0300
-From: Christian Reis <kiko@async.com.br>
+	id <S317778AbSGaFZT>; Wed, 31 Jul 2002 01:25:19 -0400
+Received: from smtp.cs.curtin.edu.au ([134.7.1.1]:5046 "EHLO
+	smtp.cs.curtin.edu.au") by vger.kernel.org with ESMTP
+	id <S317777AbSGaFZS>; Wed, 31 Jul 2002 01:25:18 -0400
+Message-Id: <5.1.1.6.0.20020731132143.00bc5078@pop.cs.curtin.edu.au>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Wed, 31 Jul 2002 13:28:40 +0800
 To: linux-kernel@vger.kernel.org
-Subject: odd tmpfs behaviour
-Message-ID: <20020731022015.B799@blackjesus.async.com.br>
+From: David Shirley <dave@cs.curtin.edu.au>
+Subject: Network Routing Problems on Dual NIC Box
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-Just a quick question, to see if anyone has run into this problem
-before: I'm using tmpfs mounted with default options on to /tmp. 
+I'm not sure this is the right list for this question so bear with me :)
 
-I hadn't noticed this before, but my config.status scripts (for any sw
-package; stunnel-3.22 is my current example here) now loop endlessly
-because, apparently, the files in /tmp/cs*/ don't change when written to
-in a very short while loop. 
+I have a machine that has 2 NIC's both on different subnet's lets
+say 192.168.2.200 and 192.168.3.200
 
-As a short test, I compared using /tmp which is tmpfs to /var/tmp, which
-is reiserfs, and the difference shows: in /tmp, I get an infinite loop;
-in /var/tmp, 4 iterations. Anybody seen this?
+We are running a proxy server on this box, and the box is called proxy
+which when you do a lookup points to 192.168.3.200
 
-I can attach a strace file if it will help somebody; let me know.
+the problem is when machines on the 192.168.2.0 subnet try to
+access proxy:80 the session connects but no data is being received on the
+192.168.2.0 box.
 
-Take care,
---
-Christian Reis, Senior Engineer, Async Open Source, Brazil.
-http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL
+I think its because proxy accepts on the .3 but then tries to send all the data
+via the .2 interface because its directly connected and the .2 box ignores it
+because its not coming from the .3
+
+is this true?
+how can i get proxy to send data back via the .3 interface? rather than via .2
+
+btw its 2.2.19 box running redhat 6.2
+
+Cheers
+Dave
+
+
+
+
+
+
+
+
+/----------------------------------------------------------
+David Shirley
+System's Administrator
+Computer Science - Curtin University
+(08) 9266 2986
+----------------------------------------------------------/
+

@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbTABOGe>; Thu, 2 Jan 2003 09:06:34 -0500
+	id <S261907AbTABOTS>; Thu, 2 Jan 2003 09:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTABOGe>; Thu, 2 Jan 2003 09:06:34 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:29444 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261900AbTABOGd>; Thu, 2 Jan 2003 09:06:33 -0500
-Message-ID: <3E143F74.434AD08B@linux-m68k.org>
-Date: Thu, 02 Jan 2003 14:32:36 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S261908AbTABOTS>; Thu, 2 Jan 2003 09:19:18 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:32760 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S261907AbTABOTR>; Thu, 2 Jan 2003 09:19:17 -0500
+Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2602AFADC0@pdsmsx32.pd.intel.com>
+From: "Wang, Stanley" <stanley.wang@intel.com>
+To: "'rusty@rustcorp.com.au'" <rusty@rustcorp.com.au>
+Cc: "Zhuang, Louis" <louis.zhuang@intel.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Kernel module version support.
+Date: Thu, 2 Jan 2003 22:25:31 +0800 
 MIME-Version: 1.0
-To: Tomas Szepe <szepe@pinerecords.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] top-level config menu dependencies
-References: <20030101162519.GF15200@louise.pinerecords.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="gb2312"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, Rusty
+I am interested in your module version support implementation. I've read
+your 
+description about it.
+(http://www.kernel.org/pub/linux/kernel/people/rusty/modversions_support.htm
+l)
+And I have some questions about the implementation details. Would you like
+to help me to 
+clarify them?
 
-Tomas Szepe wrote:
+1. How do you plan to store the version information of a kernel module that
+will export some symbols?
+(In the version table of "bzImage"? In a specified section in this kernel
+module? In other place? Or don't
+store?)
 
-> While converting the way submenus appear in menuconfig depending on
-> their main, parent config option, I stumbled upon certain subsystems
-> (such as MTD or IrDA) that should clearly have an on/off switch directly
-> in the main menu so that one doesn't have to enter the corresponding
-> submenus to even see if they're enabled or disabled.
-> 
-> Since the new kernel configurator would have no problems with such
-> a setup, I'm posting this RFC to get the general opinion on whether
-> this should be carried on with.  I'm willing to create and send in
-> the patches.
+2. You mentioned that "modules which want to export symbols place their full
+path name 
+in the .needmodversion section. Just before the kernel is linked, these
+names are extracted, 
+and genksyms scans those files to create a version table. This table is then
+linked into the kernel". 
+And I think we must recalculate all version informaiton every time when we
+re built the kernel in this way. 
+Why don't we place all the module version information in some files just
+like old days.
 
-While all config programs should be able to handle this, it might look a
-bit strange. Especially the split view of xconfig relies a bit on the
-current organisation of the config data.
-My idea to handle this would be to turn e.g.:
+3. You mentioned that "these symbol versions are then checked on insmod". I
+wanna whether it means
+you would like to restore the "/proc/ksyms" file or QUERY_MODULE SYSCALL to
+export the kernel version
+table to the user space application. 
 
-menu "Memory Technology Devices (MTD)"
+Thanks a lot.
 
-config MTD
-	tristate "Memory Technology Device (MTD) support"
+Your Sincerely,
+Stanley Wang 
 
-into something like this:
-
-menuconfig MTD
-	tristate "Memory Technology Device (MTD) support"
-
-This would give the front ends the most flexibility. The required
-changes are quite small, so it should be doable for 2.6. I'm not
-completely sure about the syntax yet, but above is the most likely
-version.
-
-bye, Roman
-
-
+SW Engineer, Intel Corporation.
+Intel China Software Lab. 
+Tel: 021-52574545 ext. 1171 
+iNet: 8-752-1171 
+ 
+Opinions expressed are those of the author and do not represent Intel
+Corporation

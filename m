@@ -1,94 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264300AbTLBDmH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 22:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLBDmH
+	id S264309AbTLBECv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 23:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTLBECv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 22:42:07 -0500
-Received: from out011pub.verizon.net ([206.46.170.135]:51897 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S264300AbTLBDmD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 22:42:03 -0500
-Message-ID: <3FCC0A12.5010906@lemur.sytes.net>
-Date: Mon, 01 Dec 2003 22:42:10 -0500
-From: Mathias Kretschmer <mathias@lemur.sytes.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
-X-Accept-Language: en-us, en, zh-tw
+	Mon, 1 Dec 2003 23:02:51 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:43700 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S264303AbTLBECr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 23:02:47 -0500
+Message-ID: <3FCC0EE0.9010207@backtobasicsmgmt.com>
+Date: Mon, 01 Dec 2003 21:02:40 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pac1  VIA/S3 DRM compilation error
-References: <Pine.LNX.4.58.0311282137440.20775@dot.kde.org>
-In-Reply-To: <Pine.LNX.4.58.0311282137440.20775@dot.kde.org>
+To: Jens Axboe <axboe@suse.de>
+CC: LKML <linux-kernel@vger.kernel.org>,
+       Linux-raid maillist <linux-raid@vger.kernel.org>, linux-lvm@sistina.com
+Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
+References: <3FCB4AFB.3090700@backtobasicsmgmt.com> <20031201141144.GD12211@suse.de> <3FCB4CFA.4020302@backtobasicsmgmt.com> <20031201155143.GF12211@suse.de>
+In-Reply-To: <20031201155143.GF12211@suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [68.162.12.45] at Mon, 1 Dec 2003 21:42:00 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernhard Rosenkraenzer wrote:
-> $SUBJECT is at ftp.kernel.org/pub/linux/kernel/people/bero/2.4/2.4.23/
-> 
-> Changes since 2.4.23-rc5-pac1:
-> - Increase version number
-> 
-> 
+Jens Axboe wrote:
 
-similar error messages for the via driver. 2.4.22-ac4 worked fine.
+> Alright, so no bouncing should be happening. Could you boot with
+> mem=800m (and reproduce) just to rule it out completely?
 
-make[4]: Entering directory `/usr/src/linux-2.4.22/drivers/char/drm'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.22/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=c3 
--falign-functions=0 -falign-jumps=0 -falign-loops=0  -DDO_MUNMAP_4_ARGS 
--nostdinc -iwithprefix include -DKBUILD_BASENAME=savage_drv  -c -o 
-savage_drv.o savage_drv.c
-savage_drv.c: In function `savage_alloc_continuous_mem':
-savage_drv.c:55: error: `drm_savage_alloc_cont_mem_t' undeclared (first 
-use in this function)
-savage_drv.c:55: error: (Each undeclared identifier is reported only once
-savage_drv.c:55: error: for each function it appears in.)
-savage_drv.c:55: error: syntax error before "cont_mem"
-savage_drv.c:70: error: `cont_mem' undeclared (first use in this function)
-savage_drv.c:70: error: syntax error before ')' token
-savage_drv.c:70: error: syntax error before ')' token
-savage_drv.c:94: error: `DRM_SAVAGE_MEM_LOCATION_PCI' undeclared (first 
-use in this function)
-savage_drv.c:136: error: syntax error before ')' token
-savage_drv.c:136: error: syntax error before ')' token
-savage_drv.c:139:2: warning: #warning "Race at the very least"
-savage_drv.c: In function `savage_get_physics_address':
-savage_drv.c:150: error: `drm_savage_get_physcis_address_t' undeclared 
-(first use in this function)
-savage_drv.c:150: error: syntax error before "req"
-savage_drv.c:157: error: `req' undeclared (first use in this function)
-savage_drv.c:157: error: syntax error before ')' token
-savage_drv.c:157: error: syntax error before ')' token
-savage_drv.c:161:2: warning: #warning "FIXME: need to redo logic for this"
-savage_drv.c:182: error: syntax error before ')' token
-savage_drv.c:182: error: syntax error before ')' token
-savage_drv.c: In function `savage_free_cont_mem':
-savage_drv.c:191: error: `drm_savage_alloc_cont_mem_t' undeclared (first 
-use in this function)
-savage_drv.c:191: error: syntax error before "cont_mem"
-savage_drv.c:201: error: `cont_mem' undeclared (first use in this function)
-savage_drv.c:201: error: syntax error before ')' token
-savage_drv.c:201: error: syntax error before ')' token
-savage_drv.c:203:2: warning: #warning "fix size overflow check"
-savage_drv.c:225: error: too few arguments to function `do_munmap'
-In file included from savage_drv.c:240:
-drm_drv.h: At top level:
-drm_drv.h:251: error: `DRM_IOCTL_SAVAGE_ALLOC_CONTINUOUS_MEM' undeclared 
-here (not in a function)
-drm_drv.h:251: error: nonconstant array index in initializer
-drm_drv.h:251: error: (near initialization for `savage_ioctls')
-drm_drv.h:251: error: `DRM_IOCTL_SAVAGE_GET_PHYSICS_ADDRESS' undeclared 
-here (not in a function)
-drm_drv.h:251: error: nonconstant array index in initializer
-drm_drv.h:251: error: (near initialization for `savage_ioctls')
-drm_drv.h:251: error: `DRM_IOCTL_SAVAGE_FREE_CONTINUOUS_MEM' undeclared 
-here (not in a function)
-drm_drv.h:251: error: nonconstant array index in initializer
-drm_drv.h:251: error: (near initialization for `savage_ioctls')
-make[4]: *** [savage_drv.o] Error 1
+Tested with mem=800m, problem still occurs. Additional test was done 
+without device-mapper in place, though, and I could not reproduce the 
+problem! I copied > 500MB of stuff to the XFS filesystem created using 
+the entire /dev/md/0 device without a single unusual message. I then 
+unmounted the filesystem and used pvcreate/vgcreate/lvcreate to make a 
+3G volume on the array, made an XFS filesystem on it, mounted it, and 
+tried copying data over. The oops message came back.
+
+I'm copying this message to linux-lvm; the original oops message is 
+repeated below for the benefit of those list readers. I've got one more 
+round of testing to do (after the array resyncs itself), which is to try 
+a filesystem other than XFS.
+
+----
+
+kernel BUG at fs/bio.c:177!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c014db9a>]    Not tainted
+EFLAGS: 00010246
+EIP is at bio_put+0x2c/0x36
+eax: 00000000   ebx: f6221080   ecx: c1182180   edx: edcbf780
+esi: c577b998   edi: 00000002   ebp: edcbf780   esp: f78ffeb0
+ds: 007b   es: 007b   ss: 0068
+Process md0_raid5 (pid: 65, threadinfo=f78fe000 task=f7924080)
+Stack: c71e2640 c021d88d edcbf780 00000000 00000001 c1182180 00000009 
+0001000
+        edcbf780 00000000 00000000 00000000 c014e2fc edcbf780 00000000 
+00000000
+        f23a0ff0 f23a0ff0 edcbf7c0 c02ca51d edcbf780 00000000 00000000 
+00000000
+Call Trace:
+  [<c021d88d>] bio_end_io_pagebuf+0x9a/0x138
+  [<c014e2fc>] bio_endio+0x59/0x7e
+  [<c02ca51d>] clone_endio+0x82/0xb5
+  [<c02c0dc3>] handle_stripe+0x8f2/0xec0
+  [<c02c17d1>] raid5d+0x71/0x105
+  [<c02c898c>] md_thread+0xde/0x15c
+  [<c011984b>] default_wake_function+0x0/0x12
+  [<c02c88ae>] md_thread+0x0/0x15c
+  [<c0107049>] kernel_thread_helper+0x5/0xb
+
+Code: 0f 0b b1 00 bc 94 34 c0 eb d8 56 53 83 ec 08 8b 44 24 18 8b
+
 

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317646AbSFMPJE>; Thu, 13 Jun 2002 11:09:04 -0400
+	id <S317658AbSFMPKv>; Thu, 13 Jun 2002 11:10:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317650AbSFMPJD>; Thu, 13 Jun 2002 11:09:03 -0400
-Received: from www.microgate.com ([216.30.46.105]:10250 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S317646AbSFMPJC>; Thu, 13 Jun 2002 11:09:02 -0400
-Message-ID: <009101c212eb$d460e690$0c00a8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: <klaus.herb@ikon-gmbh.de>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <01C212F6.F1993680.klaus.herb@ikon-gmbh.de>
-Subject: Re: ppp_synctty and in_interrupt
-Date: Thu, 13 Jun 2002 10:06:00 -0500
+	id <S317661AbSFMPKu>; Thu, 13 Jun 2002 11:10:50 -0400
+Received: from mm02snlnto.sandia.gov ([132.175.109.21]:55058 "HELO
+	mm02snlnto.sandia.gov") by vger.kernel.org with SMTP
+	id <S317658AbSFMPKt>; Thu, 13 Jun 2002 11:10:49 -0400
+X-Server-Uuid: 95b8ca9b-fe4b-44f7-8977-a6cb2d3025ff
+Message-ID: <03781128C7B74B4DBC27C55859C9D73809840636@es06snlnt>
+From: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: TCP checksum?
+Date: Thu, 13 Jun 2002 09:10:46 -0600
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-Filter-Version: 1.8 (sass2426)
+X-WSS-ID: 11166A091123536-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am currently developing a tty-Driver which is used for synchronous PPP.
-> ...
-> The ppp_synctty ldisc only calls my ttywrite function in interrupt
-context.
-> But to avoid a race condition I must include a Semaphore in my ttywrite
-> function, so I get a Kernel Oops when this Semaphore causes a call to
-> schedule().
->
-> Is there a way to stop this ppp_synctty ldisc from sending in Interrupt
-> Context?
-> or
-> Why does this ldisc only write in interrupt context?
->
-> Please CC your replay to klaus.herb@ikon-gmbh.de
+I'm looking for a function similar to skb_checksum(), but
+for the tcphdr->check field. I'm playing around with a module
+I've written for netfilter and I would like to modify options of
+the IP and TCP headers. For example, right now I'm trying
+to set the destination IP to the source IP, but the TCP checksum
+is coming out incorrectly. How can I calculate this checksum?
 
-It should not call the tty write function in interrupt context.
+Thanks a lot in advance. Also, if anyone knows where some
+documentation about the TCP/IP stack in the kernel are, please
+let me know.
 
-The ldisc will call the tty write in two situtations:
-1. when a new packet to send is available
-2. when the tty driver calls the ldisc write_wakeup
-  to send queued frames
+Jeff Shipman - CCD
+Sandia National Laboratories
+(505) 844-1158 / MS-1372
 
-My guess is that your driver is calling write_wakeup
-in an interrupt context (in response to a tx complete IRQ).
-You should call write_wakeup() from a bottom half
-handler scheduled by the interrupt service routine instead
-of directly from the ISR.
-
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, www.microgate.com
 

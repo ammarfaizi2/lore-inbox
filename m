@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261276AbSJHRom>; Tue, 8 Oct 2002 13:44:42 -0400
+	id <S261303AbSJHRum>; Tue, 8 Oct 2002 13:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261288AbSJHRom>; Tue, 8 Oct 2002 13:44:42 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:63504 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261276AbSJHRom>;
-	Tue, 8 Oct 2002 13:44:42 -0400
-Date: Tue, 8 Oct 2002 19:49:46 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Mitchell Blank Jr <mitch@sfgoth.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5 patch] fix kbuild breakage in drivers/atm
-Message-ID: <20021008194946.A2212@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Mitchell Blank Jr <mitch@sfgoth.com>,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-References: <Pine.NEB.4.44.0210081752240.8340-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+	id <S261306AbSJHRum>; Tue, 8 Oct 2002 13:50:42 -0400
+Received: from web13115.mail.yahoo.com ([216.136.174.183]:11554 "HELO
+	web13115.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261303AbSJHRul>; Tue, 8 Oct 2002 13:50:41 -0400
+Message-ID: <20021008175622.406.qmail@web13115.mail.yahoo.com>
+Date: Tue, 8 Oct 2002 10:56:22 -0700 (PDT)
+From: devnetfs <devnetfs@yahoo.com>
+Subject: zero-copy UDP send in kernel
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.NEB.4.44.0210081752240.8340-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Tue, Oct 08, 2002 at 06:02:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 06:02:41PM +0200, Adrian Bunk wrote:
-> BTW:
-> There might be places in the kernel that are now broken without a compile
-> error, consider the second part of this line would output a compiler flag
-> instead of a file name.
+Hello,
 
-find -name Makefile | cut -d: -f 1 | grep -v arch | xargs grep '\.\./'
+I have a buffer in kernel (module), which I need to send over the n/w
+as UDP pkt. I am creating an socket (sock) and using
+sock->ops->sendmsg(). And sendmsg() takes 'struct msghdr' containing a
+iovec, which points to my buffer. 
 
-./drivers/atm/Makefile:    CONFIG_ATM_FORE200E_PCA_FW := $(shell if test -n "`$(CC) -E -dM ../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo pca200e.bin; else echo pca200e_ecd.bin2; fi)
-./drivers/net/Makefile:obj-$(CONFIG_ARCH_ACORN) += ../acorn/net/
-./drivers/scsi/Makefile:obj-$(CONFIG_ARCH_ACORN)	+= ../acorn/scsi/
-./fs/devfs/Makefile:TOPDIR = ../..
-./fs/devfs/Makefile:	gcc -o /tmp/base.o -D__KERNEL__ -I../../include -Wall \
+The problem is, sendmsg() internally does an additional copy (from
+iovec to an sk_buff). Can this be avoided? I mean can the sk_buff's
+data buffer pointers be made to point to my buffer? or something else,
+to avoid this 'copying'.
 
-Dunno about the acorn part, but devfs looks broken.
-Checking, devfs makefile has some documentation support in the makefile.
-I'm tempted to delete it, surely it's not part of the kernel build system,
-but I guess someone would yell at me.
+Copying from one region (my buffer) to another (sk_buff) of the kernel
+seems to be real _waste_. 
 
-If we include the architecture Makefiles:
-find -name Makefile |  xargs grep '\.\./' | wc -l
-   148
+I have heard something about non-linear sk_buff's. Can they be used in
+such scenario?
 
-But I'm sure we hit a lot of false positves here.
+Thanks in Advance,
+Abhi.
 
-	Sam
+
+__________________________________________________
+Do you Yahoo!?
+Faith Hill - Exclusive Performances, Videos & More
+http://faith.yahoo.com

@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318344AbSIBSQf>; Mon, 2 Sep 2002 14:16:35 -0400
+	id <S315946AbSIBSgg>; Mon, 2 Sep 2002 14:36:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318346AbSIBSQf>; Mon, 2 Sep 2002 14:16:35 -0400
-Received: from dsl-213-023-021-067.arcor-ip.net ([213.23.21.67]:33164 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318344AbSIBSQe>;
-	Mon, 2 Sep 2002 14:16:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Subject: Re: [RFC] [PATCH] Include LRU in page count
-Date: Mon, 2 Sep 2002 20:01:05 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-References: <3D644C70.6D100EA5@zip.com.au> <E17lEDR-0004Qq-00@starship> <20020902172322.23692.qmail@thales.mathematik.uni-ulm.de>
-In-Reply-To: <20020902172322.23692.qmail@thales.mathematik.uni-ulm.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17lvVa-0004in-00@starship>
+	id <S317984AbSIBSgg>; Mon, 2 Sep 2002 14:36:36 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:1883 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315946AbSIBSgf>; Mon, 2 Sep 2002 14:36:35 -0400
+Date: Mon, 2 Sep 2002 20:40:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
+Message-ID: <20020902184043.GN1210@dualathlon.random>
+References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random> <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com> <20020816100334.GP14394@dualathlon.random> <20020816165306.A2055@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020816165306.A2055@in.ibm.com>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 September 2002 19:23, Christian Ehrhardt wrote:
-> On Sat, Aug 31, 2002 at 09:47:29PM +0200, Daniel Phillips wrote:
-> > > Also there may be lru only pages on the active list, i.e. refill
-> > > inactive should have this hunk as well:
-> > > 
-> > > > +#if LRU_PLUS_CACHE==2
-> > > > +             BUG_ON(!page_count(page));
-> > > > +             if (unlikely(page_count(page) == 1)) {
-> > > > +                     mmstat(vmscan_free_page);
-> > > > +                     BUG_ON(!TestClearPageLRU(page)); // side effect abuse!!
-> > > > +                     put_page(page);
-> > > > +                     continue;
-> > > > +             }
-> > > > +#endif
-> > 
-> > If we have orphans on the active list, we'd probably better just count
-> > them and figure out what we're doing wrong to put them there in the first
-> > place.  In time they will migrate to the inactive list and get cleaned
-> > up.
-> 
-> Hm, think of your favourite memory hog being killed with lots of anon
-> pages on the active list while someone else holds the lru lock.
-> Won't all these anon pages legally end up orphaned on the active list
-> (due to the trylock in page_cache_release)?
+Could somebody explain the semantics of the io_queue_wait call in the
+libaio? If you pass nr == 0 to getevents, getevents will do nothing. I
+don't see the point of it so I'm unsure what's the right implementation.
 
-Some of them will, for one pass of refill_inactive.  It seems hard to justify
-saving a single pass through the active list executed in rare, pathological
-circumstances, in return for adding even a simple test, executed commonly.
+then about the 2.5 API we have such min_nr that allows the "at least
+min_nr", instead of the previous default of "at least 1", so that it
+allows implementing the aio_nwait of aix.
 
-On a dual processor system, one of them should be scanning while the
-other is oom_killing.   It should work out fine.
+However the code checks for min_nr being > 0 but a min_nr == 0 will not
+make sense. So min_nr should be always > 0 (infact the previous default
+was at least 1, because as said at least 0 doesn't make sense). Same
+issue with the nr, nr == 0 also doesn't make sense to me, and I think as
+well nr should be > 0 (that's my issue with the apparently pointless
+io_queue_wait too).
 
--- 
-Daniel
+However as far as the API doesn't change much I'm fine, if there are
+minor -EINVAL differences with bad inputs there should be not much
+compatibility issues, and right now we're more permissive, so if
+something 2.6 will be less permissive and it will guarantee apps for 2.6
+will work right on current 2.5.
+
+So what I'm doing now is to be in sync with 2.5, and I'm implementing
+the io_queue_wait this way:
+
+int io_queue_wait(io_context_t ctx, const struct timespec *timeout)
+{
+	return io_getevents(ctx, 0, 0, NULL, timeout);
+}
+
+My preferred solution is to kill io_queue_wait that apparently only
+generates a suprious lookup of the iocontext in-kernel, and then to
+force min_nr > 0 and nr > 0. But I need your opinion on this, also
+because you certainly know the semantics of io_queue_wait that I
+couldn't easily reverse engeneer from the sourcecode (or maybe I
+overlooked something in the sourcecode, possible).
+
+Grepping l-k for io_queue_wait shows no results, google only shows the
+glibc patches with no comment at all. The regression tests as well never
+use it. Of course it's not a surprise since as far I can tell it cannot
+do anything either old or new code, but I need to find if it is buggy or
+if it should really be dropped.
+
+BTW, the libaio I'm adapting to test on my tree will not have the
+libredhat thing anymore, and it will use the mainline 2.5 API since the
+API is registered now and in the very worst case a non backwards
+compatible API change would happen in late 2.5, replacing libaio.so is
+not more complex than replacing libredhat.so anyways ;).
+
+Andrea

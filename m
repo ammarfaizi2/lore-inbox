@@ -1,98 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279842AbRKFRxO>; Tue, 6 Nov 2001 12:53:14 -0500
+	id <S279860AbRKFSCq>; Tue, 6 Nov 2001 13:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279860AbRKFRxE>; Tue, 6 Nov 2001 12:53:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3339 "EHLO
+	id <S279884AbRKFSCf>; Tue, 6 Nov 2001 13:02:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33803 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279842AbRKFRwv>; Tue, 6 Nov 2001 12:52:51 -0500
-Date: Tue, 6 Nov 2001 09:49:15 -0800 (PST)
+	id <S279860AbRKFSC0>; Tue, 6 Nov 2001 13:02:26 -0500
+Date: Tue, 6 Nov 2001 09:59:00 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <20011106121313.B16245@redhat.com>
-Message-ID: <Pine.LNX.4.33.0111060918380.2194-100000@penguin.transmeta.com>
+In-Reply-To: <E161AIX-0001BL-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0111060949370.2194-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 6 Nov 2001, Benjamin LaHaise wrote:
+On Tue, 6 Nov 2001, Alan Cox wrote:
 >
-> On Tue, Nov 06, 2001 at 05:02:32PM +0000, Linus Torvalds wrote:
-> > Which means that the whole approach is just depending on undocumented
-> > implementation behaviour. That's asking for trouble.
+> > Especially on x86 chips.
 >
-> NetWare uses it and has for a long time.
+> Well so far I've found one laptop that eats %cr2 on APM calls, and we have
+> some mystery cases.
 
-Does anybody know if WNT uses it? Quite frankly, I don't see Intel
-worrying over-much about NetWare compatibility. They've broken small OS's
-before (ie older versions of SCO Xenix wouldn't boot on a Pentium MMU
-because of some changes to error reporting, if I remember correctly).
+Well, APM is going away, and it should be easy enough to work around it
+(and I don't _think_ you can reasonably do the same in ACPI or SMM: SMM
+will save the whole CPU state and has to do that anyway, and ACPI doesn't
+actually get to touch things like %cr2).
 
-That said, how expensive is loading %cr2 anyway? We can do all the same
-tricks with a 16kB stack and just playing games with using the higher bits
-as the "offset", ie things like
+So I'd be more nervous about future CPU's just not having the register
+writable (or having only parts of it, or..)
 
-	/* Return "current" in %eax, trash %edx */
-	do_get_current:
-		movl $0x0003c000,%eax	// 4 bits at bit 14
-		movl $-16384,%edx	// remove low 14 bits
-		andl $esp,%eax
-		andl $esp,%edx
-		shrl $7,%eax		// color it by 128 bytes
-		addl %edx,%eax
-		ret
+> Peter's suggestion of using %fs or %gs looks more
+> promising at the moment
 
-which is going to be ~5 cycles _without_ doing anything that is
-undocumented (add a push/pop to not trash a register, that might be
-worthwhile - it makes the function marginally slower but might make
-callers happier).
+The problem with using a segment register is that then you have to
+save/restore it over system calls - pretty much whether the call needs it
+or not. Ie you can pretty much _guarantee_ that any system call will be
+slowed down by something on the order of 10-15 cycles (on a good day, some
+CPU's are slower at it). Same goes for task switch etc.
 
-Oh, and call using inline assembly, not a C call (so that gcc can take
-advantage of better calling convention, and not think memory is trashed
-etc). So
+Which is why I'd much rather just color using the high bits of %esp, and
+spend a few more cycles inside "get_current()". I can guarantee you that
+it won't slow down paths that don't even need current at all (unlike the
+segment register approach), and even the paths that _do_ need current will
+only be ~5 cycles slower (plus possible the cache miss of doing the
+function call, but the call-site itself will actually be slightly smaller
+than the current in-lined 32-bit immediate and "andl").
 
-	static inline struct task_struct *get_current(void)
-	{
-		struct task_struct *tsk;
-		asm("call do_get_current":"=a" (tsk)::"dx");
-		return tsk;
-	}
+Using high bits of %esp has zero impact on task-switch, and makes
+"get_current" interrupt safe (ie switching tasks is totally atomic, as
+it's the one single "movl ..,%esp" instruction that does the real switch
+as far as the kernel is concerned).
 
-See? You don't have to play games with control registers.
-
-(actually, entry.S seems to want the return value in %ebx, so change to
-taste. Or you could have two different versions of the thing, or even
-inline it for any place where that makes sense).
-
-The above also allows you to keep fork with just one allocation, and makes
-the stack larger (we steal 2kB for the coloring, but we'd use an order-2
-allocation that at least SGI wants to do regardless).
-
-The 2kB is, of course, tunable. The above is with a 128-byte cacheline and
-16 colors - that may be overkill. 32-byte increents with 32 colors might
-be more appropriate (I don't know what the effect of the P4 half-cacheline
-thing is, I don't know if the CPU can have just a 64-byte block coherent,
-or what.. But a 32-byte color is fine for _most_ CPU's).
-
-The 32-byte by 32-color thing would just change the bitmasks to 0x0007c000
-and the shift to 9 (bit 14+ shifted down to bit 5+).
-
-Note that there are lots of advantages to using simple regular
-instructions over using "special" instructions like "move from control
-register". Historically, the special instructions tend to always become
-slower, while the regular instructions become faster.
-
-I would not be surprised if "mov %cr2,%reg" will break a netburst trace
-cache entity, or even cause microcode to be executed. While I _guarantee_
-that all future Intel CPU's will continue to be fast at mixtures of simple
-arithmetic operations like "add" and "and".
-
-(And I bet that the likelyhood of Intel speeding up shifts in the next P4
-derivative is a _lot_ higher than Intel speeding up "mov %cr2,xx"..)
+It does require using an order-2 allocation, which the current VM will
+allow anyway, but which is obviously nastier than an order-1.
 
 		Linus
 

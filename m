@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267897AbTBEKQm>; Wed, 5 Feb 2003 05:16:42 -0500
+	id <S267899AbTBEK1C>; Wed, 5 Feb 2003 05:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267898AbTBEKQm>; Wed, 5 Feb 2003 05:16:42 -0500
-Received: from ns.suse.de ([213.95.15.193]:64268 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267897AbTBEKQl>;
-	Wed, 5 Feb 2003 05:16:41 -0500
-Date: Wed, 5 Feb 2003 11:26:14 +0100
-From: Marcus Meissner <meissner@suse.de>
-To: jgarzik@pobox.com, davem@redhat.com, linux-kernel@vger.kernel.org
-Cc: engebret@us.ibm.com
-Subject: [PATCH] fixed pcnet32 multicast listen on big endian
-Message-ID: <20030205102614.GA10223@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Lotus Notes Linux/PPC Pre-Release 5.0.1  October 21, 2002
+	id <S267902AbTBEK1C>; Wed, 5 Feb 2003 05:27:02 -0500
+Received: from ns.suse.de ([213.95.15.193]:61455 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267899AbTBEK1B>;
+	Wed, 5 Feb 2003 05:27:01 -0500
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: gcc 2.95 vs 3.21 performance
+X-Yow: I Know A Joke
+From: Andreas Schwab <schwab@suse.de>
+Date: Wed, 05 Feb 2003 11:36:32 +0100
+In-Reply-To: <200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua> (Denis
+ Vlasenko's message of "Wed, 5 Feb 2003 09:15:48 +0200")
+Message-ID: <jevfzzj9ov.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.3.50 (ia64-suse-linux)
+References: <200302042011.h14KBuG6002791@darkstar.example.net>
+	<3E40264C.5050302@WirelessNetworksInc.com>
+	<200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
 
-This fixes multicast listen for pcnet32 on at least powerpc and powerpc64
-kernels.
+|> I am damn sure that if you compile with less sadistic alignment
+|> you will get smaller *and* faster kernel.
 
-The mcast_table is in memory referenced by the card and so it needs
-to be accessed in little endian mode.
+So why don't you try it out?  GCC offers everything you need for this
+experiment.
 
-Ciao, Marcus
+Andreas.
 
---- linux-2.4.19/drivers/net/pcnet32.c.be	2003-02-05 07:59:27.000000000 +0100
-+++ linux-2.4.19/drivers/net/pcnet32.c	2003-02-05 08:00:22.000000000 +0100
-@@ -1534,7 +1534,9 @@
- 	
- 	crc = ether_crc_le(6, addrs);
- 	crc = crc >> 26;
--	mcast_table [crc >> 4] |= 1 << (crc & 0xf);
-+	mcast_table [crc >> 4] = le16_to_cpu(
-+		le16_to_cpu(mcast_table [crc >> 4]) | (1 << (crc & 0xf))
-+	);
-     }
-     return;
- }
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

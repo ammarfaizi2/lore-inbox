@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266545AbUBLTbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 14:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUBLTbG
+	id S266561AbUBLTbB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 14:31:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266563AbUBLT27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 14:31:06 -0500
-Received: from a213-22-30-241.netcabo.pt ([213.22.30.241]:21397 "EHLO
-	r3pek.homelinux.org") by vger.kernel.org with ESMTP id S266545AbUBLTa2
+	Thu, 12 Feb 2004 14:28:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18405 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266560AbUBLT2z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 14:30:28 -0500
-Message-ID: <38221.213.22.30.241.1076614226.squirrel@webmail.r3pek.homelinux.org>
-In-Reply-To: <402BA5BD.9070307@reactivated.net>
-References: <200402120122.06362.ross@datscreative.com.au>
-    <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
-    <402BA5BD.9070307@reactivated.net>
-Date: Thu, 12 Feb 2004 19:30:26 -0000 (WET)
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2,
-      Experimental idle halt workaroundinstead of apic ack delay.
-From: "Carlos Silva" <r3pek@r3pek.homelinux.org>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
+	Thu, 12 Feb 2004 14:28:55 -0500
+Message-ID: <402BD3E8.5040808@pobox.com>
+Date: Thu, 12 Feb 2004 14:28:40 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+To: Bas Mevissen <ml@basmevissen.nl>
+CC: Jamie Lokier <jamie@shareable.org>, Kyle <kyle@southa.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ICH5 with 2.6.1 very slow
+References: <164601c3ec06$be8bd5a0$b8560a3d@kyle> <40227C20.80404@basmevissen.nl> <167301c3ec0d$4d8508c0$b8560a3d@kyle> <40227D9D.2070704@basmevissen.nl> <168301c3ec0e$24698be0$b8560a3d@kyle> <4023682E.3060809@basmevissen.nl> <001101c3ecf8$b0f50cc0$b8560a3d@kyle> <40274581.4030002@basmevissen.nl> <004501c3f0ae$ecdd2ec0$b8560a3d@kyle> <20040212084110.GB20898@mail.shareable.org> <402B8E8E.1010607@basmevissen.nl>
+In-Reply-To: <402B8E8E.1010607@basmevissen.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Another idea...  check and make sure your hardware is set to "enhanced 
+mode" in BIOS.  "legacy mode" and "combined mode" would definitely be slow.
 
-> Do you have one of those systems to hand? My betting is on that when you
-> enable APIC/IOAPIC you will see crashes very frequently. This isn't
-> enabled in
-> the default kernel config..
+	Jeff
 
-well... i'm runnig an Asus A7N8X with the nForce2 chipset and APIC and
-IO-APIC enabled. I don't have any problems at all, my machine is on 24/7.
-i'm running kernel 2.6.2-gentoo, but none of the paches applyed to the
-kernel is about APIC.
+
+
+

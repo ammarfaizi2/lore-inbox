@@ -1,101 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130184AbRB1OZb>; Wed, 28 Feb 2001 09:25:31 -0500
+	id <S130187AbRB1Oco>; Wed, 28 Feb 2001 09:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130187AbRB1OZV>; Wed, 28 Feb 2001 09:25:21 -0500
-Received: from front1.grolier.fr ([194.158.96.51]:53928 "EHLO
-	front1.grolier.fr") by vger.kernel.org with ESMTP
-	id <S130184AbRB1OZJ>; Wed, 28 Feb 2001 09:25:09 -0500
-Message-ID: <3A9D0A6B.2005DE8E@club-internet.fr>
-Date: Wed, 28 Feb 2001 15:25:47 +0100
-From: Jérôme Augé <jauge@club-internet.fr>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: "Rob W. van Swol" <vanswol@nlr.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: opl3sa2 won't load in kernel 2.4.2
-In-Reply-To: <3A9CEED6.C68D3FFD@nlr.nl>
-Content-Type: multipart/mixed;
- boundary="------------793A1CEBA8153DAE8A054D1F"
+	id <S130188AbRB1OcZ>; Wed, 28 Feb 2001 09:32:25 -0500
+Received: from shared1-qin.whowhere.com ([209.185.123.111]:34796 "HELO
+	shared1-mail.whowhere.com") by vger.kernel.org with SMTP
+	id <S130187AbRB1OcW>; Wed, 28 Feb 2001 09:32:22 -0500
+To: linux-kernel@vger.kernel.org
+Date: Wed, 28 Feb 2001 09:32:09 -0500
+From: "David Anderson" <daveanderson@eudoramail.com>
+Message-ID: <HDPBFHJNMFALDAAA@shared1-mail.whowhere.com>
+Mime-Version: 1.0
+X-Sent-Mail: on
+Reply-To: daveanderson@eudoramail.com
+X-Mailer: MailCity Service
+Subject: Re: Can't compilete 2.4.2 kernel
+X-Sender-Ip: 209.245.110.113
+Organization: QUALCOMM Eudora Web-Mail  (http://www.eudoramail.com:80) 
+Content-Type: text/plain; charset=us-ascii
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------793A1CEBA8153DAE8A054D1F
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+*CC daveanderson@eudoramail.com* on reply.
 
-"Rob W. van Swol" wrote:
-> 
-> Hi,
-> 
-> I cannot find an answer to my problem. Sound was always working ok in
-> 2.2.x and 2.4.1 kernels. But now the opl3sa2 module won't load anymore.
-> First I got the messages:
-> 
-> opl3sa2: No cards found
-> opl3sa2: 0 PnP card(s) found.
-> 
-> The I added isapnp=0 to the options line in /etc/modules.conf and then I
-> get:
-> 
-> opl3sa2: Control I/O port 0x0 not free
->                           ^^^
-> It seems that the io address is not correctly passed to the module?!
-> 
+ln -s linux-2.4 linux 
 
-I got the same problem and i think there is an error in opl3sa2.c ?
-I thinnk the problem is in the init_opl3sa2() function, in this line :
+That helps a bit.  Here's what I get now when doing 'make bzImage':
 
-if(!isapnp && io == -1 ) {
+In file included from /usr/src/linux/include/linux/string.h:21,
+from /usr/src/linux/include/linux/fs.h:23,
+from /usr/src/linux/include/linux/capability.h:17,
+from /usr/src/linux/include/linux/binfmts.h:5,
+from /usr/src/linux/include/linux/sched.h:9,
+from /usr/src/linux/include/linux/mm.h:4,
+from /usr/src/linux/include/linux/slab.h:14,
+from /usr/src/linux/include/linux/proc_fs.h:5,
+from init/main.c:15:
+/usr/src/linux/include/asm/string.h:305: `current' undeclared (first use in this function)
+/usr/src/linux/include/asm/string.h: In function `__memcpy3d':
+/usr/src/linux/include/asm/string.h:312: `current' undeclared (first use in this function)
+make: *** [init/main.o] Error 1
 
-If you don't use/have IsaPNP then the cfg[card] struct is not/never
-initialized ... ?
 
-I made a quick patch that correct this test ... but I think we should
-find a better way to choose between initializing the cfg[card] struct
-using opl3sa2_isapnp_probe or using the user suplied module parameters
-... no ?
+Thanks! 
+--
 
--- 
-Jérôme Augé
-echo cdqgm@vnqb-hklmpkml.yp | tr khplmndvqyc nirtelacufj
---------------793A1CEBA8153DAE8A054D1F
-Content-Type: text/plain; charset=us-ascii;
- name="opl3sa2-isapnp-io-test.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="opl3sa2-isapnp-io-test.patch"
+On Wed, 28 Feb 2001 14:59:04   Xavier Ordoquy wrote:
+>
+>simply in /usr/src do
+> ln -s linux-2.4 linux
+>
+>> Please CC daveanderson@eudoramail.com on your replies - I'm not on the mailing list.
+>> 
+>> Slackware 7.1
+>> cd /usr/src
+>> tar -xvyf linux-2.4.2.tar.bz2
+>> mv linux linux-2.4
+>> cd linux-2.4
+>> make mrproper
+>> make menuconfig - {selection options, etc.}
+>> make dep
+>> make clean
+>> make bzImage
+>> 
+>> Get this with bzImage:
+>> 
+>> gcc -Wall -Wstrict-prototypes -O2- fomit-frame-pointer -o scripts/split-include scripts/split-include.c
+>> In file included from /usr/include/errno.h:36,
+>> from scripts/split-include.c:26:
+>> /usr/include/bits/errno.h:25: linux/errno.h: No such file or directory
+>> make: *** [scripts/split-include] Error 1
+>> 
+>> 
+>> THANKS!
+>> 
+>> 
+>> Join 18 million Eudora users by signing up for a free Eudora Web-Mail account at http://www.eudoramail.com
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>> 
+>> 
+>
+>---
+> Xavier Ordoquy,
+> Aurora-linux, http://www.aurora-linux.com
+>
+>
 
---- opl3sa2.c.orig	Wed Feb 28 14:44:03 2001
-+++ opl3sa2.c	Wed Feb 28 14:48:07 2001
-@@ -914,13 +914,8 @@
- #endif
- 		/* If a user wants an I/O then assume they meant it */
- 		
--		if(!isapnp && io == -1 ) {
--			if(io == -1 || irq == -1 || dma == -1 ||
--			   dma2 == -1 || mss_io == -1) {
--				printk(KERN_ERR
--				       "opl3sa2: io, mss_io, irq, dma, and dma2 must be set\n");
--				return -EINVAL;
--			}
-+		if((io != -1) && (irq != -1) && (dma != -1) &&
-+			(dma2 != -1) && (mss_io != -1) && (mpu_io !=-1)) {
- 
- 			/*
- 			 * Our own config:
-@@ -948,6 +943,9 @@
- 			opl3sa2_clear_slots(&cfg[card]);
- 			opl3sa2_clear_slots(&cfg_mss[card]);
- 			opl3sa2_clear_slots(&cfg_mpu[card]);
-+		} else {
-+			printk(KERN_ERR "opl3sa2: io, mss_io, irq, dma, and dma2 must be set\n");
-+			return -EINVAL;
- 		}
- 
- 		if(!probe_opl3sa2(&cfg[card], card) ||
 
---------------793A1CEBA8153DAE8A054D1F--
-
+Join 18 million Eudora users by signing up for a free Eudora Web-Mail account at http://www.eudoramail.com

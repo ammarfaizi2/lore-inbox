@@ -1,313 +1,416 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVCHQDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVCHQEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVCHQDi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 11:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVCHQDi
+	id S261399AbVCHQEq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 11:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVCHQEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 11:03:38 -0500
-Received: from vawad.err.no ([129.241.93.49]:65213 "EHLO vawad.err.no")
-	by vger.kernel.org with ESMTP id S261397AbVCHQCI (ORCPT
+	Tue, 8 Mar 2005 11:04:46 -0500
+Received: from mailfe04.swip.net ([212.247.154.97]:18913 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261399AbVCHQDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 11:02:08 -0500
-Subject: Re: [PATCH] new driver for ITM Touch touchscreen
-From: Hans-Christian Egtvedt <hc@mivu.no>
-To: linux-kernel@vger.kernel.org
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz
-In-Reply-To: <d120d50005030408544462c9ea@mail.gmail.com>
-References: <1109932223.5453.16.camel@charlie.itk.ntnu.no>
-	 <200503041403.37137.adobriyan@mail.ru>
-	 <d120d50005030406525896b6cb@mail.gmail.com>
-	 <1109953224.3069.39.camel@charlie.itk.ntnu.no>
-	 <d120d50005030408544462c9ea@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QKG+FsxALYS6A1WBd1Jk"
-Organization: MIVU Solutions DA
-Date: Tue, 08 Mar 2005 17:01:00 +0100
-Message-Id: <1110297660.3198.15.camel@server.customer.mivu.no>
+	Tue, 8 Mar 2005 11:03:06 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: Re: Strange memory leak in 2.6.x
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Tobias Hennerich <Tobias@Hennerich.de>
+Cc: Timo Hennerich <Timo@Hennerich.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050308154042.A388@bart.hennerich.de>
+References: <20050308133735.A13586@bart.hennerich.de>
+	 <1110291647.2294.12.camel@boxen>  <20050308154042.A388@bart.hennerich.de>
+Content-Type: text/plain
+Date: Tue, 08 Mar 2005 17:03:04 +0100
+Message-Id: <1110297784.2445.3.camel@boxen>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Sorry, I somehow didn't do reply-to-all in the first mail, lkml back]
 
---=-QKG+FsxALYS6A1WBd1Jk
-Content-Type: multipart/mixed; boundary="=-Jz6p1slE9LPPSo+Ehi4b"
+> > > Out of Memory: Killed process 29603 (cleanup).
+> > 
+> > This looks to me like someone is leaking pages. Could you please try
+> > 2.6.11 and the patch I'm putting at the bottom of this mail, there'll be
+> > a CONFIG_PAGE_OWNER option under kernel hacking.
+> > 
+> > There will be a /proc/page_owner and Documentation/page_owner.c that
+> > contains a program to sort the output. When it starts getting messy do:
+> > cat /proc/page_owner > page_owner.txt
+> > ./sort page_owner.txt sorted_page_owner.txt
+> > 
+> > The sorted_page_owner.txt will tell us who is grabbing pages.
+> 
+> Thank you for your mail, wonderful, exactly what I was looking for!
+> 
+> Before we are installing the new kernel with your patch: Can you say
+> anything about the performance, which this patch costs? The machine is
+> used by a bigger company and I want to be prepared, if several thousand
+> employees can't mail or use the web anymore...
+> 
 
+I doubt you'll notice any performance overhead, however this patch eats
+some memory, on your system (4GB / 4096) * 36 bytes something like 36M
+of low memory.
 
---=-Jz6p1slE9LPPSo+Ehi4b
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Btw, I recalled I haven't updated my previous patch for a discontig mem
+(NUMA) update I got (doesn't matter on most machines) but anyway, I've
+updated it and here it is.
 
-On Fri, 2005-03-04 at 11:54 -0500, Dmitry Torokhov wrote:
-> On Fri, 04 Mar 2005 17:20:24 +0100, Hans-Christian Egtvedt <hc@mivu.no> w=
-rote:
-> > On Fri, 2005-03-04 at 09:52 -0500, Dmitry Torokhov wrote:
-> > > On Fri, 4 Mar 2005 14:03:37 +0200, Alexey Dobriyan <adobriyan@mail.ru=
-> wrote:
-> > > > On Friday 04 March 2005 12:30, Hans-Christian Egtvedt wrote:
-> > > As far as the driver goes:
-> > >
-> > > - yes, it does need input_sync;
-> >=20
-> > One problem with input_sync is that the panel get's too fast, and doubl=
-e
-> > click is experienced quite often, maybe some threshold is needed for lo=
-w
-> > values in Z-direction?
-> >=20
-> > I'm probably doing something wrong here since I experience easy
-> > doubleclicks when I just lightly touch the screen.
->=20
-> Yes, I think you need to use some threshold when reporting BTN_TOUCH
-> event. Still, always report ABS_PRESSURE as is. This way the
-> touchscreen is useable via legacy interfaces (mousedev. tsdev) and if
-> a specialized userspace driver is written it still can get pretty much
-> unmangled data from /dev/input/eventX. This will also allow such
-> driver adjust touchpad sensitivity, if needed.
+This updated patch has been in -mm for a while so it should have proven
+itself stable.
 
-Do you have any pointers to where I should go to implement this
-threshold? Is there an easy or smart way doing it?
-
-<snip query about screen siz
-
-> No, not physical sizes. I was wondering if soe touchscreens are
-> reporting let's say actual coordinates from 1100-3600 and others from
-> 600-3850, instead of full 0-4096. Is there a way to query the hardware
-> and find the actual min and max for a device so it can be reported to
-> userspace.
-
-I really don't think the controller can now anything about the size of
-the screen.
-
-I've attached version 1.2.1 of the driver, fixed some typo, code cleanup
-and discovered I used depricated functions so I moved to the new correct
-way of doing killing of the urb.
-
-Starting looking into ways of using the module directly as a standard
-mouse, that will take away loads of worries for me about converting X
-applications to x.org.
-
-Any tips are welcome. Is this done before with a touchscreen?
-
---=20
-Hans-Christian Egtvedt <hc@mivu.no>
-MIVU Solutions DA
-
---=-Jz6p1slE9LPPSo+Ehi4b
-Content-Disposition: attachment; filename=itmtouch-1.2.1-linux-2.6.11.patch
-Content-Type: text/x-patch; name=itmtouch-1.2.1-linux-2.6.11.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-LS0tIGtlcm5lbC1zb3VyY2UtMi42LjExL2RyaXZlcnMvdXNiL2lucHV0L0tjb25maWcJMjAwNC0x
-Mi0yNCAyMjozNToyMy4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjYuMTEvZHJpdmVycy91
-c2IvaW5wdXQvS2NvbmZpZwkyMDA1LTAzLTAyIDEwOjU4OjQxLjAwMDAwMDAwMCArMDEwMA0KQEAg
-LTE5MCw2ICsxOTAsMTggQEANCiAJICBUbyBjb21waWxlIHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxl
-LCBjaG9vc2UgTSBoZXJlOiB0aGUNCiAJICBtb2R1bGUgd2lsbCBiZSBjYWxsZWQgbXRvdWNodXNi
-Lg0KIA0KK2NvbmZpZyBVU0JfSVRNVE9VQ0gNCisJdHJpc3RhdGUgIklUTSBUb3VjaCBVU0IgVG91
-Y2hzY3JlZW4gRHJpdmVyIg0KKwlkZXBlbmRzIG9uIFVTQiAmJiBJTlBVVA0KKwktLS1oZWxwLS0t
-DQorCSAgU2F5IFkgaGVyZSBpZiB5b3Ugd2FudCB0byB1c2UgYSBJVE0gVG91Y2ggVVNCDQorCSAg
-VG91Y2hzY3JlZW4gY29udHJvbGxlci4NCisNCisJICBUaGlzIHRvdWNoc2NyZWVuIGlzIHVzZWQg
-aW4gTEcgMTUxMFNGIG1vbml0b3JzLg0KKw0KKwkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMg
-YSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQ0KKwkgIG1vZHVsZSB3aWxsIGJlIGNhbGxlZCBp
-dG10b3VjaC4NCisNCiBjb25maWcgVVNCX0VHQUxBWA0KIAl0cmlzdGF0ZSAiZUdhbGF4IFRvdWNo
-S2l0IFVTQiBUb3VjaHNjcmVlbiBEcml2ZXIiDQogCWRlcGVuZHMgb24gVVNCICYmIElOUFVUDQot
-LS0ga2VybmVsLXNvdXJjZS0yLjYuMTEvZHJpdmVycy91c2IvaW5wdXQvTWFrZWZpbGUJMjAwNC0x
-Mi0yNCAyMjozNTowMC4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjYuMTEvZHJpdmVycy91
-c2IvaW5wdXQvTWFrZWZpbGUJMjAwNS0wMy0wMiAxMDo1NzoxMS4wMDAwMDAwMDAgKzAxMDANCkBA
-IC0zMyw2ICszMyw3IEBADQogb2JqLSQoQ09ORklHX1VTQl9LQlRBQikJCSs9IGtidGFiLm8NCiBv
-YmotJChDT05GSUdfVVNCX01PVVNFKQkJKz0gdXNibW91c2Uubw0KIG9iai0kKENPTkZJR19VU0Jf
-TVRPVUNIKQkrPSBtdG91Y2h1c2Iubw0KK29iai0kKENPTkZJR19VU0JfSVRNVE9VQ0gpCSs9IGl0
-bXRvdWNoLm8NCiBvYmotJChDT05GSUdfVVNCX0VHQUxBWCkJKz0gdG91Y2hraXR1c2Iubw0KIG9i
-ai0kKENPTkZJR19VU0JfUE9XRVJNQVRFKQkrPSBwb3dlcm1hdGUubw0KIG9iai0kKENPTkZJR19V
-U0JfV0FDT00pCQkrPSB3YWNvbS5vDQotLS0gL2Rldi9udWxsCTIwMDUtMDMtMDEgMTk6MTU6MzAu
-MDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi42LjExL2RyaXZlcnMvdXNiL2lucHV0L2l0bXRv
-dWNoLmMJMjAwNS0wMy0wMiAxMTowNTowNC4wMDAwMDAwMDAgKzAxMDANCkBAIC0wLDAgKzEsMzE4
-IEBADQorLyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKg0KKyAqIGl0bXRvdWNoLmMgIC0tICBEcml2ZXIg
-Zm9yIElUTSB0b3VjaHNjcmVlbiBwYW5lbA0KKyAqDQorICogVGhpcyBwcm9ncmFtIGlzIGZyZWUg
-c29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vcg0KKyAqIG1vZGlmeSBpdCB1
-bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzDQorICog
-cHVibGlzaGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9u
-IDIgb2YgdGhlDQorICogTGljZW5zZSwgb3IgKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVy
-c2lvbi4NCisgKg0KKyAqIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0
-aGF0IGl0IHdpbGwgYmUgdXNlZnVsLCBidXQNCisgKiBXSVRIT1VUIEFOWSBXQVJSQU5UWTsgd2l0
-aG91dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9mDQorICogTUVSQ0hBTlRBQklMSVRZIG9y
-IEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZSBHTlUNCisgKiBHZW5l
-cmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuDQorICoNCisgKiBZb3Ugc2hvdWxk
-IGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQ0K
-KyAqIGFsb25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNv
-ZnR3YXJlDQorICogRm91bmRhdGlvbiwgSW5jLiwgNjc1IE1hc3MgQXZlLCBDYW1icmlkZ2UsIE1B
-IDAyMTM5LCBVU0EuDQorICoNCisgKiBCYXNlZCB1cG9uIG9yaWdpbmFsIHdvcmsgYnkgQ2hyaXMg
-Q29sbGlucyA8eGZpcmUtaXRtdG91Y2hAeHdhcmUuY3g+Lg0KKyAqIA0KKyAqIEhpc3RvcnkNCisg
-KiAxLjAgJiAxLjEgIDIwMDMgKENDKSB2b2p0ZWNoQHN1c2UuY3oNCisgKiAgIE9yaWdpbmFsIHZl
-cnNpb24gZm9yIDIuNC54IGtlcm5lbHMNCisgKg0KKyAqIDEuMiAgMDIvMDMvMjAwNSAoSENFKSBo
-Y0BtaXZ1Lm5vDQorICogICBDb21wbGV0ZSByZXdyaXRlIHRvIHN1cHBvcnQgTGludXggMi42LjEw
-LCB0aGFua3MgdG8gbXRvdWNodXNiLmMgZm9yIGhpbnRzLg0KKyAqICAgVW5mb3J0dW5hdGVseSBu
-byBjYWxpYnJhdGlvbiBzdXBwb3J0IGF0IHRoaXMgdGltZS4NCisgKiANCisgKiAxLjIuMSAgMDkv
-MDMvMjAwNSAoSENFKSBoY0BtaXZ1Lm5vDQorICogICBDb2RlIGNsZWFudXAgYW5kIGFkanVzdGlu
-ZyBzeW50YXggdG8gc3RhcnQgbWF0Y2hpbmcga2VybmVsIHN0YW5kYXJkcw0KKyAqIA0KKyAqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKi8NCisNCisvKiBJbiBvcmRlciB0byBwcmV2ZW50IHBvbHV0aW5nIGRl
-dmljZSBzcGFjZSB3aXRoIFlFVCBBTk9USEVSIGNoYXJhY3Rlcg0KKyAqIGRldmljZSwgdGhpcyBk
-cml2ZXIgcHVtcHMgb3V0IHJhdyBjb29yZGluYXRlIGV2ZW50cyBpbnRvIHRoZSBpbnB1dCANCisg
-KiBldmVudCBzdHJlYW0uDQorICoNCisgKiBUaGV5IGNhbiBiZSBleHRyYWN0ZWQgdXNpbmcgdGhl
-IGlucHV0IGNvcmUgcmF3IGV2ZW50cyBtb2R1bGUuDQorICogDQorICogS3Vkb3MgdG8gSVRNIGZv
-ciBwcm92aWRpbmcgbWUgd2l0aCB0aGUgZGF0YXNoZWV0IGZvciB0aGUgcGFuZWwsDQorICogZXZl
-biB0aG91Z2ggaXQgd2FzIGEgZGF5IGxhdGVyIHRoYW4gSSBoYWQgZmluaXNoZWQgd3JpdGluZyB0
-aGlzIA0KKyAqIGRyaXZlci4NCisgKiANCisgKiBJdCBoYXMgbWVhbnQgdGhhdCBJJ3ZlIGJlZW4g
-YWJsZSB0byBjb3JyZWN0IG15IGludGVycHJldGF0aW9uIG9mIHRoZQ0KKyAqIHByb3RvY29sIHBh
-Y2tldHMgaG93ZXZlci4NCisgKiANCisgKiBDQyAtLSAyMDAzLzkvMjkNCisgKi8NCisNCisjaW5j
-bHVkZSA8bGludXgvY29uZmlnLmg+DQorDQorI2lmZGVmIENPTkZJR19VU0JfREVCVUcNCisJI2Rl
-ZmluZSBERUJVRw0KKyNlbHNlDQorCSN1bmRlZiBERUJVRw0KKyNlbmRpZg0KKw0KKyNpbmNsdWRl
-IDxsaW51eC9rZXJuZWwuaD4NCisjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KKyNpbmNsdWRlIDxs
-aW51eC9pbnB1dC5oPg0KKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4NCisjaW5jbHVkZSA8bGlu
-dXgvaW5pdC5oPg0KKyNpbmNsdWRlIDxsaW51eC91c2IuaD4NCisNCisvKiBvbmx5IGFuIDggYnl0
-ZSBidWZmZXIgbmVjZXNzYXJ5IGZvciBhIHNpbmdsZSBwYWNrZXQgKi8NCisjZGVmaW5lIElUTV9C
-VUZTSVpFCQkJOA0KKy8qIHN1cHBvcnQgYSBtYXhpbXVtIG9mIDQgc3VjaCB0b3VjaHNjcmVlbnMg
-YXQgb25jZSAqLw0KKyNkZWZpbmUgTUFYVE9VQ0gJCQk0DQorI2RlZmluZSBVQ1AoeCkJCQkJKCh1
-bnNpZ25lZCBjaGFyKikoeCkpDQorI2RlZmluZSBVQ09NKHgseSx6KQkJCSgoVUNQKCh4KS0+dHJh
-bnNmZXJfYnVmZmVyKVt5XSkgJiAoeikpDQorI2RlZmluZSBQQVRIX1NJWkUJCQk2NA0KKw0KKyNk
-ZWZpbmUgVVNCX1ZFTkRPUl9JRF9JVE1JTkMJCTB4MDQwMw0KKyNkZWZpbmUgVVNCX1BST0RVQ1Rf
-SURfVE9VQ0hQQU5FTAkweGY5ZTkNCisNCisjZGVmaW5lIERSSVZFUl9BVVRIT1IgIkhhbnMtQ2hy
-aXN0aWFuIEVndHZlZHQgPGhjQG1pdnUubm8+Ig0KKyNkZWZpbmUgRFJJVkVSX1ZFUlNJT04gInYx
-LjIuMSINCisjZGVmaW5lIERSSVZFUl9ERVNDICJVU0IgSVRNIEluYyBUb3VjaCBQYW5lbCBEcml2
-ZXIiDQorI2RlZmluZSBEUklWRVJfTElDRU5TRSAiR1BMIg0KKw0KK01PRFVMRV9BVVRIT1IoIERS
-SVZFUl9BVVRIT1IgKTsNCitNT0RVTEVfREVTQ1JJUFRJT04oIERSSVZFUl9ERVNDICk7DQorTU9E
-VUxFX0xJQ0VOU0UoIERSSVZFUl9MSUNFTlNFICk7DQorDQorc3RydWN0IGl0bXRvdWNoX2RldiB7
-DQorCXN0cnVjdCB1c2JfZGV2aWNlIAkqdXNiZGV2OyAvKiB1c2IgZGV2aWNlICovDQorCXN0cnVj
-dCBpbnB1dF9kZXYJaW5wdXRkZXY7IC8qIGlucHV0IGRldmljZSAqLw0KKwlzdHJ1Y3QgdXJiCQkq
-cmVhZHVyYjsgLyogdXJiICovDQorCWNoYXIJCQlyYnVmW0lUTV9CVUZTSVpFXTsgLyogZGF0YSAq
-Lw0KKwlpbnQJCQl1c2VyczsNCisJY2hhciBuYW1lWzEyOF07DQorCWNoYXIgcGh5c1s2NF07DQor
-fTsNCisNCitzdGF0aWMgc3RydWN0IHVzYl9kZXZpY2VfaWQgaXRtdG91Y2hfaWRzIFtdID0gew0K
-Kwl7IFVTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9JVE1JTkMsIFVTQl9QUk9EVUNUX0lEX1RPVUNI
-UEFORUwpIH0sDQorCXsgfQ0KK307DQorDQorc3RhdGljIHZvaWQgaXRtdG91Y2hfaXJxKHN0cnVj
-dCB1cmIgKnVyYiwgc3RydWN0IHB0X3JlZ3MgKnJlZ3MpDQorew0KKwlzdHJ1Y3QgaXRtdG91Y2hf
-ZGV2ICogaXRtdG91Y2ggPSB1cmItPmNvbnRleHQ7DQorCWludCByZXR2YWw7DQorDQorCXN3aXRj
-aCAodXJiLT5zdGF0dXMpIHsNCisJY2FzZSAwOg0KKwkJLyogc3VjY2VzcyAqLw0KKwkJYnJlYWs7
-DQorCWNhc2UgLUVUSU1FRE9VVDoNCisJCS8qIHRoaXMgdXJiIGlzIHRpbWluZyBvdXQgKi8NCisJ
-CWRiZygiJXMgLSB1cmIgdGltZWQgb3V0IC0gd2FzIHRoZSBkZXZpY2UgdW5wbHVnZ2VkPyIsDQor
-CQkgICAgX19GVU5DVElPTl9fKTsNCisJCXJldHVybjsNCisJY2FzZSAtRUNPTk5SRVNFVDoNCisJ
-Y2FzZSAtRU5PRU5UOg0KKwljYXNlIC1FU0hVVERPV046DQorCQkvKiB0aGlzIHVyYiBpcyB0ZXJt
-aW5hdGVkLCBjbGVhbiB1cCAqLw0KKwkJZGJnKCIlcyAtIHVyYiBzaHV0dGluZyBkb3duIHdpdGgg
-c3RhdHVzOiAlZCIsDQorCQkgICAgX19GVU5DVElPTl9fLCB1cmItPnN0YXR1cyk7DQorCQlyZXR1
-cm47DQorCWRlZmF1bHQ6DQorCQlkYmcoIiVzIC0gbm9uemVybyB1cmIgc3RhdHVzIHJlY2VpdmVk
-OiAlZCIsDQorCQkgICAgX19GVU5DVElPTl9fLCB1cmItPnN0YXR1cyk7DQorCQlnb3RvIGV4aXQ7
-DQorCX0NCisNCisJaW5wdXRfcmVncygmaXRtdG91Y2gtPmlucHV0ZGV2LCByZWdzKTsNCisNCisJ
-LyogaWYgcHJlc3N1cmUgaGFzIGJlZW4gcmVsZWFzZWQsIHRoZW4gZG9uJ3QgcmVwb3J0IFgvWSAq
-Lw0KKwlpZiAoIVVDT00odXJiLCA3LCAweDIwKSkgew0KKwkJaW5wdXRfcmVwb3J0X2FicygmaXRt
-dG91Y2gtPmlucHV0ZGV2LCBBQlNfWCwNCisJCQkJVUNPTSh1cmIsIDAsIDB4MUYpIDw8IDcgfCBV
-Q09NKHVyYiwgMywgMHg3RikpOw0KKwkJaW5wdXRfcmVwb3J0X2FicygmaXRtdG91Y2gtPmlucHV0
-ZGV2LCBBQlNfWSwNCisJCQkJVUNPTSh1cmIsIDEsIDB4MUYpIDw8IDcgfCBVQ09NKHVyYiwgNCwg
-MHg3RikpOw0KKwl9DQorCQ0KKwlpbnB1dF9yZXBvcnRfYWJzKCZpdG10b3VjaC0+aW5wdXRkZXYs
-IEFCU19QUkVTU1VSRSwNCisJCQlVQ09NKHVyYiwgMiwgMHgxKSA8PCA3IHwgVUNPTSh1cmIsIDUs
-IDB4N0YpKTsNCisJaW5wdXRfcmVwb3J0X2tleSgmaXRtdG91Y2gtPmlucHV0ZGV2LCBCVE5fVE9V
-Q0gsICFVQ09NKHVyYiwgNywgMHgyMCkpOw0KKwkvKiBUT0RPOiBEbyB3ZSBuZWVkIHRvIHVzZSBp
-bnB1dF9zeW5jKCkgPyAqLw0KKwkvKiBpbnB1dF9zeW5jKCZpdG10b3VjaC0+aW5wdXRkZXYpOyAq
-Lw0KKw0KK2V4aXQ6DQorCXJldHZhbCA9IHVzYl9zdWJtaXRfdXJiICh1cmIsIEdGUF9BVE9NSUMp
-Ow0KKwlpZiAocmV0dmFsKQ0KKwkJcHJpbnRrKEtFUk5fRVJSICIlcyAtIHVzYl9zdWJtaXRfdXJi
-IGZhaWxlZCB3aXRoIHJlc3VsdDogJWQiLA0KKwkJCQlfX0ZVTkNUSU9OX18sIHJldHZhbCk7DQor
-fQ0KKw0KK3N0YXRpYyBpbnQgaXRtdG91Y2hfb3BlbihzdHJ1Y3QgaW5wdXRfZGV2ICppbnB1dCkN
-Cit7DQorCXN0cnVjdCBpdG10b3VjaF9kZXYgKml0bXRvdWNoID0gaW5wdXQtPnByaXZhdGU7DQor
-DQorCWlmIChpdG10b3VjaC0+dXNlcnMrKykNCisJCXJldHVybiAwOw0KKw0KKwlpdG10b3VjaC0+
-cmVhZHVyYi0+ZGV2ID0gaXRtdG91Y2gtPnVzYmRldjsNCisNCisJaWYgKHVzYl9zdWJtaXRfdXJi
-IChpdG10b3VjaC0+cmVhZHVyYiwgR0ZQX0tFUk5FTCkpDQorCXsNCisJCWl0bXRvdWNoLT51c2Vy
-cy0tOw0KKwkJcmV0dXJuIC1FSU87DQorCX0NCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRp
-YyB2b2lkIGl0bXRvdWNoX2Nsb3NlKHN0cnVjdCBpbnB1dF9kZXYgKmlucHV0KQ0KK3sNCisJc3Ry
-dWN0IGl0bXRvdWNoX2RldiAqaXRtdG91Y2ggPSBpbnB1dC0+cHJpdmF0ZTsNCisNCisJaWYgKCEt
-LWl0bXRvdWNoLT51c2VycykNCisJCXVzYl9raWxsX3VyYiAoaXRtdG91Y2gtPnJlYWR1cmIpOw0K
-K30NCisNCitzdGF0aWMgaW50IGl0bXRvdWNoX3Byb2JlKHN0cnVjdCB1c2JfaW50ZXJmYWNlICpp
-bnRmLCBjb25zdCBzdHJ1Y3QgdXNiX2RldmljZV9pZCAqaWQpDQorew0KKwlzdHJ1Y3QgaXRtdG91
-Y2hfZGV2ICppdG10b3VjaDsNCisJc3RydWN0IHVzYl9ob3N0X2ludGVyZmFjZSAqaW50ZXJmYWNl
-Ow0KKwlzdHJ1Y3QgdXNiX2VuZHBvaW50X2Rlc2NyaXB0b3IgKmVuZHBvaW50Ow0KKwlzdHJ1Y3Qg
-dXNiX2RldmljZSAqIHVkZXYgPSBpbnRlcmZhY2VfdG9fdXNiZGV2KGludGYpOw0KKwl1bnNpZ25l
-ZCBpbnQgcGlwZTsNCisJdW5zaWduZWQgaW50IG1heHA7DQorCWNoYXIgcGF0aFtQQVRIX1NJWkVd
-Ow0KKw0KKwlkYmcoIiVzIC0gY2FsbGVkIiwgX19GVU5DVElPTl9fKTsNCisNCisJZGJnKCIlcyAt
-IHNldHRpbmcgaW50ZXJmYWNlIiwgX19GVU5DVElPTl9fKTsNCisJaW50ZXJmYWNlID0gaW50Zi0+
-Y3VyX2FsdHNldHRpbmc7DQorCQ0KKwlkYmcoIiVzIC0gc2V0dGluZyBlbmRwb2ludCIsIF9fRlVO
-Q1RJT05fXyk7DQorCWVuZHBvaW50ID0gJmludGVyZmFjZS0+ZW5kcG9pbnRbMF0uZGVzYzsNCisN
-CisJaWYgKGlkLT5pZFZlbmRvciAhPSBVU0JfVkVORE9SX0lEX0lUTUlOQyB8fCBpZC0+aWRQcm9k
-dWN0ICE9IFVTQl9QUk9EVUNUX0lEX1RPVUNIUEFORUwpIHsNCisJCXByaW50ayhLRVJOX1dBUk5J
-TkcgIml0bXRvdWNoOiB0cmllZCB0byBiaW5kIHRvIG5vbi10cyBkZXZpY2UuXG4iKTsNCisJCXJl
-dHVybiAtRU5PREVWOw0KKwl9DQorDQorCS8qIGFsbG9jYXRlIG1lbW9yeSBzcGFjZSAqLw0KKwlp
-ZiAoIShpdG10b3VjaCA9IGttYWxsb2MgKHNpemVvZiAoc3RydWN0IGl0bXRvdWNoX2RldiksIEdG
-UF9LRVJORUwpKSkgew0KKwkJZXJyKCIlcyAtIE91dCBvZiBtZW1vcnkuIiwgX19GVU5DVElPTl9f
-KTsNCisJCXJldHVybiAtRU5PTUVNOw0KKwl9DQorCW1lbXNldChpdG10b3VjaCwgMCwgc2l6ZW9m
-KHN0cnVjdCBpdG10b3VjaF9kZXYpKTsNCisNCisJLyogZmlsbCBpbiB0aGUgVVNCIGRldmljZSBp
-bmZvICovICAgICAgICANCisJaXRtdG91Y2gtPnVzYmRldiA9IHVkZXY7DQorCQ0KKwlpdG10b3Vj
-aC0+aW5wdXRkZXYucHJpdmF0ZSA9IGl0bXRvdWNoOw0KKwlpdG10b3VjaC0+aW5wdXRkZXYub3Bl
-biA9IGl0bXRvdWNoX29wZW47DQorCWl0bXRvdWNoLT5pbnB1dGRldi5jbG9zZSA9IGl0bXRvdWNo
-X2Nsb3NlOw0KKw0KKwl1c2JfbWFrZV9wYXRoKHVkZXYsIHBhdGgsIFBBVEhfU0laRSk7DQorCQ0K
-KwkvKiBzZXQgdXAgdGhlIGlucHV0IHF1ZXVlICovCQ0KKwlpdG10b3VjaC0+aW5wdXRkZXYuZXZi
-aXRbMF0gPSBCSVQoRVZfS0VZKSB8IEJJVChFVl9BQlMpOw0KKwlpdG10b3VjaC0+aW5wdXRkZXYu
-YWJzYml0WzBdID0gQklUKEFCU19YKSB8IEJJVChBQlNfWSkgfCBCSVQoQUJTX1BSRVNTVVJFKTsN
-CisJaXRtdG91Y2gtPmlucHV0ZGV2LmtleWJpdFtMT05HKEJUTl9UT1VDSCldID0gQklUKEJUTl9U
-T1VDSCk7DQorDQorCWl0bXRvdWNoLT5pbnB1dGRldi5uYW1lID0gaXRtdG91Y2gtPm5hbWU7DQor
-CWl0bXRvdWNoLT5pbnB1dGRldi5waHlzID0gaXRtdG91Y2gtPnBoeXM7DQorCWl0bXRvdWNoLT5p
-bnB1dGRldi5pZC5idXN0eXBlID0gQlVTX1VTQjsNCisJaXRtdG91Y2gtPmlucHV0ZGV2LmlkLnZl
-bmRvciA9IHVkZXYtPmRlc2NyaXB0b3IuaWRWZW5kb3I7DQorCWl0bXRvdWNoLT5pbnB1dGRldi5p
-ZC5wcm9kdWN0ID0gdWRldi0+ZGVzY3JpcHRvci5pZFByb2R1Y3Q7DQorCWl0bXRvdWNoLT5pbnB1
-dGRldi5pZC52ZXJzaW9uID0gdWRldi0+ZGVzY3JpcHRvci5iY2REZXZpY2U7CQ0KKwlpdG10b3Vj
-aC0+aW5wdXRkZXYuZGV2ID0gJmludGYtPmRldjsNCisNCisJaWYgKCFzdHJsZW4oaXRtdG91Y2gt
-Pm5hbWUpKQ0KKwkJc3ByaW50ZihpdG10b3VjaC0+bmFtZSwgIlVTQiBJVE0gdG91Y2hzY3JlZW4i
-KTsNCisJDQorCS8qIGRldmljZSBsaW1pdHMgKi8NCisJLyogYXMgc3BlY2lmaWVkIGJ5IHRoZSBJ
-VE0gZGF0YXNoZWV0LCBYIGFuZCBZIGFyZSAxMmJpdCwNCisJICogWiAocHJlc3N1cmUpIGlzIDgg
-Yml0LiBIb3dldmVyLCB0aGUgZmllbGRzIGFyZSBkZWZpbmVkIHVwDQorCSAqIHRvIDE0IGJpdHMg
-Zm9yIGZ1dHVyZSBwb3NzaWJsZSBleHBhbnNpb24uDQorCSAqLw0KKwlpbnB1dF9zZXRfYWJzX3Bh
-cmFtcygmaXRtdG91Y2gtPmlucHV0ZGV2LCBBQlNfWCwgMCwgMHgwRkZGLCAyLCAwKTsNCisJaW5w
-dXRfc2V0X2Fic19wYXJhbXMoJml0bXRvdWNoLT5pbnB1dGRldiwgQUJTX1ksIDAsIDB4MEZGRiwg
-MiwgMCk7DQorCWlucHV0X3NldF9hYnNfcGFyYW1zKCZpdG10b3VjaC0+aW5wdXRkZXYsIEFCU19Q
-UkVTU1VSRSwgMCwgMHhGRiwgMiwgMCk7DQorDQorCS8qIGluaXRpYWxpc2UgdGhlIFVSQiBzbyB3
-ZSBjYW4gcmVhZCBmcm9tIHRoZSB0cmFuc3BvcnQgc3RyZWFtICovDQorCXBpcGUgPSB1c2JfcmN2
-aW50cGlwZShpdG10b3VjaC0+dXNiZGV2LCBlbmRwb2ludC0+YkVuZHBvaW50QWRkcmVzcyk7DQor
-DQorCW1heHAgPSB1c2JfbWF4cGFja2V0KHVkZXYsIHBpcGUsIHVzYl9waXBlb3V0KHBpcGUpKTsN
-CisJDQorCWlmIChtYXhwID4gSVRNX0JVRlNJWkUpIHsNCisJCXByaW50ayhLRVJOX1dBUk5JTkcg
-Iml0bXRvdWNoOiBXQVJOSU5HOiBwYWNrZXQgc2l6ZSA+IElUTV9CVUZTSVpFXG4iKTsNCisJCW1h
-eHAgPSBJVE1fQlVGU0laRTsNCisJfQ0KKw0KKwlpdG10b3VjaC0+cmVhZHVyYiA9IHVzYl9hbGxv
-Y191cmIoMCwgR0ZQX0tFUk5FTCk7DQorCQ0KKwlpZiAoIWl0bXRvdWNoLT5yZWFkdXJiKSB7DQor
-CQlkYmcoIiVzIC0gdXNiX2FsbG9jX3VyYiBmYWlsZWQ6IGl0bXRvdWNoLT5yZWFkdXJiIiwgX19G
-VU5DVElPTl9fKTsNCisJCWtmcmVlKGl0bXRvdWNoKTsNCisJCXJldHVybiAtRU5PTUVNOw0KKwl9
-DQorCQ0KKwlkYmcoIiVzIC0gdXNiX2ZpbGxfaW50X3VyYiIsIF9fRlVOQ1RJT05fXyk7DQorCXVz
-Yl9maWxsX2ludF91cmIoaXRtdG91Y2gtPnJlYWR1cmIsDQorCQkJaXRtdG91Y2gtPnVzYmRldiwN
-CisJCQlwaXBlLA0KKwkJCWl0bXRvdWNoLT5yYnVmLCANCisJCQltYXhwLA0KKwkJCWl0bXRvdWNo
-X2lycSwNCisJCQlpdG10b3VjaCwNCisJCQllbmRwb2ludC0+YkludGVydmFsKTsNCisNCisJLyog
-cmVnaXN0ZXIgdGhlIGRldmljZSB3aXRoIHRoZSBpbnB1dCBzeXN0ZW0gKi8NCisJZGJnKCIlcyAt
-IGlucHV0X3JlZ2lzdGVyX2RldmljZSIsIF9fRlVOQ1RJT05fXyk7DQorCWlucHV0X3JlZ2lzdGVy
-X2RldmljZSgmaXRtdG91Y2gtPmlucHV0ZGV2KTsNCisNCisJcHJpbnRrKEtFUk5fSU5GTyAiaXRt
-dG91Y2g6ICVzIHJlZ2lzdGVyZWQgb24gJXNcbiIsIGl0bXRvdWNoLT5uYW1lLCBwYXRoKTsNCisJ
-dXNiX3NldF9pbnRmZGF0YShpbnRmLCBpdG10b3VjaCk7DQorDQorCXJldHVybiAwOw0KK30NCisN
-CitzdGF0aWMgdm9pZCBpdG10b3VjaF9kaXNjb25uZWN0KHN0cnVjdCB1c2JfaW50ZXJmYWNlICpp
-bnRmKQ0KK3sJDQorCXN0cnVjdCBpdG10b3VjaF9kZXYgKml0bXRvdWNoID0gdXNiX2dldF9pbnRm
-ZGF0YSAoaW50Zik7DQorDQorCWRiZygiJXMgLSBjYWxsZWQiLCBfX0ZVTkNUSU9OX18pOw0KKw0K
-Kwl1c2Jfc2V0X2ludGZkYXRhKGludGYsIE5VTEwpOw0KKwlpZiAoaXRtdG91Y2gpIHsNCisJCWRi
-ZygiJXMgLSBpdG10b3VjaCBpcyBpbml0aWFsaXplZCwgY2xlYW5pbmcgdXAiLCBfX0ZVTkNUSU9O
-X18pOw0KKwkJaW5wdXRfdW5yZWdpc3Rlcl9kZXZpY2UoJml0bXRvdWNoLT5pbnB1dGRldik7DQor
-CQl1c2Jfa2lsbF91cmIoaXRtdG91Y2gtPnJlYWR1cmIpOw0KKwkJdXNiX2ZyZWVfdXJiKGl0bXRv
-dWNoLT5yZWFkdXJiKTsNCisJCWtmcmVlKGl0bXRvdWNoKTsNCisJfQ0KK30NCisNCitNT0RVTEVf
-REVWSUNFX1RBQkxFKHVzYiwgaXRtdG91Y2hfaWRzKTsNCisNCitzdGF0aWMgc3RydWN0IHVzYl9k
-cml2ZXIgaXRtdG91Y2hfZHJpdmVyID0gew0KKwkJLm93bmVyID0gICAgICAgIFRISVNfTU9EVUxF
-LA0KKwkJLm5hbWUgPSAgICAgICAgICJpdG10b3VjaCIsDQorCQkucHJvYmUgPSAgICAgICAgaXRt
-dG91Y2hfcHJvYmUsDQorCQkuZGlzY29ubmVjdCA9ICAgaXRtdG91Y2hfZGlzY29ubmVjdCwNCisJ
-CS5pZF90YWJsZSA9ICAgICBpdG10b3VjaF9pZHMsDQorfTsNCisNCitzdGF0aWMgaW50IF9faW5p
-dCBpdG10b3VjaF9pbml0KHZvaWQpDQorew0KKwlkYmcoIiVzIC0gY2FsbGVkIiwgX19GVU5DVElP
-Tl9fKTsNCisJaW5mbyhEUklWRVJfREVTQyAiICIgRFJJVkVSX1ZFUlNJT04pOw0KKwlpbmZvKERS
-SVZFUl9BVVRIT1IpOw0KKwlyZXR1cm4gdXNiX3JlZ2lzdGVyKCZpdG10b3VjaF9kcml2ZXIpOw0K
-K30NCisNCitzdGF0aWMgdm9pZCBfX2V4aXQgaXRtdG91Y2hfZXhpdCh2b2lkKQ0KK3sNCisJZGJn
-KCIlcyAtIGNhbGxlZCIsIF9fRlVOQ1RJT05fXyk7DQorCXVzYl9kZXJlZ2lzdGVyKCZpdG10b3Vj
-aF9kcml2ZXIpOw0KK30NCisNCittb2R1bGVfaW5pdChpdG10b3VjaF9pbml0KTsNCittb2R1bGVf
-ZXhpdChpdG10b3VjaF9leGl0KTsNCg==
+Thanks for taking time to help shake this out. 
 
 
---=-Jz6p1slE9LPPSo+Ehi4b--
 
---=-QKG+FsxALYS6A1WBd1Jk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+===== fs/proc/proc_misc.c 1.113 vs edited =====
+--- 1.113/fs/proc/proc_misc.c	2005-01-12 01:42:35 +01:00
++++ edited/fs/proc/proc_misc.c	2005-03-08 16:40:15 +01:00
+@@ -534,6 +534,66 @@ static struct file_operations proc_sysrq
+ };
+ #endif
+ 
++#ifdef CONFIG_PAGE_OWNER
++#include <linux/bootmem.h>
++#include <linux/kallsyms.h>
++static ssize_t
++read_page_owner(struct file *file, char __user *buf, size_t count, loff_t *ppos)
++{
++	unsigned long start_pfn = min_low_pfn;
++	static unsigned long pfn;
++	struct page *page;
++	char *kbuf, *modname;
++	const char *symname;
++	int ret = 0, next_idx = 1;
++	char namebuf[128];
++	unsigned long offset = 0, symsize;
++	int i;
++	
++	pfn = start_pfn + *ppos;
++	page = pfn_to_page(pfn);
++	for (; pfn < max_pfn; pfn++) {
++		if (!pfn_valid(pfn))
++			continue;
++		page = pfn_to_page(pfn);
++		if (page->order >= 0)
++			break;
++		next_idx++;
++	}
++
++	if (!pfn_valid(pfn))
++		return 0;
++	
++	*ppos += next_idx;
++
++	kbuf = kmalloc(count, GFP_KERNEL);
++	if (!kbuf)
++		return -ENOMEM;
++
++	ret = snprintf(kbuf, 1024, "Page allocated via order %d\n", page->order);
++	
++	for (i = 0; i < 8; i++) {
++		if (!page->trace[i])
++			break;
++		symname = kallsyms_lookup(page->trace[i], &symsize, &offset, &modname, namebuf);
++		ret += snprintf(kbuf + ret, count - ret, "[0x%lx] %s+%lu\n", 
++			page->trace[i], namebuf, offset);
++	}
++	
++	ret += snprintf(kbuf + ret, count -ret, "\n");
++	
++	if (copy_to_user(buf, kbuf, ret))
++		ret = -EFAULT;
++	
++	kfree(kbuf);
++	return ret;
++}
++
++static struct file_operations proc_page_owner_operations = {
++	.read		= read_page_owner,
++};
++#endif
++
+ struct proc_dir_entry *proc_root_kcore;
+ 
+ void create_seq_entry(char *name, mode_t mode, struct file_operations *f)
+@@ -610,6 +670,13 @@ void __init proc_misc_init(void)
+ 		entry = create_proc_entry("ppc_htab", S_IRUGO|S_IWUSR, NULL);
+ 		if (entry)
+ 			entry->proc_fops = &ppc_htab_operations;
++	}
++#endif
++#ifdef CONFIG_PAGE_OWNER
++	entry = create_proc_entry("page_owner", S_IWUSR | S_IRUGO, NULL);
++	if (entry) {
++		entry->proc_fops = &proc_page_owner_operations;
++		entry->size = 1024;
+ 	}
+ #endif
+ }
+===== include/linux/mm.h 1.215 vs edited =====
+--- 1.215/include/linux/mm.h	2005-03-05 07:41:14 +01:00
++++ edited/include/linux/mm.h	2005-03-08 16:38:02 +01:00
+@@ -260,6 +260,10 @@ struct page {
+ 	void *virtual;			/* Kernel virtual address (NULL if
+ 					   not kmapped, ie. highmem) */
+ #endif /* WANT_PAGE_VIRTUAL */
++#ifdef CONFIG_PAGE_OWNER 
++	int order;
++	unsigned long trace[8];
++#endif
+ };
+ 
+ /*
+===== lib/Kconfig.debug 1.13 vs edited =====
+--- 1.13/lib/Kconfig.debug	2005-01-21 06:00:21 +01:00
++++ edited/lib/Kconfig.debug	2005-03-08 16:38:02 +01:00
+@@ -140,6 +140,16 @@ config DEBUG_FS
+ 
+ 	  If unsure, say N.
+ 
++config PAGE_OWNER
++	bool "Track page owner"
++	depends on DEBUG_KERNEL && X86
++	help
++	  This keeps track of what call chain is the owner of a page, may
++	  help to find bare alloc_page(s) leaks. Eats a fair amount of memory.
++	  See Documentation/page_owner.c for user-space helper.
++
++	  If unsure, say N.
++	  
+ if !X86_64
+ config FRAME_POINTER
+ 	bool "Compile the kernel with frame pointers"
+===== mm/page_alloc.c 1.258 vs edited =====
+--- 1.258/mm/page_alloc.c	2005-01-31 07:20:14 +01:00
++++ edited/mm/page_alloc.c	2005-03-08 16:38:02 +01:00
+@@ -688,6 +688,43 @@ int zone_watermark_ok(struct zone *z, in
+ 	return 1;
+ }
+ 
++#ifdef CONFIG_PAGE_OWNER
++static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
++{
++	return	p > (void *)tinfo &&
++		p < (void *)tinfo + THREAD_SIZE - 3;
++}
++
++static inline void __stack_trace(struct page *page, unsigned long *stack, unsigned long bp)
++{
++	int i = 0;
++	unsigned long addr;
++	struct thread_info *tinfo = (struct thread_info *) 
++		((unsigned long)stack & (~(THREAD_SIZE - 1)));
++	
++	memset(page->trace, 0, sizeof(long) * 8);
++	
++#ifdef	CONFIG_FRAME_POINTER
++	while (valid_stack_ptr(tinfo, (void *)bp)) {
++		addr = *(unsigned long *)(bp + sizeof(long));
++		page->trace[i] = addr;
++		if (++i >= 8)
++			break;
++		bp = *(unsigned long *)bp;
++	}
++#else	
++	while (valid_stack_ptr(tinfo, stack)) {
++		addr = *stack++;
++		if (__kernel_text_address(addr)) {
++			page->trace[i] = addr;
++			if (++i >= 8)
++				break;
++		}
++	}
++#endif
++}
++#endif /* CONFIG_PAGE_OWNER */
++
+ /*
+  * This is the 'heart' of the zoned buddy allocator.
+  */
+@@ -851,6 +888,19 @@ nopage:
+ 	}
+ 	return NULL;
+ got_pg:
++
++#ifdef CONFIG_PAGE_OWNER /* huga... */
++	{
++	unsigned long address, bp;
++#ifdef X86_64
++	asm ("movq %%rbp, %0" : "=r" (bp) : );
++#else
++	asm ("movl %%ebp, %0" : "=r" (bp) : );
++#endif
++	page->order = (int) order;
++	__stack_trace(page, &address, bp);
++	}
++#endif /* CONFIG_PAGE_OWNER */	
+ 	zone_statistics(zonelist, z);
+ 	return page;
+ }
+@@ -904,6 +954,9 @@ fastcall void __free_pages(struct page *
+ 			free_hot_page(page);
+ 		else
+ 			__free_pages_ok(page, order);
++#ifdef CONFIG_PAGE_OWNER
++		page->order = -1;
++#endif
+ 	}
+ }
+ 
+@@ -1547,6 +1600,9 @@ void __init memmap_init_zone(unsigned lo
+ 			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
+ #endif
+ 		start_pfn++;
++#ifdef CONFIG_PAGE_OWNER
++		page->order = -1;
++#endif
+ 	}
+ }
+ 
+--- /dev/null	2004-08-25 14:12:53.000000000 +0200
++++ linus-2.5/Documentation/page_owner.c	2005-03-08 16:27:42.000000000 +0100
+@@ -0,0 +1,140 @@
++/*
++ * User-space helper to sort the output of /proc/page_owner
++ * 
++ * Example use:
++ * cat /proc/page_owner > page_owner.txt
++ * ./sort page_owner.txt sorted_page_owner.txt
++*/
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <string.h>
++
++struct block_list {
++	char *txt;
++	int len;
++	int num;
++};
++
++
++static struct block_list *list;
++static int list_size;
++static int max_size;
++
++struct block_list *block_head;
++
++int read_block(char *buf, FILE *fin)
++{
++	int ret = 0;
++	int hit = 0;
++	char *curr = buf;
++	
++	for (;;) {
++		*curr = getc(fin);
++		if (*curr == EOF) return -1;
++		
++		ret++;
++		if (*curr == '\n' && hit == 1)
++			return ret - 1;
++		else if (*curr == '\n')
++			hit = 1;
++		else
++			hit = 0;
++		curr++;
++	}
++}
++
++static int compare_txt(struct block_list *l1, struct block_list *l2)
++{
++	return strcmp(l1->txt, l2->txt);
++}
++
++static int compare_num(struct block_list *l1, struct block_list *l2)
++{
++	return l2->num - l1->num;
++}
++
++static void add_list(char *buf, int len)
++{
++	if (list_size != 0 &&
++	    len == list[list_size-1].len &&
++	    memcmp(buf, list[list_size-1].txt, len) == 0) {
++		list[list_size-1].num++;
++		return;
++	}
++	if (list_size == max_size) {
++		printf("max_size too small??\n");
++		exit(1);
++	}
++	list[list_size].txt = malloc(len+1);
++	list[list_size].len = len;
++	list[list_size].num = 1;
++	memcpy(list[list_size].txt, buf, len);
++	list[list_size].txt[len] = 0;
++	list_size++;
++	if (list_size % 1000 == 0) {
++		printf("loaded %d\r", list_size);
++		fflush(stdout);
++	}
++}
++
++int main(int argc, char **argv)
++{
++	FILE *fin, *fout;
++	char buf[1024];
++	int ret, i, count;
++	struct block_list *list2;
++	struct stat st;
++	
++	fin = fopen(argv[1], "r");
++	fout = fopen(argv[2], "w");
++	if (!fin || !fout) {
++		printf("Usage: ./program <input> <output>\n");
++		perror("open: ");
++		exit(2);
++	}
++
++	fstat(fileno(fin), &st);
++	max_size = st.st_size / 100; /* hack ... */
++
++	list = malloc(max_size * sizeof(*list));
++	
++	for(;;) {
++		ret = read_block(buf, fin);
++		if (ret < 0)
++			break;
++		
++		buf[ret] = '\0';
++		add_list(buf, ret);
++	}
++
++	printf("loaded %d\n", list_size);
++
++	printf("sorting ....\n");
++
++	qsort(list, list_size, sizeof(list[0]), compare_txt);
++
++	list2 = malloc(sizeof(*list) * list_size);
++
++	printf("culling\n");
++
++	for (i=count=0;i<list_size;i++) {
++		if (count == 0 || 
++		    strcmp(list2[count-1].txt, list[i].txt) != 0) {
++			list2[count++] = list[i];
++		} else {
++			list2[count-1].num += list[i].num;
++		}
++	}
++	
++	qsort(list2, count, sizeof(list[0]), compare_num);
++	
++	for (i=0;i<count;i++) {
++		fprintf(fout, "%d times:\n%s\n", list2[i].num, list2[i].txt);
++	}
++	return 0;
++}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
 
-iD8DBQBCLcw8LGKplK6pIwYRAn9RAJ9YVKWUOMEJ9q7b3UunPfqs9S94vwCfZXQ2
-WmqLXDnXwlWQi/Kd/jUjuQs=
-=3l2m
------END PGP SIGNATURE-----
-
---=-QKG+FsxALYS6A1WBd1Jk--

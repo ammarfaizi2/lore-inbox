@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTEZA6k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 20:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTEZA6k
+	id S263833AbTEZByf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 21:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTEZByf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 20:58:40 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:37507
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263834AbTEZA6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 20:58:38 -0400
-Date: Sun, 25 May 2003 21:00:28 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] xirc2ps_cs irq return fix
-In-Reply-To: <3ED16351.7060904@pobox.com>
-Message-ID: <Pine.LNX.4.50.0305252051570.28320-100000@montezuma.mastecende.com>
-References: <200305252318.h4PNIPX4026812@hera.kernel.org> <3ED16351.7060904@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 May 2003 21:54:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:4743 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263833AbTEZBye (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 21:54:34 -0400
+Date: Sun, 25 May 2003 19:07:10 -0700 (PDT)
+Message-Id: <20030525.190710.112599236.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: viro@parcelfarce.linux.theplanet.co.uk, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: netlink init order
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0305251511140.1741-100000@home.transmeta.com>
+References: <20030525220709.GJ6270@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.44.0305251511140.1741-100000@home.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 May 2003, Jeff Garzik wrote:
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Sun, 25 May 2003 15:12:28 -0700 (PDT)
+   
+   Davem? Who uses this thing?
+   
+[ was away past 2 days, sorry... ]
 
-> As I mentioned in the thread, this piece of code is obviously wrong.
-> 
-> Think about how scalable this fix is??  Do you really want to crap up 
-> all pcmcia drivers with this silly -- and wrong -- check?
-
-My interpretation of it is the PCMCIA controller was triggering interrupts 
-on exit and the link handler for the card was still installed even after 
-the netdevice was down.
-
-> IIRC the pcmcia layer or new irqreturn_t was blamed for the problem. 
-> Come on.  Linux mantra is -against- papering over bugs.
-
-I have to take responsibility for that little mess :(
-
-	Zwane
--- 
-function.linuxpower.ca
+I doubt any users of netlink "devices" exist in nature anymore.
+I remember in 2.2.x we marked it as deprecated. :-)
+   
+That being said, you should be able to safely use module_init() there.

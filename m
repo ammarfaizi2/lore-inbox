@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUHIGlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266185AbUHIGok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUHIGlx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 02:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHIGlx
+	id S266185AbUHIGok (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 02:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUHIGok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 02:41:53 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:662 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S266170AbUHIGlw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 02:41:52 -0400
-Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Wu Jian Feng <jianfengw@mobilesoft.com.cn>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-mtd@lists.infradead.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040809015950.GA20408@mobilesoft.com.cn>
-References: <20040807150458.E2805@flint.arm.linux.org.uk>
-	 <20040808061206.GA5417@mobilesoft.com.cn>
-	 <1091962414.1438.977.camel@imladris.demon.co.uk>
-	 <20040809015950.GA20408@mobilesoft.com.cn>
-Content-Type: text/plain
-Message-Id: <1092033702.1438.2169.camel@imladris.demon.co.uk>
+	Mon, 9 Aug 2004 02:44:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29328 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266185AbUHIGnt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 02:43:49 -0400
+Date: Mon, 9 Aug 2004 08:43:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: bil@beeb.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with Mandrake 10.0 + kernel 2.6.8-rc2
+Message-ID: <20040809064321.GF10418@suse.de>
+References: <200408061409.56670.bil@beeb.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 09 Aug 2004 07:41:42 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408061409.56670.bil@beeb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 09:59 +0800, Wu Jian Feng wrote:
-> I see the same thing as rmk, used both gcc-3.3.2 and 3.4.0,
-> on a OMAP730 (arm926ejs).
+On Fri, Aug 06 2004, bil@beeb.net wrote:
+> Hi,
+> I've recently moved to Mandrake 10.0 (prompted by a defunct hard disk
+> which neccesitated a complete re-install) and have had several problems.
+> As a result I have upgraded my kernel from 2.6.3 to 2.6.7 and then 2.6.8-rc2.
+> Unfortunately the fire may be hotter than the frying-pan (Old English
+> Proverb) and I'm now in a state where I can't mount CDroms. I can
+> read the raw device OK, so the basic driver (ide-cd) is OK, or at least
+> it seems to be. I've added traces to isofs.ko and established that this
+> initialises OK, but when I attempt to mount the driver it gets a return
+> code of -EINVAL when it tries to read the superblock (get_sb_bdev?()).
+> 
+> I'm pretty sure that this must be something set up wrong somewhere as
+> it's unlikely that 2.6.7 (or 2.6.8) would be released without someone
+> somewhere needing to mount a cdrom, but I have no idea where to go from
+> here. I am not a kernel-hacker, though I did some many moons ago, but
+> I know enough to patch and rebuild modules and test them. I took a look at
+> the source code of ide-cd.c but can't make much sense of the way things are
+> done these days, and have too many other things to do....
+> Can anyone give me advice (or even better a fix)?
 
-Russell hasn't been able to reproduce it. Can you? If so, how -- and can
-you do same with CONFIG_JFFS2_FS_DEBUG=1 and show me the output?
+First step in bug reporting is including a step-by-step way to reproduce
+(ie what you do when it fails). Also please include a dmesg -s100000
+from a booted system, and your .config from 2.6.7.
 
 -- 
-dwmw2
-
+Jens Axboe
 

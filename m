@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272764AbTHENDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 09:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272780AbTHENDy
+	id S272731AbTHEMwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 08:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272734AbTHEMwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 09:03:54 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39908 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S272764AbTHENDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 09:03:32 -0400
-Date: Tue, 5 Aug 2003 15:03:24 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>, heine@instmath.rwth-aachen.de
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: time for some drivers to be removed?
-Message-ID: <20030805130324.GC16091@fs.tum.de>
-References: <200308051242.h75CgSj6028203@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Aug 2003 08:52:11 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:9663 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S272731AbTHEMwF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 08:52:05 -0400
+From: Bernd Schubert <bernd-schubert@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Interactive Usage of 2.6.0.test1 worse than 2.4.21
+Date: Tue, 5 Aug 2003 14:52:02 +0200
+User-Agent: KMail/1.5.3
+References: <200308050704.22684.martin.konold@erfrakon.de>
+In-Reply-To: <200308050704.22684.martin.konold@erfrakon.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200308051242.h75CgSj6028203@harpo.it.uu.se>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308051452.02417.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 02:42:28PM +0200, Mikael Pettersson wrote:
-> On 27 Jul 2003 21:56:11 +0100, Alan Cox wrote:
-> > On Sul, 2003-07-27 at 21:56, Adrian Bunk wrote:
-> > > That's no problem for me.
-> > > 
-> > > The only question is how to call the option that allows building only on
-> > > UP (e.g. cli/sti usage in the driver)? My suggestion was BROKEN_ON_SMP,
-> > > would you suggest OBSOLETE_ON_SMP?
-> > 
-> > Interesting question - whatever I guess. We don't have an existing convention.
-> > How many drivers have we got nowdays that failing on just SMP ?
-> 
-> ftape fails on SMP due to sti/save_flags/restore_flags removal.
->...
-> I have the HW so I can test patches if someone feels like fixing this.
+On Tuesday 05 August 2003 07:04, Martin Konold wrote:
+> Hi,
+>
+> when using  2.6.0.test1 on a high end laptop (P-IV 2.2 GHz, 1GB RAM) I
+> notice very significant slowdown in interactive usage compared to 2.4.21.
+>
+> The difference is most easily seen when switching folders in kmail. While
+> 2.4.21 is instantaneous 2.6.0.test1 shows the clock for about 2-3 seconds.
+>
+> I am using maildir folders on reiserfs.
+>
+> Can anyone verify this behaviour?
+>
 
-There seems to be an upgrade f the ftape code available at [1], but I 
-haven't investigated on the status or plans to integrate it into 2.6.
+Yes, I can definitely verify this, its not only related to kde/kmail, all 
+other application are affected as well. Btw, I already upgraded to 
+2.6.0-test2. 
+Also, the slowdown seems to be related to hd-accessing/caching. My root-fs hd 
+makes rather loud noises on accessing it -- with 2.6.0-testX the frequency of 
+disk-accessing and so also the noise-level has dramatically increased 
+compared to 2.4.x
 
-@Claus-Justus:
-Could you comment on this?
 
-> /Mikael
+So following the advices, I will try bk4 and mm4 and also will do the 
 
-cu
-Adrian
+>CPU profiles, e.g.
+>readprofile -n -m /boot/System.map-`uname -r` | sort -rn -k 1,1 | head -25
+>Also logs of vmstat 1.
 
-[1] http://www.instmath.rwth-aachen.de/~heine/ftape/
+stuff.
+
+
+Regards,	
+	Bernd
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Bernd Schubert
+Physikalisch Chemisches Institut / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
+e-mail: bernd.schubert@pci.uni-heidelberg.de

@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268439AbTCFWHZ>; Thu, 6 Mar 2003 17:07:25 -0500
+	id <S268432AbTCFWPS>; Thu, 6 Mar 2003 17:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268444AbTCFWHZ>; Thu, 6 Mar 2003 17:07:25 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15121
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S268439AbTCFWHY>; Thu, 6 Mar 2003 17:07:24 -0500
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@digeo.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030306124257.4bf29c6c.akpm@digeo.com>
-References: <20030228202555.4391bf87.akpm@digeo.com>
-	 <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
-	 <20030306124257.4bf29c6c.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046989091.715.46.camel@phantasy.awol.org>
+	id <S268444AbTCFWPR>; Thu, 6 Mar 2003 17:15:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46084 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268432AbTCFWPQ>; Thu, 6 Mar 2003 17:15:16 -0500
+Date: Thu, 6 Mar 2003 22:25:46 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robin Holt <holt@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: Make ipconfig.c work as a loadable module.
+Message-ID: <20030306222546.K838@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Robin Holt <holt@sgi.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	netdev@oss.sgi.com
+References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk> <20030306221136.GB26732@gtf.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 06 Mar 2003 17:18:11 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030306221136.GB26732@gtf.org>; from jgarzik@pobox.com on Thu, Mar 06, 2003 at 05:11:36PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 15:42, Andrew Morton wrote:
+On Thu, Mar 06, 2003 at 05:11:36PM -0500, Jeff Garzik wrote:
+> On Thu, Mar 06, 2003 at 10:34:16PM +0000, Alan Cox wrote:
+> > On Thu, 2003-03-06 at 21:10, Robin Holt wrote:
+> > > The patch at the end of this email makes ipconfig.c work as a loadable 
+> > > module under the 2.5.  The diff was taken against the bitkeeper tree 
+> > > changeset 1.1075.
+> > 
+> > The right fix is to delete ipconfig.c, it has been the right fix for a long
+> > long time. There are initrd based bootp/dhcp setups that can also then mount
+> > a root NFS partition and they do *not* need any kernel helper.
+> 
+> The klibc tarball on kernel.org also has ipconfig-type code, waiting for
+> initramfs early userspace :)
+> 
+> Many have wanted to delete ipconfig.c for a while now...
 
-> So I'm a happy camper, and will be using Ingo's combo patch.  But I do not
-> use XMMS and xine and things like that - they may be running like crap with
-> these patches.  I do not know, and I do not have a base to compare against
-> even if I could work out how to get them going.
+Yep, can't the deletion wait a couple more weeks or so until klibc gets
+merged?  It's not like ipconfig.c is broken currently, is it?
 
-Linus,
-
-This is great for me, too.  I played around with some mp3 playing and
-did the akpm-window-wiggle test.  It is definitely the smoothest.
-
-I think we definitely need Ingo's tweaked scheduler parameters - I have
-been running a similar set of values myself for some time.  But your
-patch seems to make the difference.
-
-This is the most subject stuff on the planet, but here is a rough
-ranking of interactivity performance in the bad cases on a scale of 1
-(worse) to 5 (best):
-
-linus-patch + tweaked-parameters:	5
-linus-patch:				4
-tweaked-parameters + reniced X:		3.5
-tweaked-parameters:			2.5
-stock:					1
-
-Sorry, did not test Ingo's full patch.  It is basically the tweaked
-parameters plus the sync wakeup which looks correct.
-
-In the average case, the O(1) scheduler does fine without any changes. 
-The heuristic works.  It is just the worst-case cases where we need
-help, and from above I think we have that.
-
-	Robert Love
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

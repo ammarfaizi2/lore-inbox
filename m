@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316243AbSFEU1r>; Wed, 5 Jun 2002 16:27:47 -0400
+	id <S316372AbSFEUbc>; Wed, 5 Jun 2002 16:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSFEU1r>; Wed, 5 Jun 2002 16:27:47 -0400
-Received: from www.microgate.com ([216.30.46.105]:30733 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S316243AbSFEU1p>; Wed, 5 Jun 2002 16:27:45 -0400
-Subject: Problem with new driver model?
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 05 Jun 2002 15:25:08 -0500
-Message-Id: <1023308709.791.8.camel@diemos.microgate.com>
+	id <S316390AbSFEUbb>; Wed, 5 Jun 2002 16:31:31 -0400
+Received: from ns.suse.de ([213.95.15.193]:19976 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316372AbSFEUba>;
+	Wed, 5 Jun 2002 16:31:30 -0400
+Date: Wed, 5 Jun 2002 22:31:31 +0200
+From: Dave Jones <davej@suse.de>
+To: Simon Turvey <turveysp@ntlworld.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Devfs and driverfs
+Message-ID: <20020605223131.L16262@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Simon Turvey <turveysp@ntlworld.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <000901c20ccf$00baa230$030ba8c0@mistral>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When testing the drivers I maintain on 2.5.20, I hit the
-BUG_ON in include/linux/devices.txt:115.
+On Wed, Jun 05, 2002 at 09:24:32PM +0100, Simon Turvey wrote:
+ > I apologise if this is a trivial question but I was hoping someone could
+ > explain or point me in the direction of more info.
+ > 
+ > I understand the purpose and reason for devfs but I cannot find any info on
+ > driverfs.  What's it for?
 
-This is in get_driver() which is called in a chain from:
-driver_for_each_dev()
-driver_unbind()
-do_driver_unbind()
-free_module()
-sys_delete_module()
+driverfs is a 'view by connection' view of everything in the system.
+It useful for a number of things, from Power management to hinv type
+tools.  Read more at Documentation/driver-model.txt
 
-This occurs when unloading the modules (rmmod).
-This was not the case on 2.5.14 (the last kernel I tested).
+        Dave
 
-The machine is an SMP dual PentiumII-400.
-
-A reading of Documentation/driver-model.txt indicates that
-changes were made to the global driver model that should not require
-changes to individual device specific drivers.
-
-Is the documentation correct and this is a bug with the
-new driver model code, or are there changes required for
-all the device specific drivers.
-
-Thanks,
-
-Paul Fulghum
-paulkf@microgate.com
-
-
-
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

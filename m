@@ -1,65 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290709AbSAROnH>; Fri, 18 Jan 2002 09:43:07 -0500
+	id <S290711AbSAROpH>; Fri, 18 Jan 2002 09:45:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290707AbSAROm5>; Fri, 18 Jan 2002 09:42:57 -0500
-Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:49158 "HELO
-	mail.et6.tu-harburg.de") by vger.kernel.org with SMTP
-	id <S290709AbSAROmm>; Fri, 18 Jan 2002 09:42:42 -0500
-Message-ID: <3C483460.70100@tu-harburg.de>
-Date: Fri, 18 Jan 2002 15:42:40 +0100
-From: Sebastian Zimmermann <S.Zimmermann@tu-harburg.de>
-Organization: Technische =?ISO-8859-15?Q?Universit=E4t?= Hamburg-Harburg
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011213
-X-Accept-Language: de, en
+	id <S290710AbSAROox>; Fri, 18 Jan 2002 09:44:53 -0500
+Received: from at8.tphys.uni-linz.ac.at ([140.78.103.8]:36109 "EHLO
+	mail.tphys.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S290711AbSAROof>; Fri, 18 Jan 2002 09:44:35 -0500
+Message-Id: <200201181444.g0IEiQD00868@at18.tphys.uni-linz.ac.at>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Alexander Puchmayr <alexander.puchmayr@jku.at>
+Reply-To: alexander.puchmayr@jku.at
+Organization: University Linz, Austria
+To: linux-atm-general-request@lists.sourceforge.net
+Subject: ATM ENI Problems with SMP
+Date: Fri, 18 Jan 2002 15:44:25 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: I2O kernel oops with Promise SuperTrak SX6000
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi there,
 
-since Promise did not answer, I am asking here for help again.
+I have an Efficient ENI 155 ATM adapter running with Linux 2.4.16/17.
+When I turn on SMP support (The board is an ASUS P2B-DS with two P3/800), the 
+eni driver crashes with "driver error - ident mismatch"-Error.
 
-We have a strange problem with the Promise SuperTrak SX6000 that leads 
-to a kernel oops:
+Without SMP support activated in the kernel, the card works fine.
 
-When the system is powered up, the SuperTrak BIOS is initializing the 
-adapter. If we manually *abort* the initialization, Linux will boot 
-without problems and we can use the hardware raid.
 
-However, if we let the controller initialze the adapter (that is the 
-default), the kernel will always Oops when I2O is loaded:
+Is there a problem with SMP-Support for ATM?
 
-Oops: 0000
-Call Trace: 
-[<c01f7fd6>][<c0107d6d>][<c0107ed6>][<c0105150>][<c0105150>][<c0109d48>][<c0105150>][<c0105150>][<c0105173>][<c01051d9>][<c0105000>][<c0105027>]
-Warning (Oops_read): Code line not seen, dumping what data is available
 
-Trace; c01f7fd6 <i2o_pci_interrupt+a/14>
-Trace; c0107d6c <handle_IRQ_event+30/5c>
-Trace; c0107ed6 <do_IRQ+6a/a8>
-Trace; c0105150 <default_idle+0/28>
-Trace; c0105150 <default_idle+0/28>
-Trace; c0109d48 <call_do_IRQ+6/e>
-Trace; c0105150 <default_idle+0/28>
-Trace; c0105150 <default_idle+0/28>
-Trace; c0105172 <default_idle+22/28>
-Trace; c01051d8 <cpu_idle+40/54>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105026 <rest_init+26/28>
+I turned on the ENI_DEBUG-option, the output is:
 
-This error is reproducable with all current kernels (2.4.9, 2.4.14, 2.4.17).
+Jan 17 18:16:06 atm73 kernel: eni(itf 0): driver error - ident mismatch
+Jan 17 18:16:06 atm73 kernel: ---recent events---
+Jan 17 18:16:06 atm73 kernel: poll_rx.slow
+Jan 17 18:16:06 atm73 kernel: rx_vcc(1)
+Jan 17 18:16:06 atm73 kernel: rx_vcc(2: host dsc=0x12a1, nic dsc=0x1ab2)
+Jan 17 18:16:06 atm73 kernel: rx_aal5
+Jan 17 18:16:06 atm73 kernel: rx_vcc(3)
+Jan 17 18:16:06 atm73 kernel: poll_rx done
+Jan 17 18:16:06 atm73 kernel: INT: RX DMA complete, starting dequeue_rx
+Jan 17 18:16:06 atm73 kernel: dequeued (size=2065,pos=0x1ab2)
+Jan 17 18:16:06 atm73 kernel: pushing (len=8216)
+Jan 17 18:16:06 atm73 kernel: dequeue_rx done, starting poll_rx
+Jan 17 18:16:06 atm73 kernel: poll_rx done
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf529eca0, 80 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x352948c8+0x50
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
+Jan 17 18:16:06 atm73 kernel: INT: service, starting get_service
+Jan 17 18:16:06 atm73 kernel: getting from service
+Jan 17 18:16:06 atm73 kernel: get_service done, starting poll_rx
+Jan 17 18:16:06 atm73 kernel: poll_rx.slow
+Jan 17 18:16:06 atm73 kernel: rx_vcc(1)
+Jan 17 18:16:06 atm73 kernel: rx_vcc(2: host dsc=0x1ae1, nic dsc=0x1b1e)
+Jan 17 18:16:06 atm73 kernel: rx_aal5
+Jan 17 18:16:06 atm73 kernel: rx_vcc(3)
+Jan 17 18:16:06 atm73 kernel: poll_rx done
+Jan 17 18:16:06 atm73 kernel: INT: RX DMA complete, starting dequeue_rx
+Jan 17 18:16:06 atm73 kernel: dequeued (size=61,pos=0x1b1e)
+Jan 17 18:16:06 atm73 kernel: pushing (len=202)
+Jan 17 18:16:06 atm73 kernel: dequeue_rx done, starting poll_rx
+Jan 17 18:16:06 atm73 kernel: poll_rx done
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf52c30c0, 9188 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x35314008+0x23e4
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf52c2b80, 9188 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x35308008+0x23e4
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf5299180, 9188 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x35318008+0x23e4
+Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf529ede0, 9188 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x3530c008+0x23e4
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf529f140, 9188 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x35310008+0x23e4
+Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf5299180, 47 bytes
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf53269a0, 9188 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x353a4c60+0x2f
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x37e94000+0x1
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x35320008+0x23e4
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf5299680, 9188 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x352dc008+0x23e4
+Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: do_tx: skb=0xf543f520, 1416 bytes
+Jan 17 18:16:06 atm73 kernel: put_dma: 0x357c7808+0x588
+Jan 17 18:16:06 atm73 kernel: INT: TX DMA COMPLETE
+Jan 17 18:16:06 atm73 kernel: INT: TX COMPLETE
+Jan 17 18:16:06 atm73 last message repeated 2 times
+Jan 17 18:16:06 atm73 kernel: bug interrupt
+Jan 17 18:16:06 atm73 kernel: ---dump ends here---
 
-There are no other Promise controllers in the system. Changing PCI slots 
-or reassigning IRQs doesn't help either.
 
-My guess is that the i2o module tries to initialize the board. When it 
-already was initialized by the BIOS, the system crashes.
+Thanks in advance
+	Alexander Puchmayr
 
-Sebastian
+-- 
+---
+Alexander Puchmayr 
+Institut für Theoretische Physik     Altenbergerstr. 69, A-4040 Linz
+Johannes-Kepler Universitaet         Phone: ++43 732/2468-8633
+A-4040 Linz, Austria                 Fax:   ++43 732/2468-8585
+E-Mail: alexander.puchmayr@jku.at
+
 

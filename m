@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264852AbUEYOMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264863AbUEYOP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264852AbUEYOMM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 10:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbUEYOMM
+	id S264863AbUEYOP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 10:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbUEYOP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 10:12:12 -0400
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:4231 "EHLO
-	kartuli.timesys") by vger.kernel.org with ESMTP id S264852AbUEYOMJ
+	Tue, 25 May 2004 10:15:28 -0400
+Received: from postman1.arcor-online.net ([151.189.20.156]:12228 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S264863AbUEYOP0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 10:12:09 -0400
-Message-ID: <40B35448.3060806@timesys.com>
-Date: Tue, 25 May 2004 10:12:24 -0400
-From: "La Monte H.P. Yarroll" <piggy@timesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en, de-de
-MIME-Version: 1.0
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Explicitly documenting patch submission
-References: <1YUY7-6fF-11@gated-at.bofh.it> <m3fz9pd2dw.fsf@averell.firstfloor.org> <200405242250.38442.tglx@linutronix.de> <Pine.LNX.4.58.0405241400280.32189@ppc970.osdl.org> <20040525034920.GY5414@waste.org> <Pine.LNX.4.58.0405242100170.32189@ppc970.osdl.org> <MPG.1b1d29dfeabcc73f9896a1@news.gmane.org>
-In-Reply-To: <MPG.1b1d29dfeabcc73f9896a1@news.gmane.org>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+	Tue, 25 May 2004 10:15:26 -0400
+Subject: synaptics touchpad is still 'jumpy' in 2.6.7-rc1
+From: Thorsten Hirsch <thorstenhirsch@arcor.de>
+To: "linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1085494126.9350.23.camel@minime.hirsch.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 25 May 2004 16:08:46 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuseppe Bilotta wrote:
+Hi again.
 
->Linus Torvalds wrote:
->  
->
->>>>Any process that doesn't allow for common sense is just broken, and
->>>>clearly from a _legal_ standpoint it doesn't matter if we track who fixed
->>>>out (atrocious) spelling errors.
->>>>        
->>>>
->>>"our"
->>>      
->>>
->>Ahem.
->>
->>"I did that on purpose to make a point".
->>
->>Sure, that's the ticket.
->>
->>		Linus "ehh, good save" Torvalds
->>    
->>
->
->Maybe in English "fix out" is a phrasal verb? Uh? Can we make 
->it up like that? Any native speaker?
->  
->
-It is now.  On behalf of native speakers of English I hereby welcome the 
-phrasal verb
-"fix out" to the language.  I even offer a defintion and an etymological 
-reference:
+The title says it. My synaptics touchpad is still jumpy and I also get
+those out-of-sync errors in dmesg:
 
-fix out: To fix or repair by removing.  E.g. "It doesn't matter if we 
-track who fixed
-out spelling errors." (Torvalds, lkml,  2004)
+Synaptics driver lost sync at byte 4
+Synaptics driver lost sync at byte 1
+Synaptics driver lost sync at byte 1
+Synaptics driver lost sync at byte 4
+Synaptics driver lost sync at byte 1
+Synaptics driver lost sync at byte 1
+Synaptics driver lost sync at byte 1
+Synaptics driver resynced.
+psmouse.c: TouchPad at isa0060/serio2/input0 lost synchronization,
+throwing 2 bytes away.
+[...and again and again...]
 
-See, it's official now.
+I know of the pcilink patch for ACPI, Len Brown has posted, but this one
+doesn't do the trick for me. I also tried 2.6.6-mm5 and 2.6.7-rc1 (where
+this patch is already included), but still get the same results.
 
+I even don't know if it's ACPI-related, because the only thing that
+makes it seem to be so is that the battery data (gkrellm monitor and
+also /proc/acpi/battery) is broken, e.g. remaining capacity is going to
+values >10000mWh for the moment when my touchpad is out of sync. But
+then when syncing back the ACPI battery data is okay again, too.
+But my point is, that when using the kernel parameter acpi=off I still
+have the same problems with my touchpad.
+
+My hardware is also okay as I've got no problems at all with kernel
+2.4.x.
+
+Bye.
+Thorsten
 -- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell's sig
+PGP public key:
+http://home.arcor.de/thorstenhirsch/thirschatwebde.asc
 

@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUJHOZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269987AbUJHO1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268185AbUJHOZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 10:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269801AbUJHOZ5
+	id S269987AbUJHO1V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 10:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269991AbUJHO1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 10:25:57 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:39326 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S268185AbUJHOZz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 10:25:55 -0400
-Date: Fri, 08 Oct 2004 07:24:37 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@hpce.nec.com>
-cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net, colpatch@us.ibm.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <1382270000.1097245476@[10.10.2.4]>
-In-Reply-To: <200410081123.45762.efocht@hpce.nec.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20041007105425.02e26dd8.pj@sgi.com> <1344740000.1097172805@[10.10.2.4]> <200410081123.45762.efocht@hpce.nec.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 8 Oct 2004 10:27:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31179 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269987AbUJHO1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 10:27:09 -0400
+Date: Fri, 8 Oct 2004 16:28:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+Message-ID: <20041008142826.GA20766@elte.hu>
+References: <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <4165832E.1010401@cybsft.com> <4165A729.5060402@cybsft.com> <20041007215546.GA8541@elte.hu> <4165F050.5050904@cybsft.com> <20041008070252.GA30823@elte.hu> <41669E2D.6060705@cybsft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <41669E2D.6060705@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thursday 07 October 2004 20:13, Martin J. Bligh wrote:
->> It all just seems like a lot of complexity for a fairly obscure set of
->> requirements for a very limited group of users, to be honest. Some bits
->> (eg partitioning system resources hard in exclusive sets) would seem likely
->> to be used by a much broader audience, and thus are rather more attractive.
+
+* K.R. Foley <kr@cybsft.com> wrote:
+
+> First let me say that, in case you haven't been following the other
+> thread about this "2.6.9-rc3-mm3 fails to detect aic7xxx", I resolved
+> this by backing out the bk-scsi.patch and bk-scsi-target.patch.
+> Without those everything works fine.
+
+> >could you send me the following info:
+> >
+> >  - full log of a failed boot
 > 
-> May I translate the first sentence to: the requirements and usage
-> models described by Paul (SGI), Simon (Bull) and myself (NEC) are
-> "fairly obscure" and the group of users addressed (those mainly
-> running high performance computing (AKA HPC) applications) is "very
-> limited"? If this is what you want to say then it's you whose view is
-> very limited. Maybe I'm wrong with what you really wanted to say but I
-> remember similar arguing from your side when discussing benchmark
-> results in the context of the node affine scheduler.
+> I would like to be able to be able to send you this, but it doesn't
+> get to the point of logging. [...]
 
-No, I was talking about the non-exclusive part of cpusets that wouldn't
-fit inside another mechanism. The basic partitioning I have no problem
-with, and that seemed to cover most of the requirements, AFAICS.
+meanwhile i could reproduce an aic79xx detection problem on a
+testsystem, so no need to send the log.
 
-As I've said before, the exclusive stuff makes sense, and is useful to
-a wider audience, I think. Having non-exclusive stuff whilst still 
-requiring physical partioning is what I think is obscure, won't work
-well (cpus_allowed is problematic) and could be done in userspace anyway.
-
-M.
+	Ingo

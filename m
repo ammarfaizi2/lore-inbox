@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267354AbTAGJlL>; Tue, 7 Jan 2003 04:41:11 -0500
+	id <S267364AbTAGJqd>; Tue, 7 Jan 2003 04:46:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267358AbTAGJlL>; Tue, 7 Jan 2003 04:41:11 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:16900 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S267354AbTAGJlK>; Tue, 7 Jan 2003 04:41:10 -0500
-Message-ID: <3E1AA2DF.E6991506@aitel.hist.no>
-Date: Tue, 07 Jan 2003 10:50:23 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.54 i686)
-X-Accept-Language: no, en, en
+	id <S267365AbTAGJqd>; Tue, 7 Jan 2003 04:46:33 -0500
+Received: from mx15.sac.fedex.com ([199.81.197.54]:65292 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S267364AbTAGJqb>; Tue, 7 Jan 2003 04:46:31 -0500
+Date: Tue, 7 Jan 2003 17:52:55 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Tomas Szepe <szepe@pinerecords.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.20 IDE for 2.4.21-pre3
+In-Reply-To: <Pine.LNX.4.10.10301062354120.421-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.51.0301071752230.14880@boston.corp.fedex.com>
+References: <Pine.LNX.4.10.10301062354120.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Kaleb Pederson <kibab@icehouse.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: windows=stable, linux=reboots 5 times/50 minutes
-References: <LDEEIFJOHNKAPECELHOAAEJICCAA.kibab@icehouse.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/07/2003
+ 05:55:01 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/07/2003
+ 05:55:04 PM,
+	Serialize complete at 01/07/2003 05:55:04 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kaleb Pederson wrote:
-> 
-> Alan Cox Wrote:
-> > Start with the easy bits. Check the CPU fans, run memtest86, reseat all
-> the cards
-> > ... Also if your windows test wasnt SMP its not going to have tested much.
-> 
-> I just reseated everything on my system and it still keeps rebooting.  I
-> have two nice fans for my processors using thermal compound and both are
-> working correctly.  I forgot to mention that I ran through several
-> iterations of memtest86 a few weeks ago and it found no problems.  I also
-> re-ran it two days ago and it again passed several iterations without errors
-> at which point I started looking to other things.  LKML is my last resort.
 
-Are you running the _same_ version of linux that worked with the drive
-that broke?
-If not, try an older kernel.  The current one could be buggy in some
-way.
-
-Assuming that the new drive is the only difference, try using hdparm
-and deliberately run a slower transfer mode than what you do now.
-Or try turning off DMA.  The new drive could have different
-timing requirements, and fail to work with a linux setup "tweaked"
-for the other drive.  Windows don't necessarily use the same
-transfer speed as linux and could be fine because of that.
-
-Also, consider mounting /var synchronous.  This is slow, a 
-debugging-only thing, but you stand a better chance of logging
-the failure in /var/log/syslog.  (You have looked there
-already?)  Any kind of error message will help us
-find out whats wrong.  You may also want to try
-booting without X to see if you get any oops/panic/bug
-messages on the console when it crashes.
+Just to let you know that the patch works.
 
 
-Helge Hafting
+Thanks,
+Jeff
+[ jchua@fedex.com ]
+
+On Mon, 6 Jan 2003, Andre Hedrick wrote:
+
+>
+> Not a problem!
+>
+> I am distracted with other issues :-/
+>
+> I would ask that you do it into sends.
+> One to lkml and a second direct to me.
+>
+> All lkml from/to/cc/bcc traffic drops into procmailrc's ${}/KERNEL
+>
+> Only direct email not effected by the list of procmail rules goes straight
+> to a first read directory.
+>
+> Cheers,
+>
+> On Tue, 7 Jan 2003, Tomas Szepe wrote:
+>
+> > > [andre@linux-ide.org]
+> > >
+> > > I placed this on k.o for you and listed this email as the origin of the
+> > > work.  I am assuming this is okay.  If not please let me know.
+> >
+> > Thanks a lot, Andre.  Can I send further diffs of this kind to you?
+> >
+> > I'm removing the patch from my web now, as it's available from
+> > http://www.[country].kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.21/
+> >
+> > --
+> > Tomas Szepe <szepe@pinerecords.com>
+> >
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

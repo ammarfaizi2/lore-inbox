@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbUJ0Amh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbUJ0Aqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbUJ0Amh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 20:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUJ0AjZ
+	id S261588AbUJ0Aqm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 20:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbUJ0Aqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 20:39:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28854 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261593AbUJ0Ai5 (ORCPT
+	Tue, 26 Oct 2004 20:46:40 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:61870 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261588AbUJ0AnG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 20:38:57 -0400
-Date: Tue, 26 Oct 2004 17:42:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: nickpiggin@yahoo.com.au, riel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: lowmem_reserve (replaces protection)
-Message-Id: <20041026174237.44ab2b23.akpm@osdl.org>
-In-Reply-To: <20041027002536.GM14325@dualathlon.random>
-References: <20041025170128.GF14325@dualathlon.random>
-	<Pine.LNX.4.44.0410252147330.30224-100000@chimarrao.boston.redhat.com>
-	<20041026015825.GU14325@dualathlon.random>
-	<417DC8F2.7000902@yahoo.com.au>
-	<20041026040429.GW14325@dualathlon.random>
-	<417DCFDD.50606@yahoo.com.au>
-	<20041027002536.GM14325@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 26 Oct 2004 20:43:06 -0400
+Date: Wed, 27 Oct 2004 02:44:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.3
+Message-ID: <20041027004406.GA2607@elte.hu>
+References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027001542.GA29295@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@novell.com> wrote:
->
-> I don't see any other equivalent teminology besides my "classzone" word
-> existing,
 
-I'll confess that I've never understood what "classzone" _means_.  Is it "a
-zone from amongst several classes" or what?
+> i have released the -V0.3 Real-Time Preemption patch, which can be
+> downloaded from:
+> 
+> 	http://redhat.com/~mingo/realtime-preempt/
+> 
+> this is a fixes-only release, but still experimental.
 
-If it was "zone_class" then it might mean "a particular classification of
-zones".  Maybe that's what you meant?
+i've uploaded -V0.3.1, it fixes a trivial procfs oversight (related to
+the new TASK_RUNNING_MUTEX state) that just triggered a crash in one of
+my stresstests.
 
-I think a lot of other mm hackers share my confusion, which is why
-"classzone" has been trickling away.  But yeah, we haven't been replacing it
-with anything very useful.
+	Ingo

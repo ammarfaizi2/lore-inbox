@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268575AbUJDVnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268658AbUJDVsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268575AbUJDVnP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 17:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268591AbUJDVgM
+	id S268658AbUJDVsS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 17:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268657AbUJDVrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 17:36:12 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:25547 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S268609AbUJDVcG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 17:32:06 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH/RFC:  driver model/pmcore wakeup hooks (0/4)
-Date: Mon, 4 Oct 2004 13:54:37 -0700
-User-Agent: KMail/1.6.2
-Cc: linux-usb-devel@lists.sourceforge.net
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 4 Oct 2004 17:47:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37819 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268646AbUJDVgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 17:36:04 -0400
+Date: Mon, 4 Oct 2004 14:39:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: gww@btinternet.com, s.rivoir@gts.it, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm2
+Message-Id: <20041004143953.10e6d764.akpm@osdl.org>
+In-Reply-To: <20041004143253.50a82050.akpm@osdl.org>
+References: <20041004020207.4f168876.akpm@osdl.org>
+	<4161462A.5040806@gts.it>
+	<20041004121805.2bffcd99.akpm@osdl.org>
+	<4161BCCB.4080302@btinternet.com>
+	<20041004143253.50a82050.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410041354.37932.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's been some discussion about limitations of the current
-pmcore for systems that want to be partially suspended most
-of the time.  That is, where the power management needs to
-affect ACPI G0 states, not G1 states like S1/S3/S4, and isn't cpufreq.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Could you try this patch?  It'll locate the bug for us.
 
-One significant example involves USB mice.  If they were to be
-suspended (usb_suspend_device) after a few seconds of inactivity,
-that change could often spread up the device tree and let the
-USB host controller stop DMA access.  Some x86 CPUs could
-then enter C3 and save a couple Watts of battery power ... until
-the mouse moved, and woke that branch of the device tree
-for a while (until the mouse went idle again).
+Don't worry about this - Ingo found it.
 
-Most of the parts for that are now in place.  But trying to use
-them will turn up places where the pieces don't fit together
-very well yet ... and wakeup support is one of them!  So for
-example it's not possible to disable such an autosuspend
-mechanism for mice that can't actually issue wakeups.
+You could try these instead:
 
-So here are a few patches that add some driver model support
-for wakeup capabilities, and use it for PCI and USB.
+--- 25/include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preempt-safety-fix	Mon Oct  4 14:36:19 2004
++++ 25-akpm/include/linux/netfilter_ipv4/ip_conntrack.h	Mon Oct  4 14:37:02 2004
+@@ -311,10 +311,11 @@ struct ip_conntrack_stat
+ 	unsigned int expect_delete;
+ };
+ 
+-#define CONNTRACK_STAT_INC(count)				\
+-	do {							\
+-		per_cpu(ip_conntrack_stat, get_cpu()).count++;	\
+-		put_cpu();					\
++#define CONNTRACK_STAT_INC(count)					\
++	do {								\
++		preempt_disable();					\
++		per_cpu(ip_conntrack_stat, smp_processor_id()).count++;	\
++		preempt_disable();					\
+ 	} while (0)
+ 
+ /* eg. PROVIDES_CONNTRACK(ftp); */
+_
 
- - wake-core.patch, adds two bits and sysfs control over one of them
- - wake-pci.patch, makes pci use those bits
- - wake-usbcore.patch, makes usb do so (replacing code/hacks)
- - wake-ohci.patch, matching wake-usbcore
 
-The patches follow this, going to LKML.
+--- 25/include/net/neighbour.h~neigh_stat-preempt-fix-fix	Mon Oct  4 14:39:22 2004
++++ 25-akpm/include/net/neighbour.h	Mon Oct  4 14:39:22 2004
+@@ -113,8 +113,9 @@ struct neigh_statistics
+ 
+ #define NEIGH_CACHE_STAT_INC(tbl, field)				\
+ 	do {								\
+-		(per_cpu_ptr((tbl)->stats, get_cpu())->field)++;	\
+-		put_cpu();						\
++		preempt_disable();					\
++		(per_cpu_ptr((tbl)->stats, smp_processor_id())->field)++; \
++		preempt_enable();					\
+ 	} while (0)
+ 
+ struct neighbour
+_
 
-Comments?
-
-- Dave

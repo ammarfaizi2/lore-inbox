@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVCUXCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVCUXQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVCUXCc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 18:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVCUW71
+	id S262209AbVCUXQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 18:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVCUXNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:59:27 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63113 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262124AbVCUW4d (ORCPT
+	Mon, 21 Mar 2005 18:13:04 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16813 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262190AbVCUXGm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:56:33 -0500
-Date: Mon, 21 Mar 2005 23:56:20 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Mws <mws@twisted-brains.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2/2] SquashFS
-Message-ID: <20050321225620.GT1390@elf.ucw.cz>
-References: <20050314170653.1ed105eb.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <200503211908.46602.mws@twisted-brains.org> <20050321185418.GC1390@elf.ucw.cz> <423F496C.10004@twisted-brains.org> <20050321223146.GM1390@elf.ucw.cz> <423F4F1F.3010905@twisted-brains.org>
+	Mon, 21 Mar 2005 18:06:42 -0500
+Date: Mon, 21 Mar 2005 10:40:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: PCI: remove pci_find_device usage from pci sysfs code.
+Message-ID: <20050321184020.GA5472@kroah.com>
+References: <11099696382684@kroah.com> <11099696382576@kroah.com> <200503201554.05010.eike-kernel@sf-tec.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <423F4F1F.3010905@twisted-brains.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200503201554.05010.eike-kernel@sf-tec.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >I should have added a smiley.
+On Sun, Mar 20, 2005 at 03:53:58PM +0100, Rolf Eike Beer wrote:
+> Greg KH wrote:
+> > ChangeSet 1.1998.11.23, 2005/02/25 08:26:11-08:00, gregkh@suse.de
 > >
-> >I'm not seriously suggesting that it contains deliberate problem. But
-> >codestyle uglyness and arbitrary limits may come back and haunt us in
-> >future. Once code is in kernel, it is very hard to change on-disk
-> >format, for example.
+> > PCI: remove pci_find_device usage from pci sysfs code.
+> 
+> > diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+> > --- a/drivers/pci/pci-sysfs.c	2005-03-04 12:41:33 -08:00
+> > +++ b/drivers/pci/pci-sysfs.c	2005-03-04 12:41:33 -08:00
+> > @@ -481,7 +481,7 @@
+> >  	struct pci_dev *pdev = NULL;
 > >
-> yes, i agree at that point. but, there are many people using this 
-> already and if it will _not_ become merged to
-> mainline kernel, maybe these portions of code will get lost.
+> >  	sysfs_initialized = 1;
+> > -	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
+> > +	while ((pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
+> >  		pci_create_sysfs_dev_files(pdev);
+> >
+> >  	return 0;
+> 
+> Any reasons why you are not using "for_each_pci_dev(pdev)" here?
 
-I don't believe source code ever get lost. Actually, I wish some
-source code *would* get lost, like fs/umsdos for example ;-).
+Nope, I forgot it was there :)
 
-								Pavel
+Care to send a patch?
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+thanks,
+
+greg k-h

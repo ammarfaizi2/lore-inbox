@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267039AbSLKOKu>; Wed, 11 Dec 2002 09:10:50 -0500
+	id <S267160AbSLKOPS>; Wed, 11 Dec 2002 09:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbSLKOKu>; Wed, 11 Dec 2002 09:10:50 -0500
-Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:8466 "EHLO
-	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267039AbSLKOKs>; Wed, 11 Dec 2002 09:10:48 -0500
-Date: Wed, 11 Dec 2002 14:18:20 +0000
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lvm-devel@sistina.com
-Subject: Re: [PATCH] dm.c - device-mapper I/O path fixes
-Message-ID: <20021211141820.GA21461@reti>
-References: <02121016034706.02220@boiler> <20021211121915.GB20782@reti> <200212111330.gBBDTTa06416@Port.imtp.ilyichevsk.odessa.ua> <02121107165303.29515@boiler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <02121107165303.29515@boiler>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S267162AbSLKOPS>; Wed, 11 Dec 2002 09:15:18 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:19651 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267160AbSLKOPR>; Wed, 11 Dec 2002 09:15:17 -0500
+Date: Wed, 11 Dec 2002 07:16:04 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: atyfb in 2.5.51
+In-Reply-To: <1039596149.24691.2.camel@rth.ninka.net>
+Message-ID: <Pine.LNX.4.33.0212110709030.2617-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 07:16:53AM -0600, Kevin Corry wrote:
-> However, it might be a good idea to consider how bio's keep track of errors. 
-> When a bio is created, it is marked UPTODATE. Then, if any part of a bio 
-> takes an error, the UPTODATE flag is turned off. When the whole bio 
-> completes, if the UPTODATE flag is still on, there were no errors during the 
-> i/o. Perhaps the "error" field in "struct dm_io" could be modified to use 
-> this method of error tracking? Then we could change dec_pending() to be 
-> something like:
-> 
-> if (error)
-> 	clear_bit(DM_IO_UPTODATE, &io->error);
-> 
-> with a "set_bit(DM_IO_UPTODATE, &ci.io->error);" in __bio_split().
 
-The problem with this is you don't keep track of the specific error to
-later pass to bio_endio(io->bio...).  I guess it all comes down to
-just how expensive that spin lock is; and since locking only occurs
-when there's an error I'm happy with things as they are.
+> I've always stated that the whole fbdev model was flawed, it makes
+> basic assumptions about how a video card's memory and registers are
+> accessed (ie. the programming model) and many popular cards absolutely
+> do not fit into that model.
 
-- Joe
+I agree that the design of the /dev/fbX interface is not the best.
+Unfortunely we are stuck with it. Changing it would break userland apps.
+
+> > I will have to go threw the X code to fix that :-(
+>
+> There is nothing to fix.  You simply must restore the video state when
+> the last mmap() client goes away.  The __sparc__ code does exactly that.
+
+I should of worded that better. Meaning I have to see what X is doing so
+the fbdev driver sets the state itself better. Hm. I'm thinking about the
+mmap approach versus the fb_open approach being used now.
+
+> I think relying on an application that mmap's a card to perfectly
+> restore the state would work in a perfect world, one we do not live
+> in.  Furthermore, fixing up the state like I am suggesting makes life
+> much simpler for people actually working on things like X servers and
+> other programs directly programming the ATI chip.
+
+:-( True. We should always assume X or any userland app could be broken.
+

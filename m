@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbTHQKdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 06:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbTHQKdK
+	id S263990AbTHQKev (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 06:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264186AbTHQKev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 06:33:10 -0400
-Received: from [196.12.38.67] ([196.12.38.67]:25106 "HELO navgw.cmcltd.com")
-	by vger.kernel.org with SMTP id S265531AbTHQKdI (ORCPT
+	Sun, 17 Aug 2003 06:34:51 -0400
+Received: from smtp3.att.ne.jp ([165.76.15.139]:46216 "EHLO smtp3.att.ne.jp")
+	by vger.kernel.org with ESMTP id S263990AbTHQKeu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 06:33:08 -0400
-Date: Sun, 17 Aug 2003 15:35:11 +0530 (IST)
-From: "G. Ravinder" <Ravinder.Gella@scada.cmcltd.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <ravi@scada.cmcltd.com>
-Subject: RAM and DUAL CPU problem
-Message-ID: <Pine.LNX.4.33.0308171532400.31855-100000@scada.cmcltd.com>
+	Sun, 17 Aug 2003 06:34:50 -0400
+Message-ID: <138e01c364ab$15b6c2b0$1aee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       "Andries Brouwer" <aebr@win.tue.nl>, "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: Trying to run 2.6.0-test3
+Date: Sun, 17 Aug 2003 18:57:44 +0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I knew it.  I knew it.
 
- I am using "HP Prolient DL 380 Dual processor(2X2.4Ghz) with 6GB RAM with
-Readhat Linux 7.3 OS. But the problem is that the kernel is detecting only
-4GB RAM and single CPU(Not two CPU's).The kernel version is
-2.4.18-3 on an i686". Can you please suggest how to
-configure dual CPU and 6GB RAM on this server.
+With a PS/2 keyboard, on a text console, only the yen and pipe key is
+broken.  But with a USB keyboard, on a text console, the backslash and
+underbar key is broken right along with the yen and pipe key.  These famous
+two keys produce no input.
 
-Regards
-G. Ravinder
-ravi@scada.cmcltd.com
-INDIA.
+A few years ago I tried to persuade Andries Brouwer or Vojtech Pavlik to
+accept a USB keyboard but they refused.  The patch which I sent to Vojtech
+Pavlik was ignored and these two keys continued not to work (except on my
+machine).  Finally Mike Fabian accepted a gift of a USB keyboard and this
+defect in Linux got fixed.  But only for somewhere around the last half of
+the 2.4 releases, not for 2.6.
 
-
+What will it take this time?
 

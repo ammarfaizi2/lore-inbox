@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273836AbRJDLw3>; Thu, 4 Oct 2001 07:52:29 -0400
+	id <S273846AbRJDL5J>; Thu, 4 Oct 2001 07:57:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273846AbRJDLwT>; Thu, 4 Oct 2001 07:52:19 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:44473 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S273836AbRJDLwI>;
-	Thu, 4 Oct 2001 07:52:08 -0400
-Date: Thu, 4 Oct 2001 07:49:46 -0400 (EDT)
+	id <S273877AbRJDL47>; Thu, 4 Oct 2001 07:56:59 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:49593 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S273846AbRJDL4o>;
+	Thu, 4 Oct 2001 07:56:44 -0400
+Date: Thu, 4 Oct 2001 07:54:19 -0400 (EDT)
 From: jamal <hadi@cyberus.ca>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Simon Kirby <sim@netnation.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>,
+To: Simon Kirby <sim@netnation.com>
+cc: Ben Greear <greearb@candelatech.com>, Ingo Molnar <mingo@elte.hu>,
+        <linux-kernel@vger.kernel.org>,
         Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
         Robert Olsson <Robert.Olsson@data.slu.se>,
         Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.LNX.4.33.0110040749120.1727-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.30.0110040747560.9341-100000@shell.cyberus.ca>
+In-Reply-To: <20011004014524.A1496@netnation.com>
+Message-ID: <Pine.GSO.4.30.0110040751040.9341-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,25 +25,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 4 Oct 2001, Ingo Molnar wrote:
+On Thu, 4 Oct 2001, Simon Kirby wrote:
 
+> On Wed, Oct 03, 2001 at 09:04:22PM -0400, jamal wrote:
 >
-> On Wed, 3 Oct 2001, jamal wrote:
+> > I think you can save yourself a lot of pain today by going to a "better
+> > driver"/hardware. Switch to a tulip based board; in particular one which
+> > is based on the 21143 chipset. Compile in hardware traffic control and
+> > save yourself some pain.
 >
-> > I think you can save yourself a lot of pain today by going to a
-> > "better driver"/hardware. Switch to a tulip based board; [...]
+> Or an Acenic-based card, but that's more expensive.
 >
-> This is not an option in many cases. (eg. where a company standardizes on
-> something non-tulip, or due to simple financial/organizational reasons.)
-> What you say is the approach i see in the FreeBSD camp frequently: "use
-> these [limited set of] wonderful cards and drivers, the rest sucks
-> hardware-design-wise and we dont really care about them", which elitist
-> attitude i strongly disagree with.
+> The problem we had with Tulip-based cards is that it's hard to find a
+> good model (variant) that is supported with different kernel versions and
+> stock drivers, doesn't change internally with time, and is easily
+> distinguishable by our hardware suppliers.  "Intel EtherExpress PRO100+"
+> is difficult to get wrong, and there are generally less issues with
+> driver compatibility because there are many fewer (no) clones, just a few
+> different board revisions.  The same goes with 3COM 905/980s, etc.
+>
+> I'm not saying Tulips aren't better (they probably are, competition is
+> good), but eepro100s are quite simple (and have been reliable for our
+> servers much more than 3com 905s and other cards have been in the past).
 >
 
-It is not elitist. Maybe we can force people to use the API now. it
-exists. And hardware flow control does not require special hardware
-features. As well NAPI kills the requirement for mitigation in the future.
+Has nothing to do with specific hardware although i see your point.
+send me an eepro and i'll at least add hardware flow control for you.
+The API is simple, its up to the driver maintainers to use. This
+discussion is good to make people aware of those drivers.
 
 cheers,
 jamal

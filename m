@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTJSU4m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 16:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTJSU4m
+	id S262195AbTJSU4l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 16:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTJSU4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 16:56:42 -0400
-Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:41222 "EHLO
-	centaur.culm.net") by vger.kernel.org with ESMTP id S262198AbTJSU4k convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 16:56:41 -0400
+Received: from [217.172.69.25] ([217.172.69.25]:5055 "EHLO falafell.ghetto")
+	by vger.kernel.org with ESMTP id S262195AbTJSU4k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 19 Oct 2003 16:56:40 -0400
-From: Witold Krecicki <adasi@kernel.pl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: eagle (ADSL sagem fast800) driver on 2.6
-Date: Sun, 19 Oct 2003 22:56:35 +0200
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
+Date: Sun, 19 Oct 2003 22:56:30 +0200
+From: Pedro Larroy <piotr@member.fsf.org>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] D-states in test8
+Message-ID: <20031019205630.GA1153@81.38.200.176>
+Reply-To: piotr@member.fsf.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200310192256.35844.adasi@kernel.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it any way to get adiusbadsl to work under 2.6 kernel? 
+Hi
+
+Process just started to get into D state, all subsequent ps got into D.
+The first that got into D state was mplayer.
+
+Regards.
 -- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+  Pedro Larroy Tovar  |  piotr%member.fsf.org 
+
+Software patents are a threat to innovation in Europe please check: 
+	http://www.eurolinux.org/     

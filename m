@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262585AbREOAIH>; Mon, 14 May 2001 20:08:07 -0400
+	id <S262588AbREOAZk>; Mon, 14 May 2001 20:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262588AbREOAH5>; Mon, 14 May 2001 20:07:57 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46603 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262585AbREOAHl>; Mon, 14 May 2001 20:07:41 -0400
-Date: Mon, 14 May 2001 19:29:28 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: alan@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] v2.4.4-ac9 highmem deadlock
-In-Reply-To: <Pine.LNX.4.33.0105141930270.11830-100000@toomuch.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.21.0105141925580.32493-100000@freak.distro.conectiva>
+	id <S262590AbREOAZa>; Mon, 14 May 2001 20:25:30 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38668 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262588AbREOAZ1>; Mon, 14 May 2001 20:25:27 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.4.4 kernel reports wrong amount of physical memory
+Date: 14 May 2001 17:25:18 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9dpt1e$185$1@cesium.transmeta.com>
+In-Reply-To: <200105142250.f4EMoHt02203@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <Pine.LNX.4.33.0105142025000.18102-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 14 May 2001, Ben LaHaise wrote:
-
-> Hey folks,
-
-Hi. 
-
+Followup to:  <Pine.LNX.4.33.0105142025000.18102-100000@duckman.distro.conectiva>
+By author:    Rik van Riel <riel@conectiva.com.br>
+In newsgroup: linux.dev.kernel
+>
+> On Mon, 14 May 2001, Wayne Whitney wrote:
+> > In mailing-lists.linux-kernel, you wrote:
+> >
+> > > You need to compile highmem support into the kernel if you want to
+> > > use more than 890 MB of RAM, set it to maximum 4GB for best
+> > > performance...
+> >
+> > On a similar note, what is the maximum physical memory supported
+> > by the 4GB option?
 > 
-> The patch below consists of 3 seperate fixes for helping remove the
-> deadlocks present in current kernels with respect to highmem systems.
-> Each fix is to a seperate file, so please accept/reject as such.
+> Ummm, 4GB maybe? ;)
+> 
 
-<snip>
+It seems obvious once you know why the limits are there.  The 1 GB
+limit (actually 1024-128 MB = 896 MB) is a software limit; the 4 GB
+and 64 GB limits are hardware limits and are exact.
 
-> The third patch (to vmscan.c) adds a SCHED_YIELD to the page launder code
-> before starting a launder loop.  This one needs discussion, but what I'm
-> attempting to accomplish is that when kswapd is cycling through
-> page_launder repeatedly, bdflush or some other task submitting io via the
-> bounce buffers needs to be given a chance to run and complete their io
-> again.  Failure to do so limits the rate of progress under extremely high
-> load when the vast majority of io will be transferred via bounce buffers.
+IMO we should rename the 1 GB option!
 
-Your patch may allow bdflush or some other task to submit IO if kswapd is
-looping mad --- but it will not avoid kswapd from eating all the CPU
-time, which is the _main_ problem. 
-
-If we avoid kswapd from doing such a thing (which is what we should try to
-fix in the first place), there is no need for your patch.
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

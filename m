@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265995AbUFEDtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266012AbUFEEAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265995AbUFEDtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 23:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUFEDtD
+	id S266012AbUFEEAe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 00:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUFEEAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 23:49:03 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:30884 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264524AbUFEDs7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 23:48:59 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Sat, 5 Jun 2004 00:00:34 -0400
+Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:59806 "EHLO
+	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S266012AbUFEEAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 00:00:32 -0400
+Message-ID: <40C1455E.30501@blueyonder.co.uk>
+Date: Sat, 05 Jun 2004 05:00:30 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Len Brown <len.brown@intel.com>
+CC: linux-kernel@vger.kernel.org, Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: 2.6.7-rc2-mm1 (nforce2 lockup)
+References: <A6974D8E5F98D511BB910002A50A6647615FD33E@hdsmsx403.hd.intel.com> <1086385540.2241.322.camel@dhcppc4>
+In-Reply-To: <1086385540.2241.322.camel@dhcppc4>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16577.17064.857172.598873@napali.hpl.hp.com>
-Date: Fri, 4 Jun 2004 20:48:56 -0700
-To: Greg KH <greg@kroah.com>
-Cc: davidm@hpl.hp.com, Michael_E_Brown@dell.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: EFI-support for SMBIOS driver
-In-Reply-To: <20040605032902.GA7069@kroah.com>
-References: <16577.6469.833064.763671@napali.hpl.hp.com>
-	<20040605032902.GA7069@kroah.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-OriginalArrivalTime: 05 Jun 2004 04:00:33.0937 (UTC) FILETIME=[A6AF0010:01C44AB1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 4 Jun 2004 20:29:02 -0700, Greg KH <greg@kroah.com> said:
+Len Brown wrote:
 
-  Greg> On Fri, Jun 04, 2004 at 05:52:21PM -0700, David Mosberger
-  Greg> wrote:
+>On Thu, 2004-06-03 at 18:04, Sid Boyce wrote:
+>  
+>
+>>Reversing Bjorn's ACPI patch fixed it.
+>>    
+>>
+>
+>Sid,
+>Does it work better if you build IOAPIC support into the kernel?
+>
+>Please send me the complete failing .config
+>and I'll try to reproduce it on my nforce2 box.
+>
+>thanks,
+>-Len
+>
+>
+>
+>  
+>
+I just built and successfully booted 2.6.7-rc2-mm2 IOAPIC enabled and 
+without boot option acpi=off. I guess somewhere IOAPIC was inadvertently 
+disabled in .config.
+Regards
+Sid.
 
-  >> The patch below adds EFI support to the SMBIOS driver.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 
-  Greg> The smbios driver is gone in 2.6.7-rc.  You don't need a
-  Greg> driver for this, as you can do everything from userspace.
-
-I know full well that it can be done in user-level --- via /dev/mem,
-which lots of people dislike.  I certainly don't feel strongly about
-it, but the SMBIOS driver made sense to me.
-
-	--david

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUFGQHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUFGQNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUFGQHo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 12:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUFGQHo
+	id S264902AbUFGQNI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 12:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264906AbUFGQNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 12:07:44 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:65237 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264833AbUFGQHb (ORCPT
+	Mon, 7 Jun 2004 12:13:08 -0400
+Received: from mail.ccur.com ([208.248.32.212]:57092 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S264902AbUFGQNF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 12:07:31 -0400
-Date: Mon, 7 Jun 2004 18:03:33 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, weigand@i1.informatik.uni-erlangen.de,
-       gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-Message-ID: <20040607160333.GA3521@wohnheim.fh-wedel.de>
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de> <20040401220957.5f4f9ad2.ak@suse.de> <20040401163715.3592cedc.akpm@osdl.org>
+	Mon, 7 Jun 2004 12:13:05 -0400
+Date: Mon, 7 Jun 2004 12:13:04 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org, Ronny.Lampert@telecasystems.de,
+       ioe-lkml@rameria.de
+Subject: Re: [BUG] NFS no longer updates file modification times appropriately
+Message-ID: <20040607161304.GA22505@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <1086623509.4173.7.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040401163715.3592cedc.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1086623509.4173.7.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 April 2004 16:37:15 -0800, Andrew Morton wrote:
+On Mon, Jun 07, 2004 at 11:51:49AM -0400, Trond Myklebust wrote:
+> P? m? , 07/06/2004 klokka 11:21, skreiv Joe Korty:
+> > Unless the real reason is reducing ethernet traffic.
 > 
-> I think this will cause the inode timestamps to keep on creeping forwards.
+> That is after all, why we cache data. Look at the GETATTR traffic using
+> nfsstat.
 > 
-> How about in ext3_read_inode() you do:
+> >   In which case we
+> > could defer a timestamp-on-write only when it is still in the same second
+> > as the previous write, but don't defer when a new second rolls around
+> > on the client.  That would reduce timestamp updates to at most one per
+> > second per inode per client, while preserving old NFS behavior.
 > 
-> 	inode->i_atime.tv_sec = le32_to_cpu(raw_inode->i_atime);
-> 	inode->i_ctime.tv_sec = le32_to_cpu(raw_inode->i_ctime);
-> 	inode->i_mtime.tv_sec = le32_to_cpu(raw_inode->i_mtime);
-> -	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec = inode->i_mtime.tv_nsec = 0;
-> +	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec = inode->i_mtime.tv_nsec = 999999999;
+> Exactly why should we go to all this trouble?
 
-Coming in way too late, how about changing the other end?  Each
-filesystem provides a new function that transforms high resolution
-time into whatever the filesystem can store.  If the function is NULL,
-we use a sane default like above.
--	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec = inode->i_mtime.tv_nsec = 0;
-
-If the user never sees the high resolution in the first place, we
-don't need to play guessing games later, after data has been flushed
-from the page cache.
-
-Jörn
-
--- 
-The competent programmer is fully aware of the strictly limited size of
-his own skull; therefore he approaches the programming task in full
-humility, and among other things he avoids clever tricks like the plague. 
--- Edsger W. Dijkstra
+For compatibility?

@@ -1,86 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267495AbUBSTZl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 14:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267492AbUBSTZk
+	id S267498AbUBST16 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 14:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267499AbUBST16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 14:25:40 -0500
-Received: from ns.suse.de ([195.135.220.2]:49354 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267495AbUBSTYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 14:24:49 -0500
-Date: Fri, 20 Feb 2004 17:13:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel x86-64 support patch breaks amd64
-Message-Id: <20040220171337.10cd1ae8.ak@suse.de>
-In-Reply-To: <20040219183448.GB8960@atomide.com>
-References: <20040219183448.GB8960@atomide.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Feb 2004 14:27:58 -0500
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:37317 "HELO
+	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S267498AbUBST1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 14:27:44 -0500
+X-qfilter-stat: ok
+X-Analyze: Velop Mail Shield v0.0.4
+Date: Thu, 19 Feb 2004 16:27:39 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IO-APIC works on Windows and FreeBSD but not Linux ?
+Message-ID: <Pine.LNX.4.58.0402191616260.816@pervalidus.dyndns.org>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004 10:34:49 -0800
-Tony Lindgren <tony@atomide.com> wrote:
+I wrote on 2004-01-24 0:57:44:
 
-> I guess you probably already know about this, but the recent changeset
-> 1.1561.1.1 breaks compiling and booting for amd64.
+> I never got IO-APIC to work with my ECS K7VTA3 5.0 (KT333) on
+> Linux 2.4 and 2.6. The first problem was at boot time with my
+> network. It wouldn't give an IRQ or something to the lan, be
+> it the onboard Realtek or a 3Com 3C905CX-TXNM.
 
-You need the appended patch to build on Uni Processor again. I already
-submitted it to Linus, but he doesn't seem to have merged it yet
-(or alternatively compile for SMP) 
+Just tested with 2.6.3, and it still happens.
 
-> After #if 0 out some parts to make it compile, it fails to boot with no
-> output at all. Sorry, don't have low level debugging or serial console on 
-> this machine configured, let me know if you need further information.
+> ACPI with or without it was even worse, but I never needed
+> it.
 
-It works for me with this patch both UP and SMP. Maybe you commented out 
-too much? 
+Everything seems to work fine with it now.
 
--Andi
+> It worked fine on Windows XP Professional SP1. Some days ago
+> I installed FreeBSD 5.2 and now noticed it gave me IRQ18 for
+> the onboard lan, IRQ22 for the onboard sound, and so on, and
+> there's the following in /var/log/messages:
 
-diff -u linux-2.6.3/arch/x86_64/kernel/setup.c-o linux-2.6.3/arch/x86_64/kernel/setup.c
---- linux-2.6.3/arch/x86_64/kernel/setup.c-o	2004-02-19 09:01:09.000000000 +0100
-+++ linux-2.6.3/arch/x86_64/kernel/setup.c	2004-02-19 09:09:27.000000000 +0100
-@@ -588,6 +588,7 @@
- 
- static void __init detect_ht(void)
- {
-+#ifdef CONFIG_SMP
- 	extern	int phys_proc_id[NR_CPUS];
- 	
- 	u32 	eax, ebx, ecx, edx;
-@@ -631,6 +632,7 @@
- 		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
- 		       phys_proc_id[cpu]);
- 	}
-+#endif
- }
- 	
- #define LVL_1_INST	1
-diff -u linux-2.6.3/arch/x86_64/kernel/Makefile-o linux-2.6.3/arch/x86_64/kernel/Makefile
---- linux-2.6.3/arch/x86_64/kernel/Makefile-o	2004-02-19 09:01:09.000000000 +0100
-+++ linux-2.6.3/arch/x86_64/kernel/Makefile	2004-02-19 09:15:41.000000000 +0100
-@@ -33,4 +33,4 @@
- cpuid-$(subst m,y,$(CONFIG_X86_CPUID))  += ../../i386/kernel/cpuid.o
- topology-y                     += ../../i386/mach-default/topology.o
- swiotlb-$(CONFIG_SWIOTLB)      += ../../ia64/lib/swiotlb.o
--microcode-$(CONFIG_MICROCODE)  += ../../i386/kernel/microcode.o
-+microcode-$(subst m,y,$(CONFIG_X86_CPUID))  += ../../i386/kernel/microcode.o
-diff -u linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c-o linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c
---- linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c-o	2004-02-19 09:01:09.000000000 +0100
-+++ linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c	2004-02-19 09:08:04.000000000 +0100
-@@ -194,7 +194,9 @@
- 
- EXPORT_SYMBOL(die_chain);
- 
-+#ifdef CONFIG_SMP_
- EXPORT_SYMBOL(cpu_sibling_map);
-+#endif
- 
- extern void do_softirq_thunk(void);
- EXPORT_SYMBOL_NOVERS(do_softirq_thunk);
+> Jan 23 15:27:07 pervalidus kernel: ioapic0: Assuming intbase
+> of 0
+> Jan 23 15:27:07 pervalidus kernel: ioapic0 <Version 0.3> irqs
+> 0-23 on motherboard
+
+> I'm just surprised IO-APIC works with it but not Linux.
+
+Still surprised, because on it everything works if I use
+IO-APIC with or without ACPI.
+
+Here are the differences in /proc/pci (- is ACPI with IO-APIC,
++ IO-APIC):
+
+       I/O at 0xb800 [0xb81f].
+   Bus  0, device  16, function  3:
+     USB Controller: VIA Technologies, Inc. USB 2.0 (rev 130).
+-      IRQ 21.
++      IRQ 19.
+       Master Capable.  Latency=32.
+       Non-prefetchable 32 bit memory at 0xdd035000 [0xdd0350ff].
+   Bus  0, device  17, function  0:
+     ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge (rev 0).
+   Bus  0, device  17, function  1:
+     IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 6).
+-      IRQ 20.
++      IRQ 27.
+       Master Capable.  Latency=32.
+       I/O at 0xbc00 [0xbc0f].
+   Bus  0, device  17, function  5:
+
+And /proc/interrupts:
+
+-  9:          0   IO-APIC-level  acpi
+- 14:       1138    IO-APIC-edge  ide0
++ 14:        777    IO-APIC-edge  ide0
+- 18:         24   IO-APIC-level  eth0
+- 21:        290   IO-APIC-level  ehci_hcd, uhci_hcd, uhci_hcd, uhci_hcd
++ 21:         99   IO-APIC-level  uhci_hcd, uhci_hcd, uhci_hcd
+
+> I reported it months ago -
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.2/1646.html
+
+> BTW, the freezes I mentioned are gone. The motherboard may be
+> a bit buggy, as they appear if I disable the onboard RAID,
+> but...
+
+-- 
+http://www.pervalidus.net/contact.html

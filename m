@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316662AbSE3Og1>; Thu, 30 May 2002 10:36:27 -0400
+	id <S316674AbSE3OoB>; Thu, 30 May 2002 10:44:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSE3Og0>; Thu, 30 May 2002 10:36:26 -0400
-Received: from c2ce9fba.adsl.oleane.fr ([194.206.159.186]:3449 "EHLO
-	avalon.france.sdesigns.com") by vger.kernel.org with ESMTP
-	id <S316662AbSE3OgX>; Thu, 30 May 2002 10:36:23 -0400
-To: linux-kernel@vger.kernel.org
-Subject: large copy_to_user fills only one page?
-From: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-Date: 30 May 2002 16:36:22 +0200
-Message-ID: <7wofexu2hl.fsf@avalon.france.sdesigns.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316675AbSE3OoA>; Thu, 30 May 2002 10:44:00 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:18326 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S316674AbSE3OoA>;
+	Thu, 30 May 2002 10:44:00 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 30 May 2002 16:43:57 +0200 (MEST)
+Message-Id: <UTC200205301443.g4UEhvn20167.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, dalecki@evision-ventures.com
+Subject: Re: [PATCH] 2.5.18 IDE 73
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    > Of course - improvements are always welcome.
+    > (But I try to be slightly more careful than you are.
+    > Util-linux runs on all libc's and all kernels, from libc4 to glibc2
+    > and from 0.99 to 2.5. So, changes must be compatible.)
 
-I'm working with linux-2.4.18, and writing some
-trivial code to get from kernel a grabbed image working this way:
+    Having them compatible acroess an insane range of kernels
+    is a nice but futile exercise.
+    Perhaps this partly explains why:
 
-#define IMSIZE 350000
+    1. util-linux doesn't cover half of the system utilities needed on
+        a sanely actual Linux system.
 
-user mode runs:
-u_p=malloc(IMSIZE);
-ioctl(grabberfd,DOGRAB,u_p);
-write *u_p to disk
-free(u_p);
+    2. The Linux vendors have to apply insane number of patches to it
+        util it's moderately usable.
 
-kernelmode runs:
-case DOGRAB:
-        char *u_p,*k_p;
-        copy_from_user(u_p,arg,sizeof(char *));
-        k_p=vmalloc(IMSIZE);
-        kernelgrabs(k_p);
-        copy_to_user(u_p,k_p,IMSIZE);
-        vfree(k_p);
-        break;
+If you do the kernel ATA stuff, I'll take care of util-linux.
 
-What I get actually is only 4K filled in userland, but copy_to_user
-returns IMSIZE!
+(Does it need more utilities? Probably those are in some other package.
+Sometimes stuff is added, but not very often. However, your suggestions
+are welcome.
+Do the vendors add patches? Half of that is vendor extensions, that is
+their business. Half of that is their stupidity. They blindly copy the
+patches other vendors apply "it is a patch - must be an improvement";
+sometimes I have to reject the same buggy patch more than a dozen times.
+When I ask for the reason of a patch, they don't know themselves.)
 
-If I memset the memory area *u_p to any value, the grab happens
-properly.
+    >     No need to invent here. No need to do the book keeping in kernel.
+    > 
+    > Some need. Things like mount-by-label want to know what partitions
+    > exist in order to look at the labels on each.
+    > Yes, we really need a list of disk-like devices.
+    > The gendisk chain.
 
-I guess memset'ing faults the good pages in, I'm quite surprised
-this does not happen smoothly by itself ;-( 
+    No I don't see that point. Data which has to be persistant across
+    reboots is simple data which has to reside on disk. That's the
+    way it is in UNIX (PalmOS to name an example).
 
-Any clue?
+Maybe you never heard of mount-by-label?
 
-Sincerely yours,
-
--- 
-Emmanuel Michon
-Chef de projet
-REALmagic France SAS
-Mobile: 0614372733 GPGkeyID: D2997E42  
+Andries

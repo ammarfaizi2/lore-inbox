@@ -1,50 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261626AbSI0EmJ>; Fri, 27 Sep 2002 00:42:09 -0400
+	id <S261625AbSI0EhU>; Fri, 27 Sep 2002 00:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSI0EmJ>; Fri, 27 Sep 2002 00:42:09 -0400
-Received: from zok.sgi.com ([204.94.215.101]:16047 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S261626AbSI0EmJ>;
-	Fri, 27 Sep 2002 00:42:09 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: linux-xfs@sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: XFS split patches for 2.4.19 - respin 
-In-Reply-To: Your message of "Tue, 13 Aug 2002 13:04:25 +1000."
-             <10392.1029207865@kao2.melbourne.sgi.com> 
-Date: Fri, 27 Sep 2002 14:45:58 +1000
-Message-ID: <23406.1033101958@kao2.melbourne.sgi.com>
+	id <S261626AbSI0EhU>; Fri, 27 Sep 2002 00:37:20 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:17164 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261625AbSI0EhT>;
+	Fri, 27 Sep 2002 00:37:19 -0400
+Date: Thu, 26 Sep 2002 21:41:05 -0700
+From: Greg KH <greg@kroah.com>
+To: Matt_Domsch@Dell.com
+Cc: mdharm-usb@one-eyed-alien.net, mochel@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: devicefs requests
+Message-ID: <20020927044104.GA8728@kroah.com>
+References: <20BF5713E14D5B48AA289F72BD372D68C1E8C5@AUSXMPC122.aus.amer.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68C1E8C5@AUSXMPC122.aus.amer.dell.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Sep 26, 2002 at 11:13:37AM -0500, Matt_Domsch@Dell.com wrote:
+> 
+> What I'm picturing is something like this (feedback welcome!):
 
-Content-Type: text/plain; charset=us-ascii
+<nice picture snipped>
 
-ftp://oss.sgi.com/projects/xfs/download/patches/2.4.19.
+Yes, I think this is a nice goal, and that driverfs is the right way to
+do this.  But you might want to walk the bus lists of the different
+devices a bit differently.  Here's a small example of how to walk all of
+the USB devices in a system, and see if they match a specific vendor_id
+and product_id:
 
-The xfs patches for 2.4.19 have been respun as of 2002-09-27 04:22 UTC.
-This removes kbuild 2.5 support and includes several changes in the
-xfs/kernel interface.
 
-For some time the XFS group have been producing split patches for XFS,
-separating the core XFS changes from additional patches such as kdb,
-xattr, acl, dmapi.  The split patches are released to the world with
-the hope that developers and distributors will find them useful.
+static int match_device (struct usb_device *dev)
+{
+	int retval = -ENODEV;
+	int child;
 
-Read the README in each directory very carefully, the split patch
-format has changed over a few kernel releases.  Any questions that are
-covered by the README will be ignored.  There is even a 2.4.20/README
-for the terminally impatient :).
+	dbg ("looking at vendor %d, product %d\n",
+	dev->descriptor.idVendor,
+	dev->descriptor.idProduct);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+	/* see if this device matches */
+	if ((dev->descriptor.idVendor == vendor_id) &&
+	    (dev->descriptor.idProduct == product_id)) {
+		dbg ("found the device!\n");
+		retval = 0;
+		goto exit;
+	}
 
-iD8DBQE9k+KFi4UHNye0ZOoRAs+kAKDXP8nweVX+05BEMarcX71ZA2aT0wCeJmfZ
-+dhYwnuFjukOmuWVyyZBzMM=
-=HouQ
------END PGP SIGNATURE-----
+	/* look through all of the children of this device */
+	for (child = 0; child < dev->maxchild; ++child) {
+		if (dev->children[child]) {
+			retval = match_device (dev->children[child]);
+			if (retval == 0)
+				goto exit;
+		}
+	}
+exit:
+	return retval;
+}
 
+static int find_usb_device (void)
+{
+	struct list_head *buslist;
+	struct usb_bus *bus;
+	int retval = -ENODEV;
+
+	down (&usb_bus_list_lock);
+	for (buslist = usb_bus_list.next;
+		buslist != &usb_bus_list; 
+		buslist = buslist->next) {
+		bus = container_of (buslist, struct usb_bus, bus_list);
+		retval = match_device(bus->root_hub);
+		if (retval == 0)
+			goto exit;
+		}
+exit:
+	up (&usb_bus_list_lock);
+	return retval;
+}
+
+I think usb_bus_list_lock and usb_bus_list needs to be exported for
+these functions to work outside of the USB core, but if you need them,
+I'd don't have a problem with exporting them.
+
+Doing something like this might be easier than trying to get the driver
+core to let you walk all of its devices.  But Pat could answer that
+better than I could.
+
+Good luck,
+
+greg k-h

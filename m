@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbTIPAtR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 20:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbTIPAtQ
+	id S261732AbTIPAwg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 20:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTIPAwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 20:49:16 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24080 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261711AbTIPAtO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 20:49:14 -0400
-Date: Mon, 15 Sep 2003 20:26:54 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: John Bradford <john@grabjohn.com>, zwane@linuxpower.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-In-Reply-To: <20030915205522.GP126@fs.tum.de>
-Message-ID: <Pine.LNX.3.96.1030915202130.22907B-100000@gatekeeper.tmr.com>
+	Mon, 15 Sep 2003 20:52:36 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:41100
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261732AbTIPAwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 20:52:34 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH]O20.3int
+Date: Tue, 16 Sep 2003 11:00:44 +1000
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_8CmZ/Be3ZG9BQv1"
+Message-Id: <200309161100.44312.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Sep 2003, Adrian Bunk wrote:
 
-> On Mon, Sep 15, 2003 at 07:32:49AM +0100, John Bradford wrote:
-> >...
-> > It should be possible, and straightforward, to compile a kernel which:
-> > 
-> > 1. Supports, (I.E. has workarounds for), any combination of CPUs.
-> >    E.G. a kernel which supports 386s, and Athlons _only_ would not
-> >    need the F00F bug workaround.  Currently '386' kernels include it,
-> >    because '386' means 'support 386 and above processors'.
-> > 
-> > 2. Has compiler optimisations for one particular CPU.
-> >    E.G. the 386 and Athlon supporting kernel above could have
-> >    alignment optimised for either 386 or Athlon.
-> >...
-> 
-> That's the point where even I consider such a system to be too complex.
+--Boundary-00=_8CmZ/Be3ZG9BQv1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-How does it strike you to have these:
- - compile support for any CPU which doesn't break the target
-   (including slow it in some serious way)
- - drop support for any CPU except the target
+Yep I really hate doing this, sorry. This is what I was supposed to do in 
+O20.2int.
 
-It seems to me that this is what the vendors want (as general as possible)
-and the size limited users want (small is beautiful).
+applies to O20.2int
 
-Fitting the code to this model could be done gradually and hopefully with
-some macros to prevent too much ugly ifdef code.
+Con
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--Boundary-00=_8CmZ/Be3ZG9BQv1
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-O20.2-O20.3int"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="patch-O20.2-O20.3int"
+
+--- linux-2.6.0-test5-mm2-O20.2/kernel/sched.c	2003-09-16 09:27:57.000000000 +1000
++++ linux-2.6.0-test5-mm2-O20.3/kernel/sched.c	2003-09-16 10:50:49.000000000 +1000
+@@ -1426,11 +1426,11 @@ void scheduler_tick(int user_ticks, int 
+ 		 * equal priority.
+ 		 *
+ 		 * This only applies to tasks in the interactive
+-		 * delta range with at least MIN_TIMESLICE to requeue.
++		 * delta range with at least TIMESLICE_GRANULARITY to requeue.
+ 		 */
+ 		if (TASK_INTERACTIVE(p) && !((task_timeslice(p) -
+ 			p->time_slice) % TIMESLICE_GRANULARITY(p)) &&
+-			(p->time_slice >= MIN_TIMESLICE) &&
++			(p->time_slice >= TIMESLICE_GRANULARITY(p)) &&
+ 			(p->array == rq->active)) {
+ 
+ 			dequeue_task(p, rq->active);
+
+--Boundary-00=_8CmZ/Be3ZG9BQv1--
 

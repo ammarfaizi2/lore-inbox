@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132484AbRDNQ2q>; Sat, 14 Apr 2001 12:28:46 -0400
+	id <S129084AbRDNQX4>; Sat, 14 Apr 2001 12:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132220AbRDNQ2g>; Sat, 14 Apr 2001 12:28:36 -0400
-Received: from gear.torque.net ([204.138.244.1]:25098 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S132483AbRDNQ2W>;
-	Sat, 14 Apr 2001 12:28:22 -0400
-Message-ID: <3AD87A7D.BB66C5DA@torque.net>
-Date: Sat, 14 Apr 2001 12:27:41 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac4 i586)
-X-Accept-Language: en
+	id <S132220AbRDNQXr>; Sat, 14 Apr 2001 12:23:47 -0400
+Received: from dystopia.lab43.org ([209.217.122.210]:49363 "EHLO
+	dystopia.lab43.org") by vger.kernel.org with ESMTP
+	id <S129084AbRDNQXg>; Sat, 14 Apr 2001 12:23:36 -0400
+Date: Sat, 14 Apr 2001 12:21:34 -0400 (EDT)
+From: Rod Stewart <stewart@dystopia.lab43.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too: defunct threads
+In-Reply-To: <002e01c0c4eb$5854b940$5517fea9@local>
+Message-ID: <Pine.LNX.4.33.0104141219450.11838-100000@dystopia.lab43.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-        Matt Domsch <Matt_Domsch@Dell.com>
-Subject: Re: [RFC][PATCH] adding PCI bus information to SCSI layer
-In-Reply-To: <E14oBtM-0003fN-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Also ISA adapters are not the only non-PCI adapters,
-> > there are the growing band of pseudo adapters that
-> > may or may not have a PCI bus at the bottom of some
-> > other protocol stack.
-> 
-> An ioctl might be better. We already have an ioctl for querying the lun
-> information for a disk. We could also return the bus information for its
-> controller(s) [remember multipathing]
 
-Both 'cat /proc/scsi/scsi' and ioctls used on
-fds belonging to the existing upper level drivers
-(e.g. sd and sr) have a problem as far as getting
-HBA environment information: there needs to be at
-least one SCSI device (target) connected to the
-HBA. With no SCSI devices connected, there is no 
-fd to do an ioctl on. [The same problem arises
-if a device is there but marked offline, has an
-exclusive lock on it, ...]
+On Sat, 14 Apr 2001, Manfred Spraul wrote:
 
-Perhaps Matt could look at the approach I have taken
-with the scsimon experimental upper level driver.
-Scsimon was originally designed to get scsi based
-information to the /sbin/hotplug mechanism. It also
-supplies ioctls to probe HBAs as well as SCSI devices.
-More information about it can be found at:
-  http://www.torque.net/scsi/scsimon.html
+> >> Ah. Of course. All (or most) kernel initialisation is
+> >> done by PID 1. Search for "kernel_thread" in init/main.c
+> >>
+> >> So it seems that in your setup, process 1 is not reaping
+> >> children, which is why this hasn't been reported before.
+> >> Is there something unusual about your setup?
+>
+> > I found the difference which causes this. If I build my kernel with
+> > IP_PNP (IP: kernel level autoconfiguration) support I get a defunt
+> > thread for each 8139too device. If I don't build with IP_PNP
+> > support I don't get any, defunct ethernet threads.
+>
+> Does init(8) reap children that died before it was spawned? I assume
+> that the defunct tasks were there _before_ init was spawned.
+>
+> Perhaps init() [in linux/init/main.c] should reap all defunct tasks
+> before the execve("/sbin/init").
+>
+> I've attached an untested patch, could you try it?
 
-It should not be difficult to add HBA PCI bus information
-to scsimon (after the Scsi_Host structure is expanded to
-hold that information).
+Yes, that fixes my problem.  No more defunct eth? processes when IP_PNP is
+compiled in.  With the fix you said to the patch; replacing curtask with
+current.
 
-Doug Gilbert
+Thanks,
+-Rms
+

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271117AbTGWGP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 02:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTGWGP4
+	id S271129AbTGWGRe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 02:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271126AbTGWGR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 02:15:56 -0400
-Received: from soft.uni-linz.ac.at ([140.78.95.99]:13023 "EHLO
-	zeus.soft.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id S271117AbTGWGPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 02:15:51 -0400
-Message-ID: <3F1E2B94.5010602@gibraltar.at>
-Date: Wed, 23 Jul 2003 08:30:44 +0200
-From: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: de-at, de-de, en-gb, en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: =?UTF-8?B?TWlrYSBQZW50dGlsw6Q=?= <mika.penttila@kolumbus.fi>,
-       Jason Baron <jbaron@redhat.com>, vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4 and 2.4.22-pre7
-References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com>	 <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>	 <3F1D7C80.6020605@gibraltar.at>	 <1058904025.4160.30.camel@dhcp22.swansea.linux.org.uk>	 <3F1DB75E.1050906@kolumbus.fi> <1058917089.4768.6.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1058917089.4768.6.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 23 Jul 2003 02:17:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59278 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271123AbTGWGQW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 02:16:22 -0400
+Date: Tue, 22 Jul 2003 23:29:11 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: hch@infradead.org, solca@guug.org, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+       debian-sparc@lists.debian.org
+Subject: Re: sparc scsi esp depends on pci & hangs on boot
+Message-Id: <20030722232911.2e6fda86.davem@redhat.com>
+In-Reply-To: <20030723072836.A932@infradead.org>
+References: <20030722025142.GC25561@guug.org>
+	<20030722080905.A21280@devserv.devel.redhat.com>
+	<20030722182609.GA30174@guug.org>
+	<20030722175400.4fe2aa5d.davem@redhat.com>
+	<20030723070739.A697@infradead.org>
+	<20030722232410.7a37ed4d.davem@redhat.com>
+	<20030723072836.A932@infradead.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2003-07-22 at 23:14, Mika Penttilä wrote:
-> 
->>/sbin/init used to start up with files->count > 1 and does 
->>close(0);close(1);close(2); -> kernel thread fds close.
->>
->>Now with unshare_files() and init's files->count ==1 the kernel threads  
->>/dev/console fds remain open. But one could ask of course so what :)
-The problem with this behaviour is that the old root fs can not be 
-unmounted in this case, which basically means that the machine will be 
-unable to switch off its harddisk. And that, at least in my case, is 
-annoying :)
+On Wed, 23 Jul 2003 07:28:36 +0100
+Christoph Hellwig <hch@infradead.org> wrote:
 
+> Putting it into linux/dma-mapping.h is fine with me, but I expect to
+> see more users of the dma-mapping API soon..
 
-> In other words the kernel side got caught out because it assumed 
-> the bogus thread behaviour and needs some close() calls adding. That
-> would make sense.
-I have to admin that I don't really know the internals and thus don't 
-completely understand. What would need to be done to fix it ? Change 
-init's re-exec routines ?
+And unlike this particular scsi layer usage, such drivers will be
+dependant upon things like CONFIG_PCI and thus won't get compiled
+in unless CONFIG_PCI has been enabled in the kernel configuration.
 
-best regards,
-Rene
+The enumeration can go into some common area that doesn't care about
+the dma-mapping.h actual implementation.
 
+And linux/dma-mapping.h is a bad name to use, call it dma-dir.h or
+something, because linux/dma-mapping.h would need to include
+asm/dma-mapping.h which is what we're trying to avoid here.

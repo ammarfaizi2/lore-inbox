@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281450AbSADRyz>; Fri, 4 Jan 2002 12:54:55 -0500
+	id <S288705AbSADR7p>; Fri, 4 Jan 2002 12:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288702AbSADRyp>; Fri, 4 Jan 2002 12:54:45 -0500
-Received: from chunnel.redhat.com ([12.107.208.220]:12272 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S281450AbSADRyg>; Fri, 4 Jan 2002 12:54:36 -0500
-Date: Fri, 4 Jan 2002 17:53:26 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jelle Foks <jelle@frontierd-us.com>
-Cc: Denis RICHARD <dri@sxb.bsf.alcatel.fr>, linux-kernel@vger.kernel.org
-Subject: Re: New version of e2compr for 2.4.16 kernel.
-Message-ID: <20020104175326.A10993@redhat.com>
-In-Reply-To: <3C2098D7.4228B2A5@sxb.bsf.alcatel.fr> <3C226543.2010801@frontierd-us.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C226543.2010801@frontierd-us.com>; from jelle@frontierd-us.com on Thu, Dec 20, 2001 at 05:25:07PM -0500
+	id <S288704AbSADR7f>; Fri, 4 Jan 2002 12:59:35 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:65418 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288702AbSADR70>;
+	Fri, 4 Jan 2002 12:59:26 -0500
+Date: Fri, 4 Jan 2002 20:56:52 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andrey Nekrasov <andy@spylog.ru>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
+In-Reply-To: <20020104173851.GA3027@spylog.ru>
+Message-ID: <Pine.LNX.4.33.0201042056150.11338-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, Dec 20, 2001 at 05:25:07PM -0500, Jelle Foks wrote:
+On Fri, 4 Jan 2002, Andrey Nekrasov wrote:
 
-> Nice. Since ext3fs is based on ext2fs, will that work with ext3fs too?
+> ipconfig.c: In function `ip_auto_config':
+> ipconfig.c:1148: `UNNAMED_MAJOR' undeclared (first use in this function)
+> ipconfig.c:1148: (Each undeclared identifier is reported only once
+> ipconfig.c:1148: for each function it appears in.)
 
-Not directly, but it should not be that hard to make it work.
+> ps. vanilla kernel compile ok.
 
-Cheers,
- Stephen
+hm, the patch does not change ipconfig.c.
+
+	Ingo
+

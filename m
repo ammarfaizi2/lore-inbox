@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbSJQXeY>; Thu, 17 Oct 2002 19:34:24 -0400
+	id <S262317AbSJQXoV>; Thu, 17 Oct 2002 19:44:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262295AbSJQXeX>; Thu, 17 Oct 2002 19:34:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37056 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262289AbSJQXeO>;
-	Thu, 17 Oct 2002 19:34:14 -0400
-Date: Thu, 17 Oct 2002 16:32:36 -0700 (PDT)
-Message-Id: <20021017.163236.101134627.davem@redhat.com>
-To: scott.feldman@intel.com
-Cc: roy@karlsbakk.net, linux-kernel@vger.kernel.org, manand@us.ibm.com
-Subject: Re: TCP Segmentation Offload (TSO) in 2.4?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <288F9BF66CD9D5118DF400508B68C44604758BCE@orsmsx113.jf.intel.com>
-References: <288F9BF66CD9D5118DF400508B68C44604758BCE@orsmsx113.jf.intel.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262322AbSJQXoV>; Thu, 17 Oct 2002 19:44:21 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:62655 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262317AbSJQXoV>; Thu, 17 Oct 2002 19:44:21 -0400
+Date: Thu, 17 Oct 2002 16:47:51 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bug tracking in the run up from 2.5 to 2.6
+Message-ID: <2261838972.1034873270@[10.10.2.3]>
+In-Reply-To: <20021017231501.GH1682@kroah.com>
+References: <20021017231501.GH1682@kroah.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Feldman, Scott" <scott.feldman@intel.com>
-   Date: Thu, 17 Oct 2002 16:35:18 -0700
+> If there are people to do the categorizing and "cleaning" of the
+> reported bugs, I would love to use this.  By "cleaning" I mean the
+> following at the minimum:
+> 	- marking bugs as duplicates of existing bugs
+> 	- throwing away useless bug reports
 
-   > 1) You'll only get this with e1000 cards, and there were some
-   >    performance regression noted by some testers at IBM with
-   >    TSO enabled.
-   
-   Was this posted to the list?  I remember Troy's results showing positive
-   results with TSO over SPECWeb.  
-   
-Mala Anand (manand@us.ibm.com) has continually been disabling TSO in
-2.5.x performance tests, at least this is how it has appeared to me.
+Right, that would be covered. The team that would be doing this
+actually has people in various locations round the world (ie 
+various timezones), and is used to doing this for our internal
+Bugzilla database.
 
-Please, you two have a dialogue together and sort this out :-)
+M.
+

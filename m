@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263220AbTIAR6N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 13:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263223AbTIAR6N
+	id S263275AbTIASLx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 14:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTIASLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 13:58:13 -0400
-Received: from main.gmane.org ([80.91.224.249]:32969 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263220AbTIAR6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 13:58:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 1 Sep 2003 14:11:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56491 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263224AbTIASLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 14:11:15 -0400
+Date: Mon, 1 Sep 2003 20:11:13 +0200
+From: Jan Kara <jack@suse.cz>
 To: linux-kernel@vger.kernel.org
-From: Charles Lepple <clepple@ghz.cc>
-Subject: Re: raid1 error while rewind tape
-Date: Mon, 01 Sep 2003 13:58:12 -0400
-Message-ID: <3F5388B4.6050205@ghz.cc>
-References: <bivvbr$53i$1@ulysses.news.tiscali.de>
+Cc: viro@math.psu.edu
+Subject: [BUG] mtime&ctime updated when it should not
+Message-ID: <20030901181113.GA15672@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-In-Reply-To: <bivvbr$53i$1@ulysses.news.tiscali.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dirk Jakobsmeier wrote:
+  Hello,
 
-> While i let the system rewind the tape, and if this command needs long
-> time, the scsi driver from kernel recogizes an error.
+  one user pointed my attention to the fact that when the write fails
+(for example when the user quota is exceeded) the modification time is
+still updated (the problem appears both in 2.4 and 2.6). According to
+SUSv3 that should not happen because the specification says that mtime
+and ctime should be marked for update upon a successful completition
+of a write (not that it would forbid updating the times in other cases
+but I find it at least a bit nonintuitive).
+  The easiest fix would be probably to "backup" the times at the
+beginning of the write and restore the original values when the write
+fails (simply not updating the times would require more surgery because
+for example vmtruncate() is called when the write fails and it also
+updates the times).
+  So should I write the patch or is the current behaviour considered
+correct?
 
-You might want to check the FAQs for info on "SCSI disconnect" support. 
-Most modern SCSI tape drives support this, but without any configuration 
-details on the tape drive or the host adapter, it's hard to say whether 
-it will work for you.
+								Honza
 
-Chances are that more people will have answers on one of the 
-SCSI-specific lists.
-
--C
-
-
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

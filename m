@@ -1,121 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318121AbSHWAAr>; Thu, 22 Aug 2002 20:00:47 -0400
+	id <S318107AbSHWAcu>; Thu, 22 Aug 2002 20:32:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318123AbSHWAAr>; Thu, 22 Aug 2002 20:00:47 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:33540 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S318121AbSHWAAp>; Thu, 22 Aug 2002 20:00:45 -0400
-Subject: Re: cerberus errors on 2.4.19 (ide dma related)
-From: Samuel Flory <sflory@rackable.com>
-To: Ed Sweetman <safemode@speakeasy.net>
-Cc: Andre Hedrick <andre@linux-ide.org>, Alexander Viro <viro@math.psu.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1029702544.3331.18.camel@psuedomode>
-References: <Pine.LNX.4.10.10208181305450.23171-100000@master.linux-ide.org> 
-	<1029702544.3331.18.camel@psuedomode>
-Content-Type: text/plain
+	id <S318116AbSHWAcu>; Thu, 22 Aug 2002 20:32:50 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:63683 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318107AbSHWAct>; Thu, 22 Aug 2002 20:32:49 -0400
+Message-ID: <3D658399.80855551@us.ibm.com>
+Date: Thu, 22 Aug 2002 17:36:41 -0700
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [PATCH] Breaking down the global IPC locks - 2.5.31
+References: <Pine.LNX.4.44.0208211702320.10682-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 22 Aug 2002 17:03:49 -0700
-Message-Id: <1030061030.14545.197.camel@flory.corp.rackablelabs.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW-  If you run ctcs with the -p flag it will do rw data tests.  Just
-be sure to give it a number. (IE ./newburn -p 2)
-
-On Sun, 2002-08-18 at 13:29, Ed Sweetman wrote:
-> They're both.  Cerberus reports MEMORY errors only when dma is enabled
-> for the promise card. doesn't matter for the via chipset.  These MEMORY
-> errors just precursor data corruption on the disks.  badblocks
-> segfaulted during tests on both drives when dma was enabled on the
-> promise controller. Before i got drive corruption on both drives but
-> that was when i had swap on the promise controller, since then I have
-> not experienced data corruption on the via drive.  It's still uncertain
-> as to if the data corruption is something at the transfer level to the
-> promise controller or a more general ide dma memory corruption because
-> when dma is enabled on the promise controller and the cerberos test is
-> run, all I get is what i explained in my original post and then the
-> kernel always panic's after a number of errors (both badblocks test
-> errors and MEMORY errors).  
+Hugh Dickins wrote:
 > 
-> again, none of these errors show up when dma is disabled on the promise
-> controller.  
-> 
-> so by MEMORY error, i mean what cerberus reports as "MEMORY" errors. 
-> cerberus doesn't seem to report hdd data corruption, rather for some
-> reason badblocks segfaults.  If you have a data accuracy test you like
-> to run that i should try I'll do that.  But the data corruption that
-> i've seen only occurs after a couple days of being up with dma enabled
-> on the promise card and I haven't had time to be up that long since
-> moving my swap from the promise controller.  
-> 
-> 
-> 
-> On Sun, 2002-08-18 at 16:07, Andre Hedrick wrote:
-> > 
-> > Ed,
-> > 
-> > MEMORY errors explian please.
-> > 
-> > If you mean data corruption please use those words, they are screaming red
-> > flags for attention.
-> > 
-> > On 18 Aug 2002, Ed Sweetman wrote:
-> > 
-> > > Ok, devfs was removed and I got the old way working again.   cerberus
-> > > reports MEMORY errors when dma is enabled on the promise controller less
-> > > than 30 seconds after the test has begun. Just like every other time
-> > > i've had dma enabled on the promise controller.  
-> > > 
-> > > So it's not preempt. It's not devfs.  So now we have to face the fact
-> > > that it's either a hardware conflict that linux cannot handle or a
-> > > device driver bug.  
-> > > 
-> > > Any other suggestions? 
-> > > 
-> > > Now that i'm down to vanilla 2.4.19 perhaps it's time for some real
-> > > tests? 
-> > >  
-> > > 
-> > > On Sun, 2002-08-18 at 05:16, Ed Sweetman wrote:
-> > > > On Sun, 2002-08-18 at 05:10, Alexander Viro wrote:
-> > > > > 
-> > > > > 
-> > > > > On 18 Aug 2002, Ed Sweetman wrote:
-> > > > > 
-> > > > > > (overview written in hindsight of writing email)  
-> > > > > > I ran all these tests on ide/host2/bus0/target0/lun0/part1 
-> > > > > 
-> > > > > Don't be silly - if you want to test anything, devfs is the last thing
-> > > > > you want on the system.
-> > > > > 
-> > > > > 
-> > > > 
-> > > > 
-> > > > OK, i can remove devfs, but I dont really see how that would make dma
-> > > > transfers (memory) become corrupted and pio mode transfers (memory) to
-> > > > not.  
-> > > > 
-> > > > I'm going to remove it, but i dont see how it's going to affect what's
-> > > > going on. 
-> > >  
-> > > 
-> > > 
-> > 
-> > Andre Hedrick
-> > LAD Storage Consulting Group
-> > 
-> > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Except last time around I persuaded you that ipc_lockall, ipc_unlockall
+> (shm_lockall, shm_unlockall) needed updating; and now I think that they
+> were redundant all along and can just be removed completely.  Only used
+> by SHM_INFO, I'd expected you to make them read_locks: surprised to find
+> write_locks, thought about it some more, realized you would need to use
+> write_locks - except that the down(&shm_ids.sem) is already protecting
+> against everything that the write_lock would protect against (the values
+> reported, concurrent freeing of an entry, concurrent reallocation of the
+> entries array).  If you agree, please just delete all ipc_lockall
+> ipc_unlockall shm_lockall shm_unlockall lines.  Sorry for not
+> noticing that earlier.
 > 
 
+Agree. I was worrried about the case when shm_destroy() is called while
+trying to do a shm_get_stat().  But since shm_ids.sem is used to protect
+almost every shm operations, so I think that removing the ipc_lockall()
+totally should be safe.  
 
+
+> You convinced me that it's not worth trying to remove the ipc_ids.sems,
+> but I'm still slightly worried that you add another layer of locking.
+> There's going to be no contention over those read_locks (the write_lock
+> only taken when reallocating entries array), but their cachelines will
+> still bounce around.  I don't know if contention or bouncing was the
+> more important effect before, but if bouncing then these changes may
+> be disappointing in practice.  Performance results (or an experienced
+> voice, I've little experience of such tradeoffs) would help dispel doubt.
+> Perhaps, if ReadCopyUpdate support is added into the kernel in future,
+> RCU could be used here instead of rwlocking?
+
+Hmm...note sure about the tradeoffs either.  Having one lock per IPC ID
+does make sense to me, but the cacheline bouncing should also be avoid. 
+I need to re-think about this read-write lock and the ipc_ids.sems.  
+ 
+> Nit: I'd prefer "= RW_LOCK_UNLOCKED" instead of "=RW_LOCK_UNLOCKED".
+
+I like it better too.:-)
+
+
+Mingming

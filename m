@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262881AbTDAWMM>; Tue, 1 Apr 2003 17:12:12 -0500
+	id <S262883AbTDAWTz>; Tue, 1 Apr 2003 17:19:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262882AbTDAWMM>; Tue, 1 Apr 2003 17:12:12 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:32495 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S262881AbTDAWML>; Tue, 1 Apr 2003 17:12:11 -0500
-Date: Tue, 1 Apr 2003 23:25:32 +0100 (BST)
+	id <S262885AbTDAWTz>; Tue, 1 Apr 2003 17:19:55 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:49487 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S262883AbTDAWTy>; Tue, 1 Apr 2003 17:19:54 -0500
+Date: Tue, 1 Apr 2003 23:33:15 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] -mm traps.c warning
-Message-ID: <Pine.LNX.4.44.0304012324090.1730-100000@localhost.localdomain>
+cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] tmpfs 3/6 use generic_file_llseek
+In-Reply-To: <Pine.LNX.4.44.0304012328390.1730-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0304012332181.1730-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stop -mm compiler warning when CONFIG_KGDB is off
-(you'll forgive an early return in this instance).
+default_llseek's use of BKL and not i_sem was recently exposed:
+tmpfs should be using generic_file_llseek which guards with i_sem.
 
---- 2.5.66-mm2/arch/i386/kernel/traps.c	Tue Apr  1 11:25:39 2003
-+++ linux/arch/i386/kernel/traps.c	Tue Apr  1 19:22:30 2003
-@@ -380,10 +380,8 @@
- #define DO_VM86_ERROR(trapnr, signr, str, name) \
- asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
- { \
--	CHK_REMOTE_DEBUG(trapnr,signr,error_code,regs,goto skip_trap)\
-+	CHK_REMOTE_DEBUG(trapnr,signr,error_code,regs,return)\
- 	do_trap(trapnr, signr, str, 1, regs, error_code, NULL); \
--skip_trap: \
--	return; \
- }
- 
- #define DO_VM86_ERROR_INFO(trapnr, signr, str, name, sicode, siaddr) \
+--- tmpfs2/mm/shmem.c	Tue Apr  1 21:34:59 2003
++++ tmpfs3/mm/shmem.c	Tue Apr  1 21:35:10 2003
+@@ -1749,6 +1749,7 @@
+ static struct file_operations shmem_file_operations = {
+ 	.mmap		= shmem_mmap,
+ #ifdef CONFIG_TMPFS
++	.llseek		= generic_file_llseek,
+ 	.read		= shmem_file_read,
+ 	.write		= shmem_file_write,
+ 	.fsync		= simple_sync_file,
 

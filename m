@@ -1,28 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267369AbTAQEou>; Thu, 16 Jan 2003 23:44:50 -0500
+	id <S267371AbTAQEvh>; Thu, 16 Jan 2003 23:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbTAQEot>; Thu, 16 Jan 2003 23:44:49 -0500
-Received: from 124.suaa.snfc.snfccafj.dsl.att.net ([12.98.80.124]:28685 "EHLO
-	server") by vger.kernel.org with ESMTP id <S267369AbTAQEot>;
-	Thu, 16 Jan 2003 23:44:49 -0500
-Message-ID: <007001c2bde5$63e70480$0200a8c0@terralthra>
-From: "Michael D. Shannon" <terralthra@terralthra.net>
-To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <8B67F2E2D93ED5118D6E00508BB8D127011C3ED0@exmsb04.curtin.edu.au> <Pine.LNX.4.44.0301162211410.19302-100000@chaos.physics.uiowa.edu> <20030117041739.GA15753@work.bitmover.com> <20030117042041.GC1794@h55p111.delphi.afb.lu.se> <20030117042541.GC15753@work.bitmover.com>
-Subject: Re: Linux 2.5.59
-Date: Thu, 16 Jan 2003 21:00:43 -0800
+	id <S267373AbTAQEvh>; Thu, 16 Jan 2003 23:51:37 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:11787
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267371AbTAQEvg>; Thu, 16 Jan 2003 23:51:36 -0500
+Date: Fri, 17 Jan 2003 00:01:10 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@digeo.com>
+Subject: [PATCH][2.5] fix for_each_cpu compilation on UP
+Message-ID: <Pine.LNX.4.44.0301162358060.24250-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4920.2300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel
+This adds a definition for for_each_cpu when !CONFIG_SMP
 
+Please apply
+
+Index: linux-2.5.58-cpu_hotplug/include/linux/smp.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.58/include/linux/smp.h,v
+retrieving revision 1.1.1.1.2.3
+diff -u -r1.1.1.1.2.3 smp.h
+--- linux-2.5.58-cpu_hotplug/include/linux/smp.h	17 Jan 2003 03:13:12 -0000	1.1.1.1.2.3
++++ linux-2.5.58-cpu_hotplug/include/linux/smp.h	17 Jan 2003 03:14:40 -0000
+@@ -109,6 +109,7 @@
+ #define num_booting_cpus()			1
+ #define cpu_possible(cpu)			({ BUG_ON((cpu) != 0); 1; })
+ #define smp_prepare_boot_cpu()			do {} while (0)
++#define for_each_cpu(cpu, mask)			for (cpu = 0; cpu == 0; cpu++)
+ 
+ struct notifier_block;
+ 
+
+-- 
+function.linuxpower.ca
 

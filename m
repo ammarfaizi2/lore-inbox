@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbTJGQiM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 12:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTJGQiM
+	id S262507AbTJGQl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 12:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbTJGQl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 12:38:12 -0400
-Received: from smtp1.freeserve.com ([193.252.22.158]:34023 "EHLO
-	mwinf3002.me.freeserve.com") by vger.kernel.org with ESMTP
-	id S262436AbTJGQiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 12:38:11 -0400
-Message-ID: <22655142.1065544690402.JavaMail.www@wwinf3005>
-From: tigran@aivazian.fsnet.co.uk
-Reply-To: tigran@aivazian.fsnet.co.uk
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       tigran@aivazian.fsnet.co.uk, Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: Re: [PATCH] [2.4.XX] Silicon Image/CMD Medley Software RAID
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 7 Oct 2003 12:41:56 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:40328 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S262507AbTJGQlz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 12:41:55 -0400
+Message-ID: <3F82EB1A.8030609@rackable.com>
+Date: Tue, 07 Oct 2003 09:34:34 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tigran@aivazian.fsnet.co.uk
+CC: Thomas Horsten <thomas@horsten.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.4.XX] Silicon Image/CMD Medley Software RAID
+References: <8393446.1065535371042.JavaMail.www@wwinf3002>
+In-Reply-To: <8393446.1065535371042.JavaMail.www@wwinf3002>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue,  7 Oct 2003 18:38:10 +0200 (CEST)
+X-OriginalArrivalTime: 07 Oct 2003 16:41:53.0638 (UTC) FILETIME=[E9F0B860:01C38CF1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+tigran@aivazian.fsnet.co.uk wrote:
 > 
-> drivers/ide/pci/siimage.c
-> Did you forget to compile it? :-)
-> 
+> so horrendously slow, without even using any of its RAID functions (which
+> would be slow understandably as they are software RAID)?
 
-Yes, you are right! :)
+   There isn't any reason for software raid to be slower than hardware 
+raid.  On the 3ware ide raid controller.  Linux software raid 5 is 
+easily x2 as fast as hardware raid 5 on the same controller.
 
-Thank you! If I am silent that means I went home, compiled the driver
-and my card now works fine at 20M/s. Otherwise I will let you (and everyone)
-know.
 
-Kind regards
-Tigran
+
+
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 

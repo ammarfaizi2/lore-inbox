@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311917AbSDEC6U>; Thu, 4 Apr 2002 21:58:20 -0500
+	id <S312134AbSDEDAv>; Thu, 4 Apr 2002 22:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312134AbSDEC6K>; Thu, 4 Apr 2002 21:58:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49206 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S311917AbSDEC6C>; Thu, 4 Apr 2002 21:58:02 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davidw@dedasys.com (David N. Welton), linux-kernel@vger.kernel.org
-Subject: Re: forth interpreter as kernel module
-In-Reply-To: <E16tHSB-00078F-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 Apr 2002 19:51:19 -0700
-Message-ID: <m1y9g2q2mw.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S312169AbSDEDAl>; Thu, 4 Apr 2002 22:00:41 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:5879 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S312134AbSDEDAW>; Thu, 4 Apr 2002 22:00:22 -0500
+Date: Thu, 4 Apr 2002 22:00:22 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+Message-ID: <20020404220022.F24914@redhat.com>
+In-Reply-To: <3CACEF18.CE742314@zip.com.au> <200204050218.g352ILY32221@vindaloo.ras.ucalgary.ca> <3CAD1142.82527917@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thu, Apr 04, 2002 at 06:51:46PM -0800, Andrew Morton wrote:
+> Still.  Joe tells me (offlist) that his machine is taking
+> ages just to get to the "starting init" stage.
 
-> > I would be interested in comments on what should be fixed in the code,
-> > although I may not have time to act on them.
-> 
-> Strange. The one area forth does have sort of relevance may be outside the
-> x86 world. The portable boot rom standards (the one everyone ignored for
-> x86) is all about forth stuff. I don't know if anyone has use for a forth
-> engine that can speak that ?
+I find that on heavily scsi systems: one machine spins each of 13 disks 
+up sequentially.  This makes the initial boot take 3-5 minutes before 
+init even gets its foot in the door.  If someone made a patch to spin 
+up scsi disks on the first access, I'd gladly give it a test. ;-)
 
-The openbios guys are working on it.  I haven't played with it but they
-seem to be makeing some progress.
-
-Eric
+		-ben
+-- 
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."

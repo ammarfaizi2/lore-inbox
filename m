@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265960AbUACKKj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 05:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUACKKj
+	id S263053AbUACKUT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 05:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbUACKUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 05:10:39 -0500
-Received: from gprs178-245.eurotel.cz ([160.218.178.245]:50304 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265960AbUACKKh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 05:10:37 -0500
-Date: Sat, 3 Jan 2004 11:10:40 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New set of input patches
-Message-ID: <20040103101040.GC499@ucw.cz>
-References: <200401030350.43437.dtor_core@ameritech.net>
+	Sat, 3 Jan 2004 05:20:19 -0500
+Received: from main.gmane.org ([80.91.224.249]:50374 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263053AbUACKUQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 05:20:16 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Michael Stucki <mundaun@gmx.ch>
+Subject: Re: Unable to handle kernel NULL pointer dereference
+Date: Sat, 03 Jan 2004 10:47:05 +0100
+Message-ID: <bt632p$26h$1@sea.gmane.org>
+References: <200401011944.51109.lilo.please.no.spam@roccatello.it> <20040102013238.GC19598@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401030350.43437.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 03:50:43AM -0500, Dmitry Torokhov wrote:
+Dear Greg,
 
-> Hi Vojtech,
-> 
-> I have a new set of input patches, could you take look at them?
-> 
-> 1. i8042-suspend.patch
->    Add suspend methods to i8042 to restore BIOS settings on suspend and
->    kill polling timer which sometimes prevents APM suspend
-> 
+I have exactly the same problem and I am using nvidia's binary drivers as
+well, so they might be a problem anyway.
 
-See comments.
+> There is a patch in the -mm tree to fix this.  I've included it here
+> below.
 
-> 2. i8042-options-parsing.patch
->    psmouse-options-parsing.patch
+Thanks. Unfortunately, this doesn't solve my problem.
 
-See comments.
+Maybe this information could be useful:
+http://www.mstucki.net/files/misc/messages.txt
 
->    atkbd-options.parsing
->    Complete conversion to the new way of parsing parameters. Drop "i8042_",
->    "psmouse_" and "atkbd_" prefixes from option names when compiled as a
->    module and require "i8042.", "psmouse." and "atkbd." prefixes if built
->    into the kernel.
-> 
-> 3. missing-module-license.patch
->    Maple and newton keyboard drivers were missing MODULE_LICENSE("GPL")
-> 
-> 4. kconfig-synaptics-help.patch
->    Suggest psmouse.proto=imps to Synaptics users who do not want install
->    native XFree Synaptics driver so taps would still work
-> 
-> 5. sis-aux-port.patch
->    Do not ignore AUX port if chipset fails to disable it when we do probes
->    as SiS is having trouble disabling but otherwise mouse works fine.
+Kind regards
+- michael
 
-All patches except the first one are OK, in psmouse-options, there is a
-little typo.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

@@ -1,135 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbUK0HTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbUK0HGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbUK0HTO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 02:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUK0HHM
+	id S261214AbUK0HGN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 02:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUK0HGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 02:07:12 -0500
+	Sat, 27 Nov 2004 02:06:08 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:18110 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261298AbUKZTH4 (ORCPT
+	by vger.kernel.org with ESMTP id S261368AbUKZTHu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:07:56 -0500
-Date: Fri, 26 Nov 2004 09:07:34 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Christopher S. Aker" <caker@theshore.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2-bk7 - Badness in cfq_put_request at drivers/block/cfq-iosched.c:1402
-Message-ID: <20041126080734.GJ10456@suse.de>
-References: <001301c4d1f6$941d1370$0201a8c0@hawk> <20041124130139.GC13847@suse.de> <20041124132449.GD13847@suse.de> <002e01c4d22a$f426f630$0201a8c0@hawk> <20041124134038.GF13847@suse.de> <000f01c4d25b$e8d497c0$0201a8c0@hawk> <20041125184336.GA7330@suse.de> <20041126074316.GI10456@suse.de>
+	Fri, 26 Nov 2004 14:07:50 -0500
+Subject: Re: 2.4.28-bk3 ext3 oopses at boot
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@redhat.com>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20041125212833.0ff3af4f@lembas.zaitcev.lan>
+References: <20041125212833.0ff3af4f@lembas.zaitcev.lan>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1101459722.1941.10.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041126074316.GI10456@suse.de>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 26 Nov 2004 09:02:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 26 2004, Jens Axboe wrote:
-> On Thu, Nov 25 2004, Jens Axboe wrote:
-> > On Wed, Nov 24 2004, Christopher S. Aker wrote:
-> > > > Can you try this simple check to see if it triggers anything?
-> > > >
-> > > > ===== cfq-iosched.c 1.13 vs edited =====
-> > > > --- 1.13/drivers/block/cfq-iosched.c 2004-10-30 01:35:21 +02:00
-> > > > +++ edited/cfq-iosched.c 2004-11-24 14:40:13 +01:00
-> > > > @@ -1389,6 +1389,8 @@
-> > > >   struct cfq_data *cfqd = q->elevator->elevator_data;
-> > > >   struct cfq_rq *crq = RQ_DATA(rq);
-> > > >
-> > > > + WARN_ON(!spin_is_locked(q->queue_lock));
-> > > > +
-> > > >   if (crq) {
-> > > >   struct cfq_queue *cfqq = crq->cfq_queue;
-> > > 
-> > > I'd be happy to, but I won't have a free machine for a couple of days.
-> > > I'll can probably give it a shot during the weekend...
-> > 
-> > Nevermind, here's a patch to fix it. I was so focused on the decrement
-> > side of things that I forgot to check the increment, pretty silly error
-> > really.
+Hi,
+
+On Fri, 2004-11-26 at 05:28, Pete Zaitcev wrote:
+
+> I keep getting pretty random oopses at boot which point at either ext3 or
+> the SATA. This is a Dell PE750 which Matt sent me, BTW. 
+
+...
+
+> Failures are generally random, and they look like this (transcribed by hand):
 > 
-> And a small fix is needed on top of that, in case of hash type changes
-> (writing to hash_key).
+> VA NULL (0x0c)
+> EIP: write_one_revoke_record
 
-... And that one relied on another hashing change I made locally. 3rd
-time is the charm,.
+> VA 0x89e389d5
+> EIP: find_revoke_record
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+Both of these are when list-walking the revoke list.  That's purely an
+in-memory data structure, it shouldn't be affected by anything on disk. 
+You could try a forced fsck just to be sure, but it doesn't sound like
+there's a corruption on disk here.  (There *is* a variant of the revoke
+list that is read from disk, but that's only used during log replay,
+which isn't active in your oops traces.)
 
-===== drivers/block/cfq-iosched.c 1.13 vs edited =====
---- 1.13/drivers/block/cfq-iosched.c	2004-10-30 01:35:21 +02:00
-+++ edited/drivers/block/cfq-iosched.c	2004-11-26 09:06:38 +01:00
-@@ -1398,10 +1398,7 @@
- 		if (crq->io_context)
- 			put_io_context(crq->io_context->ioc);
- 
--		if (!cfqq->allocated[crq->is_write]) {
--			WARN_ON(1);
--			cfqq->allocated[crq->is_write] = 1;
--		}
-+		BUG_ON(!cfqq->allocated[crq->is_write]);
- 		cfqq->allocated[crq->is_write]--;
- 
- 		mempool_free(crq, cfqd->crq_pool);
-@@ -1421,7 +1418,7 @@
- 	struct cfq_data *cfqd = q->elevator->elevator_data;
- 	struct cfq_io_context *cic;
- 	const int rw = rq_data_dir(rq);
--	struct cfq_queue *cfqq;
-+	struct cfq_queue *cfqq, *saved_cfqq;
- 	struct cfq_rq *crq;
- 	unsigned long flags;
- 
-@@ -1439,20 +1436,30 @@
- #endif
- 	}
- 
-+repeat:
- 	if (cfqq->allocated[rw] >= cfqd->max_queued)
- 		goto out_lock;
- 
-+	cfqq->allocated[rw]++;
- 	spin_unlock_irqrestore(q->queue_lock, flags);
- 
- 	/*
--	 * if hashing type has changed, the cfq_queue might change here. we
--	 * don't bother rechecking ->allocated since it should be a rare
--	 * event
-+	 * if hashing type has changed, the cfq_queue might change here.
- 	 */
-+	saved_cfqq = cfqq;
- 	cic = cfq_get_io_context(&cfqq, gfp_mask);
- 	if (!cic)
- 		goto err;
- 
-+	/*
-+	 * repeat allocation checks on queue change
-+	 */
-+	if (unlikely(saved_cfqq != cfqq)) {
-+		spin_lock_irqsave(q->queue_lock, flags);
-+		saved_cfqq->allocated[rw]--;
-+		goto repeat;
-+	}
-+
- 	crq = mempool_alloc(cfqd->crq_pool, gfp_mask);
- 	if (crq) {
- 		RB_CLEAR(&crq->rb_node);
-@@ -1465,7 +1472,6 @@
- 		crq->in_flight = crq->accounted = crq->is_sync = 0;
- 		crq->is_write = rw;
- 		rq->elevator_private = crq;
--		cfqq->allocated[rw]++;
- 		cfqq->alloc_limit[rw] = 0;
- 		return 0;
- 	}
-@@ -1473,6 +1479,7 @@
- 	put_io_context(cic->ioc);
- err:
- 	spin_lock_irqsave(q->queue_lock, flags);
-+	cfqq->allocated[rw]--;
- 	cfq_put_queue(cfqq);
- out_lock:
- 	spin_unlock_irqrestore(q->queue_lock, flags);
+> if the box passes the boot, everything is peachy.
+> No filesystem corruption of any kind.
 
--- 
-Jens Axboe
+Sounds to me like you're getting corruption in a repeatable address
+somewhere at boot time that just happens to be hitting the revoke list
+early on.
+
+I saw something like this once before, except it was on a buffer_head
+list.  Debugging, I was able to identify that the *previous* entry of
+the list was always exactly at the 16MB mark in memory, and the list
+pointers there were getting corrupted.  Turned out to be a bad BIOS that
+was trapping a PCI bus operation, setting up a pte for some internal
+workspace, restoring it on exit back to the OS but forgetting to flush
+the tlb.  Adding a tlb flush after various PCI ops fixed it completely. 
+Similar footprint to yours: a crash shortly after boot in a specific
+data structure but with pretty random VAs, and at random points in the
+bh walking code.
+
+The revoke code hasn't changed in *ages*, and I've never seen a report
+of that list getting corrupted before.  I suspect the fs is just an
+innocent victim here.
+
+Cheers,
+ Stephen
 

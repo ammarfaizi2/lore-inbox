@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264171AbTCXMau>; Mon, 24 Mar 2003 07:30:50 -0500
+	id <S264172AbTCXMfr>; Mon, 24 Mar 2003 07:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264173AbTCXMau>; Mon, 24 Mar 2003 07:30:50 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54696
+	id <S264173AbTCXMfr>; Mon, 24 Mar 2003 07:35:47 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56488
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264171AbTCXMat>; Mon, 24 Mar 2003 07:30:49 -0500
-Subject: Re: PROBLEM: linux-2.5.65-ac3 does not boot whith IDE-drivers
+	id <S264172AbTCXMfq>; Mon, 24 Mar 2003 07:35:46 -0500
+Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
+	looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Norbert Wolff <norbert_wolff@t-online.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030324110824.1b419814.norbert_wolff@t-online.de>
-References: <20030322140337.GA1193@brodo.de>
-	 <1048350905.9219.1.camel@irongate.swansea.linux.org.uk>
-	 <20030322162502.GA870@brodo.de>
-	 <1048354921.9221.17.camel@irongate.swansea.linux.org.uk>
-	 <20030323010338.GA886@brodo.de>
-	 <1048434472.10729.28.camel@irongate.swansea.linux.org.uk>
-	 <20030323145915.GA865@brodo.de>
-	 <1048444868.10729.54.camel@irongate.swansea.linux.org.uk>
-	 <20030323181532.GA6819@brodo.de> <20030323182554.GA1270@brodo.de>
-	 <3E7E3248.7070307@portrix.net>
-	 <20030324110824.1b419814.norbert_wolff@t-online.de>
+To: Alexander Atanasov <alex@ssi.bg>
+Cc: Dominik Brodowski <linux@brodo.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
+References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048514087.25140.0.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Mar 2003 13:54:48 +0000
+Date: 24 Mar 2003 13:59:33 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 11:08, Norbert Wolff wrote:
-> Hi !
-> 
-> I tried linux-2.5.65-ac3 with ide-disk and ide-scsi drivers both built in
-> the Kernel.
-> Two ide-disks attached to ide0, two CDROMS attached to ide1.
-> Im using the sis5513-PCI-IDE-Driver, but configuring it out makes no difference.
+On Mon, 2003-03-24 at 09:55, Alexander Atanasov wrote:
+> i can't reproduce the hang but it seems that drives without driver can get
+> both in ata_unused and idedefault_driver.drives and lists go nuts.
+> It kills ata_unused and uses idedefault_driver.drives only,
+> boots fine here. I'd guess you have ide-cd as module, and the two drives
+> handled by it couse the trouble - first joins the lists second couses the
+> loop.
 
-See the -ac4 tree for a cleaner fix from Dominik
+We need to know the difference between the two really so I would much rather
+ensure we don't end up on both lists at once (which is a bug) than lose a
+list
+

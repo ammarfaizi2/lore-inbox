@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271587AbTGQWbc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 18:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271618AbTGQW3u
+	id S271607AbTGQWdG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 18:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271604AbTGQWcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 18:29:50 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:15803 "HELO
-	develer.com") by vger.kernel.org with SMTP id S271601AbTGQW3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 18:29:14 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer S.r.l.
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: do_div64 generic
-Date: Fri, 18 Jul 2003 00:43:58 +0200
-User-Agent: KMail/1.5.9
-Cc: george@mvista.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
-       torvalds@osdl.org
-References: <3F1360F4.2040602@mvista.com> <200307172310.48918.bernie@develer.com> <20030717141608.5f1b7710.akpm@osdl.org>
-In-Reply-To: <20030717141608.5f1b7710.akpm@osdl.org>
+	Thu, 17 Jul 2003 18:32:51 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:58632 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271603AbTGQWcS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 18:32:18 -0400
+Date: Thu, 17 Jul 2003 18:39:24 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+cc: Mark Watts <m.watts@eris.qinetiq.com>, KML <linux-kernel@vger.kernel.org>
+Subject: Re: devfsd/2.6.0-test1
+In-Reply-To: <1058443807.13515.1530.camel@workshop.saharacpt.lan>
+Message-ID: <Pine.LNX.3.96.1030717183139.17023B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307180043.58901.bernie@develer.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 July 2003 23:16, Andrew Morton wrote:
-> Bernardo Innocenti <bernie@develer.com> wrote:
-> > 2) replace all uses of div_long_long_rem() (I see onlt 4 of them in
-> >    2.6.0-test1) with do_div(). This is slightly less efficient, but
-> >    easier to maintain in the long term.
->
-> Ths one's OK by me.  Let's just fix the bug with minimum risk and churn.
+On 17 Jul 2003, Martin Schlemmer wrote:
 
-Ok, I will be preparing a patch tomorrow unless there are more objections.
+> On Thu, 2003-07-17 at 11:17, Mark Watts wrote:
+
+> > I'm running devfs on a 2.6.0-test1 box (Mandrake 9.1 with the new kernel)
+> > 
+> > Every time I boot, it complains that I don't have an /etc/modprobe.devfs.
+> > If I symlink modules.devfs, I get a wad of errors about 'probeall'.
+> > What should a modprobe.devfs look like for a 2.5/6 kernel?
+> > 
+> 
+> The module-init-tools tarball should include one.
+
+Agreed, it should. However, the last version I pulled had zero support for
+probeall, and more importantly for probe, which is somewhat harder to do
+cleanly without having to rewrite the config file for each kernel you
+boot.
+
+I assume someone will need to write a functional config parser which
+handles these features before 2.6 is seriously ready for production.
+Giving up the ability to find the working module for a device would be a
+step back, and is needed to allow booting with changing configurations,
+such as docked or not laptops, PCMCIA cards inserted, various hardware
+such as printers and scanners attached, etc.
 
 -- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

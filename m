@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129169AbRAZBUH>; Thu, 25 Jan 2001 20:20:07 -0500
+	id <S129169AbRAZBbj>; Thu, 25 Jan 2001 20:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130943AbRAZBT6>; Thu, 25 Jan 2001 20:19:58 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:36825 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129169AbRAZBTr>; Thu, 25 Jan 2001 20:19:47 -0500
-Message-ID: <3A70D270.63A8631D@uow.edu.au>
-Date: Fri, 26 Jan 2001 12:27:12 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S129444AbRAZBb3>; Thu, 25 Jan 2001 20:31:29 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:50572 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129169AbRAZBbZ>;
+	Thu, 25 Jan 2001 20:31:25 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-In-Reply-To: <3A6F8415.8EC5DB23@uow.edu.au> from "Andrew Morton" at Jan 25, 1 04:45:00 am <200101251929.WAA10001@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14960.54069.369317.517425@pizda.ninka.net>
+Date: Thu, 25 Jan 2001 17:30:29 -0800 (PST)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <94qcvm$9qp$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com>
+	<94qcvm$9qp$1@cesium.transmeta.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> 
-> Hello!
-> 
-> > no problems.  I simply mounted an NFS server with rsize=wsize=8192
-> > and read a few files - I assume this is sufficient?
-> 
-> This is orthogonal.
-> 
-> Only TCP uses this and you need not to do something special
-> to test it. Any TCP connection going through 3c tests it.
 
-OK.
+H. Peter Anvin writes:
+ > I do think they have a point, though; ECN is listed as an
+ > experimental standard at IETF, and I do think that it's not exactly
+ > fair to *require* everyone to use it until it is standards-track.
+ > It would be another thing if Linux could turn it off on a
+ > per-connection basis if these packets get dropped.
 
-> > rather than using the IS_CYCLONE stuff.  Then we can add cards
-> > individually as confirmation comes in.
-> 
-> Seems, you meaned opposite way. To add this flag to all the chips,
-> except for several, and to remove it as soon as it is "confirmed"
-> that it does not work. 8)
+Firstly, how do these things make standards status if everybody
+twiddles their fingers and ignores the issues at the high volume sites
+so the thing can't be effectively beta tested by researchers?
 
-errr..  Well that certainly ensures we'll hear about it quickly :)
+Secondly, the RFCs are pretty clear that the bits in question used for
+ECN are _reserved_ and to be ignored by implementations.  That means
+to not be interpreted, and more importantly not used to discard
+packets.
 
-Problem is, some of these NICs are very rare, and the driver could
-be broken for quite some time before we hear about it.  Months.
+It is specifically described in this way so that things like ECN _can_
+be deployed without worrying about existing implementations being
+confused.
 
-I think what I'd prefer to do is this:
+These sites ignoring this issue, and the fix existing from the vendors
+of products with the problem, are only exacerbating the situation.  A
+better internet will take longer because they are doing this.  This
+better internet with full blown ECN is in their best interest, it will
+allow them to serve more connections, more customers, and make more
+money.
 
-In vortex_close() we _know_ whether the NIC is doing hardware checksumming,
-so we can add:
+Thirdly, it was widely discussed by the ECN reserachers on how to
+"detect ECN blackholes" sort to speak.  All such schemes suggested
+we unusable, it is not doable without impacting performance _and_
+violating existing RFCs.  Basically, you have to ignore a valid TCP
+reset to deal with some of the ECN holes out there, that is where such
+workaround attempts become full crap and are unsatisfactory for
+inclusion in any implementation much less an RFC.  Happily, we got the
+ECN folks to agree with Alexey and myself on these points.
 
-	if (rx_csumhits && (dev->drv_flags&HAS_HWCKSM) == 0)
-		printk("this NIC supports hardware checksums!  Please see <some URL>")
+So turning it off on a per-connection basis is not really an option.
 
-This will work well - people are quite helpful.
+ > In this case, though, they feel that they don't want to potentially
+ > destabilize their network over something that is labelled an
+ > experimental standard.  I can certainly understand their point.
 
-> Also, please, reset the state. Until this snapshot, hw checksumming
-> did not work due to bugs in netfilter, so that all the reports about
-> failures to checksum are dubious.
+That's respectible.
 
-That's good to hear.
+However, to my knowledge the fix in question is available from Cisco
+as a fully supported "safe" patch, rather than some haphazard beta
+patch.
 
-It's possible that some devices in the device table are marked
-as Cyclone when in fact they're Boomerangs.  It's pretty confusing.
-So these will support scatter/gather but not checksumming.
+I think it's just a "fud to avoid a small burdon issue" on the hotmail
+folks part.  Well, if this is the case they can just let me know how
+many support mails at which the burdon of verifying installation of
+the fix from Cisco will not see so bad in comparison :-)
 
-Using rx_csumhits should be reliable.  It's a global counter at
-present - I'll make it per-device.
+Finally, regardless of whether ECN is a standard or not, making
+any interpretation of the reserved bits is at best a violation
+of the "be liberal of what you receive" mantra of the internet
+standards committee which the hotmail person quoted seemed so
+keen on mentioning :-)
 
--
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

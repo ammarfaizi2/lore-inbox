@@ -1,78 +1,232 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312871AbSDOPlG>; Mon, 15 Apr 2002 11:41:06 -0400
+	id <S312872AbSDOPtc>; Mon, 15 Apr 2002 11:49:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312887AbSDOPlF>; Mon, 15 Apr 2002 11:41:05 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:51252 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S312871AbSDOPlE>; Mon, 15 Apr 2002 11:41:04 -0400
-Date: Mon, 15 Apr 2002 17:40:59 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Steve Kieu <haiquy@yahoo.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-pre6aa1 (possible all kernel after 2.4.19-pre2) athlon PCI workaround
-Message-ID: <20020415174059.E2345@nbkurt.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Steve Kieu <haiquy@yahoo.com>,
-	kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020413085840.75689.qmail@web10404.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MPkR1dXiUZqK+927"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S312885AbSDOPtb>; Mon, 15 Apr 2002 11:49:31 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4627 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S312872AbSDOPt3>; Mon, 15 Apr 2002 11:49:29 -0400
+Date: Mon, 15 Apr 2002 12:49:07 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] for_each_zone / for_each_pgdat
+Message-ID: <Pine.LNX.4.44L.0204151248350.16531-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+replace slightly obscure while loops with for_each_zone and
+for_each_pgdat macros, this version has the added optimisation
+of skipping empty zones       (thanks to William Lee Irwin)
 
---MPkR1dXiUZqK+927
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-- 
+Hi Linus,                                  [retransmit #1]
 
-Hi,
+this patch cleans up the VM a little bit and has a microoptimisation
+to skip zones of size zero.  You can apply this mail or pull the
+changes from:
 
-On Sat, Apr 13, 2002 at 06:58:40PM +1000, Steve Kieu wrote:
-> This is a known problem I know, the screen problem
-> with some athlon computer due to some PCI optimization
-> code  etc..; but how can I work around this. For
-> 2.4.19-pre2 I remember to go somewhere to find pci.c
-> and comment out the code related, but in
-> 2.4.19-pre6aa1 I got stuck..
->=20
-> Is there an official way to overcome/fix this problem
-> ? (kernel build option?) Or just anyone interested in
-> doing such job?
+	bk://linuxvm.bkbits.net/linux-2.5-for-linus/
 
-I don't know of an "official way".
-There were a number of postings refering to
-arch/i386/kernel/pci-pc.c: pci_fixup_via_northbridge_bug()
-and claiming that not clearing bit 5 did make the problem go away.
-(IOW: Replace v &=3D 0x1f; /* clear bits 5, 6, 7 */
-           by v &=3D 0x3f; /* clear bits 6, 7 */
- and see whether this helps.)
+please apply,
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+thanks,
 
---MPkR1dXiUZqK+927
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Rik
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE8uvSLxmLh6hyYd04RAlZnAJwImBIikklinn8Cr1SekCosYRAaRQCdHUbi
-ms93MSr9aKy6zw77/+NSQ+w=
-=ASui
------END PGP SIGNATURE-----
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.456   -> 1.457
+#	include/linux/mmzone.h	1.8     -> 1.9
+#	     mm/page_alloc.c	1.44    -> 1.45
+#	         mm/vmscan.c	1.59    -> 1.60
+#	        mm/bootmem.c	1.8     -> 1.9
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/04/11	riel@duckman.distro.conectiva	1.457
+# replace slightly obscure while loops with for_each_zone and
+# for_each_pgdat macros, this version has the added optimisation
+# of skipping empty zones       (thanks to William Lee Irwin)
+# --------------------------------------------
+#
+diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
+--- a/include/linux/mmzone.h	Thu Apr 11 21:23:50 2002
++++ b/include/linux/mmzone.h	Thu Apr 11 21:23:50 2002
+@@ -157,6 +157,62 @@
 
---MPkR1dXiUZqK+927--
+ extern pg_data_t contig_page_data;
+
++/**
++ * for_each_pgdat - helper macro to iterate over all nodes
++ * @pgdat - pg_data_t * variable
++ *
++ * Meant to help with common loops of the form
++ * pgdat = pgdat_list;
++ * while(pgdat) {
++ *     ...
++ *     pgdat = pgdat->node_next;
++ * }
++ */
++#define for_each_pgdat(pgdat) \
++	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
++
++/*
++ * next_zone - helper magic for for_each_zone()
++ * Thanks to William Lee Irwin III for this piece of ingenuity.
++ */
++static inline zone_t *next_zone(zone_t *zone)
++{
++	pg_data_t *pgdat = zone->zone_pgdat;
++
++	do {
++		if (zone - pgdat->node_zones < MAX_NR_ZONES - 1)
++			zone++;
++
++		else if (pgdat->node_next) {
++			pgdat = pgdat->node_next;
++			zone = pgdat->node_zones;
++		} else
++			zone = NULL;
++	/* Skip zones of size 0 ... */
++	} while (zone && !zone->size);
++
++	return zone;
++}
++
++/**
++ * for_each_zone - helper macro to iterate over all memory zones
++ * @zone - zone_t * variable
++ *
++ * The user only needs to declare the zone variable, for_each_zone
++ * fills it in. This basically means for_each_zone() is an
++ * easier to read version of this piece of code:
++ *
++ * for(pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
++ *     for(i = 0; i < MAX_NR_ZONES; ++i) {
++ *             zone_t * z = pgdat->node_zones + i;
++ *             ...
++ *     }
++ * }
++ */
++#define for_each_zone(zone) \
++	for(zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
++
++
+ #ifndef CONFIG_DISCONTIGMEM
+
+ #define NODE_DATA(nid)		(&contig_page_data)
+diff -Nru a/mm/bootmem.c b/mm/bootmem.c
+--- a/mm/bootmem.c	Thu Apr 11 21:23:50 2002
++++ b/mm/bootmem.c	Thu Apr 11 21:23:50 2002
+@@ -338,12 +338,11 @@
+ 	pg_data_t *pgdat = pgdat_list;
+ 	void *ptr;
+
+-	while (pgdat) {
++	for_each_pgdat(pgdat)
+ 		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
+ 						align, goal)))
+ 			return(ptr);
+-		pgdat = pgdat->node_next;
+-	}
++
+ 	/*
+ 	 * Whoops, we cannot satisfy the allocation request.
+ 	 */
+diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
+--- a/mm/page_alloc.c	Thu Apr 11 21:23:50 2002
++++ b/mm/page_alloc.c	Thu Apr 11 21:23:50 2002
+@@ -482,14 +482,10 @@
+ {
+ 	unsigned int sum;
+ 	zone_t *zone;
+-	pg_data_t *pgdat = pgdat_list;
+
+ 	sum = 0;
+-	while (pgdat) {
+-		for (zone = pgdat->node_zones; zone < pgdat->node_zones + MAX_NR_ZONES; zone++)
++	for_each_zone(zone)
+ 			sum += zone->free_pages;
+-		pgdat = pgdat->node_next;
+-	}
+ 	return sum;
+ }
+
+@@ -501,7 +497,7 @@
+ 	pg_data_t *pgdat = pgdat_list;
+ 	unsigned int sum = 0;
+
+-	do {
++	for_each_pgdat(pgdat) {
+ 		zonelist_t *zonelist = pgdat->node_zonelists + (GFP_USER & GFP_ZONEMASK);
+ 		zone_t **zonep = zonelist->zones;
+ 		zone_t *zone;
+@@ -512,9 +508,7 @@
+ 			if (size > high)
+ 				sum += size - high;
+ 		}
+-
+-		pgdat = pgdat->node_next;
+-	} while (pgdat);
++	}
+
+ 	return sum;
+ }
+@@ -522,13 +516,12 @@
+ #if CONFIG_HIGHMEM
+ unsigned int nr_free_highpages (void)
+ {
+-	pg_data_t *pgdat = pgdat_list;
++	pg_data_t *pgdat;
+ 	unsigned int pages = 0;
+
+-	while (pgdat) {
++	for_each_pgdat(pgdat)
+ 		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
+-		pgdat = pgdat->node_next;
+-	}
++
+ 	return pages;
+ }
+ #endif
+diff -Nru a/mm/vmscan.c b/mm/vmscan.c
+--- a/mm/vmscan.c	Thu Apr 11 21:23:50 2002
++++ b/mm/vmscan.c	Thu Apr 11 21:23:50 2002
+@@ -655,10 +655,8 @@
+
+ 	do {
+ 		need_more_balance = 0;
+-		pgdat = pgdat_list;
+-		do
++		for_each_pgdat(pgdat)
+ 			need_more_balance |= kswapd_balance_pgdat(pgdat);
+-		while ((pgdat = pgdat->node_next));
+ 	} while (need_more_balance);
+ }
+
+@@ -681,12 +679,11 @@
+ {
+ 	pg_data_t * pgdat;
+
+-	pgdat = pgdat_list;
+-	do {
++	for_each_pgdat(pgdat) {
+ 		if (kswapd_can_sleep_pgdat(pgdat))
+ 			continue;
+ 		return 0;
+-	} while ((pgdat = pgdat->node_next));
++	}
+
+ 	return 1;
+ }
+
+

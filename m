@@ -1,116 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286524AbSABBV0>; Tue, 1 Jan 2002 20:21:26 -0500
+	id <S286517AbSABBUP>; Tue, 1 Jan 2002 20:20:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286491AbSABBUR>; Tue, 1 Jan 2002 20:20:17 -0500
-Received: from [202.4.192.130] ([202.4.192.130]:49412 "EHLO
-	dns2.isp.sunday.com") by vger.kernel.org with ESMTP
-	id <S286502AbSABBTx>; Tue, 1 Jan 2002 20:19:53 -0500
-Message-ID: <3A5681DBDB02D31186070008C7733BED088A127E@exchan01.mandarin.com>
-From: "Chris, Lo Cheuk Kong" <Chris.Lo@corp.sunday.com>
-To: "'Edward Muller'" <emuller@learningpatterns.com>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Problems booting 2.4.17
-Date: Wed, 2 Jan 2002 09:20:24 +0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S286491AbSABBUC>; Tue, 1 Jan 2002 20:20:02 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:45127 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S286501AbSABBTv>; Tue, 1 Jan 2002 20:19:51 -0500
+Date: Tue, 1 Jan 2002 20:19:50 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Two hdds on one channel - why so slow?
+Message-ID: <20020101201950.A11644@redhat.com>
+In-Reply-To: <0GPA00BK988OBK@mtaout45-01.icomcast.net> <Pine.LNX.4.10.10201011521190.6558-100000@master.linux-ide.org> <a0tlji$e5m$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <a0tlji$e5m$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, Jan 01, 2002 at 04:52:02PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 01, 2002 at 04:52:02PM -0800, H. Peter Anvin wrote:
+> I was trying to figure out what certain peoples issue with this was,
+> and the answer I got back was concern about buggy hardware (both host
+> side and target side) breaking the documented model.  I am personally
+> in no position to evaluate the veracity of that claim; perhaps you
+> could comment on how to deal with broken hardware in your model.
 
-Thanks for info. My workaround is that: don't use initrd image and it boots
-fine! 
-My hardware setup is simple and allows me to put modules back into the
-kernel. For 2.4.17, I drop the initrd line in the lilo...
+And how can we tell if a previous implementation was buggy or if it was 
+actually hardware that was buggy?
 
------Original Message-----
-From: Edward Muller [mailto:emuller@learningpatterns.com]
-Sent: Wednesday, January 02, 2002 2:08 AM
-To: chris.lo@corp.sunday.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Problems booting 2.4.17
-
-
-For now I've moved back to 2.4.16, which boots without a problem. I had
-lots of work to do to get those systems up and configured so I haven't
-had time to play.
-
-I'm not sure what is causing the problem. I know how to make an initrd
-image and it's there. It may be a problem with devfs because I remember
-that Mandrake based their devfs scripts on some very very very old stuff
-from the devfs ditribution (which is being removed IIRC).
-
-It's probably not fs based as you are using reiserfs and I'm using ext3.
-
-Anyway ... For now I've gone back to 2.4.16, but I'd like to try 2.4.17.
-So if you happen to have some time and figure it out, please let me
-know.
-
-On Mon, 2001-12-31 at 23:51, Chris Lo wrote:
-> Good Morning,
-> 
-> I had the same problem, with resierfs. Any workaround 
-> found?
-> 
-> Have a happy new year!!
-> 
-> Regards,
-> Chris
-> 
-> 
-> 
-> 
-> Hello all.
-> 
-> I'm having problems booting 2.4.17 on a Mandrake 8.1 system (with all
-> current updates).
-> 
-> When I boot 2.4.17 (with an initrd image) I get the following...
-> 
-> kernel boots ...
-> Creating root device
-> mkrootdev: mknod failed: 17
-> Mounting root filesyste with flags data=ordered
-> Mount: error 16 mounting ext3 flags data=ordered
-> ...Tried to remount without flags and fails with the same error...
-> Kernel Panic: No initrd found ...
-> 
-> I am using ext3 / /boot /usr /var & /home filesystems
-> 
-> 2.4.8-34.1mdk boots fine however.
-> 
-> I'm about to go try 2.4.16 (it was working with reiserfs partitions
-> before).
-> 
-> The machine is an AMD Athalon 1.3 Ghz on an EPOC board with a 3ware 7800
-> series RAID card, with three 75/80 GB drives in a RAID 5 array.
-> 
-> Anyone else run into something like this? 
-> 
-> I'll report back about 2.4.16 and if anyone would like more info, just
-> shout.
-> 
-> 
-> -- 
-> -------------------------------
-> Edward Muller
-> Director of IS
-> 
-> 973-715-0230 (cell)
-> 212-487-9064 x115 (NYC)
-> 
-> http://www.learningpatterns.com
-> -------------------------------
-> 
--- 
--------------------------------
-Edward Muller
-Director of IS
-
-973-715-0230 (cell)
-212-487-9064 x115 (NYC)
-
-http://www.learningpatterns.com
--------------------------------
+		-ben

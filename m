@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVABPkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVABPmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVABPkk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 10:40:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVABPkj
+	id S261267AbVABPmI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 10:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVABPlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 10:40:39 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:43693 "EHLO
+	Sun, 2 Jan 2005 10:41:06 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:48813 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261259AbVABPkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 10:40:33 -0500
-Subject: Re: [PATCH] [2.6.10-ac2] Moxa driver causes compile-time errors
+	id S261261AbVABPlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 10:41:00 -0500
+Subject: Re: Questions about the CMD640 and RZ1000 bugfix support options
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "M.Baris Demiray" <baris@idealteknoloji.com>
+To: Christoph Anton Mitterer <cam@mathematica.scientia.net>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41D7D2D5.5090407@idealteknoloji.com>
-References: <41D7D2D5.5090407@idealteknoloji.com>
+In-Reply-To: <41D5D206.1040107@mathematica.scientia.net>
+References: <41D5D206.1040107@mathematica.scientia.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104673453.15004.37.camel@localhost.localdomain>
+Message-Id: <1104676209.15004.58.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 02 Jan 2005 14:36:21 +0000
+Date: Sun, 02 Jan 2005 14:36:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-01-02 at 10:54, M.Baris Demiray wrote:
-> Hi,
-> latest -ac tree patch ac2 replaces some obsolete save_flags()/cli()
-> with spin_lock_irqsave() but there are compile time errors caused by
-> seems-like-forgotten-to-add-but-used spinlock_t member in moxa_str
-> structure. Attached diff file fixes this error and several other
-> warnings.
+On Gwe, 2004-12-31 at 22:26, Christoph Anton Mitterer wrote:
+> Hi.
+> 
+> First of all: A happy new year in advance!
+> 
+> Now to my question:
+> In the kernel-configuration there are the two options:
+> CONFIG_BLK_DEV_CMD640        CMD640 chipset bugfix/support
+> and
+> CONFIG_BLK_DEV_RZ1000        RZ1000 chipset bugfix/support
+> 
+> At least the second of those two seems to cause some little slowdown 
+> ("This may slow disk throughput by a few percent, but at least things 
 
-Its still a work in progress. The moxa driver has been defunct since 2.4
-and it's not trivial to ressurrect. The majority of moxa hardware uses
-mxser which is now happy. Your changes mostly look sane although they
-are not enough.
-
-
+They only trigger for the affected chipsets
 

@@ -1,72 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269191AbTHGSCm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 14:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbTHGSCm
+	id S270383AbTHGSU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 14:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbTHGSU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 14:02:42 -0400
-Received: from maild.telia.com ([194.22.190.101]:1746 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id S269191AbTHGSCl convert rfc822-to-8bit
+	Thu, 7 Aug 2003 14:20:29 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4993 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S270383AbTHGSU1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 14:02:41 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Takashi Iwai <tiwai@suse.de>, Daniel Phillips <phillips@arcor.de>
-Subject: Re: SCHED_SOFTRR patch (memory lock?)
-Date: Thu, 7 Aug 2003 20:05:06 +0200
-User-Agent: KMail/1.5.9
-Cc: Steven Newbury <s_j_newbury@yahoo.co.uk>, davidel@xmailserver.org,
-       linux-kernel@vger.kernel.org
-References: <20030728202750.73149.qmail@web60001.mail.yahoo.com> <200308071659.03894.phillips@arcor.de> <s5hwudpjupm.wl@alsa2.suse.de>
-In-Reply-To: <s5hwudpjupm.wl@alsa2.suse.de>
+	Thu, 7 Aug 2003 14:20:27 -0400
+Date: Thu, 7 Aug 2003 14:24:46 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: JLB <jlb@twu.net>
+cc: Linux kernel <linux-kernel@vger.kernel.org>, rms@gnu.org,
+       Linus Torvalds <torvalds@transmeta.com>, alan@lxorguk.ukuu.org.uk
+Subject: Re: A quick and (relatively) easy response to this SCO BS
+In-Reply-To: <Pine.LNX.4.53.0308071115210.12466@twu.net>
+Message-ID: <Pine.LNX.4.53.0308071359230.6879@chaos>
+References: <Pine.LNX.4.53.0308071115210.12466@twu.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308072005.07017.roger.larsson@skelleftea.mail.telia.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 August 2003 18.31, Takashi Iwai wrote:
-> At Thu, 7 Aug 2003 16:59:03 +0100,
->
-> Daniel Phillips wrote:
-> > > Under 2.6.0-test1 based kernels I have experienced quite a lote of
-> > > drop-outs with XMMS playing mp3's with a moderate load, however, when
-> > > run as root (with SCHED_RR) I encountered no drop-outs at all.  When
-> > > using SOFTRR under I had very choppy playback when the machine was
-> > > under load. It was a constant jittering more than intermittent
-> > > drop-outs.
-> >
-> > According to me, this should not happen, since your cpu usage is well
-> > below what is supposed to be the cutoff for the realtime slice.  I've
-> > only seen one report like yours, where SOFTRR isn't working as intended. 
-> > On the other hand, I've missed a lot of lkml traffice lately, so there
-> > could be more.
->
-> looking at the source code of xmms and found that xmms OSS output
-> plugin behaves differently if the process is SCHED_RR.
-> when xmms is started with SCHED_RR, it won't create an (another) audio
-> thread.  perhaps this explains also the difference found in some
-> cases.
->
-> well, i'm not 100% sure about this theory, now needs to practice :)
-> please try to turn off the check of SCHED_RR in
-> xmms/Output/OSS/audio.c, something like:
->
->         realtime = xmms_check_realtime_priority();
->
-> replaced with
->
-> 	realtime = 0;
+On Thu, 7 Aug 2003, JLB wrote:
 
-Another possibility - will XMMS lock its memory from swapping when running as 
-root? (Or are there any special allocation/IO rule for root?)
+> O great ones:
+>
+> Some clever soul on Kuro5hin has posted information on how to obtain a
+> recent 2.4 kernel from SCO legally.
+>
 
-/RogerL
+You can download a kernel from SCO. So what? It doesn't mean
+anything. The fact that SCO has been supporting Linux doesn't
+mean anything either. If you are going to base a lawsuit on
+falsehood, facts don't mean anything!
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+> I strongly recommend that the kernel maintainers create a new "SCOlegal"
+> branch of the kernel, based on this source code. New drivers can simply be
+> backported back in, and voila, there's not a thing SCO can do about it.
+>
+
+It's a waste of time and effort. There is no such thing as "SCO-legal".
+SCO does not make law, not in the United States, not anywhere.
+
+> If this is a waste of everyone's time, I beg your pardon. But given the
+> current bizarre state of affairs in US law, there is always a chance that
+> the SCO loonies might win. We need to be prepared. There is a chance,
+> however slight, that the entire GNU/Linux community could crumble
+> irrevocably as a direct result of this fiasco.
+>
+
+No. Contrary to world opinion, the United States is still a
+Constitutional Republic, ruled by law, not men. But, with
+freedom comes the right to sue anybody. SCO chose to sue
+IBM. So? What else is new? I'm sure that IBM's lawyers are
+not really bothered by SCO's lawyers. It just gives them
+some more work to do. It's all in a day's work.
+
+In the United States, one of the first things that happens in
+such a suit is called "discovery". This is where the lawyers
+from both sides sit down and talk about, not only the
+information disclosed or to be disclosed in the case, but
+also the consequences of proceeding further.
+
+This is where SCO's lawyers are going to go back to SCO's
+officers and tell them that they probably should not
+proceed any further. Shortly after that time, you'll probably
+hear some news about a "joint agreement to work together in
+the future..."
+
+> --Jessica
+
+What you and others are doing is giving SCO too much
+free publicity. Before this fiasco started, SCO could
+have farted itself to death and nobody would have known.
+But, now; "Aha, maybe SCO has some products that I
+should be considering...." might be on the lips of every
+IT manager in the known universe. Give it up. Let SCO
+die. IBM knows how to kill them dead. It has; "been there..
+done that..."
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

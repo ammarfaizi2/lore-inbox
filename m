@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbUCCADt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 19:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUCCADt
+	id S261754AbUCCAGU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 19:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUCCAGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 19:03:49 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:43927 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261797AbUCCADs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 19:03:48 -0500
-Message-ID: <40451FFF.5030308@zytor.com>
-Date: Tue, 02 Mar 2004 15:59:59 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Edgar Toernig <froese@gmx.de>
-CC: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       cloos@jhcloos.com, root@chaos.analogic.com, nuno@itsari.org
-Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
-References: <1078254284.2232.385.camel@cube> <20040302234626.1f00e788.froese@gmx.de>
-In-Reply-To: <20040302234626.1f00e788.froese@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 2 Mar 2004 19:06:20 -0500
+Received: from ozlabs.org ([203.10.76.45]:53384 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261754AbUCCAGS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 19:06:18 -0500
+Subject: Re: modules registering as sysctl handlers
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Muli Ben-Yehuda <mulix@mulix.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040302124106.GQ16357@parcelfarce.linux.theplanet.co.uk>
+References: <20040302122909.GG24260@mulix.org>
+	 <20040302124106.GQ16357@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1078272339.15766.5.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 03 Mar 2004 11:05:39 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Toernig wrote:
+On Tue, 2004-03-02 at 23:41, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Tue, Mar 02, 2004 at 02:29:09PM +0200, Muli Ben-Yehuda wrote:
+> > Hi 
+> > 
+> > Looking at 2.6.3-bk, it appears that the sysctl code does not raise a
+> > module's reference count before calling a sysctl handler registered by
+> > that module. 
+> > 
+> > - are modules allowed to register sysctl handlers?
+> > register_sysctl_table is exported, so I imagine so. 
+> > 
+> > - am I missing something and modules are in fact protected against
+> > concurrent unloading and invocation of sysctl?
 > 
-> IMHO more important: what about utmp?  It would become terribly
-> large.  Beside that, such huge numbers won't fit into ut_id.
-> 
-> Ciao, ET.
-> 
-> --[man utmp extract]--
-> ...
->     char ut_id[4];     /* init id or abbrev. ttyname */
-> ...
->     xterm(1)  and  other  terminal emulators directly create a
->     USER_PROCESS record and generate the ut_id  by  using  the
->     last  two  letters  of  /dev/ttyp%c  or  by  using p%d for
->     /dev/pts/%d.  If they find a  DEAD_PROCESS  for  this  id,
->     they  recycle  it,  otherwise they create a new entry.
-> ...
+> They are not and no, bumping refcount would not be anywhere near enough.
 
-That's broken for anything more than 1000 ptys, OR if you're using BSD 
-and Unix98 ptys at the same time.
+Al is referring to the fact that there's no protection for a dynamically
+allocated ctl_table.
 
-In other words, it's totally broken.
+However, an owner field and standard module_get() would solve the case
+of statically declared ctl_table.
 
-	-hpa
+I don't know that there's a current user who requires it though?
+
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

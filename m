@@ -1,623 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266489AbSKLLAA>; Tue, 12 Nov 2002 06:00:00 -0500
+	id <S266462AbSKLK5r>; Tue, 12 Nov 2002 05:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266491AbSKLLAA>; Tue, 12 Nov 2002 06:00:00 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:55190 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266489AbSKLK7t>;
-	Tue, 12 Nov 2002 05:59:49 -0500
-Date: Tue, 12 Nov 2002 16:50:53 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: torvalds@transmeta.com
-Cc: rusty@rustcorp.com.au, lkml <linux-kernel@vger.kernel.org>,
-       richard <richardj_moore@uk.ibm.com>, tom <hanrahat@us.ibm.com>,
-       vamsi_krishna@in.ibm.com
-Subject: [PATCH] kprobes for 2.5.47
-Message-ID: <20021112165053.A1342@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-Mime-Version: 1.0
+	id <S266473AbSKLK5r>; Tue, 12 Nov 2002 05:57:47 -0500
+Received: from packet.digeo.com ([12.110.80.53]:21377 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266462AbSKLK5p>;
+	Tue, 12 Nov 2002 05:57:45 -0500
+Message-ID: <3DD0E037.1FC50147@digeo.com>
+Date: Tue, 12 Nov 2002 03:04:23 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
+References: <1037057498.3dd03dda5a8b9@kolivas.net> <20021112030453.GB15812@vitelus.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Nov 2002 11:04:27.0942 (UTC) FILETIME=[44A8EC60:01C28A3B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the same patch Rusty has been sending you for a while,
-rediffed against 2.5.47.
+Aaron Lehmann wrote:
+> 
+> On Tue, Nov 12, 2002 at 10:31:38AM +1100, Con Kolivas wrote:
+> > Here are the latest contest (http://contest.kolivas.net) benchmarks up to and
+> > including 2.5.47.
+> 
+> This is just great to see. Most previous contest runs made me cringe
+> when I saw how -mm and recent 2.5 kernels were faring, but it looks
+> like Andrew has done something right in 2.5.47-mm1. I hope the
+> appropriate get merged so that 2.6.0 has stunning performance across
+> the board.
 
-This has incorporated all your feedback and DaveM's (who wanted
-the arch-indep bits for sparc).
+Tuning of 2.5 has really hardly started.  In some ways, it should be
+tested against 2.3.99 (well, not really, but...)
 
-Please apply,
-Vamsi.
--- 
+It will never be stunningly better than 2.4 for normal workloads on
+normal machines, because 2.4 just ain't that bad.
 
-Name: Kprobes for i386
-Author: Vamsi Krishna S
-Status: Tested on 2.5.47 SMP
+What is being addressed in 2.5 is the areas where 2.4 fell down:
+large machines, large numbers of threads, large disks, large amounts
+of memory, etc.  There have been really big gains in that area.
 
-D: This patch allows trapping at almost any kernel address, useful for
-D: various kernel-hacking tasks, and building on for more
-D: infrastructure.  This patch is x86 only, but other archs can add
-D: support as required.
---
-diff -urN -X /home/vamsi/.dontdiff 47-pure/arch/i386/Kconfig 47-kprobes/arch/i386/Kconfig
---- 47-pure/arch/i386/Kconfig	2002-11-12 10:37:15.000000000 +0530
-+++ 47-kprobes/arch/i386/Kconfig	2002-11-12 10:45:00.000000000 +0530
-@@ -1551,6 +1551,15 @@
- 	  Say Y here if you are developing drivers or trying to debug and
- 	  identify kernel problems.
- 
-+config KPROBES
-+	bool "Kprobes"
-+	depends on DEBUG_KERNEL
-+	help
-+	  Kprobes allows you to trap at almost any kernel address, using
-+	  register_kprobe(), and providing a callback function.  This is useful
-+	  for kernel debugging, non-intrusive instrumentation and testing.  If
-+	  in doubt, say "N".
-+
- config DEBUG_STACKOVERFLOW
- 	bool "Check for stack overflows"
- 	depends on DEBUG_KERNEL
-diff -urN -X /home/vamsi/.dontdiff 47-pure/arch/i386/kernel/entry.S 47-kprobes/arch/i386/kernel/entry.S
---- 47-pure/arch/i386/kernel/entry.S	2002-11-12 10:37:15.000000000 +0530
-+++ 47-kprobes/arch/i386/kernel/entry.S	2002-11-12 10:45:01.000000000 +0530
-@@ -404,9 +404,16 @@
- 	jmp ret_from_exception
- 
- ENTRY(debug)
-+	pushl $-1			# mark this as an int
-+	SAVE_ALL
-+	movl %esp,%edx
- 	pushl $0
--	pushl $do_debug
--	jmp error_code
-+	pushl %edx
-+	call do_debug
-+	addl $8,%esp
-+	testl %eax,%eax 
-+	jnz restore_all
-+	jmp ret_from_exception
- 
- ENTRY(nmi)
- 	pushl %eax
-@@ -419,9 +426,16 @@
- 	RESTORE_ALL
- 
- ENTRY(int3)
-+	pushl $-1			# mark this as an int
-+	SAVE_ALL
-+	movl %esp,%edx
- 	pushl $0
--	pushl $do_int3
--	jmp error_code
-+	pushl %edx
-+	call do_int3
-+	addl $8,%esp
-+	testl %eax,%eax 
-+	jnz restore_all
-+	jmp ret_from_exception
- 
- ENTRY(overflow)
- 	pushl $0
-diff -urN -X /home/vamsi/.dontdiff 47-pure/arch/i386/kernel/kprobes.c 47-kprobes/arch/i386/kernel/kprobes.c
---- 47-pure/arch/i386/kernel/kprobes.c	1970-01-01 05:30:00.000000000 +0530
-+++ 47-kprobes/arch/i386/kernel/kprobes.c	2002-11-12 10:45:01.000000000 +0530
-@@ -0,0 +1,160 @@
-+/* 
-+ * Support for kernel probes.
-+ * (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/kprobes.h>
-+#include <linux/ptrace.h>
-+#include <linux/spinlock.h>
-+#include <linux/preempt.h>
-+
-+/* kprobe_status settings */
-+#define KPROBE_HIT_ACTIVE	0x00000001
-+#define KPROBE_HIT_SS		0x00000002
-+
-+static struct kprobe *current_kprobe;
-+static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
-+
-+/*
-+ * returns non-zero if opcode modifies the interrupt flag.
-+ */
-+static inline int is_IF_modifier(u8 opcode)
-+{
-+	switch(opcode) {
-+		case 0xfa: 	/* cli */
-+		case 0xfb:	/* sti */
-+		case 0xcf:	/* iret/iretd */
-+		case 0x9d:	/* popf/popfd */
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
-+{
-+	*p->addr = p->opcode;
-+	regs->eip = (unsigned long)p->addr;
-+}
-+
-+/*
-+ * Interrupts are disabled on entry as trap3 is an interrupt gate and they
-+ * remain disabled thorough out this function.
-+ */
-+int kprobe_handler(struct pt_regs *regs)
-+{
-+	struct kprobe *p;
-+	int ret = 0;
-+	u8 *addr = (u8 *)(regs->eip-1);
-+
-+	/* We're in an interrupt, but this is clear and BUG()-safe. */
-+	preempt_disable();
-+
-+	/* Check we're not actually recursing */
-+	if (kprobe_running()) {
-+		/* We *are* holding lock here, so this is safe.
-+                   Disarm the probe we just hit, and ignore it. */
-+		p = get_kprobe(addr);
-+		if (p) {
-+			disarm_kprobe(p, regs);
-+			ret = 1;
-+		}
-+		/* If it's not ours, can't be delete race, (we hold lock). */
-+		goto no_kprobe;
-+	}
-+
-+	lock_kprobes();
-+	p = get_kprobe(addr); 
-+	if (!p) {
-+		unlock_kprobes();
-+		/* Unregistered (on another cpu) after this hit?  Ignore */
-+		if (*addr != BREAKPOINT_INSTRUCTION)
-+			ret = 1;
-+		/* Not one of ours: let kernel handle it */
-+		goto no_kprobe;
-+	}
-+
-+	kprobe_status = KPROBE_HIT_ACTIVE;
-+	current_kprobe = p;
-+	kprobe_saved_eflags = kprobe_old_eflags 
-+		= (regs->eflags & (TF_MASK|IF_MASK));
-+	if (is_IF_modifier(p->opcode))
-+		kprobe_saved_eflags &= ~IF_MASK;
-+
-+	p->pre_handler(p, regs);
-+
-+	regs->eflags |= TF_MASK;
-+	regs->eflags &= ~IF_MASK;
-+
-+	/* We hold lock, now we remove breakpoint and single step. */
-+	disarm_kprobe(p, regs);
-+	kprobe_status = KPROBE_HIT_SS;
-+	return 1;
-+
-+no_kprobe:
-+	preempt_enable_no_resched();
-+	return ret;
-+}
-+
-+static void rearm_kprobe(struct kprobe *p, struct pt_regs *regs)
-+{
-+	regs->eflags &= ~TF_MASK;
-+	*p->addr = BREAKPOINT_INSTRUCTION;
-+}
-+	
-+/*
-+ * Interrupts are disabled on entry as trap1 is an interrupt gate and they
-+ * remain disabled thorough out this function.  And we hold kprobe lock.
-+ */
-+int post_kprobe_handler(struct pt_regs *regs)
-+{
-+	if (!kprobe_running())
-+		return 0;
-+
-+	if (current_kprobe->post_handler)
-+		current_kprobe->post_handler(current_kprobe, regs, 0);
-+
-+	/*
-+	 * We singlestepped with interrupts disabled. So, the result on
-+	 * the stack would be incorrect for "pushfl" instruction.
-+	 * Note that regs->esp is actually the top of the stack when the
-+	 * trap occurs in kernel space.
-+	 */
-+	if (current_kprobe->opcode == 0x9c) { /* pushfl */
-+		regs->esp &= ~(TF_MASK | IF_MASK);
-+		regs->esp |= kprobe_old_eflags;
-+	}
-+
-+	rearm_kprobe(current_kprobe, regs);
-+	regs->eflags |= kprobe_saved_eflags;
-+
-+	unlock_kprobes();
-+	preempt_enable_no_resched();
-+
-+        /*
-+	 * if somebody else is singlestepping across a probe point, eflags
-+	 * will have TF set, in which case, continue the remaining processing
-+	 * of do_debug, as if this is not a probe hit.
-+	 */
-+	if (regs->eflags & TF_MASK)
-+		return 0;
-+
-+	return 1;
-+}
-+
-+/* Interrupts disabled, kprobe_lock held. */
-+int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
-+{
-+	if (current_kprobe->fault_handler
-+	    && current_kprobe->fault_handler(current_kprobe, regs, trapnr))
-+		return 1;
-+
-+	if (kprobe_status & KPROBE_HIT_SS) {
-+		rearm_kprobe(current_kprobe, regs);
-+        	regs->eflags |= kprobe_old_eflags;
-+
-+		unlock_kprobes();
-+		preempt_enable_no_resched();
-+	}
-+	return 0;
-+}
-diff -urN -X /home/vamsi/.dontdiff 47-pure/arch/i386/kernel/Makefile 47-kprobes/arch/i386/kernel/Makefile
---- 47-pure/arch/i386/kernel/Makefile	2002-11-12 10:37:15.000000000 +0530
-+++ 47-kprobes/arch/i386/kernel/Makefile	2002-11-12 10:45:01.000000000 +0530
-@@ -28,6 +28,7 @@
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- obj-$(CONFIG_PROFILING)		+= profile.o
- obj-$(CONFIG_EDD)             	+= edd.o
-+obj-$(CONFIG_KPROBES)		+= kprobes.o
- 
- EXTRA_AFLAGS   := -traditional
- 
-diff -urN -X /home/vamsi/.dontdiff 47-pure/arch/i386/kernel/traps.c 47-kprobes/arch/i386/kernel/traps.c
---- 47-pure/arch/i386/kernel/traps.c	2002-11-12 10:37:15.000000000 +0530
-+++ 47-kprobes/arch/i386/kernel/traps.c	2002-11-12 10:45:01.000000000 +0530
-@@ -23,6 +23,7 @@
- #include <linux/spinlock.h>
- #include <linux/interrupt.h>
- #include <linux/highmem.h>
-+#include <linux/kprobes.h>
- 
- #ifdef CONFIG_EISA
- #include <linux/ioport.h>
-@@ -402,7 +403,6 @@
- }
- 
- DO_VM86_ERROR_INFO( 0, SIGFPE,  "divide error", divide_error, FPE_INTDIV, regs->eip)
--DO_VM86_ERROR( 3, SIGTRAP, "int3", int3)
- DO_VM86_ERROR( 4, SIGSEGV, "overflow", overflow)
- DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
- DO_ERROR_INFO( 6, SIGILL,  "invalid operand", invalid_op, ILL_ILLOPN, regs->eip)
-@@ -418,6 +418,9 @@
- {
- 	if (regs->eflags & VM_MASK)
- 		goto gp_in_vm86;
-+	
-+	if (kprobe_running() && kprobe_fault_handler(regs, 13))
-+		return;
- 
- 	if (!(regs->xcs & 3))
- 		goto gp_in_kernel;
-@@ -549,6 +552,17 @@
- 	nmi_callback = dummy_nmi_callback;
- }
- 
-+asmlinkage int do_int3(struct pt_regs *regs, long error_code)
-+{
-+	if (kprobe_handler(regs))
-+		return 1;
-+	/* This is an interrupt gate, because kprobes wants interrupts
-+           disabled.  Normal trap handlers don't. */
-+	restore_interrupts(regs);
-+	do_trap(3, SIGTRAP, "int3", 1, regs, error_code, NULL);
-+	return 0;
-+}
-+
- /*
-  * Our handling of the processor debug registers is non-trivial.
-  * We do not clear them on entry and exit from the kernel. Therefore
-@@ -571,7 +585,7 @@
-  * find every occurrence of the TF bit that could be saved away even
-  * by user code)
-  */
--asmlinkage void do_debug(struct pt_regs * regs, long error_code)
-+asmlinkage int do_debug(struct pt_regs * regs, long error_code)
- {
- 	unsigned int condition;
- 	struct task_struct *tsk = current;
-@@ -579,6 +593,12 @@
- 
- 	__asm__ __volatile__("movl %%db6,%0" : "=r" (condition));
- 
-+	if (post_kprobe_handler(regs))
-+		return 1;
-+
-+	/* Interrupts not disabled for normal trap handling. */
-+	restore_interrupts(regs);
-+
- 	/* Mask out spurious debug traps due to lazy DR7 setting */
- 	if (condition & (DR_TRAP0|DR_TRAP1|DR_TRAP2|DR_TRAP3)) {
- 		if (!tsk->thread.debugreg[7])
-@@ -629,15 +649,15 @@
- 	__asm__("movl %0,%%db7"
- 		: /* no output */
- 		: "r" (0));
--	return;
-+	return 0;
- 
- debug_vm86:
- 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
--	return;
-+	return 0;
- 
- clear_TF:
- 	regs->eflags &= ~TF_MASK;
--	return;
-+	return 0;
- }
- 
- /*
-@@ -801,6 +821,8 @@
- 	struct task_struct *tsk = current;
- 	clts();		/* Allow maths ops (or we recurse) */
- 
-+	if (kprobe_running() && kprobe_fault_handler(&regs, 7))
-+		return;
- 	if (!tsk->used_math)
- 		init_fpu(tsk);
- 	restore_fpu(tsk);
-@@ -894,9 +916,9 @@
- #endif
- 
- 	set_trap_gate(0,&divide_error);
--	set_trap_gate(1,&debug);
-+	_set_gate(idt_table+1,14,3,&debug); /* debug trap for kprobes */
- 	set_intr_gate(2,&nmi);
--	set_system_gate(3,&int3);	/* int3-5 can be called from all */
-+	_set_gate(idt_table+3,14,3,&int3); /* int3-5 can be called from all */
- 	set_system_gate(4,&overflow);
- 	set_system_gate(5,&bounds);
- 	set_trap_gate(6,&invalid_op);
-diff -urN -X /home/vamsi/.dontdiff 47-pure/arch/i386/mm/fault.c 47-kprobes/arch/i386/mm/fault.c
---- 47-pure/arch/i386/mm/fault.c	2002-11-05 04:00:03.000000000 +0530
-+++ 47-kprobes/arch/i386/mm/fault.c	2002-11-12 10:45:01.000000000 +0530
-@@ -19,6 +19,7 @@
- #include <linux/init.h>
- #include <linux/tty.h>
- #include <linux/vt_kern.h>		/* For unblank_screen() */
-+#include <linux/kprobes.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -163,6 +164,9 @@
- 	/* get the address */
- 	__asm__("movl %%cr2,%0":"=r" (address));
- 
-+	if (kprobe_running() && kprobe_fault_handler(regs, 14))
-+		return;
-+
- 	/* It's safe to allow irq's after cr2 has been saved */
- 	if (regs->eflags & X86_EFLAGS_IF)
- 		local_irq_enable();
-diff -urN -X /home/vamsi/.dontdiff 47-pure/include/asm-i386/kprobes.h 47-kprobes/include/asm-i386/kprobes.h
---- 47-pure/include/asm-i386/kprobes.h	1970-01-01 05:30:00.000000000 +0530
-+++ 47-kprobes/include/asm-i386/kprobes.h	2002-11-12 10:45:01.000000000 +0530
-@@ -0,0 +1,34 @@
-+#ifndef _ASM_KPROBES_H
-+#define _ASM_KPROBES_H
-+/*
-+ *  Dynamic Probes (kprobes) support
-+ *  	Vamsi Krishna S <vamsi_krishna@in.ibm.com>, July, 2002
-+ *	Mailing list: dprobes@www-124.ibm.com
-+ */
-+#include <linux/types.h>
-+#include <linux/ptrace.h>
-+
-+struct pt_regs;
-+
-+typedef u8 kprobe_opcode_t;
-+#define BREAKPOINT_INSTRUCTION	0xcc
-+
-+/* trap3/1 are intr gates for kprobes.  So, restore the status of IF,
-+ * if necessary, before executing the original int3/1 (trap) handler.
-+ */
-+static inline void restore_interrupts(struct pt_regs *regs)
-+{
-+	if (regs->eflags & IF_MASK)
-+		__asm__ __volatile__ ("sti");
-+}
-+
-+#ifdef CONFIG_KPROBES
-+extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
-+extern int post_kprobe_handler(struct pt_regs *regs);
-+extern int kprobe_handler(struct pt_regs *regs);
-+#else /* !CONFIG_KPROBES */
-+static inline int kprobe_fault_handler(struct pt_regs *regs, int trapnr) { return 0; }
-+static inline int post_kprobe_handler(struct pt_regs *regs) { return 0; }
-+static inline int kprobe_handler(struct pt_regs *regs) { return 0; }
-+#endif
-+#endif /* _ASM_KPROBES_H */
-diff -urN -X /home/vamsi/.dontdiff 47-pure/include/linux/kprobes.h 47-kprobes/include/linux/kprobes.h
---- 47-pure/include/linux/kprobes.h	1970-01-01 05:30:00.000000000 +0530
-+++ 47-kprobes/include/linux/kprobes.h	2002-11-12 10:45:01.000000000 +0530
-@@ -0,0 +1,60 @@
-+#ifndef _LINUX_KPROBES_H
-+#define _LINUX_KPROBES_H
-+#include <linux/config.h>
-+#include <linux/list.h>
-+#include <linux/notifier.h>
-+#include <linux/smp.h>
-+#include <asm/kprobes.h>
-+
-+struct kprobe;
-+struct pt_regs;
-+
-+typedef void (*kprobe_pre_handler_t)(struct kprobe *, struct pt_regs *);
-+typedef void (*kprobe_post_handler_t)(struct kprobe *, struct pt_regs *,
-+				      unsigned long flags);
-+typedef int (*kprobe_fault_handler_t)(struct kprobe *, struct pt_regs *,
-+				      int trapnr);
-+
-+struct kprobe {
-+	struct list_head list;
-+
-+	/* location of the probe point */
-+	kprobe_opcode_t *addr;
-+
-+	 /* Called before addr is executed. */
-+	kprobe_pre_handler_t pre_handler;
-+
-+	/* Called after addr is executed, unless... */
-+	kprobe_post_handler_t post_handler;
-+
-+	 /* ... called if executing addr causes a fault (eg. page fault).
-+	  * Return 1 if it handled fault, otherwise kernel will see it. */
-+	kprobe_fault_handler_t fault_handler;
-+
-+	/* Saved opcode (which has been replaced with breakpoint) */
-+	kprobe_opcode_t opcode;
-+};
-+
-+#ifdef CONFIG_KPROBES
-+/* Locks kprobe: irq must be disabled */
-+void lock_kprobes(void);
-+void unlock_kprobes(void);
-+
-+/* kprobe running now on this CPU? */
-+static inline int kprobe_running(void)
-+{
-+	extern unsigned int kprobe_cpu;
-+	return kprobe_cpu == smp_processor_id();
-+}
-+
-+/* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
-+struct kprobe *get_kprobe(void *addr);
-+
-+int register_kprobe(struct kprobe *p);
-+void unregister_kprobe(struct kprobe *p);
-+#else
-+static inline int kprobe_running(void) { return 0; }
-+static inline int register_kprobe(struct kprobe *p) { return -ENOSYS; }
-+static inline void unregister_kprobe(struct kprobe *p) { }
-+#endif
-+#endif /* _LINUX_KPROBES_H */
-diff -urN -X /home/vamsi/.dontdiff 47-pure/kernel/kprobes.c 47-kprobes/kernel/kprobes.c
---- 47-pure/kernel/kprobes.c	1970-01-01 05:30:00.000000000 +0530
-+++ 47-kprobes/kernel/kprobes.c	2002-11-12 10:45:01.000000000 +0530
-@@ -0,0 +1,89 @@
-+/* Support for kernel probes.
-+   (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
-+*/
-+#include <linux/kprobes.h>
-+#include <linux/spinlock.h>
-+#include <linux/hash.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <asm/cacheflush.h>
-+#include <asm/errno.h>
-+
-+#define KPROBE_HASH_BITS 6
-+#define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
-+
-+static struct list_head kprobe_table[KPROBE_TABLE_SIZE];
-+
-+unsigned int kprobe_cpu = NR_CPUS;
-+static spinlock_t kprobe_lock = SPIN_LOCK_UNLOCKED;
-+
-+/* Locks kprobe: irqs must be disabled */
-+void lock_kprobes(void)
-+{
-+	spin_lock(&kprobe_lock);
-+	kprobe_cpu = smp_processor_id();
-+}
-+
-+void unlock_kprobes(void)
-+{
-+	kprobe_cpu = NR_CPUS;
-+	spin_unlock(&kprobe_lock);
-+}
-+
-+/* You have to be holding the kprobe_lock */
-+struct kprobe *get_kprobe(void *addr)
-+{
-+	struct list_head *head, *tmp;
-+
-+	head = &kprobe_table[hash_ptr(addr, KPROBE_HASH_BITS)];
-+	list_for_each(tmp, head) {
-+		struct kprobe *p = list_entry(tmp, struct kprobe, list);
-+		if (p->addr == addr)
-+			return p;
-+	}
-+	return NULL;
-+}
-+
-+int register_kprobe(struct kprobe *p)
-+{
-+	int ret = 0;
-+
-+	spin_lock_irq(&kprobe_lock);
-+	if (get_kprobe(p->addr)) {
-+		ret = -EEXIST;
-+		goto out;
-+	}
-+	list_add(&p->list, &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
-+
-+	p->opcode = *p->addr;
-+	*p->addr = BREAKPOINT_INSTRUCTION;
-+	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
-+ out:
-+	spin_unlock_irq(&kprobe_lock);
-+	return ret;
-+}
-+
-+void unregister_kprobe(struct kprobe *p)
-+{
-+	spin_lock_irq(&kprobe_lock);
-+	*p->addr = p->opcode;
-+	list_del(&p->list);
-+	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
-+	spin_unlock_irq(&kprobe_lock);
-+}
-+
-+static int __init init_kprobes(void)
-+{
-+	int i;
-+
-+	/* FIXME allocate the probe table, currently defined statically */
-+	/* initialize all list heads */
-+	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
-+		INIT_LIST_HEAD(&kprobe_table[i]);
-+
-+	return 0;
-+}
-+__initcall(init_kprobes);
-+
-+EXPORT_SYMBOL_GPL(register_kprobe);
-+EXPORT_SYMBOL_GPL(unregister_kprobe);
-diff -urN -X /home/vamsi/.dontdiff 47-pure/kernel/Makefile 47-kprobes/kernel/Makefile
---- 47-pure/kernel/Makefile	2002-11-05 04:00:12.000000000 +0530
-+++ 47-kprobes/kernel/Makefile	2002-11-12 10:45:01.000000000 +0530
-@@ -4,7 +4,7 @@
- 
- export-objs = signal.o sys.o kmod.o workqueue.o ksyms.o pm.o exec_domain.o \
- 		printk.o platform.o suspend.o dma.o module.o cpufreq.o \
--		profile.o rcupdate.o
-+		profile.o rcupdate.o kprobes.o
- 
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
- 	    module.o exit.o itimer.o time.o softirq.o resource.o \
-@@ -21,6 +21,7 @@
- obj-$(CONFIG_CPU_FREQ) += cpufreq.o
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
-+obj-$(CONFIG_KPROBES) += kprobes.o
- 
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+For the uniprocessors and small servers, there will be significant
+gains in some corner cases.   And some losses.  Quite a lot of work
+has gone into "fairness" issues: allowing tasks to make equal progress
+when the machine is under load.  Not stalling tasks for unreasonable
+amounts of time, etc.   Simple operations such as copying a forest
+of files from one part of the disk to another have taken a bit of a
+hit from this.  (But copying them to another disk got better).
+
+Generally, 2.6 should be "nicer to use" on the desktop.  But not appreciably
+faster.  Significantly slower when there are several processes causing a
+lot of swapout.  That is one area where fairness really hurts throughput.
+The old `make -j30 bzImage' with mem=128M takes 1.5x as long with 2.5.
+Because everyone makes equal progress.
+
+Most of the VM gains involve situations where there are large amounts
+of dirty data in the machine.  This has always been a big problem
+for Linux, and I think we've largely got it under control now.  There
+are still a few issues in the page reclaim code wrt this, but they're
+fairly obscure (I'm the only person who has noticed them ;))
+
+There are some things which people simply have not yet noticed.
+
+
+Andrea's kernel is the fastest which 2.4 has to offer; let's tickle
+its weak spots:
+
+
+
+Run mke2fs against six disks at the same time, mem=1G:
+
+2.4.20-rc1aa1:
+0.04s user 13.16s system 51% cpu 25.782 total
+0.05s user 31.53s system 63% cpu 49.542 total
+0.05s user 29.04s system 58% cpu 49.544 total
+0.05s user 31.07s system 62% cpu 50.017 total
+0.06s user 29.80s system 58% cpu 50.983 total
+0.06s user 23.30s system 43% cpu 53.214 total
+
+2.5.47-mm2:
+0.04s user 2.94s system 48% cpu 6.168 total
+0.04s user 2.89s system 39% cpu 7.473 total
+0.05s user 3.00s system 37% cpu 8.152 total
+0.06s user 4.33s system 43% cpu 9.992 total
+0.06s user 4.35s system 42% cpu 10.484 total
+0.04s user 4.32s system 32% cpu 13.415 total
+
+
+Write six 4G files to six disks in parallel, mem=1G:
+
+2.4.20-rc1aa1:
+0.01s user 63.17s system 7% cpu 13:53.26 total
+0.05s user 63.43s system 7% cpu 14:07.17 total
+0.03s user 65.94s system 7% cpu 14:36.25 total
+0.01s user 66.29s system 7% cpu 14:38.01 total
+0.08s user 63.79s system 7% cpu 14:45.09 total
+0.09s user 65.22s system 7% cpu 14:46.95 total
+
+2.5.47-mm2:
+0.03s user 53.95s system 39% cpu 2:18.27 total
+0.03s user 58.11s system 30% cpu 3:08.23 total
+0.02s user 57.43s system 30% cpu 3:08.47 total
+0.03s user 54.73s system 23% cpu 3:52.43 total
+0.03s user 54.72s system 23% cpu 3:53.22 total
+0.03s user 46.14s system 14% cpu 5:29.71 total
+
+
+Compile a kernel while running `while true;do;./dbench 32;done' against
+the same disk.  mem=128m:
+
+2.4.20-rc1aa1:
+Throughput 17.7491 MB/sec (NB=22.1863 MB/sec  177.491 MBit/sec)
+Throughput 16.6311 MB/sec (NB=20.7888 MB/sec  166.311 MBit/sec)
+Throughput 17.0409 MB/sec (NB=21.3012 MB/sec  170.409 MBit/sec)
+Throughput 17.4876 MB/sec (NB=21.8595 MB/sec  174.876 MBit/sec)
+Throughput 15.3017 MB/sec (NB=19.1271 MB/sec  153.017 MBit/sec)
+Throughput 18.0726 MB/sec (NB=22.5907 MB/sec  180.726 MBit/sec)
+Throughput 18.2769 MB/sec (NB=22.8461 MB/sec  182.769 MBit/sec)
+Throughput 19.152 MB/sec (NB=23.94 MB/sec  191.52 MBit/sec)
+Throughput 14.2632 MB/sec (NB=17.8291 MB/sec  142.632 MBit/sec)
+Throughput 20.5007 MB/sec (NB=25.6258 MB/sec  205.007 MBit/sec)
+Throughput 24.9471 MB/sec (NB=31.1838 MB/sec  249.471 MBit/sec)
+Throughput 20.36 MB/sec (NB=25.45 MB/sec  203.6 MBit/sec)
+make -j4 bzImage  412.28s user 36.90s system 15% cpu 47:11.14 total
+
+2.5.46:
+Throughput 19.3907 MB/sec (NB=24.2383 MB/sec  193.907 MBit/sec)
+Throughput 16.6765 MB/sec (NB=20.8456 MB/sec  166.765 MBit/sec)
+make -j4 bzImage  412.16s user 36.92s system 83% cpu 8:55.74 total
+
+2.5.47-mm2:
+Throughput 15.0539 MB/sec (NB=18.8174 MB/sec  150.539 MBit/sec)
+Throughput 21.6388 MB/sec (NB=27.0485 MB/sec  216.388 MBit/sec)
+make -j4 bzImage  413.88s user 35.90s system 94% cpu 7:56.68 total  <- fifo_batch strikes again
+
+
+It's the "doing multiple things at the same time" which gets better; the
+straightline throughput of "one thing at a time" won't change much at all.
+
+Corner cases....

@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbTHTTwu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTHTTwu
+	id S262226AbTHTTrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:47:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTHTTrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:52:50 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:5128 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261940AbTHTTws (ORCPT
+	Wed, 20 Aug 2003 15:47:16 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:13832 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262226AbTHTTrP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:52:48 -0400
-Date: Wed, 20 Aug 2003 21:52:46 +0200
+	Wed, 20 Aug 2003 15:47:15 -0400
+Date: Wed, 20 Aug 2003 21:47:12 +0200
 From: Andries Brouwer <aebr@win.tue.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-Message-ID: <20030820215246.B3065@pclin040.win.tue.nl>
-References: <3F4268C1.9040608@redhat.com> <shszni499e9.fsf@charged.uio.no> <20030820192409.A2868@pclin040.win.tue.nl> <16195.49464.935754.526386@charged.uio.no>
+To: John Riggs <jriggs@altiris.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 48-bit Drives Incorrectly reporting 255 Heads?
+Message-ID: <20030820214712.A3065@pclin040.win.tue.nl>
+References: <88A7BC80FA2797498AF6D865CAD3EA43180E95@iceman.altiris.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16195.49464.935754.526386@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Aug 20, 2003 at 11:43:04AM -0700
+In-Reply-To: <88A7BC80FA2797498AF6D865CAD3EA43180E95@iceman.altiris.com>; from jriggs@altiris.com on Wed, Aug 20, 2003 at 01:31:08PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2003 at 11:43:04AM -0700, Trond Myklebust wrote:
-> >>>>> " " == Andries Brouwer <aebr@win.tue.nl> writes:
-> 
->      > I don't think it will. My analysis of yesterday night was:
->      > - no silly rename is done
->      > - this is because d_count equals 1
->      > - this is because we have two different dentries for the same
->      >   file
->      > - this is caused by the fragment
-> 
->      >         /* If we're doing an exclusive create, optimize away
->      >         the lookup */ if (nfs_is_exclusive_create(dir, nd))
->      >                 return NULL;
-> 
->      > in nfs/dir.c.  Do you agree?
-> 
-> No... The above snippet just short-circuits the process of doing an
-> RPC call in order to look the file up on the *server*. Doing such a
-> lookup would be wrong since it can race with a file creation on
-> another NFS client.
-> IOW the result of the above 2 lines should be the immediate creation
-> of a negative dentry (i.e. one without an inode) that open_namei() can
-> pass on to vfs_create().
+On Wed, Aug 20, 2003 at 01:31:08PM -0600, John Riggs wrote:
 
-It should be. But it isnt. I propose the following patch
-(with whitespace damage):
+>   With the 2.4.20 kernel, I have a 40GB disk with 240 heads, with 48-bit
+> mode enabled. The Linux ide driver automatically declares that anything
+> with 48-bit mode enabled has 255 heads. This is a problem, as I am
+> writing a utility to fix up a Windows PBR, and the PBR relies on the
+> head count as counted by the BIOS.
+>   The Linux code in question is in ide-disk.c:
+> 
+>   if (id->cfs_enable_2 & 0x0400) {
+>     .
+>     drive->head = drive->bios_head = 255;
+>     .
+>   }
+> 
+>   What I would like to do is change the above to:
+> 
+>   if (id->cfs_enable_2 & 0x0400) {
+>     .
+>     drive->head = 255;
+>     .
+>   }
+> 
+>   Thereby not changing the bios head count. My initial tests seem to
+> have worked okay, with the correct geometry getting reported. Can
+> anybody point out to me why this will break something else?
+>   Two more specific questions are:
+>     1) Will this break drives > 137 GB?
+>     2) Why would the head count be set to 255 in the first place?
 
-diff -u --recursive --new-file -X /linux/dontdiff a/fs/nfs/dir.c b/fs/nfs/dir.c
---- a/fs/nfs/dir.c      Fri Jul 11 00:35:26 2003
-+++ b/fs/nfs/dir.c      Wed Aug 20 22:38:42 2003
-@@ -671,8 +671,10 @@
-        dentry->d_op = &nfs_dentry_operations;
- 
-        /* If we're doing an exclusive create, optimize away the lookup */
--       if (nfs_is_exclusive_create(dir, nd))
-+       if (nfs_is_exclusive_create(dir, nd)) {
-+               d_add(dentry, NULL);
-                return NULL;
-+       }
- 
-        lock_kernel();
-        error = nfs_cached_lookup(dir, dentry, &fhandle, &fattr);
+No, this does not break anything.
+Setting drive->head to 255 is completely ridiculous.
+Setting drive->bios_head to 255 is rather pointless.
+In 2.6 this junk has been removed already.
 
-Andries
+On the other hand, you are badly mistaken if you think that your changes
+do anything useful. The value drive->bios_head must be regarded as
+random, and is only vaguely related to what the BIOS thinks.
+In 2.6 that vague relation has entirely disappeared.
 

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275963AbRJYTAj>; Thu, 25 Oct 2001 15:00:39 -0400
+	id <S275990AbRJYTG3>; Thu, 25 Oct 2001 15:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275989AbRJYTA3>; Thu, 25 Oct 2001 15:00:29 -0400
-Received: from [160.131.145.131] ([160.131.145.131]:20230 "EHLO W20303512")
-	by vger.kernel.org with ESMTP id <S275963AbRJYTAS>;
-	Thu, 25 Oct 2001 15:00:18 -0400
-Message-ID: <010201c15d87$5d89e1d0$839183a0@W20303512>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kerneli.org
-Date: Thu, 25 Oct 2001 15:00:49 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S276032AbRJYTGT>; Thu, 25 Oct 2001 15:06:19 -0400
+Received: from opus.cs.columbia.edu ([128.59.20.100]:56313 "EHLO
+	opus.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S275990AbRJYTGO> convert rfc822-to-8bit; Thu, 25 Oct 2001 15:06:14 -0400
+Subject: Re: Linux Scheduler and Compilation
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: =?ISO-8859-1?Q?Jos=E9?= Luis Domingo =?ISO-8859-1?Q?L=F3pez?= 
+	<jdomingo@internautas.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011025203743.B504@dardhal.mired.net>
+In-Reply-To: <007501c15d68$94f12c60$8630fdd4@3232424> 
+	<20011025203743.B504@dardhal.mired.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.16.99 (Preview Release)
+Date: 25 Oct 2001 15:06:49 -0400
+Message-Id: <1004036810.1770.2.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know what has happened to Kerneli.org?
-Host www.kerneli.org. not found: 3(NXDOMAIN)
+On Thu, 2001-10-25 at 16:37, José Luis Domingo López wrote:
+> On Thursday, 25 October 2001, at 18:20:25 +0300,
+> Omer Sever wrote:
+> 
+> >      I have a project on Linux CPU Scheduler to make it Fair Share
+> > Scheduler.I will make some changes on some files such as sched.c vs...I will
+> > want to see the effect ot the change but recompilation of the kernel takes
+> > about half an hour on my machine.How can I minimize this time?Which part
+> > should I necessarily include in my config file for the kernel to minimize
+> > it?
+> > 
+> make is your friend: it will only recompile those files that changed from
+> the last compilation. If you modify some #includes in the code, I believe
+> you will have to also run "make dep" before, to get dependencies right.
 
-Check out the expiration date from WHOIS:
+Except, as I discovered recently in playing around with the scheduler,
+if you modify sched.h, you basically have to recompile the entire
+kernel, as it seems everything depends on it.
 
-   Record last updated on 02-Oct-2001.
-   Record expires on 08-Aug-2001.
-   Record created on 08-Aug-1998.
-   Database last updated on 25-Oct-2001 05:41:00 EDT.
+On that note, why is add_to_runqueue() in sched.c and
+del_from_runqueue() in sched.h?  del_from_runqueue being the only func I
+was modifying in sched.h (really annoying have to recompile an entire
+kernel multiple times in a vmware vm, albiet thats not a good reason to
+move it, I'm just wondering why they are split in 2 different files)
 
-They accused us of suppressing freedom of expression.
-This was a lie and we could not let them publish it.
--- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
+thanks,
 
-
+shaya 
 

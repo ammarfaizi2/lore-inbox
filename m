@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275892AbTHOKbL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 06:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275894AbTHOKbK
+	id S261874AbTHOKaN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 06:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTHOKaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 06:31:10 -0400
-Received: from angband.namesys.com ([212.16.7.85]:55718 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S275892AbTHOKbG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 06:31:06 -0400
-Date: Fri, 15 Aug 2003 14:31:04 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: marcelo@conectiva.com.br, akpm@osdl.org, andrea@suse.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-ID: <20030815103104.GA15288@namesys.com>
-References: <20030813125509.360c58fb.skraw@ithnet.com> <Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain> <20030813145940.GC26998@namesys.com> <20030813171224.2a13b97f.skraw@ithnet.com> <20030813153009.GA27209@namesys.com> <20030814084518.GA5454@namesys.com> <20030815121321.49e4cf09.skraw@ithnet.com>
-Mime-Version: 1.0
+	Fri, 15 Aug 2003 06:30:13 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:31752
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S261874AbTHOKaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 06:30:07 -0400
+Date: Fri, 15 Aug 2003 03:17:41 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Erik Andersen <andersen@codepoet.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+In-Reply-To: <20030813142436.GA3588@gtf.org>
+Message-ID: <Pine.LNX.4.10.10308150314410.9444-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030815121321.49e4cf09.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Fri, Aug 15, 2003 at 12:13:21PM +0200, Stephan von Krawczynski wrote:
+Jeff,
 
-> there was a question about fsck'ing the ext3 filesystems. Since it crashed
-> today I did check them now and no errors or warnings showed up. Everything
-> seems clean. I don't exactly understand what that tells you. I guess you mean
-> the fs metadata may have been hit, too. Seems not.
+Can you drop me on this thread?
+To quote Alan Cox, "... don't need you any more."
 
-Yes. And from what I remember, all the oopses on reiserfs were about some
-lists corruptions and this sort of things, so not metadata, but kernel
-data was damaged somehow.
-And your last oops confirms that.
-end_buffer_io_async have the loop running with irqs disabled.
-And this loop in your case should only have one iteration (you run with 4k
-blocksize, I presume) of gouig thorough one buffer attaching to a page.
-Also at least one of the oopses you posted prior to that also had signs of
-buffer list corruptions. (may be even two).
-So it seems something changes buffer lists under out feet without doing
-proper locking.
-I am not sure how this relates to data corruption, though.
-Ok, at least now there seems to be something definite to look for in changes.
+However when you do need me you (JG) know where to find me.
+Anywho, how are those DMA-Timeouts lately?
 
-Thank you.
+Cheers,
 
-Bye,
-    Oleg
+--a
+
+On Wed, 13 Aug 2003, Jeff Garzik wrote:
+
+> On Wed, Aug 13, 2003 at 03:34:37PM +0200, Vojtech Pavlik wrote:
+> > On Wed, Jul 23, 2003 at 11:32:11AM +0100, Alan Cox wrote:
+> > > On Mer, 2003-07-23 at 02:59, Andre Hedrick wrote:
+> > > > I have already cut all ties with Promise so here is the deal.
+> > > > I no longer have to count the number of fingers on my hand between hand
+> > > > shakes.  IE no extras and not shortages.
+> > > 
+> > > Thats ok - now they are doing GPL drivers themselves they don't need
+> > > you any more.
+> > > 
+> > > Promise did a SCSI CAM driver because their hardware can queue commands
+> > > without TCQ - which drivers/ide can't cope with. Otherwise I'd just have
+> > > used the same type of changes the FreeBSD people did for 2037x.
+> > > 
+> > > Its also interesting because it has a hardware XOR engine.
+> > 
+> > I don't think it does. The Promise SATA150 SX4 is the one that has the
+> > XOR engine (and the PDC20621 chip) and that one is not supported by the
+> > driver.
+> 
+> hmm, the method of delivering ATA and XOR packets on Promise hardware
+> are very, very similar.  And pdc-ultra driver seems to have code to
+> deliver XOR packets...
+> 
+> 	Jeff
+> 
+> 
+> 
+

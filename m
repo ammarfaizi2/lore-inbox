@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267221AbSLRAL7>; Tue, 17 Dec 2002 19:11:59 -0500
+	id <S267027AbSLRAUH>; Tue, 17 Dec 2002 19:20:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267223AbSLRAL6>; Tue, 17 Dec 2002 19:11:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46605 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267221AbSLRAL6>; Tue, 17 Dec 2002 19:11:58 -0500
-Date: Tue, 17 Dec 2002 16:20:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: "H. Peter Anvin" <hpa@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <3DFF83C5.6000007@redhat.com>
-Message-ID: <Pine.LNX.4.44.0212171619230.1578-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267042AbSLRAUG>; Tue, 17 Dec 2002 19:20:06 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62462 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267027AbSLRAUG>; Tue, 17 Dec 2002 19:20:06 -0500
+Date: Wed, 18 Dec 2002 01:26:22 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] MSNDCLAS_HAVE_BOOT and MSNDPIN_HAVE_BOOT shouldn't ask questions
+Message-ID: <20021218002621.GH27658@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
+
+2.5.50 included a change from -ac which changed MSNDCLAS_HAVE_BOOT and 
+MSNDPIN_HAVE_BOOT to asked questions. This is wrong (I know since I was 
+the one who wrote the patch Alan picked up...).
+
+They shouldn't ask questions, the following patch reverts my buggy 
+change:
+
+--- linux-2.5.50/sound/oss/Kconfig.old	2002-11-30 20:47:01.000000000 +0100
++++ linux-2.5.50/sound/oss/Kconfig	2002-11-30 20:47:25.000000000 +0100
+@@ -293,7 +293,7 @@
+ 	depends on SOUND_PRIME && SOUND_MSNDCLAS=y
+ 
+ config MSNDCLAS_HAVE_BOOT
+-	bool "Have MSNDINIT.BIN firmware file"
++	bool
+ 	depends on SOUND_MSNDCLAS=y
+ 	default y
+ 
+@@ -355,7 +355,7 @@
+ 	depends on SOUND_PRIME && SOUND_MSNDPIN=y
+ 
+ config MSNDPIN_HAVE_BOOT
+-	bool "Have PNDSPINI.BIN firmware file"
++	bool
+ 	depends on SOUND_MSNDPIN=y
+ 	default y
+ 
 
 
-On Tue, 17 Dec 2002, Ulrich Drepper wrote:
->
-> This is why I'd say mkae no distinction at all.  Have the first
-> nr_syscalls * 8 bytes starting at 0xfffff000 as a jump table.
+Please apply
+Adrian
 
-No, the way sysenter works, the table approach just sucks up dcache space
-(the kernel cannot know which sysenter is the one that the user uses
-anyway, so the jump table would have to just add back some index and we'd
-be back exactly where we started)
+-- 
 
-I'll keep it the way it is now.
-
-		Linus
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131206AbRAXJ6t>; Wed, 24 Jan 2001 04:58:49 -0500
+	id <S129375AbRAXKB7>; Wed, 24 Jan 2001 05:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131168AbRAXJ63>; Wed, 24 Jan 2001 04:58:29 -0500
-Received: from mario.gams.at ([194.42.96.10]:43024 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S131158AbRAXJ6S>;
-	Wed, 24 Jan 2001 04:58:18 -0500
-Message-Id: <200101240958.KAA02863@frodo.gams.co.at>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
-From: Bernd Petrovitsch <bernd@gams.at>
-To: linux-kernel@vger.kernel.org (Linux Kernel List)
-Subject: Re: Completely offtopic : [OT?] Coding Style 
-In-Reply-To: Your message of "Tue, 23 Jan 2001 11:00:30 EST."
-             <200101231600.LAA24562@mah21awu.cas.org> 
-X-Url: http://www.luga.at/~bernd/
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1951184936P";
-	 micalg=pgp-md5; protocol="application/pgp-signature"
+	id <S129401AbRAXKBt>; Wed, 24 Jan 2001 05:01:49 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:48134 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129375AbRAXKBg>;
+	Wed, 24 Jan 2001 05:01:36 -0500
+Message-ID: <3A6EA7FA.6B886277@innominate.com>
+Date: Wed, 24 Jan 2001 11:01:30 +0100
+From: Juri Haberland <juri.haberland@innominate.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: nbecker@fred.net
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0 statd trouble
+In-Reply-To: <x888zo29jyj.fsf@adglinux1.hns.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Wed, 24 Jan 2001 10:58:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1951184936P
-Content-Type: text/plain; charset=us-ascii
+nbecker@fred.net wrote:
+> 
+> linux-2.4.0
+> 
+> I have quite a lot of these log messages:
+> 
+> Jan 23 18:28:52 adglinux1 rpc.statd[1532]: gethostbyname error for adglinux1.hns.com
+> Jan 23 18:28:52 adglinux1 rpc.statd[1532]: STAT_FAIL to adglinux1.hns.com for SM_MON of 139.85.108.141
+> Jan 23 13:28:52 adglinux1 kernel: lockd: cannot monitor 139.85.108.141
 
-In message <200101231600.LAA24562@mah21awu.cas.org>, Mike Harrold wrote:
->Then there is reasability.
->
->  void ThisIsMyDumbassFunctionName
->
->if MUCH more difficult to read than
->
->  void this_is_my_clear_and_easy_function_name
+Upgrade your nfs-utils to version 0.2.1
 
-This may hold for English (or native English speakers, respectively) 
-but not for other languages (e.g. German) where capital letters quite
-common.
+Greetings,
+Juri
 
-[Fullquote deleted]
-
-	Bernd
 -- 
-Bernd Petrovitsch                              Email : bernd@gams.at
-G.A.M.S GmbH                                  Fax : +43 1 8958499-60
-Stiegerg. 15-17/8                       A-1150 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
-
-
-
---==_Exmh_-1951184936P
-Content-Type: application/pgp-signature
-
------BEGIN PGP MESSAGE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iQBVAwUBOm6nOK/rvrblD00BAQF1CwH/UYgz4/zOvb0X2XsIwev7PSuXFchEvDQ/
-I1G88So93m2u8/hYdEWBwpB/TaCQiRG8fK4SmEeKC1QXDKu3GNhNPA==
-=owpB
------END PGP MESSAGE-----
-
---==_Exmh_-1951184936P--
+juri.haberland@innominate.com
+system engineer                                         innominate AG
+clustering & security                            the linux architects
+tel: +49-30-308806-45   fax: -77            http://www.innominate.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

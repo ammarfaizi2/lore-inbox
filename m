@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264036AbTIBSNa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 14:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbTIBSL0
+	id S263832AbTIBRwh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 13:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263753AbTIBRuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 14:11:26 -0400
-Received: from mx2.it.wmich.edu ([141.218.1.94]:21428 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S264036AbTIBSJz (ORCPT
+	Tue, 2 Sep 2003 13:50:16 -0400
+Received: from holomorphy.com ([66.224.33.161]:25218 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263832AbTIBRcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 14:09:55 -0400
-Message-ID: <3F54A4AC.1020709@wmich.edu>
-Date: Tue, 02 Sep 2003 10:09:48 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
-X-Accept-Language: en
-MIME-Version: 1.0
-To: greg@kroah.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: devfs to be obsloted by udev?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Sep 2003 13:32:33 -0400
+Date: Tue, 2 Sep 2003 10:33:20 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Stuart Low <stuart@perlboy.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [DEBUG] 2.6.0-test4 - sleeping function called from invalid context
+Message-ID: <20030902173320.GM4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Stuart Low <stuart@perlboy.org>, linux-kernel@vger.kernel.org
+References: <1062520736.2331.10.camel@poohbox.perlaholic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062520736.2331.10.camel@poohbox.perlaholic.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears that devfs is to be replaced by the use of udev in the not so 
-distant future.  I'm not sure how it's supposed to replace a static /dev 
-situaton seeing as how it is a userspace daemon.  Is it not supposed to 
-replace /dev even when it's completed?  I dont see the real benefit in 
-having two directories that basically give the same info.  Right now we 
-have something like that with proc and sysfs although not everything in 
-proc makes sense to be in sysfs and both are virtual fs's where as /dev 
-is a static fs on the disk that takes up space and inodes and includes 
-way too many files that a system may not use.  If udev is to take over 
-the job of devfs, how will modules and drivers work that require device 
-files to be present in order to work since undoubtedly the udev daemon 
-will have to wait until the kernel is done booting before being run.
+On Wed, Sep 03, 2003 at 02:38:56AM +1000, Stuart Low wrote:
+> - -snip- -
+> nvidia: no version magic, tainting kernel.
+> nvidia: module license 'NVIDIA' taints kernel.
+> 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496 
+> Wed Jul 16 19:03:09 PDT 2003
+> Debug: sleeping function called from invalid context at mm/slab.c:1817
 
-I'm just not following how it is going to replace devfs and thus why 
-devfs is being abandoned as mentioned in akpm's patchset. Or as it 
-seems, already has been abandoned.
+Looks very much like an nvidia problem; best to report it to them.
 
+
+-- wli
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-It appears that devfs is to be replaced by the use of udev in the not so 
-distant future.  I'm not sure how it's supposed to replace a static /dev 
-situaton seeing as how it is a userspace daemon.  Is it not supposed to 
-replace /dev even when it's completed?  I dont see the real benefit in 
-having two directories that basically give the same info.  Right now we 
-have something like that with proc and sysfs although not everything in 
-proc makes sense to be in sysfs and both are virtual fs's where as /dev 
-is a static fs on the disk that takes up space and inodes and includes 
-way too many files that a system may not use.  If udev is to take over 
-the job of devfs, how will modules and drivers work that require device 
-files to be present in order to work since undoubtedly the udev daemon 
-will have to wait until the kernel is done booting before being run.
+On Wed, Sep 03, 2003 at 02:38:56AM +1000, Stuart Low wrote:
+> - -snip- -
+> nvidia: no version magic, tainting kernel.
+> nvidia: module license 'NVIDIA' taints kernel.
+> 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496 
+> Wed Jul 16 19:03:09 PDT 2003
+> Debug: sleeping function called from invalid context at mm/slab.c:1817
 
-I'm just not following how it is going to replace devfs and thus why 
-devfs is being abandoned as mentioned in akpm's patchset. Or as it 
-seems, already has been abandoned.
+Looks very much like an nvidia problem; best to report it to them.
 
+
+-- wli

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266210AbTCEX2S>; Wed, 5 Mar 2003 18:28:18 -0500
+	id <S266968AbTCEXbC>; Wed, 5 Mar 2003 18:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266948AbTCEX2S>; Wed, 5 Mar 2003 18:28:18 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:62159 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S266210AbTCEX2R>;
-	Wed, 5 Mar 2003 18:28:17 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux vs Windows temperature anomaly
-Date: Thu, 6 Mar 2003 10:38:44 +1100
-User-Agent: KMail/1.5
-References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz> <p05210507ba8c20241329@[10.2.0.101]> <3E66842F.9020000@WirelessNetworksInc.com>
-In-Reply-To: <3E66842F.9020000@WirelessNetworksInc.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303061038.44872.kernel@kolivas.org>
+	id <S266981AbTCEXbC>; Wed, 5 Mar 2003 18:31:02 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:58020
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266968AbTCEXbC> convert rfc822-to-8bit; Wed, 5 Mar 2003 18:31:02 -0500
+Subject: Re: Top stack (l)users
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030305202157.GA392@wohnheim.fh-wedel.de>
+References: <20030305202157.GA392@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1046911594.15950.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 00:46:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003 10:11 am, Herman Oosthuysen wrote:
-> Jonathan Lundell wrote:
-> > We've been seeing a curious phenomenon on some PIII/ServerWorks CNB30-LE
-> > systems.
-> >
-> > The systems fail at relatively low temperatures. While the failures are
-> > So, the puzzle: what might account for temperature sensitivity, of all
-> > things, under Linux 2.4.9-31 (RH 7.2), but not Win2K?
->
-> Linux is more 'busy' than windoze and I have heard of boxes frying when
-> running Linux.   The solution is to find a better motherboard
-> manufacturer...
+On Wed, 2003-03-05 at 20:21, Jörn Engel wrote:
+> arch = i386
+> make allyesconfig
+> <remove everything that breaks>
+> make checkstack
+> 
+> Quite interesting. ide_unregister moved down to rank 4.
+> Bronce goes to drivers/cdrom/optcd.c (does anyone still use it?).
+> Silver is drivers/message/i2o/i2o_proc.c.
 
-That doesn't make sense. His post said the temperature was 20 degrees lower 
-when it failed.
+i2o_proc is just a dump stack object -> kmalloc. Its probably ok
+because its not in any deep call nests but like a few of the others
+might make a fun little janitor project.
 
-Con
+ide_unregister I'm working on. Its easy to do a hack fix, but I want
+to do the full interface death and retry stuff 
+

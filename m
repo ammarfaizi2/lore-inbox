@@ -1,76 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132432AbRAZJYb>; Fri, 26 Jan 2001 04:24:31 -0500
+	id <S132770AbRAZJaM>; Fri, 26 Jan 2001 04:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132176AbRAZJYU>; Fri, 26 Jan 2001 04:24:20 -0500
-Received: from finch-post-11.mail.demon.net ([194.217.242.39]:28682 "EHLO
-	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S130970AbRAZJYM>; Fri, 26 Jan 2001 04:24:12 -0500
-Date: Fri, 26 Jan 2001 09:24:12 +0000
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre8 losing pages
-Message-ID: <20010126092412.A508@colonel-panic.com>
-Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
-In-Reply-To: <20010125231659.A2128@colonel-panic.com> <3A70DEF1.80ECEF80@baldauf.org>
-Mime-Version: 1.0
+	id <S132562AbRAZJaB>; Fri, 26 Jan 2001 04:30:01 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:44050 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S129830AbRAZJ3y>; Fri, 26 Jan 2001 04:29:54 -0500
+Message-ID: <3A714361.2D1E5074@idb.hist.no>
+Date: Fri, 26 Jan 2001 10:29:05 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: no, da, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <Pine.LNX.4.21.0101251328240.2961-100000@srv2.ecropolis.com> <14960.29127.172573.22453@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A70DEF1.80ECEF80@baldauf.org>; from xuan--lkml@baldauf.org on Fri, Jan 26, 2001 at 03:20:33AM +0100
-From: Peter Horton <pdh@colonel-panic.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 03:20:33AM +0100, Xuan Baldauf wrote:
+"David S. Miller" wrote:
 > 
-> Peter Horton wrote:
-> 
-> > I'm experiencing repeatable corruption whilst writing large volumes of
-> > data to disk. Kernel version is 2.4.1-pre8, on an 850MHz AMD Athlon on an
-> > ASUS A7V (VIA KT133 chipset) motherboard 128M RAM (tested with 'memtest86'
-> > for 10 hours).
-> >
-> 
-> So what output does following bash script produce?
-> 
+[...]
+> That's it, in 4 weeks time I am putting a kernel onto vger.kernel.org
+> that speaks ECN.  This is my official and only warning.
 
-Well this is the script I've been testing with ...
+Fine.
+Those who get their mail at hotmail can get a free yahoo account
+for the list (and possibly other uses as well.)  Yahoo have no
+problem with ECN.  Those who wish to complain to hotmail and others
+may get more attention by pointing out competitors that work,
+and threaten to switch.
 
-   #!/bin/bash -x
-   set -e
-   uname -a
-   rm -f test test[a-z]
-   dd if=/dev/urandom of=test bs=1024k count=128
-   for I in a b c d e f g h i j k l m n o p q r s t u v w x y z; do
-	   cp test test$I
-   done
-   md5sum test*
-
-... this is the kinda output I get on most runs :-
-
-   Linux mole-rat 2.4.1-pre10 #1 Fri Jan 26 08:48:55 GMT 2001 i686 unknown
-   ...
-   aa6a64589748321899bab2b66f71427f  testt
-   aa6a64589748321899bab2b66f71427f  testu
-   aa6a64589748321899bab2b66f71427f  testv
-   9dde1bed276e32a1f9af98c87ab05978  testw
-   aa6a64589748321899bab2b66f71427f  testx
-   aa6a64589748321899bab2b66f71427f  testy
-   aa6a64589748321899bab2b66f71427f  testz
-   mole-rat:~# cmp testw testx
-   testw testx differ: char 110862337, line 433772
-   mole-rat:~# cmp -i $(( 110862336 + 4096 )) testw testx
-   mole-rat:~# echo $(( 110862336 % 4096 ))
-   0
-
-> 
-> I cannot reproduce your behaviour in 2.4.1-pre9.
-> 
-
-No, I can't find anybody else who can either. Maybe I've got a dodgy CPU
-:-(
-
-P.
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

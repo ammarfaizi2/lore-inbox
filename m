@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266527AbUBLRCm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 12:02:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266529AbUBLRCl
+	id S266526AbUBLRMk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 12:12:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUBLRMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 12:02:41 -0500
-Received: from cs24243203-239.austin.rr.com ([24.243.203.239]:27916 "EHLO
-	raptor.int.mccr.org") by vger.kernel.org with ESMTP id S266527AbUBLRCk
+	Thu, 12 Feb 2004 12:12:40 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18139 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266526AbUBLRMi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 12:02:40 -0500
-Date: Thu, 12 Feb 2004 11:02:33 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
-Message-ID: <339500000.1076605352@[10.1.1.5]>
-In-Reply-To: <Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
-References: <1076384799.893.5.camel@gaston>
- <Pine.LNX.4.58.0402100814410.2128@home.osdl.org>
- <20040210173738.GA9894@mail.shareable.org>
- <20040213002358.1dd5c93a.ak@suse.de> <20040212100446.GA2862@elte.hu>
- <Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 12 Feb 2004 12:12:38 -0500
+Subject: Re: Bad Drive or JFS bug? (2.4.25-pre8)
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040211164958.BEC80CB32C@voldemort.scrye.com>
+References: <20040211164958.BEC80CB32C@voldemort.scrye.com>
+Content-Type: text/plain
+Message-Id: <1076605942.16373.20.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 12 Feb 2004 11:12:22 -0600
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-02-11 at 10:49, Kevin Fenzi wrote:
+> Greetings. 
+> 
+> It's unclear to me if this is a jfs error, or if my drive is simply
+> dying. There are no other indications of errors with the drive, but in
+> the logs: 
 
---On Thursday, February 12, 2004 08:36:48 -0800 Linus Torvalds
-<torvalds@osdl.org> wrote:
+JFS definitely ran into some corrupt metadata.  It could either be
+corrupt on disk, or a memory-corruption problem.  I don't know if
+hardware is the cause, but you say that nothing indicates that.  If it
+is caused by a software bug, it would be hard to track down unless it is
+repeatable.  The BUG() itself should probably be replaced by something
+nicer, like the first two errors reported by dbFree.
 
-> One option is to mark the brk() VMA's as being grow-up (which they are), 
-> and make get_unmapped_area() realize that it should avoid trying to 
-> allocate just above grow-up segments or just below grow-down segments. 
-> That's still something of a special case, but at least it's not "magic" 
-> any more, now it's more of a "makes sense".
+At this point the superblock should be marked dirty, so fsck should
+attempt to repair the damage upon reboot.  I'd like to know if you
+continue to see problems.
 
-So what's a reasonable value for 'not just above' and 'not just below'?  We
-could skip the entire hole, which would give us reasonable behavior for the
-brk area, but it wouldn't work so well for the area below the stack.  I'm
-sure if we define a 'reasonable' value to skip someone somewhere will
-collide with it.
+Thanks,
+Shaggy
+> 
+> Feb 11 04:04:59 voldemort kernel: blkno = 6d2e74726f, nblocks = 65646c
+> Feb 11 04:04:59 voldemort kernel: ERROR: (device ide0(3,3)): dbFree: block to be freed is outside the map
+> Feb 11 04:04:59 voldemort kernel: blkno = 3000003831, nblocks = 392e6d
+> Feb 11 04:04:59 voldemort kernel: ERROR: (device ide0(3,3)): dbFree: block to be freed is outside the map
+> Feb 11 04:04:59 voldemort kernel: BUG at jfs_dmap.c:2764 assert(newval == leaf[buddy])
+> Feb 11 04:04:59 voldemort kernel: kernel BUG at jfs_dmap.c:2764!
 
-Dave McCracken
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

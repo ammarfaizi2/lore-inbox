@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVBSPS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVBSP0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVBSPS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 10:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVBSPS3
+	id S261734AbVBSP0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 10:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVBSP0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 10:18:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33540 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261727AbVBSPSX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 10:18:23 -0500
-Date: Sat, 19 Feb 2005 16:18:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: urban@teststation.com
-Cc: samba@samba.org, linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc3-mm2: SMB: BUG: atomic counter underflow
-Message-ID: <20050219151820.GE4337@stusta.de>
+	Sat, 19 Feb 2005 10:26:25 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:26129 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261728AbVBSP0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 10:26:19 -0500
+Date: Sat, 19 Feb 2005 16:23:00 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/net/smc-mca.c: cleanups
+Message-ID: <20050219152300.GF1850@alpha.home.local>
+References: <20050219083431.GN4337@stusta.de> <4216FBCB.8040807@pobox.com> <1108804140.6304.67.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1108804140.6304.67.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found the following in my logs:
+On Sat, Feb 19, 2005 at 10:09:00AM +0100, Arjan van de Ven wrote:
+> On Sat, 2005-02-19 at 03:41 -0500, Jeff Garzik wrote:
+> > Adrian Bunk wrote:
+> > > This patch contains the following cleanups:
+> > > - make a needlessly global function static
+> > > - make three needlessly global structs static
+> > > 
+> > > Since after moving the now-static stucts to smc-mca.c the file smc-mca.h 
+> > > was empty except for two #define's, I've also killed the rest of 
+> > > smc-mca.h .
+> > 
+> > It looks like the structs should be 'static const', not just 'static'.
+> > 
+> > This comment is applicable to similar changes, also.  Use 'const' 
+> > whenever possible.
+> 
+> does that even have meaning in C? In C++ it does, but afaik in C it
+> doesn't.
 
-<--  snip  -->
+Yes it does. Often the variables declared this way will go into the text
+section which is marked read-only. I've used this technique in a few very
+small programs to reduce their size (I could strip off both their bss and
+data sections to save space). Also, I believe that the compiler is able
+to optimize code using consts, but this is pure speculation, I've not
+verified it.
 
-Feb 19 15:46:05 r063144 kernel: smb_get_length: Invalid NBT packet, code=86
-Feb 19 15:46:35 r063144 kernel: smb_add_request: request [d5242d40, mid=50934] timed out!
-Feb 19 15:46:35 r063144 kernel: BUG: atomic counter underflow at:
-Feb 19 15:46:35 r063144 kernel:  [<c0194201>] smb_rput+0x51/0x60
-Feb 19 15:46:35 r063144 kernel:  [<c018dbf8>] smb_proc_readX+0xe8/0x100
-Feb 19 15:46:35 r063144 kernel:  [<c01931b2>] smb_readpage_sync+0x92/0x110
-Feb 19 15:46:35 r063144 kernel:  [<c0193247>] smb_readpage+0x17/0x60
-Feb 19 15:46:35 r063144 kernel:  [<c01338ec>] read_pages+0xec/0x170
-Feb 19 15:46:35 r063144 kernel:  [<c0133a5e>] __do_page_cache_readahead+0xee/0x100
-Feb 19 15:46:35 r063144 kernel:  [<c0133bf0>] blockable_page_cache_readahead+0x40/0x60
-Feb 19 15:46:35 r063144 kernel:  [<c0133e1b>] page_cache_readahead+0x20b/0x280
-Feb 19 15:46:35 r063144 kernel:  [<c012d4de>] do_generic_mapping_read+0x3fe/0x720
-Feb 19 15:46:35 r063144 kernel:  [<c012da75>] __generic_file_aio_read+0x185/0x200
-Feb 19 15:46:35 r063144 kernel:  [<c012d800>] file_read_actor+0x0/0xf0
-Feb 19 15:46:35 r063144 kernel:  [<c012dbfc>] generic_file_read+0x9c/0xc0
-Feb 19 15:46:35 r063144 kernel:  [<c01230b0>] autoremove_wake_function+0x0/0x50
-Feb 19 15:46:35 r063144 kernel:  [<c011c201>] do_sigaction+0x131/0x1b0
-Feb 19 15:46:35 r063144 kernel:  [<c019350f>] smb_file_read+0x3f/0xa0
-Feb 19 15:46:35 r063144 kernel:  [<c011c548>] sys_rt_sigaction+0x78/0xb0
-Feb 19 15:46:35 r063144 kernel:  [<c015a4ad>] sys_select+0x36d/0x480
-Feb 19 15:46:35 r063144 kernel:  [<c0149006>] vfs_read+0x126/0x130
-Feb 19 15:46:35 r063144 kernel:  [<c0149291>] sys_read+0x41/0x70
-Feb 19 15:46:35 r063144 kernel:  [<c010238d>] sysenter_past_esp+0x52/0x75
-
-<--  snip  -->
-
-This was during a time with multiple active smb connections with heavy 
-read traffic (approx. 0,8 MByte/s altogether).
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Willy
 

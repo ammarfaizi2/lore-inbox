@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262762AbSI1Jax>; Sat, 28 Sep 2002 05:30:53 -0400
+	id <S262766AbSI1J3W>; Sat, 28 Sep 2002 05:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262761AbSI1J3r>; Sat, 28 Sep 2002 05:29:47 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:61834 "EHLO
+	id <S262764AbSI1J27>; Sat, 28 Sep 2002 05:28:59 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:61578 "EHLO
 	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262762AbSI1J1l>; Sat, 28 Sep 2002 05:27:41 -0400
-Date: Sat, 28 Sep 2002 11:27:13 +0200
+	id <S262763AbSI1J1l>; Sat, 28 Sep 2002 05:27:41 -0400
+Date: Sat, 28 Sep 2002 11:25:59 +0200
 From: Dominik Brodowski <linux@brodo.de>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Cc: hpa@zytor.com, cpufreq@www.linux.org.uk
-Subject: [2.5.39] (5/5) CPUfreq /proc/sys/cpu/ add-on patch
-Message-ID: <20020928112713.G1217@brodo.de>
+Subject: [2.5.39] (4/5) CPUfreq Documentation
+Message-ID: <20020928112559.F1217@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,640 +19,483 @@ User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CPUFreq 24-API add-on patch for 2.5.39:
-kernel/cpufreq.c	cpufreq-24-API
-include/linux/cpufreq.h	cpufreq-24-API
-arch/i386/config.in	Transmeta LongRun does not work well with cpufreq-24-API
-arch/i386/Config.help	help text for CONFIG_CPU_FREQ_24_API
+CPUFreq documentation for 2.5.39:
+CREDITS			one further CREDIT entry
+Documentation/cpufreq	documentation of CPU frequency and voltage scaling 
+	support in the Linux kernel.
+MAINTAINERS		one further MAINTAINERS entry
+arch/i386/Config.help	Config.help texts for i386 CPUFreq drivers
 
-
-diff -ruN linux-2539original/arch/i386/Config.help linux/arch/i386/Config.help
---- linux-2539original/arch/i386/Config.help	Sun Sep 22 09:00:00 2002
-+++ linux/arch/i386/Config.help	Sat Sep 28 09:30:00 2002
-@@ -850,6 +850,19 @@
+diff -ruN linux-2539original/CREDITS linux/CREDITS
+--- linux-2539original/CREDITS	Sun Sep 22 09:00:00 2002
++++ linux/CREDITS	Sat Sep 28 09:30:00 2002
+@@ -438,6 +438,13 @@
+ S: 411 13  Goteborg
+ S: Sweden
  
-   If in doubt, say N.
- 
-+CONFIG_CPU_FREQ_24_API
-+  This enables the /proc/sys/cpu/ sysctl interface for controlling
-+  CPUFreq, as known from the 2.4.-kernel patches for CPUFreq. Note
-+  that some drivers do not support this interface or offer less
-+  functionality. 
++N: Dominik Brodowski
++E: linux@brodo.de
++W: http://www.brodo.de/
++P: 1024D/725B37C6  190F 3E77 9C89 3B6D BECD  46EE 67C3 0308 725B 37C6
++D: parts of CPUFreq code, ACPI bugfixes
++S: Tuebingen, Germany
 +
-+  If you say N here, you'll be able to control CPUFreq using the
-+  new /proc/cpufreq interface.
+ N: Andries Brouwer
+ E: aeb@cwi.nl
+ D: random Linux hacker
+diff -ruN linux-2539original/Documentation/cpufreq linux/Documentation/cpufreq
+--- linux-2539original/Documentation/cpufreq	Thu Jan  1 01:00:00 1970
++++ linux/Documentation/cpufreq	Sat Sep 28 09:30:00 2002
+@@ -0,0 +1,361 @@
++     CPU frequency and voltage scaling code in the Linux(TM) kernel
++
++
++		         L i n u x    C P U F r e q
++
++
++
++
++		    Dominik Brodowski  <linux@brodo.de>
++		     David Kimdon <dwhedon@debian.org>
++
++
++
++   Clock scaling allows you to change the clock speed of the CPUs on the
++    fly. This is a nice method to save battery power, because the lower
++            the clock speed, the less power the CPU consumes.
++
++
++
++Contents:
++---------
++1.  Supported architectures
++2.  User interface
++2.1   /proc/cpufreq interface  [2.6]
++2.2.  /proc/sys/cpu/ interface [2.4]
++3.  CPUFreq core and interfaces
++3.1   General information
++3.2   CPUFreq notifiers
++3.3   CPUFreq architecture drivers
++4.  Mailing list and Links
++
++
++
++1. Supported architectures
++==========================
++
++ARM:
++    ARM Integrator, SA 1100, SA1110
++--------------------------------
++    This driver will be ported to new CPUFreq core soon, so
++    far it will not work.
++
++
++AMD Elan:
++    SC400, SC410
++--------------------------------
++    You need to specify the highest allowed CPU frequency as 
++    a module parameter ("max_freq") or as boot parameter 
++    ("elanfreq="). Else the available speed range will be 
++    limited to the speed at which the CPU runs while this
++    module is loaded.
++
++
++VIA Cyrix Longhaul:
++    VIA Samuel/CyrixIII, VIA Cyrix Samuel/C3, 
++    VIA Cyrix Ezra, VIA Cyrix Ezra-T
++--------------------------------
++    If you do not want to scale the Front Side Bus or voltage,
++    pass the module parameter "dont_scale_fsb 1" or
++    "dont_scale_voltage 1". Additionally, it is advised that
++    you pass the current Front Side Bus speed (in MHz) to 
++    this module as module parameter "current_fsb", e.g. 
++    "current_fsb 133" for a Front Side Bus speed of 133 MHz.
++
++
++Intel SpeedStep:
++    certain mobile Intel Pentium III (Coppermine), and all mobile
++    Intel Pentium III-M (Tualatin) and mobile Intel Pentium 4 P4-Ms.
++--------------------------------
++    Unfortunately only modern Intel ICH2-M and ICH3-M chipsets are 
++    supported.
++
++
++P4 CPU Clock Modulation:
++    Intel Pentium 4 Xeon processors
++---------------------------------
++    Note that you can only switch the speed of two logical CPUs at
++    once - but each phyiscal CPU may have different throttling levels.
++
++
++PowerNow! K6:
++    mobile AMD K6-2+ / mobile K6-3+:
++--------------------------------
++    No known issues.
++
++
++Transmeta Crusoe Longrun:
++    Transmeta Crusoe processors:
++--------------------------------
++    Does not work with the 2.4. /proc/sys/cpu/ interface.
++
++
++
++2. User Interface
++=================
++
++2.1   /proc/cpufreq interface [2.6]
++***********************************
++
++Starting in the patches for kernel 2.5.33, CPUFreq uses a "policy"
++interface /proc/cpufreq.
++
++When you "cat" this file, you'll find something like:
++
++--
++          minimum CPU frequency  -  maximum CPU frequency  -  policy
++CPU  0       1200000 ( 75%)      -     1600000 (100%)      -  performance
++--
++
++This means the current policy allows this CPU to be run anywhere
++between 1.2 GHz (the value is in kHz) and 1.6 GHz with an eye towards
++performance.
++
++To change the policy, "echo" the desired new policy into
++/proc/cpufreq. Use one of the following formats:
++
++cpu_nr:min_freq:max_freq:policy
++cpu_nr%min_freq%max_freq%policy
++min_freq:max_freq:policy
++min_freq%max_freq%policy
++
++with cpu_nr being the CPU which shall be affected, min_freq and
++max_freq the lower and upper limit of the CPU core frequency in kHz,
++and policy either "performance" or "powersave".
++A few examples:
++
++root@notebook:#echo -n "0:0:0:powersave" > /proc/cpufreq
++     sets the CPU #0 to the lowest supported frequency.
++
++root@notebook:#echo -n "1%100%100%performance" > /proc/cpufreq
++     sets the CPU #1 to the highest supported frequency.
++
++root@notebook:#echo -n "1000000:2000000:performance" > /proc/cpufreq
++     to set the frequency of all CPUs between 1 GHz and 2 GHz and to
++     the policy "performance".
++
++Please note that the values you "echo" into /proc/cpufreq are
++validated first, and may be limited by hardware or thermal
++considerations. Because of this, a read from /proc/cpufreq might 
++differ from what was written into it.
++
++
++When you read /proc/cpufreq for the first time after a CPUFreq driver
++has been initialized, you'll see the "default policy" for this
++driver. If this does not suit your needs, you can pass a boot
++parameter to the cpufreq core. Use the following syntax for this:
++   "cpufreq=min_freq:max_freq:policy", i.e. you may not chose a
++specific CPU and you need to specify the limits in kHz and not in
++per cent.
++
++
++2.2   /proc/cpufreq interface [2.4]
++***********************************
++
++Previsiously (and still available as a config option), CPUFreq used 
++a "sysctl" interface which is located in 
++	/proc/sys/cpu/0/
++	/proc/sys/cpu/1/ ...	(SMP only)
++
++In these directories, you will find three files of importance for
++CPUFreq: speed-max, speed-min and speed: 
++
++speed		    shows the current CPU frequency in kHz, 
++speed-min	    the minimum supported CPU frequency, and
++speed-max	    the maximum supported CPU frequency.
++
++
++To change the CPU frequency, "echo" the desired CPU frequency (in kHz)
++to speed. For example, to set the CPU speed to the lowest/highest
++allowed frequency do:
++
++root@notebook:# cat /proc/sys/cpu/0/speed-min > /proc/sys/cpu/0/speed
++root@notebook:# cat /proc/sys/cpu/0/speed-max > /proc/sys/cpu/0/speed
++
++
++
++3.  CPUFreq core and interfaces
++===============================
++
++3.1   General information
++*************************
++
++The CPUFreq core code is located in linux/kernel/cpufreq.c. This
++cpufreq code offers a standardized interface for the CPUFreq
++architecture drivers (those pieces of code that do actual
++frequency transitions), as well as to "notifiers". These are device
++drivers or other part of the kernel that need to be informed of
++policy changes (like thermal modules like ACPI) or of all
++frequency changes (like timing code) or even need to force certain
++speed limits (like LCD drivers on ARM architecture). Additionally, the
++kernel "constant" loops_per_jiffy is updated on frequency changes
++here.
++
++
++3.2   CPUFreq notifiers
++***********************
++
++CPUFreq notifiers conform to the standard kernel notifier interface.
++See linux/include/linux/notifier.h for details on notifiers.
++
++There are two different CPUFreq notifiers - policy notifiers and
++transition notifiers.
++
++
++3.2.1 CPUFreq policy notifiers
++******************************
++
++These are notified when a new policy is intended to be set. Each
++CPUFreq policy notifier is called three times for a policy transition:
++
++1.) During CPUFREQ_ADJUST all CPUFreq notifiers may change the limit if
++    they see a need for this - may it be thermal considerations or
++    hardware limitations.
++
++2.) During CPUFREQ_INCOMPATIBLE only changes may be done in order to avoid
++    hardware failure.
++
++3.) And during CPUFREQ_NOTIFY all notifiers are informed of the new policy
++   - if two hardware drivers failed to agree on a new policy before this
++   stage, the incompatible hardware shall be shut down, and the user
++   informed of this.
++
++The phase is specified in the second argument to the notifier.
++
++The third argument, a void *pointer, points to a struct cpufreq_policy
++consisting of five values: cpu, min, max, policy and max_cpu_freq. Min 
++and max are the lower and upper frequencies (in kHz) of the new
++policy, policy the new policy, cpu the number of the affected CPU or
++CPUFREQ_ALL_CPUS for all CPUs; and max_cpu_freq the maximum supported
++CPU frequency. This value is given for informational purposes only.
++
++
++3.2.2 CPUFreq transition notifiers
++**********************************
++
++These are notified twice when the CPUfreq driver switches the CPU core
++frequency and this change has any external implications.
++
++The second argument specifies the phase - CPUFREQ_PRECHANGE or
++CPUFREQ_POSTCHANGE.
++
++The third argument is a struct cpufreq_freqs with the following
++values:
++cpu	- number of the affected CPU or CPUFREQ_ALL_CPUS
++old	- old frequency
++new	- new frequency
++
++
++3.3   CPUFreq architecture drivers
++**********************************
++
++CPUFreq architecture drivers are the pieces of kernel code that
++actually perform CPU frequency transitions. These need to be
++initialized separately (separate initcalls), and may be
++modularized. They interact with the CPUFreq core in the following way:
++
++cpufreq_register()
++------------------
++cpufreq_register registers an arch driver to the CPUFreq core. Please
++note that only one arch driver may be registered at any time. -EBUSY
++is returned when an arch driver is already registered. The argument to
++cpufreq_register, struct cpufreq_driver *driver, is described later.
++
++cpufreq_unregister()
++--------------------
++cpufreq_unregister unregisters an arch driver, e.g. on module
++unloading. Please note that there is no check done that this is called
++from the driver which actually registered itself to the core, so
++please only call this function when you are sure the arch driver got
++registered correctly before.
++
++cpufreq_notify_transition()
++---------------------------
++On "dumb" hardware where only fixed frequency can be set, the driver
++must call cpufreq_notify_transition() once before, and once after the
++actual transition.
++
++struct cpufreq_driver
++---------------------
++On initialization, the arch driver is supposed to pass a pointer
++to a struct cpufreq_driver *cpufreq_driver consisting of the following
++entries:
++
++cpufreq_verify_t verify: This is a pointer to a function with the
++	following definition:
++	void verify_function (struct cpufreq_policy *policy).
++	This function must verify the new policy is within the limits
++	supported by the CPU, and at least one supported CPU is within
++	this range. It may be useful to use cpufreq.h /
++	cpufreq_verify_within_limits for this.
++
++cpufreq_setpolicy_t setpolicy: This is a pointer to a function with
++	the following definition:
++	void setpolicy_function (struct cpufreq_policy *policy).
++	This function must set the CPU to the new policy. If it is a
++	"dumb" CPU which only allows fixed frequencies to be set, it
++	shall set it to the lowest within the limit for
++	CPUFREQ_POLICY_POWERSAVE, and to the highest for
++	CPUFREQ_POLICY_PERFORMANCE. Once CONFIG_CPU_FREQ_DYNAMIC is
++	implemented, it can use a dynamic method to adjust the speed
++	between the lower and upper limit.
++
++struct cpufreq_policy   *policy: This is an array of NR_CPUS struct
++	cpufreq_policies, containing the current policies set for these
++	CPUs. Note that policy[0].max_cpu_freq must contain the
++	absolute maximum CPU frequency supported by _all_ CPUs.
++
++In case the driver is expected to run with the 2.4.-style API
++(/proc/sys/cpu/.../), two more values must be passed
++#ifdef CONFIG_CPU_FREQ_24_API
++	unsigned int            cpu_min_freq;
++	unsigned int            cpu_cur_freq[NR_CPUS];
++#endif
++	with cpu_min_freq being the minimum CPU frequency supported by
++	the CPUs; and the entries in cpu_cur_freq reflecting the
++	current speed of the appropriate CPU.
++
++Some Requirements to CPUFreq architecture drivers
++-------------------------------------------------
++* Only call cpufreq_register() when the ability to switch CPU
++  frequencies is _verified_ or can't be missing
++* cpufreq_unregister() may only be called if cpufreq_register() has
++  been successfully(!) called before.
++* kfree() the struct cpufreq_driver only after the call to 
++  cpufreq_unregister(), unless cpufreq_register() failed.
++* Be aware that there is currently no error management in the
++  setpolicy() code in the CPUFreq core. So only call yourself a
++  cpufreq_driver if you are really a working cpufreq_driver!
++
++
++
++4. Mailing list and Links
++*************************
++
++
++Mailing List
++------------
++There is a CPU frequency changing CVS commit and general list where
++you can report bugs, problems or submit patches. To post a message,
++send an email to cpufreq@www.linux.org.uk, to subscribe go to
++http://www.linux.org.uk/mailman/listinfo/cpufreq. Previous post to the
++mailing list are available to subscribers at
++http://www.linux.org.uk/mailman/private/cpufreq/.
++
++
++Links
++-----
++the FTP archives:
++* ftp://ftp.linux.org.uk/pub/linux/cpufreq/
++
++how to access the CVS repository:
++* http://cvs.arm.linux.org.uk/
++
++the CPUFreq Mailing list:
++* http://www.linux.org.uk/mailman/listinfo/cpufreq
++
++Clock and voltage scaling for the SA-1100:
++* http://www.lart.tudelft.nl/projects/scaling
++
++CPUFreq project homepage
++* http://www.brodo.de/cpufreq/
+diff -ruN linux-2539original/MAINTAINERS linux/MAINTAINERS
+--- linux-2539original/MAINTAINERS	Sun Sep 22 09:00:00 2002
++++ linux/MAINTAINERS	Sat Sep 28 09:30:00 2002
+@@ -364,6 +364,11 @@
+ W:	http://www.fi.muni.cz/~kas/cosa/
+ S:	Maintained
+ 
++CPU FREQUENCY DRIVERS
++L:      cpufreq@www.linux.org.uk
++W:      http://www.brodo.de/cpufreq/
++S:      Maintained
++
+ CPUID/MSR DRIVER
+ P:	H. Peter Anvin
+ M:	hpa@zytor.com
+diff -ruN linux-2539original/arch/i386/Config.help linux/arch/i386/Config.help
+--- linux-2539original/arch/i386/Config.help	Sun Sep 22 09:30:00 2002
++++ linux/arch/i386/Config.help	Sat Sep 28 09:30:00 2002
+@@ -839,7 +839,71 @@
+ CONFIG_X86_MCE_P4THERMAL
+   Enabling this feature will cause a message to be printed when the P4
+   enters thermal throttling.
+-				 
++
++CONFIG_CPU_FREQ
++  Clock scaling allows you to change the clock speed of CPUs on the
++  fly. This is a nice method to save battery power on notebooks,
++  because the lower the clock speed, the less power the CPU consumes.
++
++  For more information, take a look at linux/Documentation/cpufreq or
++  at <http://www.brodo.de/cpufreq/>
++
++  If in doubt, say N.
++
++CONFIG_X86_POWERNOW_K6
++  This adds the CPUFreq driver for mobile AMD K6-2+ and mobile
++  AMD K6-3+ processors.
 +
 +  For details, take a look at linux/Documentation/cpufreq. 
 +
 +  If in doubt, say N.
 +
- CONFIG_X86_POWERNOW_K6
-   This adds the CPUFreq driver for mobile AMD K6-2+ and mobile
-   AMD K6-3+ processors.
-diff -ruN linux-2539original/arch/i386/config.in linux/arch/i386/config.in
---- linux-2539original/arch/i386/config.in	Sun Sep 22 09:00:00 2002
-+++ linux/arch/i386/config.in	Sat Sep 28 09:30:00 2002
-@@ -192,7 +192,10 @@
- 
- bool 'CPU Frequency scaling' CONFIG_CPU_FREQ
- if [ "$CONFIG_CPU_FREQ" = "y" ]; then
--   define_bool CONFIG_CPU_FREQ_26_API y
-+   bool ' /proc/sys/cpu/ interface (2.4.)' CONFIG_CPU_FREQ_24_API
-+   if [ "$CONFIG_CPU_FREQ_24_API" = "n" ]; then
-+       define_bool CONFIG_CPU_FREQ_26_API y
-+   fi
-    tristate ' AMD Mobile K6-2/K6-3 PowerNow!' CONFIG_X86_POWERNOW_K6
-    if [ "$CONFIG_MELAN" = "y" ]; then
-        tristate ' AMD Elan' CONFIG_ELAN_CPUFREQ
-@@ -200,7 +203,9 @@
-    tristate ' VIA Cyrix III Longhaul' CONFIG_X86_LONGHAUL
-    tristate ' Intel Speedstep' CONFIG_X86_SPEEDSTEP
-    tristate ' Intel Pentium 4 clock modulation' CONFIG_X86_P4_CLOCKMOD
--   tristate ' Transmeta LongRun' CONFIG_X86_LONGRUN
-+   if [ "$CONFIG_CPU_FREQ_24_API" = "n" ]; then
-+       tristate ' Transmeta LongRun' CONFIG_X86_LONGRUN
-+   fi
- fi
- 
- tristate 'Toshiba Laptop support' CONFIG_TOSHIBA
-diff -ruN linux-2539original/include/linux/cpufreq.h linux/include/linux/cpufreq.h
---- linux-2539original/include/linux/cpufreq.h	Sun Sep 22 09:00:00 2002
-+++ linux/include/linux/cpufreq.h	Sat Sep 28 09:30:00 2002
-@@ -155,4 +155,98 @@
- #endif
- 
- 
-+#ifdef CONFIG_CPU_FREQ_24_API
-+/*********************************************************************
-+ *                        CPUFREQ 2.4. INTERFACE                     *
-+ *********************************************************************/
-+int cpufreq_setmax(unsigned int cpu);
-+#ifdef CONFIG_PM
-+int cpufreq_restore(void);
-+#endif
-+int cpufreq_set(unsigned int kHz, unsigned int cpu);
-+unsigned int cpufreq_get(unsigned int cpu);
++CONFIG_X86_P4_CLOCKMOD
++  This adds the CPUFreq driver for Intel Pentium 4 / XEON
++  processors.
 +
-+/* /proc/sys/cpu */
-+enum {
-+	CPU_NR   = 1,           /* compatibilty reasons */
-+	CPU_NR_0 = 1,
-+	CPU_NR_1 = 2,
-+	CPU_NR_2 = 3,
-+	CPU_NR_3 = 4,
-+	CPU_NR_4 = 5,
-+	CPU_NR_5 = 6,
-+	CPU_NR_6 = 7,
-+	CPU_NR_7 = 8,
-+	CPU_NR_8 = 9,
-+	CPU_NR_9 = 10,
-+	CPU_NR_10 = 11,
-+	CPU_NR_11 = 12,
-+	CPU_NR_12 = 13,
-+	CPU_NR_13 = 14,
-+	CPU_NR_14 = 15,
-+	CPU_NR_15 = 16,
-+	CPU_NR_16 = 17,
-+	CPU_NR_17 = 18,
-+	CPU_NR_18 = 19,
-+	CPU_NR_19 = 20,
-+	CPU_NR_20 = 21,
-+	CPU_NR_21 = 22,
-+	CPU_NR_22 = 23,
-+	CPU_NR_23 = 24,
-+	CPU_NR_24 = 25,
-+	CPU_NR_25 = 26,
-+	CPU_NR_26 = 27,
-+	CPU_NR_27 = 28,
-+	CPU_NR_28 = 29,
-+	CPU_NR_29 = 30,
-+	CPU_NR_30 = 31,
-+	CPU_NR_31 = 32,
-+};
++  For details, take a look at linux/Documentation/cpufreq. 
 +
-+/* /proc/sys/cpu/{0,1,...,(NR_CPUS-1)} */
-+enum {
-+	CPU_NR_FREQ_MAX = 1,
-+	CPU_NR_FREQ_MIN = 2,
-+	CPU_NR_FREQ = 3,
-+};
++  If in doubt, say N.
 +
-+#define CTL_CPU_VARS_SPEED_MAX { \
-+                ctl_name: CPU_NR_FREQ_MAX, \
-+                data: &cpu_max_freq, \
-+                procname: "speed-max", \
-+                maxlen:	sizeof(cpu_max_freq),\
-+                mode: 0444, \
-+                proc_handler: proc_dointvec, }
++CONFIG_ELAN_CPUFREQ
++  This adds the CPUFreq driver for AMD Elan SC400 and SC410
++  processors.
 +
-+#define CTL_CPU_VARS_SPEED_MIN { \
-+                ctl_name: CPU_NR_FREQ_MIN, \
-+                data: &cpu_min_freq, \
-+                procname: "speed-min", \
-+                maxlen:	sizeof(cpu_min_freq),\
-+                mode: 0444, \
-+                proc_handler: proc_dointvec, }
++  You need to specify the processor maximum speed as boot
++  parameter: elanfreq=maxspeed (in kHz) or as module
++  parameter "max_freq".
 +
-+#define CTL_CPU_VARS_SPEED(cpunr) { \
-+                ctl_name: CPU_NR_FREQ, \
-+                procname: "speed", \
-+                mode: 0644, \
-+                proc_handler: cpufreq_procctl, \
-+                strategy: cpufreq_sysctl, \
-+                extra1: (void*) (cpunr), }
++  For details, take a look at linux/Documentation/cpufreq. 
 +
-+#define CTL_TABLE_CPU_VARS(cpunr) static ctl_table ctl_cpu_vars_##cpunr[] = {\
-+                CTL_CPU_VARS_SPEED_MAX, \
-+                CTL_CPU_VARS_SPEED_MIN, \
-+                CTL_CPU_VARS_SPEED(cpunr),  \
-+                { ctl_name: 0, }, }
++  If in doubt, say N.
 +
-+/* the ctl_table entry for each CPU */
-+#define CPU_ENUM(s) { \
-+                ctl_name: (CPU_NR + s), \
-+                procname: #s, \
-+                mode: 0555, \
-+                child: ctl_cpu_vars_##s }
++CONFIG_X86_LONGHAUL
++  This adds the CPUFreq driver for VIA Samuel/CyrixIII, 
++  VIA Cyrix Samuel/C3, VIA Cyrix Ezra and VIA Cyrix Ezra-T 
++  processors.
 +
-+#endif /* CONFIG_CPU_FREQ_24_API */
++  For details, take a look at linux/Documentation/cpufreq. 
 +
- #endif /* _LINUX_CPUFREQ_H */
-diff -ruN linux-2539original/kernel/cpufreq.c linux/kernel/cpufreq.c
---- linux-2539original/kernel/cpufreq.c	Sun Sep 22 09:00:00 2002
-+++ linux/kernel/cpufreq.c	Sat Sep 28 09:30:00 2002
-@@ -28,6 +28,9 @@
- #include <linux/proc_fs.h>
- #endif
- 
-+#ifdef CONFIG_CPU_FREQ_24_API
-+#include <linux/sysctl.h>
-+#endif
- 
- 
- /**
-@@ -65,6 +68,16 @@
- };
- 
- 
-+#ifdef CONFIG_CPU_FREQ_24_API
-+/**
-+ * A few values needed by the 2.4.-compatible API
-+ */
-+static unsigned int     cpu_max_freq;
-+static unsigned int     cpu_min_freq;
-+static unsigned int     cpu_cur_freq[NR_CPUS];
-+#endif
++  If in doubt, say N.
 +
++CONFIG_X86_SPEEDSTEP
++  This adds the CPUFreq driver for certain mobile Intel Pentium III
++  (Coppermine), all mobile Intel Pentium III-M (Tulatin) and all
++  mobile Intel Pentium 4 P4-Ms.
 +
- 
- /*********************************************************************
-  *                              2.6. API                             *
-@@ -327,6 +340,389 @@
- 
- 
- /*********************************************************************
-+ *                        2.4. COMPATIBLE API                        *
-+ *********************************************************************/
++  For details, take a look at linux/Documentation/cpufreq. 
 +
-+#ifdef CONFIG_CPU_FREQ_24_API
-+/* NOTE #1: when you use this API, you may not use any other calls,
-+ * except cpufreq_[un]register_notifier, of course.
-+ */
++  If in doubt, say N.
 +
-+/** 
-+ * cpufreq_set - set the CPU frequency
-+ * @freq: target frequency in kHz
-+ * @cpu: CPU for which the frequency is to be set
-+ *
-+ * Sets the CPU frequency to freq.
-+ */
-+int cpufreq_set(unsigned int freq, unsigned int cpu)
-+{
-+	struct cpufreq_policy policy;
-+	down(&cpufreq_driver_sem);
-+	if (!cpufreq_driver || !cpu_max_freq) {
-+		up(&cpufreq_driver_sem);
-+		return -EINVAL;
-+	}
++CONFIG_X86_LONGRUN
++  This adds the CPUFreq driver for Transmeta Crusoe processors which
++  support LongRun.
 +
-+	policy.min = freq;
-+	policy.max = freq;
-+	policy.policy = CPUFREQ_POLICY_POWERSAVE;
-+	policy.cpu = cpu;
-+	
-+	up(&cpufreq_driver_sem);
++  For details, take a look at linux/Documentation/cpufreq. 
 +
-+	return cpufreq_set_policy(&policy);
-+}
-+EXPORT_SYMBOL_GPL(cpufreq_set);
++  If in doubt, say N.
 +
-+
-+/** 
-+ * cpufreq_setmax - set the CPU to the maximum frequency
-+ * @cpu - affected cpu;
-+ *
-+ * Sets the CPU frequency to the maximum frequency supported by
-+ * this CPU.
-+ */
-+int cpufreq_setmax(unsigned int cpu)
-+{
-+	if (!cpu_online(cpu) && (cpu != CPUFREQ_ALL_CPUS))
-+		return -EINVAL;
-+	return cpufreq_set(cpu_max_freq, cpu);
-+}
-+EXPORT_SYMBOL_GPL(cpufreq_setmax);
-+
-+
-+/** 
-+ * cpufreq_get - get the current CPU frequency (in kHz)
-+ * @cpu: CPU number - currently without effect.
-+ *
-+ * Get the CPU current (static) CPU frequency
-+ */
-+unsigned int cpufreq_get(unsigned int cpu)
-+{
-+	if (!cpu_online(cpu))
-+		return -EINVAL;
-+	return cpu_cur_freq[cpu];
-+}
-+EXPORT_SYMBOL(cpufreq_get);
-+
-+
-+#ifdef CONFIG_SYSCTL
-+
-+
-+/*********************** cpufreq_sysctl interface ********************/
-+static int
-+cpufreq_procctl(ctl_table *ctl, int write, struct file *filp,
-+		void *buffer, size_t *lenp)
-+{
-+	char buf[16], *p;
-+	int cpu = (int) ctl->extra1;
-+	int len, left = *lenp;
-+
-+	if (!left || (filp->f_pos && !write) || !cpu_online(cpu)) {
-+		*lenp = 0;
-+		return 0;
-+	}
-+
-+	if (write) {
-+		unsigned int freq;
-+
-+		len = left;
-+		if (left > sizeof(buf))
-+			left = sizeof(buf);
-+		if (copy_from_user(buf, buffer, left))
-+			return -EFAULT;
-+		buf[sizeof(buf) - 1] = '\0';
-+
-+		freq = simple_strtoul(buf, &p, 0);
-+		cpufreq_set(freq, cpu);
-+	} else {
-+		len = sprintf(buf, "%d\n", cpufreq_get(cpu));
-+		if (len > left)
-+			len = left;
-+		if (copy_to_user(buffer, buf, len))
-+			return -EFAULT;
-+	}
-+
-+	*lenp = len;
-+	filp->f_pos += len;
-+	return 0;
-+}
-+
-+static int
-+cpufreq_sysctl(ctl_table *table, int *name, int nlen,
-+	       void *oldval, size_t *oldlenp,
-+	       void *newval, size_t newlen, void **context)
-+{
-+	int cpu = (int) table->extra1;
-+
-+	if (!cpu_online(cpu))
-+		return -EINVAL;
-+
-+	if (oldval && oldlenp) {
-+		size_t oldlen;
-+
-+		if (get_user(oldlen, oldlenp))
-+			return -EFAULT;
-+
-+		if (oldlen != sizeof(unsigned int))
-+			return -EINVAL;
-+
-+		if (put_user(cpufreq_get(cpu), (unsigned int *)oldval) ||
-+		    put_user(sizeof(unsigned int), oldlenp))
-+			return -EFAULT;
-+	}
-+	if (newval && newlen) {
-+		unsigned int freq;
-+
-+		if (newlen != sizeof(unsigned int))
-+			return -EINVAL;
-+
-+		if (get_user(freq, (unsigned int *)newval))
-+			return -EFAULT;
-+
-+		cpufreq_set(freq, cpu);
-+	}
-+	return 1;
-+}
-+
-+/* ctl_table ctl_cpu_vars_{0,1,...,(NR_CPUS-1)} */
-+/* due to NR_CPUS tweaking, a lot of if/endifs are required, sorry */
-+        CTL_TABLE_CPU_VARS(0);
-+#if NR_CPUS > 1
-+	CTL_TABLE_CPU_VARS(1);
-+#endif
-+#if NR_CPUS > 2
-+	CTL_TABLE_CPU_VARS(2);
-+#endif
-+#if NR_CPUS > 3
-+	CTL_TABLE_CPU_VARS(3);
-+#endif
-+#if NR_CPUS > 4
-+	CTL_TABLE_CPU_VARS(4);
-+#endif
-+#if NR_CPUS > 5
-+	CTL_TABLE_CPU_VARS(5);
-+#endif
-+#if NR_CPUS > 6
-+	CTL_TABLE_CPU_VARS(6);
-+#endif
-+#if NR_CPUS > 7
-+	CTL_TABLE_CPU_VARS(7);
-+#endif
-+#if NR_CPUS > 8
-+	CTL_TABLE_CPU_VARS(8);
-+#endif
-+#if NR_CPUS > 9
-+	CTL_TABLE_CPU_VARS(9);
-+#endif
-+#if NR_CPUS > 10
-+	CTL_TABLE_CPU_VARS(10);
-+#endif
-+#if NR_CPUS > 11
-+	CTL_TABLE_CPU_VARS(11);
-+#endif
-+#if NR_CPUS > 12
-+	CTL_TABLE_CPU_VARS(12);
-+#endif
-+#if NR_CPUS > 13
-+	CTL_TABLE_CPU_VARS(13);
-+#endif
-+#if NR_CPUS > 14
-+	CTL_TABLE_CPU_VARS(14);
-+#endif
-+#if NR_CPUS > 15
-+	CTL_TABLE_CPU_VARS(15);
-+#endif
-+#if NR_CPUS > 16
-+	CTL_TABLE_CPU_VARS(16);
-+#endif
-+#if NR_CPUS > 17
-+	CTL_TABLE_CPU_VARS(17);
-+#endif
-+#if NR_CPUS > 18
-+	CTL_TABLE_CPU_VARS(18);
-+#endif
-+#if NR_CPUS > 19
-+	CTL_TABLE_CPU_VARS(19);
-+#endif
-+#if NR_CPUS > 20
-+	CTL_TABLE_CPU_VARS(20);
-+#endif
-+#if NR_CPUS > 21
-+	CTL_TABLE_CPU_VARS(21);
-+#endif
-+#if NR_CPUS > 22
-+	CTL_TABLE_CPU_VARS(22);
-+#endif
-+#if NR_CPUS > 23
-+	CTL_TABLE_CPU_VARS(23);
-+#endif
-+#if NR_CPUS > 24
-+	CTL_TABLE_CPU_VARS(24);
-+#endif
-+#if NR_CPUS > 25
-+	CTL_TABLE_CPU_VARS(25);
-+#endif
-+#if NR_CPUS > 26
-+	CTL_TABLE_CPU_VARS(26);
-+#endif
-+#if NR_CPUS > 27
-+	CTL_TABLE_CPU_VARS(27);
-+#endif
-+#if NR_CPUS > 28
-+	CTL_TABLE_CPU_VARS(28);
-+#endif
-+#if NR_CPUS > 29
-+	CTL_TABLE_CPU_VARS(29);
-+#endif
-+#if NR_CPUS > 30
-+	CTL_TABLE_CPU_VARS(30);
-+#endif
-+#if NR_CPUS > 31
-+	CTL_TABLE_CPU_VARS(31);
-+#endif
-+#if NR_CPUS > 32
-+#error please extend CPU enumeration
-+#endif
-+
-+/* due to NR_CPUS tweaking, a lot of if/endifs are required, sorry */
-+static ctl_table ctl_cpu_table[NR_CPUS + 1] = {
-+	CPU_ENUM(0),
-+#if NR_CPUS > 1
-+	CPU_ENUM(1),
-+#endif
-+#if NR_CPUS > 2
-+	CPU_ENUM(2),
-+#endif
-+#if NR_CPUS > 3
-+	CPU_ENUM(3),
-+#endif
-+#if NR_CPUS > 4
-+	CPU_ENUM(4),
-+#endif
-+#if NR_CPUS > 5
-+	CPU_ENUM(5),
-+#endif
-+#if NR_CPUS > 6
-+	CPU_ENUM(6),
-+#endif
-+#if NR_CPUS > 7
-+	CPU_ENUM(7),
-+#endif
-+#if NR_CPUS > 8
-+	CPU_ENUM(8),
-+#endif
-+#if NR_CPUS > 9
-+	CPU_ENUM(9),
-+#endif
-+#if NR_CPUS > 10
-+	CPU_ENUM(10),
-+#endif
-+#if NR_CPUS > 11
-+	CPU_ENUM(11),
-+#endif
-+#if NR_CPUS > 12
-+	CPU_ENUM(12),
-+#endif
-+#if NR_CPUS > 13
-+	CPU_ENUM(13),
-+#endif
-+#if NR_CPUS > 14
-+	CPU_ENUM(14),
-+#endif
-+#if NR_CPUS > 15
-+	CPU_ENUM(15),
-+#endif
-+#if NR_CPUS > 16
-+	CPU_ENUM(16),
-+#endif
-+#if NR_CPUS > 17
-+	CPU_ENUM(17),
-+#endif
-+#if NR_CPUS > 18
-+	CPU_ENUM(18),
-+#endif
-+#if NR_CPUS > 19
-+	CPU_ENUM(19),
-+#endif
-+#if NR_CPUS > 20
-+	CPU_ENUM(20),
-+#endif
-+#if NR_CPUS > 21
-+	CPU_ENUM(21),
-+#endif
-+#if NR_CPUS > 22
-+	CPU_ENUM(22),
-+#endif
-+#if NR_CPUS > 23
-+	CPU_ENUM(23),
-+#endif
-+#if NR_CPUS > 24
-+	CPU_ENUM(24),
-+#endif
-+#if NR_CPUS > 25
-+	CPU_ENUM(25),
-+#endif
-+#if NR_CPUS > 26
-+	CPU_ENUM(26),
-+#endif
-+#if NR_CPUS > 27
-+	CPU_ENUM(27),
-+#endif
-+#if NR_CPUS > 28
-+	CPU_ENUM(28),
-+#endif
-+#if NR_CPUS > 29
-+	CPU_ENUM(29),
-+#endif
-+#if NR_CPUS > 30
-+	CPU_ENUM(30),
-+#endif
-+#if NR_CPUS > 31
-+	CPU_ENUM(31),
-+#endif
-+#if NR_CPUS > 32
-+#error please extend CPU enumeration
-+#endif
-+	{
-+		ctl_name:	0,
-+	}
-+};
-+
-+static ctl_table ctl_cpu[2] = {
-+	{
-+		ctl_name:	CTL_CPU,
-+		procname:	"cpu",
-+		mode:		0555,
-+		child:		ctl_cpu_table,
-+	},
-+	{
-+		ctl_name:	0,
-+	}
-+};
-+
-+struct ctl_table_header *cpufreq_sysctl_table;
-+
-+static inline void cpufreq_sysctl_init(void)
-+{
-+	cpufreq_sysctl_table = register_sysctl_table(ctl_cpu, 0);
-+}
-+
-+static inline void cpufreq_sysctl_exit(void)
-+{
-+	unregister_sysctl_table(cpufreq_sysctl_table);
-+}
-+
-+#else
-+#define cpufreq_sysctl_init()
-+#define cpufreq_sysctl_exit()
-+#endif /* CONFIG_SYSCTL */
-+#endif /* CONFIG_CPU_FREQ_24_API */
-+
-+
-+
-+/*********************************************************************
-  *                     NOTIFIER LISTS INTERFACE                      *
-  *********************************************************************/
- 
-@@ -484,6 +880,14 @@
- 		cpufreq_driver->policy[policy->cpu].policy = policy->policy;
- 	}
- 	
-+#ifdef CONFIG_CPU_FREQ_24_API
-+	if (policy->cpu == CPUFREQ_ALL_CPUS) {
-+		for (i=0;i<NR_CPUS;i++)
-+			cpu_cur_freq[i] = policy->max;
-+	} else
-+		cpu_cur_freq[policy->cpu] = policy->max;
-+#endif
-+
- 	cpufreq_driver->setpolicy(policy);
- 	
- 	up(&cpufreq_driver_sem);
-@@ -592,6 +996,20 @@
- 	cpufreq_proc_init();
- #endif
- 
-+#ifdef CONFIG_CPU_FREQ_24_API
-+	down(&cpufreq_driver_sem);
-+	cpu_min_freq          = driver_data->cpu_min_freq;
-+	cpu_max_freq          = driver_data->policy[0].max_cpu_freq;
-+	{
-+		unsigned int i;
-+		for (i=0; i<NR_CPUS; i++) {
-+			cpu_cur_freq[i] = driver_data->cpu_cur_freq[i];
-+		}
-+	}
-+	up(&cpufreq_driver_sem);
-+
-+	cpufreq_sysctl_init();
-+#endif
- 	if (ret) {
- 		down(&cpufreq_driver_sem);
- 		cpufreq_driver = NULL;
-@@ -628,6 +1046,10 @@
- 	cpufreq_proc_exit();
- #endif
- 
-+#ifdef CONFIG_CPU_FREQ_24_API
-+	cpufreq_sysctl_exit();
-+#endif
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(cpufreq_unregister);
-@@ -666,6 +1088,10 @@
- 
- #ifdef CONFIG_CPU_FREQ_26_API
- 		cpufreq_set_policy(&policy);
-+#endif
-+
-+#ifdef CONFIG_CPU_FREQ_24_API
-+		cpufreq_set(cpu_cur_freq[i], i);
- #endif
- 	}
- 
-
+ CONFIG_TOSHIBA
+   This adds a driver to safely access the System Management Mode of
+   the CPU on Toshiba portables with a genuine Toshiba BIOS. It does

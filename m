@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266177AbRF2Umm>; Fri, 29 Jun 2001 16:42:42 -0400
+	id <S266179AbRF2UpC>; Fri, 29 Jun 2001 16:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266179AbRF2Umc>; Fri, 29 Jun 2001 16:42:32 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63498 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266177AbRF2Um2>; Fri, 29 Jun 2001 16:42:28 -0400
-Subject: Re: Bounce buffer deadlock
-To: lord@sgi.com (Steve Lord)
-Date: Fri, 29 Jun 2001 21:42:16 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200106292033.f5TKXqw03584@jen.americas.sgi.com> from "Steve Lord" at Jun 29, 2001 03:33:52 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266180AbRF2Uow>; Fri, 29 Jun 2001 16:44:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:42150 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266179AbRF2Uok>;
+	Fri, 29 Jun 2001 16:44:40 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15G55k-0000yd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15164.59568.527480.216539@pizda.ninka.net>
+Date: Fri, 29 Jun 2001 13:44:32 -0700 (PDT)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: christophe.barbe@lineo.fr (christophe barbi), linux-kernel@vger.kernel.org
+Subject: Re: Qlogic Fiber Channel
+In-Reply-To: <E15Fzu8-0000SK-00@the-village.bc.nu>
+In-Reply-To: <20010629151910.C27847@pc8.lineo.fr>
+	<E15Fzu8-0000SK-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Has anyone else seen a hang like this:
-> 
->   bdflush()
->     flush_dirty_buffers()
->       ll_rw_block()
-> 	submit_bh(buffer X)
-> 	  generic_make_request()
-> 	    __make_request()
-> 	        create_bounce()
-> 		  alloc_bounce_page()
-> 		    alloc_page()
-> 		      try_to_free_pages()
-> 			do_try_to_free_pages()
-> 			  page_launder()
-> 			    try_to_free_buffers( , 2)  -- i.e. wait for buffers
-> 			      sync_page_buffers()
-> 				__wait_on_buffer(buffer X)
 
-Whoops. We actually carefully set PF_MEMALLOC to avoid deadlocks here but if
-the buffer is laundered.... ummm
+Alan Cox writes:
+ > > =46rom my point of view, this driver is sadly broken. The fun part is t=
+ > > hat
+ > > the qlogic driver is certainly based on this one too (look at the code,=
+ > >  the
+ > > drivers differs not so much).=20
+ > 
+ > And if the other one is stable someone should spend the time merging the
+ > two.
 
-Looks like page_launder needs to be more careful
+Actually, I think "sadly broken" depends upon your situation.
+I've been using the driver just fine on my systems here, even
+during cerberus stress testing.  So it is working perfectly fine
+for some people.
 
-> I hit this in 2.4.6-pre6, and I don't see anything in the ac series to protect
-> against it.
-
-Not this one no
-
-Alan
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272012AbRIJIGQ>; Mon, 10 Sep 2001 04:06:16 -0400
+	id <S273235AbRIJIYb>; Mon, 10 Sep 2001 04:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273218AbRIJIGH>; Mon, 10 Sep 2001 04:06:07 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:63116 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S272012AbRIJIFu>;
-	Mon, 10 Sep 2001 04:05:50 -0400
-Date: Mon, 10 Sep 2001 10:05:37 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Wietse Venema <wietse@porcupine.org>,
-        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010910100537.W26627@khan.acc.umu.se>
-In-Reply-To: <20010906181826.9CCECBC06C@spike.porcupine.org> <E15f55T-0000Kc-00@the-village.bc.nu> <20010906221359.G13547@emma1.emma.line.org>
-Mime-Version: 1.0
+	id <S273219AbRIJIYU>; Mon, 10 Sep 2001 04:24:20 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:22547 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S273026AbRIJIYD>; Mon, 10 Sep 2001 04:24:03 -0400
+Date: 10 Sep 2001 10:30:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <88a0nPmXw-B@khms.westfalen.de>
+In-Reply-To: <20010909173947.A20202@netnation.com>
+Subject: Re: linux-2.4.10-pre5
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010906221359.G13547@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Thu, Sep 06, 2001 at 10:13:59PM +0200
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20010909173947.A20202@netnation.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 10:13:59PM +0200, Matthias Andree wrote:
-> On Thu, 06 Sep 2001, Alan Cox wrote:
-> 
-> > I think you have the metaphor wrong. The older API is a bit like the 
-> > cavalry charging into battle at the start of world war one. It may have been
-> > how everyone did it but they guys with the "newfangled, really not how it
-> > should be done, definitely not cricket"  machine guns got the last laugh
-> 
-> Alan, portability is an issue or Linux will lose. Admittedly, legacy
-> interfaces do not support all of those new features, but a rather
-> trivial patch of mine brings SIOCGIFNETMASK compatibility with both the
-> old and the new stuff, please name precisely the objections against
-> portability and compatibility with FreeBSD 4.x aliasing.
+sim@netnation.com (Simon Kirby)  wrote on 09.09.01 in <20010909173947.A20202@netnation.com>:
 
-Are you saying that Linux should implement compability with _new_
-features in FreeBSD 4.x, while at the same time frowning at the fact
-that Linux introduces a new API?! The mind boggles at the thought.
+> What do people actually use atime for, anyway?  I've always
+> noatime/nodiratime'd most servers I've set up because it saves so much
+> disk I/O, and I have yet to see anything really use it.  I can see that
+> in some cases it would be useful to turn it _on_ (perhaps for debugging /
+> removal of unused files, etc.), but it seems silly that the default case
+> is a situation which on the surface seems dumb (opening a file for read
+> causes a disk write).
 
-Please accept, that sometimes, just sometimes, there is a superior way
-to do something, and implementing support for that might not be such
-a bad idea after all. Whining about this causing "bloat and maintainance
-nightmares" (no, not a direct quote, sorry for that) doesn't cut it,
-because there are probably more Linux-machines running the software than
-any BSD-machines, thus the netlink-code will get _more_ testing than
-the legacy API.
+I see two possible atime uses:
 
+1. Cleaning up /tmp (mtime is *not* a good indicator that a file is no  
+longer used)
+2. Swapping out files to slower storage
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Essentially, both use the "do we still need this thing" aspect.
+
+Of course, for this to be useful, we really need programs to be able to  
+say "ignore my use of this file". tar --atime-preserve, for example  
+(which, incidentally, notes a technical problem with doing this). I'd also  
+add stuff like files or md5sum or similar diagnostic tools to the "might  
+want to not affect atime" list, and possibly also stuff like inn ("atime  
+on /var/spool/news is just silly").
+
+HOWEVER, I'd think what would really be nice for this would be an  
+O_NOATIME flag (which does enforce read-only operation, of course), and  
+not fixing the atime back afterwards (inherently racy, but even more so by  
+design of utimes and ctime).
+
+That flag would also be fairly easy to detect with autoconf or similar  
+functionality.
+
+MfG Kai

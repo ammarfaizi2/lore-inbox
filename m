@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267993AbUHEVh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267874AbUHEVi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267993AbUHEVh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267994AbUHEVhW
+	id S267874AbUHEVi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267972AbUHEViL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:37:22 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:8895 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267993AbUHEVhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:37:02 -0400
-Subject: Re: FW: Linux kernel file offset pointer races
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <XFMail.20040805104213.pochini@shiny.it>
-References: <XFMail.20040805104213.pochini@shiny.it>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1091738068.8364.10.camel@localhost.localdomain>
+	Thu, 5 Aug 2004 17:38:11 -0400
+Received: from mail.kroah.org ([69.55.234.183]:37577 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267875AbUHEVhL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 17:37:11 -0400
+Date: Thu, 5 Aug 2004 14:36:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Altix I/O code reorganization
+Message-ID: <20040805213657.GA16360@kroah.com>
+References: <20040805181619.GA30543@kroah.com> <Pine.SGI.3.96.1040805155001.143418D-100000@fsgi900.americas.sgi.com> <20040805210824.GA15962@kroah.com> <200408051432.36240.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 05 Aug 2004 21:34:29 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408051432.36240.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-05 at 09:42, Giuliano Pochini wrote:
-> I don't remember if this issue has already been discussed here:
+On Thu, Aug 05, 2004 at 02:32:36PM -0700, Jesse Barnes wrote:
+> 
+> A few of the patches at that URL are very large (one is over 400k).  That 
+> said, some of the others could probably be posted.
 
-Its mostly been discussed on vendor-sec so far. Paul was gracious enough
-to give everyone time to work on the problem. Al Viro did some original
-patches, various folks then moved them to 2.6 and fixed other stuff from
-further review.
+Exactly.  They _should_ be posted.
 
-Andrew has 2.6 draft patches, Marcelo actively worked on the 2.4 ones
-(and some 2.6 glitches). If you need 2.6 patches "right now" then one
-place to grab them is from the current Fedora 2 kernel.
-
-Alan
-
+greg k-h

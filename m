@@ -1,95 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269375AbUICAHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269389AbUICAQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269375AbUICAHg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 20:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269404AbUICAGx
+	id S269389AbUICAQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 20:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269383AbUICAOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:06:53 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:35316 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S269403AbUIBX6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:58:39 -0400
-Date: Thu, 2 Sep 2004 20:03:02 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>
-Subject: [PATCH][8/8] Arch agnostic completely out of line locks / x86_64
-Message-ID: <Pine.LNX.4.58.0409021241291.4481@montezuma.fsmlabs.com>
+	Thu, 2 Sep 2004 20:14:49 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:32950 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S269439AbUICAIf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 20:08:35 -0400
+Message-ID: <4137B5F5.8000402@slaphack.com>
+Date: Thu, 02 Sep 2004 19:08:21 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Frank van Maarseveen <frankvm@xs4all.nl>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- arch/x86_64/kernel/time.c        |   13 +++++++++++++
- arch/x86_64/kernel/vmlinux.lds.S |    1 +
- include/asm-x86_64/ptrace.h      |    4 ++++
- 3 files changed, 18 insertions(+)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Andi, i'm not so sure about that return address in profile_pc, i think i
-need to read a bit more.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+| On Thu, Sep 02, 2004 at 11:48:06PM +0200, Frank van Maarseveen wrote:
+|
+|>mount is nice for root, clumsy for user. And a rather complicated
+|>way of accessing data the kernel has knowledge about in the first
+|>place. For filesystem images, cd'ing into the file is the most
+|>obvious concept for file-as-a-dir IMHO.
+|
+|
+| The hell it is.
+|
+| a) kernel has *NO* *FUCKING* *KNOWLEDGE* of fs type contained on a device.
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+reiser4 kernel will contain knowledge of fs type contained in a file.
 
-Index: linux-2.6.9-rc1-mm1-stage/include/asm-x86_64/ptrace.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/include/asm-x86_64/ptrace.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 ptrace.h
---- linux-2.6.9-rc1-mm1-stage/include/asm-x86_64/ptrace.h	26 Aug 2004 13:13:07 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/include/asm-x86_64/ptrace.h	2 Sep 2004 23:24:05 -0000
-@@ -83,7 +83,11 @@ struct pt_regs {
- #if defined(__KERNEL__) && !defined(__ASSEMBLY__)
- #define user_mode(regs) (!!((regs)->cs & 3))
- #define instruction_pointer(regs) ((regs)->rip)
-+#if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
-+extern unsigned long profile_pc(struct pt_regs *regs);
-+#else
- #define profile_pc(regs) instruction_pointer(regs)
-+#endif
- void signal_fault(struct pt_regs *regs, void __user *frame, char *where);
+"file/..metas/type" might contain a mime type.  Mime type might have to
+be guessed, but at least if it's made by a local "mkisofs" then we're fine.
 
- enum {
-Index: linux-2.6.9-rc1-mm1-stage/arch/x86_64/kernel/time.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/x86_64/kernel/time.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 time.c
---- linux-2.6.9-rc1-mm1-stage/arch/x86_64/kernel/time.c	26 Aug 2004 13:13:06 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/x86_64/kernel/time.c	2 Sep 2004 23:58:08 -0000
-@@ -179,6 +179,19 @@ int do_settimeofday(struct timespec *tv)
+Indeed, that's not the only interface that's been discussed.
+"file/..metas/is_isofs" might be consulted.
 
- EXPORT_SYMBOL(do_settimeofday);
 
-+#if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
-+unsigned long profile_pc(struct pt_regs *regs)
-+{
-+	unsigned long pc = instruction_pointer(regs);
-+
-+	if (pc >= (unsigned long)&__lock_text_start &&
-+	    pc <= (unsigned long)&__lock_text_end)
-+		return *(unsigned long *)regs->rbp;
-+	return pc;
-+}
-+EXPORT_SYMBOL(profile_pc);
-+#endif
-+
- /*
-  * In order to set the CMOS clock precisely, set_rtc_mmss has to be called 500
-  * ms after the second nowtime has started, because when nowtime is written
-Index: linux-2.6.9-rc1-mm1-stage/arch/x86_64/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/x86_64/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/x86_64/kernel/vmlinux.lds.S	26 Aug 2004 13:13:06 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/x86_64/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -16,6 +16,7 @@ SECTIONS
-   .text : {
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
- 	} = 0x9090
+| b) kernel has no way to guess which options to use
+| c) fs _type_ is a fundamental part of mount - device(s) (if any) involved
+| are arguments to be interpreted by that particular fs driver.
+
+Unless there's some severe security issues with "mount this iso as fat
+and you get root access", this should work fine.
+
+I see no reason why there can't be a global setting of the mount
+commandline to use.
+
+And it doesn't all have to be in the kernel.  Only it'd be nice to have
+some of it there because the kernel knows how to deal with an isofs,
+even if it won't know what it looks like.
+
+| d) permissions required for that lovely operation (and questions like
+| whether we force nosuid/noexec, etc.) are nightmare to define.
+
+They are quite simple, actually.  Just set them globally -- some admins
+would force nosetuid/noexec, some wouldn't.  And the operation happens
+transparently -- you need no "permissions" other than to read the
+directory which would contain the mount.
+
+| Frankly, the longer that thread grows, the more obvious it becomes that
+| file-as-a-dir is a solution in search of problem.  Desperate search, at
+| that.
+
+Actually, the longer this thread grows, the more obvious it is how when
+there's a hot issue, everyone has an opinion, even if the same opinion
+has been expressed ten or twenty times already.
+
+File-as-a-dir has numerous advantages, but enough have been discussed.
+Short list is image mounts, tarballs, streams, metas, and namespace
+unification.  Longer list and explanations can be found if you RTFA.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQTe19XgHNmZLgCUhAQJdow/+Knsw1GgpauqDUcg8sKtxzgXZ18OxMQ3Q
+By8sRrSTuKAzI5A3BtYIzndsj1veP+7wndG7nYPz8NS1fU2+xWSIhoGq/YMaQsu4
+70uMLu448PFXZua4hZMk2w4mkULXbGyYHJ1Bf+2Z7QkQ/8W08hozC8QQynxMXIkX
+SrcWCS5hK8Nh7Ol691sDpPqexH7F1GwUyoslNGj63U5r6ViLAawt2ZKDYdT7ZPo8
+0a/pWUHoHMPbv/KwqZZxRr1/qncA9QYQo6JqQBPPCr+tWNJs/ei3nAKGi58iOt1M
+DK1TEKd2lpbmwiK5pWDwGz+nwWmaFTAyfTEEEcP4gZedSJtRXaxyNh0jRl1iLATB
+SCO5Eb4jkQs8hdjHqQcQ1q7XKFX9eSXWeDdrGrtWaYC/QYOHxT+ci3lnKBKCG99Y
+YTqg3sNEZlV1N0jIcNvFSDEYbbX12v1Y6xbwvUx48+sMyUj3suT76niTRbwEydfO
+MA9y+wE2k4wF+h+sJCbTjimCNFvvuFTTJuBCbQTpfY4eOYBAFalxnWmrpTEfVzka
+4iAqAYygWObGDkFFy/rp1HEVZPIKM0NwGLOsRwJsgyUMOsccBrEc0bg8sgMECVfs
+5qNIb27tLokh8NBR6RodAv2NZYKC+foM0T+PC5bZMFD/Q7f6yDklqK4C4RCIYaXj
+xO9z1C6FPcM=
+=/gmK
+-----END PGP SIGNATURE-----

@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281910AbRLLUnH>; Wed, 12 Dec 2001 15:43:07 -0500
+	id <S282099AbRLLUsr>; Wed, 12 Dec 2001 15:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282062AbRLLUmr>; Wed, 12 Dec 2001 15:42:47 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:9361 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S281910AbRLLUmi>;
-	Wed, 12 Dec 2001 15:42:38 -0500
-Date: Wed, 12 Dec 2001 21:42:27 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: FBdev remains in unusable state
-In-Reply-To: <BCF1AF35606@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.30.0112122137360.17543-100000@balu>
+	id <S282092AbRLLUs2>; Wed, 12 Dec 2001 15:48:28 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:61702 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S282082AbRLLUsZ>;
+	Wed, 12 Dec 2001 15:48:25 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Wayne Whitney <whitney@math.berkeley.edu>
+Date: Wed, 12 Dec 2001 21:47:49 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Repost: could ia32 mmap() allocations grow downward?
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <BCF5AF03A80@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12 Dec 01 at 12:02, Wayne Whitney wrote:
 
-On Wed, 12 Dec 2001, Petr Vandrovec wrote:
+> o Pick a maximum stack size S and change the kernel so the "mmap()
+>   without MAP_FIXED" region starts at 0xC0000000 - S and grows downwards. 
 
-> On 12 Dec 01 at 21:14, Pozsar Balazs wrote:
-> > > No. vesafb does not work together with mga driver in X (although
-> > > I believe that vesafb works with XFree mga driver, only Matrox driver
-> > > is binary bad citizen).
-> >
-> > I don't clearly understand you. I am using mga driver which is in the
-> > official xfrr86 release.
->
-> In that case even xfree mga driver cannot return hardware back to previous
-> state. It is expected and documented.
+How you'll pick S? 8MB? 128MB? Now you can have 1GB brk + 2GB (stack+mmap),
+after change you have 2.9GB (brk+mmap), but only 128MB stack. And if you'll
+change your malloc implementation, you can have up to 2GB stack now, or
+up to 3GB of mmap. After your change your stack is limited to 128MB, and
+you cannot do anything around that except moving stack somewhere else
+during libc startup - and in this case couple of argv[] assumptions
+setproctitle and other do are no longer valid.
 
-Sorry I didn't know that. Btw, where is it documented?
+Another problem is mremap. Due to way how apps works, you'll have
+to move VMAs around much more because of you cannot grow your last
+VMA up without move. And if you shrink your last block, you'll get
+a gap.
+ 
+> This seems ideal, as it allows the balance between the mmap() region and
+> the brk() region to vary for each process, automatically.  What changes
+> would be required to the kernel to implement this properly and
+> efficiently?  Is there some downside I am missing?
 
-> > Why isn't it done by the vesafb driver?
->
-> vesafb is VBE2.0 based. It does not know how to touch hardware, it uses
-> LILO to do all this dirty work.
-
-I think got the point, but I don't really understand how lilo comes here,
-because I boot using grub or syslinux.
-
-> Linux vga=769 video=matrox:vesa:769
->
-> on computers with Matrox inside you'll have /dev/fb0 accelerated fb,
-> and /dev/fb1 VESAFB 'do not use' (maybe vesafb even will not load
-> as framebuffer will be already acquired by matroxfb, but I never tested
-> it). On computers without Matrox you'll have /dev/fb0 VESAFB and
-> /dev/fb1 will not exist at all.
-
-Thanks for this. Are there similar issues with other cards?
-Which fb drivers should I compile in?
-
-> P.S.: Also try 'Option "UseFBDev"' in /etc/X11/XF86Config-4 driver
-> section. I think that with this option X11 mga driver will not stomp
-> on your hardware, and instead it will refuse any videmode != vesafb
-> one.
-
-I need 'real' X running, not X using fbdev...
-
-
-Much thanks for you help,
--- 
-Balazs Pozsar
-
+Nobody can call brk() directly from app, as libc may use brk() for
+implementing malloc(), and libraries can call malloc. So you have to
+create your own allocator on the top of brk() results, and this
+allocator must not release memory back to system, as this could
+release also chunks you do not own. Writting your allocator on the
+top of malloc()ed areas is much better idea.
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
+P.S.: I do not think that your app calls directly brk(). I think that
+your app calls malloc with some small number, and libc decides to use
+brk() instead of mmap(). And in such case it is bug in your libc that 
+it does not use mmap() after brk() fails.

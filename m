@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263130AbTCLKLs>; Wed, 12 Mar 2003 05:11:48 -0500
+	id <S263133AbTCLKRN>; Wed, 12 Mar 2003 05:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263136AbTCLKLs>; Wed, 12 Mar 2003 05:11:48 -0500
-Received: from dp.samba.org ([66.70.73.150]:61676 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263130AbTCLKLr>;
-	Wed, 12 Mar 2003 05:11:47 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S263134AbTCLKRM>; Wed, 12 Mar 2003 05:17:12 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:58865 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id <S263133AbTCLKRK>; Wed, 12 Mar 2003 05:17:10 -0500
+Date: Wed, 12 Mar 2003 03:26:14 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030312032614.G12806@schatzie.adilger.int>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Ben Collins <bcollins@debian.org>,
+	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15983.2417.629541.924034@nanango.paulus.ozlabs.org>
-Date: Wed, 12 Mar 2003 21:18:25 +1100 (EST)
-To: Andrey Panin <pazke@orbita1.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] consolidate crc16 calculations (ppp part)
-In-Reply-To: <20030312090207.GB1393@pazke>
-References: <20030312090207.GB1393@pazke>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030312085517.GK811@suse.de>; from axboe@suse.de on Wed, Mar 12, 2003 at 09:55:17AM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Panin writes:
-
-> attached patch (2.5.64) converts aysnc ppp driver to use common crc16 module.
+On Mar 12, 2003  09:55 +0100, Jens Axboe wrote:
+> On Tue, Mar 11 2003, Ben Collins wrote:
+> > You've made quite a marketing move. It's obvious to me, maybe not to
+> > others. By providing this CVS gateway, you make it almost pointless to
+> > work on an alternative client. Also by providing it, you make it easier
+> > to get away with locking the revision history into a proprietary format.
 > 
-> Please consider applying.
+> This is a really good point, deserves high lighting imho...
+> 
+> The BK candy is getting increasingly bitter to swallow here, I may just
+> have to drop it soon. A shame.
 
-The only hesitation I have is that the Makefile system for the crc
-functions seems to be broken - if you request to have the crc
-functions built-in, but nothing built-in uses them, then the linker
-doesn't included them.
+Sadly, some people see the dark side of everything.  I don't see how making
+a CVS repository available with comments and an as-good-as-you-can-do-with-CVS
+equivalent of a BK changeset equals "locking the revision history into a
+proprietary format".  Yes, Larry said that this would allow him to change the
+BK file format to break compatibility with CSSC, but it is no more "locked
+away" now than before for those people who refuse to use BK.
 
-Other than that I would say go for it.
+Ironically, SCCS was a former "evil proprietary format" that was reverse
+engineered to get CSSC, AFAIK.  People are still free to update CSSC to
+track BK if they so choose.
 
-Paul.
+Some people will just never be happy no matter what you give them.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132038AbRDWVMl>; Mon, 23 Apr 2001 17:12:41 -0400
+	id <S131988AbRDWVLl>; Mon, 23 Apr 2001 17:11:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132027AbRDWVMW>; Mon, 23 Apr 2001 17:12:22 -0400
-Received: from cnxt10143.conexant.com ([198.62.10.143]:38412 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131990AbRDWVMK>; Mon, 23 Apr 2001 17:12:10 -0400
-Date: Mon, 23 Apr 2001 23:11:51 +0200 (CEST)
-From: <rui.sousa@mindspeed.com>
-X-X-Sender: <rsousa@localhost.localdomain>
-To: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [OFFTOPIC] Re: ioctl arg passing
-In-Reply-To: <m3wv8bl5dj.fsf@shookay.e-steel.com>
-Message-ID: <Pine.LNX.4.33.0104232310090.1417-100000@localhost.localdomain>
+	id <S131990AbRDWVLc>; Mon, 23 Apr 2001 17:11:32 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:39692 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131988AbRDWVLZ>; Mon, 23 Apr 2001 17:11:25 -0400
+Date: Mon, 23 Apr 2001 23:11:14 +0200 (CEST)
+From: axel <axel@rayfun.org>
+To: linux-kernel@vger.kernel.org
+Subject: compile error 2.4.4pre6: inconsistent operand constraints in an
+ `asm'
+Message-ID: <Pine.LNX.4.21.0104232306020.4230-100000@neon.rayfun.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Apr 2001, Mathieu Chouquet-Stringer wrote:
+Hallo,
 
-> <rui.sousa@mindspeed.com> writes:
->
-> > On Mon, 23 Apr 2001, Ingo Oeser wrote:
-> >
-> > > On Mon, Apr 23, 2001 at 05:06:48PM +0100, Matt wrote:
-> > > > I'm writing a char device driver for a dsp card that drives a motion
-> > > > platform.
-> > >
-> > > Can you elaborate on the dsp card? Is it freely programmable? I'm
-> > > working on a project to support this kind of stuff via a
-> > > dedicated subsystem for Linux.
-> >
-> > Very interesting... The emu10k1 driver (SBLive!) that will appear
-> > shortly in acXX will support loading code to it's DSP. It's a very
-> > simple chip with only 16 instructions but it can generate
-> > hardware interrupts, DMA to host memory, 32 bit math. The maximum
-> > program size is 512 instructions (64 bits each) and can make use of 256
-> > registers (32 bits).
->
-> Do you mean we will be able to have the same kind of stuff they have on
-> Windows
+after having had trouble with compilation due to old gcc version, i have
+updated to gcc 3.0 and received the following error:
 
-If someone writes the dsp code...
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.4pre6/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i586    -DEXPORT_SYMTAB -c sys.c
+sys.c: In function `sys_gethostname':
+/usr/src/linux-2.4.4pre6/include/asm/rwsem.h:142: inconsistent operand
+constraints in an `asm'
+make[2]: *** [sys.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.4pre6/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.4pre6/kernel'
+make: *** [_dir_kernel] Error 2
 
-> (like the mp3 encoding computed by the SB Live)??
+I'm very thankful for any help,
 
-This in particular seems to be a myth...
-
-Rui Sousa
+Regards,
+Axel Siebenwirth
 

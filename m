@@ -1,55 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265677AbTAFCAR>; Sun, 5 Jan 2003 21:00:17 -0500
+	id <S265736AbTAFCCk>; Sun, 5 Jan 2003 21:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265681AbTAFCAR>; Sun, 5 Jan 2003 21:00:17 -0500
-Received: from h-64-105-35-112.SNVACAID.covad.net ([64.105.35.112]:11713 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265677AbTAFCAQ>; Sun, 5 Jan 2003 21:00:16 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 5 Jan 2003 18:08:41 -0800
-Message-Id: <200301060208.SAA01872@baldur.yggdrasil.com>
-To: lm@bitmover.com
-Subject: Re: Honest does not pay here ...
-Cc: andre@linux-ide.org, andrew@indranet.co.nz, linux-kernel@vger.kernel.org,
-       paul@clubi.ie
+	id <S265754AbTAFCCk>; Sun, 5 Jan 2003 21:02:40 -0500
+Received: from ppp-217-133-216-158.dialup.tiscali.it ([217.133.216.158]:36227
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S265736AbTAFCCi>; Sun, 5 Jan 2003 21:02:38 -0500
+Date: Mon, 6 Jan 2003 03:03:51 +0100
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix sysenter (%ebp) fault handling
+Message-ID: <20030106020351.GA8074@ldb>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy writes:
->I could be wrong but if I'm not what do you hope to accomplish other
->than wasting a lot of time?
 
-	1. A clearer legal situation either way would reduce
-	   competitive economic pressure on employees and companies
-	   alike to go into darker and darker grey areas.
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	2. A clearer understanding that GPL-incompatible kernel
-	   modules are illegal would prevent a repeat of the old
-	   unix days when lots of companies invested money in
-	   duplicating each other's kernel work.  Perhaps fewer
-	   dollars would be invested this way, but I believe
-	   that ultimately more functionality would be delivered
-	   to more people.
+Currently syscall_badsys is called to handle faults when reading the
+sixth parameter in sysenter; however that routine assumes that
+registers have already been pushed on the stack, and this is not the
+case (in other words, it will currently try to pop beyond the end of
+the thread stack).
 
-	3. Most modestly, a clearer understanding that not every
-	   kernel copyright owner grants the
-	   EXPORT_SYMBOL / EXPORT_SYMBOL_GPL permissions will at
-	   least help everyone better assess the situation for
-	   themselves in making their own decisions.
+This patch adds a new "function", syscall_fault, that saves register
+and returns.
 
-[...]
->Until that time,
->how about you go back to coding rather complaining?
+The return value is changed to EFAULT, which seems more appropriate
+than ENOSYS.
 
-	Well, let's see.  I've recently posted GPL'ed patches to
-shrink devfs to a fraction of its size, to clean up /dev/loop, to
-remove 1-2 copies in the crypto api path depending on how it's used,
-to eliminate the need for special locking to do raceless module
-unloading, and my name appears in 11 of the 2.5 ChangeLog files for
-various little things.  Sorry if I'm not working hard enough for you.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+diff --exclude-from=3D/home/ldb/src/exclude -urNdp --exclude=3D'speedtouch.=
+*' --exclude=3D'atmsar.*' linux-2.5.54/arch/i386/kernel/entry.S linux-2.5.5=
+4-ldb/arch/i386/kernel/entry.S
+--- linux-2.5.54/arch/i386/kernel/entry.S	2003-01-02 04:21:27.000000000 +01=
+00
++++ linux-2.5.54-ldb/arch/i386/kernel/entry.S	2003-01-04 19:06:07.000000000=
+ +0100
+@@ -253,11 +253,11 @@ ENTRY(sysenter_entry)
+  * Careful about security.
+  */
+ 	cmpl $__PAGE_OFFSET-3,%ebp
+-	jae syscall_badsys
++	jae syscall_fault
+ 1:	movl (%ebp),%ebp
+ .section __ex_table,"a"
+ 	.align 4
+-	.long 1b,syscall_badsys
++	.long 1b,syscall_fault
+ .previous
+=20
+ 	pushl %eax
+@@ -367,6 +373,14 @@ syscall_exit_work:
+ 	jmp resume_userspace
+=20
+ 	ALIGN
++syscall_fault:
++	pushl %eax			# save orig_eax
++	SAVE_ALL
++	GET_THREAD_INFO(%ebx)
++	movl $-EFAULT,EAX(%esp)
++	jmp resume_userspace
++
++	ALIGN
+ syscall_badsys:
+ 	movl $-ENOSYS,EAX(%esp)
+ 	jmp resume_userspace
+
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+GOQGdjkty3ft5+cRApJgAKCBuYekAjw7NrXTPDnaGp6CYc8sXACeOZaX
+6y1XNedehFjnHyWL0SnH+qI=
+=gFhw
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--

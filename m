@@ -1,67 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbTJXPLS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 11:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTJXPLS
+	id S262283AbTJXPOe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 11:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTJXPOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 11:11:18 -0400
-Received: from relay.dera.gov.uk ([192.5.29.49]:32956 "HELO relay.dstl.gov.uk")
-	by vger.kernel.org with SMTP id S262280AbTJXPLR (ORCPT
+	Fri, 24 Oct 2003 11:14:34 -0400
+Received: from main.gmane.org ([80.91.224.249]:5774 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262283AbTJXPOb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 11:11:17 -0400
-Subject: Re: Linux 2.4.23-pre8
-From: Tony Gale <gale@syntax.dstl.gov.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
-In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@dstl.gov.uk>
-References: <Pine.LNX.4.44.0310222116270.1364-100000@dstl.gov.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NgYISSh2IWVnckBSAfte"
-Message-Id: <1067008275.6437.6.camel@syntax.dstl.gov.uk>
+	Fri, 24 Oct 2003 11:14:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
+Date: Fri, 24 Oct 2003 17:14:25 +0200
+Message-ID: <yw1xbrs6652m.fsf@kth.se>
+References: <20031020141512.GA30157@hell.org.pl> <yw1x8yngj7xg.fsf@users.sourceforge.net>
+ <20031020184750.GA26154@hell.org.pl> <yw1xekx7afrz.fsf@kth.se>
+ <20031023082534.GD643@openzaurus.ucw.cz> <yw1xr813f1a3.fsf@kth.se>
+ <3F98FDDF.1040905@cyberone.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 24 Oct 2003 16:11:15 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:iOshajCOrjpHlKFs3k24o56HVP4=
+Cc: acpi-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin <piggin@cyberone.com.au> writes:
 
---=-NgYISSh2IWVnckBSAfte
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>>I've been trying the new suspend to disk implementation (pmdisk, I
+>>think) lately.  I get these lines in the kernel log when starting
+>>after a suspend:
+>>
+>>PM: Reading pmdisk image.
+>>PM: Resume from disk failed.
+>>ACPI: (supports S0 S1 S3 S4 S5)
+>>
+>>Last time I tried swsusp, I did pass the resume= option, but it didn't
+>>work.
+>>
+>>Could it be that some disk cache is never flushed properly?
+>>Occasionally, some random filesystem is reported as not being cleanly
+>>unmounted when booting normally, which seems to point in the same
+>>direction.
+>>
+>
+> Try turning your disk cache off, or set it to write through caching
+> (even so I heard some IDE drives don't turn it off anyway!). See if
+> it helps.
 
-On Thu, 2003-10-23 at 00:24, Marcelo Tosatti wrote:
-> Hi,=20
->=20
-> Here goes -pre8... It contains a quite big amount of ACPI fixes,
-> networking changes, network driver changes, few IDE fixes, SPARC merge, S=
-H
-> merge, tmpfs fixes, NFS fixes, important VM typo fix, amongst others.
->=20
+That took me one step further.  Now it loaded the image swap, but them
+immediately rebooted.  I didn't have time to see if there were any
+error messages.  I don't have a serial port, so I can't put a console
+there.  This was with lots of modules loaded, so maybe unloading some
+would help.  Are there any known broken drivers in this list:
 
-As reported earlier, this still fails to boot on my P-II (to recap,
-pre6, pre7 and pre8 fail to boot - no messages after Uncompressing
-kernel).
+Module                  Size  Used by
+ide_cd                 36612  0 
+cdrom                  32160  1 ide_cd
+evdev                   7808  1 
+ipv6                  226496  12 
+iptable_filter          2304  1 
+ip_tables              15616  1 iptable_filter
+sis_agp                 4224  1 
+agpgart                25896  1 sis_agp
+ohci_hcd               16128  0 
+usbcore                94940  3 ohci_hcd
+snd_intel8x0           28164  0 
+snd_ac97_codec         50948  1 snd_intel8x0
+snd_pcm                84004  1 snd_intel8x0
+snd_timer              20996  1 snd_pcm
+snd_page_alloc          9092  2 snd_intel8x0,snd_pcm
+snd_mpu401_uart         6144  1 snd_intel8x0
+snd_rawmidi            19616  1 snd_mpu401_uart
+snd                    43364  6 snd_intel8x0,snd_ac97_codec,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi
+soundcore               7104  1 snd
+ohci1394               31112  0 
+ieee1394               68396  1 ohci1394
+sis900                 16516  0 
+crc32                   4096  1 sis900
+ds                     10884  4 
+yenta_socket           14336  0 
+pcmcia_core            60768  2 ds,yenta_socket
+rtc                    10552  0 
 
-Reverting the ACPI changes in pre6 fixes it - note that I have ACPI
-turned off in the config, so the CONFIG_ACPI_BOOT thing is causing the
-problem, and it seems to be impossible to compile a kernel without it.
+In case it matters, sisfb is compiled into the kernel.
 
-Cheers,
--tony
-
-
---=-NgYISSh2IWVnckBSAfte
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iQCVAwUAP5lBEh/0GZs/Z0FlAQIP6AQAwOwqzzAtXIASbRTCz1Omk3UM1oSn9jM+
-iW67KfwGu1sdYc1RmQVhjLK7tvLxI6i6uim2iMxWnSnUhVUGGLNSOSMd+vp+BbGR
-Ibql1Z4hV3xtIkvlDcMGjmaYfvlMUcG8aqhgQqEVoNwTWoFV/ate819VHTxe25jU
-qnN/PwFrOl0=
-=+HcM
------END PGP SIGNATURE-----
-
---=-NgYISSh2IWVnckBSAfte--
+-- 
+Måns Rullgård
+mru@kth.se
 

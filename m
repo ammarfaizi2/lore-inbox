@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264300AbRFGDgf>; Wed, 6 Jun 2001 23:36:35 -0400
+	id <S264307AbRFGDvK>; Wed, 6 Jun 2001 23:51:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264306AbRFGDgZ>; Wed, 6 Jun 2001 23:36:25 -0400
-Received: from mailout2-0.nyroc.rr.com ([24.92.226.121]:21671 "EHLO
-	mailout2-0.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S264300AbRFGDgO>; Wed, 6 Jun 2001 23:36:14 -0400
-Message-ID: <044a01c0ef04$61559440$0701a8c0@morph>
-From: "Dan Maas" <dmaas@dcine.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.fk487iv.1d2ksb0@ifi.uio.no> <fa.f3ckgov.ti0mb3@ifi.uio.no>
-Subject: Re: forcibly unmap pages in driver?
-Date: Wed, 6 Jun 2001 23:46:05 -0400
+	id <S264309AbRFGDvA>; Wed, 6 Jun 2001 23:51:00 -0400
+Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:22508 "EHLO
+	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
+	id <S264307AbRFGDun>; Wed, 6 Jun 2001 23:50:43 -0400
+Message-ID: <3B1EFA1E.892B296@ameritech.net>
+Date: Wed, 06 Jun 2001 22:50:54 -0500
+From: watermodem <aquamodem@ameritech.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+To: =?iso-8859-1?Q?Jos=E9?= Luis Domingo =?iso-8859-1?Q?L=F3pez?= 
+	<jldomingo@crosswinds.net>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <20010606194432.A1858@dardhal.mired.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just an update to my situation... I've implemented my idea of clearing the
-associated PTE's when I need to free the DMA buffer, then re-filling them in
-nopage(). This seems to work fine; if the user process tries anything fishy,
-it gets a SIGBUS instead of accessing the old mapping.
+FLAME Protection ON....
 
-I encountered two difficulties with the implementation:
+  WARNING -- Do not read if you are humor impaired.
 
-1) zap_page_range(), flush_cache_range(), and flush_tlb_range() are not
-exported to drivers. I basically copied the guts of zap_page_range() into my
-driver, which seems to work OK on x86, but I know it will have trouble with
-architectures that require special treatment of PTE manipulation...
+Euro-centric here?
+ 
 
-2) the state of mm->mmap_sem is unknown when my file_operations->release()
-function is called. If release() is called when the last FD closes, then
-mm->mmap_sem is not taken. But if release() is called from do_munmap, then
-mmap_sem has already been taken. So, it is risky to mess with vma's inside
-of release()...
+   The US is mm/dd/yy or mm/dd/yyyy
+   Many countries/religions/peoples have different base years, and
+calendars...
 
-Regards,
-Dan
+It happens to have a US format in the current kernel... so what...
+Convert it in the user processes...  
 
-> >> Later, the program calls the ioctl() again to set a smaller
-> >> buffer size, or closes the file descriptor. At this point
-> >> I'd like to shrink the buffer or free it completely. But I
-> >> can't assume that the program will be nice and munmap() the
-> >> region for me
->
-> > Look at drivers/char/drm, for example.  At mmap time they allocate a
-> > vm_ops to the address space.  With that you catch changes to the vma
-> > structure initiated by a user mmap, munmap, etc.  You could also
-> > dynamically map the pages in using the nopage method (optional).
+And no... I can't even buy A4 paper.
 
+Let's see....  In one evening ...
+  Get American attributes out of
+     Temperature
+     Time
+     Date
+
+And replace with European standards.
+
+Next week... change all comments to
+Esperanto.
+
+A year from now everything gets converted to Chinese with a 12 year
+horoscope date cycle. 
+
+Then....   The great Hindu hack
+ Followed by the Orthodox date change ...
+ Others follow suit....
+
+It reaches its zenith in the great Inca knot display that only obscure
+researchers can read and is then destroyed in when the Knot Printer
+tangles up the legs of every computer user on the planet.....
+
+MEANWHILE... M$ developed a bug free product while all the linux hackers
+were rewriting the comments and I/O....
+
+FLAME Protection OFF!
+
+
+José Luis Domingo López wrote:
+> 
+> On Wednesday, 06 June 2001, at 18:06:56 +0200,
+> Chris Boot wrote:
+> 
+> > Hi,
+> >
+> > > Please, don't.
+> > >
+> > > Use kelvins *0.1, and use them consistently everywhere. This is what
+> > > ACPI does, and it is probably right.
+> >
+> > I'm sorry, by I don't feel like adding 273 to every number I get just to
+> > find the temperature of something.  What I would do is give configuration
+> >
+> What about keeping times with format similar to "06 June 2001, at 18:06:56
+> +0200" instead of using miliseconds from 01 Jan 1970 ? ;)
+> 
+> If there is a universally-accepted measure for temperatures, we should use
+> it, and let user space applications make the conversions for us.
+> 
+> Just my 0.02 (eurocents :)
+> 
+> --
+> José Luis Domingo López
+> Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
+> 
+> jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+> jdomingo AT internautas DOT   org  => Spam at your own risk
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

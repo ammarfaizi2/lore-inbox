@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277509AbRJOMLK>; Mon, 15 Oct 2001 08:11:10 -0400
+	id <S277511AbRJOMTm>; Mon, 15 Oct 2001 08:19:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277501AbRJOMLA>; Mon, 15 Oct 2001 08:11:00 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:25039 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277509AbRJOMKs>;
-	Mon, 15 Oct 2001 08:10:48 -0400
-Date: Mon, 15 Oct 2001 08:11:20 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] "Text file busy" when overwriting libraries
-In-Reply-To: <E15t6XR-0001xy-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0110150804400.8707-100000@weyl.math.psu.edu>
+	id <S277514AbRJOMTc>; Mon, 15 Oct 2001 08:19:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9234 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277511AbRJOMT2>; Mon, 15 Oct 2001 08:19:28 -0400
+Subject: Re: [PATCH] PnP BIOS -- bugfix; update devlist on setpnp
+To: pazke@orbita1.ru (Andrey Panin)
+Date: Mon, 15 Oct 2001 13:25:15 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, jdthood@mail.com (Thomas Hood)
+In-Reply-To: <20011015160100.A31571@orbita1.ru> from "Andrey Panin" at Oct 15, 2001 04:01:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15t6nz-000205-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 		    ^^^^^^^^^^^^^^^^^^^^^
+> Looks wrong for me, we are trying to reserve _memory_ range with request_re=
+> gion().
 
-
-On Mon, 15 Oct 2001, Alan Cox wrote:
-
-> > Anyone can write it, but what the hell will he do without write access to
-> > any place that wouldn't be mounted noexec?  Environment can be restricted
-> > even if you give them shell...
-> 
-> He will type "perl" and interactively issue any damn syscall he likes
-> subject to the normal permissions rules. Noexec is only useful for a user
-> given virtually nothing.
-
-... and will hit "permission denied" on attempt to exec /usr/bin/perl.
-Blanket noexec on /usr instance mounted in his chroot with selective turning
-the thing off on some binaries.  And yes, I realize that one can always
-hunt for buffer overruns in sh(1)...
-
+We should be creating memory and I/O regions as unused but exist rather than
+requesting them as owned. We do want to reserve memory regions as present
+but unused to void assigning PCI devices over them

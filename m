@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318912AbSIIXea>; Mon, 9 Sep 2002 19:34:30 -0400
+	id <S318987AbSIIXiz>; Mon, 9 Sep 2002 19:38:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318976AbSIIXea>; Mon, 9 Sep 2002 19:34:30 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:25614 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S318912AbSIIXe3>; Mon, 9 Sep 2002 19:34:29 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Date: 9 Sep 2002 23:22:27 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <aljafj$bjv$1@abraham.cs.berkeley.edu>
-References: <1029760150.19376.14.camel@irongate.swansea.linux.org.uk> <20020909165303.GA31597@waste.org> <alik0a$70c$1@abraham.cs.berkeley.edu> <20020909194707.GB31597@waste.org>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1031613747 11903 128.32.153.211 (9 Sep 2002 23:22:27 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 9 Sep 2002 23:22:27 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S319003AbSIIXiz>; Mon, 9 Sep 2002 19:38:55 -0400
+Received: from pcp748446pcs.manass01.va.comcast.net ([68.49.120.237]:56736
+	"EHLO pcp748343pcs.manass01.va.comcast.net") by vger.kernel.org
+	with ESMTP id <S318987AbSIIXiy>; Mon, 9 Sep 2002 19:38:54 -0400
+Date: Mon, 9 Sep 2002 19:43:34 -0400
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.3[3-4] mouse and keyboard flakiness report
+Message-ID: <20020909234334.GA1316@bittwiddlers.com>
+References: <20020909232641.GA736@bittwiddlers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020909232641.GA736@bittwiddlers.com>
+User-Agent: Mutt/1.4i
+From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
+X-Delivery-Agent: TMDA/0.62
+Reply-To: Matthew Harrell 
+	  <mharrell-dated-1032047014.5da5a1@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron  wrote:
->On Mon, Sep 09, 2002 at 04:58:50PM +0000, David Wagner wrote:
->> Whether you like it or not, you're already trusting Intel, if you're
->> using an Intel chip.  If Intel were malicious and out to get you, they
->> could have put a backdoor in the chip.  And a RNG is *much* easier to
->> reverse-engineer and audit than an entire CPU, so it would probably be
->> riskier for Intel to hide a backdoor in the RNG than in, say, the CPU.
->
->Not sure I buy that. Consider that with a CPU, you control the inputs,
->you've got a complete spec of the core functionality, you've got a
->huge testbed of code to test that functionality, and you've got a
->whole industry of people reverse engineering your work. 
 
-There's no guarantee that the CPU behaves deterministically.
-Maybe on April 1, 2005 (or after executing a magic sequence of
-1000 instructions) it starts ignoring all privilege and permission
-bits.  Good luck finding that through mere testing.
+I should mention that these are the built-in ps/2 mouse and keyboard
 
->More to the point, the backdoor we're worried about is one that
->compromises our encryption keys to passive observers. Doing that by
->making the RNG guessable is relatively easy. On the other hand
->determining whether a given snippet of code is doing RSA, etc. is
->equivalent to solving the halting problem, so it's seems to me pretty
->damn hard to usefully put this sort of back door into a CPU without
->sacrificing general-purpose functionality.
+: Running the attached config on my HP Pavilion zt1195 laptop I get some strange
+: keyboard and mouse behavior.  First, when I first try to log into X the keyboard
+: is a little wacky: alt behaves as Fn, m doesn't work at all, etc.  It seems 
+: to go away after a bunch of key presses for no apparent reason.  I do get
+: this from the kernel log
+: 
+:       atkbd.c: Unknown key (set 2, scancode 0xbc, on isa0060/serio0) pressed.
+: 
+: but that's about it.  Then when X windows starts first my mouse buttons have
+: been reversed from the normal left handed behavior and then when I try to
+: cut and paste the cut motion never turns off so subsequent movements of the
+: mouse just keep trying to select regions from that first window.  Eventually
+: I just have to reboot so I can actually work normally.
 
-Ok, I agree: The RNG is the most natural, and one of the more
-devastating places, to put a backdoor.  (There are other ways
-of putting a backdoor in a CPU other than scanning to identify
-RSA code, though.)
+-- 
+  Matthew Harrell                          Every morning is the dawn of a
+  Bit Twiddlers, Inc.                       new error.
+  mharrell@bittwiddlers.com     

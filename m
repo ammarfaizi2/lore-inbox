@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbUDARxj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 12:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbUDARxZ
+	id S263007AbUDASBB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 13:01:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbUDASBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 12:53:25 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:5641 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263014AbUDARwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 12:52:13 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
+	Thu, 1 Apr 2004 13:01:01 -0500
+Received: from imail1.gazeta.pl ([193.42.231.143]:59793 "EHLO imail1.gazeta.pl")
+	by vger.kernel.org with ESMTP id S263007AbUDASA7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 13:00:59 -0500
+Message-ID: <1080842398622.ew4.tbeg@gazeta.pl>
+Date: Thu, 1 Apr 2004 19:59:58 +0200 (CEST)
+From: <tbeg@gazeta.pl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: disable-cap-mlock
-Date: Thu, 1 Apr 2004 19:52:29 +0200
-User-Agent: KMail/1.6.1
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com,
-       Chris Wright <chrisw@osdl.org>
-References: <20040401135920.GF18585@dualathlon.random> <1080841071.25431.155.camel@moss-spartans.epoch.ncsc.mil> <20040401174405.GG791@holomorphy.com>
-In-Reply-To: <20040401174405.GG791@holomorphy.com>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200404011952.29724@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Subject: Max size of buffer shared between kernel and user application?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-mailer: (c)Agora mailer (v3.00)
+Organization: Portal Agory S.A.
+X-IP: jupiter.adlex.com
+X-Complaints-To: abuse@gazeta.pl
+X-URL: http://www.gazeta.pl
+X-Smite-Info: SmiteCRC Jan 10 2004
+X-SpamDetect: *: 1.500000 Invalid Pairs=1.0,From: does not include a real name=0.5
+X-Smite-CRC: A#K542L6#Ij8R58#16zA4uA#15ovNzS$147Oo3L$mwfkuQ#1scGA3R#1CjTLhW$BC1aq1
+X-External-IP: 172.20.26.234
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 April 2004 19:44, William Lee Irwin III wrote:
+What is the maximum size of a memory region mapped with a ioremap().
+I 'm writing a driver that will share a buffer with an application
+mapping the same phys mem region using ioremap() in kernel and
+mmap(/dev/mem) in the application. I'm using a Linux 2.4.18 on a HP
+server with 4GB RAM.
 
-Hi,
+Tomek
 
-> > What prevents any uid 0 process from changing these sysctl settings
-> > (aside from SELinux, if you happen to use it and configure the policy
-> > accordingly)?
-
-> I'm aware it does some very unintelligent things to the security model,
-> e.g. anyone with fs-level access to these things can basically escalate
-> their capabilities to "everything". Maybe some kind of big fat warning
-> is in order.
-
-hmm, maybe a /proc/sys/capability/lock and if set to 1 you can't change any of 
-the sysctl variables, even root should not be allowed to change lock back, 
-until you do a reboot. Practical?
-
-ciao, Marc

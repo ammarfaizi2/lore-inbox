@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315468AbSFTTis>; Thu, 20 Jun 2002 15:38:48 -0400
+	id <S315483AbSFTTmF>; Thu, 20 Jun 2002 15:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315469AbSFTTir>; Thu, 20 Jun 2002 15:38:47 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:18695 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S315468AbSFTTip>; Thu, 20 Jun 2002 15:38:45 -0400
-Date: Thu, 20 Jun 2002 12:38:33 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Andrey Panin <pazke@orbita1.ru>
-cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
-Subject: Re: [PATCH][RFC] SGI VISWS support for 2.5
-In-Reply-To: <20020620112608.GA303@pazke.ipt>
-Message-ID: <Pine.LNX.4.44.0206201237330.20036-100000@www.transvirtual.com>
+	id <S315485AbSFTTmE>; Thu, 20 Jun 2002 15:42:04 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:19093 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S315483AbSFTTmD>; Thu, 20 Jun 2002 15:42:03 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200206201942.g5KJg3F07150@devserv.devel.redhat.com>
+Subject: Re: [PATCH] 2.4-ac: sparc64 support for O(1) scheduler
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 20 Jun 2002 15:42:03 -0400 (EDT)
+Cc: rml@mvista.com, alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020615.062233.123620674.davem@redhat.com> from "David S. Miller" at Jun 15, 2002 06:22:33 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>    them... (I am currently putting together all the scheduler bits we have
+>    been working on for a 2.4-ac patch...)
+> 
+> Your sparc64 kernel/sched.c bits have zero testing in any kernel.
+> What point are you trying to make?  It disables a very important
+> optimization on SMP sparc64.  It's simply unacceptable.
 
-yeah!! I plan to port over the visw framebuffer soon. Care to try it out
-once your stuff gets merged into 2.5.X.
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
-On Thu, 20 Jun 2002, Andrey Panin wrote:
-
-> Hi all,
->
-> attached patch is a forward port of latest (2.4.17) visws patch from
-> sourceforge. It's mostly trivial textual merge. Builds, unteseted.
->
-> Please take a look at it.
->
-> --
-> Andrey Panin            | Embedded systems software engineer
-> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
-
+I don't care about Sparc64, especially as a short term item. Long term
+yes you are right but for the -ac work, it can fall back for a while

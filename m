@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132855AbRDQTqK>; Tue, 17 Apr 2001 15:46:10 -0400
+	id <S130493AbRDQT6n>; Tue, 17 Apr 2001 15:58:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132854AbRDQTpy>; Tue, 17 Apr 2001 15:45:54 -0400
-Received: from mx1out.umbc.edu ([130.85.253.51]:26581 "EHLO mx1out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S132845AbRDQToo>;
-	Tue, 17 Apr 2001 15:44:44 -0400
-Date: Tue, 17 Apr 2001 15:44:32 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Disconnect <lkml@sigkill.net>
-cc: Dave Zarzycki <dave@zarzycki.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Your response is requested
-In-Reply-To: <20010417152748.J11536@sigkill.net>
-Message-ID: <Pine.SGI.4.31L.02.0104171543370.4300774-100000@irix2.gl.umbc.edu>
+	id <S131348AbRDQT6e>; Tue, 17 Apr 2001 15:58:34 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13841 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130493AbRDQT6V>; Tue, 17 Apr 2001 15:58:21 -0400
+Subject: Re: AHA-154X/1535 not recognized any more
+To: markus.schaber@student.uni-ulm.de (Markus Schaber)
+Date: Tue, 17 Apr 2001 20:59:40 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.SOL.4.33.0104172009480.16832-100000@lyra.rz.uni-ulm.de> from "Markus Schaber" at Apr 17, 2001 08:42:25 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14pbdW-000368-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Apr 2001, Disconnect wrote:
+> Now I have the problem that kernels 2.4.2 and 2.4.3 don't recognize this
+> adapter any more, while all 2.2-kernels I used (I currently remember
+> 2.2.19, 2.2.18 and debian-2.2.17pre6) work with it without problems.
 
-> (Sending to LKML just so nobody else flips out)
->
-> OK it wasn't just us.  Lemme reassure the admins I just forwarded it to ;)
->
-> It seems to list the hostname of whoever receives it (neat trick).
-
-sendmail, by default, appends its domainname to incoming email that
-doesn't have one.
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
-
+Load the module with isapnp=1. It defaults to not scanning isapnp boards which
+strikes me as odd. Let me know if that fixes it if so I think I'll tweak the
+default

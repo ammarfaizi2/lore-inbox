@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbTLJSSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTLJSSJ
+	id S263886AbTLJSTw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 13:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTLJSTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:18:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50071 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263879AbTLJSSA (ORCPT
+	Wed, 10 Dec 2003 13:19:52 -0500
+Received: from ida.rowland.org ([192.131.102.52]:10756 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S263886AbTLJSTu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:18:00 -0500
-Date: Wed, 10 Dec 2003 10:17:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Larry McVoy <lm@bitmover.com>
-cc: Andre Hedrick <andre@linux-ide.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Valdis.Kletnieks@vt.edu, Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <20031210180822.GI6896@work.bitmover.com>
-Message-ID: <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
-References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org>
- <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com>
- <Pine.LNX.4.58.0312100809150.29676@home.osdl.org> <20031210163425.GF6896@work.bitmover.com>
- <Pine.LNX.4.58.0312100852210.29676@home.osdl.org> <20031210175614.GH6896@work.bitmover.com>
- <Pine.LNX.4.58.0312100959180.29676@home.osdl.org> <20031210180822.GI6896@work.bitmover.com>
+	Wed, 10 Dec 2003 13:19:50 -0500
+Date: Wed, 10 Dec 2003 13:19:49 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Duncan Sands <baldrick@free.fr>
+cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+In-Reply-To: <200312101854.44636.baldrick@free.fr>
+Message-ID: <Pine.LNX.4.44L0.0312101318330.850-100000@ida.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Dec 2003, Duncan Sands wrote:
 
+> On Wednesday 10 December 2003 18:34, David Brownell wrote:
+> > > Unfortunately, usb_physical_reset_device calls usb_set_configuration
+> > > which takes dev->serialize.
+> >
+> > Not since late August it doesn't ...
+> 
+> In current 2.5 bitkeeper it does.
 
-On Wed, 10 Dec 2003, Larry McVoy wrote:
->
-> And in the 4 minutes since I've posted that legal doc you have consulted
-> a lawyer and the lawyer told you this, right?
+I don't understand the problem.  What's wrong with dropping dev->serialize 
+before calling usb_reset_device() or usb_set_configuration() and then 
+reacquiring it afterward?
 
-Hey, you know I'm not a lawyer.
+Alan Stern
 
-I told you my opinion. And I'm not considering even _trying_ to circumvent
-somebody elses copyright.
-
-You are the one who needs a lawyer, since _you_ are the one arguing for
-potentially infringing on other peoples copyright.
-
-			Linus

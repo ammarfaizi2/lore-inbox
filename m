@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317858AbSIJULa>; Tue, 10 Sep 2002 16:11:30 -0400
+	id <S317836AbSIJUNH>; Tue, 10 Sep 2002 16:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317616AbSIJUL3>; Tue, 10 Sep 2002 16:11:29 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:58611
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317858AbSIJUL3>; Tue, 10 Sep 2002 16:11:29 -0400
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L.0209101626350.1519-100000@duckman.distro.conectiva>
-References: <Pine.LNX.4.44L.0209101626350.1519-100000@duckman.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 10 Sep 2002 21:18:09 +0100
-Message-Id: <1031689089.31554.132.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317859AbSIJUNH>; Tue, 10 Sep 2002 16:13:07 -0400
+Received: from christpuncher.kingsmeadefarm.com ([209.216.78.83]:40621 "HELO
+	the-grudge.myip.org") by vger.kernel.org with SMTP
+	id <S317836AbSIJUNG>; Tue, 10 Sep 2002 16:13:06 -0400
+Message-ID: <1031689072.3d7e5370a83d2@webmail>
+Date: Tue, 10 Sep 2002 16:17:52 -0400
+From: Joe Kellner <jdk@kingsmeadefarm.com>
+To: John Alvord <jalvo@mbay.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+References: <p73wupuq34l.fsf@oldwotan.suse.de> <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909162050.B4781@q.mn.rr.com> <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> <20020910142347.A5000@q.mn.rr.com> <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com>
+In-Reply-To: <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 192.168.1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-10 at 20:27, Rik van Riel wrote:
-> On Tue, 10 Sep 2002, Linus Torvalds wrote:
+
+> So does Redhat/Suse/??? ship XFS yet?
 > 
-> > So I claim a BUG() that locks up the machine is useless. If the user
-> > can't just run ksymoops and email out the BUG message, that BUG() is
-> > _not_ fine on SMP.
+> john
 > 
-> Agreed.  Along those same lines, it would be nice if the kernel
-> could spit out symbolic names so the user can't screw up the
-> backtrace and we've got a better chance of extracting a useful
-> bug report from our users ;)
 
-There is a patch for this. However its fairly useless since all the
-users are in X11 and while -ac will give you morse as well thats not
-terribly friendly.
+Mandrake has had XFS support in the default boot kernel since 8.0. AFAIK, Suse
+and  Slackware also have XFS capable kernels now too.
 
-There are some real mode patches that try and get you back into a sane
-video mode and dump you into a saner environment.
 
+
+-------------------------------------------------
+sent via KingsMeade secure webmail http://www.kingsmeadefarm.com

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261579AbSJ1WKy>; Mon, 28 Oct 2002 17:10:54 -0500
+	id <S261587AbSJ1WXi>; Mon, 28 Oct 2002 17:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261578AbSJ1WJT>; Mon, 28 Oct 2002 17:09:19 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:29649 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261568AbSJ1WIr>; Mon, 28 Oct 2002 17:08:47 -0500
-Subject: Re: [PATCHSET 17/23] add support for PC-9800 architecture (SCSI)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20021029023017.A2319@precia.cinet.co.jp>
-References: <20021029023017.A2319@precia.cinet.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Oct 2002 22:33:51 +0000
-Message-Id: <1035844431.1945.81.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261585AbSJ1WX1>; Mon, 28 Oct 2002 17:23:27 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:23957 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261584AbSJ1WVx>; Mon, 28 Oct 2002 17:21:53 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 28 Oct 2002 14:37:37 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Shailabh Nagar <nagar@watson.ibm.com>
+cc: bert hubert <ahu@ds9a.nl>, Hanna Linder <hannal@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@vger.kernel.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [PATCH] epoll more scalable than poll
+In-Reply-To: <3DBDB664.7050808@watson.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210281435350.966-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-28 at 17:30, Osamu Tomita wrote:
-> This is a part 17/23 of patchset for add support NEC PC-9800 architecture,
-> against 2.5.44.
+On Mon, 28 Oct 2002, Shailabh Nagar wrote:
 
-If all the BIOS mapping for the PC9800 is the same then intead of
-patching the drivers add an
+> > Furthermore, there is some const weirdness going on, the ephttpd server has
+> > a different second argument to sys_epoll_wait.
+>
+> You're right. The ephttpd server on Davide's page needs to add a cast
+> (struct pollfd const **) to the second arg passed to sys_epoll_wait.
+> The version of dphttpd used to generate the results had that fix in it.
 
-	if(pc98)
-		pci98_bios_param(...)
-	else
-		host->bios_param()
-
-change in the scsi core code not in each driver
+It's true, I gave IBM the ephttpd that was using the first draft of the
+interface that had a 'struct pollfd **' parameter. Later I changed the
+implementation to 'struct pollfd const **' because I also changed the way
+the mmap prot are used ( now mmap()ed PROT_READ only ).
 
 
 
+- Davide
 
 

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265642AbRGCI7z>; Tue, 3 Jul 2001 04:59:55 -0400
+	id <S265641AbRGCJBF>; Tue, 3 Jul 2001 05:01:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265641AbRGCI7p>; Tue, 3 Jul 2001 04:59:45 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:269 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S265642AbRGCI7e>;
-	Tue, 3 Jul 2001 04:59:34 -0400
-Date: Tue, 3 Jul 2001 18:42:31 +1000
-To: Android <android@abac.com>
-Cc: Christopher Yeoh <cyeoh@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] more penguins
-Message-ID: <20010703184231.A7057@krispykreme>
-In-Reply-To: <5.1.0.14.2.20010703082546.01c5eae0@mail.abac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20010703082546.01c5eae0@mail.abac.com>
-User-Agent: Mutt/1.3.18i
-From: anton@samba.org
+	id <S265648AbRGCJAz>; Tue, 3 Jul 2001 05:00:55 -0400
+Received: from t2.redhat.com ([199.183.24.243]:13815 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S265641AbRGCJAi>; Tue, 3 Jul 2001 05:00:38 -0400
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: David Howells <dhowells@redhat.com>, Russell King <rmk@arm.linux.org.uk>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>, Jes Sorensen <jes@sunsite.dk>,
+        linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [RFC] I/O Access Abstractions 
+In-Reply-To: Your message of "Tue, 03 Jul 2001 04:31:25 EDT."
+             <3B4182DD.FCDD8DDE@mandrakesoft.com> 
+Date: Tue, 03 Jul 2001 10:00:36 +0100
+Message-ID: <4047.994150836@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> What is the point of displaying penguins in framebuffer mode if it is going
-> to change the video mode set by the vga= command line parameter?
-> I like to set my display to 50 lines. This won't stay when the penguin 
-> comes up.
-> In standard character mode, this isn't a problem. So, how do we fix this?
-> Is there a command line parameter that prevents the penguin logo from 
-> coming up?
+> I also point out that using ioremap for PIO adds flexibility while
+> keeping most drivers relatively unchanged.  Everyone uses a base address
+> anyway, so whether its obtained directly (address from PCI BAR) or
+> indirectly (via ioremap), you already store it and use it.
 
-Just change VTs or "echo ^[c" to the screen to clear the boot logo.
+I see what you're getting at at last:-) I didn't quite pick up on the fact
+that you'd still have to go through readb/writeb and their ilk to access the
+code.
 
-Anton
+Of course, however, this still requires cookie decoding to be done in readb
+and writeb (even on the i386). So why not use resource struct?
+
+David

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268002AbUBRUIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbUBRUIy
+	id S267990AbUBRUAd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267988AbUBRUAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:08:54 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:59538 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S268002AbUBRUIv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:08:51 -0500
-Message-ID: <005501c3f65b$027191c0$0e25fe96@pysiak>
-From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net> <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak> <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org> <1077130933.31049.11.camel@telecentrolivre> <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org> <1077132367.30936.16.camel@telecentrolivre>
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3 (website)
-Date: Wed, 18 Feb 2004 21:08:43 +0100
+	Wed, 18 Feb 2004 15:00:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26582 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267990AbUBRUAb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:00:31 -0500
+Date: Wed, 18 Feb 2004 11:59:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+In-Reply-To: <20040218113338.GH28599@mail.shareable.org>
+Message-ID: <Pine.LNX.4.58.0402181154290.2686@home.osdl.org>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
+ <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk>
+ <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl>
+ <c0ukd2$3uk$1@terminus.zytor.com> <Pine.LNX.4.58.0402171910550.2686@home.osdl.org>
+ <20040218113338.GH28599@mail.shareable.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Spam-Rating: 0 1.6.2 0/1000/N
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have prepared a list of so far proposed names with images (all) and
-music (where found) + some short background info (where found).
 
-http://soltysiak.com/kernel-codenames.php
 
-This page is in english. The rest of the site is polish, sorry. No valuable
-info there anyway...
+On Wed, 18 Feb 2004, Jamie Lokier wrote:
+> Linus Torvalds wrote:
+> > Somebody correctly pointed out that you do not need any out-of-band 
+> > encoding mechanism - the very fact that it's an invalid sequence is in 
+> > itself a perfectly fine flag. No out-of-band signalling required.
+> 
+> Technically this is almost(*) correct,
+> 
+> (*) - It's fine until you concatenate two malformed strings.  Then the
+>       out-of-band signal is lost if the combination is valid UTF-8.
 
-Regards,
-Maciej
+But that's what you _want_. Having a real out-of-band signal that says 
+"this stuff is wrong, because it was wrong at some point in the past", and 
+not allowing concatenation of blocks of utf-8 bytes would be _bad_.
 
+The thing, concatenating two malformed UTF-8 strings is normal behaviour 
+in a variety of circumstances, all basically having to do with lower 
+levels now knowing about higer-level concepts.
+
+For example, look at a web-page. Look at how the data comes in: it comes 
+as a stream of bytes, with blocking rules that have _nothing_ to do with 
+the content (timing, mtu's, extended TCP headers etc etc). That doesn't 
+mean that you shouldn't be able to
+ - work on the partial results and show them to the user as UTF-8
+ - be able to concatenate new stuff as it comes in.
+
+Having an out-of-band signal for "bad" would literally be a bad idea. If 
+you get a valid UTF-8 stream as a result of concatenation, you should 
+consider that to be the correct behaviour, or you should CHECK BEFOREHAND 
+if you think it is illegal.
+
+		Linus

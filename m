@@ -1,65 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVA1N6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVA1N6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVA1N6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 08:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVA1N6Q
+	id S261367AbVA1N6f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 08:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVA1N6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 08:58:16 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:10203 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261362AbVA1N6L (ORCPT
+	Fri, 28 Jan 2005 08:58:35 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:34528 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261367AbVA1N6Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 08:58:11 -0500
+	Fri, 28 Jan 2005 08:58:25 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=SQssfOkMqCXCq0nRL9f43lgwHzVzrRXLDPTRsveIVN2xMp0UAo3fh6yXquKl1WWQ/yEtxXZiadw75Va+ylDt28a25V4YEmew8q5IuqHD9+1Nrx2UOhs2bqqVuoU5AEmlJ0Oprr2B8TChscNn4ABkK9fkZ59hD5CD7yfh0loo0Og=
-Message-ID: <d120d500050128055837df3a93@mail.gmail.com>
-Date: Fri, 28 Jan 2005 08:58:10 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Olaf Hering <olh@suse.de>
-Subject: Re: atkbd_init lockup with 2.6.11-rc1
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <20050128132202.GA27323@suse.de>
+        b=DBHHIKzXKON59OGagDIYDi4PQ++nCSYCtQn80Tb0kuELBYheBJW2e/bI4n+AclQw1sSmEn235FOLOXtLCKlSF7XGEg6Xi3xLDcpSb6TcjQn2GRYAn0qeNx2CKE/788jbsOpbdlmD8E7BmK3xRYOkyGIeQg+tAOwVvQcNDjs5YmA=
+Message-ID: <3f250c7105012805585c01a26@mail.gmail.com>
+Date: Fri, 28 Jan 2005 09:58:24 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: User space out of memory approach
+Cc: tglx@linutronix.de, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Edjard Souza Mota <edjard@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       ville.medeiros@gmail.com
+In-Reply-To: <20050127221129.GX8518@opteron.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050128132202.GA27323@suse.de>
+References: <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+	 <3f250c71050121132713a145e3@mail.gmail.com>
+	 <3f250c7105012113455e986ca8@mail.gmail.com>
+	 <20050122033219.GG11112@dualathlon.random>
+	 <3f250c7105012513136ae2587e@mail.gmail.com>
+	 <1106689179.4538.22.camel@tglx.tec.linutronix.de>
+	 <3f250c71050125161175234ef9@mail.gmail.com>
+	 <20050126004901.GD7587@dualathlon.random>
+	 <3f250c7105012710541d3e7ad1@mail.gmail.com>
+	 <20050127221129.GX8518@opteron.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 14:22:02 +0100, Olaf Hering <olh@suse.de> wrote:
-> 
-> My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
-> 
-> Calling initcall 0xc03c272c: atkbd_init+0x0/0x38()
-> ps2_init(224) swapper(1):c0,j4294680939 enter
-> atkbd_connect(793) swapper(1):c0,j4294680993 type 1000000
-> serio_open(606) swapper(1):c0,j4294681061 enter
-> serio_set_drv(594) swapper(1):c0,j4294681117 enter
-> serio_set_drv(600) swapper(1):c0,j4294681176 leave
-> i8042_write_command(69) swapper(1):c0,j4294681236 enter
-> i8042_write_data(62) swapper(1):c0,j4294681236 enter
-> serio_open(614) swapper(1):c0,j4294681363 leave0
-> atkbd_probe(497) swapper(1):c0,j4294681421 enter
-> ps2_command(91) swapper(1):c0,j4294681478 enter
-> ps2_sendbyte(57) swapper(1):c0,j4294681534 enter
-> serio_write(95) swapper(1):c0,j4294681591 write c01b65ac
-> i8042_aux_write(253) swapper(1):c0,j4294681658 enter
-> i8042_write_command(69) swapper(1):c0,j4294681720 enter
-> i8042_write_data(62) swapper(1):c0,j4294681720 enter
-> 
-> Any idea how to fix it? There is no keyboard or mouse detected. I think
-> it works ok on ppc64, Anton did not complain yet.
-> 
+Hi Andrea,
 
-Hi,
+On Thu, 27 Jan 2005 23:11:29 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
+> On Thu, Jan 27, 2005 at 02:54:13PM -0400, Mauricio Lin wrote:
+> > Hi Andrea,
+> >
+> > On Wed, 26 Jan 2005 01:49:01 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
+> > > On Tue, Jan 25, 2005 at 08:11:19PM -0400, Mauricio Lin wrote:
+> > > > Sometimes the first application to be killed is XFree. AFAIK the
+> > >
+> > > This makes more sense now. You need somebody trapping sigterm in order
+> > > to lockup and X sure traps it to recover the text console.
+> > >
+> > > Can you replace this:
+> > >
+> > >         if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO)) {
+> > >                 force_sig(SIGTERM, p);
+> > >         } else {
+> > >                 force_sig(SIGKILL, p);
+> > >         }
+> > >
+> > > with this?
+> > >
+> > >         force_sig(SIGKILL, p);
+> > >
+> > > in mm/oom_kill.c.
+> >
+> > Nice. Your suggestion made the error goes away.
+> >
+> > We are still testing in order to compare between your OOM Killer and
+> > Original OOM Killer.
+> 
+> Ok, thanks for the confirmation. So my theory was right.
+> 
+> Basically we've to make this patch, now that you already edited the
+> code, can you diff and send a patch that will be the 6/5 in the serie?
 
-It looks like it is hanging in checking AUX, while writing data into
-controller. It is simple outb but it is stuck... Could you please
-reboot with i8042.debug boot option and resend the log. Also, you may
-try booting with i8042.noaux to check if keyboard alone works.
+OK. I will send the patch.
 
--- 
-Dmitry
+> (then after fixing this last very longstanding [now deadlock prone too]
+> bug, we can think how to make at a 7/5 that will wait a few seconds
+> after sending a sigterm, to fallback into a sigkill, that shouldn't be
+> difficult, but the above 6/5 will already make the code correct)
+> 
+> Note, if you add swap it'll workaround it too since then the memhog will
+> be allowed to grow to a larger rss than X. With 128m of ram and no swap,
+> X is one of the biggest with xshm involved from some client app
+> allocating lots of pictures. I could never notice since I always tested
+> it either with swap or on higher mem systems and my test box runs
+> with an idle X too which isn't that big ;).
+
+Well, we like to reduce the memory resources, because we also think
+about OOM Killer in small devices with few resources.
+
+BR,
+
+Mauricio Lin.

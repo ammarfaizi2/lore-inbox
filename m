@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262824AbTENUnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 16:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTENUni
+	id S261265AbTENUpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 16:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTENUpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 16:43:38 -0400
-Received: from ns.suse.de ([213.95.15.193]:49926 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262824AbTENUnh (ORCPT
+	Wed, 14 May 2003 16:45:23 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:23246 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261265AbTENUpV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 16:43:37 -0400
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new kconfig goodies
-References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
-	<buou1bz7h9a.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<Pine.LNX.4.44.0305131710280.5042-100000@serv>
-	<20030513211749.GA340@gnu.org>
-	<Pine.LNX.4.44.0305142014500.5042-100000@serv>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: If our behavior is strict, we do not need fun!
-Date: Wed, 14 May 2003 22:56:24 +0200
-In-Reply-To: <Pine.LNX.4.44.0305142014500.5042-100000@serv> (Roman Zippel's
- message of "Wed, 14 May 2003 21:51:56 +0200 (CEST)")
-Message-ID: <jellx9b62v.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 14 May 2003 16:45:21 -0400
+Date: Wed, 14 May 2003 13:59:49 -0700
+From: Greg KH <greg@kroah.com>
+To: chas williams <chas@cmf.nrl.navy.mil>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] add reference counting to atm_dev
+Message-ID: <20030514205949.GA3945@kroah.com>
+References: <200305142020.h4EKK9J01052@relax.cmf.nrl.navy.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305142020.h4EKK9J01052@relax.cmf.nrl.navy.mil>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> writes:
+On Wed, May 14, 2003 at 04:20:09PM -0400, chas williams wrote:
+> this patch adds a reference count to atm_dev, and a lock to
+> protect the members of struct atm_dev.  atm_dev_lock is now
+> used to protect the atm_dev linked list.  atm_find_dev was
+> renamed to atm_dev_lookup.  atm_dev_hold and atm_dev_release
+> were added to manipulate atm_dev's reference count.  this
+> fixes atm_ioctl()'s troublesome 'global' spinlock.  also,
+> got rid of the nodev list of 'unlinked' vccs.
+> 
+> 
+> --- linux-2.5.68/include/linux/atmdev.h.004	Fri May  9 08:30:20 2003
+> +++ linux-2.5.68/include/linux/atmdev.h	Wed May 14 12:40:39 2003
+> @@ -331,6 +331,8 @@
+>  	struct k_atm_dev_stats stats;	/* statistics */
+>  	char		signal;		/* signal status (ATM_PHY_SIG_*) */
+>  	int		link_rate;	/* link rate (default: OC3) */
+> +	atomic_t	refcnt;		/* reference count */
 
-|> Hi,
-|> 
-|> On Tue, 13 May 2003, Miles Bader wrote:
-|> 
-|> > BTW, the name `enable' seems to be a misnomer -- `enable' implies that it
-|> > forces the depends to be y, but not that it also forces the _value_.
-|> > 
-|> > Why not have two:
-|> > 
-|> >   enable FOO	- forces the `depends' value of FOO to y
-|> > 		  but it will still prompt
-|> >   force FOO	- forces both the `depends' and value of FOO to y
-|> > 		  prompting for FOO is turned off
-|> 
-|> I don't really like "force", it's IMO a bit too strong and too unspecific 
-|> (although enable is here only a bit better). The first I'd rather call 
-|> "visible", but I don't see a need for this and I wouldn't immediately know 
-|> how to support this, a config entry can have multiple prompts and every 
-|> prompt has its own dependencies, so which one should I enable? It would 
-|> probably be easier to enable/force the dependencies so the prompt becomes 
-|> visible.
-|> 
-|> But I'm open to suggestions for a better name, "select" might be a good 
-|> alternative. Other ideas? Opinions?
+Any reason to not just use a struct device here?  This is a device,
+right?  Or at the very least, a kobject would be acceptable.
 
-How about "override"?
+Please don't roll your own reference counting code, when we've already
+gotten a in-kernel version that has been debugged quite well.
 
-Andreas.
+Is this going to help us be able to get rid of the MOD_* calls in ATM
+drivers soon?
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+thanks,
+
+greg k-h

@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbTINO2K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 10:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbTINO2K
+	id S261167AbTINOwu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 10:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbTINOwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 10:28:10 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:4 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261155AbTINO2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 10:28:08 -0400
-Date: Sun, 14 Sep 2003 16:28:01 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: KConfig help text not shown in 2.6.0-test5
-In-Reply-To: <3F645F0A.1000104@cyberone.com.au>
-Message-ID: <Pine.LNX.4.44.0309141626540.19512-100000@serv>
-References: <3F63197D.2000306@cyberone.com.au> <Pine.LNX.4.44.0309131720270.8124-100000@serv>
- <3F645F0A.1000104@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 14 Sep 2003 10:52:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2834 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261167AbTINOws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 10:52:48 -0400
+Date: Sun, 14 Sep 2003 15:52:45 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add a config option for -Os compilation
+Message-ID: <20030914155245.A675@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20030914121655.GS27368@fs.tum.de> <20030914133349.A27870@flint.arm.linux.org.uk> <20030914132143.GT27368@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030914132143.GT27368@fs.tum.de>; from bunk@fs.tum.de on Sun, Sep 14, 2003 at 03:21:43PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, 14 Sep 2003, Nick Piggin wrote:
-
-> >BTW you can reach the individual help within 'make config' by appending a 
-> >'?' to the number (e.g. '1?').
+On Sun, Sep 14, 2003 at 03:21:43PM +0200, Adrian Bunk wrote:
+> On Sun, Sep 14, 2003 at 01:33:49PM +0100, Russell King wrote:
+> > On Sun, Sep 14, 2003 at 02:16:56PM +0200, Adrian Bunk wrote:
+> > > The patch below adds a config option OPTIMIZE_FOR_SIZE for telling gcc 
+> > > to use -Os instead of -O2. Besides this, it removes constructs on 
+> > > architectures that had a -Os hardcoded in their Makefiles.
+> > 
+> > I'd rather retain the -Os default for ARM please.  (The init/Kconfig
+> > defaults it to 'n' for everything.)
 > 
-> What I am seeing is the help text for the whole choice thingy is used as
-> the help text for the individual choices. This patch doesn't fix that.
-> How is it supposed to work? I assume you tried it and saw what it was
-> doing, so am I just mistaken in how I think it should work?
+> Below is the patch with the ARM part omitted.
 
-Yes, it works here, what exactly did you try?
+But it doesn't make sense - you include a generic configuration option
+which people will see, yet it makes no effect on ARM - seems to be rather
+silly putting it there in the first place.
 
-bye, Roman
+Also, do users particularly care what -Os and -O2 mean?
 
+Maybe you need to change init/Kconfig to be something like the following,
+and reinstate the change to the ARM makefile:
+
+config OPTIMIZE_FOR_SIZE
+	bool "Optimize for size" if EXPERIMENTAL
+	default n if !ARM
+	default y if ARM
+	help
+	  Enabling this option will cause the compiler to reduce the code
+	  size of the kernel by disabling certain optimisations.  However,
+	  the resulting kernel may run faster due to more efficient
+	  cache utilisation.
+
+	  If unsure, say N.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

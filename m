@@ -1,79 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262312AbSLMLpq>; Fri, 13 Dec 2002 06:45:46 -0500
+	id <S262296AbSLMLt4>; Fri, 13 Dec 2002 06:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262067AbSLMLpq>; Fri, 13 Dec 2002 06:45:46 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:48597 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S262266AbSLMLpo>; Fri, 13 Dec 2002 06:45:44 -0500
-Date: Sat, 14 Dec 2002 00:40:43 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Nivedita Singhvi <niv@us.ibm.com>, Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andreani Stefano <stefano.andreani.ap@h3g.it>,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
-Message-ID: <13810000.1039779643@localhost.localdomain>
-In-Reply-To: <3DF965E4.95DEA1F9@us.ibm.com>
-References: <047ACC5B9A00D741927A4A32E7D01B73D66178@RMEXC01.h3g.it>
- <1039727809.22174.38.camel@irongate.swansea.linux.org.uk>
- <3DF94565.2C582DE2@us.ibm.com> <20021213033928.GK32122@mea-ext.zmailer.org>
- <3DF965E4.95DEA1F9@us.ibm.com>
-X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262354AbSLMLt4>; Fri, 13 Dec 2002 06:49:56 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62343 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262296AbSLMLtv>;
+	Fri, 13 Dec 2002 06:49:51 -0500
+Date: Fri, 13 Dec 2002 11:57:26 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Joseph <jospehchan@yahoo.com.tw>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+Message-ID: <20021213115726.GB31187@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Joseph <jospehchan@yahoo.com.tw>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0212111151410.1397-100000@twin.uoregon.edu> <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw> <20021212133339.GE1145@suse.de> <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Er, wasn't that SCTP?  If so, that's RFC 3309 and many, many drafts.  You 
-might also want to look at DCCP (draft-ietf-dccp-*) and the various 
-documents from the IETF's PILC group.  There is also a proposal for a new 
-TCP-style protocol with a real differential controller, the name of which I 
-can't recall right now.
+On Fri, Dec 13, 2002 at 02:55:04PM +0800, Joseph wrote:
 
-See also draft-allman-tcp-sack for another proposal for a fix that won't 
-break old stacks.  Also draft-ietf-tsvwg-tcp-eifel-alg, 
-draft-ietf-tsvwg-tcp-eifel-response and many more.
+ > I've checked the gcc CVS. But it seems to use i486 pluse MMX and 3DNOW
+ > instructions.
+ > * config.gcc: Treat winchip_c6-*|winchip2-*|c3-* as pentium-mmx.
+ > * config/i386/i386.c (processor_alias_table): Add winchip-c6, winchip2 and
+ > c3.
+ > * doc/invoke.texi: Mention new aliases.
+ > **  {"c3", PROCESSOR_I486, PTA_MMX | PTA_3DNOW},   **
+ > Is there any plan to optimize for C3 CPU in future gcc released version?
 
-I can't claim to be a TCP expert, but TCP_RTO_MIN can certainly have a 
-different value for IPv6, where I believe millisecond reolution timers are 
-required, so 2ms would be correct.
+Maybe if an optimisation guide appears for the C3.
 
-Unfortuntately, TCP is incredibly subtle.  So, the IETF are really 
-conservative about even suggesting modifications to it, because a common 
-and badly behaved stack can cause major disasters in the 'net.
+		Dave
 
-Andrew
-
---On Thursday, December 12, 2002 20:45:24 -0800 Nivedita Singhvi 
-<niv@us.ibm.com> wrote:
-
->>   You are looking for "STP" perhaps ?
->>   It has a feature of waking all streams retransmits, in between
->>   particular machines, when at least one STP frame travels in between
->>   the hosts.
->>
->>   I can't find it now from my RFC collection.  Odd at that..
->>   Neither as a draft.  has it been abandoned ?
->
-> Learn something new every day :). Thanks for the ptr. I'll
-> look it up..
->
->> > It would be wonderful if we could tune TCP on a per-interface or a
->> > per-route basis (everything public, for a start, considered the
->> > internet, and non-routable networks (10, etc), could be configured
->> > suitably for its environment. (TCP over private LAN - rfc?). Trusting
->> > users would be a big issue..
->> >
->> > Any thoughts? How stupid is this? Old hat??
->>
->>   More and more of STP ..
->
-> thanks,
-> Nivedita
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

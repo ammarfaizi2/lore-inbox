@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263425AbUDZTzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbUDZUDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbUDZTzi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 15:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUDZTzi
+	id S261852AbUDZUDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 16:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUDZUDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 15:55:38 -0400
-Received: from lpbproductions.com ([68.98.208.147]:9107 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S263440AbUDZTzh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 15:55:37 -0400
-From: "Matt H." <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproduction.scom
-To: linux-kernel@vger.kernel.org
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary additional namespace to ReiserFS
-Date: Mon, 26 Apr 2004 12:56:33 -0700
-User-Agent: KMail/1.6.51
-References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com>
-In-Reply-To: <408D3FEE.1030603@namesys.com>
+	Mon, 26 Apr 2004 16:03:36 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:55516 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261852AbUDZUDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 16:03:35 -0400
+Message-ID: <408D6B0A.5060305@nortelnetworks.com>
+Date: Mon, 26 Apr 2004 16:03:22 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Load hid.o module synchronously?
+References: <s5g8ygi4l3q.fsf@patl=users.sf.net>	<408D65A7.7060207@nortelnetworks.com> <s5gisfm34kq.fsf@patl=users.sf.net>
+In-Reply-To: <s5gisfm34kq.fsf@patl=users.sf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404261256.33342.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patrick J. LoPresti wrote:
 
-> Please reject the xattr and acl patch for ReiserFS V3, and wait a week
-> or two for ReiserFS V4 to ship to you instead.
->
+> You mean under sysfs or usbfs?  Or both?
 
+Somewhere in there...
 
-Wasn't ReiserFS V4 promised months ago ? Are you that sure when it ships, it's 
-going to be merge into mainline or let alone the -mm tree ? 
+> I see how I can scan for a USB keyboard after loading the USB host
+> controller module.  I think.  But what do I look for, exactly, to tell
+> when hid.o has hooked itself up to the keyboard?
 
-As a ReiserFS user, I'm fully behind theese new changes. I'd rather stay with 
-the current fs I have ( with new features slowly trinkling in ) , then switch 
-to a new untested fs ( ReiserFS V4 ).
+I don't know exactly what you'd look for.  Greg K-H would be the guy to ask, I think.
 
-Matt H.
-
+Chris

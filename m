@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267368AbUH3Hst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUH3HuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267368AbUH3Hst (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 03:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUH3Hst
+	id S267195AbUH3HuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 03:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUH3HuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 03:48:49 -0400
-Received: from codepoet.org ([166.70.99.138]:40618 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S267195AbUH3Hsh (ORCPT
+	Mon, 30 Aug 2004 03:50:08 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:41903 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S267195AbUH3Ht5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 03:48:37 -0400
-Date: Mon, 30 Aug 2004 01:48:35 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mmazur@kernel.pl, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.8.1
-Message-ID: <20040830074835.GA12963@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	"David S. Miller" <davem@davemloft.net>, mmazur@kernel.pl,
-	linux-kernel@vger.kernel.org
-References: <200408292232.14446.mmazur@kernel.pl> <20040830062856.GA10475@codepoet.org> <20040830002422.4b634c6c.davem@davemloft.net>
+	Mon, 30 Aug 2004 03:49:57 -0400
+Date: Mon, 30 Aug 2004 10:10:18 +0200
+From: Luca Risolia <luca.risolia@studio.unibo.it>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.9-rc1-mm1] Disable colour conversion in the CPiA Video Camera driver
+Message-ID: <20040830081018.GA3206@studio.unibo.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
 Content-Disposition: inline
-In-Reply-To: <20040830002422.4b634c6c.davem@davemloft.net>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Aug 30, 2004 at 12:24:22AM -0700, David S. Miller wrote:
-> On Mon, 30 Aug 2004 00:28:56 -0600
-> Erik Andersen <andersen@codepoet.org> wrote:
-> 
-> > I really do not like this change.  Since PAGE_SIZE has always
-> > been a constant, the change you have made is likely to break a
-> > fair amount of code, basically any code doing stuff like:
-> 
-> It has never been a constant, and any portable piece of
-> software needs to evaluate it not at compile time.
-> 
-> When I first did the sparc64 port, the biggest source of
-> portability problems was of the "uses PAGE_SIZE in some way"
-> nature.
-> 
-> This is a positive change, we should break the build of these
-> apps and thus get them fixed.
 
-There is no question that using PAGE_SIZE should be considered
-harmful.  But this particular change to the linux-libc-headers
-makes it easy for the common case (bog standard x86) folk to keep
-using a fixed PAGE_SIZE value, and keep writing crap code which
-is now _guaranteed_ to blow chunks on mips, x86_64, etc.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think outright removal of PAGE_SIZE from user space may be a
-much better choice, with some sortof #error perhaps...  Wouldn't
-it be better for the whole world if people would get errors like
+Given that colour conversion is not allowed in kernel space, this patch
+disables it in the CPiA driver. The routines implementing the conversions
+can be removed at all by the maintainers of the driver; however, this
+patch is a good starting point and makes someone happy.
 
-    foo.c:10:2: #error "Don't use PAGE_SIZE, use sysconf(_SC_PAGESIZE)"
+I have already submitted this patch to both the V4L mailing list
+and the V4L maintainer two months ago, but it has been ignored for
+some unknown reasons, so here it is again.
 
-making people actually fix their code?
+Please apply.
 
- -Erik
+Signed-off-by: Luca Risolia <luca.risolia@studio.unibo.it>
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+--- devel-2.6.8/drivers/media/video/cpia.c.orig	2004-08-29 11:28:14.0000000=
+00 +0200
++++ devel-2.6.8/drivers/media/video/cpia.c	2004-08-29 11:29:55.000000000 +0=
+200
+@@ -1428,14 +1428,8 @@ static void __exit proc_cpia_destroy(voi
+ /* supported frame palettes and depths */
+ static inline int valid_mode(u16 palette, u16 depth)
+ {
+-	return (palette =3D=3D VIDEO_PALETTE_GREY && depth =3D=3D 8) ||
+-	       (palette =3D=3D VIDEO_PALETTE_RGB555 && depth =3D=3D 16) ||
+-	       (palette =3D=3D VIDEO_PALETTE_RGB565 && depth =3D=3D 16) ||
+-	       (palette =3D=3D VIDEO_PALETTE_RGB24 && depth =3D=3D 24) ||
+-	       (palette =3D=3D VIDEO_PALETTE_RGB32 && depth =3D=3D 32) ||
+-	       (palette =3D=3D VIDEO_PALETTE_YUV422 && depth =3D=3D 16) ||
+-	       (palette =3D=3D VIDEO_PALETTE_YUYV && depth =3D=3D 16) ||
+-	       (palette =3D=3D VIDEO_PALETTE_UYVY && depth =3D=3D 16);
++	return (palette =3D=3D VIDEO_PALETTE_YUV422 && depth =3D=3D 16) ||
++	       (palette =3D=3D VIDEO_PALETTE_YUYV && depth =3D=3D 16);
+ }
+=20
+ static int match_videosize( int width, int height )
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBMuDqmdpdKvzmNaQRAl5GAJwP8YcbeAJi9brw22L5n8dxFeUeaACg2hj5
+tr+zLXtWseVVuJ0fzOUyLHs=
+=gvC/
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--

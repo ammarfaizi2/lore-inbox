@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUJME4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUJMFDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267985AbUJME4O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 00:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268013AbUJME4O
+	id S268013AbUJMFDn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 01:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUJMFDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 00:56:14 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:58430 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267985AbUJME4J (ORCPT
+	Wed, 13 Oct 2004 01:03:43 -0400
+Received: from motgate8.mot.com ([129.188.136.8]:26323 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S268013AbUJMFDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 00:56:09 -0400
-Message-ID: <46561a7904101221564f0ef523@mail.gmail.com>
-Date: Wed, 13 Oct 2004 10:26:04 +0530
-From: suthambhara nagaraj <suthambhara@gmail.com>
-Reply-To: suthambhara nagaraj <suthambhara@gmail.com>
-To: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
-Subject: Re: Getting a process' EIP address (and other registers)
-Cc: main kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <C863B68032DED14E8EBA9F71EB8FE4C204FB456A@azsmsx406>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <C863B68032DED14E8EBA9F71EB8FE4C204FB456A@azsmsx406>
+	Wed, 13 Oct 2004 01:03:40 -0400
+Message-ID: <903E17B6FF22A24C96B4E28C2C0214D7023C44DA@sr-bng-exc01.ap.mot.com>
+X-Sybari-Trust: 7858ed17 13bac7b5 819362d3 00000129
+From: "Thekkedath, Gopakumar" <Gopakumar.Thekkedath@fci.com>
+To: "'Dhiman, Gaurav'" <Gaurav.Dhiman@ca.com>, Jan Hudec <bulb@ucw.cz>,
+       aq <aquynh@gmail.com>
+Cc: suthambhara nagaraj <suthambhara@gmail.com>,
+       main kernel <linux-kernel@vger.kernel.org>,
+       kernel <kernelnewbies@nl.linux.org>
+Subject: RE: Kernel stack
+Date: Wed, 13 Oct 2004 10:33:11 +0530
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why don't you use the pt_regs structure to restore the EIP
-value stored during SAVE_ALL. Add a line in sys_ioctl to access the SAVE_ALL
-stored values (EIP).This would then be simple pointer arithmetic.
-
-I hope I havae answered you.
-
-Regards 
-Suthambhara
 
 
 
 
+>You discussed that kernel do not keep track of SS for process specific
+>kernel stack as it always starts from fixed offset of task_struct, but
+>does that mean, linux kernel do not make use of SS element in the TSS of
+>process. I think the kernel can not by-pass the rules defined by
+>processor. Processor expects the SS and SP elements to be right at the
+>time of stack switching, so we need to initialize them to the right
+>values while forking a process.
 
-On Tue, 12 Oct 2004 21:10:13 -0700, Hanson, Jonathan M
-<jonathan.m.hanson@intel.com> wrote:
->        I have written a 2.4 kernel module that is triggered upon an
-> IOCTL from a user application. Once triggered the kernel module dumps
-> out the contents of the system memory and the x86 CPU architecture state
-> to separate files.
->        I'm writing to the list because my method for getting registers
-> from the user process before it entered the kernel is producing
-> incorrect results. I've looked all through the kernel code and searched
-> all over the web for an answer to this specific question and found
-> nothing relevant.
->        In my research how to do this I've found that the stack pointer
-> for the user process before it entered the kernel is stored in
-> current->thread.esp0. From there the registers for the user process are
-> stored at offsets from that location (for example, EIP is supposed to be
-> 0x28 unsigned char bytes from esp0). I have code to get the EIP as
-> follows:
-> 
-> unsigned char *stack_address, *eip;
-> 
-> stack_address = (unsigned char *)(current->thread.esp0);
-> eip = stack_address + 0x28;
-> printk("eip = %08lx\n", *(unsigned long *)eip);
-> 
-> Like I mentioned this is producing incorrect results. How do I access
-> the user process' general purpose registers contents as they were before
-> the kernel was entered (or correct my code above if I'm accessing
-> something wrong)?
->        Thanks in advance for any help offered.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+	Yes, the kernel cannot bypass the TSS entirely.
+
+>I think kernel definitely keep tracks of SS and SP for all CPU levels
+>including kernel mode also (ring 0), so that when we are switching form
+>user space to kernel space the processor can switch the stacks
+>automatically. At stack switching time CPU expects the SS and SP
+>elements of TSS to be right, it's just going to copy those values in SS
+>and SP registers of CPU, so that now we can push and pop the things on
+>the kernel stack.
+	In Linxu , the SS and DS normally holds the same value. Mostly I
+have seen that,\
+ when in kernel mode, DS=SS=0x18 and when in user mode DS=SS=0x28 
+(this is what i remember !). 
+
+As Linux does not believe in x86 processor recommended task switching (ie
+storing/retrieving all the
+necessary register values in a TSS) it uses the process's stack to hold the
+required registers. 
+But, it cannot get away from the fact that, when a switch happens to kernel
+mode,
+ the processor expects to find the SS and ESP values for that privilege
+level in the current TSS
+ (the one which i pointed to be the TS register if i am correct!).
+
+In Linux, we have only one TSS per processor, and when a process is
+scheduled most 
+probably the kernel sets the  TSS's SS0 (SS corresponding to ring 0) as 0x18
+and ESP0 
+will be current process's task_struct + 8K (in 2.4). Again, I have not
+really gone through
+ that piece of code in the kernel, so this is my assumption. Correct me if I
+am wrong.
+

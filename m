@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261646AbSJFQdH>; Sun, 6 Oct 2002 12:33:07 -0400
+	id <S261703AbSJFQhA>; Sun, 6 Oct 2002 12:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261682AbSJFQdH>; Sun, 6 Oct 2002 12:33:07 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:30482 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S261646AbSJFQdG>; Sun, 6 Oct 2002 12:33:06 -0400
-Date: Sun, 6 Oct 2002 13:38:32 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Skip Ford <skip.ford@verizon.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021006163831.GA16144@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Skip Ford <skip.ford@verizon.net>,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <3D9F49D9.304@redhat.com> <20021005162852.I11375@work.bitmover.com> <1033861827.4441.31.camel@irongate.swansea.linux.org.uk> <anoivq$35b$1@penguin.transmeta.com> <200210060743.g967hEWf000528@pool-141-150-241-241.delv.east.verizon.net>
+	id <S261707AbSJFQhA>; Sun, 6 Oct 2002 12:37:00 -0400
+Received: from bohnice.netroute.lam.cz ([212.71.169.62]:24049 "EHLO
+	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
+	id <S261703AbSJFQg7>; Sun, 6 Oct 2002 12:36:59 -0400
+Date: Sun, 6 Oct 2002 18:42:28 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Cc: jw schultz <jw@pegasys.ws>
+Subject: Re: Unable to kill processes in D-state
+Message-ID: <20021006164228.GB17170@vagabond>
+Reply-To: Jan Hudec <bulb@vagabond.cybernet.cz>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org,
+	jw schultz <jw@pegasys.ws>
+References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no> <20021006021802.GA31878@pegasys.ws> <1033871869.1247.4397.camel@phantasy> <20021006024902.GB31878@pegasys.ws> <20021006105917.GB13046@stud.ntnu.no> <20021006122415.GE31878@pegasys.ws> <20021006143636.GA30441@stud.ntnu.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200210060743.g967hEWf000528@pool-141-150-241-241.delv.east.verizon.net>
+In-Reply-To: <20021006143636.GA30441@stud.ntnu.no>
 User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Oct 06, 2002 at 03:43:08AM -0400, Skip Ford escreveu:
-> Linus Torvalds wrote:
- 
-> > I don't do any pre-patches or daily patches any more, because it's all
-> > automated.  There are several snapshot bots that give you patches a lot
-> > more often than "every 2 days".  You don't need BK to use it, it's there in
-> > the good old diff format. 
+On Sun, Oct 06, 2002 at 04:36:36PM +0200, Thomas Lang?s wrote:
+> jw schultz:
+> > Are all those processes hanging because of NFS?  If so, i'd
+> > start by looking at the mount options as i said before.  I'd
+> > also look into the network and fileserver because something
+> > is wrong.  In my experience Solaris behaved the same way.
+> 
+> They're hanging because I killed of the autofs-processes, and
+> started it again. (And then every NFS-share is remounted).
+> So, basically, they're all hanging there, and will keep 
+> hanging there 'till I boot the machine. 
 
-> However, a much larger percentage of patches are applied to your tree without
-> a diff being posted to lkml first.  My only wish would be that you only
-> accept patches through the mailing list, and only from posts that include at
-> least a link to a diff.
+If the shares were successfuly reloaded, then the processes should wake
+up. If they don't, it's a bug in NFS.
 
-Are you dying to see X.25, lapbether, LLC, IPX and other non-sexy/mainstream
-patches here? I can start doing it for the stuff I've been sending only via
-bitkeeper to David Miller, I'm mostly alone in this and having people
-commenting on it would be great, but I don't think that people that have
-interest in this aren't helping/commenting because I don't post the changesets
-here, after all if they're interested they can use the regular releases from
-Linus or the diffs provided by bot services generally available.
+Try to reproduce it (ie. reboot some machine, let it start everything
+and then restart the autofsd and see if processes lock up) and then talk
+to NFS maintainers about that.
 
-If people think that this will help with development of the stuff I work with,
-please say so.
-
-Patches that touches the networking core, etc, I post to netdev, and not here,
-and this is done by lots of other people, for several subsystems, and
-contributes to the feeling that things are not being posted to lkml. They are
-not, never had, nothing new, only BK has a license people disagree with and all
-of a sudden is the reason for patches not being more reviewed, etc. I beg to
-disagree.
-
-- Arnaldo
-
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316221AbSFDEaB>; Tue, 4 Jun 2002 00:30:01 -0400
+	id <S316243AbSFDEa0>; Tue, 4 Jun 2002 00:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316243AbSFDEaA>; Tue, 4 Jun 2002 00:30:00 -0400
-Received: from tomts9.bellnexxia.net ([209.226.175.53]:1705 "EHLO
-	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S316221AbSFDE37>; Tue, 4 Jun 2002 00:29:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ghozlane Toumi <ghoz@sympatico.ca>
-To: "J.A. Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Algorithm for CPU_X86
-Date: Tue, 4 Jun 2002 00:28:53 -0400
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020604031840.GA4289@werewolf.able.es>
+	id <S316250AbSFDEa0>; Tue, 4 Jun 2002 00:30:26 -0400
+Received: from pD9E23D09.dip.t-dialin.net ([217.226.61.9]:43410 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316243AbSFDEaY>; Tue, 4 Jun 2002 00:30:24 -0400
+Date: Mon, 3 Jun 2002 22:30:18 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: linux-2.5.20-ct1
+In-Reply-To: <20020604042300.GA8263@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0206032228550.3833-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020604043000.DXEU21842.tomts9-srv.bellnexxia.net@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 June 2002 23:18, J.A. Magallon wrote:
-> Hi all...
-> So the algorithm can be easy (i think..)
-> - Enable all feature flags (say, MMX and 3DNOW)
-> - Disable all bugfix flags (FENCE)
-> - For each CPU
->      if it does not have the feature, kill it
->      (if VENDOR_INTEL set 3DNOW=n)
->      if this-cpu-kernel could run on buggy-cpu, enable fix
->      (if GENERIC_586 set FENCE=y)
->
-> Right ?
+Hi,
 
-What if the next wizz-bang processor as a great new feature ?
-You'd have to disable it for *all* the previous CPUs...
+On Mon, 3 Jun 2002, William Lee Irwin III wrote:
+> There were discussions about a number of these patches resulting in
+> changes, would you mind letting me know what versions of these things
+> you're pushing upstream and let me hand you updates?
 
-ghoz
+Since you  gave it no version number, it's exactly the version which is 
+saved at 
+<URL:ftp://luckynet.dynu.com/pub/linux/2.5.20-ct1/single-patches/>
+
+Usually the latest available.
+
+Regards,
+Thunder
+-- 
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
+

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281318AbRKEUnm>; Mon, 5 Nov 2001 15:43:42 -0500
+	id <S281336AbRKEVEC>; Mon, 5 Nov 2001 16:04:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281325AbRKEUne>; Mon, 5 Nov 2001 15:43:34 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:62387 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281318AbRKEUnZ>; Mon, 5 Nov 2001 15:43:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Date: Mon, 5 Nov 2001 21:46:19 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011105111239.3403b162.rusty@rustcorp.com.au> <p05100316b80c6f3df6f3@[207.213.214.37]>
-In-Reply-To: <p05100316b80c6f3df6f3@[207.213.214.37]>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <160qaQ-2523rUC@fmrl04.sul.t-online.com>
+	id <S281339AbRKEVD4>; Mon, 5 Nov 2001 16:03:56 -0500
+Received: from sal.qcc.sk.ca ([198.169.27.3]:53508 "HELO sal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S281336AbRKEVDu>;
+	Mon, 5 Nov 2001 16:03:50 -0500
+Date: Mon, 5 Nov 2001 14:43:42 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14-pre6
+Message-ID: <20011105144342.C18394@qcc.sk.ca>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com> <20011102120108.A47@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20011102120108.A47@toy.ucw.cz>; from pavel@suse.cz on Fri, Nov 02, 2001 at 12:01:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 November 2001 17:49, Jonathan Lundell wrote:
-> I think of the tagged list of n-tuples as a kind of ASCII
-> representation of a simple struct. One could of course create a
-> general ASCII representation of a C struct, and no doubt it's been
-> done innumerable times, but I don't think that helps in this
-> application.
+Pavel Machek <pavel@suse.cz> wrote:
+> 
+> > Oh, and the first funny patches for the upcoming SMT P4 cores are starting
+> > to show up. More to come.
+> 
+> What is SMT P4?
 
-But how can you represent references with those lists? Try to model the 
-content of /proc/bus/usb/devices with them.
+"Jackson" technology-enabled P4 core.  Also known as "hyperthreading".
 
-bye...
+Charles 
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUDEWxj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 18:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbUDEWxj
+	id S262984AbUDEWxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 18:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbUDEWxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 18:53:39 -0400
-Received: from web40504.mail.yahoo.com ([66.218.78.121]:38238 "HELO
-	web40504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262974AbUDEWwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 18:52:51 -0400
-Message-ID: <20040405225250.86703.qmail@web40504.mail.yahoo.com>
-Date: Mon, 5 Apr 2004 15:52:50 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: Timothy Miller <miller@techsource.com>, John Stoffel <stoffel@lucent.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <200404052359.42767.robin.rosenberg.lists@dewire.com>
+	Mon, 5 Apr 2004 18:53:25 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:18528 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S262984AbUDEWw6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 18:52:58 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200404052253.i35Mr6k6011170@green.mif.pg.gda.pl>
+Subject: PTS alocation problem with 2.6.4/2.6.5
+To: linux-kernel@vger.kernel.org (kernel list)
+Date: Tue, 6 Apr 2004 00:53:06 +0200 (CEST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-wrote:
-> On Monday 05 April 2004 23:30, Sergiy Lozovsky
-> wrote:
-> > Point me to ANy langage with VM around 100K.
-> 
-> There is a Java VM (lejos) för the Lego Mindstorms
-> robot. The hardware
-> has 32K memory.
+I noticed serious problem with PTS alocation on kernels 2.6.4 and 2.6.5:
+It seems that once alocated /dev/pts entries are never reused, leading to
+pty alocation errors. The testing system is fully compiled with kernel 2.2.x
+headers (including glibc), but informations from my coleagues using systems
+compiled on 2.4/2.6 headers seems to behave similarily.
+The testcase and used kernel configuration are shown below.
+Kernel 2.6.3 does not have this problem.
+Is it bug or feature (and I am doing sth wrong) ?
 
-Is it Free and Open Source? Where can I get it if it
-is?
+NOTE: I realize that my glibc does not support minors > 255, so no more pts-es
+      is available, but problem is leakage of _free_ pts-es.
 
-(I don't want to start Holly War :-) but I think, that
-Java is lower lavel than C, I recognize, that I can be
-wrong)
+[ankry@green SPECS]$ for a in $(seq 4);do ssh -t remote tty;done
+/dev/pts/253
+Connection to remote closed.
+/dev/pts/254
+Connection to remote closed.
+/dev/pts/255
+Connection to remote closed.
+not a tty
+         Connection to remote closed.
+[ankry@green SPECS]$ ssh remote cat /proc/sys/kernel/pty/{max,nr}
+2048
+1
+$ ssh olimp ls /dev/pts
+1
 
-Serge.
+.config tested (selected entries)
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=2048
+
+or
+
+CONFIG_UNIX98_PTYS=y
+# CONFIG_LEGACY_PTYS is not set
+
+(full .config available on request)
+
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Gdansk University of Technology

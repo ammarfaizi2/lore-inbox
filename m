@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbUCJSAC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:00:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbUCJR7Z
+	id S262758AbUCJSFN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUCJSFC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 12:59:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47042 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262734AbUCJR7R (ORCPT
+	Wed, 10 Mar 2004 13:05:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34217 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262735AbUCJSD4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 12:59:17 -0500
-Date: Wed, 10 Mar 2004 09:59:08 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org, <James.Smart@Emulex.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [Announce] Emulex LightPulse Device Driver
-Message-Id: <20040310095908.33b2082f.zaitcev@redhat.com>
-In-Reply-To: <mailman.1078908361.15239.linux-kernel2news@redhat.com>
-References: <3356669BBE90C448AD4645C843E2BF2802C014D7@xbl.ma.emulex.com>
-	<mailman.1078908361.15239.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 10 Mar 2004 13:03:56 -0500
+Date: Wed, 10 Mar 2004 10:02:15 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Godbole, Amarendra \(GE Consumer & Industrial\)" 
+	<Amarendra.Godbole@ge.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: (0 == foo), rather than (foo == 0)
+Message-Id: <20040310100215.1b707504.rddunlap@osdl.org>
+In-Reply-To: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Mar 2004 03:35:09 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+On Wed, 10 Mar 2004 11:46:40 +0530 Godbole, Amarendra \(GE Consumer & Industrial\) wrote:
 
-> I'm only part way through a review of the driver, but I felt there is a 
-> rather large and important issue that needs addressing...  "wrappers."
+| Hi,
+| 
+| While writing code, the assignment operator (=) is many-a-times confused with the comparison operator (==) resulting in very subtle bugs difficult to track. To keep a check on this -- the constant can be written on the LHS rather than the RHS which will result in a compile time error if wrong operator is used.
 
-Jeff, I agree completely that Emulex code is infested with wrappers
-so much that it's harmful. However, the particular example you selected
-you interpret wrong.
+Yes, we know.
 
-> void
-> elx_sli_lock(elxHBA_t * phba, unsigned long *iflag)
+| Is this an encouraged practice while writing any code for the kernel ? Or is this choice left to the developer ? I was unable to find any reference to it in the CodingStyle document. I did find some code under drivers/ which used (NULL == foo) and similar constructs. 
 
-Flag problem on sparc is fixed by Keith Wesolowsky for 2.6.3-rcX,
-and it never existed on sparc64, which keeps CWP in a separate register.
+I prefer that it be left to each developer.
 
-Why it took years to resolve is that the expirience showed that
-there is no legitimate reason to pass flags as arguments. Every damn
-time it was done, the author was being stupid. Keith resolved it
-primarily because it was an unorthogonality in sparc implementation.
+| Can this be added to the CodingStyle document ?
 
-> But this bug is only an example that serves to highlight the importance 
-> of directly using Linux API functions throughout your code.  It may 
-> sound redundant, but "Linux code should look like Linux code."  This 
-> emphasis on style may sound trivial, but it's important for 
-> review-ability, long term maintenance, and as we see here, bug prevention.
+Hopefully not.  Some of us think that it's ugly.
 
-Yes yes yes. This is the way elx_sli_lock is harmful, not because
-of its passing flags.
+BTW, can you use CR/LF every 70 characters or so, please?
 
--- Pete
+--
+~Randy

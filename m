@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267409AbTAGPTP>; Tue, 7 Jan 2003 10:19:15 -0500
+	id <S267398AbTAGPmq>; Tue, 7 Jan 2003 10:42:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267407AbTAGPTP>; Tue, 7 Jan 2003 10:19:15 -0500
-Received: from 200-206-134-238.async.com.br ([200.206.134.238]:32390 "EHLO
-	anthem.async.com.br") by vger.kernel.org with ESMTP
-	id <S267409AbTAGPTO>; Tue, 7 Jan 2003 10:19:14 -0500
-Date: Tue, 7 Jan 2003 13:27:43 -0200
-From: Christian Reis <kiko@async.com.br>
-To: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: /var/lib/nfs/sm/ files
-Message-ID: <20030107132743.E2628@blackjesus.async.com.br>
+	id <S267401AbTAGPmq>; Tue, 7 Jan 2003 10:42:46 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52871
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267398AbTAGPmq>; Tue, 7 Jan 2003 10:42:46 -0500
+Subject: Re: PATCH: fix "ide_scan_direction defined but not used" in ide.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030107131002.GI25540@alhambra>
+References: <20030107131002.GI25540@alhambra>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041957377.20658.28.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 07 Jan 2003 16:36:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-01-07 at 13:10, Muli Ben-Yehuda wrote:
+> ide_scan_drection is only used if CONFIG_BLK_DEV_IDEPCI is defined,
+> giving a compilation warning otherwise. Against 2.5.54-bk. 
 
-Hi there,
+Please reject. This is uglier than the warning and not the right approach
 
-Can `anybody' (Neil, Trond?) explain what the entries in
-/var/lib/nfs/sm/ are for? If they refer to file locks, can we discover
-which files they are referencing so I can try and understand why we get
-leftover entries in there, and in which scenarios?
-
-I"m still trying to look into the hang problems [1] I'm getting, since
-there hasn't been a lot of progress about it. Anybody have a minute free
-to try and help?
-
-[1] http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.0/1112.html
-
-Take care,
---
-Christian Reis, Senior Engineer, Async Open Source, Brazil.
-http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

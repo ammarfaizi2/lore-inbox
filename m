@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264969AbTA1JmR>; Tue, 28 Jan 2003 04:42:17 -0500
+	id <S264683AbTA1JxF>; Tue, 28 Jan 2003 04:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbTA1JmR>; Tue, 28 Jan 2003 04:42:17 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:1796 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264969AbTA1JmR>;
-	Tue, 28 Jan 2003 04:42:17 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301280952.h0S9qCa4000150@darkstar.example.net>
-Subject: Re: Bootscreen
-To: Raphael_Schmid@CUBUS.COM (Raphael Schmid)
-Date: Tue, 28 Jan 2003 09:52:12 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <398E93A81CC5D311901600A0C9F2928946936D@cubuss2> from "Raphael Schmid" at Jan 28, 2003 10:01:37 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S264702AbTA1JxF>; Tue, 28 Jan 2003 04:53:05 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:50902 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S264683AbTA1JxE>; Tue, 28 Jan 2003 04:53:04 -0500
+Date: Tue, 28 Jan 2003 17:59:28 +0800 (CST)
+From: Stanley Wang <stanley.wang@linux.co.intel.com>
+X-X-Sender: stanley@manticore.sh.intel.com
+To: Greg KH <greg@kroah.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
+Subject: [RFC] Get rid of all procfs stuff for PCI subsystem.
+Message-ID: <Pine.LNX.4.44.0301281747230.3171-100000@manticore.sh.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is my very understanding one can not have, conveniently it should be,
-> a simple *bootscreen* under Linux.
+Hi, Greg
+When did I try to remove all procfs stuff from pci_hotplug_core.c,
+I found I could only cut little codes off. So I suggest:
+How about to get rid of all procfs stuff for PCI subsystem?
+It could reduce about 700 lines codes from the kernel.
+I think we could get all information from sysfs, right?
+But it may break some user mode utilities.
 
-Linux machines shouldn't ever need to be rebooted, so you'd only ever
-see it once, (on each machine) :-).
+What do you think about it?
 
-John.
+Regards,
+-Stan
+-- 
+Opinions expressed are those of the author and do not represent Intel
+Corporation
+
+

@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbULaGvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbULaHAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbULaGvj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 01:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbULaGvj
+	id S261736AbULaHAG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 02:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbULaHAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 01:51:39 -0500
-Received: from web60605.mail.yahoo.com ([216.109.118.243]:36509 "HELO
-	web60605.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261704AbULaGvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 01:51:37 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+	Fri, 31 Dec 2004 02:00:06 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:27764 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261736AbULaHAB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 02:00:01 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=OCoqrfG03mecHDBg5MlPO1URIqXU5uW+gAyYfCvGNvZ/Z2WvWxcDeOgERqoA9tOebpAEpJfnrn3C7bEfXonfRKSOPgdA2AUvxfOJUDz+hh4oTBV7FpH+gkbXoneTN/6i2iKO/0z4zdihpU/nVG1dSfku1qtF7/bp7hdUqkEqxNM=  ;
-Message-ID: <20041231065136.94485.qmail@web60605.mail.yahoo.com>
-Date: Thu, 30 Dec 2004 22:51:36 -0800 (PST)
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Interception for a resource based scheduler
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1104409090.4170.12.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=fxk0LDIBgJBwJFD1gbSBri2fn1en20cMdL5IzVEoFLZy1bhFf5wJuhEWp8guZiJLuaiz1eKR7qUHbFayTcZ2sN+AXwoLLvmm//3TZqguQKLJamNe1izTQAsRw/2pXH312DRhZD1veWNQyTOY11Ugj2OmH7xNHZb+0qolgzLv5VA=
+Message-ID: <5304685704123023007441a4c3@mail.gmail.com>
+Date: Fri, 31 Dec 2004 00:00:01 -0700
+From: Jesse Allen <the3dfxdude@gmail.com>
+Reply-To: Jesse Allen <the3dfxdude@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ptrace single-stepping change breaks Wine
+Cc: Daniel Jacobowitz <dan@debian.org>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Mike Hearn <mh@codeweavers.com>, Thomas Sailer <sailer@scs.ch>,
+       Eric Pouech <pouech-eric@wanadoo.fr>,
+       Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+In-Reply-To: <Pine.LNX.4.58.0412302141320.2280@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
+	 <53046857041230112742acccbe@mail.gmail.com>
+	 <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org>
+	 <20041230230046.GA14843@nevyn.them.org>
+	 <Pine.LNX.4.58.0412301513200.22893@ppc970.osdl.org>
+	 <20041231053618.GA25850@nevyn.them.org>
+	 <Pine.LNX.4.58.0412302141320.2280@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-  I am using these information for the scheduler I am
-developing in Linux. The scheduler selects the next
-process to run based on the resources needed so that a
-high priority process will not starve for a semaphore
-key, file lock etc that were acquired by a low
-priority process. The user may change the file
-descriptor only through syscalls. If I intercept them
-and update the resource history that I am maintaining,
-then will the information break?
-
-Thanks,
-selva
-
---- Arjan van de Ven <arjan@infradead.org> wrote:
-
-> On Thu, 2004-12-30 at 04:13 -0800, selvakumar
-> nagendran wrote:
-> > 
-> >      Thanks for ur help. The user will be changing
-> > this using system calls like dup,dup2 etc. If I
-> keep
-> > track of all these modifications by intercepting
-> all
-> > those syscalls and use inode number for
-> identifying
-> > the structure uniquely, will it break?
-> 
-> it sure is not a reliable method. The user can
-> change the fd's YOU log.
-> So your logging is inaccurate. That may or may not
-> be a problem, it
-> depends on what the application of this is.
+On Thu, 30 Dec 2004 21:47:42 -0800 (PST), Linus Torvalds
+<torvalds@osdl.org> wrote:
+>
 > 
 > 
+> So I looked at just sharing the code with the debug trap handler, and the
+> result is appended. strace works, as does all the TF tests I've thrown at
+> it, and the code actually looks better anyway (the old do_debug code looks
+> like it got the EIP wrong in VM86 mode, for example, this just cleans
+> that up too). Just use a common "send_sigtrap()" routine.
+> 
+> Does this look saner?
 > 
 
 
+Yeah.  I've tested and this one works.  I don't have any other copy
+protection schemes that are broken.  Of the cd-rom based, older
+safedisc still worked, and the newer one needs a special device driver
+that wine cannot load properly yet.  It's more likely if there is a
+problem with one that it's a problem with wine at this point.
 
-		
-__________________________________ 
-Do you Yahoo!? 
-All your favorites on one personal page – Try My Yahoo!
-http://my.yahoo.com 
+Jesse

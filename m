@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264655AbTIIVOm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTIIVOm
+	id S264382AbTIIU6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTIIU6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:14:42 -0400
-Received: from 24-193-66-245.nyc.rr.com ([24.193.66.245]:14976 "EHLO
-	siri.morinfr.org") by vger.kernel.org with ESMTP id S264655AbTIIVOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:14:39 -0400
-Date: Tue, 9 Sep 2003 17:14:42 -0400
-From: Guillaume Morin <guillaume@morinfr.org>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix cpu_test_and_set() on UP
-Message-ID: <20030909211441.GF1937@siri.morinfr.org>
-Mail-Followup-To: torvalds@osdl.org, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
+	Tue, 9 Sep 2003 16:58:05 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25873 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264382AbTIIU6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 16:58:01 -0400
+Date: Tue, 9 Sep 2003 21:57:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dave Jones <davej@redhat.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
+Message-ID: <20030909215758.Q4216@flint.arm.linux.org.uk>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20030909204803.N4216@flint.arm.linux.org.uk> <20030909201436.GA1382@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030909201436.GA1382@redhat.com>; from davej@redhat.com on Tue, Sep 09, 2003 at 09:14:37PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus and Andrew,
+On Tue, Sep 09, 2003 at 09:14:37PM +0100, Dave Jones wrote:
+> On Tue, Sep 09, 2003 at 08:48:03PM +0100, Russell King wrote:
+>  > -static struct pci_device_id agp_ati_pci_table[] __initdata = {
+>  > +static struct pci_device_id agp_ati_pci_table[] = {
+> 
+> Wierd. I could swear akpm had these patches in his tree no so long back.
 
-cpumask_up.h is broken. It tries to access the "mask" member although
-that cpumask_t is an ulong on UP. This breaks archs which uses cpumask
-functions even on UP such as s390.
-
-
---- include/asm-generic/cpumask_up.h    28 Aug 2003 16:23:00 -0000      1.1
-+++ include/asm-generic/cpumask_up.h    9 Sep 2003 21:12:21 -0000
-@@ -6,7 +6,7 @@
- #define cpu_set(cpu, map)              do { (void)(cpu); cpus_coerce(map) = 1UL; } while (0)
- #define cpu_clear(cpu, map)            do { (void)(cpu); cpus_coerce(map) = 0UL; } while (0)
- #define cpu_isset(cpu, map)            ((void)(cpu), cpus_coerce(map) != 0UL)
--#define cpu_test_and_set(cpu, map)     ((void)(cpu), test_and_set_bit(0, (map).mask))
-+#define cpu_test_and_set(cpu, map)     ((void)(cpu), test_and_set_bit(0, &(map)))
-
- #define cpus_and(dst, src1, src2)                                      \
-        do {                                                            \
-
-Please apply.
+So did I, so I checked the history in bk, and it seems it never made Linus'
+tree.
 
 -- 
-Guillaume Morin <guillaume@morinfr.org>
-
-                    Sometimes I find I need to scream (RHCP)
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVBFJhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVBFJgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVBFJhG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 04:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263781AbVBFJhF
+	id S261794AbVBFJgs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 04:36:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbVBFJgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 04:37:05 -0500
-Received: from gprs215-220.eurotel.cz ([160.218.215.220]:128 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264567AbVBFJgj (ORCPT
+	Sun, 6 Feb 2005 04:36:47 -0500
+Received: from gprs215-220.eurotel.cz ([160.218.215.220]:384 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261794AbVBFJgh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 04:36:39 -0500
-Date: Sun, 6 Feb 2005 10:23:35 +0100
+	Sun, 6 Feb 2005 04:36:37 -0500
+Date: Sun, 6 Feb 2005 10:27:31 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: 2.6.11-rc3-bk: something very wrong with top
-Message-ID: <20050206092335.GA1488@elf.ucw.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/RFT] Better handling of bad xfers/interrupt delays in psmouse
+Message-ID: <20050206092731.GA3869@elf.ucw.cz>
+References: <200502051448.57492.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200502051448.57492.dtor_core@ameritech.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,28 +27,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-There seem to be some problems with top:
+> The patch below attempts to better handle situation when psmouse interrupt
+> is delayed for more than 0.5 sec by requesting a resend. This will allow
+> properly synchronize with the beginning of the packet as mouse is supposed
+> to resend entire package.
 
-top - 10:19:24 up 4 min,  3 users,  load average: 0.74, 0.48, 0.21
-Tasks:  58 total,   2 running,  56 sleeping,   0 stopped,   0 zombie
-Cpu(s): 55.1% us,  6.4% sy,  0.0% ni,  0.0% id, 38.5% wa,  0.0% hi, 0.0% si
-Mem:   1031424k total,    72840k used,   958584k free,     8804k buffers
-Swap:  1953464k total,     5452k used,  1948012k free,    34860k cached
++                * This is second error in a row. If mouse was itialized - attempt
++                * to rconnect, otherwise just signal failure.
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  967 root      34  19  2128  620  456 R  0.6  0.1   0:00.35 top
-    1 root      16   0  1580   80   56 S  0.0  0.0   0:03.27 init
-    2 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/0
-    3 root      10  -5     0    0    0 S  0.0  0.0   0:00.31 events/0
-    4 root      11  -5     0    0    0 S  0.0  0.0   0:00.00 khelper
-    9 root      10  -5     0    0    0 S  0.0  0.0   0:00.00 kthread
-   21 root      10  -5     0    0    0 S  0.0  0.0   0:00.00 kacpid
-   97 root      10  -5     0    0    0 S  0.0  0.0   0:00.03 kblockd/0
-  269 root      20   0     0    0    0 S  0.0  0.0   0:00.00 pdflush
-
-...while compiling kernel, 50%+ time is spent in gcc, but top does not
-show it, or it shows it with something like 3% :-(. Same problem seems
-to be in 2.6.10-rc3... Does anybody else see that?
+Tooo many typso in on coment?
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

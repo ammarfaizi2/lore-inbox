@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266730AbTBCP1M>; Mon, 3 Feb 2003 10:27:12 -0500
+	id <S266771AbTBCP3D>; Mon, 3 Feb 2003 10:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266637AbTBCP1L>; Mon, 3 Feb 2003 10:27:11 -0500
-Received: from pointblue.com.pl ([62.121.131.135]:46599 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id <S266730AbTBCPZz>;
-	Mon, 3 Feb 2003 10:25:55 -0500
-Subject: Re: [BUG] vmalloc, kmalloc - 2.4.x
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1044289102.21009.1.camel@irongate.swansea.linux.org.uk>
-References: <1044284924.2402.12.camel@gregs>
-	 <1044289102.21009.1.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: K4 Labs
-Message-Id: <1044286828.2397.26.camel@gregs>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 03 Feb 2003 15:40:36 +0000
+	id <S266795AbTBCP3C>; Mon, 3 Feb 2003 10:29:02 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:407 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S266771AbTBCP2H>; Mon, 3 Feb 2003 10:28:07 -0500
+Message-ID: <3E3E8CAC.7010807@nortelnetworks.com>
+Date: Mon, 03 Feb 2003 10:37:16 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: bert hubert <ahu@ds9a.nl>, Ben Greear <greearb@candelatech.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: problems achieving decent throughput with latency.
+References: <3E3CCADA.6080308@candelatech.com> 	<20030202114838.GA16831@outpost.ds9a.nl> <1044249293.19078.1.camel@rth.ninka.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-03 at 16:18, Alan Cox wrote:
+David S. Miller wrote:
+> TCP can only send into a pipe as fast as it can see the
+> ACKs coming back.  That is how TCP clocks its sending rate,
+> and latency thus affects that.
 
-> Firstly vmalloc isnt permitted in interrupt context (use kmalloc with GFP_KERNEL),
-> although for such small chunks you might want to vmalloc a bigger buffer once
-> at startup.
-i've allso tried kmalloc with the same result.
-Also, in this example it is timer - module isn't cleanly wroted becouse
-it supose to be only an example.
+Wouldn't you just need larger windows?  The problem is latency, not 
+bandwidth.
+
+Chris
+
+
 
 -- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 Labs
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

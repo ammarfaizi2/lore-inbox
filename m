@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289116AbSBDQ1I>; Mon, 4 Feb 2002 11:27:08 -0500
+	id <S289062AbSBDQbf>; Mon, 4 Feb 2002 11:31:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289062AbSBDQ0z>; Mon, 4 Feb 2002 11:26:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2062 "EHLO
+	id <S289074AbSBDQbZ>; Mon, 4 Feb 2002 11:31:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12302 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289096AbSBDQ0n>; Mon, 4 Feb 2002 11:26:43 -0500
-Message-ID: <3C5EB634.7080902@zytor.com>
-Date: Mon, 04 Feb 2002 08:26:28 -0800
+	id <S289062AbSBDQbO>; Mon, 4 Feb 2002 11:31:14 -0500
+To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+Subject: Re: UNDI/PXE for 2.4.x available?
+Date: 4 Feb 2002 08:31:01 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3md05$ps3$1@cesium.transmeta.com>
+In-Reply-To: <20020204154633.E2BC267F3@penelope.materna.de>
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Erik A. Hendriks" <hendriks@lanl.gov>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org> <3C58CAE0.4040102@zytor.com> <20020131103516.I26855@lanl.gov> <m1elk6t7no.fsf@frodo.biederman.org> <3C59DB56.2070004@zytor.com> <m1r8o5a80f.fsf@frodo.biederman.org> <3C5A5F25.3090101@zytor.com> <m1hep19pje.fsf@frodo.biederman.org> <3C5ADDD1.6000608@zytor.com> <20020204134927.A5079@almesberger.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-
-  [...lots of good stuff...]
-
+Followup to:  <20020204154633.E2BC267F3@penelope.materna.de>
+By author:    Tobias Wollgam <tobias.wollgam@materna.de>
+In newsgroup: linux.dev.kernel
+>
+> Hello,
 > 
-> Worse yet, the file-based interface kind of conveys the promise that
-> the preloader is actually not necessary. This creates an incentive to
-> keep things that way, so more and more policy will have to be added
-> to the kernel, simply because externalizing it would shatter that
-> cute "loader-less" image.
+> is there a UNDI (Universal Network Driver Interface, a part of the 
+> PXE-specification) for the 2.4x kernel available?
 > 
-
-  [...]
-
-> 
-> So, while a file-based interface looks cool, I think a "thin"
-> memory-based interface will serve us better in the long run.
+> We found one from Intel in its linux-pxe-sdk for the 2.2.x kernel. This 
+> one works, but not with all pxe-networkcards.
 > 
 
+I think you'll have that problem with any UNDI driver; in either case
+I suspect that (a) performance will stink no matter what and (b) it
+won't work properly with SMP unless you apply really heavy locking.
 
-I agree with this sentiment.  As far as the filebased interface implying 
-it is self-contained/loaderless, we can just look at this thread as well 
-as Linux history -- the boot sector in a Linux kernel is basically 
-useless and doesn't even work on a lot of hardware today, yet people are 
-still refusing to deprecate it "because it's so convenient"...
+The PXE people at Intel really seems enamored with the idea of using
+the UNDI stack all the way into the operating system; I don't think
+any sane operating system does that (DOS, of course, does, but DOS
+isn't a sane operating system.)  If I'm not completely mistaken UNDI
+was derived from NDIS 2 or so -- widely considered the crappiest of
+all the various specifications for DOS drivers.
+
+> Potentially we will port it from 2.2 to 2.4 or rewrite it for 2.4 with 
+> a little assistance.
 
 	-hpa
 
-
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

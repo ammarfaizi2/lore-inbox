@@ -1,117 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316961AbSGXLpe>; Wed, 24 Jul 2002 07:45:34 -0400
+	id <S316969AbSGXLu3>; Wed, 24 Jul 2002 07:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316969AbSGXLpe>; Wed, 24 Jul 2002 07:45:34 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:3973 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S316961AbSGXLpd>;
-	Wed, 24 Jul 2002 07:45:33 -0400
-Date: Wed, 24 Jul 2002 13:47:41 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [patch] irqlock patch 2.5.27-H4
-Message-ID: <Pine.LNX.4.44.0207241344160.14551-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316994AbSGXLu3>; Wed, 24 Jul 2002 07:50:29 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:65244 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S316969AbSGXLu2>;
+	Wed, 24 Jul 2002 07:50:28 -0400
+Date: Wed, 24 Jul 2002 13:53:22 +0200
+From: Jens Axboe <axboe@suse.de>
+To: martin@dalecki.de
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: please DON'T run 2.5.27 with IDE!
+Message-ID: <20020724115322.GC5159@suse.de>
+References: <Pine.SOL.4.30.0207241248380.17154-100000@mion.elka.pw.edu.pl> <3D3E90E4.3080108@evision.ag>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D3E90E4.3080108@evision.ag>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 24 2002, Marcin Dalecki wrote:
+> >>So look at drivers which call blk_start_queue() from within
+> >>q->request_fn context, which is, well, causing deliberate *recursion*.
+> >>
+> >
+> >
+> >Are you sure? If so they should first check whether queue is
+> >started/stopped, if they don't it is a bug.
+> 
+> void blk_start_queue(request_queue_t *q)
+> {
+>         if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
+>                 unsigned long flags;
+> 
+> ================== possigle race here for qeue_flags BTW.
+> 
+>                 spin_lock_irqsave(q->queue_lock, flags);
+>                 clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
+> 
+>                 if (!elv_queue_empty(q))
+>                         q->request_fn(q);
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> If we call it from within request_fn then if this isn't recursion on the
+> kernel stack then I don't know...
+> 
+>                 spin_unlock_irqrestore(q->queue_lock, flags);
+>         }
+> }
 
-the latest irqlock patch can be found at:
+Care to enlighten us on exactly which block drivers call
+blk_start_queue() from request_fn?
 
-   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-H4
-
-Changes in -H4:
-
- - fix the cli()/sti() hack in ide/main.c, per Marcin Dalecki's
-   suggestion. [this leaves the tty layer as the only remaining subsystem
-   that still has cli()/sti() related hacks.]
-
-Changes in -H3:
-
- - init thread needs to have preempt_count of 1 until sched_init(). 
-   (William Lee Irwin III)
-
- - clean up the irq-mask macros. (Linus)
-
- - add barrier() to irq_enter() and irq_exit(). (based on Oleg Nesterov's
-   comment.)
-
- - move the irqs-off check into preempt_schedule() and remove
-   CONFIG_DEBUG_IRQ_SCHEDULE.
-
-Changes in -G5:
-
- - remove spin_unlock_no_resched() and comment the affected places more
-   agressively.
-
-Changes in -G3:
-
- - slab.c needs to spin_unlock_no_resched(), instead of spin_unlock(). (It
-   also has to check for preemption in the right spot.) This should fix
-   the memory corruption.
-
- - irq_exit() needs to run softirqs if interrupts not active - in the 
-   previous patch it ran them when preempt_count() was 0, which is
-   incorrect.
-
- - spinlock macros are updated to enable preemption after enabling 
-   interrupts. Besides avoiding false positive warnings, this also 
-
- - fork.c has to call scheduler_tick() with preemption disabled - 
-   otherwise scheduler_tick()'s spin_unlock can preempt!
-
- - irqs_disabled() macro introduced.
-
- - [ all other local_irq_enable() or sti instances conditional on
-     CONFIG_DEBUG_IRQ_SCHEDULE are to fix false positive warnings. ]
-
-Changes in -G0:
-
- - fix buggy in_softirq(). Fortunately the bug made the test broader,
-   which didnt result in algorithmical breakage, just suboptimal
-   performance.
-
- - move do_softirq() processing into irq_exit() => this also fixes the
-   softirq processing bugs present in apic.c IRQ handlers that did not
-   test for softirqs after irq_exit().
-
- - simplify local_bh_enable().
-
-Changes in -F9:
-
- - replace all instances of:
-
-	local_save_flags(flags);
-	local_irq_disable();
-
-   with the shorter form of:
-
-	local_irq_save(flags);
-
-  about 30 files are affected by this change.
-
-Changes in -F8:
-
- - preempt/hardirq/softirq count separation, cleanups.
-
- - skbuff.c fix.
-
- - use irq_count() in scheduler_tick()
-
-Changes in -F3:
-
- - the entry.S cleanups/speedups by Oleg Nesterov.
-
- - a rather critical synchronize_irq() bugfix: if a driver frees an 
-   interrupt that is still being probed then synchronize_irq() locks up.
-   This bug has caused a spurious boot-lockup on one of my testsystems,
-   ifconfig would lock up trying to close eth0.
-
- - remove duplicate definitions from asm-i386/system.h, this fixes 
-   compiler warnings.
-
-	Ingo
+-- 
+Jens Axboe
 

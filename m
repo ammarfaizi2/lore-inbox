@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318079AbSIJTlO>; Tue, 10 Sep 2002 15:41:14 -0400
+	id <S318085AbSIJTqd>; Tue, 10 Sep 2002 15:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318097AbSIJTlO>; Tue, 10 Sep 2002 15:41:14 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:905 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S318079AbSIJTkB>;
-	Tue, 10 Sep 2002 15:40:01 -0400
-Message-Id: <m17oqw9-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: Re: 2.5.X config: USB speedtouch driver
-In-Reply-To: <20020910190424.GA22753@kroah.com> "from Greg KH at Sep 10, 2002
- 12:04:24 pm"
-To: Greg KH <greg@kroah.com>
-Date: Tue, 10 Sep 2002 14:44:37 -0500 (CDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S318086AbSIJTqd>; Tue, 10 Sep 2002 15:46:33 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47862 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318085AbSIJTqc>; Tue, 10 Sep 2002 15:46:32 -0400
+Date: Tue, 10 Sep 2002 21:51:12 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Miles Lane <miles.lane@attbi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.33 -- pnpbios_core.c: 167: In function `call_pnp_bios':
+ Invalid lvalue in unary `&'
+In-Reply-To: <1031593997.11629.0.camel@turbulence.megapathdsl.net>
+Message-ID: <Pine.NEB.4.44.0209102150520.18902-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=ELM731659032-2809-0_
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9 Sep 2002, Miles Lane wrote:
 
---ELM731659032-2809-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+>   gcc -Wp,-MD,./.pnpbios_core.o.d -D__KERNEL__
+> -I/usr/src/linux-2.5.33/include -Wall -Wstrict-prototypes -Wno-trigraphs
+> -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+> -mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix
+> include    -DKBUILD_BASENAME=pnpbios_core -DEXPORT_SYMTAB  -c -o
+> pnpbios_core.o pnpbios_core.c
+> pnpbios_core.c: In function `call_pnp_bios':
+> pnpbios_core.c:167: invalid lvalue in unary `&'
+> ...
+> make[2]: *** [pnpbios_core.o] Error 1
+> make[2]: Leaving directory `/usr/src/linux-2.5.33/drivers/pnp'
+>
+> CONFIG_MK7=y
+> CONFIG_PNP=y
+> CONFIG_PNPBIOS=y
 
-Greg KH wrote:
-> On Tue, Sep 10, 2002 at 01:53:45PM -0500, Bob_Tracy wrote:
-> > Minor nit: the subject driver depends on ATM, so a config-time check to
-> > see if ATM support is enabled is appropriate.
-> 
-> Agreed, patch? :)
+This is a known issue and the fix is already in 2.5.34.
 
-Ok.  You shamed me into it :-).  If I understand how dep_tristate works,
-the attached one-liner should do the trick.  Sorry for doing this as an
-attachment, but I've seen my mailer mangle stuff when I try to include
-it in-line :-(.
+cu
+Adrian
 
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
 
---ELM731659032-2809-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: attachment; filename=patch34_usbmisc
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
---- linux/drivers/usb/misc/Config.in.orig	Wed Aug 28 21:02:04 2002
-+++ linux/drivers/usb/misc/Config.in	Tue Sep 10 14:39:38 2002
-@@ -8,4 +8,4 @@
- dep_tristate '  USB Diamond Rio500 support (EXPERIMENTAL)' CONFIG_USB_RIO500 $CONFIG_USB $CONFIG_EXPERIMENTAL
- dep_tristate '  Tieman Voyager USB Braille display support (EXPERIMENTAL)' CONFIG_USB_BRLVGER $CONFIG_USB $CONFIG_EXPERIMENTAL
- dep_tristate '  USB LCD driver support' CONFIG_USB_LCD $CONFIG_USB
--dep_tristate '  Alcatel Speedtouch ADSL USB Modem' CONFIG_USB_SPEEDTOUCH $CONFIG_USB    
-+dep_tristate '  Alcatel Speedtouch ADSL USB Modem' CONFIG_USB_SPEEDTOUCH $CONFIG_USB $CONFIG_ATM
-
---ELM731659032-2809-0_--

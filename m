@@ -1,67 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVAYP5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVAYQA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbVAYP5G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVAYP5F
+	id S261991AbVAYQA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 11:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbVAYQA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:57:05 -0500
-Received: from moutng.kundenserver.de ([212.227.126.191]:47311 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261989AbVAYP4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:56:45 -0500
-From: Elias da Silva <silva@aurigatec.de>
-Organization: aurigatec Informationssysteme GmbH
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] drivers/block/scsi_ioctl.c, Video DVD playback support
-Date: Tue, 25 Jan 2005 16:52:51 +0100
-User-Agent: KMail/1.7.2
-References: <200501220327.38236.silva@aurigatec.de> <200501251029.22646.silva@aurigatec.de> <1106656675.14787.10.camel@localhost.localdomain>
-In-Reply-To: <1106656675.14787.10.camel@localhost.localdomain>
-Cc: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501251652.51452.silva@aurigatec.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:71cf304d62c8802a383a5ddf42c5bd08
+	Tue, 25 Jan 2005 11:00:27 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:24761 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261991AbVAYP7r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 10:59:47 -0500
+Subject: Re: 2.6.11-rc2-mm1
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+In-Reply-To: <58cb370e050125073464befe4@mail.gmail.com>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	 <20050125125323.GA19055@infradead.org> <1106662284.5257.53.camel@uganda>
+	 <20050125142356.GA20206@infradead.org> <1106666690.5257.97.camel@uganda>
+	 <58cb370e050125073464befe4@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IAvxYqcl4YH5TBJpnMGb"
+Organization: MIPT
+Date: Tue, 25 Jan 2005 19:04:47 +0300
+Message-Id: <1106669087.5257.100.camel@uganda>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Tue, 25 Jan 2005 15:59:16 +0000 (UTC)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 January 2005 13:44, you wrote:
-: On Maw, 2005-01-25 at 09:29, Elias da Silva wrote:
-: > On Tuesday 25 January 2005 01:01, you wrote:
-: > Yes, sometimes you have to risk broken software in favor of augmented
-: > security, but so far we only have broken software.
-: 
-: Well let me see in 2.6.5 if you could read open the block device at all
-: you could erase the drive firmware. I think we've significantly improved
-: security actually.
 
-Alan, please don't let us loose focus!
+--=-IAvxYqcl4YH5TBJpnMGb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm talking about  the classification of the opcodes
-     a. GPCMD_SEND_KEY and
-     b. GPCMD_SET_STREAMING
+On Tue, 2005-01-25 at 16:34 +0100, Bartlomiej Zolnierkiewicz wrote:
 
-as only "save for write" in scsi_ioctl.c:verify_command()
-since kernel version 2.6.8.
+> > There are no places like
+> > lock a
+> > lock b
+> > unlock a
+> > unlock b
+> >=20
+> > and if they are, then I'm completely wrong.
+> >=20
+> > What you see is only following:
+> >=20
+> > place 1:
+> > lock a
+> > lock b
+> > unlock b
+> > lock c
+> > unlock c
+> > unlock a
+> >=20
+> > place 2:
+> > lock b
+> > lock a
+> > unlock a
+> > lock c
+> > unlock c
+> > unlock b
+>=20
+> Ugh, now think about that:
+>=20
+> CPU0     CPU1
+> place1:   place2:
+> lock a      lock b
+> < guess what happens here :-) >
+> lock b      lock a
+> ...             ...
 
-The intended security improvements of this restriction can be
-completed circumvented by using
-	a. cdrom_ioctl (..., DVD_AUTH,...) instead of
-	b. cdrom_ioctl (..., CDROM_SEND_PACKET,...)
+:) he-he, such place are in add and remove routings, and they can not be
+run simultaneously
+in different CPUs.
 
-so the result is as described:
+And in other places they should go through the same lock(sdev or chain):
+like=20
+lock sdev_lock
+lock chain
+unclok chain=20
+lock logic
+unlock logic
+unlock sdev_lock
 
-"no security improvements at the cost of broken software".
 
-The changes looked random to me and I would like to see
-a clear concept, which would drive the necessary changes for
-improved security and stability.
-I'm putting my finger on some loose ends below drivers/cdrom,
-drivers/ide and drivers/block.
+lock sdev_lock
+lock logic
+unlock logic
+lock chain
+unclok chain=20
+unlock sdev_lock
 
-Regards,
+--=20
+        Evgeniy Polyakov
 
-Elias
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-IAvxYqcl4YH5TBJpnMGb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBB9m4fIKTPhE+8wY0RAlbCAJ9Zqj/XWQpBz6p25Pj3qe6Bj499gACeLwHV
+Z4MioWZ2P8QgpyCP/BmTvwE=
+=Ymcs
+-----END PGP SIGNATURE-----
+
+--=-IAvxYqcl4YH5TBJpnMGb--
+

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131976AbRDNXej>; Sat, 14 Apr 2001 19:34:39 -0400
+	id <S132125AbRDNXna>; Sat, 14 Apr 2001 19:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132125AbRDNXe3>; Sat, 14 Apr 2001 19:34:29 -0400
-Received: from relay.freedom.net ([207.107.115.209]:18950 "HELO relay")
-	by vger.kernel.org with SMTP id <S131976AbRDNXeR>;
-	Sat, 14 Apr 2001 19:34:17 -0400
-X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQGHVsjK7CtTZHSbyjOzjlecCKGe59aI9itYgrYbGz8P1ZdySWU8JZ7s
-Date: Sat, 14 Apr 2001 17:33:02 -0600
-Old-From: cacook@freedom.net
+	id <S132485AbRDNXnV>; Sat, 14 Apr 2001 19:43:21 -0400
+Received: from die-macht.oph.RWTH-Aachen.DE ([137.226.147.190]:6978 "EHLO
+	die-macht") by vger.kernel.org with ESMTP id <S132125AbRDNXnD>;
+	Sat, 14 Apr 2001 19:43:03 -0400
+Message-ID: <3AD8E07D.9EC19CC1@die-macht.oph.rwth-aachen.de>
+Date: Sun, 15 Apr 2001 01:42:53 +0200
+From: Stefan Becker <stefan@die-macht.oph.rwth-aachen.de>
+Reply-To: stefan@oph.rwth-aachen.de
+Organization: OPH
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: DPT PM3755F Fibrechannel Host Adapter
-Content-Type: text/plain; charset = "us-ascii" 
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RealTek 8139 driver updated, tested requested
+In-Reply-To: <3AD842B3.A4C82698@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: cacook@freedom.net
-Message-Id: <20010414233426Z131976-682+268@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been unable to set up a module for my DPT fibrechannel host adapter, partly through unavailability, and partly through inexperience.
+Hi!
 
-Found Ricky Beam's 2.4.0-test7 .diff, but lack the experience to retrofit it to 2.4.2. Tried  patch -su <dpt_i2o-test7.diff  to my kernel 2.4.2 source, but many errors not surprisingly.  Tried hand-modifying the files it changes and creating the .c & .h files, but failed there too.
+Jeff Garzik wrote:
+> A new version of the ethernet driver for RTL-8139-based 10/100 boards
+> has been posted at
+> 
+>         http://sourceforge.net/projects/gkernel/
+> 
+> This update includes a couple major bugfixes, and I am interested in
+> getting the widest testing possible for it.
 
-What he made is (an apparently) unified .diff file for an older version of the kernel,
-and I would like to get my fibrechannel working as (at least) a module in 2.4.2 and later if possible.
---
-C.
+No problems so far. It works fine since 10 hours.
+No more "too much work on interrupt" messages.
 
-The best way out is always through.
-      - Robert Frost  A Servant to Servants, 1914
-
+Thanks,
+Stefan

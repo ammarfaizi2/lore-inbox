@@ -1,119 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVBWLRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVBWLZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbVBWLRF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 06:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVBWLRF
+	id S261457AbVBWLZw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 06:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVBWLZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 06:17:05 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:59317 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261458AbVBWLQ5 (ORCPT
+	Wed, 23 Feb 2005 06:25:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60106 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261457AbVBWLZd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 06:16:57 -0500
-Date: Wed, 23 Feb 2005 14:41:44 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: guillaume.thouvenin@bull.net, greg@kroah.com, linux-kernel@vger.kernel.org,
-       elsa-devel@lists.sourceforge.net, gh@us.ibm.com, efocht@hpce.nec.com
-Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
-Message-ID: <20050223144144.35d8985f@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050223025806.5a39f8fb.akpm@osdl.org>
-References: <1108649153.8379.137.camel@frecb000711.frec.bull.fr>
-	<1109148752.1738.105.camel@frecb000711.frec.bull.fr>
-	<20050223010747.0a572422.akpm@osdl.org>
-	<20050223140818.4261c4d0@zanzibar.2ka.mipt.ru>
-	<20050223025806.5a39f8fb.akpm@osdl.org>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Feb 2005 06:25:33 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org> 
+References: <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org>  <20050222190646.GA7079@austin.ibm.com> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Olof Johansson <olof@austin.ibm.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, jamie@shareable.org,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Wed, 23 Feb 2005 11:24:49 +0000
+Message-ID: <5109.1109157889@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Feb 2005 02:58:06 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >
-> > On Wed, 23 Feb 2005 01:07:47 -0800
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > > Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
-> > > >
-> > > > Hello,
-> > > > 
-> > > >   This patch replaces the relay_fork module and it implements a fork
-> > > > connector in the kernel/fork.c:do_fork() routine. The connector sends
-> > > > information about parent PID and child PID over a netlink interface. It
-> > > > allows to several user space applications to be informed when a fork
-> > > > occurs in the kernel. The main drawback is that even if nobody listens,
-> > > > message is send. I don't know how to avoid that.
-> > > 
-> > > We really should find a way to fix that.  Especially if we want all the
-> > > distributors to enable the connector in their builds (we do).
-> > 
-> > Mesage is never reached anyone if there are no listeners, skb will be just freed,
-> > even without any linking.
-> > do_one_broadcast() in net/netlink/af_netlink.c takes care of it.
-> > Unicast message also will be discarded in cn_rx_skb().
+> It shouldn't be. If one read writer is active, another should be able to 
+> come in, regardless of any pending writer trying to access it. At least 
+> that's always been the rule for the rw-spinlocks _exactly_ for this 
+> reaseon.
+
+But not with rw-semaphores. I've designed them to be as fair as I can possibly
+make them. This means holding reads up if there's a write pending.
+
+> The rwsem code tries to be fairer, maybe it has broken this case in the 
+> name of fairness. I personally think fairness is overrated, and would 
+> rather have the rwsem implementation let readers come in.
+
+I've seen writer starvation happening due to a continuous flow of overlapping
+reads... That's one of the reasons I reimplemented rwsems.
+
+Also, fair rwsems are easier to provide an assembly optimised form for that
+doesn't involve the "thundering-herd" approach. Obviously, with the spinlock
+approach, you can implement any semantics you desire once you're holding the
+spinlock. With the optimised form as implemented, you can't determine how many
+active readers there are. This information isn't stored anywhere.
+
+> We have a notion of "atomic get_user()" calls, which is a lot more
+> efficient, and is already used for other cases where we have _real_
+> deadlocks (inode semaphore for reads into shared memory mappigns).
+
+That's okay, provided the data you're trying to access isn't lurking on a disk
+somewhere.
+
+> > Auditing other read-takers of mmap_sem, I found one more exposure that
+> > could be solved by just moving code around.
 > 
-> We should assume that there will always be listeners.  (why was the
-> connector thing added anyway?  Its changelog is pathetic).
->
-> > These operations are quite cheap - just link/unlink skb to/from appropriate
-> > queues.
-> 
-> Please assume that <whatever secret application the connector stuff was
-> originally written for> will always be listening.
->
-> > > What happened to the idea of sending an on/off message down the netlink
-> > > socket?
-> > 
-> > ?
-> 
-> All those emails I sent last week.
-> 
-> Arrange for the userspace daemon to send a message to the fork_connector
-> subsystem turning it on or off.  So we can bypass all this code in the
-> common case where <secret application> is listening, but your daemon is
-> not.
+> DavidH - what's the word on nested read-semaphores like this? Are they 
+> supposed to work (like nested read-spinlocks), or do we need to do the 
+> things Olof does?
 
-Ok, now I see(I'm not a fork connector author, so I did not receive them).
-That will require to add real fork connector with callback routing.
-Guillaume?
+Nesting rwsems like this is definitely on the not-recommended list.
 
-> > > > +		if (msg) {
-> > > > +			memset(msg, '\0', size);
-> > > 
-> > > Do we really need to memset the whole thing?
-> > 
-> > Yes, to not leak kernel memory context.
-> 
-> How would we do that?  There are no gaps in the payload and we tell netlink
-> the exact length.
+For the special case of the mmap semaphore, I'd advocate following something
+like Jamie Lokier's solution, and note when a task holds its own mmap_sem
+semaphore read-locked such that page-fault can avoid taking it again.
 
-Without memset kernel memory from slab cache will be sent to the userspace.
-Neither kmalloc() itself nor cache does not prefill the allocated area.
+Something like:
 
-> > > > +			memcpy(&msg->id, &fork_id, sizeof(msg->id));
-> > > > +			msg->seq = seq++;
-> > > 
-> > > `seq' needs a lock to protect it.  Or use atomic_add_return(), maybe.
-> > 
-> > Not necessary, I doubt fork userspace listener uses protocol described in
-> > connector.c and relies on seq field since it is not needed to have acks/replays.
-> > Although it can be used as a flag that it is new fork, but message itself
-> > is already such an event.
-> 
-> Without a lock you can have two messages with the same sequence number. 
-> Even if the daemon which you're planning on implementing can handle that,
-> we shouldn't allow it.
+	struct task_struct {
+		...
+		unsigned mmsem_nest;
+		...
+	};
 
-Yes, they can have the same number, but does it cost atomic/lock overhead?
-Anyway, simple spin_lock() should be enough in do_fork() context.
-Guillaume?
+	static inline void lock_mm_for_read(struct mm_struct *mm) {
+		if (current->mm == mm &&
+		    current->mmsem_nest++ != 0)
+			;
+		else
+			down_read(&mm->mmap_sem);
+	}
 
-	Evgeniy Polyakov
+	static inline void unlock_mm_for_read(struct mm_struct *mm) {
+		if (current->mm == mm &&
+		    --current->mmsem_nest != 0)
+			;
+		else
+			up_read(&mm->mmap_sem);
+	}
 
-Only failure makes us experts. -- Theo de Raadt
+	static inline void lock_mm_for_write(struct mm_struct *mm) {
+		down_write(&mm->mmap_sem);
+	}
+
+	static inline void unlock_mm_for_write(struct mm_struct *mm) {
+		up_write(&mm->mmap_sem);
+	}
+
+Though I'd be tempted to say that faulting is the only case in which recursion
+is permitted, and change the first two functions to reflect this and add an
+extra pair specially for page-fault:
+
+	static inline void lock_mm_for_read(struct mm_struct *mm) {
+		down_read(&mm->mmap_sem);
+		if (current->mm == mm &&
+		    current->flags |= PF_MMAP_SEM)
+	}
+
+	static inline void unlock_mm_for_read(struct mm_struct *mm) {
+		if (current->mm == mm &&
+		    current->flags &= ~PF_MMAP_SEM)
+		up_read(&mm->mmap_sem);
+	}
+
+	static inline void lock_mm_for_fault(struct mm_struct *mm) {
+		if (!(current->flags & PF_MMAP_SEM))
+			down_read(&mm->mmap_sem);
+	}
+
+	static inline void unlock_mm_for_fault(struct mm_struct *mm) {
+		if (!(current->flags & PF_MMAP_SEM))
+			up_read(&mm->mmap_sem);
+	}
+
+If current->mm is passed as the argument, the compiler's optimiser should
+discard the first comparison in the if-statement.
+
+Then futex.c would hold:
+
+	lock_mm_for_read(&current->mm);
+	get_futex_key(...) etc.
+	queue_me(...) etc.
+	ret = get_user(...);
+	/* the rest */
+	unlock_mm_for_read(&current->mm);
+
+And do_page_fault() would hold:
+
+	lock_mm_for_fault(&current->mm);
+	...
+	unlock_mm_for_fault(&current->mm);
+
+David

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315483AbSGALyV>; Mon, 1 Jul 2002 07:54:21 -0400
+	id <S315487AbSGAMMb>; Mon, 1 Jul 2002 08:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315487AbSGALyU>; Mon, 1 Jul 2002 07:54:20 -0400
-Received: from [194.105.207.66] ([194.105.207.66]:14208 "EHLO
-	vider.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S315483AbSGALyT>; Mon, 1 Jul 2002 07:54:19 -0400
-Message-ID: <000801c220f5$8176fb50$15cf69c2@nick>
-From: "Nick Evgeniev" <nick@octet.spb.ru>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <E17O821-0007we-00@the-village.bc.nu>
-Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
-Date: Mon, 1 Jul 2002 15:49:43 +0400
+	id <S315491AbSGAMMa>; Mon, 1 Jul 2002 08:12:30 -0400
+Received: from mons.uio.no ([129.240.130.14]:2971 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S315487AbSGAMM3>;
+	Mon, 1 Jul 2002 08:12:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo, Norway
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: Fragment flooding in 2.4.x/2.5.x
+Date: Mon, 1 Jul 2002 14:14:50 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200206281821.WAA00420@mops.inr.ac.ru>
+In-Reply-To: <200206281821.WAA00420@mops.inr.ac.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207011414.50465.trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-    Why are you so assure? It's "msi 845e Max" with LAN on-board mb with
-_latest_ BIOS installed....
-Just FYI 2.4.18 was even unable to run eepro100 driver on it while intels
-e100 driver was working perfectly.
-
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Nick Evgeniev" <nick@octet.spb.ru>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, June 29, 2002 6:32 AM
-Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
-
-
-> Complain to your BIOS vendor
+On Friday 28 June 2002 20:21, Alexey Kuznetsov wrote:
+> Hello!
 >
-> A workaround for this BIOS flaw will be in the -ac tree in a week or so
+> > suddenly jump to ~4.5MB/s (peak was 5MB/s).
 >
->
+> Hmm.. it is funny that you were satisfied with previous value
+> and it is funny that it still does not saturate link.
 
+It is only recently that we have come far enough with implementing things like 
+round trip timing, congestion control, etc. to really start noticing these 
+effects. Without the RTT scheme on the UDP link, you simply don't see it (you 
+only notice a large difference with TCP).
+
+Note that this covers the discrepancy between NFS over TCP and NFS over UDP 
+against that particular machine, so I do not expect further improvements.
+The main reason why I don't expect to saturate the link is that these are NFS 
+*writes*, hence random things like file semaphore contentions, disk access 
+and write speeds etc. on the server, pop up.
+
+> Of course. If you noticed this year or two or three ago, it would be even
+> an urgent problem. But until now it was problem with status of "well-known
+> bogosity which requires some sane solution but can wait for some good idea
+> for infinite time because of absence of any real applications sensing it"
+> :-)
+
+I've now got the application and a demonstration of what kind of fix is 
+needed. I hope you and Dave can work out a better patch in for 2.4.20-pre  
+;-)...
+
+Cheers,
+   Trond

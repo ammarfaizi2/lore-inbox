@@ -1,73 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266600AbUFRTjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266599AbUFRTlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266600AbUFRTjq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266536AbUFRTfa
+	id S266599AbUFRTlD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUFRTk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:35:30 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:23425 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S266599AbUFRTeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:34:23 -0400
-Message-ID: <40D343B6.4010302@uni-paderborn.de>
-Date: Fri, 18 Jun 2004 21:34:14 +0200
-From: Bjoern Schmidt <bj-schmidt@uni-paderborn.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Via-Rhine ethernet driver problem?
-References: <40685BC9.1040902@myrealbox.com>
-In-Reply-To: <40685BC9.1040902@myrealbox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 18 Jun 2004 15:40:26 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:9089 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266599AbUFRTjq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:39:46 -0400
+Message-Id: <200406181940.i5IJeBDh032311@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness 
+In-Reply-To: Your message of "Fri, 18 Jun 2004 13:12:34 PDT."
+             <40D34CB2.10900@opensound.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay> <40D23701.1030302@opensound.com> <1087573691.19400.116.camel@winden.suse.de> <40D32C1D.80309@opensound.com> <20040618190257.GN14915@schnapps.adilger.int>
+            <40D34CB2.10900@opensound.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1711540843P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.275,
-	required 4, AUTH_EIM_USER -5.00, RCVD_IN_NJABL 0.10,
-	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-MailScanner-From: bj-schmidt@uni-paderborn.de
+Date: Fri, 18 Jun 2004 15:40:11 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-walt wrote:
+--==_Exmh_1711540843P
+Content-Type: text/plain; charset=us-ascii
 
-[...]
+On Fri, 18 Jun 2004 13:12:34 PDT, 4Front Technologies said:
 
-> I also discovered by using 'scp' to copy files between machines that the 
-> bad
-> performance is assymetrical:  copying a file *to* this machine runs at 
-> about
-> half-speed (5 MB/sec) whereas copying a file *from* this machine runs at
-> 45 KiloB/sec, about one percent of expected.
+> We precisely use this mechanism - we use 
+> /lib/modules/<version>/build/include/linux/config.h to figure such features out
+> but when the "build" part of the path doesn't point to the right source tree,
+> where do you look?. SuSE ships kernel sources "unconfigured" which means that
+> you have to rely on something else to tell you what the exact kernel
+> configuration looks like.
 
-I have exactly the same problem on a asrock k7vt2 with VIA's Rhine II:
+Right, but hopefully you can tell it's a SuSE machine via other means, and
+then apply a suitable workaround.
 
-megabyte:~# uname -a
-Linux megabyte 2.6.7 #1 Fri Jun 18 20:37:37 CEST 2004 i686 GNU/Linux
+Or are you claiming that SuSE is *so* weird that you can't even apply a
+test like:
 
-=================================================================
-
-megabyte:~# lspci -v
-0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 
-[Rhine-II] (rev 74)
-         Subsystem: VIA Technologies, Inc. VT6102 [Rhine-II]
-         Flags: bus master, medium devsel, latency 64, IRQ 11
-         I/O ports at dc00
-         Memory at dffffe00 (32-bit, non-prefetchable) [size=256]
-         Capabilities: [40] Power Management version 2
-
-==================================================================
-
-		up 		down
-100baseTx-FD:	~45 kB/s	~100 MBit/s
-100baseTx: 	~45 kB/s	~100 MBit/s
-10baseT-FD: 	~45 kB/s	~10  MBit/s
-10baseT:	~10 MBit/s	~10  MBit/s
+if [ -test $SuSE ]; then
+	echo Smells like a SuSE box - which of the following best describes your box?
+	i=1
+	for foo in ($likely_dirs) do;
+		echo ${i}: $foo
+		i=`expr $i + 1`
+	done;
+	read flavor
+	echo You chose $flavor...
+	ln -s /usr/src/linux/$flavor my_build
+fi
 
 
+--==_Exmh_1711540843P
+Content-Type: application/pgp-signature
 
--- 
-Greetings
-Bjoern Schmidt
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFA00UbcC3lWbTT17ARAuz2AJ4vMaN9JOIjQV4QVEKF9plgpS8c9ACePog9
+sROgOBrH01s22lNiBSUiJW0=
+=iOPX
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1711540843P--

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbTISA6o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 20:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTISA6o
+	id S262241AbTISBPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 21:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbTISBPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 20:58:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62872 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262213AbTISA6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 20:58:43 -0400
-Date: Thu, 18 Sep 2003 17:58:42 -0700
-From: Mark Wong <markw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linstab@osdl.org
-Subject: Re: [Linstab] Hackbench STP Results History for 2.5 mm/2.6 mm
-Message-ID: <20030918175842.A21411@osdlab.pdx.osdl.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linstab@osdl.org
-References: <200309190012.h8J0ClU15905@mail.osdl.org> <20030918170754.6164e770.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030918170754.6164e770.akpm@osdl.org>; from akpm@osdl.org on Thu, Sep 18, 2003 at 05:07:54PM -0700
+	Thu, 18 Sep 2003 21:15:20 -0400
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:60588 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S262241AbTISBPT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 21:15:19 -0400
+Date: Fri, 19 Sep 2003 02:58:21 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: linux-kernel@vger.kernel.org
+Subject: via-rhine apparently broken in 2.4.23-pre4
+Message-ID: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 18, 2003 at 05:07:54PM -0700, Andrew Morton wrote:
-> markw@osdl.org wrote:
-> >
-> > More history from hackbench from STP from the 2.5 and 2.6 mm kernels.
-> 
-> This looks great, but tragically incomprehensible.
-> 
-> Could someone please provide some interpretation, tell us what hackbench
-> is, and what all the numbers mean?
-> 
-> Do we rock or do we suck?
+Unverified (due to lack of hardware) report from a user:
 
-Sorry, I was a bit hasty.
+Updating from 2.4.22 to 2.4.23-pre4 breaks networking with an onboard VIA 
+Rhine II chip.
 
-Hackbench is a test from Rusty Russel that's intended to test the scalability
-of the scheduler.  The results I gathered are from a test where 100 processes
-are started to send a message to another set of 100 processes.  This is
-repeated at least a few times and the time taken to complete each instance
-is averaged.  Anyone feel free to correct me as I learned this second hand.
+It seems to transfer about 2 kB of data, then stall forever.
 
-The general trend in the metric indicates everything has been improving, so I
-think we rock.
+At a first look I'm not seeing anything wrong in the new code, but then 
+it's already 3:20 AM ;)
+
+LLaP
+bero
+
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php

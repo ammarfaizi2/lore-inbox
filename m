@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288748AbSAIDDW>; Tue, 8 Jan 2002 22:03:22 -0500
+	id <S288752AbSAIDHm>; Tue, 8 Jan 2002 22:07:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288749AbSAIDDM>; Tue, 8 Jan 2002 22:03:12 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:60166 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S288748AbSAIDDI>; Tue, 8 Jan 2002 22:03:08 -0500
-Date: Wed, 9 Jan 2002 12:01:08 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "H. Peter Anvin" <hpa@zytor.com>
+	id <S288753AbSAIDHc>; Tue, 8 Jan 2002 22:07:32 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:39673 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S288752AbSAIDHP>;
+	Tue, 8 Jan 2002 22:07:15 -0500
+Date: Tue, 8 Jan 2002 20:07:05 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Kervin Pierre <kpierre@fit.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
-Message-Id: <20020109120108.39bcf7ad.rusty@rustcorp.com.au>
-In-Reply-To: <a1f9j9$5i9$1@cesium.transmeta.com>
-In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com>
-	<200201070140.g071ewk21192@vindaloo.ras.ucalgary.ca>
-	<20020108111302.A14860@mould.bodgit-n-scarper.com>
-	<20020108201451.088f7f99.rusty@rustcorp.com.au>
-	<a1f9j9$5i9$1@cesium.transmeta.com>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Subject: Re: fs corruption recovery?
+Message-ID: <20020108200705.S769@lynx.adilger.int>
+Mail-Followup-To: Kervin Pierre <kpierre@fit.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C3BB082.8020204@fit.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C3BB082.8020204@fit.edu>; from kpierre@fit.edu on Tue, Jan 08, 2002 at 09:52:50PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Jan 2002 09:17:29 -0800
-"H. Peter Anvin" <hpa@zytor.com> wrote:
-> /proc/sys is pretty cool.  However, procfs has no permission control
-> system set up, unlike /dev.  This is inherent; adjusting sysctls is a
-> root-only function and cannot be made otherwise.
+On Jan 08, 2002  21:52 -0500, Kervin Pierre wrote:
+> I install and used 2.4.17 for about a week before my filesystem 
+> corrupted.  I've tried 'fsck -a' but it complains that there was no 
+> valid superblock found.
 
-Incorrect.  See my new /proc/sys implementation patch.  It's hidden in the
-flames somewhere...
+Try "e2fsck -B 4096 -b 32768 <device>" instead.
 
-Cheers,
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> Are there any tools or techniques that will recover data from the 
+> corrupted filesystem even if there isn't a valid superblock?  Or is 
+> there a way to write a temporary superblock so I can access the 
+> information on the disk?
+
+The ext2 format (includes ext3) has backup superblocks for just this reason.
+
+> Lastly, if all else fails I'm going to try sending the drive one of 
+> those 'file recovery companies'.  Does anyone have a recommendation for 
+> a particular company?  I'm guessing that there'll be a few that wouldn't 
+> know what to do with a ext3 partition.
+
+Is the data really that valuable, and you don't have a backup?  It may
+cost you several thousand dollars to do a recovery from such a company.
+Yet, it isn't worth doing backups, it appears.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

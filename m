@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUIVX6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUIWAB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268115AbUIVX6r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 19:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268118AbUIVX6q
+	id S268121AbUIWAB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 20:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUIWAB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 19:58:46 -0400
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:38065
-	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S268115AbUIVX6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 19:58:45 -0400
-Message-ID: <415211A8.8040907@ppp0.net>
-Date: Thu, 23 Sep 2004 01:58:32 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
+	Wed, 22 Sep 2004 20:01:56 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:64880 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268121AbUIWABe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 20:01:34 -0400
+Message-ID: <41521258.8000702@yahoo.com.au>
+Date: Thu, 23 Sep 2004 10:01:28 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Dave Aubin <daubin@actuality-systems.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Is there a user space pci rescan method?
-References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com>
-In-Reply-To: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Thomas Habets <thomas@habets.pp.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
+References: <200409230123.30858.thomas@habets.pp.se>
+In-Reply-To: <200409230123.30858.thomas@habets.pp.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Aubin wrote:
-> Hi,
+Thomas Habets wrote:
+> Hello.
 > 
->   I know very little about hotplug, but does make sense.
-> How do you motivate a hotplug insertion event?  Or should
-> I just go read the /docs on hotplugging?  Any help is
-> Appreciated:)
+> How about a sysctl that does "for the love of kbaek, don't ever kill these 
+> processes when OOM. If nothing else can be killed, I'd rather you panic"?
+> 
+> Examples for this list would be /usr/bin/vlock and /usr/X11R6/bin/xlock. 
+> I just got a very uncomfortable surprise when found my box unlocked thanks to 
+> this.
+> 
+> After playing around a bit, I made the patch below, but it's almost completely 
+> untested. I'm not even sure I take the binaries name from the right place. 
+> And I don't know if the locking can race. If it's too ugly then it'd be great 
+> if someone implemented it the right way. (iow: huge fucking disclaimer)
+> 
+> echo "/usr/bin/vlock /usr/X11R6/bin/xlock" > /proc/sys/vm/oom_pardon
+> 
 
-There is a "fake" hotplug driver which works for normal pci. But last
-time I looked at it, it did only support hot disabling, not hot enabling
-- but this surely can be fixed.
+Hi,
+Nice idea. It could probably made include-worthy if you just set a flag in the
+task struct in question.
 
-Thanks,
+Also, use pid numbers instead of names, I think. (Or prctl? What is the
+'preferred' way of setting random per-process flags?)
 
-Jan
+Nick

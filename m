@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130355AbQKVQ2k>; Wed, 22 Nov 2000 11:28:40 -0500
+        id <S131956AbQKVQdk>; Wed, 22 Nov 2000 11:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132129AbQKVQ2b>; Wed, 22 Nov 2000 11:28:31 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:28226 "EHLO
-        amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-        id <S130355AbQKVQ2Q>; Wed, 22 Nov 2000 11:28:16 -0500
-Date: Wed, 22 Nov 2000 18:05:53 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Daniel Stone <daniel@kabuki.eyep.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Rik's bad process killer - how to kill _IT_?
-In-Reply-To: <20001122123115Z129851-8303+80@vger.kernel.org>
-Message-ID: <Pine.LNX.4.21.0011221805070.27178-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131979AbQKVQda>; Wed, 22 Nov 2000 11:33:30 -0500
+Received: from adsl-63-205-85-133.dsl.snfc21.pacbell.net ([63.205.85.133]:18193
+        "EHLO schmee.sfgoth.com") by vger.kernel.org with ESMTP
+        id <S131956AbQKVQdY>; Wed, 22 Nov 2000 11:33:24 -0500
+Date: Wed, 22 Nov 2000 08:03:18 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Patrick van de Lageweg <patrick@bitwizard.nl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Rogier Wolff <wolff@bitwizard.nl>
+Subject: Re: [PATCH] atmrefcount
+Message-ID: <20001122080318.A53983@sfgoth.com>
+In-Reply-To: <Pine.LNX.4.21.0011221029020.995-100000@panoramix.bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.21.0011221029020.995-100000@panoramix.bitwizard.nl>; from patrick@bitwizard.nl on Wed, Nov 22, 2000 at 10:31:22AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, Daniel Stone wrote:
+Patrick van de Lageweg wrote:
+> This patch contains the fix for the atmrefcount problem (noted as a
+> critical problem in Ted's todo list). It also has the makefile
+> modifications for the firestream driver in a separate email. 
 
-> Hi,
-> I've been having a bit of a problem with Rik's new VM, in particular the bad
-> process-killer. Basically put, I have a reasonably underpowered system
-> (P166) running Helix GNOME & Sawfish, and half the time when I load my Eterm
-> (admittedly, transparent, but it looks cool, damnit!), or Netscape (or
-> both!) it seems to be Rik's VM killer slaying them. No error message is
-> logged anywhere, not even if I start 'em from the console.
-> Is there a /proc hack or something?
-> Thanks a lot!
+Could you please split the two patches so that they're actually independant
+(i.e. put all the stuff for the new driver in its own patch).  I'll
+comment on that driver seperately.
 
-This is NOT the OOM killer. It always logs / sends messages to the
-console. The app probably just segfaults.
-
-
-> :) d
-
-
-	Igmar
-
+-Mitch
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263796AbTKXT0p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 14:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTKXT0p
+	id S263855AbTKXTYg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 14:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263857AbTKXTYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 14:26:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41104 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263812AbTKXT0o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 14:26:44 -0500
-Date: Mon, 24 Nov 2003 11:27:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
-       Paul.McKenney@us.ibm.com
-Subject: Re: [BUG]Missing i_sb NULL pointer check in destroy_inode()
-Message-Id: <20031124112718.1e650478.akpm@osdl.org>
-In-Reply-To: <1069700440.16649.19433.camel@localhost.localdomain>
-References: <1068045518.10730.266.camel@socrates>
-	<20031105181600.GC18278@thunk.org>
-	<1068066524.10726.289.camel@socrates>
-	<20031106033817.GB22081@thunk.org>
-	<1068145132.10735.322.camel@socrates>
-	<20031106123922.Y10197@schatzie.adilger.int>
-	<1068148881.10730.337.camel@socrates>
-	<1068230146.10726.359.camel@socrates>
-	<20031109130826.2b37219d.akpm@osdl.org>
-	<1068419747.687.28.camel@socrates>
-	<20031109152936.3a9ffb69.akpm@osdl.org>
-	<1069700440.16649.19433.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 24 Nov 2003 14:24:36 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:5549 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263855AbTKXTYe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 14:24:34 -0500
+Date: Mon, 24 Nov 2003 11:24:32 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Ricky Beam <jfbeam@bluetronic.net>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: data from kernel.bkbits.net
+Message-ID: <20031124192432.GA20839@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ricky Beam <jfbeam@bluetronic.net>, Larry McVoy <lm@bitmover.com>,
+	Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+References: <20031124155034.GA13896@work.bitmover.com> <Pine.GSO.4.33.0311241405070.13188-100000@sweetums.bluetronic.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.33.0311241405070.13188-100000@sweetums.bluetronic.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
->
-> destroy_inode() dereferences inode->i_sb without checking if it is NULL.
-> This is inconsistent with its caller: iput() and clear_inode(),  both of
-> which check inode->i_sb before dereferencing it.
+On Mon, Nov 24, 2003 at 02:17:44PM -0500, Ricky Beam wrote:
+> On Mon, 24 Nov 2003, Larry McVoy wrote:
+> >Sorry to be short but I already said that I'd eliminated this source of
+> >error.  What did you think I was doing all weekend?
+> 
+> Let me be equally short.  Your original message gave no details of what
+> debugging steps had been taken. (I can assume you would know what you're
+> doing, but frankly, I could be wrong.)  You venture a guess that the
+> system had been h4x0r3d in some inventive way to prevent your attempts
+> to recover data and proceed to paste error messages from the 3ware
+> driver that indicate a problem with the hardware (either driver bug,
+> cabling, controller, or channel on that controller) including the
+> drive itself.
+> 
+> Please do not attribute to hackers what is simply a half dead drive.  So,
+> was the machine powered down for an extended period as I aluded? (to
+> preserve the machine until someone had time to look at it.)
 
-I assume this has only been observed with an out-of-tree filesystem, but
-yes, the consistency is good.
+As I said, *both* drives have extensive file system problems.  No, the 
+machine was not powered down for a long time, and no, neither of these
+drives are old, and no, they are not from the same factory batch (they
+aren't even the same vendor, one is a Maxtor and the other is a Seagate),
+and yes, I of course tried different cable/controller/machine combos.
 
+Any other questions?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

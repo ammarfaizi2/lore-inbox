@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVAPEeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVAPEiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbVAPEeE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 23:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVAPEeE
+	id S262427AbVAPEiH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 23:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAPEhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 23:34:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50949 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262423AbVAPEeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 23:34:00 -0500
-Date: Sun, 16 Jan 2005 05:33:56 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: anton@samba.org
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: ppc64 xics.c: what is smp_threads_ready exactly used for?
-Message-ID: <20050116043356.GM4274@stusta.de>
-Mime-Version: 1.0
+	Sat, 15 Jan 2005 23:37:39 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:52934 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262425AbVAPEhf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 23:37:35 -0500
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Alex Tomas <alex@clusterfs.com>, Andrew Tridgell <tridge@samba.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Ext3 nanosecond timestamps in big inodes
+References: <200501142216.12726.agruen@suse.de>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 16 Jan 2005 05:37:34 +0100
+In-Reply-To: <200501142216.12726.agruen@suse.de> (Andreas Gruenbacher's
+ message of "Fri, 14 Jan 2005 22:16:12 +0100")
+Message-ID: <m1acravvjl.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton,
+Andreas Gruenbacher <agruen@suse.de> writes:
 
-during a cleanup, I stumbled upon the following:
+> this is a spin-off of an old patch by Alex Tomas <alex@clusterfs.com>:
+> Alex originally had nanosecond timestamps in his original patch; here is
+> a rejuvenated version. Please tell me what you think. Alex also added a
+> create timestamp in his original patch. Do we actually need that?
+>
+> Nanoseconds consume 30 bits in the 32-bit fields. The remaining two bits 
+> currently are zeroed out implicitly. We could later use them remaining two 
+> bits for years beyond 2038.
 
+Looks good. Just two suggestions:
 
-arch/ppc64/kernel/smp.c (in 2.6.11-rc1-mm1) says:
+- Provide an mount option to turn it off because there may be
+performance regressions in some workload because inodes will be
+flushed more often.
+[I actually considered doing this generally at the VFS level
+when doing the s_time_gran patch, but it needed some more changes
+that I didn't want to do at that time. Doing it in the FS as
+interim solution would be fine too]
 
-        /* XXX fix this, xics currently relies on it - Anton */
-        smp_threads_ready = 1;
+- Use the 2 bits for additionals years right now on 64bit
+hosts. No need to keep the y2038 issue around longer than necessary.
 
-
-arch/ppc64/kernel/xics.c is the _only_ place in the whole kernel where 
-smp_threads_ready is actually used, and this is the _only_ place where 
-smp_threads_ready ever changes it's value on ppc64.
-
-I have to admit I'm a bit lost in the sequence of function calls on 
-ppc64. Is it possible to make any assumptions about the ordering of the 
-assignment and the usage of smp_threads_ready?
-
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Andi

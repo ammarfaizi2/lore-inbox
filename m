@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268959AbUIQTcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268961AbUIQTyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268959AbUIQTcn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 15:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUIQTcm
+	id S268961AbUIQTyn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 15:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUIQTyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 15:32:42 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:13070 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268957AbUIQTci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 15:32:38 -0400
-Date: Fri, 17 Sep 2004 20:31:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>,
-       lse-tech@lists.sourceforge.net, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] lockmeter: fixes
-Message-ID: <20040917203158.A16855@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ray Bryant <raybry@sgi.com>, Ray Bryant <raybry@austin.rr.com>,
-	Andrew Morton <akpm@osdl.org>, lse-tech@lists.sourceforge.net,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
-References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com> <20040917083127.F10537@infradead.org> <414B3270.2080409@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Sep 2004 15:54:43 -0400
+Received: from mail43-s.fg.online.no ([148.122.161.43]:32767 "EHLO
+	mail43-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S268961AbUIQTyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 15:54:41 -0400
+From: Kenneth =?iso-8859-1?q?Aafl=F8y?= <lists@kenneth.aafloy.net>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] Via-Rhine WOL vs PXE Boot
+Date: Fri, 17 Sep 2004 21:54:36 +0200
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <414B3270.2080409@sgi.com>; from raybry@sgi.com on Fri, Sep 17, 2004 at 01:52:32PM -0500
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200409172154.36550.lists@kenneth.aafloy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, I'll take a look at it as soon as I get done chasing the COOL bits changes.
-> 
-> Is there a specific example you can point me at as to how others have done this?
+Hi!
 
-Just grep for create_proc_entry - lots of drivers are using this.  In fact I wonder
-whether a miscdevice wouldn't be the better choice for lockmeter, but given that'd
-need userland changes let's stay away from that for now.
+In recent kernels I have been having trouble booting from a LAN with the built 
+in PXE firmware in my Via Epia M10k board. This will never happen after a 
+cold-boot. But do accur after the first reboot or power-down/power-up cycle. 
+When this occurs the PXE firmware exits with no error, as at least a 
+unplugged wire (from cold-boot) will yield an error message with the 
+unchanged driver. Cold-boot refers to complete power separation from the 
+motherboard.
+
+I've traced this down to a specific change in the via-rhine ethernet driver:
+
+http://linux.bkbits.net:8080/linux-2.6/diffs/drivers/net/via-rhine.c%401.75?nav=index.html|
+src/.|src/drivers|src/drivers/net|hist/drivers/net/via-rhine.c
+
+I have not yet tried messing with variations of this change vs the WOL 
+feature, or the WOL feature at all, but probably will sometime soon. If 
+someone have some idea of what might be going wrong here,
+I would be happy to test.
+
+Kenneth

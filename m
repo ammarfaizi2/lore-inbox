@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVBXMFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVBXMIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVBXMFc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 07:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVBXMFc
+	id S261538AbVBXMIw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 07:08:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVBXMIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 07:05:32 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:1680 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262267AbVBXMF0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 07:05:26 -0500
-Subject: Re: [PATCH 2.6.11-rc4-mm1] connector: Add a fork connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Jay Lan <jlan@engr.sgi.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Erich Focht <efocht@hpce.nec.com>
-In-Reply-To: <1109241901.6728.47.camel@uganda>
-References: <1109240677.1738.196.camel@frecb000711.frec.bull.fr>
-	 <1109241901.6728.47.camel@uganda>
-Date: Thu, 24 Feb 2005 13:05:26 +0100
-Message-Id: <1109246726.16029.200.camel@frecb000711.frec.bull.fr>
+	Thu, 24 Feb 2005 07:08:51 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:47307 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261538AbVBXMHv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 07:07:51 -0500
+Date: Thu, 24 Feb 2005 13:07:50 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: J?rn Nettingsmeier <pol-admin@uni-duisburg.de>
+Cc: linux-kernel@vger.kernel.org, nettings@folkwang-hochschule.de
+Subject: Re: FUTEX deadlock in ping?
+Message-ID: <20050224120750.GA18677@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	J?rn Nettingsmeier <pol-admin@uni-duisburg.de>,
+	linux-kernel@vger.kernel.org, nettings@folkwang-hochschule.de
+References: <421DA915.7020209@uni-duisburg.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 24/02/2005 13:14:21,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 24/02/2005 13:14:23,
-	Serialize complete at 24/02/2005 13:14:23
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <421DA915.7020209@uni-duisburg.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 13:45 +0300, Evgeniy Polyakov wrote:
-> > 
-> >   Todo:
-> > 
-> >     - Test the performance impact with lmbench
-> >     - Improve the callback that turns on/off the fork connector
-> >     - Create a specific module to register the callback.
+On Thu, Feb 24, 2005 at 11:14:45AM +0100, J?rn Nettingsmeier wrote:
+
+> ever since moving to ldap for passwd/group/shadow/hosts lookup, ping to 
+> a non-reachable host just freezes up and never returns:
 > 
-> Besides connector.c changes I do not have technical objections...
-> But I really would like to see your second and third TODO entries in 
-> ChangeLog before you will push it upstream.
+> spunk:~ # strace ping herrnilsson
+> execve("/bin/ping", ["ping", "herrnilsson"], [/* 61 vars */]) = 0
+> uname({sys="Linux", node="spunk", ...}) = 0
+> brk(0)                                  = 0x8063000
+> ...
+> ...
+> munmap(0x40504000, 4096)                = 0
+> brk(0x80a5000)                          = 0x80a5000
+> uname({sys="Linux", node="spunk", ...}) = 0
+> futex(0x401540f4, FUTEX_WAIT, 2, NULL
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Yes, I agree with that and I'm working on those two points.
+Try ping -n. This is most likely something else.
 
-Guillaume
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292515AbSBZADG>; Mon, 25 Feb 2002 19:03:06 -0500
+	id <S292533AbSBZAEh>; Mon, 25 Feb 2002 19:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292523AbSBZAC6>; Mon, 25 Feb 2002 19:02:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21265 "EHLO
+	id <S292530AbSBZAE0>; Mon, 25 Feb 2002 19:04:26 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25873 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292515AbSBZACz>; Mon, 25 Feb 2002 19:02:55 -0500
+	id <S292527AbSBZAED>; Mon, 25 Feb 2002 19:04:03 -0500
 From: Daniel Quinlan <quinlan@transmeta.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15482.53400.786310.950430@sodium.transmeta.com>
-Date: Mon, 25 Feb 2002 16:02:32 -0800 (PST)
+Message-ID: <15482.53460.90295.920987@sodium.transmeta.com>
+Date: Mon, 25 Feb 2002 16:03:32 -0800 (PST)
 To: linux-kernel@vger.kernel.org
 Cc: quinlan@transmeta.com
-Subject: [PATCH] cramfs big-endian kernel patch
+Subject: [PATCH] cramfs big-endian user-space patch
 X-Mailer: VM 6.75 under Emacs 20.4.1
 Reply-To: quinlan@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is against 2.4.19-pre1.  A second message follows with the
-patch for the user-space tools.  The original version of these changes
-were written by Bradley Bozarth <prettygood@cs.stanford.edu>.
+The cramfs CVS tree is under http://sourceforge.net/projects/cramfs/
 
-The kernel patch allows big-endian machines to mount and read cramfs
-filesystems (which are little-endian).  The user-space tools patch does
-the same for mkcramfs and cramfsck.  One note: there's a temporary
-#warning macro in cramfs_fs.h that should print out the (hopefully
-correct) byte order of your machine during compilation.
-
-On little-endian systems, the object code is essentially unmodified
-from the original (I think it's a few bytes longer since a constant is
-added in one place).
-
-Please let me know if you run into any problems.
+This patch is against the "linux" module, use the HEAD of the tree.
 
  - Dan
 
-diff -ur linux-2.4.19-pre1/Documentation/filesystems/cramfs.txt linux/Documentation/filesystems/cramfs.txt
---- linux-2.4.19-pre1/Documentation/filesystems/cramfs.txt	Mon Feb 25 14:43:50 2002
-+++ linux/Documentation/filesystems/cramfs.txt	Fri Feb 22 14:15:00 2002
+Index: Documentation/filesystems/cramfs.txt
+===================================================================
+RCS file: /cvsroot/cramfs/linux/Documentation/filesystems/cramfs.txt,v
+retrieving revision 1.3
+diff -u -r1.3 cramfs.txt
+--- Documentation/filesystems/cramfs.txt	16 Feb 2002 00:25:15 -0000	1.3
++++ Documentation/filesystems/cramfs.txt	25 Feb 2002 23:35:51 -0000
 @@ -37,12 +37,11 @@
  the update lasts only as long as the inode is cached in memory, after
  which the timestamp reverts to 1970, i.e. moves backwards in time.
@@ -59,9 +51,13 @@ diff -ur linux-2.4.19-pre1/Documentation/filesystems/cramfs.txt linux/Documentat
  
  
  For /usr/share/magic
-diff -ur linux-2.4.19-pre1/fs/cramfs/README linux/fs/cramfs/README
---- linux-2.4.19-pre1/fs/cramfs/README	Mon Feb 25 14:43:51 2002
-+++ linux/fs/cramfs/README	Mon Feb 25 15:31:35 2002
+Index: fs/cramfs/README
+===================================================================
+RCS file: /cvsroot/cramfs/linux/fs/cramfs/README,v
+retrieving revision 1.4
+diff -u -r1.4 README
+--- fs/cramfs/README	22 Feb 2002 23:56:14 -0000	1.4
++++ fs/cramfs/README	25 Feb 2002 23:35:51 -0000
 @@ -6,8 +6,8 @@
  swapped around (though it does care that directory entries (inodes) in
  a given directory are contiguous, as this is used by readdir).
@@ -129,9 +125,13 @@ diff -ur linux-2.4.19-pre1/fs/cramfs/README linux/fs/cramfs/README
  
  Another cost of 2 and 3 over 1 is making mkcramfs use a different
  block size, but that just means adding and parsing a -b option.
-diff -ur linux-2.4.19-pre1/fs/cramfs/inode.c linux/fs/cramfs/inode.c
---- linux-2.4.19-pre1/fs/cramfs/inode.c	Mon Feb 25 14:43:51 2002
-+++ linux/fs/cramfs/inode.c	Mon Feb 25 15:14:36 2002
+Index: fs/cramfs/inode.c
+===================================================================
+RCS file: /cvsroot/cramfs/linux/fs/cramfs/inode.c,v
+retrieving revision 1.4
+diff -u -r1.4 inode.c
+--- fs/cramfs/inode.c	22 Feb 2002 23:55:16 -0000	1.4
++++ fs/cramfs/inode.c	25 Feb 2002 23:35:51 -0000
 @@ -39,7 +39,7 @@
  
  /* These two macros may change in future, to provide better st_ino
@@ -172,6 +172,15 @@ diff -ur linux-2.4.19-pre1/fs/cramfs/inode.c linux/fs/cramfs/inode.c
  		}
  	}
  	return inode;
+@@ -153,7 +153,7 @@
+ 
+ 		bh = NULL;
+ 		if (blocknr + i < devsize) {
+-			bh = getblk(sb->s_dev, blocknr + i, PAGE_CACHE_SIZE);
++			bh = sb_getblk(sb, blocknr + i);
+ 			if (!buffer_uptodate(bh))
+ 				read_array[unread++] = bh;
+ 		}
 @@ -209,15 +209,18 @@
  	up(&read_mutex);
  
@@ -264,9 +273,13 @@ diff -ur linux-2.4.19-pre1/fs/cramfs/inode.c linux/fs/cramfs/inode.c
  		up(&read_mutex);
  		pgdata = kmap(page);
  		if (compr_len == 0)
-diff -ur linux-2.4.19-pre1/include/linux/cramfs_fs.h linux/include/linux/cramfs_fs.h
---- linux-2.4.19-pre1/include/linux/cramfs_fs.h	Mon Feb 25 14:43:51 2002
-+++ linux/include/linux/cramfs_fs.h	Thu Feb 21 19:30:55 2002
+Index: include/linux/cramfs_fs.h
+===================================================================
+RCS file: /cvsroot/cramfs/linux/include/linux/cramfs_fs.h,v
+retrieving revision 1.2
+diff -u -r1.2 cramfs_fs.h
+--- include/linux/cramfs_fs.h	17 Jan 2002 02:24:19 -0000	1.2
++++ include/linux/cramfs_fs.h	25 Feb 2002 23:35:51 -0000
 @@ -1,13 +1,25 @@
 -#ifndef __CRAMFS_H
 -#define __CRAMFS_H
@@ -352,3 +365,243 @@ diff -ur linux-2.4.19-pre1/include/linux/cramfs_fs.h linux/include/linux/cramfs_
  #endif
 +
 +#endif /* not __CRAMFS_FS_H */
+Index: scripts/cramfs/cramfsck.c
+===================================================================
+RCS file: /cvsroot/cramfs/linux/scripts/cramfs/cramfsck.c,v
+retrieving revision 1.4
+diff -u -r1.4 cramfsck.c
+--- scripts/cramfs/cramfsck.c	22 Feb 2002 23:56:47 -0000	1.4
++++ scripts/cramfs/cramfsck.c	25 Feb 2002 23:35:52 -0000
+@@ -30,6 +30,8 @@
+  * 2000/07/15: Daniel Quinlan (initial support for block devices)
+  * 2002/01/10: Daniel Quinlan (additional checks, test more return codes,
+  *                            use read if mmap fails, standardize messages)
++ * 2002/02/22: Brad Bozarth,  (add support for big-endian systems)
++ *             Daniel Quinlan
+  */
+ 
+ /* compile-time options */
+@@ -162,7 +164,7 @@
+ 	if (read(fd, &super, sizeof(super)) != sizeof(super)) {
+ 		die(FSCK_ERROR, 1, "read failed: %s", filename);
+ 	}
+-	if (super.magic == CRAMFS_MAGIC) {
++	if (super.magic == CRAMFS_32(CRAMFS_MAGIC)) {
+ 		*start = 0;
+ 	}
+ 	else if (*length >= (PAD_SIZE + sizeof(super))) {
+@@ -170,15 +172,24 @@
+ 		if (read(fd, &super, sizeof(super)) != sizeof(super)) {
+ 			die(FSCK_ERROR, 1, "read failed: %s", filename);
+ 		}
+-		if (super.magic == CRAMFS_MAGIC) {
++		if (super.magic == CRAMFS_32(CRAMFS_MAGIC)) {
+ 			*start = PAD_SIZE;
+ 		}
+ 	}
+ 
+ 	/* superblock tests */
+-	if (super.magic != CRAMFS_MAGIC) {
++	if (super.magic != CRAMFS_32(CRAMFS_MAGIC)) {
+ 		die(FSCK_UNCORRECTED, 0, "superblock magic not found");
+ 	}
++#if __BYTE_ORDER == __BIG_ENDIAN
++	super.size = CRAMFS_32(super.size);
++	super.flags = CRAMFS_32(super.flags);
++	super.future = CRAMFS_32(super.future);
++	super.fsid.crc = CRAMFS_32(super.fsid.crc);
++	super.fsid.edition = CRAMFS_32(super.fsid.edition);
++	super.fsid.blocks = CRAMFS_32(super.fsid.blocks);
++	super.fsid.files = CRAMFS_32(super.fsid.files);
++#endif /* __BYTE_ORDER == __BIG_ENDIAN */
+ 	if (super.flags & ~CRAMFS_SUPPORTED_FLAGS) {
+ 		die(FSCK_ERROR, 0, "unsupported filesystem features");
+ 	}
+@@ -296,14 +307,23 @@
+ 	return read_buffer + (offset & ROMBUFFERMASK);
+ }
+ 
+-static struct cramfs_inode *cramfs_iget(struct cramfs_inode * i)
++static struct cramfs_inode *cramfs_iget(struct cramfs_inode *i)
+ {
+ 	struct cramfs_inode *inode = malloc(sizeof(struct cramfs_inode));
+ 
+ 	if (!inode) {
+ 		die(FSCK_ERROR, 1, "malloc failed");
+ 	}
++#if __BYTE_ORDER == __BIG_ENDIAN
++	inode->mode = CRAMFS_16(i->mode);
++	inode->uid = CRAMFS_16(i->uid);
++	inode->size = CRAMFS_24(i->size);
++	inode->gid = i->gid;
++	inode->namelen = CRAMFS_GET_NAMELEN(i);
++	inode->offset = CRAMFS_GET_OFFSET(i);
++#else /* not __BYTE_ORDER == __BIG_ENDIAN */
+ 	*inode = *i;
++#endif /* not __BYTE_ORDER == __BIG_ENDIAN */
+ 	return inode;
+ }
+ 
+@@ -317,24 +337,6 @@
+ 	free(inode);
+ }
+ 
+-/*
+- * Return the offset of the root directory
+- */
+-static struct cramfs_inode *read_super(void)
+-{
+-	unsigned long offset = super.root.offset << 2;
+-
+-	if (!S_ISDIR(super.root.mode))
+-		die(FSCK_UNCORRECTED, 0, "root inode is not directory");
+-	if (!(super.flags & CRAMFS_FLAG_SHIFTED_ROOT_OFFSET) &&
+-	    ((offset != sizeof(struct cramfs_super)) &&
+-	     (offset != PAD_SIZE + sizeof(struct cramfs_super))))
+-	{
+-		die(FSCK_UNCORRECTED, 0, "bad root offset (%lu)", offset);
+-	}
+-	return cramfs_iget(&super.root);
+-}
+-
+ static int uncompress_block(void *src, int len)
+ {
+ 	int err;
+@@ -364,7 +366,7 @@
+ 
+ 	do {
+ 		unsigned long out = PAGE_CACHE_SIZE;
+-		unsigned long next = *(u32 *) romfs_read(offset);
++		unsigned long next = CRAMFS_32(*(u32 *) romfs_read(offset));
+ 
+ 		if (next > end_data) {
+ 			end_data = next;
+@@ -525,7 +527,7 @@
+ {
+ 	unsigned long offset = i->offset << 2;
+ 	unsigned long curr = offset + 4;
+-	unsigned long next = *(u32 *) romfs_read(offset);
++	unsigned long next = CRAMFS_32(*(u32 *) romfs_read(offset));
+ 	unsigned long size;
+ 
+ 	if (offset == 0) {
+@@ -629,8 +631,18 @@
+ static void test_fs(int start)
+ {
+ 	struct cramfs_inode *root;
++	unsigned long root_offset;
+ 
+-	root = read_super();
++	root = cramfs_iget(&super.root);
++	root_offset = root->offset << 2;
++	if (!S_ISDIR(root->mode))
++		die(FSCK_UNCORRECTED, 0, "root inode is not directory");
++	if (!(super.flags & CRAMFS_FLAG_SHIFTED_ROOT_OFFSET) &&
++	    ((root_offset != sizeof(struct cramfs_super)) &&
++	     (root_offset != PAD_SIZE + sizeof(struct cramfs_super))))
++	{
++		die(FSCK_UNCORRECTED, 0, "bad root offset (%lu)", root_offset);
++	}
+ 	umask(0);
+ 	euid = geteuid();
+ 	stream.next_in = NULL;
+Index: scripts/cramfs/mkcramfs.c
+===================================================================
+RCS file: /cvsroot/cramfs/linux/scripts/cramfs/mkcramfs.c,v
+retrieving revision 1.4
+diff -u -r1.4 mkcramfs.c
+--- scripts/cramfs/mkcramfs.c	19 Feb 2002 10:13:34 -0000	1.4
++++ scripts/cramfs/mkcramfs.c	25 Feb 2002 23:35:52 -0000
+@@ -380,19 +380,20 @@
+ 
+ 	offset += opt_pad;	/* 0 if no padding */
+ 
+-	super->magic = CRAMFS_MAGIC;
++	super->magic = CRAMFS_32(CRAMFS_MAGIC);
+ 	super->flags = CRAMFS_FLAG_FSID_VERSION_2 | CRAMFS_FLAG_SORTED_DIRS;
+ 	if (opt_holes)
+ 		super->flags |= CRAMFS_FLAG_HOLES;
+ 	if (image_length > 0)
+ 		super->flags |= CRAMFS_FLAG_SHIFTED_ROOT_OFFSET;
+-	super->size = size;
++	super->flags = CRAMFS_32(super->flags);
++	super->size = CRAMFS_32(size);
+ 	memcpy(super->signature, CRAMFS_SIGNATURE, sizeof(super->signature));
+ 
+-	super->fsid.crc = crc32(0L, Z_NULL, 0);
+-	super->fsid.edition = opt_edition;
+-	super->fsid.blocks = total_blocks;
+-	super->fsid.files = total_nodes;
++	super->fsid.crc = CRAMFS_32(crc32(0L, Z_NULL, 0));
++	super->fsid.edition = CRAMFS_32(opt_edition);
++	super->fsid.blocks = CRAMFS_32(total_blocks);
++	super->fsid.files = CRAMFS_32(total_nodes);
+ 
+ 	memset(super->name, 0x00, sizeof(super->name));
+ 	if (opt_name)
+@@ -400,11 +401,11 @@
+ 	else
+ 		strncpy(super->name, "Compressed", sizeof(super->name));
+ 
+-	super->root.mode = root->mode;
+-	super->root.uid = root->uid;
++	super->root.mode = CRAMFS_16(root->mode);
++	super->root.uid = CRAMFS_16(root->uid);
+ 	super->root.gid = root->gid;
+-	super->root.size = root->size;
+-	super->root.offset = offset >> 2;
++	super->root.size = CRAMFS_24(root->size);
++	CRAMFS_SET_OFFSET(&(super->root), offset >> 2);
+ 
+ 	return offset;
+ }
+@@ -419,7 +420,7 @@
+ 	if (offset >= (1 << (2 + CRAMFS_OFFSET_WIDTH))) {
+ 		die(MKFS_ERROR, 0, "filesystem too big");
+ 	}
+-	inode->offset = (offset >> 2);
++	CRAMFS_SET_OFFSET(inode, offset >> 2);
+ }
+ 
+ /*
+@@ -481,10 +482,10 @@
+ 
+ 			entry->dir_offset = offset;
+ 
+-			inode->mode = entry->mode;
+-			inode->uid = entry->uid;
++			inode->mode = CRAMFS_16(entry->mode);
++			inode->uid = CRAMFS_16(entry->uid);
+ 			inode->gid = entry->gid;
+-			inode->size = entry->size;
++			inode->size = CRAMFS_24(entry->size);
+ 			inode->offset = 0;
+ 			/* Non-empty directories, regfiles and symlinks will
+ 			   write over inode->offset later. */
+@@ -497,7 +498,7 @@
+ 				*(base + offset + len) = '\0';
+ 				len++;
+ 			}
+-			inode->namelen = len >> 2;
++			CRAMFS_SET_NAMELEN(inode, len >> 2);
+ 			offset += len;
+ 
+ 			if (opt_verbose)
+@@ -608,7 +609,7 @@
+ 			die(MKFS_ERROR, 0, "AIEEE: block \"compressed\" to > 2*blocklength (%ld)", len);
+ 		}
+ 
+-		*(u32 *) (base + offset) = curr;
++		*(u32 *) (base + offset) = CRAMFS_32(curr);
+ 		offset += 4;
+ 	} while (size);
+ 
+@@ -823,7 +824,7 @@
+ 	/* Put the checksum in. */
+ 	crc = crc32(0L, Z_NULL, 0);
+ 	crc = crc32(crc, (rom_image+opt_pad), (offset-opt_pad));
+-	((struct cramfs_super *) (rom_image+opt_pad))->fsid.crc = crc;
++	((struct cramfs_super *) (rom_image+opt_pad))->fsid.crc = CRAMFS_32(crc);
+ 	printf("CRC: %x\n", crc);
+ 
+ 	/* Check to make sure we allocated enough space. */

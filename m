@@ -1,97 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318076AbSHBDoB>; Thu, 1 Aug 2002 23:44:01 -0400
+	id <S318080AbSHBEDu>; Fri, 2 Aug 2002 00:03:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318080AbSHBDoB>; Thu, 1 Aug 2002 23:44:01 -0400
-Received: from holomorphy.com ([66.224.33.161]:9407 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318076AbSHBDoA>;
-	Thu, 1 Aug 2002 23:44:00 -0400
-Date: Thu, 1 Aug 2002 20:47:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       "Seth, Rohit" <rohit.seth@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
+	id <S318081AbSHBEDu>; Fri, 2 Aug 2002 00:03:50 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20243 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318080AbSHBEDt>; Fri, 2 Aug 2002 00:03:49 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: large page patch
-Message-ID: <20020802034701.GG25038@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"Seth, Rohit" <rohit.seth@intel.com>,
-	"Saxena, Sunil" <sunil.saxena@intel.com>,
-	"Mallick, Asit K" <asit.k.mallick@intel.com>
-References: <3D49D45A.D68CCFB4@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D49D45A.D68CCFB4@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Date: Fri, 2 Aug 2002 04:07:10 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <aid0he$1h4$1@penguin.transmeta.com>
+References: <3D49D45A.D68CCFB4@zip.com.au> <737220000.1028250590@flay>
+X-Trace: palladium.transmeta.com 1028261214 14253 127.0.0.1 (2 Aug 2002 04:06:54 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 2 Aug 2002 04:06:54 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 05:37:46PM -0700, Andrew Morton wrote:
-> This is a large-page support patch from Rohit Seth, forwarded
-> with his permission (thanks!).
+In article <737220000.1028250590@flay>,
+Martin J. Bligh <Martin.Bligh@us.ibm.com> wrote:
+>> - The change to MAX_ORDER is unneeded
+>
+>It's not only unneeded, it's detrimental. Not only will we spend more
+>time merging stuff up and down to no effect
 
-Overall, the code looks very clean.
+I doubt that.  At least the naive math says that it should get
+exponentially less likely(*) to merge up/down for each level, so by the
+time you've reached order-10, any merging is already in the noise and
+totally unmeasurable. 
 
-(1) So there are now 4 of these things. How do they compare to each
-	other? Where are the comparison benchmarks? How do their
-	features compare? Which one(s) do users want?
+And the memory footprint of the bitmaps etc should be basically zero
+(since they too shrink exponentially for each order).
 
-(2) The allocation policies for pagetables mapping the things may as
-	well do some kind of lookup, sharing, and cacheing; it's likely
-	a significant number of the users of the shm segment will be
-	mapping them more or less the same way given database usage
-	patterns. It's not a significant amount of space, but kernels
-	should be frugal about space, and with many tasks as is typical
-	of databases, the savings may well add up to a small but
-	respectable chunk of ZONE_NORMAL.
+((*) The "exponentially less likely" simply comes from doing the trivial
+experiment of what would happen if you allocated all pages in-order one
+at a time, and then free'd them one at a time.  Obviously not a
+realistic test, but on the other hand a realistic kernel load tends to
+keep a fairly fixed fraction of memory free, which makes it sound
+extremely unlikely to me that you'd get sudden collpses/buildups either. 
+Th elikelihood of being at just the right border for that to happens
+_also_ happens to be decreasins as 2**-n)
 
-(3) As long as the interface is explicit, it might as well drop flags
-	into shm and mmap. There isn't even C library support for these
-	things as they are... time to int $0x80 again so I can test.
+Of course, if you can actually measure it, that would be interesting. 
+Naive math gives you a guess for the order of magnitude effect, but
+nothing beats real numbers ;)
 
-(4) Requiring app awareness of page alignment looks like an irritating
-	porting issue, which doesn't sound as trivial as it would
-	otherwise be in already extremely cramped 32-bit virtual
-	address spaces.
+> It also makes the config_nonlinear stuff harder (or we have to
+> #ifdef it, which just causes more unnecessary differentiation). 
 
-(5) What's in it for the average user? It's doubtful GNOME will be
-	registering memory blocks with these syscalls anytime soon.
-	Granted, the opportunities for reducing TLB load this way
-	are small on desktop systems, but it doesn't feel quite
-	right to just throw mappings of magic physical memory into the
-	hands of a few enlightened apps on machines with memory to burn
-	and leave all others in the cold.
-	By several accounts "scalability" is defined as "performing as
-	well on large machines as it does on small ones" ... but this
-	seems to be a method of circumventing the kernel's own memory
-	management as opposed to a method of improving it in all cases.
+Hmm..  This sounds like a good point, but I thought we already did all
+the math relative to the start of the zone, so that the alignment thing
+implied by MAX_ORDER shouldn't be an issue. 
 
-(6) As far as reconfiguring, I'm slightly concerned about the robustness
-	of change_large_page_mem_size() in terms of how likely it is to
-	succeed. Some on-demand defragmentation looks like it should be
-	implemented to make it more reliable (now possible thanks to
-	rmap). In general, the sysctl seems to lack some adaptivity.
-	Granting root privileges to the workload vs. perpetual
-	monitoring to find the ideal pool size sounds like a headache.
+Or were you thinking of some other effect?
 
-(7) I'm a little worried by the following:
-
-zone(0): 4096 pages.
-zone(1): 225280 pages.
-BUG: wrong zone alignment, it will crash
-zone(2): 3964928 pages.
-
-
-My machine doesn't seem to care, but others' might.
-
-
-Cheers,
-Bill
+		Linus

@@ -1,81 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVC3F61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVC3F74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVC3F61 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 00:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVC3F61
+	id S261568AbVC3F74 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 00:59:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVC3F74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 00:58:27 -0500
-Received: from digitalimplant.org ([64.62.235.95]:28311 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261561AbVC3F5z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 00:57:55 -0500
-Date: Tue, 29 Mar 2005 21:57:43 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Adam Belay <abelay@novell.com>
-cc: Greg KH <greg@kroah.com>, "" <linux-kernel@vger.kernel.org>,
-       "" <linux-pm@lists.osdl.org>
-Subject: Re: [RFC] Driver States
-In-Reply-To: <1111963367.3503.152.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net>
-References: <1111963367.3503.152.camel@localhost.localdomain>
+	Wed, 30 Mar 2005 00:59:56 -0500
+Received: from ozlabs.org ([203.10.76.45]:14772 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261568AbVC3F6t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 00:58:49 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16970.16535.864623.323556@cargo.ozlabs.ibm.com>
+Date: Wed, 30 Mar 2005 16:00:55 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Antonio Vargas <windenntw@gmail.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: prefetch on ppc64
+In-Reply-To: <69304d110503292138620d4587@mail.gmail.com>
+References: <20050330034034.GA1752@IBM-BWN8ZTBWA01.austin.ibm.com>
+	<16970.9005.721117.942549@cargo.ozlabs.ibm.com>
+	<69304d110503292138620d4587@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Antonio Vargas writes:
 
-On Sun, 27 Mar 2005, Adam Belay wrote:
+> Don't know exactly about power5, but G5 processor is described on IBM
+> docs as doing automatic whole-page prefetch read-ahead when detecting
+> linear accesses.
 
-> Dynamic power management may require devices and drivers to transition
-> between various physical and logical states.  I would like to start a
-> discussion on how these might be defined at the bus, driver, and class
-> levels.
+Sure, but linked lists would rarely be laid out linearly in memory.
 
-<snip>
-
-> Bus Level
-> =========
-> At the bus level, there are two state attributes, power and
-> enable/disable.  Enable/disable may mean different things on different
-> buses, but they generally refer to resource decoding.  A device can only
-> be enabled during a non-off power state.
-
-<...>
-
-> Driver Level
-> ============
-> At the driver level there are two areas of interest, physical and
-> logical state.  There is an additional concern of transitioning between
-> these states multiple times.  Because a driver acts as a bridge between
-> physical and logical components, I think separating these steps seems
-> natural.
-
-<...>
-
-> *attach - allocates data structures, creates sysfs entries, prepares driver
->        to handle the hardware.
->
-> *start -  Sets up device resources and configures the hardware.  Loads
-> firmware, etc.
-> (physical)
->
-> *open -   engages the hardware, and makes it usable by the class device.
-> (logical and physical)
->
-> *close -  disengages the hardware, and stops class level access
-> (logical and physical)
->
-> *stop -   physically disables the hardware
-> (physical)
->
-> *detach - tears down the driver and releases it from the "struct device"
->
-
-You have a few things here that can easily conflict, and that will be
-developed at different paces. I like the direction that it's going, but
-how do you intend to do it gradually. I.e. what to do first?
-
-
-	Pat
-
+Paul.

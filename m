@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263086AbUJ2D4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263078AbUJ2D65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263086AbUJ2D4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 23:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbUJ2D4M
+	id S263078AbUJ2D65 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 23:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbUJ2D65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 23:56:12 -0400
-Received: from holomorphy.com ([207.189.100.168]:47246 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262893AbUJ2D4H (ORCPT
+	Thu, 28 Oct 2004 23:58:57 -0400
+Received: from cantor.suse.de ([195.135.220.2]:33211 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263078AbUJ2D64 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 23:56:07 -0400
-Date: Thu, 28 Oct 2004 20:55:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark Fortescue <mark@mtfhpc.demon.co.uk>, davem@redhat.com, ecd@skynet.be,
-       jj@sunsite.ms.mff.cuni.cz, anton@samba.org,
-       linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: PATCH to fix initialisation issue for GC3 (linux-2.5.64 +).
-Message-ID: <20041029035550.GZ12934@holomorphy.com>
-References: <Pine.LNX.4.10.10410290107100.1071-100000@mtfhpc.demon.co.uk> <20041029003417.GW12934@holomorphy.com> <1099021892.4529.7.camel@krustophenia.net>
+	Thu, 28 Oct 2004 23:58:56 -0400
+Date: Fri, 29 Oct 2004 05:57:26 +0200
+From: Andi Kleen <ak@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: slab errors
+Message-ID: <20041029035726.GJ11384@wotan.suse.de>
+References: <20041028091204.GB1618@wotan.suse.de> <41812D09.4060601@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099021892.4529.7.camel@krustophenia.net>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <41812D09.4060601@colorfullife.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-28 at 17:34 -0700, William Lee Irwin III wrote:
->> Yes, all my systems are headless unfortunately.
+On Thu, Oct 28, 2004 at 07:31:53PM +0200, Manfred Spraul wrote:
+> Andi Kleen wrote:
+> 
+> >Hi,
+> >
+> >I get this when booting 2.6.10rc1-bk6 on x86-64. slab doesn't seem
+> >to like its own initialization.
+> >
+> > 
+> >
+> I'm not aware of any slab changes. Were there any changes to the memset 
+> function? I think slab debug is the only codepath that uses memset to 
+> nonzero values.
 
-On Thu, Oct 28, 2004 at 11:51:32PM -0400, Lee Revell wrote:
-> *All* of them?  I am impressed...
+Indeed it was a buggy memset patch again (sigh). Sorry for the noise.
+I dropped it now.
 
-All of the UltraSPARC and SPARC systems, yes.
-
-
--- wli
+-Andi

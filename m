@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312942AbSDSVNW>; Fri, 19 Apr 2002 17:13:22 -0400
+	id <S312898AbSDSVNI>; Fri, 19 Apr 2002 17:13:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312988AbSDSVNV>; Fri, 19 Apr 2002 17:13:21 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:60167 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S312942AbSDSVNV>;
-	Fri, 19 Apr 2002 17:13:21 -0400
-Date: Fri, 19 Apr 2002 14:09:14 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Ben Greear <greearb@candelatech.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbol: __udivdi3
-In-Reply-To: <3CC08632.8020102@candelatech.com>
-Message-ID: <Pine.LNX.4.33L2.0204191408450.15597-100000@dragon.pdx.osdl.net>
+	id <S312942AbSDSVNH>; Fri, 19 Apr 2002 17:13:07 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:40669 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S312898AbSDSVNH>;
+	Fri, 19 Apr 2002 17:13:07 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15552.34913.686564.487970@napali.hpl.hp.com>
+Date: Fri, 19 Apr 2002 14:13:05 -0700
+To: Rick Haines <rick@kuroyi.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: read latency (ia64)
+In-Reply-To: <20020418140622.GA31405@sasami.kuroyi.net>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Apr 2002, Ben Greear wrote:
+>>>>> On Thu, 18 Apr 2002 10:06:22 -0400, Rick Haines <rick@kuroyi.net> said:
 
-| I would like to be able to devide 64bit numbers in a kernel module,
-| but I get unresolved symbols when trying to insmod.
-|
-| Does anyone have any ideas how to get around this little issue
-| (without the obvious of casting the hell out of all my __u64s
-| when doing division and throwing away precision.)?
+  Rick> I have a Lion with 4 666mhz B3 stepping cpus and 4GB ram
+  Rick> running Debian unstable with kernel 2.4.18 and the 020410 ia64
+  Rick> patch (I have the same problem with 2.4.9-itanium-smp from the
+  Rick> archive).
 
-Did you look at linux/include/asm*/div64.h ?
+  Rick> I have a program that reads large files in increments of 81920
+  Rick> blocks.  After about 9600 read calls I get about a dozen reads
+  Rick> that take about 3 seconds each.  Does anyone have any ideas as
+  Rick> to a cause/solution?  (I have 4 other threads working/possibly
+  Rick> writing output at the same time, although in this case only 1
+  Rick> of them would be active at the same time).  I am also running
+  Rick> a program that callocs almost all my ram to make sure none of
+  Rick> the file is cached.
 
--- 
-~Randy
+I don't think anyone will be able to help you without a test case.
+Do you have a minimal test case that reproduces the problem?
 
+	--david

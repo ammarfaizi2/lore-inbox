@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266103AbRF2OvE>; Fri, 29 Jun 2001 10:51:04 -0400
+	id <S266100AbRF2Oup>; Fri, 29 Jun 2001 10:50:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266101AbRF2Ouq>; Fri, 29 Jun 2001 10:50:46 -0400
-Received: from out-mx1.crosswinds.net ([209.208.163.38]:21278 "HELO
-	out-mx1.crosswinds.net") by vger.kernel.org with SMTP
-	id <S266103AbRF2Oue>; Fri, 29 Jun 2001 10:50:34 -0400
-Date: Fri, 29 Jun 2001 16:49:42 +0200
-From: Patrick Mauritz <oxygene2k1@crosswinds.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A Possible 2.5 Idea, maybe?
-Message-ID: <20010629164942.B21707@crosswinds.net>
-In-Reply-To: <Pine.LNX.4.33.0106290753340.25959-100000@biglinux.tccw.wku.edu>
-Mime-Version: 1.0
+	id <S266101AbRF2Oue>; Fri, 29 Jun 2001 10:50:34 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:8695 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S266100AbRF2Oua>; Fri, 29 Jun 2001 10:50:30 -0400
+Message-ID: <3B3C95AF.9D125337@TeraPort.de>
+Date: Fri, 29 Jun 2001 16:50:23 +0200
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac21 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: VM behaviour under 2.4.5-ac21
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106290753340.25959-100000@biglinux.tccw.wku.edu>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 29, 2001 at 08:17:25AM -0500, Brent D. Norris wrote:
-> Instead of forking the kernel or catering only to one group, instead why
-> not try this:  Using the new CML2 tools and rulesets, make it possible to
-> have the kernel configured for the type of job it will be doing?  Just
-> like CML2 asks our CPU type (i386, alpha, althon ...) and then goes out
-> and configures options for that, have it ask people "Is your machine a
-> server, workstation, embedded/handheld?" and configure things in the
-> kernel like the VM, bootup and others to optimize it for that job type?
-that could be the "easy == end-user" setup
-why can't there be two (possibly similar but tweaked) VMs (and other stuff as well)
-be in the source so everyone has to choose exactly one for his kernel?
+Hi,
 
-patrick mauritz
+ just something positive for the weekend. With 2.4.5-ac21, the behaviour
+on my laptop (128MB plus twice the sapw) seems a bit more sane. When I
+start new large applications now, the "used" portion of VM actually
+pushes against the cache instead of forcing stuff into swap. It is still
+using swap, but the effects on interactivity are much lighter.
+
+ So, if this is a preview of 2.4.6 bahaviour, there may be a light at
+the end of the tunnel.
+
+Have a good weekend
+Martin
 -- 
-,------------------------------------------------------------------------.
->            Fighting for peace is like fucking for virginity            <
-|------------------------------------------------------------------------|
->        The Forthcoming OpenBIOS | www.freiburg.linux.de/openbios       <
-`------------------------------------------------------------------------'
-          because light travels faster than sound, some people
-           appear to be intelligent, until you hear them speak.
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

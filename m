@@ -1,129 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVAEBsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVAEBwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbVAEBsD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 20:48:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVAEBpH
+	id S262192AbVAEBwr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 20:52:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVAEBwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 20:45:07 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:39625 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S262192AbVAEBju
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 20:39:50 -0500
-From: James Nelson <james4765@cwazy.co.uk>
-To: linux-kernel@vger.kernel.org, dev-etrax@axis.com
-Cc: starvik@axis.com, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050105014007.22177.60026.41442@localhost.localdomain>
-In-Reply-To: <20050105014001.22177.28259.66716@localhost.localdomain>
-References: <20050105014001.22177.28259.66716@localhost.localdomain>
-Subject: [PATCH 1/2] cris: remove cli()/sti() in arch/cris/arch-v10/drivers/gpio.c
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 19:39:47 -0600
-Date: Tue, 4 Jan 2005 19:39:50 -0600
+	Tue, 4 Jan 2005 20:52:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57783 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262175AbVAEBur (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 20:50:47 -0500
+Date: Tue, 4 Jan 2005 17:50:43 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, "Jack O'Quin" <joq@io.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050104175043.H469@build.pdx.osdl.net>
+References: <1104374603.9732.32.camel@krustophenia.net> <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us> <1104865198.8346.8.camel@krustophenia.net> <1104878646.17166.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1104878646.17166.63.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 05, 2005 at 12:01:55AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Maw, 2005-01-04 at 18:59, Lee Revell wrote:
+> > We could do it the was OSX (our real competition) does if that would
+> > make people happy.  They just let any user run RT tasks.  Oh wait, but
+> > that's a "broken design", everyone knows that OSX is a joke, no one
+> > would use *that* OS to mix a CD or score a movie.  :-)
+> 
+> You can do that already, just make everyone root
+> 
+> The problem with uid/gid based hacks is that they get really ugly to
+> administer really fast. Especially once you have users who need realtime
+> and hugetlb, and users who need one only.
 
-diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/cris/arch-v10/drivers/gpio.c linux-2.6.10-mm1/arch/cris/arch-v10/drivers/gpio.c
---- linux-2.6.10-mm1-original/arch/cris/arch-v10/drivers/gpio.c	2004-12-24 16:33:48.000000000 -0500
-+++ linux-2.6.10-mm1/arch/cris/arch-v10/drivers/gpio.c	2005-01-04 20:21:46.356413860 -0500
-@@ -270,10 +270,10 @@
- 		 */
- 		tmp = ~data & priv->highalarm & 0xFF;
- 		tmp = (tmp << R_IRQ_MASK1_SET__pa0__BITNR);
--		save_flags(flags); cli();
-+		local_irq_save(flags);
- 		gpio_pa_irq_enabled_mask |= tmp;
- 		*R_IRQ_MASK1_SET = tmp;
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 
- 	} else if (priv->minor == GPIO_MINOR_B)
- 		data = *R_PORT_PB_DATA;
-@@ -372,7 +372,7 @@
- 		data = *buf++;
- 		if (priv->write_msb) {
- 			for (i = 7; i >= 0;i--) {
--				local_irq_save(flags); local_irq_disable();
-+				local_irq_save(flags);
- 				*priv->port = *priv->shadow &= ~clk_mask;
- 				if (data & 1<<i)
- 					*priv->port = *priv->shadow |= data_mask;
-@@ -384,7 +384,7 @@
- 			}
- 		} else {
- 			for (i = 0; i <= 7;i++) {
--				local_irq_save(flags); local_irq_disable();
-+				local_irq_save(flags);
- 				*priv->port = *priv->shadow &= ~clk_mask;
- 				if (data & 1<<i)
- 					*priv->port = *priv->shadow |= data_mask;
-@@ -491,14 +491,14 @@
- 	 */
- 	unsigned long flags;
- 	if (USE_PORTS(priv)) {
--		local_irq_save(flags); local_irq_disable();
-+		local_irq_save(flags);
- 		*priv->dir = *priv->dir_shadow &= 
- 		~((unsigned char)arg & priv->changeable_dir);
- 		local_irq_restore(flags);
- 		return ~(*priv->dir_shadow) & 0xFF; /* Only 8 bits */
- 	} else if (priv->minor == GPIO_MINOR_G) {
- 		/* We must fiddle with R_GEN_CONFIG to change dir */
--		save_flags(flags); cli();
-+		local_irq_save(flags)
- 		if (((arg & dir_g_in_bits) != arg) && 
- 		    (arg & changeable_dir_g)) {
- 			arg &= changeable_dir_g;
-@@ -533,7 +533,7 @@
- 			/* Must be a >120 ns delay before writing this again */
- 				
- 		}
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		return dir_g_in_bits;
- 	}
- 	return 0;
-@@ -543,14 +543,14 @@
- {
- 	unsigned long flags;
- 	if (USE_PORTS(priv)) {
--		local_irq_save(flags); local_irq_disable();
-+		local_irq_save(flags);
- 		*priv->dir = *priv->dir_shadow |= 
- 		  ((unsigned char)arg & priv->changeable_dir);
- 		local_irq_restore(flags);
- 		return *priv->dir_shadow;
- 	} else if (priv->minor == GPIO_MINOR_G) {
- 		/* We must fiddle with R_GEN_CONFIG to change dir */			
--		save_flags(flags); cli();
-+		local_irq_save(flags);
- 		if (((arg & dir_g_out_bits) != arg) &&
- 		    (arg & changeable_dir_g)) {
- 			/* Set bits in genconfig to set to output */
-@@ -583,7 +583,7 @@
- 			*R_GEN_CONFIG = genconfig_shadow;
- 			/* Must be a >120 ns delay before writing this again */
- 		}
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		return dir_g_out_bits & 0x7FFFFFFF;
- 	}
- 	return 0;
-@@ -613,7 +613,7 @@
- 		}
- 		break;
- 	case IO_SETBITS:
--		local_irq_save(flags); local_irq_disable();
-+		local_irq_save(flags);
- 		// set changeable bits with a 1 in arg
- 		if (USE_PORTS(priv)) {
- 			*priv->port = *priv->shadow |= 
-@@ -624,7 +624,7 @@
- 		local_irq_restore(flags);
- 		break;
- 	case IO_CLRBITS:
--		local_irq_save(flags); local_irq_disable();
-+		local_irq_save(flags);
- 		// clear changeable bits with a 1 in arg
- 		if (USE_PORTS(priv)) {
- 			*priv->port = *priv->shadow &= 
+I don't believe the hugetlb gid stuff is useful anymore.  It should be
+handled nicely via rlimits.
+
+> It would be far cleaner to split CAP_SYS_NICE capability down - which
+> should cover the real time OS functions nicely. Right now it gives a few
+> too many rights but that could be fixed easily.
+
+Hmm, how do we do this w/out breaking things?  Maybe I'm misunderstanding
+your idea.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

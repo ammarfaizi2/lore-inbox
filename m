@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275212AbTHMOay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 10:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275213AbTHMOay
+	id S275092AbTHMOYp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 10:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275201AbTHMOYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 10:30:54 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:405 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S275212AbTHMOax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 10:30:53 -0400
-Date: Wed, 13 Aug 2003 15:32:30 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Con Kolivas <kernel@kolivas.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: 2.6.0-test3-mm2
-In-Reply-To: <200308132302.26656.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.44.0308131529200.1558-100000@localhost.localdomain>
+	Wed, 13 Aug 2003 10:24:45 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:40622 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S275092AbTHMOYm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 10:24:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16186.18984.335521.224346@gargle.gargle.HOWL>
+Date: Wed, 13 Aug 2003 16:24:40 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Ruben Puettmann <ruben@puettmann.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 APM problems with IBM Thinkpad's
+In-Reply-To: <20030813133126.GA26337@puettmann.net>
+References: <20030813123119.GA25111@puettmann.net>
+	<16186.14686.455795.927909@gargle.gargle.HOWL>
+	<20030813133126.GA26337@puettmann.net>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003, Con Kolivas wrote:
-> Aug 13 22:54:58 pc kernel: kernel BUG at mm/filemap.c:1930!
+Ruben Puettmann writes:
+ > On Wed, Aug 13, 2003 at 03:13:02PM +0200, Mikael Pettersson wrote:
+ > > 
+ > > This sounds like a well-known APM/local-APIC clash.
+ > 
+ > nice to know ... 
+ > > 
+ > > Never ever use DISPLAY_BLANK if you also have SMP or UP_APIC.
+ > 
+ > not nice so ;-( how is it with acpi? Same problem?
+ > 
+ > > With APIC support enabled (SMP or UP_APIC), APM must be constrained:
+ > > DISPLAY_BLANK off
+ > > CPU_IDLE off
+ > > built-in driver, not module
+ > 
+ > Why will this not be disabled in make *config so that nobody will run in
+ > this problem?
+ > 
+ > > This is because the apm driver does BIOS calls, and many BIOSen
+ > > (including the code in graphics cards, e.g. all Radeons it seems)
+ > > like to hang if a local APIC timer interrupt arrives.
 
-akpm (have you caught a moment when he's asleep?!) already posted
-the fix, saying it's a bogus BUG_ON which can be removed.
-
---- 2.6.0-test3-mm2/mm/filemap.c	Wed Aug 13 11:51:33 2003
-+++ linux/mm/filemap.c	Wed Aug 13 15:26:36 2003
-@@ -1927,8 +1927,6 @@ generic_file_aio_write_nolock(struct kio
- 	ssize_t ret;
- 	loff_t pos = *ppos;
- 
--	BUG_ON(iocb->ki_pos != *ppos);
--
- 	if (!iov->iov_base && !is_sync_kiocb(iocb)) {
- 		/* nothing to transfer, may just need to sync data */
- 		ret = iov->iov_len; /* vector AIO not supported yet */
-
+Several reasons:
+- The interaction wasn't understood initially, and some problems
+  didn't start appearing until late last year. The problems are
+  also system & configuration dependent.
+  Case in point #1: my P3B-F and P4T-E ASUS mainboards never had
+  problems until they started running 2.5 kernels, where HZ==1000
+  greatly increased the likelihood of a local APIC timer interrupt
+  while in BIOS screen blanking code.
+  Case in point #2: my TUSL2-C ASUS mobo (RIP) worked great until
+  I switched from a Millenium to a Radeon 8500, and found that it
+  hung because of local APIC timer interrupts while in BIOS screen
+  blanking code, even in 2.4 kernels.
+- Fixing the APM driver would require that someone who understands
+  it modifies it to avoid BIOS calls (other than suspend/resume) when
+  UP_APIC is active. I'm not that person.
+- The problems can be worked around by avoiding misconfigurations.

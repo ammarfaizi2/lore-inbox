@@ -1,126 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268382AbRHGPLj>; Tue, 7 Aug 2001 11:11:39 -0400
+	id <S268848AbRHGPMK>; Tue, 7 Aug 2001 11:12:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268934AbRHGPL0>; Tue, 7 Aug 2001 11:11:26 -0400
-Received: from [217.89.38.238] ([217.89.38.238]:36853 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S267615AbRHGPKg>;
-	Tue, 7 Aug 2001 11:10:36 -0400
-Message-ID: <3B7004B2.6351C900@pcsystems.de>
-Date: Tue, 07 Aug 2001 17:09:39 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S267615AbRHGPMA>; Tue, 7 Aug 2001 11:12:00 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:31242 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S268515AbRHGPLx>; Tue, 7 Aug 2001 11:11:53 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: encrypted swap
+In-Reply-To: <5.1.0.14.2.20010807110412.00a8bec0@pop.prism.gatech.edu>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 07 Aug 2001 17:11:49 +0200
+In-Reply-To: <5.1.0.14.2.20010807110412.00a8bec0@pop.prism.gatech.edu> (David Maynor's message of "Tue, 07 Aug 2001 11:06:36 -0400")
+Message-ID: <tghevjnbuy.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: cpu not detected(x86)
-Content-Type: multipart/mixed;
- boundary="------------B3EFE2B3B625D6794E69DD53"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------B3EFE2B3B625D6794E69DD53
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+David Maynor <david.maynor@oit.gatech.edu> writes:
 
-Hello!
+> But is the 10% perf hit really gaining you anything, expect to quell
+> your paranoia. What is next, an encrypted /proc so that possible
+> attackers can't gain information about running processes?
 
-I am trying to run 2.4.7 and have heavily problems with my cpu.
-The kernel retected another speed at every start! I attached
-three times CPUINFO. The cpu in reality is a p3 650 mhz speedstep.
-(may switch down to 500 mhz, but 126 _not_).
+This is not about paranoia, this is about stolen notebooks.
 
-Who changed something in the 2.4.7 source ?
-I am more or less unable to run X with netscape to write this email
-with 126 Mhz!
+(And you can't easily add hundreds of megabytes to such systems
+usually.)
 
-What to do, where to fix ? Please help asap!
-
-Nico
-
-
-
---------------B3EFE2B3B625D6794E69DD53
-Content-Type: text/plain; charset=us-ascii;
- name="CPUINFO"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="CPUINFO"
-
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 6
-cpu MHz		: 161.858
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 330.95
-
-
---------------B3EFE2B3B625D6794E69DD53
-Content-Type: text/plain; charset=us-ascii;
- name="CPUINFO2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="CPUINFO2"
-
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 6
-cpu MHz		: 127.553
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 244.94
-
-
---------------B3EFE2B3B625D6794E69DD53
-Content-Type: text/plain; charset=us-ascii;
- name="CPUINFO3"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="CPUINFO3"
-
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 6
-cpu MHz		: 162.371
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 317.84
-
-
---------------B3EFE2B3B625D6794E69DD53--
-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

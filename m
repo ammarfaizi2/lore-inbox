@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279456AbRJXGNt>; Wed, 24 Oct 2001 02:13:49 -0400
+	id <S278189AbRJXGgP>; Wed, 24 Oct 2001 02:36:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279475AbRJXGNj>; Wed, 24 Oct 2001 02:13:39 -0400
-Received: from rj.sgi.com ([204.94.215.100]:28395 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S279456AbRJXGNb>;
-	Wed, 24 Oct 2001 02:13:31 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
+	id <S279476AbRJXGgG>; Wed, 24 Oct 2001 02:36:06 -0400
+Received: from fe070.worldonline.dk ([212.54.64.208]:57618 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S278189AbRJXGfv>; Wed, 24 Oct 2001 02:35:51 -0400
+Date: Wed, 24 Oct 2001 08:36:18 +0200
+From: Jens Axboe <axboe@suse.de>
+To: bill davidsen <davidsen@tmr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v1.9 is available for kernel 2.4.13
-Date: Wed, 24 Oct 2001 16:12:56 +1000
-Message-ID: <13538.1003903976@kao2.melbourne.sgi.com>
+Subject: Re: More memory == better?
+Message-ID: <20011024083617.B641@suse.de>
+In-Reply-To: <20011023161340.02EAC9BD76@pop3.telenet-ops.be> <fRjB7.3865$bi5.656765064@newssvr17.news.prodigy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fRjB7.3865$bi5.656765064@newssvr17.news.prodigy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Oct 23 2001, bill davidsen wrote:
+> In article <20011023161340.02EAC9BD76@pop3.telenet-ops.be>,
+> DevilKin <DevilKin@gmx.net> wrote:
+> 
+> | Currently I've got myself a nice setup (amd 1.4ghz, abit kg7raid etc etc) 
+> | with 512mb ram... (DDR). I'm wondering if increasing this to 1gb has 
+> | advantages (speedwise or anything), since I can get my hands on it at a very 
+> | low price...
+> | 
+> | I must say that even with most of my applications loaded/running, the system 
+> | never even touches the swap partition.
+> | 
+> | So, would it be wise?
+> 
+> There are some good reasons to add memory.
+> 
+> - disk i/o rates. vmstat will tell you some disk i/o rates, if they are
+> high you *may* get better performance with more memnory for cache.
+> 
+> - future applications. As you say it's cheap right now, if you think
+> there's a good chance of larger images, more kernel compiles, whatever,
+> buy now.
+> 
+> - memory bandwidth. This is very motherboard dependent, read your specs.
+> Some systems will use two or four way interleave to increase bandwidth
+> to memory or reduce access time. See what your m/b spec tells you.
+> 
+> - you have the money and want to spend it on {something}! Go ahead,
+> memory is one of the best investments for any system.
+> 
+> Just remember that to use this memory you need a large memory kernel.
 
-Content-Type: text/plain; charset=us-ascii
+There's also the argument that you may slow down your system by adding
+more memory, since with 1G you will have high memory which needs to be
+kmap'ed to be accessed by the kernel. For I/O it needs to be bounced to
+lower memory, which is even worse.
 
-ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.9-2.4.13.bz2
-
-Changelog extract.
-
-2001-10-24 Keith Owens  <kaos@sgi.com>
-
-        * Upgrade to kernel 2.4.13.
-
-2001-10-14 Keith Owens  <kaos@melbourne.sgi.com>
-
-        * More use of TMPPREFIX in top level Makefile to speed up NFS compiles.
-
-        * Correct repeat calculations in md/mds commands.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE71lvmi4UHNye0ZOoRAocyAJ47NLO4iSYDu2r031inAz4mTF3ODgCg4Xpg
-49TbOk5Y+n2sJtQzrzdIiGo=
-=oqjV
------END PGP SIGNATURE-----
+-- 
+Jens Axboe
 

@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbUJYTKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbUJYQEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbUJYTKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 15:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUJYTIb
+	id S262047AbUJYQEy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 12:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbUJYQBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 15:08:31 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:17792 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261264AbUJYTHE
+	Mon, 25 Oct 2004 12:01:14 -0400
+Received: from mail5.speakeasy.net ([216.254.0.205]:19073 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S261968AbUJYPvx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 15:07:04 -0400
-Date: Mon, 25 Oct 2004 15:07:03 -0400 (EDT)
-From: linux-os <root@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: printk() with a spin-lock held.
-In-Reply-To: <1098729672.8284.0.camel@krustophenia.net>
-Message-ID: <Pine.LNX.4.61.0410251501370.22061@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410221504500.6075@chaos.analogic.com> 
- <1098503815.13176.2.camel@krustophenia.net>  <Pine.LNX.4.61.0410250828460.18507@chaos.analogic.com>
- <1098729672.8284.0.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 25 Oct 2004 11:51:53 -0400
+Date: Mon, 25 Oct 2004 10:52:36 -0500
+From: John Lash <jlash@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Subject: sata_sil problems on 2.6.9
+Message-ID: <20041025105236.1aff8801@homer.sarvega.com>
+X-Mailer: Sylpheed-Claws 0.9.12cvs102 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Oct 2004, Lee Revell wrote:
 
-> On Mon, 2004-10-25 at 08:32 -0400, Richard B. Johnson wrote:
->> I recall that printk() useds to just write stuff into a buffer,
->> that the buffer (the same buffer used for dmesg), was written
->> out only when it was safe to do so.
->>
->>
->> Now, if printk() can't do that anymore, how does one de-bug
->> ISR code? Or do you just heave it off the cliff and hope that
->> it flies?
->
-> No, it can, I was wrong.  I was thinking of some other function.
->
-> Lee
+I'm having a problem with a pci sata card using the SiI 3112 controller: Here's
+what lspci shows.
 
-Yes. I think that the problem I observed was when the ISR
-wouldn't reset the interrupt because the hardware was broken.
-This makes the level-interrupt stay active forever. I put
-a printk() in the ISR and I got a bug-check because printk
-didn't like me.
+00:09.0 RAID bus controller: CMD Technology Inc Silicon Image SiI 3112 SATARaid
+Controller (rev 01) 
 
-Apparently, if the printk() buffer gets full, it bug-checks.
-The behavior used to be that it would just dump overflow
-on the floor.
+This is an athlon 760mpx (asus motherboard) system. I've tried plugging the card
+into both 32 and 64bit slots and get the same behaviour.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+On the most recent boot I got the following error:
+(note, this is 2.6.9 with Jeff's patches: 2.6.9-libata1-dev1.patch.bz2 and
+2.6.9-libata1.patch.bz2)
+
+libata version 1.02 loaded.
+sata_sil version 0.54
+ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 21 (level, low) -> IRQ 21
+ata1: SATA max UDMA/100 cmd 0xF8836080 ctl 0xF883608A bmdma 0xF8836000 irq 21
+ata2: SATA max UDMA/100 cmd 0xF88360C0 ctl 0xF88360CA bmdma 0xF8836008 irq 21
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:007f
+ata1: dev 0 ATA, max UDMA/133, 156301488 sectors: lba48
+ata1: dev 0 configured for UDMA/100
+scsi0 : sata_sil
+ata2: no device found (phy stat 00000000)
+scsi1 : sata_sil
+  Vendor: ATA       Model: Sô380013AS        Rev: 3þ18
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+SCSI device sda: drive cache: write back
+ /dev/scsi/host0/bus0/target0/lun0:<3>ata1: command 0x25 timeout, stat 0x50
+host_stat 0x1 unknown partition table
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+
+It's intermittent. Sometimes I see it on boot. Sometimes I see it when I try to
+fdisk the drive. Once I got all the way into making a filesystem on the disk
+before it started choking on me. Always with the same "command 0x25" error.
+
+I've tried sata_sil with 2.6.9 vanilla and with the two patches I mentioned
+above.
+
+I also tried 2.6.8.1 using the siimage driver and got quite a few stacks in
+dmesg along with stuff on the console about disabling int 17.
+
+fwiw, I did a quick reboot, back on a vanilla 2.6.9 kernel. the boot was clean.
+I ran "fdisk -l /dev/sda" and it worked once. The second time, I again got the
+"ata1: command 0x25 timeout, stat 0x50 host_stat 0x1" error.
+
+any ideas.
+
+--john

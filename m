@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVCOFSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVCOFWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbVCOFSh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 00:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVCOFSh
+	id S262259AbVCOFWA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 00:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVCOFV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 00:18:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:50877 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262246AbVCOFST (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 00:18:19 -0500
-Date: Mon, 14 Mar 2005 21:17:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm3: SIS5513 DMA problem (set_drive_speed_status)
-Message-Id: <20050314211755.5e686c50.akpm@osdl.org>
-In-Reply-To: <20050314161528.575f3a77@phoebee>
-References: <20050314161528.575f3a77@phoebee>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 00:21:59 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:31468 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262259AbVCOFVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 00:21:31 -0500
+Date: Mon, 14 Mar 2005 23:20:59 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Awful long timeouts for flash-file-system
+In-reply-to: <3I8gq-gw-23@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <423670BB.2090107@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3I8gq-gw-23@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Zwickel <martin.zwickel@technotrend.de> wrote:
->
-> Hi,
+linux-os wrote:
 > 
-> just tried the 2.6.11-mm3 and at boot-time my start scripts try to
-> enable DMA on my disk (hdparm -m16 -c1 -u1 -X69 /dev/hda).
+> Hello IDE experts.
 > 
-> But while running hdparm, the kernel waits many seconds and gives me
-> some DMA warnings/errors:
->
-> ...
->
-> hda: set_drive_speed_status: status=0xd0 { Busy }
-> 
-> ide: failed opcode was: unknown
-> hda: dma_timer_expiry: dma status == 0x41
-> hda: DMA timeout error
-> hda: dma timeout error: status=0xd0 { Busy }
-> ...
-> 
-> That happened also with 2.6.11-rc3 since I thought I should switch away
-> from my 2.6.8-rc2-mm1 (the best kernel ever ;)).
+> I am trying to use a SanDisk SDCFB-256, CFA DISK drive. This
+> is supposed to emulate an IDE drive and does (sort of). However,
+> upon boot, the boot-code keeps trying and trying and trying to
+> do SOMETHING that aparently isn't even necessary because the
+> virtual disk is accessible and can be written/read and I can
+> even boot from it.
 
-Could you please check whether 2.6.11-rc1 does this?  It should be released
-mid-week.  Thanks.
+> hdb: max request size: 128KiB
+> hdb: 501760 sectors (256 MB) w/1KiB Cache, CHS=980/16/32, DMA
+> hdb: cache flushes not supported
+>  hdb:<4>hdb: dma_timer_expiry: dma status == 0x61
+
+I'm assuming you're using a CF-to-IDE adapter to hook up the card. Most 
+likely your CompactFlash card is indicating that it supports DMA and the 
+kernel is trying to use it. However, many CF-to-IDE adapters don't hook 
+up the DMA control lines properly so the requests all time out until the 
+  kernel gives up using DMA.
+
+We use some Mesa Electronics CF-IDE adapters at work - some of the newer 
+ones have some jumpers with positions NOR and DMA, DMA works if the 
+jumpers are set to the DMA position. I don't think we've tried using any 
+DMA-supporting CF cards on the older ones without these jumpers.
+
+If the adapter you're using doesn't do DMA, I believe that if you use 
+options like hdb=nodma or ide1=nodma, etc. that will get the kernel to 
+not try and use it.
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

@@ -1,82 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbTLIVex (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 16:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTLIVex
+	id S262683AbTLIVrl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 16:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbTLIVrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 16:34:53 -0500
-Received: from [64.65.189.210] ([64.65.189.210]:58842 "EHLO
-	mail.pacrimopen.com") by vger.kernel.org with ESMTP id S262784AbTLIVeu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 16:34:50 -0500
-Subject: 2.4.23 + Preempt, JFS Corruption.
-From: Joshua Schmidlkofer <joshua@imr-net.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1071005675.32237.97.camel@bubbles.imr-net.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Dec 2003 13:34:35 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Dec 2003 16:47:41 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:8869 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S262683AbTLIVrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 16:47:40 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Bob <recbo@nishanet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Date: Tue, 9 Dec 2003 14:31:36 -0800 (PST)
+Subject: Re: dialectical deprecation Re: cdrecord hangs my computer
+In-Reply-To: <3FD4CF90.3000905@nishanet.com>
+Message-ID: <Pine.LNX.4.58.0312091430320.19636@dlang.diginsite.com>
+References: <Law9-F31u8ohMschTC00001183f@hotmail.com><Pine.LNX.4.58.0312060011130.2092@home.osdl.org>
+ <3FD1994C.10607@stinkfoot.org><20031206084032.A3438@animx.eu.org>
+ <Pine.LNX.4.58.0312061044450.2092@home.osdl.org><20031206220227.GA19016@work.bitmover.com>
+ <Pine.LNX.4.58.0312061429080.2092@home.osdl.org><20031207110122.GB13844@zombie.inka.de>
+ <Pine.LNX.4.58.0312070812080.2057@home.osdl.org> <1201390000.1070900656@[10.10.2.4]>
+ <3FD4CF90.3000905@nishanet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
+Bob, I don't believe that the 3ware card uses ide-scsi, yes it uses IDE
+drives and looks like a SCSI controller, but that's done in the 3ware
+driver, not by useing ide-scsi.
 
-   We are migrating from ext3 to jfs and had a weird error.  We have a
-dual pentium III 1.4 ghz system.  We have 4GB of ram, and a Mylex
-AcceleRAID 170 [DAC960] controller. Intel pro/100 nics, nothing else too
-special.  The motherboard chipset is ServerWorks.  We added a 40GB ide
-drive to the onboard controller.  It has jfs on it, and we are using
-this for the migration.  We have been backing up to it for a few days,
-and it went read-only on us.  
+David Lang
 
-  I have dtree page corrupt errors, but no hardware errors.  jfs fsck
-errors out as well.
+On Mon, 8 Dec 2003, Bob wrote:
 
-  We saw a load of errors like this in the dmesg:
+> I'm scared(under-informed) to drop ide-scsi since
+> I'm using 3ware and don't know if just scsi-generic
+> would be enough for that hd controller(needs ide-scsi?
+> 3ware's site doc is not easy to find).
 
-ERROR: (device ide0(3,1)): DT_GETPAGE: dtree page corrupt
-ERROR: (device ide0(3,1)): DT_GETPAGE: dtree page corrupt
-ERROR: (device ide0(3,1)): DT_GETPAGE: dtree page corrupt
-ERROR: (device ide0(3,1)): DT_GETPAGE: dtree page corrupt
-ERROR: (device ide0(3,1)): DT_GETPAGE: dtree page corrupt
-ERROR: (device ide0(3,1)): DT_GETPAGE: dtree page corrupt
-ERROR: (device ide0(3,1)): DT_GETPAGE: dtree page corrupt
-
-
-jfs fsck reports:
-jfs_fsck version 1.1.4, 30-Oct-2003
-processing started: 12/9/2003 9.3.38
-The current device is:  /dev/hda1
-Block size in bytes:  4096
-Filesystem size in blocks:  9769520
-**Phase 1 - Check Blocks, Files/Directories, and  Directory Entries
-**Phase 2 - Count links
-Incorrect link counts detected in the aggregate.
-**Phase 3 - Duplicate Block Rescan and Directory Connectedness
-**Phase 4 - Report Problems
-File system object DF1323074 is linked as:
-/slash/home/virtual/[innocent protected]
-cannot repair the data format error(s) in this directory.
-cannot repair DF1323074.
-**Phase 5 - Check Connectivity
-**Phase 6 - Perform Approved Corrections
-**Phase 7 - Verify File/Directory Allocation Maps
-**Phase 8 - Verify Disk Allocation Maps
-Incorrect data detected in disk allocation structures.
-Incorrect data detected in disk allocation control structures.
- 39078080 kilobytes total disk space.
-   292595 kilobytes in 88974 directories.
- 15368020 kilobytes in 1074664 user files.
-        0 kilobytes in extended attributes
-   633991 kilobytes reserved for system use.
- 23368664 kilobytes are available for use.
-File system checked READ ONLY.
-ERRORS HAVE BEEN DETECTED.  Run fsck with the -f parameter to repair.
-Filesystem is dirty.
-
-
-
-(the [innocent protected] just obfuscates the path)
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

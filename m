@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268867AbRHBJrg>; Thu, 2 Aug 2001 05:47:36 -0400
+	id <S268868AbRHBJuQ>; Thu, 2 Aug 2001 05:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268870AbRHBJr0>; Thu, 2 Aug 2001 05:47:26 -0400
-Received: from web20010.mail.yahoo.com ([216.136.225.73]:27143 "HELO
-	web20010.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S268867AbRHBJrP>; Thu, 2 Aug 2001 05:47:15 -0400
-Message-ID: <20010802094719.43751.qmail@web20010.mail.yahoo.com>
-Date: Thu, 2 Aug 2001 17:47:19 +0800 (CST)
-From: =?gb2312?q?=D0=C2=20=D4=C2?= <xinyuepeng@yahoo.com>
-Subject: About the cramfs
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=gb2312
-Content-Transfer-Encoding: 8bit
+	id <S268869AbRHBJuG>; Thu, 2 Aug 2001 05:50:06 -0400
+Received: from weta.f00f.org ([203.167.249.89]:46735 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S268868AbRHBJt5>;
+	Thu, 2 Aug 2001 05:49:57 -0400
+Date: Thu, 2 Aug 2001 21:50:41 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent device numbers
+Message-ID: <20010802215041.B13136@weta.f00f.org>
+In-Reply-To: <000901c11b1c$a87b1f40$21c9ca95@mow.siemens.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000901c11b1c$a87b1f40$21c9ca95@mow.siemens.ru>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
-         I was creating the cramfs image using
-/linux/scripts/mkcramfs.c,because of the big endian,so
-I got 
-a patch to convert. 
-        When I mounted the cramfs as root
-filesystem,it worked, and to read directory was also
-ok,but When 
-I tried to read the files ,I found that it didn't work
-well.Sometimes,error emerged as follow:
-           bash>Error -3 while decompressing!
-             00158fb8(67829187)->001f0000(1024) 
-and I used system page size is 1024,when the file size
-was beyond page size,the error must emerge.
-       I think it is possible that I used the zlib
-which is used in kernel 3.x ,but the kernel  I used is
-2.x,but I didn't sure.
-       Could you explain it? Thanks
-  
-Best Regards:
-                     ypxin
+On Thu, Aug 02, 2001 at 10:30:44AM +0400, Borsenkow Andrej wrote:
+
+    Do I miss something and Linux has such mechanism?
+
+what problem are you trying to solve? if its disk moving about, then
+you need to do things differently
+
+anyhow, look at devfs if you really want 'static' device assignments
 
 
+
+  --cw
 

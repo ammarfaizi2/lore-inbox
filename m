@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270989AbRH0Af6>; Sun, 26 Aug 2001 20:35:58 -0400
+	id <S271518AbRH0Al3>; Sun, 26 Aug 2001 20:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271501AbRH0Afi>; Sun, 26 Aug 2001 20:35:38 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:54024 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S270989AbRH0Afc>; Sun, 26 Aug 2001 20:35:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Date: Mon, 27 Aug 2001 02:42:25 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: <pcg@goof.com>, Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0108262102050.5646-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0108262102050.5646-100000@imladris.rielhome.conectiva>
+	id <S271582AbRH0AlK>; Sun, 26 Aug 2001 20:41:10 -0400
+Received: from [212.159.14.227] ([212.159.14.227]:23991 "HELO
+	warrior-outbound.services.quay.plus.net") by vger.kernel.org
+	with SMTP id <S271518AbRH0Ak7>; Sun, 26 Aug 2001 20:40:59 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kernel@penguin.linuxhardware.org (Kernel Related Emails),
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Support for new chipsets in AGPGART
+In-Reply-To: <E15aixW-000838-00@the-village.bc.nu>
+From: Adam Sampson <azz@gnu.org>
+Organization: The Society Of People Who Repeatedly Point Out That "alot" And "allot" Are Both Wrong, And It Should Be Written "a lot"
+Date: 26 Aug 2001 01:35:26 +0100
+In-Reply-To: <E15aixW-000838-00@the-village.bc.nu>
+Message-ID: <87itfbu08h.fsf@cartman.azz.us-lot.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010827003545Z16325-32383+1532@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 27, 2001 02:02 am, Rik van Riel wrote:
-> On Sun, 26 Aug 2001, Daniel Phillips wrote:
-> 
-> > > His kernel is running completely out of memory, with no
-> > > swap space configured.
-> >
-> > No, he's streaming mp3's:
-> 
-> 1) these two are not exclusive
-> 2) he clearly wrote that he was running out of memory,
->    though this was in a different email thread
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-So you're confident there's no problem here, even though all he's doing is a 
-kernel build and playing mp3's with 24 meg available for the job.
+> > Attached is a patch to identify two new chipsets in the AGP kernel
+> > module.
+> Ok I've already got the AMD, I'll check if I dont have the KT266
 
---
-Daniel
+As a datapoint, I made the same change to 2.4.5 a few weeks ago on a
+KT266 machine at work, and it works fine.
+
+-- 
+Adam Sampson <azz@gnu.org>                  <URL:http://azz.us-lot.org/>

@@ -1,76 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281219AbRKEQkT>; Mon, 5 Nov 2001 11:40:19 -0500
+	id <S281222AbRKEQlJ>; Mon, 5 Nov 2001 11:41:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281239AbRKEQkD>; Mon, 5 Nov 2001 11:40:03 -0500
-Received: from oracle.clara.net ([195.8.69.94]:10256 "EHLO oracle.clara.net")
-	by vger.kernel.org with ESMTP id <S281223AbRKEQjt>;
-	Mon, 5 Nov 2001 11:39:49 -0500
-To: linux-kernel@vger.kernel.org
-Path: softins.clara.co.uk!not-for-mail
-From: tony@softins.clara.co.uk (Tony Mountifield)
-Newsgroups: linux.kernel
-Subject: aic7xxx problems with AHA2930CU
-Date: 5 Nov 2001 16:39:46 -0000
-Organization: Software Insight Ltd., Winchester, UK
-Message-ID: <9s6fci$3f7$1@softins.clara.co.uk>
-X-Newsreader: trn 4.0-test69 (20 September 1998)
+	id <S281223AbRKEQlB>; Mon, 5 Nov 2001 11:41:01 -0500
+Received: from [194.51.220.145] ([194.51.220.145]:40916 "EHLO emeraude")
+	by vger.kernel.org with ESMTP id <S281222AbRKEQkt>;
+	Mon, 5 Nov 2001 11:40:49 -0500
+Date: Mon, 5 Nov 2001 17:35:43 +0100
+From: Stephane Jourdois <stephane@tuxfinder.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Massimo Dal Zotto <dz@debian.org>, LKLM <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SMM BIOS on Dell i8100
+Message-ID: <20011105173543.A17203@emeraude.kwisatz.net>
+Reply-To: stephane@tuxfinder.org
+In-Reply-To: <20011105100346.A1511@emeraude.kwisatz.net> <3BE6B869.D79E93B1@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
+In-Reply-To: <3BE6B869.D79E93B1@mandrakesoft.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.14-pre8
+X-Send-From: emeraude
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I originally posted this query on aic7xxx@freebsd.org back in August,
-but had no responses at all. I hope someone here can advise. I have added
-a bit more at the end.
 
----start original query
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have a completely SCSI-based system which uses an AHA2930CU host adapter
-on a SiS-based motherboard to drive two hard drives and a CD-ROM. It has
-been running RedHat 6.2 with kernel 2.2.16 very happily for a long time.
-This has aic7xxx 5.1.30/3.2.4.
+On Mon, Nov 05, 2001 at 11:03:53AM -0500, Jeff Garzik wrote:
+> Stephane Jourdois wrote:
+> > I've got a Dell Inspiron 8100, which seems to differ slightly from
+> > i8000. Here is a patch that fixes that. Please do not hesitate to ask me
+> > to test some new code or anything on my laptop.
+> Has this been tested in I8000?  You are changing a lot of magic numbers
+> in the code, and noone but you/Massimo know whether that is ok or not...
 
-In order to get USB support for my ADSL modem I decided to upgrade to RH
-7.1. But the installer's aic7xxx wouldn'trun properly, giving many SCSI
-errors, usually starting with Data Overrun errors due to an unexpected data
-phase, and ending up complaining of CHECK condition during REQUEST SENSE.
-This was aic7xxx 5.2.4/5.2.0.
+I presume it works.
+Let me explain why while looking at parts of my patch :
 
-I also tried the RawHide install disk and the one from Mandrake 8.0. Both
-exhibited similar problems.
+-#define I8K_FN_NONE		0x08
+-#define I8K_FN_UP		0x09
+-#define I8K_FN_DOWN		0x0a
+-#define I8K_FN_MUTE		0x0c
++#define I8K_FN_NONE		0x00
++#define I8K_FN_UP		0x01
++#define I8K_FN_DOWN		0x02
++#define I8K_FN_MUTE		0x04
 
-Using expert install and selecting aic7xxx_mod was no better.
+In fact, i8100 returns respectively 1, 2 and 4.
+i8100 returns 0x09, 0x0a, and 0x0c (see Massimo's code).
 
-The next thing I tried was installing the RedHat 6.2 update to kernel
-2.2.19. This has aic7xxx 5.1.33/3.2.4. It also failed to boot, with
-similar SCSI errors to those described above.
+Then we can take the 4 lighter bits, and test them without testing
+the 4 greater bits which value are 0x08 on i8000 and 0x00 on i8100.
 
-I found Doug's SCSI driver page and downloaded the 5.1.33 patch. I then
-reverse-applied it to the 2.2.19 kernel tree to downgrade the aic7xxx from
-5.1.33 to 5.1.31 and rebuilt the kernel. This kernel DID boot successfully
-with no SCSI errors at all!
+hence :
+-    switch ((regs.eax & 0xff00) >> 8) {
++    switch ((regs.eax & 0x0700) >> 8) {
 
-So something in the mega-update from 5.1.31 to 5.1.33 severely broke the
-AHA2930CU card (AIC7860), at least on my system, and this brokenness has
-persisted through the few later versions that I've tried.
+a different version (which I didn't choose), would be to keep Massimo's
+defines, and test (((regs.eax | 0x0800 ) & 0xff00) >> 8). But that's
+more operations, then not the better solution :-)
 
-How can I help solve this? Are the later 6.2.x drivers likely to be better?
+As the drivers disks provided by Dell (windows drivers of course) are
+the same which works on i8000 and i8100, I suppose that they test only
+the 4 lighter bits here
 
----end original query
 
-I have been running fine for over two months with 2.2.19 and the old 5.1.31
-SCSI driver. When Red Hat 7.2 came out recently I though I would try again,
-and created a boot floppy and a driver floppy.
+Of course, as Massismo's told me a few hours ago, this is a beta version
+of this code, and it supports at least Massimo's i8000 and now my i8100.
+We should wait a few days for feed-back from lklm readers, then
+Massimo's intents are to implement a more modular code. That's a good
+intent, isn't it ? :-)
 
-Booting with these still displayed the problems I described.
-Using aic7xxx_mod (6.1.13) instead of aic7xxx resulted in a kernel panic.
 
-I'd really like to move to the 2.4 kernels - how can I determine what needs
-doing to the aic7xxx to support the 2930CU card?
+Anyway, you'll agree with me that 2 laptops is better than one :-)
 
-Cheers,
-Tony
 
--- 
-Tony Mountifield
-Work: tony@softins.co.uk - http://www.softins.co.uk
-Play: tony@mountifield.org - http://tony.mountifield.org
+Thanks for your answer.
+St=E9phane.
+
+--=20
+ ///  Stephane Jourdois        	/"\  ASCII RIBBON CAMPAIGN \\\
+(((    Ing=E9nieur d=E9veloppement 	\ /    AGAINST HTML MAIL    )))
+ \\\   6, av. de la Belle Image	 X                         ///
+  \\\  94440 Marolles en Brie  	/ \    +33 6 8643 3085    ///
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjvmv98ACgkQk2dpMN4A2NMqHgCfafvIsNpUSrMWg7YfDJiwq7n2
+u/0An1dZIfEz6Ds1TpIFaWN5/0R6TEE5
+=z6Yr
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--

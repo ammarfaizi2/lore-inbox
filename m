@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136782AbRECMeA>; Thu, 3 May 2001 08:34:00 -0400
+	id <S136783AbRECMkl>; Thu, 3 May 2001 08:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136783AbRECMdl>; Thu, 3 May 2001 08:33:41 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:4877 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S136782AbRECMde>; Thu, 3 May 2001 08:33:34 -0400
-Message-Id: <200105031232.f43CW7aA009990@pincoya.inf.utfsm.cl>
-To: John Stoffel <stoffel@casc.com>
-cc: esr@thyrsus.com, cate@dplanet.ch, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...] 
-In-Reply-To: Message from John Stoffel <stoffel@casc.com> 
-   of "Wed, 02 May 2001 16:12:07 -0400." <15088.27159.630786.913424@gargle.gargle.HOWL> 
-Date: Thu, 03 May 2001 08:32:07 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S136788AbRECMkc>; Thu, 3 May 2001 08:40:32 -0400
+Received: from www.topmail.de ([212.255.16.226]:59039 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S136783AbRECMkV>;
+	Thu, 3 May 2001 08:40:21 -0400
+Message-ID: <014a01c0d3ce$3619d440$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Torrey Hoffman" <torrey.hoffman@myrio.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1BA2@mail0.myrio.com>
+Subject: Re: [OT] automated remote install of Linux from WinNT4
+Date: Thu, 3 May 2001 12:35:27 -0000
+Organization: eccesys.net Linux development
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Stoffel <stoffel@casc.com> said:
-
-[...]
-
-> No, we're just asking you to make the CML2 parser more tolerant of old
-> and possibly broken configs.
-
-It is _much_ easier on everybody involved to just bail out and ask the user
-(once!) to rebuild the configuration from scratch starting from the defaults.
-
-If you support broken configurations in any way, your program is just
-wildly guessing what they did mean. The exact (and very probably not in any
-way cleanly thought out) behaviour in corner cases then becomes "the way
-things work", and we end up in an unmaintainable mess yet again.
-
-Please don't.
+I'd rather create a minimal partition with no (but != &h80) type,
+write kind of lilo+kernel+initrd into it and execute that by let
+it being called from either the MBR or NTLDR, where you can take
+the images' bootsector as a file.
+I start lilo from NTLDR 5 by using kind of chaining, which moves
+its own code and then loads the MBR of the linux boot partition.
+It's so simple that I wrote it in debug. You might wish to use it
+when the install's finished.
+-mirabilos
 -- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+EA F0 FF 00 F0 #$@%CARRIER LOST
+

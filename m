@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271708AbRIQU6y>; Mon, 17 Sep 2001 16:58:54 -0400
+	id <S273246AbRIQVUg>; Mon, 17 Sep 2001 17:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272413AbRIQU6p>; Mon, 17 Sep 2001 16:58:45 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:65495 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S271708AbRIQU6b>; Mon, 17 Sep 2001 16:58:31 -0400
-Importance: Normal
-Subject: Deadlock on the mm->mmap_sem
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFAA4120C7.50E3F5A3-ONC1256ACA.0072466F@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Mon, 17 Sep 2001 22:57:42 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 17/09/2001 22:57:45
+	id <S273380AbRIQVU1>; Mon, 17 Sep 2001 17:20:27 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37648 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273246AbRIQVUL>; Mon, 17 Sep 2001 17:20:11 -0400
+Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
+To: chris@boojiboy.eorbit.net
+Date: Mon, 17 Sep 2001 22:23:58 +0100 (BST)
+Cc: J.A.K.Mouw@ITS.TUDelft.NL, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200109172004.NAA14399@boojiboy.eorbit.net> from "chris@boojiboy.eorbit.net" at Sep 17, 2001 01:04:14 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15j5ry-0007uO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> Hello Alan and Erik,
+> 
+> The Linux Kernel mailing list does not seem to be
+> bearing any fruit with this APM/ACPI issue regarding
+> clean power-off/reboot.  Are there any other groups
+> that you are aware of that might have interest in
+> investigating this bug?
 
-we're experiencing deadlocks on the mm->mmap_sem which appear to be
-caused by proc_pid_read_maps (on S/390, but I believe this is arch-
-independent).
+Im not aware of any. When you get to "deep in the bios it breaks" then 
+there isnt much we can do. With the DMCA being passed and macrovision code
+found in PC bioses folks in the US risk 5 years in jail just for trying to
+help
 
-What happens is that proc_pid_read_maps grabs the mmap_sem as a reader,
-and *while it holds the lock*, does a copy_to_user.  This can of course
-page-fault, and the handler will also grab the mmap_sem (if it is the
-same task).
-
-Now, normally this just works because both are readers.  However, on SMP
-it might just so happen that another thread sharing the mm wants to grab
-the lock as a writer after proc_pid_read_maps grabbed it as reader, but
-before the page fault handler grabs it.
-
-In that situation, that second thread blocks (because there's already a
-writer), and then the first thread blocks in the page fault handler
-(because a writer is pending).  Instant deadlock ...
-
-B.t.w. S/390 uses the generic spinlock based rwsem code, if this is of
-relevance.
-
-Any ideas how to fix this?  Should proc_pid_read_maps just drop the lock
-before copy_to_user?
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
-
+Alan

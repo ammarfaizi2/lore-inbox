@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVDETRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVDETR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVDETRX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVDETPy
+	id S261951AbVDETR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVDETPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 15:15:54 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:12518 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261947AbVDETKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 15:10:14 -0400
-Date: Tue, 5 Apr 2005 14:10:03 -0500
-From: Greg Edwards <edwardsg@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] CON_CONSDEV bit not set correctly on last console
-Message-ID: <20050405191003.GO21725@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 5 Apr 2005 15:15:02 -0400
+Received: from hammer.engin.umich.edu ([141.213.40.79]:64223 "EHLO
+	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S261951AbVDETKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 15:10:17 -0400
+Date: Tue, 5 Apr 2005 15:10:07 -0400 (EDT)
+From: Christopher Allen Wing <wingc@engin.umich.edu>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
+In-Reply-To: <20050405183141.GA27195@muc.de>
+Message-ID: <Pine.LNX.4.58.0504051508520.13242@hammer.engin.umich.edu>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+ <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
+ <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
+ <20050405183141.GA27195@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to include/linux/console.h, CON_CONSDEV flag should be set on
-the last console specified on the boot command line:
+here's the patch for x86_64
+The kernel is compiling... I'll try it when it finishes.
 
-     86 #define CON_PRINTBUFFER (1)
-     87 #define CON_CONSDEV     (2) /* Last on the command line */
-     88 #define CON_ENABLED     (4)
-     89 #define CON_BOOT        (8)
-
-This does not currently happen if there is more than one console specified
-on the boot commandline.  Instead, it gets set on the first console on the
-command line.  This can cause problems for things like kdb that look for
-the CON_CONSDEV flag to see if the console is valid.
-
-Additionaly, it doesn't look like CON_CONSDEV is reassigned to the next
-preferred console at unregister time if the console being unregistered
-currently has that bit set.
-
-Example (from sn2 ia64):
-
-elilo vmlinuz root=<dev> console=ttyS0 console=ttySG0
-
-in this case, the flags on ttySG console struct will be 0x4 (should be
-0x6).
-
-Attached patch against bk fixes both issues for the cases I looked at.  It
-uses selected_console (which gets incremented for each console specified
-on the command line) as the indicator of which console to set CON_CONSDEV
-on.  When adding the console to the list, if the previous one had
-CON_CONSDEV set, it masks it out.  Tested on ia64 and x86.
-
-Signed-off-by: Greg Edwards <edwardsg@sgi.com>
+-Chris
 
 
- printk.c |   12 ++++++++++--
- 1 files changed, 10 insertions(+), 2 deletions(-)
 
-Index: bk-2.6/kernel/printk.c
-===================================================================
---- bk-2.6.orig/kernel/printk.c	2005-04-05 10:55:19.258081161 -0500
-+++ bk-2.6/kernel/printk.c	2005-04-05 11:50:16.949394443 -0500
-@@ -861,8 +861,10 @@ void register_console(struct console * c
- 			break;
- 		console->flags |= CON_ENABLED;
- 		console->index = console_cmdline[i].index;
--		if (i == preferred_console)
-+		if (i == selected_console) {
- 			console->flags |= CON_CONSDEV;
-+			preferred_console = selected_console;
-+		}
- 		break;
- 	}
- 
-@@ -882,6 +884,8 @@ void register_console(struct console * c
- 	if ((console->flags & CON_CONSDEV) || console_drivers == NULL) {
- 		console->next = console_drivers;
- 		console_drivers = console;
-+		if (console->next)
-+			console->next->flags &= ~CON_CONSDEV;
- 	} else {
- 		console->next = console_drivers->next;
- 		console_drivers->next = console;
-@@ -922,10 +926,14 @@ int unregister_console(struct console * 
- 	/* If last console is removed, we re-enable picking the first
- 	 * one that gets registered. Without that, pmac early boot console
- 	 * would prevent fbcon from taking over.
-+	 *
-+	 * If this isn't the last console and it has CON_CONSDEV set, we
-+	 * need to set it on the next preferred console.
- 	 */
- 	if (console_drivers == NULL)
- 		preferred_console = selected_console;
--		
-+	else if (console->flags & CON_CONSDEV)
-+		console_drivers->flags |= CON_CONSDEV;
- 
- 	release_console_sem();
- 	return res;
+--- linux-2.6.11.6/arch/x86_64/kernel/setup.c.orig	2005-03-25 22:28:14.000000000 -0500
++++ linux-2.6.11.6/arch/x86_64/kernel/setup.c	2005-04-05 15:05:47.656886736 -0400
+@@ -333,6 +333,12 @@
+ 		else if (!memcmp(from, "acpi=strict", 11)) {
+ 			acpi_strict = 1;
+ 		}
++
++#ifdef CONFIG_X86_IO_APIC
++		else if (!memcmp(from, "acpi_skip_timer_override", 24))
++			acpi_skip_timer_override = 1;
++#endif
++
+ #endif
+
+ 		if (!memcmp(from, "nolapic", 7) ||
+
+
+
+
+On Tue, 5 Apr 2005, Andi Kleen wrote:
+
+> Try booting with acpi_skip_timer_override
+>
+> -Andi

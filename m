@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130586AbQKLMXS>; Sun, 12 Nov 2000 07:23:18 -0500
+	id <S130667AbQKLMYI>; Sun, 12 Nov 2000 07:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130649AbQKLMXI>; Sun, 12 Nov 2000 07:23:08 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:34575 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130645AbQKLMW7>;
-	Sun, 12 Nov 2000 07:22:59 -0500
-Message-ID: <3A0E8B99.2EA40AF0@mandrakesoft.com>
-Date: Sun, 12 Nov 2000 07:22:49 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjan Filius <iafilius@xs4all.nl>
-CC: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: 2.4.0-test11-pre3 doesn't compile (ax25 and md)
-In-Reply-To: <Pine.LNX.4.21.0011121308440.5594-100000@sjoerd.sjoerdnet>
+	id <S130648AbQKLMX6>; Sun, 12 Nov 2000 07:23:58 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:22884 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129947AbQKLMXo>; Sun, 12 Nov 2000 07:23:44 -0500
+Date: Sun, 12 Nov 2000 13:23:28 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: Michael Meissner <meissner@spectacle-pond.org>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        George Anzinger <george@mvista.com>,
+        "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
+Subject: Re: Where is it written?
+Message-ID: <20001112132328.C2366@athlon.random>
+In-Reply-To: <20001110184031.A2704@munchkin.spectacle-pond.org> <200011110011.eAB0BbF244111@saturn.cs.uml.edu> <20001110192751.A2766@munchkin.spectacle-pond.org> <20001111163204.B6367@inspiron.suse.de> <20001111171749.A32100@wire.cadcamlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20001111171749.A32100@wire.cadcamlab.org>; from peter@cadcamlab.org on Sat, Nov 11, 2000 at 05:17:49PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan Filius wrote:
-> 
-> Hello,
-> 
-> I noticed also md.c doesn't compile (gcc version 2.95.2 )
-> Here is the (stripped) output from a make -i modules:
-> 
-> make -C md modules
-> make[2]: Entering directory `/usr/src/linux-2.4.0-test11-pre3/drivers/md'
-> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=k6 -DMODULE -DMODVERSIONS -include /usr/src/linux/include/linux/modversions.h   -DEXPORT_SYMTAB -c md.c
-> In file included from md.c:33:
-> /usr/src/linux/include/linux/sysctl.h:35: parse error before `size_t'
+On Sat, Nov 11, 2000 at 05:17:49PM -0600, Peter Samuelson wrote:
+> I'd say go for it -- set up a mailing list and flesh out a better x86
+> ABI. [..]
 
-Either md.c or sysctl.h needs to include <linux/types.h>.
+I think it doesn't worth to break binary compatilibity at this late stage.
 
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
+> design such.)  One issue: ideally you want to use 64-bit regs on AMD
+> Hammer for long longs, but then you leave out all legacy x68s. :(
+
+We can't in compatibilty mode because the rex regs are available _only_ in
+64bit mode and even assuming the hardware would support that I would not
+recommend that since as you said that binary would not run anymore on any other
+x86 so causing pain.  Recompiling a program with native x86-64 gcc 64bit (that
+uses the 64bit ABI) is the right way to go in that case (64bit mode uses 1
+64bit register for long long as all other 64bit architectures of course).
+
+> AIUI gcc can cope OK with multiple ABIs to be chosen at runtime, am I
+> right?  IRIX, HP-UX and AIX all have both 32-bit and 64-bit ABIs.
+
+Yes as in other systems, 32bit mode and 64bit mode needs different ABI and they
+will coexist in the same system.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

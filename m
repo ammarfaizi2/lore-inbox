@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbTJTU7f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 16:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTJTU7f
+	id S262921AbTJTVMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 17:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJTVMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 16:59:35 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:37506 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262746AbTJTU7e
+	Mon, 20 Oct 2003 17:12:25 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:45806 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262921AbTJTVMY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 16:59:34 -0400
-Subject: Re: RH7.3 can't compile 2.6.0-test8
-From: Paul Larson <plars@linuxtestproject.org>
-To: Marco Roeland <marco.roeland@xs4all.nl>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031020164349.GA12986@localhost>
-References: <0c1101c396f4$00bfeaf0$24ee4ca5@DIAMONDLX60>
-	<3F93EABF.5000805@g-house.de>  <20031020164349.GA12986@localhost>
-Content-Type: text/plain
+	Mon, 20 Oct 2003 17:12:24 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: Karl Vogel <karl.vogel@seagha.com>, linux-kernel@vger.kernel.org
+Subject: Re: LVM on md0: raid0_make_request bug: can't convert block across chunks or bigger than 64k
+Date: Mon, 20 Oct 2003 16:06:09 -0500
+User-Agent: KMail/1.5
+References: <1066682115.1799.15.camel@kvo.local.org>
+In-Reply-To: <1066682115.1799.15.camel@kvo.local.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 20 Oct 2003 15:58:58 -0500
-Message-Id: <1066683539.8376.21.camel@plars>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200310201606.09098.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-20 at 11:43, Marco Roeland wrote:
-> No, you just need to upgrade binutils to version 2.12 or higher, as mentioned
-> in Documentation/Changes. The gcc version is fine.
-Apparently that's not quite enough.  I have a machine on binutils
-2.12.90.0.9 and I'm still getting the same failure.
+On Monday 20 October 2003 15:35, Karl Vogel wrote:
+> I'm getting the following kernel messages on V2.6.0-test8-mm1 (I've also
+> tried plain -test7 and some kernels before that) when copying moderately
+> sized files from a raid-0/LVM volume:
+>
+> --- snip ---
+> raid0_make_request bug: can't convert block across chunks or bigger than
+> 64k 24081064 64
+> raid0_make_request bug: can't convert block across chunks or bigger than
+> 64k 24080656 64
+> raid0_make_request bug: can't convert block across chunks or bigger than
+> 64k 24080784 64
+> raid0_make_request bug: can't convert block across chunks or bigger than
+> 64k 24080928 64
 
--Paul Larson
+Looks like this was just recently fixed on the linux-raid list.
 
+http://marc.theaimsgroup.com/?l=linux-raid&m=106661294929434
+
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 

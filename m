@@ -1,66 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262788AbSJaQkj>; Thu, 31 Oct 2002 11:40:39 -0500
+	id <S262828AbSJaQp1>; Thu, 31 Oct 2002 11:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSJaQje>; Thu, 31 Oct 2002 11:39:34 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:15123 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S265228AbSJaQjO>; Thu, 31 Oct 2002 11:39:14 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S262803AbSJaQn1>; Thu, 31 Oct 2002 11:43:27 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:15746 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262653AbSJaQl5>; Thu, 31 Oct 2002 11:41:57 -0500
+Date: Thu, 31 Oct 2002 11:50:39 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: need h/e/l/p:  PM -> RM in machine_real_start
+In-Reply-To: <200210311430.g9VEUh3p014195@wildsau.idv.uni.linz.at>
+Message-ID: <Pine.LNX.3.95.1021031112938.12292A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15809.24115.993132.576769@laputa.namesys.com>
-Date: Thu, 31 Oct 2002 19:45:39 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <Torvalds@Transmeta.COM>,
-       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [PATCH]: reiser4 [5/8] export remove_from_page_cache()
-In-Reply-To: <20021031163104.A9845@infradead.org>
-References: <15809.21559.295852.205720@laputa.namesys.com>
-	<20021031161826.A9747@infradead.org>
-	<15809.22856.534975.384956@laputa.namesys.com>
-	<20021031163104.A9845@infradead.org>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Zippy-Says: I don't think you fellows would do so much RAPING and PILLAGING if
-   you played more PINBALL and watched CABLE TELEVISION!!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
- > On Thu, Oct 31, 2002 at 07:24:40PM +0300, Nikita Danilov wrote:
- > > Reiser4 stores meta-data in a huge balanced tree. This tree is kept
- > > (partially) in the page cache. All pages in this tree are attached to
- > > "fake" inode. Sometimes you need to remove node from the tree. At this
- > > moment page has to be removed from the fake inode mapping.
- > 
- > What about chaing truncate_inode_pages to take an additional len
- > argument so you don't have to remove all pages past an offset?
+On Thu, 31 Oct 2002, H.Rosmanith (Kernel Mailing List) wrote:
 
-It is possible, I think. But this will look more of a hack. Truncate is
-rather for truncating mapping than cutting one page from the middle.
+>  
+> hello,
+> 
+> arch/i386/kernel/process.c exports a "machine_real_start" function, which
+> can be used to execute arbitary 16bit realmode code. I've got this to
+> work so far, by writing a small helper-module which copies 16bit code
+> supplied from userland and passes it to "machine_real_start", which in
+> turn, after switching to real mode, executes that particular code.
+[SNIPPED...]
 
-Besides, current truncate_inode_pages() with all its
-radix_tree_gang_lookup()'s and two passes doesn't looks like easily
-adaptable.
+> 
+> what is needed is the BIOS. I wonder if it is at all possible to use
+> the BIOS again after linux once had run without jumping to 0xffff:0
+> does linux make use of the memory at 0x40? I'm pretty sure that it
+> will be possible to e.g. invoke 0x10 (video), since that is located
+> in ROM, but what about RAM. does linux make use of <1Mb area anyway,
+> that is, 2^20 (A20) the area which can be addresses with 20 bits of
+> address-lines (4bit segreg + 16bit offset).
+>
 
- > 
- > > 
- > > Other file systems don't need remove_from_page_cache() because they only
- > > store in the page cache data (and remove_from_page_cache() is called by
- > > truncate()) and meta data that are never explicitly deleted (like
- > > directory content in ext2).
- > 
- > Sorry, but that's wrong.  XFS does use the pagecache for all metadata and JFS
- > for all but the superblock (which is never changed durin use)
- > 
+The BIOS is most-likely shadowed at 0x000f0000, what you see is
+not the BIOS ROM. The BIOS ROM exists at 0xfffff000, on some
+as low as 0xffffe000, to start execution at 0xfffffff0, and can only
+be accessed in 32-bit mode or after a reset-event when the CS
+descriptor cache contains 0xffff. The first load of the CS resets
+these bits.
 
-Interesting. Then, XFS and JFS meta data in the page cache probably
-are linearly ordered, and there it is never necessary to remove meta
-data page from the middle of the mapping, right?
+Linux leaves the BIOS area alone, but interrupts may not be directly
+usable because Linux loads a different IDT and reprograms the IO-APIC,
+which is used in place of the interrupt controller if it exists.
 
-Nikita.
+You need to reload the IDT once in real-mode. Documentation states
+that it is "ignored", but the reload is necessary to get the default
+interrupt-table to work. I think you can just reload with any memory
+operand (reload junk). If you were transitioning from real to 32-bit
+and back, you would save the current one "SIDT", before loading the
+32-bit one "LIDT". Since you don't know where the previous one was saved,
+(if ever) you can't reload it.
+
+
+> well, BIOS is one thing, hardware is another. I seem not to be able
+> to get *any* interrupt, allthough I really tried in various ways.
+> write an ISR which increments a character in the upper left corner,
+> modify all 256 interrupt vectors to point to the ISR, re-enable interrupts,
+> (sti), unmask all interrupts (out 0x21,0; out 0xa1,0). but no matter
+> what I do - press a key (IRQ1) or program 8253 (IRQ0) - I just can't
+> see the ISR is being called.
+>
+
+Whatever interrupt controllers are used, they are programmed differently
+in Linux than the BIOS expects. You would need to reprogram them, not
+difficult, just a few instructions (check free-BIOS) or other references.
+
+> I also seem to have a very obsolete paper the port assignment of the
+> PC. do you know of any sources (perferrably on the web) which gives
+> a complete overview of portadresses used by the PC?
+
+Check free-BIOS
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
+
+

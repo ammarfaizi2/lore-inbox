@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317427AbSFCRKj>; Mon, 3 Jun 2002 13:10:39 -0400
+	id <S317425AbSFCRPE>; Mon, 3 Jun 2002 13:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317430AbSFCRKi>; Mon, 3 Jun 2002 13:10:38 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29956 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S317427AbSFCRKi>; Mon, 3 Jun 2002 13:10:38 -0400
-Date: Mon, 3 Jun 2002 13:13:19 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Pawel Kot <pkot@linuxnews.pl>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andre Hedrick <andre@serialata.org>
-Subject: Re: Another -pre
-In-Reply-To: <Pine.LNX.4.33.0206031757030.3741-100000@urtica.linuxnews.pl>
-Message-ID: <Pine.LNX.4.44.0206031312550.4146-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317426AbSFCRPD>; Mon, 3 Jun 2002 13:15:03 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:63212 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317425AbSFCRPD>;
+	Mon, 3 Jun 2002 13:15:03 -0400
+Date: Mon, 3 Jun 2002 10:14:47 -0700
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Dan Aloni <da-x@gmx.net>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Link order madness :-(
+Message-ID: <20020603101447.A6067@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020601065520.GA11951@callisto.yi.org> <Pine.LNX.4.44.0206010235340.21152-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 01, 2002 at 02:43:14AM -0500, Kai Germaschewski wrote:
+> On Sat, 1 Jun 2002, Dan Aloni wrote:
+> 
+> > > 	So, I was trying to fix that, and I found a problem with
+> > > kernel link order.
+> > 
+> > It is possible that recent kbuild changes caused that.
+> 
+> I don't think so, I took extra care to leave it all the same. (Well, 
+> except for sound/, which is outside drivers/) It'd however surely be a 
+> good idea to go through it and document which dependencies there are.
 
+	Obviously Dan didn't bother to read my e-mail. The problem is
+definitely not with kbuild. The problem is with the
+__define_initcall() levels.
 
-On Mon, 3 Jun 2002, Pawel Kot wrote:
+> W.r.t to the original problem I have to say I didn't really look into yet, 
+> but I think it makes e.g. a lot of sense to initialize networking earlier 
+> (subsys_initcall). We have initcall levels, using them right will help a 
+> lot. (The block subsystem is only __initcall a.k.a. driver_initcall as 
+> well, that's asking for problems at some point)
 
-> On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
->
-> > On Mon, 3 Jun 2002, Pawel Kot wrote:
-> >
-> > > On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
-> > >
-> > > > Due to some missing network fixes and -ac merge, I'll release another -pre
-> > > > later today.
-> > > >
-> > > > -rc should be out by the end of the week.
-> > >
-> > > Would you please consider merging some IDE updates before releasing
-> > > 2.4.19? Current version remains unusable for me.
-> > > See http://marc.theaimsgroup.com/?l=linux-kernel&m=102277249800423&w=2
-> > > and followers for more detailes.
-> >
-> > Andre,
-> >
-> > Have you looked into this problem ?
->
-> Yes, Andre looked into this problem. His answer was to use -ac kernels, as
-> this series has the most complete IDE code. I patched the kernel with
-> ide-2.4.19-p7.all.convert.10.patch from linuxdiskcert.org (with required
-> changes to apply the patch) and DMA problem seems to disappear.
+	The problem is *not* the networking initialisation (I wish
+people were *reading* my e-mails). The basic networking is initialised
+early enough. The various networking stacks could be initialised
+earlier, but I don't depend on them. Note that there might be a reason
+to initialise networking after the file system, so to do that we might
+need to insert a level between fs_initcall() and device_initcall().
 
-Andre,
+	The problem is with the initialisation of the random
+generator. It needs to be done earlier.
 
-Are there any other critical fixes in the -ac IDE code that is not on the
-stock tree yet?
+> --Kai
 
+	Regards,
+
+	Jean

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264806AbSLGVyS>; Sat, 7 Dec 2002 16:54:18 -0500
+	id <S264818AbSLGWKP>; Sat, 7 Dec 2002 17:10:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264814AbSLGVyS>; Sat, 7 Dec 2002 16:54:18 -0500
-Received: from lakemtao03.cox.net ([68.1.17.242]:29391 "EHLO
-	lakemtao03.cox.net") by vger.kernel.org with ESMTP
-	id <S264806AbSLGVyR>; Sat, 7 Dec 2002 16:54:17 -0500
-Message-ID: <3DF26FED.5070502@cox.net>
-Date: Sat, 07 Dec 2002 16:02:21 -0600
-From: David van Hoose <davidvh@cox.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S264836AbSLGWKP>; Sat, 7 Dec 2002 17:10:15 -0500
+Received: from packet.digeo.com ([12.110.80.53]:50654 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264818AbSLGWKO>;
+	Sat, 7 Dec 2002 17:10:14 -0500
+Message-ID: <3DF2738A.2447599@digeo.com>
+Date: Sat, 07 Dec 2002 14:17:46 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kenel compilation failure
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Matt Rickard <mjr318@psu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops with 3c59x module (3com 3c595 NIC)
+References: <20021207164300.2a35f18d.mjr318@psu.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2002 22:17:46.0882 (UTC) FILETIME=[78A1B620:01C29E3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I downloaded kernel 2.4.20 and got the following during 'make modules'
+Matt Rickard wrote:
+> 
+> I'm running kernel 2.4.19 on a system with a 3com 3c595 NIC, using the
+> 3c59x module.  The system will run as normal for a period of time
+> (generally a pretty long period of time, e.g. 30 days or so) before I
+> will get an Oops regarding this module.  After the oops however, the
+> system will generally run as expected, although in several cases the NIC
+> has been unresponsive following this.
+> 
+> ...
+> eth0: Transmit error, Tx status register 90.
 
-; SNIP
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
--pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS
--include /usr/src/linux-2.4.20/include/linux/modversions.h  -nostdinc
--iwithprefix include -DKBUILD_BASENAME=scsi_syms  -DEXPORT_SYMTAB -c
-scsi_syms.c
-ld -m elf_i386 -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o
-scsicam.o scsi_proc.o scsi_error.o scsi_obsolete.o scsi_queue.o scsi_lib.o
-scsi_merge.o
-scsi_dma.o scsi_scan.o scsi_syms.o
-ln -sf sim710.scr fake7.c
-gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.20/include -traditional
--DCHIP=710 fake7.c | grep -v '^#' | perl -s script_asm.pl -ncr710
-script_asm.pl : Illegal combination of registers in line 72 :   MOVE
-CTEST7 & 0xef TO CTEST7
-        Either source and destination registers must be the same,
-        or either source or destination register must be SFBR.
-make[2]: *** [sim710_d.h] Error 255
-make[2]: Leaving directory `/usr/src/linux-2.4.20/drivers/scsi'
-make[1]: *** [_modsubdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.20/drivers'
-make: *** [_mod_drivers] Error 2
-; SNIP
+That's a transmit underrun - data is not being fed into the NIC
+across the PCI bus fast enough.  Possibly something has gone
+wrong with the busmastering logic on the mainboard, or the NIC.
 
-I didn't know who exactly to send that to, but I am definately sure that 
-isn't supposed to happen. I've attached my configuration file to help. 
-I'm not on the mailing list, so if you need anymore information, email 
-me directly.
-Thank you.
+The driver will reset the transmitter when this happens, as per the
+manual.  There's not much else we can do.
 
--David van Hoose
-davidvh@cox.net
+> ...
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c0108704>]    Not tainted
 
+This may not be related to the driver at all.  A ksymoops trace
+of this info is needed.
+
+The 595 is a very old and slow NIC, and sometimes has problems
+interworking on the PCI bus.  You'd be best off getting a new
+card, frankly.

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316023AbSFJUJ3>; Mon, 10 Jun 2002 16:09:29 -0400
+	id <S316039AbSFJUK3>; Mon, 10 Jun 2002 16:10:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316039AbSFJUJ2>; Mon, 10 Jun 2002 16:09:28 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:52487 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316023AbSFJUJ1>;
-	Mon, 10 Jun 2002 16:09:27 -0400
-Date: Mon, 10 Jun 2002 13:05:43 -0700
-From: Greg KH <greg@kroah.com>
-To: John Levon <movement@marcelothewonderpenguin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: External compilation
-Message-ID: <20020610200542.GB3508@kroah.com>
-In-Reply-To: <20020609142602.GA77496@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 13 May 2002 18:01:41 -0700
+	id <S316043AbSFJUK2>; Mon, 10 Jun 2002 16:10:28 -0400
+Received: from p50887BDF.dip.t-dialin.net ([80.136.123.223]:38278 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316039AbSFJUK0>; Mon, 10 Jun 2002 16:10:26 -0400
+Date: Mon, 10 Jun 2002 14:10:23 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Andrew Morton <akpm@zip.com.au>, Tom Rini <trini@kernel.crashing.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
+In-Reply-To: <Pine.LNX.4.44.0206101403010.6159-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0206101408380.6159-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 03:26:02PM +0100, John Levon wrote:
-> 
-> On a related note, is it at all possible to make a "mini filesystem"
-> that will work on 2.2 upwards, so I can avoid proc,sysctl, and ioctl ?
+Hi,
 
-Take a look at drivers/usb/inode.c in the 2.2 kernel.  Yes it's ugly,
-but seems to be the only way to do it on 2.2.  It also will work on 2.4
-and 2.5.  For 2.4/2.5 it's _much_ easier to make a "mini filesystem".
-See libfs on 2.5, or the pci_hotplug code in 2.4 for examples of this.
+On Mon, 10 Jun 2002, Thunder from the hill wrote:
+> #define __FUNCTION__ __func__
 
-Hope this helps,
+Hmmm... that's just logical. If they just remove the __FUNCTION__ 
+constant, there's nothing to complain about if we redefine it. Even my 
+chaos brain sees that.
 
-greg k-h
+Regards,
+Thunder
+-- 
+German attitude becoming        |	Thunder from the hill at ngforever
+rightaway popular:		|
+       "Get outa my way,  	|	free inhabitant not directly
+    for I got a mobile phone!"	|	belonging anywhere
+

@@ -1,66 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbVCCX0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbVCCXaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262669AbVCCX0G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 18:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVCCXZE
+	id S262636AbVCCXaq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 18:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVCCX3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 18:25:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:45253 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262662AbVCCXR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:17:57 -0500
-Date: Thu, 3 Mar 2005 15:17:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: jgarzik@pobox.com, torvalds@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050303151752.00527ae7.akpm@osdl.org>
-In-Reply-To: <20050303181122.GB12103@kroah.com>
-References: <42268749.4010504@pobox.com>
-	<20050302200214.3e4f0015.davem@davemloft.net>
-	<42268F93.6060504@pobox.com>
-	<4226969E.5020101@pobox.com>
-	<20050302205826.523b9144.davem@davemloft.net>
-	<4226C235.1070609@pobox.com>
-	<20050303080459.GA29235@kroah.com>
-	<4226CA7E.4090905@pobox.com>
-	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	<422751C1.7030607@pobox.com>
-	<20050303181122.GB12103@kroah.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 3 Mar 2005 18:29:36 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:53494 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262747AbVCCXWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 18:22:34 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH][25/26] IB/mthca: implement query of device caps
+In-Reply-To: <2005331520.i9PPmMDNBr0DxH5I@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Thu, 3 Mar 2005 15:20:28 -0800
+Message-Id: <2005331520.mctunM7QrSZHM8mX@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Roland Dreier <roland@topspin.com>
+X-OriginalArrivalTime: 03 Mar 2005 23:20:28.0613 (UTC) FILETIME=[964A0F50:01C52047]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> > It's perfectly workable from a BK standpoint to do
-> > 
-> > 	-> linux-2.6 commit
-> > 	-> cpcset into linux-2.6.X.Y [see Documentation/BK-usage/cpcset]
-> > 	-> pull from linux-2.6.X.Y into linux-2.6 [dups cset, but no
-> > 	   real code change]
-> 
-> That's fine with me to do.  As long as someone points out to $sucker
-> that such a patch should go into 2.6.x.y.
+From: Michael S. Tsirkin <mst@mellanox.co.il>
 
-That's the only way it _can_ work.  The maintainer of 2.6.x.y shouldn't be
-put in a position of having to locate the patches which he needs.
+Set device_cap_flags field in mthca's query_device method.
 
-Like it or not, Vojtech is still the maintainer of the input system in
-2.6.x.y and he should be the primary guy who keeps an eye out for patches
-which needs to be applied there.
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-If we go overboard here, every maintainer will end up maintaining
-another tree of "stuff which needs to be backported to 2.6.x.y", which is
-probably more work than we want to do.
 
-As long as we can keep it down to "small and really critical things" then
-it should work OK.
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_cmd.h	2005-01-25 20:48:02.000000000 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_cmd.h	2005-03-03 14:13:03.934043620 -0800
+@@ -95,7 +95,21 @@
+ };
+ 
+ enum {
+-	DEV_LIM_FLAG_SRQ = 1 << 6
++	DEV_LIM_FLAG_RC                 = 1 << 0,
++	DEV_LIM_FLAG_UC                 = 1 << 1,
++	DEV_LIM_FLAG_UD                 = 1 << 2,
++	DEV_LIM_FLAG_RD                 = 1 << 3,
++	DEV_LIM_FLAG_RAW_IPV6           = 1 << 4,
++	DEV_LIM_FLAG_RAW_ETHER          = 1 << 5,
++	DEV_LIM_FLAG_SRQ                = 1 << 6,
++	DEV_LIM_FLAG_BAD_PKEY_CNTR      = 1 << 8,
++	DEV_LIM_FLAG_BAD_QKEY_CNTR      = 1 << 9,
++	DEV_LIM_FLAG_MW                 = 1 << 16,
++	DEV_LIM_FLAG_AUTO_PATH_MIG      = 1 << 17,
++	DEV_LIM_FLAG_ATOMIC             = 1 << 18,
++	DEV_LIM_FLAG_RAW_MULTI          = 1 << 19,
++	DEV_LIM_FLAG_UD_AV_PORT_ENFORCE = 1 << 20,
++	DEV_LIM_FLAG_UD_MULTI           = 1 << 21,
+ };
+ 
+ struct mthca_dev_lim {
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-03-03 14:13:03.005245231 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_dev.h	2005-03-03 14:13:03.932044054 -0800
+@@ -218,6 +218,7 @@
+ 
+ 	int          	 hca_type;
+ 	unsigned long	 mthca_flags;
++	unsigned long    device_cap_flags;
+ 
+ 	u32              rev_id;
+ 
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_main.c	2005-03-03 14:13:03.005245231 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_main.c	2005-03-03 14:13:03.933043837 -0800
+@@ -171,6 +171,33 @@
+ 	mdev->limits.reserved_uars      = dev_lim->reserved_uars;
+ 	mdev->limits.reserved_pds       = dev_lim->reserved_pds;
+ 
++	/* IB_DEVICE_RESIZE_MAX_WR not supported by driver.
++	   May be doable since hardware supports it for SRQ.
++
++	   IB_DEVICE_N_NOTIFY_CQ is supported by hardware but not by driver.
++
++	   IB_DEVICE_SRQ_RESIZE is supported by hardware but SRQ is not
++	   supported by driver. */
++	mdev->device_cap_flags = IB_DEVICE_CHANGE_PHY_PORT |
++		IB_DEVICE_PORT_ACTIVE_EVENT |
++		IB_DEVICE_SYS_IMAGE_GUID |
++		IB_DEVICE_RC_RNR_NAK_GEN;
++
++	if (dev_lim->flags & DEV_LIM_FLAG_BAD_PKEY_CNTR)
++		mdev->device_cap_flags |= IB_DEVICE_BAD_PKEY_CNTR;
++
++	if (dev_lim->flags & DEV_LIM_FLAG_BAD_QKEY_CNTR)
++		mdev->device_cap_flags |= IB_DEVICE_BAD_QKEY_CNTR;
++				
++	if (dev_lim->flags & DEV_LIM_FLAG_RAW_MULTI)
++		mdev->device_cap_flags |= IB_DEVICE_RAW_MULTI;
++
++	if (dev_lim->flags & DEV_LIM_FLAG_AUTO_PATH_MIG)
++		mdev->device_cap_flags |= IB_DEVICE_AUTO_PATH_MIG;
++
++	if (dev_lim->flags & DEV_LIM_FLAG_UD_AV_PORT_ENFORCE)
++		mdev->device_cap_flags |= IB_DEVICE_UD_AV_PORT_ENFORCE;
++
+ 	if (dev_lim->flags & DEV_LIM_FLAG_SRQ)
+ 		mdev->mthca_flags |= MTHCA_FLAG_SRQ;
+ 
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_provider.c	2005-03-03 14:13:02.566340502 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_provider.c	2005-03-03 14:13:03.933043837 -0800
+@@ -43,6 +43,8 @@
+ 	struct ib_smp *in_mad  = NULL;
+ 	struct ib_smp *out_mad = NULL;
+ 	int err = -ENOMEM;
++	struct mthca_dev* mdev = to_mdev(ibdev);
++
+ 	u8 status;
+ 
+ 	in_mad  = kmalloc(sizeof *in_mad, GFP_KERNEL);
+@@ -50,7 +52,7 @@
+ 	if (!in_mad || !out_mad)
+ 		goto out;
+ 
+-	props->fw_ver        = to_mdev(ibdev)->fw_ver;
++	props->fw_ver              = mdev->fw_ver;
+ 
+ 	memset(in_mad, 0, sizeof *in_mad);
+ 	in_mad->base_version       = 1;
+@@ -59,7 +61,7 @@
+ 	in_mad->method         	   = IB_MGMT_METHOD_GET;
+ 	in_mad->attr_id   	   = IB_SMP_ATTR_NODE_INFO;
+ 
+-	err = mthca_MAD_IFC(to_mdev(ibdev), 1, 1,
++	err = mthca_MAD_IFC(mdev, 1, 1,
+ 			    1, NULL, NULL, in_mad, out_mad,
+ 			    &status);
+ 	if (err)
+@@ -69,10 +71,11 @@
+ 		goto out;
+ 	}
+ 
+-	props->vendor_id      = be32_to_cpup((u32 *) (out_mad->data + 36)) &
++	props->device_cap_flags = mdev->device_cap_flags;
++	props->vendor_id        = be32_to_cpup((u32 *) (out_mad->data + 36)) &
+ 		0xffffff;
+-	props->vendor_part_id = be16_to_cpup((u16 *) (out_mad->data + 30));
+-	props->hw_ver         = be16_to_cpup((u16 *) (out_mad->data + 32));
++	props->vendor_part_id   = be16_to_cpup((u16 *) (out_mad->data + 30));
++	props->hw_ver           = be16_to_cpup((u16 *) (out_mad->data + 32));
+ 	memcpy(&props->sys_image_guid, out_mad->data +  4, 8);
+ 	memcpy(&props->node_guid,      out_mad->data + 12, 8);
+ 
 
-Ideally, the 2.6.x.y maintainer wouldn't need any particular kernel
-development skills - it's just patchmonkeying the things which maintainers
-send him.

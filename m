@@ -1,155 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVCBX4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVCCABM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVCBX4X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCBXx5
+	id S261390AbVCCABM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:01:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVCBX7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:53:57 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:57050 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S261199AbVCBXv4 (ORCPT
+	Wed, 2 Mar 2005 18:59:48 -0500
+Received: from waste.org ([216.27.176.166]:31904 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261389AbVCBXw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:51:56 -0500
-Date: Wed, 2 Mar 2005 18:51:40 -0500
-From: "John L. Males" <jlmales@softhome.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: jlmales@softhome.net
-Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
-Message-Id: <20050302185140.6173e119.jlmales@softhome.net>
-Reply-To: jlmales@softhome.net
-Organization: Toronto, Ontario - Canada
-X-Mailer: Sylpheed version 0.8.2-SrtRecipientSMTPAuthNDateSmartAcctSaveAllOpnNxtMsg (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 2 Mar 2005 18:52:27 -0500
+Date: Wed, 2 Mar 2005 15:52:07 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050302235206.GK3163@waste.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="=_jive-17518-1109807508-0001-2"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
-
---=_jive-17518-1109807508-0001-2
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-Andrew/Kai,
-
-> List:       linux-kernel
-> Subject:    Re: Problems with SCSI tape rewind / verify on 2.4.29
-> From:       Andrew Morton <akpm () osdl ! org>
-> Date:       2005-03-02 22:17:11
-> Message-ID: <20050302141711.00ec7147.akpm () osdl ! org>
-> [Download message RAW]
+On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
 > 
-> Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
-> >
-> > f seek with tape is changed back to returning success, this would
-> > enable correct tar --verify at the beginning of the tape. However,
-> > I am not sure what happens if we are not at the beginning. I will
-> > investigate this and suggest a long term fix to the tar people (a
-> > fix that should be compatible with all Unix tape semantics I know)
-> > and also suggest possible fixes to st (this may include automatic
-> > writing of a filemark when BSF is used after writes).
-
-Kai,
-
-I have a second problem that is perhaps another case of kernel and tar
-combined effect problem.  I have not had time to test with the 2.6.7
-and 2.6.9 knoppix based kernels to see if same problem as >= 2.4.26
-has.  Can you hold out about 3-4 days for me to do the test and report
-the issue to Marcelo to screen first, Kai?  I have feeling what I
-experienced in testing change to st.c Marcelo suggested that caused me
-to try 2.4.26 again and fail on this new issue has some bearing on
-tape positioning you want to check out.
-
+> This is an idea that has been brewing for some time: Andrew has mentioned
+> it a couple of times, I've talked to some people about it, and today Davem
+> sent a suggestion along similar lines to me for 2.6.12.
 > 
-> Yes, please let's get a tar fix in the pipeline.
-> 
-> GNU tar must run on a lot of operating systems.  It's odd.
-> 
-> > If you think want to make st return success for seeks even if
-> > nothing happens (as it did earlier), I don't have anything against
-> > that. It would 
+> Namely that we could adopt the even/odd numbering scheme that we used to 
+> do on a minor number basis, and instead of dropping it entirely like we 
+> did, we could have just moved it to the release number, as an indication 
+> of what was the intent of the release.
 
-I think it is important if an error is enccountered a non-successful
-return (code) is returned.  If an action is required that requires no
-action as it is at the place/state/position being requested it is
-reasonable to return a successful return (code). 
+One last plea for the 2.4 scheme:
 
-> > solve the practical problem several people have reported recently.
-> > (My recommendation for the people seeing this problem is to do
-> > verification separately with 'tar -d'.)
+ a) all the crazy stuff goes in 2.6.x-preN, which ends up being
+    equivalent to 2.6.<odd> and friends in your scheme
+ b) bugfixes only in 2.6.x-rcN, which ends up being equivalent to
+    2.6.<even>-* in your scheme.
+ c) 2.6.x is always 2.6.x-rc<last> with just a version number change[1]
 
-As aside, I have tried the tar -d option as well and it worked, but
-was my understanding the --verify does a data readback compare of the
-files in the tar, whereas the tar -d option only compares if files
-names in tar to directory?  That to me means a big difference in
-confidance the tar backup is ok, as I look to have readback verify to
-increase confidance of backup success.
+This has some nice features:
 
-> 
-> Yes, I think we need to grit our teeth and do this.  I'll stick a
-> comment in there.
+ - alternates as rapidly as you want between stable and development
+ - no brown paper bag bugs sneaking in between -rc<last> and 2.6.x 
+ - 2.6.* is suitable for all users, 2.6.*-rc* is suitable for almost
+   all users
+ - it's already in use for 2.4 and people are happy with it
 
+I _really_ don't want to explain to people that they don't want to use
+2.6.13 because it's an odd number but that 2.4.31 is just fine (and so
+is 2.6.9). Nor do I want to teach my ketchup tool the difference
+between 2.6-stable and 2.6-unstable.
 
-Regards,
+> The problem with major development trees like 2.4.x vs 2.5.x was that the 
+> release cycles were too long, and that people hated the back- and 
+> forward-porting. That said, it did serve a purpose - people kind of knew 
+> where they stood, even though we always ended up having to have big 
+> changes in the stable tree too, just to keep up with a changing landscape.
 
-John L. Males
-Willowdale, Ontario
-Canada
-02 March 2005 (17:45 -) 18:51
+I think naming the interim releases -pre/-rc has done this admirably
+for 2.4.
 
-==================================================================
-
-
-"Boooomer ... Boom Boom, how are you Boom Boom"
-"Meoaaaawwwww, meoaaaaaawwww" as Boomer loudly announces
-     intent Boomer is coming for attention
-Loved to kneed arm and lick arm with Boomers very large
-     tongue
-Able to catch, or at least hit, almost any object in flight
-     withing reach of front paws
-Boomer 1985 (Born), Adopted 04 September 1991
-04 September 1991 - 08 February 2000 18:50
-
-"How are you Mr. Sylvester?"
-"... Grunt Grunt" ... quick licks of nose
-Rolls over for pet and stomac rub when Dad arrives home
-     and grunting
-Runs back and forth from study, tilts head as glowing green
-     eyes stare for "attention please", grunts and meows,
-     repeats run, tilt head and stare few times for good
-     measure, grunts and meows
-Lays on floor just outside study to guard Dad
-Loved to groom Miss Mahogany, and let Mahogany cuddle beside
-Sylvester 1989 (estimated Born)
-Found in building mail area noon hour 09 Feburary 1992
-09 February 1992 - 19 January 2003 23:25
-
-"Hello Miss Chicago 'White Sox', how are you 'Chico'?"
-"Grunt" (thank you) ... as put out food for Chicago
-"MEEEEEOOOOWWWW" So loud the world stops
-A very determined Miss "White Sox"
-AKA "Chico" ... Cheryl Crawford used as nickname
-Loved to chase kibble slid down hall floor,
-     bat about and then eat
-Loved to hook paw in dish to toss out a single kibble
-     at time, dart at as moved, then eat ... "Crunches"
-Chicago "White Sox", "Chico" August 1989 (born),
-     adopted 04 February 1991
-05 October 2004 06:52 Quite "Grunts" ....
-                      as lay Chicago on bed for last time
-04 February 1991 - 05 October 2004 07:32
-
-
---=_jive-17518-1109807508-0001-2
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQFCJlGTsrsjS27q9xYRAkRYAKCRtpXwjWJJgsQ/unax/fsctbXKYACg7P3e
-hd0aoLh9YSMylwI13voBv3E=
-=CAvv
------END PGP SIGNATURE-----
-
---=_jive-17518-1109807508-0001-2--
+--
+Mathematics is the supreme nostalgia of our time.

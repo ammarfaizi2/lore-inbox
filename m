@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVCLEjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVCLEuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVCLEjt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 23:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVCLEgO
+	id S261688AbVCLEuI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 23:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVCLEuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 23:36:14 -0500
-Received: from fire.osdl.org ([65.172.181.4]:50855 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261852AbVCLEfD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 23:35:03 -0500
-Date: Fri, 11 Mar 2005 20:34:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] break_lock forever broken
-Message-Id: <20050311203427.052f2b1b.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 11 Mar 2005 23:50:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51141 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261688AbVCLEuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 23:50:03 -0500
+Message-ID: <423274E5.4060804@pobox.com>
+Date: Fri, 11 Mar 2005 23:49:41 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@graphe.net>
+CC: linux-kernel@vger.kernel.org, mark@chelsio.com, netdev@oss.sgi.com
+Subject: Re: A new 10GB Ethernet Driver by Chelsio Communications
+References: <Pine.LNX.4.58.0503110356340.14213@server.graphe.net> <20050311112132.6a3a3b49.akpm@osdl.org>
+In-Reply-To: <20050311112132.6a3a3b49.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> lock->break_lock is set when a lock is contended, but cleared only in
->  cond_resched_lock.  Users of need_lockbreak (journal_commit_transaction,
->  copy_pte_range, unmap_vmas) don't necessarily use cond_resched_lock on it.
+Andrew Morton wrote:
+> Christoph Lameter <christoph@graphe.net> wrote:
 > 
->  So, if the lock has been contended at some time in the past, break_lock
->  remains set thereafter, and the fastpath keeps dropping lock unnecessarily.
->  Hanging the system if you make a change like I did, forever restarting a
->  loop before making any progress.
+>>A Linux driver for the Chelsio 10Gb Ethernet Network Controller by
+>> Chelsio (http://www.chelsio.com). This driver supports the Chelsio N210
+>> NIC and is backward compatible with the Chelsio N110 model 10Gb NICs.
 > 
->  Should it be cleared when contending to lock, just the other side of the
->  cpu_relax loop?  No, that loop is preemptible, we don't want break_lock
->  set all the while the contender has been preempted.  It should be cleared
->  when we unlock - any remaining contenders will quickly set it again.
 > 
->  So cond_resched_lock's spin_unlock will clear it, no need for it to do
->  that; and use need_lockbreak there too, preferring optimizer to #ifdefs.
+> Thanks, Christoph.
 > 
->  Or would you prefer the few need_lockbreak users to clear it in advance?
->  Less overhead, more errorprone.
+> The 400k patch was too large for the vger email server so I have uploaded it to
+> 
+>  http://www.zip.com.au/~akpm/linux/patches/stuff/a-new-10gb-ethernet-driver-by-chelsio-communications.patch
 
-This patch causes a CONFIG_PREEMPT=y, CONFIG_PREEMPT_BKL=y,
-CONFIG_DEBUG_PREEMPT=y kernel on a ppc64 G5 to hang immediately after
-displaying the penguins, but apparently not before having set the hardware
-clock backwards 101 years.
+step 1:  kill all the OS wrappers.
 
-After having carefully reviewed the above description and having decided
-that these effects were not a part of the patch's design intent I have
-temporarily set it aside, thanks.
+And do you really need hooks for multiple MACs, when only one MAC is 
+really supported?  Typically these hooks are at a higher level anyway -- 
+struct net_device.
+
+	Jeff
+
 

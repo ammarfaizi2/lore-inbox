@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319583AbSIMU6A>; Fri, 13 Sep 2002 16:58:00 -0400
+	id <S316599AbSIMU5t>; Fri, 13 Sep 2002 16:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319766AbSIMU6A>; Fri, 13 Sep 2002 16:58:00 -0400
-Received: from momus.sc.intel.com ([143.183.152.8]:14049 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S319583AbSIMU57>; Fri, 13 Sep 2002 16:57:59 -0400
-Message-ID: <A5974D8E5F98D511BB910002A50A66470580D1AE@hdsmsx103.hd.intel.com>
-From: "Cress, Andrew R" <andrew.r.cress@intel.com>
-To: "'Helge Hafting'" <helge.hafting@broadpark.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: 2.5.34 unable to mount root fs on 09:00 (smp,raid1,devfs,scsi
-	)
-Date: Fri, 13 Sep 2002 14:02:37 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S319583AbSIMU5t>; Fri, 13 Sep 2002 16:57:49 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:22400 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316599AbSIMU5t>;
+	Fri, 13 Sep 2002 16:57:49 -0400
+Date: Fri, 13 Sep 2002 23:00:43 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rik van Riel <riel@conectiva.com.br>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Good way to free as much memory as possible under 2.5.34?
+Message-ID: <20020913210042.GA25464@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge,
+Hi!
 
-You've probably already checked this, but is  CONFIG_BLK_DEV_MD=y ?
-It won't work if you have a root mirror and this is a configured as a
-module.
+/*
+ * Try to free as much memory as possible, but do not OOM-kill anyone
+ *
+ * Notice: all userland should be stopped at this point, or livelock
+is possible.
+ */
 
-Andy Cress
+This worked before -rmap came in, but it does not free anything
+now. What needs to be done to fix it?
 
------Original Message-----
-From: Helge Hafting [mailto:helge.hafting@broadpark.no] 
-Sent: Thursday, September 12, 2002 1:24 PM
-To: Linux Kernel Mailing List
-Subject: 2.5.34 unable to mount root fs on 09:00 (smp,raid1,devfs,scsi)
+								Pavel 
 
-2.5.33 works. 2.5.34 and 2.5.34-bk3 won't mount the
-root fs.  The root fs is on /dev/md/1, composed
-of 2 partitions on different scsi disks.
+static void free_some_memory(void)
+{
+        printk("Freeing memory: ");
+        while
+(try_to_free_pages(&contig_page_data.node_zones[ZONE_HIGHMEM], GFP_KSWAPD, 0))
+                printk(".");
+        printk("|\n");
+}
 
-The RAID-1 setup is autodetected, so it don't look
-like a hardware or scsi problem.  Everything seems normal
-until the root mount fail and the kernel hangs.  Not
-even sysrq works after that.
-
-Helge Hafting
--
-
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285828AbSAIOXs>; Wed, 9 Jan 2002 09:23:48 -0500
+	id <S286821AbSAIO2i>; Wed, 9 Jan 2002 09:28:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286825AbSAIOXj>; Wed, 9 Jan 2002 09:23:39 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:29804 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S285828AbSAIOXS>; Wed, 9 Jan 2002 09:23:18 -0500
-Date: Wed, 9 Jan 2002 15:22:21 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Robert Love <rml@tech9.net>, Anton Blanchard <anton@samba.org>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020109152221.I1543@inspiron.school.suse.de>
-In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <E16OHLf-0000Dn-00@starship.berlin> <20020109145509.G1543@inspiron.school.suse.de> <E16OJOJ-0000Q6-00@starship.berlin>
+	id <S286758AbSAIO22>; Wed, 9 Jan 2002 09:28:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:44560 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S286895AbSAIO2P>;
+	Wed, 9 Jan 2002 09:28:15 -0500
+Date: Wed, 9 Jan 2002 15:28:07 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Michael Zhu <mylinuxk@yahoo.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: About the request queue of block device
+Message-ID: <20020109152807.E19814@suse.de>
+In-Reply-To: <20020107213749.18573.qmail@web14911.mail.yahoo.com> <20020108081515.A19380@suse.de> <003801c198e0$5a85a9d0$4b53cc8e@zhujj>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E16OJOJ-0000Q6-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Jan 09, 2002 at 03:07:40PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <003801c198e0$5a85a9d0$4b53cc8e@zhujj>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 03:07:40PM +0100, Daniel Phillips wrote:
-> On January 9, 2002 02:55 pm, Andrea Arcangeli wrote:
-> > On Wed, Jan 09, 2002 at 12:56:50PM +0100, Daniel Phillips wrote:
-> > > BTW, I find your main argument confusing.  First you don't want -preempt with
-> > > CONFIG_EXERIMENTAL because it might not get wide enough testing, so you want 
-> > > to enable it by default in the mainline kernel, then you argue it's too risky 
-> > > because everybody will use it and it might break some obscure driver.  Sorry, 
-> > > you lost me back there.
-> > 
-> > the point I am making is very simple: _if_ we include it, it should _not_
-> > be a config option.
+On Tue, Jan 08 2002, Michael Zhu wrote:
+> Hi, Jens, thank you very much for you kindly reply.
+> Your advice is very helpful to me. I've made some
+> revisions according to your advice. The attachment
+> contains some functions of mine. I don't know whether
+> I am right. I've done some test, but failed.
 > 
-> That doesn't make any sense to me.  Why should _SMP be a config option and not
+> In your mail you said that I can replace floppy
+> blk_dev
+> make_request_fn with my own that does the encryption
+> on write and stacks a new buffer head on top of the
+> other for READ, defining my own b_end_io function for
+> that to decrypt on READ end I/O. How can I stacks a
+> new buffer head on top of the other for READ? Is it
+> necessary? How to implement this? Please give me a
+> hand on this. Thank you very much.
 
-getting the drivers tested with preempt enable makes lots of sense to
-me.
+Yes it's necessary, you can't go fiddling with b_end_io b_private  of a
+buffer you don't own. See loop.c
 
-> _PREEMPT?
+> BTW, I've browsed the source code of __make_request()
+> function in the ll_rw_blk.c file. Do I need to call
+> the 'bh = create_bounce(rw, bh);' before I can access
+> the bh->b_data? You know the buffer data may point
 
-SMP in 2.1 wasn't a config option.
+Inside make_request_fn, yes you need to bounce it yourself.
 
-Andrea
+> into the high memory. My failure is because of this?
+
+Probably not.
+
+-- 
+Jens Axboe
+

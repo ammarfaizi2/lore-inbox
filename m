@@ -1,159 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbSJDVUV>; Fri, 4 Oct 2002 17:20:21 -0400
+	id <S261769AbSJDU5m>; Fri, 4 Oct 2002 16:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261893AbSJDVUV>; Fri, 4 Oct 2002 17:20:21 -0400
-Received: from mail2.ameuro.de ([62.208.90.8]:23274 "EHLO mail2.ameuro.de")
-	by vger.kernel.org with ESMTP id <S261839AbSJDVUT>;
-	Fri, 4 Oct 2002 17:20:19 -0400
-Date: Fri, 4 Oct 2002 23:25:20 +0200
-From: Anders Larsen <al@alarsen.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Art Haas <ahaas@neosoft.com>
-Subject: [PATCH] 2.5.40 qnx4fs (1/2): ISO C initializers
-Message-ID: <20021004212520.GC12093@errol.alarsen.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.1
+	id <S261785AbSJDU5m>; Fri, 4 Oct 2002 16:57:42 -0400
+Received: from fed1mtao04.cox.net ([68.6.19.241]:44240 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S261769AbSJDU5l>; Fri, 4 Oct 2002 16:57:41 -0400
+Message-ID: <3D9E020E.9070703@cox.net>
+Date: Fri, 04 Oct 2002 14:03:10 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+Organization: Laboratory Systems Group, Inc.
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b) Gecko/20020924
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Any problems with 2.4 and gcc 3.2?
+References: <20021004204851.26027.qmail@web40020.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-this patch (contributed by Art Haas) changes the structure initializers
-in the qnx4fs code to the new ISO C style.
-Please apply.
+Brad Chapman wrote:
+> I'm going to be installing RH8 soon, and would like to know if gcc 3.2
+> miscompiles 2.4 kernel code (i.e. 2.4.20-pre8, for example). Are there any
+> problems with the code that gcc 3.2 produces from kernel source?
+> 
+> Brad
+> 
 
-Cheers
- Anders (maintainer)
-
-diff -ur linux-2.5.40-vanilla/fs/qnx4/dir.c linux-2.5.40/fs/qnx4/dir.c
---- linux-2.5.40-vanilla/fs/qnx4/dir.c	Tue Oct  1 09:07:09 2002
-+++ linux-2.5.40/fs/qnx4/dir.c	Fri Oct  4 22:09:55 2002
-@@ -85,17 +85,17 @@
- 
- struct file_operations qnx4_dir_operations =
- {
--	read:		generic_read_dir,
--	readdir:	qnx4_readdir,
--	fsync:		file_fsync,
-+	.read		= generic_read_dir,
-+	.readdir	= qnx4_readdir,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations qnx4_dir_inode_operations =
- {
--	lookup:		qnx4_lookup,
-+	.lookup		= qnx4_lookup,
- #ifdef CONFIG_QNX4FS_RW
--	create:		qnx4_create,
--	unlink:		qnx4_unlink,
--	rmdir:		qnx4_rmdir,
-+	.create		= qnx4_create,
-+	.unlink		= qnx4_unlink,
-+	.rmdir		= qnx4_rmdir,
- #endif
- };
-diff -ur linux-2.5.40-vanilla/fs/qnx4/file.c linux-2.5.40/fs/qnx4/file.c
---- linux-2.5.40-vanilla/fs/qnx4/file.c	Tue Oct  1 09:06:30 2002
-+++ linux-2.5.40/fs/qnx4/file.c	Fri Oct  4 22:21:30 2002
-@@ -24,21 +24,19 @@
-  */
- struct file_operations qnx4_file_operations =
- {
--	llseek:			generic_file_llseek,
--	read:			generic_file_read,
-+	.llseek		= generic_file_llseek,
-+	.read		= generic_file_read,
-+	.mmap		= generic_file_mmap,
-+	.sendfile	= generic_file_sendfile,
- #ifdef CONFIG_QNX4FS_RW<ahaas@neosoft.com>
--	write:			generic_file_write,
-+	.write		= generic_file_write,
-+	.fsync		= qnx4_sync_file,
- #endif
--	mmap:			generic_file_mmap,
--#ifdef CONFIG_QNX4FS_RW
--	fsync:			qnx4_sync_file,
--#endif
--	sendfile:		generic_file_sendfile,
- };
- 
- struct inode_operations qnx4_file_inode_operations =
- {
- #ifdef CONFIG_QNX4FS_RW
--	truncate:		qnx4_truncate,
-+	.truncate		= qnx4_truncate,
- #endif
- };
-diff -ur linux-2.5.40-vanilla/fs/qnx4/inode.c linux-2.5.40/fs/qnx4/inode.c
---- linux-2.5.40-vanilla/fs/qnx4/inode.c	Tue Oct  1 09:06:28 2002
-+++ linux-2.5.40/fs/qnx4/inode.c	Fri Oct  4 22:23:09 2002
-@@ -131,19 +131,17 @@
- 
- static struct super_operations qnx4_sops =
- {
--	alloc_inode:	qnx4_alloc_inode,
--	destroy_inode:	qnx4_destroy_inode,
--	read_inode:	qnx4_read_inode,
-+	.alloc_inode	= qnx4_alloc_inode,
-+	.destroy_inode	= qnx4_destroy_inode,
-+	.read_inode	= qnx4_read_inode,
-+	.put_super	= qnx4_put_super,
-+	.statfs		= qnx4_statfs,
-+	.remount_fs	= qnx4_remount,
- #ifdef CONFIG_QNX4FS_RW
--	write_inode:	qnx4_write_inode,
--	delete_inode:	qnx4_delete_inode,
-+	.write_inode	= qnx4_write_inode,
-+	.delete_inode	= qnx4_delete_inode,
-+	.write_super	= qnx4_write_super,<ahaas@neosoft.com>
- #endif
--	put_super:	qnx4_put_super,
--#ifdef CONFIG_QNX4FS_RW
--	write_super:	qnx4_write_super,
--#endif
--	statfs:		qnx4_statfs,
--	remount_fs:	qnx4_remount,
- };
- 
- static int qnx4_remount(struct super_block *sb, int *flags, char *data)
-@@ -449,12 +447,12 @@
- 	return generic_block_bmap(mapping,block,qnx4_get_block);
- }<ahaas@neosoft.com>
- struct address_space_operations qnx4_aops = {
--	readpage: qnx4_readpage,
--	writepage: qnx4_writepage,
--	sync_page: block_sync_page,
--	prepare_write: qnx4_prepare_write,
--	commit_write: generic_commit_write,
--	bmap: qnx4_bmap
-+	.readpage	= qnx4_readpage,
-+	.writepage	= qnx4_writepage,
-+	.sync_page	= block_sync_page,
-+	.prepare_write	= qnx4_prepare_write,
-+	.commit_write	= generic_commit_write,
-+	.bmap		= qnx4_bmap
- };
- 
- static void qnx4_read_inode(struct inode *inode)
-@@ -564,11 +562,11 @@
- }
- 
- static struct file_system_type qnx4_fs_type = {
--	owner:		THIS_MODULE,
--	name:		"qnx4",
--	get_sb:		qnx4_get_sb,
--	kill_sb:	kill_block_super,
--	fs_flags:	FS_REQUIRES_DEV,
-+	.owner		= THIS_MODULE,
-+	.name		= "qnx4",
-+	.get_sb		= qnx4_get_sb,
-+	.kill_sb	= kill_block_super,
-+	.fs_flags	= FS_REQUIRES_DEV,
- };
- 
- static int __init init_qnx4_fs(void)
+I have a system that's been running 2.4.20-preX compiled with GCC 3.2 
+for over a month now, no problems so far.
 

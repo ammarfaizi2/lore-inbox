@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVC1LIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVC1LKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVC1LIi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 06:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVC1LIi
+	id S261525AbVC1LKa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 06:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVC1LKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 06:08:38 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:50719 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261516AbVC1LIg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 06:08:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=Afc/FdL6PtXWi2yY7xn5co+4acWriyCruUTnYkKVPm4UMOjoIrMQOQmugV6l6AB+T6GSufZ4aNHs0SmJu9q22bfPnUwSNCBZh1s8Sfm1SRUGxsLbuBDvmEmoAD5GZeurSmt/P8yEkINck+kungicyJvf6Sj+LfBH8IqddtJP15Y=
-Message-ID: <84fecab05032803082415448f@mail.gmail.com>
-Date: Mon, 28 Mar 2005 13:08:05 +0200
-From: Valery Khamenya <khamenya@gmail.com>
-Reply-To: Valery Khamenya <khamenya@gmail.com>
+	Mon, 28 Mar 2005 06:10:30 -0500
+Received: from mail3.euroweb.net.mt ([217.145.4.38]:20356 "EHLO
+	mail3.euroweb.net.mt") by vger.kernel.org with ESMTP
+	id S261525AbVC1LKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 06:10:21 -0500
+Message-ID: <4247E62B.5080900@euroweb.net.mt>
+Date: Mon, 28 Mar 2005 13:10:35 +0200
+From: "Josef E. Galea" <josefeg@euroweb.net.mt>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: reboot problem with VIA EPIA-MS motherboard
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: EXPORT_SYMBOL question
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-please Cc to me your clues on the following problem:
+I have 2 modules. The first one uses EXPORT_SYMBOL to make some function 
+available to other modules. These prototypes for these functions were 
+also put in a header file. Now the second module uses the functions the 
+functions defined in the first module by and includes the afore 
+mentioned header file. However when i'm compiling the module, I get a 
+symbol underfined warning. When I load the module it works as expected. 
+Is there any way to get rid of these warnings.
 
-Symptom:
+Another problem I'm having is that when I load the second module I get 
+`no version for "rbnode_initialize" found: kernel tainted.' 
+(rbnode_initialize is one of the functions exported by the first 
+module). Both MODULE_LICENSE("GPL"); and MODULE_VERSION are declared in 
+the two modules. Is there anything I'm missing?
 
-"reboot" or "shutdown -r now" on VIA EPIA-MS motherboard finishes all 
-processes, then comes message "Restarting system.", keyboard LEDs 
-flash and nothing happens anymore -- one has to finalize reboot manually.
-
-Comments:
-
-1. Motherboard is really able to reboot: e.g. when after POST comes grub, one
-could enter grub's console and issue "reboot" -- it works fine.
-
-2. different kernel boot options were tried without success, like
-"reboot=b|w|h|c", "acpi=on|off|force", "apm=on|off" -- not in
-all combinations though ;)
-
-3. Linux distro used -- Gentoo. (synced)
-
-4. different 2.6.x kernel were tried: 2.6.9-2.6.12, not only vanilla kernels,
-but Gentoo kernels too. (Now I am stuck to 2.6.12-rc1 as it is exposed via 
-Gentoo portage system)
-
-5. different kernel boot options lead to different reboot implementations.
-One of tracked by me implementations ends up in
-mach-default/mach_reboot.h, inlined function "mach_reboot".
-The second udelay(50) in the loop is the last call,
-after which nothing happens anymore. 
-
-6. Any other details/logs might be posted -- just tell me
-which are of interest.
-
-TIA,
-Valery.
-
-P.S. perhaps, I do not violate any rules posting my problem and comments
-to this malinglist.
--- 
-Valery A.Khamenya
+Thanks
+Josef Galea

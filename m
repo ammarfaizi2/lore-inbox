@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUHCQ3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUHCQbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266459AbUHCQ3H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 12:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbUHCQ3H
+	id S266705AbUHCQbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 12:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266707AbUHCQbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 12:29:07 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:11666 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266459AbUHCQ3F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 12:29:05 -0400
-Message-ID: <410FBD47.2060605@us.ibm.com>
-Date: Tue, 03 Aug 2004 09:28:55 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Tue, 3 Aug 2004 12:31:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63642 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266705AbUHCQal (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 12:30:41 -0400
+Date: Tue, 3 Aug 2004 12:29:54 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Shane Shrybman <shrybman@aei.ca>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
+In-Reply-To: <1091544359.2318.1.camel@mars>
+Message-ID: <Pine.LNX.4.58.0408031229210.7783@devserv.devel.redhat.com>
+References: <1091459297.2573.10.camel@mars>  <Pine.LNX.4.58.0408030517310.21280@devserv.devel.redhat.com>
+  <1091541932.2254.3.camel@mars>  <Pine.LNX.4.58.0408031009040.12823@devserv.devel.redhat.com>
+ <1091544359.2318.1.camel@mars>
 MIME-Version: 1.0
-To: Keith Whitwell <keith@tungstengraphics.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>
-Subject: Re: DRM code reorganization
-References: <20040802155312.56128.qmail@web14923.mail.yahoo.com> <410E81C3.2070804@us.ibm.com> <20040802185746.GA12724@redhat.com> <410E9FEE.60108@us.ibm.com> <20040802204553.GC12724@redhat.com> <410ED3F7.7090809@us.ibm.com> <410F443A.7050707@tungstengraphics.com>
-In-Reply-To: <410F443A.7050707@tungstengraphics.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Whitwell wrote:
 
-> We've actually managed to do a fair bit of cleanup already - if you look 
-> at the gamma driver, there's a lot of stuff in there which used to be 
-> shared but ifdef'ed out between all the drivers.  The 
-> __HAVE_MULTIPLE_DMA_QUEUES macro is a remnant of this, but I think 
-> you'll break gamma when you try & remove it.
+On Tue, 3 Aug 2004, Shane Shrybman wrote:
 
-It looks like __HAVE_MULTIPLE_DMA_QUEUES is a superset of 
-__HAVE_DMA_QUEUE.  My thinking was that the code for those two options 
-could be merged.  Does that seem reasonable?
+> > > Nope, didn't boot with either voluntary-preempt=1 or 2 on the boot
+> > > command line. Booting stopped at the scsi controller again.
+> > > 
+> > > It did boot with just acpi=off.
+> > 
+> > does the non-patched kernel boot?
+> > 
+> 
+> I am in vanilla 2.6.8-rc2 now and it seems to be fine.
+
+does it boot fine with the patch applied but the APIC turned off in the 
+.config?
+
+	Ingo

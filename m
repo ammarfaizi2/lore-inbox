@@ -1,121 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbULHQrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbULHQsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbULHQrk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 11:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbULHQrk
+	id S261262AbULHQsK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 11:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbULHQsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 11:47:40 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:40660 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261264AbULHQrf (ORCPT
+	Wed, 8 Dec 2004 11:48:09 -0500
+Received: from dvhart.com ([64.146.134.43]:1924 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261262AbULHQsC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 11:47:35 -0500
-From: Mike Werner <werner@sgi.com>
-Reply-To: werner@sgi.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.10-rc3] sys_ioctl: Add an unlocked_ioctl file operation
-Date: Wed, 8 Dec 2004 08:49:26 -0800
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 8 Dec 2004 11:48:02 -0500
+Subject: nanosleep resolution, jiffies vs microseconds
+From: Darren Hart <darren@dvhart.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: blainey@ca.ibm.com, Martin J Bligh <mbligh@aracnet.com>, nacc@us.ibm.com,
+       johnstul@us.ibm.com, fultonm@ca.ibm.com, paulmck@us.ibm.com
+Content-Type: text/plain
+Date: Wed, 08 Dec 2004 08:47:48 -0800
+Message-Id: <1102524468.16986.30.camel@farah.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412080849.26377.werner@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# Add an unlocked_ioctl file operation
-# It assumes if unlocked_ioctl is defined in fops
-# then the driver can handle concurrency and
-# lock_kernel isn't called.
-#
-# Signed-off-by: Mike Werner  <werner@sgi.com>
-# 
-diff -Nru a/fs/ioctl.c b/fs/ioctl.c
---- a/fs/ioctl.c	2004-12-07 16:14:55 -08:00
-+++ b/fs/ioctl.c	2004-12-07 16:14:55 -08:00
-@@ -16,6 +16,8 @@
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
- 
-+/* Any additions in file_ioctl need to be added to the lock_kernel filter in sys_ioctl */
-+ 
- static int file_ioctl(struct file *filp,unsigned int cmd,unsigned long arg)
- {
- 	int error;
-@@ -46,7 +48,9 @@
- 		case FIONREAD:
- 			return put_user(i_size_read(inode) - filp->f_pos, p);
- 	}
--	if (filp->f_op && filp->f_op->ioctl)
-+	if (filp->f_op && filp->f_op->unlocked_ioctl)
-+		return filp->f_op->unlocked_ioctl(inode, filp, cmd, arg);
-+	else if (filp->f_op && filp->f_op->ioctl)
- 		return filp->f_op->ioctl(inode, filp, cmd, arg);
- 	return -ENOTTY;
- }
-@@ -56,7 +60,7 @@
- {	
- 	struct file * filp;
- 	unsigned int flag;
--	int on, error = -EBADF;
-+	int on, locked, error = -EBADF;
- 
- 	filp = fget(fd);
- 	if (!filp)
-@@ -68,7 +72,26 @@
-                 goto out;
-         }
- 
--	lock_kernel();
-+	switch (cmd) {
-+		case FIOCLEX:
-+		case FIONCLEX:
-+		case FIONBIO:
-+		case FIOASYNC:
-+		case FIOQSIZE:
-+		case FIBMAP:
-+		case FIGETBSZ:
-+		case FIONREAD:
-+			lock_kernel();
-+			locked=1;
-+			break;
-+		default:
-+			locked=0;
-+			if (filp->f_op && !filp->f_op->unlocked_ioctl) {
-+				lock_kernel();
-+				locked=1;
-+			}
-+	}
-+
- 	switch (cmd) {
- 		case FIOCLEX:
- 			set_close_on_exec(fd, 1);
-@@ -127,10 +150,13 @@
- 			error = -ENOTTY;
- 			if (S_ISREG(filp->f_dentry->d_inode->i_mode))
- 				error = file_ioctl(filp, cmd, arg);
-+			else if (filp->f_op && filp->f_op->unlocked_ioctl)
-+				error = filp->f_op->unlocked_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
- 			else if (filp->f_op && filp->f_op->ioctl)
- 				error = filp->f_op->ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
- 	}
--	unlock_kernel();
-+	if (locked)
-+		unlock_kernel();
- 	fput(filp);
- 
- out:
-diff -Nru a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	2004-12-07 16:14:55 -08:00
-+++ b/include/linux/fs.h	2004-12-07 16:14:55 -08:00
-@@ -915,6 +915,7 @@
- 	int (*readdir) (struct file *, void *, filldir_t);
- 	unsigned int (*poll) (struct file *, struct poll_table_struct *);
- 	int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
-+	int (*unlocked_ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
- 	int (*mmap) (struct file *, struct vm_area_struct *);
- 	int (*open) (struct inode *, struct file *);
- 	int (*flush) (struct file *);
+I am looking at trying to improve the latency of nanosleep for short
+sleep times (~1ms).  After reading Martin Schwidefsky's post for cputime
+on s390 (Message-ID:
+<20041111171439.GA4900@mschwid3.boeblingen.de.ibm.com>), it seems to me
+that we may be able to accomplish this by storing the expire time in
+microseconds rather than jiffies.  Here is an example for context:
+
+Say we want to sleep for 1ms on i386, we call nanosleep(1000000).
+Unfortunately on i386 a jiffy is slightly less than 1ms (as one might
+expect with HZ = 1000).  So when sys_nanosleep calls
+timespec_to_jiffies, it returns 2.  Now to allow for the corner case
+when my 1ms sleep request gets called at the very tail end of a clock
+period (see ascii diagram below), nanosleep adds 1 to that and calls
+schedule_timeout with 3.  So a 1 ms sleep correctly turns into 3
+jiffies.
+
+If we were to store the expire value in microseconds, this corner case
+would still exist and still span two full tick periods.  However, the
+large majority of the time, nanosleep(1000000) could pause for only 2
+jiffies, instead of 3.  Before I dug to deep into the relevant code I
+wanted to hear some opinions on this approach.
+
+
+Worst case scenario for a 1ms sleep:
+
+TICK @ 1000000000 ns ------------------------   (X jiffies)
+
+
+    nanosleep(1000000) // this can't correctly wake until 1001999849
+TICK @ 1000999849 ns ------------------------   (X jiffies + 1)
+
+
+
+TICK @ 1001999698 ns ------------------------   (X jiffies + 2)
+    at 1001999849 nanosleep call can wake up
+    (but since this is after X jiffies + 2, we can't actually wake
+     until X jiffies + 3)
+
+TICK @ 1002999547 ns ------------------------   (X jiffies + 3)
+    wake from nanosleep
+
+
+Thanks,
+
+-- 
+Darren Hart <darren@dvhart.com>
+
+

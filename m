@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUHIIhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUHIIkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUHIIhh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUHIIhh
+	id S266352AbUHIIkX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUHIIkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:37:37 -0400
-Received: from mail.tpgi.com.au ([203.12.160.103]:1723 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S266344AbUHIIhT (ORCPT
+	Mon, 9 Aug 2004 04:40:23 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26551 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266349AbUHIIkJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:37:19 -0400
-Subject: Re: [2.6.8-rc2-mm2] swsusp results on a hp compaq nx7000
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: crow@old-fsckful.ath.cx, mochel@osdl.org,
+	Mon, 9 Aug 2004 04:40:09 -0400
+Date: Mon, 9 Aug 2004 10:39:30 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jason L Tibbitts III <tibbs@math.uh.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Zinx Verituse <zinx@epicsol.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040808182440.GB620@elf.ucw.cz>
-References: <20040804120303.GA1828@final-judgement.ath.cx>
-	 <20040806201107.GD30518@elf.ucw.cz>
-	 <20040808092853.GC26305@old-fsckful.ath.cx>
-	 <20040808182440.GB620@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1092039852.28673.5.camel@desktop.cunninghams>
+Subject: Re: ide-cd problems
+Message-ID: <20040809083929.GQ10418@suse.de>
+References: <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de> <20040731210257.GA22560@bliss> <20040805054056.GC10376@suse.de> <1091739966.8418.38.camel@localhost.localdomain> <20040806054424.GB10274@suse.de> <20040806062331.GE10274@suse.de> <1091794470.16306.11.camel@localhost.localdomain> <20040806143258.GB23263@suse.de> <ufa4qnfzloz.fsf@epithumia.math.uh.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 09 Aug 2004 18:24:12 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ufa4qnfzloz.fsf@epithumia.math.uh.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, Aug 06 2004, Jason L Tibbitts III wrote:
+> >>>>> "JA" == Jens Axboe <axboe@suse.de> writes:
+> 
+> JA> Like when dvd readers became common, you can't just require people
+> JA> to update their kernel because a few new commands are needed to
+> JA> drive them from user space.
+> 
+> Perhaps I'm being completely dense, but why would the filtering tables
+> have to be compiled into the kernel?  Why not load them from user
+> space via a mechanism requiring CAP_SYS_RAWIO?
+> 
+> How many commands are we talking about here?  Is the mechanism
+> workable by a simple bitmask, or is something more complex like a
+> state machine required?
 
-On Mon, 2004-08-09 at 04:24, Pavel Machek wrote:
-> Hi!
-> 
-> > > > * locking with regard to preemption seems so be broken
-> 
-> I see it here, too.
-> 
-> > > > * ohci1394 seems to generate sporadic OOPs on resume (could be
-> > > >   preemption related)
-> 
-> I do not have firewire device to test with... There seem to be very
-> little of those beasts around, so I propose to ignore firewire for
-> now.
+Could be done, it's quite some work though. The complexity isn't as much
+due to new commands being added (that doesn't happen very often), that's
+only problematic from the policy pov. The problem is defining the
+tables, it's definitely not trivial. And I still claim not very doable.
 
-I have firewire hardware but no actual devices to plug in. Is that any
-help at all when it comes to testing? (I'm not building any support in
-or as modules at the moment).
-
-Nigel
+-- 
+Jens Axboe
 

@@ -1,88 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266296AbTADHQa>; Sat, 4 Jan 2003 02:16:30 -0500
+	id <S266406AbTADHRo>; Sat, 4 Jan 2003 02:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266406AbTADHQa>; Sat, 4 Jan 2003 02:16:30 -0500
-Received: from f29.sea2.hotmail.com ([207.68.165.29]:2834 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S266296AbTADHQ2>;
-	Sat, 4 Jan 2003 02:16:28 -0500
-X-Originating-IP: [218.75.193.47]
-From: "fretre lewis" <fretre3618@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: please help me understand a line code about pci
-Date: Sat, 04 Jan 2003 07:24:51 +0000
+	id <S266408AbTADHRn>; Sat, 4 Jan 2003 02:17:43 -0500
+Received: from netrealtor.ca ([216.209.85.42]:59914 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S266406AbTADHRl>;
+	Sat, 4 Jan 2003 02:17:41 -0500
+Date: Sat, 4 Jan 2003 02:34:30 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: "Shane R. Stixrud" <shane@stixrud.org>, Larry McVoy <lm@bitmover.com>,
+       Richard Stallman <rms@gnu.org>, billh@gnuppy.monkey.org, paul@clubi.ie,
+       riel@conectiva.com.br, Hell.Surfers@cwctv.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Message-ID: <20030104073430.GA7518@mark.mielke.cc>
+References: <20030103212631.GD24896@work.bitmover.com> <Pine.LNX.4.44.0301031511090.10226-100000@master.geeklords.org> <20030104030007.C1406@almesberger.net>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F29TmaiUYFjbhy5H71p0000f22d@hotmail.com>
-X-OriginalArrivalTime: 04 Jan 2003 07:24:51.0666 (UTC) FILETIME=[5EE18320:01C2B3C2]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030104030007.C1406@almesberger.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 04, 2003 at 03:00:07AM -0300, Werner Almesberger wrote:
+> Shane R. Stixrud wrote:
+> > I see a possible future where software development is seen much like
+> > getting your roof repaired, or adding a new room on to your house.
+> > It's labor+materials.
+> Exactly. Whenever somebody figures out a way to make some work
+> process more efficient, invariably a group of people will predict
+> imminent doom if this model catches on, and they will have plenty
+> of compelling reasons why the old way is vastly superior.
 
-hi,all
+If only it were that simple. Instead, the roof repair man repairs one
+house, the fix is propagated to all other houses via the Internet, the
+roof repair man puts *himself* out of a job, and the only people that
+make money are the Internet service providers. The roof repair man
+starves to death and finally ends up on (un)employment insurance.
 
-  I am reading code about pci, and I can't understand some lines in
-pci_check_direct(), in arch/i386/kernel/pci-pc.c
+Continually comparing software development to traditional forms of
+labour is misleading and evidence that the issue is *not* being
+properly understood. A closer comparison would be to compare the design
+of software to the design of a building. But then - architects don't
+give their blueprints away for free - that would be suicidal...
 
-well, I wonder why need "outb (0x01, 0xCFB);" if check configuration type 1 
-? and why "outb (0x00, 0xCFB);" if check configuration type 2?
-  please help me,thanks a lot.
+mark
 
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-406 static struct pci_ops * __devinit pci_check_direct(void)
-407 {
-408         unsigned int tmp;
-409         unsigned long flags;
-410
-411         __save_flags(flags); __cli();
-412
-413         /*
-414          * Check if configuration type 1 works.
-415          */
-416         if (pci_probe & PCI_PROBE_CONF1) {
-417                 outb (0x01, 0xCFB);  <<<=========
-418                 tmp = inl (0xCF8);
-419                 outl (0x80000000, 0xCF8);
-420                 if (inl (0xCF8) == 0x80000000 &&
-421                     pci_sanity_check(&pci_direct_conf1)) {
-422                         outl (tmp, 0xCF8);
-423                         __restore_flags(flags);
-424                         printk(KERN_INFO "PCI: Using configuration type 
-1\n");
-425                         request_region(0xCF8, 8, "PCI conf1");
-426                         return &pci_direct_conf1;
-427                 }
-428                 outl (tmp, 0xCF8);
-429         }
-430
-431         /*
-432          * Check if configuration type 2 works.
-433          */
-434         if (pci_probe & PCI_PROBE_CONF2) {
-435                 outb (0x00, 0xCFB);   <<<=========
-436                 outb (0x00, 0xCF8);
-437                 outb (0x00, 0xCFA);
-438                 if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
-439                     pci_sanity_check(&pci_direct_conf2)) {
-440                         __restore_flags(flags);
-441                         printk(KERN_INFO "PCI: Using configuration type 
-2\n");
-442                         request_region(0xCF8, 4, "PCI conf2");
-443                         return &pci_direct_conf2;
-444                 }
-445         }
-446
-447         __restore_flags(flags);
-448         return NULL;
-449 }
-450
-451 #endif
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-
-
-
-
-_________________________________________________________________
-MSN 8 with e-mail virus protection service: 2 months FREE* 
-http://join.msn.com/?page=features/virus
+                           http://mark.mielke.cc/
 

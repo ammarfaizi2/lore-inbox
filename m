@@ -1,86 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280467AbRKKT3V>; Sun, 11 Nov 2001 14:29:21 -0500
+	id <S280628AbRKKTna>; Sun, 11 Nov 2001 14:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280481AbRKKT3L>; Sun, 11 Nov 2001 14:29:11 -0500
-Received: from jgateadsl.cais.net ([205.252.5.196]:47130 "EHLO
-	tyan.doghouse.com") by vger.kernel.org with ESMTP
-	id <S280467AbRKKT25>; Sun, 11 Nov 2001 14:28:57 -0500
-Date: Sun, 11 Nov 2001 14:24:27 -0500 (EST)
-From: Maxwell Spangler <maxwax@mindspring.com>
-X-X-Sender: <maxwell@tyan.doghouse.com>
-To: Erik Andersen <andersen@codepoet.org>, <andre@linux-ide.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Disk Performance
-In-Reply-To: <20011109162028.A14567@codepoet.org>
-Message-ID: <Pine.LNX.4.33.0111111420410.17275-100000@tyan.doghouse.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280631AbRKKTnV>; Sun, 11 Nov 2001 14:43:21 -0500
+Received: from unthought.net ([212.97.129.24]:49064 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S280628AbRKKTnG>;
+	Sun, 11 Nov 2001 14:43:06 -0500
+Date: Sun, 11 Nov 2001 20:43:05 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011111204305.A16792@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Kai Henningsen <kaih@khms.westfalen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0111041502390.21449-100000@weyl.math.psu.edu> <viro@math.psu.edu> <20011104205248.Q14001@unthought.net> <Pine.GSO.4.21.0111041502390.21449-100000@weyl.math.psu.edu> <20011104211118.U14001@unthought.net> <8Ce2D-PXw-B@khms.westfalen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <8Ce2D-PXw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Sun, Nov 11, 2001 at 12:06:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Nov 2001, Erik Andersen wrote:
-
-> On Fri Nov 09, 2001 at 08:57:07PM -0200, Rik van Riel wrote:
-> > >
-> > > But wouldn't it make more sense to enable DMA by default, except
-> > > for a set of blacklisted chipsets, rather then disabling it for
-> > > everybody just because some older chipsets are crap?
+On Sun, Nov 11, 2001 at 12:06:00PM +0200, Kai Henningsen wrote:
+> jakob@unthought.net (Jakob ¥stergaard)  wrote on 04.11.01 in <20011104211118.U14001@unthought.net>:
+...
 > >
-> > The kernel does this, but only if CONFIG_IDEDMA_AUTO
-> > is enabled ...
->
-> That seems to be the theory.  In practice every system in my house has
-> that option enabled and yet only some controllers boot up with DMA enabled...
->
-> For example lets look at the following case.  This system has
-> an intel chipset builtin and a Promise PCI card.
->
->     Uniform Multi-Platform E-IDE driver Revision: 6.31
->     ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
->     PIIX4: IDE controller on PCI bus 00 dev 39
->     PIIX4: chipset revision 1
->     PIIX4: not 100% native mode: will probe irqs later
-> 	ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
-> 	ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
->     PDC20267: IDE controller on PCI bus 00 dev 68
->     PCI: Found IRQ 5 for device 00:0d.0
->     PDC20267: chipset revision 2
->     PDC20267: not 100% native mode: will probe irqs later
-> 	ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:DMA, hdf:DMA
-> 	ide3: BM-DMA at 0xbc08-0xbc0f, BIOS settings: hdg:pio, hdh:DMA
->     hda: IBM-DPTA-373420, ATA DISK drive
->     hdd: PCRW804, ATAPI CD/DVD-ROM drive
->     hde: IBM-DTLA-307045, ATA DISK drive
->     hdg: IBM-DTLA-307045, ATA DISK drive
->     ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->     ide1 at 0x170-0x177,0x376 on irq 15
->     ide2 at 0xac00-0xac07,0xb002 on irq 5
->     ide3 at 0xb400-0xb407,0xb802 on irq 5
->     hda: 66055248 sectors (33820 MB) w/1961KiB Cache, CHS=4111/255/63, UDMA(33)
->     hde: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=89355/16/63
->     hdg: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=89355/16/63
->     Partition check:
->      hda: hda1 hda2
->      hde: hde1
->      hdg: hdg1
->
-> So the Intel one came up with DMA enabled,  No problem there.
->
-> The Promise controller has two identical 46.1GB IBM-DTLA-307045 7200
-> rpm hard drives on it.  The controller is capable of ATA100.  The hard
-> drives are capable of ATA100.  And yet even with CONFIG_IDEDMA_AUTO
-> set, these drives both come up running 3.39 MB/s.
+> > A regex won't tell me if  345987 is a signed or unsigned 32-bit or 64-bit
+> > integer,  or if it's a double.
+> 
+> You do not *need* that information at runtime. If you think you do, you're  
+> doing something badly wrong.
 
-I've got the same setup and things work fine.  Do you have the "Special UDMA
-feature" enabled in the Promise driver configuration portion of the kernel
-config?  Perhaps it specifically needs that while any other EIDE driver (like
-the embedded PIIX4) would already use DMA..
+I would prefer to have the information at compile-time, so that I would get
+a compiler error if I did something wrong.
 
-Perhaps Andre can give us a final answer :)
--------------------------------------------------------------------------------
-Maxwell Spangler
-Program Writer
-Greenbelt, Maryland, U.S.A.
-Washington D.C. Metropolitan Area
+But that's unrealistic - some counter could change it's type from kernel
+release to kernel release.
 
+Now, my program needs to deal with the data, perform operations on it,
+so naturally I need to know what kind of data I'm dealing with.  Most likely,
+my software will *expect* some certain type, but if I have no way of verifying
+that my assumption is correct, I will lose sooner or later...
+
+> 
+> I cannot even imagine what program would want that information.
+
+Uh. Any program using /proc data ?
+
+> 
+> > Sure, implement arbitrary precision arithmetic in every single app out there
+> > using /proc....
+> 
+> Bullshit. Implement whatever arithmetic is right *for your problem*. And  
+> notice when the value you get doesn't fit so you can tell the user he  
+> needs a newer version. That's all.
+> 
+> There's no reason whatsoever to care what data type the kernel used.
+
+So my program runs for two months and then aborts with an error because
+some counter just happened to no longer fit into whatever type I assumed
+it was ?
+
+Come on - you just can't code like that...
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

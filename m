@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283244AbSALCzY>; Fri, 11 Jan 2002 21:55:24 -0500
+	id <S282978AbSALCxX>; Fri, 11 Jan 2002 21:53:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283286AbSALCzP>; Fri, 11 Jan 2002 21:55:15 -0500
-Received: from mx.fluke.com ([129.196.128.53]:15367 "EHLO
-	evtvir03.tc.fluke.com") by vger.kernel.org with ESMTP
-	id <S283268AbSALCy6>; Fri, 11 Jan 2002 21:54:58 -0500
-Date: Fri, 11 Jan 2002 18:55:07 -0800 (PST)
-From: David Dyck <dcd@tc.fluke.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: IDE cdrom  cdrom_read_intr: data underrun / end_request: I/O error
- --- was Re: Patch: linux-2.5.2-pre7/drivers/cdrom additional kdev_t fixes
-In-Reply-To: <200201120124.RAA10614@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.33.0201111841320.193-100000@dd.tc.fluke.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283012AbSALCxM>; Fri, 11 Jan 2002 21:53:12 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:29963 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S282978AbSALCxF>;
+	Fri, 11 Jan 2002 21:53:05 -0500
+Date: Fri, 11 Jan 2002 19:50:18 -0700
+From: yodaiken@fsmlabs.com
+To: Robert Love <rml@tech9.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+        Rob Landley <landley@trommello.org>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020111195018.A2008@hq.fsmlabs.com>
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <1010781207.819.27.camel@phantasy>; from rml@tech9.net on Fri, Jan 11, 2002 at 03:33:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jan 2002 at 17:24 -0800, Adam J. Richter <adam@yggdrasil.com> wrote:
+On Fri, Jan 11, 2002 at 03:33:22PM -0500, Robert Love wrote:
+> On Fri, 2002-01-11 at 07:37, Alan Cox wrote:
+> The preemptible kernel plus the spinlock cleanup could really take us
+> far.  Having locked at a lot of the long-held locks in the kernel, I am
+> confident at least reasonable progress could be made.
+> 
+> Beyond that, yah, we need a better locking construct.  Priority
+> inversion could be solved with a priority-inheriting mutex, which we can
+> tackle if and when we want to go that route.  Not now.
 
-> >I had been testing 2.5.2-pre11 and earlier, but hadn't looked at
-> >reading from my cdrom for a while.  Yesterday I created examined several
-> >large cdrom sets that had been readable earlier and they read partially
-> >but get read errors.  These same cdroms can be read reliable on
-> >2.4.18-pre3 using the same hardware, and are readable on other
-> >PC's runing older kernels.
->
-> >Has anyone else seen cdrom read errors with 2.5.2-pre* kernels?
-
-Thanks for your response Adam,
-
-> 	Please indicate what kind of interface your CDROM drive
-> has (and preferably make and model of the drive) and what
-> errors you saw.
->
-> 	If you are using an IDE or SCSI CDROM drive, then the problems
-> you are experiencing have nothing to do with my patch.  My patch was
-> only for the very old "proprietary interface" CDROM drives, which are
-> almost all "1X" or "2X" speed drives.
-
-Using 2.5.2-pre11
-
-# mount /cdrom && md5sum /cdrom/*
-md5sum: /cdrom/dcd-c.tar.gz: I/O error
-md5sum: /cdrom/dcd-d.tar.gz: I/O error
+Backing the car up to the edge of the cliff really gives us
+good results. Beyond that, we could jump off the cliff
+if we want to go that route.
+Preempt leads to inheritance and inheritance leads to disaster.
 
 
-An example of some of the messages were
+All the numbers I've seen show Morton's low latency just works better. Are
+there other numbers I should look at.
 
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hdc: NEC CD-ROM DRIVE:28B, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 32X CD-ROM drive, 256kB Cache
-
-
-VFS: Disk change detected on device ide1(22,0)
-ISO 9660 Extensions: Microsoft Joliet Level 3
-ISOFS: changing to secondary root
-hdc: cdrom_read_intr: data underrun (4294967256 blocks)
-end_request: I/O error, dev 16:00, sector 299300
-hdc: cdrom_read_intr: data underrun (4294967260 blocks)
-end_request: I/O error, dev 16:00, sector 299304
-
-  errors repeated with sector and blocks increasing by 4
-  repeating 118 times
-
-
-but using 2.4.18-pre3 I get no errors
 

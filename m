@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292792AbSBZUMZ>; Tue, 26 Feb 2002 15:12:25 -0500
+	id <S292779AbSBZUO5>; Tue, 26 Feb 2002 15:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292777AbSBZUMQ>; Tue, 26 Feb 2002 15:12:16 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:28811 "EHLO
+	id <S292798AbSBZUOy>; Tue, 26 Feb 2002 15:14:54 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:29579 "EHLO
 	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S292792AbSBZUMA>; Tue, 26 Feb 2002 15:12:00 -0500
-Date: Tue, 26 Feb 2002 15:14:58 -0500 (EST)
+	id <S293139AbSBZUO1>; Tue, 26 Feb 2002 15:14:27 -0500
+Date: Tue, 26 Feb 2002 15:17:27 -0500 (EST)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 Reply-To: root@chaos.analogic.com
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Davide Libenzi <davidel@xmailserver.org>
 cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: schedule()
-In-Reply-To: <3C7BEA6F.97CB8AD4@mandrakesoft.com>
-Message-ID: <Pine.LNX.3.95.1020226151347.5437A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.44.0202261211510.1544-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.3.95.1020226151635.5437C-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Jeff Garzik wrote:
+On Tue, 26 Feb 2002, Davide Libenzi wrote:
 
-> "Richard B. Johnson" wrote:
-> > 
+> On Tue, 26 Feb 2002, Richard B. Johnson wrote:
+> 
+> >
+> >
 > > I just read on this list that:
-> > 
+> >
 > >     while(something)
 > >     {
 > >       current->policy |= SCHED_YIELD;
 > >       schedule();
 > >     }
-> > 
+> >
 > > Will no longer be allowed in a kernel module! If this is true, how
 > > do I loop, waiting for a bit in a port, without wasting CPU time?
+> >
+> > A lot of hardware does not generate interrupts upon a condition,
+> > there is no CPU activity that could send a wake_up_interruptible()
+> > to something sleeping.
+> >
+> > For instance, I need to write data to a hardware FIFO, one long-word
+> > at a time, but I can't just write. I have to wait for a bit to be
+> > set or reset for each and every write. I'm going to be burning a
+> > lot of CPU cycles if I can't schedule() while the trickle-down-effect
+> > of the hardware is happening.
 > 
-> Call yield() or better yet, schedule_timeout()
+> What did it do yield() to you ? Doesn't it work for your case ?
 > 
-> In 2.4, define the above to be yield() in some compatibility module...
-
-Okay, thanks. I'll change my code to YIELD and define a macro for
-both versions.
+There isn't one in 2.4.x  I'll modify my drivers to use YIELD
+and #define it depending upon version.
 
 
 Cheers,

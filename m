@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261594AbTBKSjd>; Tue, 11 Feb 2003 13:39:33 -0500
+	id <S264886AbTBKSnE>; Tue, 11 Feb 2003 13:43:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263313AbTBKSjd>; Tue, 11 Feb 2003 13:39:33 -0500
-Received: from dsl027-161-083.atl1.dsl.speakeasy.net ([216.27.161.83]:27141
-	"EHLO hoist") by vger.kernel.org with ESMTP id <S261594AbTBKSjc>;
-	Tue, 11 Feb 2003 13:39:32 -0500
-Date: Tue, 11 Feb 2003 13:37:07 -0500
-To: linux-kernel@vger.kernel.org
-Subject: checksumming with mmx, comment in arch/i386/lib/mmx.c
-Message-ID: <20030211183707.GA23376@suburbanjihad.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: dank@suburbanjihad.net (nick black)
+	id <S264936AbTBKSnE>; Tue, 11 Feb 2003 13:43:04 -0500
+Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:65300 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S264886AbTBKSnC>;
+	Tue, 11 Feb 2003 13:43:02 -0500
+Message-ID: <3E494681.6090200@acm.org>
+Date: Tue, 11 Feb 2003 12:52:49 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mauricio Martinez <mauricio@coe.neu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.20 drivers/cdrom/cdu31a.c
+References: <Pine.GSO.4.33.0302111235510.29078-100000@Amps.coe.neu.edu>
+In-Reply-To: <Pine.GSO.4.33.0302111235510.29078-100000@Amps.coe.neu.edu>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i want to speed up my product's checksum verification code, and was
-pondering the use of mmx (ip_fast_csum as implemented by cwik and
-gulbrandsen from asm-i386/checksum.h is fast enough for my needs, but i
-don't want to violate the gpl 8) ).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-i'm refreshing myself on mmx currently, but noticed the following
-comment from arch/i386/lib/mmx.c's _mmx_memcpy:
+Mauricio Martinez wrote:
 
-"Checksums are not a win with MMX on any CPU tested so far for any MMX
-solution figured."
+|Thanks for your reply. I guess there are still some drives like this
+|floating around. I can live without it, but it is good to use it in an old
+|486 as a jukebox and print server :)
+|
+|Your patch makes much more sense that mine (I have no experience in Linux
+|driver development), and it makes the drive work *very well* (excellent
+|transfer rate and no system overload), but only if I remove the last hunk.
+|
+|This last hunk tries to read again the data with 4 sectors less each time
+|(i.e. 16,14,12,...,4) which *i think* overloads the buffer leading to an
+|oops (and even a system reboot without warning!).
+|
+|Hope this information helps.
 
-firstly, to what domain of checksums does this comment apply?  secondly,
-why is it true?  it seems the PADDW family of instructions could work
-well here; is the slowdown a result of the kernel's need to muck with
-fpu state (from what i can tell, mmx uses the fp registers)?
+That's really wierd.  Can you make the code in question be:
+~            } else if (nblock > 0) {
+~                printk("Number of blocks left: %d\n", nblock);
+~                end_request(1);
+~            } else {
 
-thanks so much for any help!
+and then send the results when it happens?
 
--- 
-nick black <dank@reflexsecurity.com>
+It turns out my machine does not have an ISA bus slot, so I can't plug 
+my drive in anywhere.
+
+Thanks,
+
+- -Corey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+SUaAIXnXXONXERcRAurxAKCgATRBLbNDprxCKcKdsmrPuVkQggCdEwFX
+ZVMPef8C10TZzcjEbIgz09U=
+=RF+b
+-----END PGP SIGNATURE-----
+
+

@@ -1,89 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314451AbSFDPyV>; Tue, 4 Jun 2002 11:54:21 -0400
+	id <S314381AbSFDP5I>; Tue, 4 Jun 2002 11:57:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314475AbSFDPyV>; Tue, 4 Jun 2002 11:54:21 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:19334 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S314451AbSFDPyT>;
-	Tue, 4 Jun 2002 11:54:19 -0400
-Date: Tue, 4 Jun 2002 08:50:11 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: <anton@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.19] Oops during PCI scan on Alpha
-In-Reply-To: <20020602.203916.21926462.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0206040821100.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314551AbSFDP5H>; Tue, 4 Jun 2002 11:57:07 -0400
+Received: from revdns.flarg.info ([213.152.47.19]:30865 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S314381AbSFDP5F>;
+	Tue, 4 Jun 2002 11:57:05 -0400
+Date: Tue, 4 Jun 2002 16:58:45 +0100
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.20-dj2
+Message-ID: <20020604155845.GA19052@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Start digging through the patch queue. Plenty more to come,
+but I want to do this in chunks rather than one huge set.
 
-On Sun, 2 Jun 2002, David S. Miller wrote:
+As usual,..
 
->    From: Anton Blanchard <anton@samba.org>
->    Date: Mon, 3 Jun 2002 14:27:27 +1000
->    
->    On ppc64 I found that pcibios_init was being called before
->    pci_driver_init, maybe its happening on alpha too. I am using the
->    following hack for the moment, I'll leave it to Patrick to fix it properly.
->    
-> It's happening on every platform.  It should be done before
-> arch_initcalls actually, but after core_initcalls.  I would suggest to
-> rename unused_initcall into postcore_iniscall, then use it for this
-> and sys_bus_init which has the same problem.
+Patch against 2.5.20 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-Can't it go the other way? Instead of mass-promotion of the setup 
-functions, can't we demote the ones that are causing the problems? 
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
 
-The initcalls levels were determined by looking at the explicit calls in
-init/main.c. Recall that they were:
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
 
-early_arch
-mem
-subsys
-arch
-fs
-device
-late
+ -- Davej.
 
-with the default being device_initcall. I initially thought that most
-things in init/main.c could become initcalls. But, I failed to realize
-that init is started before the initcalls are done (duh). (Most things in 
-start_kernel() could become initcalls also, but it would require a 
-separate initcall section).
+2.5.20-dj2
+o   Use page_to_pfn in BIO code.			(Anton Blanchard)
+o   Fix framebuffer oops.				(A Guy Called Tyketto)
+o   PCI device matching fixes.				(Patrick Mochel,
+							 Andrew Morton)
+o   SIS 745 AGPGART support.				(Carsten Rietzschel)
+o   64bit fixes for swap ops.				(Anton Blanchard)
+o   Add i8253 spinlocks where needed.			(Vojtech Pavlik)
+o   Region handling cleanup for UMC 8672 IDE driver.	(William Stinson)
+o   Region handling cleanup for hd.c			(William Stinson)
+o   fcntl() POSIX correctness fix.			(Andries Brouwer)
+o   Region handling cleanup for eexpress		(William Stinson)
+o   PCI pool 64 bit warning fix.			(Frank Davis)
+o   Trivial PCI quirk cleanup.				(Ghozlane Toumi)
+o   Update URLs to Linux documentation project.		(Gianni Tedesco)
+o   Plug scsi_scan memory leak.				(Patrick Mansfield)
+o   Region handling cleanup for inia100.		(William Stinson)
+o   Make daemonize() do reparent_to_init() for caller.	(Rusty Russell)
+    | same done for hvc_console & cpqphp_ctlr		(Me)
+o   copy_siginfo_to_user() cleanup.			(Stephen Rothwell)
+o   Clean up capability locking.			(Robert Love)
+o   Check dcache allocation success before using.	(Dan Aloni)
 
-Sometime in March, the ACPI people promoted their initialization above 
-the initialization of the device model core. This caused a few things to 
-fail, and Linus changed the initcall levels to what we have today:
+2.5.20-dj1
+o   Drop some more bogus bits found whilst patch-splitting.
+o   emu10k1 compile fix.				(Alistair Strachan)
+o   Framebuffer updates.				(James Simmons)
+o   Drop some bogus kbuild bits.			(Kai Germaschewski)
+o   Unobsolete egcs kernel builds.			(Me)
+    | This can be worked around, and this is compiler 
+    | of choice on sparc and other archs.
 
-core
-unused
-arch
-subsys
-fs
-device
-late
-
-core is used for what's in drivers/base/*.c. unused is unused. 
-
-arch can be used for arch- and platform-specific initialization. For PCI 
-on x86, these determine things like the config space access method. 
-
-subsys is intended primarily for initializing and advertising the 
-existence of bus types and device class types (network, input, etc). 
-Device probing doesn't necessarily have to take place here, and in some 
-cases, it can't: e.g. when the firmware is used to inform the system of 
-the PCI buses present.
-
-Theoretically, we should be able to demote bus probing until after 
-subsys_initcall. Right? By making them device_initcalls and relying on 
-link order, we can guarantee that buses get probed before drivers are 
-initialized and start looking for devices they support. (Or, we could make 
-a driver_initcall just for drivers; or a bus_initcall for probing buses.)
-
-Thoughts?
-
-	-pat
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268697AbUJUMrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269070AbUJUMwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268697AbUJUMrB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 08:47:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269031AbUJUMp1
+	id S269070AbUJUMwj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 08:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268766AbUJUMwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 08:45:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39948 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268697AbUJUMkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 08:40:02 -0400
-Date: Thu, 21 Oct 2004 13:39:53 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Thu, 21 Oct 2004 08:52:15 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31250 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269070AbUJUMuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 08:50:18 -0400
+Date: Thu, 21 Oct 2004 14:49:45 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul <set@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux v2.6.9 (Strange tty problem?)
-Message-ID: <20041021133953.A13876@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul <set@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <20041021024132.GB6504@squish.home.loc> <1098349651.17067.3.camel@localhost.localdomain>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.6.9-ac1: invalid SUBLEVEL
+Message-ID: <20041021124945.GD10801@stusta.de>
+References: <1098356892.17052.18.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1098349651.17067.3.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Oct 21, 2004 at 10:07:42AM +0100
+In-Reply-To: <1098356892.17052.18.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 10:07:42AM +0100, Alan Cox wrote:
-> On Iau, 2004-10-21 at 03:41, Paul wrote:
-> > permanently unresponsive. (this burst of 'noise', seems to happen
-> > periodicly, and is a repetition of this:
-> > ~}#!}!}!} }8}!}$}"} }"}&} } } } }%}&]O='}'}"}(}"D~ 	)
-> 
-> Thats a PPP LCP conf request as far as I can decode it. You've got
-> a stuck pppd somewhere - thats a minor bug in 2.6.9rc and 2.6.9 that got
-> introduced by the tty changes. I'll try and fix it ASAP if Paul doesn't
-> beat me to it.
+<--  snip  -->
 
-I'm seeing random failures of krb5 login with 2.6.9 kernels - which has
-happened somewhere between 2.6.8.1 and 2.6.9-rc3.  It's proving impossible
-to debug because stracing eklogin results in the problem completely
-vanishing.
+$ make
+  CHK     include/linux/version.h
+expr: non-numeric argument
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+  CC      kernel/power/swsusp.o
+kernel/power/swsusp.c: In function `init_header':
+kernel/power/swsusp.c:327: parse error before `;'
+kernel/power/swsusp.c: In function `sanity_check':
+kernel/power/swsusp.c:1074: parse error before `)'
+make[2]: *** [kernel/power/swsusp.o] Error 1
+make[1]: *** [kernel/power] Error 2
+make: *** [kernel] Error 2
+$ cat 
+include/linux/version.h 
+#define UTS_RELEASE "2.6.9-ac1"
+#define LINUX_VERSION_CODE
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+$ 
 
-Without the strace, it's reproducable in about 50% of cases.
+<--  snip  -->
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+Proposed fix:
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.9-ac1-full/Makefile.old	2004-10-21 14:48:07.000000000 +0200
++++ linux-2.6.9-ac1-full/Makefile	2004-10-21 14:48:30.000000000 +0200
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+-SUBLEVEL = 9-ac1
+-EXTRAVERSION =
++SUBLEVEL = 9
++EXTRAVERSION = -ac1
+ NAME=AC 1
+ 
+ # *DOCUMENTATION*
+

@@ -1,81 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276669AbRJGUZf>; Sun, 7 Oct 2001 16:25:35 -0400
+	id <S276670AbRJGUa0>; Sun, 7 Oct 2001 16:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276670AbRJGUZ0>; Sun, 7 Oct 2001 16:25:26 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:42226 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S276669AbRJGUZJ>;
-	Sun, 7 Oct 2001 16:25:09 -0400
-Date: Sun, 7 Oct 2001 22:24:40 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: george anzinger <george@mvista.com>
-Cc: Mike Kravetz <kravetz@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-Message-ID: <20011007222440.G726@athlon.random>
-In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com> <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com> <20011005024526.E724@athlon.random> <20011004213507.B1032@w-mikek2.sequent.com> <20011007195928.D726@athlon.random> <3BC0B2E0.C6421F8F@mvista.com>
+	id <S276671AbRJGUaS>; Sun, 7 Oct 2001 16:30:18 -0400
+Received: from quattro-eth.sventech.com ([205.252.89.20]:34062 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S276670AbRJGUaC>; Sun, 7 Oct 2001 16:30:02 -0400
+Date: Sun, 7 Oct 2001 16:33:00 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-usb-devel@lists.sourceforge.net,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] uhci.c interrupts
+Message-ID: <20011007163300.I14479@sventech.com>
+In-Reply-To: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com> <20011007121851.A1137@netnation.com> <20011007153433.G14479@sventech.com> <20011007124038.A22923@netnation.com> <20011007161903.H14479@sventech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3BC0B2E0.C6421F8F@mvista.com>; from george@mvista.com on Sun, Oct 07, 2001 at 12:54:08PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011007161903.H14479@sventech.com>; from johannes@erdfelt.com on Sun, Oct 07, 2001 at 04:19:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 07, 2001 at 12:54:08PM -0700, george anzinger wrote:
-> Andrea Arcangeli wrote:
-> > 
-> > On Thu, Oct 04, 2001 at 09:35:07PM -0700, Mike Kravetz wrote:
-> > > [..] the pipe routines only call
-> > > the non-synchronous form of wake_up. [..]
-> > 
-> > Ok I see, I overlooked that when we don't need to block we wakeup-async.
-> > 
-> > So first of all it would be interesting to change the token passed
-> > thorugh the pipe so that it always fills in the PAGE_SIZE pipe buffer so
-> > that the task goes to sleep before reading from the next pipe in the
-> > ring.
-> > 
-> > And if we want to optimize the current benchmark (with the small token that
-> > triggers the async-wakeup and it always goes to sleep in read() rather
-> > than write()) we'd need to invalidate a basic point of the scheduler
-> > that have nothing to do with IPI reschedule, the point to invalidate is
-> > that if the current task (the one that is running wake_up()) has a small
-> > avg_slice we'd better not reschedule the wakenup task on a new idle cpu
-> > but we'd better wait the current task to go away instead. 
-> 
-> A couple of questions: 
-> 
-> 1.) Do you want to qualify that the wake_up is not from an interrupt?
+A quick update patch to fix a couple of bugs, one important.
 
-If the avg_slice is very small we know the task will probabilistically
-go away soon regardless where the wakeup cames from. I don't think the
-logic has connection to the kind of wakeup, it only has connection to
-the kind of "running task".
+- Don't disable PIRQ on controller
+- Print I/O base for controller when we suspend or wakeup
+- Suspend controller, don't reset when system suspend's
+- Don't print terminating TD twice in debug code
+- Don't shadow irq parameter in alloc_uhci
 
-Infact waiting "bash" or "ksoftirqd" to go away is the right thing to do
-to fix the suprious migrations of cpu intensive tasks too, no matter
-where the wakeup cames from.
+Greg, please send it on to Linus. The patch is relative to 2.4.11-pre5
 
-The only risk here is that we never know from the scheduler if the
-running task with the small avg_slice will really go away this time too
-or not. And if it doesn't go away this time, we may not do the best
-global decision by not migrating the wakenup task to the idle cpus, but
-the probability information provided by avg_slice should cover this
-problem.
+JE
 
-Of course this is theory, I didn't attempted to test it.
-
-btw, I remeber Ingo some year ago said on l-k that rescheduling
-immediatly every idle cpu isn't the best thing to do.
-
-> 2.) Having done this AND the task doesn't block THIS time, do we wait
-> for the slice to end or is some other "dead man" timer needed?
-
-Of course waiting for the slice to end anyways is the natural first
-step. As said above the point of the probability information of
-avg_slice is to render very unlikely the "task doesn't block THIS time"
-case.
-
-Andrea
+--- linux-2.4.11-pre5/drivers/usb/uhci.c	Sun Oct  7 13:20:29 2001
++++ linux/drivers/usb/uhci.c	Sun Oct  7 13:21:51 2001
+@@ -2410,7 +2410,7 @@
+ {
+ 	unsigned int io_addr = uhci->io_addr;
+ 
+-	dbg("suspend_hc");
++	dbg("%x: suspend_hc", io_addr);
+ 
+ 	outw(USBCMD_EGSM, io_addr + USBCMD);
+ 
+@@ -2422,7 +2422,7 @@
+ 	unsigned int io_addr = uhci->io_addr;
+ 	unsigned int status;
+ 
+-	dbg("wakeup_hc");
++	dbg("%x: wakeup_hc", io_addr);
+ 
+ 	outw(0, io_addr + USBCMD);
+ 	
+@@ -2564,7 +2564,7 @@
+  *  - The fourth queue is the bandwidth reclamation queue, which loops back
+  *    to the high speed control queue.
+  */
+-static int alloc_uhci(struct pci_dev *dev, int irq, unsigned int io_addr, unsigned int io_size)
++static int alloc_uhci(struct pci_dev *dev, unsigned int io_addr, unsigned int io_size)
+ {
+ 	struct uhci *uhci;
+ 	int retval = -EBUSY;
+@@ -2602,9 +2602,9 @@
+ 	pci_set_master(dev);
+ 
+ #ifndef __sparc__
+-	sprintf(buf, "%d", irq);
++	sprintf(buf, "%d", dev->irq);
+ #else
+-	bufp = __irq_itoa(irq);
++	bufp = __irq_itoa(dev->irq);
+ #endif
+ 	printk(KERN_INFO __FILE__ ": USB UHCI at I/O 0x%x, IRQ %s\n",
+ 		io_addr, bufp);
+@@ -2828,13 +2828,13 @@
+ 
+ 	start_hc(uhci);
+ 
+-	if (request_irq(irq, uhci_interrupt, SA_SHIRQ, "usb-uhci", uhci))
++	if (request_irq(dev->irq, uhci_interrupt, SA_SHIRQ, "usb-uhci", uhci))
+ 		goto err_request_irq;
+ 
+-	uhci->irq = irq;
++	uhci->irq = dev->irq;
+ 
+ 	/* disable legacy emulation */
+-	pci_write_config_word(uhci->dev, USBLEGSUP, 0);
++	pci_write_config_word(uhci->dev, USBLEGSUP, USBLEGSUP_DEFAULT);
+ 
+ 	usb_connect(uhci->rh.dev);
+ 
+@@ -2925,7 +2925,7 @@
+ 		if (!(pci_resource_flags(dev, i) & IORESOURCE_IO))
+ 			continue;
+ 
+-		return alloc_uhci(dev, dev->irq, io_addr, io_size);
++		return alloc_uhci(dev, io_addr, io_size);
+ 	}
+ 
+ 	return -ENODEV;
+@@ -2958,7 +2958,7 @@
+ #ifdef CONFIG_PM
+ static int uhci_pci_suspend(struct pci_dev *dev, u32 state)
+ {
+-	reset_hc((struct uhci *) dev->driver_data);
++	suspend_hc((struct uhci *) dev->driver_data);
+ 	return 0;
+ }
+ 
+--- linux-2.4.11-pre5/drivers/usb/uhci-debug.h	Wed Aug 15 14:23:46 2001
++++ linux/drivers/usb/uhci-debug.h	Sun Oct  7 12:50:55 2001
+@@ -372,7 +372,9 @@
+ 				if (td->link != td->dma_handle)
+ 					out += sprintf(out, "    skel_term_td does not link to self\n");
+ 
+-				out += uhci_show_td(td, out, len - (out - buf), 4);
++				/* Don't show it twice */
++				if (debug <= 1)
++					out += uhci_show_td(td, out, len - (out - buf), 4);
+ 			}
+ 
+ 			continue;
+--- linux-2.4.11-pre5/drivers/usb/uhci.h	Wed Aug 15 14:23:46 2001
++++ linux/drivers/usb/uhci.h	Sun Oct  7 13:11:57 2001
+@@ -53,8 +53,8 @@
+ #define   USBPORTSC_SUSP	0x1000	/* Suspend */
+ 
+ /* Legacy support register */
+-#define USBLEGSUP 0xc0
+-#define USBLEGSUP_DEFAULT	0x2000	/* only PIRQ enable set */
++#define USBLEGSUP		0xc0
++#define   USBLEGSUP_DEFAULT	0x2000	/* only PIRQ enable set */
+ 
+ #define UHCI_NULL_DATA_SIZE	0x7FF	/* for UHCI controller TD */
+ 

@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbUASSOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 13:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUASSLt
+	id S261875AbUASSV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 13:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUASSV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 13:11:49 -0500
-Received: from hoemail1.lucent.com ([192.11.226.161]:45811 "EHLO
-	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S262566AbUASSLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 13:11:20 -0500
-MIME-Version: 1.0
+	Mon, 19 Jan 2004 13:21:58 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:2178 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S262580AbUASSRK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 13:17:10 -0500
+Date: Mon, 19 Jan 2004 10:18:08 -0800
+From: Grant Grundler <iod00d@hp.com>
+To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
+Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@sgi.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, jeremy@sgi.com
+Subject: Re: [PATCH] readX_relaxed interface
+Message-ID: <20040119181808.GA4225@cup.hp.com>
+References: <20040115204913.GA8172@sgi.com> <20040116003224.GF23253@kroah.com> <20040116050059.GA13222@cup.hp.com> <023b01c3de6f$10276820$2987110a@lsd.css.fujitsu.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16395.62535.600758.816370@gargle.gargle.HOWL>
-Date: Mon, 19 Jan 2004 10:14:15 -0500
-From: "John Stoffel" <stoffel@lucent.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, root@chaos.analogic.com, cliffw@osdl.org,
-       piggin@cyberone.com.au, mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: [1/4] better i386 CPU selection
-In-Reply-To: <20040117025745.GJ12027@fs.tum.de>
-References: <20040106054859.GA18208@waste.org>
-	<3FFA56D6.6040808@cyberone.com.au>
-	<20040106064607.GB18208@waste.org>
-	<3FFA5ED3.6040000@cyberone.com.au>
-	<20040110004625.GB25089@fs.tum.de>
-	<20040110005232.GD25089@fs.tum.de>
-	<20040116111501.70200cf3.cliffw@osdl.org>
-	<Pine.LNX.4.53.0401161425110.31018@chaos>
-	<20040116160133.5af17a6a.akpm@osdl.org>
-	<20040117025745.GJ12027@fs.tum.de>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Disposition: inline
+In-Reply-To: <023b01c3de6f$10276820$2987110a@lsd.css.fujitsu.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Adrian" == Adrian Bunk <bunk@fs.tum.de> writes:
+On Mon, Jan 19, 2004 at 06:31:42PM +0900, Hironobu Ishii wrote:
+> But, when the read thread continues without noticing the error
+> (before the error is asynchronously notified),
 
-Adrian> The main effect is that better-i386-cpu-selection.patch makes
-Adrian> it easier for people who configure kernels that should work on
-Adrian> different CPU types. A user (= person compiling his own
-Adrian> kernel) does no longer need any deeper knowledge when
-Adrian> e.g. configuring a kernel that should run on both an Athlon
-Adrian> and a Pentium 4 - he simply selects all CPUs he wants to
-Adrian> support in his kernel.
+I wasn't suggesting asynchonous notification.
 
-So a user who will only Run this kernel on a PIII for example, doesn't
-need to select *any* other kernels at all?  I think the Kconfig help
-screens need to be redone to make this clear.
+> the thread runs based on wrong data and may panic.
 
-I enabled all the sub-processors because I wanted to make sure my
-kernel would boot no matter what.  It seems like I don't need that any
-more, right? 
+So far I've been assuming resources/IO requests can be cleaned up
+more easily in a shared code path. I was assuming the readb() would 
+call the "cleanup" and then return a "harmless" value (eg. 0 or -1)
+that was provided by the driver before hand. I'm more worried
+about the code that evaluates the readb() return value than
+synchronous notification or cleaning up resources.
 
-John
+Having unique error recovery code after each PIO read did work
+but it was not an elegant solution. It was a problem of too much
+"unused" code interferring with the regular code path. And it
+didn't distinguish sufficiently between code to handle "platform"
+errors (failure to talk to a card) vs card errors (card
+failed an IO).
+
+I guess I'd need to modify one driver using my proposal
+instead of assuming it doesn't matter wether the recovery code
+lives immediately after the PIO read or in some common routine.
+Problem is I have other issues to deal with right now
+even though I've made clear to my management "HW error recovery"
+is required for higher levels of availability with linux.
+
+> So I think PIO read error must be notified synchronously.
+
+I agree.
+
+> On the other hand, PIO write error can be notified asynchronously,
+> because software does not use it.
+
+yes.
+
+thanks,
+grant

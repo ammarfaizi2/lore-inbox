@@ -1,87 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267679AbUHZFcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUHZFsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267679AbUHZFcb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 01:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267668AbUHZFcb
+	id S266509AbUHZFsR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 01:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267664AbUHZFsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 01:32:31 -0400
-Received: from waste.org ([209.173.204.2]:32443 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S267664AbUHZFcW (ORCPT
+	Thu, 26 Aug 2004 01:48:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:21165 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266509AbUHZFsL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 01:32:22 -0400
-Date: Thu, 26 Aug 2004 00:32:00 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Nicholas Miell <nmiell@gmail.com>
-Cc: Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
-       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826053200.GU31237@waste.org>
-References: <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093496948.2748.69.camel@entropy>
-User-Agent: Mutt/1.3.28i
+	Thu, 26 Aug 2004 01:48:11 -0400
+Date: Thu, 26 Aug 2004 07:48:09 +0200 (CEST)
+From: Bernhard Kaindl <bk@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Cardbus card memory assignment on x86_64 (if base==maxbase)
+Message-ID: <Pine.LNX.4.61.0408241923570.30921@jbgna.fhfr.qr>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323584-692825366-1093499289=:21180"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 10:09:08PM -0700, Nicholas Miell wrote:
-> On Wed, 2004-08-25 at 21:44, Matt Mackall wrote:
-> > On Wed, Aug 25, 2004 at 05:42:21PM -0700, Nicholas Miell wrote:
-> > > On Wed, 2004-08-25 at 16:46, Wichert Akkerman wrote:
-> > > > Previously Jeremy Allison wrote:
-> > > > > Multiple-data-stream files are something we should offer, definately (IMHO).
-> > > > > I don't care how we do it, but I know it's something we need as application
-> > > > > developers.
-> > > > 
-> > > > Aside from samba, is there any other application that has a use for
-> > > > them? 
-> > > > 
-> > > 
-> > > Anything that currently stores a file's metadata in another file really
-> > > wants this right now. Things like image thumbnails, document summaries,
-> > > digital signatures, etc.
-> > 
-> > That is _highly_ debatable. I would much rather have my cp and grep
-> > and cat and tar and such continue to work than have to rewrite every
-> > tool because we've thrown the file-is-a-stream-of-bytes concept out
-> > the window. Never mind that I've got thumbnails, document summaries,
-> > and digital signatures already.
-> > 
-> > While the number of annoying properties of files with forks is
-> > practically endless, the biggest has got to be utter lack of
-> > portability. How do you stick the thing in an attachment or on an ftp
-> > site? Well you can't because it's NOT A FILE. 
-> > 
-> > A file is a stream of bytes.
-> 
-> "OMG! It breaks tar and email!!!" argument doesn't fly. Things break all
-> the time and are fixed. It's called progress.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-What it breaks is the concept of a file. In ways that are ill-defined,
-not portable, hard to work with, and needlessly complex. Along the
-way, it breaks every single application that ever thought it knew what
-a file was.
+--8323584-692825366-1093499289=:21180
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-Progress? No, this has been done before. Various dead operating
-systems have done it or similar and regretted it. Most recently MacOS,
-which jumped through major hurdles to begin purging themselves of
-resource forks when they went to OS X. They're still there, but
-heavily deprecated.
+Hi,
+    I've sent the patch below to Ivan Kokshaysky (bk login: ink) and got
+a mail from him back that I should forward it and telling that it looks
+correct. According to bitkeeper logs for 2.4 he initially did the pci_size
+function this patch is about.
 
-> cp, grep, cat, and tar will continue to work just fine on files with
-> multiple streams.
+I've debugged a memory assignment problem which happens even with 2.6.8.1
+on Amilo Laptops from Siemens Fujitsu with a RT2500 CardBus card.
 
-Find some silly person with an iBook and open a shell on OS X. Use cp
-to copy a file with a resource fork. Oh look, the Finder has no idea
-what the new file is, even though it looks exactly identical in the
-shell. Isn't that _wonderful_? Now try cat < a > b on a file with a
-fork. How is that ever going to work?
+The problem was that the PCI scan didn't report a memory range for the
+card and thus the driver finally complained about not beind able to remap
+the memory.
 
-I like cat < a > b. You can keep your progress.
+After plaching a dump_stack() into bus_add_device() to know thich 
+functions were really involved, I worked my way forward into the PCI 
+code.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Enabling the debug statement in the PCI code, I've found pci_setup_device().
+>From there I added more printk's. Ultimatively, I've found that pci_size()
+returned 0 for the memory size at this place in drivers/pci/probe.c:
+
+  sz = pci_size(l, sz, PCI_BASE_ADDRESS_MEM_MASK);
+  if (!sz)
+     continue;
+
+Here is the pci_size():
+
+/*
+  * Find the extent of a PCI decode..
+  */
+static u32 pci_size(u32 base, u32 maxbase, unsigned long mask)
+{
+    u32 size = mask & maxbase;      /* Find the significant bits */
+    if (!size)
+       return 0;
+
+    /* Get the lowest of them to find the decode size, and
+    from that the extent.  */
+    size = (size & ~(size-1)) - 1;
+
+    /* base == maxbase can be valid only if the BAR has
+    already been programmed with all 1s.  */
+    if (base == maxbase && ((base | size) & mask) != mask)
+       return 0;
+
+    return size;
+}
+
+Adding the results of my debug, it's called like this - for my card:
+pci_size(u32 base = ffffe000, maxbase = ffffe000, mask = fffffffffffffff0)
+
+Finally the CPU reaches this line:
+if (base == maxbase && ((base | size) & mask) != mask)
+  return 0;
+
+With the values from my debug printks, it looks like this:
+
+if (ffffe000 == ffffe000
+  && ((ffffe000 | 1fff) & fffffffffffffff0) != fffffffffffffff0)
+
+Evaluation of the if:
+
+   1): ffffe000 == ffffe000 is true
+
+   2): (ffffe000 | 1fff) & fffffffffffffff0)  results in fffffff0
+
+   but this means 2) will always != fffffffffffffff0.
+                                     (it's a large #defined mask)
+
+It can never be equal, because "(base | size) & mask)" (base and size 32bit)
+- the result of ((32-bit | 32-bit) & 64-bit)) can never match a large 64-bit
+value such as fffffffffffffff0.
+
+So, on 64-bit, calls to
+
+      static u32 pci_size(u32 base, u32 maxbase, unsigned long mask)
+
+with base == maxbase and mask = ~0x0fUL will always result in
+return 0.
+
+I think that's the bug here, this function is intented to work
+on 32-bit PCI values.
+
+PCI64 is handled in a separate way, in pci_read_bases(), just a few
+lines after pci_size() is called:
+
+#if BITS_PER_LONG == 64
+  res->start |= ((unsigned long) l) << 32;
+  res->end = res->start + sz;
+  pci_write_config_dword(dev, reg+4, ~0);
+  pci_read_config_dword(dev, reg+4, &sz);
+  pci_write_config_dword(dev, reg+4, l);
+  if (~sz)
+         res->end = res->start + 0xffffffff +
+ 				 (((unsigned long) ~sz) << 32);
+
+I believe, pci_size() should work with 32-bit vaules
+only and I've tested that the diff of
+
+-static u32 pci_size(u32 base, u32 maxbase, unsigned long mask)
++static u32 pci_size(u32 base, u32 maxbase, u32 mask)
+
+makes my card's memory appear as it does in a 32-bit kernel where mask
+is a 32-bit value too.
+
+It seems to be really a corner case, I don't know if many other
+Cards provide such PCI config space where base == maxbase,
+but there could be some others out there as well.
+
+For these cards, the above diff fixes the memory assignment problem.
+
+I hope this mail helps some of you, the patch is attached, I'll forward
+this to the kernel maintainers.
+
+Bernhard
+--8323584-692825366-1093499289=:21180
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pci-probe-64bits.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0408260748090.21180@jbgna.fhfr.qr>
+Content-Description: 
+Content-Disposition: attachment; filename="pci-probe-64bits.diff"
+
+LS0tIGRyaXZlcnMvcGNpL3Byb2JlLmMJMjAwNC8wOC8yMyAxNDozNjowNAkx
+LjENCisrKyBkcml2ZXJzL3BjaS9wcm9iZS5jCTIwMDQvMDgvMjMgMTQ6MzY6
+MjENCkBAIC04Miw3ICs4Miw3IEBADQogLyoNCiAgKiBGaW5kIHRoZSBleHRl
+bnQgb2YgYSBQQ0kgZGVjb2RlLi4NCiAgKi8NCi1zdGF0aWMgdTMyIHBjaV9z
+aXplKHUzMiBiYXNlLCB1MzIgbWF4YmFzZSwgdW5zaWduZWQgbG9uZyBtYXNr
+KQ0KK3N0YXRpYyB1MzIgcGNpX3NpemUodTMyIGJhc2UsIHUzMiBtYXhiYXNl
+LCB1MzIgbWFzaykNCiB7DQogCXUzMiBzaXplID0gbWFzayAmIG1heGJhc2U7
+CS8qIEZpbmQgdGhlIHNpZ25pZmljYW50IGJpdHMgKi8NCiAJaWYgKCFzaXpl
+KQ0K
+
+--8323584-692825366-1093499289=:21180--

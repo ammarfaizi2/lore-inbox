@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266130AbRGYAAN>; Tue, 24 Jul 2001 20:00:13 -0400
+	id <S266129AbRGXX6W>; Tue, 24 Jul 2001 19:58:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266138AbRGXX7x>; Tue, 24 Jul 2001 19:59:53 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:52233 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S266130AbRGXX7s>; Tue, 24 Jul 2001 19:59:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>, <jlnance@intrex.net>
-Subject: Re: [RFC] Optimization for use-once pages
-Date: Wed, 25 Jul 2001 02:04:30 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0107241355090.20326-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0107241355090.20326-100000@duckman.distro.conectiva>
+	id <S266130AbRGXX6C>; Tue, 24 Jul 2001 19:58:02 -0400
+Received: from sdsl-66-80-62-153.dsl.sca.megapath.net ([66.80.62.153]:49931
+	"EHLO ripple.fruitbat.org") by vger.kernel.org with ESMTP
+	id <S266129AbRGXX5n> convert rfc822-to-8bit; Tue, 24 Jul 2001 19:57:43 -0400
+Date: Tue, 24 Jul 2001 16:57:00 -0700 (PDT)
+From: "Peter A. Castro" <doctor@FRUITBAT.ORG>
+To: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
+cc: Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+        linux-kernel@vger.kernel.org, linux-fsdev@vger.kernel.org,
+        martizab@libertsurf.fr, rusty@rustcorp.com.au
+Subject: Re: Yet another linux filesytem: with version control
+In-Reply-To: <3B5CA2EC.2498775@wanadoo.fr>
+Message-ID: <Pine.LNX.4.21.0107241641140.27262-100000@gremlin.fruitbat.org>
 MIME-Version: 1.0
-Message-Id: <01072502043009.00520@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tuesday 24 July 2001 18:56, Rik van Riel wrote:
-> On Tue, 24 Jul 2001 jlnance@intrex.net wrote:
-> > On Tue, Jul 24, 2001 at 05:47:30AM +0200, Daniel Phillips wrote:
-> > > So I decided to look for a new way of approaching the use-once
-> > > problem that would easily integrated with our current approach.  
-> > > What I came up with is pretty simple: instead of starting a newly
-> > > allocated page on the active ring, I start it on the inactive
-> > > queue with an age of zero. Then, any time generic_file_read or
-> > > write references a page, if its age is zero, set its age to
-> > > START_AGE and mark it as unreferenced.
-> >
-> > This is wonderfully simple and ellegant.
->
-> It's a tad incorrect, though.
->
-> If a page gets 2 1-byte reads in a microsecond, with this
-> patch it would get promoted to the active list, even though
-> it's really only used once.
+On Tue, 24 Jul 2001, Jerome de Vivie wrote:
 
-Yes, I expected that to be a relatively rare case however - block 
-aligned transfers are much more common, and when we have multiple 
-blocks per page we may well want the page to go onto the active list 
-because there may be quite a delay between successive block accesses.  
->From there it will be aged normally, not such a horrible thing.
+> Rik van Riel a écrit :
+> > 
+> > On Mon, 23 Jul 2001, Larry McVoy wrote:
+> > 
+> > > b) Filesystem support for SCM is really a flawed approach.
+> > 
+> > Agreed.  I mean, how can you cleanly group changesets and
+> > versions with a filesystem level "transparent" SCM ?
+> 
+> With label !
+> 
+> In my initial post, i have explain that labels are used to 
+> identify individual files AND are also uses to select for 
+> each files of a set, one version (= select a configuration). 
+> It works !
 
-To fix this properly I suspect that just a few microseconds is enough 
-delay to pick up the temporal groupings you're talking about.  That's 
-not hard to achieve.
+.. and essentially you've re-created Rational's ClearCase implementation.
+The problem becomes: how will you specify that label for file version
+selection?  Will it be part of the filename?  Will it be implied in a
+configuration specificier (config spec)?  Will that config spec be global
+to the system, local to the user or just that session?  Will it be stored
+in a file or part of the filesystems mount parameters?
 
-> Preferably we'd want to have a "new" list of, say, 5% maximum
-> of RAM size, where all references to a page are ignored. Any
-> references made after the page falls off that list would be
-> counted for page replacement purposes.
+These are the same problems Rational faced with ClearCase and it's mvfs.
+To maintain a config spec design you'll need essentially a database to
+contain the labels and their relationship to a given version & branch of
+a particular file.  So, suddenly it's not just a filesystem, it's now a
+database with external chunks of data.
 
-At that size you'd run a real risk of missing the tell-tale multiple 
-references that mark a page as frequently used.  Think about metadata 
-here (right now, that usually just means directory pages, but later... 
-who knows).  Once somebody has looked at two files in a directory - 
-while the page sits on the "ignore" list - chances are very good 
-they'll look at a third, but perhaps not before it drops off the south 
-end of the inactive queue.
+> > The goal of an SCM is to _manage_ versions and changesets,
+> > if it doesn't do that we're back at CVS's "every file its
+> > own versioning and to hell with manageability" ...
 
-Well, theorizing can only get us so far before we need to take actual 
-measurements.
+Really, the whole of the problem needs to be reviewed, not just the
+individual parts.  I seem to recall someone implementing a filesystem
+that stored the files in a Postgres database that did versioning of files
+in a simple way.  I thought that was rather novel, at the time.  You
+really need to think out the unifying mechanism first.  The storage of
+versions of each file will be an end result.  Think more about how the
+user will actually use it and manipulate the selection.
 
---
-Daniel
+> versioning is yet a first step.
+> 
+> j.
+
+-- 
+Peter A. Castro <doctor@fruitbat.org> or <Peter.Castro@oracle.com>
+	"Cats are just autistic Dogs" -- Dr. Tony Attwood
+

@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261389AbTCJRZp>; Mon, 10 Mar 2003 12:25:45 -0500
+	id <S261374AbTCJRWc>; Mon, 10 Mar 2003 12:22:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261390AbTCJRZp>; Mon, 10 Mar 2003 12:25:45 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:50825 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261389AbTCJRZn>; Mon, 10 Mar 2003 12:25:43 -0500
-Date: Mon, 10 Mar 2003 09:36:21 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 456] New: Apache test framework causes kernel panic in tcp_v4_get_port
-Message-ID: <9610000.1047317781@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S261376AbTCJRWb>; Mon, 10 Mar 2003 12:22:31 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:1811 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261374AbTCJRVp>;
+	Mon, 10 Mar 2003 12:21:45 -0500
+Date: Mon, 10 Mar 2003 09:21:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Device removal callback
+Message-ID: <20030310172155.GA9792@kroah.com>
+References: <20030310010232.GB16134@phunnypharm.org> <Pine.LNX.4.33.0303100949490.1002-100000@localhost.localdomain> <20030310165548.GA753@phunnypharm.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030310165548.GA753@phunnypharm.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 10, 2003 at 11:55:48AM -0500, Ben Collins wrote:
+> > I much prefer this, as I would like to see it eventually, but I'd rather
+> > see the implications worked out before it's generalized.
+> 
+> Then I have to be concerned about parts of the driver model removing
+> parents of my devices without my knowing it. Didn't PCI already go
+> through this problem with bus's being removed?
 
+Not that I know of, no.  The PCI core knows when it is removing busses,
+as it is the one doing this.
 
-http://bugme.osdl.org/show_bug.cgi?id=456
+> If my PCI devices gets removed, it simply calls my PCI callbacks, but
+> then my PCI drivers have to link into the core and call remove on all
+> the host devices, then node devices, then unit directories.
 
-           Summary: Apache test framework causes kernel panic in
-                    tcp_v4_get_port
-    Kernel Version: 2.5.64
-            Status: NEW
-          Severity: normal
-             Owner: davem@vger.kernel.org
-         Submitter: thom@planetarytramp.net
+Um, don't you have to do this already today, if someone unloads your pci
+driver?  I don't see what the driver core has to do with that.
 
+> I'm not sure what the problem is in allowing the bus driver to know when
+> a device is about to be removed for some reason. At the very least it
+> makes for a good sanity check mechanism.
 
-Distribution: Debian Gnu/Linux unstable 
-Hardware Environment: AMD Athlon(tm) XP 1800+; 246Mb RAM, Realtek 8139too
-Software Environment: 
-17:11 /usr/src/linux-2.5.64% sh scripts/ver_linux 
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux samizdat 2.5.64 #1 Fri Mar 7 17:29:51 GMT 2003 i686 unknown unknown GNU/Linux
- 
-Gnu C                  3.2.3
-Gnu make               3.80
-util-linux             2.11y
-mount                  2.11y
-module-init-tools      0.9.10
-e2fsprogs              1.32
-PPP                    2.4.1
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 3.1.6
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               4.5.8
-Modules Loaded         
+As the bus driver was the one who asked for the device to go away in the
+first place, why isn't this just extra information?
 
-Problem Description: When running the httpd test framework for the apache web
-server, 2.5 series kernels reproducibly kernel panic (tried with 2.5.59,
-.64-mm1, and vanilla .64)
+Still confused,
 
-Steps to reproduce:
-install apache2 or apache including headers and apxs.
-checkout the perl testing framework.
-(see http://httpd.apache.org/dev/anoncvs.txt for login details)
-cvs -d:pserver:anoncvs@cvs.apache.org:/home/cvspublic co httpd-test/perl-framework
-ensure that you have the required perl modules installed.
-run the perl framework (I've been running in SMOKE mode) t/SMOKE.
-After approx 20-25 mins the kernel panics.
-
-------- Additional Comment #1 From Thom May  2003-03-10 09:27 -------
-
-Created an attachment (id=219)
-Stack trace from the kernel panic after running through ksymoops.
-
-Unfortunately I didn't have ksyms compiled in.
-
-
+greg k-h

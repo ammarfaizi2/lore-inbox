@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYDIU>; Wed, 24 Jan 2001 22:08:20 -0500
+	id <S129383AbRAYDSn>; Wed, 24 Jan 2001 22:18:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135423AbRAYDIK>; Wed, 24 Jan 2001 22:08:10 -0500
-Received: from goalkeeper.d2.com ([198.211.88.26]:32122 "HELO
-	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129444AbRAYDIA>;
-	Wed, 24 Jan 2001 22:08:00 -0500
-Date: Wed, 24 Jan 2001 19:02:07 -0800
+	id <S129401AbRAYDSd>; Wed, 24 Jan 2001 22:18:33 -0500
+Received: from goalkeeper.d2.com ([198.211.88.26]:45183 "HELO
+	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129383AbRAYDSO>;
+	Wed, 24 Jan 2001 22:18:14 -0500
+Date: Wed, 24 Jan 2001 19:12:46 -0800
 From: Greg from Systems <chandler@d2.com>
 To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 cc: Peter Rival <frival@zk3.dec.com>, Richard Henderson <rth@twiddle.net>,
         linux-kernel@vger.kernel.org
 Subject: Re: Big Bada Boom...
 In-Reply-To: <20010124212104.A1294@jurassic.park.msu.ru>
-Message-ID: <Pine.SGI.4.10.10101241900580.29904-100000@hell.d2.com>
+Message-ID: <Pine.SGI.4.10.10101241912100.29904-100000@hell.d2.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sorry it took so long to get back to you on this:
-I applied the patch and now am getting this:
-alpha_ksyms.c: At top level:
-alpha_ksyms.c:133: `sys_wait4' undeclared here (not in a function)
-alpha_ksyms.c:133: initializer element for `__ksymtab_sys_wait4.value' is not constant
-make[1]: *** [alpha_ksyms.o] Error 1
-make[1]: Leaving directory `/usr/src/linux/arch/alpha/kernel'
-make: *** [_dir_arch/alpha/kernel] Error 2
+Found a fix
+leave the :
+extern long sys_wait4(int, int *, int, struct rusage *);
+line in:
+linux/include/asm-alpha/unistd.h
 
 
 On Wed, 24 Jan 2001, Ivan Kokshaysky wrote:

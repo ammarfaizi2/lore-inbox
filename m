@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289484AbSAOKqN>; Tue, 15 Jan 2002 05:46:13 -0500
+	id <S289489AbSAOKmn>; Tue, 15 Jan 2002 05:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289491AbSAOKqD>; Tue, 15 Jan 2002 05:46:03 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:31144 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S289484AbSAOKpr>; Tue, 15 Jan 2002 05:45:47 -0500
-Message-Id: <200201151045.g0FAjduU002847@tigger.cs.uni-dortmund.de>
-To: David Lang <david.lang@digitalinsight.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away? 
-In-Reply-To: Message from David Lang <david.lang@digitalinsight.com> 
-   of "Mon, 14 Jan 2002 10:57:19 PST." <Pine.LNX.4.40.0201141055410.22904-100000@dlang.diginsite.com> 
-Date: Tue, 15 Jan 2002 11:45:39 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S289484AbSAOKme>; Tue, 15 Jan 2002 05:42:34 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:42202 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S289460AbSAOKmW>; Tue, 15 Jan 2002 05:42:22 -0500
+Date: Tue, 15 Jan 2002 12:40:57 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery
+ --the elegant solution) 
+Message-ID: <Pine.LNX.4.33.0201151235110.28503-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 14 Jan 2002, Alan Cox wrote:
+This all sounds like distro work to me. Distributions could put the
+userland apps in place to allow "automagic" tuning, recompilation etc
+based on questions asked of the user. This Supe-Me-Up app could even
+download the latest _Distro_Tested_ kernel and use that as the basis of
+the new tuned one. Really i don't see what any of this has to do with
+Linux Kernel. Eric i'm not putting down your excellent work, but i really
+don't see where this is going, Normal users should _never_ have to use
+kernel.org trees.
 
-> > > 1. security, if you don't need any modules you can disable modules
-> > > entirly and then it's impossible to add a module without patching
-> > > the kernel first (the module load system calls aren't there)
+Regards,
+	Zwane Mwaikambo
 
-> > Urban legend.
 
-> If this is the case then why do I get systemcall undefined error messages
-> when I make a mistake and attempt to load a module on a kernel without
-> modules enabled?
-
-AFAIU the security improvement of no-modules are way overrated.
-
-[...]
-
-> > > 3. simplicity in building kernels for other machines. with a monolithic
-> > > kernel you have one file to move (and a bootloader to run) with modules
-> > > you have to move quite a few more files.
-
-> > tar or nfs mount; make modules_install.
-
-> not on my firewalls thank you.
-
-You keep compilers and stuff on your firewalls then?!
-
-I get them over via ssh or by floppy/CD. Same idea.
--- 
-Horst von Brand			     http://counter.li.org # 22616

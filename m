@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUKKV6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbUKKWQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUKKV6d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 16:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUKKV5P
+	id S262399AbUKKWQA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 17:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbUKKWQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 16:57:15 -0500
-Received: from mail.charite.de ([160.45.207.131]:19670 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S262376AbUKKVzb (ORCPT
+	Thu, 11 Nov 2004 17:16:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18910 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262374AbUKKWOM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 16:55:31 -0500
-Date: Thu, 11 Nov 2004 22:55:30 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: FB: vesafb garbled after using X11 with nv driver
-Message-ID: <20041111215530.GB24338@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Thu, 11 Nov 2004 17:14:12 -0500
+Date: Thu, 11 Nov 2004 14:14:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm5
+Message-Id: <20041111141403.757ea983.akpm@osdl.org>
+In-Reply-To: <111920000.1100210158@flay>
+References: <20041111012333.1b529478.akpm@osdl.org>
+	<20041111030837.12a2090b.akpm@osdl.org>
+	<111920000.1100210158@flay>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use the nv driver in XFree and the vesafb for the framebuffer console.
-vesafb works fine, I get the bootlogo and all during boot. 
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> ipc/shm.c:171: error: `shmem_set_policy' undeclared here (not in a function)
+>  ipc/shm.c:171: error: initializer element is not constant
+>  ipc/shm.c:171: error: (near initialization for `shm_vm_ops.set_policy')
+>  ipc/shm.c:172: error: `shmem_get_policy' undeclared here (not in a function)
+>  ipc/shm.c:172: error: initializer element is not constant
+>  ipc/shm.c:172: error: (near initialization for `shm_vm_ops.get_policy')
 
-Once X11 starts up and I want to switch back to the framebuffer
-console using CTRL-ALT-F1, the framebuffer is garbled. The screen is
-flickering, as if the vertical synchronisation is lost. Colors seem to
-be OK, I get grey garbage on black background.
+hm, I'd have thought that -linus would have the same problem...
 
-Switching back to X11 using ALT-F7 works OK, the X11 screen looks fine.
+--- 25/ipc/shm.c~ipc-numa-build-fix	2004-11-11 14:12:11.874421600 -0800
++++ 25-akpm/ipc/shm.c	2004-11-11 14:12:27.949977744 -0800
+@@ -167,7 +167,7 @@ static struct vm_operations_struct shm_v
+ 	.open	= shm_open,	/* callback for a new vm-area open */
+ 	.close	= shm_close,	/* callback for when the vm-area is released */
+ 	.nopage	= shmem_nopage,
+-#ifdef CONFIG_NUMA
++#if defined(CONFIG_NUMA) && defined(CONFIG_SHMEM)
+ 	.set_policy = shmem_set_policy,
+ 	.get_policy = shmem_get_policy,
+ #endif
+_
 
-I made two screenshots to illuminate what I'm seeing:
-http://www.stahl.bau.tu-bs.de/~hildeb/bugreport/dsc02089.jpg
-http://www.stahl.bau.tu-bs.de/~hildeb/bugreport/dsc02090.jpg
-(watch out, high resolution)
-
-It's not entirely clear if it's an issue of the nv driver or the vesafb
-in the kernel.
-
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

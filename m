@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265373AbUGDS3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265074AbUGDSbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265373AbUGDS3E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 14:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265454AbUGDS3E
+	id S265074AbUGDSbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 14:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265454AbUGDSbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 14:29:04 -0400
-Received: from smtp07.web.de ([217.72.192.225]:51854 "EHLO smtp07.web.de")
-	by vger.kernel.org with ESMTP id S265373AbUGDS26 (ORCPT
+	Sun, 4 Jul 2004 14:31:35 -0400
+Received: from gprs214-240.eurotel.cz ([160.218.214.240]:23945 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265074AbUGDSb0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 14:28:58 -0400
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: 2.6.7: sk98lin unload oops
-Date: Sun, 4 Jul 2004 20:28:53 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200407041342.18821.bernd-schubert@web.de> <20040704151509.GA5100@infradead.org>
-In-Reply-To: <20040704151509.GA5100@infradead.org>
-MIME-Version: 1.0
+	Sun, 4 Jul 2004 14:31:26 -0400
+Date: Sun, 4 Jul 2004 20:27:55 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] Gigabit Ethernet support for forcedeth
+Message-ID: <20040704182755.GA7540@elf.ucw.cz>
+References: <40E25328.8020102@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407042028.59047.bernd-schubert@web.de>
+In-Reply-To: <40E25328.8020102@colorfullife.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Christoph,
+Hi!
 
-On Sunday 04 July 2004 17:15, Christoph Hellwig wrote:
-> > Fortunality everything still works fine (I'm running the script over the
-> > network of the syskonnect cards).
-> >
-> > This machine has two of those syskonnect cards, on another machine which
-> > has only one syskonnect card this oops doesn't occur.
->
-> As a colleteral damage the following huge patch should fix it, and I need
-> testers for it anyway ;-)
->
+> Attached is an update for the patch that adds support for the gigabit 
+> ethernet nic in the nForce 250 Gb chipset.
+> 
+> There were two changes from the previous patch:
+> - clear the PHY_HALF flag if the nic is in half duplex.
+> - remove the setflags / setlen helper functions: the ring entries are 
+> visible to the hardware, I don't like the read/modify/write cycles.
+> 
+> It passes my own tests with 100 MBit half duplex, 100 MB full duplex and 
+> 1 GBit full duplex.
 
-thanks for your patches, but I have some trouble to apply them:
+...
 
+> --- 2.6/drivers/net/forcedeth.c	2004-06-30 07:27:50.330753976 +0200
+> +++ build-2.6/drivers/net/forcedeth.c	2004-06-30 07:27:25.579516736 +0200
+> @@ -10,8 +10,11 @@
+>   * trademarks of NVIDIA Corporation in the United States and other
+>   * countries.
+>   *
+> - * Copyright (C) 2003 Manfred Spraul
+> + * Copyright (C) 2003,4 Manfred Spraul
+>   * Copyright (C) 2004 Andrew de Quincey (wol support)
+> + * Copyright (C) 2004 Carl-Daniel Hailfinger (invalid MAC handling, insane
+> + *		IRQ rate fixes, bigendian fixes, cleanups, verification)
+> + * Copyright (c) 2004 NVIDIA Corporation
 
-hamilton1:/usr/src/linux-2.6.7# cat ../patches/sk98/sk98_patch1.txt |patch -p1
-patching file drivers/net/sk98lin/skge.c
-Hunk #5 succeeded at 4906 (offset -1 lines).
-patching file drivers/net/sk98lin/h/skdrv2nd.h
-Reversed (or previously applied) patch detected!  Assume -R? [n]
+NVidia has copyright on driver created by reverse engeneering their
+hardware? Funny ;-). If NVIDIA really cooperates, perhaps its time to
+make the name more friendly to them?
+								Pavel
 
-Either option I will give here, it will always fail to compile with those 
-messages:
-
-drivers/net/sk98lin/skge.c:5166: `PCI_VENDOR_ID_DLINK' undeclared here (not in 
-a function)
-drivers/net/sk98lin/skge.c:5166: initializer element is not constant
-drivers/net/sk98lin/skge.c:5166: (near initialization for 
-`skge_pci_tbl[4].vendor')
-drivers/net/sk98lin/skge.c:5173: `PCI_VENDOR_ID_CNET' undeclared here (not in 
-a function)
-drivers/net/sk98lin/skge.c:5173: initializer element is not constant
-drivers/net/sk98lin/skge.c:5173: (near initialization for 
-`skge_pci_tbl[7].vendor')
-drivers/net/sk98lin/skge.c:5174: `PCI_VENDOR_ID_LINKSYS' undeclared here (not 
-in a function)
-drivers/net/sk98lin/skge.c:5174: initializer element is not constant
-drivers/net/sk98lin/skge.c:5174: (near initialization for 
-`skge_pci_tbl[8].vendor')
-drivers/net/sk98lin/skge.c:5175: `PCI_VENDOR_ID_LINKSYS' undeclared here (not 
-in a function)
-drivers/net/sk98lin/skge.c:5175: initializer element is not constant
-drivers/net/sk98lin/skge.c:5175: (near initialization for 
-`skge_pci_tbl[9].vendor')
-
-Is your patch for vanilla 2.6.7?
-
-Thanks,
-	Bernd
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,54 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVB0TmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVB0TqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVB0TmF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 14:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVB0TmF
+	id S261487AbVB0TqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 14:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVB0TqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 14:42:05 -0500
-Received: from gprs215-59.eurotel.cz ([160.218.215.59]:22705 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261477AbVB0Tlu (ORCPT
+	Sun, 27 Feb 2005 14:46:03 -0500
+Received: from fire.osdl.org ([65.172.181.4]:29365 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261487AbVB0Tpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 14:41:50 -0500
-Date: Sun, 27 Feb 2005 20:41:23 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Arjan van de Ven <arjan@infradead.org>, aj@suse.de
-Cc: Michal Januszewski <spock@gentoo.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bootsplash for 2.6.11-rc4
-Message-ID: <20050227194123.GX1441@elf.ucw.cz>
-References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050219230326.GB13135@kroah.com> <20050219232519.GC1372@elf.ucw.cz> <20050220132600.GA19700@spock.one.pl> <20050227165420.GD1441@elf.ucw.cz> <1109532700.15362.42.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109532700.15362.42.camel@laptopd505.fenrus.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 27 Feb 2005 14:45:50 -0500
+Date: Sun, 27 Feb 2005 11:46:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: nuclearcat <nuclearcat@nuclearcat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: pty_chars_in_buffer NULL pointer (kernel oops)
+In-Reply-To: <20050227100000.GB22439@logos.cnet>
+Message-ID: <Pine.LNX.4.58.0502271130420.25732@ppc970.osdl.org>
+References: <20050227100000.GB22439@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Well, I like rhgb the best (because it is 100% userspace and I do not
-> > have to deal with it :-), but it seems like bootsplash should be
-> > deprecated in favor of fbsplash.
+
+On Sun, 27 Feb 2005, Marcelo Tosatti wrote:
 > 
-> well.. how much does it really need in kernel space? I mean, with all
-> drivers as modules, and the "quiet" option, initramfs runs *really*
-> fast. And that can just bang a bitmap to the framebuffer as first
-> thing... (rhgb does it a bit later but that's a design choice in a
-> feature vs early-boot tradeoff).
+> Alan, Linus, what correction to the which the above thread discusses has 
+> been deployed? 
 
-[aj added to the list].
+This is the hacky "hide the problem" patch that is in my current tree (and 
+was discussed in the original thread some time ago).
 
-Andreas, who is the person to talk about this? I like redhat's
-solution the best. Pass "quiet", perhaps replace penguin with some big
-picture including penguin and chameleon or something, and do the
-interesting work in userspace...
+It's in no way "correct", in that the race hasn't actually gone away by 
+this patch, but the patch makes it unimportant. We may end up calling a 
+stale line discipline, which is still very wrong, but it so happens that 
+we don't much care in practice.
 
-That's the best solution, technically... Perhaps it is even acceptable
-politically?
+I think that in a 2.4.x tree there are some theoretical SMP races with
+module unloading etc (which the 2.6.x code doesn't have because module
+unload stops the other CPU's - maybe that part got backported to 2.4.x?), 
+but quite frankly, I suspect that even in 2.4.x they are entirely 
+theoretical and impossible to actually hit.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+And again, in theory some line discipline might do something strange in
+it's "chars_in_buffer" routine that would be problematic. In practice
+that's just not the case: the "chars_in_buffer()" routine might return a
+bogus _value_ for a stale line discipline thing, but none of them seem to
+follow any pointers that might have become invalid (and in fact, most
+ldiscs don't even have that function).
+
+So while this patch is wrogn in theory, it does have the advantage of
+being (a) very safe minimal patch and (b) fixing the problem in practice
+with no performance downside.
+
+I still feel a bit guilty about it, though.
+
+			Linus
+
+---
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/25 19:39:39-08:00 torvalds@ppc970.osdl.org 
+#   Fix possible pty line discipline race.
+#   
+#   This ain't pretty. Real fix under discussion.
+# 
+# drivers/char/pty.c
+#   2005/02/25 19:39:32-08:00 torvalds@ppc970.osdl.org +4 -2
+#   Fix possible pty line discipline race.
+#   
+#   This ain't pretty. Real fix under discussion.
+# 
+diff -Nru a/drivers/char/pty.c b/drivers/char/pty.c
+--- a/drivers/char/pty.c	2005-02-27 11:31:57 -08:00
++++ b/drivers/char/pty.c	2005-02-27 11:31:57 -08:00
+@@ -149,13 +149,15 @@
+ static int pty_chars_in_buffer(struct tty_struct *tty)
+ {
+ 	struct tty_struct *to = tty->link;
++	ssize_t (*chars_in_buffer)(struct tty_struct *);
+ 	int count;
+ 
+-	if (!to || !to->ldisc.chars_in_buffer)
++	/* We should get the line discipline lock for "tty->link" */
++	if (!to || !(chars_in_buffer = to->ldisc.chars_in_buffer))
+ 		return 0;
+ 
+ 	/* The ldisc must report 0 if no characters available to be read */
+-	count = to->ldisc.chars_in_buffer(to);
++	count = chars_in_buffer(to);
+ 
+ 	if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
+ 

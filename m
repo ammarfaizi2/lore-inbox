@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUGZVpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266075AbUGZVrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUGZVpY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266075AbUGZVpW
+	id S266075AbUGZVrd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 17:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUGZVrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 17:45:22 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:37542 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266009AbUGZVpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 17:45:03 -0400
-Message-ID: <41057B58.1040808@comcast.net>
-Date: Mon, 26 Jul 2004 17:44:56 -0400
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
+	Mon, 26 Jul 2004 17:47:33 -0400
+Received: from posti6.jyu.fi ([130.234.4.43]:8392 "EHLO posti6.jyu.fi")
+	by vger.kernel.org with ESMTP id S266075AbUGZVrQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 17:47:16 -0400
+Date: Tue, 27 Jul 2004 00:46:54 +0300 (EEST)
+From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
+X-X-Sender: ptsjohol@silmu.st.jyu.fi
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+cc: Francois Romieu <romieu@fr.zoreil.com>,
+       H?ctor Mart?n <hector@marcansoft.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
+ RLT-8139 related)
+In-Reply-To: <16645.13126.52445.630789@robur.slu.se>
+Message-ID: <Pine.LNX.4.44.0407270028170.11416-100000@silmu.st.jyu.fi>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Jim Gifford <maillist@jg555.com>, "Adam J. Richter" <adam@yggdrasil.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Future devfs plans
-References: <200407261445.i6QEjAS04697@freya.yggdrasil.com> <057601c472a3$9df39ac0$d100a8c0@W2RZ8L4S02> <41044DA6.5080501@comcast.net> <20040726180901.GG11817@fs.tum.de>
-In-Reply-To: <20040726180901.GG11817@fs.tum.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Checked: by miltrassassin
+	at posti6.jyu.fi; Tue, 27 Jul 2004 00:46:56 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+On Mon, 26 Jul 2004, Robert Olsson wrote:
 
->On Sun, Jul 25, 2004 at 08:17:42PM -0400, Ed Sweetman wrote:
->  
->
->>...
->>On 
->>top of that, MAKEDEV as distributed at least by debian, doesn't create 
->>alsa devices and there is no script in the kernel source tree that i've 
->>found that allows the device creation.  One would have to go download 
->>the alsa-driver package from the alsa-project website and use the 
->>snddevices.sh script.  Since alsa-driver is integrated with the kernel 
->>now, this device creation script should be included in the kernel source 
->>or if that's not the place for such a file, we'll have to get on 
->>debian's butt to have MAKEDEV updated to actually support it.
->>    
->>
->
->
->
->  apt-get install alsa-base
->
->
->Check
->
->  /var/lib/dpkg/info/alsa-base.postinst
->
->and (surprise, surprise!), you'll note the snddevices script is executed 
->when installing the alsa-base package.
->
->
->cu
->Adrian
->
->  
->
-And someone who compiles the kernel for themselves and never needs the 
-alsa-base deb wouldn't have any ability to create the devices.  MAKEDEV 
-is the proper place to create devices, not a separate snddevices 
-script.  This is still a debian bug.
+> Pasi Sjoholm writes:
+
+>  > Pid: 2, comm:          ksoftirqd/0
+>  > EIP: 0060:[<e0871224>] CPU: 0
+>  > EIP is at rtl8139_poll+0xb4/0x100 [8139too]
+>  >  EFLAGS: 00000247    Not tainted  (2.6.7-mm7)
+>  > EAX: ffffe000 EBX: 00000040 ECX: df4824f8 EDX: c0441978
+>  > ESI: df482400 EDI: e0868000 EBP: dff85f80 DS: 007b ES: 007b
+>  > CR0: 8005003b CR2: b7c5a000 CR3: 1fafd000 CR4: 000006d0
+>  >  [<c0119580>] ksoftirqd+0x0/0xc0
+>  >  [<c02c5f3a>] net_rx_action+0x6a/0x110
+>  >  [<c01191a9>] __do_softirq+0xa9/0xb0
+>  >  [<c01191d7>] do_softirq+0x27/0x30
+>  >  [<c01195e8>] ksoftirqd+0x68/0xc0
+>  >  [<c01277e5>] kthread+0xa5/0xb0
+>  >  [<c0127740>] kthread+0x0/0xb0
+>  >  [<c0102111>] kernel_thread_helper+0x5/0x14
+>  > --
+>  > I'm not a kernel expert but it would seem that ksoftirqd is in some sort a 
+>  > loop because I didn't get any "printk("%s wakes ksoftirqd\n", 
+>  > current->comm);"-lines.
+
+>  Hello!
+
+Hur är läget Robert?-)
+
+>  This looks very much like the problem we see when doing route DoS testing
+>  with Alexey.
+
+Hmm, at least it sounds like same problem and in both situations network 
+interface is kept busy.
+
+>  In summary: High softirq loads can totally kill userland. The reason is that 
+>  do_softirq() is run from many places hard interrupts, local_bh_enable etc 
+>  and bypasses the ksoftirqd protection. It just been discussed at OLS with
+>  Andrea and Dipankar and others. Current RCU suffers from this problem as well.
+
+Ok, this explanation makes sense and my point of view I think this is 
+quite critical problem if you can "crash" linux kernel just sending enough 
+packets to network interface for an example.
+
+>  I've experimented some code to defer softirq's to ksoftirqd after a time as 
+>  well as deferring all softirq's to ksoftirqd. Andrea had some ideas as well 
+>  as Ingo.
+
+I would be more than glad to help you in testing if you want to publish 
+some patches. 
+
+--
+Pasi Sjöholm
+

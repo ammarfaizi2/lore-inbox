@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbTESHME (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 03:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbTESHME
+	id S262362AbTESIAH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 04:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTESIAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 03:12:04 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.29]:31282 "EHLO
-	mwinf0201.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262142AbTESHMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 03:12:02 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: David Woodhouse <dwmw2@infradead.org>, marcelo@conectiva.com.br
-Subject: Re: [PATCH] Shared crc32 for 2.4.
-Date: Mon, 19 May 2003 09:24:53 +0200
-User-Agent: KMail/1.5.1
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-References: <1053193432.9218.13.camel@imladris.demon.co.uk>
-In-Reply-To: <1053193432.9218.13.camel@imladris.demon.co.uk>
+	Mon, 19 May 2003 04:00:06 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:53632
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S262362AbTESIAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 04:00:05 -0400
+Date: Mon, 19 May 2003 04:03:26 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.5] Add Focus processor bit comment
+Message-ID: <Pine.LNX.4.50.0305190401340.28750-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305190924.53700.baldrick@wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.4/Documentation/Configure.help.orig	2003-05-16 16:15:52.000000000 +0200
-+++ linux-2.4/Documentation/Configure.help	2003-05-19 09:23:08.000000000 +0200
-@@ -26525,6 +26525,13 @@
- 
-   If unsure, say N.
- 
-+CRC32 functions
-+CONFIG_CRC32
-+  This option is provided for the case where no in-kernel-tree
-+  modules require CRC32 functions, but a module built outside the
-+  kernel tree does. Such modules that use library CRC32 functions
-+  require M here.
-+
- #
- # A couple of things I keep forgetting:
- #   capitalize: AppleTalk, Ethernet, DOS, DMA, FAT, FTP, Internet,
+Add an explanation for clearing the focus bit on P4
+
+Index: linux-2.5-devel/arch/i386/kernel/apic.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
+retrieving revision 1.40
+diff -u -p -B -r1.40 apic.c
+--- linux-2.5-devel/arch/i386/kernel/apic.c	17 Apr 2003 23:28:48 -0000	1.40
++++ linux-2.5-devel/arch/i386/kernel/apic.c	19 May 2003 07:07:52 -0000
+@@ -291,6 +291,8 @@ void __init init_bsp_APIC(void)
+ 	value = apic_read(APIC_SPIV);
+ 	value &= ~APIC_VECTOR_MASK;
+ 	value |= APIC_SPIV_APIC_ENABLED;
++	
++	/* This bit is reserved on P4/Xeon and should be cleared */
+ 	if ((boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) && (boot_cpu_data.x86 == 15))
+ 		value &= ~APIC_SPIV_FOCUS_DISABLED;
+ 	else
+
+-- 
+function.linuxpower.ca

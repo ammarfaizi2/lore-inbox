@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282968AbRLVXTG>; Sat, 22 Dec 2001 18:19:06 -0500
+	id <S282966AbRLVX00>; Sat, 22 Dec 2001 18:26:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282969AbRLVXSp>; Sat, 22 Dec 2001 18:18:45 -0500
-Received: from jalon.able.es ([212.97.163.2]:8637 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S282968AbRLVXSi>;
-	Sat, 22 Dec 2001 18:18:38 -0500
-Date: Sun, 23 Dec 2001 00:20:38 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: mingo@elte.hu
+	id <S282969AbRLVX0G>; Sat, 22 Dec 2001 18:26:06 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:51508 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S282966AbRLVXZ6>; Sat, 22 Dec 2001 18:25:58 -0500
+Date: Sat, 22 Dec 2001 18:25:57 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Keith Owens <kaos@sgi.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] irqrate-2.4.17-A0
-Message-ID: <20011223002038.E6735@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.33.0112221227540.4953-100000@localhost.localdomain>
+Subject: Re: [patch] Assigning syscall numbers for testing
+Message-ID: <20011222182556.A19700@redhat.com>
+In-Reply-To: <20011222140126.B19442@redhat.com> <17322.1009063106@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.33.0112221227540.4953-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Dec 22, 2001 at 12:33:33 +0100
-X-Mailer: Balsa 1.3.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <17322.1009063106@ocs3.intra.ocs.com.au>; from kaos@sgi.com on Sun, Dec 23, 2001 at 10:18:26AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 23, 2001 at 10:18:26AM +1100, Keith Owens wrote:
+> You did not read my mail all the way through, did you?  I said -
+> 
+> If the [user space] code cannot open /proc/dynamic_syscalls or cannot
+> find the desired syscall name, fall back to the assigned syscall number
+> (if any) or fail if there is no assigned syscall number.  By falling
+> back to the assigned syscall number, new versions of the user space
+> code are backwards compatible, on older kernels it will use the dynamic
+> syscall number, on newer kernels it will use the assigned number.
 
-On 20011222 Ingo Molnar wrote:
->
->i've uploaded the latest, 2.4.17-A0 IRQ-rate-limiting patch to:
->
->        http://redhat.com/~mingo/irqrate-patches/
->
->this is just a straightforward port to 2.4.17. The patch, while it adds
->the dynamic hard-IRQ-limiting feature and fixes softirq performance, it
->also removes more lines of code than it adds.
->
->comments, bug reports and suggestions are welcome,
->
+No, that's not the case I'm talking about: what happens when a vendor 
+starts shipping this patch and Linus decides to add a new syscall that 
+uses a syscall number that the old kernel used for dynamic syscalls?
 
-Mmmm, hunks at the end for your m, mb, mo, etc scripts ?
-
+		-ben
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.17-beo #1 SMP Fri Dec 21 21:39:36 CET 2001 i686
+Fish.

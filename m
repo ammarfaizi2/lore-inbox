@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269311AbUJFPwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269296AbUJFPz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269311AbUJFPwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 11:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269296AbUJFPv5
+	id S269296AbUJFPz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 11:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUJFPz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 11:51:57 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:18842 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S269311AbUJFPvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 11:51:46 -0400
-Date: Wed, 6 Oct 2004 17:51:45 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Message-ID: <20041006155145.GB10153@wohnheim.fh-wedel.de>
-References: <20041006043458.GB19761@alpha.home.local> <Pine.GSO.4.61.0410061038590.20160@waterleaf.sonytel.be> <20041006121534.GA8386@wohnheim.fh-wedel.de> <Pine.GSO.4.61.0410061504140.20160@waterleaf.sonytel.be> <20041006133310.GD8386@wohnheim.fh-wedel.de> <Pine.GSO.4.61.0410061548390.20160@waterleaf.sonytel.be> <20041006141231.GA6394@wohnheim.fh-wedel.de> <Pine.GSO.4.61.0410061619460.20160@waterleaf.sonytel.be> <20041006152848.GA10153@wohnheim.fh-wedel.de> <Pine.GSO.4.61.0410061731480.20160@waterleaf.sonytel.be>
+	Wed, 6 Oct 2004 11:55:29 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:38799 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269296AbUJFPzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 11:55:16 -0400
+Subject: Re: Proper use of daemonize()?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <030601c4abb7$af573770$294b82ce@stuartm>
+References: <030601c4abb7$af573770$294b82ce@stuartm>
+Content-Type: text/plain
+Message-Id: <1097078113.1903.61.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.61.0410061731480.20160@waterleaf.sonytel.be>
-User-Agent: Mutt/1.3.28i
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Rcpt-To: geert@linux-m68k.org, willy@w.ods.org, vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
-X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
-X-SA-Exim-Scanned: Yes
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 06 Oct 2004 11:55:14 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 October 2004 17:36:17 +0200, Geert Uytterhoeven wrote:
+On Wed, 2004-10-06 at 11:18, Stuart MacDonald wrote:
+> I've been looking at the kernel threads that use daemonize() and have
+> some questions about the proper use of this call:
 > 
-> OK, so you want /dev/console to fall back to /dev/null, right?
+> 1: Some threads use the lock_kernel() calls around the daemonize()
+> call. Is this necessary?
 
-In short, yes.  I want fds 0, 1 and 2 to be open for any userspace
-process on startup.  That's partly init's job, partly also the
-kernel's job.  And /dev/null is a sane fallback.
+It's only necessary if you can't be bothered to do proper locking. 
+Probably that code is old and someone did not have time to implement
+correct locking to make it work on SMP so just threw lock/unlock kernel
+around it.
 
-> Anyway, I should cook up a patch so the /dev/console demux walks the list if
-> the one at the head of the list doesn't do input (read: it has no associated
-> tty struct).
+>  I thought the BKL was phasing out.
+> 
 
-Good.
+Well, it's not going to phase itself out ;-)  But, patches that
+introduce new uses of the BKL will almost certainly go to /dev/null.
 
-Jörn
+Lee
 
--- 
-A victorious army first wins and then seeks battle.
--- Sun Tzu

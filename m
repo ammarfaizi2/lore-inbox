@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268981AbTBZWWl>; Wed, 26 Feb 2003 17:22:41 -0500
+	id <S268982AbTBZW0F>; Wed, 26 Feb 2003 17:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268963AbTBZWVN>; Wed, 26 Feb 2003 17:21:13 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:5124 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S268960AbTBZWUz>;
-	Wed, 26 Feb 2003 17:20:55 -0500
-Date: Wed, 26 Feb 2003 22:22:56 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, alan@redhat.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 407] New: Keyboard glitch detected, ignoring keypress
-Message-ID: <20030226212256.GD346@elf.ucw.cz>
-References: <9830000.1046224504@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9830000.1046224504@flay>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	id <S268960AbTBZWZC>; Wed, 26 Feb 2003 17:25:02 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:47301 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S269002AbTBZWYW>;
+	Wed, 26 Feb 2003 17:24:22 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A1AD@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Linus Torvalds <torvalds@transmeta.com>, Ion Badulescu <ionut@badula.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com
+Subject: RE: [BUG] 2.5.63: ESR killed my box!
+Date: Wed, 26 Feb 2003 14:34:23 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> From: Linus Torvalds [mailto:torvalds@transmeta.com] 
+> Wouldn't it be nicer to just fix the write instead? I can see the 
+> potential to actually want to change the APIC ID - in 
+> particular, if the 
+> SMP MP tables say that the APIC ID for the BP should be X, 
+> maybe we should 
+> actually write X to it instead of just using what is there.
 
-> http://bugme.osdl.org/show_bug.cgi?id=407
-> 
->            Summary: Keyboard glitch detected, ignoring keypress
->     Kernel Version: 2.5.62-ac1
->             Status: NEW
->           Severity: normal
->              Owner: alan@lxorguk.ukuu.org.uk
->          Submitter: storri@sbcglobal.net
+OK so we have a redundancy. You can get the same info from MPS and from
+the lapic itself.
 
-Alan, please kill that toshiba patch from 2.5.X. 2.5.X has soft
-autorepeat, so it should no longer matter. I'm not using that machine
-enough to see if it is really the case, but I trust vojtech.
+The fact that ACPI's boot tables does not include the lapic id (just its
+address) suggests strongly to me that we should similarly query the
+lapic for its address instead of writing in a new value when using the
+MPS tables, as well.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+> In particular, Mikaels patch will BUG() if the MP tables 
+> don't match the 
+> APIC ID. I think that's extremely rude: we should select one 
+> of the two 
+> and just run with it, instead of unconditionally failing.
+
+Agree.
+
+Regards -- Andy

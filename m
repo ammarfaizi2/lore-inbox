@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285658AbRLGX1q>; Fri, 7 Dec 2001 18:27:46 -0500
+	id <S285668AbRLGXaH>; Fri, 7 Dec 2001 18:30:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285660AbRLGX10>; Fri, 7 Dec 2001 18:27:26 -0500
-Received: from zero.tech9.net ([209.61.188.187]:4358 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S285658AbRLGX1U>;
-	Fri, 7 Dec 2001 18:27:20 -0500
-Subject: Re: Linux 2.4.17-pre6 drm-4.0
-From: Robert Love <rml@tech9.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-ia64@linuxia64.org, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4494.1007767210@ocs3.intra.ocs.com.au>
-In-Reply-To: <4494.1007767210@ocs3.intra.ocs.com.au>
-Content-Type: text/plain
+	id <S285661AbRLGX35>; Fri, 7 Dec 2001 18:29:57 -0500
+Received: from 39.159.252.64.snet.net ([64.252.159.39]:36736 "EHLO
+	stinkfoot.org") by vger.kernel.org with ESMTP id <S285659AbRLGX3m>;
+	Fri, 7 Dec 2001 18:29:42 -0500
+Message-ID: <3C115458.7090607@stinkfoot.org>
+Date: Fri, 07 Dec 2001 18:44:24 -0500
+From: Ethan <Ethan@stinkfoot.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011125
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC kernel fails when IDE built as modules
+In-Reply-To: <20011204004457.6930@smtp.wanadoo.fr> <20011204005915.4996@smtp.wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
-Date: 07 Dec 2001 18:27:11 -0500
-Message-Id: <1007767634.12114.0.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 18:20, Keith Owens wrote:
+Benjamin Herrenschmidt wrote:
 
-> How long do people plan to keep drm 4.0 code in their versions of the
-> kernel?
+>>>Just thought I'd drop a note that recent kernel builds (2.4.17-pre1,2) 
+>>>on PPC fail when IDE is built as modules.
+>>>
+>>The fix for this is part of the big pmac merge I'm about to start
+>>with Marcelo. In the meantime, use the bitkeeper PPC tree
+>>(see http://www.penguinppc.org/dev/kernel.shtml for details).
+>>
+>
+>Hrm.. Sorry, it looks like you indeed have a good point here.
+>
+>I'll see how we can fix that tomorrow.
+>
+>Ben.
+>
+Making any headway on this one?  I'm still getting it as of 2.4.17-pre5.
 
-For 2.5, there probably is no intention of keeping that around.  But can
-we honestly ditch it in the middle of a stable kernel?  Personally I
-don't use it, but its not polite ...
+thanks again,
 
-	Robert Love
+Ethan
+
+
+
 

@@ -1,74 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272283AbRHXRhe>; Fri, 24 Aug 2001 13:37:34 -0400
+	id <S272301AbRHXTAe>; Fri, 24 Aug 2001 15:00:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272287AbRHXRhY>; Fri, 24 Aug 2001 13:37:24 -0400
-Received: from zapfhahn.bone.twc.de ([193.158.34.194]:24590 "EHLO
-	zapfhahn.bone.twc.de") by vger.kernel.org with ESMTP
-	id <S272283AbRHXRhI>; Fri, 24 Aug 2001 13:37:08 -0400
-Message-ID: <20010824193714.11316@space.twc.de>
-Date: Fri, 24 Aug 2001 19:37:15 +0200
-From: Stefan Westerfeld <stefan@space.twc.de>
-To: Doug Ledford <dledford@redhat.com>
+	id <S272302AbRHXTAO>; Fri, 24 Aug 2001 15:00:14 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:33164 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S272301AbRHXTAF>; Fri, 24 Aug 2001 15:00:05 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Denis Perchine <dyp@perchine.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: i810 audio doesn't work with 2.4.9
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.85e
-In-Reply-To: <no.id>; from Doug Ledford on Thu, Aug 23, 2001 at 08:03:00PM +0000
+Date: Fri, 24 Aug 2001 10:42:35 -0700 (PDT)
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+In-Reply-To: <20010824020119.42D951FD7D@mx.webmailstation.com>
+Message-ID: <Pine.LNX.4.33.0108241041340.5666-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Hi!
+let's see you remove perl, python, etc but are going to leave gcc on there
+so you can compile kernels there????
 
-On Thu, Aug 23, 2001 at 08:03:00PM +0000, Doug Ledford wrote:
- > So it seems that update of i810_audio.c between 2.4.6-ac1 and ac2 breaks it (at least for me).
-> > But I think it still eating too much time (about 2-3% on PIII 700) when I'm not doing anything 
-> > with sound but no more up to 90% as with unmodified version from 2.4.9 (maybe it's a problem
-> > of artsd , I don't know)
-> 
-> 
-> Yes, it's a problem of artsd.  Someone decided (presumably to avoid the 
-> occasional pop/click from the startup or shutdown of the sound device) 
-> to make artsd transmit silence over the sound card when no sounds 
-> currently need played.  From my perspective, I will *NEVER* use artsd as 
-> long as it does this.  [... more rant ...]
+if you are really locking a box down like that you will compile the kernel
+on another machine and so will not need gcc or python on the box.
 
-More or less recent versions of artsd either autosuspend (close the sound
-device) either after hard-coded 60 seconds of inactivity, or have a command
-line option
+David Lang
 
--s <seconds>        auto-suspend time in seconds
+On Fri, 24 Aug 2001, Denis Perchine wrote:
 
-which should adress this issue.
-
-> Furthermore, I find 
-> their use of the sound API to be suboptimal, especially when they are 
-> going to transmit silence all the time. [...]
-
-Well, artsd does non-blocking sound I/O combined with select() which tells it
-when to wake up and write (read) something. It usually works quite nice if the
-driver is implemented correctly, that is, if it wakes up artsd if there is a
-suitable amount of data to read (write) - usually a fragment is a good choice
-for the driver. The use of the API has the advantage that it
-
- - doesn't require threads (synchronization, context switches)
- - works well with very low latencies
- - never blocks the server (i.e. the server can always accept requests from
-   the net)
-
-Common problems with some drivers appear to be:
-
- * GETOSPACE/GETISPACE lies about the size that can be read/written (non-fatal,
-   as long as there is at least some truth in there)
-
- * select() does wake up too early (i.e. if either nothing at all or just a
-   small amount can be read/written) - thats fatal and leads to the 90% CPU
-   scenarios
-
-(I am not subscribed to linux-kernel, so in doubt CC me).
-
-   Cu... Stefan
--- 
-  -* Stefan Westerfeld, stefan@space.twc.de (PGP!), Hamburg/Germany
-     KDE Developer, project infos at http://space.twc.de/~stefan/kde *-         
+> Date: Fri, 24 Aug 2001 11:59:41 +0700
+> From: Denis Perchine <dyp@perchine.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+>
+> On Friday 24 August 2001 02:41, Tom Rini wrote:
+> > On Thu, Aug 23, 2001 at 09:26:33PM +0200, Jes Sorensen wrote:
+> > > >>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
+> > You've said this before. :)  Just how small of an 'embedded' system are
+> > you talking about?  I know of people who do compile a kernel now and
+> > again on a 'small' system, for fun.  On a larger (cPCI) system, I
+> > don't see your point.  If you can somehow transport the 21mb[1] bzip2
+> > kernel source to your system, you can transport python.  If you're
+> > porting to a brand new arch, there's still good tests before you
+> > have shlib support (You've mentioned that before too I think).
+>
+> There is another point why having Python installed is a problem. Usually when
+> you install a server you remove everything from it because of space, and
+> security reasons. The main security concern is the less is installed the
+> better security is. I always remove python from any servers I have. As I
+> remove guile, forth, and other useless (in terms of server) languages. Now
+> you tell me that I should have this bloat installed just to configure my
+> kernel. Do not you think that it is too much? Current kernel does not require
+> anything like this.
+>
+> --
+> Sincerely Yours,
+> Denis Perchine
+>
+> ----------------------------------
+> E-Mail: dyp@perchine.com
+> HomePage: http://www.perchine.com/dyp/
+> FidoNet: 2:5000/120.5
+> ----------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266233AbTATQni>; Mon, 20 Jan 2003 11:43:38 -0500
+	id <S266296AbTATQmZ>; Mon, 20 Jan 2003 11:42:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbTATQni>; Mon, 20 Jan 2003 11:43:38 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:63642 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S266233AbTATQnh>;
-	Mon, 20 Jan 2003 11:43:37 -0500
-Date: Mon, 20 Jan 2003 11:52:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: propagating failures down to pci_module_init()
-Message-ID: <20030120165236.GA27972@gtf.org>
-References: <20030120155435.GA29238@codemonkey.org.uk> <20030120163321.A32585@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030120163321.A32585@infradead.org>
-User-Agent: Mutt/1.3.28i
+	id <S266297AbTATQmZ>; Mon, 20 Jan 2003 11:42:25 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:57474 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S266296AbTATQmX>;
+	Mon, 20 Jan 2003 11:42:23 -0500
+Date: Mon, 20 Jan 2003 17:56:50 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
+       Andrew Theurer <habanero@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [patch] sched-2.5.59-A2
+In-Reply-To: <200301201307.55515.efocht@ess.nec.de>
+Message-ID: <Pine.LNX.4.44.0301201743230.11746-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 04:33:21PM +0000, Christoph Hellwig wrote:
-> On Mon, Jan 20, 2003 at 03:54:35PM +0000, Dave Jones wrote:
-> > I've got a wierd situation with a certain chipset for agpgart.
-> > There are a few cases where I want to be able to use the existing
-> > pci_driver api to detect the right PCI device, and call
-> > the relevant .probe routine. No problem there.
-> > 
-> > The problem is that in these cases, I want to be able to read
-> > a certain register in that device, and if a bit is 0, bail out
-> > of the .probe function with -ENODEV, and make the loading of
-> > the module fail.
-> > 
-> > The problem is that the ENODEV in my .probe routine doesn't
-> > propagate back down as far as pci_module_init().
-> > 
-> > Ideas ?
+
+On Mon, 20 Jan 2003, Erich Focht wrote:
+
+> Could you please explain your idea? As far as I understand, the SMP
+> balancer (pre-NUMA) tries a global rebalance at each call. Maybe you
+> mean something different...
+
+yes, but eg. in the idle-rebalance case we are more agressive at moving
+tasks across SMP CPUs. We could perhaps do a similar ->nr_balanced logic
+to do this 'agressive' balancing even if not triggered from the
+CPU-will-be-idle path. Ie. _perhaps_ the SMP balancer could become a bit
+more agressive.
+
+ie. SMP is just the first level in the cache-hierarchy, NUMA is the second
+level. (lets hope we dont have to deal with a third caching level anytime
+soon - although that could as well happen once SMT CPUs start doing NUMA.)  
+There's no real reason to do balancing in a different way on each level -
+the weight might be different, but the core logic should be synced up.
+(one thing that is indeed different for the NUMA step is locality of
+uncached memory.)
+
+> > kernelbench is the kind of benchmark that is most sensitive to over-eager
+> > global balancing, and since the 2.5.59 ->nr_balanced logic produced the
+> > best results, it clearly shows it's not over-eager. hackbench is one that
+> > is quite sensitive to under-balancing. Ie. trying to maximize both will
+> > lead us to a good balance.
 > 
-> Just use pci_register_driver.
+> Yes! Actually the currently implemented nr_balanced logic is pretty
+> dumb: the counter reaches the cross-node balance threshold after a
+> certain number of calls to intra-node lb, no matter whether these were
+> successfull or not. I'd like to try incrementing the counter only on
+> unsuccessfull load balances, this would give a clear priority to
+> intra-node balancing and a clear and controllable delay for cross-node
+> balancing. A tiny patch for this (for 2.5.59) is attached. As the name
+> nr_balanced would be misleading for this kind of usage, I renamed it to
+> nr_lb_failed.
 
-Nope.  Look at pci_module_init code.  It propagates pci_register_driver
-return value.
+indeed this approach makes much more sense than the simple ->nr_balanced
+counter. A similar approach makes sense on the SMP level as well: if the
+current 'busy' rebalancer fails to get a new task, we can try the current
+'idle' rebalancer. Ie. a CPU going idle would do the less intrusive
+rebalancing first.
 
-The _real_ problem is that ->probe return value is not propagated back
-to pci_register_driver return value.  The reason for this is that you
-may call ->probe many times, and nobody has written the code to collate
-the error returns.
+have you experimented with making the counter limit == 1 actually? Ie.  
+immediately trying to do a global balancing once the less intrusive
+balancing fails?
 
-Since one can only sanely return an error code when there was _one_
-device and it failed, you are rather limited in error propagation.
-
-	Jeff
+	Ingo
 
 
 

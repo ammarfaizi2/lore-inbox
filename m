@@ -1,75 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263465AbTECXbq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 19:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263481AbTECXbp
+	id S263483AbTECXdC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 19:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTECXcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 19:31:45 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:48648 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263465AbTECXbo convert rfc822-to-8bit
+	Sat, 3 May 2003 19:32:35 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:53768 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263481AbTECXbr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 19:31:44 -0400
+	Sat, 3 May 2003 19:31:47 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10520054422453@movementarian.org>
-Subject: [PATCH 1/8] OProfile update
-In-Reply-To: 
+Message-Id: <1052005448795@movementarian.org>
+Subject: [PATCH 8/8] OProfile update
+In-Reply-To: <10520054473121@movementarian.org>
 From: John Levon <levon@movementarian.org>
 X-Mailer: gregkh_patchbomb
-Date: Sun, 4 May 2003 00:44:02 +0100
+Date: Sun, 4 May 2003 00:44:08 +0100
 Content-Transfer-Encoding: 7BIT
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Spam-Score: -4.8 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19C6fm-0009th-Ez*1IhsQELY7cw*
+X-Spam-Score: -6.4 (------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19C6fp-0009tv-5u*7ldV6UC71Ps*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The next 8 patches change the following files :
+Schedule work away on an unmap, instead of calling it directly. Should result
+in less lost samples, and it fixes a lock ordering problem buffer_sem <-> mmap_sem
 
- arch/alpha/oprofile/Makefile      |    3 +
- arch/alpha/oprofile/common.c      |    2 -
- arch/i386/oprofile/Makefile       |    5 +-
- arch/i386/oprofile/init.c         |   11 ++----
- arch/i386/oprofile/nmi_int.c      |   14 +++----
- arch/i386/oprofile/timer_int.c    |   58
---------------------------------
- arch/parisc/oprofile/Makefile     |    5 +-
- arch/parisc/oprofile/init.c       |    3 -
- arch/parisc/oprofile/timer_int.c  |   58
---------------------------------
- arch/ppc64/oprofile/Makefile      |    5 +-
- arch/ppc64/oprofile/init.c        |    3 -
- arch/ppc64/oprofile/timer_int.c   |   59
----------------------------------
- arch/sparc64/oprofile/Makefile    |    5 +-
- arch/sparc64/oprofile/init.c      |    3 -
- arch/sparc64/oprofile/timer_int.c |   59
----------------------------------
- arch/x86_64/oprofile/Makefile     |    9 ++---
- drivers/oprofile/buffer_sync.c    |   67
-+++++++++++++++++++++++++-------------
- drivers/oprofile/event_buffer.c   |    6 ++-
- drivers/oprofile/oprof.c          |   23 +++++++++----
- drivers/oprofile/oprofile_stats.c |    6 +--
- drivers/oprofile/oprofile_stats.h |    2 -
- drivers/oprofile/timer_int.c      |   56
-+++++++++++++++++++++++++++++++
- 22 files changed, 159 insertions(+), 303 deletions(-)
-
-
-Convention is that error returns are negative.
-
-diff -Naur -X dontdiff linux-cvs/arch/alpha/oprofile/common.c linux-me/arch/alpha/oprofile/common.c
---- linux-cvs/arch/alpha/oprofile/common.c	2003-04-05 18:44:20.000000000 +0100
-+++ linux-me/arch/alpha/oprofile/common.c	2003-04-29 01:18:48.000000000 +0100
-@@ -175,7 +175,7 @@
- 	}
+diff -Naur -X dontdiff linux-cvs/drivers/oprofile/buffer_sync.c linux-me/drivers/oprofile/buffer_sync.c
+--- linux-cvs/drivers/oprofile/buffer_sync.c	2003-04-05 18:44:49.000000000 +0100
++++ linux-me/drivers/oprofile/buffer_sync.c	2003-05-03 20:10:44.000000000 +0100
+@@ -58,8 +58,8 @@
+  * must concern ourselves with. First, when a task is about to
+  * exit (exit_mmap()), we should process the buffer to deal with
+  * any samples in the CPU buffer, before we lose the ->mmap information
+- * we need. Second, a task may unmap (part of) an executable mmap,
+- * so we want to process samples before that happens too
++ * we need. It is vital to get this case correct, otherwise we can
++ * end up trying to access a freed task_struct.
+  */
+ static int mm_notify(struct notifier_block * self, unsigned long val, void * data)
+ {
+@@ -67,6 +67,29 @@
+ 	return 0;
+ }
  
- 	if (!lmodel)
--		return ENODEV;
-+		return -ENODEV;
- 	model = lmodel;
++
++/* Second, a task may unmap (part of) an executable mmap,
++ * so we want to process samples before that happens too. This is merely
++ * a QOI issue not a correctness one.
++ */
++static int munmap_notify(struct notifier_block * self, unsigned long val, void * data)
++{
++	/* Note that we cannot sync the buffers directly, because we might end up
++	 * taking the the mmap_sem that we hold now inside of event_buffer_read()
++	 * on a page fault, whilst holding buffer_sem - deadlock.
++	 *
++	 * This would mean a threaded reader of the event buffer, but we should
++	 * prevent it anyway.
++	 *
++	 * Delaying the work in a context that doesn't hold the mmap_sem means
++	 * that we won't lose samples from other mappings that current() may
++	 * have. Note that either way, we lose any pending samples for what is
++	 * being unmapped.
++	 */
++	schedule_work(&sync_wq);
++	return 0;
++}
++
+  
+ /* We need to be told about new modules so we don't attribute to a previously
+  * loaded module, or drop the samples on the floor.
+@@ -92,7 +115,7 @@
+ };
  
- 	oprof_axp_ops.cpu_type = lmodel->cpu_type;
+ static struct notifier_block exec_unmap_nb = {
+-	.notifier_call	= mm_notify,
++	.notifier_call	= munmap_notify,
+ };
+ 
+ static struct notifier_block exit_mmap_nb = {
 

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268861AbRIYSvi>; Tue, 25 Sep 2001 14:51:38 -0400
+	id <S271777AbRIYSy6>; Tue, 25 Sep 2001 14:54:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271769AbRIYSv2>; Tue, 25 Sep 2001 14:51:28 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:46830 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S268861AbRIYSvR>;
-	Tue, 25 Sep 2001 14:51:17 -0400
-Date: Tue, 25 Sep 2001 20:51:43 +0200
+	id <S271769AbRIYSys>; Tue, 25 Sep 2001 14:54:48 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:48110 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S271714AbRIYSyc>;
+	Tue, 25 Sep 2001 14:54:32 -0400
+Date: Tue, 25 Sep 2001 20:55:12 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
+To: Bob McElrath <mcelrath@draal.physics.wisc.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10 VM vs. 2.4.9-ac14 (+ ac14-aging)
-Message-ID: <20010925205143.C8350@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0109232255250.14107-100000@loke.as.arizona.edu>
+Subject: Re: O_DIRECT as a mount option?
+Message-ID: <20010925205512.D8350@athlon.random>
+In-Reply-To: <20010925125144.D14612@draal.physics.wisc.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109232255250.14107-100000@loke.as.arizona.edu>; from ckulesa@as.arizona.edu on Mon, Sep 24, 2001 at 05:08:49AM -0700
+In-Reply-To: <20010925125144.D14612@draal.physics.wisc.edu>; from mcelrath@draal.physics.wisc.edu on Tue, Sep 25, 2001 at 12:51:44PM -0500
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 05:08:49AM -0700, Craig Kulesa wrote:
-> 2.4.10 streaming IO test: failed (stutters, frequent gaps in playback)
-> 2.4.10 app test: 30020 kB swapped out; 22308 kB swapped in (cumulative)
-> 		 22 second StarOffice load time; 6-7 sec GIMP img rotate
+On Tue, Sep 25, 2001 at 12:51:44PM -0500, Bob McElrath wrote:
+> With O_DIRECT (buffer cache bypass open() flag) now in the mainstream
+> kernel, I wonder if people would be opposed to making a "direct" mount
+> option, which would open all files on the filesystem with the O_DIRECT
+> flag, just as there exists a "sync" mount option to perform filesystem
+> transactions synchronously.
+> 
+> This would allow you to 
+>     mount -o direct,sync /dev/hdb1 /mnt/video
+> And would be useful for things like streaming video applications,
+> allowing the advantages of O_DIRECT without rewriting every application
+> you want to use.
 
-I'd appreciate if you could repeat the test with vm-tweaks-1 applied to
-see the difference.
+you've to audit the app anyways since O_DIRECT enforces alignments on
+buffer alignment and file offset.
 
 Andrea

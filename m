@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267036AbSLKOFQ>; Wed, 11 Dec 2002 09:05:16 -0500
+	id <S267039AbSLKOKu>; Wed, 11 Dec 2002 09:10:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbSLKOFQ>; Wed, 11 Dec 2002 09:05:16 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:36612 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S267036AbSLKOFQ>;
-	Wed, 11 Dec 2002 09:05:16 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IBM spamms me with error messages 
-In-reply-to: Your message of "Wed, 11 Dec 2002 14:35:12 BST."
-             <20021211133509.GC3575@atrey.karlin.mff.cuni.cz> 
+	id <S267043AbSLKOKu>; Wed, 11 Dec 2002 09:10:50 -0500
+Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:8466 "EHLO
+	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267039AbSLKOKs>; Wed, 11 Dec 2002 09:10:48 -0500
+Date: Wed, 11 Dec 2002 14:18:20 +0000
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lvm-devel@sistina.com
+Subject: Re: [PATCH] dm.c - device-mapper I/O path fixes
+Message-ID: <20021211141820.GA21461@reti>
+References: <02121016034706.02220@boiler> <20021211121915.GB20782@reti> <200212111330.gBBDTTa06416@Port.imtp.ilyichevsk.odessa.ua> <02121107165303.29515@boiler>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 12 Dec 2002 01:12:50 +1100
-Message-ID: <13263.1039615970@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <02121107165303.29515@boiler>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Dec 2002 14:35:12 +0100, 
-Pavel Machek <pavel@suse.cz> wrote:
->> > I replied to some mail on l-k and IBM spammed me with 20+ error
->> > messages. Now it is apparently going to do that again.
->> 
->>    Still/again ?
->
->It seems to happen after I group-reply to message on the list. Being
->subscribed and quiet does not seem to trigger it. When I do
->group-reply, I do get pair of error messages, then another pair of
->same error messages, and it continues like that.
->
->This time it "only" sent two pairs of error messages...
+On Wed, Dec 11, 2002 at 07:16:53AM -0600, Kevin Corry wrote:
+> However, it might be a good idea to consider how bio's keep track of errors. 
+> When a bio is created, it is marked UPTODATE. Then, if any part of a bio 
+> takes an error, the UPTODATE flag is turned off. When the whole bio 
+> completes, if the UPTODATE flag is still on, there were no errors during the 
+> i/o. Perhaps the "error" field in "struct dm_io" could be modified to use 
+> this method of error tracking? Then we could change dec_pending() to be 
+> something like:
+> 
+> if (error)
+> 	clear_bit(DM_IO_UPTODATE, &io->error);
+> 
+> with a "set_bit(DM_IO_UPTODATE, &ci.io->error);" in __bio_split().
 
-<aol>Me too</aol>.  I have blocked 32.97.182.0/24 at my firewall, let
-IBM eat their own garbage messages.
+The problem with this is you don't keep track of the specific error to
+later pass to bio_endio(io->bio...).  I guess it all comes down to
+just how expensive that spin lock is; and since locking only occurs
+when there's an error I'm happy with things as they are.
 
+- Joe

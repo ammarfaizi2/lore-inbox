@@ -1,125 +1,305 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284761AbRLKAfM>; Mon, 10 Dec 2001 19:35:12 -0500
+	id <S284763AbRLKAdl>; Mon, 10 Dec 2001 19:33:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284765AbRLKAfD>; Mon, 10 Dec 2001 19:35:03 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:3849 "HELO atlrel8.hp.com")
-	by vger.kernel.org with SMTP id <S284762AbRLKAeu>;
-	Mon, 10 Dec 2001 19:34:50 -0500
-From: Bjorn Helgaas <bjorn_helgaas@hp.com>
-To: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: [PATCH] agpgart chipset knowledge encapsulation
-Date: Mon, 10 Dec 2001 17:38:40 -0700
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_GSL5KQYFN7XXNVTHNIT1"
-Message-Id: <20011211003445.2E63B403C@ldl.fc.hp.com>
+	id <S284762AbRLKAdd>; Mon, 10 Dec 2001 19:33:33 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:18907 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S284755AbRLKAd1>; Mon, 10 Dec 2001 19:33:27 -0500
+Date: Mon, 10 Dec 2001 19:33:07 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: marcelo@conectiva.com.br
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Patch with scsi probing fixes
+Message-ID: <20011210193307.A23516@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Marcelo:
 
---------------Boundary-00=_GSL5KQYFN7XXNVTHNIT1
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+You said - only bugfixes for -rc1, so here's a bugfix for you.
+Attached is a conservative version of the scsi fix that I developed
+for our customers. Only the actual oops material is included,
+but no cleanups (I am working on cleanups with Andreas for 2.5.x,
+they are more radical).
 
-The point of this patch is to remove a chipset dependency from DRM so it 
-can cleanly support both the Intel 460GX and an HP IA64 chipset.  I would 
-normally send this to Jeff Hartmann, but he seems to have disappeared, 
-leaving agpgart without an obvious maintainer.
+As a maintainer, I guess, you may take offense to scsi_dev->detected.
+It is a bloat. But personally, I see no other way to handle a failure
+of sd_init(). Traditional thinking is to call ->detach(), but it's totally
+useless before ->attach() was called. So ->detected is how I roll back
+the ->detect().
 
-DRM needs to know the physical addresses of pages bound into the AGP 
-aperture, and today that information is communicated from agpgart to DRM 
-in the memory[] array of the agp_memory structure.  The problem is that 
-the values in the array are not simple physical addresses.  Rather, they 
-are the physical addresses mangled to be suitable for direct insertion 
-into the GATT (the hardware-visible translation table).
+-- Pete
 
-Hence, DRM needs a way to unmangle these values to get the physical 
-address back.  Today, agpgart exports a "page_mask" value, so DRM does the 
-equivalent of this:
+P.S. Alan tasked me with changing sd.c to allocate reasonably sized
+structures in relation to this fix, but I am not done with it yet.
+It would not be an oops fix anyways.
 
-    paddr = agpmem->memory->memory[offset] & dev->agp->page_mask;
-
-This isn't sufficient for the 460GX, because its mangling function 
-requires a shift as well as a mask.  The 460GX code (which is still in the 
-ia64 patch, not in the mainstream kernel) looks like this:
-
-    paddr = (agpmem->memory->memory[offset] & 0xffffff) << 12;
-
-So DRM currently has this chipset-specific code in it to unmangle the 
-values in memory[], while there's no reason I know of for the mangled 
-values to ever be exported from agpgart.
-
-The attached patch against 2.4.16 remedies this by leaving the plain 
-physical addresses in memory[].  The chipset-specific mangling is then 
-done at the point where it is needed, when those values are inserted into 
-the GATT.
-
-It's a little tricky because the DRM code is distributed with XFree86 as 
-well as with the kernel.  All the combinations (old DRM + new kernel; new 
-DRM + old kernel; new DRM + new kernel) should still work, but DRM has to 
-check the kernel version it's compiled against, so there are three 
-KERNEL_VERSION(...)  instances in the patch that need to be adjusted to 
-reflect the first version containing these changes.
-
-Any feedback is welcome, especially if you can test it.  I've been able to 
-test 460GX & ATI Radeon, HP & ATI Radeon, and Serverworks HE & MGA G400, 
-but obviously that's not exhaustive.
-
-Bjorn Helgaas
---
-Linux Systems Operation R&D
-Hewlett-Packard Company
-Fort Collins, CO
-
---------------Boundary-00=_GSL5KQYFN7XXNVTHNIT1
-Content-Type: application/x-gzip;
-  name="pagemask.diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="pagemask.diff.gz"
-
-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
-+IsLv+WLrswbFo1kQ3/nfxFsJXnRJAAA
-
---------------Boundary-00=_GSL5KQYFN7XXNVTHNIT1--
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/hosts.c linux-2.4.17-pre8-p3/drivers/scsi/hosts.c
+--- linux-2.4.17-pre8/drivers/scsi/hosts.c	Thu Jul  5 11:28:17 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/hosts.c	Mon Dec 10 16:07:47 2001
+@@ -275,6 +275,24 @@
+     return 0;
+ }
+ 
++void
++scsi_deregister_device(struct Scsi_Device_Template * tpnt)
++{
++    struct Scsi_Device_Template *spnt;
++    struct Scsi_Device_Template *prev_spnt;
++
++    spnt = scsi_devicelist;
++    prev_spnt = NULL;
++    while (spnt != tpnt) {
++	prev_spnt = spnt;
++	spnt = spnt->next;
++    }
++    if (prev_spnt == NULL)
++        scsi_devicelist = tpnt->next;
++    else
++        prev_spnt->next = spnt->next;
++}
++
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+  * Emacs will notice this stuff at the end of the file and automatically
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/hosts.h linux-2.4.17-pre8-p3/drivers/scsi/hosts.h
+--- linux-2.4.17-pre8/drivers/scsi/hosts.h	Thu Nov 22 11:49:15 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/hosts.h	Mon Dec 10 16:07:47 2001
+@@ -526,6 +526,7 @@
+ void  scsi_initialize_queue(Scsi_Device * SDpnt, struct Scsi_Host * SHpnt);
+ 
+ int scsi_register_device(struct Scsi_Device_Template * sdpnt);
++void scsi_deregister_device(struct Scsi_Device_Template * tpnt);
+ 
+ /* These are used by loadable modules */
+ extern int scsi_register_module(int, void *);
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/scsi.c linux-2.4.17-pre8-p3/drivers/scsi/scsi.c
+--- linux-2.4.17-pre8/drivers/scsi/scsi.c	Mon Dec 10 15:57:51 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/scsi.c	Mon Dec 10 16:07:47 2001
+@@ -2261,7 +2261,7 @@
+ 		for (SDpnt = shpnt->host_queue; SDpnt;
+ 		     SDpnt = SDpnt->next) {
+ 			if (tpnt->detect)
+-				SDpnt->attached += (*tpnt->detect) (SDpnt);
++				SDpnt->detected = (*tpnt->detect) (SDpnt);
+ 		}
+ 	}
+ 
+@@ -2269,9 +2269,19 @@
+ 	 * If any of the devices would match this driver, then perform the
+ 	 * init function.
+ 	 */
+-	if (tpnt->init && tpnt->dev_noticed)
+-		if ((*tpnt->init) ())
++	if (tpnt->init && tpnt->dev_noticed) {
++		if ((*tpnt->init) ()) {
++			for (shpnt = scsi_hostlist; shpnt;
++			     shpnt = shpnt->next) {
++				for (SDpnt = shpnt->host_queue; SDpnt;
++				     SDpnt = SDpnt->next) {
++					SDpnt->detected = 0;
++				}
++			}
++			scsi_deregister_device(tpnt);
+ 			return 1;
++		}
++	}
+ 
+ 	/*
+ 	 * Now actually connect the devices to the new driver.
+@@ -2279,6 +2289,8 @@
+ 	for (shpnt = scsi_hostlist; shpnt; shpnt = shpnt->next) {
+ 		for (SDpnt = shpnt->host_queue; SDpnt;
+ 		     SDpnt = SDpnt->next) {
++			SDpnt->attached += SDpnt->detected;
++			SDpnt->detected = 0;
+ 			if (tpnt->attach)
+ 				(*tpnt->attach) (SDpnt);
+ 			/*
+@@ -2314,9 +2326,7 @@
+ {
+ 	Scsi_Device *SDpnt;
+ 	struct Scsi_Host *shpnt;
+-	struct Scsi_Device_Template *spnt;
+-	struct Scsi_Device_Template *prev_spnt;
+-	
++
+ 	lock_kernel();
+ 	/*
+ 	 * If we are busy, this is not going to fly.
+@@ -2347,16 +2357,7 @@
+ 	/*
+ 	 * Extract the template from the linked list.
+ 	 */
+-	spnt = scsi_devicelist;
+-	prev_spnt = NULL;
+-	while (spnt != tpnt) {
+-		prev_spnt = spnt;
+-		spnt = spnt->next;
+-	}
+-	if (prev_spnt == NULL)
+-		scsi_devicelist = tpnt->next;
+-	else
+-		prev_spnt->next = spnt->next;
++	scsi_deregister_device(tpnt);
+ 
+ 	MOD_DEC_USE_COUNT;
+ 	unlock_kernel();
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/scsi.h linux-2.4.17-pre8-p3/drivers/scsi/scsi.h
+--- linux-2.4.17-pre8/drivers/scsi/scsi.h	Thu Nov 22 11:49:15 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/scsi.h	Mon Dec 10 16:07:48 2001
+@@ -575,8 +575,8 @@
+ 					 * vendor-specific cmd's */
+ 	unsigned sector_size;	/* size in bytes */
+ 
+-	int attached;		/* # of high level drivers attached to 
+-				 * this */
++	int attached;		/* # of high level drivers attached to this */
++	int detected;		/* Delta attached - don't use in drivers! */
+ 	int access_count;	/* Count of open channels/mounts */
+ 
+ 	void *hostdata;		/* available to low-level driver */
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/sd.c linux-2.4.17-pre8-p3/drivers/scsi/sd.c
+--- linux-2.4.17-pre8/drivers/scsi/sd.c	Fri Nov  9 14:05:06 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/sd.c	Mon Dec 10 16:07:48 2001
+@@ -1078,6 +1078,7 @@
+ 		for (i = 0; i < N_USED_SD_MAJORS; i++) {
+ 			if (devfs_register_blkdev(SD_MAJOR(i), "sd", &sd_fops)) {
+ 				printk("Unable to get major %d for SCSI disk\n", SD_MAJOR(i));
++				sd_template.dev_noticed = 0;
+ 				return 1;
+ 			}
+ 		}
+@@ -1175,7 +1176,8 @@
+ 		kfree(sd_gendisks[i].de_arr);
+ 		kfree(sd_gendisks[i].flags);
+ 	}
+-	kfree(sd_gendisks);
++	if (sd_gendisks != &sd_gendisk)
++		kfree(sd_gendisks);
+ cleanup_sd_gendisks:
+ 	kfree(sd);
+ cleanup_sd:
+@@ -1188,11 +1190,13 @@
+ 	kfree(sd_sizes);
+ cleanup_disks:
+ 	kfree(rscsi_disks);
++	rscsi_disks = NULL;
+ cleanup_devfs:
+ 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
+ 		devfs_unregister_blkdev(SD_MAJOR(i), "sd");
+ 	}
+ 	sd_registered--;
++	sd_template.dev_noticed = 0;
+ 	return 1;
+ }
+ 
+@@ -1251,7 +1255,7 @@
+ 	if (SDp->type != TYPE_DISK && SDp->type != TYPE_MOD)
+ 		return 0;
+ 
+-	if (sd_template.nr_dev >= sd_template.dev_max) {
++	if (sd_template.nr_dev >= sd_template.dev_max || rscsi_disks == NULL) {
+ 		SDp->attached--;
+ 		return 1;
+ 	}
+@@ -1259,8 +1263,13 @@
+ 		if (!dpnt->device)
+ 			break;
+ 
+-	if (i >= sd_template.dev_max)
+-		panic("scsi_devices corrupt (sd)");
++	if (i >= sd_template.dev_max) {
++		printk(KERN_WARNING "scsi_devices corrupt (sd),"
++		    " nr_dev %d dev_max %d\n",
++		    sd_template.nr_dev, sd_template.dev_max);
++		SDp->attached--;
++		return 1;
++	}
+ 
+ 	rscsi_disks[i].device = SDp;
+ 	rscsi_disks[i].has_part_table = 0;
+@@ -1348,6 +1357,9 @@
+ 	int max_p;
+ 	int start;
+ 
++	if (rscsi_disks == NULL)
++		return;
++
+ 	for (dpnt = rscsi_disks, i = 0; i < sd_template.dev_max; i++, dpnt++)
+ 		if (dpnt->device == SDp) {
+ 
+@@ -1365,7 +1377,6 @@
+ 			}
+                         devfs_register_partitions (&SD_GENDISK (i),
+                                                    SD_MINOR_NUMBER (start), 1);
+-			/* unregister_disk() */
+ 			dpnt->has_part_table = 0;
+ 			dpnt->device = NULL;
+ 			dpnt->capacity = 0;
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/sg.c linux-2.4.17-pre8-p3/drivers/scsi/sg.c
+--- linux-2.4.17-pre8/drivers/scsi/sg.c	Mon Dec 10 15:57:51 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/sg.c	Mon Dec 10 16:07:48 2001
+@@ -1344,6 +1344,7 @@
+             printk(KERN_ERR "Unable to get major %d for generic SCSI device\n",
+                    SCSI_GENERIC_MAJOR);
+ 	    write_unlock_irqrestore(&sg_dev_arr_lock, iflags);
++            sg_template.dev_noticed = 0;
+             return 1;
+         }
+         sg_registered++;
+@@ -1356,6 +1357,7 @@
+     if (NULL == sg_dev_arr) {
+         printk(KERN_ERR "sg_init: no space for sg_dev_arr\n");
+ 	write_unlock_irqrestore(&sg_dev_arr_lock, iflags);
++        sg_template.dev_noticed = 0;
+         return 1;
+     }
+     memset(sg_dev_arr, 0, sg_template.dev_max * sizeof(Sg_device *));
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/sr.c linux-2.4.17-pre8-p3/drivers/scsi/sr.c
+--- linux-2.4.17-pre8/drivers/scsi/sr.c	Thu Oct 25 13:58:35 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/sr.c	Mon Dec 10 16:07:48 2001
+@@ -789,6 +789,7 @@
+ 	if (!sr_registered) {
+ 		if (devfs_register_blkdev(MAJOR_NR, "sr", &sr_bdops)) {
+ 			printk("Unable to get major %d for SCSI-CD\n", MAJOR_NR);
++			sr_template.dev_noticed = 0;
+ 			return 1;
+ 		}
+ 		sr_registered++;
+@@ -830,8 +831,10 @@
+ 	kfree(sr_sizes);
+ cleanup_cds:
+ 	kfree(scsi_CDs);
++	scsi_CDs = NULL;
+ cleanup_devfs:
+ 	devfs_unregister_blkdev(MAJOR_NR, "sr");
++	sr_template.dev_noticed = 0;
+ 	sr_registered--;
+ 	return 1;
+ }
+@@ -905,6 +908,8 @@
+ 	Scsi_CD *cpnt;
+ 	int i;
+ 
++	if (scsi_CDs == NULL)
++		return;
+ 	for (cpnt = scsi_CDs, i = 0; i < sr_template.dev_max; i++, cpnt++)
+ 		if (cpnt->device == SDp) {
+ 			/*
+diff -ur -X dontdiff linux-2.4.17-pre8/drivers/scsi/st.c linux-2.4.17-pre8-p3/drivers/scsi/st.c
+--- linux-2.4.17-pre8/drivers/scsi/st.c	Fri Nov  9 13:52:21 2001
++++ linux-2.4.17-pre8-p3/drivers/scsi/st.c	Mon Dec 10 16:07:48 2001
+@@ -3818,6 +3818,7 @@
+ 			write_unlock_irqrestore(&st_dev_arr_lock, flags);
+ 			printk(KERN_ERR "Unable to get major %d for SCSI tapes\n",
+                                MAJOR_NR);
++			st_template.dev_noticed = 0;
+ 			return 1;
+ 		}
+ 		st_registered++;

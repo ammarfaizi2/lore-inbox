@@ -1,94 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315717AbSHIUOV>; Fri, 9 Aug 2002 16:14:21 -0400
+	id <S315720AbSHIUPk>; Fri, 9 Aug 2002 16:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315720AbSHIUOV>; Fri, 9 Aug 2002 16:14:21 -0400
-Received: from [63.204.6.12] ([63.204.6.12]:22226 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S315717AbSHIUOU>;
-	Fri, 9 Aug 2002 16:14:20 -0400
-Date: Fri, 9 Aug 2002 16:18:02 -0400 (EDT)
-From: "Scott Murray" <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: Greg KH <greg@kroah.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: pcihpfs problems in 2.4.19
-Message-ID: <Pine.LNX.4.33.0208091547280.32159-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315734AbSHIUPk>; Fri, 9 Aug 2002 16:15:40 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:16834 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315720AbSHIUPi>; Fri, 9 Aug 2002 16:15:38 -0400
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+From: Paul Larson <plars@austin.ibm.com>
+To: Paul Larson <plars@austin.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Hubertus Franke <frankeh@us.ibm.com>,
+       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+       Andrew Morton <akpm@zip.com.au>, andrea@suse.de,
+       Dave Jones <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1028921658.19434.365.camel@plars.austin.ibm.com>
+References: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com> 
+	<1028921658.19434.365.camel@plars.austin.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Aug 2002 15:13:35 -0500
+Message-Id: <1028924016.19434.369.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just started testing the cPCI hotplug driver I'm working on against
-2.4.19 after upgrading the kernel in SOMA's in-house distribution,
-and I'm now getting the attached oops code when trying to access the
-pcihpfs (e.g. with ls) after mounting it.  I backed out the couple of
-changes I made last night that might have been remotely connected
-(added hardware_test and get_power_status hotplug ops in my driver),
-and I'm still getting it in the same place, so it looks like maybe a
-VFS change somewhere in 2.4.19 broke pcihpfs.  Any ideas?
+On Fri, 2002-08-09 at 14:34, Paul Larson wrote:
+> I suspect that it would actually require more than just this.  I tried
+> this with the same test I've been using and had several failed attepmts
+> at low numbers by getting wierd unexpected signals (like 28), and then
+> one that ran for a much longer time and produced an oops with random
+> garbage to the console (trying to extract this now).
+> 
+> -Paul Larson
+Here's the ksymoops output minus the unprintable chars that got sent
+after it:
 
-Thanks,
-
-Scott
-
-
-ksymoops 2.4.4 on i686 2.4.19.  Options used
-     -v vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/ (specified)
-     -m /boot/System.map (default)
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000024
-c013d0d2
-*pde = 00000000
+Unable to handle kernel paging request at virtual address 32313256
+c015cb38
+*pde = 37184001
 Oops: 0000
-CPU:    0
-EIP:    0010:[<c013d0d2>]    Not tainted
+CPU:    4
+0010:[<c015cb38>]    Not tainted
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: cf341488   ebx: cf341460   ecx: 0805a495   edx: 00000018
-esi: 00000020   edi: c13eaf60   ebp: cfe19f54   esp: cfe19f44
+EFLAGS: 00010202
+eax: d9768090   ebx: d9768090   ecx: 00000020   edx: 32313232
+esi: c015cb10   edi: d9768090   ebp: 00000008   esp: f6cb9e34
 ds: 0018   es: 0018   ss: 0018
-Process ls (pid: 372, stackpage=cfe19000)
-Stack: cfdd8b80 cfdd8bfc cfdd8be8 cf341488 cfe19f74 c013ce80 c13eaf60 cfe19fac
-       c013d3d0 fffffff7 00000000 00000003 cfe19fbc c013d571 c13eaf60 c013d3d0
-       cfe19fac cfe18000 00000000 00000003 c13eaf60 cffacc78 cfe19fbc c0122ecc
-Call Trace:    [<c013ce80>] [<c013d3d0>] [<c013d571>] [<c013d3d0>] [<c0122ecc>]
-  [<c010890b>]
-Code: 8b 46 04 8b 16 89 42 04 89 10 8b 43 28 89 70 04 89 06 8b 55
+Stack: c0151403 d9768090 d9768090 f6dabaa0 c01515ad d9768090 f6dabab8
+c014f49b
+d9768090 f6dabaa0 c0139fa3 00000020 00000001 000001d0 c013a21a c013a170
+000001f8 f6cb9e7c 00000020 00000001 000001d0 000041e6 c014f8f0 00000010
+Call Trace: [<c0151403>] [<c01515ad>] [<c014f49b>] [<c0139fa3>]
+[<c013a21a>]
+[<c013a170>] [<c014f8f0>] [<c0131f9e>] [<c0131fec>] [<c0132c64>]
+[<c0132fa2>]
+[<c0133010>] [<c0116717>] [<c0117186>] [<c011793e>] [<c0105bc5>]
+[<c0107173>]
+Code: 8b 42 24 85 c0 74 0b f0 ff 48 10 8b 42 24 83 48 14 08 52 e8
 
->>EIP; c013d0d2 <dcache_readdir+a2/134>   <=====
-Trace; c013ce80 <vfs_readdir+60/80>
-Trace; c013d3d0 <filldir64+0/154>
-Trace; c013d571 <sys_getdents64+4d/100>
-Trace; c013d3d0 <filldir64+0/154>
-Trace; c0122ecc <sys_brk+c0/ec>
-Trace; c010890b <system_call+33/38>
-Code;  c013d0d2 <dcache_readdir+a2/134>
+>>EIP; c015cb38 <proc_delete_inode+28/50>   <=====
+Trace; c0151403 <generic_delete_inode+83/b0>
+Trace; c01515ad <iput+5d/60>
+Trace; c014f49b <prune_dcache+eb/180>
+Trace; c0139fa3 <pdflush_operation+83/90>
+Trace; c013a21a <wakeup_bdflush+1a/20>
+Trace; c013a170 <background_writeout+0/90>
+Trace; c014f8f0 <shrink_dcache_memory+20/40>
+Trace; c0131f9e <shrink_caches+7e/a0>
+Trace; c0131fec <try_to_free_pages+2c/50>
+Trace; c0132c64 <balance_classzone+44/1f0>
+Trace; c0132fa2 <__alloc_pages+192/1f0>
+Trace; c0133010 <__get_free_pages+10/20>
+Trace; c0116717 <dup_task_struct+17/70>
+Trace; c0117186 <copy_process+56/7f0>
+Trace; c011793e <do_fork+1e/a0>
+Trace; c0105bc5 <sys_fork+15/30>
+Trace; c0107173 <syscall_call+7/b>
+Code;  c015cb38 <proc_delete_inode+28/50>
 00000000 <_EIP>:
-Code;  c013d0d2 <dcache_readdir+a2/134>   <=====
-   0:   8b 46 04                  mov    0x4(%esi),%eax   <=====
-Code;  c013d0d5 <dcache_readdir+a5/134>
-   3:   8b 16                     mov    (%esi),%edx
-Code;  c013d0d7 <dcache_readdir+a7/134>
-   5:   89 42 04                  mov    %eax,0x4(%edx)
-Code;  c013d0da <dcache_readdir+aa/134>
-   8:   89 10                     mov    %edx,(%eax)
-Code;  c013d0dc <dcache_readdir+ac/134>
-   a:   8b 43 28                  mov    0x28(%ebx),%eax
-Code;  c013d0df <dcache_readdir+af/134>
-   d:   89 70 04                  mov    %esi,0x4(%eax)
-Code;  c013d0e2 <dcache_readdir+b2/134>
-  10:   89 06                     mov    %eax,(%esi)
-Code;  c013d0e4 <dcache_readdir+b4/134>
-  12:   8b 55 00                  mov    0x0(%ebp),%edx
-
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
-
+Code;  c015cb38 <proc_delete_inode+28/50>   <=====
+   0:   8b 42 24                  mov    0x24(%edx),%eax   <=====
+Code;  c015cb3b <proc_delete_inode+2b/50>
+   3:   85 c0                     test   %eax,%eax
+Code;  c015cb3d <proc_delete_inode+2d/50>
+   5:   74 0b                     je     12 <_EIP+0x12> c015cb4a
+<proc_delete_inode+3a/50>
+Code;  c015cb3f <proc_delete_inode+2f/50>
+   7:   f0 ff 48 10               lock decl 0x10(%eax)
+Code;  c015cb43 <proc_delete_inode+33/50>
+   b:   8b 42 24                  mov    0x24(%edx),%eax
+Code;  c015cb46 <proc_delete_inode+36/50>
+   e:   83 48 14 08               orl    $0x8,0x14(%eax)
+Code;  c015cb4a <proc_delete_inode+3a/50>
+  12:   52                        push   %edx
+Code;  c015cb4b <proc_delete_inode+3b/50>
+  13:   e8 00 00 00 00            call   18 <_EIP+0x18> c015cb50
+<proc_delete_inode+40/50>
 

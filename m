@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSKMUGz>; Wed, 13 Nov 2002 15:06:55 -0500
+	id <S262789AbSKMUHD>; Wed, 13 Nov 2002 15:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262790AbSKMUGz>; Wed, 13 Nov 2002 15:06:55 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:7661 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id <S262780AbSKMUGy>;
-	Wed, 13 Nov 2002 15:06:54 -0500
-Date: Wed, 13 Nov 2002 12:13:43 -0800
-From: Rusty Lynch <rusty@linux.co.intel.com>
-Message-Id: <200211132013.gADKDhS01389@linux.intel.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH][2.5.47]Add exported valid_kernel_address()
-Cc: linux-kernel@vger.kernel.org
+	id <S262804AbSKMUHD>; Wed, 13 Nov 2002 15:07:03 -0500
+Received: from dsl2.external.hp.com ([192.25.206.7]:33804 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id <S262789AbSKMUHB>; Wed, 13 Nov 2002 15:07:01 -0500
+To: Miles Bader <miles@gnu.org>
+Cc: Greg KH <greg@kroah.com>,
+       "J.E.J. Bottomley" <James.Bottomley@steeleye.com>,
+       Matthew Wilcox <willy@debian.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, andmike@us.ibm.com, hch@lst.de,
+       linux-kernel@vger.kernel.org, mochel@osdl.org,
+       parisc-linux@lists.parisc-linux.org
+Subject: Re: [parisc-linux] Untested port of parisc_device to generic device interface 
+In-Reply-To: Message from Miles Bader <miles@lsi.nec.co.jp> 
+   of "13 Nov 2002 17:02:39 +0900." <buoisz1sxr4.fsf@mcspd15.ucom.lsi.nec.co.jp> 
+References: <20021109060342.GA7798@kroah.com> <200211091533.gA9FXuW02017@localhost.localdomain> <20021113061310.GD2106@kroah.com> <buon0odsyh9.fsf@mcspd15.ucom.lsi.nec.co.jp> <20021113075223.GZ2106@kroah.com>  <buoisz1sxr4.fsf@mcspd15.ucom.lsi.nec.co.jp> 
+Date: Wed, 13 Nov 2002 13:13:57 -0700
+From: Grant Grundler <grundler@dsl2.external.hp.com>
+Message-Id: <20021113201357.5302F4829@dsl2.external.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following is a small patch to the 2.5.47 kernel that adds an exported
-function called valid_kernel_address() that allows kernel code to verify
-a kernel-mapped address is valid.
+Miles Bader wrote:
+> I can't speak for `real machines,' but on my wierd embedded board,
+> pci_alloc_consistent allocates from a special area of memory (not
+> located at 0) that is the only shared memory between PCI devices and the
+> CPU.  pci_alloc_consistent happens to fit this situation quite well, but
+> I don't think a bitmask is enough to express the situation.
 
-valid_kernel_address just calls the static inline kernel_text_address()
-function defined in arch/i386/kernel/traps.c 
+HP PARISC V-Class do that as well. The "consistent" memory lives
+on the PCI Bus Controller - not in host mem.
+Note that parisc-linux does not (yet) support V-class.
 
-	   -rustyl
-
-diff -urN linux-2.5.47/arch/i386/kernel/i386_ksyms.c linux-2.5.47-vka-patch/arch/i386/kernel/i386_ksyms.c
---- linux-2.5.47/arch/i386/kernel/i386_ksyms.c	2002-11-10 19:28:32.000000000 -0800
-+++ linux-2.5.47-vka-patch/arch/i386/kernel/i386_ksyms.c	2002-11-13 11:46:49.000000000 -0800
-@@ -59,6 +59,8 @@
- extern unsigned long cpu_khz;
- extern unsigned long get_cmos_time(void);
- 
-+extern int valid_kernel_address(unsigned long addr);
-+
- /* platform dependent support */
- EXPORT_SYMBOL(boot_cpu_data);
- #ifdef CONFIG_EISA
-@@ -91,6 +93,7 @@
- EXPORT_SYMBOL(get_cmos_time);
- EXPORT_SYMBOL(cpu_khz);
- EXPORT_SYMBOL(apm_info);
-+EXPORT_SYMBOL(valid_kernel_address);
- 
- #ifdef CONFIG_DEBUG_IOVIRT
- EXPORT_SYMBOL(__io_virt_debug);
-diff -urN linux-2.5.47/arch/i386/kernel/traps.c linux-2.5.47-vka-patch/arch/i386/kernel/traps.c
---- linux-2.5.47/arch/i386/kernel/traps.c	2002-11-10 19:28:05.000000000 -0800
-+++ linux-2.5.47-vka-patch/arch/i386/kernel/traps.c	2002-11-13 11:51:58.000000000 -0800
-@@ -129,6 +129,11 @@
- 
- #endif
- 
-+int valid_kernel_address(unsigned long addr)
-+{
-+	return kernel_text_address(addr);
-+}
-+
- void show_trace(unsigned long * stack)
- {
- 	int i;
+grant

@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbUJ3TNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbUJ3TQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbUJ3TNS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 15:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbUJ3TNM
+	id S261284AbUJ3TQm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 15:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbUJ3TQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 15:13:12 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:41612 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261256AbUJ3TLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 15:11:44 -0400
-Message-ID: <4183E775.3090701@namesys.com>
-Date: Sat, 30 Oct 2004 12:11:49 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Timo Sirainen <tss@iki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: readdir loses renamed files
-References: <431547F9-2624-11D9-8AC3-000393CC2E90@iki.fi> <20041025123722.GA5107@thunk.org> <20041028093426.GB15050@merlin.emma.line.org> <20041028114413.GL1343@schnapps.adilger.int> <4182B2FF.9040902@namesys.com> <Pine.LNX.4.53.0410292326300.8389@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0410292326300.8389@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Oct 2004 15:16:41 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:42445 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261284AbUJ3TQ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 15:16:28 -0400
+Date: Sat, 30 Oct 2004 21:17:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041030191725.GA29747@elte.hu>
+References: <20041029172243.GA19630@elte.hu> <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu> <20041029233117.6d29c383@mango.fruits.de> <20041029212545.GA13199@elte.hu> <1099086166.1468.4.camel@krustophenia.net> <20041029214602.GA15605@elte.hu> <1099091566.1461.8.camel@krustophenia.net> <20041030115808.GA29692@elte.hu> <1099158570.1972.5.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099158570.1972.5.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
 
->>Matthias is right.  readdir is badly architected, and no one has fixed
->>it for ~30 years.
->>    
->>
->
->As long as M$ windows has the same problem, it's justified that we have that
->problem for 30 years now.
->
->  
->
->>It should be possible to perform an atomic readdir if that is what you
->>want to do and if you have space in your process to stuff the result.
->>    
->>
->
->How much would it cost to always append the new name into the directory rather
->than modifying it in place?
->
-Forgive me, what does the sentence above mean?  Paste it out of order?
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Better to fix the API.
+> No, this cannot be the whole story, because unless verbose mode is
+> specified, jackd will only prints anything if there is an xrun.  So
+> there is something else going on.
+> 
+> This _really_ feels like a kernel bug.  Are you saying that this could
+> still be a jackd problem, even though T3 works perfectly with the
+> exact same jackd binary?
 
-> OTOH, especially Reiserfs does not use linear file
->lists, so it would get tricky.
->
->
->
->  
->
-We use sorted directories.
+i think you are right - there are too many independent indicators
+pointing towards some sort of kernel problem. I'll try Florian's testapp
+and see whether i can see the 'window wiggle' problem.
+
+	Ingo

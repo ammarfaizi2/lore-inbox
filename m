@@ -1,84 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264852AbUEOAb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264822AbUEOA1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264852AbUEOAb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 20:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbUEOAQM
+	id S264822AbUEOA1g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 20:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbUEOAYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 20:16:12 -0400
-Received: from dingo.clsp.jhu.edu ([128.220.117.40]:3968 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264653AbUENXtd (ORCPT
+	Fri, 14 May 2004 20:24:45 -0400
+Received: from ns.clanhk.org ([69.93.101.154]:21648 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S265313AbUEOAX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:49:33 -0400
-Date: Fri, 14 May 2004 05:26:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
+	Fri, 14 May 2004 20:23:28 -0400
+Message-ID: <40A5630F.4040806@clanhk.org>
+Date: Fri, 14 May 2004 19:23:43 -0500
+From: "J. Ryan Earl" <heretic@clanhk.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, rene.herman@keyaccess.nl,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-Message-ID: <20040514032657.GB704@elf.ucw.cz>
-References: <409F4944.4090501@keyaccess.nl> <200405102125.51947.bzolnier@elka.pw.edu.pl> <409FF068.30902@keyaccess.nl> <200405102352.24091.bzolnier@elka.pw.edu.pl> <20040510215626.6a5552f2.akpm@osdl.org> <20040510221729.3b8e93da.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040510221729.3b8e93da.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Cc: Andreas Schwab <schwab@suse.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: drivers/video/riva/fbdev.c broken on x86_64
+References: <40A514BD.1050308@clanhk.org>	<je4qqi1yxp.fsf@sykes.suse.de> <20040514163620.13b9172b.akpm@osdl.org>
+In-Reply-To: <20040514163620.13b9172b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andreas' patch fixed part of the cursor problem, at least on the shell 
+it's horizontal and not vertical.  However, it's still glitchy, in 
+particular in a 'make menuconfig' the cursor blinks with random garbage 
+in it.  I think it has to do with this warning:
 
+  CC      drivers/video/fbmem.o
+drivers/video/fbmem.c: In function `fb_cursor':
+drivers/video/fbmem.c:917: warning: passing arg 1 of `copy_from_user' 
+discards qualifiers from pointer target type
 
-> > It's a bit grubby, but we could easily add a fourth state to
-> >  `system_state': split SYSTEM_SHUTDOWN into SYSTEM_REBOOT and SYSTEM_HALT. 
-> >  That would be a quite simple change.
+This line:
+                if (copy_from_user(cursor.image.data, 
+sprite->image.data, size) ||
+
+-ryan
+
+Andrew Morton wrote:
+
+>Andreas Schwab <schwab@suse.de> wrote:
+>  
+>
+>>         for (i = 0; i < h; i++) {
+>>    
+>>
+>>>->             b = *((u32 *)data);
+>>>                b = (u32)((u32 *)b + 1);
+>>>->              m = *((u32 *)mask);
+>>>                m = (u32)((u32 *)m + 1);
+>>>      
+>>>
+>>It appears that someone tried to fix the use of cast as lvalue and failed
+>>miserably.
+>>    
+>>
+>
+>That would be me.
+>
+>How about we simplify things a bit?
+>
+>
+>
+>
+>---
+>
+> 25-akpm/drivers/video/riva/fbdev.c |   12 ++++++------
+> 1 files changed, 6 insertions(+), 6 deletions(-)
+>
+>diff -puN drivers/video/riva/fbdev.c~fbdev-lval-fix drivers/video/riva/fbdev.c
+>--- 25/drivers/video/riva/fbdev.c~fbdev-lval-fix	Fri May 14 16:34:10 2004
+>+++ 25-akpm/drivers/video/riva/fbdev.c	Fri May 14 16:35:32 2004
+>@@ -492,17 +492,17 @@ static inline void reverse_order(u32 *l)
+>  * CALLED FROM:
+>  * rivafb_cursor()
+>  */
+>-static void rivafb_load_cursor_image(struct riva_par *par, u8 *data, 
+>-				     u8 *mask, u16 bg, u16 fg, u32 w, u32 h)
+>+static void rivafb_load_cursor_image(struct riva_par *par, u8 *data8,
+>+				     u8 *mask8, u16 bg, u16 fg, u32 w, u32 h)
+> {
+> 	int i, j, k = 0;
+> 	u32 b, m, tmp;
+>+	u32 *data = (u32 *)data8;
+>+	u32 *mask = (u32 *)mask8;
 > 
-> Like this.  I checked all the SYSTEM_FOO users and none of them seem to
-> care about the shutdown state at present.  Easy.
-
-Perhaps this should be parameter to device_shutdown? This is quite
-ugly.
-
-								Pavel
-
-> diff -puN include/linux/kernel.h~system-state-splitup include/linux/kernel.h
-> --- 25/include/linux/kernel.h~system-state-splitup	2004-05-10 22:05:15.127191856 -0700
-> +++ 25-akpm/include/linux/kernel.h	2004-05-10 22:05:15.133190944 -0700
-> @@ -109,14 +109,17 @@ static inline void console_verbose(void)
->  extern void bust_spinlocks(int yes);
->  extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
->  extern int panic_on_oops;
-> -extern int system_state;		/* See values below */
->  extern int tainted;
->  extern const char *print_tainted(void);
+> 	for (i = 0; i < h; i++) {
+>-		b = *((u32 *)data);
+>-		b = (u32)((u32 *)b + 1);
+>-		m = *((u32 *)mask);
+>-		m = (u32)((u32 *)m + 1);
+>+		b = *data++;
+>+		m = *mask++;
+> 		reverse_order(&b);
+> 		
+> 		for (j = 0; j < w/2; j++) {
+>
+>_
+>
 >  
->  /* Values used for system_state */
-> -#define SYSTEM_BOOTING 0
-> -#define SYSTEM_RUNNING 1
-> -#define SYSTEM_SHUTDOWN 2
-> +extern enum system_states {
-> +	SYSTEM_BOOTING,
-> +	SYSTEM_RUNNING,
-> +	SYSTEM_HALT,
-> +	SYSTEM_POWER_OFF,
-> +	SYSTEM_RESTART,
-> +} system_state;
->  
->  #define TAINT_PROPRIETARY_MODULE	(1<<0)
->  #define TAINT_FORCED_MODULE		(1<<1)
-...
-> diff -puN kernel/sys.c~system-state-splitup kernel/sys.c
-> --- 25/kernel/sys.c~system-state-splitup	2004-05-10 22:05:15.130191400 -0700
-> +++ 25-akpm/kernel/sys.c	2004-05-10 22:05:15.135190640 -0700
-> @@ -451,7 +451,7 @@ asmlinkage long sys_reboot(int magic1, i
->  	switch (cmd) {
->  	case LINUX_REBOOT_CMD_RESTART:
->  		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
-> -		system_state = SYSTEM_SHUTDOWN;
-> +		system_state = SYSTEM_RESTART;
->  		device_shutdown();
->  		printk(KERN_EMERG "Restarting system.\n");
->  		machine_restart(NULL);
+>
 
--- 
-When do you have heart between your knees?

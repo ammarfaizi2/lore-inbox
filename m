@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262250AbSKDNxO>; Mon, 4 Nov 2002 08:53:14 -0500
+	id <S264675AbSKDNzl>; Mon, 4 Nov 2002 08:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264674AbSKDNxO>; Mon, 4 Nov 2002 08:53:14 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:18832 "EHLO
+	id <S264678AbSKDNzl>; Mon, 4 Nov 2002 08:55:41 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:20624 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262250AbSKDNxO>; Mon, 4 Nov 2002 08:53:14 -0500
-Subject: Re: 2.5.45 / boottime oops (pnp bios I think)
+	id <S264675AbSKDNzl>; Mon, 4 Nov 2002 08:55:41 -0500
+Subject: Re: [PATCH] 2.4.20rc1 compile fix for t128.c
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: CaT <cat@zip.com.au>
+To: Andreas Steinmetz <ast@domdv.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021104134604.GE3088@zip.com.au>
-References: <20021104025458.GA3088@zip.com.au>
-	<1036415133.1106.10.camel@irongate.swansea.linux.org.uk> 
-	<20021104134604.GE3088@zip.com.au>
+In-Reply-To: <3DC67810.9010704@domdv.de>
+References: <3DC67810.9010704@domdv.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Nov 2002 14:21:30 +0000
-Message-Id: <1036419690.1106.46.camel@irongate.swansea.linux.org.uk>
+Date: 04 Nov 2002 14:23:52 +0000
+Message-Id: <1036419832.1106.50.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-04 at 13:46, CaT wrote:
-> On Mon, Nov 04, 2002 at 01:05:32PM +0000, Alan Cox wrote:
-> > On Mon, 2002-11-04 at 02:54, CaT wrote:
-> > > When I unselect PNP BIOS the kernel boots fine. With it I get the
-> > > oops below. Please note that it was typed out manually and that that was
-> > > all that I could get as I could not scroll up or down in any way.
-> > > 
-> > > The PC is a Gateway laptop.
-> > 
-> > Buggy PnP bios please provide dmidecode output for that box
-> 
-> Is this what you wanted?
+On Mon, 2002-11-04 at 13:37, Andreas Steinmetz wrote:
+> The attached patch fixes a section type conflict error.
 
-Thanks. I've added a rule to my tree to disable the pnp bios on that box
+Which compiler is showing this problem ?
+
+> --- ./drivers/scsi/t128.c.orig	2002-11-04 14:21:30.000000000 +0100
+> +++ ./drivers/scsi/t128.c	2002-11-04 14:21:47.000000000 +0100
+> @@ -145,7 +145,7 @@
+>  static const struct signature {
+>  	const char *string;
+>  	int offset;
+> -} signatures[] __initdata = {
+> +} signatures[] = {
+>  	{"TSROM: SCSI BIOS, Version 1.12", 0x36},
+
+Far better to lose the const
 

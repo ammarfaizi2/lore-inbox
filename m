@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbSKNIbY>; Thu, 14 Nov 2002 03:31:24 -0500
+	id <S264798AbSKNIbq>; Thu, 14 Nov 2002 03:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264798AbSKNIbY>; Thu, 14 Nov 2002 03:31:24 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:30677 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S264797AbSKNIbX>; Thu, 14 Nov 2002 03:31:23 -0500
-Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2601AA1298@pdsmsx32.pd.intel.com>
-From: "Zhuang, Louis" <louis.zhuang@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.47: Fix e100 driver bug on STL2 motherboard -- 'e100:
-	 hw init failed'
-Date: Thu, 14 Nov 2002 16:36:11 +0800
+	id <S264799AbSKNIbq>; Thu, 14 Nov 2002 03:31:46 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:21729 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S264798AbSKNIbp>; Thu, 14 Nov 2002 03:31:45 -0500
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="gb2312"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15827.24963.123936.782801@sofia.bsd2.kbnes.nec.co.jp>
+Date: Thu, 14 Nov 2002 17:40:35 +0900
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: figuring out which ioctl's a system needs?
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems e100 device on STL2 board is slower than other siblings. 
+> I'm trying to figure out what is the subset of ioctl's a system needs
+> to run. I figure the best way is sticking a printk in sys_ioctl, and
+> having it printk the number, so that syslog can pick it up, and then
+> go through the list. This way I can use the system normally for a
+> week to collect the information I need.
 
-Regards,
-Louis Zhuang, 
-My opinions are my own and NEVER the opinions of Intel Corporation.
+> Is there an easier way, or is there a way that I can make my life
+> easier (i.e. going from printk'd number to header file include).
 
-diff -Nur -X /root/dontdiff 47-kp/drivers/net/e100/e100.h
-47-kp-fi/drivers/net/e100/e100.h
---- 47-kp/drivers/net/e100/e100.h       Mon Nov 11 11:28:07 2002
-+++ 47-kp-fi/drivers/net/e100/e100.h    Thu Nov 14 15:57:08 2002
-@@ -100,7 +100,7 @@
+Install the Linux Trace Toolkit and enable tracing for ioctls.
+See http://www.opersys.com/LTT for details.
 
- #define E100_MAX_NIC 16
-
--#define E100_MAX_SCB_WAIT      100     /* Max udelays in wait_scb */
-+#define E100_MAX_SCB_WAIT      5000    /* Max udelays in wait_scb */
- #define E100_MAX_CU_IDLE_WAIT  50      /* Max udelays in wait_cus_idle */
-
- /* HWI feature related constant */

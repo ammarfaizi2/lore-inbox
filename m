@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUG3RYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267753AbUG3R1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267748AbUG3RYr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 13:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267756AbUG3RYr
+	id S267753AbUG3R1C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 13:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267759AbUG3R1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 13:24:47 -0400
-Received: from web14924.mail.yahoo.com ([216.136.225.8]:45405 "HELO
-	web14924.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267759AbUG3RYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 13:24:34 -0400
-Message-ID: <20040730172433.2312.qmail@web14924.mail.yahoo.com>
-Date: Fri, 30 Jul 2004 10:24:33 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
+	Fri, 30 Jul 2004 13:27:02 -0400
+Received: from omx2-ext.SGI.COM ([192.48.171.19]:62425 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267762AbUG3R0x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 13:26:53 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
 Subject: Re: Exposing ROM's though sysfs
-To: Torrey Hoffman <thoffman@arnor.net>
+Date: Fri, 30 Jul 2004 10:19:02 -0700
+User-Agent: KMail/1.6.2
 Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091207136.2762.181.camel@rohan.arnor.net>
+References: <20040730165339.76945.qmail@web14929.mail.yahoo.com> <200407301010.29807.jbarnes@engr.sgi.com>
+In-Reply-To: <200407301010.29807.jbarnes@engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407301019.02267.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Torrey Hoffman <thoffman@arnor.net> wrote:
-> This sounds interesting, but I'm curious...  why?  That is, what
-> problem are you solving by making ROMs exposed?
-> 
-> Or is this just for fun?  (That's a legitimate reason IMO...)
+On Friday, July 30, 2004 10:10 am, Jesse Barnes wrote:
+> On Friday, July 30, 2004 9:53 am, Jon Smirl wrote:
+> > We talked at OLS about exposing adapter ROMs via sysfs. I have some
+> > time to work on this but I'm not sure about the right places to hook
+> > into the kernel.
+>
+> How about this patch?
 
-Secondary video cards need to have code in their ROMs run to reset
-them. When an x86 PC boots it only reset the primary video device, the
-secondary ones won't work until their ROMs are run.
+Ok, so it's a little broken, but the idea is to expose the rom as a file 
+in /sys/devices/pciDDDD:BB/DDDD:BB:SS:F/rom just like config space.
 
-Another group needing this is laptop suspend/resume. Some cards won't
-come back from suspend until their ROM is run to reinitialize them.
+I think I need to use pci_config_write_byte to enable option ROM address 
+decoding, but even then I'm taking a machine check on my test machine, so I'm 
+obviously doing something else wrong too.
 
-A third group is undocumented video hotware where the only way to set
-the screen mode is by calling INT10 in the video ROMs. (Intel
-i810,830,915 for example).
-
-Small apps are attached to the hotplug events. These apps then use vm86
-or emu86 to run the ROMs. emu86 is needed for ia64 or ppc when running
-x86 ROMs on them.
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - You care about security. So do we.
-http://promotions.yahoo.com/new_mail
+Jesse

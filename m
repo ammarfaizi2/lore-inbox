@@ -1,88 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267046AbRGIMVq>; Mon, 9 Jul 2001 08:21:46 -0400
+	id <S267053AbRGIMbq>; Mon, 9 Jul 2001 08:31:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267049AbRGIMVh>; Mon, 9 Jul 2001 08:21:37 -0400
-Received: from www.wen-online.de ([212.223.88.39]:55055 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S267046AbRGIMVZ>;
-	Mon, 9 Jul 2001 08:21:25 -0400
-Date: Mon, 9 Jul 2001 14:20:21 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Christoph Rohland <cr@sap.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <m3vgl28huc.fsf@linux.local>
-Message-ID: <Pine.LNX.4.33.0107091329390.318-100000@mikeg.weiden.de>
+	id <S267052AbRGIMbg>; Mon, 9 Jul 2001 08:31:36 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:25086 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S267050AbRGIMb1>; Mon, 9 Jul 2001 08:31:27 -0400
+Message-ID: <3B49A44B.F5E3C6A7@uow.edu.au>
+Date: Mon, 09 Jul 2001 22:32:11 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Abraham vd Merwe <abraham@2d3d.co.za>
+CC: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: msync() bug
+In-Reply-To: <20010709105044.A29658@crystal.2d3d.co.za>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Jul 2001, Christoph Rohland wrote:
+Abraham vd Merwe wrote:
+> 
+> Hi!
+> 
+> I was preparing some lecture last night and stumbled onto this bug. Maybe
+> some of you can shed some light on it.
+> 
+> Basically, I just memory map /dev/mem at 0xb8000 (text mode - yes I know you
+> shouldn't do this, but it was to illustrate something), reads 4k, changes it
+> writes it back.
+> 
 
-> Hi Mike,
->
-> On Mon, 9 Jul 2001, Mike Galbraith wrote:
-> >> But still this may be a hint. You are not running out of swap,
-> >> aren't you?
-> >
-> > I'm running oom whether I have swap enabled or not.  The inactive
-> > dirty list starts growing forever, until it's full of (aparantly)
-> > dirty pages and I'm utterly oom.
-> >
-> > With swap enabled, I keep allocating until there's nothing left.
-> > Actual space usage is roughly 30mb (of 256mb), but when you can't
-> > allocate anymore you're toast too, with the same dirt buildup.
->
-> AFAIU you are running oom without the oom killer kicking in.
+The actual call trace is:
 
-Yes.
+__set_page_dirty
+filemap_sync_pte
+filemap_sync_pte_range 
+filemap_sync_pmd_range 
+filemap_sync
+msync_interval
+sys_msync
 
-> That's reasonable with tmpfs: the tmpfs pages are accounted to the
-> page cache, but are not freeable if there is no free swap space. So
-> the vm tries to free memory without success. (The same should be true
-> for ramfs but exaggerated by the fact that ramfs can never free the
-> page)
+We're crashing because __set_page_dirty dereferences page->mapping,
+but pages from a mmap() of /dev/mem seem to have a NULL ->mapping.
 
-Why is it growing from stdout output?  (last message.. mail lag)
+One of the very frustrating things about Linux kernel development
+is that the main source of tuition is merely the source code. You
+can stare at that for months (as I have) and still not have a firm
+grasp on the big-picture semantic *meaning* behind something as
+simple as a page having a null ->mapping.  Sigh.
 
-> In the -ac series I introduced separate accounting for shmem pages and
-> do reduce the page cache size by this count for meminfo and
-> vm_enough_memory. Perhaps the oom coding needs also some knowledge
-> about this?
+So one is reduced to mimicry:
 
-It doesn't _look_ like that would make a difference.
+--- linux-2.4.7-pre3/mm/filemap.c	Wed Jul  4 18:21:32 2001
++++ linux-akpm/mm/filemap.c	Mon Jul  9 22:22:46 2001
+@@ -1652,7 +1652,8 @@ static inline int filemap_sync_pte(pte_t
+ 	if (pte_present(pte) && ptep_test_and_clear_dirty(ptep)) {
+ 		struct page *page = pte_page(pte);
+ 		flush_tlb_page(vma, address);
+-		set_page_dirty(page);
++		if (page->mapping)
++			set_page_dirty(page);
+ 	}
+ 	return 0;
+ }
 
-This is how the oom looks from here:
-
-Start tar -rvf /dev/null /usr/local; box has 128mb ram/256mb swap
-
-We have many dirty and many clean pages at first.  As the dcache/icache
-etc grow beneath, we start consuming clean/dirty pages, but we don't
-have a free shortage at first, so the caches bloat up.  We finally start
-shrinking caches, but it's too late, and we allocate some swap.  (This
-cannot be prevented even by VERY agressive aging/shrinking, even with
-a hard limit to start shrinking caches whether we have a free shortage
-or not)  It is impossible (or I can't get there from here anyway) to
-keep the dirty list long enough to keep inactive_shortage happy.. we're
-at full memory pressure, so we have to have a full 25% of ram inactive.
-
-We keep allocating much swap and writing a little of it until slowly
-but surely, we run out of allocatable swap.  In two runs taring up
-an fs with 341057 inodes, swapspace is gone (but hardly used).
-
-If I stop the tar _well_ before oom, and try to do swapoff, oom.
-
-There is very little in /tmp, and tar isn't touching any of it.  X must
-be pouring pages down a socket to my client, coz that's the only thing
-in /tmp.  It seems to be leaking away whether we have swap active or not..
-just a question of what we run out of first.. swapspace or pages to put
-there.
-
-	-Mike
-
+-

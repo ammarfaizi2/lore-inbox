@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267084AbSKSRsX>; Tue, 19 Nov 2002 12:48:23 -0500
+	id <S267059AbSKSRu4>; Tue, 19 Nov 2002 12:50:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbSKSRsW>; Tue, 19 Nov 2002 12:48:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20755 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267082AbSKSRsU>;
-	Tue, 19 Nov 2002 12:48:20 -0500
-Message-ID: <3DDA7B08.7010101@pobox.com>
-Date: Tue, 19 Nov 2002 12:55:20 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>, Alexander Viro <viro@math.psu.edu>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
+	id <S267065AbSKSRu4>; Tue, 19 Nov 2002 12:50:56 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27625 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267059AbSKSRuy>;
+	Tue, 19 Nov 2002 12:50:54 -0500
+Date: Tue, 19 Nov 2002 17:54:38 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Dave Hansen <haveblue@us.ibm.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Why /dev/sdc1 doesn't show up...
-References: <20021119055636.94C182C088@lists.samba.org> <20021119160622.GA8738@redhat.com>
-In-Reply-To: <20021119055636.94C182C088@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+       Andy Pfiffer <andyp@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [ANNOUNCE][CFT] kexec for v2.5.48 && kexec-tools-1.7
+Message-ID: <20021119175438.GA4594@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andy Pfiffer <andyp@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Werner Almesberger <wa@almesberger.net>,
+	Suparna Bhattacharya <suparna@in.ibm.com>,
+	"Matt D. Robinson" <yakker@aparity.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Mike Galbraith <efault@gmx.de>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+References: <Pine.LNX.4.44.0211190930400.25643-100000@home.transmeta.com> <m1wun9zc01.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wun9zc01.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+On Tue, Nov 19, 2002 at 10:48:46AM -0700, Eric W. Biederman wrote:
+ > > 	struct e820map e820;
+ > > 
+ > > (yeah, we will have modified it to match the setup of the running kernel, 
+ > > but on the whole it should all be there, no?)
+ > 
+ > Yep.  We just need to get that information out to user space.
 
-> On Tue, Nov 19, 2002 at 04:52:25PM +1100, Rusty Russell wrote:
->
-> >>right).  Or you can run a notifier on "enlivening" a module: I'd hoped
-> >>to avoid that.
-> >
-> >Actually, after some thought, this seems to clearly be the Right
-> >Thing, because it solves another existing race.  Consider a module
-> >which does:
-> >
-> >	if (!register_foo(&my_foo))
-> >		goto cleanup;
-> >	if (!create_proc_entry(&my_entry))
-> >		goto cleanup_foo;
->
->
-> There is *NO* module that does this right now and can be considered even
-> close to working.  The rule always has been "register yourself when you
-> are ready for use".  You're trying to add this new "You can fail after
-> registering yourself" semantic for brain dead coders that can't write an
-> init function to save thier ass.  My position is that in doing so, you
-> fuck all of us that do write a reasonable init sequence and handle our
-> error conditions.  Plus, since this is a changes in semantics, you have
-> possibly 50 or 100 modules that rely on the old behaviour, and maybe a 
-> few
-> that are broken in regards to registration ordering.  I think you are
-> trying to fix the wrong group of modules here.
->
-> So, to me, the answer is clear.  The rule is hard and fast, you don't 
-> hand
-> out your function pointers to other modules or the core kernel until you
-> are ready for them to be used.  Don't muck with the module loader to 
-> solve
-> the problem, fix the maybe 4 or 5 modules that might violate this rule.
+Arjan already did this..
+http://www.kernelnewbies.org/kernels/rh80/SOURCES/linux-2.4.0-e820.patch
 
+		Dave
 
-
-violently agreed.  This has the potential for requiring an update of 
-almost every driver in the kernel, does it not?
-
-	Jeff
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbTESLUy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 07:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbTESLUy
+	id S262403AbTESLZB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 07:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTESLZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 07:20:54 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:25841 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262406AbTESLUw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 07:20:52 -0400
-Subject: Re: Recent changes to sysctl.h breaks glibc
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1053342842.9152.90.camel@workshop.saharact.lan>
-References: <1053289316.10127.41.camel@nosferatu.lan>
-	 <20030518204956.GB8978@holomorphy.com>
-	 <1053292339.10127.45.camel@nosferatu.lan>
-	 <20030519063813.A30004@infradead.org>
-	 <1053341023.9152.64.camel@workshop.saharact.lan>
-	 <20030519105152.GD8978@holomorphy.com>
-	 <1053342842.9152.90.camel@workshop.saharact.lan>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oQDJUC91SGf5dbSGPJC/"
-Organization: Red Hat, Inc.
-Message-Id: <1053344020.1430.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 19 May 2003 13:33:40 +0200
+	Mon, 19 May 2003 07:25:01 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:232 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id S262403AbTESLY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 07:24:59 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16072.49680.630299.103453@laputa.namesys.com>
+Date: Mon, 19 May 2003 15:37:52 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: ptb@it.uc3m.es, linux-kernel@vger.kernel.org
+Subject: Re: recursive spinlocks. Shoot.
+In-Reply-To: <3EC8B1FC.9080106@aitel.hist.no>
+References: <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
+	<3EC8B1FC.9080106@aitel.hist.no>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta11) "cabbage" XEmacs Lucid
+Emacs: an inspiring example of form following function... to Hell.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Helge Hafting writes:
+ > Peter T. Breuer wrote:
+ > 
+ > > Hey, that's not bad for a small change! 50% of potential programming
+ > > errors sent to the dustbin without ever being encountered.
+ > 
+ > Then you replace errors with inefficiency - nobody discovers that
+ > you needlessly take a lock twice.  They notice OOPSes though, the
+ > lock gurus can then debug it.
+ > 
+ > Trading performance for simplicity is ok in some cases, but I have a strong
+ > felling this isn't one of them.  Consider how people optimize locking
+ > by shaving off a single cycle when they can, and try to avoid
+ > locking as much as possible for that big smp scalability.
+ > 
+ > This is something better done right - people should just take the
+ > trouble.
 
---=-oQDJUC91SGf5dbSGPJC/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+There, however, are cases when recursive locking is needed. Take, for
+example, top-to-bottom insertion into balanced tree with per-node
+locking. Once modifications are done at the "leaf" level, parents should
+be locked and modified, but one cannot tell in advance whether different
+leaves have the same or different parents. Simplest (and, sometimes, the
+only) solution here is to lock parents of all children in turn, even if
+this may lock the same parent node several times---recursively.
 
-On Mon, 2003-05-19 at 13:14, Martin Schlemmer wrote:
-> On Mon, 2003-05-19 at 12:51, William Lee Irwin III wrote:
->=20
-> > IIRC you're supposed to use some sort of sanitized copy, not the things
-> > directly. IMHO the current state of affairs sucks as there is no
-> > standard set of ABI headers, but grabbing them right out of the kernel
-> > is definitely not the way to go.
-> >=20
->=20
-> Ok, anybody know of an effort to get this done ?
+ > 
+ > Helge Hafting
+ > 
 
-Red Hat Linux ships with a mostly sanitized header set for this.
->=20
-> Also, what about odd things that are more kernel dependant
-> like imon support in fam for example ?  The imon.h will not
-> be in the 'sanitized copy' ....
+Nikita.
 
-apps that have such deep knowledge about internals are supposed to
-provide their own copy of the headers in RHL at least. But there are few
-of those.
-
---=-oQDJUC91SGf5dbSGPJC/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+yMEUxULwo51rQBIRAmihAKCaJzovAFe5vfoF3IbK2lm3f2fgSwCdFIKq
-jPgtdHo3dAiQZIV+r8YB36Y=
-=lK/c
------END PGP SIGNATURE-----
-
---=-oQDJUC91SGf5dbSGPJC/--

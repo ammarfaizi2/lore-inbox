@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266678AbRGFMna>; Fri, 6 Jul 2001 08:43:30 -0400
+	id <S266682AbRGFMrm>; Fri, 6 Jul 2001 08:47:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266679AbRGFMnU>; Fri, 6 Jul 2001 08:43:20 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:43882 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S266678AbRGFMnJ>; Fri, 6 Jul 2001 08:43:09 -0400
-Date: Fri, 6 Jul 2001 14:43:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Thibaut Laurent <thibaut@celestix.com>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-Message-ID: <20010706144311.J2425@athlon.random>
-In-Reply-To: <20010704232816.B590@marvin.mahowi.de> <20010705162035.Q17051@athlon.random> <3B447B6D.C83E5FB9@redhat.com> <20010705164046.S17051@athlon.random> <20010705233200.7ead91d5.thibaut@celestix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010705233200.7ead91d5.thibaut@celestix.com>; from thibaut@celestix.com on Thu, Jul 05, 2001 at 11:32:00PM +0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S266681AbRGFMrc>; Fri, 6 Jul 2001 08:47:32 -0400
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:64013 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S266679AbRGFMrW>;
+	Fri, 6 Jul 2001 08:47:22 -0400
+Date: Fri, 6 Jul 2001 14:47:00 +0200 (CEST)
+From: Peter Svensson <petersv@psv.nu>
+To: "Gregory (Grisha) Trubetskoy" <grisha@ispol.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: reading/writing CMOS beyond 256 bytes?
+In-Reply-To: <Pine.BSF.4.32.0107060829460.47924-100000@localhost>
+Message-ID: <Pine.LNX.4.33.0107061446240.12127-100000@cheetah.psv.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 05, 2001 at 11:32:00PM +0800, Thibaut Laurent wrote:
-> And the winner is... Andrea. Kudos to you, I've just applied these patches,
-> recompiled and it seems to work fine.
+On Fri, 6 Jul 2001, Gregory (Grisha) Trubetskoy wrote:
 
-can you apply this patch on top of the ksoftirqd patch and see if you
-can trigger the BUG() again when based on pre2? (I want to make sure to
-be as strict as mainline) Then if you apply the same patches on top of
-pre3 the BUG() should go away.
+> I wrote a little brogram to read/write the CMOS settings to a file on an
+> Intel L440GX motherboard using the outb() to ports 0x70 and 0x71. The idea
+> is to save the BIOS settings I like and then be able to blast them from
+> within Linux without having to tinker with BIOS setup.
+>
+> Unfortunately, it seems that some settings are not in the 128 (or 256)
+> bytes accessible this way, so they must be stored elsewhere.
 
---- 2.4.7pre2aa1/kernel/softirq.c.~1~	Thu Jul  5 17:13:47 2001
-+++ 2.4.7pre2aa1/kernel/softirq.c	Fri Jul  6 14:39:49 2001
-@@ -173,7 +173,8 @@
- 		if (!tasklet_trylock(t))
- 			BUG();
- 		if (!atomic_read(&t->count)) {
--			clear_bit(TASKLET_STATE_SCHED, &t->state);
-+			if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
-+				BUG();
- 			t->func(t->data);
- 			tasklet_unlock(t);
- 			continue;
-@@ -210,7 +211,8 @@
- 		if (!tasklet_trylock(t))
- 			BUG();
- 		if (!atomic_read(&t->count)) {
--			clear_bit(TASKLET_STATE_SCHED, &t->state);
-+			if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
-+				BUG();
- 			t->func(t->data);
- 			tasklet_unlock(t);
- 			continue;
+the L440GX has a lot of stuff attached to ipmi. Perhaps some of it is
+stored there? Just a thought.
+
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
 
 
-Thanks!
-
-Andrea

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264996AbUETHI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265018AbUETHKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264996AbUETHI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 03:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbUETHIZ
+	id S265018AbUETHKl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 03:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbUETHKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 03:08:25 -0400
-Received: from ozlabs.org ([203.10.76.45]:49292 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265023AbUETHIG (ORCPT
+	Thu, 20 May 2004 03:10:22 -0400
+Received: from ozlabs.org ([203.10.76.45]:5517 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265024AbUETHIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 03:08:06 -0400
-Subject: [TRIVIAL] fix counter in build_zonelists()
+	Thu, 20 May 2004 03:08:40 -0400
+Subject: [TRIVIAL] doc update for bk usage
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: akpm@zip.com.au
+To: Andrew Morton <akpm@osdl.org>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1085034171.24931.98.camel@bach>
+Message-Id: <1085036543.24931.154.camel@bach>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 20 May 2004 17:07:32 +1000
+Date: Thu, 20 May 2004 17:08:06 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- From:  Stephen Leonard <stephen@phynp6.phy-astr.gsu.edu>
+ From:  carbonated beverage <ramune@net-ronin.org>
 
 ---
-  Hi Rusty
+  bk://... appears to be dead, use http://... instead.
   
-  This trivial patch fixes a counter that is unnecessarily incremented
-  in build_zonelists().  It applies against 2.6.5.
-  
-  stephen
-  
-  
+  ===== Documentation/BK-usage/bk-kernel-howto.txt 1.7 vs edited =====
 
---- trivial-2.6.6-bk6/mm/page_alloc.c.orig	2004-05-20 15:59:22.000000000 +1000
-+++ trivial-2.6.6-bk6/mm/page_alloc.c	2004-05-20 15:59:22.000000000 +1000
-@@ -1284,7 +1284,7 @@
-  		for (node = 0; node < local_node; node++)
-  			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
-  
--		zonelist->zones[j++] = NULL;
-+		zonelist->zones[j] = NULL;
- 	}
- }
+--- trivial-2.6.6-bk6/Documentation/BK-usage/bk-kernel-howto.txt.orig	2004-05-20 15:59:35.000000000 +1000
++++ trivial-2.6.6-bk6/Documentation/BK-usage/bk-kernel-howto.txt	2004-05-20 15:59:35.000000000 +1000
+@@ -279,5 +279,5 @@
+    for my long-lived kernel branch?
+ A. Yes.  This requires BK 3.x, though.
  
+-	bk export -tpatch -r`bk repogca bk://linux.bkbits.net/linux-2.5`,+
++	bk export -tpatch -r`bk repogca http://linux.bkbits.net/linux-2.5`,+
+ 
+--- trivial-2.6.6-bk6/Documentation/BK-usage/gcapatch.orig	2004-05-20 15:59:35.000000000 +1000
++++ trivial-2.6.6-bk6/Documentation/BK-usage/gcapatch	2004-05-20 15:59:35.000000000 +1000
+@@ -5,4 +5,4 @@
+ # Usage: gcapatch > foo.patch
+ #
+ 
+-bk export -tpatch -hdu -r`bk repogca bk://linux.bkbits.net/linux-2.5`,+
++bk export -tpatch -hdu -r`bk repogca http://linux.bkbits.net/linux-2.5`,+
 -- 
   What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
   Don't blame me: the Monkey is driving
-  File: Stephen Leonard <stephen@phynp6.phy-astr.gsu.edu>: [PATCH] fix counter in build_zonelists()
+  File: carbonated beverage <ramune@net-ronin.org>: doc update for bk usage
 

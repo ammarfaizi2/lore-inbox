@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbTIFTBa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 15:01:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbTIFTBa
+	id S261473AbTIFS4W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 14:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTIFS4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 15:01:30 -0400
-Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:28091 "EHLO
-	c2mailgwalt.mailcentro.com") by vger.kernel.org with ESMTP
-	id S261278AbTIFTB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 15:01:28 -0400
-X-Version: Mailcentro(english)
-X-SenderIP: 80.58.9.42
-X-SenderID: 7831070
-From: "Jose Luis Alarcon Sanchez" <jlalarcon@chevy.zzn.com>
-Message-Id: <A340D5F1860783E4BBC9E429C5A7DAFD@jlalarcon.chevy.zzn.com>
-Date: Sat, 6 Sep 2003 21:01:24 +0200
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: armin@xos.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6-test4 latencey problems + howto compilation
-X-Mailer: Web Based Pronto
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Sep 2003 14:56:22 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:17644 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S261473AbTIFS4V convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 14:56:21 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: maxo@myrealbox.com
+Subject: Re: bug/request: multi-processing for CD devices
+Date: Sat, 6 Sep 2003 20:56:15 +0200
+User-Agent: KMail/1.5.3
+References: <200309061945.30402.maxo@myrealbox.com>
+In-Reply-To: <200309061945.30402.maxo@myrealbox.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200309062056.19023.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----- Begin Original Message ----
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-From: Armin Obersteiner <armin@xos.net>
-Sent: Sat, 6 Sep 2003 19:17:44 +0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.6-test4 latencey problems + howto compilation
+On Saturday 06 September 2003 21:45, Max O'Shea wrote:
+> Hello,
 
-hi!
+Hi,
 
-Congratulations for the 2.6 kernel, it seems more mature than 2.4 test
-kernels!
- 
-My 2.6 experience (linux-2.6.0-test4) is basically *very* good, but
-some remarks:
+> Summary: request for multi-processing for CD devices (I think the word is
+> 'multi-processing' - ie. so that you can play an audio CD and browse the
+> audio CD using a program such as konqueror at the same time)
+>
+> Full description: At the moment, if you are playing an audio CD with one
+> program and you start accessing the audio CD with another program, the
+> music will stop playing.
 
-1) Documents/Changes should be updated to:
+As far as I know that should be impossible, because audio-playing
+runs 100% on the cd-rom hardware itself. The OS has nothing to do
+with it.
+So your request should go to the device manufacturers and ask
+them if they could build devices, that are "multithreaded". :)
+(But it maybe, that this was total crap and I better had thrown
+this mail to /dev/null. I'm not 100% sure. 8-) )
 
-    module-init-tools      0.9.13                  # depmod -V
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+Animals on this machine: some GNUs and Penguin 2.6.0-test4-bk2
 
-  Earlier module-init-tools do not work. at least nor for me.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-.......
+iD8DBQE/Wi3PoxoigfggmSgRAv7nAJ9FWCFjuLcrSgqfxWWaOXvWZ7A3wACZAf3r
+X1KNMtG5lO0ptS7/cVt4qV8=
+=NZoP
+-----END PGP SIGNATURE-----
 
----- End Original Message ----
-
-
-  Hi Armin.
-
-  I don't know why the previous module-init-tools don't work
-for your system. I am using the 2.6.0-test4 kernel (with the
-Nick Piggin ideas about schedule patched) and i can manage
-modules perfectly. This is my depmod -V output:
-
-module-init-tools 0.9.10
-
-  Maybe you can have another thing broken?.
-
-  Regards.
-
-  Jose.
-
-
-http://linuxespana.scripterz.org
-
-FreeBSD RELEASE 4.8.
-Mandrake Linux 9.1 Kernel 2.6.0-test4 XFS.
-Registered BSD User 51101.
-Registered Linux User #213309.
-Memories..... You are talking about memories. 
-Rick Deckard. Blade Runner.
-
-
-Get your Free E-mail at http://chevy.zzn.com
-__________________
-http://www.zzn.com

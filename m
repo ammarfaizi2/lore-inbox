@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267385AbTA1PNT>; Tue, 28 Jan 2003 10:13:19 -0500
+	id <S267392AbTA1PQM>; Tue, 28 Jan 2003 10:16:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267387AbTA1PNT>; Tue, 28 Jan 2003 10:13:19 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11855 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S267385AbTA1PNS>; Tue, 28 Jan 2003 10:13:18 -0500
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: kexec reboot code buffer
-References: <3E31AC58.2020802@us.ibm.com> <m1znppco1w.fsf@frodo.biederman.org>
-	<3E35AAE4.10204@us.ibm.com> <m1r8ax69ho.fsf@frodo.biederman.org>
-	<20030128071826.GI780@holomorphy.com>
-	<m1isw968e3.fsf@frodo.biederman.org>
-	<20030128073117.GJ780@holomorphy.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Jan 2003 08:21:23 -0700
-In-Reply-To: <20030128073117.GJ780@holomorphy.com>
-Message-ID: <m1el6x5mh8.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S267393AbTA1PQM>; Tue, 28 Jan 2003 10:16:12 -0500
+Received: from home.wiggy.net ([213.84.101.140]:35777 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S267392AbTA1PQL>;
+	Tue, 28 Jan 2003 10:16:11 -0500
+Date: Tue, 28 Jan 2003 16:25:30 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Bootscreen
+Message-ID: <20030128152530.GG4868@wiggy.net>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20030128130953.GW4868@wiggy.net> <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk> <20030128143235.GY4868@wiggy.net> <20030128153533.X28781-100000@snail.stack.nl> <20030128144714.GC4868@wiggy.net> <1043765872.6760.27.camel@oubop4.bursar.vt.edu> <20030128145856.GE4868@wiggy.net> <1043766477.6794.32.camel@oubop4.bursar.vt.edu> <20030128151406.GF4868@wiggy.net> <1043767249.7615.42.camel@oubop4.bursar.vt.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043767249.7615.42.camel@oubop4.bursar.vt.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
+Previously Richard B. Tilley  (Brad) wrote:
+> Were can I find these simple tools that modify a kernel that does not
+> support loadable modules as easily as insmod modifies a kernel that does
+> support them?
 
-> William Lee Irwin III <wli@holomorphy.com> writes:
-> >> Seriously, just plop down the fresh zone type and all will be well.
-> >> It's really incredibly easy.
-> 
-> On Tue, Jan 28, 2003 at 12:28:04AM -0700, Eric W. Biederman wrote:
-> > I will certainly take a look, tracing through that code can get a little
-> > hairy.
-> 
-> It can really be approached much more cavalierly than that. The only
-> extant example aside from the original ZONE_DMA32 implementation I've
-> seen is Simon Winwood's MPSS patch, which needed something on the order
-> of 10 lines of code for a fresh zone type (for one arch).
-> 
-> And most of the bulk of the ZONE_DMA32 implementation was stringing up
-> the block layer to utilize it, not inserting the new zone type itself.
+Ask google. Phrack 58 for example seems to have a decent description and
+example code.
 
-Primarily it appears that just another ZONE needs to be added, and then
-free_area_init needs to be passed the proper parameters.  
+Wichert.
 
-I still want to look closely at how the discontig mem case for NUMA is
-setup.  It is probably nothing to worry about but I want to make
-certain it does not have any perverse behavior and also I want to be
-certain I know how to setup a NUMA system properly, since I am looking
-at the code anyway.
-
-Eric
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

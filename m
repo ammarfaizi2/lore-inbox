@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVBHXmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVBHXoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVBHXmK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 18:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVBHXkv
+	id S261702AbVBHXoT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 18:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVBHXoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 18:40:51 -0500
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:64605 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261695AbVBHXkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 18:40:16 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Joseph Pingenot <trelane@digitasaru.net>
-Subject: [PATCH] Fix ALPS sync loss
-Date: Tue, 8 Feb 2005 18:40:12 -0500
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Peter Osterlund <petero2@telia.com>, Vojtech Pavlik <vojtech@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Feb 2005 18:44:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37303 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261702AbVBHXn1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 18:43:27 -0500
+Date: Tue, 8 Feb 2005 15:43:26 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] BSD Secure Levels: nits, 2.6.11-rc2-mm1 (6/8)
+Message-ID: <20050208154326.E469@build.pdx.osdl.net>
+References: <20050207192108.GA776@halcrow.us> <20050207193518.GE834@halcrow.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502081840.12520.dtor_core@ameritech.net>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050207193518.GE834@halcrow.us>; from mhalcrow@us.ibm.com on Mon, Feb 07, 2005 at 01:35:19PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+* Michael Halcrow (mhalcrow@us.ibm.com) wrote:
+> This is the sixth in a series of eight patches to the BSD Secure
+> Levels LSM.  It makes several trivial changes to make the code
+> consistent.
 
-Here is the promised patch. It turns out protocol validation code was
-a bit (or rather a byte ;) ) off.
+These are inconsistent with CodingStyle.  I'd drop this, and go the
+other way (patch is smaller) ala Lindent.
 
-Please let me know if it fixes your touchpad and I believe it would be
-nice to have it in 2.6.11.
+>  struct seclvl_obj {
+> -	char *name;
+> +	char * name;
 
+This is opposite of typical style.
+
+> -seclvl_attr_store(struct kobject *kobj,
+> -		  struct attribute *attr, const char *buf, size_t len)
+> +seclvl_attr_store(struct kobject * kobj,
+> +		  struct attribute * attr, const char * buf, size_t len)
+
+same here...etc.
+
+Lindent nearly undoes all these changes.  If we're going to reformat
+code, I'd prefer to see it done via Lindent.
+
+thanks,
+-chris
 -- 
-Dmitry
-
-
-===================================================================
-
-
-ChangeSet@1.2147, 2005-02-08 18:12:06-05:00, dtor_core@ameritech.net
-  Input: alps - fix protocol validation rules causing touchpad
-         to lose sync if an absolute packet is received after
-         a relative packet with negative Y displacement.
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-  
-
-
- alps.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
---- a/drivers/input/mouse/alps.c	2005-02-08 18:16:27 -05:00
-+++ b/drivers/input/mouse/alps.c	2005-02-08 18:16:27 -05:00
-@@ -198,8 +198,8 @@
- 		return PSMOUSE_BAD_DATA;
- 
- 	/* Bytes 2 - 6 should have 0 in the highest bit */
--	if (psmouse->pktcnt > 1 && psmouse->pktcnt <= 6 &&
--	    (psmouse->packet[psmouse->pktcnt] & 0x80))
-+	if (psmouse->pktcnt >= 2 && psmouse->pktcnt <= 6 &&
-+	    (psmouse->packet[psmouse->pktcnt - 1] & 0x80))
- 		return PSMOUSE_BAD_DATA;
- 
- 	if (psmouse->pktcnt == 6) {
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

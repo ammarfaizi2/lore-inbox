@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136674AbREARd7>; Tue, 1 May 2001 13:33:59 -0400
+	id <S136676AbREARfa>; Tue, 1 May 2001 13:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136676AbREARdw>; Tue, 1 May 2001 13:33:52 -0400
-Received: from jalon.able.es ([212.97.163.2]:10729 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S136674AbREARdh>;
-	Tue, 1 May 2001 13:33:37 -0400
-Date: Tue, 1 May 2001 19:33:29 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 sluggish under fork load
-Message-ID: <20010501193329.C1246@werewolf.able.es>
-In-Reply-To: <20010430195149.F19620@athlon.random> <Pine.LNX.4.21.0104302335490.19012-100000@imladris.rielhome.conectiva> <20010501071849.A16474@athlon.random> <20010501185517.A31373@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010501185517.A31373@athlon.random>; from andrea@suse.de on Tue, May 01, 2001 at 18:55:17 +0200
-X-Mailer: Balsa 1.1.4
+	id <S136677AbREARfS>; Tue, 1 May 2001 13:35:18 -0400
+Received: from hood.tvd.be ([195.162.196.21]:177 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S136676AbREARe1>;
+	Tue, 1 May 2001 13:34:27 -0400
+Date: Tue, 1 May 2001 19:33:09 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: mike_phillips@urscorp.com
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com,
+        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: isa_read/write not available on ppc - solution suggestions ??
+In-Reply-To: <OFED368CB7.D5C74726-ON85256A3F.004547C6@urscorp.com>
+Message-ID: <Pine.LNX.4.05.10105011932050.411-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 1 May 2001 mike_phillips@urscorp.com wrote:
+> To get the pcmcia ibmtr driver (ibmtr/ibmtr_cs) working on ppc, all the 
+> isa_read/write's have to be changed to regular read/write due to the lack 
+> of the isa_read/write functions for ppc.
+> 
+> So, the question is should I simply:
+> 
+> a) change everything to read/write and friends (the way the driver used to 
+> be before the isa_read/write function were introduced)
+> b) Put ugly macros in the driver to use the different functions depending 
+> upon architecture.
+> c) Implement the isa_read/write functions for ppc ? 
+> or d) something completely different I haven't thought of. 
 
-On 05.01 Andrea Arcangeli wrote:
-> 
-> And if you fork off a child with its p->policy SCHED_YIELD set it will
-> never get scheduled in.
-> 
-> Only "just" running tasks can have SCHED_YIELD set.
-> 
-> So the below lines are the *right* and most robust approch as far I can
-> tell. (plus counter needs to be volatile, as every variable that can
-> change under the C code, even while it's probably not required by the
-> code involved with current->counter)
-> 
-> > +	{
-> > +		int counter = current->counter >> 1;
-> > +		current->counter = p->counter = counter;
-> > +		p->policy &= ~SCHED_YIELD;
-> > +		current->policy |= SCHED_YIELD;
-> > +		current->need_resched = 1;
-> > +	}
-> 
-> Alan, the patch you merged in 2.4.4ac2 can fail like mine, but it may fail in
-> a much more subtle way, while I notice if ksoftirqd never get scheduled
-> because I synchronize on it and I deadlock, your kupdate/bdflush/kswapd
-> may be forked off correctly but they can all have SCHED_YIELD set and
-> they will *never* get scheduled. You know what can happen if kupdate
-> never gets scheduled... I recommend to be careful with 2.4.4ac2.
-> 
+Please go for option c.
 
-It looks like this is related to my problem (see thread [Re: Linux-2.4.4-ac2]).
-Funtions __start_kernel called kernel_thread(init,...), and seems to hang
-on cpu_idle().
+Also note that ISA memory space is not available on all PPC platforms.
 
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
+Gr{oetje,eeting}s,
 
-Linux werewolf 2.4.4-ac1 #1 SMP Tue May 1 11:35:17 CEST 2001 i686
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313690AbSERSaG>; Sat, 18 May 2002 14:30:06 -0400
+	id <S313698AbSERSkv>; Sat, 18 May 2002 14:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313731AbSERSaF>; Sat, 18 May 2002 14:30:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14856 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313690AbSERSaF>;
-	Sat, 18 May 2002 14:30:05 -0400
-Message-ID: <3CE69E77.5D7AF4AF@zip.com.au>
-Date: Sat, 18 May 2002 11:33:27 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S313743AbSERSku>; Sat, 18 May 2002 14:40:50 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:55575 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313698AbSERSku>; Sat, 18 May 2002 14:40:50 -0400
+Message-Id: <5.1.0.14.2.20020518192409.0402a7b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 18 May 2002 19:39:48 +0100
 To: mikeH <mikeH@notnowlewis.co.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.16
-In-Reply-To: <Pine.LNX.4.33.0205180051100.3170-100000@penguin.transmeta.com> <3CE61651.3020006@notnowlewis.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: linux 2.5.16 and VIA Chipset
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <3CE697B1.7040904@notnowlewis.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mikeH wrote:
-> 
-> Whats the state of ext3 in this release? I seem to remember reading
-> there were some corruption issues.
+At 19:04 18/05/02, mikeH wrote:
+>Anton Altaparmakov wrote:
+>>>I havent done anything like copying the old .config from my 2.4 series 
+>>>kernel, this was a clean
+>>>tar jxvf linux-2.5.16.tar.bz2 && cd linux-2.5.16 && make menuconfig
+>>
+>>hm. try a make mrproper
+>>
+>>and then a make menuconfig
+>
+>Tried that, still nothing. I'll try downloading the patch and patching it 
+>against 2.4.18.
 
-data=journal is not in very good state.
+Huh? There are no patches to go from 2.4.18 to 2.5.anything AFAIK.
 
-data=ordered works for normal use, but it will fail in heavy testing
-on SMP due to exposure of preexisting bugs.  I have forward ported a
-couple of Stephen's patches which appear to fix that up.
+I just downloaded linux-2.5.16.tar.bz2 from kernel.org, did tar xvjf, cd, 
+make mrproper, make menuconfig, enabled config experimental, and I get the 
+ACPI option so something is wrong on your end... This is on ia32 arch.
 
-data=writeback should be OK.
+Which architecture are you using?
 
-I'll get the ext3 fixes out over the next few days.
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

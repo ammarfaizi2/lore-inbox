@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316751AbSE0T6L>; Mon, 27 May 2002 15:58:11 -0400
+	id <S316753AbSE0UCo>; Mon, 27 May 2002 16:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316752AbSE0T6K>; Mon, 27 May 2002 15:58:10 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:22172 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316751AbSE0T6K>;
-	Mon, 27 May 2002 15:58:10 -0400
-Date: Mon, 27 May 2002 19:21:56 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: fix compilation for other architectures
-Message-ID: <20020527172156.GA3907@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S316758AbSE0UCn>; Mon, 27 May 2002 16:02:43 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:21971 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S316757AbSE0UCm>;
+	Mon, 27 May 2002 16:02:42 -0400
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.5.18 / ext3 / oracle trouble
+In-Reply-To: <877klr2ank.fsf@atlas.iskon.hr> <d6vi836v.fsf@sap.com>
+	<3CF1E5CF.2B11258F@zip.com.au> <dnvg9am14i.fsf@magla.zg.iskon.hr>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Mon, 27 May 2002 22:02:14 +0200
+Message-ID: <871ybx4awp.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Zlatko Calusic <zlatko.calusic@iskon.hr> writes:
+>
+> Obviously I need to perform tests on ext2 with swap load, and repeat
+> them few times. Will do this evening (it takes some time to recover a
+> database after a corruption, so it's slightly time consuming).
+>
 
-Currently, on machine where suspend is not yet supported, compilation
-fails even in case user did not actually requested suspend. This
-"fixes" it -- compilation only fails when suspend is needed and not
-supported. Please apply,
-								Pavel
+And I did get some interesting results. :)
+I found a great test case, rebuilding database after corruption. :)
 
---- clean/include/asm-i386/suspend.h	Sun May 26 19:32:03 2002
-+++ linux-swsusp/include/asm-i386/suspend.h	Mon May 27 19:11:25 2002
-@@ -1,13 +1,8 @@
--#ifndef __ASM_I386_SUSPEND_H
--#define __ASM_I386_SUSPEND_H
--#endif
--
- /*
-  * Copyright 2001-2002 Pavel Machek <pavel@suse.cz>
-  * Based on code
-  * Copyright 2001 Patrick Mochel <mochel@osdl.org>
-  */
--#if defined(SUSPEND_C) || defined(ACPI_C)
- #include <asm/desc.h>
- #include <asm/i387.h>
- 
-@@ -225,7 +220,6 @@
- 	do_fpu_end();
- }
- 
--#endif
- #ifdef SUSPEND_C
- /* Local variables for do_magic */
- static int loop __nosavedata = 0;
---- clean/include/linux/suspend.h	Sun May 26 19:32:04 2002
-+++ linux-swsusp/include/linux/suspend.h	Mon May 27 19:11:45 2002
-@@ -1,7 +1,9 @@
- #ifndef _LINUX_SWSUSP_H
- #define _LINUX_SWSUSP_H
- 
-+#if defined(SUSPEND_C) || defined(ACPI_C)
- #include <asm/suspend.h>
-+#endif
- #include <linux/swap.h>
- #include <linux/notifier.h>
- #include <linux/config.h>
+It consists of recreation of all tablespaces, initializing data
+dictionary and finally importing useful data. The whole process takes
+between 11 and 14 minutes, depending on the type of FS. It's write
+intensive workload and induces some paging even with 768 MB RAM I
+have. Did I forgot to say that all this is on a SMP machine, dual
+PIII? It might matter.
 
+And you know what, corruption doesn't depend on the type of FS. It
+happens on both ext2 & ext3. It's just more likely to see it when
+running on ext3.
+
+Anyway, I managed to pinpoint the problem, it's paging that's the
+culprit. When I turned off my swap partition (swapoff -a), rebuild
+went correctly. So I was right, swapping will get you in
+trouble.
+
+I also tried to push the machine harder into swap, with artificial
+load (typical malloc() in the loop), and it locked up hard after some
+time (minute or two).
+
+And during one of the tests on ext3, when machine actually survived,
+just after exiting X I had a welcome message waiting, saying something
+like this:
+
+ Assertion failure: journal_dirty_metadata() at transaction.c:1146
+ "jh->b_frozen_data == 0"
+
+Don't know if it's related, but could be useful to someone.
+
+That's it. I'm back to 2.4.19-pre8 for the time being, but if anybody
+needs more testing...
+
+Regards,
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Zlatko

@@ -1,103 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbTAIQZ0>; Thu, 9 Jan 2003 11:25:26 -0500
+	id <S266849AbTAIQh4>; Thu, 9 Jan 2003 11:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266796AbTAIQZ0>; Thu, 9 Jan 2003 11:25:26 -0500
-Received: from kilroy.chi.il.us ([205.243.139.239]:15497 "EHLO
-	kilroy.chi.il.us") by vger.kernel.org with ESMTP id <S266794AbTAIQZY>;
-	Thu, 9 Jan 2003 11:25:24 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in non-freedrivers?
-From: Edward Kuns <ekuns@kilroy.chi.il.us>
-To: linux-kernel@vger.kernel.org
-Cc: Edward Kuns <ekuns@kilroy.chi.il.us>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Jan 2003 10:36:24 -0600
-Message-Id: <1042130184.1944.44.camel@kilroy.chi.il.us>
+	id <S266851AbTAIQh4>; Thu, 9 Jan 2003 11:37:56 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:65259 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266849AbTAIQh4>;
+	Thu, 9 Jan 2003 11:37:56 -0500
+Date: Thu, 9 Jan 2003 16:44:07 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] PATCH: IPMI driver
+Message-ID: <20030109164407.GA26195@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	alan@lxorguk.ukuu.org.uk
+References: <200301090332.h093WML05981@hera.kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301090332.h093WML05981@hera.kernel.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Stallman (rms at gnu.org) said:
-> But if that doesn't work for you, I would not consider it a great loss
-> for the world if your products were not produced.  They contribute
-> something to the world if they are free software, but otherwise not.
+ > ChangeSet 1.980, 2003/01/08 22:23:15-02:00, alan@lxorguk.ukuu.org.uk
+ > 
+ > 	[PATCH] PATCH: IPMI driver
+ > 	
+ > 	This has been in -ac for a short while. Linus accepted and merged the
+ > 	same IPMI support into 2.5.54 so now it can move into 2.4 IMHO
+ > 
+ >  Documentation/IPMI.txt              |  341 ++++++
+ >  drivers/char/Makefile               |    5 
+ >  drivers/char/ipmi/Makefile          |   20 
+ >  drivers/char/ipmi/ipmi_devintf.c    |  532 ++++++++++
+ >  drivers/char/ipmi/ipmi_kcs_intf.c   | 1235 ++++++++++++++++++++++++
+ >  drivers/char/ipmi/ipmi_kcs_sm.c     |  467 +++++++++
+ >  drivers/char/ipmi/ipmi_kcs_sm.h     |   70 +
+ >  drivers/char/ipmi/ipmi_msghandler.c | 1811 ++++++++++++++++++++++++++++++++++++
+ >  drivers/char/ipmi/ipmi_watchdog.c   |  971 +++++++++++++++++++
+ >  include/linux/ipmi.h                |  516 ++++++++++
+ >  include/linux/ipmi_msgdefs.h        |   58 +
+ >  include/linux/ipmi_smi.h            |  144 ++
+ >  12 files changed, 6170 insertions(+)
 
-Richard, you have stated eloquently and perhaps completely the divide
-between the FSF and the supporters of the Open Software movement.  You
-have also stated quite eloquently the exact reason that an Open Software
-movement exists.
+Either I'm blind, or none of those files exist in Linus' tree
+looking at current bitkeeper snapshot.
 
-You presume to speak to what is moral and ethical for everybody.  You
-speak as if your definition of "free" is the dictionary definition of
-"free."  You speak as if you alone (and those who fully toe your line)
-can decide what brings value to the world.
-
-Wow.
-
-I, for one, put my money where my mouth is.  I am squarely in the Open
-Software movement.  I support (with money) NVidia, Code Weavers, and in
-the past, 4 Front Technologies, for example.  If I were a commercial
-entity in need of the technologies that Andre brings to the table, I
-would gladly support his company by purchasing non-free (by your
-definition) products.  Note:  I refused to purchase NVidia graphics
-cards before the time when they released version 1.0 of their drivers. 
-If they ever stopped supporting their Linux drivers, I would immediately
-stop purchasing their hardware.  I vote with my wallet.
-
-*I* get to decide what brings value to me and what I consider to be
-freedom.  Richard, you don't get to define those values for me or for
-anybody else except those who *choose* to agree with your narrow
-definitions.
-
-It is true that the GNU model works for *many* large software projects. 
-This does not mean that it will work for *all* large software projects. 
-You agree with this and then say that the world would be better off by
-not having those products because they would have been done in the
-"usual grabbing way."
-
-Richard, you *do* understand why people compare your views to Communism,
-right?  I'm not saying such opinions are accurate or inaccurate, but
-Communism advocates public ownership of *all* property and you advocate
-public ownership of *all* software.  IMO, that is the core of the
-comparison that people make and you MUST already understand that, right?
-
-(OK, you don't advocate public ownership of software that is developed
-but never distributed.  Most software that concerns people in this arena
-is software that is distributed, so that point is irrelevant to this
-discussion.  No-one here is talking about such software.)
-
-I am glad that people are willing to produce "non-free" (by your
-definition) software.  I don't even always prefer "free" software to
-"non-free" software.  (quotes to indicate the FSF definition of "free"
-is being used.)  I evaluate each case, taking all options into account,
-and then choose what best fits my needs.  To me, THAT is freedom.  We
-would have substantially less freedom if the GNU project never existed,
-and I acknowledge and thank all from the GNU project for their
-contributions, past and present and future.  HOWEVER.  We would also
-have substantially less freedom if *all* distributable software was
-required to be GPL.  (Lack of quotes to indicate that I am NOT using the
-FSF definition.)
-
-This is my opinion but also the opinion of many here.  Richard, you are
-not going to change people's views on this.  The Open Source movement
-doesn't exist just because people hadn't thought "freedom" through
-completely yet.  It exists, in part at least, because people rejected
-the FSF definition of "freedom" after fully considering the issue.
-
-       Eddie
-
-P.S.  In the interests of moving off-topic conversions off the list, I
-will not publicly respond to any replies or any more of this thread.  I
-*will* privately respond to any replies, whether they are posted only to
-me or also to the list.  I just wanted to speak up once so that my
-silence could not possibly be construed by RMS or others as agreement. 
-If you wish a response from me, you must CC: me as I am not subscribed
-to this list.
+		Dave
 
 -- 
-  Eddie Kuns  |  Home: ekuns@kilroy.chi.il.us
---------------/  URL:  (none at the moment)
-  "Ah, savory cheese puffs, made inedible by time and fate."  -- The
-Tick
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

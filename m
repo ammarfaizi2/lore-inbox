@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbULaRtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbULaRtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbULaRtf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 12:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbULaRtX
+	id S262141AbULaRtI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 12:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbULaRsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 12:49:23 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:37914 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262136AbULaRsl (ORCPT
+	Fri, 31 Dec 2004 12:48:13 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:10731 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S262128AbULaRrn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 12:48:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bbKDe6KwHgSEK/6tRzJ37p9CL2EHeHDDEL3B9YRzMBVvglA1AD7LP6t9YoscJnFhGFZSM8AUqETOZsLgSS4QxCpID4wWieFYZw1tf+GCvn7k0kYUXoLBikowuGlnlEZ50aBaq83iB6Cyt3K7wmEjvFp+ABJ+4jgb+1cPYnW39t0=
-Message-ID: <2b8348ba041231094816d02456@mail.gmail.com>
-Date: Fri, 31 Dec 2004 09:48:41 -0800
-From: Ush <ofeeley@gmail.com>
-Reply-To: ofeeley@gmail.com
-To: William <wh@designed4u.net>
-Subject: Re: the umount() saga for regular linux desktop users
+	Fri, 31 Dec 2004 12:47:43 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Simon Burke <simon.burke@gmail.com>
+Subject: Re: /tmp as ramdisk
+Date: Fri, 31 Dec 2004 18:47:29 +0100
+User-Agent: KMail/1.7.1
+References: <2d7d2dd20412310941724cc1cb@mail.gmail.com>
+In-Reply-To: <2d7d2dd20412310941724cc1cb@mail.gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200412311741.02864.wh@designed4u.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart21243823.ReDTQAWzbz";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-References: <200412311741.02864.wh@designed4u.net>
+Message-Id: <200412311847.36867.mbuesch@freenet.de>
+X-Warning: freenet.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Dec 2004 17:41:02 +0000, William <wh@designed4u.net> wrote:
- 
-> Regularly, when attempting to umount() a filesystem I receive 'device is busy'
-> errors. The only way (that I have found) to solve these problems is to go on
-> a journey into processland and kill all the guilty ones that have tied
-> themselves to the filesystem concerned.
+--nextPart21243823.ReDTQAWzbz
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Even a lazy umount doesn't work?  "umount -l <filesystem-name>"
+Quoting Simon Burke <simon.burke@gmail.com>:
+> Stupid question really.
+>=20
+> On my servers I'd like to mount /tmp as a ramdisk, for several
+> reasons. How would i go about this with linux? Is it as simple as
+> putting it in the /etc/fstab? where do i define the size of such a
+> disk?
 
-> In my opinion, in order for linux to be trully user friendly, "a umount()
-> should NEVER fail" (even if the device containing the filesystem is no
-> longuer attached to the system). The kernel should do it's best to satisfy
-> the umount request and cleanup. Maybe the kernel could try some of the
-> following:
+fstab
 
-Would it be user-friendly if this forcible umount caused the user to lose data?
+tmpfs   /tmp    tmpfs   auto,size=3D256M,uid=3D0,gid=3D0,mode=3D1777    0 0
 
-Oisin
+Your question is a little bit off-topic.
+Happy new Year!
+
+=2D-=20
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+--nextPart21243823.ReDTQAWzbz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBB1ZC4FGK1OIvVOP4RAtDiAJ0RRCrJAv3VJdJdW41Pn+Icy09sIQCgsJxA
+g2OQO+sukMBX5eSqTc9C/RE=
+=ayVg
+-----END PGP SIGNATURE-----
+
+--nextPart21243823.ReDTQAWzbz--

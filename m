@@ -1,84 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287838AbSAIR10>; Wed, 9 Jan 2002 12:27:26 -0500
+	id <S288787AbSAIRZg>; Wed, 9 Jan 2002 12:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288830AbSAIR1U>; Wed, 9 Jan 2002 12:27:20 -0500
-Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:52999 "HELO
-	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
-	id <S287838AbSAIR1D>; Wed, 9 Jan 2002 12:27:03 -0500
-Date: Wed, 9 Jan 2002 17:36:33 +0000
-From: Matt Dainty <matt@bodgit-n-scarper.com>
-To: linux-kernel@vger.kernel.org
-Subject: Where's all my memory going?
-Message-ID: <20020109173633.A26559@mould.bodgit-n-scarper.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 on i686 SMP (mould)
+	id <S288246AbSAIRZ1>; Wed, 9 Jan 2002 12:25:27 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:25104 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S288830AbSAIRZK>;
+	Wed, 9 Jan 2002 12:25:10 -0500
+Date: Wed, 9 Jan 2002 09:23:41 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Jens Axboe <axboe@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: bounce buffer usage
+In-Reply-To: <20020108084200.B19380@suse.de>
+Message-ID: <Pine.LNX.4.33L2.0201090844550.9139-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 8 Jan 2002, Jens Axboe wrote:
 
-I've fashioned a qmail mail server using an HP NetServer with an HP NetRaid
-4M & 1GB RAM, running 2.4.17 with aacraid, LVM, ext3 and highmem. The box
-has 6x 9GB disks, one for system, one for qmail's queue, and the remaining
-four are RAID5'd with LVM. ext3 is only on the queue disk, ext2 everywhere
-else.
+| On Mon, Jan 07 2002, Randy.Dunlap wrote:
+| >
+| > OK, here's 'fillmem 700' run against 5 kernels as described below,
+| > with my bounce io/swap statistics patch added.
+| >
+| > All tests are 6 instances of "fillmem 700" (700 MB) on a 4-way 4 GB
+| > x86 VA 4450 server.
+| >
+| > I'm including a reduced version of /proc/stat -- before and after the
+| > fillmem test in each case.
+| >
+| > Let me know if you'd like to see other variations.
+|
+| The results look very promising, although I'm a bit surprised that 2.5
+| is actually that much quicker :-)
 
-Before I stick the box live, I wanted to test that it doesn't fall over
-under any remote kind of stress, so I've run postal to simulate lots of mail
-connections.
+I was too.  When I have the bounce accounting straightened out,
+I'll run each test multiple times.
 
-Nothing too hard to begin with, but I'm seeing a degradation in performance
-over time, using a maximum message size of 10KB, 5 simultaneous connections,
-and limiting to 1500 messages per minute.
+| The bounce counts you are doing don't make too much sense to me though,
+| how come 2.4 + block-high and 2.5 show any bounced numbers at all? Maybe
+| you are not doing the accounting correctly? To get the right counts do
+| something ala:
 
-Initially the box memory situation is like this:
+Clearly I mucked that up.  Thanks for pointing it out.
+The patch below makes sense, but I also want to count
+"bounced swap IOs" separately.  I'll retest and report that
+when I have it done.
 
-root@plum:~# free
-             total       used       free     shared    buffers     cached
-Mem:       1029524      78948     950576          0      26636      23188
--/+ buffers/cache:      29124    1000400
-Swap:      2097136          0    2097136
+| +++ mm/highmem.c
+| @@ -409,7 +409,9 @@
+|                         vfrom = kmap(from->bv_page) + from->bv_offset;
+|                         memcpy(vto, vfrom, to->bv_len);
+|                         kunmap(from->bv_page);
+| -               }
+| +                       bounced_write++;
+| +               } else
+| +                       bounced_read++;
+|         }
+|
+| Of course those are all bounces, not just (or only) swap bounces. Also
+| note that the above is not SMP safe.
 
-...running postal, it seems to cope fine. Checking the queue using
-qmail-qstat shows no messages being delayed for delivery, everything I chuck
-at it is being delivered straight away.
+Is this the only place that kstat (kernel_stat) counters
+are not SMP safe...?
 
-However, over time, (30-45 minutes), more and more memory seems to just
-disappear from the system until it looks like this, (note that swap is
-hardly ever touched):
-
-root@plum:~# free
-             total       used       free     shared    buffers     cached
-Mem:       1029524    1018032      11492          0      49380     245568
--/+ buffers/cache:     723084     306440
-Swap:      2097136        676    2096460
-
-...and qmail-qstat reports a few thousand queued messages. Even if I stop
-the postal process, let the queue empty and start again, it never attains
-the same performance as it did initially and the queue gets slowly filled.
-
-I haven't left it long enough to see if the box grinds itself into the
-ground, but it appears to stay at pretty much the same level as above, once
-it gets there. CPU load stays at about ~5.0, (PIII 533), but it's still
-very reponsive to input and launching stuff.
-
-Looking at the processes, the biggest memory hog is a copy of dnscache that
-claims to have used ~10MB, which is fine as I specified a cache of that size.
-Nothing else shows any hint of excessive memory usage.
-
-Can anyone offer any advice or solution to this behaviour, (or more tricks
-or settings I can try)? I'd like the mail server to be able to handle 1500
-messages instead of 150 a minute! :-) Any extra info required, please let me
-know, I'm not sure what else to provide atm.
-
-Cheers
-
-Matt
 -- 
-"Phased plasma rifle in a forty-watt range?"
-"Hey, just what you see, pal"
+~Randy
+

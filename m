@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136176AbRD0TWa>; Fri, 27 Apr 2001 15:22:30 -0400
+	id <S136184AbRD0T1L>; Fri, 27 Apr 2001 15:27:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136178AbRD0TWV>; Fri, 27 Apr 2001 15:22:21 -0400
-Received: from a1a90191.sympatico.bconnected.net ([209.53.18.14]:54990 "EHLO
-	a1a90191.sympatico.bconnected.net") by vger.kernel.org with ESMTP
-	id <S136176AbRD0TWC>; Fri, 27 Apr 2001 15:22:02 -0400
-Date: Fri, 27 Apr 2001 12:22:00 -0700
-From: Shane Wegner <shane@cm.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010427122200.A16947@cm.nu>
-In-Reply-To: <20010427095840.A701@suse.cz> <Pine.LNX.4.21.0104270951270.2067-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.21.0104270951270.2067-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Apr 27, 2001 at 09:52:19AM -0700
-Organization: Continuum Systems, Vancouver, Canada
+	id <S136186AbRD0T1A>; Fri, 27 Apr 2001 15:27:00 -0400
+Received: from nrg.org ([216.101.165.106]:28214 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S136184AbRD0T04>;
+	Fri, 27 Apr 2001 15:26:56 -0400
+Date: Fri, 27 Apr 2001 12:26:55 -0700 (PDT)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: #define HZ 1024 -- negative effects?
+In-Reply-To: <Pine.LNX.4.33.0104270848530.425-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.05.10104271221540.3283-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 27, 2001 at 09:52:19AM -0700, Linus Torvalds wrote:
+On Fri, 27 Apr 2001, Mike Galbraith wrote:
+> > Rubbish.  Whenever a higher-priority thread than the current
+> > thread becomes runnable the current thread will get preempted,
+> > regardless of whether its timeslices is over or not.
 > 
-> On Fri, 27 Apr 2001, Vojtech Pavlik wrote:
-> > 
-> > Actually this is done quite often, even on mounted fs's:
-> > 
-> > hdparm -t /dev/hda
+> What about SCHED_YIELD and allocating during vm stress times?
 > 
-> Note that this one happens to be ok.
+> Say you have only two tasks.  One is the gui and is allocating,
+> the other is a pure compute task.  The compute task doesn't do
+> anything which will cause preemtion except use up it's slice.
+> The gui may yield the cpu but the compute job never will.
 > 
-> The buffer cache is "virtual" in the sense that /dev/hda is a completely
-> separate name-space from /dev/hda1, even if there is some physical
-> overlap.
+> (The gui won't _become_ runnable if that matters.  It's marked
+> as running, has yielded it's remaining slice and went to sleep..
+> with it's eyes open;)
 
-Wouldn't something like "hdparm -t /dev/md0" trigger it
-though.  It is the same device as gets mounted as md
-devices aren't partitioned.
+A well-written GUI should not be using SCHED_YIELD.  If it is
+"allocating", anything, it won't be using SCHED_YIELD or be marked
+runnable, it will be blocked, waiting until the resource becomes
+available.  When that happens, it will preempt the compute task (if its
+priority is high enough, which is very likely - and can be assured if
+it's running at a real-time priority as I suggested earlier).
 
-Shane
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
+MontaVista Software                             nigel@mvista.com
 
--- 
-Shane Wegner: shane@cm.nu
-              http://www.cm.nu/~shane/
-PGP:          1024D/FFE3035D
-              A0ED DAC4 77EC D674 5487
-              5B5C 4F89 9A4E FFE3 035D

@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312356AbSCUPIT>; Thu, 21 Mar 2002 10:08:19 -0500
+	id <S312362AbSCUP30>; Thu, 21 Mar 2002 10:29:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312357AbSCUPH7>; Thu, 21 Mar 2002 10:07:59 -0500
-Received: from angband.namesys.com ([212.16.7.85]:8322 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S312356AbSCUPHv>; Thu, 21 Mar 2002 10:07:51 -0500
-Date: Thu, 21 Mar 2002 18:07:50 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: sneakums@zork.net, linux-kernel@vger.kernel.org,
-        trond.myklebust@fys.uio.no
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-ID: <20020321180750.A2706@namesys.com>
-In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020321180117.A2638@namesys.com> <20020321160526.727b0f31.skraw@ithnet.com>
+	id <S312366AbSCUP3Q>; Thu, 21 Mar 2002 10:29:16 -0500
+Received: from jalon.able.es ([212.97.163.2]:20657 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S312362AbSCUP3C>;
+	Thu, 21 Mar 2002 10:29:02 -0500
+Date: Thu, 21 Mar 2002 16:28:52 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre3-ac4
+Message-ID: <20020321152852.GA2028@werewolf.able.es>
+In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu> <006101c1d084$275029b0$02c8a8c0@kroptech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Thu, Mar 21, 2002 at 04:05:26PM +0100, Stephan von Krawczynski wrote:
-> > I cannot reproduce it locally, that's it.
-> > And if you have reiserfs v3.6 (that's it, not v3.5 converted to 3.6,
-> > but v3.6 created with mkreiserfs), then I am out of ideas for you :(
-> I never did any conversion. I just don't trust it.
+On 2002.03.21 Adam Kropelin wrote:
+>Alan Cox wrote:
+>> Linux 2.4.19pre3-ac4
+>
+><snip>
+>
+>> o The incredible shrinking kernel patch (Andrew Morton)
+>
+>Is there a magic incantation I need in order to see an improvement from this?
+>I'm observing a slight (< 10 KB) increase from -ac3 to -ac4. Same .config, same
+>compiler.
+>
+>I only build 2 modules; everything else is static. Perhaps Andrew's fix is for
+>heavy module users?
+>
 
-;)
+I think it gives about 100k size decrease IFF you have verbose BUG activated.
 
-> Maybe my mkreiserfs util is old, and I should try recreating the volumes with a
-> newer version? Were there "suspicious" changes during 3.6 format?
-
-Not any I am aware of.
-
-Bye,
-    Oleg
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release cooker (Cooker) for i586
+Linux werewolf 2.4.19-pre4-jam1 #1 SMP Thu Mar 21 02:05:01 CET 2002 i686

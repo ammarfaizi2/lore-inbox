@@ -1,71 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVCVCoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVCVDXC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbVCVCoI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:44:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVCVCnf
+	id S262289AbVCVDXC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:23:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVCVDWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:43:35 -0500
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:26319 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S262288AbVCVCBU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 21:01:20 -0500
-Message-ID: <423F7CC2.305883C1@sdl.hitachi.co.jp>
-Date: Tue, 22 Mar 2005 11:02:42 +0900
-From: sugita <sugita@sdl.hitachi.co.jp>
-X-Mailer: Mozilla 4.78 [ja] (Windows NT 5.0; U)
-X-Accept-Language: ja
-MIME-Version: 1.0
+	Mon, 21 Mar 2005 22:22:32 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:14829 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262329AbVCVDUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 22:20:37 -0500
+Date: Mon, 21 Mar 2005 22:20:36 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime, now 2.6.12-rc1-mm1
+In-reply-to: <20050321185623.5fb2592c.akpm@osdl.org>
 To: linux-kernel@vger.kernel.org
-Cc: lkst-develop@lists.sourceforge.net
-Subject: The new function of LKST is released
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Cc: Andrew Morton <akpm@osdl.org>
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503212220.36347.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200503082326.28737.gene.heskett@verizon.net>
+ <200503212135.07063.gene.heskett@verizon.net>
+ <20050321185623.5fb2592c.akpm@osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Monday 21 March 2005 21:56, Andrew Morton wrote:
+>Gene Heskett <gene.heskett@verizon.net> wrote:
+>> ...
+>> tvtime works, no audio glitches in the startup.  This is a
+>> pcHDTV-3000 card, running in Never Twice Same Color mode as yet.
+>>
+>> xsane works normally I believe, doing a preview scan ok.
+>
+>Whew.
 
- We are pleased to announce releasing new function of Linux
-Kernel State Tracer(a.k.a. LKST).
- It's a lkstlogtools for analyzing performance of kernel.
-This function is released as lkstlogtools v1.0.1.
-For using this function, LKST v2.2.1 is needed.
-Please use this tool and give us some comment.
+:)
 
----
-The development of this program is partly supported by IPA
-(Information-Technology Promotion Agency, Japan).
----
+>> kino works, but doesn't really want to time share with the much
+>> cpu hungrier tvtime, this results a very noticeable lag in the
+>> preview video coming in directly from the cameras imager via
+>> firewire, and sometimes an outright freeze of 2-3 seconds duration
+>> when kmail is makeing a mail fetch run.
+>
+>Is that unexpected?
 
- LKST with lkstlogtools can collect the queue information and
-the execution time of some key processing and analyze them.
-lkstlogtools provides some tools for analyzing and visualizing LKST
-data too.
->From these analyzed data, user can know what processing is slow
-and the status of the queue at the time.
-Thus user can use LKST with lkstlogtools as a tool to evaluate
-kernel performance.
+No. 
 
----
-lkstlogtools and LKST binaries, source code and documents are
-available in the following site,
-http://sourceforge.net/projects/lkst/
-http://sourceforge.jp/projects/lkst/
+>Are there other kernels which you found better 
+> behaved in this regard?  There are CPU scheduler changes in -mm,
+> but they're unlikely to affect UP or small SMP.
 
-We prepared a mailing list written below in order to let users know
-update of LKST.
- lkst-users@lists.sourceforge.net
- lkst-users@lists.sourceforge.jp
+Only 2.6.12-rc1 is comparable in "feel", and it will take me a while  
+to reach a conclusion.  Stay tuned...
+  
+>> spcagui works once I'd reinstalled the spca50x stuff
+>>
+>> /. pops right up in mozilla-1.7.5, also in firefox
+>>
+>> Those seem to be the main things of interest right now, to me.
+>>
+>> Anything else I should specifically check on this UP machine?
+>>
+>> As I add content to this message, I am occasionally seeing lags
+>> between what I type and its showing up on the screen but its
+>> certainly better than 2.6.10 or 11 was by quite a ways.  This is
+>> related to the kino lags in that I believe its kmail's net access
+>> that is causeing them.
+>
+>hm, OK.  Is much disk I/O happening during the lags?
 
-And if you have any comments, please send to the above list, or to
-another mailing-list written below.
- lkst-develop@lists.sourceforge.net
- lkst-develop@lists.sourceforge.jp
+Not really, its spamassassins &^%$#@ perl scripts that are eating the 
+cpu I think.
 
-Best regards,
-All of the LKST developers
------------------
-Yumiko Sugita
-Hitachi,Ltd., Systems Development Laboratory
-E-mail: sugita@sdl.hitachi.co.jp
+>> Overall, I don't have any instant squawks Andrew.  Looks good,
+>> generally feels good.  Itches might develop later though.  I'm
+>> using the cfq scheduler, were there any changes of note there?
+>
+>Relative to 2.6.121-mm2?  Yes, CFQ underwent radical changes.
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

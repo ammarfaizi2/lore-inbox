@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbREMOEE>; Sun, 13 May 2001 10:04:04 -0400
+	id <S261406AbREMOUc>; Sun, 13 May 2001 10:20:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261405AbREMODy>; Sun, 13 May 2001 10:03:54 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:7689 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S261404AbREMODm>;
-	Sun, 13 May 2001 10:03:42 -0400
-To: Abramo Bagnara <abramo@alsa-project.org>
-Cc: "David S. Miller" <davem@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()?
-In-Reply-To: <3AF10E80.63727970@alsa-project.org> <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> <11718.988883128@redhat.com> <3AF12B94.60083603@alsa-project.org> <15089.63036.52229.489681@pizda.ninka.net> <3AF25700.19889930@alsa-project.org>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 13 May 2001 16:00:45 +0200
-In-Reply-To: Abramo Bagnara's message of "Fri, 04 May 2001 09:15:12 +0200"
-Message-ID: <d37kzltkky.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S261407AbREMOUW>; Sun, 13 May 2001 10:20:22 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:21519 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S261406AbREMOUE>;
+	Sun, 13 May 2001 10:20:04 -0400
+Date: Sun, 13 May 2001 07:21:25 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alexander Viro <viro@math.psu.edu>
+cc: BERECZ Szabolcs <szabi@inf.elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: mount /dev/hdb2 /usr; swapon /dev/hdb2  keeps flooding
+In-Reply-To: <Pine.GSO.4.21.0105121935570.11973-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10105130720280.16778-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Abramo" == Abramo Bagnara <abramo@alsa-project.org> writes:
+On Sat, 12 May 2001, Alexander Viro wrote:
 
-Abramo> "David S. Miller" wrote:
->> One final point, I want to reiterate that I believe:
->> 
->> foo = readl(&regs->bar);
->> 
->> is perfectly legal and should not be discouraged and in particular,
->> not made painful to do.
+> 
+> 
+> On Sun, 13 May 2001, BERECZ Szabolcs wrote:
+> 
+> > On Sat, 12 May 2001, Alexander Viro wrote:
+> > 
+> > > - Doctor, it hurts when I do it!
+> > > - Don't do it, then.
+> > >
+> > > Just what behaviour had you expected?
+> > maybe that I don't have to shutdown?
+> > I think it's a *bad* behaviour
+> 
+> Erm... Let me restate: what did you expect to achieve with that?
+> Swap on device means that all contents of that device is lost.
+> Mounting fs from device generally means that you don't want the
+> loss of contents. At least until you unmount the thing.
+> 
 
-Abramo> I disagree: regs it's not a dereferenceable thing and I think
-Abramo> it's an abuse of pointer type. You're keeping a pointer that
-Abramo> need a big sign on it saying "Don't dereference me", it's a
-Abramo> mess.
+Really? Then why do 2.4.x kernels let you mkfs a mounted fs?
 
-Thats complete rubbish, in many cases the regs structure matches a
-regs structure seen by another CPU on the other side of the PCI bus
-(ie. the firmware case). There is nothing wrong with the above
-approach as long as you keep in mind that you cannot dereference the
-struct without using readl and you have to make sure to explicitly do
-padding in the struct (not all CPUs guarantee the same natural
-alignment).
+	Gerhard
 
-Jes
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264378AbUDOSRb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUDORmw
+	id S263725AbUDOSma (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 14:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbUDOSm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:42:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:32438 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263225AbUDORmW convert rfc822-to-8bit
+	Thu, 15 Apr 2004 14:42:29 -0400
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:11650 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S263725AbUDOSmH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:42:22 -0400
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core update for 2.6.6-rc1
-In-Reply-To: <10820509132751@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Thu, 15 Apr 2004 10:41:53 -0700
-Message-Id: <10820509131104@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 15 Apr 2004 14:42:07 -0400
+Date: Thu, 15 Apr 2004 19:40:39 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Subject: problems with quad Xeon SuperServer came back 4 years later
+Message-ID: <Pine.LNX.4.44.0404151930120.949-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.18, 2004/04/12 16:46:07-07:00, marcel@holtmann.org
+Hello guys,
 
-[PATCH] Fix sysfs class support for CAPI
+Those of you old enough will remember the problem I reported in 2000 (and
+at the time fixed) with quad Xeon SuperServer8050 machine, here is the
+message from 12 October 2000:
 
-this patch fixes a bug in the CAPI TTY support, because the ->name value
-of the TTY driver shouldn't contain a "/". After changing this there are
-now a "capi20" TTY device and a "capi20" control device and so I renamed
-the control device to "capi". The userspace visible part must be done by
-udev and I added these two rules to restore the old namespace:
+ http://www.uwsg.iu.edu/hypermail/linux/kernel/0010.1/0789.html
 
-	# CAPI devices
-	KERNEL="capi",          NAME="capi20", SYMLINK="isdn/capi20"
-	KERNEL="capi*",         NAME="capi/%n"
+Now, something must have changed between 2000 and 2004 because exactly the
+same problem came back now when running 2.4.21-4EL kernel from Red Hat
+Advanced Server 3 distribution. Only now, disabling the caching of CXXX
+areas in the BIOS doesn't fix the problem, unfortunately.  I haven't tried
+2.6 on that machine, because I need to get it working urgently with AS3
+kernels.
 
+Did anyone else run into this? Maybe I should upgrade the BIOS which will
+tune the caching in the chipset appropriately? It is an S2QR6 motherboard
+with 4x PIII Xeon 700MHz and 6G RAM, AMI BIOS v1.2 (not upgraded since
+1999). The problem is that "everything" is about 40-50 times slower than
+normal. E.g. gzip -9 of a 10M random file takes 6 minutes instead of 5
+seconds etc. It used to compile the kernel in 50 seconds (as the message
+above says). Now it is taking ages, so slow not even worth mentioning the
+exact numbers (i.e. unacceptably slow!)
 
- drivers/isdn/capi/capi.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-
-diff -Nru a/drivers/isdn/capi/capi.c b/drivers/isdn/capi/capi.c
---- a/drivers/isdn/capi/capi.c	Thu Apr 15 10:20:08 2004
-+++ b/drivers/isdn/capi/capi.c	Thu Apr 15 10:20:08 2004
-@@ -1312,7 +1312,8 @@
- 
- 	drv->owner = THIS_MODULE;
- 	drv->driver_name = "capi_nc";
--	drv->name = "capi/";
-+	drv->devfs_name = "capi/";
-+	drv->name = "capi";
- 	drv->major = capi_ttymajor;
- 	drv->minor_start = 0;
- 	drv->type = TTY_DRIVER_TYPE_SERIAL;
-@@ -1488,7 +1489,7 @@
- 		return PTR_ERR(capi_class);
- 	}
- 
--	class_simple_device_add(capi_class, MKDEV(capi_major, 0), NULL, "capi20");
-+	class_simple_device_add(capi_class, MKDEV(capi_major, 0), NULL, "capi");
- 	devfs_mk_cdev(MKDEV(capi_major, 0), S_IFCHR | S_IRUSR | S_IWUSR,
- 			"isdn/capi20");
- 
+Kind regards
+Tigran
 

@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbTKRIvA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 03:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTKRIvA
+	id S262052AbTKRInn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 03:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTKRInn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 03:51:00 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:21685
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262410AbTKRIum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 03:50:42 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: shoxx@web.de, linux-kernel@vger.kernel.org
-Subject: Re: problem with suspend to disk on linux2.6-t9
-Date: Tue, 18 Nov 2003 02:45:08 -0600
-User-Agent: KMail/1.5
-References: <200311172327.24418.shoxx@web.de>
-In-Reply-To: <200311172327.24418.shoxx@web.de>
-Cc: Patrick Mochel <mochel@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Nov 2003 03:43:43 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21256 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262052AbTKRInm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 03:43:42 -0500
+Date: Tue, 18 Nov 2003 08:43:36 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: use ELF sections for get_wchan()
+Message-ID: <20031118084336.A28004@flint.arm.linux.org.uk>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031118074448.GD19856@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311180245.08960.rob@landley.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031118074448.GD19856@holomorphy.com>; from wli@holomorphy.com on Mon, Nov 17, 2003 at 11:44:48PM -0800
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 November 2003 16:27, dodger wrote:
-> hi
-> i am using linux2.6-t9 and i am trying to use suspend to disk
-> when doing a
-> < echo -n "disk" > /sys/power/state >
->
-> it is suspending real fine.
-> but it is not resuming at all.
-> i tried to boot up normally and with resume=/dev/hdb5 ( swap partition )
-> but nothing happens...
->
-> it just boots up normally...
-> i have set /dev/hdb5 as DEFAULT RESUME PARTITION during kernel config...
->
-> any ideas?
-> thanks
+A couple of comments on the patch:
 
-Hmmm...  Looking at my dmesg from the last boot up (which was a clean boot and 
-not a resume from suspend), it doesn't seem like the suspend code prints out 
-anything when it's checking for a resume image.  (On the other hand, the APIC 
-code prints out three screenfulls of useless trivia.  Fun...)
+> diff -prauN linux-2.6.0-test9-bk22/arch/arm/boot/compressed/vmlinux.lds.in wchan-2.6.0-test9-bk22-1/arch/arm/boot/compressed/vmlinux.lds.in
+> --- linux-2.6.0-test9-bk22/arch/arm/boot/compressed/vmlinux.lds.in	2003-10-25 11:43:32.000000000 -0700
+> +++ wchan-2.6.0-test9-bk22-1/arch/arm/boot/compressed/vmlinux.lds.in	2003-11-17 23:14:03.000000000 -0800
 
-Patrick: is there some kind of debug switch we can set to make it more 
-verbose?  (I don't see one in the code.  I'm going to be sprinkling in 
-printks myself as soon as my rebuild sans preempt finishes...)
+You don't need to add to this file - this linker script takes the binary
+kernel image and puts the necessary decompressor magic around it.
 
-Rob
+> diff -prauN linux-2.6.0-test9-bk22/arch/arm26/boot/compressed/vmlinux.lds.in wchan-2.6.0-test9-bk22-1/arch/arm26/boot/compressed/vmlinux.lds.in
+> --- linux-2.6.0-test9-bk22/arch/arm26/boot/compressed/vmlinux.lds.in	2003-10-25 11:42:57.000000000 -0700
+> +++ wchan-2.6.0-test9-bk22-1/arch/arm26/boot/compressed/vmlinux.lds.in	2003-11-17 23:09:47.000000000 -0800
 
+Same again.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,62 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVCIHkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVCIHnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVCIHkE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 02:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVCIHkD
+	id S261641AbVCIHnz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 02:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVCIHnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 02:40:03 -0500
-Received: from mail.kroah.org ([69.55.234.183]:23448 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261613AbVCIHjc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 02:39:32 -0500
-Date: Tue, 8 Mar 2005 23:36:16 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
-Message-ID: <20050309073616.GB19367@kroah.com>
-References: <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org> <20050308231636.GA20658@isilmar.linta.de> <1110347109.32524.56.camel@gaston> <20050309071942.GA28231@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309071942.GA28231@isilmar.linta.de>
-User-Agent: Mutt/1.5.8i
+	Wed, 9 Mar 2005 02:43:55 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:32484 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261641AbVCIHnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 02:43:17 -0500
+Date: Wed, 09 Mar 2005 02:43:04 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime
+In-reply-to: <20050308224441.2e29f895.akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
+       video4linux-list@redhat.com, sensors@stimpy.netroedge.com
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503090243.06270.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200503082326.28737.gene.heskett@verizon.net>
+ <20050308224441.2e29f895.akpm@osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 08:19:42AM +0100, Dominik Brodowski wrote:
-> On Wed, Mar 09, 2005 at 04:45:09PM +1100, Benjamin Herrenschmidt wrote:
-> > On Wed, 2005-03-09 at 00:16 +0100, Dominik Brodowski wrote:
-> > > > Dominik Brodowski <linux@dominikbrodowski.net> wrote:
-> > > > >
-> > > > > Most pcmcia devices are matched to drivers using "product ID strings"
-> > > > >  embedded in the devices' Card Information Structures, as "manufactor ID /
-> > > > >  card ID" matches are much less reliable. Unfortunately, these strings cannot
-> > > > >  be passed to userspace for easy userspace-based loading of appropriate
-> > > > >  modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
-> > > > >  of the strings in the MODULE_DEVICE_TABLEs, e.g.:
-> > > > > 
-> > > > >  PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
-> > > > 
-> > > > What is the difficulty in passing these strings via /sbin/hotplug arguments?
-> > > 
-> > > The difficulty is that extracting and evaluating them breaks the wonderful 
-> > > bus-independent MODNAME implementation for hotplug suggested by Roman Kagan
-> > > ( http://article.gmane.org/gmane.linux.hotplug.devel/7039 ), and that these
-> > > strings may contain spaces and other "strange" characters. The latter may be 
-> > > worked around, but the former cannot. /etc/hotplug/pcmcia.agent looks really
-> > > clean because of this MODNAME implementation:
-> > 
-> > Same goes with Open Firmware match strings that we are about to pass
-> > down to userspace as well. Hotplug will have to learn to deal with
-> > those.
-> 
-> Hotplug isn't the tricky part. file2alias is. Any idea on how to do that?
+On Wednesday 09 March 2005 01:44, Andrew Morton wrote:
+>Gene Heskett <gene.heskett@verizon.net> wrote:
+>> Greetings Andrew;
+>
+>g'day.
+>
+g'day to you, sir.
 
-I do not, sorry.  Rusty's the person to bug about that.
+>> 2.6.11-mm2 seems to work, mostly.
+>>
+>> First, the ieee1394 stuff seems to have fixed up that driver, and
+>> kino can access my movie cameras video over the firewire very
+>> nicely without applying the bk-ieee1394-patch.  The camera has
+>> builtin stereo mics in it, but nary a peep can be heard from it
+>> thru the firewire.  Am I supposed to be able to hear that?
+>
+>Was it working with 2.6.11+bk-ieee1394.patch?  Or with anything
+> else?
 
-good luck,
+It did work previously with the svn download from the ieee1394 site 
+for the kernels in the series of RT stuff that Ingo Molnar was 
+working on.  Also, since I posted this, I tried catting a .wav file 
+to /dev/dsp, which is the output that kino is expecting to use, and 
+that sort of worked, playing the file at half speed and pitch.  So I 
+believe its the upload from the camera, and the stripping of the 
+audio data from the stream from the camera thats at fault.  But thats 
+just a SWAG on my part, & I probably should not have used the S 
+there. :)
 
-greg k-h
+>Cc'ed linux1394-devel@lists.sourceforge.net
+>
+>> Second, I have a pdHDTV-3000 card, and up till now I've been
+>> overwriting the bttv stuffs with the drivers in pcHDTV-1.6.tar.gz
+>> by doing a make clean;make;make install.  But now thats broken,
+>> and the error message doesn't seem to make sense to this old K&R C
+>> guy.
+>>
+>> The error exit:
+>> make[1]: Entering directory `/usr/src/linux-2.6.11-mm2'
+>>   CC
+>> [M] 
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.o
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
+>>2: error: unknown field `id' specified in initializer
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
+>>2: warning: missing braces around initializer
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
+>>2: warning: (near initialization for
+>> `bttv_i2c_client_template.released')
+>> make[2]: ***
+>> [/usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.o]
+>> Error 1
+>> make[1]: ***
+>> [_module_/usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver]
+>> Error 2
+>> make[1]: Leaving directory `/usr/src/linux-2.6.11-mm2'
+>> make: *** [modules] Error 2
+>>
+>> The braces are indeed there.
+>
+>What's pcHDTV-1.6.tar.gz?  If it was merged up then these things
+> wouldn't happen.
+>
+This is the latest driver set for this card, downloadable from the 
+pcHDTV site.  It overwrites, when it builds and installs, the bttv 
+and cx88xx stuffs in the modules dir.  And it has worked up to 
+2.6.11-mm2, but I didn't get around to trying mm1. It worked with the 
+last of the RT's from Ingo, and for 2.6.11(.1).
+
+>CC'ed video4linux-list@redhat.com
+>> Third, somewhere between 2.6.11-rc5-RT-V0.39-02 and 2.6.11, I've
+>> lost my sensors except for one on the motherboard called THRM by
+>> gkrellm-2.28.  Nothing seems to be able to bring the w83627hf back
+>> to life.
+
+I'm back on 2.6.11-rc5 and thats working as expected now.
+
+>CC'ed sensors@Stimpy.netroedge.com
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

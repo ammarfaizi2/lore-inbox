@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbUKSTuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbUKSTuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbUKSTuG (ORCPT <rfc822;willy@w.ods.org>);
+	id S261570AbUKSTuG (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 19 Nov 2004 14:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbUKSTtv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbUKSTsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 14:49:51 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:36559 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261566AbUKSTof (ORCPT
+	Fri, 19 Nov 2004 14:48:43 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13960 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261560AbUKSTow (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 14:44:35 -0500
-Date: Fri, 19 Nov 2004 11:44:15 -0800 (PST)
+	Fri, 19 Nov 2004 14:44:52 -0500
+Date: Fri, 19 Nov 2004 11:44:47 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: torvalds@osdl.org, akpm@osdl.org,
@@ -17,9 +17,9 @@ To: torvalds@osdl.org, akpm@osdl.org,
 cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
        linux-mm@kvack.org, linux-ia64@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V11 [2/7]: page fault handler optimizations
+Subject: page fault scalability patch V11 [3/7]: ia64 atomic pte operations
 In-Reply-To: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0411191143340.24095@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0411191144180.24095@schroedinger.engr.sgi.com>
 References: <Pine.LNX.4.44.0411061527440.3567-100000@localhost.localdomain>
   <Pine.LNX.4.58.0411181126440.30385@schroedinger.engr.sgi.com> 
  <Pine.LNX.4.58.0411181715280.834@schroedinger.engr.sgi.com> 
@@ -32,442 +32,113 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Changelog
-        * Increase parallelism in SMP configurations by deferring
-          the acquisition of page_table_lock in handle_mm_fault
-        * Anonymous memory page faults bypass the page_table_lock
-          through the use of atomic page table operations
-        * Swapper does not set pte to empty in transition to swap
-        * Simulate atomic page table operations using the
-          page_table_lock if an arch does not define
-          __HAVE_ARCH_ATOMIC_TABLE_OPS. This still provides
-          a performance benefit since the page_table_lock
-          is held for shorter periods of time.
+        * Provide atomic pte operations for ia64
+        * Enhanced parallelism in page fault handler if applied together
+          with the generic patch
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.9/mm/memory.c
+Index: linux-2.6.9/include/asm-ia64/pgalloc.h
 ===================================================================
---- linux-2.6.9.orig/mm/memory.c	2004-11-18 12:25:49.000000000 -0800
-+++ linux-2.6.9/mm/memory.c	2004-11-19 06:38:53.000000000 -0800
-@@ -1330,8 +1330,7 @@
- }
+--- linux-2.6.9.orig/include/asm-ia64/pgalloc.h	2004-10-18 14:53:06.000000000 -0700
++++ linux-2.6.9/include/asm-ia64/pgalloc.h	2004-11-19 07:54:19.000000000 -0800
+@@ -34,6 +34,10 @@
+ #define pmd_quicklist		(local_cpu_data->pmd_quick)
+ #define pgtable_cache_size	(local_cpu_data->pgtable_cache_sz)
 
- /*
-- * We hold the mm semaphore and the page_table_lock on entry and
-- * should release the pagetable lock on exit..
-+ * We hold the mm semaphore
-  */
- static int do_swap_page(struct mm_struct * mm,
- 	struct vm_area_struct * vma, unsigned long address,
-@@ -1343,15 +1342,13 @@
- 	int ret = VM_FAULT_MINOR;
-
- 	pte_unmap(page_table);
--	spin_unlock(&mm->page_table_lock);
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-  		swapin_readahead(entry, address, vma);
-  		page = read_swap_cache_async(entry, vma, address);
- 		if (!page) {
- 			/*
--			 * Back out if somebody else faulted in this pte while
--			 * we released the page table lock.
-+			 * Back out if somebody else faulted in this pte
- 			 */
- 			spin_lock(&mm->page_table_lock);
- 			page_table = pte_offset_map(pmd, address);
-@@ -1374,8 +1371,7 @@
- 	lock_page(page);
-
- 	/*
--	 * Back out if somebody else faulted in this pte while we
--	 * released the page table lock.
-+	 * Back out if somebody else faulted in this pte
- 	 */
- 	spin_lock(&mm->page_table_lock);
- 	page_table = pte_offset_map(pmd, address);
-@@ -1422,14 +1418,12 @@
- }
-
- /*
-- * We are called with the MM semaphore and page_table_lock
-- * spinlock held to protect against concurrent faults in
-- * multithreaded programs.
-+ * We are called with the MM semaphore held.
-  */
- static int
- do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
- 		pte_t *page_table, pmd_t *pmd, int write_access,
--		unsigned long addr)
-+		unsigned long addr, pte_t orig_entry)
- {
- 	pte_t entry;
- 	struct page * page = ZERO_PAGE(addr);
-@@ -1441,7 +1435,6 @@
- 	if (write_access) {
- 		/* Allocate our own private page. */
- 		pte_unmap(page_table);
--		spin_unlock(&mm->page_table_lock);
-
- 		if (unlikely(anon_vma_prepare(vma)))
- 			goto no_mem;
-@@ -1450,30 +1443,37 @@
- 			goto no_mem;
- 		clear_user_highpage(page, addr);
-
--		spin_lock(&mm->page_table_lock);
- 		page_table = pte_offset_map(pmd, addr);
-
--		if (!pte_none(*page_table)) {
--			pte_unmap(page_table);
--			page_cache_release(page);
--			spin_unlock(&mm->page_table_lock);
--			goto out;
--		}
--		mm->rss++;
- 		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
- 							 vma->vm_page_prot)),
- 				      vma);
--		lru_cache_add_active(page);
- 		mark_page_accessed(page);
--		page_add_anon_rmap(page, vma, addr);
- 	}
-
--	set_pte(page_table, entry);
-+	/* update the entry */
-+	if (!ptep_cmpxchg(vma, addr, page_table, orig_entry, entry)) {
-+		if (write_access) {
-+			pte_unmap(page_table);
-+			page_cache_release(page);
-+		}
-+		goto out;
-+	}
-+	if (write_access) {
-+		/*
-+		 * These two functions must come after the cmpxchg
-+		 * because if the page is on the LRU then try_to_unmap may come
-+		 * in and unmap the pte.
-+		 */
-+		lru_cache_add_active(page);
-+		page_add_anon_rmap(page, vma, addr);
-+		mm->rss++;
++/* Empty entries of PMD and PGD */
++#define PMD_NONE       0
++#define PGD_NONE       0
 +
-+	}
- 	pte_unmap(page_table);
-
- 	/* No need to invalidate - it was non-present before */
- 	update_mmu_cache(vma, addr, entry);
--	spin_unlock(&mm->page_table_lock);
- out:
- 	return VM_FAULT_MINOR;
- no_mem:
-@@ -1489,12 +1489,12 @@
-  * As this is called only for pages that do not currently exist, we
-  * do not need to flush old virtual caches or the TLB.
-  *
-- * This is called with the MM semaphore held and the page table
-- * spinlock held. Exit with the spinlock released.
-+ * This is called with the MM semaphore held.
-  */
- static int
- do_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
--	unsigned long address, int write_access, pte_t *page_table, pmd_t *pmd)
-+	unsigned long address, int write_access, pte_t *page_table,
-+        pmd_t *pmd, pte_t orig_entry)
+ static inline pgd_t*
+ pgd_alloc_one_fast (struct mm_struct *mm)
  {
- 	struct page * new_page;
- 	struct address_space *mapping = NULL;
-@@ -1505,9 +1505,8 @@
+@@ -78,12 +82,19 @@
+ 	preempt_enable();
+ }
 
- 	if (!vma->vm_ops || !vma->vm_ops->nopage)
- 		return do_anonymous_page(mm, vma, page_table,
--					pmd, write_access, address);
-+					pmd, write_access, address, orig_entry);
- 	pte_unmap(page_table);
--	spin_unlock(&mm->page_table_lock);
-
- 	if (vma->vm_file) {
- 		mapping = vma->vm_file->f_mapping;
-@@ -1605,7 +1604,7 @@
-  * nonlinear vmas.
-  */
- static int do_file_page(struct mm_struct * mm, struct vm_area_struct * vma,
--	unsigned long address, int write_access, pte_t *pte, pmd_t *pmd)
-+	unsigned long address, int write_access, pte_t *pte, pmd_t *pmd, pte_t entry)
++
+ static inline void
+ pgd_populate (struct mm_struct *mm, pgd_t *pgd_entry, pmd_t *pmd)
  {
- 	unsigned long pgoff;
- 	int err;
-@@ -1618,13 +1617,12 @@
- 	if (!vma->vm_ops || !vma->vm_ops->populate ||
- 			(write_access && !(vma->vm_flags & VM_SHARED))) {
- 		pte_clear(pte);
--		return do_no_page(mm, vma, address, write_access, pte, pmd);
-+		return do_no_page(mm, vma, address, write_access, pte, pmd, entry);
- 	}
+ 	pgd_val(*pgd_entry) = __pa(pmd);
+ }
 
- 	pgoff = pte_to_pgoff(*pte);
++/* Atomic populate */
++static inline int
++pgd_test_and_populate (struct mm_struct *mm, pgd_t *pgd_entry, pmd_t *pmd)
++{
++	return ia64_cmpxchg8_acq(pgd_entry,__pa(pmd), PGD_NONE) == PGD_NONE;
++}
 
- 	pte_unmap(pte);
--	spin_unlock(&mm->page_table_lock);
+ static inline pmd_t*
+ pmd_alloc_one_fast (struct mm_struct *mm, unsigned long addr)
+@@ -132,6 +143,13 @@
+ 	pmd_val(*pmd_entry) = page_to_phys(pte);
+ }
 
- 	err = vma->vm_ops->populate(vma, address & PAGE_MASK, PAGE_SIZE, vma->vm_page_prot, pgoff, 0);
- 	if (err == -ENOMEM)
-@@ -1643,49 +1641,40 @@
-  * with external mmu caches can use to update those (ie the Sparc or
-  * PowerPC hashed page tables that act as extended TLBs).
-  *
-- * Note the "page_table_lock". It is to protect against kswapd removing
-- * pages from under us. Note that kswapd only ever _removes_ pages, never
-- * adds them. As such, once we have noticed that the page is not present,
-- * we can drop the lock early.
-- *
-- * The adding of pages is protected by the MM semaphore (which we hold),
-- * so we don't need to worry about a page being suddenly been added into
-- * our VM.
-- *
-- * We enter with the pagetable spinlock held, we are supposed to
-- * release it when done.
-+ * Note that kswapd only ever _removes_ pages, never adds them.
-+ * We need to insure to handle that case properly.
-  */
- static inline int handle_pte_fault(struct mm_struct *mm,
- 	struct vm_area_struct * vma, unsigned long address,
- 	int write_access, pte_t *pte, pmd_t *pmd)
++/* Atomic populate */
++static inline int
++pmd_test_and_populate (struct mm_struct *mm, pmd_t *pmd_entry, struct page *pte)
++{
++	return ia64_cmpxchg8_acq(pmd_entry, page_to_phys(pte), PMD_NONE) == PMD_NONE;
++}
++
+ static inline void
+ pmd_populate_kernel (struct mm_struct *mm, pmd_t *pmd_entry, pte_t *pte)
  {
- 	pte_t entry;
-+	pte_t new_entry;
+Index: linux-2.6.9/include/asm-ia64/pgtable.h
+===================================================================
+--- linux-2.6.9.orig/include/asm-ia64/pgtable.h	2004-11-15 11:13:38.000000000 -0800
++++ linux-2.6.9/include/asm-ia64/pgtable.h	2004-11-19 07:55:35.000000000 -0800
+@@ -414,6 +425,26 @@
+ #endif
+ }
 
- 	entry = *pte;
- 	if (!pte_present(entry)) {
--		/*
--		 * If it truly wasn't present, we know that kswapd
--		 * and the PTE updates will not touch it later. So
--		 * drop the lock.
--		 */
- 		if (pte_none(entry))
--			return do_no_page(mm, vma, address, write_access, pte, pmd);
-+			return do_no_page(mm, vma, address, write_access, pte, pmd, entry);
- 		if (pte_file(entry))
--			return do_file_page(mm, vma, address, write_access, pte, pmd);
-+			return do_file_page(mm, vma, address, write_access, pte, pmd, entry);
- 		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
- 	}
-
++/*
++ * IA-64 doesn't have any external MMU info: the page tables contain all the necessary
++ * information.  However, we use this routine to take care of any (delayed) i-cache
++ * flushing that may be necessary.
++ */
++extern void update_mmu_cache (struct vm_area_struct *vma, unsigned long vaddr, pte_t pte);
++
++static inline int
++ptep_cmpxchg (struct vm_area_struct *vma, unsigned long addr, pte_t *ptep, pte_t oldval, pte_t newval)
++{
 +	/*
-+	 * This is the case in which we only update some bits in the pte.
++	 * IA64 defers icache flushes. If the new pte is executable we may
++	 * have to flush the icache to insure cache coherency immediately
++	 * after the cmpxchg.
 +	 */
-+	new_entry = pte_mkyoung(entry);
- 	if (write_access) {
--		if (!pte_write(entry))
-+		if (!pte_write(entry)) {
-+			/* do_wp_page expects us to hold the page_table_lock */
-+			spin_lock(&mm->page_table_lock);
- 			return do_wp_page(mm, vma, address, pte, pmd, entry);
--
--		entry = pte_mkdirty(entry);
-+		}
-+		new_entry = pte_mkdirty(new_entry);
- 	}
--	entry = pte_mkyoung(entry);
--	ptep_set_access_flags(vma, address, pte, entry, write_access);
--	update_mmu_cache(vma, address, entry);
-+	if (ptep_cmpxchg(vma, address, pte, entry, new_entry))
-+		update_mmu_cache(vma, address, new_entry);
- 	pte_unmap(pte);
--	spin_unlock(&mm->page_table_lock);
- 	return VM_FAULT_MINOR;
- }
-
-@@ -1703,22 +1692,45 @@
-
- 	inc_page_state(pgfault);
-
--	if (is_vm_hugetlb_page(vma))
-+	if (unlikely(is_vm_hugetlb_page(vma)))
- 		return VM_FAULT_SIGBUS;	/* mapping truncation does this. */
-
- 	/*
--	 * We need the page table lock to synchronize with kswapd
--	 * and the SMP-safe atomic PTE updates.
-+	 * We rely on the mmap_sem and the SMP-safe atomic PTE updates.
-+	 * to synchronize with kswapd
- 	 */
--	spin_lock(&mm->page_table_lock);
--	pmd = pmd_alloc(mm, pgd, address);
-+	if (unlikely(pgd_none(*pgd))) {
-+		pmd_t *new = pmd_alloc_one(mm, address);
-+		if (!new)
-+			return VM_FAULT_OOM;
++	if (pte_exec(newval))
++		update_mmu_cache(vma, addr, newval);
++	return ia64_cmpxchg8_acq(&ptep->pte, newval.pte, oldval.pte) == oldval.pte;
++}
 +
-+		/* Insure that the update is done in an atomic way */
-+		if (!pgd_test_and_populate(mm, pgd, new))
-+			pmd_free(new);
-+	}
-+
-+	pmd = pmd_offset(pgd, address);
-+
-+	if (likely(pmd)) {
-+		pte_t *pte;
-+
-+		if (!pmd_present(*pmd)) {
-+			struct page *new;
-
--	if (pmd) {
--		pte_t * pte = pte_alloc_map(mm, pmd, address);
--		if (pte)
-+			new = pte_alloc_one(mm, address);
-+			if (!new)
-+				return VM_FAULT_OOM;
-+
-+			if (!pmd_test_and_populate(mm, pmd, new))
-+				pte_free(new);
-+			else
-+				inc_page_state(nr_page_table_pages);
-+		}
-+
-+		pte = pte_offset_map(pmd, address);
-+		if (likely(pte))
- 			return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
- 	}
--	spin_unlock(&mm->page_table_lock);
- 	return VM_FAULT_OOM;
- }
-
-Index: linux-2.6.9/include/asm-generic/pgtable.h
-===================================================================
---- linux-2.6.9.orig/include/asm-generic/pgtable.h	2004-10-18 14:53:46.000000000 -0700
-+++ linux-2.6.9/include/asm-generic/pgtable.h	2004-11-19 07:54:05.000000000 -0800
-@@ -134,4 +134,60 @@
- #define pgd_offset_gate(mm, addr)	pgd_offset(mm, addr)
+ static inline int
+ pte_same (pte_t a, pte_t b)
+ {
+@@ -476,13 +507,6 @@
+ 	struct vm_area_struct * prev, unsigned long start, unsigned long end);
  #endif
 
-+#ifndef __HAVE_ARCH_ATOMIC_TABLE_OPS
-+/*
-+ * If atomic page table operations are not available then use
-+ * the page_table_lock to insure some form of locking.
-+ * Note thought that low level operations as well as the
-+ * page_table_handling of the cpu may bypass all locking.
-+ */
-+
-+#ifndef __HAVE_ARCH_PTEP_CMPXCHG
-+#define ptep_cmpxchg(__vma, __addr, __ptep, __oldval, __newval)		\
-+({									\
-+	int __rc;							\
-+	spin_lock(&__vma->vm_mm->page_table_lock);			\
-+	__rc = pte_same(*(__ptep), __oldval);				\
-+	if (__rc) set_pte(__ptep, __newval);				\
-+	spin_unlock(&__vma->vm_mm->page_table_lock);			\
-+	__rc;								\
-+})
-+#endif
-+
-+#ifndef __HAVE_ARCH_PGP_TEST_AND_POPULATE
-+#define pgd_test_and_populate(__mm, __pgd, __pmd)			\
-+({									\
-+	int __rc;							\
-+	spin_lock(&__mm->page_table_lock);				\
-+	__rc = !pgd_present(*(__pgd));					\
-+	if (__rc) pgd_populate(__mm, __pgd, __pmd);			\
-+	spin_unlock(&__mm->page_table_lock);				\
-+	__rc;								\
-+})
-+#endif
-+
-+#ifndef __HAVE_PMD_TEST_AND_POPULATE
-+#define pmd_test_and_populate(__mm, __pmd, __page)			\
-+({									\
-+	int __rc;							\
-+	spin_lock(&__mm->page_table_lock);				\
-+	__rc = !pmd_present(*(__pmd));					\
-+	if (__rc) pmd_populate(__mm, __pmd, __page);			\
-+	spin_unlock(&__mm->page_table_lock);				\
-+	__rc;								\
-+})
-+#endif
-+
-+#endif
-+
-+#ifndef __HAVE_ARCH_PTEP_XCHG_FLUSH
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)		\
-+({									\
-+	pte_t __p = __pte(xchg(&pte_val(*(__ptep)), pte_val(__pteval)));\
-+	flush_tlb_page(__vma, __address);				\
-+	__p;								\
-+})
-+
-+#endif
-+
- #endif /* _ASM_GENERIC_PGTABLE_H */
-Index: linux-2.6.9/mm/rmap.c
-===================================================================
---- linux-2.6.9.orig/mm/rmap.c	2004-11-19 06:38:51.000000000 -0800
-+++ linux-2.6.9/mm/rmap.c	2004-11-19 06:38:53.000000000 -0800
-@@ -419,7 +419,10 @@
-  * @vma:	the vm area in which the mapping is added
-  * @address:	the user virtual address mapped
-  *
-- * The caller needs to hold the mm->page_table_lock.
-+ * The caller needs to hold the mm->page_table_lock if page
-+ * is pointing to something that is known by the vm.
-+ * The lock does not need to be held if page is pointing
-+ * to a newly allocated page.
-  */
- void page_add_anon_rmap(struct page *page,
- 	struct vm_area_struct *vma, unsigned long address)
-@@ -561,11 +564,6 @@
-
- 	/* Nuke the page table entry. */
- 	flush_cache_page(vma, address);
--	pteval = ptep_clear_flush(vma, address, pte);
+-/*
+- * IA-64 doesn't have any external MMU info: the page tables contain all the necessary
+- * information.  However, we use this routine to take care of any (delayed) i-cache
+- * flushing that may be necessary.
+- */
+-extern void update_mmu_cache (struct vm_area_struct *vma, unsigned long vaddr, pte_t pte);
 -
--	/* Move the dirty bit to the physical page now the pte is gone. */
--	if (pte_dirty(pteval))
--		set_page_dirty(page);
+ #define __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
+ /*
+  * Update PTEP with ENTRY, which is guaranteed to be a less
+@@ -560,6 +584,8 @@
+ #define __HAVE_ARCH_PTEP_MKDIRTY
+ #define __HAVE_ARCH_PTE_SAME
+ #define __HAVE_ARCH_PGD_OFFSET_GATE
++#define __HAVE_ARCH_ATOMIC_TABLE_OPS
++#define __HAVE_ARCH_LOCK_TABLE_OPS
+ #include <asm-generic/pgtable.h>
 
- 	if (PageAnon(page)) {
- 		swp_entry_t entry = { .val = page->private };
-@@ -580,11 +578,15 @@
- 			list_add(&mm->mmlist, &init_mm.mmlist);
- 			spin_unlock(&mmlist_lock);
- 		}
--		set_pte(pte, swp_entry_to_pte(entry));
-+		pteval = ptep_xchg_flush(vma, address, pte, swp_entry_to_pte(entry));
- 		BUG_ON(pte_file(*pte));
- 		mm->anon_rss--;
--	}
-+	} else
-+		pteval = ptep_clear_flush(vma, address, pte);
-
-+	/* Move the dirty bit to the physical page now the pte is gone. */
-+	if (pte_dirty(pteval))
-+		set_page_dirty(page);
- 	mm->rss--;
- 	page_remove_rmap(page);
- 	page_cache_release(page);
-@@ -671,15 +673,21 @@
- 		if (ptep_clear_flush_young(vma, address, pte))
- 			continue;
-
--		/* Nuke the page table entry. */
- 		flush_cache_page(vma, address);
--		pteval = ptep_clear_flush(vma, address, pte);
-+		/*
-+		 * There would be a race here with handle_mm_fault and do_anonymous_page
-+		 * which  bypasses the page_table_lock if we would zap the pte before
-+		 * putting something into it. On the other hand we need to
-+		 * have the dirty flag setting at the time we replaced the value.
-+		 */
-
- 		/* If nonlinear, store the file page offset in the pte. */
- 		if (page->index != linear_page_index(vma, address))
--			set_pte(pte, pgoff_to_pte(page->index));
-+			pteval = ptep_xchg_flush(vma, address, pte, pgoff_to_pte(page->index));
-+		else
-+			pteval = ptep_get_and_clear(pte);
-
--		/* Move the dirty bit to the physical page now the pte is gone. */
-+		/* Move the dirty bit to the physical page now that the pte is gone. */
- 		if (pte_dirty(pteval))
- 			set_page_dirty(page);
-
+ #endif /* _ASM_IA64_PGTABLE_H */
 

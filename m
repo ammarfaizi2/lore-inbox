@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264797AbTGGHqU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 03:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266841AbTGGHqT
+	id S266835AbTGGHqa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 03:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbTGGHq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 03:46:19 -0400
-Received: from dp.samba.org ([66.70.73.150]:24499 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264797AbTGGHqR (ORCPT
+	Mon, 7 Jul 2003 03:46:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:29875 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266835AbTGGHqS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 03:46:17 -0400
+	Mon, 7 Jul 2003 03:46:18 -0400
 From: Rusty Trivial Russell <rusty@rustcorp.com.au>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] Remove extra #includes
-Date: Mon, 07 Jul 2003 17:58:09 +1000
-Message-Id: <20030707080051.A05B52C2BB@lists.samba.org>
+Subject: [TRIVIAL] Remove chatty printk on CPU bringup.
+Date: Mon, 07 Jul 2003 17:56:39 +1000
+Message-Id: <20030707080052.30EE12C3C4@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Tom Rini <trini@kernel.crashing.org>
+From:  Rusty Russell <rusty@rustcorp.com.au>
 
-  This removes two extra #includes of <linux/spinlock.h>.
-  Nothing in either of these files require <linux/spinlock.h>.
+  Linus, please apply.
   
-  ===== arch/i386/kernel/i387.c 1.16 vs edited =====
+  The printk is useless, and on archs where cpu_possible(i) is always
+  true, it spams the console.
+  
+  Thanks,
+  Rusty.
+  --
+    Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+  
 
---- trivial-2.5.74-bk4/arch/i386/kernel/i387.c.orig	2003-07-07 17:36:54.000000000 +1000
-+++ trivial-2.5.74-bk4/arch/i386/kernel/i387.c	2003-07-07 17:36:54.000000000 +1000
-@@ -10,7 +10,6 @@
+--- trivial-2.5.74-bk4/init/main.c.orig	2003-07-07 17:36:51.000000000 +1000
++++ trivial-2.5.74-bk4/init/main.c	2003-07-07 17:36:51.000000000 +1000
+@@ -342,10 +342,8 @@
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		if (num_online_cpus() >= max_cpus)
+ 			break;
+-		if (cpu_possible(i) && !cpu_online(i)) {
+-			printk("Bringing up %i\n", i);
++		if (cpu_possible(i) && !cpu_online(i))
+ 			cpu_up(i);
+-		}
+ 	}
  
- #include <linux/config.h>
- #include <linux/sched.h>
--#include <linux/spinlock.h>
- #include <asm/processor.h>
- #include <asm/i387.h>
- #include <asm/math_emu.h>
---- trivial-2.5.74-bk4/include/asm-i386/i387.h.orig	2003-07-07 17:36:54.000000000 +1000
-+++ trivial-2.5.74-bk4/include/asm-i386/i387.h	2003-07-07 17:36:54.000000000 +1000
-@@ -12,7 +12,6 @@
- #define __ASM_I386_I387_H
- 
- #include <linux/sched.h>
--#include <linux/spinlock.h>
- #include <asm/processor.h>
- #include <asm/sigcontext.h>
- #include <asm/user.h>
+ 	/* Any cleanup work */
 -- 
   What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
   Don't blame me: the Monkey is driving
-  File: Tom Rini <trini@kernel.crashing.org>: [PATCH] Remove extra #includes
+  File: Rusty Russell <rusty@rustcorp.com.au>: [PATCH] Remove chatty printk on CPU bringup.

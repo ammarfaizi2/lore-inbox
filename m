@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbTATJ1K>; Mon, 20 Jan 2003 04:27:10 -0500
+	id <S262838AbTATJYy>; Mon, 20 Jan 2003 04:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264610AbTATJ1K>; Mon, 20 Jan 2003 04:27:10 -0500
-Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:14721 "EHLO
-	mail.et6.tu-harburg.de") by vger.kernel.org with ESMTP
-	id <S263313AbTATJ1J>; Mon, 20 Jan 2003 04:27:09 -0500
-Subject: Re: Promise SuperTrak SX6000 w/ kernel 2.4.20
-From: Sebastian Zimmermann <S.Zimmermann@tu-harburg.de>
-To: "Juergen \"George\"   " Sawinski <george@mpimf-heidelberg.mpg.de>
-Cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042716221.10222.4.camel@volans>
-References: <1042712859.14520.39.camel@antares.et6.tu-harburg.de>
-	 <1042716221.10222.4.camel@volans>
-Content-Type: text/plain
-Organization: Technical University Hamburg-Harburg
-Message-Id: <1043055372.1132.7.camel@antares.et6.tu-harburg.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 20 Jan 2003 10:36:12 +0100
-Content-Transfer-Encoding: 7bit
+	id <S263313AbTATJYy>; Mon, 20 Jan 2003 04:24:54 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:58596 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S262838AbTATJYx>; Mon, 20 Jan 2003 04:24:53 -0500
+Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2602D9D4D8@pdsmsx32.pd.intel.com>
+From: "Guo, Min" <min.guo@intel.com>
+To: stanley.wang@linux.co.intel.com, Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
+Subject: RE: [Pcihpd-discuss] How about use sysfs instead of pcihpfs?
+Date: Mon, 20 Jan 2003 17:31:24 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Don, 2003-01-16 um 12.23 schrieb Juergen "George" Sawinski:
-> It shouldn't find /dev/hde ... /dev/hdj (there's some problem with the
-> detection mechanism), as these are I2O devices, and thus it's
-> /dev/i2o/hd?. You have to stop the discovery process by adding 
-> 
-> hde=noprobe hdf=noprobe hdg=noprobe hdh=noprobe hdi=noprobe hdj=noprobe
-> 
-> to the lilo append variable.
+I think it is a good idea....
 
-Yes, thank you. Now I can boot. (I also had to add /dev/hdm and /dev/hdo
-though.)
+Guo Min 
+The content of this email message solely contains my own personal views,
+and not those of my employer.
 
-Nonetheless, I still consider this a kernel bug. The kernel should boot
-without the workaround as it did with version 2.4.18.
-
-Sebastian
+-----Original Message-----
+From: stanley.wang@linux.co.intel.com
+[mailto:stanley.wang@linux.co.intel.com]
+Sent: Monday, January 20, 2003 5:22 PM
+To: Greg KH
+Cc: Linux Kernel Mailing List; PCI_Hot_Plug_Discuss
+Subject: [Pcihpd-discuss] How about use sysfs instead of pcihpfs?
 
 
+Hi, Greg!
+After reading the pci_hotplug_core.c, I found there are many codes 
+that are used to implement the pcihpfs. And how about using sysfs instead
+of pcihpfs ? I think it could make the pci_hotplug_core.c smaller. Another
+pro is that we will nerver be bothered by the pcihpfs' bug.
+How you think about it?
+
+Regards,
+Stanley Wang
+
+-- 
+Opinions expressed are those of the author and do not represent Intel
+Corporation
+
+
+
+
+-------------------------------------------------------
+This SF.NET email is sponsored by: FREE  SSL Guide from Thawte
+are you planning your Web Server Security? Click here to get a FREE
+Thawte SSL guide and find the answers to all your  SSL security issues.
+http://ads.sourceforge.net/cgi-bin/redirect.pl?thaw0026en
+_______________________________________________
+Pcihpd-discuss mailing list
+Pcihpd-discuss@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/pcihpd-discuss

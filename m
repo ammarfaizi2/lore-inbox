@@ -1,104 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263150AbVCEPzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVCEQAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbVCEPzB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:55:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbVCEPyS
+	id S261900AbVCEQAO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 11:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbVCEP4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:54:18 -0500
-Received: from coderock.org ([193.77.147.115]:49827 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261911AbVCEPgH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:36:07 -0500
-Subject: [patch 11/12] sound/oss/emu10k1/* - compile warning cleanup
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, yrgrknmxpzlk@gawab.com
-From: domen@coderock.org
-Date: Sat, 05 Mar 2005 16:35:41 +0100
-Message-Id: <20050305153542.7A66E1F208@trashy.coderock.org>
+	Sat, 5 Mar 2005 10:56:50 -0500
+Received: from static-162-83-93-166.fred.east.verizon.net ([162.83.93.166]:12730
+	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
+	id S261900AbVCEPxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:53:42 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16937.54786.986183.491118@ccs.covici.com>
+Date: Sat, 5 Mar 2005 10:53:38 -0500
+From: John covici <covici@ccs.covici.com>
+To: linux-kernel@vger.kernel.org
+Subject: X not working with Radeon 9200 under 2.6.11
+X-Mailer: VM 7.17 under Emacs 21.3.50.2
+Reply-To: covici@ccs.covici.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.  I Have a Radeon 9200c and ever since some time in the 2.6.9
+series, I cannot get X to start using this card.  It dies in such a
+way that there is no way to get the vga console out of that console
+and chvt from another terminal just hangs and xinit cannot be
+cancelled.
 
-compile warning cleanup - handle copy_to/from_user error 
-returns
+This is the lspci for the agp card.
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV280
+[Radeon 9200 SE] (rev 01) (prog-if 00 [VGA])
+     Subsystem: PC Partner Limited: Unknown device 7c26
+     Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 16
+     Memory at e8000000 (32-bit, prefetchable) [size=128M]
+     I/O ports at e000 [size=256]
+     Memory at fbe00000 (32-bit, non-prefetchable) [size=64K]
+     Expansion ROM at fbd00000 [disabled] [size=128K]
+     Capabilities: [58] AGP version 3.0
+     Capabilities: [50] Power Management version 2
 
-Signed-off-by: Stephen Biggs <yrgrknmxpzlk@gawab.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+0000:01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon
+9200 SE] (Secondary) (rev 01)
+     Subsystem: PC Partner Limited: Unknown device 7c27
+     Flags: bus master, 66MHz, medium devsel, latency 64
+     Memory at f0000000 (32-bit, prefetchable) [size=128M]
+     Memory at fbf00000 (32-bit, non-prefetchable) [size=64K]
+     Capabilities: [50] Power Management version 2
 
+Any assistance would be appreciated.
 
- kj-domen/sound/oss/emu10k1/cardwi.c      |   13 ++++++++++---
- kj-domen/sound/oss/emu10k1/passthrough.c |   12 ++++++++----
- 2 files changed, 18 insertions(+), 7 deletions(-)
+-- 
+Your life is like a penny -- how are you going to spend it?
 
-diff -puN sound/oss/emu10k1/cardwi.c~return_code-sound_oss_emu10k1 sound/oss/emu10k1/cardwi.c
---- kj/sound/oss/emu10k1/cardwi.c~return_code-sound_oss_emu10k1	2005-03-05 16:13:11.000000000 +0100
-+++ kj-domen/sound/oss/emu10k1/cardwi.c	2005-03-05 16:13:11.000000000 +0100
-@@ -306,8 +306,12 @@ void emu10k1_wavein_getxfersize(struct w
- 
- static void copy_block(u8 __user *dst, u8 * src, u32 str, u32 len, u8 cov)
- {
--	if (cov == 1)
--		__copy_to_user(dst, src + str, len);
-+	if (cov == 1) {
-+		if (__copy_to_user(dst, src + str, len)) {
-+			printk( KERN_ERR "emu10k1: %s: copy_to_user failed\n",__FUNCTION__);
-+			return;
-+		}
-+	}
- 	else {
- 		u8 byte;
- 		u32 i;
-@@ -316,7 +320,10 @@ static void copy_block(u8 __user *dst, u
- 
- 		for (i = 0; i < len; i++) {
- 			byte = src[2 * i] ^ 0x80;
--			__copy_to_user(dst + i, &byte, 1);
-+			if (__copy_to_user(dst + i, &byte, 1)) {
-+				printk( KERN_ERR "emu10k1: %s: copy_to_user failed\n",__FUNCTION__);
-+				return;
-+			}
- 		}
- 	}
- }
-diff -puN sound/oss/emu10k1/passthrough.c~return_code-sound_oss_emu10k1 sound/oss/emu10k1/passthrough.c
---- kj/sound/oss/emu10k1/passthrough.c~return_code-sound_oss_emu10k1	2005-03-05 16:13:11.000000000 +0100
-+++ kj-domen/sound/oss/emu10k1/passthrough.c	2005-03-05 16:13:11.000000000 +0100
-@@ -162,12 +162,14 @@ ssize_t emu10k1_pt_write(struct file *fi
- 
- 		DPD(3, "prepend size %d, prepending %d bytes\n", pt->prepend_size, needed);
- 		if (count < needed) {
--			copy_from_user(pt->buf + pt->prepend_size, buffer, count);
-+			if (copy_from_user(pt->buf + pt->prepend_size, buffer, count))
-+				return -EFAULT;
- 			pt->prepend_size += count;
- 			DPD(3, "prepend size now %d\n", pt->prepend_size);
- 			return count;
- 		}
--		copy_from_user(pt->buf + pt->prepend_size, buffer, needed);
-+		if (copy_from_user(pt->buf + pt->prepend_size, buffer, needed))
-+			return -EFAULT;
- 		r = pt_putblock(wave_dev, (u16 *) pt->buf, nonblock);
- 		if (r)
- 			return r;
-@@ -178,7 +180,8 @@ ssize_t emu10k1_pt_write(struct file *fi
- 	blocks_copied = 0;
- 	while (blocks > 0) {
- 		u16 __user *bufptr = (u16 __user *) buffer + (bytes_copied/2);
--		copy_from_user(pt->buf, bufptr, PT_BLOCKSIZE);
-+		if (copy_from_user(pt->buf, bufptr, PT_BLOCKSIZE))
-+			return -EFAULT;
- 		r = pt_putblock(wave_dev, (u16 *)pt->buf, nonblock);
- 		if (r) {
- 			if (bytes_copied)
-@@ -193,7 +196,8 @@ ssize_t emu10k1_pt_write(struct file *fi
- 	i = count - bytes_copied;
- 	if (i) {
- 		pt->prepend_size = i;
--		copy_from_user(pt->buf, buffer + bytes_copied, i);
-+		if (copy_from_user(pt->buf, buffer + bytes_copied, i))
-+			return -EFAULT;
- 		bytes_copied += i;
- 		DPD(3, "filling prepend buffer with %d bytes", i);
- 	}
-_
+         John Covici
+         covici@ccs.covici.com

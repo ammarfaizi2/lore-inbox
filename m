@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUDZGZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUDZGbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUDZGZS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 02:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUDZGZS
+	id S263095AbUDZGbn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 02:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbUDZGbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 02:25:18 -0400
-Received: from users.linvision.com ([62.58.92.114]:36246 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S261987AbUDZGZN (ORCPT
+	Mon, 26 Apr 2004 02:31:43 -0400
+Received: from users.linvision.com ([62.58.92.114]:51350 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263095AbUDZGbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 02:25:13 -0400
-Date: Mon, 26 Apr 2004 08:25:12 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Danny ter Haar <dth@ncc1701.cistron.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No luck getting 2.6.x kernel to work with ACPI on compaq laptop
-Message-ID: <20040426062512.GA11567@bitwizard.nl>
-References: <c65252$9cs$1@news.cistron.nl>
+	Mon, 26 Apr 2004 02:31:40 -0400
+Date: Mon, 26 Apr 2004 08:31:37 +0200
+From: Rogier Wolff <R.E.Wolff@Harddisk-recovery.com>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       andersen@codepoet.org, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] prevent module unloading for legacy IDE chipset drivers
+Message-ID: <20040426063137.GB11567@bitwizard.nl>
+References: <200404212219.24622.bzolnier@elka.pw.edu.pl> <20040422004104.GA19969@codepoet.org> <200404220250.15078.bzolnier@elka.pw.edu.pl> <20040422103355.GC15176@harddisk-recovery.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c65252$9cs$1@news.cistron.nl>
+In-Reply-To: <20040422103355.GC15176@harddisk-recovery.com>
 User-Agent: Mutt/1.3.28i
 Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 21, 2004 at 05:51:30AM +0000, Danny ter Haar wrote:
-> My Compaq presario 700EA locks up dead during boot with
-> ACPI enabled. With bootoption acpi=off (or not compiled into the kernel)
-> the machine works just fine.
+On Thu, Apr 22, 2004 at 12:33:55PM +0200, Erik Mouw wrote:
+> On Thu, Apr 22, 2004 at 02:50:15AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > On Thursday 22 of April 2004 02:41, Erik Andersen wrote:
+> > > Out of curiosity, what would be needed to make it safe to unload
+> > > all ide modules from a system with a scsi rootfs?
+> > 
+> > It doesn't matter - you still may end up unloading modules which are in use.
 > 
-> I put on acpi debug and typed over by hand (laptop's dont have serial
-> ports these days anymore) :
-> 
-> ACPI: Subsystem revision 20040326
-> tbxface-0017[03] acpi_load_tables: ACPI tables succesfully acquired
-> Parsing all Control Methods: [......]
-> Table [DSDT] (id F005) - 433 Objects with 44 Devices 109 Methods 15
-> Regions
-> Parsing all Control Methods: 
-> Table [SSDT] (id f003) - 3 objects with 0 Devices 0 Methods 0 Regions
-> ACPI: IRQ10 SCI: Edge set to level trigger
-> 
-> After this the machine is dead in the water.
-> No magic sysrq or anything.
+> FWIW, with the old IDE code I've been unloading IDE modules for years
+> without a single problem.
 
-It sounds as if some driver is using IRQ10, and that another device
-is also on that IRQ. This will create an interrupt storm the moment
-you switch the triggering from edge to level....
+Hmm. Not completely true: It crashes on our VIA EPIA board. Would 
+anybody have an idea why it works on most systems, but crashes
+hard on the VIA EPIA? (I'm not sure wether it crashes the hardware
+or the software). 
 
-So: Which devices use IRQ10 when the computer works?
-
-	Roger. 
+			Roger. 
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
++-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
+| Files foetsie, bestanden kwijt, alle data weg?!
+| Blijf kalm en neem contact op met Harddisk-recovery.nl!

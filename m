@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272565AbRILStQ>; Wed, 12 Sep 2001 14:49:16 -0400
+	id <S272568AbRILTSw>; Wed, 12 Sep 2001 15:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272431AbRILStF>; Wed, 12 Sep 2001 14:49:05 -0400
-Received: from Morgoth.esiway.net ([193.194.16.157]:30482 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S272533AbRILSsv>; Wed, 12 Sep 2001 14:48:51 -0400
-Date: Wed, 12 Sep 2001 20:49:11 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
+	id <S272582AbRILTSm>; Wed, 12 Sep 2001 15:18:42 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50189 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272561AbRILTSa>; Wed, 12 Sep 2001 15:18:30 -0400
 Subject: Re: VIA chipset
-Message-ID: <Pine.LNX.4.33.0109122010120.8745-100000@Megathlon.ESI>
+To: marco@esi.it (Marco Colombo)
+Date: Wed, 12 Sep 2001 20:22:43 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109122010120.8745-100000@Megathlon.ESI> from "Marco Colombo" at Sep 12, 2001 08:49:11 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15hFat-00057s-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Someone should be able to forward failure cases to some AMD contacts. A
-> > day or so with a bus analyzer should pin things down, AMD certainly has
-> > the hardware to check this.
->
-> It doesnt happen with AMD chipsets. Although if anyone from AMD is
-> interested I'd be happy to know
->
-> Alan
+> Sorry to bother you again with this issue, Alan... by 'AMD chipsets'
+> you mean BOTH north and south bridges (eg. 761 + 766) or does it include
+> also AMD NB + VIA SB combo?
 
-Sorry to bother you again with this issue, Alan... by 'AMD chipsets'
-you mean BOTH north and south bridges (eg. 761 + 766) or does it include
-also AMD NB + VIA SB combo?
-AMD 761 + VIA 686B based MBs are quite common this days: are they "safe"
-(do you have failure reports)?
-Thanx a lot (you may guess, I'm about to buy some MBs) B-) ...
-
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
-
-
+I am using pure AMD chipsets. There are a large number of VIA boards that
+work reliably too ask around.

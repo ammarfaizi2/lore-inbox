@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbUKHWXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbUKHW0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbUKHWXd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 17:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUKHWXc
+	id S261281AbUKHW0K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 17:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUKHW0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 17:23:32 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:15415 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261270AbUKHWWy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 17:22:54 -0500
-Date: Mon, 8 Nov 2004 23:23:20 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Zbigniew Szmek <zjedrzejewski-szmek@wp.pl>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make crypto modular
-Message-ID: <20041108222320.GA16150@mars.ravnborg.org>
-Mail-Followup-To: Zbigniew Szmek <zjedrzejewski-szmek@wp.pl>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200411082149.54723.zjedrzejewski-szmek@wp.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411082149.54723.zjedrzejewski-szmek@wp.pl>
-User-Agent: Mutt/1.5.6i
+	Mon, 8 Nov 2004 17:26:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39823 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261273AbUKHWZy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 17:25:54 -0500
+Date: Mon, 8 Nov 2004 14:25:04 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: adaplas@pol.net
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Guido Guenther <agx@sigxcpu.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+In-Reply-To: <200411090608.02759.adaplas@hotpop.com>
+Message-ID: <Pine.LNX.4.58.0411081422560.2301@ppc970.osdl.org>
+References: <200411080521.iA85LbG6025914@hera.kernel.org>
+ <200411090402.22696.adaplas@hotpop.com> <Pine.LNX.4.58.0411081211270.2301@ppc970.osdl.org>
+ <200411090608.02759.adaplas@hotpop.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 09:49:54PM +0100, Zbigniew Szmek wrote:
- diff -rupN 2610rc1mm1.um/crypto.modular/Makefile 2610rc1mm1.um/crypto/Makefile
-> --- 2610rc1mm1.um/crypto.modular/Makefile	2004-11-07 18:41:35.000000000 +0100
-> +++ 2610rc1mm1.um/crypto/Makefile	2004-11-08 11:44:52.000000000 +0100
-> @@ -2,12 +2,13 @@
->  # Cryptographic API
->  #
->  
-> -proc-crypto-$(CONFIG_PROC_FS) = proc.o
-> +obj-$(CONFIG_CRYPTO) += crypto.o
->  
-> -obj-$(CONFIG_CRYPTO) += api.o scatterwalk.o cipher.o digest.o compress.o \
-> -			$(proc-crypto-y)
 
-> +crypto-objs = $(crypto-objs-y)
-> +crypto-objs-y = api.o scatterwalk.o cipher.o digest.o compress.o
-> +crypto-objs-$(CONFIG_PROC_FS) += proc.o
-> +crypto-objs-$(CONFIG_CRYPTO_HMAC) += hmac.o
-Please use:
-crypto-y := api.o scatterwalk.o cipher.o digest.o compress.o
-crypto-$(CONFIG_PROC_FS)     += proc.o
-crypto-$(CONFIG_CRYPTO_HMAC) += hmac.o
 
-More compact and nicer format.
+On Tue, 9 Nov 2004, Antonino A. Daplas wrote:
+> 
+> In big endian machines, the read*/write* accessors do a byteswap for an
+> inherently little endian PCI bus.  However, rivafb puts the hardwire in big
+> endian register access, thus the byteswap is not needed. So for 16- and
+> 32-bit access, instead of read*/write*, use __raw_read*/__raw_write* for all
+> archs.
 
-I did not look through the rest of the changes.
+Ok, applied with some further simplifications (use "void __iomem *" and 
+suddenly those /2 and /4 just go away - also use __raw_xxxx for the 
+single-byte versions to be consistent).
 
-	Sam
+		Linus

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265675AbUBBQA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 11:00:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUBBQA2
+	id S265695AbUBBQKM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 11:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265700AbUBBQKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 11:00:28 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:21453 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265675AbUBBQA0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 11:00:26 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: bttv oops
-Date: 02 Feb 2004 16:47:14 +0100
-Organization: SuSE Labs, Berlin
-Message-ID: <87u129eb5p.fsf@bytesex.org>
-References: <401E69AD.4080606@earthlink.net>
-NNTP-Posting-Host: localhost
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1075736834 29333 127.0.0.1 (2 Feb 2004 15:47:14 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Mon, 2 Feb 2004 11:10:12 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:19379 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265695AbUBBQKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 11:10:03 -0500
+Date: Mon, 2 Feb 2004 17:09:50 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: kai.germaschewski@gmx.de, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+cc: sdn4linux@listserv.isdn4linux.de,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Hisax compile fix
+Message-ID: <Pine.GSO.4.58.0402021708530.19699@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Clark <stephen.clark@earthlink.net> writes:
 
-> Gentle people,
-> 
-> I am having the following problem. Also if I compile bttv into the
-> kernel I get a panic in the driver at boot.
-> 
-> Any ideas?
+Never include <asm/delay.h> directly
 
-disable CONFIG_I2C_*_DEBUG, the debug printk() dereference pointers
-unchecked.
+--- linux-2.6.2-rc3/drivers/isdn/hisax/hisax_hfcpci.c	2003-08-09 21:42:55.000000000 +0200
++++ linux-m68k-2.6.2-rc3/drivers/isdn/hisax/hisax_hfcpci.c	2004-01-10 05:09:24.000000000 +0100
+@@ -23,7 +23,7 @@
+ #include <linux/slab.h>
+ #include <linux/skbuff.h>
+ #include <linux/netdevice.h>
+-#include <asm/delay.h>
++#include <linux/delay.h>
+ #include "hisax_hfcpci.h"
 
-  Gerd
+ // debugging cruft
 
--- 
-"... und auch das ganze Wochenende oll" -- Wetterbericht auf RadioEins
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262351AbSJEO0h>; Sat, 5 Oct 2002 10:26:37 -0400
+	id <S262352AbSJEOaj>; Sat, 5 Oct 2002 10:30:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262352AbSJEO0h>; Sat, 5 Oct 2002 10:26:37 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:15157 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S262351AbSJEO0g>; Sat, 5 Oct 2002 10:26:36 -0400
-Message-ID: <3D9EF779.4000906@hotmail.com>
-Date: Sat, 05 Oct 2002 07:30:17 -0700
-From: walt <wa1ter@hotmail.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.1) Gecko/20021001
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-References: <fa.fl3olav.51slo1@ifi.uio.no> <fa.chp9htv.i4632g@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262353AbSJEOaj>; Sat, 5 Oct 2002 10:30:39 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:7525 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262352AbSJEOai>; Sat, 5 Oct 2002 10:30:38 -0400
+Date: Sat, 5 Oct 2002 16:36:27 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Why does x86_64 support a SuSE-specific ioctl?
+Message-ID: <20021005143627.GA32733@dualathlon.random>
+References: <Pine.NEB.4.44.0210041654570.11119-100000@mimas.fachschaften.tu-muenchen.de.suse.lists.linux.kernel> <p73adltqz9g.fsf@oldwotan.suse.de> <1033824043.3425.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1033824043.3425.0.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> tom_gall@mac.com wrote:
+On Sat, Oct 05, 2002 at 02:20:43PM +0100, Alan Cox wrote:
+> On Sat, 2002-10-05 at 05:35, Andi Kleen wrote:
+> >  		 */
+> > diff -urN linux-2.4.18.tmp/include/asm-alpha/ioctls.h linux-2.4.18.SuSE/include/asm-alpha/ioctls.h
+> > --- linux-2.4.18.tmp/include/asm-alpha/ioctls.h	Sat May  4 11:37:28 2002
+> > +++ linux-2.4.18.SuSE/include/asm-alpha/ioctls.h	Sat May  4 11:37:56 2002
+> > @@ -92,6 +92,7 @@
+> >  #define TIOCGSID	0x5429  /* Return the session ID of FD */
+> >  #define TIOCGPTN	_IOR('T',0x30, unsigned int) /* Get Pty Number (of pty-mux device) */
+> >  #define TIOCSPTLCK	_IOW('T',0x31, int)  /* Lock/unlock Pty */
+> > +#define TIOCGDEV	_IOR('T',0x32, unsigned int) /* Get real dev no below /dev/console */
+> >  
 > 
->> Greetings all,
->>
->> I noticed Larry recently changed the license on bk.  Once clause in 
->> particular struck me and I thought I'd better point it out for your 
->> reactions...
->>
->> Specifically from Section 3:
->>
->>        (d)  Notwithstanding any other terms in this License, this
->>             License is not available to You if  You  and/or  your
->>             employer  develop,  produce,  sell,  and/or  resell a
->>             product which contains substantially similar capabil-
->>             ities  of  the BitKeeper Software, or, in the reason-
->>             able opinion of BitMover, competes with the BitKeeper
->>             Software.
->>
-> Seems like a pretty straightforward violation of the anti-trust laws, 
-> and a conspiracy to restrain trade...
+> Shouldn't these values be reserved in 2.5 before anything goes into 2.4
+> for this - the values finally used might be different
 
-I Am Not A Lawyer, but AFAIK the anti-trust laws in no way obligate
-a business to aid its own competitors.
+yes it should, just like the MAP_BIGPAGE and several other bits in the
+rhas (O_ATOMICLOOKUP etc...):
 
-Restraint of trade occurs when two competitors conspire to crush a
-third competitor.  Who is Larry's co-conspirator in your scenario?
++#define MAP_BIGPAGE	0x40		/* bigpage mapping */
 
+I attempted doing a sync with mainline for all these potential future
+binary-incompatibilities several months ago but it went to /dev/null and
+nobody cared to merge these bits into mainline, hopefully this thread
+will bring more attention to these kind of patches now.
 
+Andrea

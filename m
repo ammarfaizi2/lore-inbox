@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265137AbUGIKnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUGILBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbUGIKnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 06:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUGIKnl
+	id S265668AbUGILBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 07:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUGILBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 06:43:41 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:61294 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265137AbUGIKna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 06:43:30 -0400
-Message-ID: <40EE76CC.5070905@yahoo.com.au>
-Date: Fri, 09 Jul 2004 20:43:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Fri, 9 Jul 2004 07:01:24 -0400
+Received: from ozlabs.org ([203.10.76.45]:21720 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265668AbUGILBW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 07:01:22 -0400
 MIME-Version: 1.0
-To: FabF <fabian.frederick@skynet.be>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       nigelenki@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: Autoregulate swappiness & inactivation
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>	 <cone.1089268800.781084.4554.502@pc.kolivas.org>	 <20040708001027.7fed0bc4.akpm@osdl.org>	 <cone.1089273505.418287.4554.502@pc.kolivas.org>	 <20040708010842.2064a706.akpm@osdl.org>	 <cone.1089275229.304355.4554.502@pc.kolivas.org>	 <1089284097.3691.52.camel@localhost.localdomain>	 <40EDEF68.2020503@kolivas.org> <1089366486.3322.10.camel@localhost.localdomain>
-In-Reply-To: <1089366486.3322.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16621.6735.922384.937093@cargo.ozlabs.ibm.com>
+Date: Thu, 8 Jul 2004 19:56:31 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: linas@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] (1/3) Fix unbalanced dev_get/put calls in PPC64 EEH code
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FabF wrote:
+From: Linas Vepstas <linas@austin.ibm.com>
 
-> 
-> Here's an easy benchmark to demonstrate problem :
-> 1.Run Mozilla
-> 2.Minimize
-> 3=>Mozilla Resident Size (mrs) : 24Mb
-> 4.Run updatedb
-> 5.=>mrs : 15Mb
-> 6.updatedb ends up
-> 7.mrs doesn't move at all (yes, it goes down as I'm typing this msg :)).
-> 
+This patch fixes some unbalanced usage of pci_dev_get()/pci_dev_put() calls
+in the eeh code.  The old code had too many calls to dev_put, which could
+cause memory structs to be freed prematurely, possibly leading to bad
+bad pointer derefs in certain cases.
 
-How much RAM do you have? Does this happen with and without Con's
-patch?
+Signed-off-by: Linas Vepstas <linas@linas.org>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-I don't have a problem here with your problem, however I'm running
-my -np patchset, which has different use-once heuristics.
-
-> So my question is :
-> Don't we have a way to say "whose pages were reclaimed from and
->  reattribute its" ? (having in mind memory status per se).
-> IOW flushing (I guess it's pdflush relevant ? ) do work for dead
-> processes but doesn't care about applications alive...
-> 
-
-Page reclaim doesn't really know or care about processes, it
-basically works on a global page pool.
-
-pdflush is used to perform writeout of dirty data, so it has
-no part in reducing Mozilla's RSS.
-
-I don't really understand what you are asking though. Your basic
-problem is that mozilla's resident memory gets evicted too easily,
-is that right?
+diff -urN linux-2.5/arch/ppc64/kernel/eeh.c test25/arch/ppc64/kernel/eeh.c
+--- linux-2.5/arch/ppc64/kernel/eeh.c	2004-07-06 08:43:03.000000000 +1000
++++ test25/arch/ppc64/kernel/eeh.c	2004-07-08 16:56:46.244591376 +1000
+@@ -214,7 +214,6 @@
+ 	if (!dn) {
+ 		printk(KERN_WARNING "PCI: no pci dn found for dev=%s %s\n",
+ 			pci_name(dev), pci_pretty_name(dev));
+-		pci_dev_put(dev);
+ 		return;
+ 	}
+ 
+@@ -225,10 +224,12 @@
+ 		printk(KERN_INFO "PCI: skip building address cache for=%s %s\n",
+ 		       pci_name(dev), pci_pretty_name(dev));
+ #endif
+-		pci_dev_put(dev);
+ 		return;
+ 	}
+ 
++	/* The cache holds a reference to the device... */
++	pci_dev_get(dev);
++
+ 	/* Walk resources on this device, poke them into the tree */
+ 	for (i = 0; i < DEVICE_COUNT_RESOURCE; i++) {
+ 		unsigned long start = pci_resource_start(dev,i);
+@@ -278,6 +279,8 @@
+ 		}
+ 		n = rb_next(n);
+ 	}
++
++	/* The cache no longer holds its reference to this device... */
+ 	pci_dev_put(dev);
+ }
+ 
+@@ -317,7 +320,6 @@
+ 	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+ 		/* Ignore PCI bridges ( XXX why ??) */
+ 		if ((dev->class >> 16) == PCI_BASE_CLASS_BRIDGE) {
+-			pci_dev_put(dev);
+ 			continue;
+ 		}
+ 		pci_addr_cache_insert_device(dev);

@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268331AbUIKVGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUIKVKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268331AbUIKVGB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 17:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268336AbUIKVGB
+	id S268335AbUIKVKI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 17:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268334AbUIKVJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 17:06:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41658 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268331AbUIKVFH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 17:05:07 -0400
-Date: Sat, 11 Sep 2004 14:44:02 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPMI driver updates for 2.4
-Message-ID: <20040911174402.GC2659@logos.cnet>
-References: <411EB8F1.5040209@acm.org> <20040823132820.GB2157@logos.cnet> <4132A17A.8060607@acm.org> <20040831111621.GE4615@logos.cnet> <413519F7.3000004@acm.org>
+	Sat, 11 Sep 2004 17:09:34 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:65033 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268323AbUIKVGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 17:06:31 -0400
+Date: Sat, 11 Sep 2004 22:06:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
+       =?iso-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: radeon-pre-2
+Message-ID: <20040911220614.A5023@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@osdl.org>, Dave Airlie <airlied@linux.ie>,
+	=?iso-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
+	DRI Devel <dri-devel@lists.sourceforge.net>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e47339104091010221f03ec06@mail.gmail.com> <1094835846.17932.11.camel@localhost.localdomain> <9e47339104091011402e8341d0@mail.gmail.com> <Pine.LNX.4.58.0409102254250.13921@skynet> <20040911132727.A1783@infradead.org> <9e47339104091109111c46db54@mail.gmail.com> <Pine.LNX.4.58.0409110939200.2341@ppc970.osdl.org> <9e473391040911105448c3f089@mail.gmail.com> <Pine.LNX.4.58.0409111058320.2341@ppc970.osdl.org> <9e4733910409111402138737aa@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <413519F7.3000004@acm.org>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <9e4733910409111402138737aa@mail.gmail.com>; from jonsmirl@gmail.com on Sat, Sep 11, 2004 at 05:02:36PM -0400
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 07:38:15PM -0500, Corey Minyard wrote:
-> There actually aren't any bug fixes.  These are all new feature 
-> additions.  It is a big driver revamp, but it has been around for a while
-> 
-> I guess it is not critical now, but it would be nicer for the users of 
-> the driver.
+On Sat, Sep 11, 2004 at 05:02:36PM -0400, Jon Smirl wrote:
+> Alan, if you will commit Redhat to implementing all of the features
+> referenced in this message:
 
-Corey,
-
-I dont have a clue about IPMI. But I would like to apply what is 
-critical to users only at this point. 
+You definitly start sounding like Hans ;-)
 

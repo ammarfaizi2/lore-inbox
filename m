@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbULQOPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbULQOvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbULQOPq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 09:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbULQOPq
+	id S261208AbULQOvl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 09:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbULQOvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 09:15:46 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:42665 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261199AbULQOPl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 09:15:41 -0500
-Subject: Re: [PATCH] Split bprm_apply_creds into two functions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       James Morris <jmorris@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041216182529.GC3260@IBM-BWN8ZTBWA01.austin.ibm.com>
-References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <1103145355.32732.55.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041216182529.GC3260@IBM-BWN8ZTBWA01.austin.ibm.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1103292602.3437.40.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 17 Dec 2004 09:10:02 -0500
+	Fri, 17 Dec 2004 09:51:41 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:7616 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261208AbULQOvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 09:51:39 -0500
+Message-ID: <41C2F273.6010707@nortelnetworks.com>
+Date: Fri, 17 Dec 2004 08:51:31 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Ross <chris@tebibyte.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-ac16
+References: <1103222616.21920.12.camel@localhost.localdomain> <41C2DA43.9070900@tebibyte.org>
+In-Reply-To: <41C2DA43.9070900@tebibyte.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-16 at 13:25, Serge E. Hallyn wrote:
-> Thanks.  Here is an updated patch.
+Chris Ross wrote:
 > 
-> -serge
+> Alan Cox escreveu:
 > 
-> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+>> Further small fixes for different minor things. A merge of some of the 
+>> small
+>> cleanups from Fedora work and also the fixes for the igmp and vc holes. 
+> 
+> 
+> This kernel still suffers from the faulty OOM killing troubles of 
+> vanilla 2.6.9. Could you please pick up at least one of the recent fixes 
+> for this problem, such as as Rik van Riel's?
 
-Ok with me.  Chris, would it help alleviate your concerns to give the
-hook a clearer name and description, e.g. bprm_post_apply_creds and move
-the discussion about performing other state changes on the process like
-closing descriptors from the current description of bprm_apply_creds to
-it?
+Can someone point me to his patch?  I've been working on and off to try and get 
+reasonable OOM behaviour.  As it stands, 2.6.10-rc2-mm4 still shows nasty 
+behaviour in OOM conditions, killing off more tasks than strictly required, and 
+locking up the system for 10-15secs while doing it.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I'd be much happier doing a quick and dirty scan and knocking off something 
+*now* rather than locking up the system.  Surely it can't take 60 billion cycles 
+of cpu time to pick a task to kill.
+
+Chris
 

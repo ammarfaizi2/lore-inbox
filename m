@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287292AbSADNRl>; Fri, 4 Jan 2002 08:17:41 -0500
+	id <S288059AbSADNVv>; Fri, 4 Jan 2002 08:21:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287388AbSADNRc>; Fri, 4 Jan 2002 08:17:32 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:2448
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287292AbSADNRV>; Fri, 4 Jan 2002 08:17:21 -0500
-Date: Fri, 4 Jan 2002 08:03:58 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Erik Andersen <andersen@codepoet.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: LSB1.1: /proc/cpuinfo
-Message-ID: <20020104080358.A11215@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Andreas Schwab <schwab@suse.de>,
-	Erik Andersen <andersen@codepoet.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020103190219.B27938@thyrsus.com> <Pine.GSO.4.21.0201031944320.23693-100000@weyl.math.psu.edu> <20020103195207.A31252@thyrsus.com> <20020104081802.GC5587@codepoet.org> <20020104071940.A10172@thyrsus.com> <je4rm2l0qz.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <je4rm2l0qz.fsf@sykes.suse.de>; from schwab@suse.de on Fri, Jan 04, 2002 at 02:11:16PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S288503AbSADNVm>; Fri, 4 Jan 2002 08:21:42 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:31936 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S288582AbSADNVa>;
+	Fri, 4 Jan 2002 08:21:30 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 4 Jan 2002 13:21:27 GMT
+Message-Id: <UTC200201041321.NAA210580.aeb@cwi.nl>
+To: alessandro.suardi@oracle.com, andries.brouwer@cwi.nl,
+        jgarzik@mandrakesoft.com, torvalds@transmeta.com
+Subject: Re: 2.5.2-pre7 still missing bits of kdev_t
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab <schwab@suse.de>:
-> |> I'm not very worried about this.  On modern machines int == long 
-> 
-> You mean alpha, ia64, ppc64, s390x, x68-64 are not modern machines?
+Jeff Garzik wrote [on reiserfs]:
 
-Well, S390 certainly isn't! :-)
+> granted you can stick a kdev_to_nr in there but it's still an FS policy
+> decision at that point, IMHO...
 
-If the PPC etc. have 32-bit ints then I stand corrected, but I thought the 
-compiler ports on those machines used the native register size same as
-everybody else.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Yes, for today we stick a kdev_t_to_nr in there and preserve
+old behaviour, that is, nothing changes and no policy decisions
+have been made. It should have been there from the start.
 
-All forms of government are pernicious, including good government.
-	-- Edward Abbey
+For next week, when larger-than-16-bit device numbers are
+introduced, the proper code everywhere (on all interfaces
+with the outside world: stat, mknod with user space and
+special device nodes on disk and network filesystems)
+would unpack the kdev_t into major and minor, and pack
+again to the dev_t required by this interface (and vice versa).
+That is, in principle, there is no global, unique, kdev_t_to_nr.
+
+This is done already in most places, but reiserfs is one
+of the exceptions, and they'll need a policy decision
+on how to pack. In fact ext2 needs precisely the same
+policy decision.
+
+The details are rather unimportant - device numbers are
+nonportable, so if we transport an ext2 disk to some
+other OS and it sees different major,minor pairs, there
+is no big catastrophe. Still, I have heard many a complaint
+from sysadmins who needed to do _mknod foo x ma mi_
+on some NFS mounted filesystem and had to make some
+computations to decide on the right ma' mi' to use.
+Installation scripts fail over NFS.
+
+That is, even though a device number must be regarded
+as a cookie, the fact that the mknod command separates
+that cookie into two parts means that the way the
+on-disk dev_t is separated belongs to the definition
+of the on-disk filesystem format.
+Now that 8+24, 12+20, 14+18, 32+32 all occur, the easy
+way to solve all problems for a filesystem is to use 32+32.
+That is what NFSv3 does, and isofs, etc.
+If it is possible, the right policy no doubt is to store 32+32.
+If there is no room for that then one just has to live with
+the fact that the filesystem image is somewhat less portable.
+
+Andries

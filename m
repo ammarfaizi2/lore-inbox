@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293002AbSCJKBm>; Sun, 10 Mar 2002 05:01:42 -0500
+	id <S293008AbSCJKMC>; Sun, 10 Mar 2002 05:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293007AbSCJKBd>; Sun, 10 Mar 2002 05:01:33 -0500
-Received: from 99dyn73.com21.casema.net ([62.234.30.73]:9385 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S293002AbSCJKBS>; Sun, 10 Mar 2002 05:01:18 -0500
-Message-Id: <200203101001.LAA14981@cave.bitwizard.nl>
-Subject: kswapd ooopsed. 
-To: linux-kernel@vger.kernel.org
-Date: Sun, 10 Mar 2002 11:01:15 +0100 (MET)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-notice1: This Email contains my Email address. This grants you the right
-X-notice2: to communicate with me using this address, related to the subject
-X-notice3: in this message. Unsollicitated mass-mailings are explictly 
-X-notice4: forbidden here, and by Dutch law. 
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S293010AbSCJKLn>; Sun, 10 Mar 2002 05:11:43 -0500
+Received: from 1Cust48.tnt6.lax7.da.uu.net ([67.193.244.48]:52462 "HELO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
+	id <S293008AbSCJKLl>; Sun, 10 Mar 2002 05:11:41 -0500
+Subject: Re: Suspend support for IDE
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sat, 9 Mar 2002 16:52:13 -0800 (PST)
+Cc: pavel@ucw.cz (Pavel Machek), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        dalecki@evision-ventures.com,
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <E16joxm-0002g6-00@the-village.bc.nu> from "Alan Cox" at Mar 09, 2002 10:05:14 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20020310005213.1D8BB8959A@cx518206-b.irvn1.occa.home.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Why should I tell the drive to power down? It is going to loose its
+> > power, anyway (I believe in both S3 and S4).
+> 
+> So it can shut itself down nicely and do any housework it wants to do
+> (like flushing the cache if the cache flush command isnt supported.. its
+>  optional in older ATA standards)
 
-Hi,
+Or, in the case of newer IBM TravelStars, so that the drive can unload
+its head properly instead of having to do an uncontrolled emergency unload
+that shortens the drive's life and makes an awful screeching noise.
 
-> I'll see if I can find the "magic" anywhere on the disk....
-
-I'm reading 4 160G disks, hda...hdd, at about 24M per second per disk.
-After about 170G kswapd bombed out on me with an oops.  I'm hoping it
-will continue to work until I finish reading the whole disk. The
-machine doesn't have swap, and 1G of RAM.
-
-It's a dual athlon, but I haven't gotten around to compiling an SMP
-kernel due to other problems. 
-
-My personal priority is currently of getting that machine up, but
-should I suspect hardware problems?
-
-
-00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c (rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d
-00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7440 (rev 04)
-00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7441 (rev 04)
-00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7443 (rev 03)
-00:09.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown device 4d69 (rev 02)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 7448 (rev 04)
-01:05.0 VGA compatible controller: S3 Inc. 86c368 [Trio 3D/2X] (rev 02)
-02:06.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-
-The disks are on the internal IDE controller, not on the Promise. 
-
-	Roger. 
-
-(I Just realized it has an AMD chipset. I somehow remembered seeing
-something about VIA... Phew.)
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+-Barry K. Nathan <barryn@pobox.com>

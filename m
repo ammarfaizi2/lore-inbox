@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSD2RVh>; Mon, 29 Apr 2002 13:21:37 -0400
+	id <S313416AbSD2R3H>; Mon, 29 Apr 2002 13:29:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313126AbSD2RVg>; Mon, 29 Apr 2002 13:21:36 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:1785 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S312973AbSD2RVf>; Mon, 29 Apr 2002 13:21:35 -0400
-Message-ID: <3CCD811E.8689F4B0@redhat.com>
-Date: Mon, 29 Apr 2002 18:21:34 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-0.24smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
+	id <S313477AbSD2R3G>; Mon, 29 Apr 2002 13:29:06 -0400
+Received: from pc156-138.tromso.avidi.online.no ([193.212.138.156]:3847 "EHLO
+	shogun.thule.no") by vger.kernel.org with ESMTP id <S313416AbSD2R3G>;
+	Mon, 29 Apr 2002 13:29:06 -0400
+From: "Troels Walsted Hansen" <troels@thule.no>
+To: "'Stephan Maciej'" <stephan@maciej.muc.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs: BKL *not* taken while opening devices
-In-Reply-To: <20020429141301.B16778@flint.arm.linux.org.uk> <3CCD672E.5040005@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+Subject: RE: Sony Vaio Laptop problems
+Date: Mon, 29 Apr 2002 19:28:59 +0200
+Message-ID: <000801c1efa3$5b340c90$0300000a@samurai>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <200204291630.22969.stephan@maciej.muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> 
-> Russell King wrote:
->  > Kernel 2.5.8... Devfs devfs_open() bypasses the normal chrdev_open
->  > and blkdev_open functions, and misses out taking the BKL.  2.5.10 is
->  > the same.
->  >
->  > Certainly the tty layer (and probably many of the other devices as
->  > well) require the BKL to be taken before calling the open method.
-> 
-> Has the time come to push the BKL down into all of the driver open()s?
-> It's going to be a lot of work, but it has to happen eventually, right?
+> Can I do this with a DOS bootdisk? I remember that most of 
+> the Flash updates require you to startup the computer in a real DOS 
+> environment, at least those I have seen for my ASUS P5A and A7V
+boards.
 
-I'm not convinced of that. It's not nearly a critical path and it's
-better to get even the "dumb" drivers safe than to risk having big
-security holes in there for years to come.
+See http://myplc.com/sony/index.htm
+
+-- 
+Troels Walsted Hansen
+

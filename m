@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318344AbSGYF67>; Thu, 25 Jul 2002 01:58:59 -0400
+	id <S318345AbSGYGGx>; Thu, 25 Jul 2002 02:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318343AbSGYF67>; Thu, 25 Jul 2002 01:58:59 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20485 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318344AbSGYF6z>; Thu, 25 Jul 2002 01:58:55 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
+	id <S318347AbSGYGGx>; Thu, 25 Jul 2002 02:06:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:51391 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318345AbSGYGGw>;
+	Thu, 25 Jul 2002 02:06:52 -0400
+Date: Wed, 24 Jul 2002 22:59:21 -0700 (PDT)
+Message-Id: <20020724.225921.108418454.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.5.28
-Date: Thu, 25 Jul 2002 06:02:04 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <aho48s$2ko$1@penguin.transmeta.com>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <aho48s$2ko$1@penguin.transmeta.com>
 References: <20020724170752.A14089@bougret.hpl.hp.com>
-X-Trace: palladium.transmeta.com 1027576908 27092 127.0.0.1 (25 Jul 2002 06:01:48 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 25 Jul 2002 06:01:48 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	<aho48s$2ko$1@penguin.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020724170752.A14089@bougret.hpl.hp.com>,
-Jean Tourrilhes  <jt@bougret.hpl.hp.com> wrote:
->
->	IrDA is not going to get fixed soon. Over the time I've been
->fixing the IrDA stack, I've slowly fixed some of most dangerous
->locking problems, but fixing the remaining code will involve some
->serious re-work and is unfortunately not just about sprinking a few
->spinlocks there and there.
+   From: torvalds@transmeta.com (Linus Torvalds)
+   Date: Thu, 25 Jul 2002 06:02:04 +0000 (UTC)
+   
+   It gets a bit more complicated partly because you could nest cli/sti,
+   and you can't nest spinlocks, but on the whole none of it is "rocket
+   science". 
 
-Actually, the way to emulate cli/sti behaviour is not to "sprinkle"
-spinlocks, you can generally do it with _one_ spinlock per subsystem.
+Actually the "rocket science" part is that these "cli()" users in the
+unmaintained net stacks also want cli() to shut up input packet
+processing as well as TIMER_BH.
 
-So the straightforward way to port away from cli/sti is to add one
-spinlock which takes their place for that subsystem, and then get that
-lock on entry to subsystem interrupts and timer events, and in all
-places where there used to be a cli/sti. 
+This means they assume that cli() means "nobody can even look at the
+existence of any of the timers".  Ie. they do this to ensure they
+can simply del_timer and there is no possibility someone sits inside
+of the actual handler.
 
-It gets a bit more complicated partly because you could nest cli/sti,
-and you can't nest spinlocks, but on the whole none of it is "rocket
-science". 
+Of course del_timer_sync can be used to deal with that specific
+case.  But this specific example is just the tip of the iceberg.
 
-Of course, doing it _right_ (rather than try to just translate the
-semantics of cli/sti fairly directly) can be a lot more work. But even a
-straight translation improves on what used to be, since different
-subsystems will now be independent, and since it is easier later on to
-split the one lock up on a as-needed basis.
-
-			Linus
+I really think it is unwise to even imply that this kind of cli/sti
+fixup can be done in some mindless manner, it really can't :-)

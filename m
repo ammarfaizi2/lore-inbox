@@ -1,87 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbTAMPGD>; Mon, 13 Jan 2003 10:06:03 -0500
+	id <S267714AbTAMPIg>; Mon, 13 Jan 2003 10:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261356AbTAMPGD>; Mon, 13 Jan 2003 10:06:03 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:5505 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S261354AbTAMPGC>; Mon, 13 Jan 2003 10:06:02 -0500
-Date: Mon, 13 Jan 2003 16:11:59 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
-Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.5.55 failed to boot with ACPI support
-Message-ID: <20030113151159.GA10921@brodo.de>
-References: <7071726.1042419087751.JavaMail.nobody@web55.us.oracle.com>
+	id <S267762AbTAMPIg>; Mon, 13 Jan 2003 10:08:36 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:15891 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267714AbTAMPIf>; Mon, 13 Jan 2003 10:08:35 -0500
+Subject: Re: Bugs and Releases Numbers
+From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030113150708.GI21826@fs.tum.de>
+References: <1042469616.28005.36.camel@oubop4.bursar.vt.edu> 
+	<20030113150708.GI21826@fs.tum.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-MzYDi8KBE101plWSFUGK"
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 Jan 2003 10:17:22 -0500
+Message-Id: <1042471046.28000.42.camel@oubop4.bursar.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7071726.1042419087751.JavaMail.nobody@web55.us.oracle.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-On Sun, Jan 12, 2003 at 04:51:27PM -0800, Alessandro Suardi wrote:
-> Dominik Brodowski wrote:
-> 
-> > On Mon, Jan 13, 2003 at 12:04:02AM +0100, Alessandro Suardi wrote:
-> > > Andrew Grover wrote:
-> > > 
-> > > > > From: Ole J. Hagen [mailto:olehag_2001@yahoo.no] 
-> > > > > I just wanted to inform that kernel-2.5.55 failes to boot 
-> > > > > when ACPI support is 
-> > > > > compiled in the kernel. 
-> > > > > 
-> > > > > I have following configuration; Dell Optiplex GX-240, Pentium 
-> > > > > 4 (1.5 GHz), ATI RAGE 128.
-> > > >
-> > > > How exactly does it fail?
-> > > 
-> > > My brand new Dell Latitude C640 oopses on boot in 2.5.56 if I
-> > >  have CPU_FREQ config'd in. ACPI without CPU_FREQ is okay - well,
-> > >  it screws my framebuffer screen (what 2.4.21-pre3 doesn't) when
-> > >  the ACPI code does its bootup printk's, but after that the
-> > >  screen recovers.
-> > >
-> > > ...
-> > >
-> > > Back on topic, if you're interested I can rebuild my 2.5.56 with
-> > >  CPU_FREQ and write down the backtrace of the oops.
-> > Would be great if you could do that - and tell what oops it is (NULL pointer
-> > dereference etc.), in case you still see that on your screen.
-> 
-> Sigh :(
-> 
-> Rebuilt with CPU_FREQ, doesn't oops.
+--=-MzYDi8KBE101plWSFUGK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-:)
+So, if a major security bug was discovered in stable that impacted many
+systems in a very fundamental way, then a patch would be written and
+applied right away and a new kernel would be released, no?
 
-> It says
-> 
-> cpufreq: Intel(R) SpeedStep(TM) for this processor not (yet) available
-> 
-> Is the above message expected ? The CPU is a 1.8Ghz mobile P4.
+If that ever happened, what would become of the patches that had been in
+pre? Would they be included in the new kernel too, or not?
 
-2.5.56, you say... let me check... yep, then this patch is missing (it's in
-2.5.56-bk). Could you send me a /proc/cpuinfo, please? Especially if this
-patch doesn't work :)
+On Mon, 2003-01-13 at 10:07, Adrian Bunk wrote:
+> On Mon, Jan 13, 2003 at 09:53:36AM -0500, Richard B. Tilley  (Brad) wrote=
+:
+>=20
+> > Hello,
+>=20
+> Hi Richard,
+>=20
+> > How are bug patches worked into the current stable release? For example=
+,
+> > the ext3 file corruption bug in 2.4.20, was that patch worked into the
+> > kernel or will it be included in 2.4.21? I'm confused about the exact
+> > details of this type of thing. If the patch was worked in to 2.4.20, ho=
+w
+> > can one tell as the release number doesn't/hasn't changed?
+> >...
+>=20
+> the kernel that was released as 2.4.20 will never be changed.
+>=20
+> The ext3 problems are fixed in the 2.4.21-pre kernels and the fixed ext3=20
+> code will be in 2.4.21.
+>=20
+> > Thank you,
+> >=20
+> > Brad
+>=20
+> cu
+> Adrian
+>=20
+> --=20
+>=20
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+>=20
+--=20
+Richard B. Tilley (Brad), System Administrator & Web Developer
+Virginia Tech, Office of the University Bursar
+Phone: 540.231.6277
+Fax: 540.231.3238
+Page: 557.0891
+Web: http://www.bursar.vt.edu
+GPG Key: http://www.bursar.vt.edu/rtilley/pgpkey
 
-	Dominik
+--=-MzYDi8KBE101plWSFUGK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c linux/arch/i386/kernel/cpu/cpufreq/speedstep.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-01-10 21:55:28.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-01-10 22:13:33.000000000 +0100
-@@ -447,7 +447,7 @@
- 		if (c->x86_model != 2)
- 			return 0;
- 
--		if (c->x86_mask != 4)
-+		if ((c->x86_mask != 4) && (c->x86_mask != 7))
- 			return 0;
- 
- 		ebx = cpuid_ebx(0x00000001);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQA+ItiCPJE6j+LlAWERAqmdAJ9SL1s6UCr9QJQjL9chf7iIn/U4PgCfWswJ
+fPlI0gukXRXLYsMgzXRS1gc=
+=7cXR
+-----END PGP SIGNATURE-----
 
+--=-MzYDi8KBE101plWSFUGK--
 

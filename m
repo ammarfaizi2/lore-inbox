@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263193AbSKAAOV>; Thu, 31 Oct 2002 19:14:21 -0500
+	id <S265506AbSKAARl>; Thu, 31 Oct 2002 19:17:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbSKAAOV>; Thu, 31 Oct 2002 19:14:21 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:12672 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S263193AbSKAAOV>;
-	Thu, 31 Oct 2002 19:14:21 -0500
-Date: Thu, 31 Oct 2002 17:20:07 -0800
-From: Bob Miller <rem@osdl.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.45] Export blkdev_ioctl for raw block driver.
-Message-ID: <20021031172007.A28402@doc.pdx.osdl.net>
-References: <20021031165719.A26498@doc.pdx.osdl.net> <Pine.GSO.4.21.0210311909010.16688-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0210311909010.16688-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Oct 31, 2002 at 07:11:19PM -0500
+	id <S265490AbSKAARi>; Thu, 31 Oct 2002 19:17:38 -0500
+Received: from rcpt-expgw.biglobe.ne.jp ([202.225.89.156]:55517 "EHLO
+	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
+	id <S265471AbSKAARg>; Thu, 31 Oct 2002 19:17:36 -0500
+X-Biglobe-Sender: <t-kouchi@mvf.biglobe.ne.jp>
+Date: Thu, 31 Oct 2002 16:23:56 -0800
+From: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
+To: greg@kroah.com
+Subject: Re: bare pci configuration access functions ?
+Cc: andrew.grover@intel.com, jung-ik.lee@intel.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20021031235457.GF10689@kroah.com>
+References: <20021101083717.IAAOC0A82650.6C9EC293@mvf.biglobe.ne.jp> <20021031235457.GF10689@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.05.04
+Message-Id: <20021101092358.JADUC0A8264C.1C79D883@mvf.biglobe.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 07:11:19PM -0500, Alexander Viro wrote:
-> 
-> 
-> On Thu, 31 Oct 2002, Bob Miller wrote:
-> 
-> > diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
-> > --- a/kernel/ksyms.c	Thu Oct 31 16:47:14 2002
-> > +++ b/kernel/ksyms.c	Thu Oct 31 16:47:14 2002
-> > @@ -349,6 +349,7 @@
-> >  EXPORT_SYMBOL(blkdev_open);
-> >  EXPORT_SYMBOL(blkdev_get);
-> >  EXPORT_SYMBOL(blkdev_put);
-> > +EXPORT_SYMBOL(blkdev_ioctl);
-> 
-> Why not use ioctl_by_bdev() in the first place?  (and yes, it's very likely
-> my fault - I hadn't realized that raw.c went modular at some point).
-Didn't know about ioctl_by_bdev()... I'll make a patch that converts
-the raw driver to call it instead of blkdev_ioctl().
 
+On Thu, 31 Oct 2002 15:54:57 -0800
+Greg KH <greg@kroah.com> wrote:
+
+> > That's the way ACPI driver designers took and Linux can benefit
+> > from other OS's feedback in OS-independent part.
+> 
+> Can I ask if any of the development for other OSs has actually helped
+> Linux development?  I'm just curious.
+
+FreeBSD's acpi project is a good example.
+http://www.jp.freebsd.org/acpi/index.html
+(though this page doesn't seem to reflect recent status)
+
+They share the same code base (OS-independent part) as Linux
+and troubles FreeBSD had are troubles Linux will have or vice versa.
+
+Its mailing-list is based in Japan but most discussions
+are in English and some intel developers are also in the list.
+
+
+AFAIK the aic7xxx driver has similar structure.
+
+Thanks,
 -- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+KOCHI, Takayoshi <t-kouchi@cq.jp.nec.com/t-kouchi@mvf.biglobe.ne.jp>
+

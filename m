@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVAIUTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVAIU1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVAIUTV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 15:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVAIUTV
+	id S261740AbVAIU1k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 15:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVAIU1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 15:19:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16261 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261735AbVAIUTR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 15:19:17 -0500
-Date: Sun, 9 Jan 2005 12:19:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
-Subject: Re: removing bcopy... because it's half broken
-In-Reply-To: <20050109192305.GA7476@infradead.org>
-Message-ID: <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
-References: <20050109192305.GA7476@infradead.org>
+	Sun, 9 Jan 2005 15:27:39 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:52407 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S261740AbVAIU1c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 15:27:32 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None, usuallly detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: printf() overhead
+Date: Sun, 9 Jan 2005 15:27:30 -0500
+User-Agent: KMail/1.7
+Cc: John Richard Moser <nigelenki@comcast.net>
+References: <41E18522.7060004@comcast.net>
+In-Reply-To: <41E18522.7060004@comcast.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501091527.30977.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.52.185] at Sun, 9 Jan 2005 14:27:32 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 9 Jan 2005, Arjan van de Ven wrote:
+On Sunday 09 January 2005 14:25, John Richard Moser wrote:
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
 >
-> Instead of fixing this inconsistency, I decided to remove it entirely,
-> explicit memcpy() and memmove() are prefered anyway (welcome to the 1990's)
-> and nothing in the kernel is using these functions, so this saves code size
-> as well for everyone.
+>using strace to run a program takes aeons.  Redirecting the output
+> to a file can be a hundred times faster sometimes.  This raises
+> question.
+>
+>I understand that output to the screen is I/O.  What exactly causes
+> it to be slow, and is there a possible way to accelerate the
+> process? - --
 
-The problem is that at least some gcc versions would historically generate
-calls to "bcopy" on alpha for structure assignments. Maybe it doesn't any
-more, and no such old gcc versions exist any more, but who knows?
+As to what causes the slow, well fonts have to be rendered, and the 
+screen has to be scrolled, both of which take finite pieces of time.
+Displaying the file later just shifts the rendering etc time to 
+something thats not nearly so noticeable because you can't read that 
+fast anyway...
 
-That's also why "bcopy" just acts like a memcpy() in many cases: it's 
-simply not worth it to do the complex case, because the only valid use was 
-a compiler that would never validly do overlapping ranges anyway.
-
-Gcc _used_ to have a target-specific "do I use bcopy or memcpy" setting,
-and I just don't know if that is still true. I also don't know if it
-affected any other platforms than alpha (I would assume that it matched
-"target has BSD heritage", and that would likely mean HP-UX too)
-
-Richard? You know both gcc and alpha, what's the word?
-
-		Linus
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.31% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

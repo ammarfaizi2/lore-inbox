@@ -1,120 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261483AbSJQOqN>; Thu, 17 Oct 2002 10:46:13 -0400
+	id <S261498AbSJQOub>; Thu, 17 Oct 2002 10:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261489AbSJQOqN>; Thu, 17 Oct 2002 10:46:13 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:40453 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261483AbSJQOqL>; Thu, 17 Oct 2002 10:46:11 -0400
-Date: Thu, 17 Oct 2002 15:52:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: torvalds@transmeta.com, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove LSM file_llseek hook
-Message-ID: <20021017155207.A28782@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	torvalds@transmeta.com, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S261502AbSJQOua>; Thu, 17 Oct 2002 10:50:30 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:28070 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S261498AbSJQOu3>; Thu, 17 Oct 2002 10:50:29 -0400
+Date: Thu, 17 Oct 2002 09:56:08 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Daniel Phillips <phillips@arcor.de>, <S@samba.org>,
+       Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <20021017075539.8DE762C0CA@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0210170930410.6301-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the initial discussion LSM folks agreed on this, the
-rationale is that lsseek itself makes no sense to
-project as mmap() and pread/pwrite() allow access to any
-area of the file anyway.
+On Thu, 17 Oct 2002, Rusty Russell wrote:
 
---- 1.19/fs/read_write.c	Thu Oct 10 23:36:26 2002
-+++ edited/fs/read_write.c	Thu Oct 17 16:40:28 2002
-@@ -121,12 +121,6 @@
- 	if (!file)
- 		goto bad;
- 
--	retval = security_ops->file_llseek(file);
--	if (retval) {
--		fput(file);
--		goto bad;
--	}
--
- 	retval = -EINVAL;
- 	if (origin <= 2) {
- 		loff_t res = llseek(file, offset, origin);
-@@ -152,10 +146,6 @@
- 	file = fget(fd);
- 	if (!file)
- 		goto bad;
--
--	retval = security_ops->file_llseek(file);
--	if (retval)
--		goto out_putf;
- 
- 	retval = -EINVAL;
- 	if (origin > 2)
---- 1.4/include/linux/security.h	Tue Oct  8 11:20:18 2002
-+++ edited/include/linux/security.h	Thu Oct 17 16:40:44 2002
-@@ -376,10 +376,6 @@
-  * @file_free_security:
-  *	Deallocate and free any security structures stored in file->f_security.
-  *	@file contains the file structure being modified.
-- * @file_llseek:
-- *	Check permission before re-positioning the file offset in @file.
-- *	@file contains the file structure being modified.
-- *	Return 0 if permission is granted.
-  * @file_ioctl:
-  *	@file contains the file structure.
-  *	@cmd contains the operation to perform.
-@@ -790,7 +786,6 @@
- 	int (*file_permission) (struct file * file, int mask);
- 	int (*file_alloc_security) (struct file * file);
- 	void (*file_free_security) (struct file * file);
--	int (*file_llseek) (struct file * file);
- 	int (*file_ioctl) (struct file * file, unsigned int cmd,
- 			   unsigned long arg);
- 	int (*file_mmap) (struct file * file,
---- 1.6/security/capability.c	Tue Oct  8 11:01:30 2002
-+++ edited/security/capability.c	Thu Oct 17 16:41:03 2002
-@@ -442,11 +442,6 @@
- 	return;
- }
- 
--static int cap_file_llseek (struct file *file)
--{
--	return 0;
--}
--
- static int cap_file_ioctl (struct file *file, unsigned int command,
- 			   unsigned long arg)
- {
-@@ -787,7 +782,6 @@
- 	.file_permission =		cap_file_permission,
- 	.file_alloc_security =		cap_file_alloc_security,
- 	.file_free_security =		cap_file_free_security,
--	.file_llseek =			cap_file_llseek,
- 	.file_ioctl =			cap_file_ioctl,
- 	.file_mmap =			cap_file_mmap,
- 	.file_mprotect =		cap_file_mprotect,
---- 1.7/security/dummy.c	Tue Oct  8 11:01:30 2002
-+++ edited/security/dummy.c	Thu Oct 17 16:41:06 2002
-@@ -344,11 +344,6 @@
- 	return;
- }
- 
--static int dummy_file_llseek (struct file *file)
--{
--	return 0;
--}
--
- static int dummy_file_ioctl (struct file *file, unsigned int command,
- 			     unsigned long arg)
- {
-@@ -602,7 +597,6 @@
- 	.file_permission =		dummy_file_permission,
- 	.file_alloc_security =		dummy_file_alloc_security,
- 	.file_free_security =		dummy_file_free_security,
--	.file_llseek =			dummy_file_llseek,
- 	.file_ioctl =			dummy_file_ioctl,
- 	.file_mmap =			dummy_file_mmap,
- 	.file_mprotect =		dummy_file_mprotect,
+> > But that one is easy: the zero check just takes the same spinlock as 
+> > TRY_INC_MOD_COUNT, then sets can't-increment only in the case the count
+> > is zero, considerably simpler than:
+> 
+> The current spinlock is horrible.  You could use a brlock, of course,
+> but I didn't mainly because of code bloat and speed.  My current code
+> looks like:
+> 
+> static inline int try_module_get(struct module *module)
+> {
+> 	int ret = 1;
+> 
+> 	if (module) {
+> 		unsigned int cpu = get_cpu();
+> 		if (likely(module->ref[cpu].live))
+> 			local_inc(&module->ref[cpu].counter);
+> 		else
+> 			ret = 0;
+> 		put_cpu();
+> 	}
+> 	return ret;
+> }
+
+Since I made the mistake of getting involved into this discussion lately,
+I wonder if this new method is going to be mandatory (the only one
+available) or optional. I think there's two different kind of users, for
+one modules which use an API which provides its own infrastructure for
+dealing with modules via ->owner, on the other hand things like netfilter
+(that's probably where you are coming from) where calls into a module,
+which need protection are really frequent.
+
+Note that for the vast majority of modules, dealing with unload races is 
+as simple as setting ->owner, for example filesystems, network drivers.
+
+Sure, we need a global lock (unload_lock) when calling into these modules
+initially, but these "binding/unbinding" calls are really rare. For
+filesystems, they happen once per mount, for network drivers only for
+ifconfig up/down. Afterwards, calling into the module (e.g. accessing the
+mounted filesystem, xmitting/receiving data) doesn't have any overhead at
+all compared to a linked-in filesystem/driver (well, ignore TLB misses)
+
+I don't see a good reason to change this, in particular, since it provides 
+useful information to the user, that is the mod_use_count. It means "Is it 
+possible to successfully unload the module now?", and since looking at
+the count and the actual unload is protected by unload_lock, the unload 
+will either succeed basically immediately, or fail with -EBUSY right away.
+
+I see that your approach makes frequent calls into the module cheaper, but
+I'm not totally convinced that the current safe interfaces need to change
+just to accomodate rare cases like netfilter (there's most likely some
+more cases like it, but the majority of modules is not).
+
+Anyway, I may see further problems, but let me check first: Is your count
+supposed to only count users which are currently executing in the module's
+.text, or is it also to count references to data allocated in the module?
+(I.e. when I register_netdev(), does that keep a reference to the module
+even after the code has left the module's .text?)
+
+--Kai
+

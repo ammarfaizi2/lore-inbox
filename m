@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263774AbTKFRmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 12:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbTKFRmo
+	id S263008AbTKFRfx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 12:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbTKFRfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 12:42:44 -0500
-Received: from mhub-c4.tc.umn.edu ([160.94.128.34]:30946 "EHLO
-	mhub-c4.tc.umn.edu") by vger.kernel.org with ESMTP id S263774AbTKFRmn
+	Thu, 6 Nov 2003 12:35:53 -0500
+Received: from wblv-224-88.telkomadsl.co.za ([165.165.224.88]:27787 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S263008AbTKFRfv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 12:42:43 -0500
-X-Umn-Remote-Mta: [N] x84-95-9-dhcp.reshalls.umn.edu #+HF+LO
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-From: Matthew Reppert <repp0017@tc.umn.edu>
-To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3FAA5B3A.4090800@gmx.de>
-References: <20031106130030.GC1145@suse.de>
-	 <3FAA4737.3060906@cyberone.com.au> <20031106130553.GD1145@suse.de>
-	 <3FAA4880.8090600@cyberone.com.au> <20031106131141.GE1145@suse.de>
-	 <3FAA4D48.6040709@gmx.de> <20031106133136.GA477@suse.de>
-	 <3FAA5043.8060907@gmx.de> <20031106134713.GA798@suse.de>
-	 <3FAA5397.6010702@gmx.de> <20031106135134.GA1194@suse.de>
-	 <3FAA5B3A.4090800@gmx.de>
-Content-Type: text/plain
-Message-Id: <1068140559.359.5.camel@minerva>
+	Thu, 6 Nov 2003 12:35:51 -0500
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
+	defined (trivial)
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: KML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8/WfgxfvlnRtwWSfEgY9"
+Message-Id: <1068140199.12287.246.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 06 Nov 2003 11:42:39 -0600
-Content-Transfer-Encoding: 7bit
+Date: Thu, 06 Nov 2003 19:36:39 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-11-06 at 08:31, Prakash K. Cheemplavam wrote:
-> Jens Axboe wrote:
-> > On Thu, Nov 06 2003, Prakash K. Cheemplavam wrote:
-> > 
-> >>#
-> >># SCSI device support
-> >>#
-> >>CONFIG_SCSI=y
-> > 
-> > 
-> > Need I say more?
-> 
-> But then it is a bug: In menuconfig nothing is activated or please tell 
-> me how through the menu it is possible to set this to "no".
 
-You have CONFIG_USB_STORAGE=y in your config; USB storage does a
-"select SCSI", which means that if USB storage is active, it forces
-CONFIG_SCSI=y. So, if you turn off USB storage, you can turn off SCSI.
-Making USB storage a module won't help; select seems to always select
-Y.
+--=-8/WfgxfvlnRtwWSfEgY9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Matt
+On Tue, 2003-05-06 at 04:19, David S. Miller wrote:
+> On Tue, 2003-05-06 at 02:16, Thomas Horsten wrote:=20
+> > The following patch fixes the problem:
+>
+> Making the u64 swabbing functions unavailable is not an=20
+> acceptable solution.=20
+>
+
+Sorry to dig this up again, but wont __STRICT_ANSI__ assume
+that the program will not use u64 functions (as the program/compiler
+is supposed to adhere to ansi standards)?
+
+
+Thanks,
+
+--=20
+
+Martin Schlemmer
+
+
+
+--=-8/WfgxfvlnRtwWSfEgY9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/qoanqburzKaJYLYRArrnAJ9V1zctseOQ5iJTRPwKEaJmQV/9KQCfdah9
+tGACo2At4ShtTJ0tiXtIhCA=
+=a04/
+-----END PGP SIGNATURE-----
+
+--=-8/WfgxfvlnRtwWSfEgY9--
 

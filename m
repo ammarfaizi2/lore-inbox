@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263469AbSJGVud>; Mon, 7 Oct 2002 17:50:33 -0400
+	id <S263406AbSJGVXe>; Mon, 7 Oct 2002 17:23:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263470AbSJGVud>; Mon, 7 Oct 2002 17:50:33 -0400
-Received: from web13201.mail.yahoo.com ([216.136.174.186]:39293 "HELO
-	web13201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263469AbSJGVub>; Mon, 7 Oct 2002 17:50:31 -0400
-Message-ID: <20021007215611.46345.qmail@web13201.mail.yahoo.com>
-Date: Mon, 7 Oct 2002 14:56:11 -0700 (PDT)
-From: Gigi Duru <giduru@yahoo.com>
-Subject: Re: The end of embedded Linux?
-To: Rob Landley <landley@trommello.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021007214053.36F16622@merlin.webofficenow.com>
+	id <S263407AbSJGVXe>; Mon, 7 Oct 2002 17:23:34 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:61606 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S263406AbSJGVXc>;
+	Mon, 7 Oct 2002 17:23:32 -0400
+Date: Mon, 7 Oct 2002 14:31:24 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Burton Windle <bwindle@fint.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.41] Oops on reboot in device_remove_file
+In-Reply-To: <Pine.LNX.4.43.0210071653490.6732-100000@morpheus>
+Message-ID: <Pine.LNX.4.44.0210071428260.16276-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- Rob Landley <landley@trommello.org> wrote:
-> 8000 controls you have to individually tweak to do
-> anything is not 
-> necessarily an improvement over a single "do what I
-> want" button.  (User 
-> Interface Design 101.)
-> 
-> The doorknob is a wonderful user interface...
-> 
+On Mon, 7 Oct 2002, Burton Windle wrote:
 
-try driving your car using a doorknob ;)
+> 2.5.41, after "Rebooting..." is printed, I get this oops:
 
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com
+There is a series of patches that I posted a few hours ago which should 
+solve this problem. I apologize; I forgot to state that they should fix 
+this Oops. It was reported a couple of days ago, as well..
+
+If you're using BK, you can pull from
+
+bk://ldm.bkbits.net/linux-2.5-ide
+
+Or search the archives starting here:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103401951632484&w=2
+
+
+If you're feeling adventurous, please apply them and let me know if they 
+fix the problem for you.
+
+Thanks,
+
+	-pat
+

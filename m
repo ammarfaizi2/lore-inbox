@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbTFLVnt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 17:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265016AbTFLVns
+	id S265016AbTFLVqN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 17:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265017AbTFLVqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 17:43:48 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:42252
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S265009AbTFLVnk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 17:43:40 -0400
-Subject: Re: Intel PRO/Wireless 2100 vs. Broadcom BCM9430x
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Anders Karlsson <anders@trudheim.com>
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055454724.2084.9.camel@tor.trudheim.com>
-References: <Pine.LNX.4.44.0306120813380.411-100000@twin.uoregon.edu>
-	 <1055450268.3989.27.camel@tor.trudheim.com>
-	 <1055452675.13998.2.camel@ixodes.goop.org>
-	 <1055454724.2084.9.camel@tor.trudheim.com>
-Content-Type: text/plain
-Message-Id: <1055455041.13997.10.camel@ixodes.goop.org>
+	Thu, 12 Jun 2003 17:46:12 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:29639 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S265016AbTFLVqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 17:46:02 -0400
+Date: Thu, 12 Jun 2003 17:59:26 -0400
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Frank Cusack <fcusack@fcusack.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number mismatch)
+Message-ID: <20030612215926.GA11684@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	Frank Cusack <fcusack@fcusack.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0306110929260.1653-100000@home.transmeta.com> <1055352127.2419.25.camel@dhcp22.swansea.linux.org.uk> <16103.26865.361044.360120@charged.uio.no> <shsn0goy09f.fsf@charged.uio.no>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 12 Jun 2003 14:57:22 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <shsn0goy09f.fsf@charged.uio.no>
+User-Agent: Mutt/1.5.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-12 at 14:52, Anders Karlsson wrote:
-> I based my statement on a discussion from about a week ago on the list
-> and that seemed to indicate that the IBM Thinkpads had a 'white-list'
-> of sorts to allow only some specific mini-PCI cards. IIRC it was the
-> T40, R40 and X31 that was affected.
+On Wed, Jun 11, 2003 at 07:47:24PM +0200, Trond Myklebust wrote:
+> >>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 > 
-> Apologies if my statement was incorrect.
+>      > 2.4 has the 'return ESTALE if current dir fails d_revalidate()'
+>      > test. Looks like the vfat stuff has the same problem that
+> 
+> I should learn to complete my own sentences before sending... The
+> above should read:
+> 
+> Looks like the vfat stuff has the same problem that Coda did. It is
+> unintentionally triggering the ESTALE code, as it assumes that
+> d_revalidate() is advisory only.
 
-No, you're right, its just that it isn't TCPA which does the checking;
-it's the plain old BIOS.  In other words, IBM are being painful and
-irritating, but at least they're not being sinister, painful and
-irritating.
+Coda still has the problem with 2.4. The only thing I have been telling
+people that hit the problem is to take the revalidate patch out.
 
-	J
+btw. The sheer number of problem cases is already reduced significantly
+by the following patch which avoids calling revalidate on every name
+that happens to start with a '.'.
+
+Jan
+
+
+diff -urN --exclude-from=dontdiff linux-2.4.21-rc2/fs/namei.c linux-2.4.21-rc2-coda/fs/namei.c
+--- linux-2.4.21-rc2/fs/namei.c	2003-05-09 02:20:44.000000000 -0400
++++ linux-2.4.21-rc2-coda/fs/namei.c	2003-05-14 02:23:07.000000000 -0400
+@@ -627,6 +627,8 @@
+ 			nd->last_type = LAST_DOT;
+ 		else if (this.len == 2 && this.name[1] == '.')
+ 			nd->last_type = LAST_DOTDOT;
++		else
++			goto return_base;
+ return_reval:
+ 		/*
+ 		 * We bypassed the ordinary revalidation routines.
+
 

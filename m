@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293380AbSCJXeO>; Sun, 10 Mar 2002 18:34:14 -0500
+	id <S293381AbSCJXp2>; Sun, 10 Mar 2002 18:45:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293381AbSCJXeE>; Sun, 10 Mar 2002 18:34:04 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:49311 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S293380AbSCJXdt>; Sun, 10 Mar 2002 18:33:49 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Date: Mon, 11 Mar 2002 10:34:23 +1100 (EST)
+	id <S293385AbSCJXpR>; Sun, 10 Mar 2002 18:45:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13582 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293381AbSCJXpJ>;
+	Sun, 10 Mar 2002 18:45:09 -0500
+Message-ID: <3C8BF015.606BCCDA@mandrakesoft.com>
+Date: Sun, 10 Mar 2002 18:45:25 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Andreas Jaeger <aj@suse.de>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] syscall interface for cpu affinity
+In-Reply-To: <1015784104.1261.8.camel@phantasy>  <u8zo1g9nf8.fsf@gromit.moeb> <1015793618.928.17.camel@phantasy>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15499.60799.774246.580102@notabene.cse.unsw.edu.au>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: RAID superblock....
-In-Reply-To: message from Rogier Wolff on Sunday March 10
-In-Reply-To: <200203101328.OAA15987@cave.bitwizard.nl>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday March 10, R.E.Wolff@BitWizard.nl wrote:
+Robert Love wrote:
 > 
-> Hi,
+> On Sun, 2002-03-10 at 15:29, Andreas Jaeger wrote:
 > 
-> The MD code I see doing: 
+> > Please add the procinterface also!  I've found it today (for 2.4.18)
+> > and it's much easier to use with existing programs.
 > 
+> I agree and I really like the proc-interface.  There is something uber
+> cool about:
 > 
-> 488         sb_offset = calc_dev_sboffset(rdev->dev, rdev->mddev, 1);
-> 489         rdev->sb_offset = sb_offset;
-> 490         fsync_dev(dev);
-> 491         set_blocksize (dev, MD_SB_BYTES);
-> 492         bh = bread (dev, sb_offset / MD_SB_BLOCKS, MD_SB_BYTES);
+>         cat 1 > /proc/pid/affinity
 > 
+> I have a patch for 2.5.6 for proc-based affinity interface here:
 > 
-> where sb_offset is calculated as: 
-> 
-> 290         if (blk_size[MAJOR(dev)])
-> 291                 size = blk_size[MAJOR(dev)][MINOR(dev)];
-
-You missed:
-	if (persistent)
-		size = MD_NEW_SIZE_BLOCKS(size);
-
-where MD_NEW_SIZE_BLOCKS is
-#define MD_NEW_SIZE_BLOCKS(x)		((x & ~(MD_RESERVED_BLOCKS - 1)) - MD_RESERVED_BLOCKS)
-
-and there you have your "-1".
-
-> Anyway on the old machine, I still cannot find the raid superblock by
-> hand, but the drives now mount, so the kernel must have been able to
-> locate them somehow......
-
-The superblock should be located between 64K and 128K from the end of
-the device, on a 64K boundary.
-> 
+>         http://www.kernel.org/pub/linux/kernel/people/rml/cpu-affinity/v2.5/cpu-affinity-proc-rml-2.5.6-1.patch
 
 
-NeilBrown
+Anon!  But there is something uber-ugly about constantly jamming more
+and more stuff into procfs without thinking or planning long term...  I
+vote for the non-procfs approach :)
+
+-- 
+Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
+Building 1024    | censorship as damage and routes around it."
+MandrakeSoft     |

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262120AbSJ0EZ5>; Sun, 27 Oct 2002 00:25:57 -0400
+	id <S262276AbSJ0FVt>; Sun, 27 Oct 2002 01:21:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262273AbSJ0EZ5>; Sun, 27 Oct 2002 00:25:57 -0400
-Received: from momus.sc.intel.com ([143.183.152.8]:57332 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S262120AbSJ0EZ4>; Sun, 27 Oct 2002 00:25:56 -0400
-Message-ID: <288F9BF66CD9D5118DF400508B68C44604758C68@orsmsx113.jf.intel.com>
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "'Jeff Garzik'" <jgarzik@pobox.com>, Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux NICS <linuxnics@mailbox.cps.intel.com>, linux-kernel@vger.kernel.org
-Subject: RE: e100 doing bad things in 2.5.44.
-Date: Sat, 26 Oct 2002 21:30:45 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S262289AbSJ0FVt>; Sun, 27 Oct 2002 01:21:49 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:6669 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262276AbSJ0FVs>; Sun, 27 Oct 2002 01:21:48 -0400
+Date: Sun, 27 Oct 2002 01:10:39 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [BUG] 2.5.44 : /proc/net/arp broken
+Message-ID: <20021027041039.GC2485@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Marc Zyngier <mzyngier@freesurf.fr>, linux-kernel@vger.kernel.org,
+	davem@redhat.com
+References: <wrphefd5te3.fsf@hina.wild-wind.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <wrphefd5te3.fsf@hina.wild-wind.fr.eu.org>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, it holds bdp->isolate_lock for an incredibly long time, so that 
-> might trigger this.  At least interrupts aren't disabled.
+Em Wed, Oct 23, 2002 at 12:41:56PM +0200, Marc Zyngier escreveu:
+> Hi all,
 > 
-> Another bug:  e100_close doesn't get the lock.
+> I just hit a nice little bug : cat /proc/net/arp crashes easily my two
+> test systems running 2.5.44 (a 486 and a P266, if that matters...).
 
-This came up earlier and we're working on getting rid of isolate_lock
-altogether.  It's a bunch of complication for no real benefit, really.  
+I'm back from a business trip, so tomorrow I'll have time to fix this,
+thanks for the report.
 
-> > Oct 25 18:38:12 tetrachloride kernel:   Mem:0xfeafc000  
-> > IRQ:20  Speed:0 Mbps  Dx:N/A
-> 
-> Cosmetic or real, that's indeed another bug...
-
-We'll I guess no link would give you a speed of zero Mbps.  ;)
-
-I'm inclined to strike this message line because it's 1) misleading, 2)
-redundant.
-
--scott
+- Arnaldo

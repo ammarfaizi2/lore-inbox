@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130736AbRBLWJO>; Mon, 12 Feb 2001 17:09:14 -0500
+	id <S131577AbRBLWIe>; Mon, 12 Feb 2001 17:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131597AbRBLWJE>; Mon, 12 Feb 2001 17:09:04 -0500
-Received: from fisica.ufpr.br ([200.17.209.129]:39930 "EHLO
-	hoggar.fisica.ufpr.br") by vger.kernel.org with ESMTP
-	id <S130736AbRBLWIc>; Mon, 12 Feb 2001 17:08:32 -0500
-From: Carlos Carvalho <carlos@fisica.ufpr.br>
+	id <S131450AbRBLWIY>; Mon, 12 Feb 2001 17:08:24 -0500
+Received: from mailman.techspan.com ([4.21.76.5]:64004 "EHLO
+	mailman.techspan.com") by vger.kernel.org with ESMTP
+	id <S130736AbRBLWIH>; Mon, 12 Feb 2001 17:08:07 -0500
+Message-ID: <3A885EC5.7080706@techspan.com>
+Date: Mon, 12 Feb 2001 17:08:05 -0500
+From: Mark Swanson <Mark.Swanson@techspan.com>
+Organization: Techspan
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.14-win4lin i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: PS/2 Mouse/Keyboard conflict and lockup
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <14984.24279.786295.783864@hoggar.fisica.ufpr.br>
-Date: Mon, 12 Feb 2001 20:08:23 -0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
-In-Reply-To: <E14SQqi-0008Bm-00@the-village.bc.nu>
-In-Reply-To: <14984.18005.694178.241076@hoggar.fisica.ufpr.br>
-	<E14SQqi-0008Bm-00@the-village.bc.nu>
-X-Mailer: VM 6.90 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox (alan@lxorguk.ukuu.org.uk) wrote on 12 February 2001 21:49:
- >The ideal solution would be for someone to provide BUG() on the
- >Alpha platform as in 2.4. That would sort things cleanly
+ >I'm also seeing a ps/2 mouse bug, with 2.4.0-pre5 (I think) on a 
+ >CS433 (486/33 laptop) 
+ >Freezes after some time in X, killing keyboard.
+ >Is there a generic approach to finding where this sort of problem lies?
 
-Hmm... Looks more difficult than I expected. Can we just change the
-one call to BUG to something sensible on alphas? I'm really eager to
-run this kernel..
+The exact same thing happens to me too. Winbook XL2 laptop.
+I can ssh to the box and kill X, and then I can use the keyboard/PS2 
+mouse again!
+
+The same thing happens in console mode. Keyboard/mouse lock up, I ssh, 
+do the reverse of above (startx) and I can use my mouse and keyboard again!
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

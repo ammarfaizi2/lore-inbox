@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272516AbRH3WG1>; Thu, 30 Aug 2001 18:06:27 -0400
+	id <S272521AbRH3WLr>; Thu, 30 Aug 2001 18:11:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272519AbRH3WGR>; Thu, 30 Aug 2001 18:06:17 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:27914 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S272516AbRH3WGF>;
-	Thu, 30 Aug 2001 18:06:05 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108302206.f7UM6MG26122@oboe.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <20010830224927.A16981@itsolve.co.uk> from "Mark Zealey" at "Aug
- 30, 2001 10:49:27 pm"
-To: "Mark Zealey" <mark@itsolve.co.uk>
-Date: Fri, 31 Aug 2001 00:06:22 +0200 (MET DST)
-CC: linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S272523AbRH3WLi>; Thu, 30 Aug 2001 18:11:38 -0400
+Received: from mailhost.nmt.edu ([129.138.4.52]:529 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S272519AbRH3WLW>;
+	Thu, 30 Aug 2001 18:11:22 -0400
+Date: Thu, 30 Aug 2001 16:11:39 -0600
+From: Val Henson <val@nmt.edu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: Lost TCP retransmission timer
+Message-ID: <20010830161139.A18224@boardwalk>
+In-Reply-To: <20010829195259.B11544@boardwalk> <200108301621.UAA05134@ms2.inr.ac.ru> <20010830121025.A15880@boardwalk> <20010830.145609.42773013.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010830.145609.42773013.davem@redhat.com>; from davem@redhat.com on Thu, Aug 30, 2001 at 02:56:09PM -0700
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mark Zealey wrote:"
-> On Thu, Aug 30, 2001 at 11:32:55PM +0200, Peter T. Breuer wrote:
-> >     unsafe_min_or_max_at_line_##__LINE__()
-> > 
-> umm, no, the ## is removed and you are left with:
-> undefined reference to `unsafe_min_or_max_at_line___LINE__'
-
-Not sure about that ... I'm willing to believe you, but even so surely
-it would be possible to get round with the usual kind of cpp fiddle?
-Something like
-
-    #define LINE(x,y) x##y
-    ...
-    LINE(unsafe_min_or_max_at_line_,__LINE__)()
-
-> The best I can think of would be something like:
-> asm(".unsafe_use_of_min_or_max_in_" __FUNCTION__)
+On Thu, Aug 30, 2001 at 02:56:09PM -0700, David S. Miller wrote:
 > 
-> which would not give you the line number, as the line number is only avalable in
+> BTW, you mentioned that you are seeing this on PPC, do you have any
+> way to verify if the bug can be triggered on any other platform?
 
-  #define stringify(x) #x
-  asm(".unsafe_use_of_min_or_max_at_line_" stringify(__LINE__))
+I'm currently away from my x86 workstation, but I can try it this
+weekend.
 
-> integer form, I doubt you will be able to get that very well. The assembler will
+The requirements for triggering this are:
 
-Peter
+2.4.6 or higher kernel
+2.4.6 machine pushes lots of data on _first_ TCP connection after boot
+Lots of packets from 2.4.6 machine are dropped (I'm using 10 Mb hub)
+
+-VAL

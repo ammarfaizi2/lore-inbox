@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUEaRei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUEaRfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264697AbUEaRei (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 13:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUEaRei
+	id S264702AbUEaRfA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 13:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUEaRe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 13:34:38 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:18323 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S264697AbUEaReh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 13:34:37 -0400
-Message-ID: <40BB6CA8.9070307@myrealbox.com>
-Date: Mon, 31 May 2004 10:34:32 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: MM patches (was Re: why swap at all?)
-References: <E1BTpqM-0005LZ-00@calista.eckenfels.6bone.ka-ip.net> <200405291031.02564.vda@port.imtp.ilyichevsk.odessa.ua> <40B84C85.8010207@yahoo.com.au>
-In-Reply-To: <40B84C85.8010207@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 31 May 2004 13:34:59 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:54197 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264702AbUEaRe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 13:34:56 -0400
+Subject: Re: Linux 2.6.7-rc2
+From: Albert Cahalan <albert@users.sf.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       petero2@telia.com, Andrew Morton OSDL <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405310948120.4573@ppc970.osdl.org>
+References: <1086006023.8188.34.camel@cube>
+	 <Pine.LNX.4.58.0405310948120.4573@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1086016346.8185.68.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 31 May 2004 11:12:26 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-
-> Yep.
+On Mon, 2004-05-31 at 12:53, Linus Torvalds wrote:
+> On Mon, 31 May 2004, Albert Cahalan wrote:
+> > 
+> > This would be required because of the -Wno-strict-aliasing
+> > option. For the 2.7.xx kernels, how about we start off by
+> > replacing -Wno-strict-aliasing with -std=gnu99 ? It's been
+> > 5 years since 1999. The "restrict" keyword is useful too.
 > 
-> Thanks to everyone's input I was able to test and adapt my mm work.
-> It is hopefully at a stage where it can have wider testing now. It
-> is stable on my SMP system under very heavy swapping, but the usual
-> caution applies.
+> No can do.
+> 
+> Aliasing in gcc is so broken (_purely_ type-based and no way to avoid it
+> sanely in older versions) that it's not going to happen.
+> 
+> When we can depend on everybody having gcc-3.3+ something, and that one
+> properly supports the "may_alias" attribute, we may change that.
 
-Thanks!
+By the time Linux 2.8.0 is out, gcc-3.3+ should be
+a perfectly reasonable requirement.
 
-This feels quite a bit better on my system.  I'll try and stress it a bit 
-more later today or tomorrow, but my system is now usable under heavy io load.
+In the mean time, adding may_alias as needed would be
+a good idea.
 
---Andy
+If all this were behind CONFIG_BROKEN, it sure wouldn't
+hurt even today. People might as well get started.
+The compiler will keep being pessimistic and dumb until
+the -Wno-strict-aliasing option is dropped.
+
+> "restrict" is pretty much useless. It just weakens the already too-weak
+> alias rules of standard gcc.
+
+It's easiest to use on function parameters. This helps
+the optimizer without being a mind-warping excercise.
+
+

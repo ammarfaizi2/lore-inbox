@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267545AbTAGWxh>; Tue, 7 Jan 2003 17:53:37 -0500
+	id <S267554AbTAGXCZ>; Tue, 7 Jan 2003 18:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267552AbTAGWxg>; Tue, 7 Jan 2003 17:53:36 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:37514 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267545AbTAGWxg>;
-	Tue, 7 Jan 2003 17:53:36 -0500
-Message-ID: <3E1B5C44.1030302@us.ibm.com>
-Date: Tue, 07 Jan 2003 15:01:24 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andy Pfiffer <andyp@osdl.org>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       suparna@in.ibm.com, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [PATCH] kexec for 2.5.54
-References: <m1smwql3av.fsf@frodo.biederman.org>	<20021231200519.A2110@in.ibm.com> <m11y3uldt9.fsf@frodo.biederman.org>	<20030103181100.A10924@in.ibm.com>  <m1fzs6j0bh.fsf_-_@frodo.biederman.org> <1041979560.12674.93.camel@andyp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267558AbTAGXCZ>; Tue, 7 Jan 2003 18:02:25 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:47117 "EHLO
+	ns.higherplane.net") by vger.kernel.org with ESMTP
+	id <S267554AbTAGXCY>; Tue, 7 Jan 2003 18:02:24 -0500
+Date: Wed, 8 Jan 2003 10:10:25 +1100
+From: john slee <indigoid@higherplane.net>
+To: "Rick A. Hohensee" <rickh@capaccess.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The only way around Microsoft
+Message-ID: <20030107231025.GE18508@higherplane.net>
+References: <fc.0010c7b2006d67910010c7b2006d6791.6d6795@Capaccess.org> <20021231122253.GA26356@gallifrey> <fc.0010c7b2006d75640010c7b2006d6791.6d756c@capaccess.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fc.0010c7b2006d75640010c7b2006d6791.6d756c@capaccess.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... taking poor Linus off the cc list
-Andy Pfiffer wrote:
-> For those that have had success w/ recent vintage kernels and kexec (>
-> 2.5.48), could I get a roll-call of your machine's hardware?  Uniproc,
-> SMP, AGP, chipset, BIOS version, that kind of thing.  lspci -v,
-> /cat/proc/cpuinfo, and maybe the boot-up messages would all be
-> appreciated.
+On Tue, Dec 31, 2002 at 01:52:19PM -0500, Rick A. Hohensee wrote:
+> I need some people that haven't forgotten how to use a computer to do
+> basic cleanups like convert "intelligence" in the CIA sense to "strinfo",
+> shut down the war on herbs, eliminate using the tax laws as a form of
+> subsidy, et cetera. The better hackers will get cabinet positions.
+> Otherwise I'll promote from the existing staff.
 
-I've had it work on 2 IBM x86 boxes.
-4/8-way SMP
-1/4/16 GB RAM
-no AGP
-Intel Profusion Chipset and some funky IBM one
+sounds a lot like 'executive orders' by tom clancy.  not one of his
+better books, by the way
 
-It failed on the NUMA-Q's I tried it on.  I haven't investigated any 
-more thoroughly.
+j.
 
-If you want more details, let me know.  But, I've never seen your 
-"Calibrating delay loop..." problem.  The last time I saw problems 
-there was when I broke the interrupt stack patches.  But, since those 
-aren't in mainline, you shouldn't be seeing it.
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+toyota power: http://indigoid.net/

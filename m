@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266314AbUBQQou (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 11:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUBQQou
+	id S266348AbUBQRBC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 12:01:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUBQRBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 11:44:50 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:8519 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266314AbUBQQot
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 11:44:49 -0500
-Date: Tue, 17 Feb 2004 18:00:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Pratik Solanki <pratik.solanki@timesys.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor cross-compile issues
-Message-ID: <20040217170042.GC2178@mars.ravnborg.org>
-Mail-Followup-To: Pratik Solanki <pratik.solanki@timesys.com>,
-	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <4027B7D3.2020107@timesys.com> <20040216205800.GC2977@mars.ravnborg.org> <403242DF.7030204@timesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403242DF.7030204@timesys.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Feb 2004 12:01:02 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13541 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266348AbUBQRAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 12:00:54 -0500
+Date: Tue, 17 Feb 2004 17:00:53 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Tom Guilliams <tguilliams@san.rr.com>, DHollenbeck <dick@softplc.com>,
+       <busybox@mail.codepoet.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [BusyBox] [Fwd: Loopback device setup?]
+In-Reply-To: <200402171022.38290.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0402171649420.22275-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 11:35:43AM -0500, Pratik Solanki wrote:
+On Tue, 17 Feb 2004, vda wrote:
+> On Tuesday 17 February 2004 02:20, Tom Guilliams wrote:
+> > in /driver/block/loop.c -
+> >
+> > loop_set_fd()
+> >
+> > 		/*
+> >                   * If we can't read - sorry. If we only can't write -
+> >                  		 * well, it's going to be read-only.
+> >                   */
+> >                  if (!aops->readpage)
+> >                          goto out_putf;
+> >
+> > I confirmed the "if (!aops->readpage)" is true.  I'm not sure what the
+> > readpage routine is trying to do (which dev or file) in my command below -
+> > # mount -t ext2 -o loop ramdisk.image rootfs
+> >
+> > Anyone have any thoughts??  This is all being done in the /tmp
+> > dircectory which is mounted as "tmpfs".  Not sure if that has anything
+> > to do with it.
 > 
-> Thanks Sam. Would you be checking in your proposed change or should I 
-> send a new patch?
+> I recall that tmpfs cannot do readpage (by design?).
+> CCing LKML, maybe someone will pour in more info.
 
-Please send an updated patch to Andrew Morton.
+readpage is not straightforward for tmpfs, so it took a long time
+to be added, but tmpfs has supported loop since 2.4.22 and 2.5.45.
 
-	Sam
+Hugh
+

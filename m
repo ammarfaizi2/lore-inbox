@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285079AbRLXPho>; Mon, 24 Dec 2001 10:37:44 -0500
+	id <S285136AbRLXQLy>; Mon, 24 Dec 2001 11:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285132AbRLXPhf>; Mon, 24 Dec 2001 10:37:35 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:64780 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S285121AbRLXPh3>; Mon, 24 Dec 2001 10:37:29 -0500
-Date: Mon, 24 Dec 2001 16:37:21 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Astinus <Astinus@netcabo.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: WHICH MACHINE?????
-Message-ID: <20011224153721.GA11838@arthur.ubicom.tudelft.nl>
-In-Reply-To: <m16IMMg-0005khC@gherkin.frus.com> <002a01c18c85$30136140$d500a8c0@mshome.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <002a01c18c85$30136140$d500a8c0@mshome.net>
-User-Agent: Mutt/1.3.24i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S285138AbRLXQLr>; Mon, 24 Dec 2001 11:11:47 -0500
+Received: from dcn237-32.dcn.davis.ca.us ([168.150.237.32]:18436 "EHLO
+	barn.psychohorse.com") by vger.kernel.org with ESMTP
+	id <S285136AbRLXQLc>; Mon, 24 Dec 2001 11:11:32 -0500
+Message-Id: <200112241611.fBOGB5022430@barn.psychohorse.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Matthew Johnson <matthew@psychohorse.com>
+Reply-To: matthew@psychohorse.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Maybe I have a bad day or something
+Date: Mon, 24 Dec 2001 08:11:28 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <01122415075100.02141@manta> <3C273A67.7BA0F5AC@monmouth.com>
+In-Reply-To: <3C273A67.7BA0F5AC@monmouth.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 24, 2001 at 02:13:35PM -0000, Astinus wrote:
-> well, i m about to invest in a new machine, in which i will only run one of
-> linux distros ( haven't decided which but probably suse 7.x or red hat
-> 7.x ).
-> 
-> I talked to some guys, and came up with this machine:
-> 
->         Motherboard => Intel D850GB Al ( with network and sound )
->         Processor => Intel P4 2 GHz
->         Hard Drive => Seagate SCSI Cheata 10 000 rmp ( i think it is written
-> like this: Cheata ) with 16 megs of cache
->         Scsi controler => adaptec scsi ultra 160 whith two channels
->         Ram => 1000 mb ram 2x 512 rims
->         Video card => (haven't decided but probably a geforce 2 with 64 mb
-> ram )
-> 
-> Well these are the main components that i am thinking to use for building a
-> new machine.
-> 
-> I would like u to tell me if it is a good choice, or if i should buy a dual
-> xenon processor machine instead.....
+On Monday 24 December 2001 06:23 am, Pat Villani wrote:
+> You're not alone.  Frankly, I just skim the subjects and some messages to
+> figure out whether or not to read further.
+>
+> Don't get discouraged.  There are way more readers who don't post than the
+> vocal minority who whine about coding styles or why Linus didn't pick up
+> their patch.  I found this out a while ago.  I wrote the original FreeDOS
+> code and ran into this constantly.  I admire Linus for not letting it get
+> him down; it did for me.  I eventually quit the project altogether,
+> disgusted with the bozos.
+>
 
-A single or dual Athlon also makes a nice computer, and probably gives
-you much more value for money.
+I am one of those readers that don't post, well to now. I don't want to make 
+a fool out of myself, plus nothing yet has really piqued my interest and I 
+never went to University to do CS or CE, played too much Rugby instead (but I 
+want to go sometime perhaps), so my prgramming really is not up to scratch 
+yet. Perhaps this is reflected on others too. Not above beta testing of 
+course.
 
-> Also if one of u kernel hackers/and any other ppl who  has the knowlege and
-> patince to indicate me alll the main components of a good machine i would
-> appreciate that.
-> 
-> I am also trying to build a machine that won't give me problems with the
-> kernel itself... like hardware imcompatibilities..... and so on!!
-
-This doesn't really look like a gamers machine to me, so I think you'd
-better replace the geforce with a Matrox G450 or G550. Nvidia based
-video cards have some known problems, especially when used together
-with the Nvidia binary-only drivers.
-
-> and one last thing, what kind of computers do u guys use?? Tower ones as
-> this i am about to buy or laptop ones.
-
-Desktops, laptops, servers, handhelds, embedded stuff. My main machine
-is a laptop, though.
-
-> I find the laptop a funny toy, though i am not sure if it is a good
-> investment....
-
-Ever tried to carry a desktop as hand luggage on board of a plane so
-you could read your email during a transatlantic flight?
-
-> I live in Europe.. and thing s tend to be more expensive than in the states.
-
-Nonsense. Computers are equally expensive in Europe and the US.
+Whining occurs pretty much everywhere, not just here. As this is an open and 
+free development perhaps people feel free to be a little less professional in 
+their words, rather than just reporting facts. Linus seems to be very Hobbit 
+like, very humble indeed. Only Linus probably knows why it does not seem to 
+get him down.
 
 
-Erik
+> Well, I know I'm going to get flames on this one.  That's OK, it'll keep me
+> warm this Christmas.  May everyone have a safe and happy Holiday Season.
+>
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Nope, they may let you freeze instead. Happy Christmas  and New Year to 
+everyone, may 2002 be very much more successful than 2001. 2001 was probably 
+jinxed due to Arthur C Clark anyway...
+
+> Pat
+
+Matt

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262957AbVDBAgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262910AbVDBAIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262957AbVDBAgF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbVDBANI
+	id S262910AbVDBAIN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbVDBAF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:13:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:45020 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262956AbVDAXsV convert rfc822-to-8bit
+	Fri, 1 Apr 2005 19:05:57 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33756 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262910AbVDAXsP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:48:21 -0500
-Cc: eike-kernel@sf-tec.de
-Subject: [PATCH] PCI: remove pci_find_device usage from pci sysfs code.
-In-Reply-To: <1112399274112@kroah.com>
+	Fri, 1 Apr 2005 18:48:15 -0500
+Cc: eike-hotplug@sf-tec.de
+Subject: [PATCH] PCI Hotplug: only call ibmphp_remove_resource() if argument is not NULL
+In-Reply-To: <1112399271636@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:54 -0800
-Message-Id: <11123992741846@kroah.com>
+Date: Fri, 1 Apr 2005 15:47:51 -0800
+Message-Id: <11123992711809@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,42 +24,78 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.23, 2005/03/28 15:19:00-08:00, eike-kernel@sf-tec.de
+ChangeSet 1.2181.16.10, 2005/03/17 13:54:51-08:00, eike-hotplug@sf-tec.de
 
-[PATCH] PCI: remove pci_find_device usage from pci sysfs code.
+[PATCH] PCI Hotplug: only call ibmphp_remove_resource() if argument is not NULL
 
-Greg KH wrote:
-> On Sun, Mar 20, 2005 at 03:53:58PM +0100, Rolf Eike Beer wrote:
-> > Greg KH wrote:
-> > > ChangeSet 1.1998.11.23, 2005/02/25 08:26:11-08:00, gregkh@suse.de
-> > >
-> > > PCI: remove pci_find_device usage from pci sysfs code.
+If we call ibmphp_remove_resource() with a NULL argument it will write
+a warning. We can avoid this here because we already look if the argument
+will be NULL before (and we ignore the return code anyway).
 
-> > Any reasons why you are not using "for_each_pci_dev(pdev)" here?
->
-> Nope, I forgot it was there :)
-
-Patch is against 2.6.12-rc1-bk1 and does the same think like your one,
-except it uses for_each_pci_dev()
-
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Signed-off-by: Rolf Eike Beer <eike-hotplug@sf-tec.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/pci/pci-sysfs.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/hotplug/ibmphp_pci.c |   20 ++++++++++++--------
+ 1 files changed, 12 insertions(+), 8 deletions(-)
 
 
-diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
---- a/drivers/pci/pci-sysfs.c	2005-04-01 15:31:47 -08:00
-+++ b/drivers/pci/pci-sysfs.c	2005-04-01 15:31:47 -08:00
-@@ -481,7 +481,7 @@
- 	struct pci_dev *pdev = NULL;
- 	
- 	sysfs_initialized = 1;
--	while ((pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
-+	for_each_pci_dev(pdev)
- 		pci_create_sysfs_dev_files(pdev);
+diff -Nru a/drivers/pci/hotplug/ibmphp_pci.c b/drivers/pci/hotplug/ibmphp_pci.c
+--- a/drivers/pci/hotplug/ibmphp_pci.c	2005-04-01 15:36:56 -08:00
++++ b/drivers/pci/hotplug/ibmphp_pci.c	2005-04-01 15:36:56 -08:00
+@@ -1317,10 +1317,11 @@
+ 					err ("cannot find corresponding PFMEM resource to remove\n");
+ 					return -EIO;
+ 				}
+-				if (pfmem)
++				if (pfmem) {
+ 					debug ("pfmem->start = %x\n", pfmem->start);
  
- 	return 0;
+-				ibmphp_remove_resource (pfmem);
++					ibmphp_remove_resource(pfmem);
++				}
+ 			} else {
+ 				/* regular memory */
+ 				debug ("start address of mem is %x\n", start_address);
+@@ -1328,10 +1329,11 @@
+ 					err ("cannot find corresponding MEM resource to remove\n");
+ 					return -EIO;
+ 				}
+-				if (mem)
++				if (mem) {
+ 					debug ("mem->start = %x\n", mem->start);
+ 
+-				ibmphp_remove_resource (mem);
++					ibmphp_remove_resource(mem);
++				}
+ 			}
+ 			if (tmp_address & PCI_BASE_ADDRESS_MEM_TYPE_64) {
+ 				/* takes up another dword */
+@@ -1427,20 +1429,22 @@
+ 					err ("cannot find corresponding PFMEM resource to remove\n");
+ 					return -EINVAL;
+ 				}
+-				if (pfmem)
++				if (pfmem) {
+ 					debug ("pfmem->start = %x\n", pfmem->start);
+ 
+-				ibmphp_remove_resource (pfmem);
++					ibmphp_remove_resource(pfmem);
++				}
+ 			} else {
+ 				/* regular memory */
+ 				if (ibmphp_find_resource (bus, start_address, &mem, MEM) < 0) {
+ 					err ("cannot find corresponding MEM resource to remove\n");
+ 					return -EINVAL;
+ 				}
+-				if (mem)
++				if (mem) {
+ 					debug ("mem->start = %x\n", mem->start);
+ 
+-				ibmphp_remove_resource (mem);
++					ibmphp_remove_resource(mem);
++				}
+ 			}
+ 			if (tmp_address & PCI_BASE_ADDRESS_MEM_TYPE_64) {
+ 				/* takes up another dword */
 

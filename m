@@ -1,97 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbVCBQTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVCBQYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbVCBQTY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 11:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVCBQTY
+	id S262165AbVCBQYI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 11:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbVCBQYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 11:19:24 -0500
-Received: from fire.osdl.org ([65.172.181.4]:61102 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262348AbVCBQR3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 11:17:29 -0500
-Subject: Re: Linux 2.6.11
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Wed, 02 Mar 2005 08:18:27 -0800
-Message-Id: <1109780307.18083.0.camel@cherrypit.pdx.osdl.net>
+	Wed, 2 Mar 2005 11:24:07 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:35081 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262165AbVCBQYF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 11:24:05 -0500
+Message-Id: <200503021842.j22IgIBY012680@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
+cc: Christophe Lucas <clucas@rotomalug.org>, linux-kernel@vger.kernel.org
+Subject: Re: UserMode bug in 2.6.11-rc5? autolearn=disabled version=3.0.2 
+In-Reply-To: Your message of "Wed, 02 Mar 2005 14:59:39 +0100."
+             <200503021459.39846.ks@cs.aau.dk> 
+References: <200503021236.26561.ks@cs.aau.dk> <20050302134533.GE13075@rhum.iomeda.fr>  <200503021459.39846.ks@cs.aau.dk> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 02 Mar 2005 13:42:18 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.4.1)
+ks@cs.aau.dk said:
+> Hey! Thanks - that fixed the problem! :-D 
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+Didn't you say this this setup worked with 2.6.10?  That's why I didn't suggest
+staring at /etc/inittab.
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.11        13w/0e       0w/0e   352w/0e    6w/0e  17w/0e    431w/0e
-2.6.11-rc5    14w/0e       0w/0e   353w/0e    6w/0e  18w/0e    431w/0e
-2.6.11-rc4    14w/0e       0w/0e   353w/0e    6w/0e  18w/0e    431w/0e
-2.6.11-rc3    14w/0e       0w/0e   356w/0e    6w/0e  18w/0e    435w/0e
-2.6.11-rc3    13w/0e       0w/0e   356w/0e    6w/0e  18w/0e    435w/0e
-2.6.11-rc2    18w/0e       0w/0e   365w/0e    6w/0e  22w/0e    440w/0e
-2.6.11-rc1    20w/0e       0w/0e   497w/0e    6w/0e  22w/0e    577w/0e
-2.6.10        13w/0e       0w/0e   778w/0e    6w/0e  15w/0e    861w/0e
-2.6.9-rc3     13w/0e       0w/0e   774w/0e    6w/0e  15w/0e    857w/0e
-2.6.9-rc2     14w/0e       0w/0e  1815w/11e  65w/0e  19w/0e   2157w/0e
-(Compiles with gcc 3.2.2)
-2.6.9-rc1      5w/0e       1w/0e  1069w/15e   6w/0e   4w/0e   1062w/1e
-2.6.9          0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-final    0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-rc4      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
-2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
-2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
-2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
-2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
-2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
-
-
+				Jeff
 

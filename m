@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264262AbTKTDCe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 22:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTKTDCe
+	id S264178AbTKTC5j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 21:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTKTC5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 22:02:34 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:59779 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264262AbTKTDCd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 22:02:33 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Intel E1000 and IDE problems
-Date: Wed, 19 Nov 2003 19:02:27 -0800
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDCE4@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Intel E1000 and IDE problems
-Thread-Index: AcOulVvf7Abn7Nw+T/eGtYWdtynfjQAfRuCA
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Teodor Iacob" <Teodor.Iacob@astral.ro>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Nov 2003 03:02:28.0409 (UTC) FILETIME=[BB5B2290:01C3AF12]
+	Wed, 19 Nov 2003 21:57:38 -0500
+Received: from holomorphy.com ([199.26.172.102]:48555 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264178AbTKTC5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 21:57:36 -0500
+Date: Wed, 19 Nov 2003 18:57:30 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christopher Li <lkml@chrisli.org>
+Cc: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test9-mm4 (only) and vmware
+Message-ID: <20031120025730.GD22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Christopher Li <lkml@chrisli.org>,
+	Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20031119181518.0a43c673.vmlinuz386@yahoo.com.ar> <20031119223425.GA20549@64m.dyndns.org> <20031120014718.GA22764@holomorphy.com> <20031119232246.GA20840@64m.dyndns.org> <20031120023457.GC22764@holomorphy.com> <20031119234037.GC20840@64m.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031119234037.GC20840@64m.dyndns.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I recently put up 2 intel network adapters:
-> 00:09.0 Ethernet controller: Intel Corp. 82545EM Gigabit 
-> Ethernet Controller (Copper) (rev 01)
-> 00:0b.0 Ethernet controller: Intel Corp. 82545EM Gigabit 
-> Ethernet Controller (Copper) (rev 01)
-> 
-> ( I replaced some Intel PRO1000 Desktop which I had before ) and now
-> I get serious problems with the hda disk:
+On Wed, Nov 19, 2003 at 06:34:57PM -0800, William Lee Irwin III wrote:
+>> I'm going to ruminate on non-fatal methods of complaining loudly.
 
-Did you put the 82545 nics in the same slots where you had the desktop
-nics?
+On Wed, Nov 19, 2003 at 06:40:37PM -0500, Christopher Li wrote:
+> SPARSE checker?
 
-Are the 82545 nics on the same bus segment as the disk controller?  Are
-there any shared interrupts?  See lcpci -vvv.
+I was thinking of teaching the fault handlers to complain about
+->nopage() methods returning invalid results in a non-fatal manner,
+possibly with code consolidation.
 
--scott
+e.g. every arch does:
+
+	switch (handle_mm_fault(...)) {
+		case VM_FAULT_MINOR:
+			tsk->min_flt++;
+			break;
+		case VM_FAULT_MAJOR:
+			tsk->maj_flt++;
+			break;
+		case VM_FAULT_SIGBUS:
+			goto do_sigbus;
+		case VM_FAULT_OOM:
+			goto out_of_memory;
+		default:
+			BUG();
+	}
+
+which is vaguely repetitive. It's not immediately clear how to
+consolidate gotos, which is where the thought starts happening.
+
+The other part was replacing default: BUG() with something that
+complained (e.g. putting print_symbol() to use on the ->nopage()
+method) and treating the invalid statuses like OOM, but that's
+not really very hard to do (I posted something that did some
+crude reporting of that kind already to handle the sound/ bogons).
+
+
+-- wli

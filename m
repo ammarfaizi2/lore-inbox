@@ -1,103 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264284AbTDXDrC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 23:47:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbTDXDrC
+	id S264302AbTDXEE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 00:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbTDXEE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 23:47:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28433 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264284AbTDXDrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 23:47:00 -0400
-Date: Wed, 23 Apr 2003 20:59:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Flame Linus to a crisp!
-Message-ID: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Apr 2003 00:04:28 -0400
+Received: from litaipig.ucr.edu ([138.23.89.48]:34488 "EHLO
+	mail-infomine.ucr.edu") by vger.kernel.org with ESMTP
+	id S264302AbTDXEE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 00:04:27 -0400
+Date: Wed, 23 Apr 2003 21:16:32 -0700
+To: Miles Bader <miles@gnu.org>
+Cc: Steven Cole <elenstev@mesatop.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: How did the Spelling Police miss this one?
+Message-ID: <20030424041632.GB32423@mail-infomine.ucr.edu>
+References: <200304230936_MC3-1-35AA-864B@compuserve.com> <1051109635.29423.20.camel@spc9.esa.lanl.gov> <20030424033913.GA32423@mail-infomine.ucr.edu> <buo3ck85z5h.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <buo3ck85z5h.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.3.28i
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+X-BeenThere: crackmonkey@crackmonkey.org
+From: ruschein@mail-infomine.ucr.edu (Johannes Ruscheinski)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Also sprach Miles Bader:
+> ruschein@mail-infomine.ucr.edu (Johannes Ruscheinski) writes:
+> > As far as I know there is no such words as "canonicalize" in the English
+> > language.
+> 
+> Call it a neologism; it's quite widely used among programmers, anyway.
+Most programmers don't know how to spell either.  Btw., I've been a programmer
+for over 20 years.  Just because people don't know any better does not
+necessarily make it correct.
+> 
+> > The proper word seems to be "canonize".
+> 
+> Um, no -- that means `to make a saint.'
+Um, yes but -- it also means "to make canonical" according to http://www.m-w.com/.
+> 
+> -Miles
+>...
 
-Ok, 
- there's no way to do this gracefully, so I won't even try. I'm going to 
-just hunker down for some really impressive extended flaming, and my 
-asbestos underwear is firmly in place, and extremely uncomfortable.
+Johannes
+--
+Dr. Johannes Ruscheinski
+EMail:    ruschein_AT_infomine.ucr.edu ***          Linux                  ***
+Location: science library, room G40    *** The Choice Of A GNU Generation! ***
+Phone:    (909) 787-2279
 
-  I want to make it clear that DRM is perfectly ok with Linux!
-
-There, I've said it. I'm out of the closet. So bring it on...
-
-I've had some private discussions with various people about this already,
-and I do realize that a lot of people want to use the kernel in some way
-to just make DRM go away, at least as far as Linux is concerned. Either by
-some policy decision or by extending the GPL to just not allow it.
-
-In some ways the discussion was very similar to some of the software
-patent related GPL-NG discussions from a year or so ago: "we don't like
-it, and we should change the license to make it not work somehow". 
-
-And like the software patent issue, I also don't necessarily like DRM
-myself, but I still ended up feeling the same: I'm an "Oppenheimer", and I
-refuse to play politics with Linux, and I think you can use Linux for
-whatever you want to - which very much includes things I don't necessarily
-personally approve of.
-
-The GPL requires you to give out sources to the kernel, but it doesn't
-limit what you can _do_ with the kernel. On the whole, this is just
-another example of why rms calls me "just an engineer" and thinks I have
-no ideals.
-
-[ Personally, I see it as a virtue - trying to make the world a slightly
-  better place _without_ trying to impose your moral values on other 
-  people. You do whatever the h*ll rings your bell, I'm just an engineer 
-  who wants to make the best OS possible. ]
-
-In short, it's perfectly ok to sign a kernel image - I do it myself
-indirectly every day through the kernel.org, as kernel.org will sign the
-tar-balls I upload to make sure people can at least verify that they came
-that way. Doing the same thing on the binary is no different: signing a
-binary is a perfectly fine way to show the world that you're the one
-behind it, and that _you_ trust it.
-
-And since I can imaging signing binaries myself, I don't feel that I can
-disallow anybody else doing so.
-
-Another part of the DRM discussion is the fact that signing is only the 
-first step: _acting_ on the fact whether a binary is signed or not (by 
-refusing to load it, for example, or by refusing to give it a secret key) 
-is required too.
-
-But since the signature is pointless unless you _use_ it for something,
-and since the decision how to use the signature is clearly outside of the
-scope of the kernel itself (and thus not a "derived work" or anything like
-that), I have to convince myself that not only is it clearly ok to act on
-the knowledge of whather the kernel is signed or not, it's also outside of
-the scope of what the GPL talks about, and thus irrelevant to the license.
-
-That's the short and sweet of it. I wanted to bring this out in the open, 
-because I know there are people who think that signed binaries are an act 
-of "subversion" (or "perversion") of the GPL, and I wanted to make sure 
-that people don't live under mis-apprehension that it can't be done.
-
-I think there are many quite valid reasons to sign (and verify) your
-kernel images, and while some of the uses of signing are odious, I don't
-see any sane way to distinguish between "good" signers and "bad" signers.
-
-Comments? I'd love to get some real discussion about this, but in the end 
-I'm personally convinced that we have to allow it.
-
-Btw, one thing that is clearly _not_ allowed by the GPL is hiding private
-keys in the binary. You can sign the binary that is a result of the build
-process, but you can _not_ make a binary that is aware of certain keys
-without making those keys public - because those keys will obviously have
-been part of the kernel build itself.
-
-So don't get these two things confused - one is an external key that is
-applied _to_ the kernel (ok, and outside the license), and the other one
-is embedding a key _into_ the kernel (still ok, but the GPL requires that
-such a key has to be made available as "source" to the kernel).
-
-			Linus
-
+"Perennial nuisance Charlton Heston pops up to declare that there are "too
+ many people on the Earth as it is" and one realizes instantly that as
+ president of the NRA, he is doing his best to correct that."
+               -- Tom Shales, The Washington Post

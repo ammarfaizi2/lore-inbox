@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262510AbSJKPcU>; Fri, 11 Oct 2002 11:32:20 -0400
+	id <S262525AbSJKPg6>; Fri, 11 Oct 2002 11:36:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262511AbSJKPcU>; Fri, 11 Oct 2002 11:32:20 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:12197 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S262510AbSJKPcT>; Fri, 11 Oct 2002 11:32:19 -0400
-Date: Fri, 11 Oct 2002 17:37:49 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Task Share Maintainership
-In-Reply-To: <Pine.LNX.4.10.10210101435490.9997-100000@master.linux-ide.org>
-Message-ID: <Pine.SOL.4.30.0210111736380.3186-100000@mion.elka.pw.edu.pl>
+	id <S262536AbSJKPg6>; Fri, 11 Oct 2002 11:36:58 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:11203 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262525AbSJKPg5>; Fri, 11 Oct 2002 11:36:57 -0400
+Date: Fri, 11 Oct 2002 08:34:17 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>, Andrew Theurer <habanero@us.ibm.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
+Message-ID: <1713823758.1034325255@[10.10.2.3]>
+In-Reply-To: <200210111729.45129.efocht@ess.nec.de>
+References: <200210111729.45129.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> arch/i386/kernel/smpboot.c:smp_tune_scheduling() says:
+> 
+>        if (!cpu_khz) {
+>                 /*
+>                  * this basically disables processor-affinity
+>                  * scheduling on SMP without a TSC.
+>                  */
+>                 cacheflush_time = 0;
+>                 return;
+> 
+> If you boot with notsc, you won't have cache affinity on your machine.
+> Which means that the load_balancer eventually selects cache hot tasks
+> for stealing. The O(1) scheduler doesn't do that under normal conditions!
 
-Accepted, thanks!
+OK, that makes more sense ... I'll go stare at the code some more and
+see what can be done.
+ 
+> Of course I'll add something to my patch such that it doesn't crash
+> if cache_decay_ticks is unset. But you might be measuring wrong things
+> right now if you leave cache_decay_ticks=0 as then the cache-affinity
+> on NUMAQ is switched off with the vanilla O(1) and with Michael's patch.
+> I want to say: you cannot evaluate the impact of Michael's patches if
+> you don't fix that. This issue is independent of my patches.
 
---
-Bartlomiej
+OK, I'll make sure to make the tests uniform somehow to get a fair 
+comparison.
 
+Thanks!
 
-On Thu, 10 Oct 2002, Andre Hedrick wrote:
-
-> Greetings Bartlomiej,
->
-> It is time for you to step up to the plate!
->
-> As many people know, Bartlomiej is someone whom I trust with the driver
-> without reservations.  Since I am off working on several other issues, I
-> would request the Maintainership be dual duty split over all kernel
-> versions regardless.  I am hoping Bartlomiej will accept the shared task
-> and everyone will accept his input without question, this includes me too.
->
-> I will still be around and active; however, the task is so large now it
-> truly does require a team.  Please sign up to help Bart.
->
-> Cheers,
->
-> Andre Hedrick
-> LAD Storage Consulting Group
-
+M.
 

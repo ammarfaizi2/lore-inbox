@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278590AbRJXPmD>; Wed, 24 Oct 2001 11:42:03 -0400
+	id <S278592AbRJXPoN>; Wed, 24 Oct 2001 11:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278592AbRJXPlz>; Wed, 24 Oct 2001 11:41:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27786 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278590AbRJXPke>;
-	Wed, 24 Oct 2001 11:40:34 -0400
-Date: Wed, 24 Oct 2001 08:40:41 -0700 (PDT)
-Message-Id: <20011024.084041.51848716.davem@redhat.com>
-To: baggins@sith.mimuw.edu.pl
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: acenic breakage in 2.4.13-pre
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011024164533.C15474@sith.mimuw.edu.pl>
-In-Reply-To: <20011024164533.C15474@sith.mimuw.edu.pl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278593AbRJXPn4>; Wed, 24 Oct 2001 11:43:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15882 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278592AbRJXPnl>; Wed, 24 Oct 2001 11:43:41 -0400
+Date: Wed, 24 Oct 2001 08:41:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
+        Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <E15wKn8-00013C-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0110240831200.8049-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-   Date: Wed, 24 Oct 2001 16:45:33 +0200
 
-Czesc Jan,
+On Wed, 24 Oct 2001, Alan Cox wrote:
+>
+> That will scramble large numbers of devices. Randomly erroring pending block
+> writes is -not- civilised.
 
-   Speaking of acenic - it's broken in 2.4.13-pre.
+Note that one thing in suspending the machine that has _nothing_ to do
+with the actual device tree is that higher layers have to suspend whatever
+it is they are doing anyway.
 
-As a side note, it's really unfortunate that such reports surface
-several hours after Linus releases the real 2.4.13 :(
+Ie part of the suspend action (which is unrelated to the driver model) is
+to stop all regularly scheduled activity - not necessarily flushing all
+dirty buffers, but certainly waiting for all pending IO. That's a much
+higher level thing that the device though - the devices themselves should
+never ever see this (except in the sense that they don't see new requests
+coming in).
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+There are other "higher-level" issues: while a device "prepare to suspend"
+call might block for some device information, that does not mean that it
+can allocate memory with GFP_KERNEL, for example: when we shut off device
+X, the disk may have been prepared for shutdown already, and the VM layer
+cannot do any IO. So the suspend (and resume) function have to use
+GFP_NOIO for their allocations - _regardless_ of any other device issues.
+
+So sure, there are tons of issues here, but none of them have, in my
+opinion, anything to do with the device model itself. More just normal
+implementation details.
+
+		Linus
+

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263842AbTDIWp2 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 18:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbTDIWpX (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 18:45:23 -0400
-Received: from smtp2.us.dell.com ([143.166.85.133]:63158 "EHLO
-	smtp2.us.dell.com") by vger.kernel.org with ESMTP id S263842AbTDIWo7 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 18:44:59 -0400
-Subject: balance_irq()'s move() while in machine_restart() hangs system
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: mingo@redhat.com
+	id S263848AbTDIWod (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 18:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263857AbTDIWod (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 18:44:33 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:11904 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263848AbTDIWoc (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 18:44:32 -0400
+Date: Wed, 9 Apr 2003 15:55:38 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049928786.5244.108.camel@localhost.localdomain>
+Subject: Re: 2.5.67-mm1 cause framebuffer crash at bootup
+Message-Id: <20030409155538.5df5cc1f.rddunlap@osdl.org>
+In-Reply-To: <1B46F2144C@vcnet.vc.cvut.cz>
+References: <1B46F2144C@vcnet.vc.cvut.cz>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Apr 2003 17:56:38 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo, if one processor is in move() when another processor calls
-machine_restart(), the system will hang.  All otherCPUs will move into
-the hlt state, but one in move(), by virtue of smp_num_cpus getting set
-to 1 in smp_send_stop() before the 4th CPU has completed its work and
-gets out of move().  It will loop in move() in this chunk:
+On Wed, 9 Apr 2003 23:52:51 +0200 "Petr Vandrovec" <VANDROVE@vc.cvut.cz> wrote:
 
-		if (direction == 1) {
-			cpu++;
-			if (cpu >= smp_num_cpus)
-				cpu = 0;
-		} else {
-			cpu--;
-			if (cpu == -1)
-				cpu = smp_num_cpus-1;
-		}
-	} while (!IRQ_ALLOWED(cpu,allowed_mask) ||
-			(search_idle && !IDLE_ENOUGH(cpu,now)));
+| On  9 Apr 03 at 14:45, Randy.Dunlap wrote:
+| >  [<c029367a>] fbcon_set_display+0x33a/0x4c0
+| >  [<c01f8031>] set_inverse_transl+0x41/0xa0
+| 
+| Can you remove 'printk(KERN_DEBUG "%s: %ux%u, vt=%u, init=%u, ...'
+| from fbcon_set_display (drivers/video/console/fbcon.c)? On my system
+| printk(KERN_DEBUG) does not print nothing to the console even before
+| syslogd is started (one wonders why...), but on your system it apparently
+| triggers output to console before video mode was set.
 
-with smp_num_cpus=1 and never manage to exit.
+Yes, I did that and can report that this one printk() kills it for me.
+I.e., it boots and runs fine with this line commented out, but when I
+put it back and rebuild, that kernel gets the same oops during boot.
 
-Is it fair to change smp_send_stop() to call
-smp_call_function(stop_this_cpu, NULL, 1, 1) instead (make it wait for
-the other CPUs to complete before continuing)?
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+--
+~Randy

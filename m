@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262829AbUCSMSB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 07:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbUCSMSB
+	id S262900AbUCSMsP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 07:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262938AbUCSMsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 07:18:01 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29077 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262829AbUCSMR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 07:17:59 -0500
-Date: Fri, 19 Mar 2004 13:17:52 +0100
-From: Jens Axboe <axboe@suse.de>
+	Fri, 19 Mar 2004 07:48:14 -0500
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:33799
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262900AbUCSMsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 07:48:13 -0500
+Date: Fri, 19 Mar 2004 04:45:38 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
 To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Kernel 2.4.18-3smp is a SMP kernel or non-smp kernel
-Message-ID: <20040319121752.GA3874@suse.de>
-References: <1118873EE1755348B4812EA29C55A972176926@esnmail.esntechnologies.co.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <1118873EE1755348B4812EA29C55A972176926@esnmail.esntechnologies.co.in>
+Message-ID: <Pine.LNX.4.10.10403190443330.2569-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19 2004, Srinivas G. wrote:
+
+Srinivas,
+
+Hire a consultant ?
+Read the mail archives since 1991 ?
+
+See >>> www.google.com
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Fri, 19 Mar 2004, Srinivas G. wrote:
+
 > 
 > Hi,
 > 
@@ -31,12 +43,16 @@ On Fri, Mar 19 2004, Srinivas G. wrote:
 > Driver under it? 
 > 
 > What flags or macros are needed to compile it?
-
-Guys, please take it to kernel-newbies or something, please. Or look at
-the excellent LDD book online (I already pointed you at that resource
-before), it answers your questions. Or google, god knows there are lots
-of other ways to help yourself prior to asking questions here.
-
--- 
-Jens Axboe
+> 
+> Thanks
+> 
+> Regards,
+> 
+> Srinivas G
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131465AbQKBAbS>; Wed, 1 Nov 2000 19:31:18 -0500
+	id <S129804AbQKBAe6>; Wed, 1 Nov 2000 19:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131776AbQKBAa6>; Wed, 1 Nov 2000 19:30:58 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:45835 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131465AbQKBAat>;
-	Wed, 1 Nov 2000 19:30:49 -0500
-Message-ID: <3A00B5B5.A6480752@mandrakesoft.com>
-Date: Wed, 01 Nov 2000 19:30:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-CC: linux-kernel@vger.kernel.org
+	id <S130641AbQKBAej>; Wed, 1 Nov 2000 19:34:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:35853 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129804AbQKBAec>; Wed, 1 Nov 2000 19:34:32 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <8tqbrl$q59$1@enterprise.cistron.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: 1 Nov 2000 16:32:48 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8tqcng$d8p$1@cesium.transmeta.com>
+In-Reply-To: <20001101234058.B1598@werewolf.able.es> <200011012345.PAA20284@pizda.ninka.net> <20001101172100.A5081@fsmlabs.com> <200011020011.QAA20585@pizda.ninka.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
-> By default Debian comes
-> with gcc 2.95.2 which compiles current 2.2.x and 2.4.x kernels just
-> fine.
+Followup to:  <200011020011.QAA20585@pizda.ninka.net>
+By author:    "David S. Miller" <davem@redhat.com>
+In newsgroup: linux.dev.kernel
+> 
+> We already know we are a bunch of pinheads wrt. the userland compiler
+> issue, full stop.  It need not be restated several hundred more times.
+> Believe me, after such a large fiasco, we have listened :-)
+> 
+> But, on the other hand, to say that "kgcc" comceptually is something
+> only Red Hat has ever done is a factual error, that is all I am trying
+> to state, nothing more.
+> 
 
-<checks>  Linux-Mandrake 7.2 doesn't seem to be missing gcc patches that
-Debian has...  and in our testing we've found that some drivers are
-still miscompiled by gcc 2.95.2+fixes.  I'm not so sure you are correct
-here...
+I think at least supporting a "kgcc" compiler makes sense,
+conceptually (although it probably should have been called "kcc", but
+it's too late now.)
+
+The kernel uses a lot of gcc extensions, and history shows that these
+extensions aren't as stable as the compiler system as a whole.
+
+	-hpa
 
 -- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

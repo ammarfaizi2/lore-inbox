@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272505AbTHFV3a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272071AbTHFV33
+	id S272639AbTHFV0D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272627AbTHFV0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:29:29 -0400
-Received: from 066-241-084-054.bus.ashlandfiber.net ([66.241.84.54]:1152 "EHLO
-	bigred.russwhit.org") by vger.kernel.org with ESMTP id S270967AbTHFV3Q
+	Wed, 6 Aug 2003 17:26:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64649 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S272639AbTHFVZ4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:29:16 -0400
-Date: Wed, 6 Aug 2003 14:26:31 -0700 (PDT)
-From: Russell Whitaker <russ@ashlandhome.net>
-X-X-Sender: russ@bigred.russwhit.org
-To: "maf."@gmx.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0: lp not working
-In-Reply-To: <200308061307.03350.maf@epost.de>
-Message-ID: <Pine.LNX.4.53.0308061411560.153@bigred.russwhit.org>
-References: <200308061307.03350.maf@epost.de>
+	Wed, 6 Aug 2003 17:25:56 -0400
+Message-ID: <3F317257.9040807@pobox.com>
+Date: Wed, 06 Aug 2003 17:25:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: Add identify decoding 4/4
+References: <UTC200308061351.h76Dp6413498.aeb@smtp.cwi.nl>
+In-Reply-To: <UTC200308061351.h76Dp6413498.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andries.Brouwer@cwi.nl wrote:
+> No. <linux/ide-identify.h> contains a lot of 1-line static inline
+> functions, just readable names for current magic bit checks,
+> and one big function ide_dump_identify_info() that is included as
+> 
+> #ifdef IDE_IDENTIFY_DEBUG
 
 
-On Wed, 6 Aug 2003, Martin Fahr wrote:
+Yes, I understand how the C pre-processor works, thanks ;-)
 
-> I had a similar problem. Some more details:
-> Onboard parport on a Abit KT7a with VIA KT133a chipset.
-> CUPS or lpr did not print on 2.6-* and some 2.5.* but with 2.4.21. Printer is
-> a HP DJ520.
-> My solution to this problem was to change a BIOS setting: "ECP parallel port
-> mode" from 1.9 to 1.7. No problems anymore.
->
-Sorry, but that option is not available in my bios setup.
-Besides, fixing the problem is usually better than a workaround.
+I know full well _why_ the big function is in the header; that doesn't 
+address my point:  we don't need to be putting big functions in header 
+files.  That's why libraries were invented :)
 
-Motherboard: Tyan MPX (S2466-4M) with latest bios.
-Chipset: AMD 760MPX, 762, 768, Winbond 83627
+	Jeff
 
-Software: Slackware 9.0 with some updates.
 
-Let me know if I can be of any assistance.
 
-Thanks,
-  Russ

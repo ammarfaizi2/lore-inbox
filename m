@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311180AbSCPXMO>; Sat, 16 Mar 2002 18:12:14 -0500
+	id <S311199AbSCPXQo>; Sat, 16 Mar 2002 18:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311195AbSCPXME>; Sat, 16 Mar 2002 18:12:04 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:1296 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S311180AbSCPXLw>;
-	Sat, 16 Mar 2002 18:11:52 -0500
-Date: Sat, 16 Mar 2002 16:10:57 -0700
-From: yodaiken@fsmlabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: yodaiken@fsmlabs.com, Linus Torvalds <torvalds@transmeta.com>,
-        Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020316161057.A23495@hq.fsmlabs.com>
-In-Reply-To: <20020316143916.A23204@hq.fsmlabs.com> <E16mMDf-0007JE-00@the-village.bc.nu>
+	id <S311203AbSCPXQY>; Sat, 16 Mar 2002 18:16:24 -0500
+Received: from ns.suse.de ([213.95.15.193]:33298 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311199AbSCPXQV>;
+	Sat, 16 Mar 2002 18:16:21 -0500
+Date: Sun, 17 Mar 2002 00:15:33 +0100
+From: Dave Jones <davej@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
+        linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH] devexit fixes in i82092.c
+Message-ID: <20020317001533.E15296@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
+	linux-kernel@vger.kernel.org, mochel@osdl.org
+In-Reply-To: <E16mMer-0007Q4-00@the-village.bc.nu> <Pine.LNX.4.33.0203161421240.8278-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E16mMDf-0007JE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Mar 16, 2002 at 10:00:07PM +0000
-Organization: FSM Labs
+In-Reply-To: <Pine.LNX.4.33.0203161421240.8278-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 10:00:07PM +0000, Alan Cox wrote:
-> > databases, routing tables, and images. Our good friends at Intel
-> > claim "carrier grade" Linux  needs to run threaded apps
-> > with 10,000 threads to depose Solaris in telecom - all sharing the
-> > same monster address space.=20
-> 
-> Thats intel though. The same people who seem to think that hyperthreading
-> in the CPU is required for carrier grade work 8)
+On Sat, Mar 16, 2002 at 02:26:23PM -0800, Linus Torvalds wrote:
 
-I love the whole sound of "carrier grade" though: Do you use "carrier grade"
-Linux or just the "recreational boating" version?
+ > One question that hasn't come up: do we actually want to use the "remove"
+ > function for this, or have a separate shutdown function? Are there reasons
+ > to not use "remove" for shutdown?
 
+ Something that came to mind on reading this thread that I want
+ clarification on.. Take for example, the case of an IDE controller.
+ If on shutdown we walk the driverfs tree shutting things down,
+ it's going to power off its hard disks, then do whatever magic is
+ needed to the ide host bridge.
 
+ This makes sense for a shutdown, and suspend-to-disk, but not for
+ a reboot imo (senseless spinning down/up of drives).
+ So some means is probably going to be needed for drivers to
+ distinguish between a reboot & shutdown/suspend.
+
+ There may be other such devices too, but this was the more
+ obvious one that came to mind. Or am I way off base here?
+ 
 -- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

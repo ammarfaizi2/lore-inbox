@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269193AbRGaGb4>; Tue, 31 Jul 2001 02:31:56 -0400
+	id <S269197AbRGaGm2>; Tue, 31 Jul 2001 02:42:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269195AbRGaGbr>; Tue, 31 Jul 2001 02:31:47 -0400
-Received: from titan.golden.net ([199.166.210.90]:43473 "EHLO titan.golden.net")
-	by vger.kernel.org with ESMTP id <S269193AbRGaGbd>;
-	Tue, 31 Jul 2001 02:31:33 -0400
-From: "John L. Males" <software_iq@TheOffice.net>
-Organization: Toronto, Ontario, Canada
-To: linux-kernel@vger.kernel.org
-Date: Tue, 31 Jul 2001 02:31:25 -0500
+	id <S269198AbRGaGmU>; Tue, 31 Jul 2001 02:42:20 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:1420 "EHLO
+	inet-mail3.oraclecorp.com") by vger.kernel.org with ESMTP
+	id <S269197AbRGaGmH>; Tue, 31 Jul 2001 02:42:07 -0400
+Message-ID: <3B65F3A2.DC5F7E37@oracle.com>
+Date: Tue, 31 Jul 2001 05:24:10 +0530
+From: Subhash S <subhash.sutrave@oracle.com>
+Reply-To: subhash.sutrave@oracle.com
+Organization: Oracle India
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-64GB-SMP i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Linux Kernel 2.4.8-pre2 Compile Attempts
-Reply-to: software_iq@TheOffice.net
-Message-ID: <3B66187D.17040.4C80F5@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+To: linux-kernel@vger.kernel.org
+Subject: Question about gettimeofday
+Content-Type: multipart/mixed;
+ boundary="------------830CBBBB31AC669B47F39526"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------830CBBBB31AC669B47F39526
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hello,
+Hi All,
 
-Without giving the gory details, I am curious to know if there are
-still problems compiling the 2.4.8-pre2 kernel (2.4.7 + 2.4.8-pre2
-patch).  Specifically the "make modules" does not complete dues to
-some errors, the kernel compiles, but will not start after it is
-decompressed, if one uses the "-k -i" options of make for the modules
-to skip those that are really not a big concern to me anyway, there
-seems to be problems with "make modules_install" either not working
-or some other strange thing.  Also what is installed in /lib/modules
-tree is not just modules, but some extensive set of the kernel source
-tree with object code mixed in for adventure of finding.
+In my application I use gettimeofday very frequently, as it is system
+call on linux it is expensive, where as on Solaris it is not so. Could
+you please tell me how solaris is implemented the function gettimeofday.
 
-All I really wanted to do was give the 2.4.8pre2 kernel a try to see
-if memory management was improved with the recent approaches.  I did
-try a prior 2.4 kernel, not sure, but think it was 2.4.4 and it had
-its share of compile problems via make.  Am I completely out to lunch
-here, or should I just hang in.  I am doing ok with the 2.2.19 Linus
-Kernel with the Openwall patch, but I really would like to observe
-the work in memory management of the kernel to determine if may
-observations on how memory is management in the bigger picture to
-determine if I wish to offer my observations to the memory management
-discussion.
+Please reply directly to me as I am not there in the mailing list.
 
+Thanks,
+Subhash
+--------------830CBBBB31AC669B47F39526
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="subhash.sutrave.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Subhash S
+Content-Disposition: attachment;
+ filename="subhash.sutrave.vcf"
 
-Regards,
+begin:vcard 
+n:;Subhash
+x-mozilla-html:FALSE
+org:Oracle India;LINUX PERFORMANCE
+adr:;;;;;;
+version:2.1
+email;internet:Subhash.sutrave@oracle.com
+x-mozilla-cpt:;0
+fn:Subhash
+end:vcard
 
-John L. Males
-Software I.Q. Consulting
-Toronto, Ontario
-Canada
-31 July 2001 02:31
-mailto:software_iq@TheOffice.net
-mailto:jlmales@softhome.net
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 6.5.8 for non-commercial use <http://www.pgp.com>
-
-iQA/AwUBO2ZeyfLzhJbmoDZ+EQLWMQCeJCO8ncZ8WW51ufl+CWt2oLhDsmoAnj4U
-XmokefDd3smnPvFBdoO9wdDd
-=XX0U
------END PGP SIGNATURE-----
+--------------830CBBBB31AC669B47F39526--
 

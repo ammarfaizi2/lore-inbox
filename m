@@ -1,46 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279665AbRJ0BlU>; Fri, 26 Oct 2001 21:41:20 -0400
+	id <S279669AbRJ0BtA>; Fri, 26 Oct 2001 21:49:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279667AbRJ0BlK>; Fri, 26 Oct 2001 21:41:10 -0400
-Received: from mnh-1-05.mv.com ([207.22.10.37]:39437 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S279665AbRJ0BlB>;
-	Fri, 26 Oct 2001 21:41:01 -0400
-Message-Id: <200110270259.VAA04885@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.50-2.4.13
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 26 Oct 2001 21:59:36 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S279670AbRJ0Bsk>; Fri, 26 Oct 2001 21:48:40 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:29457 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S279669AbRJ0Bsc>; Fri, 26 Oct 2001 21:48:32 -0400
+Date: Fri, 26 Oct 2001 21:49:08 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@portland.hansa.lan>
+To: <linux-kernel@vger.kernel.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: [PATCH] More ioctls for VIA sound driver, Flash 5 now fixed
+Message-ID: <Pine.LNX.4.33.0110262134440.1121-100000@portland.hansa.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.13 is available.
+Hello!
 
-defconfig and the packaged kernels are built with CONFIG_PACKET so that 
-tcpdump works.
+Flash plugin version 5 refuses to work with the VIA 82Cxxx driver.  It
+turns out that Flash uses SNDCTL_DSP_NONBLOCK on /dev/dsp, which is not
+supported by the driver.
 
-Profiled modules can now be loaded without undefined symbols. 
+I also looked what other ioctls can be implemented easily on VIA 82Cxxx.  
+There is another one - SNDCTL_DSP_GETTRIGGER.  Everything else is not 
+trivial, sorry.
 
-Fixed a segfault on startup caused by an early unexpected malloc in a 
-profiling UML. 
+This patch add support for SNDCTL_DSP_NONBLOCK and SNDCTL_DSP_GETTRIGGER.
+It can be found at http://www.red-bean.com/~proski/linux/via-ioctl.diff
 
-The network backends are now able to cleanly print the commands that 
-uml_net runs and their output.
+Flash 5 plugin plays just fine after applying the patch (check e.g.  
+http://wcrb.com/sparks.html)
 
-Physical memory protection is now optional and is controlled by the 'jail' 
-switch until I figure out how to accomplish memory protection with x86 
-segments rather than mprotect.  Clues are gratefully accepted, as I've played
-with modify_ldt and have been unenlightened by the results.
+The patch is against 2.4.13-ac2.
 
-UML now respects the TMP/TMPDIR/TEMPDIR environment variables.
+----------------------------------------
+--- linux.orig/drivers/sound/via82cxxx_audio.c
++++ linux/drivers/sound/via82cxxx_audio.c
+@@ -2800,6 +2800,11 @@ static int via_dsp_ioctl (struct inode *
+ 		rc = 0;
+ 		break;
+ 
++	case SNDCTL_DSP_NONBLOCK:
++		file->f_flags |= O_NONBLOCK;
++		rc = 0;
++		break;
++
+ 	/* obtain bitmask of device capabilities, such as mmap, full duplex, etc. */
+ 	case SNDCTL_DSP_GETCAPS:
+ 		DPRINTK ("DSP_GETCAPS\n");
+@@ -2898,6 +2903,15 @@ static int via_dsp_ioctl (struct inode *
+ 		if (!rc && wr)
+ 			rc = via_dsp_ioctl_trigger (&card->ch_out, val);
+ 
++		break;
++
++	case SNDCTL_DSP_GETTRIGGER:
++		val = 0;
++		if ((file->f_mode & FMODE_READ) && card->ch_in.is_enabled)
++			val |= PCM_ENABLE_INPUT;
++		if ((file->f_mode & FMODE_WRITE) && card->ch_out.is_enabled)
++			val |= PCM_ENABLE_OUTPUT;
++		rc = put_user(val, (int *)arg);
+ 		break;
+ 
+ 	/* Enable full duplex.  Since we do this as soon as we are opened
+----------------------------------------
 
-The project's home page is http://user-mode-linux.sourceforge.net
+Thanks for applying my previous patches.
 
-Downloads are available at 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
+P.S. Loading and unloading the driver with CONFIG_SOUND_VIA82CXXX_PROCFS
+enabled blocks something in the kernel (no new process can be run).  The 
+kernel prints:
 
-				Jeff
+de_put: deferred delete of 0
+de_put: deferred delete of via
+
+Just be aware that it can happen and that it's not related to my ioctl 
+patch.  If I fix it, I'll post a separate patch.
+
+-- 
+Regards,
+Pavel Roskin
 

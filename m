@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132667AbRC2Enh>; Wed, 28 Mar 2001 23:43:37 -0500
+	id <S132666AbRC2Ehh>; Wed, 28 Mar 2001 23:37:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132670AbRC2En1>; Wed, 28 Mar 2001 23:43:27 -0500
-Received: from albatross.prod.itd.earthlink.net ([207.217.120.120]:41186 "EHLO
+	id <S132667AbRC2Eh1>; Wed, 28 Mar 2001 23:37:27 -0500
+Received: from albatross.prod.itd.earthlink.net ([207.217.120.120]:38819 "EHLO
 	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S132667AbRC2EnW>; Wed, 28 Mar 2001 23:43:22 -0500
-Date: Wed, 28 Mar 2001 20:43:34 -0800 (PST)
+	id <S132666AbRC2EhW>; Wed, 28 Mar 2001 23:37:22 -0500
+Date: Wed, 28 Mar 2001 20:37:46 -0800 (PST)
 From: James Simmons <jsimmons@linux-fbdev.org>
 X-X-Sender: <jsimmons@linux.local>
-To: <linas@linas.org>
-cc: Vojtech Pavlik <vojtech@suse.cz>,
-   Gunther Mayer <Gunther.Mayer@t-online.de>, <linas@linas.org>,
-   Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mouse problems in 2.4.2 -> lost byte
-Message-ID: <Pine.LNX.4.31.0103282038120.1748-100000@linux.local>
+To: Bruno Avila <jisla@elogica.com.br>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Plans for 2.5
+Message-ID: <Pine.LNX.4.31.0103282010380.1748-100000@linux.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> The new input psmouse driver can resync when bytes are lost and also
->> shouldn't lose any bytes if there are not transmission problems on the
->> wire. But this is 2.5 stuff.
->
->umm linux kernel 2.5? Umm, given that a stable linux 2.6/3.0 might be
->years away ... and this seems 'minor', wouldn't it be better to
->submit this as a teeny-weeny new kind of mouse device driver as a 2.4.x
->patch?  e.g. CONFIG_MOUSE_PSAUX_SUPERSYNC or something?   I mean this
->cant be more than a few hundred lines of code? Requireing no other
->changes to the kernel?
+>  I got some questions. When are we going to develop stuff for 2.5? What
+>is planed? My opinion for linux 2.5 should be performance. Since linux
+>already is stable or well done for nature, we could thing more on
+>performance to be a diferencial over others. What do you people thing?
 
-Its more than a few hundred lines. Mind you it wouldn't be hard to patch
-2.4.X to use the new PS/2 drivers but it is a pretty big change. I
-seriously don't it would go in. Your welcomed to try out these drivers. I
-have personally been using these new PS/2 drivers for several months now
-with now problems. In fact this driver can trick my i8042 chipset to allow
-me to plug two PS/2 keyboards in :-)
+2.5.X will start once Linus see 2.4.X being stable enough for him to move
+on.
+
+       For me I'm working on rewriting the console layer. The two
+biggest parts to this are one cleanup of the fbcon layer to be much
+smaller and leaner. This is very much needed especially for graphical
+embedded devices that need as small a kernel as possible. We also need
+to deal with the latency issues fbcon suffer so badly from. Part of the
+changes is that each fbdev driver will have console code moved out of
+it and into fbcon.c. This makes for a much smaller and faster fbdev
+driver. Another bonus for this is it is possible to the /dev/fb interface
+and not use fbcon. This means you can use vgacon and open /dev/fb and have
+a graphical session and then close it and get back to vgacon. This is a
+nice feature especially when debugging fbdev drivers. A even more
+important function for this is again embedded devices. Most graphical
+embedded devices have a graphical display but no keyboard. Instead they
+use a touch screen. Here a framebuffer console doesn't make sense. What
+does make sense is if we have /dev/fb and a /dev/event interface for the
+touch screen. Here we would then use for the console a serial port or
+maybe even a network console driver.
+    The second part is is the porting of all the input devices over to the
+input api. This allows for a consistant api for all input devices. This
+will greatly cleanup up the mess of drivers/char/keyboard.c. The code in
+keyboard.c will grab events from keybaord input devices and send them to
+the correct VT. Again this is very important for embedded devices. Since a
+large part of X server design is centered around the idea of input devices
+this will allow the developement of micro X servers. Also with the
+/dev/eventX interface we can have direct input for glut with OpenGL. Like
+direct rendering you will get a enormous performance boost. This will very
+important for porting linux over to game consoles. It will also allow
+for fast gaming or more the more serious better interactivity for things
+like molecular simulators on PCs using linux. For embedded devices that
+can't afford to run X it can directly use /dev/fb and /dev/event without the
+need to mess around with the console system. Also the micro X servers
+will not have to as well mess with the console system as well. Of course
+smaller leaner graphical systems will come to the PC as well. Meaning much
+better X servers in the future (*hint hint*) :-)
 
 MS: (n) 1. A debilitating and surprisingly widespread affliction that
 renders the sufferer barely able to perform the simplest task. 2. A disease.

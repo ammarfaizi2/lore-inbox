@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317589AbSIENwp>; Thu, 5 Sep 2002 09:52:45 -0400
+	id <S317525AbSIENpA>; Thu, 5 Sep 2002 09:45:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317590AbSIENwp>; Thu, 5 Sep 2002 09:52:45 -0400
-Received: from angband.namesys.com ([212.16.7.85]:21161 "HELO
+	id <S317540AbSIENo7>; Thu, 5 Sep 2002 09:44:59 -0400
+Received: from angband.namesys.com ([212.16.7.85]:59560 "HELO
 	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S317589AbSIENwk>; Thu, 5 Sep 2002 09:52:40 -0400
-Date: Thu, 5 Sep 2002 17:57:11 +0400
+	id <S317525AbSIENoc>; Thu, 5 Sep 2002 09:44:32 -0400
+Date: Thu, 5 Sep 2002 17:49:02 +0400
 From: Oleg Drokin <green@namesys.com>
-To: mason@suse.com
-Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com
+To: "David S. Miller" <davem@redhat.com>
+Cc: szepe@pinerecords.com, mason@suse.com, reiser@namesys.com,
+       shaggy@austin.ibm.com, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+       linuxjfs@us.ibm.com
 Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
-Message-ID: <20020905175711.B32687@namesys.com>
-References: <3D76A6FF.509@namesys.com> <1031186951.1684.205.camel@tiny> <20020905054008.GH24323@louise.pinerecords.com> <20020904.223651.79770866.davem@redhat.com> <20020905135442.A19682@namesys.com> <20020905174902.A32687@namesys.com>
+Message-ID: <20020905174902.A32687@namesys.com>
+References: <3D76A6FF.509@namesys.com> <1031186951.1684.205.camel@tiny> <20020905054008.GH24323@louise.pinerecords.com> <20020904.223651.79770866.davem@redhat.com> <20020905135442.A19682@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20020905174902.A32687@namesys.com>
+In-Reply-To: <20020905135442.A19682@namesys.com>
 User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-On Thu, Sep 05, 2002 at 05:49:02PM +0400, Oleg Drokin wrote:
+On Thu, Sep 05, 2002 at 01:54:42PM +0400, Oleg Drokin wrote:
 
-> > Ok, since I really like this approach, below is the patch (for 2.4) that
-> > demonstrates my solution.
-> > Also it correctly calculates maximal number given type may hold ( does not work
-> > with unsigned long long, though) with my own way ;)
-> Version that actually works is now here ;)
+> Ok, since I really like this approach, below is the patch (for 2.4) that
+> demonstrates my solution.
+> Also it correctly calculates maximal number given type may hold ( does not work
+> with unsigned long long, though) with my own way ;)
 
-Heh, diffed against wrong tree :(
-Corrected diff is here.
+Version that actually works is now here ;)
+Also I have added checks to reiserfs_mkdir and reiserfs_rename to not
+overflow the counter. Still reiserfs only version of the patch.
+Actually I think this very approach can be used for a lot of other filesystems
+including ext2, where max nlink is defined to be 32000 only (I am not sure
+how much space is there reserved on disk, though).
 
-Also I trimmed CC list since I afraid Marcelo, DaveM adn jfs people are not very
-interested in this reiserfs only patch.
+Chris, can you please take a look at it?
 
 Bye,
     Oleg
-
 ===== fs/reiserfs/inode.c 1.35 vs edited =====
 --- 1.35/fs/reiserfs/inode.c	Fri Aug  9 19:22:33 2002
 +++ edited/fs/reiserfs/inode.c	Thu Sep  5 13:43:26 2002
@@ -236,7 +239,7 @@ Bye,
  	new_dentry_inode->i_ctime = ctime;
 ===== include/linux/reiserfs_fs.h 1.22 vs edited =====
 --- 1.22/include/linux/reiserfs_fs.h	Tue Aug 20 13:40:53 2002
-+++ edited/include/linux/reiserfs_fs.h	Thu Sep  5 17:52:50 2002
++++ edited/include/linux/reiserfs_fs.h	Thu Sep  5 13:42:08 2002
 @@ -1163,7 +1163,6 @@
  #define INODE_PKEY(inode) ((struct key *)((inode)->u.reiserfs_i.i_key))
  
@@ -253,7 +256,7 @@ Bye,
 -#define REISERFS_LINK_MAX (MAX_US_INT - 1000)
 +/* Find maximal number, that nlink_t can hold. GCC is able to calculate this
 +   value at compile time, so do not worry about extra CPU overhead. */
-+#define REISERFS_LINK_MAX (nlink_t)((((nlink_t) -1) > 0)?~0:((1u<<(sizeof(nlink_t)*8-1))-1))
++#define REISERFS_LINK_MAX ((((nlink_t) -1) > 0)?~0:((1u<<(sizeof(nlink_t)*8-1))-1))
  
  
  /* The following defines are used in reiserfs_insert_item and reiserfs_append_item  */

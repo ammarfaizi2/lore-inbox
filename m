@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVC2Ugm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVC2Uks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVC2Ugm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 15:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVC2Ugl
+	id S261410AbVC2Uks (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:40:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVC2Uks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 15:36:41 -0500
-Received: from smtp16.wxs.nl ([195.121.6.39]:36325 "EHLO smtp16.wxs.nl")
-	by vger.kernel.org with ESMTP id S261369AbVC2Ug2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 15:36:28 -0500
-Date: Tue, 29 Mar 2005 22:36:24 +0200
-From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-Subject: [PATCH] embarassing typo
-To: akpm@osdl.org
+	Tue, 29 Mar 2005 15:40:48 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:3559 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261418AbVC2UkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 15:40:09 -0500
+Subject: Re: How's the nforce4 support in Linux?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tomasz Torcz <zdzichu@irc.pl>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <1112128584.25954.6.camel@tux.lan>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
-Content-type: multipart/mixed; boundary="Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)"
+In-Reply-To: <20050329185825.GB20973@irc.pl>
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+	 <1111792462.23430.25.camel@mindpipe>  <20050329185825.GB20973@irc.pl>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 15:40:07 -0500
+Message-Id: <1112128807.5141.14.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-03-29 at 20:58 +0200, Tomasz Torcz wrote:
+> On Fri, Mar 25, 2005 at 06:14:22PM -0500, Lee Revell wrote:
+> > On Fri, 2005-03-25 at 23:59 +0100, Julien Wajsberg wrote:
+> > > - audio works too. The only problem is that two applications can't
+> > > open /dev/dsp in the same time.
+> > 
+> > Not a problem.  ALSA does software mixing for chipsets that can't do it
+> > in hardware.  Google for dmix.
+> > 
+> > However this doesn't (and can't be made to) work with the in-kernel OSS
+> > emulation (it works fine with the alsa-lib/libaoss emulation).  So you
+> 
+>  quake3 still segfaults when run through "aoss". And can't be fixed, as
+> it's closed source still.
+> 
 
---Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+I guess that's Quake3's problem...
 
-Hi Andrew,
+Lee
 
-for some unknown reason, I suddenly found the attached typo. It doesn't
-cause anything bad (at least not on my computer according to some
-tests), but is still very much so embarassing, so please apply to the
-kernel tree. Who knows, maybe it fixes some obscure unfixeable bug for
-some people.
-
-Signed-off-by: Ronald S. Bultje <rbultje@ronald.bitfreak.net>
-
-Thanks,
-
-Ronald
-
--- 
-Ronald S. Bultje <rbultje@ronald.bitfreak.net>
-
---Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)
-Content-type: text/plain; name=x; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=x
-
-? .tmp_versions
-Index: zr36050.c
-===================================================================
-RCS file: /cvsroot/mjpeg/driver-zoran/zr36050.c,v
-retrieving revision 1.2
-diff -u -r1.2 zr36050.c
---- linux-2.6.5/drivers/media/video/zr36050.c.old	16 Sep 2004 22:53:27 -0000	1.2
-+++ linux-2.6.5/drivers/media/video/zr36050.c	29 Mar 2005 20:30:23 -0000
-@@ -419,7 +419,7 @@
- 	dri_data[2] = 0x00;
- 	dri_data[3] = 0x04;
- 	dri_data[4] = ptr->dri >> 8;
--	dri_data[5] = ptr->dri * 0xff;
-+	dri_data[5] = ptr->dri & 0xff;
- 	return zr36050_pushit(ptr, ZR050_DRI_IDX, 6, dri_data);
- }
- 
-
---Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)--

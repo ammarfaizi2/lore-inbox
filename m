@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265853AbUBBWAz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 17:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265856AbUBBWAz
+	id S265766AbUBBVxE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 16:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUBBVxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 17:00:55 -0500
-Received: from linux-bt.org ([217.160.111.169]:12692 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S265853AbUBBWAy (ORCPT
+	Mon, 2 Feb 2004 16:53:04 -0500
+Received: from quimbies.gnus.org ([80.91.231.2]:10201 "EHLO quimbies.gnus.org")
+	by vger.kernel.org with ESMTP id S265766AbUBBVxD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 17:00:54 -0500
-Subject: Re: oops in old isdn4linux and 2.6.2-rc3 (was in -rc2 too)
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Karsten Keil <kkeil@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040202195139.GB2534@pingi3.kke.suse.de>
-References: <401E4A80.4050907@web.de>
-	 <20040202195139.GB2534@pingi3.kke.suse.de>
-Content-Type: text/plain
-Message-Id: <1075759213.29899.220.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 02 Feb 2004 23:00:13 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Feb 2004 16:53:03 -0500
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-Gmane-Information: For more information, see http://gmane.org/
+Organization: Mail To News -- http://gmane.org/
+X-Now-Playing: Dizzee Rascal's _Boy In Da Corner_: "Wot U On"
+To: kronos@kronoz.cjb.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 16/42]
+References: <20040130204956.GA21643@dreamland.darkstar.lan>
+	<Pine.LNX.4.58L.0401301855410.3140@logos.cnet>
+	<20040202180940.GA6367@dreamland.darkstar.lan>
+	<20040202194658.GP6785@dreamland.darkstar.lan>
+Date: Mon, 02 Feb 2004 22:51:07 +0100
+In-Reply-To: <20040202194658.GP6785@dreamland.darkstar.lan> (kronos@kronoz.cjb.net's
+ message of "Mon, 2 Feb 2004 20:46:58 +0100")
+Message-ID: <m3vfmpywtw.fsf@quimbies.gnus.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-Hi Karsten,
-
-> try the actual I4L for 2.6 patch in 
-> ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
-
-what is your current plan for including these patches into mainstream
-once 2.6.2 is out?
-
-Regards
-
-Marcel
-
 

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266737AbUHaG1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266745AbUHaG1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266737AbUHaG1B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 02:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266745AbUHaG1B
+	id S266745AbUHaG1S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 02:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266748AbUHaG1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 02:27:01 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:41947
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S266737AbUHaG06 (ORCPT
+	Tue, 31 Aug 2004 02:27:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7876 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266745AbUHaG1M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 02:26:58 -0400
-Message-ID: <41341A31.3050301@bio.ifi.lmu.de>
-Date: Tue, 31 Aug 2004 08:26:57 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tim Fairchild <tim@bcs4me.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: K3b and 2.6.9?
-References: <200408301047.06780.tim@bcs4me.com> <1093871277.30082.7.camel@localhost.localdomain> <200408311151.25854.tim@bcs4me.com> <Pine.LNX.4.58.0408301917360.2295@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408301917360.2295@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Aug 2004 02:27:12 -0400
+Date: Tue, 31 Aug 2004 02:26:56 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Roland McGrath <roland@redhat.com>
+Cc: Michael Kerrisk <mtk-lkml@gmx.net>, torvalds@osdl.org, akpm@osdl.org,
+       drepper@redhat.com, linux-kernel@vger.kernel.org,
+       michael.kerrisk@gmx.net, Tonnerre <tonnerre@thundrix.ch>
+Subject: Re: [PATCH] waitid system call
+Message-ID: <20040831062656.GU11465@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <12606.1093348262@www48.gmx.net> <200408310604.i7V64k7o010652@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408310604.i7V64k7o010652@magilla.sf.frob.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Mon, Aug 30, 2004 at 11:04:46PM -0700, Roland McGrath wrote:
+> +			/*
+> +			 * For a WNOHANG return, clear out all the fields
+> +			 * we would set so the user can easily tell the
+> +			 * difference.
+> +			 */
+> +			if (!retval)
+> +				retval = put_user(0, &infop->si_signo);
+> +			if (!retval)
+> +				retval = put_user(0, &infop->si_errno);
+> +			if (!retval)
+> +				retval = put_user(0, &infop->si_code);
+> +			if (!retval)
+> +				retval = put_user(0, &infop->si_pid);
+> +			if (!retval)
+> +				retval = put_user(0, &infop->si_uid);
+> +			if (!retval)
+> +				retval = put_user(0, &infop->si_status);
 
-> Ehh.. This seems to imply that K3b opens the device for _reading_ when it 
-> wants to burn a CD-ROM. 
+Is it really necessary to check the exit code after each put_user?
+	if (!retval && access_ok(VERIFY_WRITE, infop, sizeof(*infop)))) {
+		retval = __put_user(0, &infop->si_signo);
+		retval |= __put_user(0, &infop->si_errno);
+		retval |= __put_user(0, &infop->si_code);
+		retval |= __put_user(0, &infop->si_pid);
+		retval |= __put_user(0, &infop->si_uid);
+		retval |= __put_user(0, &infop->si_status);
+	}
+is what kernel usually does when filling multiple structure members.
 
-It seems that this problem is not K3B-only:
-
-Marc Ballarin wrote:
-
-> growisofs and dvd+r-format open the device read-only, even though they try
-> to do writes.
- >
-> ...
->
-> 2) replace O_RDONLY in dvd+r-tools sources with O_RDWR and recompile
-> (that's what I did).
-
-
-cu,
-Frank
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-
+	Jakub

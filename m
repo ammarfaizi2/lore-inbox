@@ -1,102 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270702AbTGUUye (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 16:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270713AbTGUUye
+	id S270714AbTGUVB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270715AbTGUVB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 16:54:34 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:22253 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270702AbTGUUyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 16:54:32 -0400
-Date: Mon, 21 Jul 2003 18:05:41 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Chris Mason <mason@suse.com>,
-       lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-In-Reply-To: <20030721212453.4139a217.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.55L.0307211800450.2317@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
- <1058297936.4016.86.camel@tiny.suse.com> <Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
- <20030718112758.1da7ab03.skraw@ithnet.com> <20030721162033.GA4677@x30.linuxsymposium.org>
- <20030721212453.4139a217.skraw@ithnet.com>
+	Mon, 21 Jul 2003 17:01:59 -0400
+Received: from law11-oe69.law11.hotmail.com ([64.4.16.204]:55300 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S270714AbTGUVB5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 17:01:57 -0400
+X-Originating-IP: [165.98.111.210]
+X-Originating-Email: [bmeneses_beltran@hotmail.com]
+From: "Viaris" <bmeneses_beltran@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with kernel 2.5.75 (Urgent)
+Date: Mon, 21 Jul 2003 15:16:57 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <Law11-OE69Tet4T2BiK000100b6@hotmail.com>
+X-OriginalArrivalTime: 21 Jul 2003 21:16:59.0663 (UTC) FILETIME=[6C13C1F0:01C34FCD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-Just FYI, the 8way box is running for three days with LOTS of IO and
-memory pressure:
+My problem was resuelt (I installed  module inits again), now I can see all
+modules loaded, but I have problems, when I want to see my backup, I can't ,
+I execute tar tvf /dev/st0 and the follwing message appear:
 
-hostname:  dev8-005 (dev8-005.pdx.osdl.net) running linux
+tar: /dev/st0: Cannot open: No such device
+tar: Error is not recoverable: exiting now
 
-bash-2.05a$ uptime
-  2:03pm  up 3 days,  3:14,  2 users,  load average: 82.48, 91.67, 94.29
-bash-2.05a$ vmstat 2
-   procs                      memory    swap          io     system
-cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
-sy  id
- 1 77  2   3436   8232  77288 885880   0   0     3    12   13    16   4
-9   8
- 0 78  3   3436   7300  77448 886596   0   0   108 12184  619   448   0
-9  90
- 0 78  2   3436  11472  77760 880692   0   0   400 22922  836  2497   2
-33  65
- 0 77  2   3428   7292  78176 884640   6   0   414  7858  761   511   0
-11  88
- 0 77  3   3428   7392  78348 884776   0   0   238  9942  687   449   0
-9  91
-....
+I believe that my server not know this device, but I i execute lsmod the
+driver of my SCSI card is loaded:
 
+scsi_mod              115892  2 dc395x,ide_scsi
 
-Interactivity under this extreme circumstances is impressive. Very good.
+I need to know that others test i can do it.
 
-Great work Andrea, Mason and Jens. Thanks.
+Thanks, You are very kind.
+
+----- Original Message -----
+From: "Viaris" <bmeneses_beltran@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, July 21, 2003 11:25 AM
+Subject: Re: Problems with kernel 2.5.75 (Urgent)
 
 
-On Mon, 21 Jul 2003, Stephan von Krawczynski wrote:
-
-> On Mon, 21 Jul 2003 12:20:33 -0400
-> Andrea Arcangeli <andrea@suse.de> wrote:
+> Hi, I compiled version module-init-tools-0.9.12, I installed this in
+> /usr/local/sbin and /usr/local/sbin, but I copied manaully (depmod
+> generate-modprobe.conf  insmod  insmod.static  modinfo  modprobe  rmmod
+> lsmod) in the directory /sbin, compiled again my kernel and copy bzImage
+in
+> /boot I did the image wuth mkinitrd and copy my System.map in /boot ,mynew
+> kernel boot Ok and load my network card, but no load others modules.
 >
-> > > I managed to freeze the pre7 box within these few hours. There was no nfs
-> > > involved, only tar-to-tape.
-> > > I switched back to 2.4.21 to see if it is still stable.
-> > > Is there a possibility that the i/o-scheduler has another flaw somewhere
-> > > (just like during mount previously) ...
+> Maybe my is that I did copy of files of module-init manaully, how can I do
+> it to update automatically?
+>
+> Thanks,
+>
+>
+>
+> ----- Original Message -----
+> From: "Luciano Miguel Ferreira Rocha" <luciano@lsd.di.uminho.pt>
+> To: "Viaris" <bmeneses_beltran@hotmail.com>
+> Cc: <linux-kernel@vger.kernel.org>
+> Sent: Monday, July 21, 2003 11:06 AM
+> Subject: Re: Problems with kernel 2.5.75 (Urgent)
+>
+>
 > >
-> > is it a scsi tape?
->
-> yes.
->
-> > Is the tape always involved?
->
-> No, I experience both freeze during nfs-only action and freeze during
-> tar-to-scsi-tape.
-> My feelings are that the freeze does (at least in the nfs case) not happen
-> during high load but rather when load seems relatively light. Handwaving one
-> could say it looks rather like an I/O sched starvation issue than breakdown
-> during high load. Similar to the last issue.
->
-> > there are st.c updates
-> > between 2.4.21 to 22pre7. you can try to back them out.
->
-> Hm, which?
->
-> > [...]
-> > You should also provide a SYSRQ+P/T of the hang or we can't debug it at
-> > all.
->
-> Well, I really tried hard to produce something, but failed so far, if I had
-> more time I would try a serial console hoping that it survives long enough to
-> show at least _something_.
-> The only thing I ever could see was the BUG in page-alloc thing from the
-> beginning of this thread.
->
-> Regards,
-> Stephan
+> > Hi,
+> >
+> > Module loading has changed in 2.5.x. Do you have module-init-tools
+> installed?
+> >
+> > You may get it at
+> http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> >
+> > Regards,
+> > Luciano Rocha
+> >
+> > On Mon, Jul 21, 2003 at 10:43:25AM -0600, Viaris wrote:
+> > > Hi all,
+> > >
+> > > I compiled kernel version 2.5.75, before I had kernel 2.4.20, the
+> problem is
+> > > that I need to enable SCSI DC395x, but when I execute lsmod I not
+found
+> > > neither modules loaded, only appear:
+> > > Module                  Size  Used by
+> > >
+> > > If I mount manually a module (insmod
+> > > /lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko) the following
+message
+> > > appear: Error inserting
+> > > '/lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko': -1 Unknown symbol
+> in
+> > > module, I have my modules.conf in the directory /lib/modules/2.5.75/
+but
+> > > this kernel no load automatically the modules.
+> > >
+> > > I need to load this module because Ineed to use the tape backup, I
+have
+> a
+> > > backu that I need urgent.
+> > >
+> > > How can I do it?
+> > >
+> > > Thanks,
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe
+linux-kernel"
+> in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> >
 >

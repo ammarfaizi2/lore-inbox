@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268581AbRHBBy2>; Wed, 1 Aug 2001 21:54:28 -0400
+	id <S268582AbRHBB5s>; Wed, 1 Aug 2001 21:57:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268582AbRHBByR>; Wed, 1 Aug 2001 21:54:17 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:37892 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268581AbRHBByM>; Wed, 1 Aug 2001 21:54:12 -0400
-Date: Wed, 1 Aug 2001 21:54:20 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200108020154.f721sKR04927@devserv.devel.redhat.com>
-To: hch@ns.caldera.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kill unneeded code from mm/memory.c
-In-Reply-To: <mailman.996710160.18802.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.996710160.18802.linux-kernel2news@redhat.com>
+	id <S268587AbRHBB5i>; Wed, 1 Aug 2001 21:57:38 -0400
+Received: from kullstam.ne.mediaone.net ([66.30.138.48]:12425 "HELO
+	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
+	id <S268582AbRHBB53>; Wed, 1 Aug 2001 21:57:29 -0400
+From: "Johan Kullstam" <kullstam@ne.mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Virii (sic)
+In-Reply-To: <20010801015116.B11060@win.tue.nl>
+	<Pine.LNX.4.33.0108010754400.9176-100000@infradead.org>
+	<20010801115637.C22440@leeor.math.technion.ac.il>
+Organization: none
+Date: 01 Aug 2001 21:57:06 -0400
+In-Reply-To: <20010801115637.C22440@leeor.math.technion.ac.il>
+Message-ID: <m2elqvgr65.fsf@euler.axel.nom>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff -uNr ../master/linux-2.4.7-ac3/mm/memory.c linux/mm/memory.c
-> --- ../master/linux-2.4.7-ac3/mm/memory.c	Thu Aug  2 01:48:23 2001
-> +++ linux/mm/memory.c	Thu Aug  2 01:50:12 2001
-> @@ -1041,17 +1041,10 @@
->  		}
->  	}
->  	inode->i_size = offset;
-> -	if (inode->i_op && inode->i_op->truncate)
-> -	{
-> -		/* This doesnt scale but it is meant to be a 2.4 invariant */
-> -		lock_kernel();
-> -		inode->i_op->truncate(inode);
-> -		unlock_kernel();
-> -	}
-> -	return 0;
-> -	
-> +
->  out_truncate:
->  	if (inode->i_op && inode->i_op->truncate) {
-> +		/* This doesnt scale but it is meant to be a 2.4 invariant */
->  		lock_kernel();
->   		inode->i_op->truncate(inode);
->  		unlock_kernel();
+"Nadav Har'El" <nyh@math.technion.ac.il> writes:
 
-I disagree. It is the style to have a function trip exceptions
-by doing goto out_something. Those exceptions are stacked
-in the fall through fashion, but the success case IS NOT.
-By implemention this factorization you save several bytes
-and make just everyone to wonder if there is a bug or mispatch
-with missing "return 0" case here.
+> On Wed, Aug 01, 2001, Riley Williams wrote about "Re: [OT] Virii (sic)":
+> >  > [The singular is virus. The plural in English is viruses. In
+> >  > Latin there is no plural - it is even debatable whether virus is
+> >  > a noun in Latin - in any case it is indeclinable.]
+> 
+> What I don't understand is why people use the form virii, with a double I!
+> 
+> Just like the plural of abacus is abaci, the plural of cactus is cacti
+> (check the dictionary if you don't believe me), shouldn't the plural of
+> virus be viri, with one I at the end (of course, "viruses" is also currently
+> accepted as a plural, and even preferred by some people).
+> 
+> I think people get confused by the fact that the plural of radius is radii.
+> That extra "I" comes from the i in radius - it shouldn't appear in the plural
+> of "virus"! The plural of the different word "virius" should have been virii.
+> 
+> > PS: Plural of bacteria is bacterium, from the same source.
+> 
+> Note that bacteria is already plural - bacterium is the singular.
+> 
+> There's a more computer relevant fact: "data" is a plural noun, whose
+> singular is "datum". Similarly, "media" is plural, whose singular is
+> "medium". So constructions like "datas" or "medias" are wrong, although
+> they are becoming more and more accepted...
+> 
+> Does anybody still use the form formulae as a plural of formula? I do, but
+> I think I belong to a dying breed :)
+> 
+> [Oops, I don't think this discussion is very relevant to Linux kernels any
+> more...]
 
--- Pete
+and the ever popular boni for plural of bonus ;-)
+
+-- 
+J o h a n  K u l l s t a m
+[kullstam@ne.mediaone.net]
+Don't Fear the Penguin!

@@ -1,104 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267831AbUIGKeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267826AbUIGKgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267831AbUIGKeb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 06:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267833AbUIGKeb
+	id S267826AbUIGKgP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 06:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267833AbUIGKgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 06:34:31 -0400
-Received: from mail.mellanox.co.il ([194.90.237.34]:16324 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S267831AbUIGKe1
+	Tue, 7 Sep 2004 06:36:15 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:12202 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S267826AbUIGKf6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 06:34:27 -0400
-Date: Tue, 7 Sep 2004 13:40:17 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
-Message-ID: <20040907104017.GB10096@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040903080058.GB2402@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 7 Sep 2004 06:35:58 -0400
+Date: Tue, 7 Sep 2004 13:35:52 +0300 (EEST)
+From: "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: netdev@oss.sgi.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Trivial fix for out of bounds array access in xfrm4_policy_check
+Message-ID: <Pine.LNX.4.61.0409071322100.8637@hosting.rdsbv.ro>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1646943047-1948299716-1094553352=:8637"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+---1646943047-1948299716-1094553352=:8637
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+
 Hello!
-Quoting Andi Kleen (ak@suse.de) "Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel":
-> On Wed, Sep 01, 2004 at 10:22:45AM +0300, Michael S. Tsirkin wrote:
-> > Hello!
-> > Currently, on the x86_64 architecture, its quite tricky to make
-> > a char device ioctl work for an x86 executables.
-> > In particular,
-> >    1. there is a requirement that ioctl number is unique -
-> >       which is hard to guarantee especially for out of kernel modules
-> 
-> Yes, that is a problem for some people. But you should
-> have used an unique number in the first place.
 
-Do you mean the _IOC macro and friends?
-But their uniqueness depends on allocating a unique magic number
-in the first place.
+Coverity found a bug in accessing xfrm4_policy_check using XFRM_POLICY_FWD 
+(=2) as index in sk->sk_policy.
 
-> There are some hackish ways to work around it for non modules[1], but at some
-> point we should probably support it better.
-> 
-> [1] it can be handled, except for module unloading, so you have
-> to disable that.
+sk->sk_policy[] is defined in sock.h as:
 
-Why use the global hash at all?
-Why not, for example, pass a parameter to the ioctl function
-to make it possible to figure out this is a compat call?
+struct xfrm_policy *sk_policy[2];
 
-> >    2. there's a performance huge overhead for each compat call - there's
-> >       a hash lookup in a global hash inside a lock_kernel -
-> >       and I think compat performance *is* important.
-> 
-> Did you actually measure it? I doubt it is a big issue.
-> 
+Attached is the fix.
 
-But that would depend on what the driver actually does inside
-the ioctl and on how many ioctls are already registered, would it not?
+http://linuxbugs.coverity.com/external/editbugparent.php?viewbugid=2138&checkers%5B%5D=all&status%5B%5D=BUG&status%5B%5D=UNINSPECTED&status%5B%5D=UNKNOWN&status%5B%5D=DON%27T%20CARE&status%5B%5D=PENDING&product%5B%5D=all&component%5B%5D=all&file=&fn=&sortby=reverse_rank&before=&after=&curpage=2&bugid=-1&comment=&reason=
 
-I built a silly driver example which just used a semaphore and a switch
-statement inside the ioctl.
+---
+Catalin(ux aka Dino) BOIE
+catab at deuroconsult.ro
+http://kernel.umbrella.ro/
+---1646943047-1948299716-1094553352=:8637
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="out-of-bounds-xfrm_policy.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0409071335520.8637@hosting.rdsbv.ro>
+Content-Description: 
+Content-Disposition: attachment; filename="out-of-bounds-xfrm_policy.patch"
 
-~/<1>tavor/tools/driver_new>time /tmp/ioctltest64 /dev/mst/mt23108_pci_cr0
-0.357u 4.760s 0:05.11 100.0%    0+0k 0+0io 0pf+0w
-~/<1>tavor/tools/driver_new>time /tmp/ioctltest32 /dev/mst/mt23108_pci_cr0
-0.641u 6.486s 0:07.12 100.0%    0+0k 0+0io 0pf+0w
+LS0tIGxpbnV4L2luY2x1ZGUvbmV0L3NvY2suaAkyMDA0LTA5LTA3IDEzOjEz
+OjMxLjAwMDAwMDAwMCArMDMwMA0KKysrIG15bGludXgvaW5jbHVkZS9uZXQv
+c29jay5oCTIwMDQtMDktMDcgMTM6MTQ6MzYuMDAwMDAwMDAwICswMzAwDQpA
+QCAtMjAxLDcgKzIwMSw3IEBAIHN0cnVjdCBzb2NrIHsNCiAJd2FpdF9xdWV1
+ZV9oZWFkX3QJKnNrX3NsZWVwOw0KIAlzdHJ1Y3QgZHN0X2VudHJ5CSpza19k
+c3RfY2FjaGU7DQogCXJ3bG9ja190CQlza19kc3RfbG9jazsNCi0Jc3RydWN0
+IHhmcm1fcG9saWN5CSpza19wb2xpY3lbMl07DQorCXN0cnVjdCB4ZnJtX3Bv
+bGljeQkqc2tfcG9saWN5WzNdOw0KIAlhdG9taWNfdAkJc2tfcm1lbV9hbGxv
+YzsNCiAJc3RydWN0IHNrX2J1ZmZfaGVhZAlza19yZWNlaXZlX3F1ZXVlOw0K
+IAlhdG9taWNfdAkJc2tfd21lbV9hbGxvYzsNCg==
 
-So just looking at system time there seems to be an overhead of
-about 20%.
-The overhead is bigger if there are collisions in the hash.
-
-For muti-processor scenarious, the difference is much more pronounced
-(note I have dual-cpu Opteron system):
-
-~>time /tmp/ioctltest32 /dev/mst/mt23108_pci_cr0 & ;time /tmp/ioctltest32
-/dev/mst/mt23108_pci_cr0 &
-[2] 10829
-[3] 10830
-[2]    Done                          /tmp/ioctltest32 /dev/mst/mt23108_pci_cr0
-0.435u 21.322s 0:21.76 99.9%    0+0k 0+0io 0pf+0w
-[3]    Done                          /tmp/ioctltest32 /dev/mst/mt23108_pci_cr0
-0.683u 21.231s 0:21.92 99.9%    0+0k 0+0io 0pf+0w
-~>
-
-
-~>time /tmp/ioctltest64 /dev/mst/mt23108_pci_cr0 & ;time /tmp/ioctltest64
-/dev/mst/mt23108_pci_cr0 &
-[2] 10831
-[3] 10832
-[3]    Done                          /tmp/ioctltest64 /dev/mst/mt23108_pci_cr0
-0.474u 11.194s 0:11.70 99.6%    0+0k 0+0io 0pf+0w
-[2]    Done                          /tmp/ioctltest64 /dev/mst/mt23108_pci_cr0
-0.476u 11.277s 0:11.75 99.9%    0+0k 0+0io 0pf+0w
-~>
-
-So we get 50% slowdown.
-I imagine this is the result of BKL contention during the hash lookup.
-
-MST
+---1646943047-1948299716-1094553352=:8637--

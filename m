@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264744AbTE1OUm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 10:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbTE1OUm
+	id S264747AbTE1OV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 10:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264748AbTE1OV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 10:20:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:7889 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264744AbTE1OUl (ORCPT
+	Wed, 28 May 2003 10:21:58 -0400
+Received: from pop.gmx.de ([213.165.65.60]:37110 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264747AbTE1OV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 10:20:41 -0400
-Date: Wed, 28 May 2003 16:33:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
-       matthias.mueller@rz.uni-karlsruhe.de, manish@storadinc.com,
-       andrea@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528143333.GY845@suse.de>
-References: <3ED2DE86.2070406@storadinc.com> <200305281305.44073.m.c.p@wolk-project.de> <20030528042700.47372139.akpm@digeo.com> <200305281331.26959.m.c.p@wolk-project.de> <20030528125312.GV845@suse.de> <3ED4B49A.4050001@gmx.net> <20030528130839.GW845@suse.de> <1054132096.32362.120.camel@tiny.suse.com>
-Mime-Version: 1.0
+	Wed, 28 May 2003 10:21:57 -0400
+Message-ID: <3ED4C921.5080902@gmx.net>
+Date: Wed, 28 May 2003 16:35:13 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Ryan Anderson <ryan@michonline.com>, linux-kernel@vger.kernel.org,
+       postmaster@vger.kernel.org
+Subject: Re: sparse errors
+References: <Pine.LNX.4.44.0305280703520.7569-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0305280703520.7569-100000@home.transmeta.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054132096.32362.120.camel@tiny.suse.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28 2003, Chris Mason wrote:
-> On Wed, 2003-05-28 at 09:08, Jens Axboe wrote:
-> >  
-> > > > May I ask how you are reproducing the bad results? I'm trying in vain
-> > > > here...
-> > > 
-> > > Quoting Con Kolivas:
-> > > 
-> > > dd if=/dev/zero of=dump bs=4096 count=512000
-> > 
-> > already tried that, no go. on ide/scsi? what filesystem? how much ram?
-> > anything else running? smp/up?
+Linus Torvalds wrote:
+> On Wed, 28 May 2003, Ryan Anderson wrote:
 > 
-> I think we've got a few different problems.  On SMP boxes, you need to
-> have the fix-pausing patch from andrea applied to catch all the corner
-> cases.
-
-Agree
-
+>>I'm not totally grokking how sparse is put together yet, but I've got
+>>this:
+[...]
+>>Should this be cc:ed to linux-kernel, or do you have another place in
+>>mind?
 > 
-> On UP boxes it's possible the requests are starving in the drive, SCSI
-> users should try with the max tags set down to something sensible,
-> between 8 and 32.
 > 
-> IDE people can try lowering the max_kb_per_request paramater in
-> /proc/ide/<drive>/settings, but this should only affect starvation with
-> the writeback cache on.
+> It probably shouldn't be CC'd to linux-kernel, but there isn't any other 
+> place either.
 > 
-> I made a patch a while ago that timed how long people spent waiting in
-> __get_request_wait, it might help us figure out where the starvation is
-> really happening.
+> 		Linus
 
-But this seems totally unrelated to the reported problems, we are
-talking about complete stalls of the mouse. No amount of io starvation
-should provoke something like that.
+Maybe create a new list:
 
--- 
-Jens Axboe
+linux-source-analyzers@vger.kernel.org
+
+or something like that.
+
+
+Carl-Daniel
 

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264430AbTEJQSL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 12:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTEJQSL
+	id S264422AbTEJQRD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 12:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264425AbTEJQRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 12:18:11 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27127 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264430AbTEJQSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 12:18:09 -0400
-Date: Sat, 10 May 2003 18:30:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [2.5 patch] remove all #include <blk.h>'s
-Message-ID: <20030510163043.GJ1107@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 May 2003 12:17:03 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:35123 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264422AbTEJQRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 12:17:02 -0400
+From: Jos Hulzink <josh@stack.nl>
+To: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>,
+       Ahmed Masud <masud@googgun.com>
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+Date: Sat, 10 May 2003 20:33:26 +0200
+User-Agent: KMail/1.5
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+References: <20030510154639.02DDC32C9@marauder.googgun.com> <Pine.LNX.4.33.0305101150420.24272-100000@marauder.googgun.com> <S264412AbTEJPxw/20030510155353Z+7031@vger.kernel.org>
+In-Reply-To: <S264412AbTEJPxw/20030510155353Z+7031@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200305102033.26654.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch (gzipped due to 100 kB linux-kernel limit) removes 
-all #include <blk.h>'s for 2.5 and blk.h does now #error. If people 
-want their drivers to run unmodified under 2.4 it might be necessary to 
-do a
-  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,70)
-  #include <linux/blk.h>
-  #endif
+On Saturday 10 May 2003 18:04, Tuncer M "zayamut" Ayaz wrote:
+> On Sat, 10 May 2003 11:52:39 -0400 (EDT)
+> dunno how to remove builtin keyboard but plugging out externel ps/2
+> mouse doesn't change a thing. but pluggin it in again makes the
+> sound stop for .5sec and start again after that period.
 
-I've tested the compilation in 2.5.69-bk4 with a .config that tries to
-compile as much drivers as possible.
+Hmzz. then the stuck key option might actually be not so stoopid. Try hitting 
+all keys a few times, to see if that helps, otherwise you'll habe to open the 
+thing and unplug the keyboard cable....
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Jos
 

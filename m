@@ -1,101 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292817AbSCRUZ1>; Mon, 18 Mar 2002 15:25:27 -0500
+	id <S292836AbSCRUdI>; Mon, 18 Mar 2002 15:33:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292832AbSCRUZS>; Mon, 18 Mar 2002 15:25:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47370 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292817AbSCRUZE>; Mon, 18 Mar 2002 15:25:04 -0500
-Date: Mon, 18 Mar 2002 12:23:48 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Cort Dougan <cort@fsmlabs.com>
-cc: Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 7.52 second kernel compile
-In-Reply-To: <Pine.LNX.4.33.0203181146070.4783-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0203181213130.12950-100000@home.transmeta.com>
+	id <S292837AbSCRUc6>; Mon, 18 Mar 2002 15:32:58 -0500
+Received: from adsl-63-193-243-214.dsl.snfc21.pacbell.net ([63.193.243.214]:655
+	"EHLO dmz.ruault.com") by vger.kernel.org with ESMTP
+	id <S292836AbSCRUcq>; Mon, 18 Mar 2002 15:32:46 -0500
+Message-ID: <3C964FA8.2070706@ruault.com>
+Date: Mon, 18 Mar 2002 12:35:52 -0800
+From: Charles-Edouard Ruault <ce@ruault.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: davem@redhat.com
+Subject: [PATCH] fix for /usr/src/linux/net/ipv4/ip_default_ttl usage 
+Content-Type: multipart/mixed;
+ boundary="------------020202030400080900020404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020202030400080900020404
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi All,
+
+i've been playing with different IP setting available in the linux 
+kernel ( 2.4.18 ) and found a stange behaviour with 
+/usr/src/linux/net/ipv4/ip_default_ttl :
+the value that you set here is not taken into account in the following 
+cases :
+
+- ICMP reply ( of any kind )
+- TCP RST .
+
+since the sockets used in this cases are the one created at the init of 
+the given protocols, and therefore the ttl value used are the one that 
+are setup at boot time and not the one that you will set later when 
+using the sysctl or the proc interface.
+
+I'm not sure that this has been left out on purpose since it will defeat 
+the goal of changing the default ttl to confuse OS fingerprinting 
+softwares.
+Therefore, i've made a small patch ( against kernel 2.4.18 ) that will 
+change the behaviour and make the default ttl be used in these cases.
+
+I hope it will be useful to some of you ....
+Regards
+
+PS : i'm not on the list so please CC me if you reply to this email.
+
+-- 
+Charles-Edouard Ruault
+PGP Key ID 4370AF2D
 
 
-On Mon, 18 Mar 2002, Linus Torvalds wrote:
->
-> Well, I actually hink that an x86 comes fairly close.
 
-Btw, here's a program that does a simple histogram of TLB miss cost, and
-shows the interesting pattern on intel I was talking about: every 8th miss
-is most costly, apparently because Intel pre-fetches 8 TLB entries at a
-time.
+--------------020202030400080900020404
+Content-Type: text/plain;
+ name="default_ttl.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="default_ttl.patch"
 
-So on a PII core, you'll see something like
+--- icmp.c.sav	Mon Mar 18 10:43:24 2002
++++ icmp.c	Mon Mar 18 12:29:48 2002
+@@ -139,6 +139,8 @@
+   { EHOSTUNREACH,	1 }	/*	ICMP_PREC_CUTOFF	*/
+ };
+ 
++extern int sysctl_ip_default_ttl;
++
+ /* Control parameters for ECHO replies. */
+ int sysctl_icmp_echo_ignore_all;
+ int sysctl_icmp_echo_ignore_broadcasts;
+@@ -354,6 +356,7 @@
+ 	icmp_out_count(icmp_param->data.icmph.type);
+ 
+ 	sk->protinfo.af_inet.tos = skb->nh.iph->tos;
++	sk->protinfo.af_inet.ttl = sysctl_ip_default_ttl;
+ 	daddr = ipc.addr = rt->rt_src;
+ 	ipc.opt = NULL;
+ 	if (icmp_param->replyopts.optlen) {
+--- tcp_ipv4.c.sav	Mon Mar 18 10:43:03 2002
++++ tcp_ipv4.c	Mon Mar 18 11:54:16 2002
+@@ -64,7 +64,7 @@
+ #include <linux/ipsec.h>
+ 
+ extern int sysctl_ip_dynaddr;
+-
++extern int sysctl_ip_default_ttl;
+ /* Check TCP sequence numbers in ICMP packets. */
+ #define ICMP_MIN_LENGTH 8
+ 
+@@ -1072,6 +1072,7 @@
+ 	arg.n_iov = 1;
+ 	arg.csumoffset = offsetof(struct tcphdr, check) / 2; 
+ 
++	tcp_socket->sk->protinfo.af_inet.ttl = sysctl_ip_default_ttl;
+ 	ip_send_reply(tcp_socket->sk, skb, &arg, sizeof rth);
+ 
+ 	TCP_INC_STATS_BH(TcpOutSegs);
 
-	  87.50: 36
-	  12.39: 40
-
-ie 87.5% (exactly 7/8) of the TLB misses take 36 cycles, while 12.4% (ie
-1/8) takes 40 cycles (and I assuem that the extra 4 cycles is due to
-actually loading the thing from the data cache).
-
-Yeah, my program might be buggy, so take the numbers with a pinch of salt.
-But it's interesting to see how on an athlon the numbers are
-
-	   3.17: 59
-	  34.94: 62
-	   4.71: 85
-	  54.83: 88
-
-ie roughly 60% take 85-90 cycles, and 40% take ~60 cycles. I don't know
-where that pattern would come from..
-
-What are the ppc numbers like (after modifying the rdtsc implementation,
-of course)? I suspect you'll get a less clear distribution depending on
-whether the hash lookup ends up hitting in the primary or secondary hash,
-and where in the list it hits, but..
-
-			Linus
-
------
-#include <stdlib.h>
-
-#define rdtsc(low) \
-   __asm__ __volatile__("rdtsc" : "=a" (low) : : "edx")
-
-#define MAXTIMES 1000
-#define BUFSIZE (128*1024*1024)
-#define access(x) (*(volatile unsigned int *)&(x))
-
-int main()
-{
-	unsigned int i, j;
-	static int times[MAXTIMES];
-	char *buffer = malloc(BUFSIZE);
-
-	for (i = 0; i < BUFSIZE; i += 4096)
-		access(buffer[i]);
-	for (i = 0; i < MAXTIMES; i++)
-		times[i] = 0;
-	for (j = 0; j < 100; j++) {
-		for (i = 0; i < BUFSIZE ; i+= 4096) {
-			unsigned long start, end;
-
-			rdtsc(start);
-			access(buffer[i]);
-			rdtsc(end);
-			end -= start;
-			if (end >= MAXTIMES)
-				end = MAXTIMES-1;
-			times[end]++;
-		}
-	}
-	for (i = 0; i < MAXTIMES; i++) {
-		int count = times[i];
-		double percent = (double)count / (BUFSIZE/4096);
-		if (percent < 1)
-			continue;
-		printf("%7.2f: %d\n", percent, i);
-	}
-	return 0;
-}
+--------------020202030400080900020404--
 

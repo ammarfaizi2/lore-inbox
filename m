@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130088AbQKBONp>; Thu, 2 Nov 2000 09:13:45 -0500
+	id <S129722AbQKBOPp>; Thu, 2 Nov 2000 09:15:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131228AbQKBONf>; Thu, 2 Nov 2000 09:13:35 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:42129 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S130088AbQKBONU>;
-	Thu, 2 Nov 2000 09:13:20 -0500
-Date: Thu, 2 Nov 2000 14:14:04 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 3-order allocation failed
-In-Reply-To: <Pine.LNX.4.21.0011021148330.15168-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0011021411020.2508-100000@saturn.homenet>
+	id <S131845AbQKBOPf>; Thu, 2 Nov 2000 09:15:35 -0500
+Received: from Prins.externet.hu ([212.40.96.161]:46612 "EHLO
+	prins.externet.hu") by vger.kernel.org with ESMTP
+	id <S129722AbQKBOPY>; Thu, 2 Nov 2000 09:15:24 -0500
+Date: Thu, 2 Nov 2000 15:15:08 +0100 (CET)
+From: Narancs 1 <narancs1@externet.hu>
+To: Brett <bpemberton@dingoblue.net.au>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, kraxel@goldbach.in-berlin.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: vesafb doesn't work in 240t10?
+In-Reply-To: <Pine.LNX.4.21.0011022137270.16072-100000@tae-bo.generica.dyndns.org>
+Message-ID: <Pine.LNX.4.02.10011021512560.5828-100000@prins.externet.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
+On Thu, 2 Nov 2000, Brett wrote:
 
-A simple test seems to show problems with page allocator.
+> On Thu, 2 Nov 2000, Jeff Garzik wrote:
 
-a) take a 6G RAM machine
+> 	vga=0x317
+> 
+> in /etc/lilo.conf,
 
-b) take a 70G harddisk
+works fine on the other machine, containing a savage4 agp card
 
-c) mke2fs on it
+It seems that the i815 is not vesa compliant?
+Cheap!
 
-observe lots of "0-order allocation failures" while looking at
-/proc/meminfo reveals that I still have 5.1G of free memory (presumably
-some of it in NORMAL zone, not just all HIGH)... Isn't buddy allocator
-clever enough to break up the multi-page chunks if we need single pages?
-I don't know.
+What fb driver would support it?
+does vga16 support 1024x768?
 
-Regards,
-Tigran
+thx4all 
+
+Narancs v1
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

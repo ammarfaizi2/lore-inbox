@@ -1,207 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262909AbUFBOPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUFBOOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbUFBOPi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 10:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUFBOPh
+	id S262951AbUFBOOp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 10:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUFBOOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 10:15:37 -0400
-Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:43913 "EHLO
-	linuxfarms.com") by vger.kernel.org with ESMTP id S262909AbUFBOO7
+	Wed, 2 Jun 2004 10:14:45 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:2934 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262960AbUFBOOT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 10:14:59 -0400
-Date: Wed, 2 Jun 2004 10:16:14 -0400 (EDT)
-From: Arthur Perry <kernel@linuxfarms.com>
-X-X-Sender: kernel@tiamat.perryconsulting.net
-To: Saurabh Barve <sa@atmos.colostate.edu>
-cc: Red Hat AMD64 Mailing List <amd64-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GART Error 11
-In-Reply-To: <Pine.LNX.4.44.0406011659480.4341-100000@eliassen.atmos.colostate.edu>
-Message-ID: <Pine.LNX.4.58.0406021003150.13266@tiamat.perryconsulting.net>
-References: <Pine.LNX.4.44.0406011659480.4341-100000@eliassen.atmos.colostate.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Jun 2004 10:14:19 -0400
+Subject: Re: [PATCH] 2.6.6 synclinkmp.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>
+In-Reply-To: <20040601215710.F31301@flint.arm.linux.org.uk>
+References: <20040527174509.GA1654@quadpro.stupendous.org>
+	 <1085769769.2106.23.camel@deimos.microgate.com>
+	 <20040528160612.306c22ab.akpm@osdl.org>
+	 <1086123061.2171.10.camel@deimos.microgate.com>
+	 <20040601215710.F31301@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1086185630.3613.2.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Jun 2004 09:13:50 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-06-01 at 15:57, Russell King wrote:
+> If pci_register_driver fails, the driver is not, repeat not left
+> registered.  Therefore it must not be unregistered after failure
+> to register.
 
-Hello,
-
-Oops. Sorry I have made a mistake in all of my statements below.
-It was after 5pm yesterday, and it was a long day...
-It's not offset 0x44 that we are interested in.
-My listings were at offset 0x48, which is MCA NB Status Low Register.
-Sorry, did not mean to confuse anybody.
-
-So Saurabh, can you please do this again with the corrected lines?
-
-pcitweak -r 0:18:3 0x48
-and
-pcitweak -r 0:19:3 0x48
-
-While you are at it, can you send us status high as well?
-
-pcitweak -r 0:18:3 0x4c
-and
-pcitweak -r 0:19:3 0x4c
+OK, here is a corrected patch that properly distinguishes
+between pci_register_driver failure and the case
+of finding no hardware.
 
 
-Thanks, and sorry about the confusion.
-
-Arthur Perry
-
-
+--
+Paul Fulghum
+paulkf@microgate.com
 
 
-On Tue, 1 Jun 2004, Saurabh Barve wrote:
+--- linux-2.6.6/drivers/char/synclinkmp.c	2004-06-02 09:07:40.495553141 -0500
++++ linux-2.6.6-mg1/drivers/char/synclinkmp.c	2004-06-02 09:08:05.720218567 -0500
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: synclinkmp.c,v 4.19 2004/03/08 15:29:23 paulkf Exp $
++ * $Id: synclinkmp.c,v 4.21 2004/06/02 14:07:14 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink Multiport
+  * high speed multiprotocol serial adapter.
+@@ -494,7 +494,7 @@
+ MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink MultiPort driver";
+-static char *driver_version = "$Revision: 4.19 $";
++static char *driver_version = "$Revision: 4.21 $";
+ 
+ static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
+ static void synclinkmp_remove_one(struct pci_dev *dev);
+@@ -3781,56 +3781,7 @@
+ 	.tiocmset = tiocmset,
+ };
+ 
+-/* Driver initialization entry point.
+- */
+-
+-static int __init synclinkmp_init(void)
+-{
+-	if (break_on_load) {
+-	 	synclinkmp_get_text_ptr();
+-  		BREAKPOINT();
+-	}
+-
+- 	printk("%s %s\n", driver_name, driver_version);
+-
+-	synclinkmp_adapter_count = -1;
+-	pci_register_driver(&synclinkmp_pci_driver);
+-
+-	if ( !synclinkmp_device_list ) {
+-		printk("%s(%d):No SyncLink devices found.\n",__FILE__,__LINE__);
+-		return -ENODEV;
+-	}
+-
+-	serial_driver = alloc_tty_driver(synclinkmp_device_count);
+-	if (!serial_driver)
+-		return -ENOMEM;
+-
+-	/* Initialize the tty_driver structure */
+-
+-	serial_driver->owner = THIS_MODULE;
+-	serial_driver->driver_name = "synclinkmp";
+-	serial_driver->name = "ttySLM";
+-	serial_driver->major = ttymajor;
+-	serial_driver->minor_start = 64;
+-	serial_driver->type = TTY_DRIVER_TYPE_SERIAL;
+-	serial_driver->subtype = SERIAL_TYPE_NORMAL;
+-	serial_driver->init_termios = tty_std_termios;
+-	serial_driver->init_termios.c_cflag =
+-		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-	serial_driver->flags = TTY_DRIVER_REAL_RAW;
+-	tty_set_operations(serial_driver, &ops);
+-	if (tty_register_driver(serial_driver) < 0)
+-		printk("%s(%d):Couldn't register serial driver\n",
+-			__FILE__,__LINE__);
+-
+- 	printk("%s %s, tty major#%d\n",
+-		driver_name, driver_version,
+-		serial_driver->major);
+-
+-	return 0;
+-}
+-
+-static void __exit synclinkmp_exit(void)
++static void synclinkmp_cleanup(void)
+ {
+ 	unsigned long flags;
+ 	int rc;
+@@ -3839,10 +3790,12 @@
+ 
+ 	printk("Unloading %s %s\n", driver_name, driver_version);
+ 
+-	if ((rc = tty_unregister_driver(serial_driver)))
+-		printk("%s(%d) failed to unregister tty driver err=%d\n",
+-		       __FILE__,__LINE__,rc);
+-	put_tty_driver(serial_driver);
++	if (serial_driver) {
++		if ((rc = tty_unregister_driver(serial_driver)))
++			printk("%s(%d) failed to unregister tty driver err=%d\n",
++			       __FILE__,__LINE__,rc);
++		put_tty_driver(serial_driver);
++	}
+ 
+ 	info = synclinkmp_device_list;
+ 	while(info) {
+@@ -3882,6 +3835,75 @@
+ 	pci_unregister_driver(&synclinkmp_pci_driver);
+ }
+ 
++/* Driver initialization entry point.
++ */
++
++static int __init synclinkmp_init(void)
++{
++	int rc;
++
++	if (break_on_load) {
++	 	synclinkmp_get_text_ptr();
++  		BREAKPOINT();
++	}
++
++ 	printk("%s %s\n", driver_name, driver_version);
++
++	if ((rc = pci_register_driver(&synclinkmp_pci_driver)) < 0) {
++		printk("%s:failed to register PCI driver, error=%d\n",__FILE__,rc);
++		return rc;
++	}
++
++	if (!synclinkmp_device_list) {
++		printk("%s(%d):No SyncLink devices found.\n",__FILE__,__LINE__);
++		rc = -ENODEV;
++		goto error;
++	}
++
++	serial_driver = alloc_tty_driver(synclinkmp_device_count);
++	if (!serial_driver) {
++		rc = -ENOMEM;
++		goto error;
++	}
++
++	/* Initialize the tty_driver structure */
++
++	serial_driver->owner = THIS_MODULE;
++	serial_driver->driver_name = "synclinkmp";
++	serial_driver->name = "ttySLM";
++	serial_driver->major = ttymajor;
++	serial_driver->minor_start = 64;
++	serial_driver->type = TTY_DRIVER_TYPE_SERIAL;
++	serial_driver->subtype = SERIAL_TYPE_NORMAL;
++	serial_driver->init_termios = tty_std_termios;
++	serial_driver->init_termios.c_cflag =
++		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
++	serial_driver->flags = TTY_DRIVER_REAL_RAW;
++	tty_set_operations(serial_driver, &ops);
++	if ((rc = tty_register_driver(serial_driver)) < 0) {
++		printk("%s(%d):Couldn't register serial driver\n",
++			__FILE__,__LINE__);
++		put_tty_driver(serial_driver);
++		serial_driver = NULL;
++		goto error;
++	}
++
++ 	printk("%s %s, tty major#%d\n",
++		driver_name, driver_version,
++		serial_driver->major);
++
++	return 0;
++
++error:
++	synclinkmp_cleanup();
++	return rc;
++}
++
++static void __exit synclinkmp_exit(void)
++{
++	synclinkmp_cleanup();
++}
++
+ module_init(synclinkmp_init);
+ module_exit(synclinkmp_exit);
+ 
 
-> Arthur,
->
-> Here are the results that I got
->
-> > Can you do this for me?
-> >
-> > pcitweak -r 0:18:3 0x44
->
-> 0x02400040
->
-> > and
-> > pcitweak -r 0:19:3 0x44
->
-> 0x02400040
->
-> Hope this helps,
-> Saurabh.
->
-> >
-> > Thanks!
-> >
-> >
-> > Arthur Perry
-> > Lead Linux Developer / Linux Systems Architect
-> > Validation, CSU Celestica
-> > Sair/Linux Gnu Certified Professional
-> > Providing professional Linux solutions for 7+ years
-> >
-> > On Tue, 1 Jun 2004, Saurabh Barve wrote:
-> >
-> > > Hi,
-> > >
-> > > I know this has been posted before on this list, but the solution
-> > > suggested does not seem to work for me.
-> > >
-> > > I have a dual opteron system with 8 GB of RAM. I am running RHEL 3.0 AS on
-> > > it. The kernel version is 2.4.21-4.ELsmp. The motherboard I am using is
-> > > the Tyan Thunder K8S Pro - 2882 motherboard.
-> > >
-> > > I am getting the following error every two minutes or so:
-> > >
-> > > GART error 11
-> > > Lost an northbridge error
-> > > NB error address some-hex-number
-> > > Error uncorrected
-> > >
-> > > I checked the various postings on the list, and someone suggested that
-> > > passing iommu=off option to the kernel solved the problem for him.
-> > > However, when I tried that, it got the kernel to panic. I read somewhere
-> > > that a newer kernel would fix these 'bugs' in the default RHEL kernel.
-> > > However, I am using the onboard SATA controller for my hard disks. This
-> > > requires binary drivers from Tyan. I already downloaded a newer kernel,
-> > > however, it breaks the drivers, so I can't boot into the new kernel.
-> > >
-> > > Here is my output from lspci:
-> > >
-> > > 00:06.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8111 PCI (rev 07)
-> > > 00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-8111 LPC (rev 05)
-> > > 00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-8111 IDE (rev 03)
-> > > 00:07.2 SMBus: Advanced Micro Devices [AMD] AMD-8111 SMBus 2.0 (rev 02)
-> > > 00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-8111 ACPI (rev 05)
-> > > 00:0a.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge
-> > > (rev 12)
-> > > 00:0a.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-> > > 00:0b.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge
-> > > (rev 12)
-> > > 00:0b.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-> > > 00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 02:09.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
-> > > Gigabit Ethernet (rev 03)
-> > > 02:09.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
-> > > Gigabit Ethernet (rev 03)
-> > > 03:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-> > > 03:00.1 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-> > > 03:05.0 Unknown mass storage controller: Silicon Image, Inc. (formerly CMD
-> > > Technology Inc) Silicon Image SiI 3114 SATARaid Controller (rev 02)
-> > > 03:06.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-> > > 03:08.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
-> > > 10)
-> > >
-> > > The dmesg output was too large to include inline, so I am attaching it as
-> > > a text file.
-> > >
-> > > I tried passing the following options to the kernel:
-> > >
-> > > iommu=noagp
-> > > iommu=noforce
-> > > iommu=off (results in kernel-panic)
-> > > mce=off
-> > > mce=0
-> > >
-> > > I tried all the above in various combinations, but none of them worked.
-> > > The machine doesn't crash, and everything else seems to work fine, but I'd
-> > > like to get rid of these errors.
-> > >
-> > > There are some snippets from the dmesg output that I found to be of
-> > > interest:
-> > >
-> > > ------------------------------------------------------------
-> > > Linux agpgart interface v0.99 (c) Jeff Hartmann
-> > > agpgart: Maximum main memory to use for agp memory: 7956M
-> > > agpgart: no supported devices found.
-> > > PCI-DMA: Disabling AGP.
-> > > PCI-DMA: aperture base @ 10000000 size 65536 KB
-> > > PCI-DMA: Reserving 64MB of IOMMU area in the AGP aperture
-> > > -----------------------------------------------------------
-> > >
-> > > -----------------------------------------------------------
-> > >
-> > > GART error 11
-> > > Lost an northbridge error
-> > > NB error address 00000000fbfe4398
-> > > Error uncorrected
-> > > Northbridge status a40000000005001b
-> > >
-> > > ----------------------------------------------------------
-> > >
-> > >
-> > > Any suggestions?
-> > >
-> > > Thanks,
-> > > Saurabh.
-> > >
-> >
->
-> --
-> ===============================================================================
-> Saurabh Barve                                        Phone:
-> System Administrator/Data Specialist                 970-491-7714 (voice)
-> Montgomery Research Group,                           970-491-8449 (Fax)
-> Atmospheric Sciences Department,
-> Fort Collins, Colorado
-> Colorado State University
->
-> Mail : sa@atmos.colostate.edu
-> Web  : http://fjortoft.atmos.colostate.edu/~sa
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+

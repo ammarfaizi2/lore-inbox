@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269543AbRHHVVd>; Wed, 8 Aug 2001 17:21:33 -0400
+	id <S269553AbRHHVZc>; Wed, 8 Aug 2001 17:25:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269545AbRHHVVN>; Wed, 8 Aug 2001 17:21:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23303 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269543AbRHHVVC>;
-	Wed, 8 Aug 2001 17:21:02 -0400
-Date: Wed, 8 Aug 2001 22:21:06 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: salvador <salvador@inti.gov.ar>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: [RFC] Get selection to buffer addition
-Message-ID: <20010808222106.C22093@flint.arm.linux.org.uk>
-In-Reply-To: <3B66A90D.789A90A8@inti.gov.ar> <3B66DDEB.1EA1FEC@inti.gov.ar> <20000101012446.B27@(none)>
-Mime-Version: 1.0
+	id <S269546AbRHHVZX>; Wed, 8 Aug 2001 17:25:23 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:23047 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269545AbRHHVZF>; Wed, 8 Aug 2001 17:25:05 -0400
+Message-ID: <3B71AF91.5577667E@zip.com.au>
+Date: Wed, 08 Aug 2001 14:30:57 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Kerkhove <alex.kerkhove@staff.zeelandnet.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: x86 SMP and RPC/NFS problems
+In-Reply-To: <1C48875BDE7ED0469485A5FD49925C4AF01265@zmx.staff.zeelandnet.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20000101012446.B27@(none)>; from pavel@suse.cz on Sat, Jan 01, 2000 at 01:24:46AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 01, 2000 at 01:24:46AM +0000, Pavel Machek wrote:
-> Hi!
+Alex Kerkhove wrote:
 > 
-> > I'm sending this mail again with the patch in plain text and not
-> > gzip+uuencoded, sorry for any inconvenience.
-> > 
-> > What I'm looking for:
-> >   I'm looking for comments and approval for a small addition to the console
-> > driver (drivers/char/console.c).
-> > 
-> > Small description:
-> >   The included patches adds a couple of new services to the TIOCLINUX ioctl
-> > call, they are:
-> > 
-> > 13 (get selection into a buffer): It copies the contents of the selection
-> > buffer (maintained in kernel space) into a user space provided buffer. Is
-> > something like "paste to a buffer"  instead of just paste to the current
-> > console.
-> > 
-> > 14 (get selection length): Returns the length of the selection buffer (0 if
-> > none selected).
+> Hi,
 > 
-> Looks good to me. Now, all I want is utility to share clipboard between
-> X and text console...
+> We're running a quite busy mailserver (50.000 mailboxes, 170000+ msgs a
+> day) with maildir 'mailboxes' on an NFS volume. The server was running
+> redhat 7.1 with i686 2.4.3-12smp kernel.
+> 
+> Ever since the machine came into full production we've had big problems
+> on our dell 2540 dual p3-733, 1Gb RAM machine. At least twice a day we
+> would see nfs server timeouts, followed by "can't get request slot"
+> messages completeley hanging the machine and only a reboot could get the
+> system going again. We've tried every cure known to man to fix this
+> problem (changing nics, mount params, interal buffers, etc) no luck.
 
-Umm, silly question, but why not put this stuff into something similar to
-gpm, rather than have unswappable kernel memory sucked up just for cut and
-paste (possibly very large cut and paste under X).
+There were some SMP bugs in the NFS client code a while back but I
+don't recall any on the server side.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Is it reproducible with 2.4.7?
 
+What NICs have you tried?  If they were ne2k and/or 3com then
+you've been bitten by the APIC bug.
+
+-

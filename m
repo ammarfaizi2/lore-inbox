@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267592AbUIKFXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267469AbUIKGEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267592AbUIKFXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 01:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUIKFXZ
+	id S267469AbUIKGEr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 02:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267578AbUIKGEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 01:23:25 -0400
-Received: from ozlabs.org ([203.10.76.45]:26340 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267592AbUIKFXY (ORCPT
+	Sat, 11 Sep 2004 02:04:47 -0400
+Received: from wasp.net.au ([203.190.192.17]:1679 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S267469AbUIKGEq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 01:23:24 -0400
-Date: Sat, 11 Sep 2004 15:20:00 +1000
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [ppc32] Remove -Wno-uninitialized
-Message-ID: <20040911052000.GC6005@krispykreme>
-References: <200409101520.12653.jbarnes@engr.sgi.com> <20040911043303.GB6005@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911043303.GB6005@krispykreme>
-User-Agent: Mutt/1.5.6+20040818i
+	Sat, 11 Sep 2004 02:04:46 -0400
+Message-ID: <4142957B.30605@wasp.net.au>
+Date: Sat, 11 Sep 2004 10:04:43 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Panin <pazke@donpac.ru>
+CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: netwinder or ARM build platform
+References: <200409091759.i89HxHI2023135@work.bitmover.com> <20040910065107.GE692@pazke>
+In-Reply-To: <20040910065107.GE692@pazke>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Remove -Wno-uninitialized on ppc32 too. Ive just found a number of
-real bugs on ppc64 by doing the same.
+Andrey Panin wrote:
+> On 253, 09 09, 2004 at 10:59:17AM -0700, Larry McVoy wrote:
+> 
+>>BK found another bad hard drive today, on our netwinder.  The disk is dieing
+>>badly unfortunately and I don't have installation media for this beast.
+>>I suspect I can go find it but does anyone know of a faster build platform
+>>for arm?  Russell uses bk on arms (no kidding, that's amazing) and so we
+>>continue to support it but that netwinder is just amazingly slow.  If there
+>>is a faster platform we want one.
+> 
+> 
+> What about these beasts http://www.iyonix.com/ ?
+> 
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+I don't know about the netwinder, but I do a lot of native builds on my iPAQ 5550 (400MHz 128MB Ram) 
+using a full debian install chroot over nfs with a PCMCIA network card. It's solid and reliable anyway.
 
-===== arch/ppc/Makefile 1.63 vs edited =====
---- 1.63/arch/ppc/Makefile	Wed Sep  1 10:00:00 2004
-+++ edited/arch/ppc/Makefile	Sat Sep 11 15:17:30 2004
-@@ -24,7 +24,7 @@
- CPPFLAGS	+= -Iarch/$(ARCH)
- AFLAGS		+= -Iarch/$(ARCH)
- CFLAGS		+= -Iarch/$(ARCH) -msoft-float -pipe \
--		-ffixed-r2 -Wno-uninitialized -mmultiple
-+		-ffixed-r2 -mmultiple
- CPP		= $(CC) -E $(CFLAGS)
- 
- CHECKFLAGS	+= -D__powerpc__=1
+Regards,
+Brad

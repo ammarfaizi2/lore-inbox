@@ -1,84 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318957AbSICWKf>; Tue, 3 Sep 2002 18:10:35 -0400
+	id <S318948AbSICWJN>; Tue, 3 Sep 2002 18:09:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318958AbSICWKf>; Tue, 3 Sep 2002 18:10:35 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:59838 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318957AbSICWKc>; Tue, 3 Sep 2002 18:10:32 -0400
-Subject: Re: __func__ in 2.5.33?
-From: Paul Larson <plars@austin.ibm.com>
-To: rasmus@jaquet.dk
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-mXEXJrThjzccSlk2lSmc"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 03 Sep 2002 17:03:42 -0500
-Message-Id: <1031090622.23823.15.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S318951AbSICWJN>; Tue, 3 Sep 2002 18:09:13 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:25848 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S318948AbSICWJM>;
+	Tue, 3 Sep 2002 18:09:12 -0400
+Message-ID: <3D7533F5.F00BB8E6@mvista.com>
+Date: Tue, 03 Sep 2002 15:13:09 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.name>
+CC: Thunder from the hill <thunder@lightweight.ods.org>,
+       Ralf Baechle <ralf@uni-koblenz.de>, linux-kernel@vger.kernel.org
+Subject: Re: question on spinlocks
+References: <Pine.LNX.4.44.0209011607380.3234-100000@hawkeye.luckynet.adm> <200209020033.23113.oliver@neukum.name>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oliver Neukum wrote:
+> 
+> Am Montag, 2. September 2002 00:09 schrieb Thunder from the hill:
+> > Hi,
+> >
+> > On Mon, 2 Sep 2002, Oliver Neukum wrote:
+> > > > > No; spin_lock_irqsave/spin_unlock_irqrestore and
+> > > > > spin_lock/spin_unlock have to be used in matching pairs.
+> > > >
+> > > > If it was his least problem! He'll run straight into a "schedule
+> > > > w/IRQs disabled" bug.
+> > >
+> > > OK, how do I drop an irqsave spinlock if I don't have flags?
+> >
+> > IMHO you might even ask "How do I start a car when I don't have the
+> > keys?"
+> 
+> Break off the lock, touch some cables ... ;-)
+> 
+> > You might find a way, but it's not desired. Are you sure you want to
+> > reschedule in an interrupt handler? If it's none, are you sure you want
+> > to disable interrupts?
+> 
+> I am not in an interrupt handler. It's not my fault that the scsi layer
+> calls queuecommand with a spinlock held. But I need to sleep,
+> I have to get rid of that spinlock's effects. If possible I even want
+> interrupts to be enabled.
 
---=-mXEXJrThjzccSlk2lSmc
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I don't know scsi, but if the coder decided that the lock
+and irq were needed, I suspect that messing with them will
+get you in big trouble.  I think you need to rethink this
+thing at the scsi layer...
 
-I posted this a few days ago, but I don't think it's been picked up yet.
+-g
+> 
+>         Regards
+>                 Oliver
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
--Paul Larson
-
---=-mXEXJrThjzccSlk2lSmc
-Content-Disposition: inline
-Content-Description: Forwarded message - [TRIVIAL][PATCH] fix __FUNCTION__
-	pasting in sx.c
-Content-Type: message/rfc822
-
-Subject: [TRIVIAL][PATCH] fix __FUNCTION__ pasting in sx.c
-From: Paul Larson <plars@linuxtestproject.org>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 29 Aug 2002 15:49:14 -0500
-Message-Id: <1030654155.7151.1.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
-
-Trivial fix for __FUNCTION__ pasting in sx.c against current bk tree.
-
--Paul Larson
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.557   -> 1.558  
-#	   drivers/char/sx.c	1.10    -> 1.11   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/08/29	plars@austin.ibm.com	1.558
-# fix __FUNCTION__ pasting in sx.c
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/sx.c b/drivers/char/sx.c
---- a/drivers/char/sx.c	Thu Aug 29 15:43:20 2002
-+++ b/drivers/char/sx.c	Thu Aug 29 15:43:20 2002
-@@ -405,11 +405,11 @@
- 
-
-
--#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ "\n")
--#define func_exit()  sx_dprintk (SX_DEBUG_FLOW, "sx: exit  " __FUNCTION__ "\n")
-+#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s\n", __FUNCTION__)
-+#define func_exit()  sx_dprintk (SX_DEBUG_FLOW, "sx: exit  %s\n", __FUNCTION__)
- 
--#define func_enter2() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ \
--                                  "(port %d)\n", port->line)
-+#define func_enter2() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s (port %d)\n", \
-+					__FUNCTION__, port->line)
- 
-
-
-
---=-mXEXJrThjzccSlk2lSmc--
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

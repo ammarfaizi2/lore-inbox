@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270819AbTGVMyn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 08:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270820AbTGVMym
+	id S270825AbTGVM56 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 08:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270827AbTGVM56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 08:54:42 -0400
-Received: from anor.ics.muni.cz ([147.251.4.35]:28100 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S270819AbTGVMyl (ORCPT
+	Tue, 22 Jul 2003 08:57:58 -0400
+Received: from vega.digitel2002.hu ([213.163.0.181]:18914 "HELO lgb.hu")
+	by vger.kernel.org with SMTP id S270825AbTGVM54 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 08:54:41 -0400
-Date: Tue, 22 Jul 2003 15:09:42 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: Greg KH <greg@kroah.com>
+	Tue, 22 Jul 2003 08:57:56 -0400
+Date: Tue, 22 Jul 2003 15:12:59 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: "Deas, Jim" <James.Deas@warnerbros.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Non-ASCII chars in visor.c messages
-Message-ID: <20030722150941.E26218@fi.muni.cz>
-References: <20030722143821.C26218@fi.muni.cz> <20030722125039.GA2310@kroah.com>
+Subject: Re: vmalloc - kmalloc and page locks
+Message-ID: <20030722131259.GD31455@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+References: <S270817AbTGVMp3/20030722124529Z+5562@vger.kernel.org> <20030722130718.GB31455@vega.digitel2002.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030722125039.GA2310@kroah.com>; from greg@kroah.com on Tue, Jul 22, 2003 at 08:50:39AM -0400
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030722130718.GB31455@vega.digitel2002.hu>
+X-Operating-System: vega Linux 2.6.0-test1 i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-: > 
-: > 	What do you think about it?
-: 
-: I don't think it's really needed.  Why change this, syslog can't handle
-: this?  It works for me...
-: 
-	Yes, syslog can handle this, but in order to parse syslog files
-you should have your LC_CTYPE set to something Latin-1 compatible
-(which UTF-8 is not, and it is the default on many distros).
+Errrrr ... Sorry, I did not read your mail carefully ;-(
+I meant in case of a user process you can use mlock() and such :)
+AFAIK the kernel itself is not pagable ...
 
-	Why Latin-1 and not UTF-8? I think UTF-8 is more "correct", while
-ASCII is "works for all". Latin-1 is neither "correct" nor "works for all".
-
-	Thanks,
-
--Yenya
+On Tue, Jul 22, 2003 at 03:07:18PM +0200, Gábor Lénárt wrote:
+> Please read something about the mlock() and/or mlockall() functions.
+> The prototype can be found in [/usr/include/]sys/mman.h
+> You can read there:
+> 
+> /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
+>    be memory resident.  */
+> extern int mlock (__const void *__addr, size_t __len) __THROW;
+> [...]
+> /* Cause all currently mapped pages of the process to be memory resident
+>    until unlocked by a call to the `munlockall', until the process exits,
+>    or until the process calls `execve'.  */
+> extern int mlockall (int __flags) __THROW;
+> 
+> On Tue, Jul 22, 2003 at 06:00:14AM -0700, Deas, Jim wrote:
+> > How can I look at what memory are being paged out of memory in the kernel
+> > or how to lock kmalloc and vmalloc pages so they do not get put to swap?
+> [...]
+> 
+> - Gábor (larta'H)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|__ If you want "aesthetics", go play with microkernels. -Linus Torvalds __|
+- Gábor (larta'H)

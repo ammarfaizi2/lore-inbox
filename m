@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUHaRxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUHaRyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266209AbUHaRxF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266006AbUHaRxF
+	id S266006AbUHaRyu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266096AbUHaRyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:53:05 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:52449 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S266223AbUHaRvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:51:08 -0400
-From: Patrick Dreker <patrick@dreker.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [DOC] Linux kernel patch submission format
-Date: Tue, 31 Aug 2004 19:50:59 +0200
-User-Agent: KMail/1.7
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Jeremy Higdon <jeremy@sgi.com>
-References: <413431F5.9000704@pobox.com>
-In-Reply-To: <413431F5.9000704@pobox.com>
+	Tue, 31 Aug 2004 13:54:49 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:47091 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266006AbUHaRxJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:53:09 -0400
+Message-ID: <4134BACC.60203@us.ibm.com>
+Date: Tue, 31 Aug 2004 10:52:12 -0700
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Christoph Hellwig <hch@infradead.org>
+CC: Dave Jones <davej@redhat.com>, Dave Airlie <airlied@linux.ie>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [rfc][patch] DRM initial function table support.
+References: <Pine.LNX.4.58.0408311409530.18657@skynet> <20040831152015.GC22978@redhat.com> <4134A22F.7000103@us.ibm.com> <20040831180129.A23112@infradead.org>
+In-Reply-To: <20040831180129.A23112@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408311951.02430.patrick@dreker.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:55d40479e9cc6e4ab087ddd2b9b4bce4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 31. August 2004 10:08 schrieb Jeff Garzik:
-> I tried to keep it as short as possible:  here is a page describing the
-> most optimal format for sending patches to Linux kernel developers.
->
->  http://linux.yyz.us/patch-format.html
->
-> This URL should be permanent, feel free to bookmark it.
-> Comments welcome.
+Christoph Hellwig wrote:
+> On Tue, Aug 31, 2004 at 09:07:11AM -0700, Ian Romanick wrote:
+> 
+>>I think the intention is to have default functions set in the 
+>>device-independent code and have the device-dependent code over-ride 
+>>them.  Since the defaults may not always be NULL, doing a struct like 
+>>that wouldn't really work.  I suppose we could have a struct and a 
+>>device-independent function that copies the non-NULL pointers from the 
+>>per-device struct.  Would that be better?
+> 
+> Don't copy them.  Just put
+> 
+> if (foo->ops->method1)
+> 	foo->ops->method1(args);
+> else
+> 	generic_method1(args);
+> 
+> in your code.  It's an additional branch, but you avoid the indirect
+> functioncalloverhead in exchange.
 
-Small typo fixed
+<MrHorse>No sir, I didn't like it.</MrHorse>  That would not only be 
+ugly to read, but it would add maintenance burden.  If the default 
+changes from NULL to non-NULL, code has to be changed from doing nothing 
+in the NULL case to calling generic_method1.  The one place that we miss 
+is the one place that will crash Linus' box. :)
 
-Patrick
-
---- patch-format.html.orig 2004-08-31 19:43:33.000000000 +0200
-+++ patch-format.html 2004-08-31 19:44:43.000000000 +0200
-@@ -51,7 +51,7 @@
- </pre>
- 
- The "$n/$total" may be omitted if there is only one patch in the series.
--Writing "1/1" would is not necessary.
-+Writing "1/1" is not necessary.
- 
- 
- <li><h2>Email body contents: description</h2>
-
--- 
-Patrick Dreker
-
-GPG KeyID  : 0xFCC2F7A7 (Patrick Dreker)
-Fingerprint: 7A21 FC7F 707A C498 F370  1008 7044 66DA FCC2 F7A7
-Key available from keyservers

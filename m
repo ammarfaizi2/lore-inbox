@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262498AbVAPNUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbVAPNXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262498AbVAPNUY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 08:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVAPNUY
+	id S262500AbVAPNXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 08:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVAPNXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 08:20:24 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:62109 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S262498AbVAPNUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 08:20:17 -0500
-Message-ID: <41EA69F0.5060500@f2s.com>
-Date: Sun, 16 Jan 2005 13:19:44 +0000
-From: Ian Molton <spyro@f2s.com>
-Organization: The Dragon Roost
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Richard Purdie <rpurdie@rpsys.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MMC Driver RFC
-References: <021901c4f8eb$1e9cc4d0$0f01a8c0@max> <20050112214345.D17131@flint.arm.linux.org.uk> <023c01c4f8f3$1d497030$0f01a8c0@max> <20050112221753.F17131@flint.arm.linux.org.uk> <41E5B177.4060307@f2s.com> <41E7AF11.6030005@drzeus.cx> <41E7DD5E.5070901@f2s.com> <41EA5C8D.8070407@drzeus.cx>
-In-Reply-To: <41EA5C8D.8070407@drzeus.cx>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 16 Jan 2005 08:23:47 -0500
+Received: from pastinakel.tue.nl ([131.155.2.7]:15884 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S262500AbVAPNXo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 08:23:44 -0500
+Date: Sun, 16 Jan 2005 14:23:40 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Matt Mackall <mpm@selenic.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: short read from /dev/urandom
+Message-ID: <20050116132340.GA8163@pclin040.win.tue.nl>
+References: <41E7509E.4030802@redhat.com> <20050116024446.GA3867@waste.org> <41E9E65F.1030100@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E9E65F.1030100@redhat.com>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: dmv.com: pastinakel.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Ian Molton wrote:
+On Sat, Jan 15, 2005 at 07:58:23PM -0800, Ulrich Drepper wrote:
 
-> Afraid everything gets routed to the same account in the end anyway. I 
-> checked the logs and the problem is that your mail server has a HELO 
-> that differs from its IP
-
-I've sent mail to my ISP re that. cheers.
-
-> I've had the same idea. But I think it will be difficult since we need 
-> som funky logic during init. Perhaps a model where each mode 
-> (MMC/SD/SDIO) each gets their turn trying to find something on the bus.
-
-Might be worth the effort. I'll need to think on it.
-
-> But this would require a rather large rewrite of the MMC layer.
-
-Im not sure it'd be so catastrophic.
-
->> Mind you, I have plans to look at SDIO, so that may alter things...
->>
-> I need it to determine if the code should send an RCA or ask for one, 
-> and to determine if it should try and read the SCR. Your solution used 
-> an extra parameter but I thought a mode flag would be better since we 
-> might need to know mode later on (after init.).
-
-Fair enough.
-
->> The toshiba controller appears to want to be told when an ACMD is 
->> issued, compared to a normal CMD.
+> Matt Mackall wrote:
+> >_Neither_ case mentions signals and the "and will return as many bytes
+> >as requested" is clearly just a restatement of "does not have this
+> >limit". Whoever copied this comment to the manpage was a bit sloppy
+> >and dropped the first clause rather than the second:
 > 
-> No hints in the spec about why?
+> It still means the documented API says there are no short reads.
 
-What spec? ;-)
+No. It says that /dev/urandom "contains" an unlimited amount
+of bits - you can read as many bits from there as you want,
+while /dev/random "contains" a limited amount of information -
+you can exhaust it.
 
- > Seems very strange since there's no change in what goes over the wire.
+That is information about the device. There is no suggestion at all
+about some special property that would guarantee that the normal
+read() system call has special behavior in connection with /dev/urandom.
 
-I think the controller (for some odd reason) keeps some extra internal 
-state.
+There is no special documented API. Now that this misunderstanding
+occurred I suppose a clarifying sentence will be added.
+Nothing special with /dev/urandom.
+
+Applications that make special assumptions are broken.
+
+Andries

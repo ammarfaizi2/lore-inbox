@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUHYTru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268429AbUHYTvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268421AbUHYTru (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 15:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268411AbUHYTrq
+	id S268429AbUHYTvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 15:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUHYTul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 15:47:46 -0400
-Received: from holomorphy.com ([207.189.100.168]:1679 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268421AbUHYTnG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 15:43:06 -0400
-Date: Wed, 25 Aug 2004 12:43:04 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [2/4] move sigpending to sched.h
-Message-ID: <20040825194304.GF2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Rusty Russell <rusty@rustcorp.com.au>
-References: <20040819143907.GA4236@redhat.com> <20040819150632.GP11200@holomorphy.com> <20040825180138.GA2793@holomorphy.com> <20040825180342.GB2793@holomorphy.com> <20040825193921.GC2793@holomorphy.com> <20040825194207.GE2793@holomorphy.com>
-Mime-Version: 1.0
+	Wed, 25 Aug 2004 15:50:41 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:15113 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S268429AbUHYTsm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 15:48:42 -0400
+To: Roland McGrath <roland@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] notify_parent and ptrace cleanup
+References: <200408251808.i7PI8jFF017075@magilla.sf.frob.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 26 Aug 2004 04:48:25 +0900
+In-Reply-To: <200408251808.i7PI8jFF017075@magilla.sf.frob.com>
+Message-ID: <87y8k3knhy.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040825194207.GE2793@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 12:39:21PM -0700, William Lee Irwin III wrote:
->> This series removes the dependency of sched.h on signal.h
->> Atop the just-posted user bits atop 2.6.8.1-mm4.
+Roland McGrath <roland@redhat.com> writes:
 
-On Wed, Aug 25, 2004 at 12:42:07PM -0700, William Lee Irwin III wrote:
-> Sorry, this is the real 1/4.
-> Move sigqueue-related bits to include/linux/signal.h
+> > ptrace() is frangible, and racy. And looks like few things can't improve
+> > without user visible change. So, I'm thinking I would like to rewrite
+> > it by another interface.
+> 
+> I don't think such vague statements are useful.  Are there other races you
+> are implicitly referring to here, or only the ones I have just cited?
+> These issues are with the implementation, not the interface.  Changing the
+> ptrace interface won't do anything about them, and fixing them need not
+> change the ptrace interface.
+> 
+> The ptrace interface could use replacing, but that is really a separate
+> issue.  I will be first in line to replace it with something that has saner
+> semantics and a more convenient user interface.  But that won't help a whit
+> with things like these race concerns.  Let's keep the issue of an ugly
+> interface separate from the issue of potential bugs in the one we have.  If
+> there are bugs (aside from the inherent limitations of the intended
+> semantics), they need to be fixed.
 
-Move sigpending -related bits to include/linux/sched.h
+Sorry for about it. Yes, racy is implementation issue. And AFAIK, it
+seems to be fixed by we don't allow SIGCONT. (If it doesn't break userland)
 
-Index: mm4-2.6.8.1/include/linux/sched.h
-===================================================================
---- mm4-2.6.8.1.orig/include/linux/sched.h	2004-08-25 11:11:27.993358504 -0700
-+++ mm4-2.6.8.1/include/linux/sched.h	2004-08-25 11:43:53.764556320 -0700
-@@ -259,6 +259,11 @@
- 	spinlock_t		siglock;
- };
- 
-+struct sigpending {
-+	struct list_head list;
-+	sigset_t signal;
-+};
-+
- /*
-  * NOTE! "signal_struct" does not have it's own
-  * locking, because a shared signal_struct always
-Index: mm4-2.6.8.1/include/linux/signal.h
-===================================================================
---- mm4-2.6.8.1.orig/include/linux/signal.h	2004-08-25 11:13:45.762414424 -0700
-+++ mm4-2.6.8.1/include/linux/signal.h	2004-08-25 11:44:18.280829280 -0700
-@@ -25,11 +25,6 @@
- /* flags values. */
- #define SIGQUEUE_PREALLOC	1
- 
--struct sigpending {
--	struct list_head list;
--	sigset_t signal;
--};
--
- /*
-  * Define some primitives to manipulate sigset_t.
-  */
+> > And looks like few things can't improve without user visible
+> > change. So, I'm thinking I would like to rewrite it by another
+> > interface.
+
+This is reason that I wouldn't like that we continue to be expanding
+ptrace().
+
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

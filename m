@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266023AbUGOMr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUGOMup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266023AbUGOMr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 08:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUGOMr4
+	id S266189AbUGOMup (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 08:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266191AbUGOMup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 08:47:56 -0400
-Received: from cantor.suse.de ([195.135.220.2]:20387 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266023AbUGOMrz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 08:47:55 -0400
-Date: Thu, 15 Jul 2004 14:47:50 +0200
-From: Stefan Seyfried <seife@gmane0305.slipkontur.de>
-To: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: swsuspend not working
-Message-ID: <20040715124750.GA8065@suse.de>
-References: <20040715121042.GB9873@lps.ens.fr.suse.lists.linux.kernel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040715121042.GB9873@lps.ens.fr>
-X-Operating-System: SUSE LINUX Enterprise Server 9 (i586), Kernel 2.6.5-7.97-default
-User-Agent: Mutt/1.5.6i
+	Thu, 15 Jul 2004 08:50:45 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:35716 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266189AbUGOMuo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 08:50:44 -0400
+Date: Thu, 15 Jul 2004 13:50:33 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: christophe.varoqui@free.fr, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: namespaces (was Re: [Q] don't allow tmpfs to page out)
+In-Reply-To: <20040715123148.GA23112@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.60.0407151346370.2622@fogarty.jakma.org>
+References: <1089878317.40f6392d7e365@imp5-q.free.fr>
+ <20040715080017.GB20889@devserv.devel.redhat.com>
+ <Pine.LNX.4.60.0407151329100.2622@fogarty.jakma.org>
+ <20040715123148.GA23112@devserv.devel.redhat.com>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 12:13:10PM +0000, Éric Brunet wrote:
+On Thu, 15 Jul 2004, Arjan van de Ven wrote:
 
-> I booted with " root=/dev/hda2 resume=/dev/hda5 init=/bin/sh". No initrd,
-> of course. Once I had a prompt, I mounted /proc and echoed 4 to
-> /proc/acpi/sleep. The screen blinked and 3 seconds later I was back at my
+> it's a clone() flag....
 
-you have to swapon your swap partition.
+Ah, very cute.
 
-> Here are the kernel messages I got:
-> -----------------------------------------
-> dsmthdat-0462 [36] ds_method_data_get_val: Uninitialized Local[0] at node df72f10c
-> Freeing memory: .....|
-> PM: Attempting to suspend to disk.
-> PM: snapshotting memory.
+Are there any tools yet to make use of it?
 
-that's not swsusp, that's pmdisk. check your kernel config.
+regards,
 -- 
-Stefan Seyfried
-
-"Any ideas, John?"
-"Well, surrounding thems out."
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+ 	warning: do not ever send email to spam@dishone.st
+Fortune:
+Boucher's Observation:
+ 	He who blows his own horn always plays the music
+ 	several octaves higher than originally written.

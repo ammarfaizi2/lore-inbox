@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVBUWNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVBUWUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVBUWNx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 17:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVBUWNx
+	id S261854AbVBUWUV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 17:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBUWUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 17:13:53 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35974 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261369AbVBUWNv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 17:13:51 -0500
-Date: Mon, 21 Feb 2005 14:12:52 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mort@wildopensource.com, linux-kernel@vger.kernel.org, raybry@sgi.com
-Subject: Re: [PATCH/RFC] A method for clearing out page cache
-Message-Id: <20050221141252.6b44f0ea.pj@sgi.com>
-In-Reply-To: <20050221134220.2f5911c9.akpm@osdl.org>
-References: <20050214154431.GS26705@localhost>
-	<20050214193704.00d47c9f.pj@sgi.com>
-	<20050221192721.GB26705@localhost>
-	<20050221134220.2f5911c9.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Feb 2005 17:20:21 -0500
+Received: from mta10.adelphia.net ([68.168.78.202]:16814 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S261854AbVBUWUN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 17:20:13 -0500
+Message-ID: <421A5E28.1030409@nodivisions.com>
+Date: Mon, 21 Feb 2005 17:18:16 -0500
+From: Anthony DiSante <theant@nodivisions.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups
+References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu>            <421A4375.9040108@nodivisions.com> <200502212054.j1LKs3xi032658@turing-police.cc.vt.edu>
+In-Reply-To: <200502212054.j1LKs3xi032658@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> sys_free_node_memory(long node_id, long pages_to_make_free, long what_to_free)
-> ...
-> - To make the syscall more general, we should be able to reclaim mapped
->   pagecache and anonymous memory as well.
+Valdis.Kletnieks@vt.edu wrote:
+> See the thread rooted here:
+>  
+> Date: Wed, 03 Nov 2004 07:51:39 -0500
+> From: Gene Heskett <gene.heskett@verizon.net>
+> Subject: is killing zombies possible w/o a reboot?
+> Sender: linux-kernel-owner@vger.kernel.org
+> To: linux-kernel@vger.kernel.org
+> Reply-to: gene.heskett@verizon.net
+> Message-id: <200411030751.39578.gene.heskett@verizon.net>
 
-sys_free_node_memory() - nice.
+OK, there are two different opinions expressed at various places in that 
+thread: they are that automatically killing processes hung in D state would 
+be either 1) difficult/nonideal, or 2) impossible.
 
-Does it make sense to also have it be able to free up slab cache,
-calling shrink_slab()?
+If it's truly impossible, then that settles it.
 
-Did you mean to pass a nodemask, or a single node id?  Passing a single
-node id is easier - we've shown that it is difficult to pass bitmaps
-across the user/kernel boundary without confusions.  But if only a
-single node id is passed, then you get the thread per node that you just
-argued was sometimes overkill.
+But if it's just difficult/nonideal, then here are my thoughts.  Again 
+referencing that thread, there are a bunch of comments saying "that's an NFS 
+bug, fix the bug" and "that's a samba bug, fix the bug" and "that's a driver 
+bug, fix the driver."
 
-I'd prefer the single node id, because it's easier to get right.
+It's indisputable that there will always be driver bugs and faulty hardware. 
+  Of course these should be fixed, but if it's possible for the kernel to 
+gracefully deal with the bugs until they get fixed, then why shouldn't it do 
+so?  I understand the goal of making the common (non-buggy) case fast, but 
+in my experience (and I can't be the only one) buggy hardware/drivers are 
+becoming more and more common, and with the computer industry getting 
+ever-bigger and people doing ever-more with their computers, this trend will 
+only continue (the more hardware on the market the more bugs there will be).
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+As I stated in my original post, on the 3 different systems I administer, I 
+need to reboot ~weekly because of the permanent D state.  These 3 systems 
+are completely different, and the processes that hang are different -- 
+digital camera software/drivers, a CDROM, and a printer are among the 
+sources that have recently caused the permanent D state.  Maybe the 
+non-buggy case is the most common one, but the buggy case is certainly not 
+UNcommon.  If it's possible to wipe out this whole class of problem with 
+some (admittedly difficult) extra work in the kernel, then I don't see how 
+that isn't preferable to guaranteeing that people will always need to reboot 
+their linux systems when they get new hardware that puts processes into the 
+D state permanently.
+
+-Anthony DiSante
+http://nodivisions.com/

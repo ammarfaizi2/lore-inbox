@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265121AbUELQ1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265125AbUELQcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265121AbUELQ1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265124AbUELQ1a
+	id S265125AbUELQcs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265124AbUELQcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:27:30 -0400
-Received: from mail.kroah.org ([65.200.24.183]:49860 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265121AbUELQ13 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:27:29 -0400
-Date: Wed, 12 May 2004 09:26:48 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6 breaks my Logitech USB mouse
-Message-ID: <20040512162648.GB12270@kroah.com>
-References: <20040512131306.GA241@fefe.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040512131306.GA241@fefe.de>
-User-Agent: Mutt/1.5.6i
+	Wed, 12 May 2004 12:32:48 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:30094
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265125AbUELQcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 12:32:47 -0400
+Message-ID: <40A2517C.4040903@redhat.com>
+Date: Wed, 12 May 2004 09:31:56 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "Randy.Dunlap" <rddunlap@osdl.org>, fastboot@lists.osdl.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+References: <20040511212625.28ac33ef.rddunlap@osdl.org>	<40A1AF53.3010407@redhat.com>	<m13c66qicb.fsf@ebiederm.dsl.xmission.com> <40A243C8.401@redhat.com> <m1brktod3f.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1brktod3f.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 03:13:06PM +0200, Felix von Leitner wrote:
-> 
-> 2.6.6 never reaches the "input: " line.  What gives?
+Eric W. Biederman wrote:
 
-Don't know, can you enable CONFIG_USB_DEBUG and send the kernel log to
-the linux-usb-devel mailing list?
+> As a first draft we should be able to use the standard ELF mechanisms
+> for this.  It is not like PIC shared libraries were new.   Or is
+> there some specific problem you are thinking of with respect to
+> randomization?
 
-thanks,
+The official kernel does not have vdso randomization.  Ingo has a patch
+for the Red Hat kernel which is used in the FC2 kernel.  The patch
+effectively only changes the location at which the vdso is mapped.  It
+does not change the vdso content.  So the __kernel_vsyscall symbol in
+the vdso's symbol table is not changed.
 
-greg k-h
+AT_SYSINFO is the right way to go forward but it is not directly
+accessible to userlevel code.  And it is no pointer which will make
+architectures with function descriptors unhappy.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

@@ -1,48 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277655AbRJLMPG>; Fri, 12 Oct 2001 08:15:06 -0400
+	id <S277644AbRJLMgS>; Fri, 12 Oct 2001 08:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277654AbRJLMO4>; Fri, 12 Oct 2001 08:14:56 -0400
-Received: from t2.redhat.com ([199.183.24.243]:25327 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S277644AbRJLMOp>; Fri, 12 Oct 2001 08:14:45 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <7202.1002886635@ocs3.intra.ocs.com.au> 
-In-Reply-To: <7202.1002886635@ocs3.intra.ocs.com.au> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Modutils 2.5 change, start running this command now 
+	id <S277656AbRJLMf6>; Fri, 12 Oct 2001 08:35:58 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:36112 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S277644AbRJLMft>; Fri, 12 Oct 2001 08:35:49 -0400
+Date: Fri, 12 Oct 2001 16:35:59 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.4.11-pre5] atomic_dec_and_lock() for alpha
+Message-ID: <20011012163559.A17120@jurassic.park.msu.ru>
+In-Reply-To: <20011008194257.A705@jurassic.park.msu.ru> <20011008102412.A24348@twiddle.net> <20011009143013.A2884@jurassic.park.msu.ru> <20011011112810.A1069@twiddle.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Oct 2001 13:14:41 +0100
-Message-ID: <20283.1002888881@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011011112810.A1069@twiddle.net>; from rth@twiddle.net on Thu, Oct 11, 2001 at 11:28:10AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 11, 2001 at 11:28:10AM -0700, Richard Henderson wrote:
+> Hmm.  What about a mixture:
 
-kaos@ocs.com.au said:
->  I was going to do it that way.  The problem is that it gives no
-> indication if the module has been checked or not.  Adding
-> EXPORT_NO_SYMBOLS says that somebody has reviewed the module and
-> decided that exporting no symbols is the correct behaviour.  It is the
-> difference between no maintainer and a maintained module. 
+...
 
-If all you want to know is whether modules are maintained or not, look to 
-see how many have had MODULE_LICENSE(sic) tags added. 
+> 2:	lda	$27, atomic_dec_and_lock_1");
+> 
+> 	/* FALLTHRU */
+> 	
+> static int
+> atomic_dec_and_lock_1(atomic_t *atomic, spinlock_t *lock)
 
-Just change the default to no exported symbols, and a single depmod pass
-will tell you what broke because it's no longer exporting symbols which are
-required by something else. There's no need to add the EXPORT_NO_SYMBOLS
-cruft all over the place.
+Oh cool.
+I've made a patch of the above (with some minor changes), but
+are you certain that these two will be linked in proper order
+under any circumstances? Or "br atomic_dec_and_lock_1" is
+needed?
 
-Adding EXPORT_NO_SYMBOLS to those modules which don't need to export 
-symbols doesn't make your task any easier - so please don't do it. Let's 
-kill EXPORT_NO_SYMBOLS altogether.
+Ivan.
 
-
---
-dwmw2
-
-
+--- 2.4.13p1/arch/alpha/lib/dec_and_lock.c	Thu Jan  1 00:00:00 1970
++++ linux/arch/alpha/lib/dec_and_lock.c	Fri Oct 12 14:48:57 2001
+@@ -0,0 +1,41 @@
++/*
++ * arch/alpha/lib/dec_and_lock.c
++ *
++ * ll/sc version of atomic_dec_and_lock() and nice example
++ * of mixing C and assembly.
++ * 
++ */
++
++#include <linux/spinlock.h>
++#include <asm/atomic.h>
++
++  asm (".text					\n\
++	.global atomic_dec_and_lock		\n\
++	.ent atomic_dec_and_lock		\n\
++	.align	4				\n\
++atomic_dec_and_lock:				\n\
++	.prologue 0				\n\
++1:	ldl_l	$1, 0($16)			\n\
++	subl	$1, 1, $1			\n\
++	beq	$1, 2f				\n\
++	stl_c	$1, 0($16)			\n\
++	beq	$1, 3f				\n\
++	mb					\n\
++	clr	$0				\n\
++	ret					\n\
++3:	br	1b				\n\
++2:	lda	$27, atomic_dec_and_lock_1	\n\
++	.end atomic_dec_and_lock");
++
++	/* FALLTHRU */
++
++static int __attribute__((unused))
++atomic_dec_and_lock_1(atomic_t *atomic, spinlock_t *lock)
++{
++	/* Slow path */
++	spin_lock(lock);
++	if (atomic_dec_and_test(atomic))
++		return 1;
++	spin_unlock(lock);
++	return 0;
++}
+--- 2.4.13p1/arch/alpha/lib/Makefile	Wed Jun 20 22:10:27 2001
++++ linux/arch/alpha/lib/Makefile	Fri Oct  5 17:37:20 2001
+@@ -49,6 +49,10 @@ OBJS =	__divqu.o __remqu.o __divlu.o __r
+ 	fpreg.o \
+ 	callback_srm.o srm_puts.o srm_printk.o
+ 
++ifeq ($(CONFIG_SMP),y)
++  OBJS += dec_and_lock.o
++endif
++
+ lib.a: $(OBJS)
+ 	$(AR) rcs lib.a $(OBJS)
+ 
+--- 2.4.13p1/arch/alpha/kernel/alpha_ksyms.c	Fri Sep 14 02:21:32 2001
++++ linux/arch/alpha/kernel/alpha_ksyms.c	Fri Oct  5 19:56:39 2001
+@@ -215,6 +215,7 @@ EXPORT_SYMBOL(__global_cli);
+ EXPORT_SYMBOL(__global_sti);
+ EXPORT_SYMBOL(__global_save_flags);
+ EXPORT_SYMBOL(__global_restore_flags);
++EXPORT_SYMBOL(atomic_dec_and_lock);
+ #if DEBUG_SPINLOCK
+ EXPORT_SYMBOL(spin_unlock);
+ EXPORT_SYMBOL(debug_spin_lock);
+--- 2.4.13p1/arch/alpha/config.in	Fri Oct  5 17:27:50 2001
++++ linux/arch/alpha/config.in	Fri Oct  5 17:37:20 2001
+@@ -217,6 +217,10 @@ then
+ 	bool 'Symmetric multi-processing support' CONFIG_SMP
+ fi
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   define_bool CONFIG_HAVE_DEC_LOCK y
++fi
++
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+    bool 'Discontiguous Memory Support' CONFIG_DISCONTIGMEM
+    if [ "$CONFIG_DISCONTIGMEM" = "y" ]; then

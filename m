@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290304AbSA3SHG>; Wed, 30 Jan 2002 13:07:06 -0500
+	id <S289899AbSA3QP1>; Wed, 30 Jan 2002 11:15:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290314AbSA3SFv>; Wed, 30 Jan 2002 13:05:51 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:5538 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S290311AbSA3SFL>; Wed, 30 Jan 2002 13:05:11 -0500
-Date: Wed, 30 Jan 2002 11:04:49 -0700
-Message-Id: <200201301804.g0UI4nQ13064@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, tao@acc.umu.se (David Weinehall),
-        brand@jupiter.cs.uni-dortmund.de (Horst von Brand),
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KERN_INFO for devfs
-In-Reply-To: <E16VwTl-0007VJ-00@the-village.bc.nu>
-In-Reply-To: <200201301232.g0UCWmt10496@Port.imtp.ilyichevsk.odessa.ua>
-	<E16VwTl-0007VJ-00@the-village.bc.nu>
+	id <S289891AbSA3QN3>; Wed, 30 Jan 2002 11:13:29 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:22484 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S289456AbSA3QMh>;
+	Wed, 30 Jan 2002 11:12:37 -0500
+Date: Wed, 30 Jan 2002 11:12:33 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: DervishD <raul@viadomus.com>
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
+Message-ID: <20020130111233.A21325@havoc.gtf.org>
+In-Reply-To: <E16VtWb-0002kV-00@DervishD.viadomus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16VtWb-0002kV-00@DervishD.viadomus.com>; from raul@viadomus.com on Wed, Jan 30, 2002 at 01:07:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > > Yes, but that may change (in theory, at least.) Consistency is a virtue.
-> > 
-> > I'll do this cleanup if my KERN_INFO patches will be accepted, at least some 
-> > of them. So far only Richard Gooch replied...
+On Wed, Jan 30, 2002 at 01:07:37PM +0100, DervishD wrote:
+>     The problem is that I don't want to copy the definitions I need
+> from linux/fs.h, because this will lead to problems if those
+> definitions change. Anyway this is not an issue, because by changing
+> the running kernel those definitions in fact may not be valid...
 > 
-> I ran some of them into 7ac1 but got rejects so I've dumped them out
-> for now. They mostly look completely sensible
+>     Resuming: I don't know how properly address this problem.
 
-I'd prefer if tree maintainers (that means you, Alan:-) don't apply
-devfs patches that didn't come from me. I've already posted a patch
-which cleans up *all* the remaining printk()'s. In fact, it's a pair
-of patches, one for 2.4.x and one for 2.5.x. That was yesterday. Today
-I'm still seeing this thread being beaten to death.
+Go ahead and copy.  If ioctl interfaces change, then binary
+compatibility just changed too.  By nature that will be changed
+infrequently, if at all.
 
-Besides, this is hardly an urgent fix, so there's no great rush to
-apply a random patch from someone else, even if I did sit on it for a
-week or two. Applying random patches will just end up generating more
-merge work for me down the track.
+	Jeff
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+

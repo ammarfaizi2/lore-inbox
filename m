@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130592AbQKBFBd>; Thu, 2 Nov 2000 00:01:33 -0500
+	id <S130439AbQKBFZg>; Thu, 2 Nov 2000 00:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130073AbQKBFBY>; Thu, 2 Nov 2000 00:01:24 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:46095 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130592AbQKBFBN>;
-	Thu, 2 Nov 2000 00:01:13 -0500
-Message-ID: <3A00F515.45D67F1C@mandrakesoft.com>
-Date: Thu, 02 Nov 2000 00:01:09 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
+	id <S130459AbQKBFZ1>; Thu, 2 Nov 2000 00:25:27 -0500
+Received: from www.wen-online.de ([212.223.88.39]:65285 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130439AbQKBFZT>;
+	Thu, 2 Nov 2000 00:25:19 -0500
+Date: Thu, 2 Nov 2000 06:25:21 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Pieter van Prooijen <pprooi@xs4all.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.0-test10 locks up during kernel compiles on Toshiba
+ CDT  1640
+In-Reply-To: <3A009557.135DF15E@xs4all.nl>
+Message-ID: <Pine.Linu.4.10.10011020613270.1061-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: TimO <hairballmt@mcn.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-via@gtf.org
-Subject: Re: Announce: Via audio driver update
-In-Reply-To: <39E54117.37461BD1@mandrakesoft.com> <3A00F17B.1E7537FA@mcn.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TimO wrote:
+On Wed, 1 Nov 2000, Pieter van Prooijen wrote:
+
+> Content-Type: text/plain; charset=us-ascii
+> Content-Transfer-Encoding: 7bit
 > 
-> Jeff Garzik wrote:
-> >
-> > An update of the Via audio driver for Linux 2.4.x kernels has been
-> > posted at
-> >
-> >         http://gtf.org/garzik/drivers/via82cxxx/
-> >
+> Hi,
 > 
-> Hi Jeff,
+> During kernel compilation (or other heavy use of the machine), the
+> machine
+> locks up. No oops, no alt-sysreq, only a hardware reset is
+> possible. 
 > 
-> Somewhere between v1.1.8 and 1.1.10 (I haven't tried 1.1.9), the output
+> Machine is a Toshiba CDT 1640 laptop: 475 MHz K6-II+, 128KB cache, 64 MB
+> ram, Aladdin V chipset, 6 GB Fujitsu hd.
+> 
+> Observations:
+> 
+> The standard RedHat kernel (2.2.16) and Windows work fine, so it doesn't
+> seem to be a hardware problem.
 
-Please grab 1.1.14, there were a number of bug fixes since 1.1.10.  You
-can get this version in the recently-released 2.4.0-test10 kernel, or
-download from http://sourceforge.net/projects/gkernel/
+Except likely it is hardware.. the plastic case :)
 
-Thanks,
+> When the machine locks up, the little fan begins running immediately,
+> which means the processor is getting very hot (doing what ?)
 
-	Jeff
+Compiling is very cpu intensive, so the system won't be doing many
+idle calls (where cpu can cool down).  This sounds like your cpu is
+having a heatstroke and shutting down instead of frying itself.
 
+It may well be that 2.4 kernel is keeping the cpu busy more than 2.2
+or windows does, and your box is poorly designed wrt heat disipation.
 
+	-Mike
 
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

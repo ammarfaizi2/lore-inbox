@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290567AbSARAtY>; Thu, 17 Jan 2002 19:49:24 -0500
+	id <S290570AbSARAvP>; Thu, 17 Jan 2002 19:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290566AbSARAtP>; Thu, 17 Jan 2002 19:49:15 -0500
-Received: from webmail.koenigsnet.RWTH-Aachen.DE ([134.130.53.212]:22401 "EHLO
-	atlantis.koenigsnet.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id <S290567AbSARAsz>; Thu, 17 Jan 2002 19:48:55 -0500
-Message-ID: <003201c19fb9$ee32b030$fd358286@koenigsnet.rwthaachen.de>
-From: "Patrick Scharrenberg" <pittipatti@web.de>
-To: "Andreas Dilger" <adilger@turbolabs.com>
-Cc: <linux-kernel@vger.kernel.org>, <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <006701c19f97$5531f520$fd358286@koenigsnet.rwthaachen.de> <20020117141853.I29178@lynx.adilger.int>
-Subject: Re: 2.4.17 strange ext2 error
-Date: Fri, 18 Jan 2002 01:49:05 +0100
+	id <S290573AbSARAvE>; Thu, 17 Jan 2002 19:51:04 -0500
+Received: from chabotc.xs4all.nl ([213.84.192.197]:38027 "EHLO
+	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S290572AbSARAuy>; Thu, 17 Jan 2002 19:50:54 -0500
+Message-ID: <3C477159.2030301@reviewboard.com>
+Date: Fri, 18 Jan 2002 01:50:33 +0100
+From: Chris Chabot <chabotc@reviewboard.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20021225
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+CC: Guillaume Boissiere <boissiere@mediaone.net>, linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  January 17, 2001
+In-Reply-To: <5.1.0.14.2.20020118002237.00af5be0@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> On Jan 17, 2002  21:40 +0100, Patrick Scharrenberg wrote:
-> > yesterday I got a very strange ext2 error on my linux machine..
-> > The system has a 5-disk raid-5-software-raid and on top of this there is
-one
-> > ext2 fs which was clean when mounted 1 week ago..
-> >
-> > kernel 2.4.17 (since 1 week)
-> > before it was 2.4.10
 >
-> When you say it was "clean when mounted 1 week ago" does this mean that
-you
-> had run e2fsck on it at that time, or just that it did not report any
-> errors when you mounted it?  Sometimes it is possible to have corruption
-> in your fs for a while without noticing it if you don't run fsck on it.
+>
+>> o Beta     Add JFS (Journaling FileSystem from SGI)     (JFS team)
+>
 
-I meant that I  had run fsck one week ago, because the filesystem was
-corrupt (but this was my fault).
-At that same time (but after the fsck) I decided to switch to kernel 2.4.17.
-But this shouldn't cause such errors with file-loss...
+JFS is by IBM, where as SGI has the XFS journaling file system. Don't 
+ask me which are poised to be included, but i am very sure that SGI 
+doesnt have a JFS team, nor does IBM have a XFS team ;-)
 
-I don't know if it is save for me to run 2.4.17. For now I switched back to
-2.4.10.
-Tomorrow I'll start an new backup of the data and then try again the.17.
-If the error occurs again, I'll post again.... :-)
-
-..patrick
+    -- Chris
 

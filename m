@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVAZXWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVAZXUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVAZXWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVAZXVd
+	id S262451AbVAZXUd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:20:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262346AbVAZXTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:21:33 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38148 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261599AbVAZSTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 13:19:43 -0500
-Date: Wed, 26 Jan 2005 19:19:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: dtor_core@ameritech.net, Christoph Hellwig <hch@infradead.org>,
-       Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050126181941.GC5297@stusta.de>
-References: <20050124214751.GA6396@infradead.org> <20050125060256.GB2061@kroah.com> <20050125195918.460f2b10.khali@linux-fr.org> <20050126003927.189640d4@zanzibar.2ka.mipt.ru> <20050125224051.190b5ff9.khali@linux-fr.org> <20050126013556.247b74bc@zanzibar.2ka.mipt.ru> <20050126101434.GA7897@infradead.org> <1106737157.5257.139.camel@uganda> <d120d5000501260600fb8589e@mail.gmail.com> <1106757528.5257.221.camel@uganda>
+	Wed, 26 Jan 2005 18:19:02 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12729 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262455AbVAZR5z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 12:57:55 -0500
+Subject: Re: don't let mmap allocate down to zero
+From: Bryn Reeves <breeves@redhat.com>
+Reply-To: breeves@redhat.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-os@analogic.com, Rik van Riel <riel@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       James Antill <james.antill@redhat.com>
+In-Reply-To: <41F7D4B0.7070401@nortelnetworks.com>
+References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
+	 <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
+	 <41F7D4B0.7070401@nortelnetworks.com>
+Content-Type: text/plain
+Organization: Red Hat GLS
+Message-Id: <1106762261.10384.30.camel@breeves.surrey.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106757528.5257.221.camel@uganda>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 26 Jan 2005 17:57:42 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 07:38:48PM +0300, Evgeniy Polyakov wrote:
->...
-> Btw, where was comments about w1, kernel connector and acrypto? 
-> They were presented several times in lkml and all are completely new
-> subsystems.
-> Should I stop developing just because I did not get comments?
->...
-
-I sent you comments regarding w1 two months ago regarding:
-- the unneeded dscore -> ds9490r rename in the Makefile
-- completely unused EXPORT_SYMBOL's (that seem to be still unused today)
-
-Being honest, I have to admit that your reactions didn't sound as if you 
-were waiting for comments.
-
-> Thank you.
+On Wed, 2005-01-26 at 17:34, Chris Friesen wrote: 
+> linux-os wrote:
 > 
->         Evgeniy Polyakov
+> > Does this mean that we can't mmap the screen regen buffer at
+> > 0x000b8000 anymore?
+> > 
+> > How do I look at the real-mode interrupt table starting at
+> > offset 0? You know that the return value of mmap is to be
+> > checked for MAP_FAILED, not for NULL, don't you?
+> 
+> Can't you still map those physical addresses to other virtual addresses?
+> 
 
-cu
-Adrian
+I think that's the case. The 0 address as refered to here is only for
+the user virtual address space. 
 
--- 
+> > What 'C' standard do you refer to? Seg-faults on null pointers
+> > have nothing to do with the 'C' standard and everything to
+> > do with the platform.
+> 
+> I believe the ISO/IEC 9899:1999 C Standard explicitly states that 
+> dereferencing a null pointer with the unary * operator results in 
+> undefined behavior.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Exactly. Undefined. VAX/UNIX allowed assignment to null pointers. BUT
+it's now such a commonly held assumption that a null pointer is not
+valid that things will break if this is changed. Doesn't glibc malloc
+use mmap for small allocations? From the man page:
+
+RETURN VALUE
+  For calloc() and malloc(), the value returned is a pointer to the
+  allocated  memory,  which  is suitably aligned for any kind of
+  variable, or NULL if the request fails.
+
+This could get pretty confusing if NULL was a valid address...
+
+Cheers,
+
+Bryn.
+
+The DBX manual contrasts this behaviour on different systems:
+http://acs.ucsd.edu/info/dbx.debug.php
+
 

@@ -1,81 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265546AbTFRVep (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 17:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265547AbTFRVep
+	id S265544AbTFRVfl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 17:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265547AbTFRVfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 17:34:45 -0400
-Received: from auemail1.lucent.com ([192.11.223.161]:10487 "EHLO
-	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S265546AbTFRVen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 17:34:43 -0400
+	Wed, 18 Jun 2003 17:35:41 -0400
+Received: from host204.cisp.cc ([65.196.203.204]:44045 "EHLO
+	nocmailsvc004.allthesites.org") by vger.kernel.org with ESMTP
+	id S265544AbTFRVff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 17:35:35 -0400
+From: "Thomas Molina" <tmolina@copper.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panic while upgrading from 2.4.20 to 2.5.70
+Date: Wed, 18 Jun 2003 17:48:03 -0400
+Message-ID: <MIECJFNNBOIGKGCCGDDECEANCBAA.tmolina@copper.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16112.56865.325452.254827@gargle.gargle.HOWL>
-Date: Wed, 18 Jun 2003 17:48:17 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH CYCLADES 1/2] fix cli()/sti() for ISA Cyclom-Y boards
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Sourabh Ladha (EED) wrote:
+>> Hi,
+>>
+>> [I know this has been discussed before but I tried the previous fixes
+proposed without luck..so]
+>>
+>> I was trying to upgrade my kernel from 2.4.20 to 2.5.70. (I am running
+RedHat 9). After getting the sources I did:
+>>
+>> make clean; make mrproper; make distclean; make menuconfig; make bzImage;
+make modules; make modules_install; make install   >(got past all of these)
+>>
+>> The make install updated my grub.conf as well...
+>
+>Just a wild guess:  did you upgrade modutils to module-init-tools?  2.5.x
+won't be happy
+>until you do.
 
-Hi Linus,
 
-This trivially fixes the cyclades driver under ISA to get rid of the
-cli()/sti() locking and use a spin lock as described in the
-Documentation/cli-sti-removal.txt instructions.  I'm using this on an
-SMP system without any problems so far.
+Actually, I have seen similar before.  It happens when you install a new
+kernel on a RedHat system which requires an initrd to boot.  It happens
+specifically because you upgrade module-init-tools.  The upgraded
+module-init-tools replaces files used by the previous version of the
+utilities and creating links to them.  It appears that the RedHat system
+fails to find the proper version of the files it needs to build the initrd
+image and therefor fails when it tries to load the ext3 modules.  It then
+can't find the init on the disk because it can't read the filesystem and
+gives the error seen.
 
-Thanks,
-John
-john@stoffel.org
+The two options are either build a kernel with everything required to boot
+built in rather than modular, or else reinstll the old module tools, install
+the new kernel (this allows RedHat to create a good initrd image), and then
+reinstall the new module init tools.
 
-
-
-diff -ur l-2.5.72/drivers/char/cyclades.c l-2.5.72-cyclades/drivers/char/cyclades.c
---- l-2.5.72/drivers/char/cyclades.c	Wed Jun 18 10:26:21 2003
-+++ l-2.5.72-cyclades/drivers/char/cyclades.c	Wed Jun 18 17:33:06 2003
-@@ -867,6 +867,7 @@
- static int cyz_issue_cmd(struct cyclades_card *, uclong, ucchar, uclong);
- #ifdef CONFIG_ISA
- static unsigned detect_isa_irq (volatile ucchar *);
-+spinlock_t isa_card_lock = SPIN_LOCK_UNLOCKED;
- #endif /* CONFIG_ISA */
- 
- static int cyclades_get_proc_info(char *, char **, off_t , int , int *, void *);
-@@ -1050,14 +1051,14 @@
-     udelay(5000L);
- 
-     /* Enable the Tx interrupts on the CD1400 */
--    save_flags(flags); cli();
-+    spin_lock_irqsave(&isa_card_lock,flags);
- 	cy_writeb((u_long)address + (CyCAR<<index), 0);
- 	cyy_issue_cmd(address, CyCHAN_CTL|CyENB_XMTR, index);
- 
- 	cy_writeb((u_long)address + (CyCAR<<index), 0);
- 	cy_writeb((u_long)address + (CySRER<<index), 
- 		cy_readb(address + (CySRER<<index)) | CyTxRdy);
--    restore_flags(flags);
-+    spin_unlock_irqrestore(&isa_card_lock, flags);
- 
-     /* Wait ... */
-     udelay(5000L);
-@@ -5675,13 +5676,13 @@
-     }
- #endif /* CONFIG_CYZ_INTR */
- 
--    save_flags(flags); cli();
-+    spin_lock_irqsave(&isa_card_lock, flags);
- 
-     if ((e1 = tty_unregister_driver(cy_serial_driver)))
-             printk("cyc: failed to unregister Cyclades serial driver(%d)\n",
- 		e1);
- 
--    restore_flags(flags);
-+    spin_unlock_irqrestore(&isa_card_lock,flags);
-     put_tty_driver(cy_serial_driver);
- 
-     for (i = 0; i < NR_CARDS; i++) {

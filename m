@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUHIETZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUHIE1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUHIETZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 00:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUHIETZ
+	id S265930AbUHIE1f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 00:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUHIE1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 00:19:25 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:57555 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S265943AbUHIETW (ORCPT
+	Mon, 9 Aug 2004 00:27:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18876 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265930AbUHIE1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 00:19:22 -0400
-Subject: Re: [PATCH] cleanup ACPI numa warnings
-From: Alex Williamson <alex.williamson@hp.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, mbligh@aracnet.com, haveblue@us.ibm.com,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20040808143631.7c18cae9.rddunlap@osdl.org>
-References: <1091738798.22406.9.camel@tdi>
-	 <1091739702.31490.245.camel@nighthawk> <1091741142.22406.28.camel@tdi>
-	 <249150000.1091763309@[10.10.2.4]>
-	 <20040805205059.3fb67b71.rddunlap@osdl.org>
-	 <20040807105729.6adea633.pj@sgi.com>
-	 <20040808143631.7c18cae9.rddunlap@osdl.org>
-Content-Type: text/plain
-Date: Sun, 08 Aug 2004 22:19:44 -0600
-Message-Id: <1092025184.2292.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 00:27:33 -0400
+Date: Sun, 8 Aug 2004 21:27:15 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: James Morris <jmorris@redhat.com>
+cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjanv@redhat.com, dwmw2@infradead.org,
+       greg@kroah.com, Chris Wright <chrisw@osdl.org>, sfrench@samba.org,
+       mike@halcrow.us, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] implement in-kernel keys & keyring management
+In-Reply-To: <Xine.LNX.4.44.0408082041010.1123-100000@dhcp83-76.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0408082114230.1832@ppc970.osdl.org>
+References: <Xine.LNX.4.44.0408082041010.1123-100000@dhcp83-76.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-08 at 14:36 -0700, Randy.Dunlap wrote:
-> On Sat, 7 Aug 2004 10:57:29 -0700 Paul Jackson wrote:
+
+
+On Sun, 8 Aug 2004, James Morris wrote:
 > 
-> | > And there's nothing in CodingStyle that agrees with you that I could find.
-> | 
-> | >From the file Documentation/SubmittingPatches:
-> | 
-> |         3) 'static inline' is better than a macro
-> |
-> Oops.  Thanks, Paul.
+> I'm not disagreeing with the above, but what about performance?  Part of
+> the reason I suggested Netlink is that it's likely to be more efficient
+> to send messages over a socket than to exec a program for each key
+> request from the kernel.
 
-   Ok, I was all set to switch to static inlines, but it doesn't work.
-Compiling w/ debug on, _dbg is undefined, which is part of the
-ACPI_DB_INFO macro, but it only gets setup by the ACPI_FUNCTION_NAME
-macro.  Guess I got lucky by choosing to do it as a macro.  IMHO, it
-doesn't really make sense to make the static inline functions more
-complicated or hide where they're getting called to make this all work.
-So, I think the choices are to stick with the ugly macros or put #ifdefs
-around the code and essentially leave it the way it is.  Sorry I didn't
-give it a more thorough look when originally questioned.  Better ideas?
-Thanks,
+Yes. However, I don't see that the kernel really would ask for new keys 
+very often.  Any normal operation is that you have the key already.
 
-	Alex
+> It's difficult to know if performance will actually be an issue without
+> understanding the potential workload more.  What if many thousands of
+> clients are connected to a fileserver?  Would calling /sbin/request-key
+> for each key request be likely to cause performance problems?
 
+The fileserver generally is the one that _asks_ for keys, not the other 
+way around.
+
+So the "I don't have a key" case is more of an issue where somebody tries 
+to mount an encrypted filesystem, and the filesystem says "you don't have 
+a key".
+
+It's not a thing like "you tried to open a file" that happens thousands of
+times a second - that one would get an EACCES if you don't have a key. 
+
+It would be more like "the mount binary needs a key to mount this volume, 
+so let's request that key first".
+
+David, have you actually coded up something that uses the user callback, 
+maybe you can describe a realistic schenario...
+
+But at least to me, the /sbin/request-key thing is more like loading a 
+module. You might do it to mount a filesystem or read an encrypted volume, 
+but you wouldn't do it in the "normal" workload. It's a major event.
+
+		Linus

@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313140AbSDDK4u>; Thu, 4 Apr 2002 05:56:50 -0500
+	id <S313136AbSDDLVg>; Thu, 4 Apr 2002 06:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313139AbSDDK4k>; Thu, 4 Apr 2002 05:56:40 -0500
-Received: from [203.115.6.227] ([203.115.6.227]:26372 "EHLO shalmirane.net")
-	by vger.kernel.org with ESMTP id <S313136AbSDDK4W>;
-	Thu, 4 Apr 2002 05:56:22 -0500
-Date: Thu, 4 Apr 2002 16:55:35 -0600 (GMT+6)
-From: "Ishan O. Jayawardena" <ioshadij@hotmail.com>
-To: marcelo@conectiva.com.br
-cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kjournald locking fix
-Message-ID: <Pine.LNX.4.21.0204041643400.1396-200000@shalmirane.net>
+	id <S313137AbSDDLV0>; Thu, 4 Apr 2002 06:21:26 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:54031 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313136AbSDDLVJ>; Thu, 4 Apr 2002 06:21:09 -0500
+Message-ID: <3CAC28A7.1060500@evision-ventures.com>
+Date: Thu, 04 Apr 2002 12:19:19 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811840-789257715-1017960935=:1396"
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.8-pre1
+In-Reply-To: <Pine.LNX.4.33.0204031714080.12444-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+By just reading the patch I have came across the following code:
 
----1463811840-789257715-1017960935=:1396
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+diff -Nru a/arch/cris/drivers/ethernet.c b/arch/cris/drivers/ethernet.c
+--- a/arch/cris/drivers/ethernet.c	Wed Apr  3 17:11:15 2002
++++ b/arch/cris/drivers/ethernet.c	Wed Apr  3 17:11:15 2002
+......
 
-Greetings everyone,
+@@ -1313,7 +1313,7 @@
+  static void
+  e100_clear_network_leds(unsigned long dummy)
+  {
+- 
+if (led_active && jiffies > led_next_time) {
++ 
+if (led_active && jiffies > time_after(jiffies, led_next_time)) {
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This should almost certainly be instead:
 
-	Here's an improved version of my previous patch. Thanks to Andrew
-Morton for the advice. 2.5 needs this too I think, since preemption is
-part of it now...
++ 
+if (led_active && time_after(jiffies, led_next_time)) {
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Ishan O. Jayawardena
-
-
-----------------------------------------------------------------
-
---- linux-preempt/fs/jbd/journal.c.1	Wed Apr  3 08:05:08 2002
-+++ linux-preempt/fs/jbd/journal.c	Thu Apr  4 16:41:56 2002
-@@ -204,6 +204,7 @@ int kjournald(void *arg)
- 
- 	lock_kernel();
- 	daemonize();
-+	reparent_to_init();
- 	spin_lock_irq(&current->sigmask_lock);
- 	sigfillset(&current->blocked);
- 	recalc_sigpending(current);
-@@ -267,6 +268,7 @@ int kjournald(void *arg)
- 
- 	journal->j_task = NULL;
- 	wake_up(&journal->j_wait_done_commit);
-+	unlock_kernel();
- 	jbd_debug(1, "Journal thread exiting.\n");
- 	return 0;
- }
-
----1463811840-789257715-1017960935=:1396
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="kjournald.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0204041655350.1396@shalmirane.net>
-Content-Description: 
-Content-Disposition: attachment; filename="kjournald.diff"
-
-LS0tIGxpbnV4LXByZWVtcHQvZnMvamJkL2pvdXJuYWwuYy4xCVdlZCBBcHIg
-IDMgMDg6MDU6MDggMjAwMg0KKysrIGxpbnV4LXByZWVtcHQvZnMvamJkL2pv
-dXJuYWwuYwlUaHUgQXByICA0IDE2OjQxOjU2IDIwMDINCkBAIC0yMDQsNiAr
-MjA0LDcgQEAgaW50IGtqb3VybmFsZCh2b2lkICphcmcpDQogDQogCWxvY2tf
-a2VybmVsKCk7DQogCWRhZW1vbml6ZSgpOw0KKwlyZXBhcmVudF90b19pbml0
-KCk7DQogCXNwaW5fbG9ja19pcnEoJmN1cnJlbnQtPnNpZ21hc2tfbG9jayk7
-DQogCXNpZ2ZpbGxzZXQoJmN1cnJlbnQtPmJsb2NrZWQpOw0KIAlyZWNhbGNf
-c2lncGVuZGluZyhjdXJyZW50KTsNCkBAIC0yNjcsNiArMjY4LDcgQEAgaW50
-IGtqb3VybmFsZCh2b2lkICphcmcpDQogDQogCWpvdXJuYWwtPmpfdGFzayA9
-IE5VTEw7DQogCXdha2VfdXAoJmpvdXJuYWwtPmpfd2FpdF9kb25lX2NvbW1p
-dCk7DQorCXVubG9ja19rZXJuZWwoKTsNCiAJamJkX2RlYnVnKDEsICJKb3Vy
-bmFsIHRocmVhZCBleGl0aW5nLlxuIik7DQogCXJldHVybiAwOw0KIH0NCg==
----1463811840-789257715-1017960935=:1396--

@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbUBWQ7e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 11:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUBWQ7e
+	id S261775AbUBWRDq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 12:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbUBWRDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 11:59:34 -0500
-Received: from [213.78.110.125] ([213.78.110.125]:38785 "HELO stockwith.co.uk")
-	by vger.kernel.org with SMTP id S261963AbUBWQ65 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 11:58:57 -0500
-From: Chris Lingard <chris@ukpost.com>
-To: MALET JL <malet.jean-luc@laposte.net>
-Subject: Re: [linux 2.6.3] [gcc 3.3.3] compile errors
-Date: Mon, 23 Feb 2004 16:58:53 +0000
-User-Agent: KMail/1.5.2
-References: <403911B3.10601@laposte.net> <20040223074221.5f711665.rddunlap@osdl.org> <403A2ADB.9040002@laposte.net>
-In-Reply-To: <403A2ADB.9040002@laposte.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 12:03:46 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60390 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261775AbUBWRDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 12:03:44 -0500
+Date: Mon, 23 Feb 2004 18:03:36 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel vs AMD x86-64
+Message-ID: <20040223170336.GK5499@fs.tum.de>
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org> <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org> <20040222025957.GA31813@MAIL.13thfloor.at> <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402231658.53516.chris@ukpost.com>
+In-Reply-To: <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 February 2004 4:31 pm, MALET JL wrote:
+On Sat, Feb 21, 2004 at 07:12:20PM -0800, Linus Torvalds wrote:
+>...
+> Actually, I'm a bit disgusted at Intel for not even _mentioning_ AMD in 
+> their documentation or their releases, so I'd almost be inclined to rename 
+> the thing as "AMD64" just to give credit where credit is due. However, 
+> it's just not worth the pain and confusion.
+>...
 
-> copy from /usr/src/linux/include/asm to /usr/include/asm
-> copy from /usr/src/linux/include/asm-generic to /usr/include/asm-generic
-> copy from /usr/src/linux/include/linux to /usr/include/linux
->
-> is this wrong ? I've done this all the time (since 2.4.2 kernel) without
-> problem..... if i'm wrong please correct my behaviour
+In the long term, x86_64 creates more confusion:
+- SuSE says AMD64 [1]
+- RedHat says AMD64 [2]
+- Debian says AMD64 [3]
 
-You should use the kernel headers to build glibc; and sanitised headers
-such as RedHat's or http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
-to build the rest of the system.  Suggest you follow www.linuxfromscratch.org 
-for further details.
+Renaming might be some work today, but it might actually remove 
+confusion in the future.
 
-Chris
+> 		Linus
+
+cu
+Adrian
+
+[1] http://www.suse.com/us/business/products/server/sles/amd64.html
+[2] http://www.redhat.com/software/rhel/comparison/
+[3] http://www.debian.org/ports/
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

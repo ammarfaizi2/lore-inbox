@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUHRIaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUHRI3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUHRIaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 04:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUHRIaY
+	id S265029AbUHRI3s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 04:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUHRI3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 04:30:24 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:29415 "EHLO
-	mail-out.m-online.net") by vger.kernel.org with ESMTP
-	id S264936AbUHRIaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 04:30:16 -0400
-To: Peter Osterlund <petero2@telia.com>
-Cc: Julien Oster <lkml-7994@mc.frodoid.org>,
-       Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Packet writing problems
-References: <1092669361.4254.24.camel@freddy> <m3acwuq5nc.fsf@telia.com>
-	<m3657iq4rk.fsf@telia.com> <1092686149.4338.1.camel@freddy>
-	<m37jrxk024.fsf@telia.com> <87acwt49zl.fsf@killer.ninja.frodoid.org>
-	<m3y8kdibgh.fsf@telia.com>
-From: Julien Oster <usenet-20040502@usenet.frodoid.org>
-Organization: FRODOID.ORG
-Mail-Followup-To: Peter Osterlund <petero2@telia.com>,
-	Julien Oster <lkml-7994@mc.frodoid.org>,
-	Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Date: Wed, 18 Aug 2004 10:25:54 +0200
-In-Reply-To: <m3y8kdibgh.fsf@telia.com> (Peter Osterlund's message of "18
- Aug 2004 01:36:30 +0200")
-Message-ID: <87fz6k6eel.fsf@killer.ninja.frodoid.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Aug 2004 04:29:48 -0400
+Received: from amalthea.dnx.de ([193.108.181.146]:36812 "EHLO amalthea.dnx.de")
+	by vger.kernel.org with ESMTP id S265029AbUHRI3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 04:29:44 -0400
+Date: Wed, 18 Aug 2004 10:29:37 +0200
+From: Robert Schwebel <robert@schwebel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.8 - Oops on NFSv3
+Message-ID: <20040818082937.GZ29410@pengutronix.de>
+References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
+X-Scan-Signature: c870fec17057476f9780afc870d320a1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> writes:
+On Sat, Aug 14, 2004 at 04:05:56AM -0700, Linus Torvalds wrote:
+> Well, we've been discussing the 2.6.x.y format for a while, so I see this 
+> as an opportunity to actually do it... Will it break automated scripts? 
+> Maybe. But on the other hand, we'll never even find out unless we try it 
+> some time.
 
-Hello Peter,
+PTXdist(*) works fine with the new scheme, at least as long as the .1
+is in EXTRAVERSION and the .1 patch is released as a normal patch on top
+of 2.6.8. 
 
->> The following patch on top of your patch adds all commonly used media
->> types to the output and changes CD-R and CD-RW to be detected by
->> profile type. It also reports unconforming non-standard profiles as
->> well as profiles which have a MMC profile definition but are unknown
->> as of the current MMC3 revision.
+Robert 
 
-> Will any of those printk's ever get printed? Media types that can't be
-> handled by the packet driver aren't supposed to make it past the
-> pkt_good_disc() test.
-
-Quickly looking through it, pkt_good_disc() does the same and drops
-media types with unsuitable or invalid profiles.
-
-So my patch is really not useful at that place.
-
-But couldn't you move the "inserted disc is..." messages to
-pkt_good_disc()? In the current source you basically duplicate the
-switch statement which checks the profile. The printks could be in the
-pkt_good_disc() check just as well.
-
-There all profiles might be included and the corresponding media type
-printed out, so that the user knows why his disc is unsuitable
-(i.e. it's a CD-ROM or DVD-ROM and doesn't do any writing at all).
-
-Regards,
-Julien
+(*) http://www.pengutronix.de/software/ptxdist_en.html, used by 
+    embedded people to build kernel+userlands 
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
+    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4

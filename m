@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318638AbSIFO0f>; Fri, 6 Sep 2002 10:26:35 -0400
+	id <S318649AbSIFOb6>; Fri, 6 Sep 2002 10:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318650AbSIFO0f>; Fri, 6 Sep 2002 10:26:35 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:40636 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318638AbSIFO0e>; Fri, 6 Sep 2002 10:26:34 -0400
-Date: Fri, 06 Sep 2002 07:29:21 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: hadi@cyberus.ca, tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-Message-ID: <46202575.1031297360@[10.10.2.3]>
-In-Reply-To: <20020905.235159.128049953.davem@redhat.com>
-References: <20020905.235159.128049953.davem@redhat.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S318690AbSIFOb6>; Fri, 6 Sep 2002 10:31:58 -0400
+Received: from crack.them.org ([65.125.64.184]:22791 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S318649AbSIFOb4>;
+	Fri, 6 Sep 2002 10:31:56 -0400
+Date: Fri, 6 Sep 2002 10:36:36 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [trivial] Print tracer PID in /proc/<pid>/status
+Message-ID: <20020906143636.GA10509@nevyn.them.org>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Stupid question, are you sure you have CONFIG_E1000_NAPI enabled?
-> 
-> NAPI is also not the panacea to all problems in the world.
+We've got a labeled field for showing which process is debugging this one,
+but we weren't filling it in.  This is useful in working on the ptrace
+code... please apply.
 
-No, but I didn't expect throughput to drop by 40% or so either,
-which is (very roughly) what happened. Interrupts are a pain to
-manage and do affinity with, so NAPI should (at least in theory)
-be better for this kind of setup ... I think.
- 
-> I bet your greatest gain would be obtained from going to Tux
-> and using appropriate IRQ affinity settings and making sure
-> Tux threads bind to same cpu as device where they accept
-> connections.
-> 
-> It is standard method to obtain peak specweb performance.
+===== array.c 1.26 vs edited =====
+--- 1.26/fs/proc/array.c	Wed Jul 24 21:36:09 2002
++++ edited/array.c	Thu Sep  5 16:38:35 2002
+@@ -160,7 +160,8 @@
+ 		"Uid:\t%d\t%d\t%d\t%d\n"
+ 		"Gid:\t%d\t%d\t%d\t%d\n",
+ 		get_task_state(p), p->tgid,
+-		p->pid, p->pid ? p->real_parent->pid : 0, 0,
++		p->pid, p->pid ? p->real_parent->pid : 0,
++		p->pid && p->ptrace ? p->parent->pid : 0,
+ 		p->uid, p->euid, p->suid, p->fsuid,
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+ 	read_unlock(&tasklist_lock);	
 
-Ah, but that's not really our goal - what we're trying to do is
-use specweb as a tool to simulate a semi-realistic customer
-workload, and improve the Linux kernel performance, using that
-as our yardstick for measuring ourselves. For that I like the
-setup we have reasonably well, even though it won't get us the
-best numbers.
 
-To get the best benchmark numbers, you're absolutely right though.
-
-M.
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

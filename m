@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbUKKXI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbUKKXvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbUKKXI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 18:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUKKXGk
+	id S262465AbUKKXvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 18:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUKKXtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 18:06:40 -0500
-Received: from sukke.il.fontys.nl ([145.85.127.72]:48395 "EHLO
-	sukke.il.fontys.nl") by vger.kernel.org with ESMTP id S262413AbUKKXFK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 18:05:10 -0500
-Date: Fri, 12 Nov 2004 00:05:09 +0100
-To: Chris Wright <chrisw@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: a.out issue
-Message-ID: <20041111230509.GA9494@il.fontys.nl>
-References: <20041111220906.GA1670@dereference.de> <20041111143258.Q14339@build.pdx.osdl.net>
+	Thu, 11 Nov 2004 18:49:06 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:9471 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262432AbUKKXre (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 18:47:34 -0500
+Date: Thu, 11 Nov 2004 15:47:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Dittmer <jdittmer@ppp0.net>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [patch 1/2] fakephp: introduce pci_bus_add_device
+Message-ID: <20041111234711.GA11044@kroah.com>
+References: <41541009.9080206@ppp0.net> <200409241432.06748@bilbo.math.uni-mannheim.de> <20040924145542.GA17147@kroah.com> <41687EBA.7050506@ppp0.net> <41688985.7030607@ppp0.net> <41693CF9.10905@ppp0.net> <20041030041615.GH1584@kroah.com> <41857C7A.2030007@ppp0.net> <20041101093514.GA25921@infradead.org> <41880F63.9030606@ppp0.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041111143258.Q14339@build.pdx.osdl.net>
-X-Message-Flag: Please upgrade your mailreader to Mozilla Thunderbird at http://www.mozilla.org/
-User-Agent: Mutt/1.5.6+20040722i
-From: ed@il.fontys.nl (Ed Schouten)
-X-Spam-Score: 0.0 (/)
+In-Reply-To: <41880F63.9030606@ppp0.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 02, 2004 at 11:51:15PM +0100, Jan Dittmer wrote:
+> Christoph Hellwig wrote:
+> > On Mon, Nov 01, 2004 at 12:59:54AM +0100, Jan Dittmer wrote:
+> > 
+> >>fakephp needs to add newly discovered devices to the global pci list.
+> >>Therefore seperate out the appropriate chunk from pci_bus_add_devices
+> >>to pci_bus_add_device to add a single device to sysfs, procfs
+> >>and the global device list.
+> >>
+> >>Signed-off-by: Jan Dittmer <jdittmer@ppp0.net>
+> 
+> > the brace should go to a line of it's own
+> 
+> Sorry about that, updated patch follows:
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ugh, your email client ate all of the tabs and spit them out as spaces
+for this patch :(
 
-On Thu 11 Nov 2004 02:32 PM, Chris Wright wrote:
-> No oops here.  What kernel version?  Can you post your oops?
+Care to try it again?
 
-Just rebooted the box because it was dying slowly :D
+thanks,
 
-Have you set:
-
-sysctl -w vm.overcommit_memory=3D1
-
-?
-
-Yours,
---=20
- Ed Schouten <ed@il.fontys.nl>
- Website: http://g-rave.nl/
- GPG key: finger ed@il.fontys.nl
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBk/Alyx16ydahrz4RAoPIAKCiy7NEdYadR5OEZADUk2RWcQNJXwCcD7zR
-g3SSdjuGYj4mFEIzcAj4pyo=
-=JeVF
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--
+greg k-h

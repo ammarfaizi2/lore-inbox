@@ -1,38 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265339AbRFVFYz>; Fri, 22 Jun 2001 01:24:55 -0400
+	id <S265336AbRFVFUP>; Fri, 22 Jun 2001 01:20:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265338AbRFVFYp>; Fri, 22 Jun 2001 01:24:45 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:15552 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265337AbRFVFYl>;
-	Fri, 22 Jun 2001 01:24:41 -0400
-Message-ID: <3B32D694.CACF46D0@mandrakesoft.com>
-Date: Fri, 22 Jun 2001 01:24:36 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
+	id <S265340AbRFVFT4>; Fri, 22 Jun 2001 01:19:56 -0400
+Received: from web11208.mail.yahoo.com ([216.136.131.190]:27909 "HELO
+	web11208.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265336AbRFVFTq>; Fri, 22 Jun 2001 01:19:46 -0400
+Message-ID: <20010622051945.17358.qmail@web11208.mail.yahoo.com>
+Date: Thu, 21 Jun 2001 22:19:45 -0700 (PDT)
+From: Chester Lott <sjdevnull@yahoo.com>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+To: linux-kernel@vger.kernel.org
+Cc: rok.papez@kiss.uni-lj.si
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        netdev@oss.sgi.com, "David S. Miller" <davem@redhat.com>
-Subject: Re: PATCH: ethtool MII helpers
-In-Reply-To: <3B23AFC3.71CE2FD2@mandrakesoft.com> <20010622171037.D2576@metastasis.f00f.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> Can we
-> not extend ethtool for the mii-tool stuff, even if only at userland?
+Rok papez <rok.papez@kiss.uni-lj.si> wrote:
+>On Tuesday 19 June 2001 18:09, Larry McVoy wrote:
+>> "If you think you need threads then your processes are too fat"
+>> ``Think of it this way: threads are like salt, not like pasta You
+>> like salt, I like salt, we all like salt. But we eat more pasta.''
 
-Sure, and that's planned.  Wanna send me a patch for it?  :)
+> Here are more from the same basket you obviously got the first 
+> quote from:
+[SNIP]
+> Protected memory is a constant 10% CPU hog needed only by
+undisciplined
+> programmers who can't keep their memory writes in their own process
+space.
 
-It will definitely fall back on the MII ioctls if ethtool media support
-for the desired command doesn't exist.
+Now that's the primary reason to avoid threads, IMO.  People
+spent years trying to get protected memory; the only real
+difference between threads and processes is that you throw
+protected memory out the window.  Yes, the pthread API sucks;
+yes, there are times when threads are appropriate.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+If only:
+1) Microsoft, Sun, and others didn't have such abysmal
+context switch numbers that people view threads vs. 
+processes as a performance argument;
+2) MS didn't conflate fork() and exec() into one 
+CreateProcess() call; and
+3) Java and others exposed rational event-driven APIs that
+didn't require multiple contexts of execution in weird places
+(1.4 is finally fixing this one anyway)
+
+then people might be able to really see that:
+1) You usually don't need that many contexts of execution; and
+2) Processes should be considered the primary COEs and threads
+only used when you really need to share almost all of your
+memory.
+
+That's aside from all the arguments against multithreading
+just based on elegance and code correctness POVs.  Even if
+writing multithreaded code is marginally easier than writing
+poll()-based code, actually debugging it is a royal PITA.
+Coroutines (which aren't Alan's, Knuth had them long before
+Alan and even he was just rehashing old news) and state
+machines really are better in many cases.
+
+About the only criticism I have of Alan's statement that
+"threads are for people who can't program state machines" is
+the implication that threads are an easier API to get right.
+They aren't.  They seem that way, but by tossing protected
+memory and introducing multiple COEs you get into a whole
+world of non-obvious problems that are very difficult to
+debug and often nearly impossible to reproduce in 
+non-production environments.
+
+The salt quote I like; it allows for the sparing use of
+threads, but warns against their over(ab)use.
+
+Ah, well.
+
+  Sumner
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132056AbRDDTya>; Wed, 4 Apr 2001 15:54:30 -0400
+	id <S132053AbRDDT4u>; Wed, 4 Apr 2001 15:56:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132053AbRDDTyU>; Wed, 4 Apr 2001 15:54:20 -0400
-Received: from mail11.speakeasy.net ([216.254.0.211]:55057 "HELO
-	mail11.speakeasy.net") by vger.kernel.org with SMTP
-	id <S132056AbRDDTyR>; Wed, 4 Apr 2001 15:54:17 -0400
-Message-ID: <3ACB6DEB.4020709@megapathdsl.net>
-Date: Wed, 04 Apr 2001 11:54:35 -0700
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac2 i686; en-US; 0.8.1)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Thomas Dodd <ted@cypress.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        David Brownell <david-b@pacbell.net>
-Subject: Re: Contacts within AMD?  AMD-756 USB host-controller blacklisted due to
-In-Reply-To: <E14kWCc-0000EF-00@the-village.bc.nu> <3ACB7216.9F12D286@cypress.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132072AbRDDT4b>; Wed, 4 Apr 2001 15:56:31 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:34314 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S132053AbRDDT42>; Wed, 4 Apr 2001 15:56:28 -0400
+Date: Wed, 4 Apr 2001 21:54:21 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: John Kodis <kodis@mail630.gsfc.nasa.gov>, linux-kernel@vger.kernel.org
+Subject: Re: IDE RAID Hardware Advice
+Message-ID: <20010404215421.O18749@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010404100359.A16092@tux.gsfc.nasa.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010404100359.A16092@tux.gsfc.nasa.gov>; from kodis@mail630.gsfc.nasa.gov on Wed, Apr 04, 2001 at 10:03:59AM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Dodd wrote:
-
-> Alan Cox wrote:
+On Wed, Apr 04, 2001 at 10:03:59AM -0400, John Kodis wrote:
+> I'll be assembling a terabyte of IDE RAID network attached storage,
+> and was looking for some advice on:
 > 
->>> David Brownell recently added this check to the usb-ohci driver
->>> since noone has gotten information from AMD for the workaround,
->>> which is rumored to exist, for this bug.
->>> 
->>> Do any of you have contacts within AMD who might be able to
->>> get an explanation of the workaround to David Brownell?
->> 
->> We are working on that currently via the Red Hat contact.
->> 
->> 
->>> value given varies.  Rereading NDP seems to give a valid value.
->>> I am not really clear why we don't simply read the value twice
->>> whenever the host-controller is detected to be an AMD-756.
->> 
->> because we dont know the full scope of the problem yet.
+>   - best supported and most reliable multi-channel IDE controller;
+
+See http://www.linux-ide.org/chipsets.html . (3Ware controllers are the
+only supported IDE RAID controller)
+
+>   - best supported and most reliable NFS implementation;
 > 
-> 
-> Exactly how many bug reports has this caused?
-> What kind of problems?
-> 
-> I know I had trouble onece, but it was a CONFIG problem
-> with the 2.4.2ac series and the extra DEBUG options.
+>   - any other random advise about things to do or not do in setting up
+>     this type of system.
 
-I think probably everyone who has an AMD-756 has reported
-this error.  At least, I've not seen any messages from
-people saying, "I have an AMD-756 and have never seen this
-error."  Most of the time, when the error occurs, it seems
-pretty benign.  That is, I haven't noticed it crashing USB
-device connections, causing data corruption or OOPSen.
-Some folks _have_ reported OOPSen, though, that seemed to
-be triggered by the erratum #4 hardware bug.  I think I
-may have had one of these a long time ago.
+Don't use an NFS exported reiserfs filesystem. (see this mailing list
+archive).
 
-I believe David has found that there definitely are code
-paths where this hardware bug can cause failures of various
-sorts and that's why the AMD-756 has been blacklisted.
-I don't believe these failure code paths have anything to
-do with specific debugging configurations.
 
-David/Alan, please correct me if I've got this all wrong.
+Erik
 
-Thanks,
-	Miles
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

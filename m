@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264293AbUDNQyu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 12:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbUDNQyu
+	id S264283AbUDNQux (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 12:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbUDNQux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 12:54:50 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:49055 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264293AbUDNQxV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 12:53:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Mingming Cao <cmm@us.ibm.com>
-Subject: Re: [PATCH 0/4] ext3 block reservation patch set
-Date: Wed, 14 Apr 2004 09:42:29 -0700
-User-Agent: KMail/1.4.1
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-References: <200403190846.56955.pbadari@us.ibm.com> <1081903949.3548.6837.camel@localhost.localdomain> <20040413194734.3a08c80f.akpm@osdl.org>
-In-Reply-To: <20040413194734.3a08c80f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404140942.29648.pbadari@us.ibm.com>
+	Wed, 14 Apr 2004 12:50:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49038 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264283AbUDNQtg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 12:49:36 -0400
+Date: Wed, 14 Apr 2004 09:49:32 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mq_open() and close_on_exec?
+Message-ID: <20040414094932.Q21045@build.pdx.osdl.net>
+References: <20040413174005.Q22989@build.pdx.osdl.net> <407CC26D.6070307@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <407CC26D.6070307@colorfullife.com>; from manfred@colorfullife.com on Wed, Apr 14, 2004 at 06:47:41AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 April 2004 07:47 pm, Andrew Morton wrote:
+* Manfred Spraul (manfred@colorfullife.com) wrote:
+> Chris Wright wrote:
+> >SUSv3 doesn't seem to specify one way or the other.  I don't have the
+> >POSIX specs, and the old docs I have suggest that mq_open() creates an
+> >object which is to be closed upon exec.  Anyone have a clue if this is
+> >actually required?  Patch below sets this as default (if indeed it's
+> >valid/required).
+> >
+> Did you test what other unices do? I think the patch is correct - at 
+> least solaris implements message queues in user space, and then an exec 
+> should close everything.
 
-> - You're performing ext3_discard_reservation() in ext3_release_file().
->   Note that the file may still have pending allocations at this stage: say,
->   open a file, map it MAP_SHARED, dirty some pages which lie over file
->   holes then close the file again.
->
->   Later, the VM will come along and write those dirty pages into the
->   file, at which point allocations need to be performed.  But we have no
->   reservation data and, later, we may have no inode->write_state at all.
->
->   What will happen?
+No, I haven't.  Looks like I missed the SUSv3 specification that indeed
+requires closing on exec.  So, I believe the patch is needed.
 
-Block allocations happen after ext3_release_file()  ? In that case,
-we would have dropped all our reservations at the time of last file close.
-But if allocations happen later, the current code will start new reservation
-window and start allocations from there.
-
-> - Have you tested and profiled this with a huge number of open files?  At
->   what stage do we get into search complexity problems?
-
-Come to think of it, the current code has pretty bad search algorithm. We need
-to fix that. We hold the spinlock for entire search, thats why our CPU 
-utilization is pretty high.
-
-Thanks,
-Badari
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

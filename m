@@ -1,157 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVATVYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbVATVZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVATVYt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 16:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVATVYt
+	id S261993AbVATVZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 16:25:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVATVZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 16:24:49 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:15550 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261968AbVATVYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 16:24:42 -0500
-Message-ID: <41F021AA.6050806@comcast.net>
-Date: Thu, 20 Jan 2005 16:24:58 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org> <1105635662.6031.35.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org> <41E6BE6B.6050400@comcast.net> <20050119103020.GA4417@elte.hu> <41EE96E7.3000004@comcast.net> <20050119174709.GA19520@elte.hu> <41EEA86D.7020108@comcast.net> <20050120104451.GE12665@elte.hu> <41EFF581.6050108@comcast.net> <20050120192258.GA8683@infradead.org>
-In-Reply-To: <20050120192258.GA8683@infradead.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Jan 2005 16:25:29 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:5133 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261993AbVATVZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 16:25:18 -0500
+Date: Thu, 20 Jan 2005 16:23:46 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, tv@lio96.de, herbert@gondor.apana.org.au,
+       jgarzik@pobox.com, marcelo.tosatti@cyclades.com
+Subject: [patch 2.4.29] i810_audio: offset LVI from CIV to avoid stalled start
+Message-ID: <20050120212346.GD7687@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, tv@lio96.de,
+	herbert@gondor.apana.org.au, jgarzik@pobox.com,
+	marcelo.tosatti@cyclades.com
+References: <20050120202258.GA7687@tuxdriver.com> <20050120210739.GC7687@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050120210739.GC7687@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Offset LVI past CIV when starting DAC/ADC in order to prevent
+stalled start.
 
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Acked-by: Thomas Voegtle <tv@lio96.de>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+(Use this one...it doesn't depend on a non-existent patch...)
 
+This fixes a "no sound" problem with Wolfenstein Enemy Territory and
+(apparently) other games using the Quake3 engine.  It probably affects
+some other OSS applications as well.
 
-Christoph Hellwig wrote:
-> On Thu, Jan 20, 2005 at 01:16:33PM -0500, John Richard Moser wrote:
-> 
->>Granted, you're somewhat more diverse than I pointed out; but I don't
->>keep up on what you're doing.  The point was more that you're not a
->>major security figure and/or haven't donated your life to security and
->>forsaken all lovers before it like Joshua Brindle or Brad Spengler or
->>whoever the anonymous guy who developes PaX is.  I guess less focus on
->>the developer and more focus on the development.
-> 
-> 
-> But Ingo is someone who
-> 
->  - is a known allround kernel hacker
->  - has a trackrecord of getting things done that actually get used
->  - lowlevel CPU knowledge
->  - is able to comunicate with other developers very well
->  - is able to make good tradeoffs
->  - has taste
-> 
-> most of that can't be said for your personal heroes
-> 
+This recreates some code that had been removed from the i810_audio
+driver around 5/2004.
 
-That's all good, but I notice being exceedingly competant in the needs
-of a proper secured environment is lacking in your list.  Is he
-exceedingly knowledgible about security?  Who is he working with who
-will fill in his gaps in understanding if not?
+ drivers/sound/i810_audio.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
 
-The PaX developer may not be well known, or have anything in the kernel,
-but I've talked to the guy.  He has CPU manuals for practically
-everything, and *gasp* he READS them!  He maintains PaX himself, and it
-works well on my AMD64; he has the manual, but not the CPU.
-
-The trade-off of SEGMEXEC is 50% of VM space and 0.7% CPU.  The
-trade-off of PAGEEXEC (on x86; a real NX bit is used on other CPUs) is
-identical to Exec Shield's until that method fails, then it falls back
-to a potentially very painful CPU trade-off that's necessary to continue
-to offer a supported NX bit.
-
-Explain "Taste."
-
-> 
->>*shrug*  The kernel's basic initialization code is in assembly.  On 40
->>different platforms.  That's pretty complex in terms of kernel code,
->>which is 99.998% C.
-> 
-> 
-> No, the kernel initialization is not complex at all.  complexity != code size
-> 
-
-I was more pointing out that it was assembler code.  Clean and simple as
-it may be, you come back in 10 years and try to maintain it.
-
-> 
->>Which brings us to a point on (1) and (2).  You and others continue to
->>pretend that SEGMEXEC is the only NX emulation in PaX.  I should remind
->>you (again) that PAGEEXEC uses the same method that Exec Shield uses
->>since I believe kernel 2.6.6.  In the cases where this method fails, it
->>falls back to kernel-assisted MMU walking, which can produce potentially
->>high overhead.
-> 
-> 
-> You stated that a few time.  Now let's welcome you to reality:
-> 
->  - Linus doesn't want to make the tradeoffs for segment based NX-bit
->    emulation in mainline at all
-
-It's an option, set in menuconfig.  It's not a forced trade-off, so
-integrating it (btw I wasn't and am not currently arguing to get PaX
-integrated) wouldn't really force a trade-off on the user.
-
-Back to the above, this argument doesn't cover page-based NX-bit emulation.
-
->  - Ingo and his collegues at Red Hat want to have it, but they don't
->    want to break application nor introduce the addition complexity
->    of the PaX code.
-> 
-
-Nor guarantee that the NX emulation is actually durable.
-
-> Is is that hard to understand?
-> 
-> 
-
-What's hard to understand is the constant banter about SEGMEXEC when
-there's a second mode AND when it's completely optional.  Are you trying
-to make it sound like you're pretending that PaX isn't innovative and
-that the trade-offs are obscene and infeasible in an every-day
-environment?  Why is PAGEEXEC ignored in every argument, and SEGMEXEC
-focused on, when one or both can be disabled so that the VM split goes away?
-
-Could it be that you can't argue against PAGEEXEC because it uses the
-exact same method that Exec Shield uses, and falls back to a heavier one
-when that fails; yet you argue that Exec Shield shouldn't fail except in
-extremely rare cases, so you can't hold the possibly heavy-overhead case
-in PAGEEXEC to question without invalidating your own arguments?
-
-What's wrong with PAGEEXEC?  Why focus on SEGMEXEC?
-
-The only thing I ever complain about concerning Exec Shield's principle
-implementation is that it can fail in certain conditions.  the
-deployment side (PT_GNU_STACK and automated marking) I don't even know
-why I touched on; perhaps I should try to separate ES from RedHat's
-overall smoke-and-mirrors approach to security, since ES at least
-supplies a partially functional and reciprocating NX-ASLR proteciton.
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB8CGphDd4aOud5P8RAlq/AJ40TYCxoUMi2PsWvZz/BqHsugEnuQCeL5iC
-y2Ot5pTwi+1dbPKN+6WYU4k=
-=Weu3
------END PGP SIGNATURE-----
+--- i810_audio-2.4/drivers/sound/i810_audio.c.orig	2005-01-20 14:41:43.914734688 -0500
++++ i810_audio-2.4/drivers/sound/i810_audio.c	2005-01-20 16:20:07.360411333 -0500
+@@ -1062,10 +1062,20 @@
+ 	if (count < fragsize)
+ 		return;
+ 
++	/* if we are currently stopped, then our CIV is actually set to our
++	 * *last* sg segment and we are ready to wrap to the next.  However,
++	 * if we set our LVI to the last sg segment, then it won't wrap to
++	 * the next sg segment, it won't even get a start.  So, instead, when
++	 * we are stopped, we increment the CIV value to the next sg segment
++	 * to be played so that when we call start, things will operate
++	 * properly
++	 */
+ 	if (!dmabuf->enable && dmabuf->ready) {
+ 		if (!(dmabuf->trigger & trigger))
+ 			return;
+ 
++		CIV_TO_LVI(port, 1);
++
+ 		start(state);
+ 		while (!(inb(port + OFF_CR) & ((1<<4) | (1<<2))))
+ 			;
+-- 
+John W. Linville
+linville@tuxdriver.com

@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263871AbTJ1Hxy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 02:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263872AbTJ1Hxy
+	id S263870AbTJ1HwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 02:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTJ1HwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 02:53:54 -0500
-Received: from LION-S12.SEAS.UPENN.EDU ([158.130.12.194]:26831 "EHLO
-	lion.seas.upenn.edu") by vger.kernel.org with ESMTP id S263871AbTJ1Hxx
+	Tue, 28 Oct 2003 02:52:12 -0500
+Received: from auth22.inet.co.th ([203.150.14.104]:31251 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S263870AbTJ1HwL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 02:53:53 -0500
-Date: Tue, 28 Oct 2003 02:53:51 -0500
-From: Peng Li <lipeng@acm.org>
-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org
-Subject: Re: 512MB/1GB RAM & Wireless Card
-Message-ID: <20031028075351.GA21962@seas.upenn.edu>
-References: <20031028064554.GA20596@seas.upenn.edu> <20031028072645.GB5795@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Oct 2003 02:52:11 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: Nick Piggin <piggin@cyberone.com.au>,
+       Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
+Date: Tue, 28 Oct 2003 15:48:14 +0800
+User-Agent: KMail/1.5.2
+Cc: cliff white <cliffw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200310261201.14719.mhf@linuxmail.org> <1067311879.1512.7.camel@laptop-linux> <3F9DE858.7020109@cyberone.com.au>
+In-Reply-To: <3F9DE858.7020109@cyberone.com.au>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031028072645.GB5795@triplehelix.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200310281548.14510.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I have CONFIG_ISA=y.  I put my kernel config at
-
-http://www.seas.upenn.edu/~lipeng/x31info/config.txt
-
-The only thing I noticed is that in the dmesg, there is a error
-message:
-
-   PCI: Cannot allocate resource region 0 of device 0000:02:00.0
-
-But this message is still there when I unplugged the RAM and the card
-is working fine.  
-
-For the kernel, what is the difference between these two situations?
-
-*   1GB RAM, boot with mem=512M
-* 512MB RAM, normal boot 
-
-It is not likely to be a hardware issue, since the card works fine with
-1GB of memory in Windows XP.
-
-
-On Mon, Oct 27, 2003 at 11:26:45PM -0800, Joshua Kwan wrote:
+On Tuesday 28 October 2003 11:54, Nick Piggin wrote:
 > 
-> Always the same first question: was CONFIG_ISA enabled in your .config?
-> It's what I needed to do to get my Orinoco to work under Linux.
+> Nigel Cunningham wrote:
 > 
-> Interesting that it worked when you unplugged the RAM, but I don't see
-> an immediate correlation.
+> >As you rightly guessed, I was forgetting there are now 1000 jiffies per
+> >second.
+> >
+> >With your patch applied, I can achieve something close to 2.4
+> >performance, but only if I set the limit on the number of pages to
+> >submit at one time quite high. If I set it to 3000, I can get 20107 4K
+> >pages written in 5267 jiffies (14MB/s) and can read them back at resume
+> >time (so cache is not a factor) in 4620 jiffies (16MB/s). In 2.4, I
+> >normally set the limit on async commits to 100, and achieve the same
+> >performance. 100 here makes it very jerky and much slower.
+> >
+> >Could there be some timeout value on BIOs that I might be able to
+> >tweak/disable during suspend?
+> >
 > 
-> -- 
-> Joshua Kwan
+> Try setting /sys/block/xxx/queue/iosched/antic_expire to 0 on your
+> device under IO and see how it goes. That shouldn't be causing the
+> problem though, especially as you are mostly writing I think?
+> 
+> Otherwise might possibly be the queue plugging stuff, or maybe a
+> regression in the disk driver.
+> 
 
+Haven't done much of 2.6 swsusp testing due to the little diversion
+with the scheduler, however I did notice one of those dreaded DMA 
+timeouts with the SIS chipset again.
+
+
+
+Regards
+Michael
 

@@ -1,104 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbUBXWyX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbUBXWyX
+	id S262519AbUBXWyo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:54:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbUBXWyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:54:23 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:25995 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262514AbUBXWyT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:54:19 -0500
-Message-ID: <403BD60E.2060501@matchmail.com>
-Date: Tue, 24 Feb 2004 14:54:06 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grigor Gatchev <grigor@zadnik.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A Layered Kernel: Proposal
-References: <Pine.LNX.4.44.0402242147460.11666-100000@lugburz.zadnik.org>
-In-Reply-To: <Pine.LNX.4.44.0402242147460.11666-100000@lugburz.zadnik.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 17:54:44 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:25489 "EHLO
+	quickman.certainkey.com") by vger.kernel.org with ESMTP
+	id S262519AbUBXWyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 17:54:39 -0500
+Date: Tue, 24 Feb 2004 17:44:51 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: James Morris <jmorris@redhat.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+Message-ID: <20040224224451.GB32286@certainkey.com>
+References: <20040224202223.GA31232@certainkey.com> <Xine.LNX.4.44.0402241713220.26251-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0402241713220.26251-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grigor Gatchev wrote:
-> Advantages
+On Tue, Feb 24, 2004 at 05:17:12PM -0500, James Morris wrote:
+> On Tue, 24 Feb 2004, Jean-Luc Cooke wrote:
 > 
-> Improved source: A well defined inter-layer interface separates logically
-> the kernel source into more easily manageable parts. It makes the testing
-> easier. A simple and logical lower layer interface makes learning the
-> base and writing the code easier; a simple and logical upper layer
-> interface enforces and helps clarity in design and implementation. This
-> may attract more developers, ease the work of the current ones, and
-> increase the kernel quality while decreasing the writing efforts. The
-> earlier this happens, the better for us all.
+> > The two patches are:
+> >  - http://jlcooke.ca/lkml/ctr_and_omac.patch
+> >    (added ctr to cipher.c and omac.c)
+> >    Using the init/update/final interface.
+> >  - http://jlcooke.ca/lkml/ctr_and_omac2.patch
+> >    (added ctr to cipher.c and integrated OMAC into all
+> >    existing modes of operation. If cipher_tfm.cit_omac!=NULL, OMAC is stored
+> >    into cipher_tfm.cit_omac)
 > 
+> Looks good so far, although the duplicated scatterwalk code needs to be 
+> put into a separate file (e.g. scatterwalk.c).
 
-There is already a lot of layering in the kernel.  It seems to be doing 
-what you propose to some extent.
+OK.  So which patch do you want?  :)  The omac.c with scatterwalk, or the
+cipher.c with omac performed in-place when needed?
 
-> Anti-malware protection: Sources of potentially dangerous content can be
-> filtered between the kernel layers by hooked or compiled-in modules. As
-> with most other advantages, this is achievable in a non-layered kernel
-> too, but is more natural in a layered one. Also, propagation of malware
-> between layers is mode difficult.
+> > ps. Will crypto_cipher_encrypt/crypto_cipher_decrypt *always* be called in
+> > onesies?  I need to perform come final() code on the OMAC before it's
+> > ready to pass test vectors - how do I know when we're done?
 > 
-> Security: A layer, eg. Personality, if properly written, is eventually a
-> sandbox. Most exploits that would otherwise allow a user to gain
-> superuser access, will give them control over only this layer, not over
-> the entire machine. More layers will have to be broken.
-> 
-> Sandboxing: A layer interface emulator of a lower, eg. Resources layer
-> can pass a configurable "virtual machine" to an upper, eg. Personality
-> layer. You may run a user or software inside it, passing them any
-> resources, real or emulated, or any part of your resources. All
-> advantages of a sandbox apply.
+> I don't understand what you mean here.
 
-Not true.  What you are asking for is userspace protection to kernel 
-modules.  You won't get that unless you use a micro-kernel approach, or 
-run different parts of the kernel on different (to be i386 arch 
-specific) ring in the processor.  Once you get there, you have to deal 
-with the various processor errata since not many OSes use rings besides 
-0 and 3 (maybe ring 1?).
+finish_omac() needs to be called once all data is processed.  How do I know
+for sure the caller is done with this cipher context instance?
 
-> User nesting: The traditional Unix user management model has two levels:
-> superuser (root) and subusers (ordinary users). Subusers cannot create
-> and administrate their subusers, install system-level resources, etc.
-> Running, however, a subuser in their own virtual machine and Personality
-> layer as its root, will allow tree-like management of users and resources
-> usage/access. (Imagine a much enhanced chroot.)
-> 
+For example:
+  loop {
+    /* get more data into sgin */
+    crypto_cipher_encrypt(tfm, sgout, sgin, len);
+    /* send our data out of sgout */
+  }
+  /* get the 128bit OMAC and send it since we're done with all our encryption */
 
-That is differing security models, and it's being worked on with (I 
-forget the term) the security module framework.
+And decryption:
+  loop {
+    /* get more data into sgin */
+    crypto_cipher_decrypt(tfm, sgout, sgin, len);
+    /* send our data out of sgout */
+  }
+  /* get the 128bit OMAC and compare it with transmitted OMAC since we're done
+     with all our decryption */
 
-> Platforming: It is much easier to write only a Personality layer than an
-> entire kernel, esp. if you have a layer interface open standard as a
-> base. Respectively, it's easier to write only a Resources layer, adding a
-> new hardware to the "Supported by Linux" list. This will help increasing
-> supported both hardware and platforms. Also, thus you may run any
-> platform on any hardware, or many platforms concurrently on the same
-> hardware.
-> 
+There is no explicit/implicit "crypto_cipher_encrypt_final()" to inform the
+API to finalise the OMAC.
 
-There is arch specific, and generic setions of the kernel source tree 
-already.  How do you want to improve upon that?
+> Thanks for all this work!
 
-> Heterogeneous distributed resources usage: Under this security model,
-> networks of possibly different hardware may share and redistribute
-> resources, giving to the users resource pools. Pools may be dynamical,
-> thus redistributing the resources flexibly. This mechanism is potentially
-> very powerful, and is inherently consistent with the open source spirit
-> of cooperativity and freedom.
+Gladly.  Makes the beer at the pub go down with less guilt when I can say my
+name has appear in one more kernel source file.  :)
 
-Single system image clusters are hard enough where each node is the same 
-  arch, and very hard, or almost impossible when dealing with mixed 
-processor arch or 32/64 bit processors.
+JLC
 
-See OpenSSI and OpenMosix.
-
-Mike
+-- 
+http://www.certainkey.com
+Suite 4560 CTTC
+1125 Colonel By Dr.
+Ottawa ON, K1S 5B6

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278396AbRKAI3H>; Thu, 1 Nov 2001 03:29:07 -0500
+	id <S278566AbRKAIi7>; Thu, 1 Nov 2001 03:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278424AbRKAI25>; Thu, 1 Nov 2001 03:28:57 -0500
-Received: from adiemus.org ([129.210.16.110]:47801 "EHLO adiemus.org")
-	by vger.kernel.org with ESMTP id <S278396AbRKAI2u>;
-	Thu, 1 Nov 2001 03:28:50 -0500
-Date: Thu, 1 Nov 2001 00:28:57 -0800 (PST)
-From: Chris Tracy <ctracy@adiemus.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Missing symbols with CONFIG_HIGHMEM
-Message-ID: <Pine.LNX.4.30.0111010024030.10052-100000@adiemus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278574AbRKAIit>; Thu, 1 Nov 2001 03:38:49 -0500
+Received: from pc1-camb5-0-cust171.cam.cable.ntl.com ([62.253.134.171]:36529
+	"EHLO fenrus.demon.nl") by vger.kernel.org with ESMTP
+	id <S278566AbRKAIi2>; Thu, 1 Nov 2001 03:38:28 -0500
+From: arjan@fenrus.demon.nl
+To: linux@mswinxp.net (Lee Packham)
+Subject: Re: kbuild 2.5 preventing mixture of compilers
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2644.192.168.2.1.1004602385.squirrel@mail.mswinxp.net>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E15zDLz-0008Tf-00@fenrus.demon.nl>
+Date: Thu, 01 Nov 2001 08:37:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just upgraded my system to 1GB of RAM and in doing so, compiled my
-kernel with CONFIG_HIGHMEM and CONFIG_HIGHMEM4G.  However, the following
-modules now all report the same unresolved symbols:
+In article <2644.192.168.2.1.1004602385.squirrel@mail.mswinxp.net> you wrote:
+> IMHO, that is a good idea... almost.
 
-loop.o
-minix.o
-smbfs.o
-umsdos.o
+> What about companies that maintain closed source driver modules for their 
+> hardware?
 
-	The missing symbols are:
+> I know a lot of people here will say, 'well they should open source them 
+> then'. However, some companies don't want to for their own reasons and 
+> this 'could' blow them out the water a bit and affect end users.
 
-kunmap_high
-highmem_start_page
-kmap_high
-
-	I'm using linux-2.4.13-ac5.
-
-	Let me know if you need more info.  Please CC me as I'm not on the
-list.
-
-	Thanks,
-
-	Chris
-
----------------------------------
-Chris Tracy
-System/Network Administrator
-Engineering Design Center
-Santa Clara University
-"Wherever you go, there you are."
-
-
+If a different compiler version is known to break (and Keith says he has
+seen that in practice, and I can see it happen as well given that a few
+kernel headers depend on compiler version), the vendor in question is better
+off being informed about the incompatibility. He _already_ has to have an
+exact match on the kernel version and the other symbols, so adding the
+compiler to that is not an extra burden, just a "oh we goofed" prevention..

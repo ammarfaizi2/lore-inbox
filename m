@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287189AbRL2NdQ>; Sat, 29 Dec 2001 08:33:16 -0500
+	id <S281691AbRL2Nzr>; Sat, 29 Dec 2001 08:55:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287200AbRL2NdH>; Sat, 29 Dec 2001 08:33:07 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:53512 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287191AbRL2Nct>;
-	Sat, 29 Dec 2001 08:32:49 -0500
-Date: Sat, 29 Dec 2001 11:32:32 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Legacy Fishtank <garzik@havoc.gtf.org>, <linux-kernel@vger.kernel.org>,
-        Larry McVoy <lm@bitmover.com>, "Eric S. Raymond" <esr@thyrsus.com>,
-        Dave Jones <davej@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <kbuild-devel@lists.sourceforge.net>
-Subject: Re: State of the new config & build system 
-In-Reply-To: <7861.1009589244@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.33L.0112291132070.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S282670AbRL2Nzi>; Sat, 29 Dec 2001 08:55:38 -0500
+Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:15109 "EHLO
+	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S281691AbRL2Nz0>; Sat, 29 Dec 2001 08:55:26 -0500
+Message-ID: <3C2DCB40.1030506@humboldt.co.uk>
+Date: Sat, 29 Dec 2001 13:55:12 +0000
+From: Adrian Cox <adrian@humboldt.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011126
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff <piercejhsd009@earthlink.net>
+CC: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Does the F--king via 82c686b record at all!!!!!!!!
+In-Reply-To: <3C2D317C.ED2A91A6@earthlink.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Keith Owens wrote:
+Jeff wrote:
 
-> ps. I don't want mail discussing individual bug fixes to mkdep.  Code
->     that does not fix _all_ 9 bugs listed in makefile-2.5_make_dep.html
->     is pointless.
 
-I guess you presented a good point to not ignore bug number
-10 (the speed one) either. ;)
+> So, DOES ANYBODY HAVE RECORD CAPABILITIES USING THE VIA 82C686B
+> CHIP????????
+> And if so could you contact me so I might be able to find out the
+> problem I have here.
 
-Rik
+I have successfully recorded using the 686B chip, in a PowerPC embedded 
+system. I don't have any PC hardware using the chip to compare this 
+with. I recall that a great deal of trial and error was required to work 
+out which mixer input corresponded to which socket on the board. This 
+was using the kernel driver; I've not attempted ALSA.
+
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Adrian Cox   http://www.humboldt.co.uk/
 

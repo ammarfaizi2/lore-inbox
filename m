@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbSLSWIK>; Thu, 19 Dec 2002 17:08:10 -0500
+	id <S267452AbSLSWJ0>; Thu, 19 Dec 2002 17:09:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267173AbSLSWHS>; Thu, 19 Dec 2002 17:07:18 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:6148 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266537AbSLSWGc>;
-	Thu, 19 Dec 2002 17:06:32 -0500
-Date: Thu, 19 Dec 2002 00:45:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, Ulrich Drepper <drepper@redhat.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+	id <S267218AbSLSWIO>; Thu, 19 Dec 2002 17:08:14 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26888 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267452AbSLSWIB>; Thu, 19 Dec 2002 17:08:01 -0500
+Message-ID: <3E024522.6000805@transmeta.com>
+Date: Thu, 19 Dec 2002 14:16:02 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, bart@etpmod.phys.tue.nl,
+       davej@codemonkey.org.uk, terje.eggestad@scali.com, drepper@redhat.com,
+       matti.aarnio@zmailer.org, hugh@veritas.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
 Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021218234512.GA705@elf.ucw.cz>
-References: <3DFFED33.2020201@transmeta.com> <Pine.LNX.4.44.0212172005500.1230-100000@home.transmeta.com>
-Mime-Version: 1.0
+References: <20021219135517.7E78051FB6@gum12.etpnet.phys.tue.nl> <Pine.LNX.4.44.0212191134180.2731-100000@penguin.transmeta.com> <20021219221043.GA18562@bjl1.asuk.net>
+In-Reply-To: <20021219221043.GA18562@bjl1.asuk.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212172005500.1230-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Btw, on another tangent - Andrew Morton reports that APM is unhappy about
-> the fact that the fast system call stuff required us to move the segments
-> around a bit. That's probably because the APM code has the old APM segment
-> numbers hardcoded somewhere, but I don't see where (I certainly knew about
-> the segment number issue, and tried to update the cases I saw).
+Jamie Lokier wrote:
 > 
-> Debugging help would be appreciated, especially from somebody who knows
-> the APM code.
+> Dynamic binaries or libraries can use the indirect call or relocate
+> the calls at load time, or if they _really_ want a magic page at a
+> position relative to the library, they can just _copy_ the magic page
+> from 0xfffe0000.  It is not all that magic.
+> 
 
-IIRC, segment 0x40 was special in BIOS days, and some APM bioses
-blindly access 0x40 even from protected mode (windows have segment
-0x40 with base 0x400....) Is that issue you are hitting?
-								Pavel
+That would make it impossible for the kernel to have kernel-controlled
+data on that page|other page though...
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+I personally would like to see some better interface than mmap()
+/proc/self/mem in order to alias pages, anyway.  We could use a
+MAP_ALIAS flag in mmap() for this (where the fd would be ignored, but
+the offset would matter.)
+
+	-hpa
+
+

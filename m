@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268700AbUJKFsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUJKGkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268700AbUJKFsT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 01:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUJKFsT
+	id S268702AbUJKGkX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 02:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268703AbUJKGkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 01:48:19 -0400
-Received: from cathy.bmts.com ([216.183.128.202]:53176 "EHLO cathy.bmts.com")
-	by vger.kernel.org with ESMTP id S268700AbUJKFsR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 01:48:17 -0400
-Date: Mon, 11 Oct 2004 01:47:47 -0400
-From: Mike Houston <mikeserv@bmts.com>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm3 woes
-Message-Id: <20041011014747.128d92c5.mikeserv@bmts.com>
-In-Reply-To: <4169FCB5.8050808@tequila.co.jp>
-References: <4169FCB5.8050808@tequila.co.jp>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-bmts-MailScanner: Found to be clean
-X-bmts-MailScanner-SpamCheck: 
-X-MailScanner-From: mikeserv@bmts.com
+	Mon, 11 Oct 2004 02:40:23 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:8345 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S268702AbUJKGkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 02:40:19 -0400
+Date: Mon, 11 Oct 2004 00:39:55 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH] find_isa_irq_pin can't be __init
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <000a01c4af5d$1ee3c740$6601a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <fa.fq3ot7q.1fgua9u@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Oct 2004 12:23:33 +0900
-Clemens Schwaighofer <cs@tequila.co.jp> wrote:
+Confirmed, taking the __init off find_isa_irq_pin prevents the oops on 
+reboot for me.
 
-> 
-> Hi,
-> 
-> System: debian/unstable
-> 
-> I just tried 2.6.9-rc3-mm3 and I have two problems:
-> 
-> - - he calls himself 2.6.9-rc-mm31, yeah 31. I don't know where this
-> comes from, because in the Makefile itself it is mm3. Whatever makes
-> him do that, I don't know, but he install himselfs like this,
-> perhaps the problems come from that
 
-Hello, I had something like that happen the other day because without
-paying attention,  I said 'n' to the question of "Local version -
-append to kernel release" during oldconfig instead of leaving it
-blank. It was 2.6.9-rc3n
+----- Original Message ----- 
+From: "Dave Jones" <davej@redhat.com>
+Newsgroups: fa.linux.kernel
+To: <torvalds@osdl.org>; <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, October 10, 2004 4:58 PM
+Subject: [PATCH] find_isa_irq_pin can't be __init
 
-Check to make sure you haven't done something similar (it's under
-General Setup).
 
--- 
+> As spotted by one of our Fedora users, we sometimes
+> oops during shutdown (http://www.roberthancock.com/kerneloops.png)
+> because disable_IO_APIC() wants to call find_isa_irq_pin(),
+> which we threw away during init.
+>
+> Signed-off-by: Dave Jones <davej@redhat.com>
+>
+> --- linux-2.6.8/arch/i386/kernel/io_apic.c~ 2004-10-10 
+> 18:54:27.490567168 -0400
+> +++ linux-2.6.8/arch/i386/kernel/io_apic.c 2004-10-10 
+> 18:54:44.660956872 -0400
+> @@ -745,7 +745,7 @@ static int __init find_irq_entry(int api
+> /*
+>  * Find the pin to which IRQ[irq] (ISA) is connected
+>  */
+> -static int __init find_isa_irq_pin(int irq, int type)
+> +static int find_isa_irq_pin(int irq, int type)
+> {
+>  int i;
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/ 
+

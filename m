@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264410AbUBNABn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 19:01:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267192AbUBNABn
+	id S267204AbUBNAJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 19:09:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267233AbUBNAJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 19:01:43 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:18386 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264410AbUBNABm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 19:01:42 -0500
-Message-ID: <402D6544.2080300@cyberone.com.au>
-Date: Sat, 14 Feb 2004 11:01:08 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 13 Feb 2004 19:09:16 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:54030 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S267204AbUBNAJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 19:09:14 -0500
+Message-ID: <402D68CB.2030803@techsource.com>
+Date: Fri, 13 Feb 2004 19:16:11 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-To: Martin Hicks <mort@wildopensource.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __alloc_pages - NUMA and lower zone protection
-References: <20040213183243.GH12142@localhost>
-In-Reply-To: <20040213183243.GH12142@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Timothy Miller <miller@techsource.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Balaji Calidas <balaji@techsource.com>
+Subject: IDE DMA problem  [WAS: Re: Getting lousy NFS + tar-pipe throughput
+ on 2.4.20]
+References: <402D6262.90301@techsource.com>
+In-Reply-To: <402D6262.90301@techsource.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I have discovered one major problem that I didn't think to check 
+before.  I have never before had trouble using DMA with WD drives, VIA 
+chipsets, or RH9, so I didn't think to check before, but hdparm reports 
+that DMA is disabled for the disk on the workstation I mentioned in my 
+earlier post.
 
-Martin Hicks wrote:
+So, I tried this:
+    hdparm -d1 /dev/hda
 
->Hi,
->
->There is a problem with the current __alloc pages on a machine with many
->nodes.  As we go down the zones[] list, we may move onto other nodes.
->Each time we go to the next zone we protect these zones by doing
->"min += local_low".
->
->This is quite appropriate on a machine with one node, but wrong on
->machines with other nodes.  To illustrate, here is an example.  On a
->256 node Altix machine, a request on node 0 for 2MB requires just over
->600MB of free memory on the 256th node in order to fullfil the "min"
->requirements if all other nodes are low on memory.  This could leave
->73GB of memory unallocated across all nodes.
->
->This patch keeps the same semantics for lower_zone_protection, but only
->provides protection for higher priority zones in the same node.
->
->The patch seems to do the right thing on my non-NUMA zx1 ia64 machine
->(which has ZONE_DMA and ZONE_NORMAL) as well as the multi-node Altix.
->
->
+And I got this result:
+/dev/hda:
+ Setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma = 0 (off)
 
-Could you add a comment or two, please?
+How do I fix this?  Do I have to unmount the filesystem before I can 
+change the dma setting?  Why would it be off to begin with?  I know that 
+the BIOS is set up right.  Does 2.4.20 not work well with the KT600 chipset?
+
+Thanks.
+
+
+Timothy Miller wrote:
+ > [snip everything about slow NFS performance]
+
+
 

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130115AbRCBADx>; Thu, 1 Mar 2001 19:03:53 -0500
+	id <S130166AbRCBAFx>; Thu, 1 Mar 2001 19:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130124AbRCBADd>; Thu, 1 Mar 2001 19:03:33 -0500
-Received: from idiom.com ([216.240.32.1]:60685 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S130119AbRCBADZ>;
-	Thu, 1 Mar 2001 19:03:25 -0500
-Message-ID: <3A9EDB8A.9999295E@namesys.com>
-Date: Fri, 02 Mar 2001 02:30:18 +0300
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
+	id <S130170AbRCBAFf>; Thu, 1 Mar 2001 19:05:35 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:10769
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130166AbRCBAF2>; Thu, 1 Mar 2001 19:05:28 -0500
+Date: Thu, 1 Mar 2001 16:04:54 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tim Walberg <tewalberg@mediaone.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: smartmedia adapter support??
+In-Reply-To: <20010301100041.A22824@mediaone.net>
+Message-ID: <Pine.LNX.4.10.10103011600490.10136-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-In-Reply-To: <Pine.LNX.4.21.0103011920470.993-100000@penguin.homenet>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
-> 
-> On Thu, 1 Mar 2001, Hans Reiser wrote:
-> >
-> > This is indeed what we should do if we get no answer from the list by someone
-> > who has already done such work.
-> >
-> 
-> Hans,
-> 
-> exactly what you want to measure? I have UP, 2way-SMP and 4way-SMP
-> machines all of which have at least Linux+FreeBSD installed. All my tests
-> so far (e.g. comparing NFS servers or filesystems etc) showed Linux (2.4)
-> to be a lot faster than FreeBSD in all areas. However, to get specific
-> answers you need to ask specific questions. Ask and you shall receive.
-> 
-> (things like SPEC SFS results I can't tell because it is illegal (without
-> going through proper steps of publishing them), I shouldn't even be saying
-> that they show Linux to be much faster :)
-> 
-> Regards,
-> Tigran
+On Thu, 1 Mar 2001, Tim Walberg wrote:
 
+> Just wondering whether anyone has successfully gotten
+> either a PCMCIA SmartMedia Adapter (specifically the
+> Viking Components one) or a FlashPath floppy SmartMedia
+> adapter working under 2.4.x. I've got both, and haven't
+> gotten either working under either 2.2.x or 2.4.x, but
+> I haven't had the time to work real hard at it either,
+> so I'm hoping someone can give me some pointers...
 
-Thanks Tigan, you helped me move the client past the Linux vs. BSD issue.
+That is going to be a SDA device and will have another form of content
+protection like CPRM and Linux will not support that superset of features
+at this time or in the future.  SMA's are on the hit list for music by the
+SDMI.  If you want to use it as as standard ATA device cool, but the
+0xD{0123} opt-codes are not public yet and fall under CFA.
 
-Hans
+Because it does not use a public spec and I can not release the private
+one.....well you get the point.
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
+

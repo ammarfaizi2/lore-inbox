@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267441AbTAGTOm>; Tue, 7 Jan 2003 14:14:42 -0500
+	id <S267611AbTAGTS6>; Tue, 7 Jan 2003 14:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267436AbTAGTOm>; Tue, 7 Jan 2003 14:14:42 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:59082 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S267434AbTAGTOl>;
-	Tue, 7 Jan 2003 14:14:41 -0500
-Date: Tue, 7 Jan 2003 12:02:59 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, mdharm-kernel@one-eyed-alien.net,
-       zwane@holomorphy.com
-Subject: Re: IDs
-Message-ID: <20030107120259.A16280@beaverton.ibm.com>
-References: <UTC200301071854.h07IsBH22403.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
+	id <S267612AbTAGTS6>; Tue, 7 Jan 2003 14:18:58 -0500
+Received: from egil.codesourcery.com ([66.92.14.122]:6026 "EHLO
+	egil.codesourcery.com") by vger.kernel.org with ESMTP
+	id <S267611AbTAGTS4>; Tue, 7 Jan 2003 14:18:56 -0500
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Set TIF_IRET in more places
+From: Zack Weinberg <zack@codesourcery.com>
+Date: Tue, 07 Jan 2003 11:27:32 -0800
+In-Reply-To: <20030107111905.GA949@bjl1.asuk.net> (Jamie Lokier's message of
+ "Tue, 7 Jan 2003 11:19:05 +0000")
+Message-ID: <87of6s3gm3.fsf@egil.codesourcery.com>
+User-Agent: Gnus/5.090011 (Oort Gnus v0.11) Emacs/21.2 (i386-pc-linux-gnu)
+References: <87isx2dktj.fsf@egil.codesourcery.com>
+	<20030107111905.GA949@bjl1.asuk.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200301071854.h07IsBH22403.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jan 07, 2003 at 07:54:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 07:54:11PM +0100, Andries.Brouwer@cwi.nl wrote:
+Jamie Lokier <lk@tantalophile.demon.co.uk> writes:
 
-> > If we had a complete white/black list of devices with/without a unique id,
-> > there would be no ambiguity.
-> 
-> You mean for the devices on the white list.
-> But most devices will not be on the white list.
+> Zack Weinberg wrote:
+>> Consider SA_RESTORER - there isn't a guarantee that user space will
+>> use the same code as the kernel's trampoline.  glibc happens to, but
+>> only because GDB has a hardwired idea of what a signal trampoline
+>> looks like.  Of course, you could simply document that sigreturn() is
+>> another of the system calls that must be made through int 0x80.
+>
+> Glibc must use the same code as the kernel's trampoline because of
+> MD_FALLBACK_FRAME_STATE_FOR() in GCC's exception handling...  (or
+> libgcc.so must change).
+>
+> It explicitly checks for the opcode sequences 0x58b877000000cd80 and
+> 0xb8ad000000cd80 in order to unwind exception frames around a
+> handled signal.  Ugly, isn't it?
 
-I mean if it is not on the white list, treat it as black listed or ask
-for user/admin input, so we safely handle the id.
+We're open to better ideas ...
 
-> Our perceptions differ, I think. My impression is that chaos
-> is the norm, and well-behaved devices are the exception.
+>> Tangentially, I've seen people claim that the trampoline ought to be
+>> able to avoid entering the kernel, although I'm not convinced (how
+>> does the signal mask get reset, otherwise?)
+>
+> Welcome to a wonderful if rather unsightly optimisation:
+[...]
 
-For usb storage, cd's, and cheap storage yes, chaos.
+I would want to be very sure that this was actually a performance win
+before implementing it, and since it requires data tables in user
+space I don't see how it could possibly be done in the vsyscall page.
 
-> As you say - we can make a best effort and get a string that
-> with some luck identifies the device uniquely. But no guarantees
-> given.
-
-Yep.
-
-> Maybe that again means that the S/Z distinction can be dropped.
-
-We still want to tell page 0x83 (starts with a number) from page 0x80
-(currently starts with S) from default values (currently starts with Z).
-Dropping the Z in favour of an empty string would be good.
-
--- Patrick Mansfield
+zw

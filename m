@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129608AbQKJQXU>; Fri, 10 Nov 2000 11:23:20 -0500
+	id <S129600AbQKJQZK>; Fri, 10 Nov 2000 11:25:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130615AbQKJQXK>; Fri, 10 Nov 2000 11:23:10 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:22900 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S129608AbQKJQXE>; Fri, 10 Nov 2000 11:23:04 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14860.8449.485106.841805@somanetworks.com>
-Date: Fri, 10 Nov 2000 11:23:29 -0500 (EST)
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: "Corisen" <csyap@starnet.gov.sg>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: compiling 2.4.0-test10 kernel
-In-Reply-To: <001101c04b0b$53cc5f40$050010ac@starnet.gov.sg>
-In-Reply-To: <20001110112146.12035.qmail@web1103.mail.yahoo.com>
-	<001101c04b0b$53cc5f40$050010ac@starnet.gov.sg>
-X-Mailer: VM 6.75 under 21.2  (beta35) "Nike" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
+	id <S130205AbQKJQZA>; Fri, 10 Nov 2000 11:25:00 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:41360 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S129600AbQKJQY5>;
+	Fri, 10 Nov 2000 11:24:57 -0500
+Date: Fri, 10 Nov 2000 11:24:28 -0500
+Message-Id: <200011101624.LAA22004@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: richardj_moore@uk.ibm.com
+CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>, Paul Jakma <paulj@itg.ie>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>,
+        Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org
+In-Reply-To: richardj_moore@uk.ibm.com's message of Fri, 10 Nov 2000 11:41:09
+	+0000, <80256993.0047077C.00@d06mta06.portsmouth.uk.ibm.com>
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "C" == Corisen  <csyap@starnet.gov.sg> writes:
+   From: richardj_moore@uk.ibm.com
+   Date: 	Fri, 10 Nov 2000 11:41:09 +0000
 
- C> hi, i'm currently running RH7, with 2.2.16-22 kernel, gcc 2.96 on
- C> a Sharp Actius 250 notebook.
+   It has the potential to to make patches easier to re-work for different
+   kernel versions, and to enable development maintence and fixing of the
+   patch to be done independently of a kernel build. And it also has the
+   potential of helping with co-existence. If for example the RAS community
+   could agree on a number of hooks (I'm thinking here of crash dump, trace,
+   dprobes and maybe KDB as well) then you'd probably find a good may on them
+   using then same hooks. The modifications to the kernel would be minimal and
+   the user would be left an easy means of installing a co-existing subset of
+   the offerings supported by hooks.
 
- C> i've manged to successfully compile 2.4.0-test10 kernel. however,
- C> upon startup there are some failed/error messages:
- C> 1. finding module dependencies: depmod *** Unresolved symbols in
- C> /lib/modules/2.4.0-test10/kernel/arch/i386/kernel/apm.o
+   An example: DProbes is down to three hooks - that's three lines of code in
+   the kernel + three lines in ksyms.c
 
-There are two things you can do about this:
+   Patching DProbes onto any custom kernel is a doddle.
 
- 1. Disable module versioning.
- 2. Copy the System.map file that's made during the kernel build to
-    /boot/System.map-2.4.0-test10.
+Right.  So what you're saying is that GKHI is adding complexity to the
+kernel to make it easier for peopel to put in non-standard patches which
+exposes non-standard interfaces which will lead to kernels not supported
+by the Linux Kernel Development Community.  Right?
 
-Personally, I do 2.  Though, now I'm attempting to get the maestro
-driver working again and this is getting in my way.  So my question to
-those that know more is what is the correct way to build a module such
-that it'll insmod in the face of module versioning.  Is this something
-for the FAQ?
+Alternatively, you can argue for specific hooks, and try to see if you
+can convince the Kernel Developers (and Linus Torvalds, in
+particular) that such hooks are good public interfaces, and that adding
+such interfaces are a Good Thing.  If such hooks are agreed to, then the
+GKHI might be a good wya of implementing these hooks.
 
- C> 2. Starting NFS lockd: lockdsvc: Invalid argument [FAILED]
+But if there are no standard hooks in the mainline kernel, it's going to
+be hard to pursuade people that adding the GKHI would be a good thing.
+So for the purposes of getting GKHI into the kernel, argueing for GKHI
+in the abstract is putting the card before the horse.  What I would
+recommend is showing how certain hooks are good things to have in the
+mainline kernel, and to try to pursuade people of that question first.
+Only then try to argue for GKHI.
 
-I've been ignoring this (I'm sure at my peril).
+						- Ted
 
- C> during shutdown, the following failed messages was noticed:
- C> 1. Turning off accounting: aacton: Function not implemented
-
-You can try enabling BSD process accounting in your configuration.  I
-have not and also get this message (and don't care).
-
- C> 2. Shutting down NFS lockd [FAILED]
-
-As above.
-
- C> the system is also not able to shutdown/power off completely after
- C> "shutdown -h now". however, using RH7 2.2.16 kernel, the notebook
- C> was able to power off. how can i configure it to turn off
- C> automatically?
-
-My laptop (a Fujitsu E6520 stop powering off with RH7 regardless of
-whether I used the supplied kernel or the test10 that I built), so
-consider yourself lucky ;-)
-
-Also, the default compiler on RH7 is not correct.  Use kgcc instead
-(ie. make CC=kgcc bzImage).  The gcc2.96 is said/known not to work for
-kernel work.
+P.S.  There are some such RAS features which I wouldn't be surprised
+there being interest in having integrated into the kernel directly
+post-2.4, with no need to put in "kernel hooks" for that particular
+feature.  A good example of that would be kernel crash dumps.  For all
+Linux houses which are doing support of customers remotely, being able
+to get a crash dump so that developers can investigate a problem
+remotely instead of having to fly a developer out to the customer site
+is invaluable.  In fact, it might be considerd more valuable than the
+kernel debugger....
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262999AbUCSOL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 09:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbUCSOL2
+	id S263006AbUCSOVn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 09:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbUCSOVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 09:11:28 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:40138 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262999AbUCSOLW
+	Fri, 19 Mar 2004 09:21:43 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:56237 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262704AbUCSOVl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 09:11:22 -0500
-Subject: Re: Problem with jfs
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Calin Szonyi <caszonyi@rdslink.ro>
-Cc: JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0403172254550.5941@grinch.ro>
-References: <Pine.LNX.4.53.0403172254550.5941@grinch.ro>
-Content-Type: text/plain
-Message-Id: <1079705469.29044.26.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 19 Mar 2004 08:11:09 -0600
+	Fri, 19 Mar 2004 09:21:41 -0500
+Message-ID: <405B01E7.5000809@stesmi.com>
+Date: Fri, 19 Mar 2004 15:21:27 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Dmitry Torokhov <dtor_core@ameritech.net>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 24/44] Workaround i8042 chips with broken MUX mode
+References: <20040316182409.54329.qmail@web80508.mail.yahoo.com> <20040318203717.GA4430@ucw.cz> <200403190005.36956.dtor_core@ameritech.net> <20040319135819.GB658@ucw.cz>
+In-Reply-To: <20040319135819.GB658@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-17 at 15:14, caszonyi@rdslink.ro wrote:
-> A gnome program crashed and created a file in my home directory which i
-> cannot delete. ls says:
-> 
-> sony@grinch -23:04:01- 0 jobs, ver 2.05b.0 7
->  /~ $ ls
-> ls: F?r? titlu 1.CRASHED: No such file or directory
-> #pico05941#
-> 1
-> 1.b
-> 1.fvwmrc
-> ...
+Hi.
 
-Probably what happened is that the file was created earlier, and now JFS
-can't read it now.  The default behavior for JFS recently changed from
-using CONFIG_NLS_DEFAULT for the iocharset, to doing no translation
-(which is equivalent to iso8859-1).
+> So far on every machine I've got a report from it was caused by BIOS
+> emulation of PS/2 mouse using an USB mouse (even when USB mouse wasn't
+> present). Compiling the USB modules into the kernel fixes the problem.
 
-> mount options for jfs (from /etc/fstab) are:
-> /dev/hda6       /                jfs         defaults         1   1
-> 
-> However in logs jfs says to mount with iocharset=utf8 to access the
-> filename.
-> 
-> My default NLS charset is iso8859-2.
-> 
-> Why should i mount jfs with iocharset=utf8 ?
+Could this have anything to do with the fact that my x86-64 kernel nukes
+on startup if USB keyboard/mouse emul is enabled in the BIOS?
 
-You should be able to mount it with iocharset=iso8859-2.  The kernel
-prints the utf8 message, since utf8 will allow you to access any
-character.  It doesn't know what charset was used to create the file
-originally.
+This is on an ASUS K8T800 and an MSI K8T800 board.
 
-> Everytime i use such a buggy program i have to mount jfs with charset=utf8
-> to delete that file ? For me this behaviour is silly.
+If you don't know what I'm talking about I'll give more info of course.
 
-If you intend to use iso8859-2 characters, you can always mount with
-iocharset=iso8859-2.  Otherwise, you shouldn't see any new files created
-that jfs can't access.
-
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+// Stefan

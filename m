@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVCLNSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVCLNSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVCLNSp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 08:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVCLNSp
+	id S261898AbVCLNSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 08:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVCLNSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 08:18:45 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:30594 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261910AbVCLNSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 08:18:16 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.11: keyboard stopped working after memory upgrade
-Date: Sat, 12 Mar 2005 14:21:03 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Mar 2005 08:18:42 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43275 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261907AbVCLNSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 08:18:15 -0500
+Date: Sat, 12 Mar 2005 14:18:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.11-mm3: saa7134-core.c compile error
+Message-ID: <20050312131813.GA3814@stusta.de>
+References: <20050312034222.12a264c4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503121421.03983.rjw@sisk.pl>
+In-Reply-To: <20050312034222.12a264c4.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Mar 12, 2005 at 03:42:22AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.11-mm2:
+>...
+> +saa7134-update.patch
+>...
+>  v4l updates
+>...
 
-I'm just having a weird problem with 2.6.11.  Namely, the keyboard stopped
-working after I'd added more RAM to the box (Asus L5D notebok, x86-64
-kernel).  It works on 2.6.11-mm1.
+This doesn't compile with CONFIG_MODULES=n:
 
-Greets,
-Rafael
+<--  snip  -->
 
+...
+  CC      drivers/media/video/saa7134/saa7134-core.o
+drivers/media/video/saa7134/saa7134-core.c: In function `saa7134_fini':
+drivers/media/video/saa7134/saa7134-core.c:1215: error: `pending_registered' undeclared (first use in this function)
+drivers/media/video/saa7134/saa7134-core.c:1215: error: (Each undeclared identifier is reported only once
+drivers/media/video/saa7134/saa7134-core.c:1215: error: for each function it appears in.)
+drivers/media/video/saa7134/saa7134-core.c:1216: error: `pending_notifier' undeclared (first use in this function)
+make[4]: *** [drivers/media/video/saa7134/saa7134-core.o] Error 1
+
+<--  snip  -->
+
+
+cu
+Adrian
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

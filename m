@@ -1,44 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129749AbRAPGuB>; Tue, 16 Jan 2001 01:50:01 -0500
+	id <S130673AbRAPGyl>; Tue, 16 Jan 2001 01:54:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbRAPGtv>; Tue, 16 Jan 2001 01:49:51 -0500
-Received: from iliganet-ipgi.iligan.com ([216.226.192.4]:21515 "HELO
-	iliganet-ipgi.iligan.com") by vger.kernel.org with SMTP
-	id <S129749AbRAPGts>; Tue, 16 Jan 2001 01:49:48 -0500
-Date: Tue, 16 Jan 2001 14:48:40 +0800 (PHT)
-From: rtviado <root@iligan.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: ip_conntrack: maximum limit of 16368 entries exceeded
-Message-ID: <Pine.LNX.4.30.0101161444450.24215-100000@bigbird-ipgi.iligan.com>
+	id <S130882AbRAPGyc>; Tue, 16 Jan 2001 01:54:32 -0500
+Received: from xiomara.msg.com.mx ([200.33.54.2]:35848 "HELO
+	xiomara.msg.com.mx") by vger.kernel.org with SMTP
+	id <S130673AbRAPGyT>; Tue, 16 Jan 2001 01:54:19 -0500
+Date: Tue, 16 Jan 2001 00:53:47 -0600 (EST)
+From: Salvador Ortiz Garcia <sog@msg.com.mx>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: 2.4.0 - lseek on /proc broken? [with patch]
+Message-ID: <Pine.LNX.4.10.10101160024480.20764-100000@xiomara.msg.com.mx>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi:
 
-Hello,
+After diging around for some problems (shutdown/unmount related) I found
+that some processes where hidden from ps, pidoff, ls /proc, etc.
 
-I got this in my logs:
+A strace reveled that:
 
- ip_conntrack: maximum limit of 16368 entries exceeded
+open("/proc", O_RDONLY|O_NONBLOCK|O_DIRECTORY) = 7
+fstat(7, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+fcntl(7, F_SETFD, FD_CLOEXEC)           = 0
+getdents(7, /* 58 entries */, 984)      = 980
+lseek(7, 265, SEEK_SET)                 = -1 EINVAL (Invalid argument)
 
-what does this mean, I know i can change the limits in
-/proc/sys/net/ipv4/ip_conntrack_max, but I want to know what this is for.
+So I change proc_root_operations to use proc_file_lseek and the problems
+vanished.
 
-P.S. I looked into linux/Documentation but did not find any mention of
-this configrable parameter....
+Comments?
 
+Salvador Ortiz.
+please CCs to me.
 
--- 
-Rodel T. Viado
-System Administrator
-Iligan Global Access Network Inc.
-
-
-
-
+ 
+=========== cut ===========
+diff -u linux/fs/proc/generic.c linux-2.4.0-ac7/fs/proc/generic.c
+--- linux/fs/proc/generic.c	Mon Dec 11 15:45:42 2000
++++ linux-2.4.0-msg/fs/proc/generic.c	Tue Jan 16 00:05:24 2001
+@@ -22,7 +22,7 @@
+ 			      size_t nbytes, loff_t *ppos);
+ static ssize_t proc_file_write(struct file * file, const char * buffer,
+ 			       size_t count, loff_t *ppos);
+-static loff_t proc_file_lseek(struct file *, loff_t, int);
++loff_t proc_file_lseek(struct file *, loff_t, int);
+ 
+ int proc_match(int len, const char *name,struct proc_dir_entry * de)
+ {
+@@ -137,7 +137,7 @@
+ }
+ 
+ 
+-static loff_t
++loff_t
+ proc_file_lseek(struct file * file, loff_t offset, int orig)
+ {
+     switch (orig) {
+diff -u linux/fs/proc/root.c linux-2.4.0-ac7/fs/proc/root.c
+--- linux/fs/proc/root.c	Thu Nov 23 11:07:36 2000
++++ linux-2.4.0-msg/fs/proc/root.c	Tue Jan 16 00:05:27 2001
+@@ -81,7 +81,9 @@
+  * <pid> directories. Thus we don't use the generic
+  * directory handling functions for that..
+  */
++extern loff_t proc_file_lseek(struct file *, loff_t, int);
+ static struct file_operations proc_root_operations = {
++	llseek:		 proc_file_lseek,
+ 	read:		 generic_read_dir,
+ 	readdir:	 proc_root_readdir,
+ };
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261385AbSJ1R0R>; Mon, 28 Oct 2002 12:26:17 -0500
+	id <S261394AbSJ1RdK>; Mon, 28 Oct 2002 12:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261368AbSJ1R0R>; Mon, 28 Oct 2002 12:26:17 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:59151 "EHLO
+	id <S261433AbSJ1RdK>; Mon, 28 Oct 2002 12:33:10 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:60431 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261385AbSJ1RXm>; Mon, 28 Oct 2002 12:23:42 -0500
-Date: Tue, 29 Oct 2002 02:30:01 +0900
+	id <S261394AbSJ1RXs>; Mon, 28 Oct 2002 12:23:48 -0500
+Date: Tue, 29 Oct 2002 02:30:05 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 2/23] add support for PC-9800 architecture (boot)
-Message-ID: <20021029023001.A2229@precia.cinet.co.jp>
+Subject: [PATCHSET 7/23] add support for PC-9800 architecture (floppy #2)
+Message-ID: <20021029023005.A2259@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,2529 +19,2417 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 2/23 of patchset for add support NEC PC-9800 architecture,
+This is a part 7/23 of patchset for add support NEC PC-9800 architecture,
 against 2.5.44.
 
+floppy98.c is splited to 2 patches. Please apply this after floppy1.
+
 Summary:
- boot related modules
-  - adapted to BIOS spec. differences.
+ floppy driver modules
 
 diffstat:
- arch/i386/boot98/Makefile               |   90 +++
- arch/i386/boot98/bootsect.S             |  397 +++++++++++++
- arch/i386/boot98/compressed/Makefile    |   26 
- arch/i386/boot98/compressed/head.S      |  128 ++++
- arch/i386/boot98/compressed/misc.c      |  375 ++++++++++++
- arch/i386/boot98/compressed/vmlinux.scr |    9 
- arch/i386/boot98/install.sh             |   40 +
- arch/i386/boot98/setup.S                |  950 ++++++++++++++++++++++++++++++++
- arch/i386/boot98/tools/build.c          |  188 ++++++
- arch/i386/boot98/video.S                |  262 ++++++++
- 10 files changed, 2465 insertions(+)
+ drivers/block/floppy98.c  | 2302 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/floppy.h |   11 
+ include/linux/fdreg.h     |   24 
+ 3 files changed, 2337 insertions(+)
 
 patch:
-diff -urN linux/arch/i386/boot98/Makefile linux98/arch/i386/boot98/Makefile
---- linux/arch/i386/boot98/Makefile	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/Makefile	Sat Oct 19 13:01:49 2002
-@@ -0,0 +1,90 @@
-+#
-+# arch/i386/boot/Makefile
-+#
-+# This file is subject to the terms and conditions of the GNU General Public
-+# License.  See the file "COPYING" in the main directory of this archive
-+# for more details.
-+#
-+# Copyright (C) 1994 by Linus Torvalds
-+#
-+
-+# ROOT_DEV specifies the default root-device when making the image.
-+# This can be either FLOPPY, CURRENT, /dev/xxxx or empty, in which case
-+# the default of FLOPPY is used by 'build'.
-+
-+ROOT_DEV := CURRENT
-+
-+# If you want to preset the SVGA mode, uncomment the next line and
-+# set SVGA_MODE to whatever number you want.
-+# Set it to -DSVGA_MODE=NORMAL_VGA if you just want the EGA/VGA mode.
-+# The number is the same as you would ordinarily press at bootup.
-+
-+SVGA_MODE := -DSVGA_MODE=NORMAL_VGA
-+
-+# If you want the RAM disk device, define this to be the size in blocks.
-+
-+#RAMDISK := -DRAMDISK=512
-+
-+EXTRA_TARGETS	:= vmlinux.bin bootsect bootsect.o \
-+		   setup setup.o zImage bzImage
-+
-+subdir- 	:= compressed
-+
-+host-progs	:= tools/build
-+
-+# 	Default
-+
-+boot: bzImage
-+
-+include $(TOPDIR)/Rules.make
-+
-+# ---------------------------------------------------------------------------
-+
-+$(obj)/zImage:  IMAGE_OFFSET := 0x1000
-+$(obj)/zImage:  EXTRA_AFLAGS := -traditional $(SVGA_MODE) $(RAMDISK)
-+$(obj)/bzImage: IMAGE_OFFSET := 0x100000
-+$(obj)/bzImage: EXTRA_AFLAGS := -traditional $(SVGA_MODE) $(RAMDISK) -D__BIG_KERNEL__
-+$(obj)/bzImage: BUILDFLAGS   := -b
-+
-+quiet_cmd_image = BUILD   $(echo_target)
-+cmd_image = $(obj)/tools/build $(BUILDFLAGS) $(obj)/bootsect $(obj)/setup \
-+	    $(obj)/vmlinux.bin $(ROOT_DEV) > $@
-+
-+$(obj)/zImage $(obj)/bzImage: $(obj)/bootsect $(obj)/setup \
-+			      $(obj)/vmlinux.bin $(obj)/tools/build FORCE
-+	$(call if_changed,image)
-+
-+$(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
-+	$(call if_changed,objcopy)
-+
-+LDFLAGS_bootsect := -Ttext 0x0 -s --oformat binary
-+LDFLAGS_setup	 := -Ttext 0x0 -s --oformat binary -e begtext
-+
-+$(obj)/setup $(obj)/bootsect: %: %.o FORCE
-+	$(call if_changed,ld)
-+
-+$(obj)/compressed/vmlinux: FORCE
-+	+@$(call descend,$(obj)/compressed,IMAGE_OFFSET=$(IMAGE_OFFSET) \
-+		$(obj)/compressed/vmlinux)
-+
-+
-+zdisk: $(BOOTIMAGE)
-+	dd bs=8192 if=$(BOOTIMAGE) of=/dev/fd0
-+
-+zlilo: $(BOOTIMAGE)
-+	if [ -f $(INSTALL_PATH)/vmlinuz ]; then mv $(INSTALL_PATH)/vmlinuz $(INSTALL_PATH)/vmlinuz.old; fi
-+	if [ -f $(INSTALL_PATH)/System.map ]; then mv $(INSTALL_PATH)/System.map $(INSTALL_PATH)/System.old; fi
-+	cat $(BOOTIMAGE) > $(INSTALL_PATH)/vmlinuz
-+	cp System.map $(INSTALL_PATH)/
-+	if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
-+
-+install: $(BOOTIMAGE)
-+	sh $(src)/install.sh $(KERNELRELEASE) $(BOOTIMAGE) System.map "$(INSTALL_PATH)"
-+
-+archhelp:
-+	@echo  '* bzImage	- Compressed kernel image (arch/$(ARCH)/boot/bzImage)'
-+	@echo  '  install	- Install kernel using'
-+	@echo  '                  (your) ~/bin/installkernel or'
-+	@echo  '                  (distribution) /sbin/installkernel or'
-+	@echo  '        	  install to $$(INSTALL_PATH) and run lilo'
-+
-diff -urN linux/arch/i386/boot98/bootsect.S linux98/arch/i386/boot98/bootsect.S
---- linux/arch/i386/boot98/bootsect.S	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/bootsect.S	Wed May 22 09:13:46 2002
-@@ -0,0 +1,397 @@
-+/*	
-+ *	bootsect.S - boot sector for NEC PC-9800 series
-+ *
-+ *	Linux/98 project at Kyoto University Microcomputer Club (KMC)
-+ *		    FUJITA Norimasa, TAKAI Kousuke  1997-1998
-+ *	rewritten by TAKAI Kousuke (as86 -> gas), Nov 1999
-+ *
-+ * Based on:
-+ *	bootsect.S		Copyright (C) 1991, 1992 Linus Torvalds
-+ *	modified by Drew Eckhardt
-+ *	modified by Bruce Evans (bde)
-+ *
-+ * bootsect.S is loaded at 0x1FC00 or 0x1FE00 by the bios-startup routines,
-+ * and moves itself out of the way to address 0x90000, and jumps there.
-+ *
-+ * It then loads 'setup' directly after itself (0x90200), and the system
-+ * at 0x10000, using BIOS interrupts. 
-+ *
-+ * NOTE! currently system is at most (8*65536-4096) bytes long. This should 
-+ * be no problem, even in the future. I want to keep it simple. This 508 kB
-+ * kernel size should be enough, especially as this doesn't contain the
-+ * buffer cache as in minix (and especially now that the kernel is 
-+ * compressed :-)
-+ *
-+ * The loader has been made as simple as possible, and continuous
-+ * read errors will result in a unbreakable loop. Reboot by hand. It
-+ * loads pretty fast by getting whole tracks at a time whenever possible.
-+ */
-+
-+#include <linux/config.h>		/* for CONFIG_ROOT_RDONLY */
-+#include <asm/boot.h>
-+
-+SETUPSECTS	= 4			/* default nr of setup-sectors */
-+BOOTSEG		= 0x1FC0		/* original address of boot-sector */
-+INITSEG		= DEF_INITSEG		/* we move boot here - out of the way */
-+SETUPSEG	= DEF_SETUPSEG		/* setup starts here */
-+SYSSEG		= DEF_SYSSEG		/* system loaded at 0x10000 (65536) */
-+SYSSIZE		= DEF_SYSSIZE		/* system size: # of 16-byte clicks */
-+					/* to be loaded */
-+ROOT_DEV	= 0 			/* ROOT_DEV is now written by "build" */
-+SWAP_DEV	= 0			/* SWAP_DEV is now written by "build" */
-+
-+#ifndef SVGA_MODE
-+#define SVGA_MODE ASK_VGA
-+#endif
-+
-+#ifndef RAMDISK
-+#define RAMDISK 0
-+#endif 
-+
-+#ifndef ROOT_RDONLY
-+#define ROOT_RDONLY 1
-+#endif
-+
-+/* normal/hireso text VRAM segments */
-+#define NORMAL_TEXT	0xa000
-+#define HIRESO_TEXT	0xe000
-+
-+/* bios work area addresses */
-+#define EXPMMSZ		0x0401
-+#define BIOS_FLAG	0x0501
-+#define	DISK_BOOT	0x0584
-+
-+.code16
-+.text
-+
-+.global _start
-+_start:
-+
-+#if 0 /* hook for debugger, harmless unless BIOS is fussy (old HP) */
-+	int	$0x3
-+#endif
-+	jmp	real_start
-+	.ascii	"Linux 98"
-+	.word	0
-+real_start:
-+	xorw	%di, %di		/* %di = 0 */
-+	movw	%di, %ss		/* %ss = 0 */
-+	movw	$0x03F0, %sp
-+	pushw	%cx			/* for hint */
-+
-+	movw	$0x0A00, %ax		/* normal mode defaults (80x25) */
-+
-+	testb	$0x08, %ss:BIOS_FLAG	/* check hi-reso bit */
-+	jnz	set_crt_mode
+diff -urN linux/drivers/block/floppy98.c linux98/drivers/block/floppy98.c
+--- linux/drivers/block/floppy98.c	Sun Oct 20 09:28:08 2002
++++ linux98/drivers/block/floppy98.c	Sat Oct 26 15:21:48 2002
+@@ -2335,3 +2335,2305 @@
+ 	return ret;
+ }
+ 
 +/*
-+ * Hi-Reso (high-resolution) machine.
-+ *
-+ * Some hi-reso machines have no RAMs on bank 8/A (0x080000 - 0x0BFFFF).
-+ * On such machines we get two RAM banks from top of protect menory and
-+ * map them on bank 8/A.
-+ * These work-around must be done before moving myself on INITSEG (0x090000-).
-+ */
-+	movw	$(HIRESO_TEXT >> 8), %cs:(vram + 1)	/* text VRAM segment */
-+
-+	/* set memory window */
-+	movb	$0x08, %al
-+	outb	%al, $0x91		/* map native RAM (if any) */
-+	movb	$0x0A, %al
-+	outb	%al, $0x93
-+
-+	/* check bank ram A */
-+	pushw	$0xA500
-+	popw	%ds
-+	movw	(%di), %cx		/* %si == 0 from entry */
-+	notw	%cx
-+	movw	%cx, (%di)
-+
-+	movw	$0x43F, %dx		/* cache flush for 486 and up. */
-+	movb	$0xA0, %al
-+	outb	%al, %dx
-+	
-+	cmpw	%cx, (%di)
-+	je	hireso_done
-+
-+	/* 
-+	 * Write test failed; we have no native RAM on 080000h - 0BFFFFh.
-+	 * Take 256KB of RAM from top of protected memory.
-+	 */
-+	movb	%ss:EXPMMSZ, %al
-+	subb	$2, %al			/* reduce 2 x 128KB */
-+	movb	%al, %ss:EXPMMSZ
-+	addb	%al, %al
-+	addb	$0x10, %al
-+	outb	%al, $0x91
-+	addb	$2, %al
-+	outb	%al, $0x93
-+
-+hireso_done:
-+	movb	$0x10, %al		/* CRT mode 80x31, %ah still 0Ah */
-+
-+set_crt_mode:
-+	int	$0x18			/* set CRT mode */
-+
-+	movb	$0x0C, %ah		/* turn on text displaying */
-+	int	$0x18
-+
-+	xorw	%dx, %dx		/* position cursor to home */
-+	movb	$0x13, %ah
-+	int	$0x18
-+
-+	movb	$0x11, %ah		/* turn cursor displaying on */
-+	int	$0x18
-+
-+	/* move 1 kilobytes from [BOOTSEG:0000h] to [INITSEG:0000h] */
-+	cld
-+	xorw	%si, %si
-+	pushw	$INITSEG
-+	popw	%es
-+	movw	$512, %cx		/* %di == 0 from entry */
-+	rep
-+	cs
-+	movsw
-+
-+	ljmp	$INITSEG, $go
-+
-+go:
-+	pushw	%cs
-+	popw	%ds		/* %ds = %cs */
-+
-+	popw	%dx		/* %dh = saved %ch passed from BIOS */
-+	movb	%ss:DISK_BOOT, %al
-+	andb	$0xf0, %al	/* %al = Device Address */
-+	movb	$18, %ch	/* 18 secs/track,  512 b/sec (1440 KB) */
-+	cmpb	$0x30, %al
-+	je	try512
-+	cmpb	$0x90, %al	/* 1 MB I/F, 1 MB floppy */
-+	je	try1.2M
-+	cmpb	$0xf0, %al	/* 640 KB I/F, 1 MB floppy */
-+	je	try1.2M
-+	movb	$9, %ch		/*  9 secs/track,  512 b/sec ( 720 KB) */
-+	cmpb	$0x10, %al	/* 1 MB I/F, 640 KB floppy */
-+	je	try512
-+	cmpb	$0x70, %al	/* 640 KB I/F, 640 KB floppy */
-+	jne	error		/* unknown device? */
-+
-+	/* XXX: Does it make sense to support 8 secs/track, 512 b/sec 
-+		(640 KB) floppy? */
-+
-+try512:	movb	$2, %cl		/* 512 b/sec */
-+lasttry:call	tryload
-+/*
-+ * Display error message and halt
-+ */
-+error:	movw	$error_msg, %si
-+	call	print
-+wait_reboot:
-+	movb	$0x0, %ah
-+	int	$0x18			/* wait keyboard input */
-+1:	movb	$0, %al
-+	outb	%al, $0xF0		/* reset CPU */
-+	jmp	1b			/* just in case... */
-+
-+try1.2M:cmpb	$2, %dh
-+	je	try2HC
-+	movw	$0x0803, %cx	/*  8 secs/track, 1024 b/sec (1232 KB) */
-+	call	tryload
-+	movb	$15, %ch	/* 15 secs/track,  512 b/sec (1200 KB) */
-+	jmp	try512
-+try2HC:	movw	$0x0F02, %cx	/* 15 secs/track,  512 b/sec (1200 KB) */
-+	call	tryload
-+	movw	$0x0803, %cx	/*  8 secs/track, 1024 b/sec (1232 KB) */
-+	jmp	lasttry
-+
-+/*
-+ * Try to load SETUP and SYSTEM provided geometry information in %cx.
-+ * This routine *will not* return on successful load...
-+ */
-+tryload:
-+	movw	%cx, sectlen
-+	movb	%ss:DISK_BOOT, %al
-+	movb	$0x7, %ah		/* recalibrate the drive */
-+	int	$0x1b
-+	jc	error			/* recalibration should succeed */
-+
-+	/*
-+	 * Load SETUP into memory. It is assumed that SETUP fits into
-+	 * first cylinder (2 tracks, 9KB on 2DD, 15-18KB on 2HD).
-+	 */
-+	movb	$0, %bl
-+	movb	setup_sects, %bh
-+	incb	%bh
-+	shlw	%bx			/* %bx = (setup_sects + 1) * 512 */
-+	movw	$128, %bp
-+	shlw	%cl, %bp		/* %bp = <sector size> */
-+	subw	%bp, %bx		/* length to load */
-+	movw	$0x0002, %dx		/* head 0, sector 2 */
-+	movb	%cl, %ch		/* `N' for sector address */
-+	movb	$0, %cl			/* cylinder 0 */
-+	pushw	%cs
-+	popw	%es			/* %es = %cs (= INITSEG) */
-+	movb	$0xd6, %ah		/* read, multi-track, MFM */
-+	int	$0x1b			/* load it! */
-+	jc	read_error
-+
-+	movw	$loading_msg, %si
-+	call	print
-+
-+	movw	$SYSSEG, %ax
-+	movw	%ax, %es		/* %es = SYSSEG */
-+
-+/*
-+ * This routine loads the system at address 0x10000, making sure
-+ * no 64kB boundaries are crossed. We try to load it as fast as
-+ * possible, loading whole tracks whenever we can.
-+ *
-+ * in:	es - starting address segment (normally 0x1000)
-+ */
-+	movb	%ch, %cl
-+	addb	$7, %cl			/* %cl = log2 <sector_size> */
-+	shrw	%cl, %bx		/* %bx = # of phys. sectors in SETUP */
-+	addb	%bl, %dl		/* %dl = start sector # of SYSTEM */
-+	decb	%dl			/* %dl is 0-based in below loop */
-+
-+rp_read_newseg:
-+	xorw	%bp, %bp		/* = starting address within segment */
-+#ifdef __BIG_KERNEL__
-+	bootsect_kludge = 0x220		/* 0x200 (size of bootsector) + 0x20 (offset */
-+	lcall	*bootsect_kludge	/* of bootsect_kludge in setup.S */
-+#else
-+	movw	%es, %ax
-+	subw	$SYSSEG, %ax
-+#endif
-+	cmpw	syssize, %ax
-+	ja	boot			/* done! */
-+
-+rp_read:
-+	movb	sectors, %al
-+	addb	%al, %al
-+	movb	%al, %ch		/* # of sectors on both surface */
-+	subb	%dl, %al		/* # of sectors left on this track */
-+	movb	$0, %ah
-+	shlw	%cl, %ax		/* # of bytes left on this track */
-+	movw	%ax, %bx		/* transfer length */
-+	addw	%bp, %ax		/* cross 64K boundary? */
-+	jnc	1f			/* ok. */
-+	jz	1f			/* also ok. */
-+	/*
-+	 * Oops, we are crossing 64K boundary...
-+	 * Adjust transfer length to make transfer fit in the boundary.
-+	 *
-+	 * Note: sector size is assumed to be a measure of 65536.
-+	 */
-+	xorw	%bx, %bx
-+	subw	%bp, %bx
-+1:	pushw	%dx
-+	movw	$dot_msg, %si		/* give progress message */
-+	call	print
-+	xchgw	%ax, %dx
-+	movb	$0, %ah
-+	divb	sectors
-+	xchgb	%al, %ah
-+	xchgw	%ax, %dx		/* %dh = head # / %dl = sector # */
-+	incb	%dl			/* fix %dl to 1-based */
-+	pushw	%cx
-+	movw	cylinder, %cx
-+	movb	$0xd6, %ah		/* read, multi-track, seek, MFM */
-+	movb	%ss:DISK_BOOT, %al
-+	int	$0x1b
-+	popw	%cx
-+	popw	%dx
-+	jc	read_error
-+	movw	%bx, %ax		/* # of bytes just read */
-+	shrw	%cl, %ax		/* %ax = # of sectors just read */
-+	addb	%al, %dl		/* advance sector # */
-+	cmpb	%ch, %dl		/* %ch = # of sectors/cylinder */
-+	jb	2f
-+	incb	cylinder		/* next cylinder */
-+	xorb	%dl, %dl		/* sector 0 */
-+2:	addw	%bx, %bp		/* advance offset pointer */
-+	jnc	rp_read
-+	/* offset pointer wrapped; advance segment pointer. */
-+	movw	%es, %ax
-+	addw	$0x1000, %ax
-+	movw	%ax, %es
-+	jmp	rp_read_newseg
-+
-+read_error:
-+	ret
-+
-+boot:	movw	%cs, %ax		/* = INITSEG */
-+	/* movw	%ax, %ds */
-+	movw	%ax, %ss
-+	movw	$0x4000, %sp		/* 0x4000 is arbitrary value >=
-+					 * length of bootsect + length of
-+					 * setup + room for stack;
-+					 * PC-9800 never have BIOS workareas
-+					 * on high memory.
-+					 */
-+/*
-+ * After that we check which root-device to use. If the device is
-+ * not defined, /dev/fd0 (2, 0) will be used.
-+ */
-+	cmpw	$0, root_dev
-+	jne	3f
-+	movb	$2, root_dev+1
-+3:
-+
-+/*
-+ * After that (everything loaded), we jump to the setup-routine
-+ * loaded directly after the bootblock:
-+ */
-+	ljmp	$SETUPSEG, $0
-+
-+/*
-+ * Subroutine for print string on console.
-+ *	%cs:%si	- pointer to message
-+ */
-+print:
-+	pushaw
-+	pushw	%ds
-+	pushw	%es
-+	pushw	%cs
-+	popw	%ds
-+	lesw	curpos, %di		/* %es:%di = current text VRAM addr. */
-+1:	xorw	%ax, %ax
-+	lodsb
-+	testb	%al, %al
-+	jz	2f			/* end of string */
-+	stosw					/* character code */
-+	movb	$0xE1, %es:0x2000-2(%di)	/* character attribute */
-+	jmp	1b
-+2:	movw	%di, %dx
-+	movb	$0x13, %ah
-+	int	$0x18			/* move cursor to current point */
-+	popw	%es
-+	popw	%ds
-+	popaw
-+	ret
-+
-+loading_msg:
-+	.string	"Loading"
-+dot_msg:
-+	.string	"."
-+error_msg:
-+	.string	"Read Error!"
-+
-+	.org	490
-+
-+curpos:	.word	160		/* current cursor position */
-+vram:	.word	NORMAL_TEXT	/* text VRAM segment */
-+
-+cylinder:	.byte	0	/* current cylinder (lower byte)	*/
-+sectlen:	.byte	0	/* (log2 of <sector size>) - 7		*/
-+sectors:	.byte	0x0F	/* default is 2HD (15 sector/track)	*/
-+
-+# XXX: This is a fairly snug fit.
-+
-+.org 497
-+setup_sects:	.byte SETUPSECTS
-+root_flags:	.word ROOT_RDONLY
-+syssize:	.word SYSSIZE
-+swap_dev:	.word SWAP_DEV
-+ram_size:	.word RAMDISK
-+vid_mode:	.word SVGA_MODE
-+root_dev:	.word ROOT_DEV
-+boot_flag:	.word 0xAA55
-diff -urN linux/arch/i386/boot98/compressed/Makefile linux98/arch/i386/boot98/compressed/Makefile
---- linux/arch/i386/boot98/compressed/Makefile	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/compressed/Makefile	Sat Oct 19 13:02:26 2002
-@@ -0,0 +1,26 @@
-+#
-+# linux/arch/i386/boot/compressed/Makefile
-+#
-+# create a compressed vmlinux image from the original vmlinux
-+#
-+
-+EXTRA_TARGETS	:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
-+EXTRA_AFLAGS	:= -traditional
-+
-+include $(TOPDIR)/Rules.make
-+
-+LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32
-+
-+$(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
-+	$(call if_changed,ld)
-+
-+$(obj)/vmlinux.bin: vmlinux FORCE
-+	$(call if_changed,objcopy)
-+
-+$(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
-+	$(call if_changed,gzip)
-+
-+LDFLAGS_piggy.o := -r --format binary --oformat elf32-i386 -T
-+
-+$(obj)/piggy.o: $(obj)/vmlinux.scr $(obj)/vmlinux.bin.gz FORCE
-+	$(call if_changed,ld)
-diff -urN linux/arch/i386/boot98/compressed/head.S linux98/arch/i386/boot98/compressed/head.S
---- linux/arch/i386/boot98/compressed/head.S	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/compressed/head.S	Tue Oct  1 16:07:40 2002
-@@ -0,0 +1,128 @@
-+/*
-+ *  linux/boot/head.S
-+ *
-+ *  Copyright (C) 1991, 1992, 1993  Linus Torvalds
++ * Buffer read/write and support
++ * =============================
 + */
 +
-+/*
-+ *  head.S contains the 32-bit startup code.
-+ *
-+ * NOTE!!! Startup happens at absolute address 0x00001000, which is also where
-+ * the page directory will exist. The startup code will be overwritten by
-+ * the page directory. [According to comments etc elsewhere on a compressed
-+ * kernel it will end up at 0x1000 + 1Mb I hope so as I assume this. - AC]
-+ *
-+ * Page 0 is deliberately kept safe, since System Management Mode code in 
-+ * laptops may need to access the BIOS data stored there.  This is also
-+ * useful for future device drivers that either access the BIOS via VM86 
-+ * mode.
-+ */
-+
-+/*
-+ * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-+ */
-+.text
-+
-+#include <linux/linkage.h>
-+#include <asm/segment.h>
-+
-+	.globl startup_32
-+	
-+startup_32:
-+	cld
-+	cli
-+	movl $(__KERNEL_DS),%eax
-+	movl %eax,%ds
-+	movl %eax,%es
-+	movl %eax,%fs
-+	movl %eax,%gs
-+
-+	lss stack_start,%esp
-+	xorl %eax,%eax
-+1:	incl %eax		# check that A20 really IS enabled
-+	movl %eax,0x000000	# loop forever if it isn't
-+	cmpl %eax,0x100000
-+	je 1b
-+
-+/*
-+ * Initialize eflags.  Some BIOS's leave bits like NT set.  This would
-+ * confuse the debugger if this code is traced.
-+ * XXX - best to initialize before switching to protected mode.
-+ */
-+	pushl $0
-+	popfl
-+/*
-+ * Clear BSS
-+ */
-+	xorl %eax,%eax
-+	movl $_edata,%edi
-+	movl $_end,%ecx
-+	subl %edi,%ecx
-+	cld
-+	rep
-+	stosb
-+/*
-+ * Do the decompression, and jump to the new kernel..
-+ */
-+	subl $16,%esp	# place for structure on the stack
-+	movl %esp,%eax
-+	pushl %esi	# real mode pointer as second arg
-+	pushl %eax	# address of structure as first arg
-+	call decompress_kernel
-+	orl  %eax,%eax 
-+	jnz  3f
-+	popl %esi	# discard address
-+	popl %esi	# real mode pointer
-+	xorl %ebx,%ebx
-+	ljmp $(__KERNEL_CS), $0x100000
-+
-+/*
-+ * We come here, if we were loaded high.
-+ * We need to move the move-in-place routine down to 0x1000
-+ * and then start it with the buffer addresses in registers,
-+ * which we got from the stack.
-+ */
-+3:
-+	movl $move_routine_start,%esi
-+	movl $0x1000,%edi
-+	movl $move_routine_end,%ecx
-+	subl %esi,%ecx
-+	addl $3,%ecx
-+	shrl $2,%ecx
-+	cld
-+	rep
-+	movsl
-+
-+	popl %esi	# discard the address
-+	popl %ebx	# real mode pointer
-+	popl %esi	# low_buffer_start
-+	popl %ecx	# lcount
-+	popl %edx	# high_buffer_start
-+	popl %eax	# hcount
-+	movl $0x100000,%edi
-+	cli		# make sure we don't get interrupted
-+	ljmp $(__KERNEL_CS), $0x1000 # and jump to the move routine
-+
-+/*
-+ * Routine (template) for moving the decompressed kernel in place,
-+ * if we were high loaded. This _must_ PIC-code !
-+ */
-+move_routine_start:
-+	movl %ecx,%ebp
-+	shrl $2,%ecx
-+	rep
-+	movsl
-+	movl %ebp,%ecx
-+	andl $3,%ecx
-+	rep
-+	movsb
-+	movl %edx,%esi
-+	movl %eax,%ecx	# NOTE: rep movsb won't move if %ecx == 0
-+	addl $3,%ecx
-+	shrl $2,%ecx
-+	rep
-+	movsl
-+	movl %ebx,%esi	# Restore setup pointer
-+	xorl %ebx,%ebx
-+	ljmp $(__KERNEL_CS), $0x100000
-+move_routine_end:
-diff -urN linux/arch/i386/boot98/compressed/misc.c linux98/arch/i386/boot98/compressed/misc.c
---- linux/arch/i386/boot98/compressed/misc.c	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/compressed/misc.c	Sat Oct 12 14:26:29 2002
-@@ -0,0 +1,375 @@
-+/*
-+ * misc.c
-+ * 
-+ * This is a collection of several routines from gzip-1.0.3 
-+ * adapted for Linux.
-+ *
-+ * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-+ * puts by Nick Holloway 1993, better puts by Martin Mares 1995
-+ * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-+ */
-+
-+#include <linux/linkage.h>
-+#include <linux/vmalloc.h>
-+#include <linux/tty.h>
-+#include <asm/io.h>
-+#ifdef STANDARD_MEMORY_BIOS_CALL
-+#undef STANDARD_MEMORY_BIOS_CALL
-+#endif
-+
-+/*
-+ * gzip declarations
-+ */
-+
-+#define OF(args)  args
-+#define STATIC static
-+
-+#undef memset
-+#undef memcpy
-+
-+/*
-+ * Why do we do this? Don't ask me..
-+ *
-+ * Incomprehensible are the ways of bootloaders.
-+ */
-+static void* memset(void *, int, size_t);
-+static void* memcpy(void *, __const void *, size_t);
-+#define memzero(s, n)     memset ((s), 0, (n))
-+
-+typedef unsigned char  uch;
-+typedef unsigned short ush;
-+typedef unsigned long  ulg;
-+
-+#define WSIZE 0x8000		/* Window size must be at least 32k, */
-+				/* and a power of two */
-+
-+static uch *inbuf;	     /* input buffer */
-+static uch window[WSIZE];    /* Sliding window buffer */
-+
-+static unsigned insize = 0;  /* valid bytes in inbuf */
-+static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
-+static unsigned outcnt = 0;  /* bytes in output buffer */
-+
-+/* gzip flag byte */
-+#define ASCII_FLAG   0x01 /* bit 0 set: file probably ASCII text */
-+#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
-+#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
-+#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
-+#define COMMENT      0x10 /* bit 4 set: file comment present */
-+#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
-+#define RESERVED     0xC0 /* bit 6,7:   reserved */
-+
-+#define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
-+		
-+/* Diagnostic functions */
-+#ifdef DEBUG
-+#  define Assert(cond,msg) {if(!(cond)) error(msg);}
-+#  define Trace(x) fprintf x
-+#  define Tracev(x) {if (verbose) fprintf x ;}
-+#  define Tracevv(x) {if (verbose>1) fprintf x ;}
-+#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
-+#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
-+#else
-+#  define Assert(cond,msg)
-+#  define Trace(x)
-+#  define Tracev(x)
-+#  define Tracevv(x)
-+#  define Tracec(c,x)
-+#  define Tracecv(c,x)
-+#endif
-+
-+static int  fill_inbuf(void);
-+static void flush_window(void);
-+static void error(char *m);
-+static void gzip_mark(void **);
-+static void gzip_release(void **);
-+  
-+/*
-+ * This is set up by the setup-routine at boot-time
-+ */
-+static unsigned char *real_mode; /* Pointer to real-mode data */
-+
-+#define EXT_MEM_K   (*(unsigned short *)(real_mode + 0x2))
-+#ifndef STANDARD_MEMORY_BIOS_CALL
-+#define ALT_MEM_K   (*(unsigned long *)(real_mode + 0x1e0))
-+#endif
-+#define SCREEN_INFO (*(struct screen_info *)(real_mode+0))
-+
-+extern char input_data[];
-+extern int input_len;
-+
-+static long bytes_out = 0;
-+static uch *output_data;
-+static unsigned long output_ptr = 0;
-+
-+static void *malloc(int size);
-+static void free(void *where);
-+
-+static void puts(const char *);
-+
-+extern int end;
-+static long free_mem_ptr = (long)&end;
-+static long free_mem_end_ptr;
-+
-+#define INPLACE_MOVE_ROUTINE  0x1000
-+#define LOW_BUFFER_START      0x2000
-+#define LOW_BUFFER_MAX       0x90000
-+#define HEAP_SIZE             0x3000
-+static unsigned int low_buffer_end, low_buffer_size;
-+static int high_loaded =0;
-+static uch *high_buffer_start /* = (uch *)(((ulg)&end) + HEAP_SIZE)*/;
-+
-+static char *vidmem = (char *)0xa0000;
-+static int lines, cols;
-+
-+#ifdef CONFIG_X86_NUMAQ
-+static void * xquad_portio = NULL;
-+#endif
-+
-+#include "../../../../lib/inflate.c"
-+
-+static void *malloc(int size)
++static inline void end_request(struct request *req, int uptodate)
 +{
-+	void *p;
++	if (end_that_request_first(req, uptodate, current_count_sectors))
++		return;
++	add_blkdev_randomness(MAJOR_NR);
++	floppy_off((int)req->rq_disk->private_data);
++	blkdev_dequeue_request(req);
++	end_that_request_last(req);
 +
-+	if (size <0) error("Malloc error\n");
-+	if (free_mem_ptr <= 0) error("Memory error\n");
-+
-+	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
-+
-+	p = (void *)free_mem_ptr;
-+	free_mem_ptr += size;
-+
-+	if (free_mem_ptr >= free_mem_end_ptr)
-+		error("\nOut of memory\n");
-+
-+	return p;
++	/* We're done with the request */
++	current_req = NULL;
 +}
 +
-+static void free(void *where)
-+{	/* Don't care */
-+}
 +
-+static void gzip_mark(void **ptr)
++/* new request_done. Can handle physical sectors which are smaller than a
++ * logical buffer */
++static void request_done(int uptodate)
 +{
-+	*ptr = (void *) free_mem_ptr;
-+}
++	struct request_queue *q = &floppy_queue;
++	struct request *req = current_req;
++	unsigned long flags;
++	int block;
 +
-+static void gzip_release(void **ptr)
-+{
-+	free_mem_ptr = (long) *ptr;
-+}
-+ 
-+static void scroll(void)
-+{
-+	int i;
++	probing = 0;
++	reschedule_timeout(MAXTIMEOUT, "request done %d", uptodate);
 +
-+	memcpy ( vidmem, vidmem + cols * 2, ( lines - 1 ) * cols * 2 );
-+	for ( i = ( lines - 1 ) * cols * 2; i < lines * cols * 2; i += 2 )
-+		vidmem[i] = ' ';
-+}
++	if (!req) {
++		printk("floppy.c: no request in request_done\n");
++		return;
++	}
 +
-+static void puts(const char *s)
-+{
-+	int x,y,pos;
-+	char c;
++	if (uptodate){
++		/* maintain values for invalidation on geometry
++		 * change */
++		block = current_count_sectors + req->sector;
++		INFBOUND(DRS->maxblock, block);
++		if (block > _floppy->sect)
++			DRS->maxtrack = 1;
 +
-+	x = SCREEN_INFO.orig_x;
-+	y = SCREEN_INFO.orig_y;
-+
-+	while ( ( c = *s++ ) != '\0' ) {
-+		if ( c == '\n' ) {
-+			x = 0;
-+			if ( ++y >= lines ) {
-+				scroll();
-+				y--;
++		/* unlock chained buffers */
++		spin_lock_irqsave(q->queue_lock, flags);
++		end_request(req, 1);
++		spin_unlock_irqrestore(q->queue_lock, flags);
++	} else {
++		if (rq_data_dir(req) == WRITE) {
++			/* record write error information */
++			DRWE->write_errors++;
++			if (DRWE->write_errors == 1) {
++				DRWE->first_error_sector = req->sector;
++				DRWE->first_error_generation = DRS->generation;
 +			}
++			DRWE->last_error_sector = req->sector;
++			DRWE->last_error_generation = DRS->generation;
++		}
++		spin_lock_irqsave(q->queue_lock, flags);
++		end_request(req, 0);
++		spin_unlock_irqrestore(q->queue_lock, flags);
++	}
++}
++
++/* Interrupt handler evaluating the result of the r/w operation */
++static void rw_interrupt(void)
++{
++	int nr_sectors, ssize, eoc, heads;
++
++	if (R_HEAD >= 2) {
++	    /* some Toshiba floppy controllers occasionnally seem to
++	     * return bogus interrupts after read/write operations, which
++	     * can be recognized by a bad head number (>= 2) */
++	     return;
++	}  
++
++	if (!DRS->first_read_date)
++		DRS->first_read_date = jiffies;
++
++	nr_sectors = 0;
++	CODE2SIZE;
++
++	if (ST1 & ST1_EOC)
++		eoc = 1;
++	else
++		eoc = 0;
++
++	if (COMMAND & 0x80)
++		heads = 2;
++	else
++		heads = 1;
++
++	nr_sectors = (((R_TRACK-TRACK) * heads +
++				   R_HEAD-HEAD) * SECT_PER_TRACK +
++				   R_SECTOR-SECTOR + eoc) << SIZECODE >> 2;
++
++#ifdef FLOPPY_SANITY_CHECK
++	if (nr_sectors / ssize > 
++		(in_sector_offset + current_count_sectors + ssize - 1) / ssize) {
++		DPRINT("long rw: %x instead of %lx\n",
++			nr_sectors, current_count_sectors);
++		printk("rs=%d s=%d\n", R_SECTOR, SECTOR);
++		printk("rh=%d h=%d\n", R_HEAD, HEAD);
++		printk("rt=%d t=%d\n", R_TRACK, TRACK);
++		printk("heads=%d eoc=%d\n", heads, eoc);
++		printk("spt=%d st=%d ss=%d\n", SECT_PER_TRACK,
++		       fsector_t, ssize);
++		printk("in_sector_offset=%d\n", in_sector_offset);
++	}
++#endif
++
++	nr_sectors -= in_sector_offset;
++	INFBOUND(nr_sectors,0);
++	SUPBOUND(current_count_sectors, nr_sectors);
++
++	switch (interpret_errors()){
++		case 2:
++			cont->redo();
++			return;
++		case 1:
++			if (!current_count_sectors){
++				cont->error();
++				cont->redo();
++				return;
++			}
++			break;
++		case 0:
++			if (!current_count_sectors){
++				cont->redo();
++				return;
++			}
++			current_type[current_drive] = _floppy;
++			floppy_sizes[TOMINOR(current_drive) ]= _floppy->size;
++			break;
++	}
++
++	if (probing) {
++		if (DP->flags & FTD_MSG)
++			DPRINT("Auto-detected floppy type %s in fd%d\n",
++				_floppy->name,current_drive);
++		current_type[current_drive] = _floppy;
++		floppy_sizes[TOMINOR(current_drive)] = _floppy->size;
++		probing = 0;
++	}
++
++	if (CT(COMMAND) != FD_READ || 
++	     raw_cmd->kernel_data == current_req->buffer){
++		/* transfer directly from buffer */
++		cont->done(1);
++	} else if (CT(COMMAND) == FD_READ){
++		buffer_track = raw_cmd->track;
++		buffer_drive = current_drive;
++		INFBOUND(buffer_max, nr_sectors + fsector_t);
++	}
++	cont->redo();
++}
++
++/* Compute maximal contiguous buffer size. */
++static int buffer_chain_size(void)
++{
++	struct bio *bio;
++	struct bio_vec *bv;
++	int size, i;
++	char *base;
++
++	base = bio_data(current_req->bio);
++	size = 0;
++
++	rq_for_each_bio(bio, current_req) {
++		bio_for_each_segment(bv, bio, i) {
++			if (page_address(bv->bv_page) + bv->bv_offset != base + size)
++				break;
++
++			size += bv->bv_len;
++		}
++	}
++
++	return size >> 9;
++}
++
++/* Compute the maximal transfer size */
++static int transfer_size(int ssize, int max_sector, int max_size)
++{
++	SUPBOUND(max_sector, fsector_t + max_size);
++
++	/* alignment */
++	max_sector -= (max_sector % _floppy->sect) % ssize;
++
++	/* transfer size, beginning not aligned */
++	current_count_sectors = max_sector - fsector_t ;
++
++	return max_sector;
++}
++
++/*
++ * Move data from/to the track buffer to/from the buffer cache.
++ */
++static void copy_buffer(int ssize, int max_sector, int max_sector_2)
++{
++	int remaining; /* number of transferred 512-byte sectors */
++	struct bio_vec *bv;
++	struct bio *bio;
++	char *buffer, *dma_buffer;
++	int size, i;
++
++	max_sector = transfer_size(ssize,
++				   minimum(max_sector, max_sector_2),
++				   current_req->nr_sectors);
++
++	if (current_count_sectors <= 0 && CT(COMMAND) == FD_WRITE &&
++	    buffer_max > fsector_t + current_req->nr_sectors)
++		current_count_sectors = minimum(buffer_max - fsector_t,
++						current_req->nr_sectors);
++
++	remaining = current_count_sectors << 9;
++#ifdef FLOPPY_SANITY_CHECK
++	if ((remaining >> 9) > current_req->nr_sectors  &&
++	    CT(COMMAND) == FD_WRITE){
++		DPRINT("in copy buffer\n");
++		printk("current_count_sectors=%ld\n", current_count_sectors);
++		printk("remaining=%d\n", remaining >> 9);
++		printk("current_req->nr_sectors=%ld\n",current_req->nr_sectors);
++		printk("current_req->current_nr_sectors=%u\n",
++		       current_req->current_nr_sectors);
++		printk("max_sector=%d\n", max_sector);
++		printk("ssize=%d\n", ssize);
++	}
++#endif
++
++	buffer_max = maximum(max_sector, buffer_max);
++
++	dma_buffer = floppy_track_buffer + ((fsector_t - buffer_min) << 9);
++
++	size = current_req->current_nr_sectors << 9;
++
++	rq_for_each_bio(bio, current_req) {
++		bio_for_each_segment(bv, bio, i) {
++			if (!remaining)
++				break;
++
++			size = bv->bv_len;
++			SUPBOUND(size, remaining);
++
++			buffer = page_address(bv->bv_page) + bv->bv_offset;
++#ifdef FLOPPY_SANITY_CHECK
++		if (dma_buffer + size >
++		    floppy_track_buffer + (max_buffer_sectors << 10) ||
++		    dma_buffer < floppy_track_buffer){
++			DPRINT("buffer overrun in copy buffer %d\n",
++				(int) ((floppy_track_buffer - dma_buffer) >>9));
++			printk("fsector_t=%d buffer_min=%d\n",
++			       fsector_t, buffer_min);
++			printk("current_count_sectors=%ld\n",
++			       current_count_sectors);
++			if (CT(COMMAND) == FD_READ)
++				printk("read\n");
++			if (CT(COMMAND) == FD_READ)
++				printk("write\n");
++			break;
++		}
++		if (((unsigned long)buffer) % 512)
++			DPRINT("%p buffer not aligned\n", buffer);
++#endif
++			if (CT(COMMAND) == FD_READ)
++				memcpy(buffer, dma_buffer, size);
++			else
++				memcpy(dma_buffer, buffer, size);
++
++			remaining -= size;
++			dma_buffer += size;
++		}
++	}
++#ifdef FLOPPY_SANITY_CHECK
++	if (remaining){
++		if (remaining > 0)
++			max_sector -= remaining >> 9;
++		DPRINT("weirdness: remaining %d\n", remaining>>9);
++	}
++#endif
++}
++
++#if 0
++static inline int check_dma_crossing(char *start, 
++				     unsigned long length, char *message)
++{
++	if (CROSS_64KB(start, length)) {
++		printk("DMA xfer crosses 64KB boundary in %s %p-%p\n", 
++		       message, start, start+length);
++		return 1;
++	} else
++		return 0;
++}
++#endif
++
++/* work around a bug in pseudo DMA
++ * (on some FDCs) pseudo DMA does not stop when the CPU stops
++ * sending data.  Hence we need a different way to signal the
++ * transfer length:  We use SECT_PER_TRACK.  Unfortunately, this
++ * does not work with MT, hence we can only transfer one head at
++ * a time
++ */
++static void virtualdmabug_workaround(void)
++{
++	int hard_sectors, end_sector;
++
++	if(CT(COMMAND) == FD_WRITE) {
++		COMMAND &= ~0x80; /* switch off multiple track mode */
++
++		hard_sectors = raw_cmd->length >> (7 + SIZECODE);
++		end_sector = SECTOR + hard_sectors - 1;
++#ifdef FLOPPY_SANITY_CHECK
++		if(end_sector > SECT_PER_TRACK) {
++			printk("too many sectors %d > %d\n",
++			       end_sector, SECT_PER_TRACK);
++			return;
++		}
++#endif
++		SECT_PER_TRACK = end_sector; /* make sure SECT_PER_TRACK points
++					      * to end of transfer */
++	}
++}
++
++/*
++ * Formulate a read/write request.
++ * this routine decides where to load the data (directly to buffer, or to
++ * tmp floppy area), how much data to load (the size of the buffer, the whole
++ * track, or a single sector)
++ * All floppy_track_buffer handling goes in here. If we ever add track buffer
++ * allocation on the fly, it should be done here. No other part should need
++ * modification.
++ */
++
++static int make_raw_rw_request(void)
++{
++	int aligned_sector_t;
++	int max_sector, max_size, tracksize, ssize;
++
++	if(max_buffer_sectors == 0) {
++		printk("VFS: Block I/O scheduled on unopened device\n");
++		return 0;
++	}
++
++	set_fdc(DRIVE(current_req->rq_dev));
++
++	raw_cmd = &default_raw_cmd;
++	raw_cmd->flags = FD_RAW_SPIN | FD_RAW_NEED_DISK | FD_RAW_NEED_DISK |
++		FD_RAW_NEED_SEEK;
++	raw_cmd->cmd_count = NR_RW;
++	if (rq_data_dir(current_req) == READ) {
++		raw_cmd->flags |= FD_RAW_READ;
++		COMMAND = FM_MODE(_floppy,FD_READ);
++	} else if (rq_data_dir(current_req) == WRITE){
++		raw_cmd->flags |= FD_RAW_WRITE;
++		COMMAND = FM_MODE(_floppy,FD_WRITE);
++	} else {
++		DPRINT("make_raw_rw_request: unknown command\n");
++		return 0;
++	}
++
++	max_sector = _floppy->sect * _floppy->head;
++
++	TRACK = (int)current_req->sector / max_sector;
++	fsector_t = (int)current_req->sector % max_sector;
++	if (_floppy->track && TRACK >= _floppy->track) {
++		if (current_req->current_nr_sectors & 1) {
++			current_count_sectors = 1;
++			return 1;
++		} else
++			return 0;
++	}
++	HEAD = fsector_t / _floppy->sect;
++
++	if (((_floppy->stretch & FD_SWAPSIDES) || TESTF(FD_NEED_TWADDLE)) &&
++	    fsector_t < _floppy->sect)
++		max_sector = _floppy->sect;
++
++	/* 2M disks have phantom sectors on the first track */
++	if ((_floppy->rate & FD_2M) && (!TRACK) && (!HEAD)){
++		max_sector = 2 * _floppy->sect / 3;
++		if (fsector_t >= max_sector){
++			current_count_sectors = minimum(_floppy->sect - fsector_t,
++							current_req->nr_sectors);
++			return 1;
++		}
++		SIZECODE = 2;
++	} else
++		SIZECODE = FD_SIZECODE(_floppy);
++	raw_cmd->rate = _floppy->rate & 0x43;
++	if ((_floppy->rate & FD_2M) &&
++	    (TRACK || HEAD) &&
++	    raw_cmd->rate == 2)
++		raw_cmd->rate = 1;
++
++	if (SIZECODE)
++		SIZECODE2 = 0xff;
++	else
++		SIZECODE2 = 0x80;
++	raw_cmd->track = TRACK << STRETCH(_floppy);
++	DR_SELECT = UNIT(current_drive) + PH_HEAD(_floppy,HEAD);
++	GAP = _floppy->gap;
++	CODE2SIZE;
++	SECT_PER_TRACK = _floppy->sect << 2 >> SIZECODE;
++	SECTOR = ((fsector_t % _floppy->sect) << 2 >> SIZECODE) + 1;
++
++	/* tracksize describes the size which can be filled up with sectors
++	 * of size ssize.
++	 */
++	tracksize = _floppy->sect - _floppy->sect % ssize;
++	if (tracksize < _floppy->sect){
++		SECT_PER_TRACK ++;
++		if (tracksize <= fsector_t % _floppy->sect)
++			SECTOR--;
++
++		/* if we are beyond tracksize, fill up using smaller sectors */
++		while (tracksize <= fsector_t % _floppy->sect){
++			while(tracksize + ssize > _floppy->sect){
++				SIZECODE--;
++				ssize >>= 1;
++			}
++			SECTOR++; SECT_PER_TRACK ++;
++			tracksize += ssize;
++		}
++		max_sector = HEAD * _floppy->sect + tracksize;
++	} else if (!TRACK && !HEAD && !(_floppy->rate & FD_2M) && probing) {
++		max_sector = _floppy->sect;
++	} else if (!HEAD && CT(COMMAND) == FD_WRITE) {
++		/* for virtual DMA bug workaround */
++		max_sector = _floppy->sect;
++	}
++
++	in_sector_offset = (fsector_t % _floppy->sect) % ssize;
++	aligned_sector_t = fsector_t - in_sector_offset;
++	max_size = current_req->nr_sectors;
++	if ((raw_cmd->track == buffer_track) && 
++	    (current_drive == buffer_drive) &&
++	    (fsector_t >= buffer_min) && (fsector_t < buffer_max)) {
++		/* data already in track buffer */
++		if (CT(COMMAND) == FD_READ) {
++			copy_buffer(1, max_sector, buffer_max);
++			return 1;
++		}
++	} else if (in_sector_offset || current_req->nr_sectors < ssize){
++		if (CT(COMMAND) == FD_WRITE){
++			if (fsector_t + current_req->nr_sectors > ssize &&
++			    fsector_t + current_req->nr_sectors < ssize + ssize)
++				max_size = ssize + ssize;
++			else
++				max_size = ssize;
++		}
++		raw_cmd->flags &= ~FD_RAW_WRITE;
++		raw_cmd->flags |= FD_RAW_READ;
++		COMMAND = FM_MODE(_floppy,FD_READ);
++	} else if ((unsigned long)current_req->buffer < MAX_DMA_ADDRESS) {
++		unsigned long dma_limit;
++		int direct, indirect;
++
++		indirect= transfer_size(ssize,max_sector,max_buffer_sectors*2) -
++			fsector_t;
++
++		/*
++		 * Do NOT use minimum() here---MAX_DMA_ADDRESS is 64 bits wide
++		 * on a 64 bit machine!
++		 */
++		max_size = buffer_chain_size();
++		dma_limit = (MAX_DMA_ADDRESS - ((unsigned long) current_req->buffer)) >> 9;
++		if ((unsigned long) max_size > dma_limit) {
++			max_size = dma_limit;
++		}
++		/* 64 kb boundaries */
++		if (CROSS_64KB(current_req->buffer, max_size << 9))
++			max_size = (K_64 - 
++				    ((unsigned long)current_req->buffer) % K_64)>>9;
++		direct = transfer_size(ssize,max_sector,max_size) - fsector_t;
++		/*
++		 * We try to read tracks, but if we get too many errors, we
++		 * go back to reading just one sector at a time.
++		 *
++		 * This means we should be able to read a sector even if there
++		 * are other bad sectors on this track.
++		 */
++		if (!direct ||
++		    (indirect * 2 > direct * 3 &&
++		     *errors < DP->max_errors.read_track &&
++		     /*!TESTF(FD_NEED_TWADDLE) &&*/
++		     ((!probing || (DP->read_track&(1<<DRS->probed_format)))))){
++			max_size = current_req->nr_sectors;
 +		} else {
-+			vidmem [ ( x + cols * y ) * 2 ] = c; 
-+			if ( ++x >= cols ) {
-+				x = 0;
-+				if ( ++y >= lines ) {
-+					scroll();
-+					y--;
++			raw_cmd->kernel_data = current_req->buffer;
++			raw_cmd->length = current_count_sectors << 9;
++			if (raw_cmd->length == 0){
++				DPRINT("zero dma transfer attempted from make_raw_request\n");
++				DPRINT("indirect=%d direct=%d fsector_t=%d",
++					indirect, direct, fsector_t);
++				return 0;
++			}
++/*			check_dma_crossing(raw_cmd->kernel_data, 
++					   raw_cmd->length, 
++					   "end of make_raw_request [1]");*/
++
++			virtualdmabug_workaround();
++			return 2;
++		}
++	}
++
++	if (CT(COMMAND) == FD_READ)
++		max_size = max_sector; /* unbounded */
++
++	/* claim buffer track if needed */
++	if (buffer_track != raw_cmd->track ||  /* bad track */
++	    buffer_drive !=current_drive || /* bad drive */
++	    fsector_t > buffer_max ||
++	    fsector_t < buffer_min ||
++	    ((CT(COMMAND) == FD_READ ||
++	      (!in_sector_offset && current_req->nr_sectors >= ssize))&&
++	     max_sector > 2 * max_buffer_sectors + buffer_min &&
++	     max_size + fsector_t > 2 * max_buffer_sectors + buffer_min)
++	    /* not enough space */){
++		buffer_track = -1;
++		buffer_drive = current_drive;
++		buffer_max = buffer_min = aligned_sector_t;
++	}
++	raw_cmd->kernel_data = floppy_track_buffer + 
++		((aligned_sector_t-buffer_min)<<9);
++
++	if (CT(COMMAND) == FD_WRITE){
++		/* copy write buffer to track buffer.
++		 * if we get here, we know that the write
++		 * is either aligned or the data already in the buffer
++		 * (buffer will be overwritten) */
++#ifdef FLOPPY_SANITY_CHECK
++		if (in_sector_offset && buffer_track == -1)
++			DPRINT("internal error offset !=0 on write\n");
++#endif
++		buffer_track = raw_cmd->track;
++		buffer_drive = current_drive;
++		copy_buffer(ssize, max_sector, 2*max_buffer_sectors+buffer_min);
++	} else
++		transfer_size(ssize, max_sector,
++			      2*max_buffer_sectors+buffer_min-aligned_sector_t);
++
++	/* round up current_count_sectors to get dma xfer size */
++	raw_cmd->length = in_sector_offset+current_count_sectors;
++	raw_cmd->length = ((raw_cmd->length -1)|(ssize-1))+1;
++	raw_cmd->length <<= 9;
++#ifdef FLOPPY_SANITY_CHECK
++	/*check_dma_crossing(raw_cmd->kernel_data, raw_cmd->length, 
++	  "end of make_raw_request");*/
++	if ((raw_cmd->length < current_count_sectors << 9) ||
++	    (raw_cmd->kernel_data != current_req->buffer &&
++	     CT(COMMAND) == FD_WRITE &&
++	     (aligned_sector_t + (raw_cmd->length >> 9) > buffer_max ||
++	      aligned_sector_t < buffer_min)) ||
++	    raw_cmd->length % (128 << SIZECODE) ||
++	    raw_cmd->length <= 0 || current_count_sectors <= 0){
++		DPRINT("fractionary current count b=%lx s=%lx\n",
++			raw_cmd->length, current_count_sectors);
++		if (raw_cmd->kernel_data != current_req->buffer)
++			printk("addr=%d, length=%ld\n",
++			       (int) ((raw_cmd->kernel_data - 
++				       floppy_track_buffer) >> 9),
++			       current_count_sectors);
++		printk("st=%d ast=%d mse=%d msi=%d\n",
++		       fsector_t, aligned_sector_t, max_sector, max_size);
++		printk("ssize=%x SIZECODE=%d\n", ssize, SIZECODE);
++		printk("command=%x SECTOR=%d HEAD=%d, TRACK=%d\n",
++		       COMMAND, SECTOR, HEAD, TRACK);
++		printk("buffer drive=%d\n", buffer_drive);
++		printk("buffer track=%d\n", buffer_track);
++		printk("buffer_min=%d\n", buffer_min);
++		printk("buffer_max=%d\n", buffer_max);
++		return 0;
++	}
++
++	if (raw_cmd->kernel_data != current_req->buffer){
++		if (raw_cmd->kernel_data < floppy_track_buffer ||
++		    current_count_sectors < 0 ||
++		    raw_cmd->length < 0 ||
++		    raw_cmd->kernel_data + raw_cmd->length >
++		    floppy_track_buffer + (max_buffer_sectors  << 10)){
++			DPRINT("buffer overrun in schedule dma\n");
++			printk("fsector_t=%d buffer_min=%d current_count=%ld\n",
++			       fsector_t, buffer_min,
++			       raw_cmd->length >> 9);
++			printk("current_count_sectors=%ld\n",
++			       current_count_sectors);
++			if (CT(COMMAND) == FD_READ)
++				printk("read\n");
++			if (CT(COMMAND) == FD_READ)
++				printk("write\n");
++			return 0;
++		}
++	} else if (raw_cmd->length > current_req->nr_sectors << 9 ||
++		   current_count_sectors > current_req->nr_sectors){
++		DPRINT("buffer overrun in direct transfer\n");
++		return 0;
++	} else if (raw_cmd->length < current_count_sectors << 9){
++		DPRINT("more sectors than bytes\n");
++		printk("bytes=%ld\n", raw_cmd->length >> 9);
++		printk("sectors=%ld\n", current_count_sectors);
++	}
++	if (raw_cmd->length == 0){
++		DPRINT("zero dma transfer attempted from make_raw_request\n");
++		return 0;
++	}
++#endif
++
++	virtualdmabug_workaround();
++	return 2;
++}
++
++static void redo_fd_request(void)
++{
++#define REPEAT {request_done(0); continue; }
++	kdev_t device;
++	int tmp;
++
++	lastredo = jiffies;
++	if (current_drive < N_DRIVE)
++		floppy_off(current_drive);
++
++	for (;;) {
++		if (!current_req) {
++			struct request *req = elv_next_request(&floppy_queue);
++			if (!req) {
++				do_floppy = NULL;
++				unlock_fdc();
++				return;
++			}
++			current_req = req;
++		}
++		device = current_req->rq_dev;
++		set_fdc(DRIVE(device));
++		reschedule_timeout(current_reqD, "redo fd request", 0);
++
++		set_floppy(device);
++		raw_cmd = & default_raw_cmd;
++		raw_cmd->flags = 0;
++		if (start_motor(redo_fd_request)) return;
++		disk_change(current_drive);
++		if (test_bit(current_drive, &fake_change) ||
++		   TESTF(FD_DISK_CHANGED)){
++			DPRINT("disk absent or changed during operation\n");
++			REPEAT;
++		}
++		if (!_floppy) { /* Autodetection */
++			if (!probing){
++				DRS->probed_format = 0;
++				if (next_valid_format()){
++					DPRINT("no autodetectable formats\n");
++					_floppy = NULL;
++					REPEAT;
 +				}
 +			}
++			probing = 1;
++			_floppy = floppy_type+DP->autodetect[DRS->probed_format];
++		} else
++			probing = 0;
++		errors = & (current_req->errors);
++		tmp = make_raw_rw_request();
++		if (tmp < 2){
++			request_done(tmp);
++			continue;
++		}
++
++		if (TESTF(FD_NEED_TWADDLE))
++			twaddle();
++		schedule_bh( (void *)(void *) floppy_start);
++#ifdef DEBUGT
++		debugt("queue fd request");
++#endif
++		return;
++	}
++#undef REPEAT
++}
++
++static struct cont_t rw_cont={
++	rw_interrupt,
++	redo_fd_request,
++	bad_flp_intr,
++	request_done };
++
++static void process_fd_request(void)
++{
++	cont = &rw_cont;
++	schedule_bh( (void *)(void *) redo_fd_request);
++}
++
++static void do_fd_request(request_queue_t * q)
++{
++	if(max_buffer_sectors == 0) {
++		printk("VFS: do_fd_request called on non-open device\n");
++		return;
++	}
++
++	if (usage_count == 0) {
++		printk("warning: usage count=0, current_req=%p exiting\n", current_req);
++		printk("sect=%ld flags=%lx\n", (long)current_req->sector, current_req->flags);
++		return;
++	}
++	if (fdc_busy){
++		/* fdc busy, this new request will be treated when the
++		   current one is done */
++		is_alive("do fd request, old request running");
++		return;
++	}
++	lock_fdc(MAXTIMEOUT,0);
++	process_fd_request();
++	is_alive("do fd request");
++}
++
++static struct cont_t poll_cont={
++	success_and_wakeup,
++	floppy_ready,
++	generic_failure,
++	generic_done };
++
++static int poll_drive(int interruptible, int flag)
++{
++	int ret;
++	/* no auto-sense, just clear dcl */
++	raw_cmd = &default_raw_cmd;
++	raw_cmd->flags= flag;
++	raw_cmd->track=0;
++	raw_cmd->cmd_count=0;
++	cont = &poll_cont;
++#ifdef DCL_DEBUG
++	if (DP->flags & FD_DEBUG){
++		DPRINT("setting NEWCHANGE in poll_drive\n");
++	}
++#endif
++	SETF(FD_DISK_NEWCHANGE);
++	WAIT(floppy_ready);
++	return ret;
++}
++
++/*
++ * User triggered reset
++ * ====================
++ */
++
++static void reset_intr(void)
++{
++	printk("weird, reset interrupt called\n");
++}
++
++static struct cont_t reset_cont={
++	reset_intr,
++	success_and_wakeup,
++	generic_failure,
++	generic_done };
++
++static int user_reset_fdc(int drive, int arg, int interruptible)
++{
++	int ret;
++
++	ret=0;
++	LOCK_FDC(drive,interruptible);
++	if (arg == FD_RESET_ALWAYS)
++		FDCS->reset=1;
++	if (FDCS->reset){
++		cont = &reset_cont;
++		WAIT(reset_fdc);
++	}
++	process_fd_request();
++	return ret;
++}
++
++/*
++ * Misc Ioctl's and support
++ * ========================
++ */
++static inline int fd_copyout(void *param, const void *address, unsigned long size)
++{
++	return copy_to_user(param,address, size) ? -EFAULT : 0;
++}
++
++static inline int fd_copyin(void *param, void *address, unsigned long size)
++{
++	return copy_from_user(address, param, size) ? -EFAULT : 0;
++}
++
++#define _COPYOUT(x) (copy_to_user((void *)param, &(x), sizeof(x)) ? -EFAULT : 0)
++#define _COPYIN(x) (copy_from_user(&(x), (void *)param, sizeof(x)) ? -EFAULT : 0)
++
++#define COPYOUT(x) ECALL(_COPYOUT(x))
++#define COPYIN(x) ECALL(_COPYIN(x))
++
++static inline const char *drive_name(int type, int drive)
++{
++	struct floppy_struct *floppy;
++
++	if (type)
++		floppy = floppy_type + type;
++	else {
++		if (UDP->native_format)
++			floppy = floppy_type + UDP->native_format;
++		else
++			return "(null)";
++	}
++	if (floppy->name)
++		return floppy->name;
++	else
++		return "(null)";
++}
++
++
++/* raw commands */
++static void raw_cmd_done(int flag)
++{
++	int i;
++
++	if (!flag) {
++		raw_cmd->flags |= FD_RAW_FAILURE;
++		raw_cmd->flags |= FD_RAW_HARDFAILURE;
++	} else {
++		raw_cmd->reply_count = inr;
++		if (raw_cmd->reply_count > MAX_REPLIES)
++			raw_cmd->reply_count=0;
++		for (i=0; i< raw_cmd->reply_count; i++)
++			raw_cmd->reply[i] = reply_buffer[i];
++
++		if (raw_cmd->flags & (FD_RAW_READ | FD_RAW_WRITE))
++		{
++			unsigned long flags;
++			flags=claim_dma_lock();
++			raw_cmd->length = fd_get_dma_residue();
++			release_dma_lock(flags);
++		}
++		
++		if ((raw_cmd->flags & FD_RAW_SOFTFAILURE) &&
++		    (!raw_cmd->reply_count || (raw_cmd->reply[0] & 0xc0)))
++			raw_cmd->flags |= FD_RAW_FAILURE;
++
++		if (disk_change(current_drive))
++			raw_cmd->flags |= FD_RAW_DISK_CHANGE;
++		else
++			raw_cmd->flags &= ~FD_RAW_DISK_CHANGE;
++		if (raw_cmd->flags & FD_RAW_NO_MOTOR_AFTER)
++			motor_off_callback(current_drive);
++
++		if (raw_cmd->next &&
++		   (!(raw_cmd->flags & FD_RAW_FAILURE) ||
++		    !(raw_cmd->flags & FD_RAW_STOP_IF_FAILURE)) &&
++		   ((raw_cmd->flags & FD_RAW_FAILURE) ||
++		    !(raw_cmd->flags &FD_RAW_STOP_IF_SUCCESS))) {
++			raw_cmd = raw_cmd->next;
++			return;
 +		}
 +	}
-+
-+	SCREEN_INFO.orig_x = x;
-+	SCREEN_INFO.orig_y = y;
-+
-+	pos = x + cols * y;	/* Update cursor position */
-+	while (!(inb_p(0x60) & 4));
-+	outb_p(0x49, 0x62);
-+	outb_p(pos & 0xff, 0x60);
-+	outb_p((pos >> 8) & 0xff, 0x60);
++	generic_done(flag);
 +}
 +
-+static void* memset(void* s, int c, size_t n)
-+{
-+	int i;
-+	char *ss = (char*)s;
 +
-+	for (i=0;i<n;i++) ss[i] = c;
-+	return s;
-+}
-+
-+static void* memcpy(void* __dest, __const void* __src,
-+			    size_t __n)
-+{
-+	int i;
-+	char *d = (char *)__dest, *s = (char *)__src;
-+
-+	for (i=0;i<__n;i++) d[i] = s[i];
-+	return __dest;
-+}
-+
-+/* ===========================================================================
-+ * Fill the input buffer. This is called only when the buffer is empty
-+ * and at least one byte is really needed.
-+ */
-+static int fill_inbuf(void)
-+{
-+	if (insize != 0) {
-+		error("ran out of input data\n");
-+	}
-+
-+	inbuf = input_data;
-+	insize = input_len;
-+	inptr = 1;
-+	return inbuf[0];
-+}
-+
-+/* ===========================================================================
-+ * Write the output window window[0..outcnt-1] and update crc and bytes_out.
-+ * (Used for the decompressed data only.)
-+ */
-+static void flush_window_low(void)
-+{
-+    ulg c = crc;         /* temporary variable */
-+    unsigned n;
-+    uch *in, *out, ch;
-+    
-+    in = window;
-+    out = &output_data[output_ptr]; 
-+    for (n = 0; n < outcnt; n++) {
-+	    ch = *out++ = *in++;
-+	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
-+    }
-+    crc = c;
-+    bytes_out += (ulg)outcnt;
-+    output_ptr += (ulg)outcnt;
-+    outcnt = 0;
-+}
-+
-+static void flush_window_high(void)
-+{
-+    ulg c = crc;         /* temporary variable */
-+    unsigned n;
-+    uch *in,  ch;
-+    in = window;
-+    for (n = 0; n < outcnt; n++) {
-+	ch = *output_data++ = *in++;
-+	if ((ulg)output_data == low_buffer_end) output_data=high_buffer_start;
-+	c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
-+    }
-+    crc = c;
-+    bytes_out += (ulg)outcnt;
-+    outcnt = 0;
-+}
-+
-+static void flush_window(void)
-+{
-+	if (high_loaded) flush_window_high();
-+	else flush_window_low();
-+}
-+
-+static void error(char *x)
-+{
-+	puts("\n\n");
-+	puts(x);
-+	puts("\n\n -- System halted");
-+
-+	while(1);	/* Halt */
-+}
-+
-+#define STACK_SIZE (4096)
-+
-+long user_stack [STACK_SIZE];
-+
-+struct {
-+	long * a;
-+	short b;
-+	} stack_start = { & user_stack [STACK_SIZE] , __KERNEL_DS };
-+
-+static void setup_normal_output_buffer(void)
-+{
-+#ifdef STANDARD_MEMORY_BIOS_CALL
-+	if (EXT_MEM_K < 1024) error("Less than 2MB of memory.\n");
-+#else
-+	if ((ALT_MEM_K > EXT_MEM_K ? ALT_MEM_K : EXT_MEM_K) < 1024) error("Less than 2MB of memory.\n");
-+#endif
-+	output_data = (char *)0x100000; /* Points to 1M */
-+	free_mem_end_ptr = (long)real_mode;
-+}
-+
-+struct moveparams {
-+	uch *low_buffer_start;  int lcount;
-+	uch *high_buffer_start; int hcount;
++static struct cont_t raw_cmd_cont={
++	success_and_wakeup,
++	floppy_start,
++	generic_failure,
++	raw_cmd_done
 +};
 +
-+static void setup_output_buffer_if_we_run_high(struct moveparams *mv)
++static inline int raw_cmd_copyout(int cmd, char *param,
++				  struct floppy_raw_cmd *ptr)
 +{
-+	high_buffer_start = (uch *)(((ulg)&end) + HEAP_SIZE);
-+#ifdef STANDARD_MEMORY_BIOS_CALL
-+	if (EXT_MEM_K < (3*1024)) error("Less than 4MB of memory.\n");
-+#else
-+	if ((ALT_MEM_K > EXT_MEM_K ? ALT_MEM_K : EXT_MEM_K) < (3*1024)) error("Less than 4MB of memory.\n");
-+#endif	
-+	mv->low_buffer_start = output_data = (char *)LOW_BUFFER_START;
-+	low_buffer_end = ((unsigned int)real_mode > LOW_BUFFER_MAX
-+	  ? LOW_BUFFER_MAX : (unsigned int)real_mode) & ~0xfff;
-+	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
-+	high_loaded = 1;
-+	free_mem_end_ptr = (long)high_buffer_start;
-+	if ( (0x100000 + low_buffer_size) > ((ulg)high_buffer_start)) {
-+		high_buffer_start = (uch *)(0x100000 + low_buffer_size);
-+		mv->hcount = 0; /* say: we need not to move high_buffer */
++	int ret;
++
++	while(ptr) {
++		COPYOUT(*ptr);
++		param += sizeof(struct floppy_raw_cmd);
++		if ((ptr->flags & FD_RAW_READ) && ptr->buffer_length){
++			if (ptr->length>=0 && ptr->length<=ptr->buffer_length)
++				ECALL(fd_copyout(ptr->data, 
++						 ptr->kernel_data, 
++						 ptr->buffer_length - 
++						 ptr->length));
++		}
++		ptr = ptr->next;
 +	}
-+	else mv->hcount = -1;
-+	mv->high_buffer_start = high_buffer_start;
++	return 0;
 +}
 +
-+static void close_output_buffer_if_we_run_high(struct moveparams *mv)
++
++static void raw_cmd_free(struct floppy_raw_cmd **ptr)
 +{
-+	if (bytes_out > low_buffer_size) {
-+		mv->lcount = low_buffer_size;
-+		if (mv->hcount)
-+			mv->hcount = bytes_out - low_buffer_size;
++	struct floppy_raw_cmd *next,*this;
++
++	this = *ptr;
++	*ptr = 0;
++	while(this) {
++		if (this->buffer_length) {
++			fd_dma_mem_free((unsigned long)this->kernel_data,
++					this->buffer_length);
++			this->buffer_length = 0;
++		}
++		next = this->next;
++		kfree(this);
++		this = next;
++	}
++}
++
++
++static inline int raw_cmd_copyin(int cmd, char *param,
++				 struct floppy_raw_cmd **rcmd)
++{
++	struct floppy_raw_cmd *ptr;
++	int ret;
++	int i;
++	
++	*rcmd = 0;
++	while(1) {
++		ptr = (struct floppy_raw_cmd *) 
++			kmalloc(sizeof(struct floppy_raw_cmd), GFP_USER);
++		if (!ptr)
++			return -ENOMEM;
++		*rcmd = ptr;
++		COPYIN(*ptr);
++		ptr->next = 0;
++		ptr->buffer_length = 0;
++		param += sizeof(struct floppy_raw_cmd);
++		if (ptr->cmd_count > 33)
++			/* the command may now also take up the space
++			 * initially intended for the reply & the
++			 * reply count. Needed for long 82078 commands
++			 * such as RESTORE, which takes ... 17 command
++			 * bytes. Murphy's law #137: When you reserve
++			 * 16 bytes for a structure, you'll one day
++			 * discover that you really need 17...
++			 */
++			return -EINVAL;
++
++		for (i=0; i< 16; i++)
++			ptr->reply[i] = 0;
++		ptr->resultcode = 0;
++		ptr->kernel_data = 0;
++
++		if (ptr->flags & (FD_RAW_READ | FD_RAW_WRITE)) {
++			if (ptr->length <= 0)
++				return -EINVAL;
++			ptr->kernel_data =(char*)fd_dma_mem_alloc(ptr->length);
++			fallback_on_nodma_alloc(&ptr->kernel_data,
++						ptr->length);
++			if (!ptr->kernel_data)
++				return -ENOMEM;
++			ptr->buffer_length = ptr->length;
++		}
++		if (ptr->flags & FD_RAW_WRITE)
++			ECALL(fd_copyin(ptr->data, ptr->kernel_data, 
++					ptr->length));
++		rcmd = & (ptr->next);
++		if (!(ptr->flags & FD_RAW_MORE))
++			return 0;
++		ptr->rate &= 0x43;
++	}
++}
++
++
++static int raw_cmd_ioctl(int cmd, void *param)
++{
++	int drive, ret, ret2;
++	struct floppy_raw_cmd *my_raw_cmd;
++
++	if (FDCS->rawcmd <= 1)
++		FDCS->rawcmd = 1;
++	for (drive= 0; drive < N_DRIVE; drive++){
++		if (FDC(drive) != fdc)
++			continue;
++		if (drive == current_drive){
++			if (UDRS->fd_ref > 1){
++				FDCS->rawcmd = 2;
++				break;
++			}
++		} else if (UDRS->fd_ref){
++			FDCS->rawcmd = 2;
++			break;
++		}
++	}
++
++	if (FDCS->reset)
++		return -EIO;
++
++	ret = raw_cmd_copyin(cmd, param, &my_raw_cmd);
++	if (ret) {
++		raw_cmd_free(&my_raw_cmd);
++		return ret;
++	}
++
++	raw_cmd = my_raw_cmd;
++	cont = &raw_cmd_cont;
++	ret=wait_til_done(floppy_start,1);
++#ifdef DCL_DEBUG
++	if (DP->flags & FD_DEBUG){
++		DPRINT("calling disk change from raw_cmd ioctl\n");
++	}
++#endif
++
++	if (ret != -EINTR && FDCS->reset)
++		ret = -EIO;
++
++	DRS->track = NO_TRACK;
++
++	ret2 = raw_cmd_copyout(cmd, param, my_raw_cmd);
++	if (!ret)
++		ret = ret2;
++	raw_cmd_free(&my_raw_cmd);
++	return ret;
++}
++
++static int invalidate_drive(struct block_device *bdev)
++{
++	/* invalidate the buffer track to force a reread */
++	set_bit(DRIVE(to_kdev_t(bdev->bd_dev)), &fake_change);
++	process_fd_request();
++	check_disk_change(bdev);
++	return 0;
++}
++
++
++static inline void clear_write_error(int drive)
++{
++	CLEARSTRUCT(UDRWE);
++}
++
++static inline int set_geometry(unsigned int cmd, struct floppy_struct *g,
++			       int drive, int type, struct block_device *bdev)
++{
++	int cnt;
++
++	/* sanity checking for parameters.*/
++	if (g->sect <= 0 ||
++	    g->head <= 0 ||
++	    g->track <= 0 ||
++	    g->track > UDP->tracks>>STRETCH(g) ||
++	    /* check if reserved bits are set */
++	    (g->stretch&~(FD_STRETCH|FD_SWAPSIDES)) != 0)
++		return -EINVAL;
++	if (type){
++		if (!capable(CAP_SYS_ADMIN))
++			return -EPERM;
++		LOCK_FDC(drive,1);
++		for (cnt = 0; cnt < N_DRIVE; cnt++){
++			if (ITYPE(drive_state[cnt].fd_device) == type &&
++			    drive_state[cnt].fd_ref)
++				set_bit(drive, &fake_change);
++		}
++		floppy_type[type] = *g;
++		floppy_type[type].name="user format";
++		for (cnt = type << 2; cnt < (type << 2) + 4; cnt++)
++			floppy_sizes[cnt]= floppy_sizes[cnt+0x80]=
++				floppy_type[type].size+1;
++		process_fd_request();
++		for (cnt = 0; cnt < N_DRIVE; cnt++){
++			if (ITYPE(drive_state[cnt].fd_device) == type &&
++			    drive_state[cnt].fd_ref)
++				__check_disk_change(
++					MKDEV(FLOPPY_MAJOR,
++					      drive_state[cnt].fd_device));
++		}
 +	} else {
-+		mv->lcount = bytes_out;
-+		mv->hcount = 0;
++		LOCK_FDC(drive,1);
++		if (cmd != FDDEFPRM)
++			/* notice a disk change immediately, else
++			 * we lose our settings immediately*/
++			CALL(poll_drive(1, FD_RAW_NEED_DISK));
++		user_params[drive] = *g;
++		if (buffer_drive == drive)
++			SUPBOUND(buffer_max, user_params[drive].sect);
++		current_type[drive] = &user_params[drive];
++		floppy_sizes[drive] = user_params[drive].size;
++		if (cmd == FDDEFPRM)
++			DRS->keep_data = -1;
++		else
++			DRS->keep_data = 1;
++		/* invalidation. Invalidate only when needed, i.e.
++		 * when there are already sectors in the buffer cache
++		 * whose number will change. This is useful, because
++		 * mtools often changes the geometry of the disk after
++		 * looking at the boot block */
++		if (DRS->maxblock > user_params[drive].sect || DRS->maxtrack)
++			invalidate_drive(bdev);
++		else
++			process_fd_request();
 +	}
++	return 0;
 +}
 +
++/* handle obsolete ioctl's */
++static int ioctl_table[]= {
++	FDCLRPRM,
++	FDSETPRM,
++	FDDEFPRM,
++	FDGETPRM,
++	FDMSGON,
++	FDMSGOFF,
++	FDFMTBEG,
++	FDFMTTRK,
++	FDFMTEND,
++	FDSETEMSGTRESH,
++	FDFLUSH,
++	FDSETMAXERRS,
++	FDGETMAXERRS,
++	FDGETDRVTYP,
++	FDSETDRVPRM,
++	FDGETDRVPRM,
++	FDGETDRVSTAT,
++	FDPOLLDRVSTAT,
++	FDRESET,
++	FDGETFDCSTAT,
++	FDWERRORCLR,
++	FDWERRORGET,
++	FDRAWCMD,
++	FDEJECT,
++	FDTWADDLE
++};
 +
-+asmlinkage int decompress_kernel(struct moveparams *mv, void *rmode)
++static inline int normalize_ioctl(int *cmd, int *size)
 +{
-+	real_mode = rmode;
++	int i;
 +
-+	vidmem = (char *)(((unsigned int)SCREEN_INFO.orig_video_page) << 4);
-+
-+	lines = SCREEN_INFO.orig_video_lines;
-+	cols = SCREEN_INFO.orig_video_cols;
-+
-+	if (free_mem_ptr < 0x100000) setup_normal_output_buffer();
-+	else setup_output_buffer_if_we_run_high(mv);
-+
-+	makecrc();
-+	puts("Uncompressing Linux... ");
-+	gunzip();
-+	puts("Ok, booting the kernel.\n");
-+	if (high_loaded) close_output_buffer_if_we_run_high(mv);
-+	return high_loaded;
-+}
-diff -urN linux/arch/i386/boot98/compressed/vmlinux.scr linux98/arch/i386/boot98/compressed/vmlinux.scr
---- linux/arch/i386/boot98/compressed/vmlinux.scr	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/compressed/vmlinux.scr	Tue Oct  1 16:07:40 2002
-@@ -0,0 +1,9 @@
-+SECTIONS
-+{
-+  .data : { 
-+	input_len = .;
-+	LONG(input_data_end - input_data) input_data = .; 
-+	*(.data) 
-+	input_data_end = .; 
++	for (i=0; i < ARRAY_SIZE(ioctl_table); i++) {
++		if ((*cmd & 0xffff) == (ioctl_table[i] & 0xffff)){
++			*size = _IOC_SIZE(*cmd);
++			*cmd = ioctl_table[i];
++			if (*size > _IOC_SIZE(*cmd)) {
++				printk("ioctl not yet supported\n");
++				return -EFAULT;
++			}
++			return 0;
++		}
 +	}
-+}
-diff -urN linux/arch/i386/boot98/install.sh linux98/arch/i386/boot98/install.sh
---- linux/arch/i386/boot98/install.sh	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/install.sh	Tue Oct  1 16:07:35 2002
-@@ -0,0 +1,40 @@
-+#!/bin/sh
-+#
-+# arch/i386/boot/install.sh
-+#
-+# This file is subject to the terms and conditions of the GNU General Public
-+# License.  See the file "COPYING" in the main directory of this archive
-+# for more details.
-+#
-+# Copyright (C) 1995 by Linus Torvalds
-+#
-+# Adapted from code in arch/i386/boot/Makefile by H. Peter Anvin
-+#
-+# "make install" script for i386 architecture
-+#
-+# Arguments:
-+#   $1 - kernel version
-+#   $2 - kernel image file
-+#   $3 - kernel map file
-+#   $4 - default install path (blank if root directory)
-+#
-+
-+# User may have a custom install script
-+
-+if [ -x ~/bin/installkernel ]; then exec ~/bin/installkernel "$@"; fi
-+if [ -x /sbin/installkernel ]; then exec /sbin/installkernel "$@"; fi
-+
-+# Default install - same as make zlilo
-+
-+if [ -f $4/vmlinuz ]; then
-+	mv $4/vmlinuz $4/vmlinuz.old
-+fi
-+
-+if [ -f $4/System.map ]; then
-+	mv $4/System.map $4/System.old
-+fi
-+
-+cat $2 > $4/vmlinuz
-+cp $3 $4/System.map
-+
-+if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
-diff -urN linux/arch/i386/boot98/setup.S linux98/arch/i386/boot98/setup.S
---- linux/arch/i386/boot98/setup.S	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/setup.S	Fri Aug 30 17:06:33 2002
-@@ -0,0 +1,950 @@
-+/*
-+ *	setup.S		Copyright (C) 1991, 1992 Linus Torvalds
-+ *
-+ * setup.s is responsible for getting the system data from the BIOS,
-+ * and putting them into the appropriate places in system memory.
-+ * both setup.s and system has been loaded by the bootblock.
-+ *
-+ * This code asks the bios for memory/disk/other parameters, and
-+ * puts them in a "safe" place: 0x90000-0x901FF, ie where the
-+ * boot-block used to be. It is then up to the protected mode
-+ * system to read them from there before the area is overwritten
-+ * for buffer-blocks.
-+ *
-+ * Move PS/2 aux init code to psaux.c
-+ * (troyer@saifr00.cfsat.Honeywell.COM) 03Oct92
-+ *
-+ * some changes and additional features by Christoph Niemann,
-+ * March 1993/June 1994 (Christoph.Niemann@linux.org)
-+ *
-+ * add APM BIOS checking by Stephen Rothwell, May 1994
-+ * (sfr@canb.auug.org.au)
-+ *
-+ * High load stuff, initrd support and position independency
-+ * by Hans Lermen & Werner Almesberger, February 1996
-+ * <lermen@elserv.ffm.fgan.de>, <almesber@lrc.epfl.ch>
-+ *
-+ * Video handling moved to video.S by Martin Mares, March 1996
-+ * <mj@k332.feld.cvut.cz>
-+ *
-+ * Extended memory detection scheme retwiddled by orc@pell.chi.il.us (david
-+ * parsons) to avoid loadlin confusion, July 1997
-+ *
-+ * Transcribed from Intel (as86) -> AT&T (gas) by Chris Noe, May 1999.
-+ * <stiker@northlink.com>
-+ *
-+ * Fix to work around buggy BIOSes which dont use carry bit correctly
-+ * and/or report extended memory in CX/DX for e801h memory size detection 
-+ * call.  As a result the kernel got wrong figures.  The int15/e801h docs
-+ * from Ralf Brown interrupt list seem to indicate AX/BX should be used
-+ * anyway.  So to avoid breaking many machines (presumably there was a reason
-+ * to orginally use CX/DX instead of AX/BX), we do a kludge to see
-+ * if CX/DX have been changed in the e801 call and if so use AX/BX .
-+ * Michael Miller, April 2001 <michaelm@mjmm.org>
-+ *
-+ * New A20 code ported from SYSLINUX by H. Peter Anvin. AMD Elan bugfixes
-+ * by Robert Schwebel, December 2001 <robert@schwebel.de>
-+ *
-+ * Heavily modified for NEC PC-9800 series by Kyoto University Microcomputer
-+ * Club (KMC) Linux/98 project <seraphim@kmc.kyoto-u.ac.jp>, 1997-1999
-+ */
-+
-+#include <linux/config.h>
-+#include <asm/segment.h>
-+#include <linux/version.h>
-+#include <linux/compile.h>
-+#include <asm/boot.h>
-+#include <asm/e820.h>
-+#include <asm/page.h>
-+	
-+/* Signature words to ensure LILO loaded us right */
-+#define SIG1	0xAA55
-+#define SIG2	0x5A5A
-+
-+#define HIRESO_TEXT	0xe000
-+#define NORMAL_TEXT	0xa000
-+
-+#define BIOS_FLAG2	0x0400
-+#define BIOS_FLAG5	0x0458
-+#define RDISK_EQUIP	0x0488
-+#define BIOS_FLAG	0x0501
-+#define KB_SHFT_STS	0x053a
-+#define DISK_EQUIP	0x055c
-+
-+INITSEG  = DEF_INITSEG		# 0x9000, we move boot here, out of the way
-+SYSSEG   = DEF_SYSSEG		# 0x1000, system loaded at 0x10000 (65536).
-+SETUPSEG = DEF_SETUPSEG		# 0x9020, this is the current segment
-+				# ... and the former contents of CS
-+
-+DELTA_INITSEG = SETUPSEG - INITSEG	# 0x0020
-+
-+.code16
-+.globl begtext, begdata, begbss, endtext, enddata, endbss
-+
-+.text
-+begtext:
-+.data
-+begdata:
-+.bss
-+begbss:
-+.text
-+
-+start:
-+	jmp	trampoline
-+
-+# This is the setup header, and it must start at %cs:2 (old 0x9020:2)
-+
-+		.ascii	"HdrS"		# header signature
-+		.word	0x0203		# header version number (>= 0x0105)
-+					# or else old loadlin-1.5 will fail)
-+realmode_swtch:	.word	0, 0		# default_switch, SETUPSEG
-+start_sys_seg:	.word	SYSSEG
-+		.word	kernel_version	# pointing to kernel version string
-+					# above section of header is compatible
-+					# with loadlin-1.5 (header v1.5). Don't
-+					# change it.
-+
-+type_of_loader:	.byte	0		# = 0, old one (LILO, Loadlin,
-+					#      Bootlin, SYSLX, bootsect...)
-+					# See Documentation/i386/boot.txt for
-+					# assigned ids
-+	
-+# flags, unused bits must be zero (RFU) bit within loadflags
-+loadflags:
-+LOADED_HIGH	= 1			# If set, the kernel is loaded high
-+CAN_USE_HEAP	= 0x80			# If set, the loader also has set
-+					# heap_end_ptr to tell how much
-+					# space behind setup.S can be used for
-+					# heap purposes.
-+					# Only the loader knows what is free
-+#ifndef __BIG_KERNEL__
-+		.byte	0
-+#else
-+		.byte	LOADED_HIGH
-+#endif
-+
-+setup_move_size: .word  0x8000		# size to move, when setup is not
-+					# loaded at 0x90000. We will move setup 
-+					# to 0x90000 then just before jumping
-+					# into the kernel. However, only the
-+					# loader knows how much data behind
-+					# us also needs to be loaded.
-+
-+code32_start:				# here loaders can put a different
-+					# start address for 32-bit code.
-+#ifndef __BIG_KERNEL__
-+		.long	0x1000		#   0x1000 = default for zImage
-+#else
-+		.long	0x100000	# 0x100000 = default for big kernel
-+#endif
-+
-+ramdisk_image:	.long	0		# address of loaded ramdisk image
-+					# Here the loader puts the 32-bit
-+					# address where it loaded the image.
-+					# This only will be read by the kernel.
-+
-+ramdisk_size:	.long	0		# its size in bytes
-+
-+bootsect_kludge:
-+		.word  bootsect_helper, SETUPSEG
-+
-+heap_end_ptr:	.word	modelist+1024	# (Header version 0x0201 or later)
-+					# space from here (exclusive) down to
-+					# end of setup code can be used by setup
-+					# for local heap purposes.
-+
-+pad1:		.word	0
-+cmd_line_ptr:	.long 0			# (Header version 0x0202 or later)
-+					# If nonzero, a 32-bit pointer
-+					# to the kernel command line.
-+					# The command line should be
-+					# located between the start of
-+					# setup and the end of low
-+					# memory (0xa0000), or it may
-+					# get overwritten before it
-+					# gets read.  If this field is
-+					# used, there is no longer
-+					# anything magical about the
-+					# 0x90000 segment; the setup
-+					# can be located anywhere in
-+					# low memory 0x10000 or higher.
-+
-+ramdisk_max:	.long __MAXMEM-1	# (Header version 0x0203 or later)
-+					# The highest safe address for
-+					# the contents of an initrd
-+
-+trampoline:	call	start_of_setup
-+		.space	1024
-+# End of setup header #####################################################
-+
-+start_of_setup:
-+# Set %ds = %cs, we know that SETUPSEG = %cs at this point
-+	movw	%cs, %ax		# aka SETUPSEG
-+	movw	%ax, %ds
-+# Check signature at end of setup
-+	cmpw	$SIG1, setup_sig1
-+	jne	bad_sig
-+
-+	cmpw	$SIG2, setup_sig2
-+	jne	bad_sig
-+
-+	jmp	good_sig1
-+
-+# Routine to print asciiz string at ds:si
-+prtstr:
-+	lodsb
-+	andb	%al, %al
-+	jz	fin
-+
-+	call	prtchr
-+	jmp	prtstr
-+
-+fin:	ret
-+
-+no_sig_mess: .string	"No setup signature found ..."
-+
-+good_sig1:
-+	jmp	good_sig
-+
-+# We now have to find the rest of the setup code/data
-+bad_sig:
-+	movw	%cs, %ax			# SETUPSEG
-+	subw	$DELTA_INITSEG, %ax		# INITSEG
-+	movw	%ax, %ds
-+	xorb	%bh, %bh
-+	movb	(497), %bl			# get setup sect from bootsect
-+	subw	$4, %bx				# LILO loads 4 sectors of setup
-+	shlw	$8, %bx				# convert to words (1sect=2^8 words)
-+	movw	%bx, %cx
-+	shrw	$3, %bx				# convert to segment
-+	addw	$SYSSEG, %bx
-+	movw	%bx, %cs:start_sys_seg
-+# Move rest of setup code/data to here
-+	movw	$2048, %di			# four sectors loaded by LILO
-+	subw	%si, %si
-+	pushw	%cs
-+	popw	%es
-+	movw	$SYSSEG, %ax
-+	movw	%ax, %ds
-+	rep
-+	movsw
-+	movw	%cs, %ax			# aka SETUPSEG
-+	movw	%ax, %ds
-+	cmpw	$SIG1, setup_sig1
-+	jne	no_sig
-+
-+	cmpw	$SIG2, setup_sig2
-+	jne	no_sig
-+
-+	jmp	good_sig
-+
-+no_sig:
-+	lea	no_sig_mess, %si
-+	call	prtstr
-+
-+no_sig_loop:
-+	hlt
-+	jmp	no_sig_loop
-+
-+good_sig:
-+	movw	%cs, %ax			# aka SETUPSEG
-+	subw	$DELTA_INITSEG, %ax 		# aka INITSEG
-+	movw	%ax, %ds
-+# Check if an old loader tries to load a big-kernel
-+	testb	$LOADED_HIGH, %cs:loadflags	# Do we have a big kernel?
-+	jz	loader_ok			# No, no danger for old loaders.
-+
-+	cmpb	$0, %cs:type_of_loader 		# Do we have a loader that
-+						# can deal with us?
-+	jnz	loader_ok			# Yes, continue.
-+
-+	pushw	%cs				# No, we have an old loader,
-+	popw	%ds				# die. 
-+	lea	loader_panic_mess, %si
-+	call	prtstr
-+
-+	jmp	no_sig_loop
-+
-+loader_panic_mess: .string "Wrong loader, giving up..."
-+
-+loader_ok:
-+# Get memory size (extended mem, kB)
-+
-+# On PC-9800, memory size detection is done completely in 32-bit
-+# kernel initialize code (kernel/setup.c).
-+	pushw	%es
-+	xorl	%eax, %eax
-+	movw	%ax, %es
-+	movb	%al, (E820NR)		# PC-9800 has no E820
-+	movb	%es:(0x401), %al
-+	shll	$7, %eax
-+	addw	$1024, %ax
-+	movw	%ax, (2)
-+	movl	%eax, (0x1e0)
-+	movw	%es:(0x594), %ax
-+	shll	$10, %eax
-+	addl	%eax, (0x1e0)
-+	popw	%es
-+
-+# Check for video adapter and its parameters and allow the
-+# user to browse video modes.
-+	call	video				# NOTE: we need %ds pointing
-+						# to bootsector
-+
-+# Get text video mode
-+	movb	$0x0B, %ah
-+	int	$0x18		# CRT mode sense
-+	movw	$(20 << 8) + 40, %cx
-+	testb	$0x10, %al
-+	jnz	3f
-+	movb	$20, %ch
-+	testb	$0x01, %al
-+	jnz	1f
-+	movb	$25, %ch
-+	jmp	1f
-+3:	# If bit 4 was 1, it means either 1) 31 lines for hi-reso mode,
-+	# or 2) 30 lines for PC-9821.
-+	movb	$31, %ch	# hireso mode value
-+	pushw	$0
-+	popw	%es
-+	testb	$0x08, %es:BIOS_FLAG
-+	jnz	1f
-+	movb	$30, %ch
-+1:	# Now we got # of rows in %ch
-+	movb	%ch, (14)
-+
-+	testb	$0x02, %al
-+	jnz	2f
-+	movb	$80, %cl
-+2:	# Now we got # of columns in %cl
-+	movb	%cl, (7)
-+
-+	# Next, get horizontal frequency if supported
-+	movw	$0x3100, %ax
-+	int	$0x18		# Call CRT bios
-+	movb	%al, (6)	# If 31h is unsupported, %al remains 0
-+
-+# Get hd0-3 data...
-+	pushw	%ds				# aka INITSEG
-+	popw	%es
-+	xorw	%ax, %ax
-+	movw	%ax, %ds
-+	cld
-+	movw	$0x0080, %di
-+	movb	DISK_EQUIP+1, %ah
-+	movb	$0x80, %al
-+
-+get_hd_info:
-+	shrb	%ah
-+	pushw	%ax
-+	jnc	1f
-+	movb	$0x84, %ah
-+	int	$0x1b
-+	jnc	2f				# Success
-+1:	xorw	%cx, %cx			# `0 cylinders' means no drive
-+2:	# Attention! Work area (drive_info) is arranged for PC-9800.
-+	movw	%cx, %ax			# # of cylinders
-+	stosw
-+	movw	%dx, %ax			# # of sectors / # of heads
-+	stosw
-+	movw	%bx, %ax			# sector size in bytes
-+	stosw
-+	popw	%ax
-+	incb	%al
-+	cmpb	$0x84, %al
-+	jb	get_hd_info
-+
-+# Get fd data...
-+	movw	DISK_EQUIP, %ax
-+	andw	$0xf00f, %ax
-+	orb	%al, %ah
-+	movb	RDISK_EQUIP, %al
-+	notb	%al
-+	andb	%al, %ah			# ignore all `RAM drive'
-+
-+	movb	$0x30, %al
-+
-+get_fd_info:
-+	shrb	%ah
-+	pushw	%ax
-+	jnc	1f
-+	movb	$0xc4, %ah
-+	int	$0x1b
-+	movb	%ah, %al
-+	andb	$4, %al				# 1.44MB support flag
-+	shrb	%al
-+	addb	$2, %al				# %al = 2 (1.2MB) or 4 (1.44MB)
-+	jmp	2f
-+1:	movb	$0, %al				# no drive
-+2:	stosb
-+	popw	%ax
-+	incb	%al
-+	testb	$0x04, %al
-+	jz	get_fd_info
-+
-+	addb	$(0xb0 - 0x34), %al
-+	jnc	get_fd_info			# check FDs on 640KB I/F
-+
-+	pushw	%es
-+	popw	%ds				# %ds got bootsector again
-+#if 0
-+	mov	$0, (0x1ff)			# default is no pointing device
-+#endif
-+
-+#if defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)
-+# Then check for an APM BIOS...
-+						# %ds points to the bootsector
-+	movw	$0, 0x40			# version = 0 means no APM BIOS
-+	movw	$0x09a00, %ax			# APM BIOS installation check
-+	xorw	%bx, %bx
-+	int	$0x1f
-+	jc	done_apm_bios			# Nope, no APM BIOS
-+
-+	cmpw	$0x0504d, %bx			# Check for "PM" signature
-+	jne	done_apm_bios			# No signature, no APM BIOS
-+
-+	testb	$0x02, %cl			# Is 32 bit supported?
-+	je	done_apm_bios			# No 32-bit, no (good) APM BIOS
-+
-+	movw	$0x09a04, %ax			# Disconnect first just in case
-+	xorw	%bx, %bx
-+	int	$0x1f				# ignore return code
-+	movw	$0x09a03, %ax			# 32 bit connect
-+	xorl	%ebx, %ebx
-+	int	$0x1f
-+	jc	no_32_apm_bios			# Ack, error.
-+
-+	movw	%ax,  (66)			# BIOS code segment
-+	movl	%ebx, (68)			# BIOS entry point offset
-+	movw	%cx,  (72)			# BIOS 16 bit code segment
-+	movw	%dx,  (74)			# BIOS data segment
-+	movl	%esi, (78)			# BIOS code segment length
-+	movw	%di,  (82)			# BIOS data segment length
-+# Redo the installation check as the 32 bit connect
-+# modifies the flags returned on some BIOSs
-+	movw	$0x09a00, %ax			# APM BIOS installation check
-+	xorw	%bx, %bx
-+	int	$0x1f
-+	jc	apm_disconnect			# error -> shouldn't happen
-+
-+	cmpw	$0x0504d, %bx			# check for "PM" signature
-+	jne	apm_disconnect			# no sig -> shouldn't happen
-+
-+	movw	%ax, (64)			# record the APM BIOS version
-+	movw	%cx, (76)			# and flags
-+	jmp	done_apm_bios
-+
-+apm_disconnect:					# Tidy up
-+	movw	$0x09a04, %ax			# Disconnect
-+	xorw	%bx, %bx
-+	int	$0x1f				# ignore return code
-+
-+	jmp	done_apm_bios
-+
-+no_32_apm_bios:
-+	andw	$0xfffd, (76)			# remove 32 bit support bit
-+done_apm_bios:
-+#endif
-+
-+# Pass cursor position to kernel...
-+	movw	%cs:cursor_address, %ax
-+	shrw	%ax		# cursor_address is 2 bytes unit
-+	movb	$80, %cl
-+	divb	%cl
-+	xchgb	%al, %ah	# (0) = %al = X, (1) = %ah = Y
-+	movw	%ax, (0)
-+
-+#if 0
-+	movw	$msg_cpos, %si
-+	call	prtstr_cs
-+	call	prthex
-+	call	prtstr_cs
-+	movw	%ds, %ax
-+	call	prthex
-+	call	prtstr_cs
-+	movb	$0x11, %ah
-+	int	$0x18
-+	movb	$0, %ah
-+	int	$0x18
-+	.section .rodata, "a"
-+msg_cpos:	.string	"Cursor position: 0x"
-+		.string	", %ds:0x"
-+		.string	"\r\n"
-+	.previous
-+#endif
-+
-+# Now we want to move to protected mode ...
-+	cmpw	$0, %cs:realmode_swtch
-+	jz	rmodeswtch_normal
-+
-+	lcall	*%cs:realmode_swtch
-+
-+	jmp	rmodeswtch_end
-+
-+rmodeswtch_normal:
-+        pushw	%cs
-+	call	default_switch
-+
-+rmodeswtch_end:
-+# we get the code32 start address and modify the below 'jmpi'
-+# (loader may have changed it)
-+	movl	%cs:code32_start, %eax
-+	movl	%eax, %cs:code32
-+
-+# Now we move the system to its rightful place ... but we check if we have a
-+# big-kernel. In that case we *must* not move it ...
-+	testb	$LOADED_HIGH, %cs:loadflags
-+	jz	do_move0			# .. then we have a normal low
-+						# loaded zImage
-+						# .. or else we have a high
-+						# loaded bzImage
-+	jmp	end_move			# ... and we skip moving
-+
-+do_move0:
-+	movw	$0x100, %ax			# start of destination segment
-+	movw	%cs, %bp			# aka SETUPSEG
-+	subw	$DELTA_INITSEG, %bp		# aka INITSEG
-+	movw	%cs:start_sys_seg, %bx		# start of source segment
-+	cld
-+do_move:
-+	movw	%ax, %es			# destination segment
-+	incb	%ah				# instead of add ax,#0x100
-+	movw	%bx, %ds			# source segment
-+	addw	$0x100, %bx
-+	subw	%di, %di
-+	subw	%si, %si
-+	movw 	$0x800, %cx
-+	rep
-+	movsw
-+	cmpw	%bp, %bx			# assume start_sys_seg > 0x200,
-+						# so we will perhaps read one
-+						# page more than needed, but
-+						# never overwrite INITSEG
-+						# because destination is a
-+						# minimum one page below source
-+	jb	do_move
-+
-+end_move:
-+# then we load the segment descriptors
-+	movw	%cs, %ax			# aka SETUPSEG
-+	movw	%ax, %ds
-+               
-+# Check whether we need to be downward compatible with version <=201
-+	cmpl	$0, cmd_line_ptr
-+	jne	end_move_self		# loader uses version >=202 features
-+	cmpb	$0x20, type_of_loader
-+	je	end_move_self		# bootsect loader, we know of it
-+ 
-+# Boot loader doesnt support boot protocol version 2.02.
-+# If we have our code not at 0x90000, we need to move it there now.
-+# We also then need to move the params behind it (commandline)
-+# Because we would overwrite the code on the current IP, we move
-+# it in two steps, jumping high after the first one.
-+	movw	%cs, %ax
-+	cmpw	$SETUPSEG, %ax
-+	je	end_move_self
-+
-+	cli					# make sure we really have
-+						# interrupts disabled !
-+						# because after this the stack
-+						# should not be used
-+	subw	$DELTA_INITSEG, %ax		# aka INITSEG
-+	movw	%ss, %dx
-+	cmpw	%ax, %dx
-+	jb	move_self_1
-+
-+	addw	$INITSEG, %dx
-+	subw	%ax, %dx			# this will go into %ss after
-+						# the move
-+move_self_1:
-+	movw	%ax, %ds
-+	movw	$INITSEG, %ax			# real INITSEG
-+	movw	%ax, %es
-+	movw	%cs:setup_move_size, %cx
-+	std					# we have to move up, so we use
-+						# direction down because the
-+						# areas may overlap
-+	movw	%cx, %di
-+	decw	%di
-+	movw	%di, %si
-+	subw	$move_self_here+0x200, %cx
-+	rep
-+	movsb
-+	ljmp	$SETUPSEG, $move_self_here
-+
-+move_self_here:
-+	movw	$move_self_here+0x200, %cx
-+	rep
-+	movsb
-+	movw	$SETUPSEG, %ax
-+	movw	%ax, %ds
-+	movw	%dx, %ss
-+
-+end_move_self:					# now we are at the right place
-+	lidt	idt_48				# load idt with 0,0
-+	xorl	%eax, %eax			# Compute gdt_base
-+	movw	%ds, %ax			# (Convert %ds:gdt to a linear ptr)
-+	shll	$4, %eax
-+	addl	$gdt, %eax
-+	movl	%eax, (gdt_48+2)
-+	lgdt	gdt_48				# load gdt with whatever is
-+						# appropriate
-+
-+# that was painless, now we enable A20
-+
-+	outb	%al, $0xf2			# A20 on
-+	movb	$0x02, %al
-+	outb	%al, $0xf6			# also A20 on; making ITF's
-+						# way our model
-+
-+	# PC-9800 seems to enable A20 at the moment of `outb';
-+	# so we don't wait unlike IBM PCs (see ../setup.S).
-+
-+# enable DMA to access memory over 0x100000 (1MB).
-+
-+	movw	$0x439, %dx
-+	inb	%dx, %al
-+	andb	$(~4), %al
-+	outb	%al, %dx
-+
-+# Set DMA to increment its bank address automatically at 16MB boundary.
-+# Initial setting is 64KB boundary mode so that we can't run DMA crossing
-+# physical address 0xXXXXFFFF.
-+
-+	movb	$0x0c, %al
-+	outb	%al, $0x29			# ch. 0
-+	movb	$0x0d, %al
-+	outb	%al, $0x29			# ch. 1
-+	movb	$0x0e, %al
-+	outb	%al, $0x29			# ch. 2
-+	movb	$0x0f, %al
-+	outb	%al, $0x29			# ch. 3
-+	movb	$0x50, %al
-+	outb	%al, $0x11			# reinitialize DMAC
-+
-+# make sure any possible coprocessor is properly reset..
-+	movb	$0, %al
-+	outb	%al, $0xf8
-+	outb	%al, $0x5f			# delay
-+
-+# well, that went ok, I hope. Now we mask all interrupts - the rest
-+# is done in init_IRQ().
-+	movb	$0xFF, %al			# mask all interrupts for now
-+	outb	%al, $0x0A
-+	outb	%al, $0x5f			# delay
-+	
-+	movb	$0x7F, %al			# mask all irq's but irq7 which
-+	outb	%al, $0x02			# is cascaded
-+
-+# Well, that certainly wasn't fun :-(. Hopefully it works, and we don't
-+# need no steenking BIOS anyway (except for the initial loading :-).
-+# The BIOS-routine wants lots of unnecessary data, and it's less
-+# "interesting" anyway. This is how REAL programmers do it.
-+#
-+# Well, now's the time to actually move into protected mode. To make
-+# things as simple as possible, we do no register set-up or anything,
-+# we let the gnu-compiled 32-bit programs do that. We just jump to
-+# absolute address 0x1000 (or the loader supplied one),
-+# in 32-bit protected mode.
-+#
-+# Note that the short jump isn't strictly needed, although there are
-+# reasons why it might be a good idea. It won't hurt in any case.
-+	movw	$1, %ax				# protected mode (PE) bit
-+	lmsw	%ax				# This is it!
-+	jmp	flush_instr
-+
-+flush_instr:
-+	xorw	%bx, %bx			# Flag to indicate a boot
-+	xorl	%esi, %esi			# Pointer to real-mode code
-+	movw	%cs, %si
-+	subw	$DELTA_INITSEG, %si
-+	shll	$4, %esi			# Convert to 32-bit pointer
-+# NOTE: For high loaded big kernels we need a
-+#	jmpi    0x100000,__KERNEL_CS
-+#
-+#	but we yet haven't reloaded the CS register, so the default size 
-+#	of the target offset still is 16 bit.
-+#       However, using an operand prefix (0x66), the CPU will properly
-+#	take our 48 bit far pointer. (INTeL 80386 Programmer's Reference
-+#	Manual, Mixing 16-bit and 32-bit code, page 16-6)
-+
-+	.byte 0x66, 0xea			# prefix + jmpi-opcode
-+code32:	.long	0x1000				# will be set to 0x100000
-+						# for big kernels
-+	.word	__KERNEL_CS
-+
-+# Here's a bunch of information about your current kernel..
-+kernel_version:	.ascii	UTS_RELEASE
-+		.ascii	" ("
-+		.ascii	LINUX_COMPILE_BY
-+		.ascii	"@"
-+		.ascii	LINUX_COMPILE_HOST
-+		.ascii	") "
-+		.ascii	UTS_VERSION
-+		.byte	0
-+
-+# This is the default real mode switch routine.
-+# to be called just before protected mode transition
-+default_switch:
-+	cli					# no interrupts allowed !
-+	outb	%al, $0x50			# disable NMI for bootup
-+						# sequence
-+	lret
-+
-+# This routine only gets called, if we get loaded by the simple
-+# bootsect loader _and_ have a bzImage to load.
-+# Because there is no place left in the 512 bytes of the boot sector,
-+# we must emigrate to code space here.
-+bootsect_helper:
-+	cmpw	$0, %cs:bootsect_es
-+	jnz	bootsect_second
-+
-+	movb	$0x20, %cs:type_of_loader
-+	movw	%es, %ax
-+	shrw	$4, %ax
-+	movb	%ah, %cs:bootsect_src_base+2
-+	movw	%es, %ax
-+	movw	%ax, %cs:bootsect_es
-+	subw	$SYSSEG, %ax
-+	lret					# nothing else to do for now
-+
-+bootsect_second:
-+	pushw	%bx
-+	pushw	%cx
-+	pushw	%si
-+	pushw	%di
-+	testw	%bp, %bp			# 64K full ?
-+	jne	bootsect_ex
-+
-+	xorw	%cx, %cx			# zero means full 64K
-+	pushw	%cs
-+	popw	%es
-+	movw	$bootsect_gdt, %bx
-+	xorw	%si, %si			# source address
-+	xorw	%di, %di			# destination address
-+	movb	$0x90, %ah
-+	int	$0x1f
-+	jc	bootsect_panic			# this, if INT1F fails
-+
-+	movw	%cs:bootsect_es, %es		# we reset %es to always point
-+	incb	%cs:bootsect_dst_base+2		# to 0x10000
-+bootsect_ex:
-+	movb	%cs:bootsect_dst_base+2, %ah
-+	shlb	$4, %ah				# we now have the number of
-+						# moved frames in %ax
-+	xorb	%al, %al
-+	popw	%di
-+	popw	%si
-+	popw	%cx
-+	popw	%bx
-+	lret
-+
-+bootsect_gdt:
-+	.word	0, 0, 0, 0
-+	.word	0, 0, 0, 0
-+
-+bootsect_src:
-+	.word	0xffff
-+
-+bootsect_src_base:
-+	.byte	0x00, 0x00, 0x01		# base = 0x010000
-+	.byte	0x93				# typbyte
-+	.word	0				# limit16,base24 =0
-+
-+bootsect_dst:
-+	.word	0xffff
-+
-+bootsect_dst_base:
-+	.byte	0x00, 0x00, 0x10		# base = 0x100000
-+	.byte	0x93				# typbyte
-+	.word	0				# limit16,base24 =0
-+	.word	0, 0, 0, 0			# BIOS CS
-+	.word	0, 0, 0, 0			# BIOS DS
-+
-+bootsect_es:
-+	.word	0
-+
-+bootsect_panic:
-+	pushw	%cs
-+	popw	%ds
-+	cld
-+	leaw	bootsect_panic_mess, %si
-+	call	prtstr
-+
-+bootsect_panic_loop:
-+	jmp	bootsect_panic_loop
-+
-+bootsect_panic_mess:
-+	.string	"INT1F refuses to access high mem, giving up."
-+
-+# This routine prints one character (in %al) on console.
-+# PC-9800 doesn't have BIOS-function to do it like IBM PC's INT 10h - 0Eh,
-+# so we hardcode `prtchr' subroutine here.
-+prtchr:
-+	pushaw
-+	pushw	%es
-+	cmpb	$0, %cs:prtchr_initialized
-+	jnz	prtchr_ok
-+	xorw	%cx, %cx
-+	movw	%cx, %es
-+	testb	$0x8, %es:BIOS_FLAG
-+	jz	1f
-+	movb	$(HIRESO_TEXT >> 8), %cs:cursor_address+3
-+	movw	$(80 * 31 * 2), %cs:max_cursor_offset
-+1:	pushw	%ax
-+	call	get_cursor_position
-+	movw	%ax, %cs:cursor_address
-+	popw	%ax
-+	movb	$1, %cs:prtchr_initialized
-+prtchr_ok:
-+	lesw	%cs:cursor_address, %di
-+	movw	$160, %bx
-+	movb	$0, %ah
-+	cmpb	$13, %al
-+	je	do_cr
-+	cmpb	$10, %al
-+	je	do_lf
-+
-+	# normal (printable) character
-+	stosw
-+	movb	$0xe1, %es:0x2000-2(%di)
-+	jmp	1f
-+
-+do_cr:	movw	%di, %ax
-+	divb	%bl				# %al = Y, %ah = X * 2
-+	mulb	%bl
-+	movw	%ax, %dx
-+	jmp	2f
-+
-+do_lf:	addw	%bx, %di
-+1:	movw	%cs:max_cursor_offset, %cx
-+	cmpw	%cx, %di
-+	movw	%di, %dx
-+	jb	2f
-+	# cursor reaches bottom of screen; scroll it
-+	subw	%bx, %dx
-+	xorw	%di, %di
-+	movw	%bx, %si
-+	cld
-+	subw	%bx, %cx
-+	shrw	%cx
-+	pushw	%cx
-+	rep; es; movsw
-+	movb	$32, %al			# clear bottom line characters
-+	movb	$80, %cl
-+	rep; stosw
-+	movw	$0x2000, %di
-+	popw	%cx
-+	leaw	(%bx,%di), %si
-+	rep; es; movsw
-+	movb	$0xe1, %al			# clear bottom line attributes
-+	movb	$80, %cl
-+	rep; stosw
-+2:	movw	%dx, %cs:cursor_address
-+	movb	$0x13, %ah			# move cursor to right position
-+	int	$0x18
-+	popw	%es
-+	popaw
-+	ret
-+
-+cursor_address:
-+	.word	0
-+	.word	NORMAL_TEXT
-+max_cursor_offset:
-+	.word	80 * 25 * 2			# for normal 80x25 mode
-+
-+# putstr may called without running through start_of_setup (via bootsect_panic)
-+# so we should initialize ourselves on demand.
-+prtchr_initialized:
-+	.byte	0
-+
-+# This routine queries GDC (graphic display controller) for current cursor
-+# position. Cursor position is returned in %ax (CPU offset address).
-+get_cursor_position:
-+1:	inb	$0x60, %al
-+	outb	%al, $0x5f			# delay
-+	outb	%al, $0x5f			# delay
-+	testb	$0x04, %al			# Is FIFO empty?
-+	jz	1b				# no -> wait until empty
-+
-+	movb	$0xe0, %al			# CSRR command
-+	outb	%al, $0x62			# command write
-+	outb	%al, $0x5f			# delay
-+	outb	%al, $0x5f			# delay
-+
-+2:	inb	$0x60, %al
-+	outb	%al, $0x5f			# delay
-+	outb	%al, $0x5f			# delay
-+	testb	$0x01, %al			# Is DATA READY?
-+	jz	2b				# no -> wait until ready
-+
-+	inb	$0x62, %al			# read xAD (L)
-+	outb	%al, $0x5f			# delay
-+	outb	%al, $0x5f			# delay
-+	movb	%al, %ah
-+	inb	$0x62, %al			# read xAD (H)
-+	outb	%al, $0x5f			# delay
-+	outb	%al, $0x5f			# delay
-+	xchgb	%al, %ah			# correct byte order
-+	pushw	%ax
-+	inb	$0x62, %al			# read yAD (L)
-+	outb	%al, $0x5f			# delay
-+	outb	%al, $0x5f			# delay
-+	inb	$0x62, %al			# read yAD (M)
-+	outb	%al, $0x5f			# delay
-+	outb	%al, $0x5f			# delay
-+	inb	$0x62, %al			# read yAD (H)
-+						# yAD is not our interest,
-+						# so discard it.
-+	popw	%ax
-+	addw	%ax, %ax			# convert to CPU address
-+	ret
-+
-+# Descriptor tables
-+#
-+# NOTE: if you think the GDT is large, you can make it smaller by just
-+# defining the KERNEL_CS and KERNEL_DS entries and shifting the gdt
-+# address down by GDT_ENTRY_KERNEL_CS*8. This puts bogus entries into
-+# the GDT, but those wont be used so it's not a problem.
-+#
-+gdt:
-+	.fill GDT_ENTRY_KERNEL_CS,8,0
-+
-+	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
-+	.word	0				# base address = 0
-+	.word	0x9A00				# code read/exec
-+	.word	0x00CF				# granularity = 4096, 386
-+						#  (+5th nibble of limit)
-+
-+	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
-+	.word	0				# base address = 0
-+	.word	0x9200				# data read/write
-+	.word	0x00CF				# granularity = 4096, 386
-+						#  (+5th nibble of limit)
-+idt_48:
-+	.word	0				# idt limit = 0
-+	.word	0, 0				# idt base = 0L
-+gdt_48:
-+	.word	GDT_ENTRY_KERNEL_CS*8 + 16 - 1	# gdt limit
-+
-+	.word	0, 0				# gdt base (filled in later)
-+
-+# Include video setup & detection code
-+
-+#include "video.S"
-+
-+# Setup signature -- must be last
-+setup_sig1:	.word	SIG1
-+setup_sig2:	.word	SIG2
-+
-+# After this point, there is some free space which is used by the video mode
-+# handling code to store the temporary mode table (not used by the kernel).
-+
-+modelist:
-+
-+.text
-+endtext:
-+.data
-+enddata:
-+.bss
-+endbss:
-diff -urN linux/arch/i386/boot98/tools/build.c linux98/arch/i386/boot98/tools/build.c
---- linux/arch/i386/boot98/tools/build.c	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/tools/build.c	Tue Oct  8 13:22:50 2002
-@@ -0,0 +1,188 @@
-+/*
-+ *  $Id: build.c,v 1.5 1997/05/19 12:29:58 mj Exp $
-+ *
-+ *  Copyright (C) 1991, 1992  Linus Torvalds
-+ *  Copyright (C) 1997 Martin Mares
-+ */
-+
-+/*
-+ * This file builds a disk-image from three different files:
-+ *
-+ * - bootsect: exactly 512 bytes of 8086 machine code, loads the rest
-+ * - setup: 8086 machine code, sets up system parm
-+ * - system: 80386 code for actual system
-+ *
-+ * It does some checking that all files are of the correct type, and
-+ * just writes the result to stdout, removing headers and padding to
-+ * the right amount. It also writes some system data to stderr.
-+ */
-+
-+/*
-+ * Changes by tytso to allow root device specification
-+ * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-+ * Cross compiling fixes by Gertjan van Wingerde, July 1996
-+ * Rewritten by Martin Mares, April 1997
-+ */
-+
-+#include <stdio.h>
-+#include <string.h>
-+#include <stdlib.h>
-+#include <stdarg.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <sys/sysmacros.h>
-+#include <unistd.h>
-+#include <fcntl.h>
-+#include <asm/boot.h>
-+
-+typedef unsigned char byte;
-+typedef unsigned short word;
-+typedef unsigned long u32;
-+
-+#define DEFAULT_MAJOR_ROOT 0
-+#define DEFAULT_MINOR_ROOT 0
-+
-+/* Minimal number of setup sectors (see also bootsect.S) */
-+#define SETUP_SECTS 4
-+
-+byte buf[1024];
-+int fd;
-+int is_big_kernel;
-+
-+void die(const char * str, ...)
-+{
-+	va_list args;
-+	va_start(args, str);
-+	vfprintf(stderr, str, args);
-+	fputc('\n', stderr);
-+	exit(1);
++	return -EINVAL;
 +}
 +
-+void file_open(const char *name)
++static int get_floppy_geometry(int drive, int type, struct floppy_struct **g)
 +{
-+	if ((fd = open(name, O_RDONLY, 0)) < 0)
-+		die("Unable to open `%s': %m", name);
++	if (type)
++		*g = &floppy_type[type];
++	else {
++		LOCK_FDC(drive,0);
++		CALL(poll_drive(0,0));
++		process_fd_request();		
++		*g = current_type[drive];
++	}
++	if (!*g)
++		return -ENODEV;
++	return 0;
 +}
 +
-+void usage(void)
++static int fd_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
++		    unsigned long param)
 +{
-+	die("Usage: build [-b] bootsect setup system [rootdev] [> image]");
-+}
++#define FD_IOCTL_ALLOWED ((filp) && (filp)->private_data)
++#define OUT(c,x) case c: outparam = (const char *) (x); break
++#define IN(c,x,tag) case c: *(x) = inparam. tag ; return 0
 +
-+int main(int argc, char ** argv)
-+{
-+	unsigned int i, c, sz, setup_sectors;
-+	u32 sys_size;
-+	byte major_root, minor_root;
-+	struct stat sb;
++	int i,drive,type;
++	kdev_t device;
++	int ret;
++	int size;
++	union inparam {
++		struct floppy_struct g; /* geometry */
++		struct format_descr f;
++		struct floppy_max_errors max_errors;
++		struct floppy_drive_params dp;
++	} inparam; /* parameters coming from user space */
++	const char *outparam; /* parameters passed back to user space */
 +
-+	if (argc > 2 && !strcmp(argv[1], "-b"))
-+	  {
-+	    is_big_kernel = 1;
-+	    argc--, argv++;
-+	  }
-+	if ((argc < 4) || (argc > 5))
-+		usage();
-+	if (argc > 4) {
-+		if (!strcmp(argv[4], "CURRENT")) {
-+			if (stat("/", &sb)) {
-+				perror("/");
-+				die("Couldn't stat /");
++	device = inode->i_rdev;
++	type = TYPE(device);
++	drive = DRIVE(device);
++
++	/* convert compatibility eject ioctls into floppy eject ioctl.
++	 * We do this in order to provide a means to eject floppy disks before
++	 * installing the new fdutils package */
++	if (cmd == CDROMEJECT || /* CD-ROM eject */
++	    cmd == 0x6470 /* SunOS floppy eject */) {
++		DPRINT("obsolete eject ioctl\n");
++		DPRINT("please use floppycontrol --eject\n");
++		cmd = FDEJECT;
++	}
++
++	/* generic block device ioctls */
++	switch(cmd) {
++		/* the following have been inspired by the corresponding
++		 * code for other block devices. */
++		struct floppy_struct *g;
++		case HDIO_GETGEO:
++		{
++			struct hd_geometry loc;
++			ECALL(get_floppy_geometry(drive, type, &g));
++			loc.heads = g->head;
++			loc.sectors = g->sect;
++			loc.cylinders = g->track;
++			loc.start = 0;
++			return _COPYOUT(loc);
++		}
++	}
++
++	/* convert the old style command into a new style command */
++	if ((cmd & 0xff00) == 0x0200) {
++		ECALL(normalize_ioctl(&cmd, &size));
++	} else
++		return -EINVAL;
++
++	/* permission checks */
++	if (((cmd & 0x40) && !FD_IOCTL_ALLOWED) ||
++	    ((cmd & 0x80) && !capable(CAP_SYS_ADMIN)))
++		return -EPERM;
++
++	/* copyin */
++	CLEARSTRUCT(&inparam);
++	if (_IOC_DIR(cmd) & _IOC_WRITE)
++		ECALL(fd_copyin((void *)param, &inparam, size))
++
++	switch (cmd) {
++		case FDEJECT:
++			if (UDRS->fd_ref != 1)
++				/* somebody else has this drive open */
++				return -EBUSY;
++			LOCK_FDC(drive,1);
++
++			/* do the actual eject. Fails on
++			 * non-Sparc architectures */
++			ret=fd_eject(UNIT(drive));
++
++			USETF(FD_DISK_CHANGED);
++			USETF(FD_VERIFY);
++			process_fd_request();
++			return ret;			
++		case FDCLRPRM:
++			LOCK_FDC(drive,1);
++			current_type[drive] = NULL;
++			floppy_sizes[drive] = MAX_DISK_SIZE << 1;
++			UDRS->keep_data = 0;
++			return invalidate_drive(inode->i_bdev);
++		case FDSETPRM:
++		case FDDEFPRM:
++			return set_geometry(cmd, & inparam.g,
++					    drive, type, inode->i_bdev);
++		case FDGETPRM:
++			ECALL(get_floppy_geometry(drive, type, 
++						  (struct floppy_struct**)
++						  &outparam));
++			break;
++
++		case FDMSGON:
++			UDP->flags |= FTD_MSG;
++			return 0;
++		case FDMSGOFF:
++			UDP->flags &= ~FTD_MSG;
++			return 0;
++
++		case FDFMTBEG:
++			LOCK_FDC(drive,1);
++			CALL(poll_drive(1, FD_RAW_NEED_DISK));
++			ret = UDRS->flags;
++			if (ret & FD_VERIFY) {
++				CALL(poll_drive(1, FD_RAW_NEED_DISK));
++				ret = UDRS->flags;
 +			}
-+			major_root = major(sb.st_dev);
-+			minor_root = minor(sb.st_dev);
-+		} else if (strcmp(argv[4], "FLOPPY")) {
-+			if (stat(argv[4], &sb)) {
-+				perror(argv[4]);
-+				die("Couldn't stat root device.");
++
++			if (ret & FD_VERIFY) {
++				CALL(poll_drive(1, FD_RAW_NEED_DISK));
++				ret = UDRS->flags;
 +			}
-+			major_root = major(sb.st_rdev);
-+			minor_root = minor(sb.st_rdev);
++
++			if (ret & FD_VERIFY) {
++				CALL(poll_drive(1, FD_RAW_NEED_DISK));
++				ret = UDRS->flags;
++			}
++
++			if (ret & FD_VERIFY) {
++				CALL(poll_drive(1, FD_RAW_NEED_DISK));
++				ret = UDRS->flags;
++			}
++
++			if(ret & FD_VERIFY){
++				CALL(poll_drive(1, FD_RAW_NEED_DISK));
++				ret = UDRS->flags;
++			}
++			process_fd_request();
++			if (ret & FD_VERIFY)
++				return -ENODEV;
++			if (!(ret & FD_DISK_WRITABLE))
++				return -EROFS;
++			return 0;
++		case FDFMTTRK:
++			if (UDRS->fd_ref != 1)
++				return -EBUSY;
++			return do_format(device, &inparam.f);
++		case FDFMTEND:
++		case FDFLUSH:
++			LOCK_FDC(drive,1);
++			return invalidate_drive(inode->i_bdev);
++
++		case FDSETEMSGTRESH:
++			UDP->max_errors.reporting =
++				(unsigned short) (param & 0x0f);
++			return 0;
++		OUT(FDGETMAXERRS, &UDP->max_errors);
++		IN(FDSETMAXERRS, &UDP->max_errors, max_errors);
++
++		case FDGETDRVTYP:
++			outparam = drive_name(type,drive);
++			SUPBOUND(size,strlen(outparam)+1);
++			break;
++
++		IN(FDSETDRVPRM, UDP, dp);
++		OUT(FDGETDRVPRM, UDP);
++
++		case FDPOLLDRVSTAT:
++			LOCK_FDC(drive,1);
++			CALL(poll_drive(1, FD_RAW_NEED_DISK));
++			process_fd_request();
++			/* fall through */
++	       	OUT(FDGETDRVSTAT, UDRS);
++
++		case FDRESET:
++			return user_reset_fdc(drive, (int)param, 1);
++
++		OUT(FDGETFDCSTAT,UFDCS);
++
++		case FDWERRORCLR:
++			CLEARSTRUCT(UDRWE);
++			return 0;
++		OUT(FDWERRORGET,UDRWE);
++
++		case FDRAWCMD:
++			if (type)
++				return -EINVAL;
++			LOCK_FDC(drive,1);
++			set_floppy(device);
++			CALL(i = raw_cmd_ioctl(cmd,(void *) param));
++			process_fd_request();
++			return i;
++
++		case FDTWADDLE:
++			LOCK_FDC(drive,1);
++			twaddle();
++			process_fd_request();
++			return 0;
++
++		default:
++			return -EINVAL;
++	}
++
++	if (_IOC_DIR(cmd) & _IOC_READ)
++		return fd_copyout((void *)param, outparam, size);
++	else
++		return 0;
++#undef OUT
++#undef IN
++}
++
++static void __init config_types(void)
++{
++	int first=1;
++	int drive;
++	extern struct fd_info {
++		unsigned char dummy[4 * 6];
++		unsigned char fd_types[8];
++	} drive_info;
++
++	for (drive = 0; drive < 4; drive++)
++		UDP->cmos = drive_info.fd_types[drive];
++
++	/* XXX */
++	/* additional physical CMOS drive detection should go here */
++
++	for (drive=0; drive < N_DRIVE; drive++){
++		unsigned int type = UDP->cmos;
++		struct floppy_drive_params *params;
++		const char *name = NULL;
++		static char temparea[32];
++
++		if (type < NUMBER(default_drive_params)) {
++			params = &default_drive_params[type].params;
++			if (type) {
++				name = default_drive_params[type].name;
++				allowed_drive_mask |= 1 << drive;
++			}
 +		} else {
-+			major_root = 0;
-+			minor_root = 0;
++			params = &default_drive_params[0].params;
++			sprintf(temparea, "unknown type %d (usb?)", type);
++			name = temparea;
 +		}
-+	} else {
-+		major_root = DEFAULT_MAJOR_ROOT;
-+		minor_root = DEFAULT_MINOR_ROOT;
-+	}
-+	fprintf(stderr, "Root device is (%d, %d)\n", major_root, minor_root);
-+
-+	file_open(argv[1]);
-+	i = read(fd, buf, sizeof(buf));
-+	fprintf(stderr,"Boot sector %d bytes.\n",i);
-+	if (i != 512)
-+		die("Boot block must be exactly 512 bytes");
-+	if (buf[510] != 0x55 || buf[511] != 0xaa)
-+		die("Boot block hasn't got boot flag (0xAA55)");
-+	buf[508] = minor_root;
-+	buf[509] = major_root;
-+	if (write(1, buf, 512) != 512)
-+		die("Write call failed");
-+	close (fd);
-+
-+	file_open(argv[2]);				    /* Copy the setup code */
-+	for (i=0 ; (c=read(fd, buf, sizeof(buf)))>0 ; i+=c )
-+		if (write(1, buf, c) != c)
-+			die("Write call failed");
-+	if (c != 0)
-+		die("read-error on `setup'");
-+	close (fd);
-+
-+	setup_sectors = (i + 511) / 512;	/* Pad unused space with zeros */
-+	if (!(setup_sectors & 1))
-+		setup_sectors++;    /* setup_sectors must be odd on NEC PC-9800 */
-+	fprintf(stderr, "Setup is %d bytes.\n", i);
-+	memset(buf, 0, sizeof(buf));
-+	while (i < setup_sectors * 512) {
-+		c = setup_sectors * 512 - i;
-+		if (c > sizeof(buf))
-+			c = sizeof(buf);
-+		if (write(1, buf, c) != c)
-+			die("Write call failed");
-+		i += c;
-+	}
-+
-+	file_open(argv[3]);
-+	if (fstat (fd, &sb))
-+		die("Unable to stat `%s': %m", argv[3]);
-+	sz = sb.st_size;
-+	fprintf (stderr, "System is %d kB\n", sz/1024);
-+	sys_size = (sz + 15) / 16;
-+	/* 0x28000*16 = 2.5 MB, conservative estimate for the current maximum */
-+	if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))
-+		die("System is too big. Try using %smodules.",
-+			is_big_kernel ? "" : "bzImage or ");
-+	if (sys_size > 0xefff)
-+		fprintf(stderr,"warning: kernel is too big for standalone boot "
-+		    "from floppy\n");
-+	while (sz > 0) {
-+		int l, n;
-+
-+		l = (sz > sizeof(buf)) ? sizeof(buf) : sz;
-+		if ((n=read(fd, buf, l)) != l) {
-+			if (n < 0)
-+				die("Error reading %s: %m", argv[3]);
-+			else
-+				die("%s: Unexpected EOF", argv[3]);
++		if (name) {
++			const char * prepend = ",";
++			if (first) {
++				prepend = KERN_INFO "Floppy drive(s):";
++				first = 0;
++			}
++			printk("%s fd%d is %s", prepend, drive, name);
++			register_devfs_entries (drive);
 +		}
-+		if (write(1, buf, l) != l)
-+			die("Write failed");
-+		sz -= l;
++		*UDP = *params;
 +	}
-+	close(fd);
-+
-+	if (lseek(1, 497, SEEK_SET) != 497)		    /* Write sizes to the bootsector */
-+		die("Output: seek failed");
-+	buf[0] = setup_sectors;
-+	if (write(1, buf, 1) != 1)
-+		die("Write of setup sector count failed");
-+	if (lseek(1, 500, SEEK_SET) != 500)
-+		die("Output: seek failed");
-+	buf[0] = (sys_size & 0xff);
-+	buf[1] = ((sys_size >> 8) & 0xff);
-+	if (write(1, buf, 2) != 2)
-+		die("Write of image length failed");
-+
-+	return 0;					    /* Everything is OK */
++	if (!first)
++		printk("\n");
 +}
-diff -urN linux/arch/i386/boot98/video.S linux98/arch/i386/boot98/video.S
---- linux/arch/i386/boot98/video.S	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/boot98/video.S	Fri Aug 17 21:50:16 2001
-@@ -0,0 +1,262 @@
-+/*	video.S
-+ *
-+ *  Video mode setup, etc. for NEC PC-9800 series.
-+ *
-+ *  Copyright (C) 1997,98,99  Linux/98 project  <seraphim@kmc.kyoto-u.ac.jp>
-+ *
-+ *  Based on the video.S for IBM PC:
-+ *	copyright (C) Martin Mares <mj@atrey.karlin.mff.cuni.cz>
++
++static int floppy_release(struct inode * inode, struct file * filp)
++{
++	int drive = DRIVE(inode->i_rdev);
++
++	if (UDRS->fd_ref < 0)
++		UDRS->fd_ref=0;
++	else if (!UDRS->fd_ref--) {
++		DPRINT("floppy_release with fd_ref == 0");
++		UDRS->fd_ref = 0;
++	}
++	floppy_release_irq_and_dma();
++	return 0;
++}
++
++/*
++ * floppy_open check for aliasing (/dev/fd0 can be the same as
++ * /dev/PS0 etc), and disallows simultaneous access to the same
++ * drive with different device numbers.
++ */
++#define RETERR(x) do{floppy_release(inode,filp); return -(x);}while(0)
++
++static int floppy_open(struct inode * inode, struct file * filp)
++{
++	int drive;
++	int old_dev;
++	int try;
++	char *tmp;
++
++#ifdef PC9800_DEBUG_FLOPPY
++	printk("floppy open: start\n");
++#endif
++	filp->private_data = (void*) 0;
++
++	drive = DRIVE(inode->i_rdev);
++#ifdef PC9800_DEBUG_FLOPPY
++	printk("floppy open: drive=%d, current_drive=%d, UDP->cmos=%d\n"
++		   "floppy open: FDCS={spec1=%d, spec2=%d, dtr=%d, version=%d, dor=%d, address=%lu}\n",
++		   drive, current_drive, UDP->cmos, FDCS->spec1, FDCS->spec2,
++		   FDCS->dtr, FDCS->version, FDCS->dor, FDCS->address);
++	if (_floppy) {
++		printk("floppy open: _floppy={size=%d, sect=%d, head=%d, track=%d, spec1=%d}\n",
++			   _floppy->size, _floppy->sect, _floppy->head,
++			   _floppy->track, _floppy->spec1);
++	} else {
++		printk("floppy open: _floppy=NULL\n");
++	}
++#endif /* PC9800_DEBUG_FLOPPY */
++
++	if (drive >= N_DRIVE ||
++	    !(allowed_drive_mask & (1 << drive)) ||
++	    fdc_state[FDC(drive)].version == FDC_NONE)
++		return -ENXIO;
++
++	if (TYPE(inode->i_rdev) >= NUMBER(floppy_type))
++		return -ENXIO;
++	old_dev = UDRS->fd_device;
++	if (UDRS->fd_ref && old_dev != minor(inode->i_rdev))
++		return -EBUSY;
++
++	if (!UDRS->fd_ref && (UDP->flags & FD_BROKEN_DCL)){
++		USETF(FD_DISK_CHANGED);
++		USETF(FD_VERIFY);
++	}
++
++	if (UDRS->fd_ref == -1 ||
++	   (UDRS->fd_ref && (filp->f_flags & O_EXCL)))
++		return -EBUSY;
++
++	if (floppy_grab_irq_and_dma())
++		return -EBUSY;
++
++	if (filp->f_flags & O_EXCL)
++		UDRS->fd_ref = -1;
++	else
++		UDRS->fd_ref++;
++
++	if (!floppy_track_buffer){
++		/* if opening an ED drive, reserve a big buffer,
++		 * else reserve a small one */
++		if ((UDP->cmos == 6) || (UDP->cmos == 5))
++			try = 64; /* Only 48 actually useful */
++		else
++			try = 32; /* Only 24 actually useful */
++
++		tmp=(char *)fd_dma_mem_alloc(1024 * try);
++		if (!tmp && !floppy_track_buffer) {
++			try >>= 1; /* buffer only one side */
++			INFBOUND(try, 16);
++			tmp= (char *)fd_dma_mem_alloc(1024*try);
++		}
++		if (!tmp && !floppy_track_buffer) {
++			fallback_on_nodma_alloc(&tmp, 2048 * try);
++		}
++		if (!tmp && !floppy_track_buffer) {
++			DPRINT("Unable to allocate DMA memory\n");
++			RETERR(ENXIO);
++		}
++		if (floppy_track_buffer) {
++			if (tmp)
++				fd_dma_mem_free((unsigned long)tmp,try*1024);
++		} else {
++			buffer_min = buffer_max = -1;
++			floppy_track_buffer = tmp;
++			max_buffer_sectors = try;
++		}
++	}
++
++	UDRS->fd_device = minor(inode->i_rdev);
++	set_capacity(disks[drive], floppy_sizes[minor(inode->i_rdev)]);
++	if (old_dev != -1 && old_dev != minor(inode->i_rdev)) {
++		if (buffer_drive == drive)
++			buffer_track = -1;
++		/* umm, invalidate_buffers() in ->open??  --hch */
++		invalidate_buffers(mk_kdev(FLOPPY_MAJOR,old_dev));
++	}
++
++#ifdef PC9800_DEBUG_FLOPPY
++	printk("floppy open: floppy.c:%d passed\n", __LINE__);
++#endif
++
++
++	/* Allow ioctls if we have write-permissions even if read-only open.
++	 * Needed so that programs such as fdrawcmd still can work on write
++	 * protected disks */
++	if ((filp->f_mode & 2) || 
++	    (inode->i_sb && (permission(inode,2) == 0)))
++	    filp->private_data = (void*) 8;
++
++	if (UFDCS->rawcmd == 1)
++		UFDCS->rawcmd = 2;
++
++#ifdef PC9800_DEBUG_FLOPPY
++	printk("floppy open: floppy.c:%d passed\n", __LINE__);
++#endif
++
++	if (filp->f_flags & O_NDELAY)
++		return 0;
++	if (filp->f_mode & 3) {
++		UDRS->last_checked = 0;
++		check_disk_change(inode->i_bdev);
++		if (UTESTF(FD_DISK_CHANGED))
++			RETERR(ENXIO);
++	}
++	if ((filp->f_mode & 2) && !(UTESTF(FD_DISK_WRITABLE)))
++		RETERR(EROFS);
++#ifdef PC9800_DEBUG_FLOPPY
++	printk("floppy open: end normally\n");
++#endif
++
++	return 0;
++#undef RETERR
++}
++
++/*
++ * Check if the disk has been changed or if a change has been faked.
++ */
++static int check_floppy_change(struct gendisk *disk)
++{
++	int drive = (int)disk->private_data;
++
++#ifdef PC9800_DEBUG_FLOPPY
++	printk("check_floppy_change: MINOR=%d\n", minor(dev));
++#endif
++
++	if (UTESTF(FD_DISK_CHANGED) || UTESTF(FD_VERIFY))
++		return 1;
++
++	if (UDP->checkfreq < (int)(jiffies - UDRS->last_checked)) {
++		if(floppy_grab_irq_and_dma()) {
++			return 1;
++		}
++
++		lock_fdc(drive,0);
++		poll_drive(0,0);
++		process_fd_request();
++		floppy_release_irq_and_dma();
++	}
++
++	if (UTESTF(FD_DISK_CHANGED) ||
++	   UTESTF(FD_VERIFY) ||
++	   test_bit(drive, &fake_change) ||
++	   (!ITYPE(UDRS->fd_device) && !current_type[drive]))
++		return 1;
++	return 0;
++}
++
++/*
++ * This implements "read block 0" for floppy_revalidate().
++ * Needed for format autodetection, checking whether there is
++ * a disk in the drive, and whether that disk is writable.
 + */
 +
-+/* Positions of various video parameters passed to the kernel */
-+/* (see also include/linux/tty.h) */
-+#define PARAM_CURSOR_POS	0x00
-+#define PARAM_VIDEO_PAGE	0x04
-+#define PARAM_VIDEO_MODE	0x06
-+#define PARAM_VIDEO_COLS	0x07
-+#define PARAM_VIDEO_EGA_BX	0x0a
-+#define PARAM_VIDEO_LINES	0x0e
-+#define PARAM_HAVE_VGA		0x0f
-+#define PARAM_FONT_POINTS	0x10
++static int floppy_rb0_complete(struct bio *bio, unsigned int bytes_done, int err)
++{
++	if (bio->bi_size)
++		return 1;
 +
-+#define PARAM_VIDEO98_COMPAT	0x0a
-+#define PARAM_VIDEO98_HIRESO	0x0b
-+#define PARAM_VIDEO98_MACHTYPE	0x0c
-+#define PARAM_VIDEO98_LINES	0x0e
-+#define PARAM_VIDEO98_COLS	0x0f
++	complete((struct completion*)bio->bi_private);
++	return 0;
++}
 +
-+# PARAM_LFB_* and PARAM_VESAPM_* are unused on PC-9800.
++static int __floppy_read_block_0(struct block_device *bdev)
++{
++	struct bio bio;
++	struct bio_vec bio_vec;
++	struct completion complete;
++	struct page *page;
++	size_t size;
 +
-+# This is the main entry point called by setup.S
-+# %ds *must* be pointing to the bootsector
-+video:	xorw	%ax, %ax
-+	movw	%ax, %es			# %es = 0
++	page = alloc_page(GFP_NOIO);
++	if (!page) {
++		process_fd_request();
++		return -ENOMEM;
++	}
 +
-+	movb	%es:BIOS_FLAG, %al
-+	movb	%al, PARAM_VIDEO_MODE
++	size = bdev->bd_block_size;
++	if (!size)
++		size = 1024;
 +
-+	movb	$0, PARAM_VIDEO98_HIRESO	# 0 = normal
-+	movw	$NORMAL_TEXT, PARAM_VIDEO_PAGE
-+	testb	$0x8, %al
-+	movw	$(80 * 256 + 25), %ax
-+	jz	1f
-+	# hireso machine.
-+	movb	$1, PARAM_VIDEO98_HIRESO	# !0 = hi-reso
-+	movb	$(HIRESO_TEXT >> 8), PARAM_VIDEO_PAGE + 1
-+	movw	$(80 * 256 + 31), %ax
-+1:	movw	%ax, PARAM_VIDEO98_LINES	# also sets VIDEO98_COLS
++	bio_init(&bio);
++	bio.bi_io_vec = &bio_vec;
++	bio_vec.bv_page = page;
++	bio_vec.bv_len = size;
++	bio_vec.bv_offset = 0;
++	bio.bi_vcnt = 1;
++	bio.bi_idx = 0;
++	bio.bi_size = size;
++	bio.bi_bdev = bdev;
++	bio.bi_sector = 0;
++	init_completion(&complete);
++	bio.bi_private = &complete;
++	bio.bi_end_io = floppy_rb0_complete;
 +
-+	movb	$0xc0, %ch			# 400-line graphic mode
-+	movb	$0x42, %ah
-+	int	$0x18
++	submit_bio(READ, &bio);
++	generic_unplug_device(bdev_get_queue(bdev));
++	process_fd_request();
++	wait_for_completion(&complete);
 +
-+	movw	$80, PARAM_VIDEO_COLS
++	__free_page(page);
 +
-+	movw	$msg_probing, %si
-+	call	prtstr_cs
++	return 0;
++}
 +
-+# Check vendor from font pattern of `A'...
++static int floppy_read_block_0(struct gendisk *disk)
++{
++	struct block_device *bdev;
++	int ret;
 +
-+1:	inb	$0x60, %al			# wait V-sync
-+	testb	$0x20, %al
-+	jnz	1b
-+2:	inb	$0x60, %al
-+	testb	$0x20, %al
-+	jz	2b
++	bdev = bdget(MKDEV(disk->major, disk->first_minor));
++	if (!bdev) {
++		printk("No block device for %s\n", disk->disk_name);
++		BUG();
++	}
++	bdev->bd_disk = disk;	/* ewww */
++	ret = __floppy_read_block_0(bdev);
++	atomic_dec(&bdev->bd_count);
++	return ret;
++}
 +
-+	movb	$0x00, %al			# select font of `A'
-+	outb	%al, $0xa1
-+	movb	$0x41, %al
-+	outb	%al, $0xa3
++/* revalidate the floppy disk, i.e. trigger format autodetection by reading
++ * the bootblock (block 0). "Autodetection" is also needed to check whether
++ * there is a disk in the drive at all... Thus we also do it for fixed
++ * geometry formats */
++static int floppy_revalidate(struct gendisk *disk)
++{
++	int drive=(int)disk->private_data;
++#define NO_GEOM (!current_type[drive] && !ITYPE(UDRS->fd_device))
++	int cf;
++	int res = 0;
 +
-+	movw	$8, %cx
-+	movw	PARAM_VIDEO_PAGE, %ax
-+	cmpw	$NORMAL_TEXT, %ax
-+	je	3f
-+	movb	$24, %cl			# for hi-reso machine
-+3:	addw	$0x400, %ax			# %ax = CG window segment
-+	pushw	%ds
-+	movw	%ax, %ds
-+	xorw	%dx, %dx			# get sum of `A' pattern...
-+	xorw	%si, %si
-+4:	lodsw
-+	addw	%ax, %dx
-+	loop	4b
-+	popw	%ds
++	if (UTESTF(FD_DISK_CHANGED) ||
++	    UTESTF(FD_VERIFY) ||
++	    test_bit(drive, &fake_change) ||
++	    NO_GEOM){
++		if(usage_count == 0) {
++			printk("VFS: revalidate called on non-open device.\n");
++			return -EFAULT;
++		}
++		lock_fdc(drive,0);
++		cf = UTESTF(FD_DISK_CHANGED) || UTESTF(FD_VERIFY);
++		if (!(cf || test_bit(drive, &fake_change) || NO_GEOM)){
++			process_fd_request(); /*already done by another thread*/
++			return 0;
++		}
++		UDRS->maxblock = 0;
++		UDRS->maxtrack = 0;
++		if (buffer_drive == drive)
++			buffer_track = -1;
++		clear_bit(drive, &fake_change);
++		UCLEARF(FD_DISK_CHANGED);
++		if (cf)
++			UDRS->generation++;
++		if (NO_GEOM){
++			/* auto-sensing */
++			res = floppy_read_block_0(disk);
++		} else {
++			if (cf)
++				poll_drive(0, FD_RAW_NEED_DISK);
++			process_fd_request();
++		}
++	}
++	set_capacity(disk, floppy_sizes[UDRS->fd_device]);
++	return res;
++}
 +
-+	movw	%dx, %ax
-+	movw	$msg_nec, %si
-+	xorw	%bx, %bx			# vendor info will go into %bx
-+	testb	$8, %es:BIOS_FLAG
-+	jnz	check_hireso_vendor
-+	cmpw	$0xc7f8, %ax
-+	je	5f
-+	jmp	6f
-+check_hireso_vendor:
-+	cmpw	$0x9639, %ax			# XXX: NOT VERIFIED!!!
-+	je	5f
-+6:	incw	%bx				# compatible machine
-+	movw	$msg_compat, %si
-+5:	movb	%bl, PARAM_VIDEO98_COMPAT
-+	call	prtstr_cs
++static struct block_device_operations floppy_fops = {
++	.owner		= THIS_MODULE,
++	.open		= floppy_open,
++	.release	= floppy_release,
++	.ioctl		= fd_ioctl,
++	.media_changed	= check_floppy_change,
++	.revalidate_disk= floppy_revalidate,
++};
 +
-+	movw	$msg_fontdata, %si
-+	call	prtstr_cs			# " (CG sum of A = 0x"
-+	movw	%dx, %ax
-+	call	prthex
-+	call	prtstr_cs			# ") PC-98"
-+
-+	movb	$'0', %al
-+	pushw	%ds
-+	pushw	$0xf8e8
-+	popw	%ds
-+	cmpw	$0x2198, (0)
-+	popw	%ds
-+	jne	7f
-+	movb	$'2', %al
-+7:	call	prtchr
-+	call	prtstr_cs			# "1 "
-+
-+	movb	$0, PARAM_VIDEO98_MACHTYPE
-+#if 0	/* XXX - This check is bogus? [0000:BIOS_FLAG2]-bit7 does NOT
-+		 indicate whether it is a note machine, but merely indicates
-+		 whether it has ``RAM drive''. */
-+# check note machine
-+	testb	$0x80, %es:BIOS_FLAG2
-+	jnz	is_note
-+	pushw	%ds
-+	pushw	$0xfd80
-+	popw	%ds
-+	movb	(4), %al
-+	popw	%ds
-+	cmpb	$0x20, %al			# EPSON note A
-+	je	epson_note
-+	cmpb	$0x22, %al			# EPSON note W
-+	je	epson_note
-+	cmpb	$0x27, %al			# EPSON note AE
-+	je	epson_note
-+	cmpb	$0x2a, %al			# EPSON note WR
-+	jne	note_done
-+epson_note:
-+	movb	$1, PARAM_VIDEO98_MACHTYPE
-+	movw	$msg_note, %si
-+	call	prtstr_cs
-+note_done:
++static void __init register_devfs_entries (int drive)
++{
++    int base_minor, i;
++    static char *table[] =
++    {"",
++#if 0
++     "d360", 
++#else
++     "h1232",
 +#endif
++     "h1200", "u360", "u720", "h360", "h720",
++     "u1440", "u2880", "CompaQ", "h1440", "u1680", "h410",
++     "u820", "h1476", "u1722", "h420", "u830", "h1494", "u1743",
++     "h880", "u1040", "u1120", "h1600", "u1760", "u1920",
++     "u3200", "u3520", "u3840", "u1840", "u800", "u1600",
++     NULL
++    };
++    static int t360[] = {1,0}, t1200[] = {2,5,6,10,12,14,16,18,20,23,0},
++      t3in[] = {8,9,26,27,28, 7,11,15,19,24,25,29,31, 3,4,13,17,21,22,30,0};
++    static int *table_sup[] = 
++    {NULL, t360, t1200, t3in+5+8, t3in+5, t3in, t3in};
++
++    base_minor = (drive < 4) ? drive : (124 + drive);
++    if (UDP->cmos < NUMBER(default_drive_params)) {
++	i = 0;
++	do {
++	    char name[16];
++
++	    sprintf (name, "%d%s", drive, table[table_sup[UDP->cmos][i]]);
++	    devfs_register (devfs_handle, name, DEVFS_FL_DEFAULT, MAJOR_NR,
++			    base_minor + (table_sup[UDP->cmos][i] << 2),
++			    S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP |S_IWGRP,
++			    &floppy_fops, NULL);
++	} while (table_sup[UDP->cmos][i++]);
++    }
++}
++
++/*
++ * Floppy Driver initialization
++ * =============================
++ */
++
++static inline char __init get_fdc_version(void)
++{
++	return FDC_8272A;
++}
++
++/* lilo configuration */
++
++static void __init floppy_set_flags(int *ints,int param, int param2)
++{
++	int i;
++
++	for (i=0; i < ARRAY_SIZE(default_drive_params); i++){
++		if (param)
++			default_drive_params[i].params.flags |= param2;
++		else
++			default_drive_params[i].params.flags &= ~param2;
++	}
++	DPRINT("%s flag 0x%x\n", param2 ? "Setting" : "Clearing", param);
++}
++
++static void __init daring(int *ints,int param, int param2)
++{
++	int i;
++
++	for (i=0; i < ARRAY_SIZE(default_drive_params); i++){
++		if (param){
++			default_drive_params[i].params.select_delay = 0;
++			default_drive_params[i].params.flags |= FD_SILENT_DCL_CLEAR;
++		} else {
++			default_drive_params[i].params.select_delay = 2*HZ/100;
++			default_drive_params[i].params.flags &= ~FD_SILENT_DCL_CLEAR;
++		}
++	}
++	DPRINT("Assuming %s floppy hardware\n", param ? "standard" : "broken");
++}
++
++static void __init set_cmos(int *ints, int dummy, int dummy2)
++{
++	int current_drive=0;
++
++	if (ints[0] != 2){
++		DPRINT("wrong number of parameters for CMOS\n");
++		return;
++	}
++	current_drive = ints[1];
++	if (current_drive < 0 || current_drive >= 8){
++		DPRINT("bad drive for set_cmos\n");
++		return;
++	}
++#if N_FDC > 1
++	if (current_drive >= 4 && !FDC2)
++		FDC2 = 0x370;
++#endif
++	DP->cmos = ints[2];
++	DPRINT("setting CMOS code to %d\n", ints[2]);
++}
++
++static struct param_table {
++	const char *name;
++	void (*fn)(int *ints, int param, int param2);
++	int *var;
++	int def_param;
++	int param2;
++} config_params[]={
++	{ "allowed_drive_mask", 0, &allowed_drive_mask, 0xff, 0}, /* obsolete */
++	{ "all_drives", 0, &allowed_drive_mask, 0xff, 0 }, /* obsolete */
++	{ "irq", 0, &FLOPPY_IRQ, DEFAULT_FLOPPY_IRQ, 0 },
++	{ "dma", 0, &FLOPPY_DMA, DEFAULT_FLOPPY_DMA, 0 },
++
++	{ "daring", daring, 0, 1, 0},
++#if N_FDC > 1
++	{ "two_fdc",  0, &FDC2, 0x370, 0 },
++	{ "one_fdc", 0, &FDC2, 0, 0 },
++#endif
++	{ "broken_dcl", floppy_set_flags, 0, 1, FD_BROKEN_DCL },
++	{ "messages", floppy_set_flags, 0, 1, FTD_MSG },
++	{ "silent_dcl_clear", floppy_set_flags, 0, 1, FD_SILENT_DCL_CLEAR },
++	{ "debug", floppy_set_flags, 0, 1, FD_DEBUG },
++
++	{ "nodma", 0, &can_use_virtual_dma, 1, 0 },
++	{ "yesdma", 0, &can_use_virtual_dma, 0, 0 },
++
++	{ "fifo_depth", 0, &fifo_depth, 0xa, 0 },
++	{ "nofifo", 0, &no_fifo, 0x20, 0 },
++	{ "usefifo", 0, &no_fifo, 0, 0 },
++
++	{ "cmos", set_cmos, 0, 0, 0 },
++	{ "slow", 0, &slow_floppy, 1, 0 },
++
++	{ "unexpected_interrupts", 0, &print_unex, 1, 0 },
++	{ "no_unexpected_interrupts", 0, &print_unex, 0, 0 },
++
++	EXTRA_FLOPPY_PARAMS
++};
++
++static int __init floppy_setup(char *str)
++{
++	int i;
++	int param;
++	int ints[11];
++
++	str = get_options(str,ARRAY_SIZE(ints),ints);
++	if (str) {
++		for (i=0; i< ARRAY_SIZE(config_params); i++){
++			if (strcmp(str,config_params[i].name) == 0){
++				if (ints[0])
++					param = ints[1];
++				else
++					param = config_params[i].def_param;
++				if (config_params[i].fn)
++					config_params[i].
++						fn(ints,param,
++						   config_params[i].param2);
++				if (config_params[i].var) {
++					DPRINT("%s=%d\n", str, param);
++					*config_params[i].var = param;
++				}
++				return 1;
++			}
++		}
++	}
++	if (str) {
++		DPRINT("unknown floppy option [%s]\n", str);
++		
++		DPRINT("allowed options are:");
++		for (i=0; i< ARRAY_SIZE(config_params); i++)
++			printk(" %s",config_params[i].name);
++		printk("\n");
++	} else
++		DPRINT("botched floppy option\n");
++	DPRINT("Read linux/Documentation/floppy.txt\n");
++	return 0;
++}
++
++static int have_no_fdc= -ENODEV;
++
++static struct platform_device floppy_device = {
++	.name		= "floppy",
++	.id		= 0,
++	.dev		= {
++		.name	= "Floppy Drive",
++	},
++};
++
++static struct gendisk *floppy_find(dev_t dev, int *part, void *data)
++{
++	int drive = (*part&3) | ((*part&0x80) >> 5);
++	if (drive >= N_DRIVE ||
++	    !(allowed_drive_mask & (1 << drive)) ||
++	    fdc_state[FDC(drive)].version == FDC_NONE)
++		return NULL;
++	return get_disk(disks[drive]);
++}
++
++int __init floppy_init(void)
++{
++	int i,unit,drive;
++	int err;
++
++	raw_cmd = NULL;
++
++	for (i=0; i<N_DRIVE; i++) {
++		disks[i] = alloc_disk(1);
++		if (!disks[i])
++			goto Enomem;
++	}
++
++	devfs_handle = devfs_mk_dir (NULL, "floppy", NULL);
++	if (register_blkdev(MAJOR_NR,"fd",&floppy_fops)) {
++		printk("Unable to get major %d for floppy\n",MAJOR_NR);
++		err = -EBUSY;
++		goto out;
++	}
++
++	for (i=0; i<N_DRIVE; i++) {
++		disks[i]->major = MAJOR_NR;
++		disks[i]->first_minor = TOMINOR(i);
++		disks[i]->fops = &floppy_fops;
++		sprintf(disks[i]->disk_name, "fd%d", i);
++	}
++
++	blk_register_region(MKDEV(MAJOR_NR, 0), 256, THIS_MODULE,
++				floppy_find, NULL, NULL);
++
++	for (i=0; i<256; i++)
++		if (ITYPE(i))
++			floppy_sizes[i] = floppy_type[ITYPE(i)].size;
++		else
++			floppy_sizes[i] = MAX_DISK_SIZE << 1;
++
++	blk_init_queue(&floppy_queue, do_fd_request, &floppy_lock);
++	reschedule_timeout(MAXTIMEOUT, "floppy init", MAXTIMEOUT);
++	config_types();
++
++	for (i = 0; i < N_FDC; i++) {
++		fdc = i;
++		CLEARSTRUCT(FDCS);
++		FDCS->dtr = -1;
++		FDCS->dor = 0;
++	}
++
++	if ((fd_inb(FD_MODE_CHANGE) & 1) == 0)
++		FDC1 = 0xc8;
++
++	use_virtual_dma = can_use_virtual_dma & 1;
++	fdc_state[0].address = FDC1;
++	if (fdc_state[0].address == -1) {
++		err = -ENODEV;
++		goto out1;
++	}
++#if N_FDC > 1
++	fdc_state[1].address = FDC2;
++#endif
++
++	fdc = 0; /* reset fdc in case of unexpected interrupt */
++	if (floppy_grab_irq_and_dma()){
++		err = -EBUSY;
++		goto out1;
++	}
++
++	/* initialise drive state */
++	for (drive = 0; drive < N_DRIVE; drive++) {
++		CLEARSTRUCT(UDRS);
++		CLEARSTRUCT(UDRWE);
++		USETF(FD_DISK_NEWCHANGE);
++		USETF(FD_DISK_CHANGED);
++		USETF(FD_VERIFY);
++		UDRS->fd_device = -1;
++		floppy_track_buffer = NULL;
++		max_buffer_sectors = 0;
++	}
++
++	for (i = 0; i < N_FDC; i++) {
++		fdc = i;
++		FDCS->driver_version = FD_DRIVER_VERSION;
++		for (unit=0; unit<4; unit++)
++			FDCS->track[unit] = 0;
++		if (FDCS->address == -1)
++			continue;
++		FDCS->rawcmd = 2;
++		user_reset_fdc(-1, FD_RESET_ALWAYS, 0);
++
++		/* Try to determine the floppy controller type */
++		FDCS->version = get_fdc_version();
++		if (FDCS->version == FDC_NONE){
++ 			/* free ioports reserved by floppy_grab_irq_and_dma() */
++			release_region(FDCS->address, 1);
++			release_region(FDCS->address + 2, 1);
++			release_region(FDCS->address + 4, 1);
++			release_region(0xbe, 1);
++			release_region(0x4be, 1);
++			FDCS->address = -1;
++			continue;
++		}
++		if (can_use_virtual_dma == 2 && FDCS->version < FDC_82072A)
++			can_use_virtual_dma = 0;
++
++		have_no_fdc = 0;
++		/* Not all FDCs seem to be able to handle the version command
++		 * properly, so force a reset for the standard FDC clones,
++		 * to avoid interrupt garbage.
++		 */
++		user_reset_fdc(-1,FD_RESET_ALWAYS,0);
++	}
++	fdc=0;
++	del_timer(&fd_timeout);
++	current_drive = 0;
++	floppy_release_irq_and_dma();
++#if 0  /* no message */
++	initialising=0;
++#endif
++	if (have_no_fdc) {
++		DPRINT("no floppy controllers found\n");
++		flush_scheduled_work();
++		if (usage_count)
++			floppy_release_irq_and_dma();
++		err = have_no_fdc;
++		goto out2;
++	}
 +	
-+# print h98 ? (only NEC)
-+	cmpb	$0, PARAM_VIDEO98_COMPAT
-+	jnz	8f				# not NEC -> not H98
++	for (drive = 0; drive < N_DRIVE; drive++) {
++		motor_off_timer[drive].data = drive;
++		motor_off_timer[drive].function = motor_off_callback;
++		if (!(allowed_drive_mask & (1 << drive)))
++			continue;
++		if (fdc_state[FDC(drive)].version == FDC_NONE)
++			continue;
++		/* to be cleaned up... */
++		disks[drive]->private_data = (void*)drive;
++		disks[drive]->queue = &floppy_queue;
++		add_disk(disks[drive]);
++	}
 +
-+	testb	$0x80, %es:BIOS_FLAG5
-+	jz	8f				# have NESA bus -> H98
-+	movw	$msg_h98, %si
-+	call	prtstr_cs
-+	orb	$2, PARAM_VIDEO98_MACHTYPE
-+8:	testb	$0x40, %es:BIOS_FLAG5
-+	jz	9f
-+	movw	$msg_gs, %si
-+	call	prtstr_cs			# only prints it :-)
-+9:
-+	movw	$msg_normal, %si		# "normal"
-+	testb	$0x8, %es:BIOS_FLAG
-+	jz	1f
-+	movw	$msg_hireso, %si
-+1:	call	prtstr_cs
++	platform_device_register(&floppy_device);
++	return 0;
 +
-+	movw	$msg_sysclk, %si
-+	call	prtstr_cs
-+	movb	$'5', %al
-+	testb	$0x80, %es:BIOS_FLAG
-+	jz	2f
-+	movb	$'8', %al
-+2:	call	prtchr
-+	call	prtstr_cs
++out1:
++	del_timer(&fd_timeout);
++out2:
++	blk_unregister_region(MKDEV(MAJOR_NR, 0), 256);
++	unregister_blkdev(MAJOR_NR,"fd");
++	blk_cleanup_queue(&floppy_queue);
++out:
++	for (i=0; i<N_DRIVE; i++)
++		put_disk(disks[i]);
++	return err;
 +
-+#if 0
-+	testb	$0x40, %es:(0x45c)
-+	jz	no_30line			# no 30-line support
++Enomem:
++	while (i--)
++		put_disk(disks[i]);
++	return -ENOMEM;
++}
 +
-+	movb	%es:KB_SHFT_STS, %al
-+	testb	$0x01, %al			# is SHIFT key pressed?
-+	jz	no_30line
++static spinlock_t floppy_usage_lock = SPIN_LOCK_UNLOCKED;
 +
-+	testb	$0x10, %al			# is CTRL key pressed?
-+	jnz	line40
++static int floppy_grab_irq_and_dma(void)
++{
++	unsigned long flags;
 +
-+	# switch to 30-line mode
-+	movb	$30, PARAM_VIDEO98_LINES
-+	movw	$msg_30line, %si
-+	jmp	3f
++	spin_lock_irqsave(&floppy_usage_lock, flags);
++	if (usage_count++){
++		spin_unlock_irqrestore(&floppy_usage_lock, flags);
++		return 0;
++	}
++	spin_unlock_irqrestore(&floppy_usage_lock, flags);
++	MOD_INC_USE_COUNT;
++	if (fd_request_irq()) {
++		DPRINT("Unable to grab IRQ%d for the floppy driver\n",
++			FLOPPY_IRQ);
++		MOD_DEC_USE_COUNT;
++		spin_lock_irqsave(&floppy_usage_lock, flags);
++		usage_count--;
++		spin_unlock_irqrestore(&floppy_usage_lock, flags);
++		return -1;
++	}
++	if (fd_request_dma()) {
++		DPRINT("Unable to grab DMA%d for the floppy driver\n",
++			FLOPPY_DMA);
++		fd_free_irq();
++		MOD_DEC_USE_COUNT;
++		spin_lock_irqsave(&floppy_usage_lock, flags);
++		usage_count--;
++		spin_unlock_irqrestore(&floppy_usage_lock, flags);
++		return -1;
++	}
 +
-+line40:
-+	movb	$37, PARAM_VIDEO98_LINES
-+	movw	$40, PARAM_VIDEO_LINES
-+	movw	$msg_40line, %si
-+3:	call	prtstr_cs
++	for (fdc=0; fdc< N_FDC; fdc++){
++		if (FDCS->address != -1){
++			static char floppy[] = "floppy";
++			if (!request_region(FDCS->address, 1, floppy))
++				goto cleanup0;
 +
-+	movb	$0x32, %bh
-+	movw	$0x300c, %ax
-+	int	$0x18				# switch video mode
-+	movb	$0x0c, %ah
-+	int	$0x18				# turn on text plane
-+	movw	%cs:cursor_address, %dx
-+	movb	$0x13, %ah
-+	int	$0x18				# move cursor to correct place
-+	mov	$0x11, %ah
-+	int	$0x18				# turn on text plane
++			if (!request_region(FDCS->address + 2, 1, floppy)) {
++				release_region(FDCS->address, 1);
++				goto cleanup0;
++			}
 +
-+	call	prtstr_cs			# "Ok.\r\n"
-+no_30line:
++			if (!request_region(FDCS->address + 4, 1, floppy)) {
++				release_region(FDCS->address, 1);
++				release_region(FDCS->address + 2, 1);
++				goto cleanup0;
++			}
++
++			if (fdc == 0) {  /* internal FDC */
++				if (request_region(0xbe, 1, "floppy mode change")) {
++					if (request_region(0x4be, 1, "floppy ex. mode change"))
++						continue;
++					else
++						DPRINT("Floppy io-port 0x4be in use\n");
++
++					release_region(0xbe, 1);
++				} else
++					DPRINT("Floppy io-port 0xbe in use\n");
++
++				release_region(FDCS->address, 1);
++				release_region(FDCS->address + 2, 1);
++				release_region(FDCS->address + 4, 1);
++			}
++
++			goto cleanup1;
++		}
++	}
++	for (fdc=0; fdc< N_FDC; fdc++){
++		if (FDCS->address != -1){
++			reset_fdc_info(1);
++			fd_outb(FDCS->dor, FD_MODE);
++		}
++	}
++	fdc = 0;
++	fd_outb((FDCS->dor & 8), FD_MODE);
++
++	for (fdc = 0; fdc < N_FDC; fdc++)
++		if (FDCS->address != -1)
++			fd_outb(FDCS->dor, FD_MODE);
++	/*
++	 *	The driver will try and free resources and relies on us
++	 *	to know if they were allocated or not.
++	 */
++	fdc = 0;
++	irqdma_allocated = 1;
++	return 0;
++
++cleanup0:
++	DPRINT("Floppy io-port 0x%04lx in use\n", FDCS->address);
++cleanup1:
++	fd_free_irq();
++	fd_free_dma();
++	while(--fdc >= 0) {
++		release_region(FDCS->address, 1);
++		release_region(FDCS->address + 2, 1);
++		release_region(FDCS->address + 4, 1);
++		if (fdc == 0) {
++			release_region(0x00be, 1);
++			release_region(0x04be, 1);
++		}
++	}
++	MOD_DEC_USE_COUNT;
++	spin_lock_irqsave(&floppy_usage_lock, flags);
++	usage_count--;
++	spin_unlock_irqrestore(&floppy_usage_lock, flags);
++	return -1;
++}
++
++static void floppy_release_irq_and_dma(void)
++{
++	int old_fdc;
++#ifdef FLOPPY_SANITY_CHECK
++	int drive;
 +#endif
-+	ret
++	long tmpsize;
++	unsigned long tmpaddr;
++	unsigned long flags;
 +
-+prtstr_cs:
-+	pushw	%ds
-+	pushw	%cs
-+	popw	%ds
-+	call	prtstr
-+	popw	%ds
-+	ret
++	spin_lock_irqsave(&floppy_usage_lock, flags);
++	if (--usage_count){
++		spin_unlock_irqrestore(&floppy_usage_lock, flags);
++		return;
++	}
++	spin_unlock_irqrestore(&floppy_usage_lock, flags);
++	if(irqdma_allocated)
++	{
++		fd_disable_dma();
++		fd_free_dma();
++		fd_free_irq();
++		irqdma_allocated=0;
++	}
++	fd_outb(0, FD_MODE);
++	floppy_enable_hlt();
 +
-+# prthex is for debugging purposes, and prints %ax in hexadecimal.
-+prthex:	pushw	%cx
-+	movw	$4, %cx
-+1:	rolw	$4, %ax
-+	pushw	%ax
-+	andb	$0xf, %al
-+	cmpb	$10, %al
-+	sbbb	$0x69, %al
-+	das
-+	call	prtchr
-+	popw	%ax
-+	loop	1b
-+	popw	%cx
-+	ret
++	if (floppy_track_buffer && max_buffer_sectors) {
++		tmpsize = max_buffer_sectors*1024;
++		tmpaddr = (unsigned long)floppy_track_buffer;
++		floppy_track_buffer = NULL;
++		max_buffer_sectors = 0;
++		buffer_min = buffer_max = -1;
++		fd_dma_mem_free(tmpaddr, tmpsize);
++	}
 +
-+msg_probing:	.string	"Probing machine: "
++#ifdef FLOPPY_SANITY_CHECK
++	for (drive=0; drive < N_FDC * 4; drive++)
++		if (timer_pending(motor_off_timer + drive))
++			printk("motor off timer %d still active\n", drive);
 +
-+msg_nec:	.string	"NEC"
-+msg_compat:	.string	"compatible"
-+
-+msg_fontdata:	.string	" (CG sum of A = 0x"
-+		.string	") PC-98"
-+		.string	"1 "
-+
-+msg_gs:		.string	"(GS) "
-+msg_h98:	.string	"(H98) "
-+
-+msg_normal:	.string	"normal"
-+msg_hireso:	.string	"Hi-reso"
-+
-+msg_sysclk:	.string	" mode, system clock "
-+		.string	"MHz\r\n"
-+
-+#if 0
-+msg_40line:	# cpp will concat following lines, so the assembler can deal.
-+		.ascii	"\
-+Video mode will be adjusted to 37-line (so-called ``40-line'') mode later.\r\n\
-+THIS MODE MAY DAMAGE YOUR MONITOR PHYSICALLY. USE AT YOUR OWN RISK.\r\n"
-+msg_30line:	.string	"Switching video mode to 30-line (640x480) mode... "
-+		.string	"Ok.\r\n"
++	if (timer_pending(&fd_timeout))
++		printk("floppy timer still active:%s\n", timeout_message);
++	if (timer_pending(&fd_timer))
++		printk("auxiliary floppy timer still active\n");
++	if (floppy_work.pending)
++		printk("work still pending\n");
 +#endif
++	old_fdc = fdc;
++	for (fdc = 0; fdc < N_FDC; fdc++)
++		if (FDCS->address != -1) {
++			release_region(FDCS->address, 1);
++			release_region(FDCS->address + 2, 1);
++			release_region(FDCS->address + 4, 1);
++			if (fdc == 0) {
++				release_region(0xbe, 1);
++				release_region(0x4be, 1);
++			}
++		}
++	fdc = old_fdc;
++	MOD_DEC_USE_COUNT;
++}
++
++
++#ifdef MODULE
++
++char *floppy;
++
++static void __init parse_floppy_cfg_string(char *cfg)
++{
++	char *ptr;
++
++	while(*cfg) {
++		for(ptr = cfg;*cfg && *cfg != ' ' && *cfg != '\t'; cfg++);
++		if (*cfg) {
++			*cfg = '\0';
++			cfg++;
++		}
++		if (*ptr)
++			floppy_setup(ptr);
++	}
++}
++
++int init_module(void)
++{
++	printk(KERN_INFO "inserting floppy driver for " UTS_RELEASE "\n");
++		
++	if (floppy)
++		parse_floppy_cfg_string(floppy);
++	return floppy_init();
++}
++
++void cleanup_module(void)
++{
++	int drive;
++		
++	platform_device_unregister(&floppy_device);
++	devfs_unregister (devfs_handle);
++	blk_unregister_region(MKDEV(MAJOR_NR, 0), 256);
++	unregister_blkdev(MAJOR_NR, "fd");
++	for (drive = 0; drive < N_DRIVE; drive++) {
++		if ((allowed_drive_mask & (1 << drive)) &&
++		    fdc_state[FDC(drive)].version != FDC_NONE)
++			del_gendisk(disks[drive]);
++		put_disk(disks[drive]);
++	}
++
++	blk_cleanup_queue(&floppy_queue);
++	/* eject disk, if any */
++	fd_eject(0);
++}
++
++MODULE_PARM(floppy,"s");
++MODULE_PARM(FLOPPY_IRQ,"i");
++MODULE_PARM(FLOPPY_DMA,"i");
++MODULE_AUTHOR("Osamu Tomita");
++MODULE_SUPPORTED_DEVICE("fd");
++MODULE_LICENSE("GPL");
++
++#else
++
++__setup ("floppy=", floppy_setup);
++module_init(floppy_init)
++#endif
+diff -urN linux/include/asm-i386/floppy.h linux98/include/asm-i386/floppy.h
+--- linux/include/asm-i386/floppy.h	Sat Jul 21 04:52:19 2001
++++ linux98/include/asm-i386/floppy.h	Sun Aug 19 14:13:09 2001
+@@ -11,6 +11,7 @@
+ #define __ASM_I386_FLOPPY_H
+ 
+ #include <linux/vmalloc.h>
++#include <linux/config.h>
+ 
+ 
+ /*
+@@ -282,9 +283,14 @@
+ };
+ 
+ 
++#ifdef CONFIG_PC9800
++static int FDC1 = 0x90;
++#else /* !CONFIG_PC9800 */
+ static int FDC1 = 0x3f0;
++#endif /* CONFIG_PC9800 */
+ static int FDC2 = -1;
+ 
++#ifndef CONFIG_PC9800
+ /*
+  * Floppy types are stored in the rtc's CMOS RAM and so rtc_lock
+  * is needed to prevent corrupted CMOS RAM in case "insmod floppy"
+@@ -307,11 +313,16 @@
+ 	spin_unlock_irqrestore(&rtc_lock, flags);	\
+ 	val;						\
+ })
++#endif /* !CONFIG_PC9800 */
+ 
+ #define N_FDC 2
+ #define N_DRIVE 8
+ 
++#ifdef CONFIG_PC9800
++#define FLOPPY_MOTOR_MASK 0x08
++#else
+ #define FLOPPY_MOTOR_MASK 0xf0
++#endif /* CONFIG_PC9800 */
+ 
+ #define AUTO_DMA
+ 
+diff -urN linux/include/linux/fdreg.h linux98/include/linux/fdreg.h
+--- linux/include/linux/fdreg.h	Mon Apr 22 17:32:02 1996
++++ linux98/include/linux/fdreg.h	Fri Aug 17 22:13:41 2001
+@@ -6,10 +6,28 @@
+  * Handbook", Sanches and Canton.
+  */
+ 
++#include <linux/config.h>
++
++#ifdef CONFIG_PC9800
++#define FDPATCHES
++#endif
++
+ #ifdef FDPATCHES
+ 
+ #define FD_IOPORT fdc_state[fdc].address
+ 
++#ifdef CONFIG_PC9800
++
++/* Fd controller regs. S&C, about page 340 */
++#define FD_STATUS	(0 + FD_IOPORT )
++#define FD_DATA		(2 + FD_IOPORT )
++
++#define FD_MODE		(4 + FD_IOPORT )
++#define FD_MODE_CHANGE	0xbe
++#define FD_EMODE_CHANGE	0x4be
++
++#else /* !CONFIG_PC9800 */
++
+ /* Fd controller regs. S&C, about page 340 */
+ #define FD_STATUS	(4 + FD_IOPORT )
+ #define FD_DATA		(5 + FD_IOPORT )
+@@ -23,8 +41,14 @@
+ /* Diskette Control Register (write)*/
+ #define FD_DCR		(7 + FD_IOPORT )
+ 
++#endif /* CONFIG_PC9800 */
++
+ #else
+ 
++#ifdef CONFIG_PC9800
++#error FDPATCHES must be defined for NEC PC-9800
++#endif
++
+ #define FD_STATUS	0x3f4
+ #define FD_DATA		0x3f5
+ #define FD_DOR		0x3f2		/* Digital Output Register */

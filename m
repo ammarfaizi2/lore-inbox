@@ -1,116 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbTLJNDj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 08:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTLJNDj
+	id S262765AbTLJNGM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 08:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTLJNGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 08:03:39 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:23051
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262655AbTLJNDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 08:03:36 -0500
-Date: Wed, 10 Dec 2003 04:57:56 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.58.0312041743530.6638@home.osdl.org>
-Message-ID: <Pine.LNX.4.10.10312100419220.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Dec 2003 08:06:12 -0500
+Received: from ssatchell1.pyramid.net ([208.170.252.115]:8858 "EHLO
+	ssatchell1.pyramid.net") by vger.kernel.org with ESMTP
+	id S262765AbTLJNGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 08:06:09 -0500
+Subject: Answer to Swap performance statistics in 2.6 -- which /proc file
+	has it
+From: Stephen Satchell <list@satchell.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3FD6F6A8.80907@kubla.de>
+References: <BF1FE1855350A0479097B3A0D2A80EE00184D619@hdsmsx402.hd.intel.com>
+	 <1070911748.2408.39.camel@dhcppc4>  <3FD546D5.2000003@nishanet.com>
+	 <1070975964.5966.5.camel@ssatchell1.pyramid.net>
+	 <Pine.LNX.4.53.0312090854080.8425@chaos>
+	 <1070981185.6243.58.camel@ssatchell1.pyramid.net>
+	 <Pine.LNX.4.53.0312091014250.525@chaos>  <3FD62845.8090301@kubla.de>
+	 <1071019731.8045.31.camel@ssatchell1.pyramid.net> <3FD6F6A8.80907@kubla.de>
+Content-Type: text/plain
+Message-Id: <1071061566.12344.15.camel@ssatchell1.pyramid.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 10 Dec 2003 05:06:07 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The original question was intended to be this:  the VM swap counters,
+originally in /proc/stat, went to which /proc pseudofile?
 
-Linus,
+The answer, as I finally discovered by examining the several versions of
+the procps package is /proc/vmstat.
 
-So basically anyone in the past-present-future who worked on-with-about
-the linux kernel is now tainted forever.  Get real Linus, that would mean
-everyone would have to segment their brain and it will not happen.
+The reason I had problems finding that simple fact has two related
+answers.  The first is that the code to generate /proc/vmstat is not
+part of /fs/proc as one might expect and as it used to be in 2.4, but is
+included in the mm directory where the memory management code lives. 
+The second is that the kernel documentation iostats.txt doesn't mention
+anything about this particular form of I/O, and there is no document in
+Documentation/vm.
 
-The statement that something load means you have applied standard fair use
-of the api's described in the manual.  Since you refuse to set a standard
-document to become the manual, the source code itself is the manual.
+I see I have my work cut out for me.  Let me see if I can cobble
+together a "patch" this weekend that creates a new file in
+Documentation/vm that describes /proc/vmstat for 2.6 and get it
+submitted. 
 
-Like it or not, your position to force people to read the source code or
-read "Linux Kernel Internals", "Linux Device Drivers 1 & 2", and/or any
-other web content from the internet make the kernel a periodical
-reference.  Now that it is a reference, the ideas can be extracted and
-used however and where ever.  The simple fact there are books with ISBN
-which are verbatium printout of the kernel source for a given snap shot in
-time, well the ideas are freed and the actual document is an empty shell!
+Didn't someone start a Rosetta Stone back in 2.4 for the /proc
+filesystem?  Would such a thing be useful in the 2.6 kernel
+documentation?  Should I put something together?
 
-Thus case law supports fair use and defines the unprotectable API.
-Since the headers are the effective API, the are not copyright protected.
-They can not, do not, and never will be a means test for "derivative
-works".  Clear lines of derivatives if the headers are such, then
-everything running in the in user space is a derivative.
+The good news is that finding this thing unblocked me so that the
+performance monitor I needed to ginidh is now 2.6 ready.
 
-Kernel headers provide the mappings to the compilers and libraries.
-The libraries and headers in user space will dirty any applications.
-Simple proof, rm -rf /usr/include/linux and /usr/include/asm.
-Try to build any application and it will bomb in most cases.
-
-So if modules are derived works then so is all of user space.
-Then again, the linux kernel is an integration of ideas and no longer
-could stand on its own with out all the contributions.
-
-Linux == the sum of the drivers ?
-The drivers are derivatives of Linux ?
-
-Copyright License is such a JOKE, I really wish you would do a Michael
-Jackson (the white glove grab) and find a way to switch by force to a
-better license model.
-
-OSL 1 and 2 are a preferred choice as they are slowly creaping into the
-kernel.  The beauty and pain of OSL is that SCO would be a NOOP.  The
-requirement imposed on the contributing author to indemnify (sp really
-bad) the changes/patches to the codebase core, makes it a better world.
-In short code sets of questionable origin are the liabities of the author
-and not the community.
-
-I know, everyone is going to flame me, Dave Miller is going to kick me off
-lkml and whippity flip.  The majority of the meatballs here do not have
-Lawyers nor could they afford them.  So it comes down to those who have
-and those who do not.  The haves will anyway crush those who don't.
-
-Well this should be enough bait to get it going.  It is chilly here in
-California tonight and a little warmth from electrons heat would be good.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-PS sorry for the fragmented thoughts it is late.
-
-On Thu, 4 Dec 2003, Linus Torvalds wrote:
-
-> 
-> 
-> On Thu, 4 Dec 2003, Paul Adams wrote:
-> >
-> > A work that is inspired by Linux is no more a derivative work than
-> > a programmatic musical composition inspired by a novel.  Having
-> > Linux in mind cannot be enough to constitute infringement.
-> 
-> But it does - you have to include the Linux header files in order to be
-> able to make any nontrivial module.
-> 
-> I'm not claiming that "thinking about Linux makes you tainted". It's not
-> about inspiration. But it's a bit like getting somebody pregnant: you have
-> to do a lot more than just think about it to actually make it happen, or
-> every high school in the world would be crawling with babies.
-> 
-> In other words: feel free to be inspired by Linux all you want. But if you
-> release a binary module that loads and works, you've been doing more than
-> just feeling inspired. And then you need to be _careful_.
-> 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Stephen Satchell
 

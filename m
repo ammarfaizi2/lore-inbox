@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTLIX33 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 18:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbTLIX33
+	id S262352AbTLIXfa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 18:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLIXfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 18:29:29 -0500
-Received: from mail.kroah.org ([65.200.24.183]:25514 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263402AbTLIX31 (ORCPT
+	Tue, 9 Dec 2003 18:35:30 -0500
+Received: from holomorphy.com ([199.26.172.102]:35296 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262352AbTLIXfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 18:29:27 -0500
-Date: Tue, 9 Dec 2003 15:28:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Svetoslav Slavtchev <svetljo@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Badness in kobject_get at lib/kobject.c:439
-Message-ID: <20031209232829.GB1747@kroah.com>
-References: <31715.1071010976@www51.gmx.net>
+	Tue, 9 Dec 2003 18:35:25 -0500
+Date: Tue, 9 Dec 2003 15:35:23 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11-wli-1
+Message-ID: <20031209233523.GS8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031204200120.GL19856@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <31715.1071010976@www51.gmx.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031204200120.GL19856@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 12:02:56AM +0100, Svetoslav Slavtchev wrote:
-> Call Trace:
->  [<c019a1f4>] kobject_get+0x30/0x3d
->  [<c01dd8d3>] class_get+0x1a/0x2c
->  [<c01ddb67>] class_device_add+0x41/0x110
->  [<c01cc4ec>] misc_add_class_device+0x63/0xc6
->  [<c01cc6d8>] misc_register+0xeb/0x120
->  [<c0361fd8>] apm_init+0x2ec/0x324
+On Thu, Dec 04, 2003 at 12:01:20PM -0800, William Lee Irwin III wrote:
+> Successfully tested on a Thinkpad T21. Any feedback regarding
+> performance would be very helpful. Desktop users should notice top(1)
+> is faster, kernel hackers that kernel compiles are faster, and highmem
+> users should see much less per-process lowmem overhead.
 
-Hm, here's the problem.  Can you disable APM and see if the oops goes
-away?  I bet apm_init() is being called before misc_init() is.
+Bill Davidsen reported an issue where compiled kernel images aren't
+properly distinguished from mainline kernels' by installation scripts.
 
-If you don't want to disable APM (and you should not have to) can you
-apply the patch below to misc.c and let me know if it fixes your problem
-or not?
+The following patch should resolve this:
 
-thanks,
 
-greg k-h
+-- wli
 
---- a/drivers/char/misc.c	Mon Oct  6 10:47:30 2003
-+++ b/drivers/char/misc.c	Tue Dec  9 15:28:10 2003
-@@ -407,4 +407,4 @@
- 	}
- 	return 0;
- }
--module_init(misc_init);
-+subsys_initcall(misc_init);
+
+
+diff -prauN wli-2.6.0-test11-37/Makefile wli-2.6.0-test11-38/Makefile
+--- wli-2.6.0-test11-37/Makefile	2003-11-26 12:44:43.000000000 -0800
++++ wli-2.6.0-test11-38/Makefile	2003-12-09 15:32:53.000000000 -0800
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 0
+-EXTRAVERSION = -test11
++EXTRAVERSION = -test11-wli-1
+ 
+ # *DOCUMENTATION*
+ # To see a list of typical targets execute "make help"

@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUJESwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUJETBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUJESwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUJESwQ
+	id S261405AbUJETBP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUJETBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:52:16 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:25742 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261234AbUJESwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:52:13 -0400
-Date: Tue, 5 Oct 2004 20:52:14 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <20041005185214.GA3691@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Subject: [PATCH] Console: fall back to /dev/null when no console is availlable
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Rcpt-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-X-SA-Exim-Mail-From: joern@wohnheim.fh-wedel.de
-X-SA-Exim-Version: 3.1 (built Son Feb 22 10:54:36 CET 2004)
-X-SA-Exim-Scanned: Yes
+	Tue, 5 Oct 2004 15:01:15 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:10399 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261405AbUJETBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:01:05 -0400
+Message-ID: <4162EF65.4080108@sgi.com>
+Date: Tue, 05 Oct 2004 14:00:53 -0500
+From: Colin Ngam <cngam@sgi.com>
+Reply-To: cngam@sgi.com
+Organization: SSO
+User-Agent: Mozilla/5.0 (X11; U; IRIX64 IP35; en-US; rv:1.4.1) Gecko/20040105
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>, Grant Grundler <iod00d@hp.com>
+CC: Jesse Barnes <jbarnes@engr.sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
+       Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com> <200410050843.44265.jbarnes@engr.sgi.com> <20041005162201.GC18567@cup.hp.com> <20041005174558.GZ16153@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041005174558.GZ16153@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks pretty trivial, but opinions on this subject may vary.
-Comments?
+Matthew Wilcox wrote:
 
-Jörn
+>On Tue, Oct 05, 2004 at 09:22:01AM -0700, Grant Grundler wrote:
+>  
+>
+>>pci_root_ops should be static. It's only intended for ACPI.
+>>    
+>>
+>
+>What I had intended when I wrote this code was that platforms that didn't
+>want to use the generic SAL code (and why not?  It doesn't seem like it
+>should be the hardest thing in the world to move your hacks into SAL)
+>was that people should override
+>
+>  struct pci_raw_ops *raw_pci_ops = &pci_sal_ops;
+>
+>by just assigning raw_pci_ops in their own code.  I haven't looked at
+>the SGI code yet, but this is how arch/i386/pci/direct.c (for example)
+>works.
+>
+Hi Matthew,
 
--- 
-More computing sins are committed in the name of efficiency (without
-necessarily achieving it) than for any other single reason - including
-blind stupidity.
--- W. A. Wulf 
+Yes, after looking at Grant's review/suggestion, we found that we can 
+actually just use raw_pci_ops.  This will work well for us.  We have 
+incoorporated this change.  No changes in pci/pci.c needed.
 
-Some userspace applications rely on the assumption that fd's 0, 1 and
-2 are always open and function as raw stdin, stdout and stderr,
-respectively.
+Thanks you for your information.
 
-With no console registered, init get's called without those fd's
-already open.  Arguably, init should know better, handle that case and
-fix things before forking other processed.  But what about
-init=/bin/bash?  Ok, bash could be fixed as well, as could...
+Thanks.
 
-Instead, this patch opens /dev/null when /dev/console doesn't work.
-It swallows all output and doesn't give much input, but programs can
-handle that just fine.
+colin
 
-Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
----
+>
+>  
+>
+>>Maybe rename pci_root_ops to "acpi_pci_ops" would make that clearer.
+>>    
+>>
+>
+>No.  Don't rename it to anything ACPI specific.  It isn't.  It's just an
+>alternative route to access configuration space when you don't even
+>have a PCI bus, let alone a device.
+>
+>  
+>
 
- main.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
 
---- linux-2.6.8cow/init/main.c~console	2004-10-05 20:46:40.000000000 +0200
-+++ linux-2.6.8cow/init/main.c	2004-10-05 20:46:08.000000000 +0200
-@@ -695,8 +695,11 @@
- 	system_state = SYSTEM_RUNNING;
- 	numa_default_policy();
- 
--	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
-+	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0) {
- 		printk("Warning: unable to open an initial console.\n");
-+		if (open("/dev/null", O_RDWR, 0) == 0)
-+			printk("         Falling back to /dev/null.\n");
-+	}
- 
- 	(void) sys_dup(0);
- 	(void) sys_dup(0);

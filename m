@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292017AbSBAUxE>; Fri, 1 Feb 2002 15:53:04 -0500
+	id <S292027AbSBAUye>; Fri, 1 Feb 2002 15:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292015AbSBAUwz>; Fri, 1 Feb 2002 15:52:55 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:1408 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S292013AbSBAUwp>;
-	Fri, 1 Feb 2002 15:52:45 -0500
-Date: Fri, 1 Feb 2002 12:52:34 -0800
-From: Bob Miller <rem@osdl.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.3 remove global semaphore_lock spin lock.
-Message-ID: <20020201125234.A1418@doc.pdx.osdl.net>
-In-Reply-To: <20020131150139.A1345@doc.pdx.osdl.net> <3C59D956.4F2B85DB@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C59D956.4F2B85DB@zip.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S292015AbSBAUyS>; Fri, 1 Feb 2002 15:54:18 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:39396 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292019AbSBAUx5>; Fri, 1 Feb 2002 15:53:57 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFB91B46B3.DE7448D0-ON85256B53.0071158D@raleigh.ibm.com>
+From: "Kent E Yoder" <yoder1@us.ibm.com>
+Date: Fri, 1 Feb 2002 14:53:43 -0600
+X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 02/01/2002 03:53:55 PM,
+	Serialize complete at 02/01/2002 03:53:55 PM
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 03:55:02PM -0800, Andrew Morton wrote:
-> Bob Miller wrote:
-> > 
-> > Below is a patch for i386 that replaces the global spin lock semaphore_lock,
-> > with the rwlock_t embedded in the wait_queue_head_t in the struct semaphore.
-> > 
-> 
-> Looks sane.  In practice, the speedup is unmeasurable, but...
-> 
-> > ...
-> > +       unsigned long flags;
-> > +       wq_write_lock_irqsave(&sem->wait.lock, flags);
-> > -       spin_lock_irq(&semaphore_lock);
-> 
-> I rather dislike spin_lock_irq(), because it's fragile (makes
-> assumptions about the caller's state).  But in this case,
-> it's probably a reasonable micro-optimisation to not have to
-> save the flags.  Nobody should be calling down() with local
-> interrupts disabled.
-> 
-> > ...
-> > +/*
-> > + * Same as __wake_up but called with the wait_queue_head_t lock held
-> > + * in at least read mode.
-> > + */
-> > +void __wake_up_locked(wait_queue_head_t *q, unsigned int mode, int nr)
-> > +{
-> > +       if (q) {
-> 
-> I don't think we need to test `q' here.  It's a new function,
-> and we don't need to support broken callers.  So __wake_up_locked()
-> can become a macro direct call to __wake_up_common().
-> 
-> > +               __wake_up_common(q, mode, nr, 0);
-> 
-> This one breaks the camel's back :)
-> 
-> Let's un-inline __wake_up_common and EXPORT_SYMBOL it.
-> 
-> It'd be good if you could also verify that the code still
-> works when the use-rwlocks-for-waitqueues option is turned
-> on.   (wait.h:USE_RW_WAIT_QUEUE_SPINLOCK)
-> 
->  
-Thanks for the feed back. I've incorporated your comments.  Also, at your
-suggestion I set wait.h:USE_RW_WAIT_QUEUE_SPINLOCK on a clean 2.5.3 system
-to test.  The problem is that it OOPs on startup.  After I track that down
-and test with my stuff I'll resubmit the patch.
+> > effects.  I tested by removing all the delays and instead putting 
+> > something like:
+> >         writew(val, addr);
+> >         (void) readw(addr);
 
-Thanks for taking the time...
+  Ok, now I'm curious about something...
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Software Development Lab			Phone: 503.626.2455 Ext. 17
+  If the readw() above is needed here (it definitely fixes *something*), 
+what purpose does the volatile below serve? 
+
+io.h:122:#define writew(b,addr) (*(volatile unsigned short *) 
+__io_virt(addr) = (b))X
+
+Is this a sort of "go do this now" command to flush it from the CPU to the 
+PCI bus, while the readw() makes sure its flushed out of the PCI cache? 
+
+> > 
+> > instead, to flush the PCI cache.  Things seem to be happy. 
+> > 
+> > Is this the best way to make sure the PCI cache is flushed for writes 
+that 
+> > need to happen immediately?  I don't see many other drivers doing 
+it...
+
+ Another question is, if the PCI bus is caching like this, how does it 
+handle adapters which write to one address and read from another for the 
+same variable?  I'm guessing it flushes all writes on a read?  This is 
+exactly what lanstreamer does, and I'm thinking this may have caused 
+problems before.
+
+Thanks,
+Kent
+

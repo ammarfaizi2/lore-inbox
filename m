@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267583AbUHZEzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUHZEz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267583AbUHZEzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 00:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUHZEzX
+	id S267585AbUHZEz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 00:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUHZEz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 00:55:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17873 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267583AbUHZEzS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 00:55:18 -0400
-Date: Wed, 25 Aug 2004 21:44:25 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Andrew Walrond" <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1 Oops; HPET related
-Message-Id: <20040825214425.7d2fce71.rddunlap@osdl.org>
-In-Reply-To: <000001c48769$0c4aefd0$74e7183e@MEK1>
-References: <000001c48769$0c4aefd0$74e7183e@MEK1>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 26 Aug 2004 00:55:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28837 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267585AbUHZEzV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 00:55:21 -0400
+Date: Thu, 26 Aug 2004 05:55:20 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Anton Blanchard <anton@samba.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reduce size of struct inode on 64bit
+Message-ID: <20040826045520.GS21964@parcelfarce.linux.theplanet.co.uk>
+References: <20040826044113.GA10843@krispykreme>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826044113.GA10843@krispykreme>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Aug 2004 11:24:31 +0100 Andrew Walrond wrote:
+On Thu, Aug 26, 2004 at 02:41:13PM +1000, Anton Blanchard wrote:
+> 
+> Reduce the size of struct inode on 64bit architectures by reducing padding.
+> This assumes spinlocks are 32bit or less which is the case on most
+> architectures.
+> 
+> This reduces inode structs by 24 bytes on ppc64, and on ext2 increases
+> the number of inodes in a 4kB slab from 5 to 6.
 
-| Unless I boot with hpet=disabled, the kernel gets to...
-| 
-| Using hpet for high-res timesource
-| Calibrating delay loop...
-| 
-| And sits here for a few minutes, then oopses (jpg attached). This is
-| 100% reproducible.
-| 
-| This is a Tyan K8W dual Opteron m/b running a vanilla 2.6.8.1 kernel
-| compiled 32bit for K8 with smp and preempt. HPET is enabled in the
-| (latest) BIOS
-| 
-| Anything else I can supply, let me know.
-
-Still a problem?  If so, please send a complete kernel boot log.
-
---
-~Randy
+ACK

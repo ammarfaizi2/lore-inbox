@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbULLDbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULLEM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbULLDbu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 22:31:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULLDbu
+	id S261183AbULLEM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 23:12:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULLEM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 22:31:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20143 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261186AbULLDbs (ORCPT
+	Sat, 11 Dec 2004 23:12:28 -0500
+Received: from picard.ine.co.th ([203.152.41.3]:8396 "EHLO picard.ine.co.th")
+	by vger.kernel.org with ESMTP id S261183AbULLEMU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 22:31:48 -0500
-Date: Sat, 11 Dec 2004 22:31:19 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
+	Sat, 11 Dec 2004 23:12:20 -0500
+Subject: Re: kernel (64bit) 4GB memory support
+From: Rudolf Usselmann <rudi@asics.ws>
+Reply-To: rudi@asics.ws
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
-Message-ID: <20041212033119.GC1921@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Camilo A. Reyes" <camilo@leamonde.no-ip.org>,
-	linux-kernel@vger.kernel.org
-References: <20041211195133.GA2210@leamonde.no-ip.org> <41BBA98F.9080002@g-house.de> <20041212025217.GA16761@leamonde.no-ip.org>
+In-Reply-To: <41BB32A4.2090301@pobox.com>
+References: <1102752990.17081.160.camel@cpu0>  <41BAC68D.6050303@pobox.com>
+	 <1102760002.10824.170.camel@cpu0>  <41BB32A4.2090301@pobox.com>
+Content-Type: text/plain
+Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
+Message-Id: <1102824735.17081.187.camel@cpu0>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041212025217.GA16761@leamonde.no-ip.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 12 Dec 2004 11:12:15 +0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 11, 2004 at 08:52:17PM -0600, Camilo A. Reyes wrote:
+On Sun, 2004-12-12 at 00:47, Jeff Garzik wrote:
+...
+> All 2.6 kernels work with 64bit and >4GB memory, on my configurations 
+> (x86-64, ia64, and alpha).
+> 
+> It is a mistake to assume that all 64bit and/or >4GB is broken.
+> 
+> > (Tiger K8W, dual Opteron)
+> 
+> Ok, we finally get a bit of useful information.
+> 
+> Are you CERTAIN that you are booting a 64bit kernel?
+> Is your memory PC1600, PC2100, or PC2700?
+> Is your memory installed in matched pairs?
+> Is all your memory ECC registered?
+> Is your BIOS at the latest version?
 
- > > this (and other interesting things) is described here:
- > > http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
- > Wow! Now, thats the stuff! How come that's not included in the
- > kernel distro documentation, I'm sure lots of people that are new
- > to the kernel will have the same problem. Anyway thanks alot...
+Hi Jeff,
 
-I've had a few people asking me to submit it, but I'm not
-convinced it would be worthwhile.  Would people read it if
-they had problems ?
+"yes" to all of the above. I am 100% certain this is not a
+hardware problem. I have paired simms and with a 32 bit kernel
+can use the entire 4GB. I also have run memtest86 ...
 
-make modules_install prints out a warning pointing them at it,
-yet as this thread indicates, not everyone bothers to go there
-and read it.  Maybe if it was in-tree things would be different,
-but I'm not convinced. People want things to 'just work'
-rather than have to read about how to make them work.
+> Once we get through the hardware issues, now it is time to do a binary 
+> search of 2.6 kernels, to see which one works for you.  If no 2.6 
+> kernels work for you, then give 2.4 kernels a try.
+> 
+> 	Jeff
 
-That said, if it was in-tree it would be easier for people
-other than myself to update it as things change.
-The current doc is a little out of date (last changed
-about 6 months ago), so probably needs a little work
-before its ready for submission.
+I have previously reported this bug to the list (about a week
+ago). I am greatfull for every response and am willing to
+investigate everything.
 
-Is there enough interest in this from people to justify
-me putting any effort into it ?  If theres any value in
-having this in tree, I'll submit the current version
-to Andrew for -mm, and see if anyone dives in and starts
-chopping/changing things.
+Previously I was running Fedora Core 2 32BIT with the 2.6.9
+kernel and never had problems with 4GB. After finally upgrading
+to 64 bit I can't use 4GB memory anymore.
 
-If this does happen, it'd probably be worth eventually
-replacing Documentation/Changes with it.
 
-		Dave
+# ver_linux
+
+Linux cpu10 2.6.9RU1.1 #11 SMP Sun Dec 5 11:42:18 ICT 2004 x86_64 x86_64 x86_64 GNU/Linux
+
+Gnu C                  3.4.2
+Gnu make               3.80
+binutils               2.15.92.0.2
+util-linux             2.12a
+mount                  2.12a
+module-init-tools      3.1-pre5
+e2fsprogs              1.35
+reiserfsprogs          line
+reiser4progs           line
+pcmcia-cs              3.2.7
+quota-tools            3.12.
+PPP                    2.4.2
+nfs-utils              1.0.6
+Linux C Library        2.3.3
+Dynamic linker (ldd)   2.3.3
+Procps                 3.2.3
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.2.1
+Modules Loaded         autofs4 nfs lockd sunrpc binfmt_misc dm_mod button battery ac nvidia ipv6 ohci_hcd uhci_hcd ehci_hcd hw_random snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore floppy
+
+
+The attached boot log shows the kernel panic ....
+
+Kind Regards,
+rudi
 

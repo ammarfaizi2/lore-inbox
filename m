@@ -1,94 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131828AbQKJV0g>; Fri, 10 Nov 2000 16:26:36 -0500
+	id <S131799AbQKJV1Q>; Fri, 10 Nov 2000 16:27:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131734AbQKJV00>; Fri, 10 Nov 2000 16:26:26 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:20939 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S131799AbQKJV0H>;
-	Fri, 10 Nov 2000 16:26:07 -0500
-Date: Fri, 10 Nov 2000 13:25:51 -0800
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S131842AbQKJV1G>; Fri, 10 Nov 2000 16:27:06 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29671 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131799AbQKJV0f>;
+	Fri, 10 Nov 2000 16:26:35 -0500
+Date: Fri, 10 Nov 2000 16:26:32 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The IrDA patches !!! (was Re: [RANT] Linux-IrDA status)
-Message-ID: <20001110132551.K26405@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20001109192404.B25828@bougret.hpl.hp.com> <Pine.LNX.4.10.10011101143330.990-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10011101143330.990-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Nov 10, 2000 at 11:56:57AM -0800
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] show_task() and thread_saved_pc() fix for x86
+Message-ID: <Pine.GSO.4.21.0011101618030.17943-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 11:56:57AM -0800, Linus Torvalds wrote:
-> 
-> When I say multiple mails, I mean multiple mails. NOT "26 attachements in
-> one mail". In fact, not a single attachment at all, please. Send me
-> patches as a regular text body, with the explanation at the top, and the
-> patch just appended.
+	* thread_saved_pc() on x86 returns (thread->esp)[3]. Bogus, since the
+third word from the stack top has absolutely nothing to return address of
+any kind. Correct value: (thread->esp)[0][1] - ebp is on top of the stack
+and the rest is obvious. Current code gives completely bogus addresses -
+try to say Alt-SysRq-T and watch the show.
 
-	No problem, they are going to come this way. Your mailbox
-should be full by tonight.
-	Please remember that they are *incremental*, skipping some of
-them may work, skipping others may fail. I can't do much about that
-because this is the way things are developped (patch of a patch).
+	* kernel/sched::show_state() used the wrong check for process being
+on some CPU - p==current is nice for UP, but on SMP it's obviously wrong.
+Moroever, nothing prevents schedule() another CPU while we are going through
+the process state. Fix: show_state() grabs runqueue_lock, show_task() checks
+p->has_cpu instead of p == current.
 
-> I can reply to it individually, and that patch (and nothing else) will be
-> automatically set up for the reply so that I can easily quote whatever
-> parts I want to point out.
+	Please, apply.
+							Cheers,
+								Al
 
-	Good. I didn't know this featured existed ;-)
+diff -urN rc11-2/include/asm-i386/processor.h rc11-2-show_task/include/asm-i386/processor.h
+--- rc11-2/include/asm-i386/processor.h	Fri Nov 10 09:14:04 2000
++++ rc11-2-show_task/include/asm-i386/processor.h	Fri Nov 10 16:08:15 2000
+@@ -412,7 +412,7 @@
+  */
+ extern inline unsigned long thread_saved_pc(struct thread_struct *t)
+ {
+-	return ((unsigned long *)t->esp)[3];
++	return ((unsigned long **)t->esp)[0][1];
+ }
+ 
+ unsigned long get_wchan(struct task_struct *p);
+diff -urN rc11-2/kernel/sched.c rc11-2-show_task/kernel/sched.c
+--- rc11-2/kernel/sched.c	Fri Nov 10 09:18:43 2000
++++ rc11-2-show_task/kernel/sched.c	Fri Nov 10 16:11:39 2000
+@@ -1121,12 +1121,12 @@
+ 	else
+ 		printk(" ");
+ #if (BITS_PER_LONG == 32)
+-	if (p == current)
++	if (p->has_cpu)
+ 		printk(" current  ");
+ 	else
+ 		printk(" %08lX ", thread_saved_pc(&p->thread));
+ #else
+-	if (p == current)
++	if (p->has_cpu)
+ 		printk("   current task   ");
+ 	else
+ 		printk(" %016lx ", thread_saved_pc(&p->thread));
+@@ -1186,6 +1186,7 @@
+ void show_state(void)
+ {
+ 	struct task_struct *p;
++	unsigned long flags;
+ 
+ #if (BITS_PER_LONG == 32)
+ 	printk("\n"
+@@ -1196,10 +1197,12 @@
+ 	       "                                 free                        sibling\n");
+ 	printk("  task                 PC        stack   pid father child younger older\n");
+ #endif
++	spin_lock_irqsave(&runqueue_lock, flags);
+ 	read_lock(&tasklist_lock);
+ 	for_each_task(p)
+ 		show_task(p);
+ 	read_unlock(&tasklist_lock);
++	spin_unlock_irqrestore(&runqueue_lock, flags);
+ }
+ 
+ /*
 
-> You are WRONG.
-> 
-> 10 emails with 1000-line patches are _much_ easier to handle. I can
-> clearly see the parts that belong together (nothing is mixed up with other
-> issues), and I can keep the explanation in mind. I do not have to remind
-> myself what that particular piece is doing.
-> 
-> It has other advantages too. With a single 10000-line patch, if I don't
-> like something, I have a hard time just removing THAT part. So I have to
-> reject the whole f*cking patch, and the person who sent it to me has to
-> fix up the whole thing (assuming I'd bother answering to it, poitning out
-> the parts that I don't like from the large patch, which I will not).
-> 
-> With 10 1000-line emails, I can decide to apply 8 of them outright, apply
-> one with comments, and discard one that does something particularly
-> nauseating. And I can much more easily explain to the submitter which one
-> I hate, without having to edit it down.
-
-	Yes, you are right, and I realised it looking back to some of
-the patches. But this needs to be balanced against the cost of context
-switches, especially for IrDA code.
-
-> See?
-> 
-> 		Linus
-
-	I hope you realise that I'm only acting as a facilitator and
-doing the work of Dag, because I need to get IrDA in proper shape in
-2.4 (because I need IrNET), and because most of the patches are mines
-(see comments). So yes, I did flame, but it was only to get things
-moving and remove the deadlock, so let's forget about the bad words...
-	Dag will keep being the IrDA maintainer (I hope he will have
-learned his lesson), and I hope you will finish the whole process with
-Dag, because next week is a Wireless LAN week for me ;-) And I should
-also look at BlueTooth PAN if ever I've got time :-(
-
-	For the patches : I'll send them to you personally, there is
-no need to abuse further the LKML (they have the attachement
-version). They will be formated as described above. I hope my little
-fingers won't do any mistakes ;-)
-
-	Have fun, and thanks again for taking the time to sort out the
-issues ;-)
-
-	Jean
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

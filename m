@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbTFGNf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 09:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbTFGNf2
+	id S263199AbTFGNzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 09:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTFGNzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 09:35:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4822 "HELO
+	Sat, 7 Jun 2003 09:55:17 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59093 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263187AbTFGNfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 09:35:25 -0400
-Date: Sat, 7 Jun 2003 15:48:20 +0200
+	id S263199AbTFGNzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 09:55:15 -0400
+Date: Sat, 7 Jun 2003 16:08:44 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: jffs-dev@axis.com
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.5 patch] JFFS_PROC_FS must depend on JFFS_FS
-Message-ID: <20030607134820.GK15311@fs.tum.de>
+To: lord@sgi.com, linux-xfs@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.70-mm5: XFS compile error if CONFIG_SYSCTL && !CONFIG_PROC_FS
+Message-ID: <20030607140844.GM15311@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,21 +22,20 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.70-mm5 compilation fails if JFFS_PROC_FS and !PROC. The 
-following dependency in the Kconfig file is needed:
+I'm getting the following compile error in 2.5.70-mm5 if CONFIG_SYSCTL 
+&& !CONFIG_PROC_FS:
 
---- linux-2.5.70-mm5/fs/Kconfig.old	2003-06-07 15:42:10.000000000 +0200
-+++ linux-2.5.70-mm5/fs/Kconfig	2003-06-07 15:42:32.000000000 +0200
-@@ -1043,7 +1043,7 @@
- 
- config JFFS_PROC_FS
- 	bool "JFFS stats available in /proc filesystem"
--	depends on JFFS_FS
-+	depends on JFFS_FS && PROC
- 	help
- 	  Enabling this option will cause statistics from mounted JFFS file systems
- 	  to be made available to the user in the /proc/fs/jffs/ directory.
+<--  snip  -->
 
+...
+  CC      fs/xfs/linux/xfs_sysctl.o
+fs/xfs/linux/xfs_sysctl.c: In function `xfs_stats_clear_proc_handler':
+fs/xfs/linux/xfs_sysctl.c:61: `xfsstats' undeclared (first use in this function)
+fs/xfs/linux/xfs_sysctl.c:61: (Each undeclared identifier is reported only once
+fs/xfs/linux/xfs_sysctl.c:61: for each function it appears in.)
+make[2]: *** [fs/xfs/linux/xfs_sysctl.o] Error 1
+
+<--  snip  -->
 
 cu
 Adrian

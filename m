@@ -1,103 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbTEENLU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 09:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTEENLU
+	id S262176AbTEENIB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 09:08:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTEENIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 09:11:20 -0400
-Received: from elin.scali.no ([62.70.89.10]:34181 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id S262177AbTEENLR (ORCPT
+	Mon, 5 May 2003 09:08:01 -0400
+Received: from iucha.net ([209.98.146.184]:61294 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S262176AbTEENIA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 09:11:17 -0400
-Subject: Re: The disappearing sys_call_table export.
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       D.A.Fedorov@inp.nsk.su
-In-Reply-To: <1052133402.29361.2.camel@dhcp22.swansea.linux.org.uk>
-References: <1052122784.2821.4.camel@pc-16.office.scali.no>
-	 <20030505092324.A13336@infradead.org>
-	 <1052127216.2821.51.camel@pc-16.office.scali.no>
-	 <1052133402.29361.2.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1052141018.2821.163.camel@pc-16.office.scali.no>
+	Mon, 5 May 2003 09:08:00 -0400
+Date: Mon, 5 May 2003 08:20:30 -0500
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.69
+Message-ID: <20030505132030.GI1059@iucha.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030505043058.GG1059@iucha.net> <Pine.LNX.4.44.0305042137370.6183-100000@home.transmeta.com> <20030505130756.GH1059@iucha.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 05 May 2003 15:23:39 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mXDO3udm/xYWQeMQ"
+Content-Disposition: inline
+In-Reply-To: <20030505130756.GH1059@iucha.net>
+X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.3i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 13:16, Alan Cox wrote:
-> On Llu, 2003-05-05 at 10:33, Terje Eggestad wrote:
-> > 1. performance is everything. 
-> 
-> Then you can live with building custom patched kernels
-> 
 
-If there was numerous issues, sure. But every time we get to the point
-where it seem that that is necessary we find a workaround. 
-Right now, this is the ONLY issue we got.. 
-  
+--mXDO3udm/xYWQeMQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > 2. We're making a MPI library, and as such we don't have any control
-> > with the application. 
-> 
-> LD_PRELOAD
-> 
+On Mon, May 05, 2003 at 08:07:56AM -0500, Florin Iucha wrote:
+> The machine was stable in 2.5.30 - 2.5.40 timeframe, using DRI modules
+> from DRI nightly builds on top of XFree 4.2 . Direct rendering was
+> working as well.
+>=20
+> I will try with the DRI modules again.
 
-IN general LD_PRELOAD is fun for testing and academic programs, but not
-for production code. 
+DRI snapshot works! Yipeeeeee....
 
-In specific you run into a problem with how fortran 90 compilers do
-dynamical arrays. It's very compiler dependent.  
+Thank you,
+florin
 
-> > 3c. It's therefore necessary for HW to access user pages.
-> 
-> Like TV cards do. That isnt hard
->  
+--=20
 
-nobody said it is. 
+"NT is to UNIX what a doughnut is to a particle accelerator."
 
-> > 4. In order to to 3, the user pages must be pinned down. 
-> > 5. the way MPI is written, it's not using a special malloc() to allocate
-> > the send receive buffers. It can't since it would break language binding
-> > to fortran. Thus ANY writeable user page may be used.
-> 
-> Well not all the pages are guaranteed DMAable, so I guess you already
-> lost.
->  
+--mXDO3udm/xYWQeMQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Nope. The drivers test to see if the page is DMAable, and do a copy if
-necessary. Most of the high performance interconnects NIC's do 64 bit
-PCI.  
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> > 10. kernel patches are impractical, I must be able to do this with std
-> > stock, redhat, AND suse kernels.   
-> 
-> So you want every vendor to screw up their kernels and the base kernel
-> for an obscure (but fun) corner case. Thats not a rational choice is it.
-> You want "performance is everything" you pay the price, don't make
-> everyone suffer.
+iD8DBQE+tmUeNLPgdTuQ3+QRAhCdAJ42NFMjlx8h5y7pkdU6PbBN/yB+0ACffatk
+PptfOmF+7X1B+b2Q5HuzKpE=
+=oA58
+-----END PGP SIGNATURE-----
 
-No! I don't disagree with removing the export of the syscall_table!
-
-I just want the "proper mechanism" indicated by Arjan in the changelog.
-Pls read this thread. There are legitimate uses to having syscall
-hooks/notifications, either you think mine is or not.    
-
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
-
+--mXDO3udm/xYWQeMQ--

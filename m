@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265187AbSLMRgC>; Fri, 13 Dec 2002 12:36:02 -0500
+	id <S264984AbSLMRnX>; Fri, 13 Dec 2002 12:43:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbSLMRgC>; Fri, 13 Dec 2002 12:36:02 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:51213 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S265187AbSLMRgB>; Fri, 13 Dec 2002 12:36:01 -0500
-Date: Fri, 13 Dec 2002 17:43:55 +0000
-To: Greg KH <greg@kroah.com>
-Cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>, lvm-devel@sistina.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: dmfs for 2.5.51
-Message-ID: <20021213174355.GA21887@reti>
-References: <20021213012618.GH23509@kroah.com> <20021213093745.GB1117@reti> <20021213172956.GB27800@kroah.com>
+	id <S265190AbSLMRnX>; Fri, 13 Dec 2002 12:43:23 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:44752 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264984AbSLMRnW>; Fri, 13 Dec 2002 12:43:22 -0500
+Message-Id: <4.3.2.7.2.20021213182103.00ae6f00@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Fri, 13 Dec 2002 18:51:37 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: Intel P6 vs P7 system call performance
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021213172956.GB27800@kroah.com>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 09:29:56AM -0800, Greg KH wrote:
-> The latest for Red Hat 7.2: gcc-2.96-112.7.2
-> Are you using 3.2?
+Well, in the 2.4.x kernels, the P4 gets compiled as a I686 with NO special
+treatment :-) (Not even prefetch, because of an ifdef bug)
+The P3 at least gets one level of prefetch and the AMD's get special compile
+options(arch=k6,athlon), full prefetch and SSE.
 
-gcc version 2.95.4 20011002 (Debian prerelease)
+ >From Mike Hayward
+ >Dual Pentium 4 Xeon 2.4Ghz 2.4.19 kernel 33661.9 lps (10 secs, 6 samples)
 
-> > The files can be larger than a single page, which complicates things
-> > somewhat.
-> 
-> Hm, then using the seq_file interface might be easier.  I'll look into
-> this.
+Hmm, P4 2.4Ghz , also gcc -O3 -march=i686
 
-Remember that the table file needs to hold two files at times: the new
-table that is being read in and the old table in case the new table is
-invalid.
+margit:/disk03/bytebench-3.1/src # ./hanoi 10
+576264 loops
+margit:/disk03/bytebench-3.1/src # ./hanoi 10
+571001 loops
+margit:/disk03/bytebench-3.1/src # ./hanoi 10
+571133 loops
+margit:/disk03/bytebench-3.1/src # ./hanoi 10
+570517 loops
+margit:/disk03/bytebench-3.1/src # ./hanoi 10
+571019 loops
+margit:/disk03/bytebench-3.1/src # ./hanoi 10
+582688 loops
 
-- Joe
+Margit 
+

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264956AbTLRHb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 02:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbTLRHb4
+	id S263653AbTLRHXa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 02:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTLRHXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 02:31:56 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:48768
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264956AbTLRHbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 02:31:55 -0500
-Date: Thu, 18 Dec 2003 02:31:09 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Lennert Buytenhek <buytenh@gnu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 keyboard not working
-In-Reply-To: <20031218060053.GA645@gnu.org>
-Message-ID: <Pine.LNX.4.58.0312180230150.1710@montezuma.fsmlabs.com>
-References: <20031218060053.GA645@gnu.org>
+	Thu, 18 Dec 2003 02:23:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38866 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263653AbTLRHX3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 02:23:29 -0500
+Message-ID: <3FE155E4.5080502@pobox.com>
+Date: Thu, 18 Dec 2003 02:23:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [I810_AUDIO] 1/x: Fix wait queue race in drain_dac
+References: <20031122070931.GA27231@gondor.apana.org.au>
+In-Reply-To: <20031122070931.GA27231@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Dec 2003, Lennert Buytenhek wrote:
+Herbert,
 
-> Hi,
->
-> Halfway between having uncompressed the kernel and starting init, the console
-> starts to scroll "atkbd.c: Unknown key pressed", mentioning key code 0 (IIRC),
-> even though no keys are pressed at all.  After a while, the scrolling stops,
-> but the keyboard still doesn't work.  2.4 works fine on the same hardware.
->
-> Hardware is an Intel SE7505VB2 board with dual 2.40GHz Xeon processors,
-> and a Logitech PS/2 "Internet keyboard."
->
-> Ideas?
+Just wanted to 'ack' your i810_audio patches.  I think Alan stuck me 
+with i810_audio ("you last touched it, you're it") so I'll look over and 
+merge your patches into 2.4.x and 2.6.x.
 
-May we have a look at your .config?
+i810_audio also needs to be MMIO-ized, which will be a simple but 
+staggeringly huge change...
 
-ta,
-	Zwane
+	Jeff
+
+
+
+

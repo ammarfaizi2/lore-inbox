@@ -1,85 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276708AbRJGWiz>; Sun, 7 Oct 2001 18:38:55 -0400
+	id <S276633AbRJGXDN>; Sun, 7 Oct 2001 19:03:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276718AbRJGWir>; Sun, 7 Oct 2001 18:38:47 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:60429 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S276716AbRJGWii>;
-	Sun, 7 Oct 2001 18:38:38 -0400
-Date: Sun, 7 Oct 2001 23:39:04 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: David =?unknown-8bit?Q?G=F3mez?= <davidge@jazzfree.com>,
-        Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IDE DMA errors [was: Some ext2 errors]
-In-Reply-To: <20011007110212.A22412@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33.0110072325330.6632-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276634AbRJGXDC>; Sun, 7 Oct 2001 19:03:02 -0400
+Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:20303
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S276633AbRJGXCp>; Sun, 7 Oct 2001 19:02:45 -0400
+Message-Id: <200110072302.f97N2GX03070@localhost.localdomain>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Jes Sorensen <jes@sunsite.dk>, paulus@samba.org,
+        "David S. Miller" <davem@redhat.com>, linuxopinion@yahoo.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address 
+In-Reply-To: Message from =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr> 
+   of "Sun, 07 Oct 2001 20:24:26 +0200." <20011007195159.D1867-100000@gerard> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 07 Oct 2001 18:02:15 -0500
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike.
+groudier@free.fr said:
+> No problem. Here is the FULL simple code from SYM-2 driver that
+> perform the reverse mapping (it is mostly the same in sym53c8xx): 
 
- >>> I see this regularly on one of my systems, and hdparm has never
- >>> even been insatalled on that system. If I put the drive in a
- >>> different system, the drive reports clean, but whatever drive I
- >>> put in here regularly reports that problem.
+Well, since this piece of code isn't in the current kernel, it makes it more 
+difficult, but it looks to me like there's an internal ccb structure in the 
+driver that would contain pointers to the scsi command pointer, the dsa 
+structure and various other things.  The dsa structure is the chip's internal 
+representation of an outstanding command.  When a command is completed, you 
+get a dma address of the dsa pointer back from the chip, so you do the 
+sym_ccb_from_dsa() conversion to get the ccb and from that you get the virtual 
+address of the dsa structure because you need to collect completion 
+information about the command before sending it back into the mid-layer.
 
- >> Yes, i also have seen this error also when not using hdparm, so
- >> it's not the cause of this ext2 errors.
+The way you do this is to walk a list of ccb structures hashed on the dsa 
+pointer for efficient reverse lookup until you find the ccb of the returning 
+dsa.
 
- > Oh, sorry, I blamed before I had facts... my bad.
+It's certainly a valid thing to do, I've done it before myself.  However, an 
+equally valid way of processing a returning dsa is to embed a pointer to the 
+ccb structure in the dsa structure.  Then to get back to the ccb you simply 
+dereference the dsa structure.  The catch now is that I need the virtual 
+address of the dsa pointer.  If I had the API I could do this.  How 
+efficiently?  well on the x86 it's a simple bit flip to get the virtual 
+address and away I go. The cost is O(1).  On the most opaque DMA hardware, the 
+mappings would have to be stored separately in a hash table.  The cost of 
+doing the lookup is O(number of pages registered for this device) which, since 
+I would expect to pack a few dsa structures per page is less than O(total dsa 
+structures).
 
-I've done that in the past - it's easy to do - but nowadays, I tend to
-wait for more facts before assuming - although I'm by no means perfect
-in that regard...
+Your method, providing only outstanding dsa structures are hashed, has an 
+efficiency O(total outstanding commands).
 
- >>> As far as I can tell, it's a problem with the PSU in the computer
- >>> in question, as I can swap ANYTHING else in there, motherboard
- >>> included, without the problem going away on that drive, but as
- >>> soon as I swap the PSU, the problems vanish - even if I put a PSU
- >>> with a lower rating in its place.
+So, for the worst case DMA hardware the two methods are very comparable (you 
+can probably get each to beat the other by judicious tuning of the hash bucket 
+size).  For the best case DMA hardware, my lookup is O(1) which is hard for a 
+hash lookup to beat.
 
- >> If i see this error show more times i'll try to replace the PSU.
- >> First I think is has some relation with my VIA chipset, but if you
- >> tell me you have changed even your motherboard... ;)
+So, in summary we have two methods, each of which could beat the other under 
+optimal hardware conditions.  Which should be used?  well that's up to the 
+choice of the device driver writer.
 
- > It may not be your MB or drive, but an interaction between them.
- > I.E. Your bios could've told the linux driver to use a higher
- > dma level than the drive likes.
+My point here is that there isn't a choice any more because the API to do DMA 
+to virtual address mappings is gone.  What I've done is proposed a replacement 
+API that will have no impact on a device driver writer who doesn't want to use 
+it.
 
-Always possible, but I'd consider it unlikely that using the SAME
-motherboard and drive, but with a different PSU would have any affect
-whatsoever if such was the reason.
+The fact that you wouldn't use it is irrelevant to the argument, since I've no 
+wish to force you to.  However, I do want the the freedom to write my drivers 
+according to my choice of method.
 
-I would presume that the old PSU was just too noisy for that
-particular drive, and a new PSU is rather quieter in that regard.
+So the outstanding point of debate still remains:  what is wrong with the 
+proposed API?  The arguments I've heard so far are:
 
- > Try running "hdparm -d0 /dev/hda" (since your drive is hda in
- > this case...) And see if the problem goes away. If it does, then
- > try Multimode dma, if (-X34) you get errors, try single mode
- > (probably -X31), if you get no errors there, try UDMA mode 2
- > (-X66, also make sure you have a 80 line ide cable) and see if
- > any of the problems come back.
+- It might be misused [true but not relevant].
+- It would bloat the kernel [Actually, it would be implemented as #defines 
+like the standard dma APIs, so would only bloat the kernel for hardware that 
+has no window into the IOMMU]
+- You can do the same thing differently [true, but you cannot do it as 
+efficiently on optimal dma hardware].
 
-Unfortunately, none of that is relevant in my case...see below...
+James Bottomley
 
- >>>> Yeah. If you can't figure out hdparm, leave it alone.
-
- >>> Who says hdparm has anything to do with it?
-
- >> He says, it seems he has very deep knowledge of hdparm 'secrets'.
-
- > Again, sorry for being presumptuous. I've only been able to cause
- > this with hdparm. Maybe I'm just not using new enough hardware...
-
-The system in question is my network printserver, which has a 386sx/16
-processor and a very definitely 40 line cable with no support for
-anything else. The hard drive is an antique Maxtor 800M one, and I
-have no problem assuring you that it's not possible to buy that model
-new, and hasn't been for some years now...
-
-Best wishes from Riley.
 

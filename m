@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284118AbRLOXSd>; Sat, 15 Dec 2001 18:18:33 -0500
+	id <S284144AbRLPAVE>; Sat, 15 Dec 2001 19:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284124AbRLOXSX>; Sat, 15 Dec 2001 18:18:23 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32786
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S284118AbRLOXSO>; Sat, 15 Dec 2001 18:18:14 -0500
-Date: Sat, 15 Dec 2001 15:12:28 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dropped patches -> dropped bugfix 2.4 since months !
-In-Reply-To: <3C1BDFBD.8BF59605@t-online.de>
-Message-ID: <Pine.LNX.4.10.10112151510100.13810-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S284153AbRLPAUy>; Sat, 15 Dec 2001 19:20:54 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:37604 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S284144AbRLPAUn>; Sat, 15 Dec 2001 19:20:43 -0500
+Date: Sat, 15 Dec 2001 19:19:37 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Dropped patches
+Message-ID: <20011215191937.B30548@redhat.com>
+In-Reply-To: <Pine.LNX.4.10.10112151049260.13398-100000@master.linux-ide.org> <3C1BA20B.48FF8735@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C1BA20B.48FF8735@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Dec 15, 2001 at 02:18:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I acknowledge the validity of the patch to you and Linus and agreed for
-its need.  As you can see he has not got a clue nor could you sell him
-one.  His additude toward laptops is /dev/null, otherwise he would have
-taken the patches a long time ago and had the infrastructure for proper
-APM calls in place.
-
-Regards,
-
-On Sun, 16 Dec 2001, Gunther Mayer wrote:
-
-> Jeff Garzik wrote:
-> > 
-> > Andre Hedrick wrote:
-> > > Well blame that on the folks that are not taking kernel code that will
-> > > allow you to solve this problem.  Linus is the number one offender.
-> > 
-> > Linus is taking some patches and not others right now...  so what?  A
-> > couple of my patches, isolated and clearly unrelated to bio and mochel's
-> > driver work, made it in.  Others got dropped.
-> > 
-> > I see several people (not just you Andre) whining about the dropped
-> > patches, when it seems to clear to me that only a few things in specific
-> > areas are getting applied right now.  For you specifically, Andre, Jen's
-> > patches have been slated for 2.5.x for a while, so it seems blindingly
-> > obvious that he would not take your IDE patches at least until the bio
-> > subsystem is finished and clean, since you IDE patches would clearly
-> > depend on the bio changes.
-> > 
-> > I do not believe this as a personal condemnation of your patches, or
-> > bcrl's, or anyone else's.
-> > 
-> > Patience is a virtue ;-)   We have a long devel series in front of us
-> > and we are only at the pre-patches to the FIRST 2.5.x release.
+On Sat, Dec 15, 2001 at 02:18:35PM -0500, Jeff Garzik wrote:
+> Andre Hedrick wrote:
+> > Well blame that on the folks that are not taking kernel code that will
+> > allow you to solve this problem.  Linus is the number one offender.
 > 
-> Unfortunately, Andre's patch includes an important BUGFIX which must
-> go into 2.4 (CompactFlash hang/IRQ storm on pcmcia-PCI adapter card).
-> 
-> Despite I'm sending this bugifx for several months now it is not included yet!
-> 
-> I understand Andre would like to get the whole patch accepted as I have no
-> evidence he ever submitted my isolated (about 3-liner) bugfix.
-> 
-> Andre, what are your plans concerning 2.4 ?
-> 
+> Linus is taking some patches and not others right now...  so what?  A
+> couple of my patches, isolated and clearly unrelated to bio and mochel's
+> driver work, made it in.  Others got dropped.
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+Patches that are unrelated to bio and obviously correct shouldn't be dropped 
+indefinately, or if they're being deferred, then $maintainer should say so.
 
+> I do not believe this as a personal condemnation of your patches, or
+> bcrl's, or anyone else's.
+> 
+> Patience is a virtue ;-)   We have a long devel series in front of us
+> and we are only at the pre-patches to the FIRST 2.5.x release.
+
+There is no reason not to have a 6 month devel cycle, and plenty of reasons 
+in favour of it.  If people aren't going to bother reviewing patches in a 
+timely fashion, they should tell people when a good time to resend patches 
+is.  Given the whole vm fiasco in 2.4 (which is still a mess and falling 
+apart for heavy loads) which stems from a lot of random direction with 
+patches, I hope that some of the underlying problems will get fixed.  But 
+it really doesn't look that way.
+
+		-ben
+-- 
+Fish.

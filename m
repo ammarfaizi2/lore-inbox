@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267174AbSKPAm1>; Fri, 15 Nov 2002 19:42:27 -0500
+	id <S267099AbSKPAiz>; Fri, 15 Nov 2002 19:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbSKPAm1>; Fri, 15 Nov 2002 19:42:27 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:40867 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267168AbSKPAm0>;
-	Fri, 15 Nov 2002 19:42:26 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: ak@suse.de, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF30653CC8.E1F7B585-ON85256C73.0003FE64@pok.ibm.com>
-From: "Khoa Huynh" <khoa@us.ibm.com>
-Date: Fri, 15 Nov 2002 18:49:05 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/15/2002 07:49:07 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S267159AbSKPAiz>; Fri, 15 Nov 2002 19:38:55 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:28049 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267099AbSKPAiy>; Fri, 15 Nov 2002 19:38:54 -0500
+Date: Fri, 15 Nov 2002 16:47:23 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: writing to sysfs appears to hang
+Message-ID: <20021116004723.GB3153@beaverton.ibm.com>
+Mail-Followup-To: Paul Larson <plars@linuxtestproject.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1037401217.11295.145.camel@plars>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037401217.11295.145.camel@plars>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Larson [plars@linuxtestproject.org] wrote:
+> I've been playing with sysfs and notices something odd.  If I do this:
+> echo 1 > /sys/devices/sys/name
+> the process appears to be hung.  ^c won't return control to me.  If I
+> log in on another console though, I can't find it running in the process
+> list.  All I can do is kill the login process.  No kernel errors when I
+> do this, just the hung terminal.
+> 
+> -Paul Larson
 
+I repeated your example and in a quick look at the backtrace
+the echo is in a loop calling down into sysfs_write_file/dev_attr_store.
 
-Jeff Garzik wrote:
->> >The bugs assigned to me are all in the 'open' state, with no
->> >obvious way to change them to 'assigned'.
->>
->>
->> There's a radio button just below the additional comments box,
->> "Accept bug (change status to ASSIGNED)". Then hit Commit.
->
->
->That would be the obvious way, but that option is not presented to me :)
->Look at http://gtf.org/garzik/misc/Screenshot.png  ;-)
->
+I think the problem is that if a device does not have a attribute store
+function the return value from dev_attr_store is incorrect.
 
-Hmm....Interesting.  I looked at your bugs and I see the radio buttons
-to accept the bugs and move them to the ASSIGNED state.  Maybe there is
-something wrong with your Bugzilla profile.  I will ask Jon to look
-into this.  Thanks for letting us know.
-
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

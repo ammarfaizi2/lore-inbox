@@ -1,41 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319292AbSHGTma>; Wed, 7 Aug 2002 15:42:30 -0400
+	id <S319291AbSHGTly>; Wed, 7 Aug 2002 15:41:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319296AbSHGTma>; Wed, 7 Aug 2002 15:42:30 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:25216 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319292AbSHGTmD>;
-	Wed, 7 Aug 2002 15:42:03 -0400
-Date: Thu, 1 Nov 2001 23:48:25 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: mporter@mvista.com, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c BUG_ON(cond1 || cond2) separation
-Message-ID: <20011101234824.A69@toy.ucw.cz>
-References: <20020805131740.A2433@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020805131740.A2433@baldur.yggdrasil.com>; from adam@yggdrasil.com on Mon, Aug 05, 2002 at 01:17:40PM -0700
+	id <S319292AbSHGTly>; Wed, 7 Aug 2002 15:41:54 -0400
+Received: from klaatu.zianet.com ([204.134.124.201]:20943 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S319291AbSHGTkw>;
+	Wed, 7 Aug 2002 15:40:52 -0400
+Message-ID: <3D517A78.704@zianet.com>
+Date: Wed, 07 Aug 2002 13:52:24 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at tg3.c:1557
+References: <Pine.LNX.4.44.0208071332110.3394-100000@pc40.e18.physik.tu-muenchen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I just tried this on a dual Athlon box with two 7850's in it
+and a 3C996B-T as well.  Lucky for me though, this
+error did not show up.  I transfered/received two 800MB files
+to the RAID and it held up ok.  What driver version are you
+using? Or even kernel version.
 
-> 	I want to replace all statements in the kernel of the form
-> BUG_ON(condition1 || condition2) with:
-> 
-> 			BUG_ON(condition1);
-> 			BUG_ON(condition2);
-> 
-> 	I was recently bitten by a very sporadic BUG_ON(cond1 || cond2)
-> statement and was quite annoyed at the greatly reduced opportunity to
-> debug the problem.  Make these changes and someone who experiences
-> the problem may be able to provide slightly more useful information.
+Steve
 
-it makes code slower/bigger... probably bad idea
+Roland Kuhn wrote:
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+>Dear kernel hackers!
+>
+>I've been chasing this bug now for weeks without further ideas, so please 
+>tell me your thoughts about it:
+>
+>On a dual Athlon MP with a 3ware-7850 RAID (640GB RAID-5) and 3C996B-T GE 
+>NIC I can crash the machine with the above BUG message in virtually no 
+>time simply by copying data both ways between the RAID and the NIC. The 
+>BUG message shows that this can happen any time, it doesn't matter if the 
+>interrupt is received in cpu_idle or something else. I tried noapic, but 
+>to no avail.
+>
+>Does anybody know about this problem?
+>How can I get more debugging information?
+>Can the driver be patched to gracefully handle this situation, e.g. by 
+>resetting the card and trying again?
+>
+>What I've found out till now is only that the kernel's and the NIC's view 
+>of the world seem to be inconsistent :-(
+>
+>For our application stability is much more important than a few TCP 
+>retransmits...
+>
+>Thanks in advance,
+>					Roland
+>
+>+---------------------------+-------------------------+
+>|    TU Muenchen            |                         |
+>|    Physik-Department E18  |  Raum    3558           |
+>|    James-Franck-Str.      |  Telefon 089/289-12592  |
+>|    85747 Garching         |                         |
+>+---------------------------+-------------------------+
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+
+
 

@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVDEJUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVDEJXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbVDEJUw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVDEJUw
+	id S261651AbVDEJXr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVDEJXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:20:52 -0400
-Received: from ozlabs.org ([203.10.76.45]:7069 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261650AbVDEJUV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:20:21 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
-Date: Tue, 5 Apr 2005 19:20:25 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-In-Reply-To: <21d7e99705040502073dfa5e5@mail.gmail.com>
-References: <20050405000524.592fc125.akpm@osdl.org>
-	<20050405074405.GE26208@infradead.org>
-	<21d7e99705040502073dfa5e5@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+	Tue, 5 Apr 2005 05:23:46 -0400
+Received: from ctb-mesg2.saix.net ([196.25.240.74]:31422 "EHLO
+	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S261645AbVDEJXF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:23:05 -0400
+Subject: Re: [patch] inotify 0.22
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Robert Love <rml@novell.com>
+Cc: linux-kernel@vger.kernel.org, John McCutchan <ttb@tentacle.dhs.org>
+In-Reply-To: <1112644936.6736.7.camel@betsy>
+References: <1112644936.6736.7.camel@betsy>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/K+boOCmFmTpE8llsAsw"
+Date: Tue, 05 Apr 2005 11:26:33 +0200
+Message-Id: <1112693193.9136.36.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie writes:
 
-> Paulus these look like your patches care to update them with the "new"
-> method of doing stuff..
+--=-/K+boOCmFmTpE8llsAsw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-What are we going to do about the DRM CVS?  Change it to the new way
-and break everyone running 2.6.10 or earlier, or leave it at the old
-way that will work for people with distro kernels, and have a
-divergence between it and what's in the kernel?
+On Mon, 2005-04-04 at 16:02 -0400, Robert Love wrote:
 
-Also, the compat_ioctl method is called without the BKL held, unlike
-the ioctl method.  What impact will that have?  Do we need to take the
-BKL in the compat_ioctl method?
+Hi,
 
-Paul.
+> Below, find inotify 0.22, against 2.6.12-rc1.
+>=20
+
+Will this be included in mainline anytime soon?  Kernel side seems to be
+working great, and I think all issues was addressed.
+
+The only real issues currently is with the gamin backend, but the
+maintainer of gamin do not want to touch it until inotify is in
+mainline, and John and others currently have other things to do.
+
+
+Regards,
+
+--=20
+Martin Schlemmer
+
+
+--=-/K+boOCmFmTpE8llsAsw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCUlnJqburzKaJYLYRAudsAJ48YB8nZnhXr5MHnZ+z+UiIPTExhgCeL49m
+C+QvVQmV9vhZDccAapIRvyo=
+=8t73
+-----END PGP SIGNATURE-----
+
+--=-/K+boOCmFmTpE8llsAsw--
+

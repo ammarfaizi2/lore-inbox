@@ -1,66 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVCRXZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVCRXZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbVCRXZR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 18:25:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVCRXYy
+	id S262094AbVCRXZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 18:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCRXYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 18:24:54 -0500
-Received: from az33egw01.freescale.net ([192.88.158.102]:45981 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S262094AbVCRXWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 18:22:44 -0500
-Date: Fri, 18 Mar 2005 17:22:38 -0600 (CST)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@blarg.somerset.sps.mot.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc32: Fix CONFIG_SERIAL_TEXT_DEBUG support on 83xx
-Message-ID: <Pine.LNX.4.61.0503181719250.26300@blarg.somerset.sps.mot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Mar 2005 18:24:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:20706 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262082AbVCRXVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 18:21:47 -0500
+Date: Fri, 18 Mar 2005 15:21:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: romano@dea.icai.upco.es
+Cc: romanol@upco.es, len.brown@intel.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [BKPATCH] ACPI for 2.6.12-rc1
+Message-Id: <20050318152122.7994965b.akpm@osdl.org>
+In-Reply-To: <20050318150129.GB22887@pern.dea.icai.upco.es>
+References: <1111127024.9332.157.camel@d845pe>
+	<20050318150129.GB22887@pern.dea.icai.upco.es>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Romano Giannetti <romanol@upco.es> wrote:
+>
+> Could I humble advocating pushing the patch 
+>  http://bugme.osdl.org/attachment.cgi?id=4516&action=view ,please? It fixed a
+>  very bad regression in hotkey event from 2.6.9...
 
-The uart initialization for CONFIG_SERIAL_TEXT_DEBUG on 83xx was passing 
-in physical addresses instead of effective.  Additional, fix the Kconfig 
-support to be for all 83xx devices, not just the MPC834x SYS board.
+It seems to not be in ACPI bk yet.  What bug number is that actually
+attached to?  There seems to be no way to go backwards from the URL.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
-
----
-
-diff -Nru a/arch/ppc/Kconfig b/arch/ppc/Kconfig
---- a/arch/ppc/Kconfig	2005-03-18 17:15:04 -06:00
-+++ b/arch/ppc/Kconfig	2005-03-18 17:15:04 -06:00
-@@ -733,7 +733,7 @@
- 	depends on SANDPOINT || MCPN765 || SPRUCE || PPLUS || PCORE || \
- 		PRPMC750 || K2 || PRPMC800 || LOPEC || \
- 		(EV64260 && !SERIAL_MPSC) || CHESTNUT || RADSTONE_PPC7D || \
--		MPC834x_SYS
-+		83xx
- 	default y
- 
- config FORCE
-diff -Nru a/arch/ppc/platforms/83xx/mpc834x_sys.c b/arch/ppc/platforms/83xx/mpc834x_sys.c
---- a/arch/ppc/platforms/83xx/mpc834x_sys.c	2005-03-18 17:15:04 -06:00
-+++ b/arch/ppc/platforms/83xx/mpc834x_sys.c	2005-03-18 17:15:04 -06:00
-@@ -243,14 +243,14 @@
- 
- 		memset(&p, 0, sizeof (p));
- 		p.iotype = SERIAL_IO_MEM;
--		p.membase = (unsigned char __iomem *)immrbar + 0x4500;
-+		p.membase = (unsigned char __iomem *)(VIRT_IMMRBAR + 0x4500);
- 		p.uartclk = binfo->bi_busfreq;
- 
- 		gen550_init(0, &p);
- 
- 		memset(&p, 0, sizeof (p));
- 		p.iotype = SERIAL_IO_MEM;
--		p.membase = (unsigned char __iomem *)immrbar + 0x4500;
-+		p.membase = (unsigned char __iomem *)(VIRT_IMMRBAR + 0x4600);
- 		p.uartclk = binfo->bi_busfreq;
- 
- 		gen550_init(1, &p);

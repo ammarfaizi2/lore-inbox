@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289598AbSBJNJQ>; Sun, 10 Feb 2002 08:09:16 -0500
+	id <S289597AbSBJNSR>; Sun, 10 Feb 2002 08:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289597AbSBJNJH>; Sun, 10 Feb 2002 08:09:07 -0500
-Received: from smtp01.web.de ([194.45.170.210]:54276 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S289598AbSBJNI4>;
-	Sun, 10 Feb 2002 08:08:56 -0500
-Date: Sun, 10 Feb 2002 14:19:18 +0100
-From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
-To: "Alex Scheele" <alex@packetstorm.nu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch][2.5.4-dj4] cleanup to use strsep for fs/fat/inode.c
-Message-Id: <20020210141918.3552d0fc.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S289600AbSBJNSG>; Sun, 10 Feb 2002 08:18:06 -0500
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:62594 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S289597AbSBJNSA>; Sun, 10 Feb 2002 08:18:00 -0500
+Date: Sun, 10 Feb 2002 08:04:48 -0500
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: LKML <linux-kernel@vger.kernel.org>, dz@debian.org
+Subject: APM fix from -pre7 seems to break "Dell laptop support"
+Message-ID: <20020210130447.GA1001@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	LKML <linux-kernel@vger.kernel.org>, dz@debian.org
+In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva>
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+With CONFIG_I8K=y and Massimo Dal Zotto's i8k utilities, it's necessary
+for me to revert Stephen Rothwell's 2.4.17-APM.1 patch that went into
+18-pre7.  If I don't, CPU temperature readings jump around erratically
+and the fans come on at the wrong temperatures.  I reported this to
+Stephen and on lkml at the time -pre7 came out, but the problem is
+still there in -pre9.  If the patch offers real benefits to non-Dell
+folk I guess I can just continue reverting...
 
-> This patch changes all use of strtok() to strsep().
-> Strtok() isn't SMP/thread safe. strsep is considered safer.
-
-OK, but ...
-
-> -       for (this_char = strtok(options,","); this_char;
-> -            this_char = strtok(NULL,",")) {
-
-This _does not_ change the value of 'options'.
-
-> +       while ((this_char = strsep(&options,",")) != NULL) {
-
-This _does_ change the value of 'options'. Problem is, it's
-used later. Same is true for your patch to fs/vfat/namei.c.
-
-René
+-- 
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263892AbUCZAhb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:37:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263889AbUCZAgi
+	id S263872AbUCZAhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbUCZAgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:36:38 -0500
-Received: from sa-4.airstreamcomm.net ([64.33.192.164]:26898 "EHLO
-	sa-4.airstreamcomm.net") by vger.kernel.org with ESMTP
-	id S263817AbUCZA2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 19:28:13 -0500
-To: 239952@bugs.debian.org, debian-devel@lists.debian.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de>
-	<20040325082949.GA3376@gondor.apana.org.au>
-	<20040325220803.GZ16746@fs.tum.de> <40635DD9.8090809@pobox.com>
-	<40636302.6080807@stesmi.com>
-From: John Hasler <john@dhh.gt.org>
-Date: Thu, 25 Mar 2004 18:33:50 -0600
-In-Reply-To: <40636302.6080807@stesmi.com> (Stefan Smietanowski's message of
- "Thu, 25 Mar 2004 23:53:54 +0100")
-Message-ID: <87lllobg5t.fsf@toncho.dhh.gt.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+	Thu, 25 Mar 2004 19:36:44 -0500
+Received: from 65.104.119.60.ptr.us.xo.net ([65.104.119.60]:10135 "EHLO
+	dns1.appliedminds.com") by vger.kernel.org with ESMTP
+	id S263872AbUCZAdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:33:07 -0500
+Message-ID: <40637A42.4080603@appliedminds.com>
+Date: Thu, 25 Mar 2004 16:33:06 -0800
+From: James Lamanna <jamesl@appliedminds.com>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Figuring out USB device locations
+References: <406314EF.7040304@appliedminds.com> <20040325235740.GA30964@kroah.com>
+In-Reply-To: <20040325235740.GA30964@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Mar 2004 00:33:05.0627 (UTC) FILETIME=[E79562B0:01C412C9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan writes:
-> Except the firmware itself is GPL in this case.
+Greg KH wrote:
 
-So the problem is not GPL compatibility: it's GPL code being distributed
-without source.  Can we get written permission from the manufacturer?
-Without either source or written permission to do without we cannot
-redistribute.
+> On Thu, Mar 25, 2004 at 09:20:47AM -0800, James Lamanna wrote:
+> 
+>>Is there an easy way to find out what /dev entries usb devices get 
+>>mapped to from userspace?
+> 
+> 
+> "easy way" on 2.4?  No, sorry.  You need 2.6 to determine this in a
+> simple manner.  But there are some files in the /proc/bus/usb/
+> and /proc/bus/input/ directories that will help you out.
 
-Note that the GPL does not require that the firmware build from source on
-Linux.  We are not obligated (by the GPL) to supply a compiler.
+Hmm...its not obvious to me how i can use /proc/bus/usb/xxx/yyy to get 
+the /dev entry information. I can get the USB device number, but I don't 
+see how to get at a mapping to a major/minor in /dev space (or is this 
+not possible in 2.4)...
+
 -- 
-John Hasler               You may treat this work as if it 
-john@dhh.gt.org           were in the public domain.
-Dancing Horse Hill        I waive all rights.
-Elmwood, Wisconsin
+James Lamanna

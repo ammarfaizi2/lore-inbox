@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317842AbSGaHyO>; Wed, 31 Jul 2002 03:54:14 -0400
+	id <S317851AbSGaIWG>; Wed, 31 Jul 2002 04:22:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317847AbSGaHyO>; Wed, 31 Jul 2002 03:54:14 -0400
-Received: from gremlin.ics.uci.edu ([128.195.1.70]:21984 "HELO
-	gremlin.ics.uci.edu") by vger.kernel.org with SMTP
-	id <S317842AbSGaHyN>; Wed, 31 Jul 2002 03:54:13 -0400
-Date: Wed, 31 Jul 2002 00:57:31 -0700 (PDT)
-From: Mukesh Rajan <mrajan@ics.uci.edu>
-To: linux-kernel@vger.kernel.org
-cc: mlord@pobox.com
-Subject: IDE, putting HD to sleep causes "lost interrupt"
-Message-ID: <Pine.SOL.4.20.0207310013490.15380-100000@hobbit.ics.uci.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317854AbSGaIWG>; Wed, 31 Jul 2002 04:22:06 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:261 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317851AbSGaIWG>; Wed, 31 Jul 2002 04:22:06 -0400
+Date: Wed, 31 Jul 2002 09:25:27 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: async-io API registration for 2.5.29
+Message-ID: <20020731092527.A8443@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Benjamin LaHaise <bcrl@redhat.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, linux-aio@kvack.org
+References: <20020730214116.GN1181@dualathlon.random> <Pine.LNX.4.44L.0207302219400.23404-100000@imladris.surriel.com> <20020731013238.GJ1181@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020731013238.GJ1181@dualathlon.random>; from andrea@suse.de on Wed, Jul 31, 2002 at 03:32:38AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, Jul 31, 2002 at 03:32:38AM +0200, Andrea Arcangeli wrote:
+> disagree, merging synchronous requests would make much more sense than
+> merging asynchronous requests in the same syscall, it would make them
+> asynchronous with respect than each other without losing their global
+> synchronous behaviour w.r.t. userspace.
 
-things work perfectly fine on my desktop. but on my laptop (toshiba
-satellite) if i try,
-
-%hdparm -Y /dev/hda           <--- put to sleep followed by
-%hdparm -C /dev/hda           <--- query status
-
-gives me
-
-hda: lost interrupt
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: lost interrupt
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-hda: irq timeout: status=0x50 { DriveReady SeekComplete }
-hda: DMA disabled
-ide0: reset: success
-
-if i try the above from X, the machine freezes and i need to do hard
-reboot.
-
-the boot message regarding ide are as follows
-
-boot messages
--------------
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ALI15X3: IDE controller on PCI bus 00 dev 20
-PCI: No IRQ known for interrupt pin A of device 00:04.0. Please try using
-pci=biosirq.
-ALI15X3: chipset revision 195
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xeff0-0xeff7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xeff8-0xefff, BIOS settings: hdc:DMA, hdd:pio
-hda: TOSHIBA MK2018GAP, ATA DISK drive
-
-the closest i think i got to on google is the following but there are no
-answers
-
-http://mail.nl.linux.org/kernelnewbies/2001-01/msg00064.html
-
-please help.
-
-- mukesh
+readv/writev..
 

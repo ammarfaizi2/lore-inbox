@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUEML0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264105AbUEMLdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbUEML0c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 07:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264105AbUEML0c
+	id S264105AbUEMLdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 07:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264107AbUEMLdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 07:26:32 -0400
-Received: from irulan.endorphin.org ([212.13.208.107]:3090 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S264103AbUEML0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 07:26:14 -0400
-Date: Thu, 13 May 2004 13:25:55 +0200
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] AES i586 optimized
-Message-ID: <20040513112555.GA22233@ghanima.endorphin.org>
-References: <20040513110110.GA8491@ghanima.endorphin.org>
-	<20040513121315.B8620@infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
-Content-Disposition: inline
-In-Reply-To: <20040513121315.B8620@infradead.org>
-User-Agent: Mutt/1.5.6i
-From: Fruhwirth Clemens <clemens-dated-1085311555.6f4f@endorphin.org>
-X-Delivery-Agent: TMDA/0.92 (Kauai King)
+	Thu, 13 May 2004 07:33:09 -0400
+Received: from ozlabs.org ([203.10.76.45]:2182 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264105AbUEMLdE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 07:33:04 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16547.23800.280519.689864@cargo.ozlabs.ibm.com>
+Date: Thu, 13 May 2004 21:33:12 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, olh@suse.de
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC64] Kconfig bits for CONFIG_SPINLINE
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I sent the patch to uninline the spinlocks, I inadvertently left
+out the change to arch/ppc64/Kconfig which defines the config symbol
+for inlining the locks (CONFIG_SPINLINE now).  This patch adds it.  It
+also adds a symbol CONFIG_PPC_SPLPAR which enables the code for
+calling the hypervisor on shared-processor logically-partitioned
+system to yield the physical processor to the lock holder when
+spinning.  (The code that depends on this symbol is already present in
+arch/ppc64/lib/locks.c.)
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please apply.
 
-On Thu, May 13, 2004 at 12:13:15PM +0100, Christoph Hellwig wrote:
-> On Thu, May 13, 2004 at 01:01:10PM +0200, Fruhwirth Clemens wrote:
-> > +//  2. Redistributions in binary form must reproduce the above copyrig=
-ht
-> > +//     notice, this list of conditions and the following disclaimer in=
- the
-> > +//     documentation and/or other materials provided with the distribu=
-tion.
->=20
-> advertisment clause, so GPL-incompatible.
+Thanks,
+Paul.
 
-Standard BSD license text. Listed as GPL-compatible by FSF.
-
-http://www.gnu.org/licenses/license-list.html
-
-Follow the link to "The modified BSD license" provided under the Section
-"GPL-Compatible, Free Software Licenses".
-
-Clemens
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAo1tDW7sr9DEJLk4RApZiAJ49Lnkvp3Lc1okM7iEiuiASY3/b6wCfaSdS
-cIzsfFSly7VUnxrlc9T0q0A=
-=aPde
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
+diff -urN linux-2.5/arch/ppc64/Kconfig g5-ppc64/arch/ppc64/Kconfig
+--- linux-2.5/arch/ppc64/Kconfig	2004-05-11 07:53:04.000000000 +1000
++++ g5-ppc64/arch/ppc64/Kconfig	2004-05-13 21:08:47.621961712 +1000
+@@ -93,6 +93,16 @@
+ 	bool "Apple PowerMac G5 support"
+ 	select ADB_PMU
+ 
++config PPC_SPLPAR
++	depends on PPC_PSERIES
++	bool "Support for shared-processor logical partitions"
++	default n
++	help
++	  Enabling this option will make the kernel run more efficiently
++	  on logically-partitioned pSeries systems which use shared
++	  processors, that is, which share physical processors between
++	  two or more partitions.
++
+ config PMAC_DART
+ 	bool "Enable DART/IOMMU on PowerMac (allow >2G of RAM)"
+ 	depends on PPC_PMAC
+@@ -407,7 +417,17 @@
+ 	  debugging info resulting in a larger kernel image.
+ 	  Say Y here only if you plan to use gdb to debug the kernel.
+ 	  If you don't debug the kernel, you can say N.
+-	  
++
++config SPINLINE
++	bool "Inline spinlock code at each call site"
++	depends on SMP && !PPC_SPLPAR && !PPC_ISERIES
++	help
++	  Say Y if you want to have the code for acquiring spinlocks
++	  and rwlocks inlined at each call site.  This makes the kernel
++	  somewhat bigger, but can be useful when profiling the kernel.
++
++	  If in doubt, say N.
++
+ endmenu
+ 
+ source "security/Kconfig"

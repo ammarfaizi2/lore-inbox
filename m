@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbUCRRsF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:48:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUCRRsF
+	id S262814AbUCRRr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbUCRRr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:48:05 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:48354 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262813AbUCRRsA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:48:00 -0500
-Message-ID: <4059E0B2.4030601@nortelnetworks.com>
-Date: Thu, 18 Mar 2004 12:47:30 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Thu, 18 Mar 2004 12:47:57 -0500
+Received: from ns.suse.de ([195.135.220.2]:24025 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262812AbUCRRrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 12:47:55 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: fcntl error
+References: <7051.1079628297@redhat.com>
+	<Pine.LNX.4.58.0403180923190.880@ppc970.osdl.org>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: You must be a CUB SCOUT!!  Have you made your MONEY-DROP today??
+Date: Thu, 18 Mar 2004 18:47:51 +0100
+In-Reply-To: <Pine.LNX.4.58.0403180923190.880@ppc970.osdl.org> (Linus
+ Torvalds's message of "Thu, 18 Mar 2004 09:30:16 -0800 (PST)")
+Message-ID: <jesmg6avy0.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: sched_setaffinity usability -- other issue
-References: <40595842.5070708@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a different issue with setting cpu affinity.  Has anyone 
-considered a "soft" affinity?
+Linus Torvalds <torvalds@osdl.org> writes:
 
-I'm thinking of the case where I want to run processes on separate cpus 
-for performance reasons, but in the case that one cpu becomes 
-unavailable (physically removed, hardware fault, etc.) I would like to 
-move those processes back to working cpus (except for maybe the one that 
-was actually running and therefore might be corrupted).  In this case a 
-reduced performance might be preferable to an unplanned failover to 
-backup hardware.
+> On Thu, 18 Mar 2004, David Howells wrote:
+>> 
+>> The attached patch fixes a minor problem with fcntl.
+>
+> I agree that it is a cleanup, but I disagree on the "problem" part.
+>
+>> get_close_on_exec() uses FD_ISSET() to determine the fd state. However,
+>> FD_ISSET() does not return 0 or 1 on all archs. On some it returns 0 or non-0,
+>> which is fine by POSIX.
+>
+> FD_ISSET() is broken if it returns anything but 0/1, in my not-so-humble 
+> opinion.
 
-Has this scenario been considered, or will cpu affinity be a "hard" setting.
+POSIX clearly says that _any_ non-zero value is ok, similar to the ctype.h
+functions.  Of course, the kernel can set different standards internally.
 
-Chris
+Andreas.
 
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

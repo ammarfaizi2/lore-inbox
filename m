@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284240AbRLAU3S>; Sat, 1 Dec 2001 15:29:18 -0500
+	id <S284239AbRLAU1s>; Sat, 1 Dec 2001 15:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284238AbRLAU3K>; Sat, 1 Dec 2001 15:29:10 -0500
-Received: from dsl-213-023-039-149.arcor-ip.net ([213.23.39.149]:33548 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S284241AbRLAU2x>;
-	Sat, 1 Dec 2001 15:28:53 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-Subject: Re: Coding style - a non-issue
-Date: Sat, 1 Dec 2001 21:30:13 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Victor Yodaiken <yodaiken@fsmlabs.com>,
-        Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
-        Larry McVoy <lm@bitmover.com>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111302048200.1459-100000@penguin.transmeta.com> <E16A3PR-0000mS-00@starship.berlin> <20011201131709.B2009@hq2>
-In-Reply-To: <20011201131709.B2009@hq2>
+	id <S284238AbRLAU1j>; Sat, 1 Dec 2001 15:27:39 -0500
+Received: from webcon.net ([216.187.106.140]:48776 "EHLO webcon.net")
+	by vger.kernel.org with ESMTP id <S284239AbRLAU1a>;
+	Sat, 1 Dec 2001 15:27:30 -0500
+Date: Sat, 1 Dec 2001 15:27:24 -0500 (EST)
+From: Ian Morgan <imorgan@webcon.net>
+To: David Hinds <dhinds@sonic.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <dhinds@zen.stanford.edu>, <hermes@gibson.dropbear.id.au>
+Subject: Re: in-kernel pcmcia oopsing in SMP
+In-Reply-To: <20011201120541.B28295@sonic.net>
+Message-ID: <Pine.LNX.4.40.0112011513041.2329-100000@light.webcon.net>
+Organization: "Webcon, Inc."
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16AGm7-0000p4-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 1, 2001 09:17 pm, Victor Yodaiken wrote:
-> On Sat, Dec 01, 2001 at 07:13:55AM +0100, Daniel Phillips wrote:
-> > On December 1, 2001 06:15 am, Linus Torvalds wrote:
-> > > On Fri, 30 Nov 2001, Victor Yodaiken wrote:
-> > > > Here's a characteristic good Linux design method ,( or call it "less than 
-> > > > random mutation method" if that makes you feel happy): read the 
-> > > > literature, think hard, try something, implement
-> > > 
-> > > Hah.
-> > > 
-> > > I don't think I've seen very many examples of that particular design
-> > > methodology.
-> > 
-> > I do it a little differently: think hard, try something, implement, read the 
-> > literature, repeat as necessary.
-> 
-> Ordering is not key in this recipe.
+On Sat, 1 Dec 2001, David Hinds wrote:
 
-Right, I'm just saying that's how I typically do it.  A decade ago I'd 
-probably have put the 'try something' first, and a decade before that,
-'read the litature'.
+> I did fix one major SMP bug in the pcmcia-cs drivers just a couple
+> days ago; the beta at http://pcmcia-cs.sourceforge.net/ftp/NEW has the
+> fix.  I'm not sure if it is really the same bug you describe, though,
+> since no one else has reported the ds module causing an immediate
+> oops.
 
---
-Daniel
+Hmm.. i'll look into that. If it keeps oopsing, i'll send you the dump.
+
+> The standalone drivers are unlikely to help, though, because the
+> orinoco_cs driver in the standalone package is virtually identical to
+> the one in the current 2.4.* kernel.
+
+True. Actually, they're older. 0.08b seems current.
+
+> Actually, though, you could try the (older) wvlan_cs driver in the
+> pcmcia-cs package.  You can do that with your current kernel drivers,
+> even.  Unpack the pcmcia-cs package, do "make config", then cd to the
+> wireless subdirectory and do a "make" there.  That should build a
+> wvlan_cs module that will mesh with your kernel PCMCIA subsystem.  It
+> will at least give you another data point.
+
+I've tried the wvlan_cs driver. It works for a few inutes, then gets all
+messed up and need to be reset. When it's hosed, iwconfig just dumps out a
+lot of garbage, making me think the driver is writing all over itself.
+Haven't tried this driver in UP mode.
+
+I've also tried Lucent's binary driver, but it doesn't work at all. It will
+allow a single packet to be sent then shuts down the tranceiver and changes
+to channel 0 (?!) then needs to be reset before another single packet can be
+sent, then shuts down the tranceiver again, etc, etc.. (this happens on
+several UP and SMP machines).
+
+> I don't know how to interpret your oops report; you should probably
+> also forward the bug to David Gibson, hermes@gibson.dropbear.id.au,
+> since he is the orinoco maintainer.
+
+Well, Gibson's the one who suggested the broblem was with the pcmcia system,
+and not the orinoco driver! Hmm.... can you say runaround?
+
+Basically, before about 2.4.14, the orinoco driver would go haywire and dump
+out lots of errors (Gibson is familiar with them) and need to be manually
+reset. On more recent kernels however, instead of the driver crapping out
+with errors, the system just hard locks.
+
+Regards,
+Ian Morgan
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan        Vice President & C.O.O.         Webcon, Inc.
+ imorgan@webcon.net         PGP: #2DA40D07          www.webcon.net
+-------------------------------------------------------------------
+
+

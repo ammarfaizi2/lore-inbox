@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUFUFrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266107AbUFUGGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbUFUFrT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 01:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUFUFrT
+	id S266107AbUFUGGM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 02:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUFUGGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 01:47:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36996 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266124AbUFUFrP (ORCPT
+	Mon, 21 Jun 2004 02:06:12 -0400
+Received: from mail.kroah.org ([65.200.24.183]:26503 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266107AbUFUGGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 01:47:15 -0400
-Date: Mon, 21 Jun 2004 01:29:21 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: "R. J. Wysocki" <rjwysocki@sisk.pl>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: Opteron bug
-Message-ID: <20040621052921.GC21264@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <200406192229.14296.rjwysocki@sisk.pl> <200406201347.17967.rjwysocki@sisk.pl> <20040620120247.GA21264@devserv.devel.redhat.com> <200406210254.53124.vda@port.imtp.ilyichevsk.odessa.ua>
+	Mon, 21 Jun 2004 02:06:10 -0400
+Date: Sun, 20 Jun 2004 23:04:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeremy <jeremy.katz@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
+       Linus <torvalds@osdl.org>, linuxppc64-dev@lists.linuxppc.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
+Message-ID: <20040621060435.GA28384@kroah.com>
+References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com> <20040618151753.GA21596@infradead.org> <cb5afee1040620125272ab9f06@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406210254.53124.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <cb5afee1040620125272ab9f06@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 02:54:53AM +0300, Denis Vlasenko wrote:
-> On Sunday 20 June 2004 15:02, Jakub Jelinek wrote:
-> > On Sun, Jun 20, 2004 at 01:47:17PM +0200, R. J. Wysocki wrote:
-> > > Well, is there any case in which the gcc can produce such stuff?
-> >
-> > GCC doesn't ever generate std instruction (only cld), though users
-> > can use it in inline assembly or assembly source file.
-> > AFAIK x86_64 glibc doesn't use it at all either.
+On Sun, Jun 20, 2004 at 03:52:33PM -0400, Jeremy wrote:
+> > Agreed.  And the old viodasd reason was rejected exactly because it was
+> > such a f***ing mess.
 > 
-> glibc-2.3/sysdeps/i386/memcopy.h:
-> 
-> #define BYTE_COPY_BWD(dst_ep, src_ep, nbytes)                                 \
->   do                                                                          \
->     {                                                                         \
->       int __d0;                                                               \
->       asm volatile(/* Set the direction flag, so copying goes backwards.  */  \
->                    "std\n"                                                    \
->                    /* Copy bytes.  */                                         \
->                    "rep\n"                                                    \
->                    "movsb\n"                                                  \
->                    /* Clear the dir flag.  Convention says it should be 0. */ \
->                    "cld" :                                                    \
->                    "=D" (dst_ep), "=S" (src_ep), "=c" (__d0) :                \
->                    "0" (dst_ep - 1), "1" (src_ep - 1), "2" (nbytes) :         \
->                    "memory");                                                 \
->       dst_ep += 1;                                                            \
->       src_ep += 1;                                                            \
->     } while (0)
-> 
-> WORD_COPY_BWD also does this
+> The argument could be made that sysfs is similarly a f***ing mess and
+> that instead of solving problems, it creates more.
 
-I know, but I said x86_64 glibc, which doesn't do this.
+It does?  Have you brought this up to the sysfs / kobject / driver model
+authors?  I think they would be open to any critiques of the current
+code, especially if such critique contains patches.
 
-	Jakub
+> The mess of symlinks present there is a disaster and disgusting for
+> anyone who wants to actually write clean probing code.
+
+What do you mean by this.  Any examples?
+
+> Also, things in sysfs aren't exactly stable enough to count on as a
+> dependable interface, but that's something the kernel has never
+> reliably exported to userspace.
+
+Why isn't sysfs stable enough?  You can find any driver instantly.  And
+any device bound to that driver in a stable and repeatable manner.
+
+So, give me specific examples, or stop ranting for no reason.
+
+greg k-h

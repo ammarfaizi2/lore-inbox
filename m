@@ -1,79 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268428AbTBZA12>; Tue, 25 Feb 2003 19:27:28 -0500
+	id <S268438AbTBZAiY>; Tue, 25 Feb 2003 19:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268432AbTBZA12>; Tue, 25 Feb 2003 19:27:28 -0500
-Received: from ool-182f525d.dyn.optonline.net ([24.47.82.93]:25829 "EHLO
-	j0nah.ath.cx") by vger.kernel.org with ESMTP id <S268428AbTBZA11>;
-	Tue, 25 Feb 2003 19:27:27 -0500
-Date: Tue, 25 Feb 2003 14:38:17 -0500
-From: Jonah Sherman <jsherman@stuy.edu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.5.63 - NULL pointer dereference in loop device
-Message-ID: <20030225193817.GA2157@j0nah.ath.cx>
-Mail-Followup-To: Hugh Dickins <hugh@veritas.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20030224212530.GA631@j0nah.ath.cx> <Pine.LNX.4.44.0302252059370.1430-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302252059370.1430-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.3i
+	id <S268449AbTBZAiY>; Tue, 25 Feb 2003 19:38:24 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:47118 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP
+	id <S268438AbTBZAiW>; Tue, 25 Feb 2003 19:38:22 -0500
+Message-ID: <3E5B9E23.6080303@cyclades.com>
+Date: Tue, 25 Feb 2003 16:47:31 +0000
+From: Henrique Gobbi <henrique2.gobbi@cyclades.com>
+Reply-To: henrique.gobbi@cyclades.com
+Organization: Cyclades Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: n_tty.c - possible enhancement
+References: <Pine.LNX.4.33.0301211141580.8730-100000@pcz-madhavis.sasken.com> <3E2CF0A1.5030203@ToughGuy.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear all !!!
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I was having data loss problems using my serial ports at 115200 with 
+software flow control (I can't use hw flow control) and I ended up 
+figuring out that the problem was happening because of the small value 
+of the tty buffer high water mark (TTY_THRESHOLD_THROTTLE). Changing 
+that define value and recompiling the kernel was the only solution i 
+found to my problem.
 
-On Tue, Feb 25, 2003 at 09:15:56PM +0000, Hugh Dickins wrote:
-> If you "losetup /dev/loop0 /dev/hdN", then it's LO_FLAGS_BH_REMAP
-> and doesn't even call bio_copy: it doesn't copy bio or buffers or
+The way this code is implemented today is bad. The water marks are hard 
+coded and the only way to change them is recompiling the kernel again, 
+and this is not a good solution for that. I want to change that.
 
-It appears this way if you just look at none_status, but you didn't look
-at loop_init_xfer().  Notice that it doesn't call xfer->init unless
-type !=3D 0, so that flag is infact never set.
+My idea is:
+-------------------------------------------------------------------------
+1 - Create two new variables in the tty struct: high_watermark and 
+low_watermark;
 
-> pages (unless you have highmem, which you don't mention: then its
-> pointless wasteful blk_queue_bounce might cause trouble), it's a
-> straight route through to disk, which should be using mempools
-> to complete i/o even if the rest of the system is out of memory.
+2 - Initialize this variables with the values they have today: 128 and 128;
 
-I'm not using highmem.
+3 - Create 4 ioctl's to set and get the values of this 2 variables;
 
-> Of course the loop driver is wrong to ignore NULL return from bio_copy
-> (if you used losetup -e), and there's a lot of unnecessary allocation
-> and copying and a lot of opportunity for deadlock, for which I have
-> some perpetually unfinished patches.
->=20
-> But the loop to disk is relatively straightforward, pdflush should
-> take care of the dirty pages Andrew worries about (though in writing
-> to blockdev when there's highmem, pdflush may kick in too late); and
-> I couldn't even reproduce your oops using "-e xor".
->=20
-> Can you shed more light on how to reproduce this?
+4 - Change the file n_tty.c. The line that has
+	if (n_tty_receive_room(tty) < TTY_THRESHOLD_THROTTLE) {
+     will have:
+	if (n_tty_receive_room(tty) < tty->high_watermark) {
 
-The block dev it is being used on must be larger than your RAM.  I don't
-have any swap on this machine, so I don't know if it must be bigger than
-that too.  Maybe disabling swap before testing this oops will make it
-work?
+     and the same thing will be done for the low watermark
+-------------------------------------------------------------------------
 
-In any case, the patch sent by Andrew Morton fixed this bug.
+I would appreciate any comment on this matter. If you guys don't see any 
+problem on this I will commit a patch as soon as possible
 
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+later
+Henrique
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+W8YpflGtzWCyItURAkKDAJ9bVKCQ8MLq29tnAX4GZ+v9zW/kuwCgwG8m
-sh5zJ37lbSz1aQvFokGhVEE=
-=SyYx
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUFCRik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUFCRik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbUFCRik (ORCPT <rfc822;willy@w.ods.org>);
+	id S265517AbUFCRik (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 3 Jun 2004 13:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265603AbUFCRhg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUFCRhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 13:37:36 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:9753 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265517AbUFCRdA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 13:33:00 -0400
-Date: Thu, 3 Jun 2004 19:36:56 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+	Thu, 3 Jun 2004 13:37:18 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:65339 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264367AbUFCRep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 13:34:45 -0400
+Date: Thu, 3 Jun 2004 10:34:38 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jan Kasprzak <kas@informatics.muni.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Symlinks for building external modules
-Message-ID: <20040603173656.GA2301@mars.ravnborg.org>
-Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-	linux-kernel@vger.kernel.org
-References: <200406031858.09178.agruen@suse.de> <yw1x8yf44lgp.fsf@kth.se>
+Subject: Re: Stock IA64 kernel on SGI Altix 350
+Message-Id: <20040603103438.24115ac2.pj@sgi.com>
+In-Reply-To: <20040603170147.GK10708@fi.muni.cz>
+References: <20040603170147.GK10708@fi.muni.cz>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1x8yf44lgp.fsf@kth.se>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03, 2004 at 07:09:42PM +0200, Måns Rullgård wrote:
-> Andreas Gruenbacher <agruen@suse.de> writes:
-> 
-> > Hi Sam,
-> >
-> > modules not in the kernel source tree need to locate both the source
-> > tree and the object tree (O=). Currently, the /lib/modules/$(uname
-> > -r)/build symlink is the only reference we have; it historically
-> > points to the source tree from 2.4 times. The following patch
-> > changes this as follows (this is what we have in the current SUSE
-> > tree now):
-> >
-> > 	/lib/modules/$(uname -r)/source ==> source tree
-> > 	/lib/modules/$(uname -r)/build ==> object tree
-> 
-> This will break the building of all external modules until they are
-> updated, and break updated modules building against older kernels
-> unless they check the kernel version in the makefiles..  I suggest
-> leaving the 'build' link as is, and using a difference name for the
-> build directory, perhaps 'object'.  This might look confusing, so we
-> could have a 'source' link as well and remove the 'build' link when
-> most external modules have been updated.
+I am routinely building and booting *-mm kernels on Altix systems.  For
+example, the 2.6.7-rc2-mm2 kernel I made from Andrews patch set of last
+night works fine.  His patch set 2.6.7-rc2-mm1 had "issues", but
+apparently not just on Altix.
 
-The existing external modules are anyway broken when using separate 
-directories for source and output directories. So noting lost here.
-In the case where the kernel is build in the traditional way
-the build and source tree will point to the same place.
+I'd guess that Linus's kernels, such as 2.6.7-rc2, unpatched, are ok too,
+but I don't have actual experience with them of late.
 
-So I do not see this patch breaking existing setups, but I see
-external modules not being prepared for separate build and source
-directories.
+I don't know about the kernel/ports/ia64/v2.[46] patches.  I am not
+adding any such for my work, at least not lately.
 
-Patch looks good to me, and I will forward to Andrew soon.
+> Is there a better list to report this than lkml?
 
-	Sam
+Probably - but I don't know where.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

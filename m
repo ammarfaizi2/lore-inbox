@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261619AbSIPOJ7>; Mon, 16 Sep 2002 10:09:59 -0400
+	id <S261952AbSIPOOm>; Mon, 16 Sep 2002 10:14:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261806AbSIPOJ7>; Mon, 16 Sep 2002 10:09:59 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:54520 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261619AbSIPOJ7>; Mon, 16 Sep 2002 10:09:59 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020916090616.GF12364@suse.de> 
-References: <20020916090616.GF12364@suse.de>  <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com> <E17qejV-00008L-00@starship> 
+	id <S261954AbSIPOOl>; Mon, 16 Sep 2002 10:14:41 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:57094 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S261952AbSIPOOk>;
+	Mon, 16 Sep 2002 10:14:40 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209161419.g8GEJXF09937@oboe.it.uc3m.es>
+Subject: Re: end_request error procedure in 2.5?
+In-Reply-To: <20020916135444.GK12364@suse.de> from Jens Axboe at "Sep 16, 2002
+ 03:54:44 pm"
 To: Jens Axboe <axboe@suse.de>
-Cc: Daniel Phillips <phillips@arcor.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 16 Sep 2002 15:14:03 +0100
-Message-ID: <24433.1032185643@redhat.com>
+Date: Mon, 16 Sep 2002 16:19:33 +0200 (MET DST)
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"A month of sundays ago Jens Axboe wrote:"
+> >  end_request( req, (req->errors == 0) ? 1 : 0 );
+> >  ..
+> > 
+> >  static void end_request(struct request *req, int uptodate) {
+> >  struct bio *bio;
+> >  while ((bio = req->bio) != NULL) {
+> >              blk_finished_io(bio_sectors(bio));
+> >              req->bio = bio->bi_next;
+> >              bio->bi_next = NULL;
+> >              bio_endio(bio, uptodate);
+> >      }
+> >      blk_put_request(req);
+> >  }
+> > 
+> > 
+> > It works fine except on error.  Kernel 2.5.31.  I understand that
+> > put_request adds the request back to a free list (if gotten from there
+> > via get_request).  The request is ordinary, except out of range ...
+> > it's produced by an e2fsck of the device when the device itself is
+> > unformatted, and the out of range request gets passed to the driver and
+> > is errored there, and "kapow" ..
+> 
+> The error is most likely in the driver calling end_that_request_first(),
 
-axboe@suse.de said:
->  See, even though I'm not fundamentally against using kernel
-> debuggers, I think this is very wrong. Where are you now? You are just
-> learning about the bio interface and the changes needed to make it
-> run. And this is definitely the most wrong point to start using a
-> debugger, and can only result in a dac960 that works by trial and
-> error.
+Hmmm ... it's not called. The above is exactly all that is called
+and LOCAL_END_REQUEST is set. OK. I see what you are saying. Yes, I
+will direct my attention to that function instead ...
 
-Nevertheless, the existence of a case where it's not sensible to use a 
-debugger does not prove the non-existence of cases where it _is_ sensible 
-to use a debugger. 
+ ... and yes, I see a possible path in which the queue spinlock may be
+taken twice. OK!
 
-A case that happened to me recently -- tail-call optimisations screwed up
-the return value of a function somewhere deep in the routing code. Adding a
-printk made the problem go away. Staring at the C code was also of no use --
-the C code was just fine.
+Thanks!
 
-Now, are you seriously suggesting that instead of using GDB to work out WTF 
-was going on I should have spent three weeks starting at the output of 
-'objdump -d vmlinux' ?
+> not the function itself. Maybe you can try to do at least some
+> debugging, I hope you are not expecting anyone to be able to help you
+> from the above report.
 
-While my balls are big enough and hairy enough that I don't need to use GDB
-to debug my own code, I feel no shame in admitting that I'm so much of a
-pussy I can't deal with the above case without GDB.
+!! :-)
 
---
-dwmw2
+Thanks, yes I know! However, it's taken me about 4 days to get it this
+far. As you know, complete lockups are hard to debug! There's a race
+condition between the printk appearing on the console and the machine
+stopping :-(. 
 
+Thanks again.
 
+Peter

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135594AbREEXeM>; Sat, 5 May 2001 19:34:12 -0400
+	id <S135595AbREEXtG>; Sat, 5 May 2001 19:49:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135595AbREEXeC>; Sat, 5 May 2001 19:34:02 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:15880 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S135594AbREEXdw>; Sat, 5 May 2001 19:33:52 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200105052334.BAA22885@green.mif.pg.gda.pl>
-Subject: [PATCH] for koi8-u  in 2.4.4-ac5
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 6 May 2001 01:34:02 +0200 (CEST)
-Cc: linux-kernel@vger.kernel.org (kernel list)
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S135596AbREEXs4>; Sat, 5 May 2001 19:48:56 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:2835 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S135595AbREEXsl>;
+	Sat, 5 May 2001 19:48:41 -0400
+Message-ID: <3AF49617.1B3C48AF@candelatech.com>
+Date: Sat, 05 May 2001 17:08:55 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
+In-Reply-To: <3AF4720F.35574FDD@candelatech.com> <15092.32371.139915.110859@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I think this patch requires no comment.
+"David S. Miller" wrote:
+> 
+> Ben Greear writes:
+>  > This patch is ported from Andi Kleen's work for the 2.2.19 kernel (I think
+>  > it was his, at least...)
+>  >
+>  > It adds the ability to run multiple interfaces on the same subnet,
+>  > on the same machine, and have the ARPs for each interface be answered
+>  > based on whether or not the kernel would route a packet from the ARP'd
+>  > IP out that interface.  When used with source-based routing, this
+>  > makes things work in an intuitive manner.
+> 
+> How difficult is it to compose netfilter rules that do this?
+
+No idea, haven't tried to use netfilter.  With this patch, though,
+it's as easy as:
+
+echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
 
 
-diff -ur linux-2.4.4-ac5/fs/nls/nls_koi8-u.c linux/fs/nls/nls_koi8-u.c
---- linux-2.4.4-ac5/fs/nls/nls_koi8-u.c	Sat May  5 11:30:21 2001
-+++ linux/fs/nls/nls_koi8-u.c	Sun May  6 01:03:37 2001
-@@ -141,6 +141,7 @@
- 	0xd2, 0xd3, 0xd4, 0xd5, 0xc6, 0xc8, 0xc3, 0xde, /* 0x40-0x47 */
- 	0xdb, 0xdd, 0xdf, 0xd9, 0xd8, 0xdc, 0xc0, 0xd1, /* 0x48-0x4f */
- 	0x00, 0xa3, 0x00, 0x00, 0xa4, 0x00, 0xa6, 0xa7, /* 0x50-0x57 */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x58-0x5f */
- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x60-0x67 */
- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x68-0x6f */
- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x70-0x77 */
+I have a setup that should be able to test some netfilter rules
+if have some you want me to try....
 
+Thanks,
+Ben
 
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

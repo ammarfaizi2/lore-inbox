@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289012AbSAIUce>; Wed, 9 Jan 2002 15:32:34 -0500
+	id <S288756AbSAIUne>; Wed, 9 Jan 2002 15:43:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289014AbSAIUcZ>; Wed, 9 Jan 2002 15:32:25 -0500
-Received: from nile.gnat.com ([205.232.38.5]:17293 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S289012AbSAIUcN>;
-	Wed, 9 Jan 2002 15:32:13 -0500
-From: dewar@gnat.com
-To: mrs@windriver.com, pkoning@equallogic.com
-Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
-Message-Id: <20020109203213.56A64F2FEB@nile.gnat.com>
-Date: Wed,  9 Jan 2002 15:32:13 -0500 (EST)
+	id <S289014AbSAIUnY>; Wed, 9 Jan 2002 15:43:24 -0500
+Received: from [216.151.155.108] ([216.151.155.108]:29963 "EHLO
+	varsoon.denali.to") by vger.kernel.org with ESMTP
+	id <S288756AbSAIUnL>; Wed, 9 Jan 2002 15:43:11 -0500
+To: "Eric S. Raymond" <esr@snark.thyrsus.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, felix-dietlibc@fefe.de
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+In-Reply-To: <200201092005.g09K5OL28043@snark.thyrsus.com>
+From: Doug McNaught <doug@wireboard.com>
+Date: 09 Jan 2002 15:43:00 -0500
+In-Reply-To: "Eric S. Raymond"'s message of "Wed, 9 Jan 2002 15:05:24 -0500"
+Message-ID: <m3n0zn6ysr.fsf@varsoon.denali.to>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<<Ah... so (paraphrasing) -- if you have two byte size volatile objects,
-and they happen to end up adjacent in memory, the compiler is
-explicitly forbidden from turning an access to one of them into a
-wider access -- because that would be an access to both of them, which
-is a *different* side effect.  (Certainly that exactly matches the
-hardware-centric view of why "volatile" exists.)  And the compiler
-isn't allowed to change side effects, including causing them when the
-source code didn't ask you to cause them.
->>
+"Eric S. Raymond" <esr@snark.thyrsus.com> writes:
 
-Right, and as you see that is covered by the language on external effects
-in the Ada standard (remember the intent in Ada was to exactly match the
-C rules :-)
+> greg k-h:
+> >What does everyone else need/want there?
+> 
+> dmidecode, so the init script can dump a DMI report in a known
+> location such as /var/run/dmi.  
+> 
+> I want this for autoconfiguration purposes.  If I can have it, I
+> won't need /proc/dmi.
 
-But one thing in the Ada world that we consider left open is whether a
-compiler is free to combine two volatile loads into a single load. Probably
-the answer should be no, but the language at least in the Ada standard does
-not seem strong enough to say this.
+Why can't this happen inside the regular startup scripts?  They know
+where to put such files; the kernel-level stuff doesn't--I can't think
+of any current situation where the kernel writes to an arbitrary file
+in the filesystem as it boots.  Sure, /var/run is in the FHS, but that
+doesn't mean every system will have it.
+
+IMHO, since /var/run/dmi is not needed by any stage of the kernel
+boot, it should be created in the regular startup scripts (invoked by
+init(8)). 
+
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

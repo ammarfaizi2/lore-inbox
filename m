@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUCKX3k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 18:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbUCKX3k
+	id S261804AbUCKXeA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 18:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbUCKXeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 18:29:40 -0500
-Received: from anumail3.anu.edu.au ([150.203.2.43]:30420 "EHLO anu.edu.au")
-	by vger.kernel.org with ESMTP id S261832AbUCKX3i (ORCPT
+	Thu, 11 Mar 2004 18:34:00 -0500
+Received: from colin2.muc.de ([193.149.48.15]:20243 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261804AbUCKXd7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 18:29:38 -0500
-Message-ID: <4050F657.3050005@cyberone.com.au>
-Date: Fri, 12 Mar 2004 10:29:27 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Thu, 11 Mar 2004 18:33:59 -0500
+Date: 12 Mar 2004 00:33:57 +0100
+Date: Fri, 12 Mar 2004 00:33:57 +0100
+From: Andi Kleen <ak@muc.de>
+To: Joe Thornber <thornber@redhat.com>
+Cc: Mickael Marchand <marchand@kde.org>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.6.4-mm1
-References: <20040310233140.3ce99610.akpm@osdl.org> <20040311134955.GB16751@krispykreme>
-In-Reply-To: <20040311134955.GB16751@krispykreme>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Sender-Domain: cyberone.com.au
-X-Spam-Score: (-3.3)
-X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,QUOTE_TWICE_1,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MOZILLA_UA
+Message-ID: <20040311233357.GA46488@colin2.muc.de>
+References: <1ysXv-wm-11@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it> <m3hdwnawfi.fsf@averell.firstfloor.org> <200403111445.35075.marchand@kde.org> <20040311213803.GL18345@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040311213803.GL18345@reti>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
-
+On Thu, Mar 11, 2004 at 09:38:03PM +0000, Joe Thornber wrote:
+> On Thu, Mar 11, 2004 at 02:45:35PM +0100, Mickael Marchand wrote:
+> > hmm right now, dm/lvm absolutely does not work on amd64/32 bits. all ioctls 
+> > calls are failling...
 > 
->
->>- The CPU scheduler changes in -mm (sched-domains) have been hanging about
->>  for too long.  I had been hoping that the people who care about SMT and
->>  NUMA performance would have some results by now but all seems to be silent.
->>
->>  I do not wish to merge these up until the big-iron guys can say that they
->>  suit their requirements, with a reasonable expectation that we will not
->>  need to churn this code later in the 2.6 series.
->>
->>  So.  If you have been testing, please speak up.  If you have not been
->>  testing, please do so.
->>
->
->I sucked sched-* out of mm, added sched-ppc64bits (attached) and am
->having problems with the following threaded test case. NUMA is enabled.
->
->#include <pthread.h>
->#define NR_THREADS 100
->
->void dostuff(void *junk)
->{
->        while(1)
->                ;
->}
->
->int main()
->{
->        int i;
->        pthread_t tid;
->
->        for (i = 0; i < NR_THREADS-1; i++)
->                pthread_create(&tid, NULL, dostuff, NULL);
->
->        dostuff(NULL);
->}
->
->100 runnable threads but we never use more than one cpu:
->
+> This one has me stumped.  I've tested on sparc64/debian and Kevin
+> Corry has tested on PPC and neither of us have problems.  So it looks
 
-OK thanks. This is probably a simple bug somewhere. I'll have a look
-at it soon.
+ppc and sparc64 are different from x86-64 and ia64.
 
+The problem on i386 is that alignof(long long) is different between
+32bit and 64bit.  That's not the case on the riscs.
 
+This causes problems either with moving fields around/after 64bit 
+values and worse it changes the alignment of whole structures in
+arrays too (because alignof(struct) is the largest alignment needed
+by any members) 
+
+> like an amd64 only problem, does 2.6.4 vanilla work ?  (I don't have
+> access to one of these machines).
+
+Most likely it's one of your arrays. You pass arrays, right? 
+
+-Andi

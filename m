@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313664AbSDHO5A>; Mon, 8 Apr 2002 10:57:00 -0400
+	id <S313665AbSDHPAG>; Mon, 8 Apr 2002 11:00:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313665AbSDHO47>; Mon, 8 Apr 2002 10:56:59 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41221 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313664AbSDHO47>; Mon, 8 Apr 2002 10:56:59 -0400
-Date: Mon, 8 Apr 2002 10:54:29 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Anssi Saari <as@sci.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
-In-Reply-To: <20020408122603.GA7877@sci.fi>
-Message-ID: <Pine.LNX.3.96.1020408104857.21476C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313666AbSDHPAF>; Mon, 8 Apr 2002 11:00:05 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21523 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S313665AbSDHPAE>; Mon, 8 Apr 2002 11:00:04 -0400
+Date: Mon, 8 Apr 2002 17:00:05 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: alan@redhat.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Make swsusp actually work
+Message-ID: <20020408150005.GC29960@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020407233725.GA15559@elf.ucw.cz> <1018254348.571.129.camel@psuedomode> <20020408102508.GA2494@elf.ucw.cz> <1018275683.10462.134.camel@psuedomode>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2002, Anssi Saari wrote:
+Hi!
 
-> [1.] One line summary of the problem:    
-> CD burning at 16x uses excessive CPU, although DMA is enabled
+> the documentation suggests that you do not need to specify resume= .  Is
+> this only true if you have the sysvinit patch in use?  Is swapon -a
 
-  That's a hint things are not working as you expect...
- 
-> [2.] Full description of the problem/report:
-> My system seems to use a lot of CPU time when writing CDs at 16x. The
-> system is unable to feed the burning software's buffer fast enough when
-> burning software (cdrecord 1.11a20, cdrdao 1.1.5) is run as normal user.
-> If run as root, system is almost unresponsive during the burn.
-
-  With all the information you provided, you have totally not quatified
-how much CPU you find "excessive." I would not be surprised to see 10-15%
-of the CPU, virtually all in system time, as a normal burn of an ISO
-image. If the time is in user mode with other image types, it may well be
-that you are doing something which actually requires a lot of CPU (byte
-swapping or some such).
-
-  Going from a disk to a CD using DMA on both should not take much
-*system* CPU, even if these are ATAPI (assuming they are not on the same
-cable).
-
+Then docs is wrong.
+								Pavel
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

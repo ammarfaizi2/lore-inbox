@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTIOIke (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 04:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbTIOIke
+	id S261262AbTIOIdn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 04:33:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTIOIdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 04:40:34 -0400
-Received: from angband.namesys.com ([212.16.7.85]:32658 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S262009AbTIOIkd
+	Mon, 15 Sep 2003 04:33:43 -0400
+Received: from dyn-ctb-210-9-244-189.webone.com.au ([210.9.244.189]:64004 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261262AbTIOIdl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 04:40:33 -0400
-Date: Mon, 15 Sep 2003 12:40:31 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Arjan Filius <iafilius@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Another ReiserFS (rpm database) issue (2.6.0-test5)
-Message-ID: <20030915084031.GA510@namesys.com>
-References: <Pine.LNX.4.53.0309141826030.9944@sjoerd.sjoerdnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309141826030.9944@sjoerd.sjoerdnet>
-User-Agent: Mutt/1.4i
+	Mon, 15 Sep 2003 04:33:41 -0400
+Message-ID: <3F657931.2050209@cyberone.com.au>
+Date: Mon, 15 Sep 2003 18:32:49 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Bradford <john@grabjohn.com>
+CC: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+References: <200309150831.h8F8Vir6000839@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200309150831.h8F8Vir6000839@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Sun, Sep 14, 2003 at 06:30:33PM +0200, Arjan Filius wrote:
-> lseek(9, 36110336, SEEK_SET)            = 36110336
-> read(9, "\4\0\354\377\3\0\n0\344\377\326\377\344\377\0\0\0\0\0\0"..., 65536) = 65536
-> lseek(9, 7995392, SEEK_SET)             = 7995392
-> read(9, "\2\0t@\0\0\366\377\0\0\341\377\357\377\0\0\0\0\0\0\0\0"..., 65536) = 65536
-> lseek(9, 37879808, SEEK_SET)            = 37879808
-> read(9, "\4\0\352\377\3\0=@\342\377\324\377\342\377\0\0\0\0\0\0"..., 65536) = 65536
-> lseek(9, 34275328, SEEK_SET)            = 34275328
-> read(9, "\0\0\372\377\0\0\366\377\0\0\337\377\355\377\0\0\0\0\0"..., 65536) = 65536
-> <and here it "hangs" forever>
 
-You mean, strace does not log more syscalls?
+John Bradford wrote:
 
-What if you mount your reiserfs partition with "-o nolargeio=1" mount option?
+>>>That's a non-issue.  300 bytes matters a lot on some systems.  The
+>>>fact that there are drivers that are bloated is nothing to do with
+>>>it.
+>>>
+>>Its kind of irrelevant when by saying "Athlon" you've added 128 byte
+>>alignment to all the cache friendly structure padding.
+>>
+>
+>My intention is that we won't have done 128 byte alignments just by
+>'supporting' Athlons, only if we want to run fast on Athlons.  A
+>distribution kernel that is intended to boot on all CPUs needs
+>workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
+>
+>Obviously using such a kernel for anything other than getting a system
+>up and running to compile a better kernel is a Bad Thing, but the
+>distributions could supply separate Athlon, PIV, and 386 _optimised_
+>kernels.
+>
 
-> -rw-r--r--    1 root     root        16384 Sep 14 18:16 conflictsindex.rpm
-> -rw-r--r--    1 root     root     83431424 Sep 14 18:16 fileindex.rpm
-> -rw-r--r--    1 root     root        57344 Sep 14 18:16 groupindex.rpm
-> -rw-r--r--    1 root     root        94208 Sep 14 18:16 nameindex.rpm
-> -rw-r--r--    1 root     root     54840904 Sep 14 18:16 packages.rpm
-> -rw-r--r--    1 root     root       331776 Sep 14 18:16 providesindex.rpm
-> -rw-r--r--    1 root     root     42246144 Sep 14 18:16 requiredby.rpm
-> -rw-r--r--    1 root     root        16384 Sep 14 18:16 triggerindex.rpm
+Why bother with that complexity? Just use 128 byte lines. This allows
+a decent generic kernel. The people who have space requirements would
+only compile what they need anyway.
 
-None of that fits into "bigger than 4G" cathegory.
+>
+>>There are systems
+>>where memory matters, but spending a week chasing 300 bytes when you can
+>>knock out 50K is a waste of everyones time. Do the 40K problems first
+>>
+>
+>The 'select a single CPU to support and/optimise for' -> 'select a
+>bitmap of CPUs to support' work is being done anyway though, so this
+>is more or less just one single IFDEF, which is more like a few
+>seconds work, rather than a week.
+>
 
-Bye,
-    Oleg
+While I like Adrian's patch a lot from a functionality and user
+simplicity point of view, the key to getting it merged is not to 
+increase the complexity of the implementation. The only objections to
+the concept came from people who didn't understand it AFAIK.
+
+And too many combinations of ill defined things like this will make 
+people (developers) go nuts.
+
+

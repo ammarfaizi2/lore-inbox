@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277910AbRJNXdc>; Sun, 14 Oct 2001 19:33:32 -0400
+	id <S277905AbRJNXcW>; Sun, 14 Oct 2001 19:32:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277911AbRJNXdW>; Sun, 14 Oct 2001 19:33:22 -0400
-Received: from serval.noc.ucla.edu ([169.232.10.12]:27300 "EHLO
-	serval.noc.ucla.edu") by vger.kernel.org with ESMTP
-	id <S277910AbRJNXdL>; Sun, 14 Oct 2001 19:33:11 -0400
-Message-ID: <3BCA2015.5080306@ucla.edu>
-Date: Sun, 14 Oct 2001 16:30:29 -0700
-From: Benjamin Redelings I <bredelin@ucla.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010911
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: VM question: side effect of not scanning Active pages?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277910AbRJNXcM>; Sun, 14 Oct 2001 19:32:12 -0400
+Received: from quechua.inka.de ([212.227.14.2]:14666 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S277905AbRJNXcG>;
+	Sun, 14 Oct 2001 19:32:06 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] Re: ReiserFS data corruption in very simple configuration
+In-Reply-To: <20011014201907.H20001@jensbenecke.de>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
+Message-Id: <E15sukH-0006IY-00@calista.inka.de>
+Date: Mon, 15 Oct 2001 01:32:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-	In both Andrea and Rik's VM, I have tried modifying try_to_swap_out so
-that a page would be skipped if it is "active".  For example, I have
-currently modified 2.4.13-pre2 by adding:
+In article <20011014201907.H20001@jensbenecke.de> you wrote:
+> What I meant is this: AFAIK, if you exclude broken hardware, in ext2 there
+> is no chance of a file that was never written to since mounting being
+> corrupted on a crash
 
-          if (PageActive(page))
-                  return 0;
+Well, you can eighter lose the file due to a broken directory (maybe you
+find the missing inode in lost+found) or it can even corrupt the file due to
+a ext2 software error, which is unlikely but all filesystems in development
+are reported to eat files every now and then.
 
-after testing the hardware referenced bit.  This was motivated by
-sections of VM-improvement patches written by both Rik and Andrea.
-	This SEEMS to increase performance, but it has another side effect.  The
-RSS of unused daemons no longer EVER drops to 4k, which it does without
-this modification.  The RSS does decrease (usually) to the value of
-shared memory, but the amount of shared memory only gets down to about
-200-300k instead of decreasing to 4k.
-	Can anyone tell me why not scanning Active page for swapout would have
-this effect?  Thanks!
-
--BenRI
--- 
-"I will begin again" - U2, 'New Year's Day'
-Benjamin Redelings I      <><     http://www.bol.ucla.edu/~bredelin/
-
-
+Greetings
+Bernd

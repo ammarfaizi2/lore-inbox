@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129751AbRAaXXM>; Wed, 31 Jan 2001 18:23:12 -0500
+	id <S129100AbRAaX3w>; Wed, 31 Jan 2001 18:29:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129832AbRAaXXC>; Wed, 31 Jan 2001 18:23:02 -0500
-Received: from cr753963-a.glph1.on.wave.home.com ([24.112.144.48]:60807 "EHLO
-	cr753963-a.glph1.on.wave.home.com") by vger.kernel.org with ESMTP
-	id <S129828AbRAaXWx>; Wed, 31 Jan 2001 18:22:53 -0500
-Date: Wed, 31 Jan 2001 18:30:18 -0500 (EST)
-From: <linux@cr753963-a.glph1.on.wave.home.com>
-To: linux-kernel@vger.kernel.org
-Subject: Networking problems with 2.4.0 and 2.4.1
-Message-ID: <Pine.LNX.4.21.0101311823580.7800-100000@cr753963-a.glph1.on.wave.home.com>
+	id <S129083AbRAaX3n>; Wed, 31 Jan 2001 18:29:43 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:12997 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S129186AbRAaX3a>; Wed, 31 Jan 2001 18:29:30 -0500
+Date: Wed, 31 Jan 2001 15:26:43 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: David Ford <david@linux.com>
+cc: Stephen Frost <sfrost@snowman.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
+In-Reply-To: <3A77966E.444B1160@linux.com>
+Message-ID: <Pine.LNX.4.31.0101311526130.5898-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+probably not now that SMP athlon boards are supposed to be starting to be
+available.
 
-Since using kernel 2.4.0 and 2.4.1 I have been having very weird problems
-with my network.  Suddenly the network connection drops and dies until I
-take down the interface, and then successfully ping a machine. This is the
-only thing that I can get out of syslog that is relevant:
+David Lang
 
-Jan 31 14:17:29 cr753963-a kernel: eth1: 21143 10baseT link beat good.
-Jan 31 14:17:50 cr753963-a kernel: NETDEV WATCHDOG: eth1: transmit timed 
-out
-Jan 31 14:17:50 cr753963-a kernel: eth1: 21041 transmit timed out, status
-fc6908c5, CSR12 000001c8, CSR13 ffffef05, CSR14 ffffff3f, resetting...
-Jan 31 14:17:50 cr753963-a kernel: eth1: 21143 100baseTx sensed media.
+On Tue, 30 Jan 2001, David Ford wrote:
 
-The only problem is, is that eth1 is a 10mbit card. This also happens when
-I remove eth1, and only have eth0 in the computer. I put eth1 to see if it
-would fix the problem.
-
-Relevant info:
-
-Jan 30 21:26:37 cr753963-a kernel: eth1: Digital DC21041 Tulip rev 33 at
-0xe400, 21041 mode, 00:E0:29:11:0F:3A, IRQ 10.
-Jan 30 21:26:37 cr753963-a kernel: eth1: 21041 Media table, default media
-0000 (10baseT).
-Jan 30 21:26:37 cr753963-a kernel: eth1:  21041 media #0, 10baseT.
-Jan 30 21:26:37 cr753963-a kernel: eth1:  21041 media #4, 10baseT-FD.
-
-Jan 30 21:26:37 cr753963-a kernel: ne.c: ISAPnP reports Generic PNP at i/o
-0x220, irq 5.
-Jan 30 21:26:37 cr753963-a kernel: ne.c:v1.10 9/23/94 Donald Becker
-(becker@scyld.com)
-Jan 30 21:26:37 cr753963-a kernel: Last modified Nov 1, 2000 by Paul
-Gortmaker
-Jan 30 21:26:37 cr753963-a kernel: NE*000 ethercard probe at 0x220: 00 40
-f6 24 34 08
-Jan 30 21:26:37 cr753963-a kernel: eth0: NE2000 found at 0x220, using IRQ
-5.
-
-
-
+> Date: Tue, 30 Jan 2001 20:37:02 -0800
+> From: David Ford <david@linux.com>
+> To: Stephen Frost <sfrost@snowman.net>
+> Cc: LKML <linux-kernel@vger.kernel.org>
+> Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
+>
+> Mhm.  Is it worth the effort to make a dependancy on the CPU type for SMP?
+>
+> </idle questions>
+>
+> -d
+>
+> Stephen Frost wrote:
+>
+> > * David Ford (david@linux.com) wrote:
+> > > A person just brought up a problem in #kernelnewbies, building an SMP
+> > > kernel doesn't work very well, current is undefined.  I don't have more
+> > > time to debug it but I'll strip the config and put it up at
+> > > http://stuph.org/smp-config
+> >
+> >         They're trying to compile SMP for Athlon/K7 (CONFIG_MK7=y).
+>
+> --
+>   There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+>   The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

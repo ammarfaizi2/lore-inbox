@@ -1,32 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVCOKvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVCOK5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbVCOKvr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 05:51:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVCOKvr
+	id S262379AbVCOK5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 05:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVCOK5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 05:51:47 -0500
-Received: from ptb-relay02.plus.net ([212.159.14.213]:25103 "EHLO
-	ptb-relay02.plus.net") by vger.kernel.org with ESMTP
-	id S262378AbVCOKvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 05:51:44 -0500
-Message-ID: <4236BE1D.2010601@dsvr.net>
-Date: Tue, 15 Mar 2005 10:51:09 +0000
-From: Jonathan Sambrook <jonathan@dsvr.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-CC: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com
-Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
-References: <1110771251.1967.84.camel@cube>	 <42355C78.1020307@lsrfire.ath.cx> <1110816803.1949.177.camel@cube>	 <Pine.LNX.4.58.0503142333480.6357@be1.lrz> <1110854667.7893.203.camel@cube>
-In-Reply-To: <1110854667.7893.203.camel@cube>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 15 Mar 2005 05:57:44 -0500
+Received: from B.painless.aaisp.net.uk ([81.187.81.52]:60544 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S262379AbVCOK5m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 05:57:42 -0500
+Subject: Re: Problem with 2.6.11-bk[3456]
+From: Andrew Clayton <andrew@digital-domain.net>
+To: Dave Airlie <airlied@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <21d7e99705031502507704f50f@mail.gmail.com>
+References: <1110492499.2666.8.camel@alpha.digital-domain.net>
+	 <21d7e99705031502507704f50f@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 10:57:40 +0000
+Message-Id: <1110884260.2732.8.camel@alpha.digital-domain.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Xen, UML, VM, VMware, separate computers
+On Tue, 2005-03-15 at 10:50 +0000, Dave Airlie wrote:
+> > Got a problem here with the last few Linus -bk releases.
+> > 
+> > 2.6.11-bk2 is running fine.
+> > 
+> > 2.6.11-bk3 - 2.6.11-bk6 has the following problem:
+> > 
+> > Everything is fine while the machine is booting. However as soon as X
+> > starts up the screen goes blank as normal but stays blank, no gdm login
+> > screen and the hard disk and floppy drive lights are on continuously.
+> > The machine is now locked up solid and needs a hard reset.
+> > 
 
-http://linux-vserver.org/ would also seem to be an excellent match.
+2.6.11-bk10 is a slight improvement in that the machine isn't completely
+dead and I can ctrl+alt+delete it...
+
+> This is the same problem as i just mailed everyone about.. more
+> information here...
+> 
+> Dave.
+> 
+
+Cheers,
+
+Andrew
+
+

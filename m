@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129877AbRBUWLq>; Wed, 21 Feb 2001 17:11:46 -0500
+	id <S130059AbRBUWP0>; Wed, 21 Feb 2001 17:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130059AbRBUWL0>; Wed, 21 Feb 2001 17:11:26 -0500
-Received: from curtis.curtisfong.org ([206.111.86.96]:7429 "EHLO
-	curtis.curtisfong.org") by vger.kernel.org with ESMTP
-	id <S129877AbRBUWLT>; Wed, 21 Feb 2001 17:11:19 -0500
-Date: Wed, 21 Feb 2001 14:11:57 -0800
-From: Nye Liu <nyet@curtis.curtisfong.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Very high bandwith packet based interface and performance problems
-Message-ID: <20010221141157.A8457@curtis.curtisfong.org>
-In-Reply-To: <20010221140055.A8113@curtis.curtisfong.org> <E14VhQ7-0002s0-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.11i
-In-Reply-To: <E14VhQ7-0002s0-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 21, 2001 at 10:07:32PM +0000
+	id <S130141AbRBUWPI>; Wed, 21 Feb 2001 17:15:08 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46599 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130059AbRBUWOz>; Wed, 21 Feb 2001 17:14:55 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Date: 21 Feb 2001 14:14:20 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <971ejs$139$1@cesium.transmeta.com>
+In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 21, 2001 at 10:07:32PM +0000, Alan Cox wrote:
-> > that because the kernel was getting 99% of the cpu, the application was
-> > getting very little, and thus the read wasn't happening fast enough, and
+Followup to:  <20010221223238.A17903@atrey.karlin.mff.cuni.cz>
+By author:    Martin Mares <mj@suse.cz>
+In newsgroup: linux.dev.kernel
+>
+> Hello!
 > 
-> Seems reasonable
+> > To have O(1) you've to have the number of hash entries > number of files and a
+> > really good hasing function.
 > 
-> > This is NOT what I'm seeing at all.. the kernel load appears to be
-> > pegged at 100% (or very close to it), the user space app is getting
-> > enough cpu time to read out about 10-20Mbit, and FURTHERMORE the kernel
-> > appears to be ACKING ALL the traffic, which I don't understand at all
-> > (e.g. the transmitter is simply blasting 300MBit of tcp unrestricted)
-> 
-> TCP _requires_ the remote end ack every 2nd frame regardless of progress.
-> 
-> > With udp, we can get the full 300MBit throughput, but only if we shape
-> > the load to 300Mbit. If we increase the load past 300 MBit, the received
-> > frames (at the user space udp app) drops to 10-20MBit, again due to
-> > user-space application scheduling problems.
-> 
-> How is your incoming traffic handled architecturally - irq per packet or
-> some kind of ring buffer with irq mitigation.  Do you know where the cpu
-> load is - is it mostly the irq servicing or mostly network stack ?
-> 
+> No, if you enlarge the hash table twice (and re-hash everything) every time the
+> table fills up, the load factor of the table keeps small and everything is O(1)
+> amortized, of course if you have a good hashing function. If you are really
+> smart and re-hash incrementally, you can get O(1) worst case complexity, but
+> the multiplicative constant is large.
 > 
 
-Alan: thanks again for your prompt response!
+Not true.  The rehashing is O(n) and it has to be performed O(log n)
+times during insertion.  Therefore, insertion is O(log n).
 
-bus mastered DMA ring buffer. As to the load, I'm not quite sure... we
-were using a fairly large ring buffer, but increasing/decreasing the size
-didn't seem to affect the number of packets per interrrupt. I added a
-little watermarking code, and it seems that we do (at peak) about 30-35
-packets per interrupt. That is STILL a heck of a lot of interrupts! I
-can't quite figure out why the driver refuses to go deeper.
-
-I can think of a couple possible solutions. our interface has a HUGE
-amount of hardware buffers, so I can easily simply stop reading for
-a small time if we detect conjestion... can you suggest a nice clean
-mechanism for this?
-
-any other ideas?
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

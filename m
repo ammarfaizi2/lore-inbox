@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315326AbSEAHOj>; Wed, 1 May 2002 03:14:39 -0400
+	id <S315327AbSEAHUW>; Wed, 1 May 2002 03:20:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315327AbSEAHOi>; Wed, 1 May 2002 03:14:38 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:5641 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315326AbSEAHOh>; Wed, 1 May 2002 03:14:37 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] TRIVIAL 2.5.12 declance patch
-Date: Wed, 01 May 2002 17:17:57 +1000
-Message-Id: <E172oNB-0007oN-00@wagner.rustcorp.com.au>
+	id <S315328AbSEAHUV>; Wed, 1 May 2002 03:20:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22798 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315327AbSEAHUV>;
+	Wed, 1 May 2002 03:20:21 -0400
+Message-ID: <3CCF9792.8CDF274@zip.com.au>
+Date: Wed, 01 May 2002 00:21:54 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miles Lane <miles@megapathdsl.net>
+CC: LKML <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.12 -- Unresolved symbols in fs/jfs/jfs.o:  block_flushpage
+In-Reply-To: <1020236572.16071.19.camel@turbulence.megapathdsl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>: [patch] 2.4.19-pre7: A few declance multicast updates:
-  Hello,
-  
-   It seems all Ethernet device drivers were bulk-converted to use the new
-  common CRC functions.  I discovered declance used incorrect endianness to
-  calculate the sum for its multicast filter and had a few alignment
-  problems there.  I fixed these bugs in the MIPS/Linux CVS tree which is at
-  2.4.18 now.  Here is the respective update for the official kernel. 
-  
-   The bugs make the filter non-functional.  Please apply. 
-  
-    Maciej
-  
+Miles Lane wrote:
+> 
+> depmod: *** Unresolved symbols in /lib/modules/2.5.12/kernel/fs/jfs/jfs.o
+> depmod:         block_flushpage
+> 
 
---- trivial-2.5.12/drivers/net/declance.c.orig	Wed May  1 17:15:09 2002
-+++ trivial-2.5.12/drivers/net/declance.c	Wed May  1 17:15:09 2002
-@@ -791,6 +791,8 @@
- 	ib->mode = 0;
- 	ib->filter [0] = 0;
- 	ib->filter [2] = 0;
-+	ib->filter [4] = 0;
-+	ib->filter [6] = 0;
+block_flushpage() used to be a macro which pointed at the
+exported discard_bh_page().  I turned block_flushpage() into
+a real function but forgot the export.
+
+--- linux-2.5.12/fs/buffer.c	Tue Apr 30 17:56:30 2002
++++ 25/fs/buffer.c	Wed May  1 00:19:10 2002
+@@ -1231,6 +1231,7 @@ int block_flushpage(struct page *page, u
  
- 	lance_init_ring(dev);
- 	load_csrs(lp);
-@@ -943,9 +945,9 @@
- 		if (!(*addrs & 1))
- 			continue;
- 
--		crc = ether_crc(6, addrs);
-+		crc = ether_crc_le(6, addrs);
- 		crc = crc >> 26;
--		mcast_table[crc >> 3] |= 1 << (crc & 0xf);
-+		mcast_table[2 * (crc >> 4)] |= 1 << (crc & 0xf);
- 	}
- 	return;
+ 	return 1;
  }
++EXPORT_SYMBOL(block_flushpage);
+ 
+ /*
+  * We attach and possibly dirty the buffers atomically wrt
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+-

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265536AbTFWWpj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 18:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265539AbTFWWpj
+	id S265551AbTFWWtU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 18:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265550AbTFWWtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 18:45:39 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:36003 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S265536AbTFWWp1 (ORCPT
+	Mon, 23 Jun 2003 18:49:19 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:9878 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S265554AbTFWWsd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 18:45:27 -0400
-Date: Mon, 23 Jun 2003 15:59:33 -0700
+	Mon, 23 Jun 2003 18:48:33 -0400
+Date: Mon, 23 Jun 2003 16:02:39 -0700
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Jeff Garzik <jgarzik@pobox.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: IrDA patches for 2.4.22 (bis)
-Message-ID: <20030623225933.GA12593@bougret.hpl.hp.com>
+Subject: [PATCH 2.4 IrDA] QoS interoperability fixes
+Message-ID: <20030623230239.GC12593@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,38 +27,14 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Hi Marcelo,
+	Hi Marcelo,
 
-	It seems that the previous set of IrDA patches for 2.4.22 got
-lost somewhere. As I really want them in 2.4.22-preX, I'm resubmitting
-the whole set.
-
-	Those patches :
-	o have been tested by me on 2.4.22-pre1
-	o have been in 2.5.X for over 6 months
-	o have been on my web page for over 6 months
-	o are needed by many Linux-IrDA users
-	o fixes essential IrDA bugs and are limited in scope.
-
-	Patches to follow in separate e-mail...
-	Thanks in advance...
+	This fixes interoperability issues with Ericsson phones and
+some Win32 versions.
+	Please apply ;-)
 
 	Jean
 
---------------------------------------------------------------
-
-[FEATURE] : Add a new feature to the IrDA stack
-[CORRECT] : Fix to have the correct/expected behaviour
-[CRITICA] : Fix potential kernel crash
-
-ir241_ircomm_uninit_fix-6.diff :
-------------------------------
-	o [FEATURE] Fix spelling UNITIALISED => UNINITIALISED
-	o [CORRECT] Accept data from TTY before link initialisation
-		This seems necessary to avoid chat (via pppd) dropping chars
-	o [CRITICA] Remember allocated skb size to avoid to over-write it
-	o [FEATURE] Remove  LM-IAS object once connected
-	o [CORRECT] Avoid declaring link ready when it's not true
 
 ir241_qos_param-2.diff :
 ----------------------
@@ -68,40 +44,170 @@ ir241_qos_param-2.diff :
 	o [CORRECT] Workaround oversized QoS bitfields
 	o [FEATURE] Add sysctl "max_tx_window" to limit IrLAP Tx Window
 
-ir241_lmp_timer_race-2.diff :
----------------------------
-	o [CORRECT] Start timer before sending event to fix race condition
-	o [FEATURE] Improve the IrLMP event debugging messages.
 
-ir241_export_crc-3.diff :
------------------------
-	o [FEATURE] Export CRC16 helper so that drivers can use it
-
-ir241_secondary_rr.diff :
------------------------
-	o [CORRECT] fix the secondary function to send RR and frames without
-		the poll bit when it detect packet losses
-
-ir241_usb_cleanup-4.diff :
-------------------------
-	o [FEATURE] Update various comments to current state
-	o [CORRECT] Handle properly failure of URB with new speed
-	o [CORRECT] Don't test for (self != NULL) after using it (doh !)
-	o [FEATURE] Other minor cleanups
-	o [CORRECT] Add ID for new USB device (thanks to Sami Kyostila)
-	o [CORRECT] Fix for big endian platforms (thanks to Jacek Jakubowski)
-
-ir241_iriap_skb_leak.diff :
--------------------------
-		<Patch from Jan Kiszka>
-	o [CORRECT] Fix obvious skb leak in IrIAP state machines
-
-ir241_caddr_mask.diff :
----------------------
-		<Patch from Jan Kiszka>
-	o [CORRECT] ignore the C/R bit in the LAP connection address.
-
-ir241_static_init.diff :
-----------------------
-	o [CORRECT] fix some obvious static init bugs.
+diff -u -p linux/net/irda/qos.d3.c linux/net/irda/qos.c
+--- linux/net/irda/qos.d3.c	Thu Sep 26 11:26:04 2002
++++ linux/net/irda/qos.c	Thu Sep 26 11:26:38 2002
+@@ -70,13 +70,18 @@ unsigned sysctl_min_tx_turn_time = 10;
+  * 1.2, chapt 5.3.2.1, p41). But, this number includes the LAP header
+  * (2 bytes), and CRC (32 bits at 4 Mb/s). So, for the I field (LAP
+  * payload), that's only 2042 bytes. Oups !
+- * I've had trouble trouble transmitting 2048 bytes frames with USB
+- * dongles and nsc-ircc at 4 Mb/s, so adjust to 2042... I don't know
+- * if this bug applies only for 2048 bytes frames or all negociated
+- * frame sizes, but all hardware seem to support "2048 bytes" frames.
+- * You can use the sysctl to play with this value anyway.
++ * My nsc-ircc hardware has troubles receiving 2048 bytes frames at 4 Mb/s,
++ * so adjust to 2042... I don't know if this bug applies only for 2048
++ * bytes frames or all negociated frame sizes, but you can use the sysctl
++ * to play with this value anyway.
+  * Jean II */
+ unsigned sysctl_max_tx_data_size = 2042;
++/*
++ * Maximum transmit window, i.e. number of LAP frames between turn-around.
++ * This allow to override what the peer told us. Some peers are buggy and
++ * don't always support what they tell us.
++ * Jean II */
++unsigned sysctl_max_tx_window = 7;
+ 
+ static int irlap_param_baud_rate(void *instance, irda_param_t *param, int get);
+ static int irlap_param_link_disconnect(void *instance, irda_param_t *parm, 
+@@ -184,7 +189,19 @@ int msb_index (__u16 word) 
+ {
+ 	__u16 msb = 0x8000;
+ 	int index = 15;   /* Current MSB */
+-	
++
++	/* Check for buggy peers.
++	 * Note : there is a small probability that it could be us, but I
++	 * would expect driver authors to catch that pretty early and be
++	 * able to check precisely what's going on. If a end user sees this,
++	 * it's very likely the peer. - Jean II */
++	if (word == 0) {
++		WARNING("%s(), Detected buggy peer, adjust null PV to 0x1!\n",
++			 __FUNCTION__);
++		/* The only safe choice (we don't know the array size) */
++		word = 0x1;
++	}
++
+ 	while (msb) {
+ 		if (word & msb)
+ 			break;   /* Found it! */
+@@ -335,10 +352,14 @@ void irlap_adjust_qos_settings(struct qo
+ 
+ 	/*
+ 	 * Make sure the mintt is sensible.
++	 * Main culprit : Ericsson T39. - Jean II
+ 	 */
+ 	if (sysctl_min_tx_turn_time > qos->min_turn_time.value) {
+ 		int i;
+ 
++		WARNING("%s(), Detected buggy peer, adjust mtt to %dus!\n",
++			 __FUNCTION__, sysctl_min_tx_turn_time);
++
+ 		/* We don't really need bits, but easier this way */
+ 		i = value_highest_bit(sysctl_min_tx_turn_time, min_turn_times,
+ 				      8, &qos->min_turn_time.bits);
+@@ -400,6 +421,11 @@ void irlap_adjust_qos_settings(struct qo
+ 	if (qos->data_size.value > sysctl_max_tx_data_size)
+ 		/* Allow non discrete adjustement to avoid loosing capacity */
+ 		qos->data_size.value = sysctl_max_tx_data_size;
++	/*
++	 * Override Tx window if user request it. - Jean II
++	 */
++	if (qos->window_size.value > sysctl_max_tx_window)
++		qos->window_size.value = sysctl_max_tx_window;
+ }
+ 
+ /*
+diff -u -p linux/net/irda/irsysctl.d3.c linux/net/irda/irsysctl.c
+--- linux/net/irda/irsysctl.d3.c	Thu Sep 26 11:26:14 2002
++++ linux/net/irda/irsysctl.c	Thu Sep 26 11:26:38 2002
+@@ -35,7 +35,7 @@
+ #define NET_IRDA 412 /* Random number */
+ enum { DISCOVERY=1, DEVNAME, DEBUG, FAST_POLL, DISCOVERY_SLOTS,
+        DISCOVERY_TIMEOUT, SLOT_TIMEOUT, MAX_BAUD_RATE, MIN_TX_TURN_TIME,
+-       MAX_TX_DATA_SIZE, MAX_NOREPLY_TIME, WARN_NOREPLY_TIME,
++       MAX_TX_DATA_SIZE, MAX_TX_WINDOW, MAX_NOREPLY_TIME, WARN_NOREPLY_TIME,
+        LAP_KEEPALIVE_TIME };
+ 
+ extern int  sysctl_discovery;
+@@ -48,6 +48,7 @@ extern char sysctl_devname[];
+ extern int  sysctl_max_baud_rate;
+ extern int  sysctl_min_tx_turn_time;
+ extern int  sysctl_max_tx_data_size;
++extern int  sysctl_max_tx_window;
+ extern int  sysctl_max_noreply_time;
+ extern int  sysctl_warn_noreply_time;
+ extern int  sysctl_lap_keepalive_time;
+@@ -69,6 +70,8 @@ static int max_min_tx_turn_time = 10000;
+ static int min_min_tx_turn_time = 0;
+ static int max_max_tx_data_size = 2048;		/* See qos.c - IrLAP spec */
+ static int min_max_tx_data_size = 64;
++static int max_max_tx_window = 7;		/* See qos.c - IrLAP spec */
++static int min_max_tx_window = 1;
+ static int max_max_noreply_time = 40;		/* See qos.c - IrLAP spec */
+ static int min_max_noreply_time = 3;
+ static int max_warn_noreply_time = 3;		/* 3s == standard */
+@@ -125,6 +128,9 @@ static ctl_table irda_table[] = {
+ 	{ MAX_TX_DATA_SIZE, "max_tx_data_size", &sysctl_max_tx_data_size,
+ 	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
+ 	  NULL, &min_max_tx_data_size, &max_max_tx_data_size },
++	{ MAX_TX_WINDOW, "max_tx_window", &sysctl_max_tx_window,
++	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
++	  NULL, &min_max_tx_window, &max_max_tx_window },
+ 	{ MAX_NOREPLY_TIME, "max_noreply_time", &sysctl_max_noreply_time,
+ 	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
+ 	  NULL, &min_max_noreply_time, &max_max_noreply_time },
+diff -u -p linux/net/irda/parameters.d3.c linux/net/irda/parameters.c
+--- linux/net/irda/parameters.d3.c	Thu Sep 26 11:26:25 2002
++++ linux/net/irda/parameters.c	Thu Sep 26 11:49:39 2002
+@@ -205,11 +205,13 @@ static int irda_extract_integer(void *se
+ {
+ 	irda_param_t p;
+ 	int n = 0;
++	int extract_len;	/* Real lenght we extract */
+ 	int err;
+ 
+ 	p.pi = pi;     /* In case handler needs to know */
+ 	p.pl = buf[1]; /* Extract lenght of value */
+ 	p.pv.i = 0;    /* Clear value */
++	extract_len = p.pl;	/* Default : extract all */
+ 
+ 	/* Check if buffer is long enough for parsing */
+ 	if (len < (2+p.pl)) {
+@@ -221,18 +223,30 @@ static int irda_extract_integer(void *se
+ 	/* 
+ 	 * Check that the integer length is what we expect it to be. If the
+ 	 * handler want a 16 bits integer then a 32 bits is not good enough
++	 * PV_INTEGER means that the handler is flexible.
+ 	 */
+ 	if (((type & PV_MASK) != PV_INTEGER) && ((type & PV_MASK) != p.pl)) {
+ 		ERROR(__FUNCTION__ "(), invalid parameter length! "
+ 		      "Expected %d bytes, but value had %d bytes!\n",
+ 		      type & PV_MASK, p.pl);
+ 		
+-		/* Skip parameter */
+-		return p.pl+2;
++		/* Most parameters are bit/byte fields or little endian,
++		 * so it's ok to only extract a subset of it (the subset
++		 * that the handler expect). This is necessary, as some
++		 * broken implementations seems to add extra undefined bits.
++		 * If the parameter is shorter than we expect or is big
++		 * endian, we can't play those tricks. Jean II */
++		if((p.pl < (type & PV_MASK)) || (type & PV_BIG_ENDIAN)) {
++			/* Skip parameter */
++			return p.pl+2;
++		} else {
++			/* Extract subset of it, fallthrough */
++			extract_len = type & PV_MASK;
++		}
+ 	}
+ 
+ 
+-	switch (p.pl) {
++	switch (extract_len) {
+ 	case 1:
+ 		n += irda_param_unpack(buf+2, "b", &p.pv.i);
+ 		break;
 

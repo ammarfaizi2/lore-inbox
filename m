@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbTJRAEq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 20:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263662AbTJRAEp
+	id S263651AbTJRAMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 20:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTJRAMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 20:04:45 -0400
-Received: from devil.servak.biz ([209.124.81.2]:53420 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S263661AbTJRAEo (ORCPT
+	Fri, 17 Oct 2003 20:12:16 -0400
+Received: from holomorphy.com ([66.224.33.161]:9866 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263628AbTJRAMO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 20:04:44 -0400
-Subject: 2.6.0-test8 depmod error
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1066435479.12721.1.camel@torrey.et.myrio.com>
+	Fri, 17 Oct 2003 20:12:14 -0400
+Date: Fri, 17 Oct 2003 17:15:11 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
+Message-ID: <20031018001511.GG25291@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200310171610.36569.bjorn.helgaas@hp.com> <20031017155028.2e98b307.akpm@osdl.org> <200310171725.10883.bjorn.helgaas@hp.com> <20031017165543.2f7e9d49.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 17 Oct 2003 17:04:40 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031017165543.2f7e9d49.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this during make modules_install on 2.6.0-test8:
+On Fri, Oct 17, 2003 at 04:55:43PM -0700, Andrew Morton wrote:
+> This code was conceived before my time and I don't recall seeing much
+> discussion, so this is all guesswork..
+> I'd say that the high_memory test _is_ superfluous and that if anyone
+> cared, we would remove it and establish a temporary pte against the address if
+> it was outside the direct-mapped area.  But nobody cares enough to have
+> done anything about it.
 
-WARNING: /lib/modules/2.6.0-test8/kernel/net/ipv6/ipv6.ko needs unknown
-symbol __secpath_destroy
+I've heard crash dump people mention it and am trying to convince them
+to post their fix(es) here. =)
 
-depmod --version == module-init-tools 0.9.15-pre1
 
--- 
-Torrey Hoffman <thoffman@arnor.net>
-
+-- wli

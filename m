@@ -1,136 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262439AbTCMPNa>; Thu, 13 Mar 2003 10:13:30 -0500
+	id <S262397AbTCMPXG>; Thu, 13 Mar 2003 10:23:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262441AbTCMPNa>; Thu, 13 Mar 2003 10:13:30 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:1293 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S262439AbTCMPN1>;
-	Thu, 13 Mar 2003 10:13:27 -0500
-Date: Thu, 13 Mar 2003 16:23:07 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: OOPS in 2.4.21-pre5, ide-scsi
-Message-Id: <20030313162307.72f81028.skraw@ithnet.com>
-In-Reply-To: <E18tPJJ-0001Dv-00@gondolin.me.apana.org.au>
-References: <20030227221017.4291c1f6.skraw@ithnet.com>
-	<E18tPJJ-0001Dv-00@gondolin.me.apana.org.au>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S262401AbTCMPXG>; Thu, 13 Mar 2003 10:23:06 -0500
+Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:47098 "EHLO
+	deimos.one.pl") by vger.kernel.org with ESMTP id <S262397AbTCMPXF> convert rfc822-to-8bit;
+	Thu, 13 Mar 2003 10:23:05 -0500
+Date: Thu, 13 Mar 2003 16:33:44 +0100
+From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, James Stevenson <james@stev.org>,
+       pd dd <parviz_kernel@yahoo.com>,
+       "M. Soltysiak" <msoltysiak@hotmail.com>,
+       William Stearns <wstearns@pobox.com>,
+       ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux BUG: Memory Leak
+Message-ID: <20030313153344.GA1902@deimos.one.pl>
+References: <20030313091315.14044.qmail@web20504.mail.yahoo.com> <01f801c2e96c$980b4390$0cfea8c0@ezdsp.com> <1047570333.25944.42.camel@irongate.swansea.linux.org.uk> <20030313150544.GC5488@louise.pinerecords.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20030313150544.GC5488@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
+X-GPG: http://deimos.one.pl/deimos.asc
+X-Age: 23 (1980.09.27 - lilbra)
+X-JID: deimos@jabber.gda.pl
+X-ICQ: 59367544
+X-GG: 88988
+X-Girl: 1 will be enough!
+X-OS: GNU/Linux-2.4.20-ac2-dk1 (i686)
+X-Uptime: 16:16:24 up  2:53,  4 users,  load average: 1.00, 1.00, 0.90
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Mar 2003 20:47:37 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+* Tomas Szepe (szepe@pinerecords.com) wrote:
+> As far as I can tell, DRM has worked nicely with both 8.1 and 9.0-rc[12].
 
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
-> > 
-> > Code;  c0213ab3 <idescsi_pc_intr+63/360>
-> > 00000000 <_EIP>:
-> > Code;  c0213ab3 <idescsi_pc_intr+63/360>   <=====
-> >   0:   ff 42 18                  incl   0x18(%edx)   <=====
-> > Code;  c0213ab6 <idescsi_pc_intr+66/360>
-> >   3:   89 3c 24                  mov    %edi,(%esp,1)
-> > Code;  c0213ab9 <idescsi_pc_intr+69/360>
-> >   6:   c7 44 24 04 01 00 00      movl   $0x1,0x4(%esp,1)
-> > Code;  c0213ac0 <idescsi_pc_intr+70/360>
-> >   d:   00 
-> > Code;  c0213ac1 <idescsi_pc_intr+71/360>
-> >   e:   e8 ae fc ff ff            call   fffffcc1 <_EIP+0xfffffcc1> c0213774
-> >   <idescsi_do_end_request+a4/e0>
-> > Code;  c0213ac6 <idescsi_pc_intr+76/360>
-> >  13:   31 00                     xor    %eax,(%eax)
-> 
-> Does this patch fix the problem?
-> [attached patch]
+Not on every hardware!
 
-Hello Herbert, hello all,
+For example:
+- X: 4.3.0 (slackware-current)
+- mainboard_chipset: via-kt-400
+- g.card: ATI Radeon 9000 (rv250If)
+- kernel: 2.4.21-pre5-acX & 2.4.20-ac2 -> DRM 1.{6|7|8}.0 (from -ac - DRM-7)
+- DRI, DRM:
+	dri.sf.net,
+	http://www.xfree86.org/~alanh/,
+	http://cpbotha.net/dri_resume.html,
+	etc...
 
-first of all: your patch does not apply at all on -pre5. Anyway I got your idea
-and re-did it accordingly.
-Interestingly the machine does not crash any more! And I have some useful
-output from mounting:
+Don't work with OpenGL (hardware acceleration) like it was in _fglrx_
+(ATI-2.5.1 binary driver for X-4.{1|2}.x).
 
->From "modprobe ide-scsi":
+.~. $ dmesg | grep drm
+[drm] AGP 0.99 on VIA Apollo KT400 @ 0xd0000000 128MB
+[drm] Initialized radeon 1.7.0 20020828 on minor 0
+.~. $ dmesg | grep radeonfb
+radeonfb: ref_clk=2700, ref_div=12, xclk=20000 from BIOS
+radeonfb: MTRR enabled
+radeonfb: ATI Radeon 9000 If  DDR SGRAM 64 MB
+radeonfb: DVI port no monitor connected
+radeonfb: CRT port CRT monitor connected
+.~. $
 
-Mar 13 16:11:30 admin kernel:   Vendor: AOPEN     Model: CD-RW CRW2440     Rev:
-2.02
-Mar 13 16:11:30 admin kernel:   Type:   CD-ROM                             ANSI
-SCSI revision: 02
-Mar 13 16:11:30 admin kernel: Attached scsi CD-ROM sr0 at scsi2, channel 0, id
-0, lun 0
-Mar 13 16:11:30 admin kernel: sr0: scsi3-mmc drive: 40x/40x writer cd/rw
-xa/form2 cdda tray
+Simple test, tray to run ut2003-demo ;-)
 
->From "mount /dev/sr0 /mnt":
+P.S. On debian-sid, with SiS mainboard chipset it works in X-4.3.0 (but not so
+fine like on binary _fglrx_) :-(
 
-Mar 13 16:12:12 admin kernel: scsi : aborting command due to timeout : pid
-114491, scsi2, channel 0, id 0, lun 0 0x28 00 00 00 00 00 00 00 02 00 
-Mar 13 16:12:12 admin kernel: hdc: timeout waiting for DMA
-Mar 13 16:12:12 admin kernel: hdc: timeout waiting for DMA
-Mar 13 16:12:12 admin kernel: hdc: (__ide_dma_test_irq) called while not
-waiting
-Mar 13 16:12:12 admin kernel: hdc: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-Mar 13 16:12:12 admin kernel: hdc: drive not ready for command
-Mar 13 16:12:12 admin kernel: hdc: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-Mar 13 16:12:12 admin kernel: hdc: drive not ready for command
-Mar 13 16:12:12 admin kernel: hdc: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-Mar 13 16:12:12 admin kernel: hdc: drive not ready for command
-Mar 13 16:12:12 admin kernel: hdc: status error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-Mar 13 16:12:12 admin kernel: hdc: drive not ready for command
-Mar 13 16:12:12 admin kernel: hdc: ATAPI reset complete
-Mar 13 16:12:12 admin kernel:  I/O error: dev 0b:00, sector 0
-
-It looks like the serverworks ide-driver produces some error, and that is
-absolutely poor-handled inside ide-scsi. After this output the mounted CD is
-accessible, btw.
-
-And another thing: this error only occurs the _first_ time a mount is performed
-(the above CD is completely ok). From the second mount on everything looks
-normal.
-
-Regards,
-Stephan
-
-
-My patch:
-
-diff -Nur linux/drivers/scsi/ide-scsi.c linux-patch/drivers/scsi/ide-scsi.c
---- linux/drivers/scsi/ide-scsi.c       2003-03-13 15:37:06.000000000 +0100
-+++ linux-patch/drivers/scsi/ide-scsi.c 2003-03-13 16:19:41.000000000 +0100
-@@ -321,7 +321,7 @@
- {
-        idescsi_scsi_t *scsi = drive->driver_data;
-        struct request *rq = HWGROUP(drive)->rq;
--       idescsi_pc_t *pc = (idescsi_pc_t *) rq->buffer;
-+       idescsi_pc_t *pc = rq->special;
-        int log = test_bit(IDESCSI_LOG_CMD, &scsi->log);
-        u8 *scsi_buf;
-        unsigned long flags;
-@@ -587,7 +587,7 @@
- #endif /* IDESCSI_DEBUG_LOG */
- 
-        if (rq->cmd == IDESCSI_PC_RQ) {
--               return idescsi_issue_pc(drive, (idescsi_pc_t *) rq->buffer);
-+               return idescsi_issue_pc (drive, rq->special);
-        }
-        printk(KERN_ERR "ide-scsi: %s: unsupported command in request "
-                "queue (%x)\n", drive->name, rq->cmd);
-@@ -1083,7 +1083,7 @@
-        }
- 
-        ide_init_drive_cmd(rq);
--       rq->buffer = (char *) pc;
-+       rq->special = pc;
-        rq->bh = idescsi_dma_bh(drive, pc);
-        rq->cmd = IDESCSI_PC_RQ;
-        spin_unlock_irq(&io_request_lock);
-
-
+-- 
+# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #

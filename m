@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316590AbSEPGwj>; Thu, 16 May 2002 02:52:39 -0400
+	id <S316591AbSEPG77>; Thu, 16 May 2002 02:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316591AbSEPGwi>; Thu, 16 May 2002 02:52:38 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:63646 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316590AbSEPGwh>;
-	Thu, 16 May 2002 02:52:37 -0400
-Date: Thu, 16 May 2002 16:51:50 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APM hangs during boot w/out keyboard plugged in.
-Message-Id: <20020516165150.157e142b.sfr@canb.auug.org.au>
-In-Reply-To: <3CDD5DF3.8030306@candelatech.com>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S316592AbSEPG76>; Thu, 16 May 2002 02:59:58 -0400
+Received: from [202.135.142.194] ([202.135.142.194]:4361 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316591AbSEPG75>; Thu, 16 May 2002 02:59:57 -0400
+Date: Thu, 16 May 2002 17:02:27 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: Changelogs on kernel.org
+Message-Id: <20020516170227.1f8d93af.rusty@rustcorp.com.au>
+In-Reply-To: <19065.1021493737@redhat.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+On Wed, 15 May 2002 21:15:37 +0100
+David Woodhouse <dwmw2@infradead.org> wrote:
+> What it actually encourages is for people to have multiple throwaway trees. 
+> (Which isn't quite so much of a BK turnoff once you discover compilercache.)
 
-On Sat, 11 May 2002 11:07:47 -0700 Ben Greear <greearb@candelatech.com> wrote:
->
-> I have noticed that the APM initialization always hangs when I
-> try to boot my various machines w/out the keyboard plugged in.
-> 
-> This is true of many kernels, including the one shipped with RH 7.3.
-> 
-> For now, I have to re-compile the kernel w/out APM support.  Is
-> there some fundamental problem with using APM w/out a keyboard,
-> or can the code be fixed?
-> 
-> My motherboard is Intel EEA2, 815 chipset.  If more information
-> will help, please let me know and I'll provide it.
+s/compilercache/ccache/
 
-This sounds like a probelm with the BIOS on your computer.  The apm
-driver in the kernel has no dependencies on the keyboard.
+http://ccache.samba.org
 
--- 
 Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

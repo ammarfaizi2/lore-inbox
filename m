@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267745AbUJVUyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUJVUvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267745AbUJVUyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUJVUyc
+	id S267737AbUJVUvK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 16:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJVUul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:54:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55237 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267745AbUJVUwJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:52:09 -0400
-Message-ID: <417972EC.9020003@pobox.com>
-Date: Fri, 22 Oct 2004 16:51:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Fri, 22 Oct 2004 16:50:41 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:35562 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267759AbUJVUtd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 16:49:33 -0400
+Date: Fri, 22 Oct 2004 13:49:24 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, raybry@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V1 [2/4]: set_huge_pte() arch updates
+In-Reply-To: <20041022204506.GD17038@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0410221349050.10087@schroedinger.engr.sgi.com>
+References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com>
+ <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0410212156300.3524@schroedinger.engr.sgi.com>
+ <20041022103708.GK17038@holomorphy.com> <Pine.LNX.4.58.0410220829200.7868@schroedinger.engr.sgi.com>
+ <20041022154219.GY17038@holomorphy.com> <Pine.LNX.4.58.0410221318370.9833@schroedinger.engr.sgi.com>
+ <20041022204506.GD17038@holomorphy.com>
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com> <4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net> <200410220238.13071.jk-lkml@sci.fi> <41793C94.3050909@techsource.com> <417955D3.5020206@pobox.com> <41795DEA.8050309@techsource.com> <41796083.9060301@pobox.com> <417965E7.8010408@techsource.com>
-In-Reply-To: <417965E7.8010408@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> Ok, let me say this:  I will not change something I don't have to 
-> change, but I'm not going to be held back (and hold everyone else back) 
-> by some mistake I made in the past.
+On Fri, 22 Oct 2004, William Lee Irwin III wrote:
 
-Oh, I do agree w/ this.
+> It's not done at all for hugepages now, and needs to be. Fault handling
+> on hugetlb vmas will likely expose the cahing of stale data more readily.
 
-But if the OS<->hardware interface is kept simple (e.g. simple DMA ring 
-of items to execute, or just xfer to video RAM, and perhaps another 
-response msg ring) then the impact of any design changes you -do- make 
-are mitigated, and the OS driver is kept small and simple as well.
-
-	Jeff
-
+Hmm... Looks like there is a long way ahead of us.
 

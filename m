@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264694AbUDVWA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264718AbUDVWLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264694AbUDVWA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 18:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUDVWAz
+	id S264718AbUDVWLr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 18:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbUDVWLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 18:00:55 -0400
-Received: from ptb-relay01.plus.net ([212.159.14.212]:2319 "EHLO
-	ptb-relay01.plus.net") by vger.kernel.org with ESMTP
-	id S264694AbUDVWAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 18:00:54 -0400
-Message-ID: <40884165.5030407@mauve.plus.com>
-Date: Thu, 22 Apr 2004 23:04:21 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: Horst von Brand <vonbrand@inf.utfsm.cl>, Kim Holviala <kim@holviala.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] psmouse: fix mouse hotplugging
-References: <200404221546.i3MFka6w004059@eeyore.valparaiso.cl> <Pine.LNX.4.55.0404221754470.16448@jurand.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.55.0404221754470.16448@jurand.ds.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 22 Apr 2004 18:11:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26755 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264718AbUDVWLp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 18:11:45 -0400
+Date: Thu, 22 Apr 2004 15:10:11 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: jmorris@redhat.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: Large inlines in include/linux/skbuff.h
+Message-Id: <20040422151011.4afa3ae2.davem@redhat.com>
+In-Reply-To: <200404222239.34760.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <Xine.LNX.4.44.0404212046490.20483-100000@thoron.boston.redhat.com>
+	<200404221756.46240.vda@port.imtp.ilyichevsk.odessa.ua>
+	<20040422113645.19208a70.davem@redhat.com>
+	<200404222239.34760.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> On Thu, 22 Apr 2004, Horst von Brand wrote:
-> 
-> 
->>>This patch fixes hotplugging of PS/2 devices on hardware which don't
->>>support hotplugging of PS/2 devices. In other words, most desktop
->>
->>machines.
->>
->>I have seen "hoplugging of mice" fry PS/2 ports, and heard of motherboards
->>killed that way. 
-> 
-> 
->  For older systems, a fuse would often blow on these ports, which
-> depending on the implementation would require a power cycle or a soldering
-> iron.  Then one of those PCxx specs from Microsoft required the PS/2 ports
-> to support hot-plugging, so chances are it may pretty safe with recent
-> equipment.
+On Thu, 22 Apr 2004 22:39:34 +0300
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
 
-Even for relatively newer kit, wierd stuff can happen.
-I recall one keyboard/athlon 500 system that would reboot 10s after the keyboard
-was plugged in, about 1% of the time.
-Probably a KBC code bug, but unfixable.
+> Okay. I am willing do it. Hmm...
+> Which type of test will highlight the difference?
+> I don't have gigabit network to play with. Any hints of how can I measure
+> it on 100mbit?
+
+Get someone to run specweb before and after your changes.

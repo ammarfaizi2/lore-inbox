@@ -1,63 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264451AbRFTQ4P>; Wed, 20 Jun 2001 12:56:15 -0400
+	id <S264327AbRFTQxz>; Wed, 20 Jun 2001 12:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264443AbRFTQ4F>; Wed, 20 Jun 2001 12:56:05 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:33806 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264401AbRFTQzw>; Wed, 20 Jun 2001 12:55:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Tony Gale <gale@syntax.dera.gov.uk>
-Subject: Re: [UPDATE] Directory index for ext2
-Date: Wed, 20 Jun 2001 18:58:43 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-        Alexander Viro <viro@math.psu.edu>,
-        Andreas Dilger <adilger@turbolinux.com>
-In-Reply-To: <0105311813431J.06233@starship> <993049198.3089.2.camel@syntax.dera.gov.uk>
-In-Reply-To: <993049198.3089.2.camel@syntax.dera.gov.uk>
-MIME-Version: 1.0
-Message-Id: <01062018584308.00439@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S264401AbRFTQxp>; Wed, 20 Jun 2001 12:53:45 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:65292
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S264327AbRFTQxc>; Wed, 20 Jun 2001 12:53:32 -0400
+Date: Wed, 20 Jun 2001 09:53:29 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Aaron Lehmann <aaronl@vitelus.com>, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Threads, inelegance, and Java
+Message-ID: <20010620095329.M3089@work.bitmover.com>
+Mail-Followup-To: Ben Greear <greearb@candelatech.com>,
+	Aaron Lehmann <aaronl@vitelus.com>, hps@intermeta.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010620042544.E24183@vitelus.com> <3B30BD5D.153A5FE9@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3B30BD5D.153A5FE9@candelatech.com>; from greearb@candelatech.com on Wed, Jun 20, 2001 at 08:12:29AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 16:59, Tony Gale wrote:
-> The main problem I have with this is that e2fsck doesn't know how to
-> deal with it - at least I haven't found a version that will. This makes
-> it rather difficult to use, especially for your root fs.
+On Wed, Jun 20, 2001 at 08:12:29AM -0700, Ben Greear wrote:
+> Aaron Lehmann wrote:
+> > On Wed, Jun 20, 2001 at 09:00:47AM +0000, Henning P. Schmiedehausen wrote:
+> > > Just the fact that some people use Java (or any other language) does
+> > > not mean, that they don't care about "performance, system-design or
+> > > any elegance whatsoever" [2].
+> > 
+> > However, the very concept of Java encourages not caring about
+> > "performance, system-design or any elegance whatsoever". If you cared
+> 
+> System-design and elegance are easy to get
+> in Java, and in fact are independent of language.  Good c code will beat
+> Java in most cases, performance wise, but lately the difference has become
+> small enough not to matter for most applications.  Speed is not the most
+> important feature in a great many programs, otherwise we'd all be using
+> assembly still.
+> 
+> > about any of those things you would compile to native code (it exists
+> > for a reason). Need run-anywhere support? Distribute sources instead.
+> 
+> When was the last time you wrote a large cross-platform GUI that just
+> worked on other platforms, without any additional tweaking, after you
+> developed it on your Linux machine?
 
-Good, the file format isn't finalized, this is only recommended for use on a 
-test partition.
+When was the last time you did the same thing?  Nobody gets client side
+Java to work properly across all the platforms without a lot of tweaking.
 
-> And, since I used it, and have since stopped using it, I have a problem
-> in what all my disk free space disappears over a couple of days - I have
-> to run fsck to recover it, were it appears as deleted inodes with zero
-> dtime. I can't say for sure that the dir index stuff is at fault though.
+And the last time we did it was recently, the entire BK GUI is in tcl/tk,
+almost 20,000 lines of code (that would be 80,000 for you Java fans),
+and the GUI has revision history browsers, changeset browsers, source
+browsers, check in tools, diff tools, rename tools, file mergers, etc.
+It's pretty complete and it typically comes very close to just working
+across all platforms.  The sort of differences we deal with are little
+things like the font names not being the same on Unix/NT.  Java would
+*love* to be that good, it's nowhere near.
 
-It could well be, I'd appreciate any more data you have on that.
+Here's some more stats.  We fired up a Java based file merge tool on a
+file and then did the same thing with our tk based one.  The Java tool
+took 38MB to do the same merge as the tk one; the tk one took 4MB.  And
+before you start saying "well, the tk one must be simplistic", we hand
+the Guiffy guy our test cases all the time and it fails them.  So it's
+a pretty reasonable apples to apples, in fact, it's slanted in favor of
+the Java tool.
 
-> I am currently using 2.4.6-pre3 without the dir patch installed. I am
-> using the grsecurity patch though.
->
-> I have just upgraded to e2fsprogs-1.21 in the hope of sorting it out. If
-> that fails I'll revert to a clean 2.4.6-pre kernel. Other ideas welcome.
->
-> -tony
->
-> On 31 May 2001 18:13:43 +0200, Daniel Phillips wrote:
-> > Changes:
-> >
-> >   - Freshen to 2.4.5
-> >   - EXT2_FEATURE_COMPAT_DIR_INDEX flag finalized
-> >   - Break up ext2_add_entry for aesthetic reasons (Al Viro)
-> >   - Handle more than 64K directories per directory (Andreas Dilger)
-> >   - Bug fix: new inode no longer inherits index flag (Andreas Dilger)
-> >   - Bug fix: correct handling of error on index create (Al Viro)
-> >
-> > To-Do:
-> >
-> >   - More factoring of ext2_add_entry
-> >   - Fall back to linear search in case of corrupted index
-> >   - Finalize hash function
+We couldn't believe that Java was really that bad so our GUI guy, Aaron
+Kushner, sat down and rewrote the revision history browser in Java.
+On a 500 node graph, the Java tool was up to 85MB.  The tk tool doing
+the same thing was 5MB.  Note that we routinely run the tool on files 
+with 4000 nodes, we can't even run the Java tool on files that big,
+it crashes.
+
+You could argue that we need custom widgets to do what we are doing,
+but that's lame.  We don't need any custom widgets for tk, in fact, 
+we are using straight tk, no extensions.
+
+So, yeah, we have done what you think we haven't done, and we've tried
+the Java way, we aren't making this stuff up.  We run into Java fanatics
+all the time and when we start asking "so what toolkits do you use" we
+get back "well, actually, err, umm, none of them are any good so we write
+our own".  That's pathetic.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

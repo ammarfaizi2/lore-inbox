@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbQLVRiX>; Fri, 22 Dec 2000 12:38:23 -0500
+	id <S129842AbQLVRoy>; Fri, 22 Dec 2000 12:44:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129842AbQLVRiM>; Fri, 22 Dec 2000 12:38:12 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:45128 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129771AbQLVRiG>; Fri, 22 Dec 2000 12:38:06 -0500
-Date: Fri, 22 Dec 2000 18:07:34 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Stephen Torri <s.torri@lancaster.ac.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Transmission errors for Xircom RealPort2 10/100 Cardbus NIC.
-Message-ID: <20001222180734.A3923@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0012221649060.1705-100000@mobile.torri.linux>
+	id <S130272AbQLVRoe>; Fri, 22 Dec 2000 12:44:34 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:23048 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S129842AbQLVRo1>; Fri, 22 Dec 2000 12:44:27 -0500
+Date: Fri, 22 Dec 2000 18:13:59 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
+Message-ID: <20001222181359.A2616@burns.e-technik.uni-dortmund.de>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001222154757.A1167@emma1.emma.line.org> <20001222162159.A29397@athlon.random> <20001222173538.A12949@krusty.e-technik.uni-dortmund.de> <00c301c06c38$814ab860$294b82ce@connecttech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0012221649060.1705-100000@mobile.torri.linux>; from s.torri@lancaster.ac.uk on Fri, Dec 22, 2000 at 05:01:02PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00c301c06c38$814ab860$294b82ce@connecttech.com>; from stuartm@connecttech.com on Fri, Dec 22, 2000 at 11:59:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 05:01:02PM +0000, Stephen Torri wrote:
-> concerned. The module I am using is tulip_cb.
+On Fri, 22 Dec 2000, Stuart MacDonald wrote:
 
-upgrade to latest pcmcia package on sourceforge.
+> What file does step 3 modify? It's likely this patch is being overwritten
+> (lost) in step 4. Probably not the source of the problem though.
 
-Andrea
+No, it's not being overwritten, but it's most likely not the source of
+the problem.
+
+Permissions have been fixed, sorry for the inconvenience.
+
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

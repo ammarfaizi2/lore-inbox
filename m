@@ -1,81 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbUD1ULw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbUD1UPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbUD1ULw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUD1UKy
+	id S262031AbUD1UPj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUD1UPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:10:54 -0400
-Received: from mh57.com ([217.160.185.21]:54507 "EHLO mithrin.mh57.de")
-	by vger.kernel.org with ESMTP id S261976AbUD1Tyh (ORCPT
+	Wed, 28 Apr 2004 16:15:20 -0400
+Received: from nn2.excitenetwork.com ([207.159.120.56]:8467 "EHLO excite.com")
+	by vger.kernel.org with ESMTP id S262031AbUD1UOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:54:37 -0400
-Date: Wed, 28 Apr 2004 21:54:29 +0200
-From: Martin Hermanowski <martin@mh57.de>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: e1000 EEPROM wrong after suspending.
-Message-ID: <20040428195429.GA11077@mh57.de>
-References: <200404272353.27989@zodiac.zodiac.dnsalias.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
-Content-Disposition: inline
-In-Reply-To: <200404272353.27989@zodiac.zodiac.dnsalias.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Broken-Reverse-DNS: no host name found for IP address 2001:8d8:81:4d0:8000::1
-X-Spam-Score: 0.1 (/)
-X-Authenticated-ID: martin
+	Wed, 28 Apr 2004 16:14:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: How can I allocate few bytes to a file to store info about that file?
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: ID = ce179fefc057f62eef8bd4d0182cc843
+Reply-To: vintya@excite.com
+From: "Vineet Joglekar" <vintya@excite.com>
+MIME-Version: 1.0
+X-Mailer: PHP
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20040428201405.5CC7EC01E@xprdmailfe13.nwk.excite.com>
+Date: Wed, 28 Apr 2004 16:14:05 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi all,
 
-On Tue, Apr 27, 2004 at 11:53:23PM +0200, Alexander Gran wrote:
-> Hi,
->=20
->=20
-> I've got an e1000 Mobile in an IBM t40p. after a suspend/resume cycle the=
- card=20
-> isn't working any longer. I'm unloading the module before the suspending,=
-=20
-> realoding it afterwards.
-> Kernel is 2.6.6-rc2-mm2, ACPI enabled, APIC disabled (didn't boot, last t=
-ime I=20
-> tried)
-[...]
-> PCI: Setting latency timer of device 0000:02:01.0 to 64
-> The EEPROM Checksum Is Not Valid
-> e1000: probe of 0000:02:01.0 failed with error -5
+I was going through the functions like generic_file_write, generic_file_direct_IO, generic_direct_IO and filemap_fdatasync. I was thinking about calling these functions or calling functions written on similar lines to add new few bytes to the file when the inode is created by "ext2_create()". Can any1 please tell me how to do this? What I mean is, I want to add few bytes to the file as soon as it is created. I want to store some information regarding the file in that area.
 
-I am using the e1000 on the t41p with enabled local apic, and I got no
-problem. But when I compiled the kernel (2.6.4-rc1-mm2) without local
-apic (so the notebook would turn off), I got the same problem. This was,
-besides a patch to the orinico driver, the only difference between the
-two kernels.
+I guess it would have been simpler to call these functions in the call sys_open() when a new file is created, but I want to make changes in kernel code only in ext2 module. playing with sys_open will be like modifying kernel code apart from the ext2 fs module which I dont want.
 
-The working one has these options set:
-CONFIG_X86_UP_APIC=3Dy
-CONFIG_X86_UP_IOAPIC=3Dy
-CONFIG_X86_LOCAL_APIC=3Dy
-CONFIG_X86_IO_APIC=3Dy
+Thanks and regards,
 
-LLAP, Martin
+Vineet
 
---ew6BAiZeqk4r7MaW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--- On Mon 04/26, Vineet Joglekar < vintya@excite.com > wrote:
+From: Vineet Joglekar [mailto: vintya@excite.com]
+To: linux-fsf@vger.kernel.org
+Date: Mon, 26 Apr 2004 10:31:19 -0400
+Subject: Can I allocate few bytes in a file to store info about that file; not visible to user?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Hi all,<br><br>In ext2fs, while creating a file, can I allocate a number of bytes for that file in advance, such that those bytes are not seen by the user? that is,<br><br>suppose I am creating a new file temp, then allocate 50 bytes immediately after creating the file. I want to use those bytes to store the file related info; accessible only to kernel. Whatever data user wants to add, will be added after the these 50 bytes. If user does lseek(fd,0,SEEK_SET), then the file pointer should point to the 51st byte. The 1st 50 bytes shouldnt be visible to user. I dont care if the file size is shown as userdata+50. Is it possible to achieve? If yes, how?<br><br>Thanks and regards,
 
-iD8DBQFAkAv1mGb6Npij0ewRAj8EAJwO09iXzw5BDDP8Hb8vNpWQNlJvNQCfSNdJ
-PxBLFxSLQ/oPJS1hdww7reA=
-=0l1O
------END PGP SIGNATURE-----
-
---ew6BAiZeqk4r7MaW--
+_______________________________________________
+Join Excite! - http://www.excite.com
+The most personalized portal on the Web!

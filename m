@@ -1,199 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316978AbSF0VRQ>; Thu, 27 Jun 2002 17:17:16 -0400
+	id <S316976AbSF0VNy>; Thu, 27 Jun 2002 17:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316979AbSF0VRP>; Thu, 27 Jun 2002 17:17:15 -0400
-Received: from [148.246.64.61] ([148.246.64.61]:18436 "EHLO zion.sytes.net")
-	by vger.kernel.org with ESMTP id <S316978AbSF0VRM>;
-	Thu, 27 Jun 2002 17:17:12 -0400
-Date: Thu, 27 Jun 2002 16:19:22 -0500
-From: Felipe Contreras <al593181@mail.mty.itesm.mx>
-To: linux-kernel@vger.kernel.org
-Subject: Very weird bug in fs/exec.c
-Message-ID: <20020627211922.GA14184@zion.mty.itesm.mx>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S316977AbSF0VNx>; Thu, 27 Jun 2002 17:13:53 -0400
+Received: from fed1mtao02.cox.net ([68.6.19.243]:29427 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP
+	id <S316976AbSF0VNw>; Thu, 27 Jun 2002 17:13:52 -0400
+Message-ID: <3D1B8053.2080806@cox.net>
+Date: Thu, 27 Jun 2002 14:14:59 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1a) Gecko/20020611
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stanislav Brabec <utx@penguin.cz>
+CC: Daniel Nofftz <nofftz@castor.uni-trier.de>, linux-kernel@vger.kernel.org
+Subject: Re: another way to activate AMD disconnect on VIA KT266 (aka cooling
+ bits)
+References: <20020626212659.GA3565@utx.vol.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Same motherboard here (except the Pro2 RU version, with USB 2.0 and 
+onboard Promise RAID). Using an Athlon Thunderbird 1GHz, 100MHz FSB 
+(10.0 multiplier).
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+So far looks good, has dropped CPU temp from 52C to 43C in a few 
+minutes, and this box is otherwise warm due to having four 7200RPM ATA 
+drives and full slots... I don't have ACPI in my kernel, but I do have 
+APM (although with only default options turned on).
 
-Hi,
+I have no sound or X stuff on this system, so those things are not a 
+problem... I do have a Gigabit Ethernet card, though (NS83820-based), so 
+I will be curious if that is affected at all.
 
-I've found a weird bug that seems to only happend in my system. It makes
-recursive makes segfault, like:
+Stanislav Brabec wrote:
+> Hallo,
+> 
+> I have been experimenting with AMD disconnect with my VIA KT266 based
+> MSI K7T266Pro (MS-6380).
+> 
+> LVCool does not yet support KT266, method discussed in LKML in past
+> (http://cip.uni-trier.de/nofftz/linux/Athlon-Powersaving-HOWTO.html)
+> does not activate low power mode on my mainboard. The only bit set by
+> this patch is already set probably by BIOS of my motherboard and does
+> not help. So I have checked VCool (http://vcool.occludo.net/) & Wine &
+> lspci and found following bit changes:
+> 
+> enable:
+> setpci -v -H1 -s 0:0.0 70=86
+> setpci -v -H1 -s 0:0.0 95=1e
+> disable:
+> setpci -v -H1 -s 0:0.0 70=82
+> setpci -v -H1 -s 0:0.0 95=1c
+> 
+> The result is 15 degrees temperature decrease on low system load!
+> 
+> I don't know exactly, what I am doing (and chipset docs are not
+> available), explanation is welcome, (un)success stories for other
+> motherboards too.
+> 
+> It works with both APM and ACPI.
+> 
+> 
 
-test:
-	( make -v )
-
-After a lot of work tracking it I finally found what causes it, I'm attaching
-the patch that generates the bug, it's a diff from 2.5.18 to 2.5.19.
-
-I'm saying it's weird because just adding a printk before do_execve returns
-successfully makes the bug dissapear.
-
-BTW, yes, my system is very special.
-
--- 
-Felipe Contreras
-
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="bug.diff"
-
---- a/fs/exec.c	Wed May 29 11:43:02 2002
-+++ b/fs/exec.c	Wed May 29 11:43:02 2002
-@@ -391,48 +391,31 @@
- 	return result;
- }
- 
--static int exec_mmap(void)
-+static int exec_mmap(struct mm_struct *mm)
- {
--	struct mm_struct * mm, * old_mm;
-+	struct mm_struct * old_mm, *active_mm;
- 
--	old_mm = current->mm;
--	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
--		mm_release();
--		exit_mmap(old_mm);
--		return 0;
--	}
--
--	mm = mm_alloc();
--	if (mm) {
--		struct mm_struct *active_mm;
--
--		if (init_new_context(current, mm)) {
--			mmdrop(mm);
--			return -ENOMEM;
--		}
-+	/* Add it to the list of mm's */
-+	spin_lock(&mmlist_lock);
-+	list_add(&mm->mmlist, &init_mm.mmlist);
-+	mmlist_nr++;
-+	spin_unlock(&mmlist_lock);
- 
--		/* Add it to the list of mm's */
--		spin_lock(&mmlist_lock);
--		list_add(&mm->mmlist, &init_mm.mmlist);
--		mmlist_nr++;
--		spin_unlock(&mmlist_lock);
--
--		task_lock(current);
--		active_mm = current->active_mm;
--		current->mm = mm;
--		current->active_mm = mm;
--		activate_mm(active_mm, mm);
--		task_unlock(current);
--		mm_release();
--		if (old_mm) {
--			if (active_mm != old_mm) BUG();
--			mmput(old_mm);
--			return 0;
--		}
--		mmdrop(active_mm);
-+	task_lock(current);
-+	old_mm = current->mm;
-+	active_mm = current->active_mm;
-+	current->mm = mm;
-+	current->active_mm = mm;
-+	activate_mm(active_mm, mm);
-+	task_unlock(current);
-+	mm_release();
-+	if (old_mm) {
-+		if (active_mm != old_mm) BUG();
-+		mmput(old_mm);
- 		return 0;
- 	}
--	return -ENOMEM;
-+	mmdrop(active_mm);
-+	return 0;
- }
- 
- /*
-@@ -571,7 +554,7 @@
- 	/* 
- 	 * Release all of the old mmap stuff
- 	 */
--	retval = exec_mmap();
-+	retval = exec_mmap(bprm->mm);
- 	if (retval) goto mmap_failed;
- 
- 	/* This is the point of no return */
-@@ -902,17 +885,23 @@
- 	bprm.sh_bang = 0;
- 	bprm.loader = 0;
- 	bprm.exec = 0;
--	if ((bprm.argc = count(argv, bprm.p / sizeof(void *))) < 0) {
--		allow_write_access(file);
--		fput(file);
--		return bprm.argc;
--	}
- 
--	if ((bprm.envc = count(envp, bprm.p / sizeof(void *))) < 0) {
--		allow_write_access(file);
--		fput(file);
--		return bprm.envc;
--	}
-+	bprm.mm = mm_alloc();
-+	retval = -ENOMEM;
-+	if (!bprm.mm)
-+		goto out_file;
-+
-+	retval = init_new_context(current, bprm.mm);
-+	if (retval < 0)
-+		goto out_mm;
-+
-+	bprm.argc = count(argv, bprm.p / sizeof(void *));
-+	if ((retval = bprm.argc) < 0)
-+		goto out_mm;
-+
-+	bprm.envc = count(envp, bprm.p / sizeof(void *));
-+	if ((retval = bprm.envc) < 0)
-+		goto out_mm;
- 
- 	retval = prepare_binprm(&bprm);
- 	if (retval < 0) 
-@@ -938,16 +927,20 @@
- 
- out:
- 	/* Something went wrong, return the inode and free the argument pages*/
--	allow_write_access(bprm.file);
--	if (bprm.file)
--		fput(bprm.file);
--
- 	for (i = 0 ; i < MAX_ARG_PAGES ; i++) {
- 		struct page * page = bprm.page[i];
- 		if (page)
- 			__free_page(page);
- 	}
- 
-+out_mm:
-+	mmdrop(bprm.mm);
-+
-+out_file:
-+	if (bprm.file) {
-+		allow_write_access(bprm.file);
-+		fput(bprm.file);
-+	}
- 	return retval;
- }
- 
---- a/include/linux/binfmts.h	Wed May 29 11:43:03 2002
-+++ b/include/linux/binfmts.h	Wed May 29 11:43:03 2002
-@@ -22,6 +22,7 @@
- struct linux_binprm{
- 	char buf[BINPRM_BUF_SIZE];
- 	struct page *page[MAX_ARG_PAGES];
-+	struct mm_struct *mm;
- 	unsigned long p; /* current top of mem */
- 	int sh_bang;
- 	struct file * file;
-
---BOKacYhQ+x31HxR3--

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315202AbSEaIcu>; Fri, 31 May 2002 04:32:50 -0400
+	id <S315222AbSEaIbs>; Fri, 31 May 2002 04:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSEaIct>; Fri, 31 May 2002 04:32:49 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12806 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S315202AbSEaIcs>; Fri, 31 May 2002 04:32:48 -0400
-Message-Id: <200205310823.g4V8NbY02391@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Rene Rebe <rene.rebe@gmx.net>, dalecki@evision-ventures.com
-Subject: Re: [PATCH] 2.5.18 IDE 73
-Date: Fri, 31 May 2002 11:25:19 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-In-Reply-To: <UTC200205301443.g4UEhvn20167.aeb@smtp.cwi.nl> <3CF630A5.40002@evision-ventures.com> <20020530.170948.846933988.rene.rebe@gmx.net>
+	id <S315210AbSEaIbr>; Fri, 31 May 2002 04:31:47 -0400
+Received: from [213.187.195.158] ([213.187.195.158]:57331 "EHLO
+	kokeicha.ingate.se") by vger.kernel.org with ESMTP
+	id <S315218AbSEaIbq>; Fri, 31 May 2002 04:31:46 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre9-ac3
+In-Reply-To: <200205302322.g4UNMne06371@devserv.devel.redhat.com>
+	<20020531014935.D9282@suse.de>
+From: Marcus Sundberg <marcus@ingate.com>
+Date: 31 May 2002 10:31:44 +0200
+Message-ID: <vewutkogzz.fsf@inigo.ingate.se>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 May 2002 13:09, Rene Rebe wrote:
->     Martin Dalecki <dalecki@evision-ventures.com> wrote:
-> > Well somehow I have partly to agree. But however having a way to
-> > exclude network devices from mounting during mount -a is *very* usefull,
->
-> mount -a -t nonfs,nocoda,noproc,nodevfs,noshm"
->
-> Ever worked for me ...
+Dave Jones <davej@suse.de> writes:
 
-#man mount
-...
-	For example, the command:
-        	mount -a -t nomsdos,ext
-	mounts all file systems except those of type msdos and ext.
-...
+> Two points worth mentioning in regard to this.
+> 1. The first type of speedstep (found in systems with BX chipsets)
+>    isn't supported. Only the later type found in systems with ICH
+>    chipsets will work with this driver..
 
-It says you shouldn't repeat 'no' prefix. 
---
-vda
+What about MX chipsets? It seems to be mostly a BX without AGP,
+but it has an ICH-like AC97-controller, so...
+
+//Marcus
+-- 
+---------------------------------------+--------------------------
+  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
+ Firewall Developer, Ingate Systems AB |  http://www.ingate.com/

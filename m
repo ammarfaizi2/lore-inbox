@@ -1,99 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130892AbQK1JVt>; Tue, 28 Nov 2000 04:21:49 -0500
+        id <S129595AbQK1JdV>; Tue, 28 Nov 2000 04:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130803AbQK1JVi>; Tue, 28 Nov 2000 04:21:38 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:60121 "EHLO
-        delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-        id <S130892AbQK1JV1>; Tue, 28 Nov 2000 04:21:27 -0500
-Date: Tue, 28 Nov 2000 09:42:36 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: crashing kernels
-In-Reply-To: <Pine.LNX.3.96.1001127203333.9821A-100000@sneaker.sch.bme.hu>
-Message-ID: <Pine.GSO.3.96.1001128091924.23460A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+        id <S129702AbQK1JdL>; Tue, 28 Nov 2000 04:33:11 -0500
+Received: from fw.pvt.cz ([194.149.101.194]:9996 "EHLO fw.pvt.cz")
+        by vger.kernel.org with ESMTP id <S129595AbQK1Jc4>;
+        Tue, 28 Nov 2000 04:32:56 -0500
+Date: Tue, 28 Nov 2000 10:02:47 +0100 (CET)
+From: Tom Mraz <t8m@centrum.cz>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Status of the NTFS driver in 2.4.0 kernels?
+In-Reply-To: <5.0.2.1.2.20001128084055.042262b0@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.30.0011280954450.16938-100000@p38mraz.cbu.pvt.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Mr. Big wrote:
+> It's not a real bug. - It's a call to BUG() in ntfs_get_block which is
+> there because the function is not actually implemented. - I have only ever
+> seen this happen when using midnight commander to browse through an NTFS
+> partition. - It seems to never happen if I am just in bash typing away or
+> ftp-ing into the machine with the mounted NTFS partitions.
+>
+> When are you hitting this? - If you are using mc just refrain from using it
+> for now for ntfs filesystems and all will be fine.
+>
+> Anton
 
-> We've disabled the apic, because there was a hint, that maybe there's some
-> bug with the hardware or software on it. I belive that it's could be
-> better to use the apic.
-> 
-> The output of lspci -v:
-[...]
-> 00:0e.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
->         Subsystem: Intel Corporation 82559 Fast Ethernet LAN on Motherboard
->         Flags: bus master, medium devsel, latency 64, IRQ 5
+I just login and then try to play mp3 file from the mounted NTFS partition
+using mpg123 program. I'm calling it directly from bash. It immediately
+reports the bug and it's 100% reproducible. I understand that this is due to
+unimplemented part of the driver. Will it be implemented someday? Because
+I don't use the NTFS partition too often it isn't of too much importance to
+me but it would be nice to be able to read it (if I don't convert it to
+ext2fs sooner ;-)).
 
- Hmm, this is the device you reported you have a problem initially, isn't
-it?  If it is, then...
-
-> 00:12.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
->         Flags: bus master, medium devsel, latency 64, IRQ 5
-
- ... it shares its IRQ with an USB host adapter as I suspected.  And you
-don't have an USB driver installed.  Does the following patch help?  (Hmm,
-since you tested 2.4.0-test* as well -- it might not as it's just a
-backport...  Then again -- you might hit a different problem with
-2.4.0-test*.) 
-
- It's not impossible for an I/O APIC to lose an EOI message if there are
-severe errors during the transmission -- since you already tried
-2.4.0-test*: have you seen any APIC errors in the syslog? 
-
-  Maciej
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
-diff -up --recursive --new-file linux-2.2.17.macro/drivers/pci/quirks.c linux-2.2.17/drivers/pci/quirks.c
---- linux-2.2.17.macro/drivers/pci/quirks.c	Wed Oct 27 00:53:40 1999
-+++ linux-2.2.17/drivers/pci/quirks.c	Fri Oct 20 10:33:01 2000
-@@ -144,6 +144,26 @@ __initfunc(static void quirk_isa_dma_han
- 	}
- }
- 
-+/*
-+ * PIIX3 USB: We have to disable USB interrupts that are
-+ * hardwired to PIRQD# and may be shared with an
-+ * external device.
-+ *
-+ * Legacy Support Register (LEGSUP):
-+ *     bit13:  USB PIRQ Enable (USBPIRQDEN),
-+ *     bit4:   Trap/SMI On IRQ Enable (USBSMIEN).
-+ *
-+ * We mask out all r/wc bits, too.
-+ */
-+__initfunc(static void quirk_piix3_usb(struct pci_dev *dev, int arg))
-+{
-+	u16 legsup;
-+
-+	pci_read_config_word(dev, 0xc0, &legsup);
-+	legsup &= 0x50ef;
-+	pci_write_config_word(dev, 0xc0, legsup);
-+}
-+
- 
- typedef void (*quirk_handler)(struct pci_dev *, int);
- 
-@@ -202,6 +222,8 @@ static struct quirk_info quirk_list[] __
- 	 */
- 	{ PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_0,	quirk_isa_dma_hangs,	0x00 },
- 	{ PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C596_0,	quirk_isa_dma_hangs,	0x00 },
-+	{ PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371SB_2,	quirk_piix3_usb,	0x00 },
-+	{ PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_2,	quirk_piix3_usb,	0x00 },
- };
- 
- __initfunc(void pci_quirks_init(void))
+Tomas Mraz
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

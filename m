@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261831AbSJIRFr>; Wed, 9 Oct 2002 13:05:47 -0400
+	id <S261860AbSJIRKY>; Wed, 9 Oct 2002 13:10:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261848AbSJIRFr>; Wed, 9 Oct 2002 13:05:47 -0400
-Received: from packet.digeo.com ([12.110.80.53]:27530 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261831AbSJIRFq>;
-	Wed, 9 Oct 2002 13:05:46 -0400
-Message-ID: <3DA4633B.26F0C33A@digeo.com>
-Date: Wed, 09 Oct 2002 10:11:23 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.41 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: willy@debian.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Second round of ioctl cleanups
-References: <20021009133337.Y18545@parcelfarce.linux.theplanet.co.uk> <20021009.053139.92842849.davem@redhat.com>
+	id <S261862AbSJIRKY>; Wed, 9 Oct 2002 13:10:24 -0400
+Received: from [202.88.156.6] ([202.88.156.6]:50343 "EHLO
+	saraswati.hathway.com") by vger.kernel.org with ESMTP
+	id <S261860AbSJIRKW>; Wed, 9 Oct 2002 13:10:22 -0400
+Date: Wed, 9 Oct 2002 22:38:30 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  October 9, 2002
+Message-ID: <20021009223830.A28687@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <3DA41B88.14599.2336B580@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Oct 2002 17:11:24.0086 (UTC) FILETIME=[E5426560:01C26FB6]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DA41B88.14599.2336B580@localhost>; from boissiere@adiglobal.com on Wed, Oct 09, 2002 at 06:10:09PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+On Wed, Oct 09, 2002 at 06:10:09PM +0200, Guillaume Boissiere wrote:
+>  
+> o Beta  Remove dcache_lock  (Maneesh Soni, IBM team)  
 > 
-> If at some point we move all of the credits to some master log
-> somewhere, that might be something we could do, but that's
-> like 2.7.x I guess :-)
 
-I had a bit of a head-scratch over this when tidying up the comment
-block at the top of fs/buffer.c.  Precisely zero of those attributions
-refer to code which exists any more!
+In -mm since 2.5.37-mm1.
 
-Maybe we should do something like:
-
-* Contributions by:
-*     John Doe        (12/95)
-*     ...
+Thanks
+Dipankar

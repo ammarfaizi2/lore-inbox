@@ -1,69 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbTDXMBG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 08:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263599AbTDXMBG
+	id S262693AbTDXMLU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 08:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTDXMLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 08:01:06 -0400
-Received: from mid-2.inet.it ([213.92.5.19]:10952 "EHLO mid-2.inet.it")
-	by vger.kernel.org with ESMTP id S263595AbTDXMBF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 08:01:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Paolo Ornati <javaman@katamail.com>
-To: marcelo@conectiva.com.br
-Subject: [PATCH 2.4.x] explicit support for nVidia nForce...
-Date: Thu, 24 Apr 2003 14:13:16 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
+	Thu, 24 Apr 2003 08:11:20 -0400
+Received: from mta01.telering.at ([212.95.31.38]:63389 "EHLO smtp.telering.at")
+	by vger.kernel.org with ESMTP id S262693AbTDXMLT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 08:11:19 -0400
+Date: Thu, 24 Apr 2003 13:26:11 +0200
+From: Bernhard Kaindl <kaindl@telering.at>
+X-X-Sender: bkaindl@hase.a11.local
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Nuno Silva <nuno.silva@vgertech.com>,
+       Yusuf Wilajati Purna <purna@sm.sony.co.jp>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, rmk@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4+ptrace] fix side effects of the kmod/ptrace secfix
+In-Reply-To: <20030424090051.D24363@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.53.0304241238200.2190@hase.a11.local>
+References: <3E9E3FA9.6060509@sm.sony.co.jp> <Pine.LNX.4.53.0304190532520.1887@hase.a11.local>
+ <3EA4CD3F.9040902@sm.sony.co.jp> <Pine.LNX.4.53.0304222236040.2341@hase.a11.local>
+ <3EA778E7.5040903@vgertech.com> <20030424090051.D24363@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <S263595AbTDXMBF/20030424120105Z+4118@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch explicit the support for nVidia nForce chip...
-please apply.
+Hi Arjan!
 
-bye,
-Paolo
+On Thu, 24 Apr 2003, Arjan van de Ven wrote:
+> On Thu, Apr 24, 2003 at 06:40:55AM +0100, Nuno Silva wrote:
+> > Good morning! :)
+> >
+> > I'd like to ear an "official" word on this subject, please. :)
+> > Is this patch still secure?
+>
+> The check is loosend too much.
 
-diff -urN a/Documentation/Configure.help b/Documentation/Configure.help
---- a/Documentation/Configure.help	Thu Apr 24 14:02:27 2003
-+++ b/Documentation/Configure.help	Thu Apr 24 13:52:51 2003
-@@ -1105,10 +1105,12 @@
- 
-   SAY N!
- 
--AMD Viper (7401/7409/7411) chipset support
-+AMD and nVidia IDE support
- CONFIG_BLK_DEV_AMD74XX
--  This driver ensures (U)DMA support for the AMD756/760 Viper
--  chipsets.
-+  This driver adds explicit support for AMD-7xx and AMD-8111 chips
-+  and also for the nVidia nForce chip.  This allows the kernel to
-+  change PIO, DMA and UDMA speeds and to configure the chip to
-+  optimum performance.
- 
-   If you say Y here, you also need to say Y to "Use DMA by default
-   when available", above.
-diff -urN a/drivers/ide/Config.in b/drivers/ide/Config.in
---- a/drivers/ide/Config.in	Thu Apr 24 11:23:57 2003
-+++ b/drivers/ide/Config.in	Thu Apr 24 13:52:51 2003
-@@ -47,7 +47,7 @@
- 	    dep_tristate '    AEC62XX chipset support' CONFIG_BLK_DEV_AEC62XX 
-$CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_tristate '    ALI M15x3 chipset support' CONFIG_BLK_DEV_ALI15X3 
-$CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_mbool    '      ALI M15x3 WDC support (DANGEROUS)' 
-CONFIG_WDC_ALI15X3 $CONFIG_BLK_DEV_ALI15X3
--	    dep_tristate '    AMD Viper support' CONFIG_BLK_DEV_AMD74XX 
-$CONFIG_BLK_DEV_IDEDMA_PCI
-+	    dep_tristate '    AMD and nVidia IDE support' CONFIG_BLK_DEV_AMD74XX 
-$CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_mbool    '      AMD Viper ATA-66 Override' CONFIG_AMD74XX_OVERRIDE 
-$CONFIG_BLK_DEV_AMD74XX
- 	    dep_tristate '    CMD64{3|6|8|9} chipset support' CONFIG_BLK_DEV_CMD64X 
-$CONFIG_BLK_DEV_IDEDMA_PCI
- 	    dep_tristate '    Compaq Triflex IDE support' CONFIG_BLK_DEV_TRIFLEX 
-$CONFIG_BLK_DEV_IDEDMA_PCI
+Last month, you sounded different:
+
+On 2003-03-22 17:28:54, Arjan van de Ven wrote:
+>On Sat, Mar 22, 2003 at 05:13:12PM +0000, Russell King wrote:
+>>
+>> int ptrace_check_attach(struct task_struct *child, int kill)
+>> {
+>>    ...
+>> +       if (!is_dumpable(child))
+>> +               return -EPERM;
+>> }
+>>
+>> So, we went from being able to ptrace daemons as root, to being able to
+>> attach daemons and then being unable to do anything with them, even if
+>> you're root (or have the CAP_SYS_PTRACE capability).  I think this
+>> behaviour is getting on for being described as "insane" 8) and is
+>> clearly wrong.
+>
+>ok it seems this check is too strong. It *has* to check
+>child->task_dumpable and return -EPERM, but child->mm->dumpable is not
+>needed.
+
+Can you give me an explanation that changed with regard to the
+kmod/ptrace fix?
+
+Im private discussuion this possible scenario has been brought up:
+
+> execed setuid
+> opens RAW_SOCKET
+> setuid back
+>
+> 	ptrace_attach()
+> ...
+
+AFAICS, ptrace_attach() will abort, because the "setuid back" does
+not set mm->dumpable back to 1, it is left at 0 and ptrace_attach()
+aborts then.
+
+Of course you could do an exec() to get a new mm and then, you may
+get an mm->dumpable is set != 0.
+
+But especially in the case of an exec() I think the setuid program
+should not go back to the original uid because the user may send
+any signal it wants to the suid program then, read it's environment
+and do all other sorts of bad stuff e.g. if the program is stupid
+enough to not use a safe directory for temp files and such.
+
+If we really need to protect such (IMHO insecure) progam to be
+somewhat more secure, we could inherit task_dumpable over exec's,
+but I'm not sure what kind of side effects whis would have when
+using programs like su and login...
+
+I think by adding such workarounds which are unrelated to kmod,
+we would introduce more unwanted side effects insted of fixing
+what we alread have because of too strong checks.
+
+Best Regards,
+Bernhard Kaindl

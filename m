@@ -1,206 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUEWP1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbUEWP3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUEWP1r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbUEWP1r
+	id S263000AbUEWP3p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUEWP3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:27:47 -0400
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:20356 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S263062AbUEWP1D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:27:03 -0400
-Date: Sun, 23 May 2004 16:25:34 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: Joshua Kwan <joshk@triplehelix.org>
-cc: linux-kernel@vger.kernel.org
+	Sun, 23 May 2004 11:29:45 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:14183 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263000AbUEWP3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 11:29:23 -0400
+Date: Sun, 23 May 2004 08:29:15 -0700
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: consistent ioctl for getting all net interfaces?
+Message-ID: <20040523152914.GH25346@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	Tigran Aivazian <tigran@veritas.com>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <pan.2004.05.23.04.28.28.143054@triplehelix.org> <Pine.LNX.4.44.0405231616290.3600-100000@einstein.homenet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RhUH2Ysw6aD5utA4"
+Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.44.0405231616290.3600-100000@einstein.homenet>
-Message-ID: <Pine.LNX.4.44.0405231624300.3600-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+User-Agent: Mutt/1.5.6i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot to mention that I tested on some early 2.6 (pre) and it worked
-fine. If SIOCGIFCONF was broken in the more recent 2.6 kernels then I
-should re-test and revisit this function...
 
-Kind regards
-Tigran
+--RhUH2Ysw6aD5utA4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 23 May 2004, Tigran Aivazian wrote:
-
-> On Sat, 22 May 2004, Joshua Kwan wrote:
-> > I'm interested in not having to parse /proc/net/dev to get a list of all
-> > available (not necessarily even up) interfaces on the system. I
-> > investigated the ioctl SIOCGIFCONF, but it seems to behave differently on
-> > 2.4 and 2.6 series kernels, e.g. sometimes it won't return all interfaces.
-> > 
-> > Is there some end-all ioctl that does what I want, or am I forever doomed
-> > to process /proc/net/dev (in C, no less..)?
-> > 
-> > Please CC me on replies, I don't read this list very often any more.
-> 
-> Of course this is possible and here is the solution I wrote some time ago
-> (ioctl-based).
-> 
+On Sun, May 23, 2004 at 04:20:57PM +0100, Tigran Aivazian wrote:
 > Note that a more simple solution is also possible but is less portable
 > (because will depend on glibc version).
-> 
-> /* TCPCAP endpoint, just an opaque handle for applications */
-> struct tcpcap {
->         int fd;                         /* socket file descriptor */
->         struct timeval *ts;             /* user supplied addr of timestamp */
->         struct sockaddr_ll *from;       /* user supplied addr of extra info */
->         int nports;                     /* number of bits set in ->ports */
->         int maxport;                    /* highest port number set in ->ports */
->         unsigned char *ports;           /* ports currently set in ->lsf */
->         unsigned char *setports;        /* pending ports to be added */
->         unsigned char *clrports;        /* pending ports to be removed */
->         int recv_buflen;                /* socket receive buffer size */
->         struct sock_fprog *lsf;         /* compiled filter program */
->         struct sock_filter *lsf_insns;  /* the actual LSF instructions */
->         int snaplen;                    /* length of part of each packet */
->         int pkt_count;                  /* number of packets seen */
->         int promisc;                    /* set interface(s) to promisc. mode */
->         struct tcpcap_if *iface;        /* list of network interfaces */
->         int ifcount;                    /* number of elements in ->iface[] */
-> };
-> 
-> 
-> /* 
->  * internal helper: get the list of all IPv4 up interfaces
->  * and record their name and IP address into pcap->iface[]
->  * array. Also set promiscuous mode as requested via pcap->promisc.
->  */
-> static int walkiflist(struct tcpcap *pcap)
-> {
-> 	struct ifconf ifc;
-> 	struct ifreq *ifreqs, *ifr;
-> 	int fd, rq_len, nifs, i, ret = 0;
-> 
-> 	/* this is a helper datagram socket which we must create
-> 	 * because the actual packet socket is created later on,
-> 	 * at tcpcap_start() time.
-> 	 */
-> 	fd = socket(PF_INET, SOCK_DGRAM, 0);
-> 	if (fd < 0) {
-> 		DPRINTF("socket(), errno=%d (%s)\n",
-> 				errno, strerror(errno));
-> 		return TERR_SOCKET;
-> 	}
-> 
-> 	ifc.ifc_buf = NULL;
-> 	rq_len = 4*sizeof(struct ifreq);
-> 	do {
-> 		ifc.ifc_len = rq_len;
-> 		ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len);
-> 		if (ifc.ifc_buf == NULL) {
-> 			DPRINTF("ifc.buf = realloc() failed\n");
-> 			ret = TERR_REALLOC;
-> 			goto outclose;
-> 		}
+
+That uses if_nameindex, right? It's also affected by kernel version.
+
 > 		if(ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
-> 			DPRINTF("ioctl(SIOCGIFCONF), errno=%d (%s)\n",
+> 			DPRINTF("ioctl(SIOCGIFCONF), errno=3D%d (%s)\n",
 > 					errno, strerror(errno));
 > 			if (ifc.ifc_buf)
 > 				free(ifc.ifc_buf);
-> 			ret = TERR_IOCTL;
+> 			ret =3D TERR_IOCTL;
 > 			goto outclose;
 > 		}
-> 		rq_len *= 2;
-> 	} while (rq_len < sizeof(struct ifreq) + ifc.ifc_len);
-> 
-> 	nifs = ifc.ifc_len / sizeof(struct ifreq);
-> 	ifreqs = realloc(ifc.ifc_buf, nifs*sizeof(struct ifreq));
-> 	if (ifreqs == NULL) {
-> 		DPRINTF("ifreqs = realloc()\n");
-> 		ret = TERR_REALLOC;
-> 		free(ifc.ifc_buf);
-> 		goto outclose;
-> 	}
-> 
-> 	/* allocate enough space for the maximum number of interfaces */
-> 	pcap->iface = zalloc(nifs*sizeof(struct tcpcap_if));
-> 	if (pcap->iface == NULL) {
-> 		DPRINTF("pcap->iface = zalloc() failed\n");
-> 		ret = TERR_ZALLOC;
-> 		goto outfree;
-> 	}
-> 
-> 	/* look through what we found and select only the 'interesting' ones */
-> 	for (ifr = ifreqs, i=0; i<nifs; ifr++, i++) {
-> 		struct sockaddr_in *addr;
-> 
-> 		/* only interested in IPv4 */
-> 		if (ifr->ifr_addr.sa_family != AF_INET)
-> 			continue;
-> 
-> 		/* not interested in loopback */
-> 		if (!strncmp(ifr->ifr_name, "lo", 2))
-> 			continue;
-> 
-> 		/* request flags because SIOCGIFCONF only 
-> 		 * initialized name, family and address
-> 		 */
-> 		if(ioctl(fd, SIOCGIFFLAGS, ifr) < 0) {
-> 			DPRINTF("ioctl(SIOCGIFFLAGS), errno=%d (%s)\n",
-> 					errno, strerror(errno));
-> 			ret = TERR_IOCTL;
-> 			goto outfree;
-> 		}
-> 
-> 		/* not interested in down interfaces */
-> 		if (!(ifr->ifr_flags & IFF_UP))
-> 			continue;
-> 
-> 		/* OK, this interface passed all our criteria, so
-> 		 * record it into pcap->iface[] array
-> 		 */
-> 		pcap->iface[pcap->ifcount].ifname =strdup(ifr->ifr_name);
-> 		addr = (struct sockaddr_in *)&(ifr->ifr_addr);
-> 		pcap->iface[pcap->ifcount].addr = htonl(addr->sin_addr.s_addr);
-> 
-> 		/* if required set this interface into promisc. mode,
-> 		 * unless it is already in promiscuous mode.
-> 		 */
-> 		if (pcap->promisc && !(ifr->ifr_flags & IFF_PROMISC)) {
-> 
-> 			/* enable promiscuous mode */
-> 			ifr->ifr_flags |= IFF_PROMISC;
-> 
-> 			/* set interface flags */
-> 			if (ioctl(fd, SIOCSIFFLAGS, ifr) == -1) {
-> 				DPRINTF("ioctl(SIOCSIFFLAGS), errno=%d (%s)\n", 
-> 					errno, strerror(errno));
-> 				ret = TERR_IOCTL;
-> 				goto outfree;
-> 			}
-> 
-> 			/* record the fact that we modified this interface */
-> 			pcap->iface[pcap->ifcount].promisc = 1;
-> 			DPRINTF("Enabled promisc. mode on %s (0x%x)\n", 
-> 					pcap->iface[pcap->ifcount].ifname,
-> 					pcap->iface[pcap->ifcount].addr);
-> 		}
-> 
-> 		pcap->ifcount++;
-> 	}
-> 
-> outfree:
-> 	free(ifreqs);
-> 
-> outclose:
-> 	close(fd);
-> 
-> 	return ret;
-> }
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+As I said, when I tried SIOCGIFCONF, results varied..
+I think it's slightly more reliable to just keep using /proc/net/dev for
+now. (My parser is more robust than viro's ;))
+
+I took a look at the net-tools ifconfig source and saw that it also
+parsed /proc/net/dev to pick up what SIOCGIFCONF didn't. Shudder.
+
+--=20
+Joshua Kwan
+
+--RhUH2Ysw6aD5utA4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
+
+iQIVAwUBQLDDSaOILr94RG8mAQJYiQ//VlNxoAoMlCxBFUFJiV0R014TYi/Dn60G
+6dVKyQAfFBScC4tAYYOGhdxpN4RlivmerEOqwfgpc2Aj5E0UE0O/CT5w2MeHmUsF
+EvVVP0K+C3bSbfGSGhnH1/2KLQNWO9gmGg+cSFQjyiRKGQZ4rh1GoRaqrie116X+
+tlzmYzKqU2hWmYXrLmByTH+MZqOjVN2v4i47/JdP7FWgQBvBTZlbvNahSFq+3Iac
+uwaJl+1Uey9yx71T6JbgP7ppUmJItxzIXSO/wQb8t/V6rh1Vwr+n88sewUzLOReJ
+bjDJC+i8XaThxHrpbV3lv2eDmRhfiKb1sDIE2xCAQ6m/KPs7C/4wDthLuImCaGxX
+iZafTieAxqPo5u7IUQL2FaPuaSAT69fiHrn0ClvcAPa6kBTzjaFoWvPTc/z7pG9A
+E2W/XQWIP3qs6Fo5O6h94KY1GQMB3726/KB8UvpugLhgzFtC6dto9/Lv9MjLzf4F
+jms/70wbP7NrxR+50GDhC/AiEWDiIxyBTRubjcIraO0qc9Ego6fIApejIG+0kKo8
+6SPDol0ZNLpMTW/mirUUbL4IWVdXSziGZ5dRZLeCSlMAqT1NjxojoEaLsB/N6XT8
+uWeqz2wUklizC4kfZzEO/hpEbTzKk16wnDpA2EhCmjzM8+uy1NuhaaQqbxnSo1+s
+IYRvUrJ3Pgc=
+=YPFl
+-----END PGP SIGNATURE-----
+
+--RhUH2Ysw6aD5utA4--

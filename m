@@ -1,53 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129177AbQJZRn5>; Thu, 26 Oct 2000 13:43:57 -0400
+	id <S129430AbQJZRw3>; Thu, 26 Oct 2000 13:52:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129822AbQJZRnr>; Thu, 26 Oct 2000 13:43:47 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:59652 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129177AbQJZRne>; Thu, 26 Oct 2000 13:43:34 -0400
-Date: Thu, 26 Oct 2000 13:42:29 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Yoann Vandoorselaere <yoann@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Possible critical VIA vt82c686a chip bug (private question)
-In-Reply-To: <20001026190309.A372@suse.cz>
-Message-ID: <Pine.LNX.3.95.1001026134131.13342A-100000@chaos.analogic.com>
+	id <S129701AbQJZRwT>; Thu, 26 Oct 2000 13:52:19 -0400
+Received: from kanga.kvack.org ([209.82.47.3]:39180 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S129430AbQJZRwL>;
+	Thu, 26 Oct 2000 13:52:11 -0400
+Date: Thu, 26 Oct 2000 13:50:52 -0400 (EDT)
+From: <kernel@kvack.org>
+To: Robert Lynch <rmlynch@best.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops while running test10-pre5
+In-Reply-To: <39F84D21.43FB2371@best.com>
+Message-ID: <Pine.LNX.3.96.1001026134947.18810C-100000@kanga.kvack.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2000, Vojtech Pavlik wrote:
+On Thu, 26 Oct 2000, Robert Lynch wrote:
 
-> On Thu, Oct 26, 2000 at 12:04:21PM -0400, Richard B. Johnson wrote:
-> 
-> > ../drivers/block/ide.c, line 162, on version 2.2.17 does bad things
-> > to the timer. It writes 0 to the control-word for timer 0. This
-> > does the following:
-[Snipped...]
->  
-> Well, at least on 2.4.0-test9, the above timing code is #ifed to
-> DISK_RECOVERY_TIME > 0, which in turn is #defined to 0 in
-> include/linux/ide.h.
-> 
-> So this is not our problem here. Anyway I guess it's time to hunt for
-> i8259 accesses in the kernel that lack the necessary spinlock, even when
-> they're not probably the cause of the problem we see here.
+> Oct 19 13:00:23 ives kernel: EIP:    0010:[try_to_swap_out+252/796]
 
-Okay, good.
+Those Oopsen look like they're from test10-pre4 (fixed in pre5).  Also,
+please include the lines beginning with "kernel BUG at...".
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+		-ben
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

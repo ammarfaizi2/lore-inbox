@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136718AbREAUsd>; Tue, 1 May 2001 16:48:33 -0400
+	id <S136713AbREAUuD>; Tue, 1 May 2001 16:50:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136717AbREAUsN>; Tue, 1 May 2001 16:48:13 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:4356 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S136715AbREAUsB>; Tue, 1 May 2001 16:48:01 -0400
-Date: Tue, 01 May 2001 22:48:02 +0200
-From: Andreas Rogge <lu01@rogge.yi.org>
+	id <S136715AbREAUty>; Tue, 1 May 2001 16:49:54 -0400
+Received: from cc78409-a.hnglo1.ov.nl.home.com ([213.51.107.234]:24842 "EHLO
+	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S136713AbREAUtq>; Tue, 1 May 2001 16:49:46 -0400
+Date: Tue, 1 May 2001 22:49:43 +0200
+From: Erik Hensema <erik@hensema.xs4all.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Maximum files per Directory
-Message-ID: <272800000.988750082@hades>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Meaning of major kernel version number
+Message-ID: <20010501224943.A21208@hensema.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to create 100.000 (in words: one hundred thousand) Mailboxes 
-with
-cyrus-imapd i ran into problems.
-At about 2^15 files the filesystem gave up, telling me that there cannot be
-more files in a directory.
+Hi,
 
-Is this a vfs-Issue or an ext2-issue?
+A little question which may be a FAQ: what does the major version number
+[1] of the Linux kernel (still) mean? What is the policy on increasing the
+major version (eg. on what basis it is decided the next kernel isn't going
+to be 2.6 but 3.0)?
 
-Andreas Rogge <lu01@rogge.yi.org>
-Available on IRCnet:#linux.de as Dyson
+I'm asking this question because I think there isn't going to be a
+kernel which is as different from the previous one as 2.0 compared to 1.2.
+As a little reminder: 2.0 brought us SMP, modules, multi-platform support
+(did 1.2 support Alpha? I don't remember), quota support, MD support, loop
+device, to name a few.
+
+If this is true, may have to rethink the current versioning scheme, or
+we'll stick to 2.x.y forever...
+
+-- 
+Erik Hensema (erik@hensema.xs4all.nl)

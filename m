@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310112AbSCFSex>; Wed, 6 Mar 2002 13:34:53 -0500
+	id <S310119AbSCFSkd>; Wed, 6 Mar 2002 13:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293759AbSCFSef>; Wed, 6 Mar 2002 13:34:35 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:31125 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S310112AbSCFSeP>;
-	Wed, 6 Mar 2002 13:34:15 -0500
-Date: Wed, 6 Mar 2002 13:33:53 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Tim Hockin <thockin@hockin.org>
-cc: Ken Brownfield <brownfld@irridia.com>, J Sloan <joe@tmsusa.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Recommendations about a 100/10 NIC
-In-Reply-To: <200203061728.g26HSlt23800@www.hockin.org>
-Message-ID: <Pine.SGI.4.31L.02.0203061324390.6241227-100000@irix2.gl.umbc.edu>
+	id <S310115AbSCFSkX>; Wed, 6 Mar 2002 13:40:23 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:23295 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S310127AbSCFSkK>;
+	Wed, 6 Mar 2002 13:40:10 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] struct page shrinkage
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OFC19C560E.A00F9111-ON85256B74.006633D4@pok.ibm.com>
+From: "Bulent Abali" <abali@us.ibm.com>
+Date: Wed, 6 Mar 2002 13:41:51 -0500
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 03/06/2002 01:39:56 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Tim Hockin wrote:
 
-> > My stock recommendation is thus SMC EtherPower II cards.
+
+
+>> Andrew,
+>> I have an application which needs to know the total number of locked and
+>> dirtied pages at any given time.  In which application locked-page
+>> accounting is done?   I don't see it in base 2.5.5.   Are there any
+patches
+>> or such that you can give pointers to?
 >
-> I've been happy with Natsemi controllers (Netgear FA-311 and Fa-312).
+>This is in the ebulliently growing delayed-allocate and
+>buffer_head-bypass patches at
+>
+> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre2/
+>
+>The implementation you're looking for is in dalloc-10-core.patch:
+>mm.h and mm/page_alloc.c
 
-I've had luck with them too, as well as the SMC EZNET cards (8139too
-driver) in workstations, windoze boxes and freebsd.
+extern struct page_state {
+             unsigned long nr_dirty;
+             unsigned long nr_locked;
+} ____cacheline_aligned page_states[NR_CPUS];
 
-But the EZNET NICS especially seem to crack up under high load.
+This is perfect.   Looks like, if a run summation over all the CPUs I will
+get the total locked and dirty pages, provided mm.h macros are respected.
+What is the outlook for inclusion of this patch in the main kernel?  Do you
+plan to submit or have been included yet?
+Bulent
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+
+
 

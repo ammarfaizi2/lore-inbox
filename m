@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbTK0PZN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 10:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTK0PZM
+	id S264539AbTK0PYS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 10:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbTK0PYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 10:25:12 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:226 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S264537AbTK0PZD
+	Thu, 27 Nov 2003 10:24:18 -0500
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:3726 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S264539AbTK0PYH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 10:25:03 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: exiting X and rebooting
-Date: Thu, 27 Nov 2003 10:25:00 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200311270617.03654.gene.heskett@verizon.net> <20031127121656.GA8606@hh.idb.hist.no>
-In-Reply-To: <20031127121656.GA8606@hh.idb.hist.no>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Nov 2003 10:24:07 -0500
+Date: Thu, 27 Nov 2003 16:23:55 +0100
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: Simon <simon@highlyillogical.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0-test10] cpufreq: 2G P4M won't go above 1.2G - cpuinfo_max_freq too low
+Message-ID: <20031127152355.GA10338@localhost>
+References: <200311271139.07260.simon@highlyillogical.org> <200311271323.37123.simon@highlyillogical.org> <20031127134245.GA9404@localhost> <200311271457.48812.simon@highlyillogical.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200311271025.00858.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.54.127] at Thu, 27 Nov 2003 09:25:02 -0600
+In-Reply-To: <200311271457.48812.simon@highlyillogical.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 November 2003 07:16, Helge Hafting wrote:
->On Thu, Nov 27, 2003 at 06:17:03AM -0500, Gene Heskett wrote:
->> Greetings;
->>
->> I'm not sure what category this minor complaint falls under, but
->> since its evidenced by a 2.6 kernel and not a 2.4, this seems like
->> the place.
->>
->> One of the things I've been meaning to mention is that if I'm
->> running a 2.6 kernel, and exit X to reboot, the shell that had a
->> cursor when I started X from it, no longer has a cursor when x has
->> been stopped. This occurs only for 2.6 kernels, but works as usual
->> for 2.4 kernels giving a big full character block for a cursor.
->>
->> One can still type, and the keystrokes are echo'd properly.  But
->> it is a bit un-nerving at first.  Logging clear out and back in
->> again to re-init the shell doesn't help.  The cursor is gone.
->
->This seems like a framebuffer problem to me, are you using a
-> framebuffer, and if so, which one?
->
->Helge Hafting
+On Thursday November 27th 2003 Simon wrote:
 
-Good Q Helge, see this big dummies .config snippets:
+> You're a star, thankyou. It was loading p4-clockmod by default. I had all the 
+> pentium-related modules compiled in, and it was behaving like that... dmesg 
+> said it was loading p4-clockmod.
+> 
+> I modprobe'd speedstep-ich instead, and foom! Straight up to 2ghz.
 
-[root@coyote linux-2.6]# grep FRAME .config
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FRAME_POINTER=y
-[root@coyote linux-2.6]# grep VESA .config
-CONFIG_FB_VESA=y
+Thanks to Linux and modules! I find that the detailed logging sent by
+modules as they are loaded is generally very helpful.
 
-Since the card is an NVIDIA GForce2 MX200, and X is using its own "nv" 
-driver, which one should I turn off?
-
-Thanks.
-
+When dealing with unknown or misbehaving hardware, be it soundcards, USB
+gadgets, FireWire camcorders or whatever, compiling all relevant drivers
+as modules and experimenting with modprobe often gives new insights and
+with any luck you'll even find the setup that makes it work! ;-)
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+Marco Roeland

@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266046AbUA1TIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 14:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266084AbUA1TIJ
+	id S265883AbUA1TE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 14:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUA1TE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 14:08:09 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:56286 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S266046AbUA1TIB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 14:08:01 -0500
-Date: Wed, 28 Jan 2004 11:09:23 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: ishii.hironobu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-Message-ID: <20040128190923.GA6333@cup.hp.com>
-References: <00a201c3e541$c0e7d680$2987110a@lsd.css.fujitsu.com> <20040128172004.GB5494@cup.hp.com> <20040128184137.616b6425.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040128184137.616b6425.ak@suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 28 Jan 2004 14:04:29 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:62168 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S265883AbUA1TE2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 14:04:28 -0500
+Date: Thu, 29 Jan 2004 08:05:49 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc),
+ swsusp2	works.
+In-reply-to: <20040129012720.1385c41a@localhost>
+To: Hugang <hugang@soulinfo.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1075316748.12285.84.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <20040119105237.62a43f65@localhost>
+ <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
+ <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
+ <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost>
+ <1074841973.974.217.camel@gaston> <20040123183030.02fd16d6@localhost>
+ <1074912854.834.61.camel@gaston> <20040126181004.GB315@elf.ucw.cz>
+ <1075154452.6191.91.camel@gaston> <1075156310.2072.1.camel@laptop-linux>
+ <20040128202217.0a1f8222@localhost> <20040128212311.339d81f3@localhost>
+ <20040129012720.1385c41a@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 06:41:37PM +0100, Andi Kleen wrote:
-> > I could be wrong. Exception handling is ugly.
-...
-> One big problem is how to get rid of the spinlocks after the exception though
-> (hardware access usually happens inside a spinlock) 
-> 
-> I presume you could return a magic value (all ones), but then you still
-> have to make sure the driver doesn't break when that happens.
+Congratulations on getting it going!
 
-yes - any proposal is going to require reviewing all PIO reads
-and how the read return value is consumed (or discarded).
+I'll add it to the patch, but mark it as experimental for the moment.
 
-> That would
-> likely require testing for that value on every read access and make
-> the code similarly ugly and difficult to write as with Linus' 
-> explicit checking model.
+Regards,
 
-yeah. My hope was it would be less invasive.
-But more changes are probably needed than I expected.
+Nigel 
+-- 
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
 
-...
-> In short this stuff
-> probably only makes sense when you're a system vendor who sells
-> support contracts for whole systems including hardware support.
-> For the normal linux model where software is independent from hardware
-> (and hardware is usually crappy) it just doesn't work very well.
-
-While ia64/parisc platforms have HW support for this,
-I totally agree it won't work well for most (x86) platforms.
-I'd like to reduce the burden on the driver writers for common
-drivers (eg MPT) used on "vanilla" x86.
-
-And like I pointed out before, linux kernel needs to review panic()
-calls to see if some of them could easily be eliminated. The general
-robustness issues (eg pci_map_single() panics on failure) aren't
-prerequisites for IO error checking, but the latter seems less
-useful with out the former.
-
-I'd like to defend the pci_map_single() interface. It was designed
-to reduce the complexity at the cost of robustness.
-I think it was a fair trade off at the time and it sounds like
-the time has come for a different trade off.
-
-thanks,
-grant
-
-> -Andi

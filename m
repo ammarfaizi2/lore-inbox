@@ -1,138 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTGCMrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 08:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTGCMqU
+	id S262116AbTGCMwR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 08:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTGCMwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 08:46:20 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:61226 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S262148AbTGCMpd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 08:45:33 -0400
-Subject: [PATCH] 2.5.74 synclink_cs.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "torvalds@osdl.org" <torvalds@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057237219.2044.4.camel@diemos>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 Jul 2003 08:00:20 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jul 2003 08:52:17 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:36198 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262116AbTGCMwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 08:52:16 -0400
+Date: Thu, 3 Jul 2003 09:06:32 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+In-Reply-To: <20030703125839.GZ23578@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0307030904260.16582-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Jul 2003, Andrea Arcangeli wrote:
 
-Fix arbitration between net open and tty open.
+> even if you don't use largepages as you should, the ram cost of the pte
+> is nothing on 64bit archs, all you care about is to use all the mhz and
+> tlb entries of the cpu.
 
-Cleanup missed bits of CUA device removal changes.
+That depends on the number of Oracle processes you have.
+Say that page tables need 0.1% of the space of the virtual
+space they map.  With 1000 Oracle users you'd end up needing
+as much memory in page tables as your shm segment is large.
 
-Please apply.
+Of course, in this situation either the application should
+use large pages or the kernel should simply reclaim the
+page tables (possible while holding the mmap_sem for write).
 
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
+> remap_file_pages is useful only for VLM in 32bit
 
-
---- linux-2.5.72/drivers/char/pcmcia/synclink_cs.c	2003-06-16 08:42:24.000000000 -0500
-+++ linux-2.5.72-mg/drivers/char/pcmcia/synclink_cs.c	2003-06-18 10:31:08.000000000 -0500
-@@ -1,7 +1,7 @@
- /*
-  * linux/drivers/char/pcmcia/synclink_cs.c
-  *
-- * $Id: synclink_cs.c,v 4.10 2003/05/13 16:06:03 paulkf Exp $
-+ * $Id: synclink_cs.c,v 4.13 2003/06/18 15:29:32 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink PC Card
-  * multiprotocol serial adapter.
-@@ -467,7 +467,6 @@
-  * assigned major number. May be forced as module parameter.
-  */
- static int ttymajor=0;
--static int cuamajor=0;
- 
- static int debug_level = 0;
- static int maxframe[MAX_DEVICE_COUNT] = {0,};
-@@ -485,7 +484,6 @@
- 
- MODULE_PARM(break_on_load,"i");
- MODULE_PARM(ttymajor,"i");
--MODULE_PARM(cuamajor,"i");
- MODULE_PARM(debug_level,"i");
- MODULE_PARM(maxframe,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
- MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
-@@ -493,7 +491,7 @@
- MODULE_LICENSE("GPL");
- 
- static char *driver_name = "SyncLink PC Card driver";
--static char *driver_version = "$Revision: 4.10 $";
-+static char *driver_version = "$Revision: 4.13 $";
- 
- static struct tty_driver *serial_driver;
- 
-@@ -1290,7 +1288,7 @@
- 			       (info->serial_signals & SerialSignal_DCD) ? "on" : "off");
- 		if (info->serial_signals & SerialSignal_DCD)
- 			wake_up_interruptible(&info->open_wait);
--		else if (!(info->flags & ASYNC_CALLOUT_NOHUP)) {
-+		else {
- 			if (debug_level >= DEBUG_LEVEL_ISR)
- 				printk("doing serial hangup...");
- 			if (info->tty)
-@@ -2538,14 +2536,17 @@
- {
- 	MGSLPC_INFO * info = (MGSLPC_INFO *)tty->driver_data;
- 
--	if (!info || mgslpc_paranoia_check(info, tty->name, "mgslpc_close"))
-+	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_close"))
- 		return;
- 	
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):mgslpc_close(%s) entry, count=%d\n",
- 			 __FILE__,__LINE__, info->device_name, info->count);
- 			 
--	if (!info->count || tty_hung_up_p(filp))
-+	if (!info->count)
-+		return;
-+
-+	if (tty_hung_up_p(filp))
- 		goto cleanup;
- 			
- 	if ((tty->count == 1) && (info->count != 1)) {
-@@ -2822,16 +2823,11 @@
- 	info = mgslpc_device_list;
- 	while(info && info->line != line)
- 		info = info->next_device;
--	if ( !info ){
--		printk("%s(%d):Can't find specified device on open (line=%d)\n",
--			__FILE__,__LINE__,line);
-+	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_open"))
- 		return -ENODEV;
--	}
- 	
- 	tty->driver_data = info;
- 	info->tty = tty;
--	if (mgslpc_paranoia_check(info, tty->name, "mgslpc_open"))
--		return -ENODEV;
- 		
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):mgslpc_open(%s), old ref count = %d\n",
-@@ -2879,6 +2875,8 @@
- 	
- cleanup:			
- 	if (retval) {
-+		if (tty->count == 1)
-+			info->tty = 0; /* tty layer will release tty struct */
- 		if(info->count)
- 			info->count--;
- 	}
-
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
+Agreed on that.  Please let the monstrosity die together
+with 32 bit machines ;)
 

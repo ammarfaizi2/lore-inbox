@@ -1,54 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268265AbUIKSQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268269AbUIKSTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268265AbUIKSQu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 14:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUIKSQu
+	id S268269AbUIKSTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 14:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUIKSTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 14:16:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5287 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268269AbUIKSQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 14:16:41 -0400
-Date: Sat, 11 Sep 2004 11:15:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, Tim Hockin <thockin@hockin.org>,
-       Kay Sievers <kay.sievers@vrfy.org>, Robert Love <rml@ximian.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040911181540.GA7105@kroah.com>
-References: <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com> <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org> <20040911004827.GA8139@kroah.com> <20040911113525.GA7148@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911113525.GA7148@redhat.com>
-User-Agent: Mutt/1.5.6i
+	Sat, 11 Sep 2004 14:19:13 -0400
+Received: from pimout6-ext.prodigy.net ([207.115.63.78]:62353 "EHLO
+	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S268269AbUIKSRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 14:17:53 -0400
+Date: Sat, 11 Sep 2004 14:17:13 -0400 (EDT)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.an-vo.com
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Dave Airlie <airlied@linux.ie>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <9e473391040911105448c3f089@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0409111415370.16064@node2.an-vo.com>
+References: <9e47339104090919015b5b5a4d@mail.gmail.com> 
+ <9e4733910409100937126dc0e7@mail.gmail.com>  <1094832031.17883.1.camel@localhost.localdomain>
+  <9e47339104091010221f03ec06@mail.gmail.com>  <1094835846.17932.11.camel@localhost.localdomain>
+  <9e47339104091011402e8341d0@mail.gmail.com>  <Pine.LNX.4.58.0409102254250.13921@skynet>
+  <20040911132727.A1783@infradead.org>  <9e47339104091109111c46db54@mail.gmail.com>
+  <Pine.LNX.4.58.0409110939200.2341@ppc970.osdl.org> <9e473391040911105448c3f089@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 12:35:25PM +0100, Dave Jones wrote:
-> On Fri, Sep 10, 2004 at 05:48:27PM -0700, Greg KH wrote:
-> 
->  > > What happened to a formatted string argument?  The signal argument can 
->  > > become the pre-formatted string, and someone can provide a wrapper
->  > > that takes a printf() like format and args.
->  > > 	kobject_uevent_printf(kobj, "something bad: 0x%08x", err);
->  > 
->  > Use an attribute, and have userspace read that formatted argument if
->  > need be.  This keeps the kernel interface much simpler, and doesn't
->  > allow you to abuse it for things it is not intended for (like error
->  > reporting stuff...)
-> 
-> Erm, no. This will just encourage folks to sprintf to a buffer first
-> and pass the result to kobject_uevent_printf().
 
-Yeah, I agree.  I think we need to standardize on the "events", and make
-it hard to misspell them.  I'll work on that on Monday.
 
-> nitpick: Also, if this isn't taking formatted input, shouldn't the name of the
-> function lose the 'f' ?
+On Sat, 11 Sep 2004, Jon Smirl wrote:
 
-The function name is kobject_uevent(), no 'f' in sight :)
+> On Sat, 11 Sep 2004 10:02:57 -0700 (PDT), Linus Torvalds
+> <torvalds@osdl.org> wrote:
+>> Jon, you want to get to that "Final step is to integrate the chip specific
+>> code from DRM and fbdev". Alan doesn't even want to get there. I think
+>> Alan just wants some simple infrastructure to let everybody play together.
+>
+> This is the core problem. I want to get to a point where there is a
+> single, integrated piece of code controlling the complex functions of
+> the 3D hardware.
 
-thanks,
+Jon,
 
-greg k-h
+   Alan did have a valid point about the current size of DRM driver.
+
+   Would it not be possible to separate parts that assist 3d acceleration -
+like DRM ioctls to submit textures etc and the code to validate the 
+command stream submitted from userspace ? This should cut down the size
+considerably.
+
+                               best
+
+                                  Vladimir Dergachev
+
+>
+> I want to get away from the model of "I just got control of the chip,
+> who knows what the state of it is, I better reset everything". I also
+> want to get away from "now I want to use this register, i need to
+> inspect every over driver and piece of user space code to make sure
+> they don't stomp it". Or "I didn't even know your code existed, sorry
+> about stomping that critical register and causing 100 bug reports". Or
+> "why don't we just split the VRAM in half so we don't have to share
+> memory management".  Or suspend code that restores 2D mode and ignores
+> 3D.
+>
+> The problem with everyone playing together in separate code bases
+> assumes that everyone knows what everyone else is doing and that's
+> never the case. A single card specific code base collects everything
+> to a single place where it can be monitored.
+>
+> A good example of this is switching the GPU between 2D and 3D mode on
+> every process swap.
+>
+> In general the current X design only has a single 3D client. With a
+> composited display and pbuffer background drawing we are going to have
+> one 3D client for every top level window. This is going to require
+> complicated code to smoothly multitask the 3D drawing streams. The
+> last thing we need is something in the middle of this switching the
+> chip in and out of 2D mode.
+>
+> -- 
+> Jon Smirl
+> jonsmirl@gmail.com
+>
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: YOU BE THE JUDGE. Be one of 170
+> Project Admins to receive an Apple iPod Mini FREE for your judgement on
+> who ports your project to Linux PPC the best. Sponsored by IBM.
+> Deadline: Sept. 13. Go here: http://sf.net/ppc_contest.php
+> --
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/dri-devel
+>

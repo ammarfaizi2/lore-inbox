@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUJ0C5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbUJ0DAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUJ0C5H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUJ0C5H
+	id S261613AbUJ0DAj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 23:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUJ0DAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:57:07 -0400
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:51094 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261605AbUJ0C46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:56:58 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Stelian Pop <stelian@popies.net>
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Date: Tue, 26 Oct 2004 21:56:50 -0500
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
-References: <20041026155639.42445.qmail@web81306.mail.yahoo.com> <20041026180932.GA17655@deep-space-9.dsnet>
-In-Reply-To: <20041026180932.GA17655@deep-space-9.dsnet>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 26 Oct 2004 23:00:38 -0400
+Received: from gate.crashing.org ([63.228.1.57]:41698 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261613AbUJ0DA3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 23:00:29 -0400
+Subject: Strange IO behaviour on wakeup from sleep
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Content-Type: text/plain
+Date: Wed, 27 Oct 2004 12:56:44 +1000
+Message-Id: <1098845804.606.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410262156.52832.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 01:09 pm, Stelian Pop wrote:
-> > Btw, you should probably drop conditional support for input layer
-> > and always compile it in.
-> 
-> Is CONFIG_INPUT now a requirement for the (at least i386) kernel ?
-> If this is the case, I'll drop the conditional. 
-> 
+Hi !
 
-While it can be disabled when one selects !EMBEDDED I doubt hi/she will
-be interested in sonnypi in this case :). For all practical reasons input
-layer is always present.
+Not much datas at this point yet, but paulus and I noticed that current
+bk (happened already last saturday or so) has a very strange problem
+when waking up from sleep (suspend to ram) on our laptops.
 
--- 
-Dmitry
+This doesn't seem to be directly related to the PM code, at least not
+the arch one, as far as I know. The IDE throughput goes down to less
+than 100k/sec on hdparm. We haven't yet figured out where the time is
+lost, the disk seem to properly be restored to UDMA4 as usual, that code
+didn't change for ages, I don't think it's a problem at that level in
+IDE.
+
+I'm not sure yet how to track that down, it could be the IO scheduler
+getting messed up on wakeup for some reason. Any clue appreciated.
+
+Ben.
+
+
+

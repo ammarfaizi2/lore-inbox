@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbQLFTKA>; Wed, 6 Dec 2000 14:10:00 -0500
+	id <S129387AbQLFTOU>; Wed, 6 Dec 2000 14:14:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbQLFTJu>; Wed, 6 Dec 2000 14:09:50 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18951 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129231AbQLFTJh>; Wed, 6 Dec 2000 14:09:37 -0500
-Date: Wed, 6 Dec 2000 10:38:51 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre6
-In-Reply-To: <20001206190850.A847@arthur.ubicom.tudelft.nl>
-Message-ID: <Pine.LNX.4.10.10012061033160.1715-100000@penguin.transmeta.com>
+	id <S129969AbQLFTOK>; Wed, 6 Dec 2000 14:14:10 -0500
+Received: from natmail2.webmailer.de ([192.67.198.65]:8126 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S129387AbQLFTN6>; Wed, 6 Dec 2000 14:13:58 -0500
+From: Nils Faerber <nils@kernelconcepts.de>
+Organization: kernel concepts
+To: scole@lanl.gov, Steven Cole <scole@lanl.gov>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system
+Date: Wed, 6 Dec 2000 19:40:56 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E143Swc-0000DH-00@the-village.bc.nu> <00120609041800.00919@spc.esa.lanl.gov>
+In-Reply-To: <00120609041800.00919@spc.esa.lanl.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0012061944391F.00677@twincan>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 06 Dec 2000, Steven Cole wrote:
+> On Tuesday 05 December 2000 18:00, Alan Cox wrote:
+> > > I did confirm that 2.4.0-test11(final) works properly with sound and KDE
+> > > 2.0.
+> > Ok. That sounds even more like its PCI changes
+> I copied the cs46xx.c driver from 2.4.0-test11 to 2.4.0-test11-ac1,
+> rebuilt, and I got a test11-ac1 kernel which works with KDE 2.0 and sound.
+[...]
+A much improved version of this driver will hopefully show up real soon in the
+latest test12 kernels. We, i.e. Thomas Woller from Cirrus, me and some others,
+did a lot of work on the driver lately. The new driver even supports mmap sound
+so that most of the games work ;)
+Some others reported system freezes with the old (test11) driver which are
+fixed now too.
+The patch has alread been sent to Linus and will hopefully show up in test12
+real soon.
 
+> Steven
+Have fun!
+  nils faerber
 
-On Wed, 6 Dec 2000, Erik Mouw wrote:
-> 
-> So at first the PCI code can't allocate an IRQ for devices 00:00.1
-> (audio), 00:07.2 (USB), and 00:09.0 (winmodem), but after the audio and
-> USB modules get inserted, IRQ 5 and 11 get allocated.
-
-No, the irq stuff is a two-stage process: at first it only _reads_ the irq
-config stuff for every device - whether they have a driver or not - and at
-this stage it will not ever actually allocate and set up a new route. It
-will just see if a route has already been set up by the BIOS.
-
-Then, when a driver actually does a pci_enable_device(), it will do the
-second stage of PCI irq routing, which is to actually set up a route if
-none originally existed. So this is why you first se "failed" messages
-(the generic "test if there is a route" code) and then later when loading
-the module you see "allocated irq XX" messages.
-
-So your dmesg output looks fine, and everything is ok at that level. The
-fact that something still doesn't work for you indicates that we still
-have problems, of course.
-
-Can you tell me what device it is that doesn't work for you? 
-
-		Linus
-
-
+-- 
+kernel concepts          Tel: +49-271-771091-12
+Dreisbachstr. 24         Fax: +49-271-771091-19
+D-57250 Netphen          D1 : +49-170-2729106
+--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

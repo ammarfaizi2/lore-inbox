@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129645AbQKCJdb>; Fri, 3 Nov 2000 04:33:31 -0500
+	id <S129130AbQKCJqM>; Fri, 3 Nov 2000 04:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129617AbQKCJdW>; Fri, 3 Nov 2000 04:33:22 -0500
-Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:22544 "EHLO
-	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S129118AbQKCJdP>; Fri, 3 Nov 2000 04:33:15 -0500
-Date: Fri, 3 Nov 2000 10:33:07 +0100 (CET)
-From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-To: James Simmons <jsimmons@suse.com>
-cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Broken colors on console with 2.4.0-textXX
-In-Reply-To: <Pine.LNX.4.21.0011022312560.14650-100000@euclid.oak.suse.com>
-Message-ID: <Pine.LNX.4.21.0011031032450.15902-100000@fs1.dekanat.physik.uni-tuebingen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129215AbQKCJqD>; Fri, 3 Nov 2000 04:46:03 -0500
+Received: from hoser.dsl.xmission.com ([198.60.114.66]:6483 "EHLO
+	hoser.kurtwerks.com") by vger.kernel.org with ESMTP
+	id <S129130AbQKCJps>; Fri, 3 Nov 2000 04:45:48 -0500
+Date: Fri, 3 Nov 2000 02:45:35 -0700
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Laurent.Kersten@alcatel.be
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Include file problem with kernel 2.2.16 (seems to be the same with 2.2.17)
+Message-ID: <20001103024535.B1532@hoser.kurtwerks.com>
+In-Reply-To: <C125698C.003444F5.00@bemail04.net.alcatel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <C125698C.003444F5.00@bemail04.net.alcatel.be>; from Laurent.Kersten@alcatel.be on Fri, Nov 03, 2000 at 10:30:54AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2000, James Simmons wrote:
+On Fri, Nov 03, 2000 at 10:30:54AM +0100, Laurent.Kersten@alcatel.be wrote:
+% 
+% 
+% Hello,
+% 
+% I've found an unfortunate bug in the "linux/timex.h" file.  This file 
+% include "sys/time.h" and this cause any program that use the adjtimex 
+% syscall to be unable to compile (You get a lot of multiple definition 
+% error message). The only work-around, I've
+% made is to comment the "#include <sys/time.h>" line and add it  myself 
+% in my  (user-mode) program that use the adjtimex syscall.
 
-> > Console colors are completely messed up (read: black, I even suspect
-> > the font to be corrupt somehow) if switching back to console mode
-> > from X (either by quitting or ctrl-alt-fX) in recent 2.4.0-textXX
-> > kernels. 2.2.XX do work just fine. Is this a known problem with a
-> > known fix?
-> 
-> How recent of a test kernel. Yes their was a problem with the console
-> palette but it is now fixed in the most recent test kernels.
+If you're working in user space, #include <sys/timex.h>.  Can't 
+reproduce your problem without seeing the code in question.
 
-2.4.0-test10-pre5
-
-Richard.
-
---
-Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-WWW: http://www.anatom.uni-tuebingen.de/~richi/
-The GLAME Project: http://www.glame.de/
-
+Kurt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

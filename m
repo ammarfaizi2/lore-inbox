@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267183AbTBIJxc>; Sun, 9 Feb 2003 04:53:32 -0500
+	id <S267191AbTBIJ7a>; Sun, 9 Feb 2003 04:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbTBIJxc>; Sun, 9 Feb 2003 04:53:32 -0500
-Received: from krynn.axis.se ([193.13.178.10]:59553 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S267183AbTBIJxb>;
-	Sun, 9 Feb 2003 04:53:31 -0500
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE762@mailse01.axis.se>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'Nandakumar  NarayanaSwamy'" <nanda_kn@rediffmail.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: File systems in embedded devices
-Date: Sun, 9 Feb 2003 11:03:10 +0100 
+	id <S267188AbTBIJ7a>; Sun, 9 Feb 2003 04:59:30 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:22426 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S267184AbTBIJ72>;
+	Sun, 9 Feb 2003 04:59:28 -0500
+Date: Sun, 9 Feb 2003 11:08:44 +0100 (CET)
+From: Stephan van Hienen <raid@a2000.nu>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
+       peter@chubb.wattle.id.au, tbm@a2000.nu
+Subject: Re: fsck out of memory
+In-Reply-To: <20030207102858.P18636@schatzie.adilger.int>
+Message-ID: <Pine.LNX.4.53.0302090953440.1039@ddx.a2000.nu>
+References: <Pine.LNX.4.53.0302071555110.718@ddx.a2000.nu>
+ <Pine.LNX.4.53.0302071800200.1306@ddx.a2000.nu> <20030207102858.P18636@schatzie.adilger.int>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We use JFFS2 for configuration parameters etc, cramfs for 
-binaries etc  and tmpfs for temporary data (our embedded 
-devices typically have 4 MB flash and 16 MB RAM).
+On Fri, 7 Feb 2003, Andreas Dilger wrote:
 
-/Mikael
+> Hmm, I don't think that will be easy...  By default e2fsck will load all
+> of the inode blocks into memory (pretty sure at least), and if you have
+> 76922880 inodes that is 9.6GB of memory, which you can't allocate from a
+> single process on i386 no matter how much swap you have.  2.5GB sounds
+> about right for the maximum amount of memory one can allocate.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Nandakumar
-NarayanaSwamy
-Sent: Saturday, February 08, 2003 3:20 PM
-To: linux-kernel@vger.kernel.org
-Subject: File systems in embedded devices
+hmms the data is not critical yet (i was just testing this server)
+i really wonder why the crash was there in the first place
 
+thing i found in /var/log/messages :
 
-Dear All,
+Feb  7 04:18:15 storage kernel: EXT3-fs error (device md(9,0)):
+ext3_new_block:
+Allocating block in system zone - block = 536875638
+Feb  7 04:18:15 storage kernel: EXT3-fs error (device md(9,0)):
+ext3_new_block:
+Allocating block in system zone - block = 536875639
 
-We are developing a embedded device based on linux. Through the 
-development phase we used NFS. But now we want to move some 
-filesystem
-which can be created in FLASH/RAM.
+doesn't look ok to me (and explains the crash?)
 
-I have few doubts about the file system in embedded devices.
+makes me wonder if this can have todo with the lbd (to allow 2TB+ devices)
+patch ? or is this something else?
+(if it can be related to the lbd patch, i will remove 2 hd's from the
+array (but i don't prefer this option))
 
-1) What is the file system which is used normally in all embedded 
-devices? (JFFS/CRAMFS/RAM DISK)
+also for not getting this thing again (that i can't fsck my filesystem)
+what are the setting i can use for creating a large filesystem on /dev/md0
+? (what is the maximum workable inodes?)
 
-2) We tried using RAM disk as the file system. But since our 
-application is huge it is not able to fit into 8 MB RAM disk 
-created. When we tried to increase the size of the RAM disk, the 
-kernel crashes above 9 MB. We have 32 MB in our target board.
+i did this :
 
-3) I dont know whether we can use cramfs.
+mke2fs -j -m 0  -b 4096 -i 4096 -R stride=16
 
-Can anybody suggest me some ideas so that i can solve these 
-issues?
-
-Thanks and Regards,
-Nanda
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

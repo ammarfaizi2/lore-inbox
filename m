@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263127AbRFCOnH>; Sun, 3 Jun 2001 10:43:07 -0400
+	id <S264274AbRFDRDw>; Mon, 4 Jun 2001 13:03:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262930AbRFCMkK>; Sun, 3 Jun 2001 08:40:10 -0400
-Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:45535 "EHLO
-	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S262901AbRFCMJG>; Sun, 3 Jun 2001 08:09:06 -0400
-Date: Sun, 3 Jun 2001 14:09:01 +0200 (CEST)
-From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
-To: jamal <hadi@cyberus.ca>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <netdev@oss.sgi.com>
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
-In-Reply-To: <Pine.GSO.4.30.0106011357000.11540-100000@shell.cyberus.ca>
-Message-ID: <Pine.LNX.4.33.0106031401050.31050-100000@kenzo.iwr.uni-heidelberg.de>
+	id <S264337AbRFDRDf>; Mon, 4 Jun 2001 13:03:35 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:41373 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S264274AbRFDQtY>; Mon, 4 Jun 2001 12:49:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Alan Cox <alan@redhat.com>
+Subject: Dual AMD Palomino from Australia
+Date: Mon, 4 Jun 2001 18:50:05 +0200
+X-Mailer: KMail [version 1.2.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010604164934Z264274-17720+159@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Jun 2001, jamal wrote:
+Hello Alan,
 
-> Still, the tx watchdogs are a good source of fault detection in the case
-> of non-availabilty of MII detection and even with the presence of MII.
+do you have an dual AMD 760MP based mobo, too?
+It should be more interesting to see some multi processing workloads.
 
-Agreed. But my question was a bit different: is there any legit situation
-where Tx timeouts can happen in a row _without_ having a link loss ? In
-this situation, we'd have false positives...
+Here are the links:
 
-> "Dynamic" in the above sense means trying to totaly avoid making it a
-> synchronous poll. The poll rate is a function of how many packets go out
-> that device per average measurement time. Basically, the period that the
-> user space app dumps "hello" netlink packets to the kernel is a variable.
+http://www.overclockers.com.au/techstuff/a_tyan_thunder/
+http://www.overclockers.com.au/techstuff/a_tyan_thunder/page2.shtml
+http://www.overclockers.com.au/techstuff/a_tyan_thunder/boot.txt
 
-Sounds nice, but could this be implemented light enough ?
-
--- 
-Bogdan Costescu
-
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
-
+Thanks,
+	Dieter

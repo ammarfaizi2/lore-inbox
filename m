@@ -1,121 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287292AbRL3BJ4>; Sat, 29 Dec 2001 20:09:56 -0500
+	id <S287299AbRL3BmE>; Sat, 29 Dec 2001 20:42:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287282AbRL3BJs>; Sat, 29 Dec 2001 20:09:48 -0500
-Received: from 237-ZARA-X33.libre.retevision.es ([62.82.234.237]:27142 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S287298AbRL3BJj>;
-	Sat, 29 Dec 2001 20:09:39 -0500
-Message-ID: <3C2CE995.6080503@zaralinux.com>
-Date: Fri, 28 Dec 2001 22:52:21 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: es-es, en-us
+	id <S287303AbRL3Blz>; Sat, 29 Dec 2001 20:41:55 -0500
+Received: from 217-125-101-55.uc.nombres.ttd.es ([217.125.101.55]:22723 "EHLO
+	jep.dhis.org") by vger.kernel.org with ESMTP id <S287299AbRL3Blt>;
+	Sat, 29 Dec 2001 20:41:49 -0500
+Message-ID: <3C2E709A.1D12BEFB@jep.dhis.org>
+Date: Sun, 30 Dec 2001 02:40:43 +0100
+From: Josep Lladonosa i Capell <jep@jep.net.dhis.org>
+Reply-To: jlladono@pie.xtec.es
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
+X-Accept-Language: ca, en, es
 MIME-Version: 1.0
-To: jlladono@pie.xtec.es
-CC: linux-kernel@vger.kernel.org
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Stephan von Krawczynski <skraw@ithnet.com>,
+        Guest section DW <dwguest@win.tue.nl>,
+        James Stevenson <mistral@stev.org>, jlladono@pie.xtec.es,
+        linux-kernel@vger.kernel.org
 Subject: Re: 2.4.x kernels, big ide disks and old bios
-In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <Pine.LNX.4.10.10112271926400.24491-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josep Lladonosa i Capell wrote:
+Andre Hedrick wrote:
 
-> Hello,
-> 
-> the problem is this:
-> 
-> bios only supports disks up to 32 Gb.
+> You have it called "STROKE".
+>
+> Use a patch and execute a soft-clip operation to the device and you are
+> fixed.
 
+...depends. I want the big disk to be /dev/hda, and bootable (an unattended
+boot).
 
-I have a 486, bios (as i remember) does not even see the disk.
+Disk is  119150/16/63. I soft (un)clipped it to max capacity (60Gb) with setmax
+.
 
+Configured it in the bios (32Gb limit) as a smaller disk, bios complained,
+telling an error, asking to press F1 to continue. The LBA mode (4111/255/63,
+LBA, for example) told the error, and asking for F1, as well. With
+(65530/16/63, NORM), it booted well.
+Kernel (2.4.17, patched) corrected the geometry while booting, but mke2fs
+generated many io-errors, I suspect beyond the 32Gb.
 
-> 
-> hard disk is 60 Gb.
+Finally, a bios upgrade (unfortunately not for sizes beyond 32Gb), let me to
+configure the setup with
+the LBA mode, and boot works well, and mke2fs doesn't complain.
 
+I don't need to use setmax to clip-unclip when booting.
 
-HD is 40Gb
+What's the meaning of the 65535 max limit in bios_cyl? *
 
+*I don't think it is a kernel limit.
+*Is it the max value accepted by the physical disk, and that's why lba is used?
 
-> 
-> kernel is 2.4.17
-> 
-
-2.4.15-pre9 + tux2 patches
-
-
-> hard disk reports its correct size when reading parameters from the
-> disk, not from the bios
-> 
-> verd:/proc/ide/hdc# cat geometry
-> physical     65530/16/63
-> logical      119150/16/63
-> 
-
-
-[root@head (22:45:56) ~]# cat /proc/ide/hda/geometry
-physical     77545/16/63
-logical      77545/16/63
-[root@head (22:46:07) ~]#
+*Was that the problem with the io-errors?
 
 
-> 
-> when booting (dmesg):
-> 
-> hdc: IC35L060AVER07-0, ATA DISK drive
-> hdc: 66055247 sectors (33820 MB) w/1916KiB Cache, CHS=119150/16/63,
-> UDMA(33)
-> 
-> 
+# cat /proc/ide/hdc/settings
+name                    value           min             max             mode
+----                    -----           ---             ---             ----
+bios_cyl                119150          0               65535           rw
+bios_head               16              0               255             rw
+bios_sect               63              0               63              rw
 
 
-hda: 78165360 sectors (40021 MB) w/1024KiB Cache, CHS=77545/16/63
+--
+Salutacions...Josep
+http://www.geocities.com/SiliconValley/Horizon/1065/
+--
 
 
-> Linux adopts the 'false' geometry (65530/16/63) ) to bypass the bios
-> boot.
-> 
-> 
-
-
-All I can say is that I have a /boot partition of about 64 Megs, because 
-I have / formated as reiser so /boot is ext2 because it's from the time 
-that you cannot boot from reiser without notail.
-
-
-> 
-> I know that there are patches for 2.2 kernels and 2.3 kernels, so as
-> linux adopts the logical geometry (a kiddy trick with lba size). They
-> are very simple (a line), but 2.4 ide implementation is (a little more)
-> complicated. Any patch?
-> 
-
-
-Well, it works for me, and as I have said, I have a 486, I'm not sure if 
-the bios supports this size, but I seem to remember that it even does 
-not detect it at boot, or perhaps it detects it as a strange size such 
-as 8Gb or 32Gb, just don't remember.
-
-Linux boots and works for me with no problem in this system.
-
-
-> Bon Nadal - Merry Christmas
-> 
-
-
-Feliz Navidad.
-
-
-> --
-> Salutacions...Josep
-> http://www.geocities.com/SiliconValley/Horizon/1065/
-
-
-
--- 
-Jorge Nerin
-<comandante@zaralinux.com>
 

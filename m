@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133006AbRDWM0C>; Mon, 23 Apr 2001 08:26:02 -0400
+	id <S133018AbRDWMcW>; Mon, 23 Apr 2001 08:32:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133009AbRDWMZw>; Mon, 23 Apr 2001 08:25:52 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:43279 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S133006AbRDWMZm>; Mon, 23 Apr 2001 08:25:42 -0400
-Date: Mon, 23 Apr 2001 14:19:46 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Xiong Zhao <xz@gatekeeper.ncic.ac.cn>
-Cc: majordomo linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: how does linux support domino?
-Message-ID: <20010423141945.G2615@arthur.ubicom.tudelft.nl>
-In-Reply-To: <77457B80127E.AAA4AA2@gatekeeper.ncic.ac.cn>
+	id <S133022AbRDWMcN>; Mon, 23 Apr 2001 08:32:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29202 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S133018AbRDWMcH>;
+	Mon, 23 Apr 2001 08:32:07 -0400
+Date: Mon, 23 Apr 2001 13:32:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: All architecture maintainers: pgd_alloc()
+Message-ID: <20010423133202.A26121@flint.arm.linux.org.uk>
+In-Reply-To: <20010421154455.C7576@flint.arm.linux.org.uk> <15075.45847.624767.960502@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <77457B80127E.AAA4AA2@gatekeeper.ncic.ac.cn>; from xz@gatekeeper.ncic.ac.cn on Mon, Apr 23, 2001 at 01:59:52PM +0800
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <15075.45847.624767.960502@pizda.ninka.net>; from davem@redhat.com on Sun, Apr 22, 2001 at 09:44:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 01:59:52PM +0800, Xiong Zhao wrote:
-> hello.on linux we will see a new domino server process/thread is
-> created for each client.how does linux do this?does it use
-> pthread?using fork or clone or someway else?
+On Sun, Apr 22, 2001 at 09:44:07PM -0700, David S. Miller wrote:
+> I really would wish folks would not choose Alan as the first place
+> to send the patch.  I'm not directly accusing anyone of it, but it
+> does appear that often AC is used as a "back door" to get a change
+> in.  While this scheme most of the time, often it unnecessarily
+> overworks Alan which I think is unfair.
 
-pthreads are modeled on top of the clone() system call.
+The reason I suggested sending this stuff to Alan is because it _needs_
+to be reviewed or tested before coming out in Linus tree, and I know
+that Linus is trying to get 2.4.4 out.
 
-> what's the common way of
-> linux to support apps like lotus domino that will have lots of
-> concurrent users which are served by seperate server process/thread?
+Last time I checked, ARM can't run a Sparc kernel. ;)
 
-Just go ahead and support it, I guess.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

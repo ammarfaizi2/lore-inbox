@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289385AbSAODZb>; Mon, 14 Jan 2002 22:25:31 -0500
+	id <S289387AbSAODaL>; Mon, 14 Jan 2002 22:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289387AbSAODZV>; Mon, 14 Jan 2002 22:25:21 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:36847 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S289385AbSAODZS>; Mon, 14 Jan 2002 22:25:18 -0500
-Date: Mon, 14 Jan 2002 19:28:40 -0800
-From: Chris Wright <chris@wirex.com>
-To: Christopher James <cjames@berkeley.innomedia.com>
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: Multicast fails when interface changed
-Message-ID: <20020114192840.A23120@figure1.int.wirex.com>
-Mail-Followup-To: Christopher James <cjames@berkeley.innomedia.com>,
-	kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-In-Reply-To: <200201142016.XAA10180@ms2.inr.ac.ru> <3C4374BA.F8E26684@berkeley.innomedia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C4374BA.F8E26684@berkeley.innomedia.com>; from cjames@berkeley.innomedia.com on Mon, Jan 14, 2002 at 04:15:54PM -0800
+	id <S289388AbSAODaC>; Mon, 14 Jan 2002 22:30:02 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:62013 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S289387AbSAOD3p>;
+	Mon, 14 Jan 2002 22:29:45 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: george anzinger <george@mvista.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 15 Jan 2002 04:31:36 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: yodaiken@fsmlabs.com, Momchil Velikov <velco@fadata.bg>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16QC5P-0000nO-00@starship.berlin> <3C439D02.EBCD78C4@mvista.com>
+In-Reply-To: <3C439D02.EBCD78C4@mvista.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16QKK0-0000pN-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christopher James (cjames@berkeley.innomedia.com) wrote:
+On January 15, 2002 04:07 am, george anzinger wrote:
+> Daniel Phillips wrote:
+> > 
+> > On January 14, 2002 10:09 am, yodaiken@fsmlabs.com wrote:
+> > > UNIX generally tries to ensure liveness. So you know that
+> > >       cat lkarchive | grep feel | wc
+> > > will complete and not just that, it will run pretty reasonably because
+> > > for UNIX _every_ process is important and gets cpu and IO time.
+> > > When you start trying to add special low latency tasks, you endanger
+> > > liveness.  And preempt is especially corrosive because one of the
+> > > mechanisms UNIX uses to assure liveness is to make sure that once a
+> > > process starts it can do a significant chunk of work.
+>
+> If I read this right, your complaint is not with preemption but with
+> scheduler policy.  Clearly both are needed to "assure liveness". 
+> Another way of looking at preemption is that is enables a more
+> responsive and nimble scheduler policy (afterall it is the scheduler
+> that decided that task A should give way to task B.  All preemption does
+> is to allow that to happen with greater dispatch.)  Given that, we can
+> then discuss what scheduler policy should be.
 
-> It was our expectation that the switch from the first to second
-> interface  should  work without any involvement from the application
-> because the second interface is configured exactly the same as the
-> first interface.  After the switch, everything seems to work with the
-> exception of multicasting:  the multicast membership information is not
-> propagated to the second interface, it stays with the first interface.
+You responded to the wrong person, however I'll take this opportunity to 
+agree with you, on the basis of my years of experience with critical path 
+scheduling.  For project schedules 'earlist completion' is the name of the 
+game, within bounds of available resources.  When you delay an indvidual 
+'task' (I'm using the project management term here) past the earliest time it 
+can be scheduled, you are using up its 'float', and if the delay is longer 
+than the task's float, the completion time of the schedule as a whole will be 
+delayed.  This is no different for a computer than it is for a group of 
+people, it is still a scheduling problem.  Delaying any random task risks 
+delaying the schedule as a whole, and that risk approaches certainty as the 
+number of delays approaches infinity.
 
-i don't think this is a valid expectation.  joining a multicast group
-is a device specific action.  when you join, you either specify an
-interface to join on (imr_interface=dev_ip_addr) or let the kernel choose
-(imr_interface=INADDR_ANY).  in either case, you are telling some hardware
-to adjust its multicast filter and identifying that hardware by a unique
-device index.  as alexey mentioned, it sounds like your app has never told
-the second interface that is should even care about multicast packets.
-did you try joining on both interfaces?  (you may find using a unique
-service ip addr on each interface, and failing over an application ip
-addr using aliases will help)
+N.B.: the above observation is aimed at project managers, who will know 
+exactly what I'm talking about.  Otherwise, don't worry if it sounds like so 
+much BS, it actually isn't ;-)
 
-cheers,
--chris
+--
+Daniel

@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUF3HOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266573AbUF3HOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265697AbUF3HOM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 03:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUF3HOM
+	id S266573AbUF3HOd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 03:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUF3HOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 03:14:12 -0400
-Received: from mail1.speakeasy.net ([216.254.0.201]:43440 "EHLO
-	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S265697AbUF3HOK
+	Wed, 30 Jun 2004 03:14:33 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:55454 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S266573AbUF3HOa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 03:14:10 -0400
-Date: Wed, 30 Jun 2004 00:14:04 -0700
-Message-Id: <200406300714.i5U7E48O027579@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: zombie with CLONE_THREAD
-In-Reply-To: Andrew Morton's message of  Tuesday, 29 June 2004 23:08:04 -0700 <20040629230804.3e9ed144.akpm@osdl.org>
-Emacs: if it payed rent for disk space, you'd be rich.
+	Wed, 30 Jun 2004 03:14:30 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: 2.6.7-mm4
+Date: Wed, 30 Jun 2004 07:14:29 +0000 (UTC)
+Organization: Cistron
+Message-ID: <cbtp8l$kko$1@news.cistron.nl>
+References: <20040629020417.70717ffe.akpm@osdl.org>
+X-Trace: ncc1701.cistron.net 1088579669 21144 62.216.30.38 (30 Jun 2004 07:14:29 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That change sure looks incorrect and unnecessary to me.  It wasn't clear to
-me from Andrea's description whether there is really any kernel bug here or
-not.  If some process is ptrace'ing a CLONE_THREAD thread, then the thread
-should not disappear as this patch makes it do.  It becomes a zombie and
-reports its death status to the ptracer.  When the ptracer waits for it, it
-reverts to its original parent and then the logic in wait_task_zombie
-should call release_task for the CLONE_THREAD case.
+Andrew Morton  <akpm@osdl.org> wrote:
+>- Merged support for the 64-bit SuperH architecture
+>- Various fixes and updates
 
-Are you saying that if the ptracer dies, it can leave some threads in limbo?
-I think that case is supposed to work because forget_original_parent will
-move all the threads ptrace'd by the dying tracer process to be ptrace'd by
-init, which will then clean up their zombies as previously described.
+Compile on amd64 (debian-pure64) failes for me:
+
+  CC      arch/x86_64/kernel/i8259.o
+  CC      arch/x86_64/kernel/ioport.o
+  CC      arch/x86_64/kernel/ldt.o
+  CC      arch/x86_64/kernel/setup.o
+arch/x86_64/kernel/setup.c: In function `copy_edd':
+arch/x86_64/kernel/setup.c:415: error: `EDD_MBR_SIGNATURE' undeclared (first use in this function)
+arch/x86_64/kernel/setup.c:415: error: (Each undeclared identifier is reported only once
+arch/x86_64/kernel/setup.c:415: error: for each function it appears in.)
+arch/x86_64/kernel/setup.c:417: error: `EDD_MBR_SIG_NR' undeclared (first use in this function)
+make[2]: *** [arch/x86_64/kernel/setup.o] Error 1
+make[1]: *** [arch/x86_64/kernel] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.7-mm4'
+make: *** [stamp-build] Error 2
 
 
-Thanks,
-Roland
+.config is at http://dth.net/amd64/
+
+Danny
+
+
+-- 
+"If Microsoft had been the innovative company that it calls itself, it 
+would have taken the opportunity to take a radical leap beyond the Mac, 
+instead of producing a feeble, me-too implementation." - Douglas Adams -
+

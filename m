@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281369AbRKTUls>; Tue, 20 Nov 2001 15:41:48 -0500
+	id <S281391AbRKTUn6>; Tue, 20 Nov 2001 15:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281373AbRKTUli>; Tue, 20 Nov 2001 15:41:38 -0500
-Received: from cs314333-a.mtnk1.on.wave.home.com ([24.101.65.215]:59305 "HELO
-	misato.prohost.org") by vger.kernel.org with SMTP
-	id <S281369AbRKTUlZ>; Tue, 20 Nov 2001 15:41:25 -0500
-Date: Tue, 20 Nov 2001 15:45:34 -0500
-From: hackie@misato.prohost.org
-To: linux-kernel@vger.kernel.org
-Subject: Unkillable process in 2.4.15-pre5
-Message-ID: <20011120154534.A30266@misato.nerv>
+	id <S281392AbRKTUnt>; Tue, 20 Nov 2001 15:43:49 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:46345 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S281371AbRKTUnd>;
+	Tue, 20 Nov 2001 15:43:33 -0500
+Date: Tue, 20 Nov 2001 22:43:24 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: File size limit exceeded with mkfs
+Message-ID: <20011120224324.O2682@mea-ext.zmailer.org>
+In-Reply-To: <1006272138.1263.3.camel@somewhere.auc.ca> <20011120113316.R1308@lynx.no> <1006288154.1863.0.camel@somewhere.auc.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <1006288154.1863.0.camel@somewhere.auc.ca>; from tack@auc.ca on Tue, Nov 20, 2001 at 03:29:14PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using boarland's kylix 2 open edition,
+On Tue, Nov 20, 2001 at 03:29:14PM -0500, Jason Tackaberry wrote:
+> Hi Andreas,
+> 
+> On Tue, 2001-11-20 at 13:33, Andreas Dilger wrote:
+... 
+> > Can you please try some intermediate kernels (2.4.10 would be a good
+> > start, because it had some major changes in this area, and then go
+> > forward and back depending whether it works or not).
+> 
+> 2.4.10 does NOT work.
+> 2.4.9 DOES work.
 
-as soon as it is started just run the default project (it's starts with this
-project by default), then go into debugging, and while there terminate
-kylix, it leaves its [Project1] process which is in
+   And noting that  mkfs  and  fsck  operate on block DEVICE, no such
+limits should be applied anyway.  Right ?
 
-$ cat /proc/31366
-31366 (Project1) R 1 31365 31365 0 -1 1092 0 0 0 0 2 2 0 0 11 1 0 0 14864708 0 0 4294967295 0 0 0 0 0 0 65536 0 0 3222391056 0 0 17 0
+> So clearly something happened in 2.4.10 which broke this.  Please let me
+> know if I can be of any more help.
+> 
+> Regards,
+> Jason.
 
-state, I can't SIGKILL it (it's in RWN state as ps says it).
+/Matti Aarnio

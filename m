@@ -1,51 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315721AbSGONRx>; Mon, 15 Jul 2002 09:17:53 -0400
+	id <S315746AbSGONYx>; Mon, 15 Jul 2002 09:24:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315746AbSGONRw>; Mon, 15 Jul 2002 09:17:52 -0400
-Received: from unthought.net ([212.97.129.24]:31648 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S315721AbSGONRw>;
-	Mon, 15 Jul 2002 09:17:52 -0400
-Date: Mon, 15 Jul 2002 15:20:45 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: RAID problem - please hlp
-Message-ID: <20020715132045.GB7756@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200207141626.55442.roy@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200207141626.55442.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.28i
+	id <S317468AbSGONYw>; Mon, 15 Jul 2002 09:24:52 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:9965 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S315746AbSGONYv>; Mon, 15 Jul 2002 09:24:51 -0400
+Date: Mon, 15 Jul 2002 15:26:08 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207151326.g6FDQ8nH020722@burner.fokus.gmd.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 14, 2002 at 04:26:55PM +0200, Roy Sigurd Karlsbakk wrote:
-> 
-> On Saturday 13 July 2002 21:14, you wrote:
-> 
-> hi all
-> 
-> How can I force RAID devices to get status non-failed? I have a so-called 4
-> out of 15 devices failed, and it failes to start.
-> 
-> The true devices have _not_ failed!
-> 
-> That is - md[0123] are just fine, and as they generally are on the same drives 
-> as md4, something _should_ be possible
-> 
 
-http://unthought.net/Software-RAID.HOWTO/Software-RAID.HOWTO-6.html#ss6.1
+As my textual description has not been read, here comes a acsii art
+of the proposal for a driver structure:
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+
+			User programs
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+|								|
+|		Kernel driver interface				|
+|								|
+----------------------------------------------------------------
+		|				|
+--------------------------------  ------------------------------
+|				| |				|
+|	One or more SCSI	| |	One or more simple	|
+|	target drivers		| |	Block based drivers	|
+|	    e.g. sd.c		| |	  e.g. dsata.c		|
+|				| |				|
+|				| |				|
+--------------------------------  ------------------------------
+		|				|
+		|				|------------------ Locked when
+		|				|		    SCSI glue
+----------------------------------------------------------------    Interface is
+|				|				|   used for a
+|				|				|   specific
+|	SCSI glue layer		|   Block access glue layer	|   drive.
+|				|				|
+|	Will check if target	|				|
+|	supports SCSI commands	|				|
+|	and lock Block access	|				|
+|	layer in this case.	|				|
+|				|				|
+----------------------------------------------------------------
+|								|
+|			 Low level glue				|
+|								|
+----------------------------------------------------------------
+	| SCSI CDB/IF			| SCSI CDB/IF | Block IF
+--------------------------------  ------------------------------
+|				| |				|
+|				| |				|
+|	SCSI HBA driver		| |	ATA HBA driver		|
+|				| |	deals with simple ATA	|
+|	Only supports		| |	interface and with	|
+|	SCSI CDB interface	| |	ATA packet interface	|
+|				| |				|
+|				| |				|
+--------------------------------  ------------------------------
+
+
+All HBA drivers include DMA setup callback functions to make the
+target drivers completely independant from the HW.
+
+Communication for all types of interfaces is HW address cookie
+based and done via callback.
+
+Above the glue layer, no knowledge about SCSI disconnect/reconnect
+is needed.
+
+
+
+Jörg
+
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

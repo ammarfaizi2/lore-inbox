@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbUCDS5O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 13:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUCDS4z
+	id S262081AbUCDTCn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 14:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUCDTCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 13:56:55 -0500
-Received: from wblv-248-49.telkomadsl.co.za ([165.165.248.49]:13697 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S262082AbUCDSyl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 13:54:41 -0500
-Subject: Re: [ANNOUNCE] udev 021 release
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040304184602.GI13907@kroah.com>
-References: <20040303000957.GA11755@kroah.com>
-	 <1078422507.3614.20.camel@nosferatu.lan> <20040304184602.GI13907@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HH+fcxMQnI2tv9c4ldht"
-Message-Id: <1078426567.3614.24.camel@nosferatu.lan>
+	Thu, 4 Mar 2004 14:02:42 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:64449 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262082AbUCDTCh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 14:02:37 -0500
+Subject: Re: [RFC][PATCH] linux-2.6.4-pre1_vsyscall-gtod_B3-part3 (3/3)
+From: john stultz <johnstul@us.ibm.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4046E455.4010605@redhat.com>
+References: <1078359081.10076.191.camel@cog.beaverton.ibm.com>
+	 <1078359137.10076.193.camel@cog.beaverton.ibm.com>
+	 <1078359191.10076.195.camel@cog.beaverton.ibm.com>
+	 <1078359248.10076.197.camel@cog.beaverton.ibm.com>
+	 <20040304005542.GZ4922@dualathlon.random>  <40469194.5080506@redhat.com>
+	 <1078368197.10076.252.camel@cog.beaverton.ibm.com>
+	 <4046E455.4010605@redhat.com>
+Content-Type: text/plain
+Message-Id: <1078426940.10076.269.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Mar 2004 20:56:07 +0200
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 04 Mar 2004 11:02:20 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-03-04 at 00:09, Ulrich Drepper wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> john stultz wrote:
+> 
+> > Before we start up this larger debate again, might there be some short
+> > term solution for my patch that would satisfy both of you?
+> 
+> I suggest the following:
+> 
+> ~ define a symbol __kernel_gettimeofday_offset in the vdso's symbol
+> table.  This should be an absolute symbol containing the offset of the
+> gettimeofday implementation from the beginning of the vdso (the address
+> passed up in the auxiliary vector)
+> 
+> ~ glibc can then use the equivalent of
+> dlsym("__kernel_gettimeofday_offset").  If the symbol is not defined,
+> it's not used (doh).  If it is defined, the final function address is
+> computed by adding the offset to the vdso address.
+> 
+> 
+> This ensures a direct jump and it still keeps the vdso relocatable
+> without modifying the symbol table.
 
---=-HH+fcxMQnI2tv9c4ldht
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Excellent, this sounds similar to what Andrea was suggesting. 
+I'll start working to implement this.
 
-On Thu, 2004-03-04 at 20:46, Greg KH wrote:
-> On Thu, Mar 04, 2004 at 07:48:27PM +0200, Martin Schlemmer wrote:
-> > On Wed, 2004-03-03 at 02:09, Greg KH wrote:
-> > > I've released the 021 version of udev.  It can be found at:
-> > >  	kernel.org/pub/linux/utils/kernel/hotplug/udev-021.tar.gz
-> > >=20
-> >=20
-> > Is the issue that causes missing events with udevsend (and udev in
-> > some cases - like alsa and it seems the -mm tree) with slower machines
-> > known yet?
->=20
-> No, this is not really known.  I've heard rumors of it, but been unable
-> to duplicate it here.   Some solid error reports would be greatly
-> appreciated...
->=20
-
-Besides reports from others, my work box also shows this - they just do
-not endorse (and don't want to find out if they will mind) me doing
-work in this field.  I will however try to track or get some type of
-test case.
-
-
---=20
-Martin Schlemmer
-
---=-HH+fcxMQnI2tv9c4ldht
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAR3vHqburzKaJYLYRArBWAJ4xH/HXCZTce/PIrYSfGZJbxIG0SQCfYEr1
-J4Husc3vlCVeXdfHr/uYq6U=
-=oEro
------END PGP SIGNATURE-----
-
---=-HH+fcxMQnI2tv9c4ldht--
+thanks for the momentary truce ;)
+-john
 

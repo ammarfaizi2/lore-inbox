@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284460AbSACI4d>; Thu, 3 Jan 2002 03:56:33 -0500
+	id <S284601AbSACJJN>; Thu, 3 Jan 2002 04:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284601AbSACI4X>; Thu, 3 Jan 2002 03:56:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:46860 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284460AbSACI4Q>;
-	Thu, 3 Jan 2002 03:56:16 -0500
-Date: Thu, 3 Jan 2002 09:56:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@suse.de>
-Cc: rwhron@earthlink.net,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: changelogs for 2.4.17rc2aa2 and 2.2.20aa1
-Message-ID: <20020103095608.F482@suse.de>
-In-Reply-To: <20020102090547.A233@earthlink.net> <Pine.LNX.4.33.0201030451270.6449-100000@Appserv.suse.de>
+	id <S284752AbSACJJE>; Thu, 3 Jan 2002 04:09:04 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:34551 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S284601AbSACJIs>; Thu, 3 Jan 2002 04:08:48 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020102211038.C21788@thyrsus.com> 
+In-Reply-To: <20020102211038.C21788@thyrsus.com>  <20020102174824.A21408@thyrsus.com> <Pine.LNX.4.33.0201030006120.427-100000@Appserv.suse.de> 
+To: esr@thyrsus.com
+Cc: Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems? 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0201030451270.6449-100000@Appserv.suse.de>
+Date: Thu, 03 Jan 2002 09:08:14 +0000
+Message-ID: <3021.1010048894@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03 2002, Dave Jones wrote:
-> On Wed, 2 Jan 2002 rwhron@earthlink.net wrote:
-> 
-> > More results are at:
-> > http://home.earthlink.net/~rwhron/kernel/repo.html
-> 
-> Consider it bookmarked  8)
-> I hope you can find the time to keep up these tests,
-> as they should start to show some even more interesting
-> results as the various trees progress.
 
-I'll second that, very nice that someone takes the time to do this.
+esr@thyrsus.com said:
+> Think useability.  On Macintoshes, you configure a kernel by moving
+> the  equivalents of modules in and out of a system folder.  Users tune
+> their kernels by moving files around -- no muttering of elaborate
+> incantations required.  *That's* the direction we should be moving in;
+> there is no  good technical reason for the process to be anywhere near
+> as arcane as it is now. 
 
--- 
-Jens Axboe
+We have it better than that already. The distro vendor provides all the 
+modules and they're automatically loaded on demand - you don't even need to 
+move them into the system folder.
+
+--
+dwmw2
+
 

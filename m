@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268316AbRG0S3o>; Fri, 27 Jul 2001 14:29:44 -0400
+	id <S268920AbRG0Soh>; Fri, 27 Jul 2001 14:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268335AbRG0S3f>; Fri, 27 Jul 2001 14:29:35 -0400
-Received: from oe53.law12.hotmail.com ([64.4.18.46]:49938 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S268316AbRG0S3T>;
-	Fri, 27 Jul 2001 14:29:19 -0400
-X-Originating-IP: [200.42.64.49]
-From: "Sergio A. Kessler" <sergio_kessler@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Flags; bus-master 1, dirty [...]
-Date: Fri, 27 Jul 2001 15:28:44 -0300
+	id <S268921AbRG0So1>; Fri, 27 Jul 2001 14:44:27 -0400
+Received: from d122251.upc-d.chello.nl ([213.46.122.251]:28686 "EHLO
+	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
+	id <S268920AbRG0SoS>; Fri, 27 Jul 2001 14:44:18 -0400
+From: bvermeul@devel.blackstar.nl
+Date: Fri, 27 Jul 2001 20:47:05 +0200 (CEST)
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Hans Reiser <reiser@namesys.com>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <m1d76me0vq.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33.0107272037380.16051-100000@devel.blackstar.nl>
 MIME-Version: 1.0
-Content-Type: text/plain;	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <OE53F8HGmCvoXM7e0C9000044da@hotmail.com>
-X-OriginalArrivalTime: 27 Jul 2001 18:29:21.0518 (UTC) FILETIME=[0DE1A0E0:01C116CA]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-hi,
+On 27 Jul 2001, Eric W. Biederman wrote:
 
-I'm getting this at the screen at /var/log/messages
+> Hans Reiser <reiser@namesys.com> writes:
+>
+> > This "feature" of not guaranteeing that a write that is in progress when the
+> > machine crashes will
+> >
+> > not write garbage, has been present in most Unix filesystems for about 25 years
+> > of Unix history.
+>
+> A write in progress causing garabage when the power is lost is a
+> driver, and drive thing.
+>
+> stock unix behavior is that it delays writes for up to 30 seconds,
+> which in case of a crash could mean you have old data on disk.   Not
+> wrong data.  This is helped because in stock unix filesystems blocks
+> are rarely reallocated or moved.  In reiserfs with the btree at least
+> some kinds of data are moved all over the disk.
+>
+> I want to suspect a btree problem on the block jumping around (it's
+> a good canidate).  But unless you have messed up metadata journalling
+> btree writes are journaled.  The reason I am suspecting the btree is
+> that most source code files are small so probably don't have complete
+> filesystem blocks of their own.
 
-what's going on ?   something bad ?
-(kernel-2.4.3-12, mother intel D815EEA2, PIII933)
+Possibly. We're talking 130 kByte in total. The above is the reason why
+I don't like using reiserfs on my development system. My files get
+completely garbled, with the data randomly distributed over the files last
+touched. (Object files, dependency files, source files and header files)
+I don't mind loosing data I've just written, but I *hate* it when it
+garbles all my files.
 
-Jul 27 14:56:50 safari kernel:   Flags; bus-master 1, dirty 163181(13)
-current 163181(13)
-Jul 27 14:56:50 safari kernel:   Transmit list 00000000 vs. cf0d9540.
-Jul 27 14:56:50 safari kernel:   0: @cf0d9200  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   1: @cf0d9240  length 80000536 status
-00010536
-Jul 27 14:56:50 safari kernel:   2: @cf0d9280  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   3: @cf0d92c0  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   4: @cf0d9300  length 80000536 status
-00010536
-Jul 27 14:56:50 safari kernel:   5: @cf0d9340  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   6: @cf0d9380  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   7: @cf0d93c0  length 80000536 status
-00010536
-Jul 27 14:56:50 safari kernel:   8: @cf0d9400  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   9: @cf0d9440  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   10: @cf0d9480  length 80000536 status
-00010536
-Jul 27 14:56:50 safari kernel:   11: @cf0d94c0  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   12: @cf0d9500  length 800005ba status
-800105ba
-Jul 27 14:56:50 safari kernel:   13: @cf0d9540  length 800005ba status
-000105ba
-Jul 27 14:56:50 safari kernel:   14: @cf0d9580  length 80000084 status
-00010084
-Jul 27 14:56:50 safari kernel:   15: @cf0d95c0  length 800005ba status
-000105ba
+> If you can give me an explanation of what would cause the described
+> behavior of small files swapping their contents I would believe I
+> would feel more secure than just a reflex ``we don't garantee all of the
+> data written before power failure''.
 
+Bas Vermeulen
+
+-- 
+"God, root, what is difference?"
+	-- Pitr, User Friendly
+
+"God is more forgiving."
+	-- Dave Aronson
 

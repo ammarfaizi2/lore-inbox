@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265465AbTIDS0S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbTIDS0R
+	id S265442AbTIDSbu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265444AbTIDSbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:26:17 -0400
-Received: from smtp.terra.es ([213.4.129.129]:31471 "EHLO tsmtp2.mail.isp")
-	by vger.kernel.org with ESMTP id S265465AbTIDSZi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:25:38 -0400
-Date: Thu, 4 Sep 2003 20:23:19 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm5
-Message-Id: <20030904202319.7f9947c9.diegocg@teleline.es>
-In-Reply-To: <3F569641.9090905@cyberone.com.au>
-References: <20030902231812.03fae13f.akpm@osdl.org>
-	<20030904010852.095e7545.diegocg@teleline.es>
-	<3F569641.9090905@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 4 Sep 2003 14:31:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2528 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265442AbTIDSbs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 14:31:48 -0400
+Date: Thu, 4 Sep 2003 11:31:33 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ikconfig - resolve rebuild permissions
+Message-Id: <20030904113133.3f950a51.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 04 Sep 2003 11:32:49 +1000 Nick Piggin <piggin@cyberone.com.au> escribió:
+If ikconfig is enabled then the following annoying permission
+problem happens.
+ $ make 
+ $ su
+ #  make install
+ $ make
 
-> Hmm... what's heavy gcc load?
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/asm-i386/asm_offsets.h
+  CHK     include/linux/compile.h
+  CC      kernel/configs.o
+mv: overwrite `kernel/configs.o', overriding mode 0644? 
 
-make -j25 with 256 MB RAM.
+This patch fixes it by removing the configs.o file when
+needed.
 
-My X server is reniced at -1; but reniced X to -10 and it didn't helped;
--j15 was better (less swapping) but still I saw various mp3 & mouse skips.
+It applies against 2.6.0-test4 but is also needed even with the
+ikconfig patch already in -mm5
+
+diff -Nru a/kernel/Makefile b/kernel/Makefile
+--- a/kernel/Makefile	Thu Sep  4 10:33:49 2003
++++ b/kernel/Makefile	Thu Sep  4 10:33:49 2003
+@@ -36,5 +36,6 @@
+ 
+ $(obj)/ikconfig.h: scripts/mkconfigs .config Makefile FORCE
+ 	$(call if_changed,ikconfig)
++	@rm -f $(obj)/configs.o
+ 
+ $(obj)/configs.o: $(obj)/ikconfig.h
+

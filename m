@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130281AbQKTULT>; Mon, 20 Nov 2000 15:11:19 -0500
+	id <S130247AbQKTULw>; Mon, 20 Nov 2000 15:11:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129831AbQKTULJ>; Mon, 20 Nov 2000 15:11:09 -0500
-Received: from www23.gmx.net ([213.165.64.73]:58448 "HELO www23.gmx.net")
-	by vger.kernel.org with SMTP id <S129806AbQKTULB>;
-	Mon, 20 Nov 2000 15:11:01 -0500
-Date: Mon, 20 Nov 2000 20:40:54 +0100 (MET)
-To: linux-kernel@vger.kernel.org
-Subject: USB: Wacom Graphire mouse wheel does not work anymore
-From: karl.gustav@gmx.net
+	id <S130522AbQKTULe>; Mon, 20 Nov 2000 15:11:34 -0500
+Received: from [194.73.73.138] ([194.73.73.138]:31878 "EHLO ruthenium")
+	by vger.kernel.org with ESMTP id <S129831AbQKTULU>;
+	Mon, 20 Nov 2000 15:11:20 -0500
+Date: Mon, 20 Nov 2000 19:41:11 +0000 (GMT)
+From: davej@suse.de
+To: "Michael J. Dikkema" <mjd@moot.mb.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Abit VP6 HPT370 support?
+In-Reply-To: <Pine.LNX.4.21.0011201227001.3379-100000@sliver.moot.mb.ca>
+Message-ID: <Pine.LNX.4.21.0011201930120.2645-100000@neo.local>
 MIME-Version: 1.0
-In-Reply-To: <27565.974749174@www23.gmx.net>
-Message-ID: <30913.974749254@www23.gmx.net>
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0001826769@gmx.net
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Authenticated-IP: [194.138.37.36]
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 20 Nov 2000, Michael J. Dikkema wrote:
 
-I've a Wacom Graphire USB. I tested the test11-pre6 kernel with my
-Graphire USB. The scroll whell of the Graphire mouse does not work with
-the last test kernels. The last kernel supporting the wheel was
-test11-pre2, I
-think...
-                 
-I used the IMPS/2 compatible mouse emulation of the wacom driver
-(/dev/input/mice).
+> Does Linux 2.4pre support the raid controller on the abit vp6? The kernel
+> says it supports the 370, but it doesn't mention raid. I was confused as
+> to if there was a difference or not.
 
-Otherwise I have a general USB problem with my SMP box. Under heavy load
-the Graphire stops working and the USB is dead. Unload and reload of the
-USB modules does not help. No interrupts are registered anymore. I tested
-with usb-uhci and uhci, too. The same result.
+I have a standalone card with the HPT370 chipset doing RAID fine.
+Or at least did until one of the drives died within an hour of using it.
+This was drive failure, not the card though. Whilst it was working,
+it seemed to be working fine. :)
 
-Is it possible, that there are some interrupts eaten under high load and
-the kernel (or USB driver) does not handle this correctly? With older
-kernels
-I had promblems with APIC errors and one of the CPUs stoped working and
-some seconds or minutes later the whole system was frozen. But this
-problems
-have gone with the latest kernels. The USB problem seems to be the last
-one of
-this kind (for me).
- 
-    Karl
+> Also, OT, does anyone know if the controller is managed through hardware
+> or through software?
 
-PS: Is there an OHCI compliant PCI USB controller card available? I'm
-    using an UHCI type with a VIA chip.
-> 
-> -- 
-> Sent through GMX FreeMail - http://www.gmx.net
-> 
-> 
+The packaging / manual for this card suggests that its hardware based.
+If it isn't, it's extremely misleading.
+
+regards,
+
+Dave.
 
 -- 
-Sent through GMX FreeMail - http://www.gmx.net
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
-
--- 
-Sent through GMX FreeMail - http://www.gmx.net
-
-
--- 
-Sent through GMX FreeMail - http://www.gmx.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbUCPXTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 18:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbUCPXTY
+	id S261806AbUCPXUK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 18:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUCPXTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 18:19:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37084 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261816AbUCPXTF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 18:19:05 -0500
-Date: Tue, 16 Mar 2004 15:21:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Mason <mason@suse.com>
-Cc: daniel@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: 2.6.4-mm2
-Message-Id: <20040316152106.22053934.akpm@osdl.org>
-In-Reply-To: <1079474312.4186.927.camel@watt.suse.com>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	<1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
-	<1079474312.4186.927.camel@watt.suse.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 16 Mar 2004 18:19:32 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:49723 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261806AbUCPXTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 18:19:04 -0500
+Message-ID: <40578C04.3070202@myrealbox.com>
+Date: Tue, 16 Mar 2004 15:21:40 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Broadcom gigabit solution for Jeff.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> wrote:
->
-> On Tue, 2004-03-16 at 13:32, Daniel McNeil wrote:
-> > Andrew,
-> > 
-> > I re-ran six copies of the direct_read_under test on an 8-proc
-> > machine last night.  All six tests saw uninitialized data.
-> 
-> It is possible to trigger mpage_writepages twice at the same time,
-> right?
+Hi Jeff,
 
-Yes.
+Yes it's me again, the one-and-only guy who needs to do an ifconfig down/up
+cycle to get his Broadcom BCM5702 Gigabit Ethernet (rev 02) chip to work after
+every reboot. (ASUS A7V8X mobo)
 
->   Say once from sync_sb_inodes and once from filemap_fdatawrite? 
-> I'm assuming Daniel is hitting the same bug he reported before, a race
-> between ll_rw_block from ext3 data=ordered and sychronous writeback from
-> fsync or O_DIRECT.
+I just downloaded, compiled, and installed the current driver from Broadcom's
+website (bcm5700-7.1.22.tar.gz) and it WORKS!  On the first try...
 
-OK, that can happen.  Daniel had a fixlet for that and I assume he's
-retrying that.
+I admit this is the first time I've attempted this, so I can't say what exactly
+fixed this long-standing bug, or when it was fixed by Broadcom.
 
-Not only can it happen with ext3, but also with any random filesystem which
-does ll_rw_blk() of a random metadata block.  sync_blockdev() can miss the
-associated page.  Conceivably this could leave I/O in flight after umount.
+I'm sorry I don't have the expertise to debug this problem by myself, but I
+would be more than pleased to try any experiments you can think of in order
+to get this annoying bug fixed.
 
-I'm thinking that the right thing to do here is to change submit_bh()
-callers and ll_rw_block() to run set_page_writeback(bh->b_page) when they
-start the buffer writeout and to do the run-around-the-buffer_heads thing
-at I/O completion.  Ho hum, that'll take a bit of work but at least it
-kills off some exceptionalities.
+Can you suggest any tests or patches I could try in order to fix the current
+tg3 driver?  It's been almost a year now that I've been dealing with this
+silly bug!  Any help would be gratefully received!
+
+Thanks.
+

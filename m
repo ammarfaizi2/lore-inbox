@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUHPJWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267489AbUHPJan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267487AbUHPJWu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 05:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267489AbUHPJWu
+	id S267489AbUHPJan (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 05:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUHPJan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 05:22:50 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:6853 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S267487AbUHPJWk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 05:22:40 -0400
-Subject: [PATCH] Re: acpi shutdown problem on SMP (tyan tiger mp, athlon)
-From: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
-Reply-To: Alexander.Rauth@promotion-ie.de
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <1092376617.8529.13.camel@pro30.local.promotion-ie.de>
-References: <1092376617.8529.13.camel@pro30.local.promotion-ie.de>
-Content-Type: text/plain
-Organization: Pro/Motion Industrie-Elektronik GmbH
-Message-Id: <1092648198.8494.7.camel@pro30.local.promotion-ie.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 11:23:18 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 05:30:43 -0400
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:23696 "HELO
+	server5.heliogroup.fr") by vger.kernel.org with SMTP
+	id S267489AbUHPJal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 05:30:41 -0400
+From: Hubert Tonneau <hubert.tonneau@heliogroup.fr>
+To: linux-kernel@vger.kernel.org
+Subject: USB storage crash report in 2.6
+Date: Mon, 16 Aug 2004 09:11:48 GMT
+Message-ID: <04BQXJO12@server5.heliogroup.fr>
+X-Mailer: Pliant 92
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+When I try to copy large amount of datas (more than 100 GB) between USB
+attached disks, I get a crash with Linux 2.6
 
-This patch fixes poweroff on my Tyan Tiger S2460 - AMP 760 MP mainboard.
-I also test ist on my UP ACPI systems and none broke.
+Here are the extra details I can provide:
 
-Please verify if it breaks poweroff on other systems.
+At crash time, the machine completely freezes, so I can only report what I can
+see on the screen, mainly the stack trace report:
+scan_async
+ehci_watchlog
+ehci_work
+ehci_watchlog
+run_timer_softirq
+__do_softirq
+do_softirq
+smp_apic_timer_interrupt
+apic_timer_interrupt
+default_idle
+call_console_driver
+printk
 
-Alexander
+The machine is running a Dell sx270 (P4 hyperthreading) running Linux 2.6.8.1
 
-diff -u -r -N linux-2.6.8.1/drivers/acpi/hardware/hwsleep.c
-linux-2.6.8.1-acpifix/drivers/acpi/hardware/hwsleep.c
---- linux-2.6.8.1/drivers/acpi/hardware/hwsleep.c	2004-08-16
-09:53:05.000000000 +0200
-+++ linux-2.6.8.1-acpifix/drivers/acpi/hardware/hwsleep.c	2004-08-16
-10:00:41.257905209 +0200
-@@ -284,6 +284,11 @@
- 		if (ACPI_FAILURE (status)) {
- 			return_ACPI_STATUS (status);
- 		}
-+	} else {
-+		status = acpi_hw_clear_acpi_status (ACPI_MTX_DO_NOT_LOCK);
-+		if (ACPI_FAILURE (status)) {
-+		return_ACPI_STATUS (status);
-+		}
- 	}
- 
- 	/*
+What I do is try to copy roughly 60 GB from disk sdc to sda (EXT3 to EXT3),
+and then another 60 GB from sdc to sdb
+The crash appends after copying roughly 100 GB.
+It can be reproduced.
+I had no problem when I first copied from sda to sdc and sdb to sdc (it was
+XFS to EXT3).
 
-Am Fr, den 13.08.2004 schrieb Alexander Rauth um 7:56:
-> this problem first appeared in vanilla-2.6.2 and is still present in
-> vanilla-2.6.8-rc4 (vanilla-2.6.1 worked fine)
-> 
-> on shutdown the disks spin down, the VGA switches to powersave, but the
-> cpu-fans and the power-supply won't power down.
+I tried the following, without success:
+. downgrade to 2.6.7
+. desable kernel preempting
+. change target filesystem from EXT3 to EXT2 then to XFS
 
+What did success is downgrade to 2.4.27
+
+Anyway, I got no crash on all our various machines running 2.6.6 and 2.6.7,
+including some busy ones, unless some USB device is attached (once reading
+a deffective DVD, and this time copying between USB disks).
+
+Just in case, I also remember that I also had a server repetingly freezing
+in early 2.6, and it was related to a bad cable generating tiny error on the
+SCSI bus (MTP fusion controler) and it was properly handled by 2.4, not by 2.6
+so the problem might be related to handling tiny problems in the SCSI layer
+as well (assuming it was not an MTP fusion driver problem).
 

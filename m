@@ -1,103 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264628AbSJ3JKY>; Wed, 30 Oct 2002 04:10:24 -0500
+	id <S264629AbSJ3JUi>; Wed, 30 Oct 2002 04:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbSJ3JKY>; Wed, 30 Oct 2002 04:10:24 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:64677 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S264628AbSJ3JKX>; Wed, 30 Oct 2002 04:10:23 -0500
-Subject: RE: AIM Bench Mark results for different kernels
+	id <S264631AbSJ3JUi>; Wed, 30 Oct 2002 04:20:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7955 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264629AbSJ3JUh>;
+	Wed, 30 Oct 2002 04:20:37 -0500
+Message-ID: <3DBFA5C7.1080603@pobox.com>
+Date: Wed, 30 Oct 2002 04:26:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-96824ec1-80b0-43a8-b56b-15e98fe83bfd"
-Date: Wed, 30 Oct 2002 14:46:37 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-Message-ID: <7F396B9772328640B7593FA817EEEDAD05FF85@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: AIM Bench Mark results for different kernels
-Thread-Index: AcJ/4IkcfeihJy7dTzicE/Ee9dj1qQAE+7QQ
-From: "Pavan Kumar Reddy N.S." <pavan.kumar@wipro.com>
-To: "Andrew Morton" <akpm@digeo.com>
-Cc: <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Oct 2002 09:16:37.0856 (UTC) FILETIME=[0CD16600:01C27FF5]
+To: Miles Bader <miles@gnu.org>
+CC: andersen@codepoet.org, Dave Cinege <dcinege@psychosis.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge
+ candidate list.
+References: <200210272017.56147.landley@trommello.org>	<200210300229.44865.dcinege@psychosis.com>	<3DBF8CD5.1030306@pobox.com>	<200210300322.17933.dcinege@psychosis.com>	<20021030085149.GA7919@codepoet.org>	<buofzuogv31.fsf@mcspd15.ucom.lsi.nec.co.jp>	<3DBFA0F8.9000408@pobox.com> <buobs5cgu7o.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miles Bader wrote:
 
-This is a multi-part message in MIME format.
+>Jeff Garzik <jgarzik@pobox.com> writes:
+>  
+>
+>>>[Well, OK, actually it'd be nice to have something like initramfs + some
+>>>other sort of fetch-the-bits-directly-from-ROM FS which I could
+>>>mix-n-match; anyway initramfs has got to be better than initrd...]
+>>>      
+>>>
+>>It should be pretty easy to populate initramfs from ROM...
+>>    
+>>
+>
+>Actually what I was trying to say was that often I don't want to copy
+>from ROM to RAM, I just want to have file reads get the bits directly
+>from ROM (to avoid using, um, RAM).
+>  
+>
 
-------=_NextPartTM-000-96824ec1-80b0-43a8-b56b-15e98fe83bfd
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
+Yep, that was my assumption.
 
-Hi Andrew,
+If your ROM is directly addressable, i.e. not read over a single-bit bus 
+or anything, it should be doable.  I'm not saying that initramfs will do 
+this out of the box :) but going from initramfs to "initromfs" should 
+not be a huge leap...
 
-Thanks for your feedback.
+However, that said, things also depend on what proggies you are running 
+in your initramfs.  You may be running code that only runs at startup 
+when the kernel boots, in which case the best space utilization would be 
+to uncompress a compressed image out of ROM to RAM, use it to bootstrap, 
+and then free [unlink] all the initramfs files that are no longer needed.
 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@digeo.com]=20
-> Sent: Wednesday, October 30, 2002 12:19 PM
-> To: Pavan Kumar Reddy N.S.
-> Cc: kernelnewbies@nl.linux.org; linux-kernel@vger.kernel.org
-> Subject: Re: AIM Bench Mark results for different kernels
->=20
->=20
-> "Pavan Kumar Reddy N.S." wrote:
-> >=20
-> >=20
-> > AIM Independent Resource Benchmark - Suite IX v1.1, January=20
-> 22, 1996=20
-> > Copyright (c) 1996 - 2001 Caldera International, Inc. All Rights=20
-> > Reserved
-> >=20
-> >
->=20
-> Thanks.
->=20
-> This would be enormously less painful to read if you could=20
-> fix your mailer to not word-wrap your content.
+    Jeff
 
-I will take care of this...
 
->=20
-> All the compute-intensive workloads are down ~1% because of=20
-> the increase of HZ from 100 to 1000.
->=20
-> Things like "sequential disk reads (K)/second" would be more=20
-> interesting if they were accompanied by CPU utilisation.  But=20
-> then, CPU utilisation comparisons with 2.4 kernels are=20
-> suspect because of the HZ change.  Probably it would be more=20
-> informative if the 2.5 kernel was altered to run at HZ=3D100,=20
-> or run 2.4 at HZ-1000.
 
-I will rerun for all the kernels after changing the HZ as you
-Mentioned above. I will try to give the CPU utilization
-Information along with the above results.
 
->=20
-> 2.5.43 outperformed 2.5.42 and 2.5.44 by a *lot* in many=20
-> tests. That is unexpected.  It might be worth double-checking=20
-> that result.
->=20
-I will.
-
-------=_NextPartTM-000-96824ec1-80b0-43a8-b56b-15e98fe83bfd
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-**************************Disclaimer**************************************************    
- 
- Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
-and 'confidential' and intended for use only by the individual or entity to which it is 
-addressed. You are notified that any use, copying or dissemination of the information 
-contained in the E-MAIL in any manner whatsoever is strictly prohibited.
-
-****************************************************************************************
-
-------=_NextPartTM-000-96824ec1-80b0-43a8-b56b-15e98fe83bfd--

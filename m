@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313312AbSDYQsS>; Thu, 25 Apr 2002 12:48:18 -0400
+	id <S313628AbSDYRNh>; Thu, 25 Apr 2002 13:13:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313330AbSDYQsR>; Thu, 25 Apr 2002 12:48:17 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:4827 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313312AbSDYQsQ>;
-	Thu, 25 Apr 2002 12:48:16 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S313633AbSDYRNg>; Thu, 25 Apr 2002 13:13:36 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:58863 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S313628AbSDYRNf>; Thu, 25 Apr 2002 13:13:35 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Thu, 25 Apr 2002 11:11:43 -0600
+To: "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+Message-ID: <20020425171143.GA16982@turbolinux.com>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Andi Kleen <ak@suse.de>, Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	"David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020412.213011.45159995.taka@valinux.co.jp> <20020412143559.A25386@wotan.suse.de> <20020412222252.A25184@kushida.apsleyroad.org> <20020412.143150.74519563.davem@redhat.com> <20020413012142.A25295@kushida.apsleyroad.org> <20020413083952.A32648@wotan.suse.de> <m1662vjtil.fsf@frodo.biederman.org> <20020413213700.A17884@wotan.suse.de> <m1zo07ibi3.fsf@frodo.biederman.org> <20020424231153.GM574@matchmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15560.13127.882861.459400@napali.hpl.hp.com>
-Date: Thu, 25 Apr 2002 09:48:07 -0700
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.9-dj1, move choice selection in arch/ia64/config.in.
-In-Reply-To: <1019751391.2540.26.camel@spc9.esa.lanl.gov>
-X-Mailer: VM 7.03 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 25 Apr 2002 10:16:31 -0600, Steven Cole <elenstev@mesatop.com> said:
+On Apr 24, 2002  16:11 -0700, Mike Fedyk wrote:
+> Actually, with ext3 the only mode IIRC is data=journal that will keep this
+> from happening.  In ordered or writeback mode there is a window where the
+> pages will be zeroed in memory, but not on disk.  
+> 
+> Admittedly, the time window is largest in writeback mode, smaller in ordered
+> and smallest (non-existant?) in data journaling mode.
 
-  Steven> This patch moves the choice selection for Physical memory
-  Steven> granularity from the "Kernel hacking" section to the
-  Steven> "Processor type and features" section right after the
-  Steven> choices for IA-64 processor type, IA-64 system type, and
-  Steven> Kernel page size.  This seems to be a less obscure place for
-  Steven> this option.
+One thing you are forgetting is that with data=ordered mode, the inode
+itself is not updated until the data has been written to the disk.  So
+technically you are correct - with ordered mode there is a window where
+pages are updated in memory but not on disk, but if you crash during
+that window the inode size will be the old size so you will still not be
+able to access the un-zero'd data on disk.
 
-Please don't move around stuff that you may not understand.  This
-option is *meant* to be in an obscure place, because, frankly, it's an
-obscure thing that most folks never have to worry about.  It's only
-needed for certain, very rare, machines and it's only a temporary
-thing.
+It is only with data=writeback that this could be a problem, because
+there is no ordering between updating the inode and writing the data
+to disk.  That's why there is only a real benefit to using
+data=writeback for applications like databases and such where the file
+size doesn't change and you are writing into the middle of the file.
+In many cases, data=ordered is actually faster than data=writeback.
 
-Thanks,
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-	--david

@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264961AbVBFF31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272140AbVBFFaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbVBFF31 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 00:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272106AbVBFF30
+	id S272140AbVBFFaY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 00:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbVBFFaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 00:29:26 -0500
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:49784 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264961AbVBFF3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 00:29:22 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.de>
-Subject: Re: [RFC/RFT] Better handling of bad xfers/interrupt delays in psmouse
-Date: Sun, 6 Feb 2005 00:29:20 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       zhilla <zhilla@spymac.com>, Victor Hahn <victorhahn@web.de>
-References: <200502051448.57492.dtor_core@ameritech.net> <20050205211136.GB8451@ucw.cz>
-In-Reply-To: <20050205211136.GB8451@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 6 Feb 2005 00:30:24 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:18190 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S272426AbVBFFaI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 00:30:08 -0500
+Date: Sun, 06 Feb 2005 14:31:07 +0900 (JST)
+Message-Id: <20050206.143107.39728239.yoshfuji@linux-ipv6.org>
+To: davem@davemloft.net
+Cc: herbert@gondor.apana.org.au, mirko.parthey@informatik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20050205210411.7e18b8e6.davem@davemloft.net>
+References: <20050205201044.1b95f4e8.davem@davemloft.net>
+	<20050206.133723.124822665.yoshfuji@linux-ipv6.org>
+	<20050205210411.7e18b8e6.davem@davemloft.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502060029.21068.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 February 2005 16:11, Vojtech Pavlik wrote:
-> On Sat, Feb 05, 2005 at 02:48:56PM -0500, Dmitry Torokhov wrote:
-> > Hi,
-> > 
-> > The patch below attempts to better handle situation when psmouse interrupt
-> > is delayed for more than 0.5 sec by requesting a resend. This will allow
-> > properly synchronize with the beginning of the packet as mouse is supposed
-> > to resend entire package.
+In article <20050205210411.7e18b8e6.davem@davemloft.net> (at Sat, 5 Feb 2005 21:04:11 -0800), "David S. Miller" <davem@davemloft.net> says:
+
+> On Sun, 06 Feb 2005 13:37:23 +0900 (JST)
+> YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> wrote:
 > 
-> Have you actually tested the mouse is really sending the whole packet?
-> I'd suspect it could just resend the last byte. :I Maybe using the
+> > How about making dst->ops->dev_check() like this:
+> > 
+> > static int inline dst_dev_check(struct dst_entry *dst, struct net_device *dev)
+> > {
+> > 	if (dst->ops->dev_check)
+> > 		return dst->ops->dev_check(dst, dev)
+> > 	else
+> > 		return dst->dev == dev;
+> > }
+> 
+> Oh I see.  That would work, and it seems the simplest, and
+> lowest risk fix for this problem.
 
-Well, I did test and my touchpad behaved properly. But then I tried 2 external
-mice and they are both sending ACK (and they should not) and then the last byte
-only. So I guess we'll have to scrap using 0xfe idea...
+Well...
 
-> GET_PACKET command would be more useful in this case.
->
+Here, lo is going down.
+rt->rt6i_dev = lo and rt->rt6i_idev = ethX.
+I think we already see dst->dev == dev (==lo)  now.
+So, I doubt that fix the problem.
 
-Are you talking about 0xeb? We could also try sending "set stream" mode as a
-sync marker...
+The source of problem is entry (*) which still on routing entry,
+not on gc list. And, the owner of entry is not routing table but
+unicast/anycast address structure(s).
+We need to "kill" active address on the other interfaces.
 
--- 
-Dmitry
+*: rt->rt6i_dev = lo and rt->rt6i_idev = ethX
+
+
+BTW, I wish we could shut down eth0 during lo is pending...
+
+--yoshfuji
+
+

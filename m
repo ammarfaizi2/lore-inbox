@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285449AbRLSUGa>; Wed, 19 Dec 2001 15:06:30 -0500
+	id <S285448AbRLSUMK>; Wed, 19 Dec 2001 15:12:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285438AbRLSUGZ>; Wed, 19 Dec 2001 15:06:25 -0500
-Received: from dsl-213-023-043-155.arcor-ip.net ([213.23.43.155]:25356 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S285440AbRLSUGP>;
-	Wed, 19 Dec 2001 15:06:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: aio
-Date: Wed, 19 Dec 2001 21:09:17 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org,
-        Suparna Bhattacharya <suparna@in.ibm.com>
-In-Reply-To: <E16Gjuw-0000UT-00@starship.berlin> <Pine.LNX.4.33.0112190859050.1872-100000@penguin.transmeta.com> <20011219135708.A12608@devserv.devel.redhat.com>
-In-Reply-To: <20011219135708.A12608@devserv.devel.redhat.com>
+	id <S285450AbRLSUMA>; Wed, 19 Dec 2001 15:12:00 -0500
+Received: from fepD.post.tele.dk ([195.41.46.149]:16374 "EHLO
+	fepD.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S285448AbRLSUL5>; Wed, 19 Dec 2001 15:11:57 -0500
+Message-ID: <001f01c18911$b2cfd9a0$0b00a8c0@runner>
+From: "Rune Petersen" <rune.mail-list@mail.tele.dk>
+To: "Eli" <eli@pflash.com>, <linux-kernel@vger.kernel.org>
+Cc: <eli@pflash.com>, <arjanv@redhat.com>
+In-Reply-To: <E16Glz1-0005mt-00@pintail.mail.pas.earthlink.net>
+Subject: Re: 2.4.x WinBookXL mouse & keyboard freeze (and on Uniwill 340S2)
+Date: Wed, 19 Dec 2001 20:49:24 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Gn1i-0000V0-00@starship.berlin>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 19, 2001 07:57 pm, Ben LaHaise wrote:
-> On Wed, Dec 19, 2001 at 09:01:59AM -0800, Linus Torvalds wrote:
-> > 
-> > On Wed, 19 Dec 2001, Daniel Phillips wrote:
-> > >
-> > > It's AIO we're talking about, right?  AIO is interesting to quite a few
-> > > people.  I'd read the thread.  I'd also read any background material 
-> > > that Ben would be so kind as to supply.
-> > 
-> > Case closed.
-> > 
-> > Dan didn't even _know_ of the patches.
-> 
-> He doesn't read l-k apparently.
+I have the same Problem on My Uniwill 340S2, it uses a Synaptics touchpad
+and I can unlock it by pressing the power-key.
 
-Dan Kegel put it succinctly:
+There were some drivers (kernelpatch + config-utility) for the Synaptics
+touch pad, but it havent been updated for some time:
+http://compass.com/synaptics/
 
-   http://marc.theaimsgroup.com/?l=linux-aio&m=100879005201064&w=2
+you might want to take a look.
 
-Your original patch is here, and I do remember the post at the time:
+Rune Petersen
+----- Original Message -----
+From: Eli <eli@pflash.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <eli@pflash.com>; <arjanv@redhat.com>
+Sent: Wednesday, December 19, 2001 10:54 AM
+Subject: Re: 2.4.x WinBookXL mouse & keyboard freeze
 
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=98114243104171&w=2
 
-This post provides *zero* context.  Ever since, I've been expecting to see 
-some explanation of what the goals are, what the design principles are, what 
-the historical context is, etc. etc., and that hasn't happened.
+> On Wednesday 19 December 2001 12:33 pm, Eli wrote:
+> > When running any 2.4.x kernel, if gpm is running, touching the mouse
+ends
+> > all keyboard input.  Starting X without touching the mouse does the same
+> > thing. The mouse in this case is the built-in trackpad thing common in
+> > notebooks. 2.2.x works just fine.
+> >
+> > I don't know quite where to start on this... I've tried changing gpm
+> > configuration, but that doesn't seem to help.
+> > (I'm running RedHat 7.2.)
+> >
+> > Any ideas on where I should start looking?
+>
+> Ok, I found discussion of this bug here:
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=37812
+>
+> I'll start playing with some of the ideas listed, but I don't see a good
+> conclusion on it.  What kind of a fix would be accepted into the mainline?
+>
+> TIA,
+>
+> Eli
+> ---------------.
+> Eli Carter      \
+> eli(a)pflash.com `-------------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-I've got a fairly recent version of the patch too, it's a little too long to 
-just sit down and read, to reverse-engineer the above information.  What's 
-missing here is some kind of writeup like Suparna did for Jens' bio patch 
-(hint, hint).  There's no reason why every single person who might be 
-interested should have to take the time to reverse-engineer the patch without 
-context.
 
-As Linus points out, the active discussion hasn't happened yet.
-
---
-Daniel

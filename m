@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271018AbRHOFSB>; Wed, 15 Aug 2001 01:18:01 -0400
+	id <S270640AbRHOFdW>; Wed, 15 Aug 2001 01:33:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271027AbRHOFRv>; Wed, 15 Aug 2001 01:17:51 -0400
-Received: from d127.as16.nwbl1.wi.voyager.net ([169.207.90.129]:37893 "EHLO
-	udcnet.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S271018AbRHOFRk>; Wed, 15 Aug 2001 01:17:40 -0400
-Date: Wed, 15 Aug 2001 00:17:50 -0500 (CDT)
-From: root <root@udcnet.dyn.dhs.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Pegasus driver fails to initialize when not a module
-Message-ID: <Pine.LNX.4.30.0108142347420.16594-100000@udcnet.dyn.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271027AbRHOFdM>; Wed, 15 Aug 2001 01:33:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52489 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270640AbRHOFdB>; Wed, 15 Aug 2001 01:33:01 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Tue, 14 Aug 2001 22:32:16 -0700
+Message-Id: <200108150532.f7F5WGq01653@penguin.transmeta.com>
+To: mag@fbab.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8 Resource leaks + limits
+Newsgroups: linux.dev.kernel
+In-Reply-To: <3ce801c12548$b7971750$020a0a0a@totalmef>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chipsets: VIA KT133, VIA MVP4
-Adapter: DLink DSB-650 (pegasus version, NOT the klsi one).
-Drivers Used: usb-uhci -or- uhci, pegasus
-Kernel Versions: 2.4.3, 2.4.6, 2.4.8, 2.4.8-ac2 (at least as far as I've tested).
+In article <3ce801c12548$b7971750$020a0a0a@totalmef> you write:
+>
+>Question: why isn't there a limit for global memory usage per user?
 
-Problem:
-I've got a DLink DSB-650 USB net adapter based on the pegasus chipset. It
-works fine when the driver is compiled as a module, but when the driver is
-linked into the kernel, it fails to detect the adapter. The USB layer
-initializes ok, and my USB keyboard and mouse are detected (although
-doing this on a system with a PS/2 or AT kb/mouse changes nothing), but
-the NIC is not, even though the pegasus driver prints out  it's loading
-string and copyright message.
+Answer: because traditionally Linux (or UNIX) hasn't had a good and
+efficient way to have per-user statistics. 
 
---ex--
-pegasus.c: v0.4.19 2001/06/07 (C) 1999-2001:ADMtek AN986 Pegasus USB
-Ethernet driver
-usb.c: registered new driver pegasus
---ex--
+This is why you mainly find per-process stuff in all the limits. 
 
-After this, the kernel loads the net drivers, and (in my case) horks
-because there is no eth0 to autoconfigure and mount a nfsroot filesystem
-from.
+Linux has had (for a while now) a "struct user" that is actually quickly
+accessible through a direct pointer off every process that is associated
+with that user, and we could (and _will_) start adding these kinds of
+limits. However, part of the problem is that because the limits haven't
+historically existed, there is also no accepted and nice way of setting
+the limits.
 
-However, on the same system with the same BIOS settings, and the only
-change being that pagasus.c is compiled as a module (and not into the
-kernel) it works perfectly, and I can use the USB adapter without trouble.
+Oh, well.
 
- This happens under either UHCI driver, and regardless of what USB options
-are set. With debug on, I get a 'set_configuration_failed()' message from
-pegasus under 'normal' uhci, and no notable error message under uhci-je.
-
-My best guess is that either (a) something's wrong with the driver that
-makes it not work when linked in, or (b) the driver is working, but is
-dong it's initialization in the background, and is not
-finishing in time to have eth0 ready for autoconfig/nfsroot (i.e. eth0
-would appear some time after 'init' kicked off.
-
-Any suggestions?
-
-- Dave Acklam
-  dackl@post.com
-
-P.S. Yes, I read the lkml faq, the kernel docs, the source for
-pegasus.c/pegasus.h, et al... Please don't shoot the first-time poster...
-
-If you need the kernel config, I'll be happy to e-mail it to you
-
+		Linus

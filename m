@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277547AbRJKACq>; Wed, 10 Oct 2001 20:02:46 -0400
+	id <S277550AbRJKAEg>; Wed, 10 Oct 2001 20:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277541AbRJKACg>; Wed, 10 Oct 2001 20:02:36 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:22525 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S277547AbRJKACb>; Wed, 10 Oct 2001 20:02:31 -0400
-Date: Wed, 10 Oct 2001 17:00:25 -0700
-From: Chris Wright <chris@wirex.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.11 min() in tcp.c
-Message-ID: <20011010170025.G21401@figure1.int.wirex.com>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011010164430.B19995@figure1.int.wirex.com> <20011010.165659.74564935.davem@redhat.com>
-Mime-Version: 1.0
+	id <S277549AbRJKAE0>; Wed, 10 Oct 2001 20:04:26 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:18582 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S277541AbRJKAEX>;
+	Wed, 10 Oct 2001 20:04:23 -0400
+Message-ID: <3BC50BDD.6AA9642E@us.ibm.com>
+Date: Wed, 10 Oct 2001 17:02:53 -1000
+From: Mingming cao <cmm@us.ibm.com>
+Organization: Linux Technology Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, Al Viro <viro@math.psu.edu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
+In-Reply-To: <Pine.GSO.4.21.0110101743140.21168-100000@weyl.math.psu.edu> <3BC4EFFC.42ACE59E@us.ibm.com> <200110102317.f9ANHjN03120@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011010.165659.74564935.davem@redhat.com>; from davem@redhat.com on Wed, Oct 10, 2001 at 04:56:59PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David S. Miller (davem@redhat.com) wrote:
+Linus Torvalds wrote:
 > 
-> Applied, but with a cleanup, please never do this:
->    
->    -		min(
->    +		min_t (
+> In article <3BC4EFFC.42ACE59E@us.ibm.com>,
+> Mingming cao  <cmm@us.ibm.com> wrote:
+> >
+> >I thought about the case when rmdir() on the cwd of other processes,
+> >but, as you said, that is implementation dependent. However rmdir() on
+> >"." does returns EBUSY error.
+> 
+> That's a completely different thing, though - even though the difference
+> is rather subtle.
+> 
+> You can remove pretty much any empty directory (if the filesystem
+> permits it - some don't). HOWEVER, you can not use "." as the final
+> component of your pathname.
+> 
+> It has nothing to do with home directory: you can try just doing
+> 
+>         mkdir /tmp/hello
+>         rmdir /tmp/hello/.
+> 
+> and you'll get the same error (and it _should_ return EINVAL, not EBUSY.
+> EBUSY is for the "this filesystem doesn't allow you to remove a
+> directory that is in use" case).
+> 
+>                         Linus
 
-yes, my mistake. thanks.
--chris
+I misunderstanded the rule.  Thanks for clarifying!
+
+-- 
+Mingming Cao

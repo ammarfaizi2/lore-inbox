@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbTJTPll (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 11:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbTJTPll
+	id S262673AbTJTPsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 11:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbTJTPsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 11:41:41 -0400
-Received: from math.ut.ee ([193.40.5.125]:37275 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262676AbTJTPlj (ORCPT
+	Mon, 20 Oct 2003 11:48:16 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:9676 "EHLO mail.ku-gbr.de")
+	by vger.kernel.org with ESMTP id S262709AbTJTPsP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 11:41:39 -0400
-Date: Mon, 20 Oct 2003 18:41:30 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
-In-Reply-To: <20031020153020.GA6062@ip68-0-152-218.tc.ph.cox.net>
-Message-ID: <Pine.GSO.4.44.0310201835490.1336-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Oct 2003 11:48:15 -0400
+Date: Mon, 20 Oct 2003 17:48:13 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: Eric Valette <eric.valette@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Uncorrectable Error on IDE, significant accumulation
+Message-ID: <20031020154813.GC815@synertronixx3>
+Reply-To: konsti@ludenkalle.de
+References: <3F93EBFA.4040003@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F93EBFA.4040003@free.fr>
+X-PGP-Key: http://www.ludenkalle.de/konsti/pubkey.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Just curious, what bridge is in this machine (an output of lspci would
-> do fine, too).  Thanks.
+On Mon, Oct 20, 2003 at 04:06:50PM +0200, Eric Valette wrote:
+> I have killed at least 10 disks myself and most of the time, electrical 
+> problems were at the root cause (+ some series of known to be defective 
+> WD)...
 
-00:0b.0 ISA bridge: Symphony Labs W83C553 (rev 10)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
+Which electrical Problems? When mounting them (ESD) or afterwards?
 
-00:0b.1 IDE interface: Symphony Labs SL82c105 (rev 05) (prog-if 8f [Master SecP SecO PriP PriO])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 (500ns min, 10000ns max), Cache Line Size: 0x08 (32 bytes)
-	Interrupt: pin A routed to IRQ 0
-	Region 0: I/O ports at 01f0 [size=8]
-	Region 1: I/O ports at 03f4 [size=4]
-	Region 2: I/O ports at 0170 [size=8]
-	Region 3: I/O ports at 0374 [size=4]
-	Region 4: I/O ports at 1480 [size=16]
-	Region 5: I/O ports at 1490 [size=16]
+I see, it was a good Idea to ask here, I head to the shop so I can trust
+the machine afterward and we will know more in a year...
 
-00:0c.0 SCSI storage controller: LSI Logic / Symbios Logic 53c825 (rev 13)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 (4250ns min, 16000ns max)
-	Interrupt: pin A routed to IRQ 15
-	Region 0: I/O ports at 1000 [size=256]
-	Region 1: Memory at c2008000 (32-bit, non-prefetchable) [size=256]
-	Region 2: Memory at c2009000 (32-bit, non-prefetchable) [size=4K]
-
-00:0e.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 (5000ns min, 10000ns max), Cache Line Size: 0x08 (32 bytes)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at 1400 [size=128]
-	Region 1: Memory at c200a000 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at c1040000 [disabled] [size=256K]
-
-00:12.0 VGA compatible controller: Cirrus Logic GD 5446 (prog-if 00 [VGA])
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 15
-	Region 0: Memory at c1000000 (32-bit, prefetchable) [disabled] [size=16M]
-	Expansion ROM at c2000000 [disabled] [size=32K]
-
+Konsti
 
 -- 
-Meelis Roos (mroos@linux.ee)
-
+2.6.0-test1-mm2
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 1:31, 7 users

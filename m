@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267396AbTA1PoC>; Tue, 28 Jan 2003 10:44:02 -0500
+	id <S267368AbTA1PmY>; Tue, 28 Jan 2003 10:42:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbTA1PoB>; Tue, 28 Jan 2003 10:44:01 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:3250 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S267396AbTA1Pn7>; Tue, 28 Jan 2003 10:43:59 -0500
-Date: Tue, 28 Jan 2003 16:53:12 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [BUG] in drivers/char/joystick/magellan.c
-Message-ID: <20030128155312.GD10685@wohnheim.fh-wedel.de>
+	id <S267370AbTA1PmY>; Tue, 28 Jan 2003 10:42:24 -0500
+Received: from [213.86.99.237] ([213.86.99.237]:32254 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267368AbTA1PmX>; Tue, 28 Jan 2003 10:42:23 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20030127221523.GP20972@ca-server1.us.oracle.com> 
+References: <20030127221523.GP20972@ca-server1.us.oracle.com>  <20030127175917.GO20972@ca-server1.us.oracle.com> <Pine.LNX.4.44.0301271208580.18686-100000@chaos.physics.uiowa.edu> 
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Christian Zander <zander@minion.de>,
+       Mark Fasheh <mark.fasheh@oracle.com>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: no version magic, tainting kernel. 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 28 Jan 2003 15:43:57 +0000
+Message-ID: <20656.1043768637@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Without the patch below, the \0 terminating the string is written
-anywhere. nibbles[] would be even better, I guess.
-Can you check for stupidity on my side?
+Joel.Becker@oracle.com said:
+> 	If my distribution has installed /usr/src/linux-x.y, I can't compile
+> against it.  Even though the 200MB of a kernel tree is already taking
+> up space on my system, I have to download *another* 30MB and install
+> it as *another* 200MB and build it to an eventual *another* 260MB of
+> kernel tree.  So, for every kernel I want to support, I have to have
+> 260MB of built tree.  And that's just for my userid.  Anyone else on
+> the box has to have their own n_kernels * 260MB of space waste.
 
-Jörn
+Er, if vermagic.o needed to change, then your module build was broken
+already and wouldn't have worked against the precompiled kernel. That's 
+what vermagic.o is there for. You shouldn't need write permissions to the 
+kernel source tree. Neither do you need _all_ of the kernel source; 
+just the headers and appropriate bits of infrastructure.
 
--- 
-But this is not to say that the main benefit of Linux and other GPL
-software is lower-cost. Control is the main benefit--cost is secondary.
--- Bruce Perens
+--
+dwmw2
 
-diff -Naur linux-2.4.21-pre3-ac4/drivers/char/joystick/magellan.c scratch/drivers/char/joystick/magellan.c
---- linux-2.4.21-pre3-ac4/drivers/char/joystick/magellan.c	Thu Sep 13 00:34:06 2001
-+++ scratch/drivers/char/joystick/magellan.c	Mon Jan 27 13:49:54 2003
-@@ -66,7 +66,7 @@
- 
- static int magellan_crunch_nibbles(unsigned char *data, int count)
- {
--	static unsigned char nibbles[16] = "0AB3D56GH9:K<MN?";
-+	static unsigned char nibbles[17] = "0AB3D56GH9:K<MN?";
- 
- 	do {
- 		if (data[count] == nibbles[data[count] & 0xf])
+

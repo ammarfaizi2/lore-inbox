@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266048AbSKBSlM>; Sat, 2 Nov 2002 13:41:12 -0500
+	id <S266047AbSKBSka>; Sat, 2 Nov 2002 13:40:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266049AbSKBSlM>; Sat, 2 Nov 2002 13:41:12 -0500
-Received: from holomorphy.com ([66.224.33.161]:34443 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266048AbSKBSlG>;
-	Sat, 2 Nov 2002 13:41:06 -0500
-Date: Sat, 2 Nov 2002 10:46:12 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: akpm@zip.com.au, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Hot/cold allocation -- swsusp can not handle hot pages
-Message-ID: <20021102184612.GI23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Pavel Machek <pavel@ucw.cz>, akpm@zip.com.au,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20021102181900.GA140@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021102181900.GA140@elf.ucw.cz>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S266048AbSKBSka>; Sat, 2 Nov 2002 13:40:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31251 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266047AbSKBSk3>; Sat, 2 Nov 2002 13:40:29 -0500
+Date: Sat, 2 Nov 2002 10:47:07 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>, <davej@suse.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <20021102070607.GB16100@think.thunk.org>
+Message-ID: <Pine.LNX.4.44.0211021025420.2413-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 07:19:00PM +0100, Pavel Machek wrote:
-> Swsusp counts free pages, and relies on fact that when it allocates
-> page there's one free page less. That is no longer true with hot
-> pages.
-> I attempted to work it around but it seems I am getting hot pages even
-> when I ask for cold one. This seems to fix it. Does it looks like
-> "possibly mergable" patch?
-> --- clean/mm/page_alloc.c	2002-11-01 00:37:44.000000000 +0100
-> +++ linux-swsusp/mm/page_alloc.c	2002-11-01 22:53:47.000000000 +0100
-> @@ -361,7 +361,7 @@
->  	unsigned long flags;
->  	struct page *page = NULL;
->  
-> -	if (order == 0) {
-> +	if ((order == 0) && !cold) {
->  		struct per_cpu_pages *pcp;
->  
->  		pcp = &zone->pageset[get_cpu()].pcp[cold];
+
+On Sat, 2 Nov 2002, Theodore Ts'o wrote:
 > 
+> HOWEVER, if we're going to do it, Olaf's patches is really not the way
+> to do it.  If we're going to do it at all, the right way to do it is
+> via extended attributes.  Using a sparse file to store capabilities
+> indexed by inode numbers is a bad idea; it will break if the user uses
+> resize2fs on an ext2/3 filesystem, for example.
 
-This doesn't seem to be doing what you want, even if it seems to work.
-If you want there to be one free page less, then allocating it will
-work regardless. What are you looking for besides that? If it's not
-already working you want some additional semantics. Could this involve
-is_head_of_free_region()? That should be solvable with a per-cpu list
-shootdown algorithm to fully merge all the buddy bitmap things.
+Clearly inode numbers are a bad way to handle it, but I don't think inode
+attributes are that great either. I would personally prefer directory
+entry attributes, so that the same file can show up with different
+behaviour in different places.
 
+I think it was a mistake to have permissions be part of the inode in the
+first place, but that's UNIX for you. A direntry-based approach is _so_ 
+much more flexible, and doesn't really have any downsides. 
 
-Bill
+(Having attributes in the direntry also makes it possible to much more
+efficiently scan directories for types of files without having to look up
+the inode information).
+
+We can't fix the UNIX permission issue, but if we _do_ make FS
+capabilities available, I will personally cast a strong vote for not
+hiding the information in the inode.
+
+There are two fairly trivial ways to do it:
+
+ - put the actual data in the directory entry itself. This is efficient, 
+   but not very easily extensible, since most directory structures have 
+   serious size limitations.
+
+ - Make a new file type, and put just that information in the directory
+   (so that it shows up in d_type on a readdir()).  Put the real data in
+   the file, ie make it largely look like an "extended symlink".
+
+The latter approach is probably a bit too reminiscent of a Windows
+"shortcut" aka LNK file to some people, but hey, maybe it's a good idea.
+
+		Linus
+

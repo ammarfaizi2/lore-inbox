@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263589AbTAEIRY>; Sun, 5 Jan 2003 03:17:24 -0500
+	id <S263760AbTAEIUR>; Sun, 5 Jan 2003 03:20:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbTAEIRY>; Sun, 5 Jan 2003 03:17:24 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36617
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S263589AbTAEIRY>; Sun, 5 Jan 2003 03:17:24 -0500
-Date: Sun, 5 Jan 2003 00:25:00 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Shawn Starr <spstarr@sh0n.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Binary drivers and GPL
-In-Reply-To: <200301050301.28227.spstarr@sh0n.net>
-Message-ID: <Pine.LNX.4.10.10301050016050.421-100000@master.linux-ide.org>
+	id <S263794AbTAEIUR>; Sun, 5 Jan 2003 03:20:17 -0500
+Received: from d40.sstar.com ([209.205.179.40]:23551 "EHLO scud.asjohnson.com")
+	by vger.kernel.org with ESMTP id <S263760AbTAEIUQ>;
+	Sun, 5 Jan 2003 03:20:16 -0500
+Message-ID: <3E17ECC7.7090203@asjohnson.com>
+Date: Sun, 05 Jan 2003 02:28:55 -0600
+From: "Andrew S. Johnson" <andy@asjohnson.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021209
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE-SCSI grabs too many drives
+References: <fa.ft06krv.t2sv1p@ifi.uio.no> <fa.g96qm0v.1q1m9id@ifi.uio.no>
+In-Reply-To: <fa.g96qm0v.1q1m9id@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+J.A. Magallon wrote:
+> On 2003.01.04 Andrew S. Johnson wrote:
+> 
+>>I have append="hdc=ide-scsi" in my lilo.conf file,
+>>but when I modprobe ide-scsi, it grabs both the
+>>CD-RW and the DVD-ROM:
+>>
+> 
+> 
+> I think the correct param is "hdc=scsi", with incorrect param and no
+> ide-cd loaded, probably ide-scsi grabs anything it can...
+> 
 
-Shawn,
+Actually, I guessed on my own, and this solves it:
 
-You can go download the IETF iSCSI working document.
-You and anyone less can go write a driver to replace me.
-I already stated, I will use another platform, like NetBSD if forced.
-This is not hardware unless I decide to use a CAM card, then the wrapper
-around the object in question becomes the GPL driver.
+append="hdc=ide-scsi hdd=ide-cd" in lilo.conf
 
-I originally asked you offline as not to add more noise, while I am
-waiting to see what my peers who are the copyright holders have to say
-about the issue.
+In rc.modules:
 
-Are you a copyright holder in the kernel today?
-If so, I can tell you will object on the LGPL issue and deny.
-Where is the files so I can evaluate my position now.
+/sbin/modprobe ide-scsi
+/sbin/modprobe ide-cd
 
-Regards,
+Gives this in dmesg:
 
-Andre Hedrick
-LAD Storage Consulting Group
+SCSI subsystem driver Revision: 1.00
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+   Vendor: HP        Model: CD-Writer+ 9100   Rev: 1.0c
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+hdd: ATAPI 40X DVD-ROM drive, 256kB Cache, UDMA(33)
+
+I don't actually know if the hdd=ide-cd does anything for the ide-cd
+module, other than keep the ide-scsi module from grabbing it. 
+Conversely, the ide-cd module only grabs hdd even when the ide-scsi
+module is not loaded (making hdc free).  So it appears to do something.
+
+As it turns out, the latest version of cdrtools (2.0) supports ATAPI 
+drives directly.  I tested this by burning an ISO, reading it back, and 
+comparing the md5sums.  So the whole ide-scsi exersice looks to be
+academic at this point.
+
+Have fun,
+
+Andy Johnson
 

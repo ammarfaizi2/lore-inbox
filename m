@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUITHTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUITHrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266127AbUITHTs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 03:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUITHTs
+	id S266128AbUITHrO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 03:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbUITHrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 03:19:48 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:64440 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S266127AbUITHTr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 03:19:47 -0400
-Date: Mon, 20 Sep 2004 09:17:43 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andy Lutomirski <luto@myrealbox.com>, Hans-Frieder Vogt <hfvogt@arcor.de>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot (FIX included)
-Message-ID: <20040920071743.GA7115@electric-eye.fr.zoreil.com>
-References: <200409130035.50823.hfvogt@arcor.de> <20040916070211.GA32592@electric-eye.fr.zoreil.com> <200409161320.16526.jdmason@us.ltcfwd.linux.ibm.com> <200409171043.21772.jdmason@us.ltcfwd.linux.ibm.com> <20040917160151.GA29337@electric-eye.fr.zoreil.com> <414DF773.7060402@myrealbox.com> <20040919213952.GA32570@electric-eye.fr.zoreil.com> <414E46F1.9050309@pobox.com>
+	Mon, 20 Sep 2004 03:47:14 -0400
+Received: from peter.smtp.cz ([81.95.97.120]:60066 "EHLO out.smtp.cz")
+	by vger.kernel.org with ESMTP id S266128AbUITHrM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 03:47:12 -0400
+Subject: Re: Minor IPSec bug + solution
+From: Martin Bouzek <martin.bouzek@radas-atc.cz>
+Reply-To: martin.bouzek@radas-atc.cz
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, davem@davemloft.net,
+       netdev@oss.sgi.com
+In-Reply-To: <20040917102720.GA14579@gondor.apana.org.au>
+References: <E1C83f1-0002X7-00@gondolin.me.apana.org.au>
+	 <1095413173.2708.106.camel@mabouzek>
+	 <20040917102720.GA14579@gondor.apana.org.au>
+Content-Type: text/plain
+Organization: Radas, s.r.o.
+Message-Id: <1095666589.2723.8.camel@mabouzek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <414E46F1.9050309@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 20 Sep 2004 09:49:49 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> :
-[...]
-> That sounds like a bug right there...  need all the addresses set up 
-> before we turn on stuff.
+On Fri, 2004-09-17 at 12:27, Herbert Xu wrote:
+> On Fri, Sep 17, 2004 at 11:26:13AM +0200, Martin Bouzek wrote:
+> >
+> > > > function. For tunnels it returns 
+> > > > 
+> > > > tmpl->optional && !xfrm_state_addr_cmp(tmpl, x, family);
+> > 
+> > Well, I am not expierienced with the networking kernel code,
+> > nevertheless I still think the check is not correct. 
+> 
+> If you change the && to ||, then an ESP tunnel SA marked as required
+> can be matched by a simple IPIP SA with the same addresses.
 
-The description of the CPlusCmd in the 8169 datasheet includes a small note
-which suggests that this register should be set up early.
+Ok. And would it be possible to check the protocols too (eg.
+tmpl->id.proto == x->id.proto)? If it is realy not possible to make the
+IPComp/required tunnel to work, it would be nice to mention it in for
+example the setkey man page. It could save quite lot of time to some
+people. (like me :-) ).
 
-It does not cost much to try and see if it makes a difference for DAC though.
-
---
-Ueimor

@@ -1,103 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVCXB4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVCXCBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262977AbVCXB4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 20:56:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbVCXB4Q
+	id S261330AbVCXCBT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 21:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVCXCBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 20:56:16 -0500
-Received: from mail.renesas.com ([202.234.163.13]:10164 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262977AbVCXBzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 20:55:25 -0500
-Date: Thu, 24 Mar 2005 10:55:20 +0900 (JST)
-Message-Id: <20050324.105520.35010222.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ysato@users.sourceforge.jp,
-       takata@linux-m32r.org
-Subject: [PATCH 2.6.12-rc1] m32r: Update MMU-less support (2/3) 
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20050324.104815.304093279.takata.hirokazu@renesas.com>
-References: <20050324.104815.304093279.takata.hirokazu@renesas.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+	Wed, 23 Mar 2005 21:01:19 -0500
+Received: from fire.osdl.org ([65.172.181.4]:28062 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261330AbVCXCBK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 21:01:10 -0500
+Date: Wed, 23 Mar 2005 18:00:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mbligh@aracnet.com, aebr@win.tue.nl, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
+Message-Id: <20050323180031.209c988f.akpm@osdl.org>
+In-Reply-To: <20050324014948.GE14202@opteron.random>
+References: <20050316003134.GY7699@opteron.random>
+	<20050316040435.39533675.akpm@osdl.org>
+	<20050316183701.GB21597@opteron.random>
+	<1111607584.5786.55.camel@localhost.localdomain>
+	<20050323144953.288a5baf.akpm@osdl.org>
+	<17250000.1111619602@flay>
+	<20050323152055.6fc8c198.akpm@osdl.org>
+	<20050323232656.GA5704@pclin040.win.tue.nl>
+	<25760000.1111620606@flay>
+	<20050323154232.376f977f.akpm@osdl.org>
+	<20050324014948.GE14202@opteron.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is for updating m32r's MMU-less support.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Wed, Mar 23, 2005 at 03:42:32PM -0800, Andrew Morton wrote:
+> > I'm suspecting here that we simply leaked a refcount on every darn
+> > pagecache page in the machine.  Note how mapped memory has shrunk down to
+> > less than a megabyte and everything which can be swapped out has been
+> > swapped out.
+> > 
+> > If so, then oom-killing everything in the world is pretty inevitable.
+> 
+> Agreed, it looks like a memleak of a page_count (while mapcount is fine).
+> 
+> I would suggest looking after pages part of pagecache (i.e.
+> page->mapcount not null) that have a mapcount of 0 and a page_count > 1,
+> almost all of them should be like that during the memleak, and almost
+> none should be like that before the memleak.
+> 
+> This seems unrelated to the bug that started the thread that was clearly
+> a slab shrinking issue and not a pagecache memleak.
+> 
 
-	* arch/m32r/boot/compressed/m32r_sio.c:
-	- Fix serial output routine
+The vmscan.c changes in -rc1 look harmless enough.  That's assuming that
+2.6.11 doesn't have the bug.
 
-	* include/asm-m32r/mmu.h:
-	- Update mm_context_t definition
+btw, that new orphanned-page handling code has a printk in it, and nobody
+has reported it coming out yet...
 
-Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
-
- arch/m32r/boot/compressed/m32r_sio.c |    7 ++++++-
- include/asm-m32r/mmu.h               |   18 ++----------------
- 2 files changed, 8 insertions(+), 17 deletions(-)
-
-
-diff -ruNp a/arch/m32r/boot/compressed/m32r_sio.c b/arch/m32r/boot/compressed/m32r_sio.c
---- a/arch/m32r/boot/compressed/m32r_sio.c	2004-12-25 06:34:58.000000000 +0900
-+++ b/arch/m32r/boot/compressed/m32r_sio.c	2005-03-23 20:28:24.846369405 +0900
-@@ -46,9 +46,14 @@ static void putc(char c)
- 	}
- 	*BOOT_SIO0TXB = c;
- }
--#else
-+#else /* defined(CONFIG_PLAT_M32700UT_Alpha) || defined(CONFIG_PLAT_M32700UT) */
-+#ifdef CONFIG_MMU
- #define SIO0STS	(volatile unsigned short *)(0xa0efd000 + 14)
- #define SIO0TXB	(volatile unsigned short *)(0xa0efd000 + 30)
-+#else
-+#define SIO0STS	(volatile unsigned short *)(0x00efd000 + 14)
-+#define SIO0TXB	(volatile unsigned short *)(0x00efd000 + 30)
-+#endif
- 
- static void putc(char c)
- {
-diff -ruNp a/include/asm-m32r/mmu.h b/include/asm-m32r/mmu.h
---- a/include/asm-m32r/mmu.h	2004-12-25 06:34:44.000000000 +0900
-+++ b/include/asm-m32r/mmu.h	2005-03-23 20:26:57.473769245 +0900
-@@ -1,25 +1,12 @@
- #ifndef _ASM_M32R_MMU_H
- #define _ASM_M32R_MMU_H
- 
--/* $Id$ */
--
- #include <linux/config.h>
- 
- #if !defined(CONFIG_MMU)
--struct mm_rblock_struct {
--  int     size;
--  int     refcount;
--  void    *kblock;
--};
--
--struct mm_tblock_struct {
--  struct mm_rblock_struct *rblock;
--  struct mm_tblock_struct *next;
--};
--
- typedef struct {
--  struct mm_tblock_struct tblock;
--  unsigned long           end_brk;
-+	struct vm_list_struct	*vmlist;
-+	unsigned long		end_brk;
- } mm_context_t;
- #else
- 
-@@ -32,4 +19,3 @@ typedef unsigned long mm_context_t[NR_CP
- 
- #endif  /* CONFIG_MMU */
- #endif  /* _ASM_M32R_MMU_H */
--
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/

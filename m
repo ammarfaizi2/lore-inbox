@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbTB1Dxx>; Thu, 27 Feb 2003 22:53:53 -0500
+	id <S267456AbTB1EJv>; Thu, 27 Feb 2003 23:09:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267456AbTB1Dxx>; Thu, 27 Feb 2003 22:53:53 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:10125 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267449AbTB1Dxw>; Thu, 27 Feb 2003 22:53:52 -0500
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: miquels@cistron-office.nl, linux-kernel@vger.kernel.org
-Subject: Re: Patch: 2.5.62 devfs shrink
-References: <200302280314.TAA11682@baldur.yggdrasil.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 28 Feb 2003 13:03:16 +0900
-In-Reply-To: <200302280314.TAA11682@baldur.yggdrasil.com>
-Message-ID: <buou1ep8323.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267457AbTB1EJv>; Thu, 27 Feb 2003 23:09:51 -0500
+Received: from [213.140.2.50] ([213.140.2.50]:31728 "EHLO
+	mailres.fastwebnet.it") by vger.kernel.org with ESMTP
+	id <S267456AbTB1EJv>; Thu, 27 Feb 2003 23:09:51 -0500
+Subject: master needed... for a CardBUS card
+From: alx <alexs81@libero.it>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 Feb 2003 05:20:05 +0100
+Message-Id: <1046406005.26603.72.camel@galileo.homenet.lan>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
-> For example, should the directory names be singular or plural
-> (/dev/loop or /dev/loops, /dev/disk or /dev/disks)?  I would recommend
-> signular because it is less English-centric.
+Hi all
+	I'm new in kernel programming so I'm asking for someone who can drive
+me (not to code instead of me, just suggest the right direction).
+I'm gonna writing a module for a PCMCIA card that has the TI acx100 chip
+It is a WiFi Ethernet card and there is no datasheet for it.
 
-I think singular is also far more common in existing [unix] practice.
+TIA
+Alx
 
--Miles
 -- 
-`Cars give people wonderful freedom and increase their opportunities.
- But they also destroy the environment, to an extent so drastic that
- they kill all social life' (from _A Pattern Language_)
+int a=10000,b,c=2800,d,e,f[2801],g;main(){for(;b-c;) f[b++]=a/5;
+for(;d=0,g=c*2;c-=14,printf("%.4d",e+d/a),e=d%a)for(b=c;d+=f[b]*a,
+f[b]=d%--g,d/=g--,--b;d*=b);}
+

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284263AbRLXASe>; Sun, 23 Dec 2001 19:18:34 -0500
+	id <S284283AbRLXA0Y>; Sun, 23 Dec 2001 19:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284272AbRLXASY>; Sun, 23 Dec 2001 19:18:24 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:5644 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284263AbRLXASO>; Sun, 23 Dec 2001 19:18:14 -0500
-Message-ID: <3C2673B3.78E21527@zip.com.au>
-Date: Sun, 23 Dec 2001 16:15:47 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: How to fix false positives on references to discarded text/data?
-In-Reply-To: <Pine.LNX.4.33.0112232255500.1676-100000@vaio> <Pine.LNX.4.33.0112232343180.1676-100000@vaio>
+	id <S284282AbRLXA0Q>; Sun, 23 Dec 2001 19:26:16 -0500
+Received: from hq2.fsmlabs.com ([209.155.42.199]:37393 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S284272AbRLXA0G>;
+	Sun, 23 Dec 2001 19:26:06 -0500
+Date: Sun, 23 Dec 2001 17:19:15 -0700
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: george anzinger <george@mvista.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
+Message-ID: <20011223171915.B19931@hq2>
+In-Reply-To: <3C22654D.7FC80713@mvista.com> <Pine.LNX.4.40.0112201432120.1622-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0112201432120.1622-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.23i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
+On Thu, Dec 20, 2001 at 02:36:07PM -0800, Davide Libenzi wrote:
+> > My understanding of the POSIX standard is the the highest priority
+> > task(s) are to get the cpu(s) using the standard calls.  If you want to
+> > deviate from this I think the standard allows extensions, but they IMHO
+> > should be requested, not the default, so I would turn your flag around
+> > to force LOCAL, not GLOBAL.
 > 
->         asm volatile(LOCK "subl $1,(%0)\n\t" \
->                      "js 2f\n" \
->                      "1:\n" \
-> -                    ".section .text.lock,\"ax\"\n" \
-> +                    ".subsection 1\n" \
->                      "2:\tcall " helper "\n\t" \
->                      "jmp 1b\n" \
->                      ".previous" \
+> So, you're basically saying that for a better standard compliancy it's
+> better to have global preemption policy by default. And having users to
+> request rt tasks localization explicitly. It's fine for me.
 
-Don't we want `.subsection 0' here, rather than .previous?
+Can you please cite the passaaages in the standrd you have in mind?
 
-Apart from that, it looks like a winner.
-
--
+> 
+> 
+> 
+> 
+> - Davide
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

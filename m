@@ -1,64 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265210AbUF1VFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUF1VL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265210AbUF1VFu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 17:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUF1VFu
+	id S265218AbUF1VL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 17:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUF1VL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 17:05:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:222 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265210AbUF1VFR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 17:05:17 -0400
-Date: Mon, 28 Jun 2004 14:03:43 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: scott@timesys.com, zaitcev@redhat.com, greg@kroah.com, arjanv@redhat.com,
-       jgarzik@redhat.com, tburke@redhat.com, linux-kernel@vger.kernel.org,
-       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
-       david-b@pacbell.net
-Subject: Re: drivers/block/ub.c
-Message-Id: <20040628140343.572a0944.davem@redhat.com>
-In-Reply-To: <200406282257.11026.oliver@neukum.org>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan>
-	<20040628141517.GA4311@yoda.timesys>
-	<20040628132531.036281b0.davem@redhat.com>
-	<200406282257.11026.oliver@neukum.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 28 Jun 2004 17:11:29 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:45745 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265212AbUF1VLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 17:11:20 -0400
+Subject: PATCH] dma_get_required_mask()
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 28 Jun 2004 16:10:43 -0500
+Message-Id: <1088457050.2004.40.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jun 2004 22:57:11 +0200
-Oliver Neukum <oliver@neukum.org> wrote:
+This patch implements dma_get_required_mask() which may be used by
+drivers to probe the optimal DMA descriptor type they should be
+implementing on the platform.
 
-> Am Montag, 28. Juni 2004 22:25 schrieb David S. Miller:
-> > That's true.  But if one were to propose such a feature to the gcc
-> > guys, I know the first question they would ask.  "If no padding of
-> > the structure is needed, why are you specifying this new
-> > __nopadding__ attribute?"
-> 
-> It would replace some uses of __packed__, where the first element
-> is aligned.
+I've also tested it this time with the sym_2 driver...making it chose
+the correct descriptors for the platform.  (although I don't have a 64
+bit platform with >4GB memory, so I only confirmed it selects the 32 bit
+descriptors all the time...)
 
-You have not considered what is supposed to happen when this
-structure is embedded within another one.  What kind of alignment
-rules apply in that case?  For example:
+It should be ready for inclusion.
 
-struct foo {
-	u32	x;
-	u8	y;
-	u16	z;
-} __attribute__((__packed__));
+James
 
-struct bar {
-	u8		a;
-	struct foo 	b;
-};
+===== Documentation/DMA-API.txt 1.7 vs edited =====
+--- 1.7/Documentation/DMA-API.txt	2004-03-23 12:12:38 -06:00
++++ edited/Documentation/DMA-API.txt	2004-06-28 10:12:19 -05:00
+@@ -162,6 +162,20 @@
+ 
+ Returns: 1 if successful and 0 if not
+ 
++u64
++dma_get_required_mask(struct device *dev)
++
++After setting the mask with dma_set_mask(), this API returns the
++actual mask (within that already set) that the platform actually
++requires to operate efficiently.  Usually this means the returned mask
++is the minimum required to cover all of memory.  Examining the
++required mask gives drivers with variable descriptor sizes the
++opportunity to use smaller descriptors as necessary.
++
++Requesting the required mask does not alter the current mask.  If you
++wish to take advantage of it, you should issue another dma_set_mask()
++call to lower the mask again.
++
+ 
+ Part Id - Streaming DMA mappings
+ --------------------------------
+===== include/linux/dma-mapping.h 1.3 vs edited =====
+--- 1.3/include/linux/dma-mapping.h	2004-03-30 19:53:54 -06:00
++++ edited/include/linux/dma-mapping.h	2004-06-28 10:07:55 -05:00
+@@ -19,6 +19,29 @@
+ #define dma_sync_single		dma_sync_single_for_cpu
+ #define dma_sync_sg		dma_sync_sg_for_cpu
+ 
++#ifndef ARCH_HAS_DMA_GET_REQUIRED_MASK
++static inline u64 dma_get_required_mask(struct device *dev)
++{
++	extern unsigned long max_pfn; /* defined in bootmem.h but may
++					 not be included */
++	u32 low_totalram = ((max_pfn - 1) << PAGE_SHIFT);
++	u32 high_totalram = ((max_pfn - 1) >> (32 - PAGE_SHIFT));
++	u64 mask;
++
++	if (!high_totalram) {
++		/* convert to mask just covering totalram */
++		low_totalram = (1 << (fls(low_totalram) - 1));
++		low_totalram += low_totalram - 1;
++		mask = low_totalram;
++	} else {
++		high_totalram = (1 << (fls(high_totalram) - 1));
++		high_totalram += high_totalram - 1;
++		mask = (((u64)high_totalram) << 32) + 0xffffffff;
++	}
++	return mask & *dev->dma_mask;
++}
++#endif
++		
+ #endif
+ 
 
-That is why __packed__ can't assume the alignment of any structure
-instance whatsoever.  Your __nopadding__ attribute proposal would
-lay out struct bar differently in order to meet the alignment guarentees
-you say it will be able to meet.
+===== mm/bootmem.c 1.26 vs edited =====
+--- 1.26/mm/bootmem.c	2004-06-27 02:19:26 -05:00
++++ edited/mm/bootmem.c	2004-06-28 11:12:00 -05:00
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
+ #include <linux/mmzone.h>
++#include <linux/module.h>
+ #include <asm/dma.h>
+ #include <asm/io.h>
+ 
+@@ -26,6 +27,10 @@
+ unsigned long max_low_pfn;
+ unsigned long min_low_pfn;
+ unsigned long max_pfn;
++
++EXPORT_SYMBOL(max_pfn);		/* This is exported so
++				 * dma_get_required_mask(), which uses
++				 * it, can be an inline function */
+ 
+ /* return the number of _pages_ that will be allocated for the boot bitmap */
+ unsigned long __init bootmem_bootmap_pages (unsigned long pages)
+

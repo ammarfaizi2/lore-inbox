@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVAZXSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVAZXUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVAZXSP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbVAZXR4
+	id S262502AbVAZXUb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:20:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbVAZXTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:17:56 -0500
-Received: from rev.193.226.232.37.euroweb.hu ([193.226.232.37]:12960 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262322AbVAZRpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 12:45:39 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] FUSE - better error reporting in fuse_fill_super
-Message-Id: <E1CtrEN-0000QQ-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 26 Jan 2005 18:45:27 +0100
+	Wed, 26 Jan 2005 18:19:52 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:21431 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262458AbVAZSB6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 13:01:58 -0500
+Subject: Re: [RFC][PATCH 0/5] consolidate i386 NUMA init code
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+In-Reply-To: <15640000.1106750236@flay>
+References: <1106698985.6093.39.camel@localhost>  <15640000.1106750236@flay>
+Content-Type: text/plain
+Date: Wed, 26 Jan 2005 10:01:49 -0800
+Message-Id: <1106762509.6093.67.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Wed, 2005-01-26 at 06:37 -0800, Martin J. Bligh wrote:
+> > The following five patches reorganize and consolidate some of the i386
+> > NUMA/discontigmem code.  They grew out of some observations as we
+> > produced the memory hotplug patches.
+> > 
+> > Only the first one is really necessary, as it makes the implementation
+> > of one of the hotplug components much simpler and smaller.  2 and 3 came
+> > from just looking at the effects on the code after 1.
+> > 
+> > 4 and 5 aren't absolutely required for hotplug either, but do allow
+> > sharing a bunch of code between the normal boot-time init and hotplug
+> > cases.  
+> > 
+> > These are all on top of 2.6.11-rc2-mm1.
+> 
+> Looks reasonable. How much testing have they had, on what platforms?
 
-This patch makes fuse_fill_super() return correct error value in case
-of OOM.
+Built on all the i386 configs here:
+http://sr71.net/patches/2.6.11/2.6.11-rc1-mm1-mhp1/configs/
 
-Please apply.
+Booted on x440 (summit and generic), numaq, 4-way PIII.  I would imagine
+that any problem would manifest as the system simply not booting.  The
+most likely to fail would be systems with DISCONTIG enabled, because
+that's where the greatest amount of churn happened.  The normal !
+DISCONTIG case still uses most of the same code.
 
-Thanks,
-Miklos
+Anyway, I think they're probably ready for a run in -mm, with the "if
+the machines don't boot check these first" flag set.  Although, I'd
+appreciate any other testing that anyone wants to throw at them.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+-- Dave
 
-diff -rup linux-2.6.11-rc2-mm1/fs/fuse/inode.c linux-fuse/fs/fuse/inode.c
---- linux-2.6.11-rc2-mm1/fs/fuse/inode.c	2005-01-26 18:30:47.000000000 +0100
-+++ linux-fuse/fs/fuse/inode.c	2005-01-26 18:18:58.000000000 +0100
-@@ -407,14 +407,14 @@ static struct fuse_conn *get_conn(struct
- 	struct fuse_conn *fc;
- 
- 	if (file->f_op != &fuse_dev_operations)
--		return NULL;
-+		return ERR_PTR(-EINVAL);
- 	fc = new_conn();
- 	if (fc == NULL)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 	spin_lock(&fuse_lock);
- 	if (file->private_data) {
- 		free_conn(fc);
--		fc = NULL;
-+		fc = ERR_PTR(-EINVAL);
- 	} else {
- 		file->private_data = fc;
- 		fc->sb = sb;
-@@ -525,8 +525,8 @@ static int fuse_fill_super(struct super_
- 
- 	fc = get_conn(file, sb);
- 	fput(file);
--	if (fc == NULL)
--		return -EINVAL;
-+	if (IS_ERR(fc))
-+		return PTR_ERR(fc);
- 
- 	fc->flags = d.flags;
- 	fc->user_id = d.user_id;

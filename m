@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129663AbRCCSxh>; Sat, 3 Mar 2001 13:53:37 -0500
+	id <S129667AbRCCSzH>; Sat, 3 Mar 2001 13:55:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129664AbRCCSxR>; Sat, 3 Mar 2001 13:53:17 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:54217 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129663AbRCCSxG>;
-	Sat, 3 Mar 2001 13:53:06 -0500
-Message-ID: <3AA13D8F.404DC635@mandrakesoft.com>
-Date: Sat, 03 Mar 2001 13:53:03 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch] 2.4.2 Advantech WDT driver
-In-Reply-To: <E14ZCEl-0001xd-00@mm.amelek.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129666AbRCCSy5>; Sat, 3 Mar 2001 13:54:57 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:46813 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129664AbRCCSyx>; Sat, 3 Mar 2001 13:54:53 -0500
+Message-Id: <200103031945.f23JjSQ22763@513.holly-springs.nc.us>
+Subject: Re: Q: How to get physical memory size from user space without proc
+	fs
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Denis Perchine <dyp@perchine.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10103031332480.11778-100000@mx.webmailstation.com>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8/+cvs.2001.02.14.08.55 - Preview Release)
+Date: 03 Mar 2001 14:55:54 -0500
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marek Michalkiewicz wrote:
+pyhsmem = `free | grep Mem | tr -s "/ / /" | cut -f2 -d" "`
+
+
+On 03 Mar 2001 13:37:42 -0500, Denis Perchine wrote:
+> Hello,
 > 
-> > Why is lock_kernel necessary?
+> actually the question is in subj.
+> Problem is that there is a program which needs to know physical memory
+> size. This information is used to justify memory consumption as after some
+> swapping performance is drops dramatically, and it is better to finish.
 > 
-> Well, it is there in 2.4.2 acquirewdt.c (which this driver is based on -
-> really only minimal changes, the hardware is only slightly different).
-> I can remove it if you tell me it's really not necessary.
-
-Sounds like it got caught in an audit and is necessary, I didn't look
-closely...
-
-
-> > > +       spin_lock_init(&advwdt_lock);
-> > > +       misc_register(&advwdt_miscdev);
-> >
-> > check return code for error
+> I know that this is not the best idea, but it is assumed that this program
+> is the only one running on the machine.
 > 
-> Again, acquirewdt.c doesn't do it with the misc_register, request_region
-> and register_reboot_notifier calls.  (Should it?  Cc: Alan Cox)
+> I do not want to use proc as some people can just do not mount it.
+> 
+> Any comments, suggestions?
+> 
+> Thanks in advance.
+> 
+> Denis Perchine.
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Yes, the return codes should be checked.  :)
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie

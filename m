@@ -1,67 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282018AbRKVCqA>; Wed, 21 Nov 2001 21:46:00 -0500
+	id <S282019AbRKVCra>; Wed, 21 Nov 2001 21:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282019AbRKVCpo>; Wed, 21 Nov 2001 21:45:44 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:9600 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S282018AbRKVCpV>; Wed, 21 Nov 2001 21:45:21 -0500
-Message-ID: <004001c172ff$8de8b670$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "Arnaldo Carvalho de Melo" <acme@conectiva.com.br>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <000d01c172fc$cde53440$f5976dcf@nwfs> <20011122003428.B2216@conectiva.com.br>
-Subject: Re: [PATCH] NetWare File System NWFS 2.4.15-pre8 Kernel Patch
-Date: Wed, 21 Nov 2001 19:44:06 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282020AbRKVCrU>; Wed, 21 Nov 2001 21:47:20 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:11784 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S282019AbRKVCrE>;
+	Wed, 21 Nov 2001 21:47:04 -0500
+Date: Thu, 22 Nov 2001 00:46:09 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 not supported by kernel !!!!!
+Message-ID: <20011122004609.C2216@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Miguel Maria Godinho de Matos <Astinus@netcabo.pt>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <EXCH01SMTP01eaCYPct00001063@smtp.netcabo.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EXCH01SMTP01eaCYPct00001063@smtp.netcabo.pt>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Wed, Nov 21, 2001 at 11:07:31PM +0000, Miguel Maria Godinho de Matos escreveu:
+> fs ext3 not supported by kernel
 
------ Original Message -----
-From: "Arnaldo Carvalho de Melo" <acme@conectiva.com.br>
-To: "Jeff Merkey" <jmerkey@timpanogas.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, November 21, 2001 7:34 PM
-Subject: Re: [PATCH] NetWare File System NWFS 2.4.15-pre8 Kernel Patch
+First: 2.4.14 doesn't have ext3 integrated. Ok, but the kernel should
+fallback to ext2, it seems you didn't selected ext2...
 
-
-> Em Wed, Nov 21, 2001 at 07:24:25PM -0700, Jeff Merkey escreveu:
-> >
-> > A Kernel patch that integrate the NetWare File System (NWFS) into the
-> > 2.4.15-pre8 kernel has been posted at
-> > ftp.timpanogas.org:/nwfs/nwfs-2.4.15-pre8-1.bz2 and
-> > ftp.utah-nac.org:/nwfs/nwfs-2.4.15-pre8-1.bz2
-> >
-> > This patch includes support for the 3Ware RAID Adapter and Linux
-Software
-> > RAID.
->
-> Why don't you release three separate patches? One for NWFS, another for
-the
-> 3Ware controle and another for the Soft RAID? And please send it to the
-> respective maintainers. I'm assuming that the two later patches are not
-> related to NWFS, if not, please apologize.
->
-
-This patch allows NWFS volumes to work with the 3Ware RAID Adapter and the
-Linux
-Software Raid.  It does not affect either the 3Ware or Linux RAID code, it
-just allows my file system to use these features.
-
-Jeff
-
-> - Arnaldo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+- Arnaldo

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264361AbRF2Ssy>; Fri, 29 Jun 2001 14:48:54 -0400
+	id <S266156AbRF2TMH>; Fri, 29 Jun 2001 15:12:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266154AbRF2Sso>; Fri, 29 Jun 2001 14:48:44 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:25033 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S266153AbRF2Ssi>; Fri, 29 Jun 2001 14:48:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
+	id <S266157AbRF2TL4>; Fri, 29 Jun 2001 15:11:56 -0400
+Received: from [38.160.241.130] ([38.160.241.130]:53214 "EHLO
+	xover.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S266156AbRF2TLr>; Fri, 29 Jun 2001 15:11:47 -0400
+Message-ID: <87009604743AD411B1F600508BA0F95994C8DF@XOVER.dedham.mindspeed.com>
+From: "Clayton, Mark" <mark.clayton@netplane.com>
 To: linux-kernel@vger.kernel.org
-Subject: cs46xx and 2.4.6-pre6
-Date: Fri, 29 Jun 2001 14:48:27 -0400
-X-Mailer: KMail [version 1.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: RE: The latest Microsoft FUD. This time from BillG, himself.
+Date: Fri, 29 Jun 2001 15:11:37 -0400
 MIME-Version: 1.0
-Message-Id: <01062914482700.03759@oscar>
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> -----Original Message-----
+> From: Paul Fulghum [mailto:paulkf@microgate.com]
+> Sent: Friday, June 29, 2001 4:02 PM
+> To: Pavel Machek; landley@webofficenow.com; Schilling, Richard;
+> hps@intermeta.de; Henning P. Schmiedehausen;
+> linux-kernel@vger.kernel.org
+> Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
+> 
+> 
+> > Is this accurate? I never knew NT was mach-based. I do not think NT
+> > 1-3 were actually ever shipped, first was NT 3.5 right?
+> > Pavel
+> 
+> NT 3.1 was the 1st to ship.
+> 
 
-Suspect the 
+I still have my 3.1 package all boxed up in the basement.  I remember
+impatiently waiting for its arrival.  What a disappointment it turned
+out to be.
 
-#define CS46XX_APCI_SUPPORT 1
-
-found in cs46xxpm-24.h is bogus.  With it defined I can conflicts between it an cs46xx.c
-with cs46xx_suspend_tlb and cs46xx_resume_tbl
-
-Removed the #define and the module built.
-
-Ed Tomlinson
+Mark
 

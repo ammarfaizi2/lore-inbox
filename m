@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131300AbRCNE3c>; Tue, 13 Mar 2001 23:29:32 -0500
+	id <S131296AbRCNEfM>; Tue, 13 Mar 2001 23:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131304AbRCNE3X>; Tue, 13 Mar 2001 23:29:23 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:7675 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S131292AbRCNE3J>; Tue, 13 Mar 2001 23:29:09 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103140427.f2E4R9C06455@webber.adilger.int>
-Subject: Re: (struct dentry *)->vfsmnt;
-In-Reply-To: <Pine.GSO.4.21.0103132130220.2506-100000@weyl.math.psu.edu> from
- Alexander Viro at "Mar 13, 2001 09:32:38 pm"
-To: Alexander Viro <viro@math.psu.edu>
-Date: Tue, 13 Mar 2001 21:27:09 -0700 (MST)
-CC: Andreas Dilger <adilger@turbolinux.com>, LA Walsh <law@sgi.com>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S131297AbRCNEfD>; Tue, 13 Mar 2001 23:35:03 -0500
+Received: from web1306.mail.yahoo.com ([128.11.23.156]:18692 "HELO
+	web1306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131296AbRCNEet>; Tue, 13 Mar 2001 23:34:49 -0500
+Message-ID: <20010314043408.24239.qmail@web1306.mail.yahoo.com>
+Date: Tue, 13 Mar 2001 20:34:08 -0800 (PST)
+From: Mark Swanson <swansma@yahoo.com>
+Subject: 2.4.2-ac20 build fails with some pcmcia option
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You write:
-> > What about if I want to know the mountpoint (inside the filesystem)
-> > when it is mounted?
-> 
-> Which mountpoint? There can be a lot of them (quite possibly - some
-> of them out of the chroot jail you are in, so "any" is unlikely to
-> do you any good).
+Hello,
 
-How about the first one?  The one that calls the "read_super" method.
-AFAICT, only the first mount calls down to the FS anyways (the rest
-is VFS internal).
+make bzImage gives this:
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+ld: cannot open drivers/net/pcmcia/pcmcia_net.o: No such file or
+directory
+
+with the following .config:
+
+#
+# PCMCIA network device support
+#
+# CONFIG_NET_PCMCIA is not set
+CONFIG_PCMCIA_NETCARD=y  
+
+I'm not sure how the 'CONFIG_PCMCIA_NETCARD=y' got set as my `make
+config` only shows:
+
+*
+* PCMCIA network device support
+*
+PCMCIA network device support (CONFIG_NET_PCMCIA) [N/y/?] 
+
+Hmm, I did a `make config` again and just presed 'enter' on all of the
+lines and the CONFIG_PCMCIA_NETCARD=y was no longer in my .config -
+though it still is in my .config.old.
+
+It's late, maybe it was me - but I don't believe so...
+(I do notice that CONFIG_NET_PCMCIA is in arch/i386/defconfig. Perhaps
+it should not be)
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - Buy the things you want at great prices.
+http://auctions.yahoo.com/

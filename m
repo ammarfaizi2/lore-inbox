@@ -1,36 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbTFIQKu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 12:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbTFIQKt
+	id S264531AbTFIQ30 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 12:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTFIQ3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 12:10:49 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:405 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264500AbTFIQKo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 12:10:44 -0400
-Message-ID: <3EE4B543.3020104@pacbell.net>
-Date: Mon, 09 Jun 2003 09:26:43 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en, fr
+	Mon, 9 Jun 2003 12:29:25 -0400
+Received: from smtp.wp.pl ([212.77.101.161]:3767 "EHLO smtp.wp.pl")
+	by vger.kernel.org with ESMTP id S264531AbTFIQ3X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 12:29:23 -0400
+Message-ID: <000c01c32ea6$b3c88e60$010110ac@uran238>
+From: "MarKol" <markol4@wp.pl>
+To: <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKMEOBDHAA.davids@webmaster.com>
+Subject: Re: select for UNIX sockets?
+Date: Mon, 9 Jun 2003 18:46:40 +0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, david+cert@blue-labs.org
-Subject: Re: USB burps with irq XX: nobody cared. (2.5.70)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
+X-WP-ChangeAV: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like a stream of IRQs getting delivered before
-the chip was initialized ... interrupts that shouldn't
-have been arriving.  Do you have funky BIOS settings?
+Hi
 
-Does this happen if you don't use ACPI?  I've had
-reports of folk using NForce2 boards that needed
-to use "acpi=off", since ACPI didn't initialize
-the interrupts correctly.  Yours seems to be at
-least partially correct.
+----- Original Message -----
+From: "David Schwartz" <davids@webmaster.com>
+> Suppose, for example, a machine has two network interfaces. One is
+very
+> busy, queue full, and one is totally idle, queue empty. What do you
+think
+> 'select' for write on an unconnected UDP socket should do?
 
-- Dave
+There is an internal buffer for this UDP socket. Select() should depend
+on it's state.
+I heard that SO_SNDLOWAT i SO_RCVLOWAT might be useful in this approach,
+but it is not implemented in Linux.
+
+Moreover my example uses AF_UNIX socket and AFAIK this should be
+reliable communication.
+I don't know why are you taking about network interfaces in this
+context?
+
+This quotation is taken from man select:
+"
+       Three independent sets of descriptors are watched.   Those
+       listed  in  readfds  will  be watched to see if characters
+       become available for reading (more precisely, to see if  a
+       read  will not block - in particular, a file descriptor is
+       also ready on end-of-file),  those  in  writefds  will  be
+       watched  to  see  if  a write will not block, and those in
+       exceptfds will be watched for exceptions."
+
+and this from man socket:
+"       Socket creates an endpoint for communication and returns a
+       descriptor. "
+
+I'm aware of the fact that my english is rather poor, but I see that
+socket returns a descriptor, and select is watching descriptors and
+returns descriptors ready for writing if a write operation will not
+block.
+
+I would agree with you if my program wouldn't work on Solaris or QNX.
+But it works on both and it looks consistent with man!
+
+Regards
+--
+Marek Kolacz
 

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261616AbRE1XNt>; Mon, 28 May 2001 19:13:49 -0400
+	id <S261666AbRE1XPt>; Mon, 28 May 2001 19:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261666AbRE1XNj>; Mon, 28 May 2001 19:13:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37897 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261616AbRE1XNd>;
-	Mon, 28 May 2001 19:13:33 -0400
-Date: Tue, 29 May 2001 00:12:56 +0100
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S261692AbRE1XPj>; Mon, 28 May 2001 19:15:39 -0400
+Received: from yoda.planetinternet.be ([195.95.30.146]:13066 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S261666AbRE1XP2>; Mon, 28 May 2001 19:15:28 -0400
+Date: Tue, 29 May 2001 01:15:22 +0200
+From: Kurt Roeckx <Q@ping.be>
 To: Vadim Lebedev <vlebedev@aplio.fr>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Potenitial security hole in the kernel
-Message-ID: <20010529001256.F9203@flint.arm.linux.org.uk>
-In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP>
+Message-ID: <20010529011522.A3293@ping.be>
+In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP> <20010529002900.A3190@ping.be> <009601c0e7c5$bd7021f0$0101a8c0@LAP>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <003601c0e7bf$41953080$0101a8c0@LAP>; from vlebedev@aplio.fr on Mon, May 28, 2001 at 11:43:38PM +0200
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <009601c0e7c5$bd7021f0$0101a8c0@LAP>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 28, 2001 at 11:43:38PM +0200, Vadim Lebedev wrote:
-> Please correct me if i'm wrong but it seems to me that i've stumbled on
-> really BIG security hole in the signal handling code.
+On Tue, May 29, 2001 at 12:30:03AM +0200, Vadim Lebedev wrote:
+> Kurt,
+> 
+> Maybe i'm missing something but it seems that during execution of the signal
+> handler, user mode stack contains kernel mode context...
+> Hence the security hole
 
-I don't think there's problem, unless I'm missing something.
+It's rather complicated how things work.
 
-> The problem IMO is that the signal handling code stores a processor context
-> on the user-mode stack frame which is active while
-> the signal handler is running.
+Both the user and kernel stack are changed.
 
-User context (defined by 'regs') is stored onto the user stack.
-However, when context is restored, certain checks are done, including
-making sure that the segment registers cs and ss are their user mode
-versions (or'd with 3), and the processor flags are non-privileged.
+On the user stack we add a frame from the calling function.  This
+just looks a function call.
 
-This means that when the kernel does eventually return to user space,
-if the user has pointed the EIP address at panic(), by the time we
-jump there the processor will not be in a privileged mode, and panic()
-won't do anything (you'll probably end up with a page fault caused by
-the processor fetching instructions from kernel space).
+On the kernel stack we change the last frame so we "return" to
+the signal handler from the kernel.
 
-However, that said, I don't know x86 in depth (I'm the ARM guy), so
-don't take this as gospel, but should be sufficient to point you in
-the right direction.  (check the segment registers, check the eflags
-register, hell, try it out for real and see what happens)!
+The signal handler then "returns" to the place where the process
+did the system call.  You do not return to the kernel.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I hope this helps you understand things better.
+
+
+Kurt
 

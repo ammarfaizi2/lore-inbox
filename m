@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUAFCYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 21:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265293AbUAFCYd
+	id S265265AbUAFC3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 21:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbUAFC3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 21:24:33 -0500
-Received: from [209.195.52.120] ([209.195.52.120]:33496 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S265290AbUAFCYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 21:24:30 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Ed Tomlinson <edt@aei.ca>
-Cc: Samium Gromoff <deepfire@sic-elvis.zel.ru>, linux-kernel@vger.kernel.org
-Date: Mon, 5 Jan 2004 18:23:54 -0800 (PST)
-Subject: Re: 2.6.0 performance problems
-In-Reply-To: <200401051009.46293.edt@aei.ca>
-Message-ID: <Pine.LNX.4.58.0401051821460.11842@dlang.diginsite.com>
-References: <87brpq7ct3.wl@canopus.ns.zel.ru> <200312300855.00741.edt@aei.ca>
- <87smiud180.wl@canopus.ns.zel.ru> <200401051009.46293.edt@aei.ca>
+	Mon, 5 Jan 2004 21:29:32 -0500
+Received: from smtp7.hy.skanova.net ([195.67.199.140]:56820 "EHLO
+	smtp7.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S265265AbUAFC3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 21:29:30 -0500
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Tim Connors <tconnors+linuxkernel1073186591@astro.swin.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>
+	<200401041242.47410.kernel@kolivas.org>
+	<slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>
+	<200401041658.57796.kernel@kolivas.org> <m2ptdxq3vf.fsf@telia.com>
+	<3FFA1149.5030009@cyberone.com.au>
+From: Peter Osterlund <petero2@telia.com>
+Date: 06 Jan 2004 03:28:47 +0100
+In-Reply-To: <3FFA1149.5030009@cyberone.com.au>
+Message-ID: <m2ekudq080.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jan 2004, Ed Tomlinson wrote:
+Nick Piggin <piggin@cyberone.com.au> writes:
 
->
-> On January 05, 2004 07:33 am, Samium Gromoff wrote:
-> > At Tue, 30 Dec 2003 08:55:00 -0500,
-> >
-> > Ed Tomlinson wrote:
-> > > On December 30, 2003 06:41 am, Samium Gromoff wrote:
-> > > > Reality sucks.
-> > > >
-> > > > People are ignorant enough to turn blind eye to obvious vm regressions.
-> > > >
-> > > > No developers run 64M boxens anymore...
-> > >
-> > > No one is turning a blind eye.  Notice Linus has reponded to and is
-> > > interested in this thread.  The vm is not perfect in all cases - in most
-> > > cases it is faster though...
-> >
-> > "in most cases it is faster" is a big lie.
-> >
-> > The reality is: on all usual one-way boxes 2.6 goes slower than 2.4 once
-> > you start paging.
->
-> I would argue that in most case you do not page or page very little - know that is
-> the case here.
->
+> Peter Osterlund wrote:
+> 
+> >But the scheduler is also far from fair in this situation. If I run
+> 
+> snip a good analysis...
+> 
+> ... but fairness is not about a set of numbers the scheduler gives to
+> each process, its about the amount of CPU time processes are given.
+> 
+> In this case I don't know if I find it objectionable that X and xterm
+> are considered interactive and perl considered a CPU hog. What is the
+> actual problem?
 
-This may be true of you have lots of memory, but with memory hogs like
-mozilla and openoffice out there anyone who is working on an older machine
-will be pageing, if only for the time it takes for the huge bloated
-desktop app to start and get it's working set into memory.
+The problem is that if perl would get only slightly more cpu time, it
+would get ahead of xterm, which would make this test case run
+something like 10 times faster than it currently does. (Because xterm
+switches to jump scrolling when it can't keep up.)
 
-things get even worse if you make the mistake of useing Gnome or KDE for
-your desktop.
+I guess it would be possible to fix this by introducing a
+usleep(10000) at some strategic place in the xterm source code, but I
+still find it strange that two tasks eating 40% cpu time each are
+considered interactive, while a task eating 4% is considered a cpu
+hog, especially since the 4% task never got a chance to prove that it
+didn't want to steal all cpu time. All that was proven was that it
+wanted more than 4% of the cpu.
 
-David Lang
+Also, while my test case runs, other tasks (such as running "ps" from
+a network login) are very slow, at least until the extra load makes
+the scheduler realize that the two tasks eating most of the cpu time
+should not have maximum priority bonus.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

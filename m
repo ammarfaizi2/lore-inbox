@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267622AbSLFVVj>; Fri, 6 Dec 2002 16:21:39 -0500
+	id <S267587AbSLFVZQ>; Fri, 6 Dec 2002 16:25:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267623AbSLFVVj>; Fri, 6 Dec 2002 16:21:39 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:42748 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S267622AbSLFVVi>; Fri, 6 Dec 2002 16:21:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: s390 update.
-Date: Fri, 6 Dec 2002 22:28:12 +0100
-User-Agent: KMail/1.4.3
-Cc: com.ibm@arndb.de, idrys@gmx.de
-References: <200212061944.22688.schwidefsky@de.ibm.com>
-In-Reply-To: <200212061944.22688.schwidefsky@de.ibm.com>
+	id <S267618AbSLFVZQ>; Fri, 6 Dec 2002 16:25:16 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:15010 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267587AbSLFVZP>;
+	Fri, 6 Dec 2002 16:25:15 -0500
+Date: Fri, 6 Dec 2002 15:13:08 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: /proc/pci deprecation?
+Message-ID: <Pine.LNX.4.33.0212061506060.1010-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212062227.28464.arnd@bergmann-dalldorf.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 December 2002 20:11, Martin Schwidefsky wrote:
 
-> P.S. some of the patches are too big for lkm. I only post the description
->      file on lkm. If anybody needs the patches just send me a mail and I'll
->      forward them.
+ISTR /proc/pci being deprecated at one point in the past. It may have only
+been discussed, though. In which case, is it possible to deprecate it?
+lscpi(8) is considered a superior means to derive the same information.
 
-I have put all the patches on bkbits. Just pull from
+Elimination of it would eliminate a chunk of code in drivers/pci/proc.c, 
+and obviate the use of struct device::name by the PCI layer. This change 
+would probably allow us to remove the name field altogether, since PCI is 
+the only code that really relies on it (and only for /proc/pci AFAICT).
 
-http://linux-390.bkbits.net/main
+Is anything in userspace still relying on /proc/pci? 
 
-	Arnd <><
+	-pat
+

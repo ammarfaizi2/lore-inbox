@@ -1,109 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267859AbUIBIcC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUIBIcr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267859AbUIBIcC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 04:32:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267866AbUIBIcC
+	id S266560AbUIBIcr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 04:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267866AbUIBIcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 04:32:02 -0400
-Received: from imo-m24.mx.aol.com ([64.12.137.5]:20873 "EHLO
-	imo-m24.mx.aol.com") by vger.kernel.org with ESMTP id S267859AbUIBIb5
+	Thu, 2 Sep 2004 04:32:47 -0400
+Received: from gsstark.mtl.istop.com ([66.11.160.162]:61824 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S266560AbUIBIcm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 04:31:57 -0400
-From: JobHunts02@aol.com
-Message-ID: <1a9.284c240d.2e683477@aol.com>
-Date: Thu, 2 Sep 2004 04:31:51 EDT
-Subject: Sending siginfo from kernel to user space
+	Thu, 2 Sep 2004 04:32:42 -0400
 To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@pobox.com>
+Subject: Crashed Drive, libata wedges when trying to recover data
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 02 Sep 2004 04:32:18 -0400
+Message-ID: <87oekpvzot.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 5.0 for Mac sub 11
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am sending a signal from kernel space to user space with Linux 2.4.20-8.  
 
+I had a hard drive crash yesterday. I'm trying to recover as much data as
+possible from it, and I'm having some success. The bad blocks seem to be only
+in a few spots on the disk.
 
+For the most part I've been able to pull data off the drive, occasionally I
+see errors tar or cp just gets read errors and moves on to other files.
 
-In user space, I have installed a signal handler:
+The errors look like:
 
+Sep  2 03:22:07 stark kernel: ata1: DMA timeout, stat 0x21
+Sep  2 03:22:07 stark kernel: ATA: abnormal status 0x59 on port 0xEFE7
+Sep  2 03:22:07 stark kernel: scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 12 f7 f7 92 00 00 06 00 
+Sep  2 03:22:07 stark kernel: Current sda: sense = 70  3
+Sep  2 03:22:07 stark kernel: ASC=11 ASCQ= 4
+Sep  2 03:22:07 stark kernel: Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 0x00 0x11 0x04 
+Sep  2 03:22:07 stark kernel: end_request: I/O error, dev sda, sector 318240658
 
-    saio.sa_handler = signal_handler_IO;
+However eventually libata seems to just stop working with that drive at all
+and prints:
 
-    sigemptyset(&saio.sa_mask);
+Sep  2 03:22:07 stark kernel: ATA: abnormal status 0x59 on port 0xEFE7
 
-    saio.sa_flags = SA_SIGINFO;
+It prints that three times and then just disappears. The rest of the machine
+is fine, the other drive on the same IDE controller also controlled by libata
+is also just fine. But any process that tries to read anything from the dead
+drive just enters disk-wait and never comes back.
 
-    saio.sa_restorer = NULL;
+This makes it hard to recover the directories that hit more than a few bad
+blocks. Once this error comes up I have to reboot to do anything else.
 
-    sigaction(SA_SIGINFO, &saio, NULL);
+Ideally I need the driver to behave as it has been until now. Reset the drive,
+reset the bus, whatever it takes. But return an error to user-space and
+arrange for future reads to have a fighting chance.
 
+Any clue what I need to do to achieve this? Is this a bug because this isn't a
+well-travelled code-path? (Dead drives not being something you can conjure up
+on demand)? Or is this indicative of more problems than just a crashed drive?
 
+This is on a stock 2.6.6 kernel tree, btw.
 
-In kernel space:
-
-
-    info.si_errno = 1212;
-
-    info.si_code  = SI_KERNEL;
-
-    send_sig_info(SA_SIGINFO, &info, find_task_by_pid(pid));
-
-
-
-This results in the signal handler, 
-
-
-    void signal_handler_IO (int status, struct siginfo *info, void *p) 
-
-
-being called in user space, which gives the following values in info:
-
-
-    info->si_signo = 4  /* corresponds to SA_SIGINFO */
-
-    info->si_errno = 0  /* expect 1212               */
-
-    info->si_code  = 0  /* expect SI_KERNEL (128)    */ 
-
- 
-
-
-Note that the values I put in si_errno and si_code do not get passed to the 
-user.  si_signo has the correct value, but the user can know this from the 
-original sigaction call.
-
-
-
-If instead, I call send_sig_info(SA_SIGINFO, (struct siginfo*)0, 
-find_task_by_pid(pid)), as expected I get:
-
-
-    info->si_signo = 4  
-
-    info->si_errno = 0
-
-    info->si_code  = 0  /* corresponds to SI_USER, as expected */
-
-
-
-If I call send_sig_info(SA_SIGINFO, (struct siginfo*)1, 
-find_task_by_pid(pid)), as expected I get:
-
-
-    info->si_signo = 4  
-
-    info->si_errno = 0
-
-    info->si_code  = 128    /* corresponds to SI_KERNEL, as expected */
-
-
-
-Apparently, there is a problem copying the info structure.  I need to pass 
-info to the kernel.  Any ideas?
-
-
-
-Thank you.
-
+-- 
+greg
 

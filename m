@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbQKMXuk>; Mon, 13 Nov 2000 18:50:40 -0500
+	id <S129481AbQKMX6e>; Mon, 13 Nov 2000 18:58:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130258AbQKMXub>; Mon, 13 Nov 2000 18:50:31 -0500
-Received: from [47.140.48.50] ([47.140.48.50]:30894 "EHLO
-	zrtps06s.us.nortel.com") by vger.kernel.org with ESMTP
-	id <S130251AbQKMXuQ>; Mon, 13 Nov 2000 18:50:16 -0500
-Message-ID: <3A1070D5.FA0462EC@nortelnetworks.com>
-Date: Mon, 13 Nov 2000 17:53:09 -0500
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: quick question regarding system time
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHKEJDCJAA.law@sgi.com>
+	id <S130251AbQKMX6Y>; Mon, 13 Nov 2000 18:58:24 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:60165 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129481AbQKMX6O>; Mon, 13 Nov 2000 18:58:14 -0500
+Date: Tue, 14 Nov 2000 00:19:20 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Roger Larsson <roger@norran.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
+Message-ID: <20001114001918.C12931@arthur.ubicom.tudelft.nl>
+In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org> <20001112233144.L4824@arthur.ubicom.tudelft.nl> <00111323580000.01856@dox>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@americasm01.nt.com>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <00111323580000.01856@dox>; from roger@norran.net on Mon, Nov 13, 2000 at 11:58:00PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 13, 2000 at 11:58:00PM +0100, Roger Larsson wrote:
+> On Sunday 12 November 2000 23:31, Erik Mouw wrote:
+> > I can still hang the system with XMMS (1.0.1) using real-time priority.
+> > The system doesn't die, but it is completely unresponsive. There is no
+> > sound, but after the MP3 file is played, the system works again. I can
+> > reproduce this behaviour with usb-uhci and uhci-alt on 2.4.0-test10.
+> > I haven't test test11-pre3 yet, but the changes don't look too big that
+> > the "bug" has been fixed.
+> 
+> Does it use non blocking IO?
+> In such case you might have created an infinite loop at high priority
+> resulting in a busylock of all other processes.
 
-I'm working on some timer routines to allow arbitrary numbers of timers
-all based off the single real timer provided by "setitimer".  However, I
-haven't been able to figure out from the documentation what happens to
-the countdown timer used by setitimer when the system clock is changed
-(by root, for instance).  If I move the system clock forward or backward
-a few seconds, is the itimer affected by this at all (I hope not) or can
-I simply ignore it (I hope so).
+Possible, I didn't look at the source. It would explain the behaviour,
+but why isn't there any sound?
 
-Thanks,
 
-Chris
+Erik
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

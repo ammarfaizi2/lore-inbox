@@ -1,50 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287552AbRLaQAr>; Mon, 31 Dec 2001 11:00:47 -0500
+	id <S280825AbRLaQG5>; Mon, 31 Dec 2001 11:06:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287551AbRLaQAh>; Mon, 31 Dec 2001 11:00:37 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:61956 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287552AbRLaQAT>;
-	Mon, 31 Dec 2001 11:00:19 -0500
-Date: Mon, 31 Dec 2001 14:00:02 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: <brian@worldcontrol.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Bounce from andre@linuxdiskcert.org
-In-Reply-To: <20011231163800.57cda2f7.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33L.0112311359090.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287551AbRLaQGr>; Mon, 31 Dec 2001 11:06:47 -0500
+Received: from [202.68.158.2] ([202.68.158.2]:23293 "EHLO
+	alice.bombay.retortsoft.com") by vger.kernel.org with ESMTP
+	id <S280825AbRLaQGm>; Mon, 31 Dec 2001 11:06:42 -0500
+Date: Mon, 31 Dec 2001 21:24:12 +0530
+From: Girish Hilage <girish@bombay.retortsoft.com>
+To: linux-kernel@vger.kernel.org
+Subject: how to map network cards ?
+Message-ID: <20011231212412.A10338@alice.bombay.retortsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Dec 2001, Stephan von Krawczynski wrote:
-> On Mon, 31 Dec 2001 01:38:17 -0800
-> brian@worldcontrol.com wrote:
->
-> > [...]
-> > Would you like to be cc'ed on my spam folder?  50 to 100 spams a day?
+Hello everybody,
 
-[snip]
+ This is my first mail to the list. I want to know, what /sbin/lspci outputs are nothing but the contents of '/proc/bus/pci/devices' in a readable form?
 
-> > Some people have spam filters, some don't.
->
-> In the end it's all a matter of who to trust more: yourself or others.
+ And if so how do I know which entry implies which network interface (e.g. eth0, eth1 etc.)?
 
-It's my mailbox, I'll filter it the way I want it filtered.
-
-> And to end it: I don't want to have _any_ worldcontrol ;-)
-
-So why are you telling us how to (not) filter our email ? ;)
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Thanks,
+girish

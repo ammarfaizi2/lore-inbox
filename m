@@ -1,75 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUFVIF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUFVIeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUFVIF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 04:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUFVIF2
+	id S261347AbUFVIeI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 04:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUFVIeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 04:05:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18304 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261378AbUFVIFL (ORCPT
+	Tue, 22 Jun 2004 04:34:08 -0400
+Received: from cantor.suse.de ([195.135.220.2]:64398 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261347AbUFVIeB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 04:05:11 -0400
-Date: Tue, 22 Jun 2004 01:05:07 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andries.Brouwer@cwi.nl
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: CAP_DAC_OVERRIDE
-Message-ID: <20040622010505.I22989@build.pdx.osdl.net>
-References: <UTC200406220134.i5M1YxJ20330.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Jun 2004 04:34:01 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SUSE Labs
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH 0/2] kbuild updates
+Date: Tue, 22 Jun 2004 10:36:10 +0200
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+References: <539000871@toto.iv> <16599.36319.269156.432040@wombat.chubb.wattle.id.au> <20040622052037.GA2722@mars.ravnborg.org>
+In-Reply-To: <20040622052037.GA2722@mars.ravnborg.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200406220134.i5M1YxJ20330.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jun 22, 2004 at 03:34:59AM +0200
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_69+1A1uC3Lmd0l8"
+Message-Id: <200406221036.10062.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andries.Brouwer@cwi.nl (Andries.Brouwer@cwi.nl) wrote:
-> It seems that CAP_DAC_OVERRIDE is treated inconsistently.
-> In fs/namei.c:vfs_permission() it allows one to search in
-> a directory with zero permissions:
-> 
->         if (!(mask & MAY_EXEC) ||
->             (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode))
->                 if (capable(CAP_DAC_OVERRIDE))
->                         return 0;
-> 
-> while in fs/namei.c:exec_permission_lite() it does not.
-> Maybe the patch below would be appropriate.
 
-Andries, I agree, it's handled inconsistently.  The typical usage would
-never notice this since both caps would be either enabled or disabled.
-I believe we could actually simplify the overrides to simply:
+--Boundary-00=_69+1A1uC3Lmd0l8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-	if (capable(CAP_DAC_OVERRIDE) || capable(CAP_DAC_READ_SEARCH))
-		goto ok;
+On Tuesday 22 June 2004 07:20, Sam Ravnborg wrote:
+> On Tue, Jun 22, 2004 at 11:39:43AM +1000, Peter Chubb wrote:
+> > But can the include2/asm symlink be made a relative one, please?  I
+> > frequently build on one machine, then NFS-mount the build tree and run
+> > make modules_install somewhere else; I always at present have to convert
+> > that link to a relative symlink before doing so.
+>
+> Patch is welcome. I recall having trouble with it when introducing it. But
+> that can have been caused by other issues.
 
-Because this is only MAY_EXEC on directories check.  However, that does
-hide the override reasoning, so conservative approach below.  I changed
-it just slightly from yours to keep in line with code in vfs_permission.
+The same issue exists with the KERNELSRC and KERNELOUTPUT paths in 
+$(objtree)/Makefile: they would also better be relative to each other. In our 
+case we have something like:
 
-thanks,
--chris
+	KERNELSRC    := /usr/src/linux-2.6.5-7.79
+	KERNELOUTPUT := /usr/src/linux-2.6.5-7.79-obj/i386/default
 
-===== fs/namei.c 1.96 vs edited =====
---- 1.96/fs/namei.c	2004-06-20 18:20:57 -07:00
-+++ edited/fs/namei.c	2004-06-22 01:02:00 -07:00
-@@ -316,7 +316,7 @@
- {
- 	umode_t	mode = inode->i_mode;
- 
--	if ((inode->i_op && inode->i_op->permission))
-+	if (inode->i_op && inode->i_op->permission)
- 		return -EAGAIN;
- 
- 	if (current->fsuid == inode->i_uid)
-@@ -327,7 +327,8 @@
- 	if (mode & MAY_EXEC)
- 		goto ok;
- 
--	if ((inode->i_mode & S_IXUGO) && capable(CAP_DAC_OVERRIDE))
-+	if (((inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode)) &&
-+	    capable(CAP_DAC_OVERRIDE))
- 		goto ok;
- 
- 	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
+this would become:
+
+	KERNELSRC    := ../../../linux-2.6.5-7.79
+	KERNELOUTPUT := ../linux-2.6.5-7.79-obj/i386/default
+
+I am currently regenerating $(objtree)/Makefile by hand by invoking mkmakefile 
+with the appropriate parameters. The attached script could be used to 
+automate this; it would work equally well for the asm symlink.
+
+Regards,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
+
+--Boundary-00=_69+1A1uC3Lmd0l8
+Content-Type: application/x-shellscript;
+  name="relpath"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="relpath"
+
+#! /bin/sh
+# Generate a relative path between two absolute paths
+
+# Usage
+# $1 - Base path to start from
+# $2 - Target path
+
+source=${1#/}
+target=${2#/}
+
+first() {
+	local IFS=/
+	set -- $*
+	echo $1
+}
+
+rest() {
+	local IFS=/
+	set -- $*
+	shift
+	echo "$*"
+}
+
+relative_dir() {
+	local dir=$1
+	if [ -z "$dir" ]; then
+		echo .
+	else
+		echo $dir | sed 's:[^/]\+:..:g'
+	fi
+}
+
+while [ -n "$(first $source)" -a \
+	"$(first $source)" = "$(first $target)" ]; do
+	source="$(rest $source)"
+	target="$(rest $target)"
+done
+
+echo -n $(relative_dir $source)
+[ -n "$target" ] && echo -n /
+echo $target
+
+--Boundary-00=_69+1A1uC3Lmd0l8--

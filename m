@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261383AbSIXO7K>; Tue, 24 Sep 2002 10:59:10 -0400
+	id <S261692AbSIXPCy>; Tue, 24 Sep 2002 11:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261689AbSIXO7K>; Tue, 24 Sep 2002 10:59:10 -0400
-Received: from dp.samba.org ([66.70.73.150]:18591 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261383AbSIXO7K>;
-	Tue, 24 Sep 2002 10:59:10 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: dipankar@in.ibm.com
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.38-mm2 [PATCH] 
-In-reply-to: Your message of "Tue, 24 Sep 2002 15:54:28 +0530."
-             <20020924155428.B4085@in.ibm.com> 
-Date: Wed, 25 Sep 2002 00:56:17 +1000
-Message-Id: <20020924150424.415792C054@lists.samba.org>
+	id <S261693AbSIXPCy>; Tue, 24 Sep 2002 11:02:54 -0400
+Received: from line106-15.adsl.actcom.co.il ([192.117.106.15]:41360 "EHLO
+	www.veltzer.org") by vger.kernel.org with ESMTP id <S261692AbSIXPCx>;
+	Tue, 24 Sep 2002 11:02:53 -0400
+Message-Id: <200209241519.g8OFJcB26734@www.veltzer.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Veltzer <mark@veltzer.org>
+Organization: Meta Ltd.
+To: Peter Svensson <petersv@psv.nu>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Offtopic: (was Re: [ANNOUNCE] Native POSIX Thread Library 0.1)
+Date: Tue, 24 Sep 2002 18:19:35 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.4.44.0209241646170.2383-100000@cheetah.psv.nu>
+In-Reply-To: <Pine.LNX.4.44.0209241646170.2383-100000@cheetah.psv.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020924155428.B4085@in.ibm.com> you write:
-> On Tue, Sep 24, 2002 at 02:41:09PM +1000, Rusty Russell wrote:
-> > On Mon, 23 Sep 2002 15:15:59 +0530
-> > Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> > > Later I will submit a full rcu_ltimer patch that contains
-> > > the call_rcu_preempt() interface which can be useful for
-> > > module unloading and the likes. This doesn't affect
-> > > the non-preemption path.
-> > 
-> > You don't need this: I've dropped the requirement for module
-> > unload.
-> 
-> Isn't wait_for_later() similar to synchornize_kernel() or has the
-> entire module unloading design been changed since ?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Yes, that was *days* ago 8)
+On Tuesday 24 September 2002 17:50, Peter Svensson wrote:
+> Either you need to educate your users and trust them to
+> behave, or you need per user scheduling.
 
-I now just use a synchronize_kernel() which schedules on every CPU,
-and disable preempt in magic places.
+It is obvious that in high end systems you MUST have per user scheduling 
+since users will rob each other of cycles.... If Linux is to be a general 
+purpose operation system it MUST have this feature (otherwise it will only be 
+considered fit for lower end systems) and trusting your users at this no 
+better than trusting your users when they promise you they will not seg fault 
+or peek into memory pages which are not theirs. It simply isn't done. 
+Besides, using the CPU in an abusive manner could happen as a result of a bug 
+as much as a result of malicious intent (exactly like a segfault).
 
-Ingo growled at me...
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Ok. Here's an idea. Why not have both ?!?
+
+There is no real reason why I should have per user scheduling on my machine 
+at home (I don't really need a just devision of labour between the root user 
+and myself which are almost the only users to use my system). Why not have 
+the deault compilation of the kernel be without per user scheduling and 
+enable it for high end systems (like a university machine where all the 
+students are at each others throats for a few CPU cycles...) ? So how about 
+making this a compile option and let the users decide what they like ?
+
+Mark
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9kIKHxlxDIcceXTgRAjGTAJ9bj1t2QV3zaDheO3GQpvJxxjDSIQCggESi
+yqE29XtjTL3VDBu15VTQ0Qc=
+=oueS
+-----END PGP SIGNATURE-----

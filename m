@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271419AbTG2MxT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271705AbTG2MxT
+	id S271699AbTG2Mtb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 08:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271700AbTG2Mtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:53:19 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:47337 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S271419AbTG2MxS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:53:18 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Wakko Warner <wakko@animx.eu.org>
-Date: Tue, 29 Jul 2003 14:52:45 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: matroxfb and 2.6.0-test2
+	Tue, 29 Jul 2003 08:49:31 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1920 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S271699AbTG2Mta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 08:49:30 -0400
+Date: Tue, 29 Jul 2003 13:59:41 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307291259.h6TCxfC3000230@81-2-122-30.bradfords.org.uk>
+To: helgehaf@aitel.hist.no, jamie@shareable.org
+Subject: Re: The well-factored 386
 Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <89C0F2D0B58@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Jul 03 at 8:53, Wakko Warner wrote:
+> > I didn't realise he was talking about an x86 emulator.  I thought he
+> > was analyzing real hardware.
 > > 
-> > Yes, it supports Millennium1 too. Are you sure that you built fbcon
-> > support into the kernel? And that you have only one fbdev, matroxfb?
-> 
-> Yes.  This caused a permenant black screen.  fbset did not give me anything
-> usable.  Monitor did not go into powersave.
+> > The one thing that made it on-topic for me was his quiet suggestion
+> > that "forreal" mode interrupts are faster, and that it might, perhaps,
+> > be possible to modify a Linux kernel to run in that mode - to take
+> > advantage of the faster interrupts.
+>
+> That would have to be a kernel for very special use.  The "forreal"
+> mode has protection turned off.  As far as I know, that
+> means any user process can take over the cpu as if
+> it was running in kernel mode.
+>
+> Perhaps useful for some embedded use with only a couple well-tested
+> processes running.  Still, a programming error could overwrite
+> kernel memory instead of segfaulting.
 
-I assume that machine is otherwise OK. Can you capture 'dmesg' from
-such boot and post them?
-                                            Petr
-                                            
+Anything that's single user and non-networked isn't beyond the realms
+of feasability - it would be useful for a games console, or high
+performance graphics work.
 
+It would be an interesting project, but what concerns me is how well
+implemented these non-standard modes actually are.  It's possible that
+there are processors out there that don't work reliably with them, or
+don't implement them at all.
+
+John.

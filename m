@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130831AbRC0Idf>; Tue, 27 Mar 2001 03:33:35 -0500
+	id <S130793AbRC0IlP>; Tue, 27 Mar 2001 03:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRC0IdZ>; Tue, 27 Mar 2001 03:33:25 -0500
-Received: from adsl-64-163-64-75.dsl.snfc21.pacbell.net ([64.163.64.75]:21265
-	"EHLO konerding.com") by vger.kernel.org with ESMTP
-	id <S130793AbRC0IdK>; Tue, 27 Mar 2001 03:33:10 -0500
-Message-ID: <3AC05024.747A2AD6@konerding.com>
-Date: Tue, 27 Mar 2001 00:32:36 -0800
-From: David Konerding <dek_ml@konerding.com>
-X-Mailer: Mozilla 4.73 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "mount -o loop" lockup issue
-In-Reply-To: <E14hkwq-0002y0-00@the-village.bc.nu>
+	id <S130902AbRC0IlF>; Tue, 27 Mar 2001 03:41:05 -0500
+Received: from mail.n-online.net ([195.30.220.100]:21776 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S130793AbRC0Ik6>; Tue, 27 Mar 2001 03:40:58 -0500
+Date: Tue, 27 Mar 2001 10:40:10 +0200
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: URGENT : System hands on "Freeing unused kernel memory: "
+X-Mailer: Thomas Foerster's registered AK-Mail 3.1 publicbeta2a [ger]
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost
+Message-Id: <20010327084101Z130793-406+4326@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
-> > It's a bug in Linux 2.4.2, fixed in later versions.  Regression/quality control
-> > testing would
-> > have caught this, but the developers usually just break things and wait for people
-> > to complain
-> > as their "Regression" testers.
->
-> Hardly. We knew it was broken since well before 2.4.0. It just got a little
-> interesting to fix.
+> On 03.27 Thomas Foerster wrote:
+>>
+>> But suddenly the box was offline. One technical assistant from our ISP tried
+>> to reboot
+>> our server (he couldn't tell me if there had been any messages on the screen),
+>> but the
+>> system always hangs on
+>>
+>> Freeing unused kernel memory: xxk freed
+>>
 
-And this is described in what release notes?  It worked just fine on Red Hat 7.0's 2.4
-kernel.... oh wait, I see that they fixed it before they released it.
+> Try booting with init=/bin/bash, it looks like kernel gets a bad /sbin/init,
+> and gets stuck. Perhaps the shutdown damaged init, it starts to run and get
+> hung.
+
+That didn't fix the problem :(
+
+When i run "diff" on a new and the "old" init, i get no diffs ...
+
+Must be something other :(
+
+Thomas
 

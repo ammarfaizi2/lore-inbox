@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVCRCsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVCRDIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVCRCsB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 21:48:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVCRCsA
+	id S261443AbVCRDIL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 22:08:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVCRDIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 21:48:00 -0500
-Received: from ozlabs.org ([203.10.76.45]:48354 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261428AbVCRCr6 (ORCPT
+	Thu, 17 Mar 2005 22:08:11 -0500
+Received: from hera.kernel.org ([209.128.68.125]:60549 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261443AbVCRDIH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 21:47:58 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16954.16732.434778.495005@cargo.ozlabs.ibm.com>
-Date: Fri, 18 Mar 2005 13:47:56 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tzachar@cs.bgu.ac.il, linux-kernel@vger.kernel.org, juhl-lkml@dif.dk
-Subject: Re: binfmt_elf padzero problems
-In-Reply-To: <20050317144929.3b468531.akpm@osdl.org>
-References: <1111086609.12193.27.camel@nexus.cs.bgu.ac.il>
-	<20050317144929.3b468531.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+	Thu, 17 Mar 2005 22:08:07 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: BKCVS broken ?
+Date: Fri, 18 Mar 2005 03:07:50 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <d1dgm6$ma5$1@terminus.zytor.com>
+References: <20050317144522.GK22936@hottah.alcove-fr> <20050317154434.GA24378@bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1111115270 22854 127.0.0.1 (18 Mar 2005 03:07:50 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 18 Mar 2005 03:07:50 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+Followup to:  <20050317154434.GA24378@bitmover.com>
+By author:    lm@bitmover.com (Larry McVoy)
+In newsgroup: linux.dev.kernel
+>
+> I'll check into it.  We've been having problems with connecting to 
+> master.kernel.org, yup, here you go, anyone else seeing this?
+> 
+> From lm@slovax.bitmover.com  Thu Mar 17 05:06:57 2005
+> Date: Thu, 17 Mar 2005 05:00:57 -0800
+> From: root@slovax.bitmover.com (Cron Daemon)
+> To: lm@slovax.bitmover.com
+> Subject: Cron <lm@slovax> /bk-cvsexport/src/UPDATE
+> 
+> Read from remote host master.kernel.org: Connection timed out
+> 
 
-> I guess if the bss has zero length then we can skip the zeroing of the end
-> of the page at the end of bss, as long as we're dead sure that we didn't
-> accidentally instantiate a single page on behalf of that zero-length bss.
+Please Cc: any reports of badness on kernel.org to
+ftpadmin@kernel.org; I would have seen this quicker that way.
 
-There is another thing I noticed about the bss code, which is that it
-doesn't give the bss the permissions from the PT_LOAD segment, rather
-it just uses VM_DATA_DEFAULT_FLAGS.  That doesn't matter at the moment
-but may matter in future for ppc32.
+Around the time the above happened the machine was pretty bogged down,
+because we're preparing new hardware to replace the main server, and
+were doing some very large copies.  It might have caused a timeout.
 
-Paul.
+I notice a long login from you at approximately 14:00 PST; does that
+mean this is no longer an issue?
+
+	-hpa

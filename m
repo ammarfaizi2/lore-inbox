@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313778AbSDHWID>; Mon, 8 Apr 2002 18:08:03 -0400
+	id <S313781AbSDHWMb>; Mon, 8 Apr 2002 18:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313781AbSDHWIC>; Mon, 8 Apr 2002 18:08:02 -0400
-Received: from mnh-1-20.mv.com ([207.22.10.52]:15114 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S313778AbSDHWIB>;
-	Mon, 8 Apr 2002 18:08:01 -0400
-Message-Id: <200204082309.SAA04661@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: user-mode port 0.56-2.4.18-15 
-In-Reply-To: Your message of "08 Apr 2002 16:02:48 -0400."
-             <1018296173.913.162.camel@phantasy> 
+	id <S313782AbSDHWMa>; Mon, 8 Apr 2002 18:12:30 -0400
+Received: from jalon.able.es ([212.97.163.2]:57302 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S313781AbSDHWMa>;
+	Mon, 8 Apr 2002 18:12:30 -0400
+Date: Tue, 9 Apr 2002 00:12:23 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
+Subject: Re: system call for finding the number of cpus??
+Message-ID: <20020408221223.GE13043@werewolf.able.es>
+In-Reply-To: <6B003D25ADBDE347B5542AFE6A55B42E01A44520@tayexc13.americas.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Apr 2002 18:09:53 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rml@tech9.net said:
-> If these drivers truly are sufficient candidates for feeding /dev/
-> random, perhaps you could pull these bits and submit them to Linus and
-> Marcelo? 
 
-They're UML drivers, so they're not useful anywhere except in UML.
+On 2002.04.08 "Kuppuswamy, Priyadarshini" wrote:
+>I don't think that (sysconf(_SC_NPROCESSORS_CONF)) command works on linux. It works on Unix. I tried that. It returns 1 when there are 4 processors on linux.
+>
 
-				Jeff
+Tried and works. get_nproc_conf and _SC_NPROCESSORS_CONF work the same.
 
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre6-jam1 #1 SMP Sun Apr 7 00:50:05 CEST 2002 i686

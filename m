@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318850AbSH1OVQ>; Wed, 28 Aug 2002 10:21:16 -0400
+	id <S318851AbSH1O3E>; Wed, 28 Aug 2002 10:29:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318851AbSH1OVQ>; Wed, 28 Aug 2002 10:21:16 -0400
-Received: from mail.coastside.net ([207.213.212.6]:59265 "EHLO
-	mail.coastside.net") by vger.kernel.org with ESMTP
-	id <S318850AbSH1OVP>; Wed, 28 Aug 2002 10:21:15 -0400
-Mime-Version: 1.0
-Message-Id: <p05111a13b9928cf63a15@[10.2.2.25]>
-In-Reply-To: <20020828074148.B23738@hq.fsmlabs.com>
-References: <20020827145631.B877@hq.fsmlabs.com>
- <Pine.LNX.3.95.1020828080308.14759A-101000@chaos.analogic.com>
- <20020828074148.B23738@hq.fsmlabs.com>
-Date: Wed, 28 Aug 2002 07:25:01 -0700
-To: yodaiken@fsmlabs.com, "Richard B. Johnson" <root@chaos.analogic.com>
-From: Jonathan Lundell <linux@lundell-bros.com>
-Subject: Re: interrupt latency
-Cc: yodaiken@fsmlabs.com, Mark Hounschell <markh@compro.net>,
-       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S318852AbSH1O3E>; Wed, 28 Aug 2002 10:29:04 -0400
+Received: from skynet.stack.nl ([131.155.140.225]:26628 "EHLO skynet.stack.nl")
+	by vger.kernel.org with ESMTP id <S318851AbSH1O3E>;
+	Wed, 28 Aug 2002 10:29:04 -0400
+Date: Wed, 28 Aug 2002 16:33:22 +0200 (CEST)
+From: Jos Hulzink <josh@stack.nl>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Mikael Pettersson <mikpe@csd.uu.se>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.32 doesn't beep?
+In-Reply-To: <Pine.LNX.4.44.0208280957530.14061-100000@innerfire.net>
+Message-ID: <20020828163121.M4161-100000@toad.stack.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 7:41 am -0600 8/28/02, yodaiken@fsmlabs.com wrote:
->Average and worst case are different.
+On Wed, 28 Aug 2002, Gerhard Mack wrote:
 
-I can believe that. The explanation that jumps to mind is PCI bus 
-contention because of DMA, causing the inb to stall or to get 
-repeatedly retried. 13us seems a little extreme, but not completely 
-impossible.
--- 
-/Jonathan Lundell.
+> That begs the question:
+> How do I input using the PC speaker ?
+
+Easy :) A speaker is also a microphone...2.5.32 will go into the history
+books as the kernel that implemented voice recognition for all AT class
+computers...
+
+Jos
+

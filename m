@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130887AbRAVCql>; Sun, 21 Jan 2001 21:46:41 -0500
+	id <S129401AbRAVCyO>; Sun, 21 Jan 2001 21:54:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130916AbRAVCqb>; Sun, 21 Jan 2001 21:46:31 -0500
-Received: from node121b3.a2000.nl ([24.132.33.179]:16000 "EHLO
-	node121b3.a2000.nl") by vger.kernel.org with ESMTP
-	id <S130887AbRAVCqR>; Sun, 21 Jan 2001 21:46:17 -0500
-Message-ID: <3A6CF2EB.7EB23951@reviewboard.com>
-Date: Tue, 23 Jan 2001 03:56:44 +0100
-From: Chris Chabot <chabotc@reviewboard.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, tadavis@lbl.gov
-Subject: Interface statistics for Bonding bug in 2.4
+	id <S129780AbRAVCyD>; Sun, 21 Jan 2001 21:54:03 -0500
+Received: from p3EE3CA38.dip.t-dialin.net ([62.227.202.56]:54799 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S129401AbRAVCxw>; Sun, 21 Jan 2001 21:53:52 -0500
+Date: Mon, 22 Jan 2001 03:53:37 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Resolved: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
+Message-ID: <20010122035337.A24188@emma1.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001222154757.A1167@emma1.emma.line.org> <20010101180053.D6010@valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010101180053.D6010@valinux.com>; from chip@valinux.com on Mon, Jan 01, 2001 at 18:00:53 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently upgraded my main server to a 2.4 kernel (2.4.1pre9). This
-machine uses 2 3Com 3C905B networkcards, bonded together (using the
-bonding module).
+On Mon, 01 Jan 2001, Chip Salzenberg wrote:
 
-When doing a 'ifconfig' the bond0 device shows 0 RX packets, and a valid
-# of TX packets. However looking at eth0 / eth1 (the 2 network cards)
-they have the just about the same amount of RX packets, so recieving
-does apear to be balanced over the two interfaces.
+> > If I now patch serial 5.05 on top of that, the kernel itself detects
+> > devices, but does nothing if it's to boot /sbin/init. ctrl-alt-del
+> > and Magic SysRq are both functional and can reboot the machine.
 
-When running this machine on 2.2.16 the interface it does show the
-interface statistics accuratly. I also tested this on a clean 2.4.0
-kernel, and it had the same bug.
+> VA's current kernel includes VM-global and serial-5.05 (and lots of
+> other stuff :-)).  The only problem we had with serial-5.05 was its
+> 2.2/2.4 compatibility code getting confused because 2.2.18 has more
+> of 2.4's init macros available.  Try this:
 
-The ifconfig output (note the 0 packets in bond0's RX)
+[patch to remove rs_init from tty_io.c]
 
-bond0     Link encap:Ethernet  HWaddr 00:50:DA:B8:33:0F
-          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-
-          UP BROADCAST RUNNING MASTER MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:3655 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-
-eth0      Link encap:Ethernet  HWaddr 00:50:DA:B8:33:0F
-          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-
-          UP BROADCAST RUNNING SLAVE MULTICAST  MTU:1500  Metric:1
-          RX packets:1992 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1828 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          Interrupt:11 Base address:0x9800
-
-eth1      Link encap:Ethernet  HWaddr 00:50:DA:B8:33:0F
-          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-
-          UP BROADCAST RUNNING SLAVE MULTICAST  MTU:1500  Metric:1
-          RX packets:1878 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1827 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          Interrupt:10 Base address:0x9400
-
-Please CC me in any replies since im not subscribed to the kernel list.
-
-    -- Chris
-
+I finally got around to try it, and your patch did the job. Thank you
+very much.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

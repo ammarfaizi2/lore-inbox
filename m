@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262423AbSJISgH>; Wed, 9 Oct 2002 14:36:07 -0400
+	id <S261910AbSJITC1>; Wed, 9 Oct 2002 15:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbSJISfv>; Wed, 9 Oct 2002 14:35:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:5552 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S262423AbSJISfU>;
-	Wed, 9 Oct 2002 14:35:20 -0400
-Date: Wed, 9 Oct 2002 11:43:32 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [bk/patch] IDE driver model update
-In-Reply-To: <Pine.LNX.4.44.0210091131360.16276-100000@cherise.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0210091143220.16276-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262007AbSJITC1>; Wed, 9 Oct 2002 15:02:27 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:27382 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S261910AbSJITC0>;
+	Wed, 9 Oct 2002 15:02:26 -0400
+Date: Wed, 9 Oct 2002 15:08:04 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Looking for testers with these NICs
+Message-ID: <20021009190804.GA18069@www.kroptech.com>
+References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua> <20021009171452.GA9682@www.kroptech.com> <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 09, 2002 at 08:37:48PM -0200, Denis Vlasenko wrote:
+> On 9 October 2002 15:14, Adam Kropelin wrote:
+> > On Wed, Oct 09, 2002 at 07:31:17PM -0200, Denis Vlasenko wrote:
+> > > ewrk3.c
+> >
+> > I've got a few of these laying around. Send whatever patches you want
+> > tested and I'll give it a shot.
+> 
+> Please do your best in trying to break it, especially since you say you have
+> more than one. Can you plug them all in one box?
+> 
+> I'd suggest SMP/preempt heavy IO. Is there stress test software for NICs?
+> What is pktgen?
 
-ChangeSet@1.727, 2002-10-09 10:29:48-07:00, mochel@osdl.org
-  IDE: add struct device to ide_drive_t and use that for IDE drives
-  
-  ... instead of the one in struct gendisk.
+These are ISA nics and my SMP box has a lot of other hardware in it right now,
+but I'll see what I can do. I haven't tried to do unreasonable things with old
+hardware in a while so it should be good for a grin, anyway.
 
-diff -Nru a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
---- a/drivers/ide/ide-probe.c	Wed Oct  9 11:41:41 2002
-+++ b/drivers/ide/ide-probe.c	Wed Oct  9 11:41:41 2002
-@@ -998,15 +998,6 @@
- 		sprintf(disk->disk_name,"hd%c",'a'+hwif->index*MAX_DRIVES+unit);
- 		disk->minor_shift = PARTN_BITS; 
- 		disk->fops = ide_fops;
--
--		snprintf(disk->disk_dev.bus_id,BUS_ID_SIZE,"%u.%u",
--			 hwif->index,unit);
--		snprintf(disk->disk_dev.name,DEVICE_NAME_SIZE,
--			 "%s","IDE Drive");
--		disk->disk_dev.parent = &hwif->gendev;
--		disk->disk_dev.bus = &ide_bus_type;
--		if (hwif->drives[unit].present)
--			device_register(&disk->disk_dev);
- 		hwif->drives[unit].disk = disk;
- 	}
- 
-@@ -1020,6 +1011,20 @@
- 		if (hwif->drives[unit].present)
- 			hwif->drives[unit].de = devfs_mk_dir(ide_devfs_handle, name, NULL);
- 	}
-+	
-+	for (unit = 0; unit < units; ++unit) {
-+		ide_drive_t * drive = &hwif->drives[unit];
-+
-+		snprintf(drive->gendev.bus_id,BUS_ID_SIZE,"%u.%u",
-+			 hwif->index,unit);
-+		snprintf(drive->gendev.name,DEVICE_NAME_SIZE,
-+			 "%s","IDE Drive");
-+		drive->gendev.parent = &hwif->gendev;
-+		drive->gendev.bus = &ide_bus_type;
-+		if (drive->present)
-+			device_register(&drive->gendev);
-+	}
-+
- 	return;
- 
- err_kmalloc_gd:
-diff -Nru a/include/linux/ide.h b/include/linux/ide.h
---- a/include/linux/ide.h	Wed Oct  9 11:41:41 2002
-+++ b/include/linux/ide.h	Wed Oct  9 11:41:41 2002
-@@ -794,6 +794,7 @@
- 	int		lun;		/* logical unit */
- 	int		crc_count;	/* crc counter to reduce drive speed */
- 	struct list_head list;
-+	struct device	gendev;
- 	struct gendisk *disk;
- } ide_drive_t;
- 
+I'll report my findings.
+
+--Adam
 

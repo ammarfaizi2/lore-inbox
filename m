@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269085AbUJWDFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUJWDFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269085AbUJWDFU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 23:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269297AbUJWDDT
+	id S269210AbUJWDFV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 23:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269256AbUJWDDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 23:03:19 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:42431
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S269256AbUJWC6T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 22:58:19 -0400
-Date: Fri, 22 Oct 2004 23:03:56 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041023030356.GA5005@animx.eu.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
+	Fri, 22 Oct 2004 23:03:25 -0400
+Received: from holomorphy.com ([207.189.100.168]:63430 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269127AbUJVXV3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 19:21:29 -0400
+Date: Fri, 22 Oct 2004 16:21:23 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Espen Fjellv?r Olsen <espenfjo@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041022232123.GF17038@holomorphy.com>
+References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <20041022224540.GE17038@holomorphy.com> <7aaed091041022155058d6135c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <7aaed091041022155058d6135c@mail.gmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The fact is, Linux naming has always sucked. Well, at least the versioning 
-> I've used. Others tend to be more organized. Me, I'm the "artistic" type, 
-> so I sometimes try to do something new, and invariably stupid. 
+On Fri, 22 Oct 2004 15:45:40 -0700, William Lee Irwin III wrote:
+>> We should write code, not blow release nomenclature smoke.
 
-Given that the versioning was supposedly <major>.<minor>.<patchlevel> and
-the difference between 2.4 and 2.6 was substantial, why not just bump
-<major> instead of the minor.  Then we'd have 3.0, 3.1, 4.0, 4.1.1 (for
-stupid mistakes).  Isn't it time we move off the 2.x series and start
-thinking of the 3.x series?
+On Sat, Oct 23, 2004 at 12:50:44AM +0200, Espen Fjellv?r Olsen wrote:
+> I'm sorry i cant contribute with any code, i'm not skilled enough to
+> do such a job, yet.
+> The only way i can contribute is to do testing, a release need
+> testing, testing and testing :)
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Isn't this just what motivates what's in the next release? If the
+patches weren't tested, why were they merged? Accidents can't be
+anticipated. How long are you going to wait for one to happen?
+Why expect one not to happen if you wait on the same code longer?
+
+
+-- wli

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270380AbTGRWdU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 18:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbTGRWdT
+	id S264186AbTGRWbc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 18:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271893AbTGRWab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 18:33:19 -0400
-Received: from holomorphy.com ([66.224.33.161]:6537 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270393AbTGRWcU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 18:32:20 -0400
-Date: Fri, 18 Jul 2003 15:48:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22pre6aa1
-Message-ID: <20030718224824.GP15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-References: <20030717102857.GA1855@dualathlon.random> <20030718191853.A11052@infradead.org> <20030718222750.GL3928@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030718222750.GL3928@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 18 Jul 2003 18:30:31 -0400
+Received: from u194-119-236-131.dialup.planetinternet.be ([194.119.236.131]:13572
+	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP id S271859AbTGRW1r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 18:27:47 -0400
+Message-Id: <200307182239.h6IMdhM6008840@jebril.pi.be>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test1 + matroxfb = unuusable VC
+Date: Sat, 19 Jul 2003 00:39:43 +0200
+From: "Michel Eyckmans (MCE)" <mce@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 12:27:50AM +0200, Andrea Arcangeli wrote:
-> bigpages= is a documented API that has to be used in production, so I
-> can easily add the hugetlbfs API but I guess I've to keep this one
-> anyways. I also would need to verify the performance of hugetlbfs before
-> suggesting migrating to it, for example I don't want
-> preallocation/prefaulting (IIRC hugetlbfs preallocates everything). I
-> also like the single huge array of page pointers, that is very hardwired
-> but optimal for those workloads.
 
-Most of the complaints I've gotten are about lack of support for mixed
-PSE and non-PSE mappings, not preallocation or performance (generally
-its usage doesn't involve creation/destruction cycle performance
-requirements, and most of the time they intend to use 100% of the memory).
+Greetz,
 
-It's basically too stupid and operating on too small a data set to
-screw up performance-wise apart from creation/destruction, which is not
-intended to be performant (and will never be; it blits oversized areas).
+I'm using (or rather: trying to use) matroxfb on 2.6.0-test1 (2.5.72 had 
+the same problems) and am seeing the following:
 
-I wouldn't mind hearing of what you believe is missing, so long as it's
-within the constraints of what's mergeable. =(
+ - The initial boot console works fine, but all other consoles have 
+   scrolling problems. The area to the right of any scrolled text is 
+   most often coloured white, whereas it should be black. When using vi, 
+   it's even worse: white rectangles all over the place.
 
+ - Right after switching from X to a text console, the fill color is not
+   white, but sort of a folded ghost image of part of my X display;
 
--- wli
+ - Scrolling is not continuous: keep <enter> pushed down, and every so 
+   often a jump of about 1/3 of the hight of the screen occurs, combined
+   with a few lines that do use the correct black background;
+
+ - Backspacing only works when the cursor is positioned at the end of the 
+   command line. Anywhere else the positions to the right of the cursor 
+   are not repainted.
+
+I'm using these settings: video=matroxfb:vesa:0x11A,fh:92k,fv:160"
+
+  MCE
+

@@ -1,92 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290595AbSBLR3Z>; Tue, 12 Feb 2002 12:29:25 -0500
+	id <S290807AbSBLRdk>; Tue, 12 Feb 2002 12:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290767AbSBLR3L>; Tue, 12 Feb 2002 12:29:11 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:44231 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id <S290595AbSBLR2y>;
-	Tue, 12 Feb 2002 12:28:54 -0500
-Subject: Re: pci_pool reap?
-From: Daniel Stodden <stodden@in.tum.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>, groudier@free.fr,
-        alan@lxorguk.ukuu.org.uk, zaitcev@redhat.com,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020212154816.E31425@flint.arm.linux.org.uk>
-In-Reply-To: <E16a6sw-0005Jw-00@the-village.bc.nu>
-	<20020210211352.Q1910-100000@gerard>
-	<20020211.184412.35663889.davem@redhat.com>
-	<1013528224.2240.245.camel@bitch> 
-	<20020212154816.E31425@flint.arm.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-D8m5veRzJ+m74u2UTOOR"
-X-Mailer: Evolution/1.0.2 
-Date: 12 Feb 2002 18:27:02 +0100
-Message-Id: <1013534853.1598.270.camel@bitch>
-Mime-Version: 1.0
+	id <S290946AbSBLRda>; Tue, 12 Feb 2002 12:33:30 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:37333 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S290807AbSBLRdW>; Tue, 12 Feb 2002 12:33:22 -0500
+Message-ID: <3C695035.6040902@antefacto.com>
+Date: Tue, 12 Feb 2002 17:26:13 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <Pine.LNX.3.96.1020212113237.5657B-100000@gatekeeper.tmr.com> <E16ageE-0001Te-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> On February 12, 2002 05:38 pm, Bill Davidsen wrote:
+> 
+>>On Tue, 12 Feb 2002, Daniel Phillips wrote:
+>>
+>>
+>>>On February 11, 2002 08:05 pm, Bill Davidsen wrote:
+>>>
+>>>>Did I miss discussion of an option to put it somewhere other than as part
+>>>>of the kernel? Sorry, I missed that.
+>>>>
+>>>It's a trick question?  The config option would let you specify that no 
+>>>kernel config information at all would be stored with or in the kernel.  No 
+>>>cost, no memory footprint.  And I would get to have the extra warm n fuzzy 
+>>>usability I tend to go on at such lengths about.  So we're both happy, right? 
+>>>
+>>>I'd even remain happy if the option were set *off* by default.
+>>>
+>>No trick other than to read what I said in either of the previous posts...
+>>the question was not how to avoid having the useful feature, but how to
+>>put it somewhere to avoid increasing the kernel size. I suggested in the
+>>modules directory, either as a text file or as a module.
+>>
+> 
+> We are in violent agreement, I'm not sure where the misunderstanding came from.
+> Yes, the leading idea is to put it in a module.  In fact a patch exists, though
+> it may have issues, it's been a while since I looked at it.
+> 
+> Besides that, it's been suggested to stick it only the end of bzImage in a way
+> that some utility can find it, so that it never gets loaded into memory or does
+> and is immediately discarded.
 
---=-D8m5veRzJ+m74u2UTOOR
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I'd go for tacking it on at the end of the bzImage. Advantages would be
+that it can be read even when the kernel isn't loaded, and also there
+is no danger of loading a module in another kernel.
 
-hi.
-
-On Tue, 2002-02-12 at 16:48, Russell King wrote:
-> On Tue, Feb 12, 2002 at 04:36:34PM +0100, Daniel Stodden wrote:
-> > ARM does GFP_KERNEL, and then __ioremaps the underlying pages.
-> > ugh. is that the only way to get the area coherent?
->=20
-> Yes.  Cache bits are in the page tables, and it would be idiotic to
-> manipulate the cache bits on a 1MB granularity over the kernel
-> direct mapped space.
->=20
-> > furthermore i don't see why this could not be interrupt safe.
->=20
-> GFP_KERNEL in the page table allocation functions mainly.  We've been
-> around and around this recently on this mailing list, so I'm not going
-> to say anything further.  I don't want another long discussion about
-> this subject taking my time away from doing real work on ARM.  If you're
-> really interested in the outcome, please examine the lkml archives.
-
-ok. i read part of the old thread now. sorry. didn't know that this had
-already been issued.
-
-so, based on the fact that
-1. _most_ archs can easily do atomically.
-2. those which don't aren't necessarily the better ones.
-3. many drivers may prefer/be able to alloc through during
-   _init()/_release()
-3.5 some may not.
-4. even on arm, __ioremap() takes a gfp for quite some time now=20
-   and nobody seems to disagree.
-
-then why does pci_alloc_consistent() not just take gfp flags and people
-put in what their personal preference is?
-
-regards,
-dns
-
-
---=20
-___________________________________________________________________________
- mailto:stodden@in.tum.de
-
-
---=-D8m5veRzJ+m74u2UTOOR
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8aVBmSPSplX5M5nQRAk90AKCAMUIOoO7UaqoiPc9Hy2dHS+HptwCeJ+mK
-RETQ5TYBHUWeNRpI8bbDCTo=
-=d62Z
------END PGP SIGNATURE-----
-
---=-D8m5veRzJ+m74u2UTOOR--
+Padraig.
 

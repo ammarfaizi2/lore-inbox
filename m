@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261646AbTCZMP1>; Wed, 26 Mar 2003 07:15:27 -0500
+	id <S261652AbTCZMgO>; Wed, 26 Mar 2003 07:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261651AbTCZMP1>; Wed, 26 Mar 2003 07:15:27 -0500
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:22207 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP
-	id <S261646AbTCZMP0>; Wed, 26 Mar 2003 07:15:26 -0500
-From: Erik Hensema <usenet@hensema.net>
-Subject: LVM/Device mapper breaks with -mm (was: Re: 2.5.66-mm1)
-Date: Wed, 26 Mar 2003 12:26:37 +0000 (UTC)
-Message-ID: <slrnb8373s.19a.usenet@bender.home.hensema.net>
-References: <20030326013839.0c470ebb.akpm@digeo.com>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	id <S261653AbTCZMgO>; Wed, 26 Mar 2003 07:36:14 -0500
+Received: from cmailm2.svr.pol.co.uk ([195.92.193.210]:22279 "EHLO
+	cmailm2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S261652AbTCZMgN>; Wed, 26 Mar 2003 07:36:13 -0500
+Date: Wed, 26 Mar 2003 12:48:14 +0000
+Subject: Re: struct dm_ioctl
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v551)
+Cc: corryk@us.ibm.com, linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+To: Andries.Brouwer@cwi.nl
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+In-Reply-To: <UTC200303261127.h2QBRTt05048.aeb@smtp.cwi.nl>
+Message-Id: <35A0ECE4-5F89-11D7-BBDF-000393CA5730@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.551)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton (akpm@digeo.com) wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm1/
 
-LVM or device mapper seems to be broken in -mm. I've only tried the
-following kernels so far:
-2.5.64 - works
-2.5.65-mm2 - doesn't work
-2.5.66 - works
-2.5.66-mm1 - doesn't work
+On Wednesday, March 26, 2003, at 11:27 AM, Andries.Brouwer@cwi.nl wrote:
 
-I'm getting these messages while setting up LVM from my bootscripts (I've
-included the actual commands prefixed with a > ):
+> One is struct dm_ioctl. Google tells me that it was
+> noticed already that it defined a broken interface,
+> and Kevin Corry submitted a patch against 2.5.51.
+> Today this has not been applied yet.
+>
+> What is the status? Should I resubmit that patch?
 
-Remounting root file system (/) read/write for vgscan...
-> mount -n -o remount,rw /
-Removing old device inodes...
-> rm /dev/system/* /dev/mapper/*
-Setting up devices...
-> /usr/local/sbin/devmap_mknod.sh
-Creating /dev/mapper/control character device with major:10 minor:63.
-Scanning for LVM volume groups...
-> /usr/local/sbin/vgscan
-  Reading all physical volumes.  This may take a while...
-  Found volume group "system" using metadata type lvm1
-Activating LVM volume groups...
-> /usr/local/sbin/vgchange -a y system
-device-mapper: allocating minor 0.
-device-mapper: allocating minor 1.
-device-mapper: destroying md
-device-mapper: destroying table
-device-mapper: allocating minor 0.
-device-mapper: destroying md
-device-mapper: destroying table
-  1 logical volume(s) in volume group "system" now active
+The patch is queued, and should be merged very soon.  The only reason I 
+delayed was that I wanted to update both the 2.4 and 2.5 releases at 
+the same time so that people can continue to switch back and forth 
+between kernels.  That said, I have left it too long, sorry.
 
-The only active volume is the most recently created volume.
+- Joe
 
-On 2.5.6x-vanilla the output of vgchange is:
-device-mapper: allocating minor 0.
-device-mapper: allocating minor 1.
-device-mapper: allocating minor 2.
-  3 logical volume(s) in volume group "system" now active
- 
--- 
-Erik Hensema <erik@hensema.net>

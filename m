@@ -1,59 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267657AbRHARkc>; Wed, 1 Aug 2001 13:40:32 -0400
+	id <S267812AbRHARvW>; Wed, 1 Aug 2001 13:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267651AbRHARkV>; Wed, 1 Aug 2001 13:40:21 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:40719 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S267772AbRHARkL>; Wed, 1 Aug 2001 13:40:11 -0400
-Date: Wed, 1 Aug 2001 19:40:06 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010801194006.A210@ping.be>
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010726130809.D17244@emma1.emma.line.org> <3B60022D.C397D80E@zip.com.au> <20010726143002.E17244@emma1.emma.line.org> <9jpea7$s25$1@penguin.transmeta.com> <20010731025700.G28253@emma1.emma.line.org> <20010801170230.B7053@redhat.com>
+	id <S267821AbRHARvM>; Wed, 1 Aug 2001 13:51:12 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:38707 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S267812AbRHARvB>; Wed, 1 Aug 2001 13:51:01 -0400
+From: sduchene@mindspring.com
+Date: Wed, 1 Aug 2001 13:51:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Patch for Riva framebuffer driver
+Message-ID: <20010801135104.J10061@lapsony.mydomain.here>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <20010801170230.B7053@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 01, 2001 at 05:02:30PM +0100, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> > Chase up to the root manually, because Linux' ext2 violates SUS v2
-> > fsync() (which requires meta data synched BTW)
-> 
-> Please quote chapter and verse --- my reading of SUS shows no such
-> requirement.  
-> 
-> fsync is required to force "all currently queued I/O operations
-> associated with the file indicated by file descriptor fildes to the
-> synchronised I/O completion state."  But as you should know, directory
-> entries and files are NOT the same thing in Unix/SUS.  
+I sent the following E-mail to Ani Joshi but have never received a reply from him so I thought
+I would forward this info onto the linux-kernel list so this fix for a repeatable kernel Oops
+could be incorperated in future kernels.
 
-It goed on with "All I/O operations are completed as defined for
-synchronised I/O file integrity completion.", whatever it all
-means.
+----- Forwarded message from valsad -----
 
-For fdatasync() it says:
-"The fdatasync() function forces all currently queued I/O
-operations associated with the file indicated by file descriptor
-fildes to the synchronised I/O completion state.", which is just
-the same as it says for fsync().
+From: valsad
+Date: Sun, 15 Jul 2001 22:25:19 -0400
+To: Ani Joshi <ajoshi@shell.unixbox.com>
+Subject: Patch for Riva framebuffer driver
+User-Agent: Mutt/1.3.5i
 
-It also says:
-"The functionality is as described for fsync() (with the symbol
-_XOPEN_REALTIME defined), with the exception that all I/O
-operations are completed as defined for synchronised I/O data
-integrity completion."
+Ani:
+I'm not sure if you are the current maintainer of the Riva framebuffer
+driver however you are listed in the drivers/video/riva/fbdev.c file
+as the author. I have discovered a small problem with the code in the
+fbdev.c file that causes a kernel oops everytime. 
 
-It doesn't mention meta-data.
+I was informed that the Riva 128 chip does not really support 16bpp and
+that I should be using 15 bpp instead however when I configure my video
+line in the lilo.conf file as follows:
 
-I have no idea what it all means.
+  append="video=riva:1280x1024-15@74"
+
+I got an kernel oops and an assertion failed message from line 1120 in
+fbdev.c 
+
+By adding the following code to fbdev.c everything works just fine now.
+
+*** linux/drivers/video/riva/fbdev.c    Mon Jul 16 01:17:39 2001
+--- linux_sad/drivers/video/riva/fbdev.c        Mon Jul 16 01:17:12 2001
+***************
+*** 1107,1112 ****
+--- 1107,1115 ----
+                break;
+  #endif
+  #ifdef FBCON_HAS_CFB16
++       case 15:
++               rc = 15;        /* fix for 15 bpp depths on Riva 128 based cards */
++               break;          
+        case 16:
+                rc = 16;        /* directcolor... 16 entries SW palette */
+                break;          /* Mystique: truecolor, 16 entries SW palette, HW palette hardwired into 1:1 mapping */
 
 
-Kurt
 
+BTW, the following is an exerpt from an E-mail conversation between myself and
+Bakonyi Ferenc <fero@drama.obuda.kando.hu> regarding my problems with 16 bpp:
+
+> > The fbset output on this system says:
+> >
+> > mode "1280x1024-74"
+> >     # D: 135.007 MHz, H: 78.859 kHz, V: 74.116 Hz
+> >     geometry 1280 1024 1280 1024 16
+> >     timings 7407 256 32 34 3 144 3
+> >     accel true
+> >     rgba 5/11,6/5,5/0,0/0
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > endmode
+>
+> This line indicates you are using rivafb in 16 bpp mode. Unfortunetly
+> 16 bpp is not supported by Riva 128 hw. It's a bug, in a perfect
+> world rivafb should disable 16 bpp mode on Riva 128. In this case
+> hardware is set to 15 bpp, but rivafb thinks it's set to 16 bpp. (Or
+> something similar.)
+
+----- End forwarded message -----
+
+Also after implementing this change fbset now reports:
+
+mode "1280x1024-74"
+    # D: 135.007 MHz, H: 78.859 kHz, V: 74.116 Hz
+    geometry 1280 1024 1280 1024 16
+    timings 7407 256 32 34 3 144 3
+    accel true
+    rgba 5/10,5/5,5/0,0/0
+endmode
+
+-- 
+Steven A. DuChene	sad@ale.org
+			linux-clusters@mindspring.com
+			sduchene@mindspring.com
+
+	http://www.mindspring.com/~sduchene/

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263320AbTKCUXh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 15:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTKCUXh
+	id S263306AbTKCUb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 15:31:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTKCUb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 15:23:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9640 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263320AbTKCUXb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 15:23:31 -0500
-Date: Mon, 3 Nov 2003 12:23:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Charles Martin <martinc@ucar.edu>
-cc: linux-kernel@vger.kernel.org, <martinc@atd.ucar.edu>
-Subject: RE: interrupts across  PCI bridge(s) not handled
-In-Reply-To: <004f01c3a243$ccbaf960$c3507580@atdsputnik>
-Message-ID: <Pine.LNX.4.44.0311031218250.20373-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Nov 2003 15:31:28 -0500
+Received: from h80ad25b7.async.vt.edu ([128.173.37.183]:24724 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263306AbTKCUb1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 15:31:27 -0500
+Message-Id: <200311032031.hA3KV3gv006489@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to restart userland? 
+In-Reply-To: Your message of "Mon, 03 Nov 2003 21:21:30 +0100."
+             <yw1xn0bdnqyd.fsf@kth.se> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031103193940.GA16820@louise.pinerecords.com> <200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
+            <yw1xn0bdnqyd.fsf@kth.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-672495470P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 03 Nov 2003 15:31:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-672495470P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 3 Nov 2003, Charles Martin wrote:
-> 
-> I enabled APIC_DEBUG, and here is the dmesg output.
+On Mon, 03 Nov 2003 21:21:30 +0100, mru@kth.se (=3D?iso-8859-1?q?M=3DE5ns=
+_Rullg=3DE5rd?=3D)  said:
 
-Hmm..
+> Perhaps save some time.  Some systems have notoriously slow BIOS.
 
-The MP tables mention IRQ's up to 51, but no further.
+kexec patch?
 
-But the PIRQ routing tables talk about irqs 92-95 for bus 6.
+--==_Exmh_-672495470P
+Content-Type: application/pgp-signature
 
-It really looks like the IRQ routing entries are just broken. One 
-potential fix is to enable ACPI, and hope that the ACPI irq routing isn't 
-as broken as the PIRQ stuff.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Other than that I don't see anything we can do. Anybody else?
+iD8DBQE/prsGcC3lWbTT17ARAnnkAKDx9W0bjgAjEKgTc8e7PFHR0amUMACfU/C8
+l8wrhr9oZsKVagoDa3W8MHk=
+=qNzH
+-----END PGP SIGNATURE-----
 
-		Linus
-
+--==_Exmh_-672495470P--

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278663AbRJXQwr>; Wed, 24 Oct 2001 12:52:47 -0400
+	id <S278659AbRJXQwr>; Wed, 24 Oct 2001 12:52:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278664AbRJXQwh>; Wed, 24 Oct 2001 12:52:37 -0400
-Received: from AMontpellier-201-1-4-3.abo.wanadoo.fr ([217.128.205.3]:7694
-	"EHLO awak") by vger.kernel.org with ESMTP id <S278663AbRJXQw2> convert rfc822-to-8bit;
-	Wed, 24 Oct 2001 12:52:28 -0400
-Subject: Re: [RFC] New Driver Model for 2.5
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Patrick Mochel <mochel@osdl.org>,
-        Jonathan Lundell <jlundell@pobox.com>
-In-Reply-To: <Pine.LNX.4.33.0110240901350.8049-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0110240901350.8049-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.16.99+cvs.2001.10.22.19.14 (Preview Release)
-Date: 24 Oct 2001 18:46:48 +0200
-Message-Id: <1003942008.9892.100.camel@nomade>
-Mime-Version: 1.0
+	id <S278663AbRJXQwh>; Wed, 24 Oct 2001 12:52:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22029 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278659AbRJXQwU>; Wed, 24 Oct 2001 12:52:20 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: linux-2.4.13..
+Date: Wed, 24 Oct 2001 16:51:04 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9r6rho$82c$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com> <20011024114026.A14078@outpost.ds9a.nl>
+X-Trace: palladium.transmeta.com 1003942346 20105 127.0.0.1 (24 Oct 2001 16:52:26 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 24 Oct 2001 16:52:26 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le mer 24-10-2001 à 18:15, Linus Torvalds a écrit :
-> Also, realize that the act of suspension is STARTED BY THE USER. Which
+In article <20011024114026.A14078@outpost.ds9a.nl>,
+bert hubert  <ahu@ds9a.nl> wrote:
+>
+>Why do we do the exciting VM things in 'final'? We are confusing people with
+>pre-patches that are better than actual releases!
 
-... or triggered by some kind of inactivity timer, or low battery
-condition.
+What's your load? Most of the patches have been in -aa for a longish
+while, and people have tended to like them much more than the stock
+kernels ;)
 
-	Xav
 
+		Linus

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268899AbUHLXRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268868AbUHLXWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268899AbUHLXRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:17:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268888AbUHLXQu
+	id S268868AbUHLXWz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268866AbUHLXWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:16:50 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:13490 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S268880AbUHLXKx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:10:53 -0400
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <1092124796.1438.3695.camel@imladris.demon.co.uk>
-	<yw1x7js79vn3.fsf@kth.se> <411BF1E6.5060309@tmr.com>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Date: Fri, 13 Aug 2004 01:10:53 +0200
-In-Reply-To: <411BF1E6.5060309@tmr.com> (Bill Davidsen's message of "Thu, 12
- Aug 2004 18:40:38 -0400")
-Message-ID: <yw1xpt5wgdfm.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 12 Aug 2004 19:22:55 -0400
+Received: from gprs214-76.eurotel.cz ([160.218.214.76]:13960 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268873AbUHLXWe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 19:22:34 -0400
+Date: Fri, 13 Aug 2004 01:21:47 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Len Brown <len.brown@intel.com>
+Cc: Dax Kelson <dax@gurulabs.com>, trenn@suse.de, seife@suse.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Allow userspace do something special on overtemp
+Message-ID: <20040812232147.GH15138@elf.ucw.cz>
+References: <20040811085326.GA11765@elf.ucw.cz> <1092269309.3948.57.camel@mentorng.gurulabs.com> <1092281393.7765.141.camel@dhcppc4> <20040812074002.GC29466@elf.ucw.cz> <1092320883.5021.173.camel@dhcppc4> <20040812202401.GB14556@elf.ucw.cz> <1092351080.5021.198.camel@dhcppc4>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092351080.5021.198.camel@dhcppc4>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> writes:
+Hi!
 
-> Måns Rullgård wrote:
->> David Woodhouse <dwmw2@infradead.org> writes:
->
->>>That seems reasonable, but _only_ if burnfree is not enabled. If the
->>>hardware _supports_ burnfree but it's disabled, the warning should also
->>>recommend turning it on.
->> I'm also wondering why cdrecord disables it by default.  Can it ever
->> do any harm being enabled?
->>
->
-> In theory, yes. It makes the track longer, so it could in theory make
-> something large not fit. In practice, there really are some readers
-> which skip on audio when they see the blanks. As Joerg which ones, but
-> other people have agreed that it does happen.
+> > hmm, yes, but it still would be nice to properly shutdown instead of
+> > fail.
+> 
+> The reality is that most of the critical temperature events
+> are false positives, and for those that are not, the hardware
+> will keep itself from burning even when the OS control fails.
+> 
+> If we confuse some self-supporting kernel types, that is too bad.
+> If they're supporting themselves, they should read the change logs
+> for the kernels that they download.  I don't think
+> this is of a magnitude that it needs to wait for 2.7 to be fixed.
 
-As has been pointed out by others, the alternative is a wasted disk.
-Even if the quality is degraded slightly where burnfree kicks in, the
-disk may still be suitable for its intended use.  CDs are often used
-for moving some data to another machine and discarded after a single
-use.  In these cases, a lower resistance to scratches is not a
-problem.  For long-term storage the situation could of course be
-different.
+There's nothing to fix. It is not broken. It just does /sbin/poweroff;
+that's correct.
 
+/sbin/poweroff is there on almost all systems; that is not case with
+acpid. Currently *noone* has acpid that handles critical properly,
+right?
+
+So I believe that change is bad idea. /sbin/overtemp lets user
+configure it etc.
+
+Ouch and btw I've done some torturing on one prototype (AMD). It had
+thermal at 98Celsius (specs for this cpu said 95C max), and I ended my
+test at 105Celsius. I do not know about TM1/TM2 etc, but in this case
+hardware clearly failed to do the right thing.
+
+I do not know why acpid should be involved in this. execing binary
+seems safer to me -- acpid might have died (OOM? segfault?), and exec
+does not strike me like too ugly.
+								Pavel
 -- 
-Måns Rullgård
-mru@kth.se
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

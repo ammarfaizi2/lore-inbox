@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289544AbSAJQs4>; Thu, 10 Jan 2002 11:48:56 -0500
+	id <S289545AbSAJQ7R>; Thu, 10 Jan 2002 11:59:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289543AbSAJQsq>; Thu, 10 Jan 2002 11:48:46 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:50186 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289539AbSAJQsl>;
-	Thu, 10 Jan 2002 11:48:41 -0500
-Date: Thu, 10 Jan 2002 14:48:24 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Rodrigo Souza de Castro <rcastro@ime.usp.br>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pager_daemon removal
-In-Reply-To: <20020110143922.A12252@ime.usp.br>
-Message-ID: <Pine.LNX.4.33L.0201101447130.2985-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S289546AbSAJQ7I>; Thu, 10 Jan 2002 11:59:08 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:45267 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289545AbSAJQ6z>; Thu, 10 Jan 2002 11:58:55 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200201101658.g0AGwfo25510@eng2.beaverton.ibm.com>
+Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Thu, 10 Jan 2002 08:58:41 -0800 (PST)
+Cc: axboe@suse.de (Jens Axboe), pbadari@us.ibm.com (Badari Pulavarty),
+        bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+In-Reply-To: <20020110120926.J3357@inspiron.school.suse.de> from "Andrea Arcangeli" at Jan 10, 2002 11:09:26 AM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Rodrigo Souza de Castro wrote:
-> On Thu, Jan 10, 2002 at 02:27:05PM -0200, Rik van Riel wrote:
-> > On Thu, 10 Jan 2002, Rodrigo Souza de Castro wrote:
-> >
-> > > Comments?
-> >
-> > You're not allowed to renumber sysctl defines, it's ok
-> > to remove the VM_PAGER_DAEMON thing, but the following
-> > defines should stay the same number ...
->
-> Oops, you are right, thanks. New patch follows.
+Andrea,
 
-Looks good to me ...
+> > 
+> > I still wouldn't feel to good doing this, and just because snapshotting
+> > opens the possibility for this to happen doesn't mean it a) ever
+> > triggered in real life, and b) works on all devices.
+> 
+> fair enough. one way to do it certainly safely is to add a bitflag to
+> the struct blkkdev.
+> 
+> Andrea
+> 
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+Could you please elaborate on your suggestion. What does a biflag in
+blkdev do ? 
 
-http://www.surriel.com/		http://distro.conectiva.com/
+I am sure by now, you must have understood what my patch is trying to
+do. I am trying to issue 4K buffer heads on RAW whenever possible 
+(instead of 512). But for the first and last pages buffer heads may
+be different size than 4K (due to alignment and length of IO). So, We 
+end up with buffer heads with multiple IO sizes in a single request.
 
+How does your suggestion fix the problem ? How can I address this
+problem safely. Please let me know.
+
+Thanks,
+Badari

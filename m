@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288878AbSA3H4D>; Wed, 30 Jan 2002 02:56:03 -0500
+	id <S288959AbSA3IBX>; Wed, 30 Jan 2002 03:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288828AbSA3Hzq>; Wed, 30 Jan 2002 02:55:46 -0500
-Received: from xdsl-213-168-117-12.netcologne.de ([213.168.117.12]:40592 "EHLO
-	t-stueck.streichelzoo") by vger.kernel.org with ESMTP
-	id <S288814AbSA3Hyr>; Wed, 30 Jan 2002 02:54:47 -0500
-Date: Wed, 30 Jan 2002 08:54:44 +0100
-From: Patrick Mauritz <oxygene@studentenbude.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Configure.help in 2.5.3-pre6
-Message-ID: <20020130075444.GA401@hydra>
-In-Reply-To: <Pine.LNX.4.33.0201292147530.22800-100000@barbarella.hawaga.org.uk> <1012370595.3392.21.camel@phantasy> <a3847v$17m$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a3847v$17m$1@penguin.transmeta.com>
-User-Agent: Mutt/1.3.26i
+	id <S288814AbSA3H7B>; Wed, 30 Jan 2002 02:59:01 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:42244 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S288921AbSA3H6i>; Wed, 30 Jan 2002 02:58:38 -0500
+Message-Id: <200201300757.g0U7v1t07728@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Dave Jones <davej@suse.de>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 09:57:02 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200201290446.g0T4kZU31923@snark.thyrsus.com> <8Ho-eVfXw-B@khms.westfalen.de> <20020130034637.J16379@suse.de>
+In-Reply-To: <20020130034637.J16379@suse.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 06:35:43AM +0000, Linus Torvalds wrote:
-> >config' works.  The new per-config.in config.help is here to stay.
-should be more easy to maintain - should make eric more happy
+On 30 January 2002 00:46, Dave Jones wrote:
+> On Tue, Jan 29, 2002 at 09:51:00PM +0200, Kai Henningsen wrote:
+>  > >   - cleanliness
+>  > >   - concept
+>  > >   - timing
+>  > >   - testing
+>  >
+>  > IIRC, the number 33 referred to esr's Configure.help patch. Which of
+>  > these did he violate?
+>
+>  Timing.  Linus was busy focusing on the block layer.
 
-> Yes. On the other hand, if there are real problems with converting
-> menu/x config to multiple help-files, a short-term answer might indeed
-> be just the silly "concatenate everything into the same file".
-short being between now and the cml2 inclusion?
+Sounds alarming. Linus didn't take documentation updates from designated 
+maintainer? For many months? I can't believe in argument that updates were 
+able to break _anything_, it's only documentation, right? I could understand 
+this if these updates were sent by little known person, but Eric?!
 
-> I'd much _prefer_ to have somebody who knows menuconfug/xconfig (or just
-> wants to learn).  I have a totally untested patch for menuconfig, that
-> probably just works (like the regular config thing it doesn't actualy
-> take _advantage_ of pairing the Config.help files up with the questions,
-> but at least it should give you the help texts like it used to). 
-hmm... maybe that's a good place to finally drop cml1? given that cml2
-copes with that new help-format that is *hint*
+Clearly a scalability problem here :-)
 
-patrick mauritz
-(starting an old discussion again)
--- 
-             I disapprove of what you say, but I will defend
-                  your right to say it with all my might
+I won't post to this thread more.
+Why? It's a flamewar, more _words_ will do nothing. _Action_ is needed.
+--
+vda

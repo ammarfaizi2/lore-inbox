@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVBKWRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbVBKWPf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbVBKWRL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 17:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVBKWRL
+	id S262369AbVBKWPf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 17:15:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVBKWPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 17:17:11 -0500
-Received: from gate.crashing.org ([63.228.1.57]:47564 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262368AbVBKWRC (ORCPT
+	Fri, 11 Feb 2005 17:15:35 -0500
+Received: from hera.kernel.org ([209.128.68.125]:63188 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262369AbVBKWPV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 17:17:02 -0500
-Subject: Re: [PATCH] ppc64: Implement a vDSO and use it for signal
-	trampoline #3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502111910.00725.hpj@urpla.net>
-References: <1108002773.7733.196.camel@gaston>
-	 <200502111910.00725.hpj@urpla.net>
-Content-Type: text/plain
-Date: Sat, 12 Feb 2005 09:15:19 +1100
-Message-Id: <1108160119.7733.230.camel@gaston>
+	Fri, 11 Feb 2005 17:15:21 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: out-of-line x86 "put_user()" implementation
+Date: Fri, 11 Feb 2005 22:15:04 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cujap8$ta$1@terminus.zytor.com>
+References: <Pine.LNX.4.58.0502062212450.2165@ppc970.osdl.org> <Pine.LNX.4.58.0502081808410.2165@ppc970.osdl.org> <Pine.LNX.4.58.0502081818450.2165@ppc970.osdl.org> <20050209023346.GA13911@twiddle.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1108160104 939 127.0.0.1 (11 Feb 2005 22:15:04 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 11 Feb 2005 22:15:04 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 19:10 +0100, Hans-Peter Jansen wrote:
-> Hi Ben,
+Followup to:  <20050209023346.GA13911@twiddle.net>
+By author:    Richard Henderson <rth@twiddle.net>
+In newsgroup: linux.dev.kernel
+>
+> On Tue, Feb 08, 2005 at 06:27:08PM -0800, Linus Torvalds wrote:
+> > That brings up another issue: if I don't care which registers a 64-bit 
+> > value goes into, can I get the "low reg" and "high reg" names some way?
 > 
-> are you copyrighting under a new pseudonym? E.g.:
+> Nope.  We never needed one in the i386 backend itself, so we never
+> added anything like that.
 > 
-> On Thursday 10 February 2005 03:32, Benjamin Herrenschmidt wrote:
-> > ===================================================================
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ linux-work/arch/ppc64/kernel/vdso32/sigtramp.S	2005-02-02
-> > 13:28:01.000000000 +1100 @@ -0,0 +1,300 @@
-> > +/*
-> > + * Signal trampolines for 32 bits processes in a ppc64 kernel for
-> > + * use in the vDSO
-> > + *
-> > + * Copyright (C) 2004 Benjamin Herrenschmuidt
->                                             ^
-> > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > +++ linux-work/arch/ppc64/kernel/vdso32/datapage.S	2005-02-02
-> > 13:28:01.000000000 +1100 @@ -0,0 +1,68 @@
-> > +/*
-> > + * Access to the shared data page by the vDSO & syscall map
-> > + *
-> > + * Copyright (C) 2004 Benjamin Herrenschmuidt
-> 
-> Who's that guy?
 
-Hehe, good catch, I'll fix that :)
+I would really like to see that feature.  I've missed it more than a
+few times.
 
-Thanks,
-Ben.
-
-
+	-hpa

@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbTLSKgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 05:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTLSKgQ
+	id S262308AbTLSKjp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 05:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTLSKjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 05:36:16 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:26767 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S262353AbTLSKgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 05:36:14 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-From: Craig Bradney <cbradney@zip.com.au>
-To: ross@datscreative.com.au
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, george@mvista.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200312191538.34551.ross@datscreative.com.au>
-References: <200312180414.17925.ross@datscreative.com.au>
-	 <Pine.LNX.4.55.0312181347540.23601@jurand.ds.pg.gda.pl>
-	 <1071757363.18749.42.camel@athlonxp.bradney.info>
-	 <200312191538.34551.ross@datscreative.com.au>
-Content-Type: text/plain
-Message-Id: <1071830168.5624.2.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 19 Dec 2003 11:36:08 +0100
+	Fri, 19 Dec 2003 05:39:45 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:33030 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262308AbTLSKjn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 05:39:43 -0500
+Message-ID: <3FE2D80E.4070107@aitel.hist.no>
+Date: Fri, 19 Dec 2003 11:50:54 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Michael Hunold <hunold@convergence.de>
+CC: Steffen Schwientek <schwientek@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test11 framebuffer Matrox
+References: <200312190314.13138.schwientek@web.de> <3FE2B717.7020502@convergence.de>
+In-Reply-To: <3FE2B717.7020502@convergence.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-12-19 at 06:38, Ross Dickson wrote:
-> On Friday 19 December 2003 00:22, Craig Bradney wrote:
-> > Just as an FYI, still going strong here with the old api and ioapic
-> > patches. 5d 20h now.
-> > 
-> > When the official 2.6.0 comes to Gentoo Linux I can try that with
-> > whatever patches people are finding stable for these nforce fixes.
-> > 
-> > Anyone had any luck in talking to ASUS re a BIOS update?
-> > 
-> > Craig
-> > 
+Michael Hunold wrote:
+> Hello Steffen,
 > 
-> I have not talked to ASUS. I note from peoples postings that with the
-> latest award bios we may need no apic patches (C1 disconnect auto),
-> just an ioapic one to work round a buggy bios. I don't think you can run
-> nmi_watchdog=1 with the old io-apic (not of my doing) patch.
+>> My Matrox-framebuffer is not working properly. Build direct into the
+>> kernel, the monitor will be black with some stripes at startup, just the
+>> reset button works.
+>> Build as a modules, the same happens if I load the module.
 > 
-> I have pheonix bios MOBOS from albatron and epox so award bios doesn't help me.
-> No disconnect options available in setup.
-> My apic ack delay patch lets the bios have its disconnect on and keep the cpu a
-> few degrees cooler besides whatever else it and the nforce2 chipset might want
-> to control it for.
 > 
-> I have been advised my query wrt my apic ack delay patch is progressing
-> with AMD but I have nothing technical to report on it.
+> All I can say is "me, too". 8-(
 > 
-> I have made and am trialling, but have not yet posted a kernel arg controlled
-> version combining my v1 and v2 apic ack delay patches. This would be better
-> than what I have released in the past because people can fix bioses as the
-> fixes become available and use timer ack delay in the mean time.
-> Of course there is still athcool and the earlier disconnect patch to force 
-> things if desired.
+>> Steffen
 > 
-> Regards
-> Ross.
+> 
+> Can somebody definately say if "matroxfb" is working for 2.6? I haven't 
+> tested it for a while, but I was surprised to find it non-working in 2.6...
 
-Ok Ross. Well, Gentoo's 2.6 is out now so whenever you want me to test
-your new patch I can try it. Ive been looking back through the list for
-the updated patches but things seemed to have changed here and there
-even for the v2 patches so I think I'll wait for the next round of
-patchesas things seem a little confusing.
+The matrox framebuffer works with 2.6.0-test11 and a matrox G550.
+This is statically compiled, with smp and preempt.
 
-2.6test11 is still running happily.. 6d15h now.
+It dies if I use fbcon + the ruby patch (for multiple keyboard support) though.
+So something is wrong - this patch changes the console but not the fb driver
+so it isn't supposed to crash.  I guess there's some problem with the driver
+that gets triggered only in some circumstances.
 
-Craig
+Helge Hafting
 

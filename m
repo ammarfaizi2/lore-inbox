@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbTE3Qnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 12:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTE3Qnl
+	id S263818AbTE3QpU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 12:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTE3QpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 12:43:41 -0400
-Received: from smtp5.wanadoo.es ([62.37.236.237]:8881 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id S263806AbTE3Qnj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 12:43:39 -0400
-Message-ID: <3ED78D41.4040709@wanadoo.es>
-Date: Fri, 30 May 2003 18:56:33 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] procps 2.0.13 with NPTL enhancements
-References: <1054270854.22088.617.camel@cube>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 30 May 2003 12:45:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39049 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263818AbTE3QpL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 12:45:11 -0400
+Date: Thu, 29 May 2003 19:38:26 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: phillips@arcor.de, akpm@digeo.com, hch@infradead.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Avoid vmtruncate/mmap-page-fault race
+Message-ID: <20030530023826.GA1350@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20030529151424.GA1397@us.ibm.com> <Pine.LNX.4.44.0305291723310.1800-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305291723310.1800-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
+On Thu, May 29, 2003 at 05:33:04PM +0100, Hugh Dickins wrote:
+> On Thu, 29 May 2003, Paul E. McKenney wrote:
+> > On Fri, May 23, 2003 at 11:42:02AM -0700, Paul E. McKenney wrote:
+> > > 
+> > > Exactly -- allows a ->nopage() to drop some lock to avoid races
+> > > between pagefault and either vmtruncate() or invalidate_mmap_range().
+> > > This race (from the cross-host mmap viewpoint) is described in:
+> > > 
+> > >     http://marc.theaimsgroup.com/?l=linux-kernel&m=105286345316249&w=2
+> > 
+> > Rediffed for 2.5.70-mm1.
+> 
+> Me?  I much preferred your original, much sparer, nopagedone patch
+> (labelled "uglyh as hell" by hch).  I dislike passing lots of args
+> down a level so they can be passed up again to the library function.
+> 
+> In particular, I feel queasy (fear loss of control) about passing a
+> pmd_t* down to a filesystem, which I'd prefer to have no access to
+> such.  But I may be in a minority, and the decision won't be mine.
 
->> On Thu, 2003-05-29 at 18:08, Adrian Bunk wrote:
->
->>Once that bug is fixed, he will probably find
->>that the inability to read files in /proc also
->>causes a crash. Such is the problem with this
->>duplicated effort. It sucks.
->
->
-> I could tell you about some inputs that
-> make your programs crash... Nah. Find them
-> yourself. I wait for your screams. >:-)
->
-> You finally fixed a SEGV that I fixed well
-> over a year ago. Congradulations. You have
-> others to fix, and a minor (?) security
-> issue as well. Have fun.
->
-> Oooh... I think you have an exploitable
-> buffer overflow as well. Anybody running
-> his procps as an i386 binary on IA-64?
->[...]
+Fine by me either way.  ;-)  Here is the rediffed nopagedone patch
+for 2.5.70-mm1.
 
-Mine is longer, I have more hair, less tummy...
-
-please, stop your childish nonsense.
-
-A fork has sense if latter the code are going to merge
-(like gcc/egcs, xfree/xwin, linux/ac/mm/aa/osdl...)
-or the proyect are going to take another goal.
-
-But to have two proyects, same code(more or less),
-same goal. And it's worse for to be a base crical
-package. Its's waste time/resources and to do a little
-different every distribution.
-
--thank you-
-
-regards,
--- 
-Software is like sex, it's better when it's bug free.
+						Thanx, Paul
 
 
+diff -urN -X dontdiff linux-2.5.70-mm1/include/linux/mm.h linux-2.5.70-mm1.nopagedone/include/linux/mm.h
+--- linux-2.5.70-mm1/include/linux/mm.h	2003-05-28 20:16:04.000000000 -0700
++++ linux-2.5.70-mm1.nopagedone/include/linux/mm.h	2003-05-29 19:34:55.000000000 -0700
+@@ -143,6 +143,7 @@
+ 	void (*open)(struct vm_area_struct * area);
+ 	void (*close)(struct vm_area_struct * area);
+ 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int unused);
++	void (*nopagedone)(struct vm_area_struct * area, unsigned long address, int status);
+ 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
+ };
+ 
+diff -urN -X dontdiff linux-2.5.70-mm1/mm/memory.c linux-2.5.70-mm1.nopagedone/mm/memory.c
+--- linux-2.5.70-mm1/mm/memory.c	2003-05-28 20:16:04.000000000 -0700
++++ linux-2.5.70-mm1.nopagedone/mm/memory.c	2003-05-29 19:34:55.000000000 -0700
+@@ -1468,6 +1468,9 @@
+ 	ret = VM_FAULT_OOM;
+ out:
+ 	pte_chain_free(pte_chain);
++	if (vma->vm_ops && vma->vm_ops->nopagedone) {
++		vma->vm_ops->nopagedone(vma, address & PAGE_MASK, ret);
++	}
+ 	return ret;
+ }
+ 

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267706AbSLTCKI>; Thu, 19 Dec 2002 21:10:08 -0500
+	id <S267686AbSLTCHo>; Thu, 19 Dec 2002 21:07:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267708AbSLTCKI>; Thu, 19 Dec 2002 21:10:08 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:60317 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S267706AbSLTCKH>; Thu, 19 Dec 2002 21:10:07 -0500
-Message-ID: <3E027FD3.1090906@kegel.com>
-Date: Thu, 19 Dec 2002 18:26:27 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Dedicated kernel bug database
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267687AbSLTCHo>; Thu, 19 Dec 2002 21:07:44 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24300
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267686AbSLTCHn>; Thu, 19 Dec 2002 21:07:43 -0500
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Grant Grundler <grundler@cup.hp.com>
+Cc: mj@ucw.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       turukawa@icc.melco.co.jp
+In-Reply-To: <20021219213712.0518B12CB2@debian.cup.hp.com>
+References: <20021219213712.0518B12CB2@debian.cup.hp.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Dec 2002 02:54:28 +0000
+Message-Id: <1040352868.30778.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hanna Linder wrote:
-
-> --On Thursday, December 19, 2002 06:59:30 PM -0500 Pete Zaitcev <zaitcev@redhat.com> wrote:
+On Thu, 2002-12-19 at 21:37, Grant Grundler wrote:
 > 
->>> Why are bugs automatically assigned to owners? 
->>> 	If there was an unassigned category that would make it 
->>> 	easy to query.
->> 
->> Query for "NEW" status for a component and do not put anything
->> into "owner" fireld.
+> Martin,
+> In April 2002, turukawa@icc.melco.co.jp sent a 2.4.x patch to disable
+> BARs while the BARs were being sized.  I've "forward ported" this patch
+> to 2.5.x (appended).  turukawa's excellent problem description and
+> original posting are here:
+> 	https://lists.linuxia64.org/archives//linux-ia64/2002-April/003302.html
 > 
-> 	If there was a NEW field that would be exactly what I was 
-> asking for. When I do a query the only options I see are: OPEN, 
-> ASSIGNED, RESOLVED, APPROVED, REJECTED, DEFERRED, CLOSED. 
-> Where is the NEW? Is there somewhere else to do queries?
+> David Mosberger agrees this is an "obvious fix".
+> We've been using this in the ia64 2.4 code stream since about August.
 
-When I first looked at the query form, I was overwhelmed by the
-list of states.  Clicking on the link above the list takes you to
-http://bugzilla.kernel.org/queryhelp.cgi#status
-which helps a bit.  (I'm kind of used to a shorter list of states, e.g.
-"new / assigned / verifyfix / closed", but bugzilla's list doesn't
-look *too* complicated.)
+We've rejected this twice already from different people.
 
--- 
-Dan Kegel
-Linux User #78045
-http://www.kegel.com
+Nothing says your memory can't be behind the bridge and you just turned
+memory access off. Whoops bang, game over.
+
+And yes this happens on some PC class systems.
+
+Alan
 

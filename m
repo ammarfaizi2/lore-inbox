@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUFYFWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266210AbUFYFvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUFYFWz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 01:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266208AbUFYFWz
+	id S266210AbUFYFvv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 01:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUFYFvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 01:22:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28378 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266186AbUFYFWy (ORCPT
+	Fri, 25 Jun 2004 01:51:51 -0400
+Received: from everest.2mbit.com ([24.123.221.2]:57519 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S266210AbUFYFvt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 01:22:54 -0400
-Date: Thu, 24 Jun 2004 22:21:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm2
-Message-Id: <20040624222140.07e01dae.akpm@osdl.org>
-In-Reply-To: <200406242257.03397.rjwysocki@sisk.pl>
-References: <20040624014655.5d2a4bfb.akpm@osdl.org>
-	<200406242257.03397.rjwysocki@sisk.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Jun 2004 01:51:49 -0400
+Message-ID: <40DBBD54.8090303@greatcn.org>
+Date: Fri, 25 Jun 2004 13:51:16 +0800
+From: Coywolf Qi Hunt <coywolf@greatcn.org>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+References: <20040624014655.5d2a4bfb.akpm@osdl.org> <40DAE44D.2000305@greatcn.org>
+In-Reply-To: <40DAE44D.2000305@greatcn.org>
+X-Scan-Signature: e39eceae6eb4554774934c39b07fdc9c
+X-SA-Exim-Connect-IP: 218.24.168.201
+X-SA-Exim-Mail-From: coywolf@greatcn.org
+Subject: [PATCH] (2.6.7-mm2) kbuild distclean srctree fix ii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
+	*      [218.24.168.201 listed in cnkrbl.ahbl.org]
+X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
->
-> On Thursday 24 of June 2004 10:46, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-m
-> >m2/
-> 
-> Well, I have alarmingly many problems with this patch (my system is a dual 
-> Opteron - full config log attached):
-> 
-> 1) There is an Oops at early boot time, caused probably by earlyprintk, which 
-> makes the serial console stop working (the call trace goes too fast to read 
-> and of course it does not go to the serial console ...).
+Hello Andrew,
 
-This is fixed, yes?
+You've changed a wrong line.  There's several ``@find . 
+$(RCS_FIND_IGNORE)'' in Makefile.
+You want the line about 24 lines below. Please apply this patch to 
+re-fix it.
+http://greatcn.org/~coywolf/patches/2.6/kbuild-distclean-srctree-fix-ii.patch
 
-> 2) There is an Oops when trying to unload the sound driver (snd-intel8x0).  At 
-> present I'm unable to grab it. because of 1).
+     coywolf
+===============================================================
 
-I'm not able to reproduce this.  Can you grab a trace now?
+--- linux-2.6.7-mm2/Makefile	2004-06-24 22:16:08.000000000 -0500
++++ linux-2.6.7-mm2-cy/Makefile	2004-06-25 00:13:55.885753597 -0500
+@@ -866,7 +866,7 @@ $(clean-dirs):
+ clean: archclean $(clean-dirs)
+ 	$(call cmd,rmdirs)
+ 	$(call cmd,rmfiles)
+-	 @find $(srctree) $(RCS_FIND_IGNORE) \
++	 @find . $(RCS_FIND_IGNORE) \
+ 	 	\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
+ 		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \) \
+ 		-type f -print | xargs rm -f
+@@ -890,7 +890,7 @@ mrproper: clean archmrproper $(mrproper-
+ .PHONY: distclean
+ 
+ distclean: mrproper
+-	@find . $(RCS_FIND_IGNORE) \
++	@find $(srctree) $(RCS_FIND_IGNORE) \
+ 	 	\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
+ 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
+ 	 	-o -name '.*.rej' -o -size 0 \
 
-> 3) This breaks fb console on my system quite a bit:
-> 
-> > +core-fbcon-fixes.patch
-> 
-> - there is an ugly grey background area behind the penguin logos at startup.  
-> The (screen behind the) logos are (is) ok without it. ;-)
 
-I forwarded this to Antonino, but he's hiding.
+-- 
+Coywolf Qi Hunt
+Admin of http://GreatCN.org and http://LoveCN.org
+

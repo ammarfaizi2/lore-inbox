@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129272AbRBCO6G>; Sat, 3 Feb 2001 09:58:06 -0500
+	id <S130126AbRBCPBq>; Sat, 3 Feb 2001 10:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129301AbRBCO55>; Sat, 3 Feb 2001 09:57:57 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:26355 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129272AbRBCO5r>; Sat, 3 Feb 2001 09:57:47 -0500
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: "H . Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] tmpfs for 2.4.1
-In-Reply-To: <20010123205315.A4662@werewolf.able.es>
-	<m3lmrqrspv.fsf@linux.local> <95csna$vb6$1@cesium.transmeta.com>
-	<m3puh1que4.fsf@linux.local> <20010202215254.C2498@werewolf.able.es>
-	<3A7B1EDC.DA2588BA@transmeta.com>
-	<20010203010649.E3014@werewolf.able.es>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <20010203010649.E3014@werewolf.able.es>
-Message-ID: <m3zog3omik.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: 03 Feb 2001 16:02:27 +0100
+	id <S130003AbRBCPBi>; Sat, 3 Feb 2001 10:01:38 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:15548 "EHLO
+	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id <S130126AbRBCPBU>; Sat, 3 Feb 2001 10:01:20 -0500
+Message-Id: <l03130314b6a1cabb7b6b@[192.168.239.105]>
+In-Reply-To: <Pine.LNX.4.30.0102031246490.13570-200000@cola.teststation.com>
+In-Reply-To: <3A7B599F.18307.47A4F1@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Sat, 3 Feb 2001 14:59:08 +0000
+To: Urban Widmark <urban@teststation.com>, <linux-kernel@vger.kernel.org>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: DFE-530TX with no mac address
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J . A . Magallon" <jamagallon@able.es> writes:
+>The attached patch for the via-daig program plays with a few registers.
+>
+>Run it as 'via-diag -aaeemm -I' then do a 'ifconfig eth0 down; ifconfig
+>eth0 up' and see if anything happens.
 
-> I did not get the chance to deal too much with it, but apart from moving
-> functionality from userspace (ipcs) to kernel (ls), what were/could be the
-> benefits of /dev/shm ?. Can you create a shared memory segment by simply
-> creating a file there, or it is just a picture of what is in kernelspace?.
+OK, after a little trouble applying the patch, here's what I found:
 
-The most appealing thing to me was rm -f /dev/shm/.IPC* :-) So I
-should make a patch to ipcrm to allow multiple segments (and
-wildcards?).
+Starting with the card in working condition, I tried "via-diag -aaeemm -I"
+and there was no change in functionality.  Running the ifconfig toggle also
+had no overall effect.  Then I tried "via-diag -aaeemm -i" (running a
+pinger in another  console) and noted that the pinger stopped working when
+the command was run.  However, running "via-diag -aaeemm -I" did not change
+that situation.  The ifconfig toggle did correctly restart operation.
 
-You could not create SYSV shm segments with open, but you could delete
-them with rm and list the with ls.
+Examining the system log after the above showed that at some point during
+the sequence the kernel emitted a series of "transmit timed out" log-entry
+pairs as shown in my last mail.  Also, I noticed that while running -i the
+receive status was listed as "unicast/hashed multicast" and while running
+-I the receive status was "unknown/invalid".
 
-> First time I saw that I thought: what could happen if /dev/shm is shared
-> in a cluster ? or, lets suppose that /dev/shm is a logical volume made by
-> addition of some nfs mounted volumes, one of each node, so one piece of
-> the shm fs is local and other remote...kinda DSM/NUMA...?
+Do you want me to try this again, after first setting the card into
+non-working condition?
 
-No, this was never possible. It was only a fs interface to local
-kernel objects (and still is).
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-> (just too much marijuana late at night...)
+The key to knowledge is not to rely on people to teach you it.
 
-Oh, you are allowed to dream ;-)
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-Greetings
-                Christoph
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

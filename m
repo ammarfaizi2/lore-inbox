@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268136AbUHQHiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUHQHh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268136AbUHQHiU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 03:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268137AbUHQHiU
+	id S264251AbUHQHh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 03:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268136AbUHQHh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 03:38:20 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:10710 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268136AbUHQHiM (ORCPT
+	Tue, 17 Aug 2004 03:37:59 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:16519 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264251AbUHQHh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 03:38:12 -0400
-Message-ID: <877aabc4040817003841fadfbb@mail.gmail.com>
-Date: Tue, 17 Aug 2004 13:08:09 +0530
-From: Amit Shah <shahamit@gmail.com>
-Reply-To: Amit Shah <shahamit@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Excessive swapping on 2.6.8.1
+	Tue, 17 Aug 2004 03:37:58 -0400
+Date: Tue, 17 Aug 2004 09:39:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
+Message-ID: <20040817073927.GA594@elte.hu>
+References: <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <20040817021431.169d07db@mango.fruits.de> <1092701223.13981.106.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092701223.13981.106.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I've just switched from 2.6.5 to 2.6.8.1. I have 512MB of RAM. I have a
-lot of apps running under KDE: several konqueror instances, firefox
-with a couple of tabs, kontact (kmail + knode), music players, kopete,
-etc. I'm running Debian Sid on this P4 1.7GHz.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-When I leave this system running at nights, the system uses 100% of the
-available swap space. swapd also starts adding swap files. Even after
-this, my swap currently shows 100% usage. Just 63M is free:
+> > i don't know if this was mentioned before, but i sometimes see traces
+> > like this where half the entries are "preempt_schedule
+> > (copy_page_range)". I just wanted to ask if this is normal and expected
+> > behaviour.
+> 
+> Yes, Ingo identified an issue with copy_page_range, I don't think it's
+> fixed yet.  See the voluntary-preempt-2.6.8.1-P0 thread.
 
-$ free
-total       used       free     shared    buffers
-cached
-Mem:        515584     508044       7540          0       3280
-54088
--/+ buffers/cache:     450676      64908
-Swap:       526160     526160          0
+right, it's not fixed yet. It's not a trivial critical section - we are
+holding two locks and are mapping two atomic kmaps.
 
-
-$ uptime
-12:41:37 up 23:48,  2 users,  load average: 0.50, 0.55, 0.48
-
-Swap usage just before I stopped working last night was definitely not
-more than 50%, I'm sure.
-
-I saw this behavior just once or twice with 2.6.5, that too when I had
-some server processes running, and they were serving {web pages,
-.debs}. Those servers I've moved to other machines since. 2.6.5 after
-that, didn't show such swap usage or such an excessive slowdown.
-
-I'm using the CFQ elevator. My config file for the current setup is at
-
-http://amitshah.nav.to/kernel/config.txt
-
-`dmesg` output is at
-
-http://amitshah.nav.to/kernel/dmesg.txt
-
-I'm also using the Reiser4 patches, but I was using them with 2.6.5 as
-well, so there's nothing really I can think of that has changed besides
-the kernel.
-
-Any ideas as to why this could be happening?
-
-Amit.
--- 
-Amit Shah
-http://amitshah.nav.to/
+	Ingo

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbTIZOSp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 10:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTIZOSp
+	id S262241AbTIZOK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 10:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbTIZOK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 10:18:45 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:8345 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262268AbTIZORz (ORCPT
+	Fri, 26 Sep 2003 10:10:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:51423 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262241AbTIZOKY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 10:17:55 -0400
-Date: Fri, 26 Sep 2003 16:17:50 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Keyboard oddness.
-Message-ID: <20030926141750.GA10183@ucw.cz>
-References: <1064569422.21735.11.camel@ulysse.olympe.o2t> <20030926102403.GA8864@ucw.cz> <1064572898.21735.17.camel@ulysse.olympe.o2t> <1064581715.23200.9.camel@ulysse.olympe.o2t> <20030926134116.GA9721@ucw.cz> <1064585567.23200.15.camel@ulysse.olympe.o2t>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064585567.23200.15.camel@ulysse.olympe.o2t>
-User-Agent: Mutt/1.5.4i
+	Fri, 26 Sep 2003 10:10:24 -0400
+Date: Fri, 26 Sep 2003 16:10:56 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Maciej Zenczykowski <maze@cela.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Syscall security
+In-Reply-To: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>
+Message-ID: <Pine.LNX.4.56.0309261609160.20113@localhost.localdomain>
+References: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 26, 2003 at 04:12:47PM +0200, Nicolas Mailhot wrote:
- 
-> The difference being the system can then try to rescue my keyboard;)
-> Right now the only fix I have is to reboot the system because there is
-> precious little I can do with a stuck keyboard. Thank god software
-> reboot is always possible be it with the mouse or the acpi button.
-> 
-> (and this also solves the case when something falls on a keyboard which
-> does happen now and then. I don't mind a screen of j's when the
-> alternative is 200 j's screenfulls)
 
-You can simply press any key and it'll stop repeating. 
+On Fri, 26 Sep 2003, Maciej Zenczykowski wrote:
 
-If that doesn't work, you have a more severe problem than a stuck key,
-that wouldn't be solved by stopping the repeat.
+> The reason I'm asking is because I want to run totally untrusted
+> statically linked binary code (automatically compiled from user
+> submitted untrusted sources) which only needs read/write access to stdio
+> which means it only requires syscalls read/write/exit + a few more for
+> memory alloc/free (like brk) + a few more generated before main is
+> called (execve and uname I believe).
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+if this syscall activity is so low then it might be much more flexible to
+control the binary via ptrace and reject all but the desired syscalls.  
+This will cause a context switch but if it's stdio only then it's not a
+big issue. Plus this would work on any existing Linux kernel.
+
+	Ingo

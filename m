@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266225AbUAWGef (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 01:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbUAWGef
+	id S266513AbUAWGgp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 01:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266520AbUAWGgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 01:34:35 -0500
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:33148 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266225AbUAWGee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 01:34:34 -0500
-Subject: Re : Alsa create high problems...
-From: Eddahbi Karim <installation_fault_association@yahoo.fr>
+	Fri, 23 Jan 2004 01:36:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17362 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266513AbUAWGgk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 01:36:40 -0500
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1074382859.29525.20.camel@gamux>
-References: <1074382859.29525.20.camel@gamux>
-Content-Type: text/plain
-Organization: Installation Fault
-Message-Id: <1074839589.8684.1.camel@gamux>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 23 Jan 2004 07:33:09 +0100
-Content-Transfer-Encoding: 7bit
+Cc: torvalds@osdl.org, akpm@osdl.org
+From: davej@redhat.com
+Subject: Update post-halloween doc url.
+Message-Id: <E1Ajuub-0000xD-00@hardwired>
+Date: Fri, 23 Jan 2004 06:35:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya,
+Did a s/2.5/2.6/ a while ago, as it made more sense
+when 2.6 appeared.  Old URL will continue to work (symlink to
+the new file).  If I move this again, whack me.
 
-The bug is still there in 2.6.2-rc1 and I still need to do a :
-while true; do cat /proc/asound/card0/pcm0p/sub0/*; done
+    Dave
 
-To get my sound work properly...
-
--- 
-Eddahbi Karim <installation_fault_association@yahoo.fr>
-Installation Fault
-
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/Makefile linux-2.5/Makefile
+--- bk-linus/Makefile	2004-01-21 15:58:33.000000000 +0000
++++ linux-2.5/Makefile	2004-01-23 04:27:23.000000000 +0000
+@@ -690,7 +690,7 @@ modules_install: _modinst_ _modinst_post
+ _modinst_:
+ 	@if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
+ 		echo "Warning: you may need to install module-init-tools"; \
+-		echo "See http://www.codemonkey.org.uk/post-halloween-2.5.txt";\
++		echo "See http://www.codemonkey.org.uk/docs/post-halloween-2.6.txt";\
+ 		sleep 1; \
+ 	fi
+ 	@rm -rf $(MODLIB)/kernel

@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317007AbSF0WbW>; Thu, 27 Jun 2002 18:31:22 -0400
+	id <S317013AbSF0Wuc>; Thu, 27 Jun 2002 18:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSF0WbV>; Thu, 27 Jun 2002 18:31:21 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:18821 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317007AbSF0WbU>;
-	Thu, 27 Jun 2002 18:31:20 -0400
-Date: Thu, 27 Jun 2002 15:33:33 -0700 (PDT)
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-X-Sender: <nivedita@w-nivedita2.des.beaverton.ibm.com>
-To: "Hurwitz Justin W." <hurwitz@lanl.gov>
-cc: Nivedita Singhvi <niv@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: zero-copy networking & a performance drop
-In-Reply-To: <Pine.LNX.4.44.0206271545220.17078-100000@alvie-mail.lanl.gov>
-Message-ID: <Pine.LNX.4.33.0206271513320.13651-100000@w-nivedita2.des.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317014AbSF0Wuc>; Thu, 27 Jun 2002 18:50:32 -0400
+Received: from w007.z208177138.sjc-ca.dsl.cnc.net ([208.177.141.7]:58498 "HELO
+	mail.gurulabs.com") by vger.kernel.org with SMTP id <S317013AbSF0Wub>;
+	Thu, 27 Jun 2002 18:50:31 -0400
+Subject: Re: Status of capabilities?
+From: Dax Kelson <dax@gurulabs.com>
+To: Chris Wright <chris@wirex.com>
+Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+       Michael Kerrisk <m.kerrisk@gmx.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020627135422.B26112@figure1.int.wirex.com>
+References: <1025157926.1652.35.camel@mentor>
+	<200206271257.HAA61267@tomcat.admin.navo.hpc.mil> 
+	<20020627135422.B26112@figure1.int.wirex.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 27 Jun 2002 16:52:33 -0600
+Message-Id: <1025218353.3997.33.camel@mentor>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jun 2002, Hurwitz Justin W. wrote:
-
-> On Thu, 27 Jun 2002, Nivedita Singhvi wrote:
+On Thu, 2002-06-27 at 14:54, Chris Wright wrote:
+> * Jesse Pollard (pollard@tomcat.admin.navo.hpc.mil) wrote:
+> > 
+> > Actually, I think most of that work has already been done by the Linux
+> > Security Module project (well, except #7).
 > 
-> [ snip ]
-> 
-> > That said, rx has been slower than sends in most of our testing
-> > too. 
-> 
-> Is this a documented/explained phemomenon? Or are you and I the only 
-> people experiencing it? Do we have any idea as to its cause (or is it 
-> inherent architecturally)? 
-> 
-> Cheers,
-> --Gus
+> The LSM project supports capabilities exactly as it appears in the
+> kernel right now.  The EA linkage is still missing.  Of course, we are
+> accepting patches ;-)
 
+Has either lscap or chcap been written? I suppose not as that would
+require a consensus on how capabilities would be stored as a EA. 
 
-Well, briefly, completely speculatively, and possibly unhelpfully,
+That EA would need to be "special" and only be changeable by uid 0 (or
+CAP_CHFSCAP).
 
-      - rx side processing can involve more work (stack length
-        is simply longer) and so can legitimately take longer.
-	This is especially true when options and out of order
-	packets are involved, and TCP fast path processing
-	on the rx side isnt taken. (I had done a breakdown 
-	of this based on some profiles last year, but dont
-	have that at the moment)
+So, has any of the below changed now that LSM has entered the picture?
 
-      - rx side reassembly could cause longer delays in the
-        case of fragmentation
+1. Define how capabilities will be stored as a EA
+2. Teach fs/exec.c to use the capabilities stored with the file
+3. Write lscap(1)
+4. Write chcap(1)
+5. Audit/fix all SUID root binaries to be capabilities aware
+6. Set appropriate capabilities with for each with chcap(1) and then:
+   # find / -type f -perm -4000 -user root -exec chmod u-s {} \;
+7. Party and snicker in the general direction of that OS with the slogan
+"One remote hole in the default install, in nearly 6 years!"
 
-      - scheduler comes slightly more into play on the rx
-        side for TCP, may be since we can put stuff on the backlog
-	or prequeue q's (waiting for a recvmsg()) (??). this is
-	again, very off the cuff and based on some profiles
-	I had seen on send/rx side with rx side scheduler 
-	showing up higher, and without having investigated 
-	further at the time..(long time ago, dont quote me, etc..)
-
-	
-there are possibly many different scenario's here, and
-I'm probably missing the most obvious causes...
-
-
-thanks,
-Nivedita
+Dax Kelson
 

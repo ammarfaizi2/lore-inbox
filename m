@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263206AbRFEEYA>; Tue, 5 Jun 2001 00:24:00 -0400
+	id <S263212AbRFEEcW>; Tue, 5 Jun 2001 00:32:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263208AbRFEEXu>; Tue, 5 Jun 2001 00:23:50 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:62219 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S263206AbRFEEXe>;
-	Tue, 5 Jun 2001 00:23:34 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S263208AbRFEEcM>; Tue, 5 Jun 2001 00:32:12 -0400
+Received: from smtp7.xs4all.nl ([194.109.127.133]:22753 "EHLO smtp7.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S263212AbRFEEcF>;
+	Tue, 5 Jun 2001 00:32:05 -0400
+From: thunder7@xs4all.nl
+Date: Mon, 4 Jun 2001 20:31:39 +0200
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: (lkml)2.4.5-ac7 usb-uhci appears twice in /proc/interrupts
+Message-ID: <20010604203139.A8060@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <Pine.LNX.4.33.0106040258200.2088-100000@portland.hansa.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15132.24313.192723.285372@argo.ozlabs.ibm.com>
-Date: Tue, 5 Jun 2001 14:24:25 +1000 (EST)
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Akash Jain <aki.jain@stanford.edu>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, su.class.cs99q@nntp.stanford.edu
-Subject: Re: [PATCH] fs/devfs/base.c
-In-Reply-To: <01060422150505.08443@starship>
-In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
-	<01060422150505.08443@starship>
-X-Mailer: VM 6.75 under Emacs 20.4.1
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106040258200.2088-100000@portland.hansa.lan>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
+On Mon, Jun 04, 2001 at 03:07:56AM -0400, Pavel Roskin wrote:
+> Hello!
+> 
+> I don't know, maybe it's Ok, but it looks confusing - usb-uhci is listed
+> twice on the same IRQ 9.
+> 
+My Abit VP6 (VIA694) says in dmesg:
 
-> We'd better know the upper bound of interrupt allocations or we have an 
-> accident waiting to happen.  How much of the kernel stack is reserved 
-> for interrupts?
+usb.c: registered new driver hub
+uhci.c: USB UHCI at I/O 0xa000, IRQ 19
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+uhci.c: USB UHCI at I/O 0xa400, IRQ 19
+usb.c: new USB bus registered, assigned bus number 2
+hub.c: USB hub found
+hub.c: 2 ports detected
+uhci.c:  Linus Torvalds, Johannes Erdfelt, Randy Dunlap, Georg Acher, Deti Fliegl, Thomas Sailer, Roman Weissgaerber
+uhci.c: USB Universal Host Controller Interface driver
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
 
-Since interrupt handlers generally run with other interrupts enabled,
-and only their own interrupt disabled, it seems to me that the bound
-on how much stack space you need to leave for interrupt handlers
-depends on how many different interrupts you have in the system.  On a
-large system there could easily be tens or even hundreds of active
-devices, all with different IRQs.  It would be possible (although
-unlikely) for them to all to interrupt at just the right time to get
-all their handlers stacked, and that could easily overflow the stack.
+And more, if I read the handbook I get an adapter to get another two usb
+plugs at the backside. So yes, this motherboard has 2 usb controllers.
 
-One solution would be to start running interrupt handlers with
-interrupts disabled (__cli) when they are getting close to being too
-deeply nested - it would not be hard to check the stack pointer and if
-there is less than some defined amount of stack space left then we
-don't do the __sti before calling the handler.
+I think it is okay - you may want to check your own manual.
 
-Paul.
+Good luck,
+Jurriaan
+-- 
+BOFH excuse #131:
+
+telnet: Unable to connect to remote host: Connection refused
+GNU/Linux 2.4.5-ac7 SMP/ReiserFS 2x1402 bogomips load av: 0.00 0.00 0.00

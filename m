@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbTI2LIK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 07:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbTI2LIK
+	id S263056AbTI2LMh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 07:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbTI2LMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 07:08:10 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:47002 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262982AbTI2LIH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 07:08:07 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 29 Sep 2003 13:06:37 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] use print_dev_t() for sysfs dev file in videodev.c
-Message-ID: <20030929110637.GA8500@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 29 Sep 2003 07:12:37 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:13324 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263056AbTI2LMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 07:12:36 -0400
+From: Shine Mohamed <shinemohamed_j@naturesoft.net>
+Organization: Naturesoft
+To: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: [PATCH] Initializedd the module parameters in drivers/net/wireless/arlan-main.c
+Date: Mon, 29 Sep 2003 16:44:06 +0530
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Message-Id: <200309291644.06043.shinemohamed_j@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial one-liner, $subject says all.
+Quick patch to  Initialize  the module parameters in 
+drivers/net/wireless/arlan-main.c
 
-please apply,
 
-  Gerd
+--- drivers/net/wireless/arlan-main.c.orig      2003-09-29 16:40:33.000000000 
++0530
++++ drivers/net/wireless/arlan-main.c   2003-09-29 16:40:18.000000000 +0530
+@@ -33,6 +33,7 @@
+ static int retries = 5;
+ static int tx_queue_len = 1;
+ static int arlan_EEPROM_bad;
++static int probe = 0; /* Initially it is setting to be 'Probing Disabled' */
 
---- drivers/media/video/videodev.c.sysfs	2003-09-29 12:39:08.243219904 +0200
-+++ drivers/media/video/videodev.c	2003-09-29 12:39:23.531895672 +0200
-@@ -52,7 +52,7 @@
- {
- 	struct video_device *vfd = container_of(cd, struct video_device, class_dev);
- 	dev_t dev = MKDEV(VIDEO_MAJOR, vfd->minor);
--	return sprintf(buf,"%04x\n",old_encode_dev(dev));
-+	return print_dev_t(buf,dev);
- }
- 
- static CLASS_DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
+ #ifdef ARLAN_DEBUGGING
+
 

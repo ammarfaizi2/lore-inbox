@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVC2UKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVC2UNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVC2UKd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 15:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVC2UIn
+	id S261403AbVC2UNs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVC2UNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 15:08:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39606 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261348AbVC2UGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 15:06:19 -0500
-Message-ID: <4249B52C.2000300@pobox.com>
-Date: Tue, 29 Mar 2005 15:06:04 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com, netdev@oss.sgi.com
-Subject: Re: [PATCH] s390: claw network device driver
-References: <200503290533.j2T5XEYT028850@hera.kernel.org> <4248FBFD.5000809@pobox.com> <20050328230830.5e90396f.akpm@osdl.org> <20050329071002.GA16204@havoc.gtf.org> <20050329152057.GA27840@wohnheim.fh-wedel.de>
-In-Reply-To: <20050329152057.GA27840@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 29 Mar 2005 15:13:39 -0500
+Received: from gate.ebshome.net ([64.81.67.12]:6800 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S261363AbVC2UMK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 15:12:10 -0500
+Date: Tue, 29 Mar 2005 12:12:09 -0800
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Kumar Gala <galak@freescale.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, shall@mvista.com,
+       Jason McMullan <jason.mcmullan@timesys.com>
+Subject: Re: [PATCH] ppc32: CPM2 PIC cleanup
+Message-ID: <20050329201209.GB30850@gate.ebshome.net>
+Mail-Followup-To: Kumar Gala <galak@freescale.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+	linux-kernel@vger.kernel.org, shall@mvista.com,
+	Jason McMullan <jason.mcmullan@timesys.com>
+References: <Pine.LNX.4.61.0503291039180.15390@blarg.somerset.sps.mot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0503291039180.15390@blarg.somerset.sps.mot.com>
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Tue, 29 March 2005 02:10:02 -0500, Jeff Garzik wrote:
+On Tue, Mar 29, 2005 at 10:42:29AM -0600, Kumar Gala wrote:
+> Andrew,
 > 
->>As mentioned in the email, you want netdev, not linux-net...
+> Cleaned up the CPM2 interrupt controller code:
+> * Added the ability to offset the IRQs
+> * Refactored common PIC init code out of platform files
+> * Fixed IRQ offsets on MPC85xx so it can handle properly handled multiple 
+> interrupt controllers (i8259, CPM2 PIC, and OpenPIC)
 > 
+> Signed-off-by: Jason McMullan <jason.mcmullan@timesys.com>
+> Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 > 
-> Just out of curiosity: why are there two mailing lists?  Especially if
-> one of them is the Wrong One.
 
-<shrug>
+[snip]
 
-linux-net is mostly dead.  I get the impression it is occasionally used 
-by users.
+Guys, while you are at it, could we renumber irq_to_siubit[] array in 
+cpm2_pic.c so we can get rid of "1 << (31 - bit)" expressions and 
+simply use "1 << bit"? I know, it's a minor thing, but you are 
+cleaning this stuff anyway, why not make it super clean :).
 
-netdev (as, perhaps, the name implies) is where the network developers 
-hang out.
-
-	Jeff
-
-
-
+--
+Eugene

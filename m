@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVCCPiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVCCPqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVCCPiy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 10:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVCCPiy
+	id S261821AbVCCPqS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 10:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVCCPqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 10:38:54 -0500
-Received: from 200-170-96-180.veloxmail.com.br ([200.170.96.180]:20684 "EHLO
-	200-170-96-186.veloxmail.com.br") by vger.kernel.org with ESMTP
-	id S261813AbVCCPiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 10:38:52 -0500
-X-Authenticated-User: fredlwm@veloxmail.com.br
-X-Authenticated-User: fredlwm@veloxmail.com.br
-Date: Thu, 3 Mar 2005 12:38:51 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: radeonfb blanks my monitor
-In-Reply-To: <1109825452.5611.163.camel@gaston>
-Message-ID: <Pine.LNX.4.62.0503031149280.311@darkstar.example.net>
-References: <Pine.LNX.4.62.0503022347070.311@darkstar.example.net> 
- <1109823010.5610.161.camel@gaston>  <Pine.LNX.4.62.0503030134200.311@darkstar.example.net>
- <1109825452.5611.163.camel@gaston>
-X-Archive: encrypt
+	Thu, 3 Mar 2005 10:46:18 -0500
+Received: from c-67-177-11-111.client.comcast.net ([67.177.11.111]:7552 "EHLO
+	vger") by vger.kernel.org with ESMTP id S261821AbVCCPqQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 10:46:16 -0500
+Message-ID: <42273067.9050808@utah-nac.org>
+Date: Thu, 03 Mar 2005 08:42:31 -0700
+From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: United States Patent: 6,862,609]
+References: <4226781B.7080302@utah-nac.org> <200503022227.40614.gene.heskett@verizon.net> <4226927A.6010107@utah-nac.org> <200503030121.08778.gene.heskett@verizon.net>
+In-Reply-To: <200503030121.08778.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, Benjamin Herrenschmidt wrote:
+Why the hell would I want
 
-> There should be more than these... Does it continue booting 
-> afte the screen goes blank or not at all ? Can you send the 
-> full dmesg log too ? Also, enable radeonfb verbose debug in 
-> the config.
+>>>to look at the link in kwrite?
+>>>      
+>>>
+>>Talk to the USPTO, they created these links from their website. BTW,
+>>if you check
+>>the verson of web server run on the uspto.gov server, you will
+>>discover it is
+>>Apache on IBM servers and IBM Linux. Ask them why IBM's sofware
+>>outputs links this way.
+>>    
+>>
+>
+>Correction Jeff, you sent that link to the list, and IMNSHO, it was 
+>your job to see to it the mimetype was properly set.  It was not.
+>
+>  
+>
+I used mozilla mail in Fedra Core 2 to send it -- ON LINUX.
 
-Yes, there were more in /var/log/syslog:
-
-Mar  2 15:16:45 darkstar kernel: radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=325.00 Mhz, System=200.00 MHz
-Mar  2 15:16:45 darkstar kernel: radeonfb: PLL min 20000 max 40000
-Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: monid seems to be busy.
-Mar  2 15:16:45 darkstar kernel: radeonfb 0000:01:00.0: Failed to register I2C bus monid.
-Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: crt2 seems to be busy.
-Mar  2 15:16:46 darkstar kernel: radeonfb 0000:01:00.0: Failed to register I2C bus crt2.
-Mar  2 15:16:46 darkstar kernel: Console: switching to colour frame buffer device 90x25
-Mar  2 15:16:46 darkstar kernel: radeonfb (0000:01:00.0): ATI Radeon AP
-
-Do the "seems to be busy." and/or "Failed to register I2C bus" 
-indicate a problem ?
-
-There's nothing about radeonfb in dmesg because I manually 
-loaded the modules.
-
-I now compiled built-in with debug enabled and got the same 
-problem. Nothing got logged. Everything seems to stop when it 
-blanks, but SysRq works.
-
--- 
-How to contact me - http://www.pervalidus.net/contact.html
+Jeff

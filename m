@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262272AbTCHWkG>; Sat, 8 Mar 2003 17:40:06 -0500
+	id <S262303AbTCHX1B>; Sat, 8 Mar 2003 18:27:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262273AbTCHWkG>; Sat, 8 Mar 2003 17:40:06 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:2740
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262272AbTCHWkC>; Sat, 8 Mar 2003 17:40:02 -0500
-Subject: Re: [PATCH] register_blkdev
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Joel Becker <Joel.Becker@oracle.com>, Greg KH <greg@kroah.com>,
-       Andries.Brouwer@cwi.nl, akpm@digeo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0303081431030.19716-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0303081431030.19716-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047167794.26807.55.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 08 Mar 2003 23:56:35 +0000
+	id <S262304AbTCHX1B>; Sat, 8 Mar 2003 18:27:01 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:25312 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S262303AbTCHX1A>;
+	Sat, 8 Mar 2003 18:27:00 -0500
+Message-Id: <200303082337.h28NbVSt001887@eeyore.valparaiso.cl>
+To: margitsw@t-online.de (Margit Schubert-While)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21pre5-ac2 
+In-Reply-To: Your message of "Fri, 07 Mar 2003 14:40:09 BST."
+             <4.3.2.7.2.20030307143243.00b7abe0@pop.t-online.de> 
+Date: Sat, 08 Mar 2003 20:37:30 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-08 at 22:36, Linus Torvalds wrote:
-> I certainly agree that we'll need to open up the number space, but I 
-> really do think that the way to _manage_ it is something like what Greg 
-> pointed to - dynamic tols with "rules" on allocation, instead of the 
-> stupid static manual assignment thing.
+margitsw@t-online.de (Margit Schubert-While) said:
 
-Greg's tools still have unsolved security holes in them. We still have
-unsolved persistence of permissions and reuse problems. I think they are
-soluble. The current insoluble dirty great security hole we have is
-lack of vhangup for non tty devices (ie BSD revoke). Right now that
-allows some quite nasty things to occur if you ever had console access.
+Stupid question time:
 
-> We're pretty close to it already. I thought some Linux vendors are already 
-> starting to pick up on the hotplugging tools, simply because there are no 
-> real alternatives.
+> --- linux-2.4.20/drivers/video/radeon.h 2002-11-29 00:53:15.000000000 +0100
+> +++ linux-2.4.20mw0/drivers/video/radeon.h      2003-03-07 
 
-For certain kinds of device yes.
+[...]
 
-> And once you do it that way, the static numbers are meaningless. And good 
-> riddance.
+> @@ -861,6 +865,15 @@
+>                  case PCI_DEVICE_ID_RADEON_PM:
+>                          strcpy(rinfo->name, "Radeon P/M ");
 
-Static naming/permissions management is current simply the best of
-available evils for many things. With stuff like modem arrays on serial
-ports its also neccessary to know what goes where. I'm all for moving to
-setups when possible where things like SCSI volumes carry a volume name
-and permission/acl data in the label
+Is this string modified later, or would it be enough to use a char *name
+and go:
+                           rinfo->name = "Radeon P/M";
 
-
+(It looks like this would mean changes all over PCI, so...)
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

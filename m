@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTKUNcs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 08:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKUNcs
+	id S262081AbTKUNcV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 08:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTKUNcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 08:32:48 -0500
-Received: from denise.shiny.it ([194.20.232.1]:36515 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S262190AbTKUNcr (ORCPT
+	Fri, 21 Nov 2003 08:32:21 -0500
+Received: from pop.gmx.de ([213.165.64.20]:39338 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262081AbTKUNcU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 08:32:47 -0500
-Message-ID: <XFMail.20031121143243.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	Fri, 21 Nov 2003 08:32:20 -0500
+X-Authenticated: #4512188
+Message-ID: <3FBE14DF.5010205@gmx.de>
+Date: Fri, 21 Nov 2003 14:36:31 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-In-Reply-To: <20031121123342.6cd41e22.ldecicco@gmx.net>
-Date: Fri, 21 Nov 2003 14:32:43 +0100 (CET)
-From: Giuliano Pochini <pochini@shiny.it>
-To: Luca De Cicco <ldecicco@gmx.net>
-Subject: RE: TCP retransmissions per connection
-Cc: linux-kernel@vger.kernel.org
+To: Ed Tomlinson <edt@aei.ca>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test9-mm4
+References: <20031118225120.1d213db2.akpm@osdl.org> <20031121004133.1a111786.akpm@osdl.org> <3FBDD055.50907@gmx.de> <200311210809.16049.edt@aei.ca>
+In-Reply-To: <200311210809.16049.edt@aei.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 21-Nov-2003 Luca De Cicco wrote:
-> Hi all...First of all, please excuse me if this is not the right place to post this question. If not
-> please address me to the correct mailing list and i'll apologize.
->
-> I want to keep track of TCP retransmissions for all TCP connections. I need this to compare
-> retransmissions with a new congestion control algorithm i developed for my thesis.
-> Is there a place or a way to get values?
-
-man tcpdump
+> Its an nvidia problem.  Please do report it to them as they are
+> the ones that can fix it.  You can stop the message from 
+> printing by disabling the debug check but that does not
+> get rid of the problem.
 
 
---
-Giuliano.
+Done, though I suspect the won't release any update as long as  there is 
+no 2.6.0 stable  kernel release.
+
+bye,
+
+Prakash
+

@@ -1,65 +1,275 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVCUMqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVCUMtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVCUMqt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 07:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVCUMqt
+	id S261806AbVCUMtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 07:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbVCUMtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 07:46:49 -0500
-Received: from rev.193.226.232.24.euroweb.hu ([193.226.232.24]:4492 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261778AbVCUMqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 07:46:46 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] FUSE: fix locking for background list
-Message-Id: <E1DDMIR-0002Hd-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 21 Mar 2005 13:46:15 +0100
+	Mon, 21 Mar 2005 07:49:09 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:46236 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261798AbVCUMsk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 07:48:40 -0500
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
+       Erich Focht <efocht@hpce.nec.com>, Ram <linuxram@us.ibm.com>,
+       Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>
+In-Reply-To: <200503171405.55095.jbarnes@engr.sgi.com>
+References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
+	 <200503170856.57893.jbarnes@engr.sgi.com>
+	 <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
+	 <200503171405.55095.jbarnes@engr.sgi.com>
+Date: Mon, 21 Mar 2005 13:48:23 +0100
+Message-Id: <1111409303.8329.16.camel@frecb000711.frec.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/03/2005 13:57:59,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/03/2005 13:58:03,
+	Serialize complete at 21/03/2005 13:58:03
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
+ChangeLog:
 
-In the prevous fix (fix busy inodes after unmount) I forgot to protect
-against concurrent modification of the background list.  This patch
-adds the necessary locking.
+  - Remove the global cn_fork_lock and replace it by a per CPU 
+    counter. 
+  - The processor ID has been added in the data part of the message.
+    Thus datas sent in a message are: "CPU_ID PARENT_PID CHILD_PID"
 
-Next time I'll think before sending.
+  Those modifications were done to be more scalable because, as
+mentioned by Jesse Barnes, the global cn_fork_lock won't work well on a
+large CPU system.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+  This patch applies to 2.6.11-mm4.
 
-diff -rup linux-2.6.12-rc1-mm1/fs/fuse/dev.c linux-fuse/fs/fuse/dev.c
---- linux-2.6.12-rc1-mm1/fs/fuse/dev.c	2005-03-21 13:34:42.000000000 +0100
-+++ linux-fuse/fs/fuse/dev.c	2005-03-21 13:35:30.000000000 +0100
-@@ -148,7 +148,9 @@ void fuse_release_background(struct fuse
- 		iput(req->inode2);
- 	if (req->file)
- 		fput(req->file);
-+	spin_lock(&fuse_lock);
- 	list_del(&req->bg_entry);
-+	spin_unlock(&fuse_lock);
- }
+Regards,
+Guillaume
+
+---
+
+ drivers/connector/Kconfig   |   11 +++++
+ drivers/connector/Makefile  |    1
+ drivers/connector/cn_fork.c |   85 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/connector.h   |    4 ++
+ kernel/fork.c               |   44 ++++++++++++++++++++++
+ 5 files changed, 145 insertions(+)
+
+
+Index: linux-2.6.11-mm4-cnfork/drivers/connector/Kconfig
+===================================================================
+--- linux-2.6.11-mm4-cnfork.orig/drivers/connector/Kconfig	2005-03-16 14:21:46.000000000 +0100
++++ linux-2.6.11-mm4-cnfork/drivers/connector/Kconfig	2005-03-16 14:34:41.000000000 +0100
+@@ -10,4 +10,15 @@
+ 	  Connector support can also be built as a module.  If so, the module
+ 	  will be called cn.ko.
  
- /* Called with fuse_lock, unlocks it */
-@@ -324,7 +326,9 @@ void request_send_noreply(struct fuse_co
- void request_send_background(struct fuse_conn *fc, struct fuse_req *req)
++config FORK_CONNECTOR
++	bool "Enable fork connector"
++	depends on CONNECTOR=y
++	default y
++	---help---
++	  It adds a connector in kernel/fork.c:do_fork() function. When a fork
++	  occurs, netlink is used to transfer information about the parent and 
++	  its child. This information can be used by a user space application.
++	  The fork connector can be enable/disable by sending a message to the
++	  connector with the corresponding group id.
++	  
+ endmenu
+Index: linux-2.6.11-mm4-cnfork/drivers/connector/Makefile
+===================================================================
+--- linux-2.6.11-mm4-cnfork.orig/drivers/connector/Makefile	2005-03-16 14:21:46.000000000 +0100
++++ linux-2.6.11-mm4-cnfork/drivers/connector/Makefile	2005-03-16 14:34:41.000000000 +0100
+@@ -1,2 +1,3 @@
+ obj-$(CONFIG_CONNECTOR)		+= cn.o
++obj-$(CONFIG_FORK_CONNECTOR)	+= cn_fork.o 
+ cn-objs		:= cn_queue.o connector.o
+Index: linux-2.6.11-mm4-cnfork/drivers/connector/cn_fork.c
+===================================================================
+--- linux-2.6.11-mm4-cnfork.orig/drivers/connector/cn_fork.c	2003-01-30 11:24:37.000000000 +0100
++++ linux-2.6.11-mm4-cnfork/drivers/connector/cn_fork.c	2005-03-16 14:34:41.000000000 +0100
+@@ -0,0 +1,85 @@
++/*
++ * 	cn_fork.c
++ * 
++ * 2005 Copyright (c) Guillaume Thouvenin <guillaume.thouvenin@bull.net>
++ * All rights reserved.
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++
++#include <linux/connector.h>
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Guillaume Thouvenin <guillaume.thouvenin@bull.net>");
++MODULE_DESCRIPTION("Enable or disable the usage of the fork connector");
++
++int cn_fork_enable = 0;
++struct cb_id cb_fork_id = { CN_IDX_FORK, CN_VAL_FORK };
++
++/**
++ * cn_fork_callback - enable or disable the fork connector
++ * @data: message send by the connector 
++ *
++ * The callback allows to enable or disable the sending of information
++ * about fork in the do_fork() routine. To enable the fork, the user 
++ * space application must send the integer 1 in the data part of the 
++ * message. To disable the fork connector, it must send the integer 0.
++ */
++static void cn_fork_callback(void *data) 
++{
++	struct cn_msg *msg = (struct cn_msg *)data;
++
++	if (cn_already_initialized && (msg->len == sizeof(cn_fork_enable)))
++		memcpy(&cn_fork_enable, msg->data, sizeof(cn_fork_enable));
++}
++
++/**
++ * cn_fork_init - initialization entry point
++ *
++ * This routine will be run at kernel boot time because this driver is
++ * built in the kernel. It adds the connector callback to the connector 
++ * driver.
++ */
++static int cn_fork_init(void)
++{
++	int err;
++	
++	err = cn_add_callback(&cb_fork_id, "cn_fork", &cn_fork_callback);
++	if (err) {
++		printk(KERN_WARNING "Failed to register cn_fork\n");
++		return -EINVAL;
++	}	
++		
++	printk(KERN_NOTICE "cn_fork is registered\n");
++	return 0;
++}
++
++/**
++ * cn_fork_exit - exit entry point
++ *
++ * As this driver is always statically compiled into the kernel the
++ * cn_fork_exit has no effect.
++ */
++static void cn_fork_exit(void)
++{
++	cn_del_callback(&cb_fork_id);
++}
++
++module_init(cn_fork_init);
++module_exit(cn_fork_exit);
+Index: linux-2.6.11-mm4-cnfork/include/linux/connector.h
+===================================================================
+--- linux-2.6.11-mm4-cnfork.orig/include/linux/connector.h	2005-03-16 14:21:49.000000000 +0100
++++ linux-2.6.11-mm4-cnfork/include/linux/connector.h	2005-03-16 14:34:41.000000000 +0100
+@@ -28,6 +28,8 @@
+ #define CN_VAL_KOBJECT_UEVENT		0x0000
+ #define CN_IDX_SUPERIO			0xaabb  /* SuperIO subsystem */
+ #define CN_VAL_SUPERIO			0xccdd
++#define CN_IDX_FORK			0xfeed  /* fork events */
++#define CN_VAL_FORK			0xbeef
+ 
+ 
+ #define CONNECTOR_MAX_MSG_SIZE 	1024
+@@ -133,6 +135,8 @@
+ };
+ 
+ extern int cn_already_initialized;
++extern int cn_fork_enable;
++extern struct cb_id cb_fork_id;
+ 
+ int cn_add_callback(struct cb_id *, char *, void (* callback)(void *));
+ void cn_del_callback(struct cb_id *);
+Index: linux-2.6.11-mm4-cnfork/kernel/fork.c
+===================================================================
+--- linux-2.6.11-mm4-cnfork.orig/kernel/fork.c	2005-03-16 14:21:49.000000000 +0100
++++ linux-2.6.11-mm4-cnfork/kernel/fork.c	2005-03-21 13:13:25.000000000 +0100
+@@ -41,6 +41,7 @@
+ #include <linux/profile.h>
+ #include <linux/rmap.h>
+ #include <linux/acct.h>
++#include <linux/connector.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -63,6 +64,47 @@
+ 
+ EXPORT_SYMBOL(tasklist_lock);
+ 
++#ifdef CONFIG_FORK_CONNECTOR
++
++#define CN_FORK_INFO_SIZE	64
++#define CN_FORK_MSG_SIZE 	(sizeof(struct cn_msg) + CN_FORK_INFO_SIZE)
++
++static DEFINE_PER_CPU(unsigned long, fork_counts);
++
++static inline void fork_connector(pid_t parent, pid_t child)
++{
++	if (cn_fork_enable) {
++		struct cn_msg *msg;
++		__u8 buffer[CN_FORK_MSG_SIZE];	
++
++		msg = (struct cn_msg *)buffer;
++			
++		memcpy(&msg->id, &cb_fork_id, sizeof(msg->id));
++		
++		msg->ack = 0; /* not used */
++		msg->seq = get_cpu_var(fork_counts)++;
++		
++		/* 
++		 * size of data is the number of characters 
++		 * printed plus one for the trailing '\0'
++		 */
++		memset(msg->data, '\0', CN_FORK_INFO_SIZE);
++		msg->len = scnprintf(msg->data, CN_FORK_INFO_SIZE-1, 
++				    "%i %i %i", 
++				    smp_processor_id(), parent, child) + 1;
++		
++		put_cpu_var(fork_counts);
++
++		cn_netlink_send(msg, CN_IDX_FORK);
++	}
++}
++#else
++static inline void fork_connector(pid_t parent, pid_t child) 
++{
++	return; 
++}
++#endif /* CONFIG_FORK_CONNECTOR */
++
+ int nr_processes(void)
  {
- 	req->isreply = 1;
-+	spin_lock(&fuse_lock);
- 	background_request(fc, req);
-+	spin_unlock(&fuse_lock);
- 	request_send_nowait(fc, req);
- }
- 
-diff -rup linux-2.6.12-rc1-mm1/fs/fuse/fuse_i.h linux-fuse/fs/fuse/fuse_i.h
---- linux-2.6.12-rc1-mm1/fs/fuse/fuse_i.h	2005-03-21 13:34:42.000000000 +0100
-+++ linux-fuse/fs/fuse/fuse_i.h	2005-03-21 13:35:30.000000000 +0100
-@@ -301,6 +301,7 @@ extern struct file_operations fuse_dev_o
-  *  - the private_data field of the device file
-  *  - the s_fs_info field of the super block
-  *  - unused_list, pending, processing lists in fuse_conn
-+ *  - background list in fuse_conn
-  *  - the unique request ID counter reqctr in fuse_conn
-  *  - the sb (super_block) field in fuse_conn
-  *  - the file (device file) field in fuse_conn
+ 	int cpu;
+@@ -1253,6 +1295,8 @@
+ 			if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
+ 				ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
+ 		}
++		
++		fork_connector(current->pid, p->pid);
+ 	} else {
+ 		free_pidmap(pid);
+ 		pid = PTR_ERR(p);
+
 

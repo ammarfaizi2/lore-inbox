@@ -1,61 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135986AbRDTSzN>; Fri, 20 Apr 2001 14:55:13 -0400
+	id <S135983AbRDTSzX>; Fri, 20 Apr 2001 14:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135978AbRDTSzE>; Fri, 20 Apr 2001 14:55:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25101 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135983AbRDTSyu>;
-	Fri, 20 Apr 2001 14:54:50 -0400
-Date: Fri, 20 Apr 2001 19:50:04 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Matthew Wilcox <willy@ldl.fc.hp.com>,
-        james rich <james.rich@m.cc.utah.edu>, linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-Message-ID: <20010420195004.A5510@flint.arm.linux.org.uk>
-In-Reply-To: <20010420101951.A6011@thyrsus.com> <E14qc9E-0001PW-00@the-village.bc.nu> <20010420105934.A6668@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010420105934.A6668@thyrsus.com>; from esr@thyrsus.com on Fri, Apr 20, 2001 at 10:59:34AM -0400
+	id <S135978AbRDTSzO>; Fri, 20 Apr 2001 14:55:14 -0400
+Received: from lysithea.xerox.com ([208.140.33.22]:23541 "EHLO
+	lysithea.eastgw.xerox.com") by vger.kernel.org with ESMTP
+	id <S135983AbRDTSzI>; Fri, 20 Apr 2001 14:55:08 -0400
+Message-Id: <200104201854.OAA06769@mailhost.eng.mc.xerox.com>
+To: linux-kernel@vger.kernel.org
+cc: leisner@rochester.rr.com
+Subject: Re: kernel threads and close method in a device driver
+Date: Fri, 20 Apr 2001 14:54:53 -0400
+From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 20, 2001 at 10:59:34AM -0400, Eric S. Raymond wrote:
-> All right then.  I'm going to send you a bunch of dead-symbol cleanup
-> patches.  I'll try to stay in the mainline code and out of the port
-> trees.  Would you please do me the kindness of telling me which ones
-> can go in and which ones you think have to go through maintainers?
 
->From my point of view, I'd be happy if stuff that touched the ARM tree
-directly was sent separately from the other architectures, and actually
-was copied to me.  I'm sure that the other architecture maintainers
-feel the same way, but I'll let them comment separately.
+I ment to send this correspondence to the list.
+It seems to be working much better now -- but is this
+CLONE_FILES flag correct?
 
-Why?  Well:
+Is there a device to look at which does a kernel_thread on open,
+and kills the thread on close (I'd like to see an example).
 
-- Firstly, I can apply your patch directly to my tree without having
-  to bother about the effects in the other architecture trees.  (hence
-  when I resync with Linus or Alan, I don't have to go around fixing
-  up rejects in other architecture trees).
+Thanks for the help...
 
-- Secondly, its very easy to miss stuff in the lkml hunk of email each
-  day when you have less than 4 hours to read it and think about it.
-  (note that architecture maintainers have to read mail from their
-  side which may not be on lkml, think about that, think about bug fixes,
-  possible impacts of fixes on other machines, etc etc).  Therefore,
-  copying their email address registered in the MAINTAINER file means
-  that they should not overlook your patch.
+Marty
 
-- I know that Alan does take lots of patches off lkml, but I'm not sure
-  what his criterion is for selecting them.  In the case which started
-  this thread off, I'm always worried that your cleanup patch would make
-  it in, and then cause me problems later on.
+- ------- Forwarded Message
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+To: Andi Kleen <ak@suse.de>
+Subject: Re: kernel threads and close method in a device driver 
+In-Reply-To: Your message of "Tue, 17 Apr 2001 23:43:39 +0200."
+             <20010417234339.A18288@gruyere.muc.suse.de> 
+Date: Wed, 18 Apr 2001 10:49:04 -0400
+From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
+
+In message <20010417234339.A18288@gruyere.muc.suse.de>,   you write:
+>On Tue, Apr 17, 2001 at 05:04:28PM -0400, Marty Leisner wrote:
+>> 	open device
+>> 	do IOCTL (spinning a kernel thread and doing initialization)
+>> 
+>> There is currently an IOCTL which short-circuits to the close method.
+>> Turns out it seems necessary to do this IOCTL -- close never gets 
+>> invoked.
+>
+>Call daemonize() in the kernel thread.
+>
+>-Andi
+
+It seemed like daemonize was a good idea (after thinking about it,
+it makes a lot of sense...there are multiple instances of the file
+open...[I'm not used to opening files NOT in user space ;-))]
+
+daemonize wasn't in 2.2.12 (I copied it from 2.2.18):
+
+static void daemonize(void)
+{  
+        struct fs_struct *fs;
+
+        /*
+         * If we were started as result of loading a module, close all of the
+         * user space pages.  We don't need them, and if we didn't close them
+         * they would be locked into memory.
+         */                
+        printk("want to daemonize");
+        exit_mm(current);
+
+        current->session = 1;
+        current->pgrp = 1;
+
+        /* Become as one with the init task */
+
+        exit_fs(current);       /* current->fs->count--; */
+        fs = init_task.fs;
+        current->fs = fs;
+        atomic_inc(&fs->count);
+}
+
+This seems reasonable, get rid of your files and inherit init's
+
+However, 
+:1 mleisner@piquin; lsof -p 630
+COMMAND   PID     USER   FD   TYPE DEVICE SIZE NODE NAME
+aicCtrlTh 630 mleisner  cwd    DIR    3,1 1024    2 /
+aicCtrlTh 630 mleisner  rtd    DIR    3,1 1024    2 /
+aicCtrlTh 630 mleisner    0u   CHR  136,0         2 /dev/pts/0
+aicCtrlTh 630 mleisner    1u   CHR  136,0         2 /dev/pts/0
+aicCtrlTh 630 mleisner    2u   CHR  136,0         2 /dev/pts/0
+aicCtrlTh 630 mleisner    3u   CHR   43,0      8034 /dev/aicdrv
+
+which is the original file handles from the application...
+
+Any hints?  I played around with the CLONE_FILES flag on thread_creation,
+and at least now I can get through to close (I have to look at the thread kill strategy).
+
+But now I have (after an open, create thread, close cycle)
+bash3 :3 mleisner@piquin; lsof -p 584
+COMMAND   PID     USER   FD   TYPE DEVICE SIZE NODE NAME
+aicCtrlTh 584 mleisner  cwd    DIR    3,1 1024    2 /
+aicCtrlTh 584 mleisner  rtd    DIR    3,1 1024    2 /
+aicCtrlTh 584 mleisner    0u   CHR  136,0         2 /dev/pts/0
+aicCtrlTh 584 mleisner    1u   CHR  136,0         2 /dev/pts/0
+aicCtrlTh 584 mleisner    2u   CHR  136,0         2 /dev/pts/0
+bash3 :3 mleisner@piquin; lsmod
+Module                  Size  Used by
+aicdrv                 18104   0 
+nfs                    29656   1  (autoclean)
+nfsd                  144060   8  (autoclean)
+lockd                  30984   1  (autoclean) [nfs nfsd]
+sunrpc                 52516   1  (autoclean) [nfs nfsd lockd]
+fa311                   4404   1  (autoclean)
+
+marty
+mleisner@eng.mc.xerox.com
+
+- ------- End of Forwarded Message
+
 

@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbULBUaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbULBUbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbULBUaC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 15:30:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbULBUaB
+	id S261753AbULBUbY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 15:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbULBUbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 15:30:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29846 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261753AbULBU3w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 15:29:52 -0500
-Date: Thu, 2 Dec 2004 12:34:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: Time sliced CFQ io scheduler
-Message-Id: <20041202123407.5f8ba355.akpm@osdl.org>
-In-Reply-To: <20041202201904.GD26695@suse.de>
-References: <20041202130457.GC10458@suse.de>
-	<20041202134801.GE10458@suse.de>
-	<20041202114836.6b2e8d3f.akpm@osdl.org>
-	<20041202195232.GA26695@suse.de>
-	<20041202121938.12a9e5e0.akpm@osdl.org>
-	<20041202201904.GD26695@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 2 Dec 2004 15:31:24 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:9025 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261753AbULBUaO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 15:30:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:return-path:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=UNrK6/ccPvHaUyl+sDdMiFGukFW/rxSLYlupepcwXhqFKowupgPUNOG0q51tm5UzCaT+EaKx+khpVNdNH9xjfDHV0elRSbkQ7JBb5hAcFGPtXZNRzk0FxMfwbJbyRqyvMxAfJxmExtcBGNxSGit+7JYiuaeIrYTnIFm88Efv7Q4=
+Date: Thu, 2 Dec 2004 21:30:08 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and
+ performance tests
+Message-Id: <20041202213008.2f2c3fea.diegocg@gmail.com>
+In-Reply-To: <41AF7726.4000509@pobox.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+	<Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>
+	<41AEB44D.2040805@pobox.com>
+	<20041201223441.3820fbc0.akpm@osdl.org>
+	<41AEBAB9.3050705@pobox.com>
+	<20041202204838.04f33a8c.diegocg@gmail.com>
+	<41AF7726.4000509@pobox.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> > So what are you doing different?
+El Thu, 02 Dec 2004 15:12:22 -0500 Jeff Garzik <jgarzik@pobox.com>
+escribió:
+
+> > Automated .deb's and .rpm's for the -bk snapshots (and yum/apt
+> > repositories) would be nice for all those people who run unsupported
+> > distros.
 > 
-> Doing sync io, most likely. My results above are 64k O_DIRECT reads and
-> writes, see the mention of the test cases in the first mail.
+> Now, that's a darned good idea...
+> 
+> Should be simple for rpm at least, given the "make rpm" target.  I 
+> wonder if we have, or could add, a 'make deb' target.
 
-OK.
 
-Writer:
-
-	while true
-	do
-	write-and-fsync -o -m 100 -c 65536 foo 
-	done
-
-Reader:
-
-	time-read -o -b 65536 -n 256 x      (This is O_DIRECT)
-or:	time-read -b 65536 -n 256 x	    (This is buffered)
-
-`vmstat 1':
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  1   1032 137412   4276  84388   32    0 15456 25344 1659  1538  0  3 50 47
- 0  1   1032 137468   4276  84388    0    0     0 32128 1521  1027  0  2 51 48
- 0  1   1032 137476   4276  84388    0    0     0 32064 1519  1026  0  1 50 49
- 0  1   1032 137476   4276  84388    0    0     0 33920 1556  1102  0  2 50 49
- 0  1   1032 137476   4276  84388    0    0     0 33088 1541  1074  0  1 50 49
- 0  2   1032 135676   4284  85944    0    0  1656 29732 1868  2506  0  3 49 47
- 1  1   1032  96532   4292 125172    0    0 39220   128 10813 39313  0 31 35 34
- 0  2   1032  57724   4332 163892    0    0 38828   128 10716 38907  0 28 38 35
- 0  2   1032  18860   4368 202684    0    0 38768   128 10701 38845  1 28 38 35
- 0  2   1032   3672   4248 217764    0    0 39188   128 10803 39327  0 28 37 34
- 0  1   1032   2832   4260 218840    0    0 16812 17932 5504 17457  0 14 46 40
- 0  1   1032   2832   4260 218840    0    0     0 30876 1501   974  0  1 50 49
- 0  1   1032   2944   4260 218840    0    0     0 33472 1537  1068  0  2 50 48
- 0  1   1032   2944   4260 218840    0    0     0 33216 1533  1046  0  2 50 48
- 
-Ugly.
-
-(write-and-fsync and time-read are from
-http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz)
+There was a patch for that long time ago before 2.6 was out IIRC? I don't
+know where it went (CC'ing Sam who should know ;)

@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUD1XYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbUD1X1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbUD1XYp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 19:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUD1XYp
+	id S261472AbUD1X1q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 19:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUD1X1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 19:24:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21671 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261857AbUD1XYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 19:24:39 -0400
-Date: Wed, 28 Apr 2004 19:24:18 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Paulo Marques <pmarques@grupopie.com>
-cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-In-Reply-To: <408E5944.8090807@grupopie.com>
-Message-ID: <Pine.LNX.4.44.0404281922310.19633-100000@chimarrao.boston.redhat.com>
+	Wed, 28 Apr 2004 19:27:46 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:4689 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261472AbUD1X0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 19:26:40 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+Date: Wed, 28 Apr 2004 18:24:03 -0500
+User-Agent: KMail/1.6.1
+Cc: Erik Steffl <steffl@bigfoot.com>
+References: <40853060.2060508@bigfoot.com> <200404280741.08665.dtor_core@ameritech.net> <408FFC2A.3080504@bigfoot.com>
+In-Reply-To: <408FFC2A.3080504@bigfoot.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404281824.05044.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004, Paulo Marques wrote:
-
-> The way I see it, they know a C string ends with a '\0'. This is like saying 
-> that a English sentence ends with a dot. If they wrote "GPL\0" they are 
-> effectively saying that the license *is* GPL period.
+On Wednesday 28 April 2004 01:47 pm, Erik Steffl wrote:
+> Dmitry Torokhov wrote:
 > 
-> So, where the source code? :)
+> > What protocol are you using in XFree?
+> 
+>    that's irrelevant, I got the results above without X running (by 
 
-Definitely my favorite approach of dealing with these
-people.  Does anybody know whether their modules use
-any EXPORT_SYMBOL_GPL symbols and whether they touch
-any code I could claim copyright on ?
+No, it is not. Please change protocol in XF86Config to ExplorerPS/2.
+ 
+> reading /dev/psaux). In case it might shed some light anyway, here's the 
+> X info: protocol is MouseManPlusPS/2, it worked with kernel 2.4.x. Now 
+> (with 2.6.5) X reports same results as you see above (using xev I see 
+> the wheel is no event, side button is button 2, just like wheel click)
+>
 
-If it touches any of my code, where should I mail the
-cease & desist ? ;)
+Kernel only provides emulation of 3 protocols via /dev/psaux: bare PS/2,
+IntelliMouse PS/2 and Explorer PS/2. Since your program does not issue
+Intellimouse or Explorer protocol initialization sequences it gets just
+bare PS/2 protocol data - 2 axis, 3 buttons. Extra buttons are mapped onto
+first 3. For exact mapping consult drivers/input/mousedev.c
+ 
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+Dmitry

@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317551AbSGEUSx>; Fri, 5 Jul 2002 16:18:53 -0400
+	id <S317559AbSGEUVK>; Fri, 5 Jul 2002 16:21:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317552AbSGEUSw>; Fri, 5 Jul 2002 16:18:52 -0400
-Received: from molly.vabo.cz ([160.216.153.99]:54023 "EHLO molly.vabo.cz")
-	by vger.kernel.org with ESMTP id <S317551AbSGEUSv>;
-	Fri, 5 Jul 2002 16:18:51 -0400
-Date: Fri, 5 Jul 2002 22:21:19 +0200 (CEST)
-From: Tomas Konir <moje@molly.vabo.cz>
-X-X-Sender: moje@moje.ich.vabo.cz
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S317552AbSGEUVJ>; Fri, 5 Jul 2002 16:21:09 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:61190 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S317559AbSGEUVI>; Fri, 5 Jul 2002 16:21:08 -0400
+Date: Fri, 5 Jul 2002 22:23:40 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: IBM Desktar disk problem?
-In-Reply-To: <20020705201155.GF28569@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.44L0.0207052216410.3293-100000@moje.ich.vabo.cz>
-References: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
- <Pine.LNX.4.44L0.0207051606050.32493-100000@moje.ich.vabo.cz>
- <20020705201155.GF28569@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020705202340.GG28569@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1025873421.16768.20.camel@sonja.de.interearth.com> <Pine.LNX.4.44.0207050801190.10105-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3607uds81ZQvwCD0"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207050801190.10105-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002, Matthias Andree wrote:
 
-> On Fri, 05 Jul 2002, Tomas Konir wrote:
-> 
-> > hi i have similar problem.
-> > No dead disks, but after two days testing tcq patches (on 2.4). I 
-> > got the two ATA errors (smartctl said). 
-> 
-> *shrug* FreeBSD should have eaten some of those drives as well, it has
-> been offering hw.ata.tags="1" to enable DMA QUEUED for a while now.
-> 
-> And yes, my deathstar DTLA307045 still works without a single broken
-> block, but never used TCQ beyond booting 2.5.17 once (no LVM -> not
-> useful for me).
-> 
-> Another DTLA307045 died some days ago, it has never seen TCQ.
-> 
+--3607uds81ZQvwCD0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have no broken blocks. Only two errors logged in S.M.A.R.T.
-I have no S.M.A.R.T. errors for one year ago. And after use TCQ there are 
-two errors after two days. Is is normal ?
-Curently i not believe new IBM disks and TCQ. I'll wait for better disks 
-and stable TCQ.
+On Fri, 05 Jul 2002, Thunder from the hill wrote:
 
-	MOJE
+> ...and tell all the people who got a DTLA (because it's not as expensive=
+=20
+> as others in some countries, mind France, USA, Germany) to drop their=20
+> disks if they want to use Linux, because we're too lazy to find a=20
+> solution. That might be cool to you, but we want HARDWARE SUPPORT for=20
+> Linux! That's why we're here.
+>=20
+> There _is_ a solution, we just have to find it.
 
--- 
-Tomas Konir
-Brno
-ICQ 25849167
+Might just be that "coincidence" happens more often as "incident"
+happens more often. Means: the more drives of that type fails, the more
+likely it is someone shows up with a report that the failure is related
+to this-and-that. Until someone can reproduce this, assume the TCQ is
+Not Guilty in respect to your DTLA failure. Assume it has died a natural
+death.
+
+And the "incident often" seems to hold for 75GXP series drives (IBM
+DTLA-3070xx).  Out of seven DTLA-307045 (all bought approx. Feb. 2001,
+in two different stores) I look after I am getting a MTBF(*) of around
+28,000 hours -- which is way lower than what IBM claims.  Two died after
+9 months, another one after 16 months. Other IBM drives, DJNA, DPTA, are
+way more reliable -- but these are no longer sold.
+
+(S=F8ren Schmidt, FreeBSD ata(4) driver maintainer, says that IBM
+acknowledged that DJNA have broken TCQ, sometimes forget to flush a
+block -- this will then probably also affect the WDC-420400 and 418....
+20G 5400/min and 18G 7200/min drives).
 
 
+(*) Using Fujitsu's formula:
+
+        total hours of service of all drives
+MTBF =3D --------------------------------------
+           number of failed drives to date
+
+--3607uds81ZQvwCD0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9JgBMFmbjPHp/pcMRAmktAJ0QFO9VCM9tdVZUizBTXOE46xvdUACfeWes
+/B9adT6+1c3oH8B2Jnr94c4=
+=27ry
+-----END PGP SIGNATURE-----
+
+--3607uds81ZQvwCD0--

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285071AbRLFJ0v>; Thu, 6 Dec 2001 04:26:51 -0500
+	id <S285079AbRLFJiF>; Thu, 6 Dec 2001 04:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285069AbRLFJ0l>; Thu, 6 Dec 2001 04:26:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3083 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285071AbRLFJ0b>; Thu, 6 Dec 2001 04:26:31 -0500
-Subject: Re: SMTP->Windows connection with 2.4.16
-To: lkml@andyjeffries.co.uk (Andy Jeffries)
-Date: Thu, 6 Dec 2001 09:32:18 +0000 (GMT)
+	id <S285078AbRLFJhp>; Thu, 6 Dec 2001 04:37:45 -0500
+Received: from t2.redhat.com ([199.183.24.243]:62457 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S285077AbRLFJhk>; Thu, 6 Dec 2001 04:37:40 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011206091418.4d031a5c.lkml@andyjeffries.co.uk> 
+In-Reply-To: <20011206091418.4d031a5c.lkml@andyjeffries.co.uk> 
+To: Andy Jeffries <lkml@andyjeffries.co.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011206091418.4d031a5c.lkml@andyjeffries.co.uk> from "Andy Jeffries" at Dec 06, 2001 09:14:18 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: SMTP->Windows connection with 2.4.16 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16But9-00012x-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 06 Dec 2001 09:37:22 +0000
+Message-ID: <15058.1007631442@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> server with a 2.4.16 Kernel.  He has helpfully provided the following
-> information to illustrate the problem.  Is this a known issue with 2.4.16?
 
-Nope
+lkml@andyjeffries.co.uk said:
+> A friend of mine is having a problem connecting to Blueyonder's SMTP
+> server with a 2.4.16 Kernel.
 
->  Can anyone help?  If so, what more information do you need (tcpdump
+Their firewall is broken. See http://gtf.org/garzik/ecn/ but note that it's
+fairly out of date - ECN actually became a Proposed Standard months ago, and
+for Blueyonder to _still_ be running a broken firewall is a particularly
+spectacular display of incompetence.
 
-tcpdump data
+--
+dwmw2
 
-> # telnet smtp.blueyonder.co.uk 25 
-> Connection refused
-> 
-> # ping smtp.blueyonder.co.uk
-> Replied normally
 
-Quite reasonable. smtp servers stop listening when under high load
-
-Alan

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271119AbTHCKAk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 06:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTHCKAk
+	id S271161AbTHCKFG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 06:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271163AbTHCKFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 06:00:40 -0400
-Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:897 "EHLO
-	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
-	id S271119AbTHCKAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 06:00:35 -0400
-Date: Sun, 3 Aug 2003 18:00:32 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: Re: VM problem leads to laptop freeze
-Message-ID: <20030803100032.GA1242@eugeneteo.net>
-Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
-References: <20030803091115.GA781@eugeneteo.net>
+	Sun, 3 Aug 2003 06:05:06 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:22684 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S271161AbTHCKFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 06:05:02 -0400
+Date: Sun, 3 Aug 2003 12:04:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: IDE locking problem
+Message-ID: <20030803100447.GO7920@suse.de>
+References: <1059900149.3524.84.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030803091115.GA781@eugeneteo.net>
-X-Operating-System: Linux 2.4.21-ck3
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1059900149.3524.84.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 03 2003, Benjamin Herrenschmidt wrote:
+> Hi Alan & Bart !
+> 
+> While fixing my hotswap media-bay IDE controller for 2.6, I found
+> a locking problem with IDE (again ? :) in ide_unregister_hw. Basically
+> the problem is that it calls blk_cleanup_queue(), which is unsafe to
+> call with a lock held (it will call flush_workqueue() at one point).
+> Other side effect, flush_workqueue() will re-enable IRQs, thus allowing
+> us to get an IRQ while holding the spinlock -> double lock, but that's
+> just a side effect of calling flush_workqueue in that context.
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Irk someone made blk_cleanup_queue() non-atomic. I blame Andrew. And now
+it looks like it's impossible to make it atomic again :/. Not very nice,
+imo it's preferable to keep such unregister functions atomic.
 
-<quote sender=3D"Eugene Teo">
-> Hi everyone,
->=20
-> I was using kernel 2.6.0-test2-mm3. As usual, I anticipated that
-> I will have a random freeze, and true enough, I have one after a
-> few hours.
->=20
-> I have attached the log. Please take a look, and advise.
->=20
-Please let me know if you need more info other than my logs. I am
-all here to provide any relevant information so that this can be
-fixed :/
+> So the call to blk_cleanup_queue() shall be moved outside of the
+> spinlock. I don't know much about the BIO details, is it possible
+> to first unregister_blkdev, then only call blk_cleanup_queue() ? That
 
-Eugene
+That should work, yes.
 
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> would help making sure we don't get a request sneaking in ?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Hmm not really, there's still a chance that could happen.
 
-iD8DBQE/LN1AcyGjihSg3eURAhtmAKCaHT2trixGvgRZcVCJ0XDhv5iMzwCfTUr0
-ai8bM/h4Ilyb882c6vVifmc=
-=i48u
------END PGP SIGNATURE-----
+-- 
+Jens Axboe
 
---nFreZHaLTZJo0R7j--

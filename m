@@ -1,77 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVBCIzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262693AbVBCJDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbVBCIzh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 03:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbVBCIzg
+	id S262693AbVBCJDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 04:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbVBCJDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 03:55:36 -0500
-Received: from mail.suse.de ([195.135.220.2]:36781 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262442AbVBCIwZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 03:52:25 -0500
-Date: Thu, 3 Feb 2005 09:52:24 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Devices.txt, update with LANANA
-Message-ID: <20050203085224.GA18210@suse.de>
-References: <200502021845.j12Ij99X030188@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200502021845.j12Ij99X030188@hera.kernel.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Thu, 3 Feb 2005 04:03:25 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20866 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262840AbVBCJC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 04:02:58 -0500
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: Koichi Suzuki <koichi@intellilink.co.jp>, Vivek Goyal <vgoyal@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>,
+       suparna bhattacharya <suparna@in.ibm.com>
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+References: <4200861B.7040807@intellilink.co.jp>
+	<m1brb39e98.fsf@ebiederm.dsl.xmission.com>
+	<20050203154433.18E4.ODA@valinux.co.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Feb 2005 02:00:51 -0700
+In-Reply-To: <20050203154433.18E4.ODA@valinux.co.jp>
+Message-ID: <m14qgu81bw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Feb 03, Linux Kernel Mailing List wrote:
+Itsuro Oda <oda@valinux.co.jp> writes:
 
-> ChangeSet 1.1992.2.74, 2005/02/02 08:48:39-08:00, torben.mathiasen@hp.com
+> Hi,
 > 
-> 	[PATCH] Devices.txt, update with LANANA
-> 	
-> 	Attached is diff for bringing devices.txt uptodate with lanana.
-> 	
-> 	Please note: The devices.txt file in your tree will now be for 2.6+ kernels
-> 	only.  2.6 specific allocations will now be given out more freely, and some
-> 	of the stuff marked for obsolete for 2.6 has been removed.  I put a note in
-> 	the file to let people know its for 2.6+ kernels only.
-...
-> @@ -2554,23 +2555,11 @@
->  		 65 = /dev/usb/usblcd	USBLCD Interface (info@usblcd.de)
->  		 66 = /dev/usb/cpad0	Synaptics cPad (mouse/LCD)
->  
-> -		 96 = /dev/usb/hiddev0	1st USB HID device
-> -		    ...
-> -		111 = /dev/usb/hiddev15	16th USB HID device
-> -		112 = /dev/usb/auer0	1st auerswald ISDN device
-> -		    ...
-> -		127 = /dev/usb/auer15	16th auerswald ISDN device
-> -		128 = /dev/usb/brlvgr0	First Braille Voyager device
-> -		    ...
-> -		131 = /dev/usb/brlvgr3	Fourth Braille Voyager device
-> -		132 = /dev/usb/idmouse	ID Mouse (fingerprint scanner) device
-> -		144 = /dev/usb/lcd	USB LCD device
-> -		160 = /dev/usb/legousbtower0	1st USB Legotower device
-> -		    ...
-> -		175 = /dev/usb/legousbtower15	16th USB Legotower device
-> -		240 = /dev/usb/dabusb0	First daubusb device
-> -		    ...
-> -		243 = /dev/usb/dabusb3	Fourth dabusb device
+> On 02 Feb 2005 08:24:03 -0700
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> > 
+> > So the kernel+initrd that captures a crash dump will live and execute
+> > in a reserved area of memory.  It needs to know which memory regions
+> > are valid, and it needs to know small things like the final register
+> > state of each cpu. 
+> 
+> Exactly.
+> 
+> Please let me clarify what you are going to.
+> 1) standard kernel: reserve a small contigous area for a dump kernel
+>    (this is not changed as the current code)
+> 2) standard kernel: export the information of valid physical memory
+>    regions. (/proc/iomem or /proc/cpumem etc.)
+> 3) kexec (system call?): store the information of valid physical memory
+>    regions as ELF program header to the reserved area (mentioned 1)).
 
-I still see legousbtower registered in drivers/usb/misc/legousbtower.c.
-Are you sure about these changes? Also, do the names in this document
-match the names registered with sysfs (new mga_* stuff etc)?
-I found a few sysfs entries that differ from devices.txt:
-# misc devices
-# 183 = /dev/hwrng        Generic random number generator
-KERNEL="hw_random",     NAME="hwrng", SYMLINK="%k"
-# 219 = /dev/modems/mwave MWave modem firmware upload
-KERNEL="mwave",         NAME="modems/%k"
-# 169 = /dev/specialix_rioctl Specialix RIO serial control
-KERNEL="rioctl",        NAME="specialix_rioctl", SYMLINK="%k"
-# 167 = /dev/specialix_sxctl Specialix serial control
-KERNEL="sxctl",         NAME="specialix_sxctl", SYMLINK="%k"
+A better description is probably make a list of memory regions
+using an ELF header data structure in user space.  
+Use sys_kexec_load to put that list the dump kernel and a little
+big of glue code in the reserved area.  The glue code includes
+a hash of all of everything so it can all be validated before
+use.
 
+> 4) standard kernel: when a panic occur, append (ex.) the register
+>    information as ELF note after the memory information (if necessary).
+>    and jump new kernel
 
+Record the register information as ELF notes in a per cpu data
+area.  The per cpu data areas are known and enumerated in
+the list of memory regions.  The kernel knows nothing about
+the ELF header etc.
+
+> 5) dump kernel: export all valid physical memory (and saved register
+>    information) to the user. (as /dev/oldmem /proc/vmcore ?)
+
+Or in user space, by just mmaping /dev/mem. That is part of the
+current conversation.   The only real point for putting that code in
+the kernel (besides momentum) is it is a cheap way to get the exact
+data structures of the kernel you are using.  But since:
+(a) it does not look like any primary kernel data structures need to
+    be examined.
+(b) even simple compile options like SMP/NOSMP are enough to change
+    the layout of the data structures.
+I think there is a pretty good case for moving all of the work to
+user space.  But you still need a kernel that loads and
+runs in the reserved area.
+
+> Is this correct ?  one question: how the dump kernel know the saved
+> area of ELF headers ?
+
+A command line parameter will be passed.  Probably
+elfcorehdr=xxx 
+
+> one more question: I don't understand what the 640K backup area is. 
+> Please let me know why it is necessary.
+
+In practice I think we can kill it on x86.  It is necessary (at least
+a subset of it is) if we want to boot a SMP kernel.  As cpu must
+start running code in the first 1M of the address space.  In addition
+some architectures have exceptions vectors and or other data
+structures at fixed locations in memory so in the general case a
+backup area is required.  So building the infrastructure to handle
+backup areas is needed even, even if we later stop using it on
+x86.
+
+The other reason for the 640K backup area is the IBM guys were having
+problems without it.   The fact that you don't need it is a good
+indication that it is unnecessary.
+
+Eric

@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbTJ2C2k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 21:28:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTJ2C2k
+	id S261881AbTJ2CbH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 21:31:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJ2CbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 21:28:40 -0500
-Received: from h80ad2501.async.vt.edu ([128.173.37.1]:9600 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261879AbTJ2C2i (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 21:28:38 -0500
-Message-Id: <200310290224.h9T2Oc43005010@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Pavel Machek <pavel@suse.cz>,
-       felipe_alfaro@linuxmail.org, mochel@osdl.org, george@mvista.com,
-       johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [pm] fix time after suspend-to-* 
-In-Reply-To: Your message of "Wed, 29 Oct 2003 09:23:50 +1100."
-             <16286.60534.924753.349385@wombat.chubb.wattle.id.au> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com> <20031028093233.GA1253@elf.ucw.cz> <20031028224101.3220e0a6.sfr@canb.auug.org.au>
-            <16286.60534.924753.349385@wombat.chubb.wattle.id.au>
+	Tue, 28 Oct 2003 21:31:07 -0500
+Received: from services.erkkila.org ([24.97.94.217]:27529 "EHLO erkkila.org")
+	by vger.kernel.org with ESMTP id S261850AbTJ2CbB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 21:31:01 -0500
+Message-ID: <3F9FA513.6090907@erkkila.org>
+Date: Wed, 29 Oct 2003 11:31:31 +0000
+From: Paul Erkkila <pee@erkkila.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031027
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1682402374P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Oct 2003 21:24:37 -0500
+Content-Type: multipart/mixed; boundary="=_services-32552-1067394660-0001-2"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: [Patch] gre tunnels in 2.5/6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1682402374P
-Content-Type: text/plain; charset=us-ascii
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-On Wed, 29 Oct 2003 09:23:50 +1100, Peter Chubb said:
+--=_services-32552-1067394660-0001-2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Maybe use SIGCKPT and SIGCONT?  Or even SIGSTOP and SIGCONT (after
-> all, you're stopping the process, then restarting it)
 
-Some programs do special handling of SIGSTOP (for instance, 'vi' will
-drop the terminal out of raw mode) that may not be appropriate for
-suspending the system.
+This small patch fixes gre tunnels using keys (and probably 
+sequencing/checksums) in 2.{5,6}.
+If params aren't set before ipgre_tunnel_init is called, it 
+miscalculates the header size, and
+stomps on itself when encapsulating packets.
 
---==_Exmh_1682402374P
-Content-Type: application/pgp-signature
+I'm not sure if the later initialization can be removed, or if this is 
+the *correct* patch. It does
+allow tunnels to work here.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+-pee
 
-iD8DBQE/nyTlcC3lWbTT17ARAv8OAJ41H/NDM0e2Hh7aGbo4herkmGgF9gCg1Ict
-bnNeRaBv+DML1dHgqzf+XHs=
-=rotq
------END PGP SIGNATURE-----
+(this might be a double send, i sent it last sunday, but didn't see it 
+show up in the lists)
 
---==_Exmh_1682402374P--
+--=_services-32552-1067394660-0001-2
+Content-Type: text/plain; name="gre.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="gre.patch"
+
+--- net/ipv4/ip_gre.c.orig	2003-10-26 19:44:26.000000000 +0000
++++ net/ipv4/ip_gre.c	2003-10-26 19:55:33.000000000 +0000
+@@ -276,6 +276,8 @@
+ 	  return NULL;
+ 
+ 	dev->init = ipgre_tunnel_init;
++	nt = dev->priv;
++	nt->parms = *parms;
+ 
+ 	if (register_netdevice(dev) < 0) {
+ 		kfree(dev);
+
+--=_services-32552-1067394660-0001-2--

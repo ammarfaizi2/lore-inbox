@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129982AbRAaFNx>; Wed, 31 Jan 2001 00:13:53 -0500
+	id <S129745AbRAaFYo>; Wed, 31 Jan 2001 00:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130235AbRAaFNn>; Wed, 31 Jan 2001 00:13:43 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:46085 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129982AbRAaFNf>; Wed, 31 Jan 2001 00:13:35 -0500
-Date: Tue, 30 Jan 2001 21:12:48 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: Byron Stanoszek <gandalf@winds.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA VT82C686X
-In-Reply-To: <Pine.LNX.4.21.0101302204570.19724-100000@winds.org>
-Message-ID: <Pine.LNX.4.21.0101302105170.4439-100000@ns-01.hislinuxbox.com>
+	id <S130582AbRAaFYf>; Wed, 31 Jan 2001 00:24:35 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:1931 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129745AbRAaFYV>;
+	Wed, 31 Jan 2001 00:24:21 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14967.41278.556719.597986@pizda.ninka.net>
+Date: Tue, 30 Jan 2001 21:23:10 -0800 (PST)
+To: Rusty Russell <rusty@linuxcare.com.au>
+Cc: Javier Miguel Rodríguez (GUFO) 
+	<javier.miguel@futurainteractiva.com>,
+        linux-kernel@vger.kernel.org, netfilter@us5.samba.org
+Subject: Re: 2.4.0+ipchains+sparc 450= CRASH! 
+In-Reply-To: <E14NoTY-0007lF-00@halfway>
+In-Reply-To: <01013014063301.15042@Petete>
+	<E14NoTY-0007lF-00@halfway>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 30 Jan 2001, Byron Stanoszek wrote:
+Rusty Russell writes:
+ > Oops.  Thanks to Anton for testing and touching up this patch.
+ > 
+ > The 2.0/2.2 setsockopt code used to do the copy_from_user for you...
 
-> (unless you're overclocking). Setting it to 66 will cause the VIA driver to
-> believe your PCI bus is running at 66MHz and will program the IDE controller to
-> run at half the speed to maintain 33MHz. In reality, your controller now runs
-> at 16.
+I've applied this to my tree, thanks a lot.
 
-I removed the ide and ata setting. System is running stably as in no
-kernel crashes, but I am getting daemon and shell crashes. With this
-current kernel I've had 1 kernel crash in about 3 hours as compared to 1
-every 10 or 15 minutes. Crash, reboot, 10 minutes or so crash, reboot. ect
-ect.
-
-I'm wanting to test something else out. I'm wondering if there isn't some
-hardware issue with the RAM. This particular board will do 1GB of PC133,
-or 2.5GB of PC100. I'm wondering if there isn't something wrong with how
-it reads the speed and the appropriate limitation. It's running stably if
-I only run 768MB of PC133 RAM. But if I run a solid 1GB of PC133 I get
-segfaults and sig11 crashes constantly. All the RAM has been
-professionally tested and certified.
-
-Any clues would be appreciated. 
-
-David
-
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

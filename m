@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271118AbTHKF1t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 01:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272071AbTHKF1s
+	id S271903AbTHKFe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 01:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271924AbTHKFe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 01:27:48 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:58639 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S271118AbTHKF1d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 01:27:33 -0400
-Date: Mon, 11 Aug 2003 07:26:59 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davem@redhat.com, chip@pobox.com
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-Message-ID: <20030811052659.GA28640@alpha.home.local>
-References: <1060488233.780.65.camel@cube> <20030810072945.GA14038@alpha.home.local> <20030811045531.GH10446@mail.jlokier.co.uk>
+	Mon, 11 Aug 2003 01:34:57 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:11271 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S271903AbTHKFey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 01:34:54 -0400
+Date: Mon, 11 Aug 2003 07:34:37 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: gaxt@rogers.com, henrik@fangorn.dk, romieu@fr.zoreil.com,
+       linux-kernel@vger.kernel.org, felipe_alfaro@linuxmail.org,
+       babydr@baby-dragons.com, len.brown@intel.com
+Subject: Re: 2.6.0-test3 cannot mount root fs
+Message-ID: <20030811053437.GA19040@gamma.logic.tuwien.ac.at>
+References: <3F34D0EA.8040006@rogers.com> <20030809104024.GA12316@gamma.logic.tuwien.ac.at> <20030809115656.GC27013@www.13thfloor.at> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <20030809130641.A8174@electric-eye.fr.zoreil.com> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <01a201c35e65$0536ef60$ee52a450@theoden> <3F34D0EA.8040006@rogers.com> <20030810211745.GA5327@gamma.logic.tuwien.ac.at> <20030810154343.351aa69d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20030811045531.GH10446@mail.jlokier.co.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030810154343.351aa69d.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 05:55:31AM +0100, Jamie Lokier wrote:
-> Willy Tarreau wrote:
-> > > I looked at the assembly (ppc, gcc 3.2.3) and didn't
-> > > see any overhead.
-> > 
-> > same here on x86, gcc-2.95.3 and gcc-3.3.1. The compiler is smart enough not
-> > to add several intermediate tests for !!(x).
+On Son, 10 Aug 2003, Andrew Morton wrote:
+> > I tried as boot cmd line:
+> >  	s root=03:41 acpi=off
+> >  and still it didn't work. Same problem.
 > 
-> What I recall is no additional tests, but the different forms affected
-> the compilers choice of instructions on x86, making one form better
-> than another.  Unfortunately I don't recall what that was, or what
-> test it showed up in :(
+> It is decimal.  You want 03:65.
 
-It may well be when you use it in boolean constructs. The following functions
-return exactly the same result with different code :
+Still no success. With acpi=off and without.
 
-int test1(int u, int v, int x, int y) {
-   return (u > v) || (x > y);
-}
 
-int test2(int u, int v, int x, int y) {
-   return !!(u > v) | !!(x > y);
-}
+> Could you test this patch?  It should put things back to the way
+> they were before this mini-fisaco. root=0341 should work as well.
 
-test1() uses 2 jumps on x86 while test2 uses only test-and-set and should be
-faster. This also allows to easily write the boolean XOR BTW :
+Also no success.
 
-int test3(int u, int v, int x, int y) {
-   return !!(u > v) ^ !!(x > y);
-}
+Maybe I am stupid, but 
+	make mrproper
+	make distclean
+	make config deb bzImage modules modules_install
+should be enough to make a clean kernel? And, AFAIK, I compiled in ext3
+and all other necessary stuff. Soon I give up.
 
-Cheers,
-Willy
+Best wishes
 
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+BEAULIEU HILL
+The optimum vantage point from which one to view people undressing in
+the bedroom across the street.
+			--- Douglas Adams, The Meaning of Liff

@@ -1,81 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbTENOWT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTENOWT
+	id S262312AbTENOU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTENOU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:22:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13697 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262253AbTENOWQ
+	Wed, 14 May 2003 10:20:56 -0400
+Received: from mbi-00.mbi.ufl.edu ([159.178.51.20]:48525 "EHLO mbi.ufl.edu")
+	by vger.kernel.org with ESMTP id S262312AbTENOUz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:22:16 -0400
-Date: Wed, 14 May 2003 10:36:43 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Dean McEwan <dean_mcewan@linuxmail.org>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Digital Rights Management - An idea (limited lease, renting,  
-  expiration, verification) NON HARWARE BASED.
-In-Reply-To: <20030514135256.26073.qmail@linuxmail.org>
-Message-ID: <Pine.LNX.4.53.0305141030130.8270@chaos>
-References: <20030514135256.26073.qmail@linuxmail.org>
+	Wed, 14 May 2003 10:20:55 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Subject: RE: 2.5.69-mm5
+Date: Wed, 14 May 2003 10:33:43 -0400
+Message-ID: <CDD2FA891602624BB024E1662BC678ED843F91@mbi-00.mbi.ufl.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.5.69-mm5
+Thread-Index: AcMaFQHK3LjdCIHFQb6PxqDJ/ybpAgAAXDSw
+From: "Jon K. Akers" <jka@mbi.ufl.edu>
+To: "Andrew Morton" <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003, Dean McEwan wrote:
+I like to at least build the new stuff that comes out with Andrew's
+patches, and building the new gadget code that came out in -mm4 I got
+this when building as a module:
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> said :
-> > You can set this up with both rsbac and selinux
-> >
-> Im thinking of much more...
+make -f scripts/Makefile.build obj=drivers/serial
+make -f scripts/Makefile.build obj=drivers/usb/gadget
+  gcc -Wp,-MD,drivers/usb/gadget/.net2280.o.d -D__KERNEL__ -Iinclude
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
+-Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+-iwithprefix include -DMODULE   -DKBUILD_BASENAME=net2280
+-DKBUILD_MODNAME=net2280 -c -o drivers/usb/gadget/net2280.o
+drivers/usb/gadget/net2280.c
+drivers/usb/gadget/net2280.c:2623: pci_ids causes a section type
+conflict
+make[2]: *** [drivers/usb/gadget/net2280.o] Error 1
+make[1]: *** [drivers/usb/gadget] Error 2
+make: *** [drivers] Error 2
 
+I was not able to test this particular part of the code with -mm4, as I
+use a single processor system and could not get to the module building
+process then.
 
-[SNIPPED...]
+I have also tested this by compiling it into the kernel, with the same
+results:
 
->
-> E.G. a kernel could refuse to work after one year forcing its users
-> to upgrade their kernel, preventing exploits being left in place,
-> and  creators of the prefab kernels in
-> a sticky liable mess.
-
-The worst problem with expiring software is that a
-company, operating in good faith, can be forced out
-of business because if it.
-
-Lets say that I have a company called BestInTheWorld.
-Because I make the best data-base software in the world,
-a lot of companies purchase a license to use this
-software. The software expires in a year. This is no
-problem because The software renewal is cheap. Soon
-every company in Silicon Valley uses my software.
-The company is going strong and needs to expand. It
-issues public stock.
-
-Al Qaeda purchases controlling interest in the company
-and closes it. In one year, everybody in Silicon Valley
-is out of work because all the company's software
-stopped working.
-
-Bad joke? Hell no. Digital thought about short-term
-leasing of their software when they introduced LMF,
-the license management facility. Once Digtal's lawyers
-got involved, a patch was sent to everbody making damn
-sure that the "expiration" capability was removed.
-Nevertheless, FTP Software, that made TCP/IP to DECNET
-sofware, continued to have software that expired.
-
-Basically, in many states in the USA, you can't sell or
-lease something that will become worthless or unusable if
-the seller or leasor no longer exists. If the renter makes
-a good-faith effort to pay the rent, the renter continues
-to enjoy use of the leased property. Creating property that
-doesn't allow this violates common law.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+  gcc -Wp,-MD,drivers/usb/gadget/.net2280.o.d -D__KERNEL__ -Iinclude
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
+-Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+-iwithprefix include    -DKBUILD_BASENAME=net2280
+-DKBUILD_MODNAME=net2280 -c -o drivers/usb/gadget/net2280.o
+drivers/usb/gadget/net2280.c
+drivers/usb/gadget/net2280.c:2623: pci_ids causes a section type
+conflict
+make[2]: *** [drivers/usb/gadget/net2280.o] Error 1
+make[1]: *** [drivers/usb/gadget] Error 2
+make: *** [drivers] Error 2
 

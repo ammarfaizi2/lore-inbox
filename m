@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUIOXFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267766AbUIOXJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267730AbUIOXFo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267751AbUIOXEy
+	id S267766AbUIOXJU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 19:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUIOXIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 19:04:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17052 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267730AbUIOXDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 19:03:40 -0400
-Subject: Re: [PATCH-NEW] allow root to modify raw scsi command permissions
-	list
-From: Peter Jones <pjones@redhat.com>
+	Wed, 15 Sep 2004 19:08:47 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:5264 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S267767AbUIOXF5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 19:05:57 -0400
+Date: Thu, 16 Sep 2004 00:05:44 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Jens Axboe <axboe@suse.de>,
+cc: Netdev <netdev@oss.sgi.com>, leonid.grossman@s2io.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095284325.20749.8.camel@localhost.localdomain>
-References: <1095173470.5728.3.camel@localhost.localdomain>
-	 <20040915230813.6eac1d04.Ballarin.Marc@gmx.de>
-	 <1095284325.20749.8.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 15 Sep 2004 19:03:24 -0400
-Message-Id: <1095289404.20046.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
-Content-Transfer-Encoding: 7bit
+Subject: Re: The ultimate TOE design
+In-Reply-To: <1095275660.20569.0.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0409160003590.23011@fogarty.jakma.org>
+References: <4148991B.9050200@pobox.com>  <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
+ <1095275660.20569.0.camel@localhost.localdomain>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 22:38 +0100, Alan Cox wrote:
-> On Mer, 2004-09-15 at 22:08, Marc Ballarin wrote:
-> > Hi,
-> > this is a modified version of the previous patch.
-> 
-> You need to check for capable(CAP_SYS_RAWIO) otherwise you elevate
-> anyone with access bypass capabilities to CAP_SYS_RAWIO equivalent
-> powers.
+On Wed, 15 Sep 2004, Alan Cox wrote:
 
-Do you mean in the ->store path?
+> Last time I checked 2Ghz accelerators for intel and AMD were quite 
+> cheap and also had the advantage they ran user mode code when idle 
+> from network processing.
+
+Indeed.
+
+Unfortunately though, my vague understanding is, the interesting bits 
+on the IXP, the microengines, are integrated with the XScale ASIC.
+
+I agree it's silly to stick a general purpose CPU in there, but you 
+get it for "free" anyway.
+
+regards,
 -- 
-        Peter
-
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+War is an equal opportunity destroyer.

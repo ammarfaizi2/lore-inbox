@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262302AbTCYWfX>; Tue, 25 Mar 2003 17:35:23 -0500
+	id <S262586AbTCYWo0>; Tue, 25 Mar 2003 17:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262586AbTCYWfX>; Tue, 25 Mar 2003 17:35:23 -0500
-Received: from packet.digeo.com ([12.110.80.53]:43215 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262302AbTCYWfX>;
-	Tue, 25 Mar 2003 17:35:23 -0500
-Date: Tue, 25 Mar 2003 16:50:59 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] swap 10/13 tmpfs atomics
-Message-Id: <20030325165059.4b677f27.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0303252219570.12636-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0303252209070.12636-100000@localhost.localdomain>
-	<Pine.LNX.4.44.0303252219570.12636-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262653AbTCYWo0>; Tue, 25 Mar 2003 17:44:26 -0500
+Received: from fionet.com ([217.172.181.68]:55424 "EHLO service")
+	by vger.kernel.org with ESMTP id <S262586AbTCYWoZ>;
+	Tue, 25 Mar 2003 17:44:25 -0500
+Subject: Re: System time warping around real time problem - please help
+From: Fionn Behrens <fionn@unix-ag.org>
+To: linux-kernel@vger.kernel.org
+Cc: george anzinger <george@mvista.com>
+In-Reply-To: <3E80D4CC.4000202@mvista.com>
+References: <1048609931.1601.49.camel@rtfm>
+	 <Pine.LNX.4.53.0303251152080.29361@chaos> <1048627013.2348.39.camel@rtfm>
+	 <3E80D4CC.4000202@mvista.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Mar 2003 22:46:26.0298 (UTC) FILETIME=[5E18C5A0:01C2F320]
+Organization: United Fools of Bugaloo
+Message-Id: <1048632934.1355.12.camel@rtfm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 25 Mar 2003 23:55:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> move_from_swap_cache and add_to_page_cache_lru are using GFP_ATOMIC,
-> which can easily fail in an intermittent way.  Rude if shmem_getpage
-> then fails with -ENOMEM: cond_resched to let kswapd in, and repeat.
+On Die, 2003-03-25 at 23:14, george anzinger wrote:
+> Fionn Behrens wrote:
 
-I think the preferred way of waiting for the IO system and kswapd to catch up
-is blk_congestion_wait().  Because it waits for the "right" amount of time.
+> > Summary:
+> >        - No apparent hardware issue.
+> >        - System runs stable as long as you dont for (;;) gettimeofday();
+> >        - notsc being evaluated. I will get back to you later.
+> >          Does not resolve the odd test software crash, though.
 
-I'll make that change.
+> This all sounds very much like the TSCs are drifting WRT each other. 
+> Is it possible that you have some power management code (or hardware) 
+> that is slowing one cpu and not the other?
 
-And yes, the name is silly: "what if it's not block-backed"?  It hasn't
-caused any problems yet, but maybe one day we'll need to find a way for
-network-backed filesystems to deliver a wakeup to sleepers there.
+Well, I still don't really know what TSCs actually are (or what TSC
+stands for).
 
+The only suspect in that case would be the amd76x_pm.o kernel module
+which I am admittedly using. It saves about 90Watts of power when the
+machine is idle...
+
+I'll check what happens when the system boots without amd76x_pm.
+Will report back tomorrow.
+
+Thanks to all for keeping the suggestions going!
+
+Regards,
+	F. Behrens

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291306AbSBSLwt>; Tue, 19 Feb 2002 06:52:49 -0500
+	id <S291308AbSBSLxt>; Tue, 19 Feb 2002 06:53:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291307AbSBSLwi>; Tue, 19 Feb 2002 06:52:38 -0500
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:29965 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S291306AbSBSLwU>; Tue, 19 Feb 2002 06:52:20 -0500
-Subject: Re: VFS issues (was: Re: 2.5.5-pre1: mounting NTFS partitions -t
-	VFAT)
-From: Richard Russon <ntfs@flatcap.org>
-To: Jos Hulzink <josh@stack.nl>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020219102539.J93925-100000@snail.stack.nl>
-In-Reply-To: <20020219102539.J93925-100000@snail.stack.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 19 Feb 2002 11:52:18 +0000
-Message-Id: <1014119542.2788.10.camel@addlestones>
-Mime-Version: 1.0
+	id <S291310AbSBSLxi>; Tue, 19 Feb 2002 06:53:38 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:51128 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S291308AbSBSLxW>; Tue, 19 Feb 2002 06:53:22 -0500
+Date: Tue, 19 Feb 2002 12:52:32 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patches] RFC: Export inode generations to the userland
+In-Reply-To: <20020219034208.E24428@lynx.adilger.int>
+Message-ID: <Pine.GSO.3.96.1020219122913.390A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jos,
+On Tue, 19 Feb 2002, Andreas Dilger wrote:
 
-> The first question I want answered: Should I just call myself stupid for
-> trying to mount NTFS as VFAT, or should we consider this a real issue that
-> needs fixing ?
+> Well, I don't see what's so bad with EXT2_IOC_GETVERSION?  It's not like
+> many Linux filesystems have inode generation numbers in the first place.
 
-Stupid?  No.
-Fixing?  Yes.
+1. You need permissions to open a file.
 
-Whatever you throw at mount, you want it to fail_safe_.  i.e. in the
-worst case, do nothing.
+2. Opening may cause undesired side effects (think "/dev/st0").
 
-> While mounting a partition, the vfs layer tries to determine the partition
-> type,
+3. You can't open a symlink.
 
-Without any help, mount (userspace) tries to determine the partition
-type.  It understands the magics of a LOT of filesystems.
+> It may even be that reiserfs does/would implement the EXT2_IOC_GETVERSION
+> ioctl also (they implemented EXT2_IOC_GETATTR compatible with ext2/ext3).
+> You can wrap this inside glibc if you really want to, and that has the
+> added benefit of working with all kernels in existence.  That's not to
+> say this ioctl is the best interface...
 
-It looks for the NTFS magic before the DOS magic (or any of its variants).
+ Due to the limitations quoted above the ioctl is unsuitable as an
+underlying way to retrieve "st_gen" for neither of stat(), stat64(),
+lstat() or lstat64(). 
 
-> and passes that info to the filesystem driver
+> IIRC, there are several other desirable changes to struct stat/stat64
+> (64-bit timestamps, 32-bit UIDs/GIDs, and others I believe, some searching
+> should show up complaintants) so if there is really a need to add yet
+> _another_ stat struct/syscall we may as well do it right _this_ time
+> (like we've said every other time we change this interface).
 
-Which is passed to the VFS, and the to the driver which performs some
-more rigid tests (hopefully :-)
+ Fully agreed.  It might be desireable to keep a few spare bytes at the
+end of the new "struct stat64" as well (like it's already done for "struct
+stat"), so there is no need to add syscalls each time a new member is
+added. 
 
-Cheers,
-  FlatCap (Rich)
-  ntfs@flatcap.org
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUETGO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265005AbUETGVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUETGO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 02:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264996AbUETGO2
+	id S265005AbUETGVk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 02:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265003AbUETGVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 02:14:28 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:2512 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S264984AbUETGO0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 02:14:26 -0400
-Subject: [BKPATCH] ACPI for 2.4
-From: Len Brown <len.brown@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1085033653.12359.484.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 20 May 2004 02:14:14 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 20 May 2004 02:21:33 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:58251 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265002AbUETGVc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 02:21:32 -0400
+Date: Wed, 19 May 2004 23:21:30 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200405200621.i4K6LUfO003870@napali.hpl.hp.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: make fbmem.c:sys_{in,out}buf() static
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, please do a 
+As far as I can tell, sys_inbuf() and sys_outbuf() aren't used
+anywhere outside of fbmem.c, so make them static.
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.4.27
+	--david
 
-thanks,
--Len
-
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.27/acpi-20040326-2.4.27.diff.gz
-
-This will update the following files:
-
- arch/x86_64/kernel/io_apic.c |    3 ++-
- drivers/acpi/Makefile        |    2 +-
- drivers/acpi/ac.c            |    2 ++
- drivers/acpi/asus_acpi.c     |   24 ++++++++++++++++++++++++
- drivers/acpi/battery.c       |    6 ++++++
- drivers/acpi/bus.c           |   14 +++-----------
- drivers/acpi/button.c        |   17 +++++++++--------
- drivers/acpi/ec.c            |    6 ++++++
- drivers/acpi/fan.c           |    2 ++
- drivers/acpi/power.c         |    2 ++
- drivers/acpi/thermal.c       |   10 ++++++++++
- 11 files changed, 67 insertions(+), 21 deletions(-)
-
-through these ChangeSets:
-
-<len.brown@intel.com> (04/05/18 1.1359.6.21)
-   [ACPI] remove /proc files before unloading modules
-   from Sau Dan Lee, Zhenyu Wang
-   http://bugzilla.kernel.org/show_bug.cgi?id=2705
-
-<len.brown@intel.com> (04/05/18 1.1359.6.20)
-   [ACPI] revert button module unload fix (OSDL 2281)
-   Cset exclude: len.brown@intel.com|ChangeSet|20040504154434|56458
-   Cset exclude: len.brown@intel.com|ChangeSet|20040428081912|57065
-   Cset exclude: len.brown@intel.com|ChangeSet|20040428054017|55837
-
-<len.brown@intel.com> (04/05/14 1.1359.6.19)
-   [ACPI] delete IOAPIC-disable workaround on x86_64/VIA
-   BTW. looks like 2.6 has an IOMMU disable workaround here that may be
-needed or VIA in 2.4.
-   http://bugme.osdl.org/show_bug.cgi?id=1530
-
-
-
-
+===== drivers/video/fbmem.c 1.96 vs edited =====
+--- 1.96/drivers/video/fbmem.c	Wed Apr 21 12:02:56 2004
++++ edited/drivers/video/fbmem.c	Wed May 19 22:49:23 2004
+@@ -411,12 +411,12 @@
+ /*
+  * Drawing helpers.
+  */
+-u8 sys_inbuf(struct fb_info *info, u8 *src)
++static u8 sys_inbuf(struct fb_info *info, u8 *src)
+ {	
+ 	return *src;
+ }
+ 
+-void sys_outbuf(struct fb_info *info, u8 *dst, u8 *src, unsigned int size)
++static void sys_outbuf(struct fb_info *info, u8 *dst, u8 *src, unsigned int size)
+ {
+ 	memcpy(dst, src, size);
+ }	

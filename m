@@ -1,66 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264661AbUDVUZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264646AbUDVUb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264661AbUDVUZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 16:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUDVUZ0
+	id S264646AbUDVUb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 16:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264657AbUDVUb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 16:25:26 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264661AbUDVUZZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 16:25:25 -0400
-Date: Thu, 22 Apr 2004 16:25:19 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Willy Tarreau <w@w.ods.org>
-cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-In-Reply-To: <20040422141848.GA6986@alpha.home.local>
-Message-ID: <Pine.LNX.4.53.0404221621130.610@chaos>
-References: <XFMail.20040422102359.pochini@shiny.it> <Pine.LNX.4.53.0404220734330.8039@chaos>
- <20040422131704.GA6839@alpha.home.local> <Pine.LNX.4.53.0404220929500.8745@chaos>
- <20040422141848.GA6986@alpha.home.local>
+	Thu, 22 Apr 2004 16:31:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22202 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264646AbUDVUbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 16:31:55 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       arjanv@redhat.com, Dave Jones <davej@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       bfennema@falcon.csc.calpoly.edu
+Subject: Re: Fix UDF-FS potentially dereferencing null
+References: <20040416214104.GT20937@redhat.com>
+	<Pine.LNX.4.58.0404161720450.3947@ppc970.osdl.org>
+	<1082195458.4691.1.camel@laptop.fenrus.com>
+	<200404171313.02784.ioe-lkml@rameria.de>
+	<Pine.LNX.4.58.0404171009320.3947@ppc970.osdl.org>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 22 Apr 2004 17:29:42 -0300
+In-Reply-To: <Pine.LNX.4.58.0404171009320.3947@ppc970.osdl.org>
+Message-ID: <or3c6vhi2x.fsf@free.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Apr 2004, Willy Tarreau wrote:
+On Apr 17, 2004, Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Richard,
->
-> you are confusing several thinks, stateful vs stateless protocols. A ping
-> doesn't need a session on the remote host to be interpreted. A TCP segment
-> whose flags don't show a SYN need a session to be interpreted. Please note
-> that I'm not arguing that you won't crash a linux box with an RST addressed
-> to a broadcast address, I'm saying that there's absolutely no reason why
-> this should reset all connections, as you proposed it. Someone would have
-> had to code this explicitly, it cannot be a simple side effect.
->
-> Imagine that each packet which enters the system is presented to a hash
-> table containing the sessions, and that its session is looked for into
-> this hash table. You agree that in such code, there's no reason to find
-> anything that runs through all sessions and kill everyone, since this
-> code has no use there, and has no reason to be implemented on purpose !
->
-> Look at functions such as tcp_v4_lookup() in net/ipv4/tcp_ipv4.c for
-> example. When it reaches tcp_v4_lookup_established(), you find this :
->
->         for(sk = head->chain; sk; sk = sk->next) {
->                 if(TCP_IPV4_MATCH(sk, acookie, saddr, daddr, ports, dif))
->                         goto hit; /* You sunk my battleship! */
->         }
->
-> You cannot match more than once.
+> On Sat, 17 Apr 2004, Ingo Oeser wrote:
+>> 
+>> Or even call the attribute "nonnull", because this is a very obvious
+>> naming, even to non-native English readers.
 
-[SNIPPED...]
+> I did that at first, but decided that what I really wanted was "safe".
 
-So you are sure an attacker will fire only one bullet?
+> "nonnull" is nice for avoiding the NULL check, but it's useless for 
+> anything else.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
+> "safe" to my mind means that not only is it not NULL, it's also safe to 
+> dereference early (ie "prefetchable"), which has a lot of meaning for the 
+> back-end.
 
+And how far back can this go?
 
+Consider, for example:
+
+inline int foo(int *safe p) {
+  return *p;
+}
+
+int bar(int *p) {
+  if (p)
+    return foo(p);
+  return -1;
+}
+
+I suppose you'd like a compiler to remember the point at which the
+pointer became safe, and avoid prefetching it before the test.  So
+it's not exactly total freedom to reschedule the load.
+
+Still, this sounds like something that might be useful, especially on
+platforms that don't support (non-trapping) prefetching.
+
+GCC's nonnull attribute is indeed useless for these purposes.  Even
+though the docs say it could be used to optimize away a NULL test, its
+syntax is far too cumbersome, since you apply the nonnull attribute to
+the function, not to its argument, which makes it unusable for
+non-argument variables.
+
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

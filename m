@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbTH3VJg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 17:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbTH3VJg
+	id S262136AbTH3VTe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 17:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbTH3VTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 17:09:36 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:50444 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262113AbTH3VJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 17:09:32 -0400
-Date: Sat, 30 Aug 2003 23:09:13 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: Claas Langbehn <claas@rootdir.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>, andrew.grover@intel.com,
-       paul.s.diefenbaugh@intel.com
-Subject: Re: 2.6.0-test4 acpi problems
-Message-ID: <20030830210913.GA5809@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <20030830203353.GA967@rootdir.de>
-Mime-Version: 1.0
+	Sat, 30 Aug 2003 17:19:34 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:36490 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S262136AbTH3VTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 17:19:32 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: jes@trained-monkey.org, alan@lxorguk.ukuu.org.uk, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: kills consistent_dma_mask
+References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
+	<20030818111522.A12835@devserv.devel.redhat.com>
+	<m33cfyt3x6.fsf@trained-monkey.org>
+	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
+	<20030819095547.2bf549e3.davem@redhat.com>
+	<m34r0dwfrr.fsf@defiant.pm.waw.pl> <m38ypl29i4.fsf@defiant.pm.waw.pl>
+	<m3isoo2taz.fsf@trained-monkey.org> <m3n0dz5kfg.fsf@defiant.pm.waw.pl>
+	<20030824060057.7b4c0190.davem@redhat.com>
+	<m365kmltdy.fsf@defiant.pm.waw.pl>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 30 Aug 2003 23:18:50 +0200
+In-Reply-To: <m365kmltdy.fsf@defiant.pm.waw.pl>
+Message-ID: <m365kex2rp.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030830203353.GA967@rootdir.de>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Claas Langbehn <claas@rootdir.de>
-Date: Sat, Aug 30, 2003 at 10:33:53PM +0200
-> Hello!
-> 
-> 
-> I have got an Epox 8K9A9i mainboard with an Athlon XP 1800+ CPU. The
-> chipset is an VIA KT400A. The bios is dated 12.05.2003.
-> When booting with ACPI enabled, the interrupts dont get enumerated
-> properly. with acpi=ht it works, but i dont have enough features.
-> Below you see my bootlog with acpi and further down the bootlog with 
-> acpi=off. Is there a way to use full acpi support and "normal"
-> interrupts? pci=noacpi was not really successful.
-> 
-> How can I help acip development and do more debugging?
-> 
-> kernel: pci_link-0263 [17] acpi_pci_link_get_curr: No IRQ resource found
-> kernel: ACPI: PCI Interrupt Link [ALKA] (IRQs 20, disabled)
-> kernel: pci_link-0263 [19] acpi_pci_link_get_curr: No IRQ resource found
+David, any comments?
 
-Lots of people have problems with KT400 chipsets and ACPI. A mr. Quincey
-is busy devising a patch, and according to his last post at the
-acpi-support mailinglist from sourceforge, things are getting better.
-There are also several bugs postet at bugzilla.kernel,org.
+"David S. Miller" <davem@redhat.com> writes:
 
-So either wait, or join acpi-support and read more there.
+> > The code has to get the mask anyway, either from
+> > pci_dev->(consistent_)dma_mask or from its arguments.
+> 
+> But it does not have to verify the mask each and every mapping call
+> currently.  We'll need to do that with your suggested changes.
 
-Hope this helps,
-Jurriaan
--- 
-I mean, if the musician thought "WOOOHOOO! YEAH! ANI RUUULES!" sounded better
-than the actual lyrics she would have put them on there.
-	Steve in rec.music.artists.ani-difranco.
-Debian (Unstable) GNU/Linux 2.6.0-test4-mm2 4276 bogomips 4.40 2.63
+No, why? What we'll need is to verify the mask at driver startup.
+It would be driver responsibility to use only valid (verified) masks.
+
+> Nobody is going to agree to any of your proposals at the rate you're
+> currently going.
+
+What do you propose instead?
+
+> Effectively, the correct effects are obtained on i386, Alpha,
+> IA64, and sparc for all drivers in the tree.  I can say this because
+> nobody tries to do anything interesting with consistent_dma_mask
+> yet, and that is why nobody has any incentive to "fix" it as you
+> keep complaining we need to do.
+
+False. I have a device which needs different mask for consistent allocs.
+In fact the whole story began with me trying to put this driver into
+the tree.
+
+> See, to show something is broken, you have to show a device that
+> will break currently.
+
+SBE wanXL sync serial adapter. 32 bits for buffers but 28 bits for
+consistent data.
+
+>  The consistent_dma_mask is only modified
+> by tg3, and it does so in such a way that all platforms work properly.
+
+I can't imagine all devices work properly on all platforms wrt
+consistent allocs. Say, sound drivers setting only dma_mask to < 32 bits
+and expecting consistent alloc will use that and not consistent_dma_mask.
+
+Of course, there is a question if we want to support such sound cards
+on Itaniums and Opterons? Of course they work on i386 as
+i386 pci_alloc_consistent() ignores consistent_dma_mask.
+
+-- Krzysztof Halasa, B*FH

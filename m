@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281274AbRKZAkR>; Sun, 25 Nov 2001 19:40:17 -0500
+	id <S281286AbRKZAlj>; Sun, 25 Nov 2001 19:41:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281283AbRKZAkH>; Sun, 25 Nov 2001 19:40:07 -0500
-Received: from theirongiant.zip.net.au ([61.8.0.198]:43408 "EHLO
-	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
-	id <S281274AbRKZAj4>; Sun, 25 Nov 2001 19:39:56 -0500
-Date: Mon, 26 Nov 2001 11:39:37 +1100
-From: CaT <cat@zip.com.au>
-To: J Sloan <jjs@pobox.com>, linux-kernel@vger.kernel.org
-Cc: Patrick McFarland <unknown@panax.com>
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011126113937.F662@zip.com.au>
-In-Reply-To: <20011124205632.C241@localhost> <20011124211204.D241@localhost> <3C0058CF.D97D0E2B@starband.net> <20011124214114.E241@localhost> <3C006F44.201DC73F@pobox.com> <20011125165819.G238@localhost> <3C017740.FB17CD8C@pobox.com> <20011125181146.L238@localhost> <20011125192629.M238@localhost> <20011125193155.N238@localhost>
+	id <S281283AbRKZAl3>; Sun, 25 Nov 2001 19:41:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29196 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S281270AbRKZAku>;
+	Sun, 25 Nov 2001 19:40:50 -0500
+Date: Mon, 26 Nov 2001 00:40:49 +0000
+From: Joel Becker <jlbec@evilplan.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Dominik Kubla <kubla@sciobyte.de>, Sven.Riedel@tu-clausthal.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux and RS/6000 250
+Message-ID: <20011126004048.K7455@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Dominik Kubla <kubla@sciobyte.de>, Sven.Riedel@tu-clausthal.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011125024652.B26191@moog.heim1.tu-clausthal.de> <Pine.NEB.4.33.0111251427280.1488-100000@www2.scram.de> <20011125144038.C5506@duron.intern.kubla.de> <20011125174742.A5789@moog.heim1.tu-clausthal.de> <20011125181051.D5506@duron.intern.kubla.de> <20011125213316.J7455@parcelfarce.linux.theplanet.co.uk> <15361.27977.474176.551443@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011125193155.N238@localhost>
-User-Agent: Mutt/1.3.23i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15361.27977.474176.551443@cargo.ozlabs.ibm.com>; from paulus@samba.org on Mon, Nov 26, 2001 at 09:14:33AM +1100
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 07:31:55PM -0500, Patrick McFarland wrote:
-> Oh, and I forgot to mention, its usually (imho) the maintainer's
-> job to write.. *gasp* documentation. I know we all hate to do it,
-> but someone has to. And the kernel docs are... enemic, at best.
+On Mon, Nov 26, 2001 at 09:14:33AM +1100, Paul Mackerras wrote:
+> 
+> MCA is a different story, there is no support for MCA in PPC/Linux.
 
-Sweet. You volunteering to be Documentation maintainer then?
+	Interesting.  x86 has supported it for a while?  Was MCA totally
+ripped out, or is it merely a case of no one having the hardware to get
+it working?
 
-(As well as QA)
+Joel
 
 -- 
-CaT        "As you can expect it's really affecting my sex life. I can't help
-           it. Each time my wife initiates sex, these ejaculating hippos keep
-           floating through my mind."
-                - Mohd. Binatang bin Goncang, Singapore Zoological Gardens
+
+"There is shadow under this red rock.
+ (Come in under the shadow of this red rock)
+ And I will show you something different from either
+ Your shadow at morning striding behind you
+ Or your shadow at evening rising to meet you.
+ I will show you fear in a handful of dust."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

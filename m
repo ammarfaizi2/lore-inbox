@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUHDNhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUHDNjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUHDNhX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 09:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUHDNhX
+	id S265773AbUHDNjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 09:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265736AbUHDNjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 09:37:23 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:3016 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265487AbUHDNhU (ORCPT
+	Wed, 4 Aug 2004 09:39:25 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:36243 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S265654AbUHDNjV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 09:37:20 -0400
-Date: Wed, 4 Aug 2004 15:37:18 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Juergen Stuber <juergen@jstuber.net>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.8-rc3
-In-Reply-To: <86r7qn9ip5.fsf@jstuber.net>
-Message-ID: <Pine.GSO.4.58.0408041536360.15861@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0408031505470.24588@ppc970.osdl.org>
- <86r7qn9ip5.fsf@jstuber.net>
+	Wed, 4 Aug 2004 09:39:21 -0400
+From: "Sourav Sen" <souravs@india.hp.com>
+To: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: CONFIG_FORCE_MAX_ZONEORDER
+Date: Wed, 4 Aug 2004 19:09:17 +0530
+Message-ID: <012401c47a28$70fb62a0$39624c0f@asiapacific.cpqcorp.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Aug 2004, Juergen Stuber wrote:
-> Linus Torvalds <torvalds@osdl.org> writes:
-> >[...]
-> >   o depends on PCI DMA API: Cisco/Aironet 34X/35X/4500/4800
->
-> I guess it is this change that made the Airo driver disappear for me,
-> because I didn't have ISA configured:
->
-> --- linux-2.6.8-rc2/drivers/net/wireless/Kconfig        2004-07-18 06:57:48.000000000 +0200
-> +++ linux-2.6.8-rc3/drivers/net/wireless/Kconfig        2004-08-03 23:27:14.000000000 +0200
-> @@ -139,7 +139,7 @@
->
->  config AIRO
->         tristate "Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards"
-> -       depends on NET_RADIO && (ISA || PCI)
-> +       depends on NET_RADIO && ISA && (PCI || BROKEN)
->         ---help---
->           This is the standard Linux driver to support Cisco/Aironet ISA and
->           PCI 802.11 wireless cards.
->
->
-> If I understand it correctly the logic is faulty and should better be
->
->        depends on NET_RADIO && ((ISA && BROKEN) || PCI)
+Hi,
 
-Sorry, my fault. Yep, that sounds better.
+Is there a way of changing the value of MAX_ORDER
+using CONFIG_FORCE_MAX_ZOMEORDER? During 'make xconfig'
+I did not see a way. If I change it by hand in .config
+and then run make oldconfig, it gets changed back to
+the old value (== 18). The source version is 2.6.6
 
-Gr{oetje,eeting}s,
+And, if it matters here -- I am on ia64. 
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Thanks
+Sourav

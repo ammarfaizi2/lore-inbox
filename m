@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263124AbUJ2HcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263113AbUJ2HeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263124AbUJ2HcO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 03:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUJ2HcO
+	id S263113AbUJ2HeF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 03:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUJ2HeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 03:32:14 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:28033 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263124AbUJ2H3F (ORCPT
+	Fri, 29 Oct 2004 03:34:04 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:59572 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263113AbUJ2Hd5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 03:29:05 -0400
-Date: Fri, 29 Oct 2004 09:30:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041029073001.GB30400@elte.hu>
-References: <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93> <20041028085656.GA21535@elte.hu> <26253.195.245.190.93.1098955051.squirrel@195.245.190.93> <20041028093215.GA27694@elte.hu> <43163.195.245.190.94.1098981230.squirrel@195.245.190.94> <20041028191605.GA3877@elte.hu> <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
+	Fri, 29 Oct 2004 03:33:57 -0400
+Date: Fri, 29 Oct 2004 17:31:48 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>
+Cc: linux-xfs@oss.gi.com, linux-kernel@vger.kernel.org
+Subject: Re: Filesystem performance on 2.4.28-pre3 on hardware RAID5.
+Message-ID: <20041029073148.GG1246@frodo>
+References: <41817612.2020104@ribosome.natur.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <41817612.2020104@ribosome.natur.cuni.cz>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+On Fri, Oct 29, 2004 at 12:43:30AM +0200, Martin MOKREJ? wrote:
+> "mount -t xfs -o async" unexpectedly kills random seek performance,
+> but is still a bit better than with "-o sync". ;) Maybe it has to do
+> with the dramatic jump in CPU consumption of this operation,
+> as it in both cases it takes about 21-26% instead of usual 3%.
+> Why? Isn't actually async default mode?
 
-> BTW, this means that I have to re-enable LATENCY_TIMING back again?
+Thats odd.  Actually, I'm not sure what the "async" option is meant
+to do, it isn't seen by the fs afaict (XFS isn't looking for it)... 
+we also use the generic_file_llseek code in XFS ... so we're not
+doing anything special there either -- some profiling data showing
+where that CPU time is spent would be insightful.
 
-yes. I'd suggest to start with the simplest setup - i.e. just one
-fluidsynth instance running. I suspect 3-4 instances later on will be
-enough to trigger some xruns or at least some of the bigger delays.
+> Sequential create /Create
+> Random create /Create
+> XFS             60-120 ms
 
-you possibly wont be able to debug the 'production' setup, but that's
-not an issue because the latencies should show up under just 2-3
-instances running as well.
+You may get better results using a version 2 log (mkfs option)
+with large in-core log buffers (mount option) for these (which
+mkfs version are you using atm?)
 
-> > Also, i'd suggest to simply remove that line (or apply the attached
-> > patch) - does the driver still work fine with that?
-> >
-> 
-> Now that you call, I remember to hack that very same line, some time
-> go, but couldn't get no better than a udelay(33). Removing that line
-> just ended in some kind of malfunction, but can't remember what
-> exactly. One thing's for sure, sound didn't came out of it :-/
+cheers.
 
-ugh. Possibly some sort of interaction with the firmware and/or an
-outright driver bug?
-
-	Ingo
+-- 
+Nathan

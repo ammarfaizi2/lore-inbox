@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268049AbTBNVIb>; Fri, 14 Feb 2003 16:08:31 -0500
+	id <S268308AbTBNVQ2>; Fri, 14 Feb 2003 16:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268046AbTBNVIC>; Fri, 14 Feb 2003 16:08:02 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:39811 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267815AbTBNVH3>; Fri, 14 Feb 2003 16:07:29 -0500
-Message-Id: <200302142116.h1ELGwwZ010438@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.60 - drivers/char/esp.c vs include/linux/serialP.h 
-In-Reply-To: Your message of "Fri, 14 Feb 2003 20:54:49 GMT."
-             <20030214205449.J14659@flint.arm.linux.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <200302142039.h1EKdYwZ029474@turing-police.cc.vt.edu>
-            <20030214205449.J14659@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1177195644P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 14 Feb 2003 16:16:58 -0500
+	id <S268237AbTBNVPu>; Fri, 14 Feb 2003 16:15:50 -0500
+Received: from mail.mplayerhq.hu ([192.190.173.45]:40649 "EHLO
+	mail.mplayerhq.hu") by vger.kernel.org with ESMTP
+	id <S268168AbTBNVPI>; Fri, 14 Feb 2003 16:15:08 -0500
+Date: Fri, 14 Feb 2003 22:35:11 +0100 (CET)
+From: Szabolcs Berecz <szabi@mplayerhq.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH][RFC] radix-tree.c
+Message-ID: <Pine.LNX.4.33.0302142233370.16839-100000@mail.mplayerhq.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1177195644P
-Content-Type: text/plain; charset=us-ascii
 
-On Fri, 14 Feb 2003 20:54:49 GMT, Russell King said:
-> On Fri, Feb 14, 2003 at 03:39:34PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> > compiling drivers/char/esp.c with -Wundef triggers a warning:
-> > 
-> > In file included from drivers/char/esp.c:51:
-> > include/linux/serialP.h:27:6: warning: "LINUX_VERSION_CODE" is not defined
+With the following patch maxindex is taken from an array instead of
+recalculating it all the time.
 
-> My personal feeling woudl be to lop it out, and fix up anywhere
-> and everywhere which complains appropraitely.
+Comments?
 
-I jumped the gun, actually - the build was still running, and there's at
-least 6 other things that trigger the same serialP.h warning - where there's
-a #if (VAR < NNNN) check that Does The Wrong Thing because of the default
-gcc behavior for undefineds.  Hopefully this one's harmless - but there's
-still 608 other warnings to work through.
+Bye,
+Szabi
 
 
+--- linux-2.5.60/lib/radix-tree.c.orig	Sat Jan 25 19:28:22 2003
++++ linux-2.5.60/lib/radix-tree.c	Fri Feb 14 22:16:34 2003
+@@ -46,6 +46,8 @@
+ #define RADIX_TREE_INDEX_BITS  (8 /* CHAR_BIT */ * sizeof(unsigned long))
+ #define RADIX_TREE_MAX_PATH (RADIX_TREE_INDEX_BITS/RADIX_TREE_MAP_SHIFT + 2)
 
---==_Exmh_-1177195644P
-Content-Type: application/pgp-signature
++static unsigned long height_to_maxindex[RADIX_TREE_MAX_PATH];
++
+ /*
+  * Radix tree node cache.
+  */
+@@ -126,12 +128,9 @@
+  */
+ static inline unsigned long radix_tree_maxindex(unsigned int height)
+ {
+-	unsigned int tmp = height * RADIX_TREE_MAP_SHIFT;
+-	unsigned long index = (~0UL >> (RADIX_TREE_INDEX_BITS - tmp - 1)) >> 1;
+-
+-	if (tmp >= RADIX_TREE_INDEX_BITS)
+-		index = ~0UL;
+-	return index;
++	if (unlikely(height >= RADIX_TREE_MAX_PATH))
++		return ~0UL;
++	return height_to_maxindex[height];
+ }
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+ /*
+@@ -402,6 +401,24 @@
+ 	memset(node, 0, sizeof(struct radix_tree_node));
+ }
 
-iD8DBQE+TVzKcC3lWbTT17ARAgEHAKDf9Y4pKv/fOlWT4UXCSJ1a5NDWKgCfTprR
-zQrBAVfquAPTJ2do2VSrOFM=
-=0MMU
------END PGP SIGNATURE-----
++static __init unsigned long __maxindex(unsigned int height)
++{
++	unsigned int tmp = height * RADIX_TREE_MAP_SHIFT;
++	unsigned long index = (~0UL >> (RADIX_TREE_INDEX_BITS - tmp - 1)) >> 1;
++
++	if (tmp >= RADIX_TREE_INDEX_BITS)
++		index = ~0UL;
++	return index;
++}
++
++static __init void radix_tree_init_maxindex(void)
++{
++	unsigned int i;
++
++	for (i = 0; i < RADIX_TREE_MAX_PATH; i++)
++		height_to_maxindex[i] = __maxindex(i);
++}
++
+ void __init radix_tree_init(void)
+ {
+ 	radix_tree_node_cachep = kmem_cache_create("radix_tree_node",
+@@ -409,4 +426,5 @@
+ 			0, radix_tree_node_ctor, NULL);
+ 	if (!radix_tree_node_cachep)
+ 		panic ("Failed to create radix_tree_node cache\n");
++	radix_tree_init_maxindex();
+ }
 
---==_Exmh_-1177195644P--

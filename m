@@ -1,53 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbUA0XmE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 18:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbUA0XkE
+	id S263771AbUA0Xdk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:33:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUA0Xdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 18:40:04 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:17334 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S264925AbUA0Xjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 18:39:36 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Christoph Hellwig <hch@infradead.org>
-Date: Wed, 28 Jan 2004 10:39:11 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jan 2004 18:33:40 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:432 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263771AbUA0Xd3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 18:33:29 -0500
+In-Reply-To: <401026CD.2030600@us.ibm.com>
+References: <401026CD.2030600@us.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v609)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <0041A388-5121-11D8-B18F-000A95A0560C@us.ibm.com>
 Content-Transfer-Encoding: 7bit
-Message-ID: <16406.63135.118742.545084@notabene.cse.unsw.edu.au>
-Cc: Florian Huber <florian.huber@mnet-online.de>,
-       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
-In-Reply-To: message from Christoph Hellwig on Tuesday January 27
-References: <1075230933.11207.84.camel@suprafluid>
-	<1075231718.21763.28.camel@shaggy.austin.ibm.com>
-	<1075232395.11203.94.camel@suprafluid>
-	<1075236185.21763.89.camel@shaggy.austin.ibm.com>
-	<20040127205324.A19913@infradead.org>
-	<1075238385.14214.3.camel@suprafluid>
-	<20040127212243.A20349@infradead.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mochel@digitalimplant.org,
+       Andrew Morton <akpm@osdl.org>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: (driver model) bus kset list manipulation bug
+Date: Tue, 27 Jan 2004 17:31:58 -0600
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.609)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday January 27, hch@infradead.org wrote:
-> 
-> You can't partition md devices (yet), but otherwise yes.  I think you can
-> also create md device without the persistant superblock still, but it
-> always was a pain to maintain those.
+On Jan 22, 2004, at 1:38 PM, Hollis Blanchard wrote:
+>
+> I've found a bug in drivers/base/bus.c, where the 
+> bus_type.devices.list is treated as a list of device structs. 
+> bus_type.devices is a kset though, so devices.list should contain 
+> kobjects rather than devices. Here is the diff I've come up with:
+>
+[big snip]
 
-non-persistent superblock arrays only work for raid0 and linear
-(i.e. not redundancy).  RAID1 and RAID5 need a superblock.
+> @@ -405,7 +405,7 @@
+>         if (bus) {
+>                 down_write(&dev->bus->subsys.rwsem);
+>                 pr_debug("bus %s: add device 
+> %s\n",bus->name,dev->bus_id);
+> -               list_add_tail(&dev->bus_list,&dev->bus->devices.list);
+> +               
+> list_add_tail(&dev->kobj.entry,&dev->bus->devices.list);
+>                 device_attach(dev);
+>                 up_write(&dev->bus->subsys.rwsem);
 
-NeilBrown
+Here's the problem: dev->kobj is already in use; it's part of the 
+global devices_subsys kset.
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+devices_subsys looks like it's only used for two things: global hotplug 
+policy and suspend. Of the 3 hotplug functions it provides 
+(dev_hotplug_filter, dev_hotplug_name, and dev_hotplug), 2 of them 
+refer to bus data or code anyways.
+
+I'm very surprised to see it's used by device_shutdown(). I thought one 
+of the points of the device tree was to do depth-first-suspend, so e.g 
+we don't try to suspend a PCI bridge and *then* try to suspend children 
+of that bridge. Instead we're walking a global list in the reverse 
+order they were registered. I guess this works because busses are 
+discovered from the root down, so going backwards will give you the 
+deepest first.
+
+I see three options, and I like the last best:
+- add another kobject to struct device. This will allow a device to be 
+registered with the global devices_subsys as well as a bus.devices kset 
+simultaneously.
+- change the kset "bus_type.devices" to a normal "list_head*" (which is 
+how it's being used today, incorrectly). This will preclude some of the 
+nice kobject/kset functionality however (e.g. see last paragraph 
+below).
+- remove devices_subsys. The hotplug policy is already entirely 
+bus-specific anyways. The suspend code can be made to use bus 
+structures as well instead of a global device list (can it?).
+
+The point of all of this is I want to be able to call
+	device_find("mydevice", &my_bus_type)
+device_find() uses kset_find_obj() on the bus_type.devices kset, and 
+that doesn't work because bus_type.devices isn't a real kset, and it's 
+not a real kset because you can't register device kobjects in it, and 
+you can't because those kobjects have already been registered with 
+devices_subsys. I could call
+	device_find("mydevice", &devices_subsys.kset)
+instead, but I already know what bus my device is on; no need to search 
+them all...
+
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
+

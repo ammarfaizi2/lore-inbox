@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261332AbSJPT23>; Wed, 16 Oct 2002 15:28:29 -0400
+	id <S261318AbSJPTZw>; Wed, 16 Oct 2002 15:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261340AbSJPT23>; Wed, 16 Oct 2002 15:28:29 -0400
-Received: from DSL022.LABridge.com ([206.117.136.22]:58379 "EHLO Perches.com")
-	by vger.kernel.org with ESMTP id <S261332AbSJPT22>;
-	Wed, 16 Oct 2002 15:28:28 -0400
-Subject: Re: [RFC] change format of LSM hooks
-From: joe perches <joe@perches.com>
-To: greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20021016185927.GA25475@kroah.com>
-References: <20021015194545.GC15864@kroah.com>
-	<20021015.124502.130514745.davem@redhat.com>
-	<20021015201209.GE15864@kroah.com>
-	<20021015.131037.96602290.davem@redhat.com>
-	<20021015202828.GG15864@kroah.com> <20021016000706.GI16966@kroah.com>
-	<20021016081539.GF20421@kroah.com>  <20021016185927.GA25475@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8-3mdk 
-Date: 16 Oct 2002 12:33:50 -0400
-Message-Id: <1034786033.9520.8.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261278AbSJPTZw>; Wed, 16 Oct 2002 15:25:52 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:15577 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261340AbSJPTYa>; Wed, 16 Oct 2002 15:24:30 -0400
+Date: Wed, 16 Oct 2002 17:30:04 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][DOC]  kernelnewbies helpful hint #1
+Message-ID: <Pine.LNX.4.44L.0210161729140.22993-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-16 at 14:59, Greg KH wrote:
+Hi,
 
-I think something like:
+this little patch documents a point in the scheduler where many people
+seem to get confused.
 
-	#define check_security(type,args...) security_##type(##args)
 
-would be cleaner and would prefer not collapsing the
+===== kernel/sched.c 1.140 vs edited =====
+--- 1.140/kernel/sched.c	Mon Oct 14 10:30:06 2002
++++ edited/kernel/sched.c	Wed Oct 16 17:28:29 2002
+@@ -1035,6 +1035,12 @@
 
-	ret = check_security()
-	if (ret)
+ 		prepare_arch_switch(rq, next);
+ 		prev = context_switch(prev, next);
++		/*
++		 * Kernelnewbies hint:  at this point the current process
++		 * has switched from prev to next.  Prev is sitting on the
++		 * run queue and next unlocks the runqueue, either here or
++		 * in ret_from_fork (for newly forked processes).
++		 */
+ 		barrier();
+ 		rq = this_rq();
+ 		finish_arch_switch(rq, prev);
 
-function use
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

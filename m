@@ -1,314 +1,184 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <971571-26836>; Mon, 13 Jul 1998 08:34:46 -0400
-Received: from val3-140.abo.wanadoo.fr ([193.252.196.140]:62147 "EHLO lw2l.bnc.interdrome.fr" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <970842-26836>; Mon, 13 Jul 1998 08:34:22 -0400
-From: Andrew Derrick Balsa <andrebalsa@altern.org>
-Reply-To: andrebalsa@altern.org
-To: Jamie Lokier <lkd@tantalophile.demon.co.uk>
-Subject: [TEST CODE] for the new time.c routine
-Date: Mon, 13 Jul 1998 15:34:50 +0200
-X-Mailer: KMail [version 0.7.9]
-Content-Type: Multipart/Mixed; boundary="Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd"
-Cc: linux-kernel@vger.rutgers.edu, "C. Scott Ananian" <cananian@lesser-magoo.lcs.mit.edu>
-References: <19980713142208.65263@tantalophile.demon.co.uk>
+Received: by vger.rutgers.edu id <971784-26836>; Mon, 13 Jul 1998 09:43:28 -0400
+Received: from eagle1a.raptor.com ([209.48.140.11]:50042 "HELO eagle-140.raptor.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <971914-26836>; Mon, 13 Jul 1998 09:41:38 -0400
+Message-ID: <35AA1F4F.A4840FDA@raptor.com>
+Date: Mon, 13 Jul 1998 10:53:03 -0400
+From: Philip Gladstone <philip@raptor.com>
+Organization: Raptor Systems, Inc
+X-Mailer: Mozilla 4.05 [en] (WinNT; I)
 MIME-Version: 1.0
-Message-Id: <98071315515900.00441@lw2l.bnc.interdrome.fr>
+To: andrebalsa@altern.org
+CC: linux-kernel@vger.rutgers.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>, "C. Scott Ananian" <cananian@lesser-magoo.lcs.mit.edu>, Rafael Reilova <rreilova@ececs.uc.edu>, Colin Plumb <colin@nyx.net>
+Subject: Re: new version of time.c
+References: <98071212561206.00441@lw2l.bnc.interdrome.fr>
+Content-Type: multipart/mixed; boundary="------------129955A5189328E86108BB0D"
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+This is a multi-part message in MIME format.
+--------------129955A5189328E86108BB0D
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
---Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+Hi,
 
-Hi Jamie,
+This code suffers from the same problem that all the existing
+do_fast code suffers from -- namely, the assumption that the timer
+interrupt is processed exactly on the 100Hz tick.
 
-On Mon, 13 Jul 1998, Jamie Lokier wrote:
->C. Scott Ananian wrote:
->> and I really doubt that many people (without the use
->> of said test suite) would be able to tell that their sub-jiffy timings
->> were saturating early at the mark just before the next jiffy because the
->> CPU was slowing the clock.
->
->It does make smooth video animation a bit jittery, but it's not the end
->of the world as long as jiffies are still working.
+The attached patch fixes the problem for 2.0.3x series kernels
+and has been running for a time without problems. It also includes
+a debugging function (do_both_gettimeoffset) that can be used
+to demonstrate the problem.
 
-I can assure you that the jitter you see in the video animation is _not_
-caused by the new time.c code.
+The trick is to record (using the do_slow mechanism) the time
+when the interrupt is actually taken, and then factor that into
+the calculation.
 
-It's just that Linux doesn't provide (yet) the fundamental mechanisms for some
-multimedia applications: POSIX support for RT code.
+Philip
 
-In fact, the new time.c code will actually _help_ implement POSIX compatibility.
->
->I remember a laptop with power saving totally screwing up the jiffies.
->(Presumably APM support needed to be in the kernel, and it wasn't).
->That was bad, but the above isn't.
+Andrew Derrick Balsa wrote:
+> 
+> The code itself:
+> (drop-in replacement for time.c in 2.0.34)
+> ---------------------
+> Andrew D. Balsa
+> andrebalsa@altern.org
+> 
+>   ------------------------------------------------------------------------
+> 
+>                 Name: time.c
+>    time.c       Type: C Source File (application/x-unknown-content-type-cfile)
+>             Encoding: base64
 
-The original time.c code would break with APM. The new one doesn't.
+-- 
+Philip Gladstone                           +1 781 530 2461
+Raptor Systems / Axent Technologies 
+Waltham, MA         		    http://www.raptor.com/
+--------------129955A5189328E86108BB0D
+Content-Type: text/plain; charset=us-ascii; name="mtime.pf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="mtime.pf"
 
-Scott suggested we need a time.c test suite. Here is a short piece of code I
-wrote that produces two fancy graphs on your X display. It really tests the
-gettimeofday() code. It also shows Linux' present shortcomings when it comes to
-RT applications.
+--- time.c.orig	Fri Nov  7 13:06:21 1997
++++ linux/arch/i386/kernel/time.c	Thu May 14 16:03:02 1998
+@@ -43,6 +47,9 @@
+ 	unsigned long high;
+ } init_timer_cc, last_timer_cc;
+ 
++/* Number of usecs that the last interrupt was delayed */
++static int delay_at_last_interrupt;
++
+ /*
+  * This is more assembly than C, but it's also rather
+  * timing-critical and we have to use assembler to get
+@@ -129,10 +136,16 @@
+ 	 * we need to check the result so that we'll get a timer
+ 	 * that is monotonic.
+ 	 */
+-	if (edx >= 1000020/HZ)
+-		edx = 1000020/HZ-1;
++        /* 
++         * Monotonic times should be enforced in gettimeofday,
++         * and it is not the case that the error is limited to
++         * one tick. 
++         *
++	 * if (edx >= 1000020/HZ)
++         * 	edx = 1000020/HZ-1;
++         */
+ 
+-	eax = edx + missing_time;
++	eax = edx + missing_time + delay_at_last_interrupt;
+ 	return eax;
+ }
+ #endif
+@@ -234,6 +247,28 @@
+ 	return offset + count;
+ }
+ 
++static unsigned long do_both_gettimeoffset(void)
++{
++       unsigned long slow, fast;
++       static int fast_after_slow;
++       static int slow_after_fast = 5;
++
++       fast = do_fast_gettimeoffset();
++       slow = do_slow_gettimeoffset();
++
++       if (slow + fast_after_slow < fast) {
++           fast_after_slow = fast - slow;
++           printk(KERN_WARNING "do_fast_gettimeoffset()=%ld - do_slow_gettimeoffset()=%ld = %d\n", fast, slow, fast_after_slow);
++       }
++
++       if (fast + slow_after_fast < slow) {
++           slow_after_fast = slow - fast;
++           printk(KERN_WARNING "do_fast_gettimeoffset()=%ld - do_slow_gettimeoffset()=%ld = %d\n", fast, slow, -slow_after_fast);
++       }
++
++       return fast;
++}
++
+ static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
+ 
+ /*
+@@ -385,10 +471,24 @@
+  */
+ static void pentium_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
++        int count;
++
++        /* It is important that these two operations happen at the
++         * same time. It is unclear which order is better!
++         */
++
++	outb_p(0x00, 0x43);	/* latch the count ASAP */
+ 	/* read Pentium cycle counter */
+ 	__asm__(".byte 0x0f,0x31"
+ 		:"=a" (last_timer_cc.low),
+ 		 "=d" (last_timer_cc.high));
++
++	count = inb_p(0x40);	/* read the latched count */
++	count |= inb(0x40) << 8;
++
++	count = ((LATCH-1) - count) * TICK_SIZE;
++	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
++
+ 	timer_interrupt(irq, NULL, regs);
+ }
+ #endif
+--- linux/kernel/time.c.old	Tue Nov 11 15:51:14 1997
++++ linux/kernel/time.c	Tue Nov 11 15:52:11 1997
+@@ -68,23 +68,17 @@
+  */
+ asmlinkage int sys_stime(int * tptr)
+ {
+-	int error, value;
++	int error;
++	struct timeval new_tv;
+ 
+ 	if (!suser())
+ 		return -EPERM;
+ 	error = verify_area(VERIFY_READ, tptr, sizeof(*tptr));
+ 	if (error)
+ 		return error;
+-	value = get_user(tptr);
+-	cli();
+-	xtime.tv_sec = value;
+-	xtime.tv_usec = 0;
+-	time_adjust = 0;	/* stop active adjtime() */
+-	time_status |= STA_UNSYNC;
+-	time_state = TIME_ERROR;	/* p. 24, (a) */
+-	time_maxerror = NTP_PHASE_LIMIT;
+-	time_esterror = NTP_PHASE_LIMIT;
+-	sti();
++	new_tv.tv_sec = get_user(tptr);
++	new_tv.tv_usec = 0;
++	do_settimeofday(&new_tv);
+ 	return 0;
+ }
+ 
 
-Run it on an idle machine and you will see clearly those nice orderly timer
-interrupts. Run it on a busy machine and you will see the busy waits and
-non-interruptible drivers in the kernel wreaking havoc with timer interrupts.
+--------------129955A5189328E86108BB0D--
 
-Cheers,
----------------------
-Andrew D. Balsa
-andrebalsa@altern.org
-
-BTW Sorry for my earlier base-64 encoded attachments. From now on, only plain
-text attachments. Thanks to Andrew E. Mileski for the tip.
-
-
---Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd
-Content-Type: text/english;
-  name="jitter.c"
-Content-Transfer-Encoding: 8bit
-Content-Description: Part of a test suite for time.c
-Content-Disposition: attachment; filename="jitter.c"
-
-/* jitter.c - version 0.1 - 20/05/98
- * Linux gettimeofday() call jitter / interrupt latency measurement.
- * Copyright (C) 1998 André D. Balsa.
- * Licensing: GNU/GPL.
- *
- * Compile with: gcc -o jitter jitter.c -lm
- *
- * DON'T use -O2 to compile!
- *
- * usage: jitter [-p]
- *
- * -p : this option uses gnuplot to produce two graphics (in pbm format)
- * of jitter peaks, which can later be viewed using xv. Very fancy stuff,
- * watching the timer interrupts, daemon activity, etc.
- * The first graphic shows the variations in jitter amplitude.
- * The second graphic is a frequency histogram of jitter values.
- * The pbm files are saved in /tmp.
- *
- * The purpose of this program is to show that even when a high
- * precision and high resolution timer mechanism is used (in this case
- * the BSD 4.3 standard gettimeofday() call), Linux, being a non-RT OS,
- * cannot _guarantee_ a stable response time. Check RT-Linux if you need
- * (better than 1 jiffy) accurate timing in any application.
- *
- * The main loop code was adapted from the Whetstone C source
- * (the list of authors is reproduced below). We just want a standard piece
- * of code which will execute in a fixed number of CPU clock cycles.
- *
- * The program works as follows:
- * - We execute a main loop of short duration (1 ms), so short in fact
- *   that in most cases it's not even disturbed by the main system timer
- *   interrupt (100Hz on i386 machines).
- * - We measure the real (as opposed to CPU) time interval between the
- *   beginning and end of our main loop. This measurement, if our main loop
- *   is not interrupted, is a stable value +/- the resolution of our timestamp
- *   call (which for gettimeofday() is 1 microsecond in Linux).
- * - The measurement is repeated MAXCOUNT times (usually 1000). This gives
- *   us a snapshot of what happens during approx. 1 second of real time.
- * - Finally, we calculate the jitter relative to the lowest measurement,
- *   for each measurement, and the frequencies for the various jitter values.
- * - The program then prints the results or plots the graphics.  
- *
- *****************************************************************
- *     C/C++ Whetstone Benchmark Single or Double Precision
- *
- *     Original concept        Brian Wichmann NPL      1960's
- *     Original author         Harold Curnow  CCTA     1972
- *     Self timing versions    Roy Longbottom CCTA     1978/87
- *     Optimisation control    Bangor University       1987/90
- *     C/C++ Version           Roy Longbottom          1996
- *     Compatibility & timers  Al Aburto               1996
- *
- *****************************************************************
- */
-
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/time.h>
-
-#include <math.h>
-
-#define HAVE_XV		/* define this if you want to view the graphs with xv */
-
-#define MAXCOUNT 1000	/* a 1s run will show the longer timer interrupts */
-			/* define a smaller value until sl and bl below are
-			   adjusted for a millisecond loop duration */
-
-#define SL 20		/* adjust these two values to get a 1 ms loop */
-#define BL 14
-
-int main(int argc, char *argv[]) {
-
-	FILE *fp;
-	unsigned int i, ix, loopcount;
-	char plot = 0;
-
-	long int timea;
-	long int noise = 0;
-	long int timeb[MAXCOUNT];
-	struct FreqData {
-		long int jitval;
-		long int freqval;
-	};
-	struct FreqData freq[MAXCOUNT];	/* most of it unused */
-
-	struct timeval trt;
-
-	double t  = 0.49999975;
-	double t2 = 2.0;
-	double x, y, t0;
-
-if (argc > 1)
-	if (strcmp(argv[1],"-p") == 0)
-		plot = 1;	/* plot results to PBM files using gnuplot */
-
-
-/* Get time intervals in microseconds */
-/* Assumption: the loop executes in < 1 second */
-
-	   t0 = t;
-	   for (loopcount = 0; loopcount < MAXCOUNT; loopcount++) {
-
-	   gettimeofday(&trt, NULL);
-	   timea = trt.tv_usec; /* we only want the microsecond data */
-
-	   /* From section 5, Trig functions, Whetstone source */
-	        x = 0.5;
-	        y = 0.5;
-		{
-	            for (ix=0; ix<BL; ix++)
-	              {
-	                for(i=1; i<SL; i++)
-	                  {
-	                     x = t*atan(t2*sin(x)*cos(x)/(cos(x+y)+cos(x-y)-1.0));
-	                     y = t*atan(t2*sin(y)*cos(y)/(cos(x+y)+cos(x-y)-1.0));
-	                  }
-	                t = 1.0 - t;
-	              }
-	            t = t0;
-	         }
-	   gettimeofday(&trt, NULL);
-	   timeb[loopcount] = trt.tv_usec - timea; /* our loop duration */
-	   
-	   /* We don't check the carry to trt.tv_sec here. 
-	      Negative loop durations are adjusted below.
-	    */
-	}
-
-/* Jitter is calculated relative to the lowest loop duration.
- */
-	
-	printf("\nJitter analysis\n\n");
-	timea = timeb[0];	/* get lowest duration in timea */
-				/* and also adjust negative durations */
-	
-	for (loopcount = 0; loopcount < (MAXCOUNT); loopcount++) {
-		if (timeb[loopcount] < 0) timeb[loopcount] += 1000000;
-		if (timea > timeb[loopcount]) timea = timeb[loopcount];
-		/* also initialize freq[] array */
-		freq[loopcount].jitval = 0;
-		freq[loopcount].freqval = 0;
-		
-	}
-	/* Calculate histogram data.
-	 * Jitter values of 0, 1 and 2 are treated as "noise".
-	 */
-	for (loopcount = 0; loopcount < (MAXCOUNT); loopcount++) {
-		if ((timeb[loopcount] - timea) <= 2) {
-		    noise++;
-		}
-		else {
-	/* We want the frequency and jitter values of anything that isn't
-	   noise, in increasing order of jitter value; we'll store these
-	   values in array freq; first array element with jitval = 0
-	   signals the end of the valid values in the array.
-	 */	
-		    i = 0;
-		    while ((freq[i].jitval != (timeb[loopcount] - timea)) && (freq[i].jitval != 0)) {
-			i++;					        
-		    }
-		    freq[i].freqval++;
-		    freq[i].jitval = timeb[loopcount] - timea;	/* if we reached the end */
-		}
-	}
-	
-/* Now print or plot jitter values. */
-	if (!(plot)) {	
-	
-	    /* Print jitter relative to lowest duration.
-	     */
-	    for (loopcount = 1; loopcount < (MAXCOUNT); loopcount++) { /* discard first result because of cache priming */
-	        printf("Jitter %u : %d microseconds\n", loopcount, (timeb[loopcount]
-                - timea));
-	    }
-	    printf("\nNormal loop duration: %d microseconds\n\n", timea); 
-	}
-	else {
-	
-	/* First the jitter - time graphic */
-
-	    /* create data file */
-	    if ((fp = fopen("/tmp/jitter_res.dat", "w")) == NULL)
-	    	exit (1);
-	    for (loopcount = 1; loopcount < (MAXCOUNT); loopcount++) { /* discard first result because of cache priming */
-	        fprintf(fp, "%d\n", (timeb[loopcount] - timea));
-	    }
-	    fclose(fp);
-	    
-	    /* create gnuplot command file */
-	    if ((fp = fopen("/tmp/jitter_res.gpt", "w")) == NULL)
-	    	exit (1);
-	    fprintf(fp, "set term pbm color\n");
-	    fprintf(fp, "set xlabel \"%u microseconds sampling rate\"\n", timea);
-	    fprintf(fp, "set ylabel \"microseconds\"\n");
-	    fprintf(fp, "set logscale y\n");
-	    fprintf(fp, "show xlabel\n");
-	    fprintf(fp, "show ylabel\n");
-	    fprintf(fp, "plot \"/tmp/jitter_res.dat\" title \"gettimeofday() call jitter over approx. 1 second\" with impulses\n");
-	    fclose(fp);
-	    
-	    /* and plot on the display */
-	    system("gnuplot /tmp/jitter_res.gpt > /tmp/jitter_res.pbm");
-	
-	/* Now the jitter frequency histogram graphic */
-
-	    /* create data file */
-	    if ((fp = fopen("/tmp/jitter_frq.dat", "w")) == NULL)
-	    	exit (1);
-	    for (loopcount = 0; loopcount < (MAXCOUNT); loopcount++) {
-	        if (freq[loopcount].jitval == 0) break; /* stop if we are done */
-	        fprintf(fp, "%d %d\n", freq[loopcount].jitval, freq[loopcount].freqval);
-	    }
-	    fclose(fp);
-	    
-	    /* create gnuplot command file */
-	    if ((fp = fopen("/tmp/jitter_frq.gpt", "w")) == NULL)
-	    	exit (1);
-	    fprintf(fp, "set term pbm color\n");
-	    fprintf(fp, "set xlabel \"jitter (in microseconds)\"\n");
-	    fprintf(fp, "set ylabel \"frequency\"\n");
-	    fprintf(fp, "set logscale x\n");
-	    fprintf(fp, "show xlabel\n");
-	    fprintf(fp, "show ylabel\n");
-	    fprintf(fp, "plot \"/tmp/jitter_frq.dat\" title \"gettimeofday() call jitter frequency distribution\" with impulses\n");
-	    fclose(fp);
-	    
-	    /* and plot on the display */
-	    system("gnuplot /tmp/jitter_frq.gpt > /tmp/jitter_frq.pbm");
-
-#ifdef HAVE_XV
-	    system("xv /tmp/jitter_frq.pbm &");
-	    system("xv /tmp/jitter_res.pbm &");
-#endif
-	}
-
-return (0);	
-}	/* end main() */
-
---Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVDDV0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVDDUyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbVDDV0a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 17:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVDDVYY
+	id S261388AbVDDUyp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVDDUwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 17:24:24 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:40077 "EHLO smtp8.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261416AbVDDVXB (ORCPT
+	Mon, 4 Apr 2005 16:52:49 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:40416 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261392AbVDDUsK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 17:23:01 -0400
-X-ME-UUID: 20050404212243905.022F31800093@mwinf0801.wanadoo.fr
-Date: Mon, 4 Apr 2005 23:19:31 +0200
-To: "Theodore Ts'o" <tytso@mit.edu>, Sven Luther <sven.luther@wanadoo.fr>,
-       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
-       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050404211931.GB3421@pegasos>
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org>
+	Mon, 4 Apr 2005 16:48:10 -0400
+Date: Mon, 4 Apr 2005 22:47:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Gene Heskett <gene.heskett@verizon.net>,
+       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+Message-ID: <20050404204725.GA17818@elte.hu>
+References: <200504011834.22600.gene.heskett@verizon.net> <20050402051254.GA23786@elte.hu> <1112470675.27149.14.camel@localhost.localdomain> <1112472372.27149.23.camel@localhost.localdomain> <20050402203550.GB16230@elte.hu> <1112474659.27149.39.camel@localhost.localdomain> <1112479772.27149.48.camel@localhost.localdomain> <1112486812.27149.76.camel@localhost.localdomain> <20050404200043.GA16736@elte.hu> <1112647253.5147.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050404205527.GB8619@thunk.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+In-Reply-To: <1112647253.5147.17.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 04:55:27PM -0400, Theodore Ts'o wrote:
-> On Mon, Apr 04, 2005 at 09:29:45PM +0200, Sven Luther wrote:
-> > 
-> > Nope, i am aiming to clarify this issue with regard to the debian kernel, so
-> > that we may be clear with ourselves, and actually ship something which is not
-> > of dubious legal standing, and that we could get sued over for GPL violation.
-> > 
+
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> > actually, what priorities do the yielding tasks have? sched_yield() does 
+> > not guarantee that the CPU will be given up, of if a highest-prio 
+> > SCHED_FIFO task is in a yield() loop it will livelock the system.
 > 
-> You know, the fact that Red Hat, SuSE, Ubuntu, and pretty much all
-> other commercial distributions have not been worried about getting
-> sued for this alleged GPL'ed violation makes it a lot harder for me
-> (and others, I'm sure) take Debian's concerns seriously.
+> What scares me is the code in fs/inode.c with that 
+> __wait_on_freeing_inode.  Look at the code in find_inode and 
+> find_inode_fast.  Here you will see that they really are busy loops 
+> with a yield in them, if the inode they are waiting on is I_FREEING or 
+> I_CLEAR and the process doing this hasn't set I_LOCK.  I haven't 
+> looked much at this, but my kernel has livelocked on it.
 
-They probably didn't care :)
+ok, makes sense.
 
-> The problem may be that because Debian is purely a non-profit, and so
-> it can't clearly balance the costs and benefits of trying trying to
-> avoid every single possible risks where someone might decide to file a
-> lawsuit.  Anytime you do *anything* you risk the possibility of a
-> lawsuit, and if you allow the laywers to take over your business
-> decisions, the natural avoid-risks-all-costs bias of lawyers are such
-> that it will either drive a company out of business, or drive a
-> non-profit distribution into irrelevance.....
+> Currently my fix is in yield to lower the priority of the task calling 
+> yield and raise it after the schedule.  This is NOT a proper fix. It's 
+> just a hack so I can get by it and test other parts.
 
-Yes, the problem is indeed that we don't have a legal department which can
-counter sue, and we are present in a much more widespread area than other
-companies you cited above.
+yeah, yield() is a quite RT-incompatible concept, which could livelock 
+an upstream kernel just as much - if the task in question is SCHED_FIFO.  
+Almost all yield() uses should be eliminated from the upstream kernel, 
+step by step.
 
-And ubuntu has those driver in their non-free equivalent also.
-
-> If Debian wants to be this fanatical, then let those Debian developers
-> who care do all of the work to make this happen, and stop bothering
-> LKML.  And if it continues to remain the case that a user will have to
-> manually edit /etc/apt/sources.lists (using vi!) to include a
-> reference to non-free in order to install Debian on a system that
-> requires the tg3 device driver, then I will have to tell users who ask
-> me that they would be better off using some other distribution which
-> actually cares about their needs.
-
-I don't get this, and you threat me as fanatic. I am only saying that the
-tg3.c and other file are under the GPL, and that the firmware included in it
-is *NOT* intented to be under the GPL, so why not say it explicitly ? 
-
-Friendly,
-
-Sven Luther
-
+	Ingo

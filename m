@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261683AbRESH7E>; Sat, 19 May 2001 03:59:04 -0400
+	id <S261685AbRESIGE>; Sat, 19 May 2001 04:06:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261687AbRESH6z>; Sat, 19 May 2001 03:58:55 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62663 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261683AbRESH6m>; Sat, 19 May 2001 03:58:42 -0400
-Date: Sat, 19 May 2001 03:58:39 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@devserv.devel.redhat.com>
-To: Andrew Clausen <clausen@gnu.org>
-cc: <torvalds@transmeta.com>, <viro@math.psu.edu>,
-        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
- inuserspace
-In-Reply-To: <3B06194B.C487240C@gnu.org>
-Message-ID: <Pine.LNX.4.33.0105190350080.13165-100000@devserv.devel.redhat.com>
+	id <S261687AbRESIFz>; Sat, 19 May 2001 04:05:55 -0400
+Received: from www.wen-online.de ([212.223.88.39]:26120 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261685AbRESIFm>;
+	Sat, 19 May 2001 04:05:42 -0400
+Date: Sat, 19 May 2001 10:05:29 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Peter Zaitsev <pz@spylog.ru>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.4 folks
+In-Reply-To: <24243045671.20010519105201@spylog.ru>
+Message-ID: <Pine.LNX.4.33.0105190922100.668-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 May 2001, Andrew Clausen wrote:
+Hi,
 
-> (1) these issues are independent.  The partition parsing could
-> be done in user space, today, by blkpg, if I read the code correctly
-> ;-)  (there's an ioctl for [un]registering partitions)  Never
-> tried it though ;-)
+On Sat, 19 May 2001, Peter Zaitsev wrote:
 
-I tried to imply that through the use of the the word component.  Yes,
-they're independant, but the code is pretty meaningless without a
-demonstration of how it's used. ;-)
+> Hello linux-kernel,
+>
+>   I've trying to move some of my servers to 2.4.4 kernel from 2.2.x.
+>   Everything goes fine, notable perfomance increase occures, but the
+>   problem is I'm really often touch the following problem:
 
-> (2) what about bootstrapping?  how do you find the root device?
-> Do you do "root=/dev/hda/offset=63,limit=1235823"?  Bit nasty.
+<allocation failures snipped>
 
-root= becomes a parameter to mount, and initrd becomes mandatory.  I'd be
-all for including all of the bits needed to build the initrd boot code in
-the tree, but it's completely in the air.
+> The problem is the systems this happens on are not short of memory.
+> Here is the free output for the system I had this happened this
+> morning:
 
-> (3) how does this work for LVM and RAID?
+free doesn't show any info about allocator state at allocation failure
+time.  If you were to modify mm/page_alloc.c:__alloc_pages() to do a
+show_mem() along with the printk, you'd likely see that you're close
+to being completely oom at that moment.
 
-It's not done yet, but similar techniques would be applied.  I envision
-that a raid device would support operations such as
-open("/dev/md0/slot=5,hot-add=/dev/sda")
+> Does anyone has any ideas about this problem ?
 
-> (4) <propaganda>libparted already has a fair bit of partition
-> scanning code, etc.  Should be trivial to hack it up... That said,
-> it should be split up into .so modules... 200k is a bit heavy just
-> for mounting partitions (most of the bulk is file system stuff).
-> </propaganda>
+Posting /proc/slabinfo content might give the vm wizards an idea where
+your memory is sitting.
 
-Good.  Less work to do.
+If you see any indications of a sustained leak, I can provide you with
+a 2.4.4 ikd patch (toolkit.. contains a memory leak detector) to try on
+a non-mission-critical box.  It's large, 731003 uncompressed.
 
-> (5) what happens to /etc/fstab?  User-space ([u]mount?) translates
-> /dev/hda1 into /dev/hda/offset=63,limit=1235823, and back?
-
-I'd just create a symlink to /dev/hda1 at mount time, although that really
-isn't what the user wants to see: the label or uuid is more useful.
-
-		-ben
+	-Mike
 

@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271138AbUJVAc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271114AbUJVAha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271138AbUJVAc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 20:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbUJVAXR
+	id S271114AbUJVAha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 20:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271163AbUJVAdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 20:23:17 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:60806 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S271138AbUJVAWl
+	Thu, 21 Oct 2004 20:33:16 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:11670 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S271143AbUJVAaB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 20:22:41 -0400
-Message-ID: <41785258.6060709@rtr.ca>
-Date: Thu, 21 Oct 2004 20:20:40 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
+	Thu, 21 Oct 2004 20:30:01 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE
- CF adaptor
-References: <41780393.3000606@rtr.ca>	 <58cb370e041021121317083a3a@mail.gmail.com>	 <1098394354.17096.174.camel@localhost.localdomain>	 <41783CDF.80007@rtr.ca> <58cb370e04102115572e992d75@mail.gmail.com>	 <41784F51.5000308@rtr.ca> <58cb370e04102117153a92725d@mail.gmail.com>
-In-Reply-To: <58cb370e04102117153a92725d@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: gradual timeofday overhaul
+Date: Thu, 21 Oct 2004 17:29:15 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A011F96E2@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: gradual timeofday overhaul
+Thread-Index: AcS3zRkAByNilTZoT6WGTFIipWIjdQAAIF8g
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <george@mvista.com>
+Cc: <root@chaos.analogic.com>, "Brown, Len" <len.brown@intel.com>,
+       "Tim Schmielau" <tim@physik3.uni-rostock.de>,
+       "john stultz" <johnstul@us.ibm.com>,
+       "lkml" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Oct 2004 00:29:37.0483 (UTC) FILETIME=[3644A1B0:01C4B7CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> wrt to 2.6.x version
-..
-> please use ide_std_init_ports()
-
-Okay, will do.
-
->>+       rc = ide_register_hw(&hw, &hwif);
->>+       if (rc < 0)     /* ide_register_hw likes to be invoked twice (buggy) */
->>+               rc = ide_register_hw(&hw, &hwif);
+> From: George Anzinger [mailto:george@mvista.com]
+>
+> > This is just talking out of my ass, but I guess that for each invocation
+> > they will have more or less the same overhead in execution time, let's
+> > say T. For the periodic tick, the total overhead (in a second) is T*HZ;
+> > with tickless, it'd be T*number_of_context_switches_per_second, right?
 > 
-> is this needed in 2.6.x and if so why?
+> ???  Better look again.  Context switches can and do happen as often as 10 or so
+> micro seconds (depends a lot on the cpu speed).  I admit this is with code that
+> is just trying to measure the context switch time, but, often the system will
+> change it mind just that fast.
 
-Not sure yet -- still testing, though I've already done an #if 0 on it.
+As I said, I was talking out of my ass [aka, I didn't know and was just 
+guesstimating for the heck of it], so I am happily proven wrong--thanks to
+Chris and you--I guess I didn't take into account voluntary yielding of
+the CPU by a task; I was more guiding myself for kicked out by a timer
+making a task runnable, or a timeslice expiring, etc...which now are 
+more or less guided by the tick [and then of course, we have IRQs,
+but that's another matter]
 
->>+               drive->id->csfo = 0; /* workaround for idedisk_open bug */
+> ...
+> sourceforge).  On the other hand, where I come from, a system which has
+> increasing overhead with load is one that is going to overload.  We are always
+> better off if we can figure a way to have fixed overhead.
+> 
+> As for the idle system ticks, I think the VST stuff we are working on is the
+> right answer.
 
-Not there in the 2.6.xx version.
+Once my logic is proven wrong, then it makes full sense :]
 
-And in 2.4.xx.. why is idedisk_open() examining vendor-specific
-fields of the IDENTIFY data, anyway?  Very very unsafe.
-I put the above one-liner workaround (drive->id->csfo) into delkin_cb
-to bypass the problems it creates for now, until idedisk_open gets fixed.
+Thanks for the heads up.
 
-Normally I'd just send a patch to fix idedisk_open(), but since I don't
-even understand what it is trying to do, it would be safer for whoever
-put that code there to have a second look.  Especially since 2.4.xx
-is supposed to be stable now -- if it ain't broke, don't break it.  :)
-
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

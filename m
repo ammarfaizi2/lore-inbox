@@ -1,117 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbTFGIlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 04:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTFGIlm
+	id S262657AbTFGJHK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 05:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbTFGJHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 04:41:42 -0400
-Received: from pusa.informat.uv.es ([147.156.10.98]:45532 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP id S262805AbTFGIlf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 04:41:35 -0400
-Date: Sat, 7 Jun 2003 10:55:08 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Lookups caused by sis5513?
-Message-ID: <20030607085508.GA31632@pusa.informat.uv.es>
+	Sat, 7 Jun 2003 05:07:10 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:41613 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262657AbTFGJHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 05:07:03 -0400
+Date: Sat, 7 Jun 2003 11:20:27 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
+Message-ID: <20030607092027.GA24694@wohnheim.fh-wedel.de>
+References: <20030606201306.GJ10487@wohnheim.fh-wedel.de> <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
 User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 6 June 2003 22:36:07 +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Fri, 6 Jun 2003, [iso-8859-1] Jörn Engel wrote:
+> 
+> > This one is pure magic, really.  No comment and inspection of the code
+> > doesn't show much either.  But judging from the other changes, this
+> > should also fix a real problem, at least a theoretical one.
+> 
+> Eee, no magic here :-).
+> 
+> from 1.1.4 ChangeLog:
+> "- force windowBits > 8 to avoid a bug in the encoder for a window size
+>    of 256 bytes. (A complete fix will be available in 1.1.5)."
 
-Hi
+So there IS a ChangeLog.  :)
 
-I'm using 2.4.20 and 2.5.70 with a SIS735 chipset (an ECS K7S5A board). 
-I don't have  problems with 2.4.20 but with 2.5.70 the system freezes
-many times. I tested enabling/disabling acpi and apic, but I found 
-no differences.
+> I guess complete fix is here:
+> http://www.cs.toronto.edu/~cosmin/pngtech/zlib-256win-bug.html
 
-I suspect it's caused by driver sis5513. Just one note on it:
+> --- deflate.c	Thu Jul 09 18:06:12 1998
+> +++ deflate.c.fixed	Thu Apr 12 04:02:36 2001
+> @@ -242,7 +242,7 @@
+>          windowBits = -windowBits;
+>      }
+>      if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method !=
+> Z_DEFLATED ||
+> -        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
+> +        windowBits > 15 || level < 0 || level > 9 ||
+>  	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
+>          return Z_STREAM_ERROR;
+>      }
 
-the IDE activy led is mostly "on" with a 2.5.x kernel from the boot, 
-while in 2.4 the kernel just lights the led when there is activity. 
+Completely removes the check.
 
-This happens from every 2.5.x version I tried, I think from 2.5.58.
+> @@ -252,7 +252,11 @@
+>      s->strm = strm;
+> 
+>      s->noheader = noheader;
+> -    s->w_bits = windowBits;
+> +#if MIN_LOOKAHEAD < 256
+> +    s->w_bits = (windowBits >= 8) ? windowBits : 8;
+> +#else
+> +    s->w_bits = (windowBits >= 9) ? windowBits : 9;
+> +#endif
+>      s->w_size = 1 << s->w_bits;
+>      s->w_mask = s->w_size - 1;
 
-In 2.5.x it may "sometimes" turn off the light after IDE activity, but it 
-sets on again when there is new activity.
+Now we don't check and inform the user anymore, instead we change the
+value internally.  So now overly smart users can set the windowBits to
+a stupid value and we correct their mistake instead of telling them.
+Not my preferred style.
+
+> @@ -460,7 +464,12 @@
+>      /* Write the zlib header */
+>      if (s->status == INIT_STATE) {
+> 
+> +#if MIN_LOOKAHEAD < 256
+>          uInt header = (Z_DEFLATED + ((s->w_bits-8)<<4)) << 8;
+> +#else
+> +        uInt optimized_cinfo = (s->w_bits > 9) ? s->w_bits - 8 : 0;
+> +        uInt header = (Z_DEFLATED + (optimized_cinfo<<4)) << 8;
+> +#endif
+>          uInt level_flags = (s->level-1) >> 1;
+> 
+>          if (level_flags > 3) level_flags = 3;
+
+This changes one corner case where windowBits == 9.  Even if the fix
+is correct (too lazy to check), it costs us four new conditionals, of
+which two were moved into the preprocessor.  And the gain over patch
+#4 is zero, since we waste the memory anyway, where windowBits is
+too small for decent compression or not.  Rejected.
 
 
-hdparm -i and /proc/ide/sis have no differencies between 2.4.20 and 2.5.70
+Still, thanks for the two pointers, Bartlomiej!  Not quite as magic
+anymore. :)
 
-agapito:~# diff hdparm.hda.2.*
-agapito:~# diff hdparm.hdc.2.*
-agapito:~# diff sis.2.*
+Jörn
 
-I attached this info at the end of this mail
-
-what can I do to make sure it's a fault in this driver?
-what can I do in order to help debugging it?
-
-Thanks in advance
-
-	Ulisses
-
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
-
-
-agapito:~# hdparm -i /dev/hda
-
-/dev/hda:
-
- Model=WDC WD800JB-00CRA1, FwRev=17.07W17, SerialNo=WD-WMA8E4519860
- Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
- RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
- BuffType=DualPortCache, BuffSize=8192kB, MaxMultSect=16, MultSect=16
- CurCHS=4047/16/255, CurSects=16511760, LBA=yes, LBAsects=156301488
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
- AdvancedPM=no WriteCache=enabled
- Drive conforms to: device does not report version:  1 2 3 4 5
-
-agapito:~# hdparm -i /dev/hdc
-
-/dev/hdc:
-
- Model=Polaroid BurnMAX48, FwRev=VER 482E, SerialNo=
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=yes, tPIO={min:227,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=no
-
-agapito:~# cat /proc/ide/sis
-
-SiS 5513 Ultra 100 chipset
---------------- Primary Channel ---------------- Secondary Channel -------------
-Channel Status: On                               On
-Operation Mode: Compatible                       Compatible
-Cable Type:     80 pins                          40 pins
-Prefetch Count: 512                              512
-Drive 0:        Postwrite Enabled                Postwrite Disabled
-                Prefetch  Enabled                Prefetch  Disabled
-                UDMA Enabled                     UDMA Enabled
-                UDMA Cycle Time    2 CLK         UDMA Cycle Time    6 CLK
-                Data Active Time   3 PCICLK      Data Active Time   3 PCICLK
-                Data Recovery Time 1 PCICLK      Data Recovery Time 1 PCICLK
-Drive 1:        Postwrite Disabled               Postwrite Disabled
-                Prefetch  Disabled               Prefetch  Disabled
-                UDMA Disabled                    UDMA Disabled
-                UDMA Cycle Time    Reserved      UDMA Cycle Time    Reserved
-                Data Active Time   8 PCICLK      Data Active Time   8 PCICLK
-                Data Recovery Time 12 PCICLK     Data Recovery Time 12 PCICLK
+-- 
+With a PC, I always felt limited by the software available. On Unix, 
+I am limited only by my knowledge.
+-- Peter J. Schoenster

@@ -1,108 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbUCTOko (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 09:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbUCTOko
+	id S263428AbUCTOo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 09:44:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUCTOo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 09:40:44 -0500
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:10180 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S263425AbUCTOki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 09:40:38 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: linux-kernel@vger.kernel.org
-Subject: apic timer interrupt re-entrancy on UP - waste of cpu time or worse?
-Date: Sun, 21 Mar 2004 00:42:42 +1000
-User-Agent: KMail/1.5.1
+	Sat, 20 Mar 2004 09:44:26 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:64251 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262575AbUCTOoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 09:44:24 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fast 64-bit atomic writes (SSE?)
+References: <874qskl5ca.fsf@love-shack.home.digitalvampire.org.suse.lists.linux.kernel>
+	<p73znacvuic.fsf@brahms.suse.de>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@digitalvampire.org>
+Date: 20 Mar 2004 06:43:34 -0800
+In-Reply-To: <p73znacvuic.fsf@brahms.suse.de>
+Message-ID: <87znabk295.fsf@love-shack.home.digitalvampire.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403210042.42086.ross@datscreative.com.au>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2.4.26 (1000 HZ patched) I added code to the apic timer
-interrupt to see if it tried to re-enter itself prior to completion.
+    Andi> Definitely not how you do it ;-) You corrupt the user space
+    Andi> FPU context.  Also you didn't do a CPUID check, so it would
+    Andi> just crash on machines
 
-I remember hooking an oscilloscope into this area of code late last year
-looking for the cause of nforce2 lockups and seeing function take up to 0.5ms
-on occasion.
+I'm not an asm expert, so could you explain how it corrupts the FPU
+context?  I tried to save off the value of the XMM register I used,
+and the docs I have say that the movq and movdq instructions don't
+affect any flags.
 
---------------new code start--------
-static int apic_timer_busy;
--------------end code fragment--------
+As far as the CPUID, you're right... I left that part of the code out
+but I am definitely planning on using this only if the machine has SSE2.
 
-void smp_apic_timer_interrupt(struct pt_regs * regs)
-{
-	int cpu = smp_processor_id();
-	/*
-	 * the NMI deadlock-detector uses this.
-	 */
-	apic_timer_irqs[cpu]++;
-	/*
-	 * NOTE! We'd better ACK the irq immediately,
-	 * because timer handling can be slow.
-	 */
-	ack_APIC_irq();
-	
-	--------------new code start--------
-	/* stop re-entrancy - too busy to handle properly*/
-	preempt_disable();
-	if( apic_timer_busy ) {/* non-reentrant? */
-		printk( KERN_INFO "APIC TIMER WARNING: Attempted Re-entrant, Bailing!\n");
-		preempt_enable();
-		return;
-	}
-	apic_timer_busy++;
-	preempt_enable();
-	--------------end code fragment--------
+    Andi> The RAID code has some examples on how to use SSE2 in the
+    Andi> kernel correctly.
 
-	/*
-	 * update_process_times() expects us to have done irq_enter().
-	 * Besides, if we don't timer interrupts ignore the global
-	 * interrupt lock, which is the WrongThing (tm) to do.
-	 */
-	irq_enter(cpu, 0);
-	smp_local_timer_interrupt(regs);
-	irq_exit(cpu, 0);
-	if (softirq_pending(cpu))
-		do_softirq();
+Hmm, they save cr0 and do a clts, and then restore cr0 when they're
+done.  For my education, can you explain why?
 
-	-------------new code start--------
-	apic_timer_busy--;
-	-------------end code fragment---------
+    Andi> Better is probably to use CMPXCHG8, which avoids all of
+    Andi> this.
 
-}
+OK, thanks.
 
-I observe the following in log.
-i810_audio: AC'97 codec 0, DAC map configured, total channels = 6
-i810_audio: setting clocking to 48648
-APIC TIMER WARNING: Attempted Re-entrant, Bailing!
-APIC TIMER WARNING: Attempted Re-entrant, Bailing!
-APIC TIMER WARNING: Attempted Re-entrant, Bailing!
-APIC TIMER WARNING: Attempted Re-entrant, Bailing!
-APIC TIMER WARNING: Attempted Re-entrant, Bailing!
-APIC TIMER WARNING: Attempted Re-entrant, Bailing!
-0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496  Wed Jul 16 19:03:09 PDT 2003
-0: NVRM: AGPGART: unable to retrieve symbol table
-Linux video capture interface: v1.00
-
-I have also seen messages after serial module load.
-Appears with preempt on or off.
-I am not submitting the above code for consideration as a patch nor am I 
-claiming it as the correct way to handle the issue.
-
-I just think it may be worthy of discussion given postings lately regarding
-early interrupt acknowledgement and preempt's capability of preventing lengthy
-tasks from running to completion.
-
-For starters from my observations the timing at which the messages
-print roughly seem to correlate with my nforce2 lockups points during boot when
-my machines are unpatched for it. Helps explain why lockups are rare on 100HZ.
-
-Ross.
-
+ - Roland

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129793AbQKUMn4>; Tue, 21 Nov 2000 07:43:56 -0500
+	id <S129636AbQKUMpz>; Tue, 21 Nov 2000 07:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129825AbQKUMnq>; Tue, 21 Nov 2000 07:43:46 -0500
-Received: from devserv.devel.redhat.com ([207.175.42.156]:48402 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129793AbQKUMna>; Tue, 21 Nov 2000 07:43:30 -0500
-Date: Tue, 21 Nov 2000 07:13:27 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: beware of dead string constants
-Message-ID: <20001121071327.R1514@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <14874.25691.629724.306563@wire.cadcamlab.org>
+	id <S129811AbQKUMpp>; Tue, 21 Nov 2000 07:45:45 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:48904 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129636AbQKUMpa>; Tue, 21 Nov 2000 07:45:30 -0500
+Date: Tue, 21 Nov 2000 06:15:11 -0600
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andre Hedrick <andre@linux-ide.org>, Hakan Lennestal <hakanl@cdt.luth.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0, test10, test11: HPT366 problem
+Message-ID: <20001121061511.F2918@wire.cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.10.10011210112530.26514-100000@master.linux-ide.org> <8094.974804486@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <14874.25691.629724.306563@wire.cadcamlab.org>; from peter@cadcamlab.org on Tue, Nov 21, 2000 at 06:02:35AM -0600
+In-Reply-To: <8094.974804486@redhat.com>; from dwmw2@infradead.org on Tue, Nov 21, 2000 at 11:01:26AM +0000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2000 at 06:02:35AM -0600, Peter Samuelson wrote:
-> 
-> While trying to clean up some code recently (CONFIG_MCA, hi Jeff), I
-> discovered that gcc 2.95.2 (i386) does not remove dead string
-> constants:
-> 
->   void foo (void)
->   {
->     if (0)
->       printk(KERN_INFO "bar");
->   }
-> 
-> Annoyingly, gcc forgets to drop the "<6>bar\0".  It shows up in the
-> object file, needlessly clogging your cachelines.
 
-gcc was never dropping such strings, I've commited a patch to fix this
-a week ago into CVS.
+  [hakanl@cdt.luth.se]
+> > Udma3 seem to be rock solid though as long as it manages to pass
+> > the partition detection during boot up.
 
-	Jakub
+[David Woodhouse]
+> If it falls over at udma3, perhaps we should blacklist it all the way
+> down to udma2?
+
+The way I understood Hakan was: "it boots in udma4, and if it gets all
+the way to userland I immediately hdparm it down to udma3, and then it
+works fine".
+
+Hakan, is this what you meant?  If so, forcing it <= udma3 should be ok.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

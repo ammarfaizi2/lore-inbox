@@ -1,92 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129161AbRCFOfn>; Tue, 6 Mar 2001 09:35:43 -0500
+	id <S130964AbRCFOzP>; Tue, 6 Mar 2001 09:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129164AbRCFOfe>; Tue, 6 Mar 2001 09:35:34 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:47590 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S129161AbRCFOfX>; Tue, 6 Mar 2001 09:35:23 -0500
-Importance: Normal
-Subject: [PATCH] Lanstreamer in kernel support
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF850AEE47.7AEEA8C4-ON85256A07.004F9AFE@raleigh.ibm.com>
-From: "Mike Sullivan" <sullivam@us.ibm.com>
-Date: Tue, 6 Mar 2001 08:35:02 -0600
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 03/06/2001 09:35:06 AM
+	id <S130882AbRCFOzG>; Tue, 6 Mar 2001 09:55:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:43025 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130825AbRCFOyu>;
+	Tue, 6 Mar 2001 09:54:50 -0500
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: Paul Flinders <paul@dawa.demon.co.uk>,
+        Paul Flinders <P.Flinders@ftel.co.uk>, Jeff Mcadams <jeffm@iglou.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        John Kodis <kodis@mail630.gsfc.nasa.gov>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, bug-bash@gnu.org
+Subject: Re: binfmt_script and ^M
+In-Reply-To: <200103061355.HAA96253@tomcat.admin.navo.hpc.mil>
+X-Yow: I have a TINY BOWL in my HEAD
+From: Andreas Schwab <schwab@suse.de>
+Date: 06 Mar 2001 15:54:48 +0100
+In-Reply-To: <200103061355.HAA96253@tomcat.admin.navo.hpc.mil>
+Message-ID: <je1ysbkkw7.fsf@hawking.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.99
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a small patch that allows the lanstreamer to be built as an in
-kernel device. This code
-is already in the 2.2.x tree but was dropped somewhere along the way.
+Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> writes:
 
-Mike Sullivan
-IBM LTC (sullivam@us.ibm.com)
-                                                                           
-                                                                           
-                                      --- linux/drivers/net/Space.c.orig   
-                                      Wed Feb 28 15:03:01 2001             
-                                      +++ linux/drivers/net/Space.c Wed    
-                                      Feb 28 15:03:35 2001                 
-                                      @@ -545,6 +545,7 @@                  
-                                       /* Token-ring device probe */       
-                                       extern int ibmtr_probe(struct       
-                                      net_device *);                       
-                                       extern int olympic_probe(struct     
-                                      net_device *);                       
-                                      +extern int streamer_probe(struct    
-                                      net_device *);                       
-                                       extern int smctr_probe(struct       
-                                      net_device *);                       
-                                                                           
-                                       static int                          
-                                      @@ -556,6 +557,9 @@                  
-                                       #endif                              
-                                       #ifdef CONFIG_IBMOL                 
-                                           && olympic_probe(dev)           
-                                      +#endif                              
-                                      +#ifdef CONFIG_IBMLS                 
-                                      +    && streamer_probe(dev)          
-                                       #endif                              
-                                       #ifdef CONFIG_SMCTR                 
-                                           && smctr_probe(dev)             
-                                      ---                                  
-                                      linux/drivers/net/tokenring/lanstrea 
-                                      mer.c.orig     Thu Mar  1 10:08:49   
-                                      2001                                 
-                                      +++                                  
-                                      linux/drivers/net/tokenring/lanstrea 
-                                      mer.c     Thu Mar  1 10:08:56 2001   
-                                      @@ -125,6 +125,13 @@                 
-                                                                           
-                                       static char *version                
-                                      = "LanStreamer.c v0.3.1 03/13/99 -   
-                                      Mike Sullivan";                      
-                                                                           
-                                      +static struct pci_device_id         
-                                      streamer_pci_tbl[] __initdata = {    
-                                      +    { PCI_VENDOR_ID_IBM,            
-                                      PCI_DEVICE_ID_IBM_TR, PCI_ANY_ID,    
-                                      PCI_ANY_ID,},                        
-                                      +    {}   /* terminating entry */    
-                                      +};                                  
-                                      +MODULE_DEVICE_TABLE(pci,streamer_pc 
-                                      i_tbl);                              
-                                      +                                    
-                                      +                                    
-                                       static char *open_maj_error[] = {   
-                                           "No error", "Lobe Media Test",  
-                                      "Physical Insertion",                
-                                           "Address Verification",         
-                                      "Neighbor Notification (Ring Poll)", 
-                                                                           
-                                                                           
+|> Andreas Schwab <schwab@suse.de>:Andreas Schwab <schwab@suse.de>Andreas Schwab <schwab@suse.de>
+|> > Paul Flinders <paul@dawa.demon.co.uk> writes:
+|> > 
+|> > |> Andreas Schwab wrote:
+|> > |> 
+|> > |> > This [isspace('\r') == 1] has no significance here.  The right thing to
+|> > |> 
+|> > |> > look at is $IFS, which does not contain \r by default.  The shell only splits
+|> > |> 
+|> > |> > words by "IFS whitespace", and the kernel should be consistent with it:
+|> > |> >
+|> > |> > $ echo -e 'ls foo\r' | sh
+|> > |> > ls: foo: No such file or directory
+|> > |> 
+|> > |> The problem with that argument is that #!<interpreter> can be applied
+|> > |> to more than just shells which understand $IFS, so which environment
+|> > |> variable does the kernel pick?
+|> > 
+|> > The kernel should use the same default value of IFS as the Bourne shell,
+|> > ie. the same value you'll get with /bin/sh -c 'echo "$IFS"'.  This is
+|> > independent of any settings in the environment.
+|> > 
+|> > |> It's a difficult one - logically white space should terminate the interpreter
+|> > 
+|> > No, IFS-whitespace delimits arguments in the Bourne shell.
+|> 
+|> IFS can be defined in the environment.
 
+No, the shell won't import it.
 
+Andreas.
 
-
-
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

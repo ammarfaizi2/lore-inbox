@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUEFNFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbUEFNKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbUEFNFO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 09:05:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUEFNFO
+	id S262175AbUEFNKu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 09:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUEFNKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 09:05:14 -0400
-Received: from [61.135.132.139] ([61.135.132.139]:39203 "EHLO
-	websmtp02.sohu.com") by vger.kernel.org with ESMTP id S261718AbUEFNFJ
+	Thu, 6 May 2004 09:10:50 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:25494 "HELO
+	ns.schottelius.org") by vger.kernel.org with SMTP id S262109AbUEFNKs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 09:05:09 -0400
-Message-ID: <7475352.1083848708542.JavaMail.postfix@mx0.mail.sohu.com>
-Date: Thu, 6 May 2004 21:05:08 +0800 (CST)
-From: <dongzai007@sohu.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: beginner of a driver-developer
+	Thu, 6 May 2004 09:10:48 -0400
+Date: Thu, 6 May 2004 15:10:55 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: linux-kernel@vger.kernel.org
+Subject: USB OHCI selected, EHCI should be used
+Message-ID: <20040506131055.GF1279@schottelius.org>
+References: <20040506122112.GE1279@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Sohu Web Mail 2.0.13
-X-SHIP: 61.49.100.222
-X-Priority: 3
-X-SHMOBILE: 0
-X-SHBIND: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040506122112.GE1279@schottelius.org>
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux bruehe 2.6.3
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am a beginner of a driver-developer.
-I got some problems.
+Hello!
 
-you know some structs such as "file_operation" were defined in Header Files.when I define a struct in .C files,i always got errors below:
+When I have loaded only ehci, my usb 2.0 devices are attached
+as usb 2.0.
+If I have loaded ohci and ehci, my usb 2.0 devices are handled by
+ohci. 
 
-fops has an incomplete type
-storage size of 'fops' isn't known
+My question: Why? Shouldn't ohci be the fallback and ehci default?
 
-In my .C files , I defined as followed:
+I have the following usb controllers:
 
-.....................
-struct file_operation fops;
-.....................
+0000:00:0a.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB
+1.1 Controller (rev 50)
+0000:00:0a.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB
+1.1 Controller (rev 50)
+0000:00:0a.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 51)
+0000:00:14.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
 
-How can i solve this sort of problems. Thank you.
+One is handled by uhci (for the internal wlan card), 
+two are handled by ohci (for external 1.1 devices) and
+one is handled by ehci (should be for external 2.0 devices).
 
+Any hint appreciated!
+
+Nico
+
+please cc me..

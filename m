@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263477AbTJLQOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 12:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTJLQOR
+	id S263486AbTJLQYi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 12:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTJLQYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 12:14:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41195 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263477AbTJLQOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 12:14:15 -0400
-Date: Sun, 12 Oct 2003 09:13:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg Stark <gsstark@mit.edu>
-cc: Joel Becker <Joel.Becker@oracle.com>, Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-In-Reply-To: <87ekxi4gmk.fsf@stark.dyndns.tv>
-Message-ID: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Oct 2003 12:24:38 -0400
+Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:32016 "EHLO
+	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
+	id S263486AbTJLQYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 12:24:37 -0400
+Date: Mon, 13 Oct 2003 01:54:34 +0930
+From: "Mark Williams (MWP)" <mwp@internode.on.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS causing kernel panic?
+Message-ID: <20031012162434.GB725@linux.comp>
+References: <20031012121331.GA665@linux.comp> <yw1xhe2eiqru.fsf@zaphod.guide> <20031012140048.GA554@linux.comp> <20031012143245.GA21010@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031012143245.GA21010@louise.pinerecords.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 12 Oct 2003, Greg Stark wrote:
+> On Oct-12 2003, Sun, 23:30 +0930
+> Mark Williams (MWP) <mwp@internode.on.net> wrote:
 > 
-> There are other reasons databases want to control their own cache. The
-> application knows more about the usage and the future usage of the data than
-> the kernel does.
+> > > "Mark Williams (MWP)" <mwp@internode.on.net> writes:
+> > > 
+> > > > I am having rather ugly problems with this card using the PDC20269 chip.
+> > > > Almost as soon as either of the HDDs on the controller are used, the
+> > > > kernel hangs solid with a dump of debugging info.
+> > > 
+> > > That dump could be useful.  Also full output of dmesg and "lspci -vv"
+> > > can be helpful.
+> > 
+> > Ok, seems this is not a controller fault, but really a problem with
+> > ReiserFS (!!).
+> 
+> Do you really expect reiserfs code (or any other fs code for that matter)
+> not to choke on a corrupted filesystem?
+> 
+> Put the disk on a trusted controller and fsck.
 
-But this again is not an argument for not using the page cache - it's only 
-an argument for _telling_ the kernel about its use.
-
-> However on busy servers whenever it's run it causes lots of pain because the
-> kernel flushes all the cached data in favour of the data this job touches.
-
-Yes. But this is actually pretty easy to avoid in-kernel, since all of the 
-LRU logic is pretty localized.
-
-It could be done on a per-process thing ("this process should not pollute 
-the active list") or on a per-fd thing ("accesses through this particular 
-open are not to pollute the active list"). 
-
->									 And
-> worse, there's no way to indicate that the i/o it's doing is lower priority,
-> so i/o bound servers get hit dramatically. 
-
-IO priorities are pretty much worthless. It doesn't _matter_ if other 
-processes get preferred treatment - what is costly is the latency cost of 
-seeking. What you want is not priorities, but batching.
-
-			Linus
-
+No, i wouldnt expect reiserfs to handle the data on the FS, but i also
+wouldnt have expected it to cause a kernel panic and hang the system.

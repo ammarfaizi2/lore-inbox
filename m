@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbUCRGJq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 01:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUCRGJq
+	id S261664AbUCRG2g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 01:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUCRG2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 01:09:46 -0500
-Received: from dsl093-212-224.clb1.dsl.speakeasy.net ([66.93.212.224]:13504
-	"HELO aircrash.lan.spoonguard.org") by vger.kernel.org with SMTP
-	id S262415AbUCRGJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 01:09:45 -0500
-Date: Thu, 18 Mar 2004 01:09:50 -0500
-From: David Brown <dave@spoonguard.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: "Page allocation failure" messages with sendfile() and cryptoloop
-Message-ID: <20040318060950.GA2906@spoonguard.org>
+	Thu, 18 Mar 2004 01:28:36 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1013 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261664AbUCRG2f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 01:28:35 -0500
+Date: Thu, 18 Mar 2004 12:03:06 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Carsten Otte <COTTE@de.ibm.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>,
+       "Martin J. Bligh" <mjbligh@us.ibm.com>, Matt Mackall <mpm@selenic.com>
+Subject: [RFC 0/6] sysfs backing store v0.3
+Message-ID: <20040318063306.GA27107@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
+Please find the following patch set for sysfs backing store. Thanks to Carsten 
+Otte and S390 Linux guys for reporting the bug while unloading zfcp driver. 
 
-Hi:
+Please see the previous posting for more details and numbers
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107589464818859&w=2
 
-I'm using Apache 2 to serve some rather large files from an XFS
-volume on Linux 2.6.1. The XFS volume sits on a cryptoloop device,
-which is in turn backed by a raw device (a partition on an IDE disk).
+Changes in Version 0.3
+----------------------
+o Fixed dentry ref counting for un-named attribute groups. Because of this
+  zfcp driver was not getting unloaded waiting for the dentry ref. count to
+  go away.
 
-Apache 2 uses sendfile() to send static content. I'm seeing messages
-like this when trying to send files whose size exceeds the available
-RAM+swap:
+Details of code changes are mentioned in the respective patches. Patch set
+is against 2.6.5-rc1. 
 
-  httpd: page allocation failure. order:0, mode:0x1d2
+Al, it will be great help if you can spare some time in reviewing this.
 
-Seemingly polynomial slowdowns are also apparent. I can send a 7MB file
-instantly, and a 220MB file without too much delay. I gave up on the 600MB
-file after 10 minutes of unresponsiveness.
+Thanks
+Maneesh
 
-The machine does stay alive through all of this.
-
-Are there any issues with the cryptoloop driver and sendfile()? Should I
-try 2.6.4, or would more information be helpful?
-
-Thanks,
-
-- Dave
-
-
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAWT0uc6ko5wl0+FQRAlWSAJ0a2pJkRbQ0ZTrMJK4P5+MLmFzVTgCcDg2B
-jAeou55I1PGwQ6ojA25AxLU=
-=7yuP
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

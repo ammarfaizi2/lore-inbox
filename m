@@ -1,70 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbTJFRDK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 13:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbTJFRDK
+	id S264023AbTJFRAR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 13:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTJFQ7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 13:03:10 -0400
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:61921 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id S262419AbTJFRDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 13:03:02 -0400
-Date: Mon, 6 Oct 2003 13:02:42 -0400
-From: "Murray J. Root" <murrayr@brain.org>
-To: bill davidsen <davidsen@tmr.com>
+	Mon, 6 Oct 2003 12:59:05 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:2575 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S264023AbTJFQ57
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 12:57:59 -0400
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test6 scheduling(?) oddness
-Message-ID: <20031006170242.GA23474@Master>
-Mail-Followup-To: bill davidsen <davidsen@tmr.com>,
-	linux-kernel@vger.kernel.org
-References: <20031001032238.GB1416@Master> <20031001051008.GD1416@Master> <blfi1h$jd0$1@gatekeeper.tmr.com> <3F7B5584.6070604@wmich.edu> <blqk2b$dbr$1@gatekeeper.tmr.com>
-Mime-Version: 1.0
+Subject: [PATCH] lib/parser: Use "%u" instead "%d" (5/6)
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 07 Oct 2003 01:57:54 +0900
+Message-ID: <871xtqpalp.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <blqk2b$dbr$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 02:29:31AM +0000, bill davidsen wrote:
-> In article <3F7B5584.6070604@wmich.edu>,
-> Ed Sweetman  <ed.sweetman@wmich.edu> wrote:
-> | bill davidsen wrote:
-> 
-> | > I wish I could just write off programs like that, but if a program is
-> | > running, and doing legitimate system calls, and it stops running
-> | > (totally or usefully), I'd like to be sure that the kernel doesn't have
-> | > some unintended behaviour before I just pass on the program.
-> | > 
-> | > Particularly when OO is what allows lots of people to avoid running that
-> | > other operating system.
-> | 
-> | it isn't doing something legitimate since as he said, it was the only 
-> | program that exibited the behavior. Perhaps openoffice was exploiting a 
-> | characteristic of the old schedular to increase it's performance, 
-> | perhaps it's just the way they ended up coding it.  But if it's the only 
-> | one then that's that.
-> 
-> I see nothing to indicate that any illegal system calls were made, in
-> what way is it not doing something legitimate?
-> 
-> One program which has always worked suddenly stopping is a symptom of a
-> problem, and assuming that there is no problem seems optimistic.
-> Particularly when it works on BSD, Solaris, all previous Linux and even
-> Windows.
-> 
-> If this is the sched_yeild() stuff again, I thought that was beaten into
-> the ground before, and it was agreed that SUS allows it to work the way
-> it has always worked and the way it works elsewhere. Hopefully this is
-> not the reason performance is so grim, and a solution can be found.
-> 
-> BTW: I'm told that StarOffice (commercial release) also doesn't work
-> usefully on test6, can anyone confirm? The test system is not overly
-> stable and I don't trust negative results there.
+Hi,
 
-OOo works just fine - it just won't *start* while POVRay is rendering. Once 
-it's started it runs fine, even when rendering.
+If original code uses the following,
+
+	opts->value = simple_strtoul(value, &value, 0);
+	if (*value)
+		return error;
+
+It doesn't recognize negative value. So option format should use "%u".
+
+Please apply.
+
+
+ linux-2.6.0-test6-hirofumi/fs/affs/super.c    |   10 +++++-----
+ linux-2.6.0-test6-hirofumi/fs/autofs/inode.c  |   12 ++++++------
+ linux-2.6.0-test6-hirofumi/fs/autofs4/inode.c |   12 ++++++------
+ linux-2.6.0-test6-hirofumi/fs/ext2/super.c    |    6 +++---
+ linux-2.6.0-test6-hirofumi/fs/ext3/super.c    |    6 +++---
+ linux-2.6.0-test6-hirofumi/fs/fat/inode.c     |   10 +++++-----
+ 6 files changed, 28 insertions(+), 28 deletions(-)
+
+diff -puN fs/affs/super.c~parser-token-type fs/affs/super.c
+--- linux-2.6.0-test6/fs/affs/super.c~parser-token-type	2003-10-07 01:51:44.000000000 +0900
++++ linux-2.6.0-test6-hirofumi/fs/affs/super.c	2003-10-07 01:51:45.000000000 +0900
+@@ -150,15 +150,15 @@ enum {
+ };
+ 
+ static match_table_t tokens = {
+-	{Opt_bs, "bs=%d"},
++	{Opt_bs, "bs=%u"},
+ 	{Opt_mode, "mode=%o"},
+ 	{Opt_mufs, "mufs"},
+ 	{Opt_prefix, "prefix=%s"},
+ 	{Opt_protect, "protect"},
+-	{Opt_reserved, "reserved=%d"},
+-	{Opt_root, "root=%d"},
+-	{Opt_setgid, "setgid=%d"},
+-	{Opt_setuid, "setuid=%d"},
++	{Opt_reserved, "reserved=%u"},
++	{Opt_root, "root=%u"},
++	{Opt_setgid, "setgid=%u"},
++	{Opt_setuid, "setuid=%u"},
+ 	{Opt_verbose, "verbose"},
+ 	{Opt_volume, "volume=%s"},
+ 	{Opt_ignore, "grpquota"},
+diff -puN fs/autofs/inode.c~parser-token-type fs/autofs/inode.c
+--- linux-2.6.0-test6/fs/autofs/inode.c~parser-token-type	2003-10-07 01:51:45.000000000 +0900
++++ linux-2.6.0-test6-hirofumi/fs/autofs/inode.c	2003-10-07 01:51:45.000000000 +0900
+@@ -49,12 +49,12 @@ static struct super_operations autofs_so
+ enum {Opt_err, Opt_fd, Opt_uid, Opt_gid, Opt_pgrp, Opt_minproto, Opt_maxproto};
+ 
+ static match_table_t autofs_tokens = {
+-	{Opt_fd, "fd=%d"},
+-	{Opt_uid, "uid=%d"},
+-	{Opt_gid, "gid=%d"},
+-	{Opt_pgrp, "pgrp=%d"},
+-	{Opt_minproto, "minproto=%d"},
+-	{Opt_maxproto, "maxproto=%d"},
++	{Opt_fd, "fd=%u"},
++	{Opt_uid, "uid=%u"},
++	{Opt_gid, "gid=%u"},
++	{Opt_pgrp, "pgrp=%u"},
++	{Opt_minproto, "minproto=%u"},
++	{Opt_maxproto, "maxproto=%u"},
+ 	{Opt_err, NULL}
+ };
+ 
+diff -puN fs/autofs4/inode.c~parser-token-type fs/autofs4/inode.c
+--- linux-2.6.0-test6/fs/autofs4/inode.c~parser-token-type	2003-10-07 01:51:45.000000000 +0900
++++ linux-2.6.0-test6-hirofumi/fs/autofs4/inode.c	2003-10-07 01:51:45.000000000 +0900
+@@ -98,12 +98,12 @@ static struct super_operations autofs4_s
+ enum {Opt_err, Opt_fd, Opt_uid, Opt_gid, Opt_pgrp, Opt_minproto, Opt_maxproto};
+ 
+ static match_table_t tokens = {
+-	{Opt_fd, "fd=%d"},
+-	{Opt_uid, "uid=%d"},
+-	{Opt_gid, "gid=%d"},
+-	{Opt_pgrp, "pgrp=%d"},
+-	{Opt_minproto, "minproto=%d"},
+-	{Opt_maxproto, "maxproto=%d"},
++	{Opt_fd, "fd=%u"},
++	{Opt_uid, "uid=%u"},
++	{Opt_gid, "gid=%u"},
++	{Opt_pgrp, "pgrp=%u"},
++	{Opt_minproto, "minproto=%u"},
++	{Opt_maxproto, "maxproto=%u"},
+ 	{Opt_err, NULL}
+ };
+ 
+diff -puN fs/ext2/super.c~parser-token-type fs/ext2/super.c
+--- linux-2.6.0-test6/fs/ext2/super.c~parser-token-type	2003-10-07 01:51:45.000000000 +0900
++++ linux-2.6.0-test6-hirofumi/fs/ext2/super.c	2003-10-07 01:51:45.000000000 +0900
+@@ -281,9 +281,9 @@ static match_table_t tokens = {
+ 	{Opt_grpid, "bsdgroups"},
+ 	{Opt_nogrpid, "nogrpid"},
+ 	{Opt_nogrpid, "sysvgroups"},
+-	{Opt_resgid, "resgid=%d"},
+-	{Opt_resuid, "resuid=%d"},
+-	{Opt_sb, "sb=%d"},
++	{Opt_resgid, "resgid=%u"},
++	{Opt_resuid, "resuid=%u"},
++	{Opt_sb, "sb=%u"},
+ 	{Opt_err_cont, "errors=continue"},
+ 	{Opt_err_panic, "errors=panic"},
+ 	{Opt_err_ro, "errors=remount-ro"},
+diff -puN fs/ext3/super.c~parser-token-type fs/ext3/super.c
+--- linux-2.6.0-test6/fs/ext3/super.c~parser-token-type	2003-10-07 01:51:45.000000000 +0900
++++ linux-2.6.0-test6-hirofumi/fs/ext3/super.c	2003-10-07 01:51:45.000000000 +0900
+@@ -544,9 +544,9 @@ static match_table_t tokens = {
+ 	{Opt_grpid, "bsdgroups"},
+ 	{Opt_nogrpid, "nogrpid"},
+ 	{Opt_nogrpid, "sysvgroups"},
+-	{Opt_resgid, "resgid=%d"},
+-	{Opt_resuid, "resuid=%d"},
+-	{Opt_sb, "sb=%d"},
++	{Opt_resgid, "resgid=%u"},
++	{Opt_resuid, "resuid=%u"},
++	{Opt_sb, "sb=%u"},
+ 	{Opt_err_cont, "errors=continue"},
+ 	{Opt_err_panic, "errors=panic"},
+ 	{Opt_err_ro, "errors=remount-ro"},
+diff -puN fs/fat/inode.c~parser-token-type fs/fat/inode.c
+--- linux-2.6.0-test6/fs/fat/inode.c~parser-token-type	2003-10-07 01:51:45.000000000 +0900
++++ linux-2.6.0-test6-hirofumi/fs/fat/inode.c	2003-10-07 01:51:45.000000000 +0900
+@@ -264,12 +264,12 @@ static match_table_t fat_tokens = {
+ 	{Opt_check_r, "check=r"},
+ 	{Opt_check_s, "check=s"},
+ 	{Opt_check_n, "check=n"},
+-	{Opt_uid, "uid=%d"},
+-	{Opt_gid, "gid=%d"},
++	{Opt_uid, "uid=%u"},
++	{Opt_gid, "gid=%u"},
+ 	{Opt_umask, "umask=%o"},
+ 	{Opt_dmask, "dmask=%o"},
+ 	{Opt_fmask, "fmask=%o"},
+-	{Opt_codepage, "codepage=%d"},
++	{Opt_codepage, "codepage=%u"},
+ 	{Opt_nocase, "nocase"},
+ 	{Opt_quiet, "quiet"},
+ 	{Opt_showexec, "showexec"},
+@@ -281,8 +281,8 @@ static match_table_t fat_tokens = {
+ 	{Opt_obsolate, "conv=b"},
+ 	{Opt_obsolate, "conv=t"},
+ 	{Opt_obsolate, "conv=a"},
+-	{Opt_obsolate, "fat=%d"},
+-	{Opt_obsolate, "blocksize=%d"},
++	{Opt_obsolate, "fat=%u"},
++	{Opt_obsolate, "blocksize=%u"},
+ 	{Opt_obsolate, "cvf_format=%20s"},
+ 	{Opt_obsolate, "cvf_options=%100s"},
+ 	{Opt_obsolate, "posix"},
+
+_
 
 -- 
-Murray J. Root
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132496AbRAXSVN>; Wed, 24 Jan 2001 13:21:13 -0500
+	id <S131568AbRAXS3p>; Wed, 24 Jan 2001 13:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132418AbRAXSUy>; Wed, 24 Jan 2001 13:20:54 -0500
-Received: from mail.valinux.com ([198.186.202.175]:36110 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S130902AbRAXSUe>;
-	Wed, 24 Jan 2001 13:20:34 -0500
-Date: Wed, 24 Jan 2001 10:19:52 -0800
-From: "H . J . Lu" <hjl@valinux.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS maillist <nfs@lists.sourceforge.net>,
-        Michael Kriss <kriss@fnal.gov>
-Subject: Re: [NFS] [CFT] Improved RPC congestion handling for 2.4.0 (and 2.2.18)
-Message-ID: <20010124101952.A24331@valinux.com>
-In-Reply-To: <14904.54852.334762.889784@charged.uio.no> <20010122143740.A31589@valinux.com> <14956.48013.908491.509166@charged.uio.no> <20010122153638.B32449@valinux.com>
+	id <S132566AbRAXS3c>; Wed, 24 Jan 2001 13:29:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:23047 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132783AbRAXS3P>;
+	Wed, 24 Jan 2001 13:29:15 -0500
+Date: Wed, 24 Jan 2001 19:27:49 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Heitzso <xxh1@cdc.gov>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1pre10 sr.c compile warning
+Message-ID: <20010124192749.A25680@suse.de>
+In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E804C@mcdc-atl-5.cdc.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010122153638.B32449@valinux.com>; from hjl@valinux.com on Mon, Jan 22, 2001 at 03:36:38PM -0800
+In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E804C@mcdc-atl-5.cdc.gov>; from xxh1@cdc.gov on Wed, Jan 24, 2001 at 01:18:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 22, 2001 at 03:36:38PM -0800, H . J . Lu wrote:
-> On Tue, Jan 23, 2001 at 12:00:29AM +0100, Trond Myklebust wrote:
-> > >>>>> " " == H J Lu <hjl@valinux.com> writes:
-> > 
-> >      > I got a report which indicates it may not be a good idea,
-> >      > especially for UDP. Suppose you have a lousy LAN or NFS UDP
-> >      > server for whatever reason, some NFS/UDP packets may get lost
-> >      > very easily while a ping request may get through. In that case,
-> >      > the rpc ping may slow down the NFS client over UDP
-> >      > significantly.
-> > 
-> > Hi HJ,
-> > 
-> > Could you clarify this? Don't forget that we only send the ping after
-> > a major timeout (usually after 3 or more resends).
-> > 
-> > IOW: If the ping gets through, then it'll have cost us 1 RPC request,
-> > which is hardly a major contribution when talking about timescales of
-> > the order of 5 seconds which is what that major timeout will have cost
-> > (Don't forget that RPC timeout values increase geometrically).
-> > 
+On Wed, Jan 24 2001, Heitzso wrote:
+> fyi
 > 
-> Michael Kriss <kriss@fnal.gov> is having this problem. I think this
-> problem may be very specific to his network setup. I couldn't duplicate
-> his problem. My guess is for his case, every ping sent is a loss of
-> a potential working retry packet. He is using Solaris NFS sever with
-> Linux client. I had an impression that packets from Solaris NFS server
-> was dropped quite often. I don't know what happened.
-> 
+> while compiling 2.4.1pre10 sr.c compile
+> reports error in get_capabilities()
+> "too few arguments for format"
 
-I believe it is a false alarm. It turned out that the interface was not
-in the full duplex mode. After turning on autonego on switch,
-everything seems fine now. Sorry for that.
+yeah, just add an 'i' as the argument.
 
 -- 
-H.J. Lu (hjl@valinux.com)
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

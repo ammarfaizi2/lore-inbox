@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312208AbSCTVfd>; Wed, 20 Mar 2002 16:35:33 -0500
+	id <S312238AbSCTViE>; Wed, 20 Mar 2002 16:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312235AbSCTVfQ>; Wed, 20 Mar 2002 16:35:16 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:25444 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312213AbSCTVfE>; Wed, 20 Mar 2002 16:35:04 -0500
-Date: Wed, 20 Mar 2002 22:34:25 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Hellwig <hch@suse.de>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@conectiva.com.br>,
-        Dave McCracken <dmccr@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et al
-Message-ID: <20020320223425.P4268@dualathlon.random>
-In-Reply-To: <127930000.1016651345@flay> <20020320212341.M4268@dualathlon.random> <20020320203520.A2003@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S312239AbSCTVhy>; Wed, 20 Mar 2002 16:37:54 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:15374 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S312213AbSCTVhj> convert rfc822-to-8bit; Wed, 20 Mar 2002 16:37:39 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Hooks for random device entropy generation missing incpqarray.c
+Date: Wed, 20 Mar 2002 15:37:33 -0600
+Message-ID: <45B36A38D959B44CB032DA427A6E10640167CF88@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Hooks for random device entropy generation missing incpqarray.c
+thread-index: AcHQVaesSzVQT5C4S6e55naVBsHUlAAAPwWw
+From: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>
+To: "Manon Goo" <manon@manon.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Mar 2002 21:37:34.0300 (UTC) FILETIME=[726469C0:01C1D057]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 20, 2002 at 08:35:20PM +0000, Christoph Hellwig wrote:
-> On Wed, Mar 20, 2002 at 09:23:41PM +0100, Andrea Arcangeli wrote:
-> > we need to walk pagetables not just from the current task and mapping
-> > pagetables there would decrase the user address space too much.
+
+> excuse me I am using 2.4.18
 > 
-> Who sais it should be taken from user address space?
-> For example openunix takes a small (I think 4MB) part of the normal KVA
-> to be per-process mapped.
 
-The only difference is that taking it from kernel space would require to
-have different a whole block of 4k*512 naturally aligned virtual space
-with PAE or 4k * 1024 w/o PAE. So taking it from userspace saves some
-mbyte of kernel virtual address space. Also the higher level pagetables
-there won't generate more overhead because they're necessary for the
-previous user stack anyways.
+Ok.  If SA_SAMPLE_RANDOM is not in
+the call to request_irq, you can put 
+it in.  A trivial (but untested) patch: 
+(if outlook doesn't mangle it) 
 
-> 
-> > I think you're missing the problem with mainline. There is no shortage
-> > of virtual address space, there is a shortage of physical ram in the
-> > zone normal. So we cannot keep them in zone normal (and there's no such
-> > thing as "mapping in zone_normal"). Maybe I misunderstood what you were
-> > saying.
-> 
-> The problem is not the 4GB ZONE_NORMAL but the ~1GB KVA space.
+-- steve
 
-Then you misunderstood what's the zone-normal, the zone normal is 800M
-in size not 4GB. The 1GB of KVA is what constraint the size of the zone
-normal to 800M. We're talking about the same thing, just looking at it
-from different point of views.
+--- cpqarray.c.orig	Wed Mar 20 15:25:51 2002
++++ cpqarray.c	Wed Mar 20 15:26:30 2002
+@@ -516,8 +516,9 @@
+ 
+ 	
+ 	hba[i]->access.set_intr_mask(hba[i], 0);
+-	if (request_irq(hba[i]->intr, do_ida_intr,
+-		SA_INTERRUPT|SA_SHIRQ, hba[i]->devname, hba[i])) 
++	if (request_irq(hba[i]->intr, do_ida_intr, 
++		SA_SAMPLE_RANDOM|SA_INTERRUPT|SA_SHIRQ, 
++		hba[i]->devname, hba[i])) 
+ 	{
+ 
+ 		printk(KERN_ERR "cpqarray: Unable to get irq %d for %s\n", 
 
-> UnixWare/OpenUnix had huge problems getting all kernel structs for managing
-> 16GB virtual into that - on the other hand their struct page is more
-> then twice as big as ours..
-
-We do pretty well with pte-highmem, there is some other bit that will be
-better to optimize, but nothing major.
-
-Andrea
+ 

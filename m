@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbUANPrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 10:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUANPrJ
+	id S261606AbUANPkX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 10:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUANPkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 10:47:09 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:10401 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261774AbUANPrG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 10:47:06 -0500
-Date: Wed, 14 Jan 2004 23:47:12 +0800 (WST)
-From: raven@themaw.net
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Autofs question (try 2)
-In-Reply-To: <200401132141.45772.robin.rosenberg.lists@dewire.com>
-Message-ID: <Pine.LNX.4.58.0401142342440.1783@raven.themaw.net>
-References: <200401132141.45772.robin.rosenberg.lists@dewire.com>
+	Wed, 14 Jan 2004 10:40:23 -0500
+Received: from smtp.ncy.finance-net.fr ([62.161.220.65]:10765 "EHLO
+	smtp.ncy.finance-net.fr") by vger.kernel.org with ESMTP
+	id S261606AbUANPkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 10:40:19 -0500
+Date: Wed, 14 Jan 2004 16:40:09 +0100
+From: newbiz <newbiz@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031015 Debian/1.4-0jds2
+X-Accept-Language: fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: won't work: 2.6.0 && SiI 3112 SATA
+References: <20040106135634.A5825@beton.cybernet.src> <S264471AbUAFPAy/20040106150054Z+23529@vger.kernel.org> <3FFACF9C.40001@gmx.de>
+In-Reply-To: <3FFACF9C.40001@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+Message-Id: <S261606AbUANPkT/20040114154019Z+29922@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I finally tried siimage with 2.6 (2.6.1-mm2) and hdparm -tT gives about
+55 MB/s (~ 20 with libata)
 
-The place for this is on the autofs list.
+I had understood that libata was better than siimage with non-seagate
+drives, and that both were as bad with seagate drives. Has libata been
+improved since this time ?
 
-http://linux.kernel.org/mailman/listinfo/autofs
+Thanks
+--
 
-Short answer to your question is I don't think so. At least at the moment. 
-I would have to check it out.
 
-What version of autofs are you using?
-
-On Tue, 13 Jan 2004, Robin Rosenberg wrote:
-
-> Hi,
+Prakash K. Cheemplavam a écrit le 06.01.2004 16:09:
 > 
-> The first message was cut short, sorry
+>> Why is my drive (with 2.4.23 and libata2) on /dev/sda ? Why isn't
+>> it on /dev/hde, like (afaik) everybody else ? I'd like to run
+>> hdparm to improve performance (hdparm -tT gives ~ 20 Mb/s)
 > 
-> I grabbed the auto.smb script for mounting samba/windows shares. One of the flaws is that I'd
-> like to get around is that it must be configured as root and most importantly that I don't see who 
-> is requesting the mount. I was thinking along the line of mounting shares in /cifs/$USER/servers/share
-> or simply mounting the share for the first user using the mount point (essentially single user machines
-> anyway).
-> 
-> the auto.smb script is running as root and I printed some info in root.c at the revalidate
-> 
-> Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=505 name=10.1.1.4
-> Jan 12 18:49:06 h6n2fls33o811 automount[22233]: attempting to mount entry /cifs/10.1.1.4
-> Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
-> Jan 12 18:49:06 h6n2fls33o811 logger: uid=0(root) gid=0(root) grupper=0(root)
-> Jan 12 18:49:07 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
-> Jan 12 18:49:08 h6n2fls33o811 last message repeated 10 times
-> and lots more from mounting with uid=0
-> 
-> Is there any simple way of passing the first uid to the automounter?
-> 
-> -- robin
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I am not Jeff but, SATA is embedded SCSI infrastructure, thus you get
+> sda device. Performace is so bad because of workaround for Seagate
+> drives (max 15kb/transfer or alike). HDParm won't help you.
 

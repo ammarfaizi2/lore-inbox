@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132604AbRA1DD4>; Sat, 27 Jan 2001 22:03:56 -0500
+	id <S135911AbRA1DWR>; Sat, 27 Jan 2001 22:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135911AbRA1DDr>; Sat, 27 Jan 2001 22:03:47 -0500
-Received: from eax.student.umd.edu ([129.2.228.67]:6160 "EHLO
-	eax.student.umd.edu") by vger.kernel.org with ESMTP
-	id <S132604AbRA1DDg>; Sat, 27 Jan 2001 22:03:36 -0500
-Date: Sat, 27 Jan 2001 23:05:14 -0500 (EST)
-From: Adam <adam@eax.com>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: uptime for 2.2.13 on x86
-In-Reply-To: <20010127214553.A21381@animx.eu.org>
-Message-ID: <Pine.LNX.4.21.0101272304150.22894-100000@eax.student.umd.edu>
+	id <S136011AbRA1DWG>; Sat, 27 Jan 2001 22:22:06 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:26754 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S135911AbRA1DVx>; Sat, 27 Jan 2001 22:21:53 -0500
+Message-ID: <3A739205.7C71EF89@uow.edu.au>
+Date: Sun, 28 Jan 2001 14:29:09 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Shawn Starr <Shawn.Starr@Home.net>
+CC: Shawn Starr <Shawn.Starr@Home.com>, Chris Mason <mason@suse.com>,
+        Gregory Maxwell <greg@linuxpower.cx>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.x and 2.4.1-preX - Higher latency then 2.2.xkernels?
+In-Reply-To: <186870000.980100593@tiny> <3A6B6FDE.93AF69CC@Home.net> <3A72820A.1488BDC@uow.edu.au> <3A7280F5.F122FE35@Home.com> <3A738A36.F6294623@Home.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Shawn Starr wrote:
+> 
+> Andrew, the patch HAS made a difference. For example, while untaring glibc-2.2.1.tar.gz the
+> system was not sluggish (mouse movements in X) etc.
+> 
+> Seems to be a go for latency improvements on this system.
 
-> What happens the day the machine hits 497 days uptime?
+hmm..  OK, thanks.
 
-see http://www.eax.com/about/ for brief explanation of this. I'm sure
-others can add more but it should answer your question.
+Chris, this seems to be a worthwhile improvement to mainstream
+reiserfs, independent of the low-latency thing.   You can
+probably achieve 10 milliseconds with just a few lines of
+code - a subset of the patch which Shawn tested. (Unless you
+were planning on magical algorithmic improvements...).
 
--- 
-Adam
-http://www.eax.com      The Supreme Headquarters of the 32 bit registers
+I'm all set up to generate those few lines of code, so
+I'll propose a patch later this week.
 
-
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

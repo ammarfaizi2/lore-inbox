@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276312AbRJPN6G>; Tue, 16 Oct 2001 09:58:06 -0400
+	id <S276318AbRJPOEt>; Tue, 16 Oct 2001 10:04:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276318AbRJPN54>; Tue, 16 Oct 2001 09:57:56 -0400
-Received: from [213.237.118.153] ([213.237.118.153]:17024 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S276312AbRJPN5q>;
-	Tue, 16 Oct 2001 09:57:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
+	id <S276329AbRJPOEj>; Tue, 16 Oct 2001 10:04:39 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:65286 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276318AbRJPOEX>; Tue, 16 Oct 2001 10:04:23 -0400
+Date: Tue, 16 Oct 2001 10:04:50 -0400
+Message-Id: <200110161404.f9GE4oZ01317@deathstar.prodigy.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13pre3aa1
-Date: Tue, 16 Oct 2001 15:55:27 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <20011016110708.D2380@athlon.random> <E15tTMq-0000E6-00@Princess> <20011016152126.01d58180.skraw@ithnet.com>
-In-Reply-To: <20011016152126.01d58180.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Cc: Stephan von Krawczynski <skraw@ithnet.com>
-Message-Id: <E15tUgv-0000Oh-00@Princess>
+Subject: Re: VM
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <Pine.LNX.4.33.0110161503300.17096-100000@Expansa.sns.it>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
+Reply-To: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 October 2001 15:21, you wrote:
+In article <Pine.LNX.4.33.0110161503300.17096-100000@Expansa.sns.it> 
+	kernel@Expansa.sns.it wrote:
+>I used bot VM in many situations and with many different HWs.
+>I came to the conclusion that  actually  none of the two VMs is suitable
+>for every use.
+>aa VM deals better because of its design on my web servers, with a non
+>eccessive amount of memory, and with mysql and oracle databases.
+
+
+>I do not care which VM is simpler, nor which is faster. I loock for
+>predictability, since this is the most important thing on the servers I am
+>administering. Under a special situation I need something maybe less
+>predictable, but smarter to manage a stressed system.
 >
-> On my system I cannot see anything the like. Look at the execution time.
-> Ok, I must admit: I do not use brain-dead K stuff (warning: this is a very
-> personal opinion, don't flame me here :-).
->
-> What does your setup look like? Have you ever tested without K?
->
-No, I havent tried it without K. The system is quite responsive if I only run 
-updatedb, and swap around in either text-linux or a simple X setup. When 
-looking closer at the problem, it is the combination of running kmail with 
-HUGE folders (think linux-kernel archive), apt-get and anacron that thrashes 
-the system. All of these have a "relative" low impact when running alone or 
-two and two.
-It might be "what you expect" abusing the system like that. But as I said, it 
-is not a problem in 2.4.11-pre1 and 2.4.12-ac3. 
+>80%... 5%... I do not care for exact numbers actually, I will care in
+>future, if the situation comes to the point that both VMs will be quite
+>good for everything. anyway it is a good strategy to follow two different
+>way, since they are progressing quite welll together, with competition,
+>and also (I hope) reciprocal help (just to be able to read the code of the
+>other is a good help:) ).
 
-Princess:/home# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  196304896 192466944  3837952        0  1327104 33628160
-Swap: 255426560 64491520 190935040
-MemTotal:       191704 kB
-MemFree:          3748 kB
-MemShared:           0 kB
-Buffers:          1296 kB
-Cached:          28196 kB
-SwapCached:       4644 kB
-Active:          23344 kB
-Inactive:        10792 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       191704 kB
-LowFree:          3748 kB
-SwapTotal:      249440 kB
-SwapFree:       186460 kB
+Very well said. And I might add that some input from people with small
+desktop machines might be useful to the developers, since I doubt they
+are running small slow machines. While I wouldn't compromise big memory
+performance (much) for small, one beauty of Linux is that it will run
+well on small machines.
 
-Princess:/proc# uname -r
-2.4.13-pre2
+Of course it may be that some other VM will prove to be bnetter than
+either, but hopefully not until 2.5. I'd still like to see VM in a
+module and then everyone could play with their pet theory;-)
 
-Princess:/proc# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/hda3             18975356   9843804   8167652  55% /
-/dev/hda1                 7318      7241         0 100% /boot
-
- 15:52:56 up  1:03,  2 users,  load average: 3.44, 3.95, 3.16
-90 processes: 86 sleeping, 2 running, 2 zombie, 0 stopped
-CPU states:  23.7% user,   3.4% system,   0.0% nice,  73.0% idle
-Mem:    191704K total,   188024K used,     3680K free,     2652K buffers
-Swap:   249440K total,    61744K used,   187696K free,    21268K cached
-
-
-Does all this help you?
-
-Notice this is not worst case, just what I could reproduce by starting 
-updatedb and checksecurity while answering your mail. Switchtime from desktop 
-to desktop is 1 minute.
-
-`Allan
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

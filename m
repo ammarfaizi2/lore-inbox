@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315341AbSDWUk7>; Tue, 23 Apr 2002 16:40:59 -0400
+	id <S315346AbSDWUp0>; Tue, 23 Apr 2002 16:45:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315323AbSDWUjh>; Tue, 23 Apr 2002 16:39:37 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:16271 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315341AbSDWUj0>;
-	Tue, 23 Apr 2002 16:39:26 -0400
-Date: Sun, 21 Apr 2002 23:08:43 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rob Landley <landley@trommello.org>, Alexander Viro <viro@math.psu.edu>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+	id <S315348AbSDWUpZ>; Tue, 23 Apr 2002 16:45:25 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3085 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S315346AbSDWUpZ>; Tue, 23 Apr 2002 16:45:25 -0400
+Date: Tue, 23 Apr 2002 17:45:11 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Pavel Machek <pavel@suse.cz>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, Larry McVoy <lm@bitmover.com>,
+        Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020421230842.E155@toy.ucw.cz>
-In-Reply-To: <20020421081224.6B6C547B@merlin.webofficenow.com> <Pine.LNX.4.44.0204211136590.17272-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020421231620.F155@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.44L.0204231743370.7447-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 21 Apr 2002, Pavel Machek wrote:
 
-> > The well-defined resync points are the 2.5.N releases.  If -pre goes away,
-> > then the dot-releases might need to come a little closer together, that's all.
-> 
-> I agree.
-> 
-> I've told myself that I shouldn't have done "-preX" releases at all in
-> 2.5.x - the "real" numbers have become diluted by them, and I suspect the
-> -pre's are really just because I got used to making them during the
-> over-long 2.4.x time.
+> > > How about a URL instead?  Any objection?
+> >
+> > Yes.  Why should I have to cut and paste (assuming I'm in X) or
+> > write down and transpose some URL from a file that used to contain
+>
+> And why should I waste my disk space with BK docs?
 
-I believe -pre's are still important. Daily snapshots are too likely to be
-broken, and "real" releases are different from -pre ones (with *usefull*
-difference): you can ignore -pre release, but you can't ignore real release
-(because real releases are relative to each other).
+Because they're useful for many people.
 
-Having slightly more frequent real releases would be nice, but I believe
-it is not feasible to make them as common as pre- patches.
-								Pavel
+It's easy to rephrase that question to:
+
+"Why should I waste my disk space with SCSI drivers?"
+"Why should I waste my disk space with MIPS support?"
+"Why should I waste my disk space with bluetooth drivers?"
+
+In each of these cases you'll get the same answer that I gave
+to your question.
+
+regards,
+
+Rik
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

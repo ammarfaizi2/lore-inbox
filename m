@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131638AbRDSRt3>; Thu, 19 Apr 2001 13:49:29 -0400
+	id <S131631AbRDSRwT>; Thu, 19 Apr 2001 13:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131631AbRDSRtP>; Thu, 19 Apr 2001 13:49:15 -0400
-Received: from t2.redhat.com ([199.183.24.243]:64760 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131630AbRDSRsu>; Thu, 19 Apr 2001 13:48:50 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010419131944.A3049@thyrsus.com> 
-In-Reply-To: <20010419131944.A3049@thyrsus.com> 
-To: esr@thyrsus.com
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: Dead symbol elimination, stage 1 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 19 Apr 2001 18:48:25 +0100
-Message-ID: <16626.987702505@redhat.com>
+	id <S131498AbRDSRwK>; Thu, 19 Apr 2001 13:52:10 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:20234 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S131631AbRDSRwB>;
+	Thu, 19 Apr 2001 13:52:01 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [repost] Announce: Linux-OpenLVM mailing list
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 19 Apr 2001 19:51:52 +0200
+Message-ID: <d37l0gvkuf.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> -# CONFIG_MTD_SBC_MEDIAGX is not set
-> -# CONFIG_MTD_ELAN_104NC is not set
-> -# CONFIG_MTD_SA1100 is not set
-> -# CONFIG_MTD_DC21285 is not set
-> -# CONFIG_MTD_CSTM_CFI_JEDEC is not set
->  # CONFIG_MTD_JEDEC is not set
->  # CONFIG_MTD_MIXMEM is not set
->  # CONFIG_MTD_OCTAGON is not set
->  # CONFIG_MTD_VMAX is not set
-> -# CONFIG_MTD_NAND is not set
-> -# CONFIG_MTD_NAND_SPIA is not set
+--=-=-=
 
-Please don't. People using some of these embedded architectures need to
-update to the latest MTD code (which includes those options) anyway, and I'm
-hoping to merge that all into 2.4 shortly.
+Hi
 
-They're not doing any harm, are they?
+For some reason this one didn't make it through in the first try ;-(
 
---
-dwmw2
+Jes
 
 
+--=-=-=
+Content-Type: message/rfc822
+Content-Disposition: inline
+
+From: Jes Sorensen <jes@linuxcare.com>
+To: linux-kernel@vger.kernel.org
+CC: linux-openlvm@nl.linux.org, Arjan van de Ven <arjanv@redhat.com>,
+   Jens Axboe <axboe@suse.de>, Martin Kasper Petersen <mkp@linuxcare.com>,
+   riel@conectiva.com.br
+Subject: Announce: Linux-OpenLVM mailing list
+Sender: owner-linux-openlvm@nl.linux.org
+Precedence: bulk
+MIME-Version: 1.0
+
+Hi
+
+I would like to announce the creation of the openlvm mailing list for
+discussion about maintenance and further development of the Linux
+Logical Volume Manager (LVM).
+
+The new mailing list is named linux-openlvm and hosted at
+nl.linux.org, you can subscribe to the list by posting to
+majordomo@nl.linux.org and postings should go to
+linux-openlvm@nl.linux.org. The list is unmoderated and open to
+postings from individuals who are not subscribed to the list as it is
+good practice for all open development lists.
+
+We have found it necessary to create the new list as the current LVM
+development proces is closed and does not take input from the
+community. We have experienced numerous incidents of postings to the
+old mailing list with patches, on topic questions and comments about
+the LVM code that have been rejected by the list moderator. We find
+this completely unacceptable just as it is hindering development that
+a development mailing list is being so mismoderated.
+
+Please welcome the new list and join in on the development and
+discussions.
+
+Sincerly,
+Jens Axboe
+Arjan van de Ven
+Martin Petersen
+Rik van Riel
+Jes Sorensen
+-
+Linux-openlvm: open list for LVM on Linux
+Archive:       http://mail.nl.linux.org/linux-openlvm/
+
+
+--=-=-=--

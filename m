@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270630AbRHJAcY>; Thu, 9 Aug 2001 20:32:24 -0400
+	id <S270632AbRHJAgy>; Thu, 9 Aug 2001 20:36:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270631AbRHJAcP>; Thu, 9 Aug 2001 20:32:15 -0400
-Received: from MailAndNews.com ([199.29.68.123]:4869 "EHLO MailAndNews.com")
-	by vger.kernel.org with ESMTP id <S270630AbRHJAcC>;
-	Thu, 9 Aug 2001 20:32:02 -0400
-X-WM-Posted-At: MailAndNews.com; Thu, 9 Aug 01 20:31:18 -0400
-Message-ID: <003f01c12133$6d118d00$c405a33e@brekoo.noip.com>
-From: "Marc Brekoo" <m_brekoo@mailandnews.com>
-To: "Rainer Mager" <rvm@gol.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGIEICELAA.rvm@gol.com>
-Subject: Re: [somewhat OT] connecting to a box behind a NAT router
-Date: Fri, 10 Aug 2001 02:28:42 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S270633AbRHJAgo>; Thu, 9 Aug 2001 20:36:44 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:52734 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S270632AbRHJAgl>;
+	Thu, 9 Aug 2001 20:36:41 -0400
+Date: Fri, 10 Aug 2001 02:36:50 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200108100036.CAA09153@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org, safemode@speakeasy.net
+Subject: Re: kapm-idled shows 90+% cpu usage when idle
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Thu, 9 Aug 2001 19:33:42 -0400, safemode <safemode@speakeasy.net> wrote:
+>Is this a true usage reading or just some quirk that's supposed to happen?   
+>I really doubt that this kernel daemon should really be using  cpu.  It seems 
+>to respond with a higher cpu usage when i'm idle.  It immediately goes away 
+>when something else uses cpu.   If you need any more info just ask.   I'm 
 
-> So, my question is, is there any way to get into (telnet or ssh) my box
-behind
-> the router from outside?
+Do you have CONFIG_APM_CPU_IDLE=y in your .config? If so, disable it.
 
-Yes, it's possible :)
-See the iptables man-page for that, and look for SNAT & DNAT. If you need
-any help with your setup, I'd be happy to help.
+There was a thread about this problem some months ago. I found
+that on all of my APM-capable machines, including a Dell laptop,
+CONFIG_APM_CPU_IDLE=y had a negative effect. The kernel ended up
+in a tight loop performing tons of APM IDLE BIOS calls, since each
+BIOS call returned immediately without having idled the CPU.
 
-Regards,
-Marc Brekoo
+Leaving CONFIG_APM_CPU_IDLE unset lets the kernel use its own
+"HLT when idle" code. On my main development box, idle CPU
+temperature dropped >10 degrees C, and kapm-idled now uses 0% CPU.
 
+/Mikael

@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265266AbUEYXzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265265AbUEZAFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265266AbUEYXzp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 19:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbUEYXzp
+	id S265265AbUEZAFw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 20:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUEZAFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 19:55:45 -0400
-Received: from avtrex.com ([216.102.217.178]:13541 "EHLO avtrex.com")
-	by vger.kernel.org with ESMTP id S265268AbUEYXzf (ORCPT
+	Tue, 25 May 2004 20:05:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15327 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265265AbUEZAFv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 19:55:35 -0400
-Message-ID: <40B3DCCC.5040401@avtrex.com>
-Date: Tue, 25 May 2004 16:54:52 -0700
-From: David Daney <ddaney@avtrex.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
+	Tue, 25 May 2004 20:05:51 -0400
+Date: Tue, 25 May 2004 17:05:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: olh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: very low performance on SCSI disks if device node is in tmpfs
+In-Reply-To: <20040525154107.053b9ef6.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405251703000.9951@ppc970.osdl.org>
+References: <20040525184732.GB26661@suse.de> <20040525144836.1af59a96.akpm@osdl.org>
+ <20040525145923.68af0ad8.akpm@osdl.org> <20040525154107.053b9ef6.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: -NODEV vs. -ENODEV
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 May 2004 23:54:50.0329 (UTC) FILETIME=[AAAD7490:01C442B3]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While working on a driver that is not part of the  standard kernel 
-sources, I found that dev_open() was returning -NODEV when there was no 
-device (instead of -ENODEV).
-
-Since NODEV is #defined to be 0 this caused open to erroneously report 
-success.
-
-It seems to me that any place you see -NODEV in the kernel sources is 
-almost certainly an error.
-
-Using the 2.4.25 sources from linux-mips.org I get the following:
-
-$ grep -r -- -NODEV *
-drivers/isdn/sc/command.c:      return -NODEV;
-drivers/media/video/cpia.c:                     return -NODEV;
-drivers/net/defxx.c:    int rc = -NODEV;
-
-I have no idea if these still exist in the current sources,  but I 
-suspect that they do.
-
-David Daney
 
 
+On Tue, 25 May 2004, Andrew Morton wrote:
+>
+> We need to set file->f_ra _after_ calling blkdev_open(), when inode->i_mapping
+> points at the right thing.  And we need to get it from
+> inode->i_mapping->host->i_mapping too, which represents the underlying device.
+
+Hmm.. Is f_mapping is guaranteed to be non-NULL? At least for the O_DIRECT 
+case, we explicitly test for f_mapping being non-NULL, although that test 
+is quite possibly bogus. Maybe we should fix that too?
+
+		Linus

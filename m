@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265885AbSLISDq>; Mon, 9 Dec 2002 13:03:46 -0500
+	id <S265894AbSLISMa>; Mon, 9 Dec 2002 13:12:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbSLISDp>; Mon, 9 Dec 2002 13:03:45 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:12561 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S265885AbSLISDo>; Mon, 9 Dec 2002 13:03:44 -0500
-Date: Mon, 9 Dec 2002 16:11:10 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Serge Kuznetsov <serge@wcom.ca>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ipv4/route: convert /proc/net/rt_cache to seq_file
-Message-ID: <20021209181110.GT17067@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Serge Kuznetsov <serge@wcom.ca>,
-	"David S. Miller" <davem@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021208030851.GB12907@conectiva.com.br> <03c201c29fac$e7737510$9c094d8e@wcom.ca>
-Mime-Version: 1.0
+	id <S265898AbSLISMa>; Mon, 9 Dec 2002 13:12:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17935 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265894AbSLISM3>; Mon, 9 Dec 2002 13:12:29 -0500
+Message-ID: <3DF4DEC0.3030800@zytor.com>
+Date: Mon, 09 Dec 2002 10:19:44 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: #! incompatible -- binfmt_script.c broken?
+References: <9633612287A@vcnet.vc.cvut.cz> <aslmtl_im_1@cesium.transmeta.com> <20021206090234.GA1940@zaurus>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <03c201c29fac$e7737510$9c094d8e@wcom.ca>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Dec 09, 2002 at 01:00:48PM -0500, Serge Kuznetsov escreveu:
-> > bk://kernel.bkbits.net/acme/net-2.5
-> > 
-> > Now there is just this outstanding changeset.
-> > 
+Pavel Machek wrote:
 > 
-> BTW: Is /proc/net/arp has been fixed?
+> Why can't we simply have /bin/bash_that_splits_args_itself
+> ?
+> 				Pavel
 
-Yes, I have submitted some changesets fixing problems with /proc/net/arp
-seq_file handling. Please let me know if you find any problems.
+We could, but it would in practice mean doing an extra exec() for each
+executable.  This seems undesirable.
 
-- Arnaldo
+	-hpa
+

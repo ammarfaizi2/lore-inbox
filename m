@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271387AbUJVPfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271364AbUJVPfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271387AbUJVPfX (ORCPT <rfc822;willy@w.ods.org>);
+	id S271364AbUJVPfX (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 22 Oct 2004 11:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271364AbUJVPe4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271385AbUJVPek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 11:34:56 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:14504 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S271372AbUJVPdE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 11:33:04 -0400
-Date: Fri, 22 Oct 2004 08:32:34 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, raybry@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V1 [2/4]: set_huge_pte() arch updates
-In-Reply-To: <20041022103708.GK17038@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0410220829200.7868@schroedinger.engr.sgi.com>
-References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com>
- <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0410212156300.3524@schroedinger.engr.sgi.com>
- <20041022103708.GK17038@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Oct 2004 11:34:40 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:39335 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S271374AbUJVPdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 11:33:24 -0400
+Message-Id: <200410221530.i9MFUWq30084@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Christoph Lameter" <clameter@sgi.com>
+Cc: <wli@holomorphy.com>, <raybry@sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Hugepages demand paging V1 [3/4]: Overcommit handling
+Date: Fri, 22 Oct 2004 08:32:41 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcS4IiG30zNvKFEoQhu+wDZnTedqIAAKOB4Q
+In-Reply-To: <20041022032823.215bd95f.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004, William Lee Irwin III wrote:
-
-> On Thu, Oct 21, 2004 at 09:57:23PM -0700, Christoph Lameter wrote:
-> > Changelog
-> > 	* Update set_huge_pte throughout all arches
-> > 	* set_huge_pte has an additional address argument
-> > 	* set_huge_pte must also do what update_mmu_cache typically does
-> > 	  for PAGESIZE ptes.
-> > Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Andrew Morton wrote on Friday, October 22, 2004 3:28 AM
+> Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> >  	* overcommit handling
 >
-> What's described above is not what the patch implements. The patch is
-> calling update_mmu_cache() in a loop on all the virtual base pages of a
-> virtual hugepage, which won't help at all, as it doesn't understand how
-> to find the hugepages regardless of virtual address. AFAICT code to
-> actually do the equivalent of update_mmu_cache() on hugepages most
-> likely involves privileged instructions and perhaps digging around some
-> cpu-specific data structures (e.g. the natively architected pagetables
-> bearing no resemblance to Linux') for almost every non-x86 architecture.
+> What does this do, and why do we want it?
 
-The looping is architecture specific. But you are right for the
-architectures where I simply did the loop that is wrong. The address given
-needs to be correctly calculated which it is not.
+The name of "overcommit" is definitely misleading.  It means the
+opposite.  Since physical hugetlb backing page pool is fixed and
+controlled by sys admin, the fault handler can not allocate free
+pages when hugetlb page pool exhaust because of user over commits
+hugetlb page.  Thus we enforce strict accounting upfront to
+guarantee that there will be hugetlb page available at fault time.
 
-Again this is arch specific stuff and can be done as needed for any
-architecture. There is no intend to generalize this.
+The down side of not having it is we SIGBUS if the kernel doesn't
+have any free hugetlb pages left.
+
+- Ken
+
 

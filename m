@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264477AbUEaAdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUEaAhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbUEaAdX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 20:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbUEaAdX
+	id S264482AbUEaAhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 20:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbUEaAhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 20:33:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38597 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264477AbUEaAdV (ORCPT
+	Sun, 30 May 2004 20:37:09 -0400
+Received: from gate.crashing.org ([63.228.1.57]:16819 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264482AbUEaAhG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 20:33:21 -0400
-Date: Sun, 30 May 2004 17:32:52 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, rmk+serial@arm.linux.org.uk
+	Sun, 30 May 2004 20:37:06 -0400
 Subject: Re: [PATCH] Fix typo in pmac_zilog
-Message-Id: <20040530173252.4a040e99.davem@redhat.com>
-In-Reply-To: <1085901218.10399.11.camel@gaston>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       rmk+serial@arm.linux.org.uk
+In-Reply-To: <20040530173252.4a040e99.davem@redhat.com>
 References: <1085715655.6320.138.camel@gaston>
-	<20040529234258.42a2dc64.davem@redhat.com>
-	<1085901218.10399.11.camel@gaston>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	 <20040529234258.42a2dc64.davem@redhat.com>
+	 <1085901218.10399.11.camel@gaston>
+	 <20040530173252.4a040e99.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1085963459.2248.29.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 31 May 2004 10:30:59 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 May 2004 17:13:38 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Mon, 2004-05-31 at 10:32, David S. Miller wrote:
+> On Sun, 30 May 2004 17:13:38 +1000
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > There is a deadlock issue. I triggered once when I had a bug where the
+> > driver was flooding the input with zero's. All serial drivers seem to be
+> > affected. Apparently, tty_flip_* may call back into your write() routine
+> 
+> Yes indeed, one code path is:
+>
+> .../...
 
-> There is a deadlock issue. I triggered once when I had a bug where the
-> driver was flooding the input with zero's. All serial drivers seem to be
-> affected. Apparently, tty_flip_* may call back into your write() routine
+Yup, another one is when echo is enabled, you may call back into write.
 
-Yes indeed, one code path is:
+> It seems lots of serial drivers have this bug, even 8250.c :-)
 
-tty_flip_buffer_push()
-if (tty->low_latency)
-	flush_to_ldisc() {
-		tty->ldisc.receive_buf() == n_tty_receive_buf() {
-			...
-			n_tty_receive_char() {
-				...
-				start_tty() {
-					tty->driver->start() == uart_start()
+Yes, I told Russell about it.
 
-and that's where we try to grab the uart port lock again.
+> I'll fix up the Sparc drivers meanwhile.
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-It seems lots of serial drivers have this bug, even 8250.c :-)
-
-I'll fix up the Sparc drivers meanwhile.

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316574AbSIAIgm>; Sun, 1 Sep 2002 04:36:42 -0400
+	id <S316580AbSIAIvY>; Sun, 1 Sep 2002 04:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316578AbSIAIgm>; Sun, 1 Sep 2002 04:36:42 -0400
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:38466 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id <S316574AbSIAIgm>; Sun, 1 Sep 2002 04:36:42 -0400
-Date: Sun, 1 Sep 2002 10:41:08 +0200 (CEST)
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.33 oss compilation error
-Message-ID: <Pine.LNX.4.44.0209011039340.11629-100000@trider-g7.ext.fabbione.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316582AbSIAIvY>; Sun, 1 Sep 2002 04:51:24 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:21769 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316580AbSIAIvX>; Sun, 1 Sep 2002 04:51:23 -0400
+Date: Sun, 1 Sep 2002 10:55:24 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: davem@redhat.com, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       aurora-sparc-devel@linuxpower.org
+Subject: [PATCH] sparc32: wrong type of nlink_t
+Message-ID: <20020901085524.GB32122@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 5 days, 8:49
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Against 2.4.20-pre5 - fix up the type of nlink_t. This makes jfs and
+reiserfs stop complaining about comparisons always turning up false
+due to limited range of data type.
 
-  gcc -Wp,-MD,./.v_midi.o.d -D__KERNEL__ -I/usr/src/linux-2.5.33/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -nostdinc -iwithprefix include -DMODULE -include
-/usr/src/linux-2.5.33/include/linux/modversions.h
--DKBUILD_BASENAME=v_midi   -c -o v_midi.o v_midi.c
-v_midi.c: In function `v_midi_open':
-v_midi.c:55: structure has no member named `lock'
-v_midi.c:58: structure has no member named `lock'
-v_midi.c:62: structure has no member named `lock'
-v_midi.c: In function `v_midi_close':
-v_midi.c:83: structure has no member named `lock'
-v_midi.c:87: structure has no member named `lock'
-v_midi.c: In function `attach_v_midi':
-v_midi.c:223: structure has no member named `lock'
-v_midi.c:244: structure has no member named `lock'
-make[2]: *** [v_midi.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.33/sound/oss'
-make[1]: *** [oss] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.33/sound'
-make: *** [sound] Error 2
+T.
 
-Regards
-Fabio
-
-
+--- linux-2.4.19/include/asm-sparc/posix_types.h	2000-01-16 07:08:29.000000000 +0100
++++ linux-2.4.20-pre5/include/asm-sparc/posix_types.h	2002-09-01 10:41:35.000000000 +0200
+@@ -21,7 +21,7 @@
+ typedef unsigned long          __kernel_ino_t;
+ typedef unsigned short         __kernel_mode_t;
+ typedef unsigned short         __kernel_umode_t;
+-typedef short                  __kernel_nlink_t;
++typedef unsigned short         __kernel_nlink_t;
+ typedef long                   __kernel_daddr_t;
+ typedef long                   __kernel_off_t;
+ typedef char *                 __kernel_caddr_t;

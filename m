@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131315AbQKJUWb>; Fri, 10 Nov 2000 15:22:31 -0500
+	id <S131129AbQKJUWl>; Fri, 10 Nov 2000 15:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131129AbQKJUWV>; Fri, 10 Nov 2000 15:22:21 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:8979 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130369AbQKJUWC>;
-	Fri, 10 Nov 2000 15:22:02 -0500
-Date: Fri, 10 Nov 2000 21:21:56 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+	id <S131557AbQKJUWc>; Fri, 10 Nov 2000 15:22:32 -0500
+Received: from web1106.mail.yahoo.com ([128.11.23.126]:55821 "HELO
+	web1106.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130369AbQKJUWX>; Fri, 10 Nov 2000 15:22:23 -0500
+Message-ID: <20001110202221.29946.qmail@web1106.mail.yahoo.com>
+Date: Fri, 10 Nov 2000 21:22:21 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
 Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-Message-ID: <20001110212156.A4568@inspiron.suse.de>
-In-Reply-To: <20001110205129.A4344@inspiron.suse.de> <Pine.LNX.3.95.1001110150021.5941A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1001110150021.5941A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Nov 10, 2000 at 03:07:46PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 03:07:46PM -0500, Richard B. Johnson wrote:
-> It isn't a TCP/IP stack problem. It may be a memory problem. Every time
-> sendmail spawns a child to send the file data, it crashes.  That's
-> why the file never gets sent!
+Dick, have you tried a simple "strace -f -p <pid>" ?
+This often gives enough info.
 
-Sure that could be the case. You should be able to verify the kernel kills the
-task with `dmesg`.
+BTW, there's one version of sendmail that tests the
+capability security hole of a previous kernel version
+(2.2.15 ?), and refuses to launch if it discovers it.
+It may be possible that sendmail does other tests like
+this one.
 
-However Jeff said the problem happens over 400K and a 500K attachment shouldn't
-really run any machine out of memory, so maybe this wasn't his same problem?
+Regards,
+Willy
 
-Andrea
+
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

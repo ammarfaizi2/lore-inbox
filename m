@@ -1,88 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293249AbSBWW4p>; Sat, 23 Feb 2002 17:56:45 -0500
+	id <S293251AbSBWXBp>; Sat, 23 Feb 2002 18:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293250AbSBWW4f>; Sat, 23 Feb 2002 17:56:35 -0500
-Received: from varenorn.icemark.net ([212.40.16.200]:12195 "EHLO
-	varenorn.internal.icemark.net") by vger.kernel.org with ESMTP
-	id <S293249AbSBWW4Y>; Sat, 23 Feb 2002 17:56:24 -0500
-Date: Sat, 23 Feb 2002 23:53:53 +0100 (CET)
-From: beh@icemark.net
-X-X-Sender: beh@berenium.icemark.ch
-To: linux-kernel@vger.kernel.org
-Subject: Some problems on a ThinkPad A30P (again...)
-Message-ID: <Pine.LNX.4.44.0202232340020.1435-100000@berenium.icemark.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293254AbSBWXBg>; Sat, 23 Feb 2002 18:01:36 -0500
+Received: from jalon.able.es ([212.97.163.2]:37601 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S293251AbSBWXB2>;
+	Sat, 23 Feb 2002 18:01:28 -0500
+Date: Sun, 24 Feb 2002 00:01:21 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Dieter =?iso-8859-15?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hang on floppy access, patched 2.4.18-rc[34]
+Message-ID: <20020224000121.E2023@werewolf.able.es>
+In-Reply-To: <200202232008.52370.Dieter.Nuetzel@hamburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+In-Reply-To: =?iso-8859-15?Q?=3C200202232008=2E52370=2E?=
+	=?iso-8859-15?Q?Dieter=2ENuetzel=40hamburg=2Ede=3E=3B_from_Dieter=2ENuetz?=
+	=?iso-8859-15?Q?el=40hamburg=2Ede_on_s=E1b?=
+	=?iso-8859-15?Q?=2C?= feb 23, 2002 at 20:08:52 +0100
+X-Mailer: Balsa 1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-First, a big thanks for the help I got so far  (reg. kapm-idled thread)...
+On 20020223 Dieter Nützel wrote:
+>You wrote:
+>>Hi.
+>>
+>> My system is locking up when trying to access the floppy drive.
+>> The mount or mkfs command just get stuck, no response to ctrl-c.
+>> Kernel is 2.4.18-rc3 with vm-25, sched-O1, read-latency, mini-lowlat,
+>> irqrate-A1. But is also hangs on rc4 without irqrate-A1.
+>> Decoded output from SysRQ-P follows:
+>
+>How did you get the SysRQ-P output?
 
-Today I've experimented some more, and found the following:
+>From X ssession, and results whent to syslog.
 
+>Didn't it lock up "hard"?
+>
 
- - even ALSA 0.90beta11 can't solve the suspend problem. I also noticed
-   something rather strange, that I didn't realize before  (due to
-   auto-loading of modules):
-	When I try to load "snd-card-intel8x0" for the first time,
-	modprobe complains about the card not being found or being
-	busy.
-	When I try to load the same module a second time,
-	everything works "fine"...
-   But - WHY would linux at first say, the card isn't there, but
-   find and initialize the card on the second run?
+No, just the process acessing the floppy.
 
- - Due to the problem with ALSA, I went back to try the kernel
-   sound drivers instead and found the i810_audio to work fine
-   (and - more importantly - not disturb the suspend... ;)
-   ("historically" I switched to ALSA on a TP600 which was a pain
-   to get sound working with kernel drivers, but which was fairly
-   easy to do with ALSA at the time...   ...and since then I hadn't
-   even tried the kernel drivers any more...)
-
-
-But - the following problems remain:
-
-
- -> Hibernation doesn't work at all (this used to work on the TP600
-    and on the TP A21P I had before)...
-
-
-
- -> trying to load agpgart (to make DRI work) fails with:
-
-	Linux agpgart interface v0.99 (c) Jeff Hartmann
-	agpgart: Maximum main memory to use for agp memory: 816M
-	agpgart: Detected an Intel 830M, but could not find the secondary device.
-	agpgart: no supported devices found.
-
-
-
- -> When the system resumes from a suspend, the following message
-    turns up in dmesg:
-
-	APIC error on CPU0: 00(40)
-
-    (The system appears to work fine, but I'd still like to know,
-     what the error is for...?)
-
-
- -> prism2_pci (linux-wlan-ng-0.1.10; linux-wlan-ng-0.1.13pre[1-4])
-    WLan throughput is VERY low (~18KB/s, as opposed to ~550KB/s
-    on a PCMCIA card, linked to the same Wireless access point;
-    also - Win2K also reaches 550KB/s on the internal prism2
-    chip)...
-
-
-Any help on any of the above would be highly appreciated! :)
-
-
-
-      Benedikt
-
-  BEAUTY, n.  The power by which a woman charms a lover and terrifies a
-    husband.
-			(Ambrose Bierce, The Devil's Dictionary)
-
+>-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-rc4-jam1 #1 SMP Sat Feb 23 16:25:56 CET 2002 i686

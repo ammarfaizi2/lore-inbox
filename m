@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbTHSUG7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261358AbTHSUG7 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Aug 2003 16:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTHSUGh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbTHSUGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 16:06:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52241 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261363AbTHSUGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 16:06:23 -0400
-Date: Tue, 19 Aug 2003 21:06:18 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Standard driver call to enable/disable PCI ROM
-Message-ID: <20030819210618.D23670@flint.arm.linux.org.uk>
-Mail-Followup-To: Jon Smirl <jonsmirl@yahoo.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030819194503.10122.qmail@web14911.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030819194503.10122.qmail@web14911.mail.yahoo.com>; from jonsmirl@yahoo.com on Tue, Aug 19, 2003 at 12:45:03PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Tue, 19 Aug 2003 16:06:47 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:6418 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261358AbTHSUGJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 16:06:09 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: 19 Aug 2003 19:57:57 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bhtvg5$8t1$1@gatekeeper.tmr.com>
+References: <20030819191010.43d83b79.skraw@ithnet.com> <20030819100712.2470d18d.davem@redhat.com>
+X-Trace: gatekeeper.tmr.com 1061323077 9121 192.168.12.62 (19 Aug 2003 19:57:57 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 12:45:03PM -0700, Jon Smirl wrote:
-> Here's the code I used...
-> 
-> static void * __init aty128_map_ROM(struct pci_dev
->                    *dev, const struct aty128fb_par
-> *par)
-> {
->    void *rom;
->    struct resource *r =
->       &dev->resource[PCI_ROM_RESOURCE];
->                                                       
->    /* assign address if it doesn't have one */
->    if (r->start == 0)
->       pci_assign_resource(dev,
->                                     PCI_ROM_RESOURCE);
->                                                       
->    /* enable if needed */
->    if (!(r->flags & PCI_ROM_ADDRESS_ENABLE)) {
->       pci_write_config_dword(dev,
->                      dev->rom_base_reg, r->start | 
-                                          ^^^^^^^^^
+In article <20030819100712.2470d18d.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
+| On Tue, 19 Aug 2003 19:10:10 +0200
+| Stephan von Krawczynski <skraw@ithnet.com> wrote:
+| 
+| > Well, then you have a problem, at least with RFC-985 as quoted in my other
+| > email.
+| 
+| RFC-985 does not take into consideration a system model where IP
+| addresses are owned by the host not specific interfaces which is a
+| valid system model that the RFC standards allow.
 
-This is non-portable.
+No one who has read the RFC would argue that the current implementation
+is wrong, what people are saying is that in many common case it just
+doesn't bloody *work*!
 
-You should use pcibios_resource_to_bus() to convert a resource to a
-representation suitable for a BAR.
-
+To say that the solution for common cases is to set a bunch of flags and
+run source routing is not going to make the endless discussion,
+complaints, and really bad patches go away. Why are you opposed to
+having a tunable to allow *easy* selection of the functionality which is
+needed by many people, particularly when you have stated that such
+behaviour also conforms to RFCs?
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

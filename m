@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313501AbSDLKKg>; Fri, 12 Apr 2002 06:10:36 -0400
+	id <S313491AbSDLKRF>; Fri, 12 Apr 2002 06:17:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313491AbSDLKKf>; Fri, 12 Apr 2002 06:10:35 -0400
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:63698 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313501AbSDLKKa>; Fri, 12 Apr 2002 06:10:30 -0400
-Message-Id: <5.1.0.14.2.20020412110908.01f703f0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 12 Apr 2002 11:10:55 +0100
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: VIA and 2.5.8-pre kernels doesn't boot!
-Cc: martin@dalecki.de, vojtech@suse.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <3CB690DC.7020104@evision-ventures.com>
+	id <S313507AbSDLKRE>; Fri, 12 Apr 2002 06:17:04 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29459 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S313491AbSDLKRD>;
+	Fri, 12 Apr 2002 06:17:03 -0400
+Date: Fri, 12 Apr 2002 12:16:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA, 32bit PIO and 2.5.x kernel
+Message-ID: <20020412101655.GB5285@suse.de>
+In-Reply-To: <20020412084150.GE824@suse.de> <Pine.LNX.4.10.10204120154480.489-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:46 12/04/02, Martin Dalecki wrote:
->Anton Altaparmakov wrote:
->>For me 2.5.8-pre2 and -pre3 (-pre1 not tested) both fail to boot on my 
->>VIA chipset box. 2.5.7 works fine.
->>Best regards,
->>         Anton
->>2.5.8-pre3 prints on serial console and then it just dies:
->>----snip----
->>Uniform Multi-Platform E-IDE driver ver.:7.0.0
->>ide: system bus speed 33MHz
->>VIA Technologies, Inc. Bus Master IDE: IDE controller on PCI slot 00:07.1
->>VIA Technologies, Inc. Bus Master IDE: chipset revision 6
->>VIA Technologies, Inc. Bus Master IDE: not 100% native mode: will probe 
->>irqs later
->>VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
->>     ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
->>     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
->>hda: IC35L040AVER07-0, ATA DISK drive
->>----snip----
->
->Does it crash dump thereafter? Could be that the code around
->save_match doesn't get it right.
+On Fri, Apr 12 2002, Andre Hedrick wrote:
+> On Fri, 12 Apr 2002, Jens Axboe wrote:
+> 
+> > On Fri, Apr 12 2002, Petr Vandrovec wrote:
+> > > I believe that there must be some reason for doing that... And 
+> > > do not ask me why it worked in 2.4.x, as it cleared io_32bit
+> > > in task_out_intr too.
+> > 
+> > Because 2.4 doesn't use that path for fs requests. And be glad that it
+> > doesn't otherwise _everybody_ would have much worse problems than you
+> > are currently seeing.
+> 
+> Maybe if everyone ever bothered to look at the code base and not assume
+> they know everything ... and enjoying feable attempts to cast me as a
+> fool.  Better yet maybe understand the hardware ...
 
-There is no other output of any kind anywhere. I am both on serial console 
-and on real console and both end with the hda line. If I can add something 
-somewhere or whatever to find out where it hangs I would be happy to... 
-(Remote gdb debugging is not setup yet as I have no idea how to do it...)
+I didn't talk about the 32bit issue at all (as you can read from my mail
+above), I simply said why it worked in 2.4 -- because that data path is
+never hit for a file system request.
 
-Anton
-
+So maybe if you ever bothered to read the emails. Or better yet, not
+assume you know everything.
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-IRC: #ntfs on irc.openprojects.net / ICQ: 8561279
-WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Jens Axboe
 

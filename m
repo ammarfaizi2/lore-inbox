@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264384AbUAHNhp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 08:37:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUAHNhp
+	id S264419AbUAHNnI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 08:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUAHNnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 08:37:45 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:12564 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264384AbUAHNhn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 08:37:43 -0500
-Date: Thu, 8 Jan 2004 05:39:01 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Joe Korty <joe.korty@ccur.com>, Andrew Morton <akpm@osdl.org>
-Subject: Broken big-endian SMP /proc/irq/prof_cpu_mask (2.6.0-mm1)?
-Message-Id: <20040108053901.70ef9012.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 8 Jan 2004 08:43:08 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:8617 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S264419AbUAHNnE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 08:43:04 -0500
+Date: Thu, 8 Jan 2004 14:43:03 +0100
+From: Martin F Krafft <krafft@ailab.ch>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: RAID 5 from 2.4.24 to 2.6.0
+Message-ID: <20040108134303.GA3288@piper.madduck.net>
+Mail-Followup-To: Martin F Krafft <krafft@ailab.ch>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+Organization: AILab, IFI, University of Zurich
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-diamond i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are you running 2.6.0-mm1 or later on a big-endian SMP box?
 
-If so, I probably broke your file /proc/irq/prof_cpu_mask file
-(and /proc/irq/<pid>/smp_affinity files as well ...).
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Could you cat out /proc/irq/prof_cpu_mask for me, if you have
-such a box, and tell me if the bytes are backward?  Please also
-indicate your hardware architecture and number of CPUs, just
-so I can be sure I am on track here.
+Due to stability problems with the RAID code in 2.4 (detaailed
+message forthcoming), I would like to try 2.6.0 on one of our
+servers. However, anticipating problems, I want to make sure that
+this change is not irreversible.
 
-If say you have 4 CPUs, then seeing something in the range of "1" to "f"
-would be good news, but seeing some multiple of 1000000 would be bad
-news.
+Can I mount RAID 1 and 5 partitions in 2.6.0 and 2.4.24
+interchangeably?
 
-For further details, see the lkml thread started yesterday
-by joe.korty@ccur.com:
+Thanks,
 
-  Subject: seperator error in __mask_snprintf_len
+--=20
+Martin F. Krafft                Artificial Intelligence Laboratory
+Ph.D. Student                   Department of Information Technology
+Email: krafft@ailab.ch          University of Zurich
+Tel: +41.(0)1.63-54323          Andreasstrasse 15, Office 2.20
+http://ailab.ch/people/krafft   CH-8050 Zurich, Switzerland
+=20
+Invalid/expired PGP subkeys? Use subkeys.pgp.net as keyserver!
+=20
+one has to multiply thoughts to the point
+where there aren't enough policemen to control them.
+                                               -- stanislaw jerzey lec
 
-If I have broken this as I suspect, I will prepare a patch for Andrew
-shortly that fixes it.
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Thanks for you assistance.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+iD8DBQE//V5nIgvIgzMMSnURAl50AJwNPkOgHoSqp2sY248h0nhdRwj34wCZAUE2
+XLOu++1m61XMJC21Ho8fju8=
+=Ckze
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--

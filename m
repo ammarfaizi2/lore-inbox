@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132574AbRAXGHl>; Wed, 24 Jan 2001 01:07:41 -0500
+	id <S132622AbRAXGMn>; Wed, 24 Jan 2001 01:12:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132585AbRAXGHb>; Wed, 24 Jan 2001 01:07:31 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:1035 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S132574AbRAXGH0>; Wed, 24 Jan 2001 01:07:26 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Date: Wed, 24 Jan 2001 17:06:55 +1100 (EST)
-MIME-Version: 1.0
+	id <S132585AbRAXGMd>; Wed, 24 Jan 2001 01:12:33 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:64274 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S132622AbRAXGMV>;
+	Wed, 24 Jan 2001 01:12:21 -0500
+Date: Tue, 23 Jan 2001 22:12:13 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net,
+        Linux-usb-users@lists.sourceforge.net
+Subject: 2001-01-23 release of hotplug scripts
+Message-ID: <20010123221213.A19568@kroah.com>
+In-Reply-To: <20010116225518.C1733@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14958.28927.756597.940445@notabene.cse.unsw.edu.au>
-Cc: Linux NFS mailing list <nfs@lists.sourceforge.net>,
-        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [NFS] Linux 2.2.18 nfs v3 server bug (was: Incompatible: FreeBSD 4.2 client, Linux 2.2.18 nfsv3 server, read-only export)
-In-Reply-To: message from Matthias Andree on Wednesday January 24
-In-Reply-To: <20010123015612.H345@quadrajet.flashcom.com>
-	<20010123162930.B5443@emma1.emma.line.org>
-	<wuofwynsj5.fsf_-_@bg.sics.se>
-	<20010123105350.B344@quadrajet.flashcom.com>
-	<20010124041437.A28212@emma1.emma.line.org>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010116225518.C1733@kroah.com>; from greg@kroah.com on Tue, Jan 16, 2001 at 10:55:18PM -0800
+X-Operating-System: Linux 2.2.18-immunix (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday January 24, matthias.andree@stud.uni-dortmund.de wrote:
-> (Please consider removing FreeBSD-stable from the recipient list when
-> replying.)
-freebsd-stable removed!  reiserfs gone. Who goes next:-? Alan?
-> 
-> Summary:
-> 
-> The Linux 2.2.18 NFS v3 server returns bogus and as per RFC-1813 invalid
-> NFS3ERR_ROFS to ACCESS procedure calls when exporting a file system
-> read-only, when it should instead return "OK" along with the actual
-> permissions the client has, ANDed with the permissions the client
-> queried. 
-> 
-> The bug is visible on FreeBSD 4.2-STABLE client which cannot ls The
-> mounted file system (NFS v2 is fine since it does not have ACCESS).
-> There is no related log entry in the 2.2.19pre7 change log.  I did not
-> check Linux 2.4.0, 2.4.0-acX or 2.4.1-preX either.
+I've just packaged up the latest hotplug scripts into a release, and
+they can be found at:
+	http://download.sourceforge.net/linux-hotplug/hotplug-2001_01_23.tar.gz
+	http://download.sourceforge.net/linux-hotplug/hotplug-2001_01_23-1.noarch.rpm
+ 	http://download.sourceforge.net/linux-hotplug/hotplug-2001_01_23-1.src.rpm
+depending on which format you prefer.
 
-To summarise the summary of the summary:
-I stuffed up when I tried to interpret the error, but after much
-sensible correction, here is a patch.  Please try it, and suggest any
-other errs that should be tested for (or maybe we should invert the
-sense of the test, and test for error codes that ACCESS is allowed to
-return.
-2.4.0 seems to get it right.
+Changes in this version from the last release are:
+	- log "ifup" invocations when debugging for net.agent script
+	- address some problems with hotplugging USB on 2.2
+	- small change in the .spec file from Chmouel Boudjnah
 
-NeilBrown
+thanks,
 
---- ./fs/nfsd/vfs.c	2001/01/10 05:03:28	1.11
-+++ ./fs/nfsd/vfs.c	2001/01/24 06:02:01
-@@ -448,7 +448,9 @@
- 			error = nfsd_permission(export, dentry, (map->how | NO_OWNER_OVERRIDE));
- 			if (error == 0)
- 				result |= map->access;
--			else if ((error == nfserr_perm) || (error == nfserr_acces)) {
-+			else if ((error == nfserr_perm) ||
-+				 (error == nfserr_acces) ||
-+				 (error == nfserr_rofs)) {
- 				/*
- 				 *  This access type is denyed; but the 
- 				 *  access query itself succeeds.
+greg k-h
 
+-- 
+greg@(kroah|wirex).com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

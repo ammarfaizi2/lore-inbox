@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315563AbSECGKe>; Fri, 3 May 2002 02:10:34 -0400
+	id <S315565AbSECGUR>; Fri, 3 May 2002 02:20:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315565AbSECGKd>; Fri, 3 May 2002 02:10:33 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:35104 "EHLO
+	id <S315566AbSECGUQ>; Fri, 3 May 2002 02:20:16 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:15906 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315563AbSECGKc>; Fri, 3 May 2002 02:10:32 -0400
-Date: Fri, 3 May 2002 08:10:51 +0200
+	id <S315565AbSECGUQ>; Fri, 3 May 2002 02:20:16 -0400
+Date: Fri, 3 May 2002 08:20:57 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
         Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <20020503081051.T11414@dualathlon.random>
-In-Reply-To: <20020502180632.I11414@dualathlon.random> <20020502204136.M11414@dualathlon.random> <20020502191903.GL32767@holomorphy.com> <E173MEW-00027y-00@starship>
+Message-ID: <20020503082057.U11414@dualathlon.random>
+In-Reply-To: <20020502201043.L11414@dualathlon.random> <E173MG4-00024o-00@w-gerrit2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,46 +24,46 @@ X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 02, 2002 at 09:27:00PM +0200, Daniel Phillips wrote:
-> On Thursday 02 May 2002 21:19, William Lee Irwin III wrote:
-> > On Thu, May 02, 2002 at 08:41:36PM +0200, Andrea Arcangeli wrote:
-> > > Dropping the loop when discontigmem is enabled is much more interesting
-> > > optimization of course.
-> > > Andrea
+On Thu, May 02, 2002 at 12:28:52PM -0700, Gerrit Huizenga wrote:
+> In message <20020502201043.L11414@dualathlon.random>, > : Andrea Arcangeli writ
+> es:
+> > On Thu, May 02, 2002 at 09:58:02AM -0700, Gerrit Huizenga wrote:
+> > > In message <3971861785.1020330424@[10.10.2.3]>, > : "Martin J. Bligh" writes:
+> > > > > With numa-q there's a 512M hole in each node IIRC. that's fine
+> > > > > configuration, similar to the wildfire btw.
+> > > > 
+> > > > There's 2 different memory models - the NT mode we use currently
+> > > > is contiguous, the PTX mode is discontiguous. I don't think it's
+> > > > as simple as a 512Mb fixed size hole, though I'd have to look it
+> > > > up to be sure.
+> > > 
+> > > No - it definitely isn't as simple as a 512 MB hole.  Depends on how much
 > > 
-> > Absolutely; I'd be very supportive of improvements for this case as well.
-> > Many of the systems with the need for discontiguous memory support will
-> > also benefit from parallelizations or other methods of avoiding references
-> > to remote nodes/zones or iterations over all nodes/zones.
+> > I meant that as an example, I recall that was valid config, 512M of ram
+> > and 512M hole, then next node 512M ram and 512M hole etc... Of course it
+> > must be possible to vary the mem size if you want more or less ram in
+> > each node but still it doesn't generate a problematic layout for
+> > discontigmem (i.e. not 256 discontigous chunks or something of that
+> > order).
 > 
-> Which loop in which function are we talking about?
+> I *think* the ranges were typically aligned to 4 GB, although with 8 GB
+> in a single node, I don't remember what the mapping layout looked like.
+> 
+> Which made everything but node 0 into HIGHMEM.
 
-the pgdat loops. example, this could be optimized for the 99% of userbase to:
+ok.
 
-	do {
-                zonelist_t *zonelist = pgdat->node_zonelists + (GFP_USER & GFP_ZONEMASK);
-                zone_t **zonep = zonelist->zones;
-                zone_t *zone;
+> 
+> With the "flat" addressing mode that Martin has been using (the
+> dummied down for NT version) everything is squished together.  That
+> makes it a bit harder to do node local data structures, although he
+> may have enough data from the MPS table to split memory appropriately.
 
-                for (zone = *zonep++; zone; zone = *zonep++) {
-                        unsigned long size = zone->size;
-                        unsigned long high = zone->pages_high;
-                        if (size > high)
-                                sum += size - high;
-                }
-	
-#ifdef CONFIG_DISCONTIGMEM
-		pgdat = pgdat->node_next;
-	} while (pgdat);
-#else
-	} while (0)
-#endif
-
-so allowing the compiler to remove a branch and a few instructions from
-the asm, but it would be a microoptimization not visible in benchmarks,
-I'm not actually suggesting that mostly for code clarity, branch
-prediction should also take it right if it starts to be executed
-frequently (hopefully the asm is large enough that it doesn't get
-confused by the inner loop that is quite near).
+sure, the only issue is the API that the hardware provides to advertise
+the start/end of the memory for each node. It doesn't matter if it's
+squashed or not as long as you still know the start/end of the phys ram
+per node. It also won't make any difference with nonlinear or
+discontigmem because you need to fill the pgdat anyways to enable the
+numa heuristics (node-affine-allocations being the most sensible etc..).
 
 Andrea

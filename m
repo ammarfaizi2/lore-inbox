@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbRDXBhy>; Mon, 23 Apr 2001 21:37:54 -0400
+	id <S132682AbRDXB2l>; Mon, 23 Apr 2001 21:28:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132668AbRDXBho>; Mon, 23 Apr 2001 21:37:44 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:54172 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S131246AbRDXBh2>; Mon, 23 Apr 2001 21:37:28 -0400
-Date: Mon, 23 Apr 2001 21:37:10 -0400
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Alexander Viro <viro@math.psu.edu>, Christoph Rohland <cr@sap.com>,
-        "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-Message-ID: <20010423213709.A19705@cs.cmu.edu>
-Mail-Followup-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-	Alexander Viro <viro@math.psu.edu>, Christoph Rohland <cr@sap.com>,
-	"David L. Parsley" <parsley@linuxjedi.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010423172335.G719@nightmaster.csn.tu-chemnitz.de> <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu> <20010423224505.H719@nightmaster.csn.tu-chemnitz.de>
+	id <S132668AbRDXB2b>; Mon, 23 Apr 2001 21:28:31 -0400
+Received: from wire.cadcamlab.org ([156.26.20.181]:55302 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131246AbRDXB2W>; Mon, 23 Apr 2001 21:28:22 -0400
+Date: Mon, 23 Apr 2001 20:28:12 -0500
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [upatch] lib/Makefile
+Message-ID: <20010423202812.C1690@cadcamlab.org>
+In-Reply-To: <20010423171624.B1690@cadcamlab.org> <20010423153026.E19945@opus.bloom.county>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010423224505.H719@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Mon, Apr 23, 2001 at 10:45:05PM +0200
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010423153026.E19945@opus.bloom.county>; from trini@kernel.crashing.org on Mon, Apr 23, 2001 at 03:30:26PM -0700
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 10:45:05PM +0200, Ingo Oeser wrote:
-> Last time we suggested this, people ended up with some OS trying
-> it and getting worse performance. 
-> 
-> Why? You need to allocate the VFS-inode (vnode in other OSs) and
-> the on-disk-inode anyway at the same time. You get better
-> performance and less fragmentation, if you allocate them both
-> together[1].
-> 
-> So that struct inode around is ok.
-> 
-> BTW: Is it still less than one page? Then it doesn't make me
->    nervous. Why? Guess what granularity we allocate at, if we
->    just store pointers instead of the inode.u. Or do you like
->    every FS creating his own slab cache?
 
-I've actually got the coda_inode_info (inode->u.u_coda_fs_i) split out
-of the union in my development kernel. It doesn't shrink the size of the
-struct inode yet, Coda isn't the biggest user at the moment.
+  [Peter Samuelson]
+> > Introduced in 2.4.4pre4, I believe.  $(export-objs) need not be
+> > conditional, and the if statement was not really correct either,
+> > although in this case it probably worked.
 
-But, it forced me to do several cleanups in the code, and it even has
-resulted in fixing a 'leak'. Not a real memory loss leak one, but we
-left uninitialized inodes around in the icache for no good reason. Also
-changing a but in a coda specific header file does trigger an almost
-complete rebuild of the whole kernel (coda.h -> coda_fs_i.h -> fs.h ->
-everything?)
+[Tom Rini]
+> Er, are you sure changing the test for !"nn" is correct here?  I
+> _think_ at least that is intentional and correct (since you can have
+> one on but not the other).
 
-The allocation overhead really isn't that bad. kmalloc/kfree are also
-using the slabcache, and a trivial variant using a 'private' slabcache
-gave me the counters to find the 'leak' I mentioned before.
+I understand the intent.  The point is that in our current makefiles
+you are not allowed to assume that a negative value is "n", because it
+could be "".
 
-I can't really evaluate performance impacts. The struct inode is still
-the same size, so for now there even is a little bit of additional
-memory pressure. Also, Coda wasn't really developed to achieve high
-performance but more to explore novel features.
+2.4.4pre probably works because each 'config.in' file explicitly sets
+these variables to "y" or "n".  However, it would be perfectly legal
+for a config.in to unset the variable, or for that matter not even
+mention it.  In that case the !"nn" test fails.
 
-Jan
+This is the same reason you cannot use 'ifdef CONFIG_*' in the
+Makefiles.  Lots of people do, but each instance is a bug.  They are
+assuming the opposite: that a variable will be "" rather than "n".
 
+(N.B. this issue will go away with Keith's 2.5 Makefiles.  And there
+was much rejoicing.)
+
+Peter

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130113AbQKJHfy>; Fri, 10 Nov 2000 02:35:54 -0500
+	id <S130011AbQKJHlE>; Fri, 10 Nov 2000 02:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130760AbQKJHfo>; Fri, 10 Nov 2000 02:35:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3078 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130113AbQKJHfc>;
-	Fri, 10 Nov 2000 02:35:32 -0500
-Date: Fri, 10 Nov 2000 07:35:29 +0000
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: jiffies wrap question...
-Message-ID: <20001110073529.K2272@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <3A0BA1F8.E3ABCD18@mandrakesoft.com>
+	id <S130575AbQKJHkz>; Fri, 10 Nov 2000 02:40:55 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:56077 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S130011AbQKJHkk>; Fri, 10 Nov 2000 02:40:40 -0500
+From: aprasad@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: bsuparna@in.ibm.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <CA256993.0026C8BD.00@d73mta05.au.ibm.com>
+Date: Fri, 10 Nov 2000 12:25:24 +0530
+Subject: Re: Oddness in i_shared_lock and page_table_lock nesting
+	 hierarchies ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A0BA1F8.E3ABCD18@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Nov 10, 2000 at 02:21:28AM -0500
+Reply-To: aprasad@in.ibm.com
+X-created: Reply-To created by f03n05e.au.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 02:21:28AM -0500, Jeff Garzik wrote:
-> The following is a piece of code from the latter half of
-> schedule_timeout, in kernel/sched.c.  Is it possible that
-> schedule_timeout could return an incorrect value, if the jiffy value
-> wraps between the first and last lines shown below.
+>I was looking into the vmm code and trying to work out exactly how to fix
+>this, and there are
+>  some questions in my mind - mainly a few cases (involving multiple vma
+>updates) which
+>  I'm not sure about the cleanest way to tackle.
+>  But before I bother anyone with those, I thought I ought to go through
+>the earlier discussions
+>  that you had while coming up with what the fix should be. Maybe you've
+>already gone over
+>  this once.
+>  Could you point me to those ? Somehow I haven't been successful in
+>locating them.
 
-let's say the first line happens n ticks before the wrap and the second,
-m ticks afterwards.
+this link might be useful
+http://mail.nl.linux.org/linux-mm/2000-07/msg00038.html
 
->         expire = timeout + jiffies;
+Anil Kumar Prasad,
+Hardware Design,
+IBM Global Services,
+Pune,
+INDIA
+Phone:6349724 , 4007117 extn:1310
 
-expire = timeout + 2^32/2^64 - n = timeout - n
 
->         timeout = expire - jiffies;
-
-timeout = expire - m = timeout - n - m = timeout - (n+m)
-
-(n+m) is the time that actually passed while we were asleep, and timeout
-has the correct value (timeout - ticks that happened)>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

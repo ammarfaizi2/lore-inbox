@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130586AbRCEBts>; Sun, 4 Mar 2001 20:49:48 -0500
+	id <S130585AbRCEByS>; Sun, 4 Mar 2001 20:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130585AbRCEBtj>; Sun, 4 Mar 2001 20:49:39 -0500
-Received: from web11801.mail.yahoo.com ([216.136.172.155]:23054 "HELO
-	web11801.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130593AbRCEBta>; Sun, 4 Mar 2001 20:49:30 -0500
-Message-ID: <20010305014929.69993.qmail@web11801.mail.yahoo.com>
-Date: Sun, 4 Mar 2001 17:49:29 -0800 (PST)
-From: "Frédéric L. W. Meunier" <fredlwm1@yahoo.com>
-Subject: Re: 2.4.2: What happened ? (No such file or directory)
-To: Jeremy Jackson <jerj@coplanar.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AA26659.89222B2B@coplanar.net>
+	id <S130588AbRCEByI>; Sun, 4 Mar 2001 20:54:08 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:53384 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130585AbRCEBx4>; Sun, 4 Mar 2001 20:53:56 -0500
+Message-ID: <3AA2F08D.30E48B90@coplanar.net>
+Date: Sun, 04 Mar 2001 20:49:01 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Erwin Six <Erwin.Six@rug.ac.be>
+CC: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: Slight Time drift in linux by division fault
+In-Reply-To: <Pine.GSO.4.10.10103050127180.15575-100000@eduserv2.rug.ac.be>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Jeremy Jackson <jerj@coplanar.net> wrote:
-> " Frédéric L. W. Meunier" wrote:
-> 
-> > Correction. I can umount the partitions, but I get
-> the
-> > following message:
-> >
-> > "can't link lock file /etc/mtab~: No such file or
-> > directory (use -n flag to override)"
-> >
-> > And /etc/mtab isn't updated.
-> 
-> Is your root filesystem mounted read-only at any
-> point?
-> (check with 'mount' look for ro in line for /
-> filesystem)
-> Check permissions on /etc, /etc/mtab, /etc/mtab~
+Erwin Six wrote:
 
-/dev/ide/host0/bus0/target0/lun0/part1 on / type ext2
-(rw)
-/dev/ide/host0/bus0/target0/lun0/part3 on
-/usr/local/src type ext2 (rw)
-proc on /proc type proc (rw)
+> Hello,
+>
+> I'm a senior Student in electronic Engineering. A lot of my work takes
+> place inside the network-part of the kernel, but now I'm confronted with
+> time. I designed a hardware-board whitch trys to synchronize
 
-But it's not only umount. Most applications can't find
-files, I can't move directories with mc (but mv(1)
-works), all symlinks I create point to the symlink,
-not the existing file or directory...
+I would study the xntpd daemon furthur before trying to reinvent the wheel.
+PC clock oscillators are notoriously inaccurate, the ntp documentation
+goes really in depth about the kernel and time, so try reading this first.
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+Good luck!
+
+>
+> network-monitors by GPS. Electronicly this board is tested, and it has an
+> hardware resolution of about 1 usec (in phase, so in relative time). Now
+> I'm writing the device-driver that synchronizes the Linux-time system. If
+> I interrupt the kernel at the exact GPS-zero-time. And I watch the
+> do_timeoftheday() the seconds increases, but there is also a extra
+> increase of +-16 usec each second. So it seams that a linux second takes
+> 16usec more than one GPS second. Can I explain this with math?
+>
+> the cristal inside the computer ticks with a frequency of 1193180 Hz this
+> 16usec could be an fault of 16ppm whitch is rather big. But 2 diffrent
+> systems have the allmost drift (+-2). Or it can be caused by the division
+> inside the linux time-system (whitch is possible after you see this
+> calculations)
+>
+> If HZ = 100 then the LATCH of the PIT = (1193180 + HZ/2) / HZ = 11932
+> so in 1 sec we have 1193200 ticks of the PIT which causes 100
+> timer-interrupts. 1193200 ticks instead of 1193180 means that there are 20
+> ticks to mutch inside of each second. or 20 * 1/1193180 = 16.7619 usec. or
+> 1 second to mutch every 16.5 hours (or 8.8 minutes a year). I've looked
+> the PLL closely but I can't find a mechanisme that compensates for this
+> problem, maybe I'm looking over it? Indeed 8.8 minutes is mutch, but I
+> think if I hadn't use a GPS, I wouldn't notice it.
+>
+> Why do I suppose the second option? If you play a little bit with the HZ
+> parameter, you can let your timeclock drift mutch faster just by taking a
+> HZ that has a big 1193180 % HZ. eg. 5000 Hz gives a latch of 291 which
+> causes 119500 instead of 1193180 or a drift of 1820 ticks = 1.525 ms!
+>
+> I have some solutions in mind to compensate this problem, but I have to
+> be sure.
+> Can somebody confirm this problem?
+

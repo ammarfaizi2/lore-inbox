@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261533AbTCNMze>; Fri, 14 Mar 2003 07:55:34 -0500
+	id <S263026AbTCNNBA>; Fri, 14 Mar 2003 08:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263026AbTCNMze>; Fri, 14 Mar 2003 07:55:34 -0500
-Received: from eldar.tcsn.co.za ([196.41.199.50]:23569 "EHLO tcsn.co.za")
-	by vger.kernel.org with ESMTP id <S261533AbTCNMzd>;
-	Fri, 14 Mar 2003 07:55:33 -0500
-Date: Fri, 14 Mar 2003 15:06:18 +0200
-From: Henti Smith <bain@tcsn.co.za>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: missing linux/gdb.h in 2.5.64-mm6 kernel
-Message-Id: <20030314150618.3a61ae0d.bain@tcsn.co.za>
-Organization: The Computer Smith Networks
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S263060AbTCNNA7>; Fri, 14 Mar 2003 08:00:59 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8914
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263026AbTCNNA7>; Fri, 14 Mar 2003 08:00:59 -0500
+Subject: Re: dpt_i2o.c fix for possibly memory corruption on reset timeout
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Oleg Drokin <green@linuxhacker.ru>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       deanna_bonds@adaptec.com
+In-Reply-To: <200303140921.h2E9Lqu08107@Port.imtp.ilyichevsk.odessa.ua>
+References: <20030313182819.GA2213@linuxhacker.ru>
+	 <20030313105125.1548d67c.rddunlap@osdl.org>
+	 <20030313185628.GA2485@linuxhacker.ru>
+	 <200303140921.h2E9Lqu08107@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047651597.27700.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Mar 2003 14:19:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all 
+On Fri, 2003-03-14 at 09:18, Denis Vlasenko wrote:
+> I don't like the whole idea that mem leak is tolerable.
+> 
+> Can we just add a 4 byte scratch pad status to
+> struct _adpt_hba? Let it scribble there...
 
-I'm not having success compiling 2.5.64-mm6. 
-I compile standard linux-2.5.64 but after applying 2.5.64-mm6
-I get this 
+Its 4 bytes (+ slab overhead), its far safer if this happens to say
+its gone forever. Its owned by the I2O controller now and it never
+gave it back
 
-init/main.c:48:23: linux/gdb.h: No such file or directory
-init/main.c: In function `start_kernel':
-init/main.c:457: `gdb_enter' undeclared (first use in this function)
-init/main.c:457: (Each undeclared identifier is reported only once
-init/main.c:457: for each function it appears in.)
-init/main.c:458: warning: implicit declaration of function `gdb_hook'
-
-Also make clean gives me this: (worked before applying patch)
-
-scripts/Makefile.clean:10: drivers/scsi/isp/Makefile: No such file or directory
-make[3]: *** No rule to make target `drivers/scsi/isp/Makefile'.  Stop.
-make[2]: *** [drivers/scsi/isp] Error 2
-make[1]: *** [drivers/scsi] Error 2
-make: *** [_clean_drivers] Error 2
-
-I checked with kernel debugging and without.
-
-I located linux/gdb.h in a directory called 25/ one branch up parellel to the patched linux tree.
-
-I've checked on the list .. and pretty much anywhere I can find .. 
-
-Maybe I'm just missing something really obvios .. 
-
-any suggestions ? 
-
-Henti Smith

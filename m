@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbTENXQA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 19:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263139AbTENXQA
+	id S263150AbTENXUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 19:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTENXUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 19:16:00 -0400
-Received: from siaab1ab.compuserve.com ([149.174.40.2]:36493 "EHLO
-	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S263129AbTENXP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 19:15:59 -0400
-Date: Wed, 14 May 2003 19:24:55 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
-To: Chris Siebenmann <cks@utcc.utoronto.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200305141928_MC3-1-38F1-60EC@compuserve.com>
+	Wed, 14 May 2003 19:20:34 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:34030 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S263150AbTENXUc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 19:20:32 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780CCB0A70@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Christopher Hoover'" <ch@murgatroid.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
+Subject: RE: [PATCH] 2.5.68 FUTEX support should be optional
+Date: Wed, 14 May 2003 16:33:14 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Siebenmann wrote:
 
-> |   The people who used to require that still have lists of approved
-> | operating systems.  Linux is not on that list.
+> From: Christopher Hoover [mailto:ch@murgatroid.com]
 > 
-> To be blunt: and?
-> Linux is not and never will be all things to all people. (Some of that
-> can be seen in the ongoing discussions over, eg, LSM.)
->  There are many features that have far too small a target market to be
-> of interest in mainline Unix.
+> On Wed, May 14, 2003 at 07:14:46AM +0100, Christoph Hellwig wrote:
+> > On Tue, May 13, 2003 at 09:32:07PM -0700, Christopher Hoover wrote:
+> > > Not everyone needs futex support, so it should be optional.  This is
+> > > needed for small platforms.
+> >
+> > Looks good.  I think you want to disable it unconditionally for
+!CONFIG_MMU.
+> 
+> Good point.
+> 
+> Here it is again with the config change.  The previous version also had
+> had a Makefile typo.  Plus a cond_syscall for compat_sys_futex to make
+> it work for CONFIG_COMPAT (untested), as pointed out by akpm.
 
-  Large organizations like to standardize things wherever possible.
+How does this affect mm_release() in fork.c? there is a call to sys_futex();
+if you make it conditional, will it break anything in there?
 
-  Given an OS that is well suited for a fairly secure environment
-that also runs widely-available office software, they will adopt it
-for both uses, thus locking out other operating systems.
-
-  Many of these decisions are made by Dumb White Guys sitting around
-a boardroom table looking at feature lists, and pushed by even dumber
-3-letter consulting firms whose technical representatives say things
-like "Yes, we will be decrypting all SSL sessions at the firewall to
-check for viruses."
-
-  So I think Linux needs these 'fringe' features if it's going to
-continue to expand its user base in the face of such stupidity.
-
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318278AbSG3OTZ>; Tue, 30 Jul 2002 10:19:25 -0400
+	id <S318290AbSG3O33>; Tue, 30 Jul 2002 10:29:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318284AbSG3OTZ>; Tue, 30 Jul 2002 10:19:25 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:39046 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318278AbSG3OTZ> convert rfc822-to-8bit; Tue, 30 Jul 2002 10:19:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <mcp@linux-systeme.de>
-Organization: Linux-Systeme GmbH
+	id <S318291AbSG3O33>; Tue, 30 Jul 2002 10:29:29 -0400
+Received: from 12-252-146-102.client.attbi.com ([12.252.146.102]:59409 "EHLO
+	archimedes") by vger.kernel.org with ESMTP id <S318290AbSG3O32>;
+	Tue, 30 Jul 2002 10:29:28 -0400
+Date: Tue, 30 Jul 2002 08:33:09 -0600
 To: linux-kernel@vger.kernel.org
-Subject: Re: [ERROR] with 2.4.19[rc2|rc3]: Linking error scsidrv.o
-Date: Tue, 30 Jul 2002 16:22:13 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <200207301232.50704.mcp@linux-systeme.de> <200207301423.47664.mcp@linux-systeme.de> <1028041184.6726.30.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1028041184.6726.30.camel@irongate.swansea.linux.org.uk>
-X-PRIORITY: 2 (High)
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207301622.13670.mcp@linux-systeme.de>
+Cc: Kai Engert <kai.engert@gmx.de>, Ani Joshi <ajoshi@unixbox.com>
+Subject: Re: Sync bit bug in drivers/video/radeonfb.c ?
+Message-ID: <20020730143309.GA21219@galileo>
+Mail-Followup-To: James Mayer <james@cobaltmountain.com>,
+	linux-kernel@vger.kernel.org, Kai Engert <kai.engert@gmx.de>,
+	Ani Joshi <ajoshi@unixbox.com>
+References: <3D4689E5.5000504@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D4689E5.5000504@gmx.de>
+User-Agent: Mutt/1.4i
+From: James Mayer <james@cobaltmountain.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 July 2002 16:59, Alan Cox wrote:
+Hi Kai, 
 
-Hi Alan,
+Oddly enough, if I apply this patch on my C1MV/M, I lose the upper
+half of my uppermost line, and must use fbset -vsync low to fix it.
 
-> On Tue, 2002-07-30 at 13:23, Marc-Christian Petersen wrote:
-> > > Known problem - fixed in -ac, or for the base enable CONFIG_PCI. I'll
-> > > push the fix to Marcelo for 2.4.20pre
-> >
-> > Could you send me the fix please Alan? :) Thanks alot!
->
-> Its in the -ac patch on kernel.org, help yourself 8)
-i did 8-) ... thnx
+I determined the 1200x600 modedb entry using the existing radeonfb
+driver, and it appears our hardware is exactly opposite on this issue.
 
-ciao, Marc
+Which C1M* do you have?
+
+  James
+
+> --- bad/drivers/video/radeonfb.c        Tue Jul 30 14:38:29 2002
+> +++ good/drivers/video/radeonfb.c       Tue Jul 30 14:39:10 2002
+> @@ -2401,8 +2401,8 @@
+>          }
+> 
+>          sync = mode->sync;
+> -       h_sync_pol = sync & FB_SYNC_HOR_HIGH_ACT ? 0 : 1;
+> -       v_sync_pol = sync & FB_SYNC_VERT_HIGH_ACT ? 0 : 1;
+> +       h_sync_pol = sync & FB_SYNC_HOR_HIGH_ACT ? 1 : 0;
+> +       v_sync_pol = sync & FB_SYNC_VERT_HIGH_ACT ? 1 : 0;
+> 
+>          RTRACE("hStart = %d, hEnd = %d, hTotal = %d\n",
+>                  hSyncStart, hSyncEnd, hTotal);

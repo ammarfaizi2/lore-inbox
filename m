@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVAMNCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVAMNFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVAMNCv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 08:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVAMNCv
+	id S261612AbVAMNFm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 08:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVAMNFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 08:02:51 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:12906 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261615AbVAMNCr (ORCPT
+	Thu, 13 Jan 2005 08:05:42 -0500
+Received: from main.gmane.org ([80.91.229.2]:40896 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261621AbVAMNFF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 08:02:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=TEjgEkLAJc/4daccd+81CBqI/zXzQw2b+VbmcYWBqK07M2qhd8HcDU03qIwv8vs7mrUS9J6ZVzlz9Jrp2+s48xFDlEcHcKw9JAsgak4P00dlhxpvx9z+X0H5CSxMCmrRs7sjESg1v7CoNtfERY+6dBUSUwZB8crnhCwVErz/CL8=
-Message-ID: <8105747b0501130502342acdca@mail.gmail.com>
-Date: Thu, 13 Jan 2005 13:02:46 +0000
-From: Johan Jordaan <aapman@gmail.com>
-Reply-To: Johan Jordaan <aapman@gmail.com>
-To: linux-kernel@vger.kernel.org, lartc@mailman.ds9a.nl
-Subject: Bandwidth management under linux
+	Thu, 13 Jan 2005 08:05:05 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: Trouble with 8-pixel screen fonts and 2.6 kernels (2.6.9, 2.6.10)
+Date: Thu, 13 Jan 2005 18:06:42 +0500
+Message-ID: <cs5rlm$ir2$1@sea.gmane.org>
+References: <cs3iou$ibs$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inet.ycc.ru
+User-Agent: KNode/0.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my search to control bandwidth on my network I found 2 projects..
+Alexander E. Patrakov wrote:
 
-1. TC
-2. BWM Tools - http://freshmeat.net/projects/bwmtools/
+> (This report is on behalf of Declan Moriarty)
+> 
+> To reproduce the problem, install the "kbd" package, and from the first
+> virtual console execute the following command:
+> 
+> setfont lat1-08          # or any other 8-pixel font
 
-This brings me to 2 questions...
+Forgot to say that this bug is reproducible only on non-framebuffer console.
 
-Firstly, can TC control bandwidth in both directions? I read that it
-can only do 1 direction, which one I cant remember. Can you monitor
-the load on the queues you define? Does TC support IPv6?
+> Then switch to the second console and see that the cursor disappeared.
+> Moreover, the following escape sequences function improperly:
+> 
+> echo -e '\033[?Xc' where X is a digit
+> 
+> Even more, from the second console this command
+> 
+> setfont lat1-16
+> 
+> gives 43 screen lines with only upper halves of characters (bottoms are
+> cut, and I suspect this also happens with the cursor).
+> 
+> Looks like a bug in the character cell height logic. Could you please fix
+> it or at least point me to some overview of the relevant source files?
 
-Secondly, BWM Tools seems to queue traffic to userspace and use some
-kind of kernel module to allow it through or not. How efficient is
-bandwidth control using ip queing to userspace? BWM Tools doesn't seem
-to support IPv6  :(
+This bug seems to be Radeon-specific (doesn't exist on ATI Mach64). But even
+on Radeons, it can't be reproduced in 2.4 kernels - so it's a kernel bug.
 
-If anyone else knows of a way I can shape traffic, please let me know.
+-- 
+Alexander E. Patrakov
 
-Regards
-Johan

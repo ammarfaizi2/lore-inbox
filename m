@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbTAYD6P>; Fri, 24 Jan 2003 22:58:15 -0500
+	id <S266161AbTAYEtI>; Fri, 24 Jan 2003 23:49:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266120AbTAYD6P>; Fri, 24 Jan 2003 22:58:15 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:56257 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S266116AbTAYD6O>; Fri, 24 Jan 2003 22:58:14 -0500
-Date: Fri, 24 Jan 2003 22:06:58 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Roland Dreier <roland@topspin.com>
-cc: kaos@ocs.com.au, <linux-kernel@vger.kernel.org>
-Subject: Re: modutils: using kallsyms when cross-compiling kernel
-In-Reply-To: <52lm1auk4h.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.44.0301242200580.363-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266175AbTAYEtH>; Fri, 24 Jan 2003 23:49:07 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:49564 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S266161AbTAYEtH>; Fri, 24 Jan 2003 23:49:07 -0500
+Date: Sat, 25 Jan 2003 13:56:11 +0900 (JST)
+From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Subject: PID of multi-threaded core's file name is wrong in 2.5.59
+To: linux-kernel@vger.kernel.org
+Message-id: <20030125.135611.74744521.maeda@jp.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: Mew version 2.2 on Emacs 20.3 / Mule 4.0 (HANANOEN)
+Content-type: Text/Plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jan 2003, Roland Dreier wrote:
+Hi,
 
-> Is my diagnosis correct?  Is there any easy way for me to fix this (at
-> least enough so that I can build a PPC kernel on x86 with kkallsyms
-> support), or is the only solution to bite the bullet and fix the
-> modutils ELF code to be endianness clean?
+I found sometimes pid of muitl-threaded core's file name shows
+wrong number in 2.5.59 with NPTL-0.17. Problem is, pid of core file
+name comes from currnet->pid, but I think it should be current->tgid.
 
-You could of course also backport the current 2.5 kallsyms code. This has,
-though originally based on kallsyms, been completely rewritten and not
-much to do with the original patch anymore (and different objectives).
+Following patch fixes this problem.
 
-It generates the information as a .S file and uses the cross-assembler to
-generate the object code, so it does not have any of the above issues.
+MAEDA Naoaki
 
---Kai
-
-
+diff -Naur linux-2.5.59/fs/exec.c linux-2.5.59-corepidfix/fs/exec.c
+--- linux-2.5.59/fs/exec.c	2003-01-17 11:22:02.000000000 +0900
++++ linux-2.5.59-corepidfix/fs/exec.c	2003-01-25 13:20:50.000000000 +0900
+@@ -1166,7 +1166,7 @@
+ 			case 'p':
+ 				pid_in_pattern = 1;
+ 				rc = snprintf(out_ptr, out_end - out_ptr,
+-					      "%d", current->pid);
++					      "%d", current->tgid);
+ 				if (rc > out_end - out_ptr)
+ 					goto out;
+ 				out_ptr += rc;
+@@ -1238,7 +1238,7 @@
+ 	if (!pid_in_pattern
+             && (core_uses_pid || atomic_read(&current->mm->mm_users) != 1)) {
+ 		rc = snprintf(out_ptr, out_end - out_ptr,
+-			      ".%d", current->pid);
++			      ".%d", current->tgid);
+ 		if (rc > out_end - out_ptr)
+ 			goto out;
+ 		out_ptr += rc;

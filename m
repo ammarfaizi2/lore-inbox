@@ -1,538 +1,504 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbTJUC72 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 22:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTJUC71
+	id S262775AbTJUC6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 22:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbTJUC6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 22:59:27 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:16819 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262788AbTJUC4w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 22:56:52 -0400
+	Mon, 20 Oct 2003 22:58:12 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:8883 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S262775AbTJUC4j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 22:56:39 -0400
 content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3977E.F5DFAB08"
+	boundary="----_=_NextPart_001_01C3977E.EF61E970"
 X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Date: Mon, 20 Oct 2003 19:56:44 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB60077914@scsmsx403.sc.intel.com>
+Subject: [PATCH] 2/3 Dynamic cpufreq governor and updates to ACPI P-state driver
+Date: Mon, 20 Oct 2003 19:56:33 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB60077913@scsmsx403.sc.intel.com>
 X-MS-Has-Attach: yes
 X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI P-state driver
-Thread-Index: AcOXfvSGeoZq95RFQxuM4M5LuLIFCQ==
+Thread-Topic: [PATCH] 2/3 Dynamic cpufreq governor and updates to ACPI P-state driver
+Thread-Index: AcOXfu4liQufStvtSCaOrp2aomGg9Q==
 From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
 To: <cpufreq@www.linux.org.uk>, <linux-kernel@vger.kernel.org>,
        "linux-acpi" <linux-acpi@intel.com>
 Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
        "Mallick, Asit K" <asit.k.mallick@intel.com>,
        "Dominik Brodowski" <linux@brodo.de>
-X-OriginalArrivalTime: 21 Oct 2003 02:56:44.0668 (UTC) FILETIME=[F613EBC0:01C3977E]
+X-OriginalArrivalTime: 21 Oct 2003 02:56:33.0840 (UTC) FILETIME=[EF9FB300:01C3977E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C3977E.F5DFAB08
+------_=_NextPart_001_01C3977E.EF61E970
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-Patch 3/3: New dynamic cpufreq driver (called=20
-DemandBasedSwitch driver), which periodically monitors CPU=20
-usage and changes the CPU frequency based on the demand.
 
-diffstat dbs3.patch=20
-drivers/cpufreq/Kconfig       |   25 ++++
-drivers/cpufreq/Makefile      |    1=20
-drivers/cpufreq/cpufreq_dbs.c |  214
-++++++++++++++++++++++++++++++++++++++++++
-include/linux/cpufreq.h       |    3=20
-4 files changed, 243 insertions(+)
+Patch 2/3: Introduce HT-synchronization in the ACPI P-state=20
+Driver, to take care of shared CPU frequency between HT siblings.
 
-diff -purN linux-2.6.0-test7/drivers/cpufreq/cpufreq_dbs.c
-linux-2.6.0-test7-dbs/drivers/cpufreq/cpufreq_dbs.c
---- linux-2.6.0-test7/drivers/cpufreq/cpufreq_dbs.c	1969-12-31
-16:00:00.000000000 -0800
-+++ linux-2.6.0-test7-dbs/drivers/cpufreq/cpufreq_dbs.c	2003-10-20
-17:38:05.000000000 -0700
-@@ -0,0 +1,214 @@
-+/*
-+ *  drivers/cpufreq/cpufreq_dbs.c
-+ *
-+ *  Copyright (C)  2001 Russell King
-+ *            (C)  2002 - 2003 Dominik Brodowski <linux@brodo.de>
-+ *            (C)  2003 Venkatesh Pallipadi
-<venkatesh.pallipadi@intel.com>.
-+ *                      Jun Nakajima <jun.nakajima@intel.com>
-+ *
-+ * $Id:$
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
+diffstat dbs2.patch=20
+arch/i386/kernel/cpu/cpufreq/acpi.c |  169
+++++++++++++++++++++++++++++++++++--
+include/acpi/processor.h            |   15 +++
+2 files changed, 178 insertions(+), 6 deletions(-)
+
+
+diff -purN linux-2.6.0-test7/arch/i386/kernel/cpu/cpufreq/acpi.c
+linux-2.6.0-test7-dbs/arch/i386/kernel/cpu/cpufreq/acpi.c
+--- linux-2.6.0-test7/arch/i386/kernel/cpu/cpufreq/acpi.c
+2003-10-20 13:31:10.000000000 -0700
++++ linux-2.6.0-test7-dbs/arch/i386/kernel/cpu/cpufreq/acpi.c
+2003-10-20 13:29:41.000000000 -0700
+@@ -34,6 +34,7 @@
+ #include <asm/io.h>
+ #include <asm/delay.h>
+ #include <asm/uaccess.h>
++#include <linux/sem.h>
+=20
+ #include <linux/acpi.h>
+ #include <acpi/processor.h>
+@@ -362,7 +363,8 @@ acpi_processor_set_performance (
+ 	cpufreq_freqs.new =3D perf->states[state].core_frequency * 1000;
+=20
+ 	/* notify cpufreq */
+-	cpufreq_notify_transition(&cpufreq_freqs, CPUFREQ_PRECHANGE);
++	perf->domainp->cpufreq_notify_transition_ptr(
++			&cpufreq_freqs, CPUFREQ_PRECHANGE);
+=20
+ 	/*
+ 	 * First we write the target state's 'control' value to the
+@@ -390,14 +392,17 @@ acpi_processor_set_performance (
+ 	value =3D param.retval;
+=20
+ 	/* notify cpufreq */
+-	cpufreq_notify_transition(&cpufreq_freqs, CPUFREQ_POSTCHANGE);
++	perf->domainp->cpufreq_notify_transition_ptr(
++			&cpufreq_freqs, CPUFREQ_POSTCHANGE);
+=20
+ 	if (value !=3D (u16) perf->states[state].status) {
+ 		unsigned int tmp =3D cpufreq_freqs.new;
+ 		cpufreq_freqs.new =3D cpufreq_freqs.old;
+ 		cpufreq_freqs.old =3D tmp;
+-		cpufreq_notify_transition(&cpufreq_freqs,
+CPUFREQ_PRECHANGE);
+-		cpufreq_notify_transition(&cpufreq_freqs,
+CPUFREQ_POSTCHANGE);
++		perf->domainp->cpufreq_notify_transition_ptr(
++				&cpufreq_freqs, CPUFREQ_PRECHANGE);
++		perf->domainp->cpufreq_notify_transition_ptr(
++				&cpufreq_freqs, CPUFREQ_POSTCHANGE);
+ 		ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Transition failed\n"));
+ 		return_VALUE(-ENODEV);
+ 	}
+@@ -568,7 +573,8 @@ acpi_cpufreq_target (
+ 	if (result)
+ 		return_VALUE(result);
+=20
+-	result =3D acpi_processor_set_performance (perf, next_state);
++	result =3D perf->domainp->acpi_processor_set_performance_ptr(
++			perf, next_state);
+=20
+ 	return_VALUE(result);
+ }
+@@ -630,6 +636,144 @@ acpi_processor_get_performance_info (
+ 	return_VALUE(0);
+ }
+=20
++static struct acpi_processor_domain acpi_processor_domain_def =3D {
++	.sem =3D __MUTEX_INITIALIZER(acpi_processor_domain_def.sem),
++	.ref_cnt =3D 0,
++	.acpi_processor_set_performance_ptr =3D
+acpi_processor_set_performance,
++	.cpufreq_notify_transition_ptr =3D cpufreq_notify_transition,
++};
 +
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/smp.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/ctype.h>
-+#include <linux/cpufreq.h>
-+#include <linux/sysctl.h>
-+#include <linux/types.h>
-+#include <linux/fs.h>
-+#include <linux/sysfs.h>
-+#include <linux/sched.h>
-+#include <linux/kmod.h>
-+#include <linux/workqueue.h>
-+#include <linux/jiffies.h>
-+#include <linux/config.h>
-+#include <linux/kernel_stat.h>
-+
-+#define DBS_RATE		(HZ/4)	/* timer rate is 250ms */
-+#define LOW_LATENCY_FREQUENCY_CHANGE_LIMIT 	100 /* in uS */
-+
-+static void do_dbs_timer(void *data);
-+
-+typedef struct {
-+	struct cpufreq_policy 	*cur_policy;
-+	unsigned int 		prev_cpu_idle;
-+	unsigned int 		enable;
-+} ____cacheline_aligned cpu_dbs_info_t;
-+static cpu_dbs_info_t cpu_dbs_info[NR_CPUS];
-+
-+static unsigned int dbs_enable; 	/* number of CPUs using DBS
-policy */
-+
-+static DECLARE_MUTEX 	(dbs_sem);
-+static DECLARE_WORK	(dbs_work, do_dbs_timer, NULL);
-+
-+static void dbs_check_cpu(int cpu)
++#ifdef CONFIG_X86_HT
++static void cpufreq_notify_transition_ht(struct cpufreq_freqs
+*cpufreq_freqs, unsigned int state)
 +{
-+	unsigned int idle_ticks;
-+
-+	if (!cpu_dbs_info[cpu].enable)
-+		return;
-+
-+	idle_ticks =3D kstat_cpu(cpu).cpustat.idle -=20
-+		cpu_dbs_info[cpu].prev_cpu_idle;
-+	cpu_dbs_info[cpu].prev_cpu_idle =3D kstat_cpu(cpu).cpustat.idle;
-+
-+	/*=20
-+	 * The current safe range is 20% to 80%=20
-+	 * - If current idle time is less than 20%, then we try to=20
-+	 * increase frequency
-+	 * - If current idle time is more than 80%, then we try to
-+	 * decrease frequency
-+	 */
-+	if (idle_ticks < (DBS_RATE / 5))
-+		cpufreq_driver_target(cpu_dbs_info[cpu].cur_policy,
-+			cpu_dbs_info[cpu].cur_policy->cur + 1,=20
-+			CPUFREQ_RELATION_L);
-+	else if (idle_ticks > (4 * DBS_RATE / 5))
-+		cpufreq_driver_target(cpu_dbs_info[cpu].cur_policy,
-+			cpu_dbs_info[cpu].cur_policy->cur - 1,=20
-+			CPUFREQ_RELATION_H);
++	unsigned int cpu =3D cpufreq_freqs->cpu;
++	ACPI_FUNCTION_TRACE("cpufreq_notify_transition_ht");
++	cpufreq_notify_transition(cpufreq_freqs, state);
++	cpufreq_freqs->cpu =3D cpu_sibling_map[cpu];
++	cpufreq_notify_transition(cpufreq_freqs, state);
++	cpufreq_freqs->cpu =3D cpu;
++	return_VOID;
 +}
 +
-+static void do_dbs_timer(void *data)
-+{=20
-+	int i;
-+	down(&dbs_sem);
++static int acpi_processor_set_performance_ht(struct
+acpi_processor_performance *perf, int state)
++{
++	struct acpi_processor_domain 	*domainp =3D perf->domainp;
++	int		result =3D 0;
++	int 		i;
++	int 		lo_state; /* highest freq */
++
++	ACPI_FUNCTION_TRACE("acpi_processor_set_performance_ht");
++	down(&(domainp->sem));
++	/*
++	 * Transition into new state, only if it is the lowest among
++	 * all sibling requested states.
++	 * semaphore below should be held across the package.
++	 */
++	perf->requested_state =3D state;
++	lo_state =3D state;
++	for (i =3D 0; i < domainp->ref_cnt; i++) {
++		if (performance[domainp->members[i]].requested_state <
+lo_state)
++			lo_state =3D=20
++
+performance[domainp->members[i]].requested_state;
++	}
++
++	if (lo_state =3D=3D domainp->cur_state) {
++		up(&(domainp->sem));
++		return_VALUE(0);
++	}
++
++	result =3D acpi_processor_set_performance(perf, lo_state);
++	if (result =3D=3D 0) {
++		domainp->cur_state =3D lo_state;
++		for (i =3D 0; i < domainp->ref_cnt; i++)
++			performance[domainp->members[i]].state =3D
+lo_state;
++	}
++
++	up(&(domainp->sem));
++	return_VALUE(result);
++}
++
++static int
++acpi_processor_domain_ht_init(
++		struct acpi_processor_performance *perf, int cpu)
++{
++	int sibling_cpu =3D cpu_sibling_map[cpu];
++	struct acpi_processor_domain *domainp;
++
++	ACPI_FUNCTION_TRACE("acpi_processor_domain_ht_init");
++	if (cpu < sibling_cpu) {
++		domainp =3D kmalloc(sizeof(struct acpi_processor_domain),
++				GFP_KERNEL);
++		if (domainp =3D=3D NULL)
++			return_VALUE(-ENOMEM);
++
++		init_MUTEX(&(domainp->sem));
++		domainp->acpi_processor_set_performance_ptr =3D=20
++				acpi_processor_set_performance_ht;
++		domainp->cpufreq_notify_transition_ptr =3D=20
++				cpufreq_notify_transition_ht;
++		domainp->cur_state =3D 0;
++		domainp->ref_cnt =3D 0;
++		domainp->members[domainp->ref_cnt] =3D cpu;
++		domainp->ref_cnt++;
++		perf[cpu].domainp =3D domainp;
++	} else {
++		perf[cpu].domainp =3D perf[sibling_cpu].domainp;
++		domainp =3D perf[cpu].domainp;
++		if (domainp->ref_cnt =3D=3D ACPI_MAX_CPUS_PER_DOMAIN) {
++			ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
++				"Only %d CPUS per domain is
+supported\n",
++				ACPI_MAX_CPUS_PER_DOMAIN));
++			return_VALUE(-1);
++		}
++		domainp->members[domainp->ref_cnt] =3D cpu;
++		domainp->ref_cnt++;
++	}
++	return_VALUE(0);
++}
++#endif /* CONFIG_X86_HT */
++
++static int
++acpi_processor_domain_init(struct acpi_processor_performance *perf, int
+cpu)
++{
++
++#ifdef CONFIG_X86_HT
++	int ht_present =3D ((cpu_has_ht) && (smp_num_siblings =3D=3D 2));
++#endif
++
++	ACPI_FUNCTION_TRACE("acpi_processor_domain_init");
++
++#ifdef CONFIG_X86_HT
++	if (ht_present) {
++		int retval;
++		retval =3D acpi_processor_domain_ht_init(perf, cpu);
++		return_VALUE(retval);
++	}
++	/* FALLTHRU and use default domain structure */
++#endif
++	perf[cpu].domainp =3D &acpi_processor_domain_def;
++	return_VALUE(0);
++}
++
++static void
++acpi_processor_domain_exit(struct acpi_processor_performance *perf, int
+cpu)
++{
++	ACPI_FUNCTION_TRACE("acpi_processor_domain_exit");
++#ifdef CONFIG_X86_HT
++	if (!perf[cpu].domainp)
++		return_VOID;
++
++	if (perf[cpu].domainp =3D=3D &acpi_processor_domain_def)
++		return_VOID;
++
++	perf[cpu].domainp->ref_cnt--;
++	if (perf[cpu].domainp->ref_cnt =3D=3D 0) {
++		kfree(perf[cpu].domainp);
++		perf[cpu].domainp =3D NULL;
++	}
++#endif /* CONFIG_X86_HT */
++	return_VOID;
++}
+=20
+ static int
+ acpi_cpufreq_cpu_init (
+@@ -742,8 +886,13 @@ acpi_cpufreq_init (void)
+=20
+ 	/* register struct acpi_processor_performance performance */
+ 	for (i=3D0; i<NR_CPUS; i++) {
+-		if (cpu_online(i))
++		if (cpu_online(i)) {
+=20
+acpi_processor_register_performance(&performance[i], &pr, i);
++			if (acpi_processor_domain_init(performance, i) <
+0) {
++				result =3D -ENOMEM;
++				goto err0;
++			}
++		}
+ 	}
+=20
+ 	/* initialize  */
+@@ -804,6 +953,10 @@ acpi_cpufreq_init (void)
+ 	cpufreq_unregister_driver(&acpi_cpufreq_driver);
+ =09
+  err0:
 +	for (i =3D 0; i < NR_CPUS; i++)
 +		if (cpu_online(i))
-+			dbs_check_cpu(i);
-+	schedule_delayed_work(&dbs_work, DBS_RATE);=20
-+	up(&dbs_sem);
-+}=20
++			acpi_processor_domain_exit(performance, i);
 +
-+static inline int dbs_timer_init(void)
-+{
-+	schedule_work(&dbs_work);
-+	return 0;
-+}
+ 	/* unregister struct acpi_processor_performance performance */
+ 	for (i=3D0; i<NR_CPUS; i++) {
+ 		if (performance[i].pr) {
+@@ -842,6 +995,10 @@ acpi_cpufreq_exit (void)
+ 		}
+ 	}
+=20
++	for (i =3D 0; i < NR_CPUS; i++)
++		if (cpu_online(i))
++			acpi_processor_domain_exit(performance, i);
 +
-+static inline void dbs_timer_exit(void)
-+{
-+	cancel_delayed_work(&dbs_work);
-+	return;
-+}
-+
-+/************************** sysfs interface ************************/
-+static ssize_t show_speed (struct cpufreq_policy *policy, char *buf)
-+{
-+	return sprintf (buf, "%u\n", policy->cur);
-+}
-+
-+static struct freq_attr freq_attr_scaling_getspeed =3D {
-+	.attr =3D { .name =3D "scaling_getspeed", .mode =3D 0444 },
-+	.show =3D show_speed,
+ 	kfree(performance);
+=20
+ 	return_VOID;
+diff -purN linux-2.6.0-test7/include/acpi/processor.h
+linux-2.6.0-test7-dbs/include/acpi/processor.h
+--- linux-2.6.0-test7/include/acpi/processor.h	2003-10-20
+13:31:10.000000000 -0700
++++ linux-2.6.0-test7-dbs/include/acpi/processor.h	2003-10-20
+13:08:11.000000000 -0700
+@@ -2,6 +2,7 @@
+ #define __ACPI_PROCESSOR_H
+=20
+ #include <linux/kernel.h>
++#include <linux/sem.h>
+=20
+ #define ACPI_PROCESSOR_BUSY_METRIC	10
+=20
+@@ -74,6 +75,8 @@ struct acpi_processor_performance {
+ 	u16			status_register;
+ 	int			state_count;
+ 	int			space_id;
++	int			requested_state;
++	struct acpi_processor_domain *domainp;
+ 	struct acpi_processor_px states[ACPI_PROCESSOR_MAX_PERFORMANCE];
+ 	struct cpufreq_frequency_table
+freq_table[ACPI_PROCESSOR_MAX_PERFORMANCE];
+ 	struct acpi_processor   *pr;
+@@ -132,6 +135,18 @@ struct acpi_processor {
+ 	struct acpi_processor_limit limit;
+ };
+=20
++#define ACPI_MAX_CPUS_PER_DOMAIN 	2
++struct acpi_processor_domain {
++	/* Domain wide data */
++	struct semaphore	sem;
++	int 			cur_state;
++	int			ref_cnt;
++	int 			members[ACPI_MAX_CPUS_PER_DOMAIN];
++	/* Domain wide function pointers */
++	int (*acpi_processor_set_performance_ptr)(struct
+acpi_processor_performance *perf, int state);
++	void (*cpufreq_notify_transition_ptr)(struct cpufreq_freqs
+*cpufreq_freqs, unsigned int state);
 +};
 +
-+static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
-+				   unsigned int event)
-+{
-+	unsigned int cpu =3D policy->cpu;
-+
-+	switch (event) {
-+	case CPUFREQ_GOV_START:
-+		if ((!cpu_online(cpu)) || (!try_module_get(THIS_MODULE))
-||
-+		    !policy->cur)
-+			return -EINVAL;
-+		if (policy->cpuinfo.transition_latency >=20
-+				LOW_LATENCY_FREQUENCY_CHANGE_LIMIT)
-+			return -EINVAL;
-+		if (cpu_dbs_info[cpu].enable) /* Already enabled */
-+			break;
-+
-+		printk(KERN_DEBUG "DBS START: cpu %d, max %d, min %d,
-cur %d\n",
-+				policy->cpu, policy->max,
-+				policy->min, policy->cur);
-+		down(&dbs_sem);
-+		cpu_dbs_info[cpu].cur_policy =3D policy;
-+		cpu_dbs_info[cpu].prev_cpu_idle =3D
-kstat_cpu(cpu).cpustat.idle;
-+		cpu_dbs_info[cpu].enable =3D 1;
-+		sysfs_create_file(&policy->kobj,=20
-+				&freq_attr_scaling_getspeed.attr);
-+		dbs_enable++;
-+		/*
-+		 * Start the timerschedule work, when this governer
-+		 * is used for first time
-+		 */
-+		if (dbs_enable =3D=3D 1)=20
-+			dbs_timer_init();
-+	=09
-+		up(&dbs_sem);
-+		break;
-+
-+	case CPUFREQ_GOV_STOP:
-+		printk(KERN_DEBUG "DBS STOP: cpu %d, max %d, min %d, cur
-%d\n",
-+				policy->cpu, policy->max,
-+				policy->min, policy->cur);
-+		down(&dbs_sem);
-+		sysfs_remove_file(&policy->kobj,=20
-+				&freq_attr_scaling_getspeed.attr);
-+		cpu_dbs_info[cpu].enable =3D 0;
-+		dbs_enable--;
-+		/*
-+		 * Start the timerschedule work, when this governer
-+		 * is used for first time
-+		 */
-+		if (dbs_enable =3D=3D 0)=20
-+			dbs_timer_exit();
-+	=09
-+		up(&dbs_sem);
-+		module_put(THIS_MODULE);
-+		break;
-+
-+	case CPUFREQ_GOV_LIMITS:
-+		printk(KERN_DEBUG "DBS LIMIT: cpu %d, max %d, min %d,
-cur %d\n",
-+				policy->cpu, policy->max,
-+				policy->min, policy->cur);
-+		down(&dbs_sem);
-+		if (policy->max < cpu_dbs_info[cpu].cur_policy->cur)
-+
-__cpufreq_driver_target(cpu_dbs_info[cpu].cur_policy,
-+				       	policy->max,
-CPUFREQ_RELATION_H);
-+		else if (policy->min >
-cpu_dbs_info[cpu].cur_policy->cur)
-+
-__cpufreq_driver_target(cpu_dbs_info[cpu].cur_policy,
-+				       	policy->min,
-CPUFREQ_RELATION_L);
-+		up(&dbs_sem);
-+		break;
-+	}
-+	return 0;
-+}
-+
-+struct cpufreq_governor cpufreq_gov_dbs =3D {
-+	.name		=3D "demandbased",
-+	.governor	=3D cpufreq_governor_dbs,
-+	.owner		=3D THIS_MODULE,
-+};
-+EXPORT_SYMBOL(cpufreq_gov_dbs);
-+
-+static int __init cpufreq_gov_dbs_init(void)
-+{
-+	return cpufreq_register_governor(&cpufreq_gov_dbs);
-+}
-+
-+static void __exit cpufreq_gov_dbs_exit(void)
-+{
-+	/* Make sure that the scheduled work is indeed not running */
-+	flush_scheduled_work();
-+	cpufreq_unregister_governor(&cpufreq_gov_dbs);
-+}
-+
-+
-+MODULE_AUTHOR ("Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>");
-+MODULE_DESCRIPTION ("DBS(Demand Based Switching)- "
-+		"A dynamic processor frequency governor for "
-+		"Low Latency Frequency Transition capable processors");
-+MODULE_LICENSE ("GPL");
-+
-+module_init(cpufreq_gov_dbs_init);
-+module_exit(cpufreq_gov_dbs_exit);
-diff -purN linux-2.6.0-test7/drivers/cpufreq/Kconfig
-linux-2.6.0-test7-dbs/drivers/cpufreq/Kconfig
---- linux-2.6.0-test7/drivers/cpufreq/Kconfig	2003-10-20
-00:24:33.000000000 -0700
-+++ linux-2.6.0-test7-dbs/drivers/cpufreq/Kconfig	2003-10-20
-17:27:57.000000000 -0700
-@@ -35,6 +35,16 @@ config CPU_FREQ_DEFAULT_GOV_USERSPACE
- 	  programm shall be able to set the CPU dynamically without
-having
- 	  to enable the userspace governor manually.
-=20
-+config CPU_FREQ_DEFAULT_GOV_DEMANDBASED
-+	bool "demandbased"
-+	select CPU_FREQ_GOV_DEMANDBASED
-+	help
-+	  Use the CPUFreq governor 'demandbased' as default. This
-enables
-+	  kernel to dynamically motnitor the CPU usage and adjust the
-+	  CPU frequency accordingly, with no manual intervenation.
-+	  This will be enabled only if CPU supports 'Low Latency
-+	  Frequency Transitions'
-+
- endchoice
-=20
- config CPU_FREQ_GOV_PERFORMANCE
-@@ -68,6 +78,21 @@ config CPU_FREQ_GOV_USERSPACE
-=20
- 	  If in doubt, say Y.
-=20
-+config CPU_FREQ_GOV_DEMANDBASED
-+	tristate "Demand Based Switching - Dynamic cpufreq policy
-governer"
-+	depends on CPU_FREQ
-+	help
-+	  This driver adds a cpufreq policy governer called Demand Based
-+	  Switching.  The driver does a periodic polling and dynamically
+ extern int acpi_processor_get_platform_limit (
+ 	struct acpi_processor*	pr);
+ extern int acpi_processor_register_performance (
 
-+	  changes frequency based on the processor utilization.
-+	  The policy depends on processor capability to
-+	  do fast frequency switching (i.e, very low latency frequency
-+	  transitions).=20
-+
-+	  For details, take a look at linux/Documentation/cpu-freq.
-+
-+	  If in doubt, say N.
-+
- config CPU_FREQ_24_API
- 	bool "/proc/sys/cpu/ interface (2.4. / OLD)"
- 	depends on CPU_FREQ && SYSCTL && CPU_FREQ_GOV_USERSPACE
-diff -purN linux-2.6.0-test7/drivers/cpufreq/Makefile
-linux-2.6.0-test7-dbs/drivers/cpufreq/Makefile
---- linux-2.6.0-test7/drivers/cpufreq/Makefile	2003-10-20
-00:24:33.000000000 -0700
-+++ linux-2.6.0-test7-dbs/drivers/cpufreq/Makefile	2003-10-20
-17:06:05.000000000 -0700
-@@ -5,6 +5,7 @@ obj-$(CONFIG_CPU_FREQ)			+=3D cpufreq.o
- obj-$(CONFIG_CPU_FREQ_GOV_PERFORMANCE)	+=3D cpufreq_performance.o
- obj-$(CONFIG_CPU_FREQ_GOV_POWERSAVE)	+=3D cpufreq_powersave.o
- obj-$(CONFIG_CPU_FREQ_GOV_USERSPACE)	+=3D cpufreq_userspace.o
-+obj-$(CONFIG_CPU_FREQ_GOV_DEMANDBASED)	+=3D cpufreq_dbs.o
-=20
- # CPUfreq cross-arch helpers
- obj-$(CONFIG_CPU_FREQ_TABLE)		+=3D freq_table.o
-diff -purN linux-2.6.0-test7/include/linux/cpufreq.h
-linux-2.6.0-test7-dbs/include/linux/cpufreq.h
---- linux-2.6.0-test7/include/linux/cpufreq.h	2003-10-08
-12:24:16.000000000 -0700
-+++ linux-2.6.0-test7-dbs/include/linux/cpufreq.h	2003-10-20
-17:36:34.000000000 -0700
-@@ -303,6 +303,9 @@ extern struct cpufreq_governor cpufreq_g
- #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE)
- extern struct cpufreq_governor cpufreq_gov_userspace;
- #define CPUFREQ_DEFAULT_GOVERNOR	&cpufreq_gov_userspace
-+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DEMANDBASED)
-+extern struct cpufreq_governor cpufreq_gov_dbs;
-+#define CPUFREQ_DEFAULT_GOVERNOR	&cpufreq_gov_dbs
- #endif
-=20
- /*********************************************************************
-
-------_=_NextPart_001_01C3977E.F5DFAB08
+------_=_NextPart_001_01C3977E.EF61E970
 Content-Type: application/octet-stream;
-	name="dbs3.patch"
+	name="dbs2.patch"
 Content-Transfer-Encoding: base64
-Content-Description: dbs3.patch
+Content-Description: dbs2.patch
 Content-Disposition: attachment;
-	filename="dbs3.patch"
+	filename="dbs2.patch"
 
-ZGlmZiAtcHVyTiBsaW51eC0yLjYuMC10ZXN0Ny9kcml2ZXJzL2NwdWZyZXEvY3B1ZnJlcV9kYnMu
-YyBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvZHJpdmVycy9jcHVmcmVxL2NwdWZyZXFfZGJzLmMKLS0t
-IGxpbnV4LTIuNi4wLXRlc3Q3L2RyaXZlcnMvY3B1ZnJlcS9jcHVmcmVxX2Ricy5jCTE5NjktMTIt
-MzEgMTY6MDA6MDAuMDAwMDAwMDAwIC0wODAwCisrKyBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvZHJp
-dmVycy9jcHVmcmVxL2NwdWZyZXFfZGJzLmMJMjAwMy0xMC0yMCAxNzozODowNS4wMDAwMDAwMDAg
-LTA3MDAKQEAgLTAsMCArMSwyMTQgQEAKKy8qCisgKiAgZHJpdmVycy9jcHVmcmVxL2NwdWZyZXFf
-ZGJzLmMKKyAqCisgKiAgQ29weXJpZ2h0IChDKSAgMjAwMSBSdXNzZWxsIEtpbmcKKyAqICAgICAg
-ICAgICAgKEMpICAyMDAyIC0gMjAwMyBEb21pbmlrIEJyb2Rvd3NraSA8bGludXhAYnJvZG8uZGU+
-CisgKiAgICAgICAgICAgIChDKSAgMjAwMyBWZW5rYXRlc2ggUGFsbGlwYWRpIDx2ZW5rYXRlc2gu
-cGFsbGlwYWRpQGludGVsLmNvbT4uCisgKiAgICAgICAgICAgICAgICAgICAgICBKdW4gTmFrYWpp
-bWEgPGp1bi5uYWthamltYUBpbnRlbC5jb20+CisgKgorICogJElkOiQKKyAqCisgKiBUaGlzIHBy
-b2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1v
-ZGlmeQorICogaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGlj
-ZW5zZSB2ZXJzaW9uIDIgYXMKKyAqIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3Vu
-ZGF0aW9uLgorICoKKyAqLworCisjaW5jbHVkZSA8bGludXgva2VybmVsLmg+CisjaW5jbHVkZSA8
-bGludXgvbW9kdWxlLmg+CisjaW5jbHVkZSA8bGludXgvc21wLmg+CisjaW5jbHVkZSA8bGludXgv
-aW5pdC5oPgorI2luY2x1ZGUgPGxpbnV4L2ludGVycnVwdC5oPgorI2luY2x1ZGUgPGxpbnV4L2N0
-eXBlLmg+CisjaW5jbHVkZSA8bGludXgvY3B1ZnJlcS5oPgorI2luY2x1ZGUgPGxpbnV4L3N5c2N0
-bC5oPgorI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CisjaW5jbHVkZSA8bGludXgvZnMuaD4KKyNp
-bmNsdWRlIDxsaW51eC9zeXNmcy5oPgorI2luY2x1ZGUgPGxpbnV4L3NjaGVkLmg+CisjaW5jbHVk
-ZSA8bGludXgva21vZC5oPgorI2luY2x1ZGUgPGxpbnV4L3dvcmtxdWV1ZS5oPgorI2luY2x1ZGUg
-PGxpbnV4L2ppZmZpZXMuaD4KKyNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KKyNpbmNsdWRlIDxs
-aW51eC9rZXJuZWxfc3RhdC5oPgorCisjZGVmaW5lIERCU19SQVRFCQkoSFovNCkJLyogdGltZXIg
-cmF0ZSBpcyAyNTBtcyAqLworI2RlZmluZSBMT1dfTEFURU5DWV9GUkVRVUVOQ1lfQ0hBTkdFX0xJ
-TUlUIAkxMDAgLyogaW4gdVMgKi8KKworc3RhdGljIHZvaWQgZG9fZGJzX3RpbWVyKHZvaWQgKmRh
-dGEpOworCit0eXBlZGVmIHN0cnVjdCB7CisJc3RydWN0IGNwdWZyZXFfcG9saWN5IAkqY3VyX3Bv
-bGljeTsKKwl1bnNpZ25lZCBpbnQgCQlwcmV2X2NwdV9pZGxlOworCXVuc2lnbmVkIGludCAJCWVu
-YWJsZTsKK30gX19fX2NhY2hlbGluZV9hbGlnbmVkIGNwdV9kYnNfaW5mb190Oworc3RhdGljIGNw
-dV9kYnNfaW5mb190IGNwdV9kYnNfaW5mb1tOUl9DUFVTXTsKKworc3RhdGljIHVuc2lnbmVkIGlu
-dCBkYnNfZW5hYmxlOyAJLyogbnVtYmVyIG9mIENQVXMgdXNpbmcgREJTIHBvbGljeSAqLworCitz
-dGF0aWMgREVDTEFSRV9NVVRFWCAJKGRic19zZW0pOworc3RhdGljIERFQ0xBUkVfV09SSwkoZGJz
-X3dvcmssIGRvX2Ric190aW1lciwgTlVMTCk7CisKK3N0YXRpYyB2b2lkIGRic19jaGVja19jcHUo
-aW50IGNwdSkKK3sKKwl1bnNpZ25lZCBpbnQgaWRsZV90aWNrczsKKworCWlmICghY3B1X2Ric19p
-bmZvW2NwdV0uZW5hYmxlKQorCQlyZXR1cm47CisKKwlpZGxlX3RpY2tzID0ga3N0YXRfY3B1KGNw
-dSkuY3B1c3RhdC5pZGxlIC0gCisJCWNwdV9kYnNfaW5mb1tjcHVdLnByZXZfY3B1X2lkbGU7CisJ
-Y3B1X2Ric19pbmZvW2NwdV0ucHJldl9jcHVfaWRsZSA9IGtzdGF0X2NwdShjcHUpLmNwdXN0YXQu
-aWRsZTsKKworCS8qIAorCSAqIFRoZSBjdXJyZW50IHNhZmUgcmFuZ2UgaXMgMjAlIHRvIDgwJSAK
-KwkgKiAtIElmIGN1cnJlbnQgaWRsZSB0aW1lIGlzIGxlc3MgdGhhbiAyMCUsIHRoZW4gd2UgdHJ5
-IHRvIAorCSAqIGluY3JlYXNlIGZyZXF1ZW5jeQorCSAqIC0gSWYgY3VycmVudCBpZGxlIHRpbWUg
-aXMgbW9yZSB0aGFuIDgwJSwgdGhlbiB3ZSB0cnkgdG8KKwkgKiBkZWNyZWFzZSBmcmVxdWVuY3kK
-KwkgKi8KKwlpZiAoaWRsZV90aWNrcyA8IChEQlNfUkFURSAvIDUpKQorCQljcHVmcmVxX2RyaXZl
-cl90YXJnZXQoY3B1X2Ric19pbmZvW2NwdV0uY3VyX3BvbGljeSwKKwkJCWNwdV9kYnNfaW5mb1tj
-cHVdLmN1cl9wb2xpY3ktPmN1ciArIDEsIAorCQkJQ1BVRlJFUV9SRUxBVElPTl9MKTsKKwllbHNl
-IGlmIChpZGxlX3RpY2tzID4gKDQgKiBEQlNfUkFURSAvIDUpKQorCQljcHVmcmVxX2RyaXZlcl90
-YXJnZXQoY3B1X2Ric19pbmZvW2NwdV0uY3VyX3BvbGljeSwKKwkJCWNwdV9kYnNfaW5mb1tjcHVd
-LmN1cl9wb2xpY3ktPmN1ciAtIDEsIAorCQkJQ1BVRlJFUV9SRUxBVElPTl9IKTsKK30KKworc3Rh
-dGljIHZvaWQgZG9fZGJzX3RpbWVyKHZvaWQgKmRhdGEpCit7IAorCWludCBpOworCWRvd24oJmRi
-c19zZW0pOworCWZvciAoaSA9IDA7IGkgPCBOUl9DUFVTOyBpKyspCisJCWlmIChjcHVfb25saW5l
-KGkpKQorCQkJZGJzX2NoZWNrX2NwdShpKTsKKwlzY2hlZHVsZV9kZWxheWVkX3dvcmsoJmRic193
-b3JrLCBEQlNfUkFURSk7IAorCXVwKCZkYnNfc2VtKTsKK30gCisKK3N0YXRpYyBpbmxpbmUgaW50
-IGRic190aW1lcl9pbml0KHZvaWQpCit7CisJc2NoZWR1bGVfd29yaygmZGJzX3dvcmspOworCXJl
-dHVybiAwOworfQorCitzdGF0aWMgaW5saW5lIHZvaWQgZGJzX3RpbWVyX2V4aXQodm9pZCkKK3sK
-KwljYW5jZWxfZGVsYXllZF93b3JrKCZkYnNfd29yayk7CisJcmV0dXJuOworfQorCisvKioqKioq
-KioqKioqKioqKioqKioqKioqKiogc3lzZnMgaW50ZXJmYWNlICoqKioqKioqKioqKioqKioqKioq
-KioqKi8KK3N0YXRpYyBzc2l6ZV90IHNob3dfc3BlZWQgKHN0cnVjdCBjcHVmcmVxX3BvbGljeSAq
-cG9saWN5LCBjaGFyICpidWYpCit7CisJcmV0dXJuIHNwcmludGYgKGJ1ZiwgIiV1XG4iLCBwb2xp
-Y3ktPmN1cik7Cit9CisKK3N0YXRpYyBzdHJ1Y3QgZnJlcV9hdHRyIGZyZXFfYXR0cl9zY2FsaW5n
-X2dldHNwZWVkID0geworCS5hdHRyID0geyAubmFtZSA9ICJzY2FsaW5nX2dldHNwZWVkIiwgLm1v
-ZGUgPSAwNDQ0IH0sCisJLnNob3cgPSBzaG93X3NwZWVkLAorfTsKKworc3RhdGljIGludCBjcHVm
-cmVxX2dvdmVybm9yX2RicyhzdHJ1Y3QgY3B1ZnJlcV9wb2xpY3kgKnBvbGljeSwKKwkJCQkgICB1
-bnNpZ25lZCBpbnQgZXZlbnQpCit7CisJdW5zaWduZWQgaW50IGNwdSA9IHBvbGljeS0+Y3B1Owor
-CisJc3dpdGNoIChldmVudCkgeworCWNhc2UgQ1BVRlJFUV9HT1ZfU1RBUlQ6CisJCWlmICgoIWNw
-dV9vbmxpbmUoY3B1KSkgfHwgKCF0cnlfbW9kdWxlX2dldChUSElTX01PRFVMRSkpIHx8CisJCSAg
-ICAhcG9saWN5LT5jdXIpCisJCQlyZXR1cm4gLUVJTlZBTDsKKwkJaWYgKHBvbGljeS0+Y3B1aW5m
-by50cmFuc2l0aW9uX2xhdGVuY3kgPiAKKwkJCQlMT1dfTEFURU5DWV9GUkVRVUVOQ1lfQ0hBTkdF
-X0xJTUlUKQorCQkJcmV0dXJuIC1FSU5WQUw7CisJCWlmIChjcHVfZGJzX2luZm9bY3B1XS5lbmFi
-bGUpIC8qIEFscmVhZHkgZW5hYmxlZCAqLworCQkJYnJlYWs7CisKKwkJcHJpbnRrKEtFUk5fREVC
-VUcgIkRCUyBTVEFSVDogY3B1ICVkLCBtYXggJWQsIG1pbiAlZCwgY3VyICVkXG4iLAorCQkJCXBv
-bGljeS0+Y3B1LCBwb2xpY3ktPm1heCwKKwkJCQlwb2xpY3ktPm1pbiwgcG9saWN5LT5jdXIpOwor
-CQlkb3duKCZkYnNfc2VtKTsKKwkJY3B1X2Ric19pbmZvW2NwdV0uY3VyX3BvbGljeSA9IHBvbGlj
-eTsKKwkJY3B1X2Ric19pbmZvW2NwdV0ucHJldl9jcHVfaWRsZSA9IGtzdGF0X2NwdShjcHUpLmNw
-dXN0YXQuaWRsZTsKKwkJY3B1X2Ric19pbmZvW2NwdV0uZW5hYmxlID0gMTsKKwkJc3lzZnNfY3Jl
-YXRlX2ZpbGUoJnBvbGljeS0+a29iaiwgCisJCQkJJmZyZXFfYXR0cl9zY2FsaW5nX2dldHNwZWVk
-LmF0dHIpOworCQlkYnNfZW5hYmxlKys7CisJCS8qCisJCSAqIFN0YXJ0IHRoZSB0aW1lcnNjaGVk
-dWxlIHdvcmssIHdoZW4gdGhpcyBnb3Zlcm5lcgorCQkgKiBpcyB1c2VkIGZvciBmaXJzdCB0aW1l
-CisJCSAqLworCQlpZiAoZGJzX2VuYWJsZSA9PSAxKSAKKwkJCWRic190aW1lcl9pbml0KCk7CisJ
-CQorCQl1cCgmZGJzX3NlbSk7CisJCWJyZWFrOworCisJY2FzZSBDUFVGUkVRX0dPVl9TVE9QOgor
-CQlwcmludGsoS0VSTl9ERUJVRyAiREJTIFNUT1A6IGNwdSAlZCwgbWF4ICVkLCBtaW4gJWQsIGN1
-ciAlZFxuIiwKKwkJCQlwb2xpY3ktPmNwdSwgcG9saWN5LT5tYXgsCisJCQkJcG9saWN5LT5taW4s
-IHBvbGljeS0+Y3VyKTsKKwkJZG93bigmZGJzX3NlbSk7CisJCXN5c2ZzX3JlbW92ZV9maWxlKCZw
-b2xpY3ktPmtvYmosIAorCQkJCSZmcmVxX2F0dHJfc2NhbGluZ19nZXRzcGVlZC5hdHRyKTsKKwkJ
-Y3B1X2Ric19pbmZvW2NwdV0uZW5hYmxlID0gMDsKKwkJZGJzX2VuYWJsZS0tOworCQkvKgorCQkg
-KiBTdGFydCB0aGUgdGltZXJzY2hlZHVsZSB3b3JrLCB3aGVuIHRoaXMgZ292ZXJuZXIKKwkJICog
-aXMgdXNlZCBmb3IgZmlyc3QgdGltZQorCQkgKi8KKwkJaWYgKGRic19lbmFibGUgPT0gMCkgCisJ
-CQlkYnNfdGltZXJfZXhpdCgpOworCQkKKwkJdXAoJmRic19zZW0pOworCQltb2R1bGVfcHV0KFRI
-SVNfTU9EVUxFKTsKKwkJYnJlYWs7CisKKwljYXNlIENQVUZSRVFfR09WX0xJTUlUUzoKKwkJcHJp
-bnRrKEtFUk5fREVCVUcgIkRCUyBMSU1JVDogY3B1ICVkLCBtYXggJWQsIG1pbiAlZCwgY3VyICVk
-XG4iLAorCQkJCXBvbGljeS0+Y3B1LCBwb2xpY3ktPm1heCwKKwkJCQlwb2xpY3ktPm1pbiwgcG9s
-aWN5LT5jdXIpOworCQlkb3duKCZkYnNfc2VtKTsKKwkJaWYgKHBvbGljeS0+bWF4IDwgY3B1X2Ri
-c19pbmZvW2NwdV0uY3VyX3BvbGljeS0+Y3VyKQorCQkJX19jcHVmcmVxX2RyaXZlcl90YXJnZXQo
-Y3B1X2Ric19pbmZvW2NwdV0uY3VyX3BvbGljeSwKKwkJCQkgICAgICAgCXBvbGljeS0+bWF4LCBD
-UFVGUkVRX1JFTEFUSU9OX0gpOworCQllbHNlIGlmIChwb2xpY3ktPm1pbiA+IGNwdV9kYnNfaW5m
-b1tjcHVdLmN1cl9wb2xpY3ktPmN1cikKKwkJCV9fY3B1ZnJlcV9kcml2ZXJfdGFyZ2V0KGNwdV9k
-YnNfaW5mb1tjcHVdLmN1cl9wb2xpY3ksCisJCQkJICAgICAgIAlwb2xpY3ktPm1pbiwgQ1BVRlJF
-UV9SRUxBVElPTl9MKTsKKwkJdXAoJmRic19zZW0pOworCQlicmVhazsKKwl9CisJcmV0dXJuIDA7
-Cit9CisKK3N0cnVjdCBjcHVmcmVxX2dvdmVybm9yIGNwdWZyZXFfZ292X2RicyA9IHsKKwkubmFt
-ZQkJPSAiZGVtYW5kYmFzZWQiLAorCS5nb3Zlcm5vcgk9IGNwdWZyZXFfZ292ZXJub3JfZGJzLAor
-CS5vd25lcgkJPSBUSElTX01PRFVMRSwKK307CitFWFBPUlRfU1lNQk9MKGNwdWZyZXFfZ292X2Ri
-cyk7CisKK3N0YXRpYyBpbnQgX19pbml0IGNwdWZyZXFfZ292X2Ric19pbml0KHZvaWQpCit7CisJ
-cmV0dXJuIGNwdWZyZXFfcmVnaXN0ZXJfZ292ZXJub3IoJmNwdWZyZXFfZ292X2Ricyk7Cit9CisK
-K3N0YXRpYyB2b2lkIF9fZXhpdCBjcHVmcmVxX2dvdl9kYnNfZXhpdCh2b2lkKQoreworCS8qIE1h
-a2Ugc3VyZSB0aGF0IHRoZSBzY2hlZHVsZWQgd29yayBpcyBpbmRlZWQgbm90IHJ1bm5pbmcgKi8K
-KwlmbHVzaF9zY2hlZHVsZWRfd29yaygpOworCWNwdWZyZXFfdW5yZWdpc3Rlcl9nb3Zlcm5vcigm
-Y3B1ZnJlcV9nb3ZfZGJzKTsKK30KKworCitNT0RVTEVfQVVUSE9SICgiVmVua2F0ZXNoIFBhbGxp
-cGFkaSA8dmVua2F0ZXNoLnBhbGxpcGFkaUBpbnRlbC5jb20+Iik7CitNT0RVTEVfREVTQ1JJUFRJ
-T04gKCJEQlMoRGVtYW5kIEJhc2VkIFN3aXRjaGluZyktICIKKwkJIkEgZHluYW1pYyBwcm9jZXNz
-b3IgZnJlcXVlbmN5IGdvdmVybm9yIGZvciAiCisJCSJMb3cgTGF0ZW5jeSBGcmVxdWVuY3kgVHJh
-bnNpdGlvbiBjYXBhYmxlIHByb2Nlc3NvcnMiKTsKK01PRFVMRV9MSUNFTlNFICgiR1BMIik7CisK
-K21vZHVsZV9pbml0KGNwdWZyZXFfZ292X2Ric19pbml0KTsKK21vZHVsZV9leGl0KGNwdWZyZXFf
-Z292X2Ric19leGl0KTsKZGlmZiAtcHVyTiBsaW51eC0yLjYuMC10ZXN0Ny9kcml2ZXJzL2NwdWZy
-ZXEvS2NvbmZpZyBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvZHJpdmVycy9jcHVmcmVxL0tjb25maWcK
-LS0tIGxpbnV4LTIuNi4wLXRlc3Q3L2RyaXZlcnMvY3B1ZnJlcS9LY29uZmlnCTIwMDMtMTAtMjAg
-MDA6MjQ6MzMuMDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvZHJpdmVy
-cy9jcHVmcmVxL0tjb25maWcJMjAwMy0xMC0yMCAxNzoyNzo1Ny4wMDAwMDAwMDAgLTA3MDAKQEAg
-LTM1LDYgKzM1LDE2IEBAIGNvbmZpZyBDUFVfRlJFUV9ERUZBVUxUX0dPVl9VU0VSU1BBQ0UKIAkg
-IHByb2dyYW1tIHNoYWxsIGJlIGFibGUgdG8gc2V0IHRoZSBDUFUgZHluYW1pY2FsbHkgd2l0aG91
-dCBoYXZpbmcKIAkgIHRvIGVuYWJsZSB0aGUgdXNlcnNwYWNlIGdvdmVybm9yIG1hbnVhbGx5Lgog
-Citjb25maWcgQ1BVX0ZSRVFfREVGQVVMVF9HT1ZfREVNQU5EQkFTRUQKKwlib29sICJkZW1hbmRi
-YXNlZCIKKwlzZWxlY3QgQ1BVX0ZSRVFfR09WX0RFTUFOREJBU0VECisJaGVscAorCSAgVXNlIHRo
-ZSBDUFVGcmVxIGdvdmVybm9yICdkZW1hbmRiYXNlZCcgYXMgZGVmYXVsdC4gVGhpcyBlbmFibGVz
-CisJICBrZXJuZWwgdG8gZHluYW1pY2FsbHkgbW90bml0b3IgdGhlIENQVSB1c2FnZSBhbmQgYWRq
-dXN0IHRoZQorCSAgQ1BVIGZyZXF1ZW5jeSBhY2NvcmRpbmdseSwgd2l0aCBubyBtYW51YWwgaW50
-ZXJ2ZW5hdGlvbi4KKwkgIFRoaXMgd2lsbCBiZSBlbmFibGVkIG9ubHkgaWYgQ1BVIHN1cHBvcnRz
-ICdMb3cgTGF0ZW5jeQorCSAgRnJlcXVlbmN5IFRyYW5zaXRpb25zJworCiBlbmRjaG9pY2UKIAog
-Y29uZmlnIENQVV9GUkVRX0dPVl9QRVJGT1JNQU5DRQpAQCAtNjgsNiArNzgsMjEgQEAgY29uZmln
-IENQVV9GUkVRX0dPVl9VU0VSU1BBQ0UKIAogCSAgSWYgaW4gZG91YnQsIHNheSBZLgogCitjb25m
-aWcgQ1BVX0ZSRVFfR09WX0RFTUFOREJBU0VECisJdHJpc3RhdGUgIkRlbWFuZCBCYXNlZCBTd2l0
-Y2hpbmcgLSBEeW5hbWljIGNwdWZyZXEgcG9saWN5IGdvdmVybmVyIgorCWRlcGVuZHMgb24gQ1BV
-X0ZSRVEKKwloZWxwCisJICBUaGlzIGRyaXZlciBhZGRzIGEgY3B1ZnJlcSBwb2xpY3kgZ292ZXJu
-ZXIgY2FsbGVkIERlbWFuZCBCYXNlZAorCSAgU3dpdGNoaW5nLiAgVGhlIGRyaXZlciBkb2VzIGEg
-cGVyaW9kaWMgcG9sbGluZyBhbmQgZHluYW1pY2FsbHkgCisJICBjaGFuZ2VzIGZyZXF1ZW5jeSBi
-YXNlZCBvbiB0aGUgcHJvY2Vzc29yIHV0aWxpemF0aW9uLgorCSAgVGhlIHBvbGljeSBkZXBlbmRz
-IG9uIHByb2Nlc3NvciBjYXBhYmlsaXR5IHRvCisJICBkbyBmYXN0IGZyZXF1ZW5jeSBzd2l0Y2hp
-bmcgKGkuZSwgdmVyeSBsb3cgbGF0ZW5jeSBmcmVxdWVuY3kKKwkgIHRyYW5zaXRpb25zKS4gCisK
-KwkgIEZvciBkZXRhaWxzLCB0YWtlIGEgbG9vayBhdCBsaW51eC9Eb2N1bWVudGF0aW9uL2NwdS1m
-cmVxLgorCisJICBJZiBpbiBkb3VidCwgc2F5IE4uCisKIGNvbmZpZyBDUFVfRlJFUV8yNF9BUEkK
-IAlib29sICIvcHJvYy9zeXMvY3B1LyBpbnRlcmZhY2UgKDIuNC4gLyBPTEQpIgogCWRlcGVuZHMg
-b24gQ1BVX0ZSRVEgJiYgU1lTQ1RMICYmIENQVV9GUkVRX0dPVl9VU0VSU1BBQ0UKZGlmZiAtcHVy
-TiBsaW51eC0yLjYuMC10ZXN0Ny9kcml2ZXJzL2NwdWZyZXEvTWFrZWZpbGUgbGludXgtMi42LjAt
-dGVzdDctZGJzL2RyaXZlcnMvY3B1ZnJlcS9NYWtlZmlsZQotLS0gbGludXgtMi42LjAtdGVzdDcv
-ZHJpdmVycy9jcHVmcmVxL01ha2VmaWxlCTIwMDMtMTAtMjAgMDA6MjQ6MzMuMDAwMDAwMDAwIC0w
-NzAwCisrKyBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvZHJpdmVycy9jcHVmcmVxL01ha2VmaWxlCTIw
-MDMtMTAtMjAgMTc6MDY6MDUuMDAwMDAwMDAwIC0wNzAwCkBAIC01LDYgKzUsNyBAQCBvYmotJChD
-T05GSUdfQ1BVX0ZSRVEpCQkJKz0gY3B1ZnJlcS5vCiBvYmotJChDT05GSUdfQ1BVX0ZSRVFfR09W
-X1BFUkZPUk1BTkNFKQkrPSBjcHVmcmVxX3BlcmZvcm1hbmNlLm8KIG9iai0kKENPTkZJR19DUFVf
-RlJFUV9HT1ZfUE9XRVJTQVZFKQkrPSBjcHVmcmVxX3Bvd2Vyc2F2ZS5vCiBvYmotJChDT05GSUdf
-Q1BVX0ZSRVFfR09WX1VTRVJTUEFDRSkJKz0gY3B1ZnJlcV91c2Vyc3BhY2Uubworb2JqLSQoQ09O
-RklHX0NQVV9GUkVRX0dPVl9ERU1BTkRCQVNFRCkJKz0gY3B1ZnJlcV9kYnMubwogCiAjIENQVWZy
-ZXEgY3Jvc3MtYXJjaCBoZWxwZXJzCiBvYmotJChDT05GSUdfQ1BVX0ZSRVFfVEFCTEUpCQkrPSBm
-cmVxX3RhYmxlLm8KZGlmZiAtcHVyTiBsaW51eC0yLjYuMC10ZXN0Ny9pbmNsdWRlL2xpbnV4L2Nw
-dWZyZXEuaCBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvaW5jbHVkZS9saW51eC9jcHVmcmVxLmgKLS0t
-IGxpbnV4LTIuNi4wLXRlc3Q3L2luY2x1ZGUvbGludXgvY3B1ZnJlcS5oCTIwMDMtMTAtMDggMTI6
-MjQ6MTYuMDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvaW5jbHVkZS9s
-aW51eC9jcHVmcmVxLmgJMjAwMy0xMC0yMCAxNzozNjozNC4wMDAwMDAwMDAgLTA3MDAKQEAgLTMw
-Myw2ICszMDMsOSBAQCBleHRlcm4gc3RydWN0IGNwdWZyZXFfZ292ZXJub3IgY3B1ZnJlcV9nCiAj
-ZWxpZiBkZWZpbmVkKENPTkZJR19DUFVfRlJFUV9ERUZBVUxUX0dPVl9VU0VSU1BBQ0UpCiBleHRl
-cm4gc3RydWN0IGNwdWZyZXFfZ292ZXJub3IgY3B1ZnJlcV9nb3ZfdXNlcnNwYWNlOwogI2RlZmlu
-ZSBDUFVGUkVRX0RFRkFVTFRfR09WRVJOT1IJJmNwdWZyZXFfZ292X3VzZXJzcGFjZQorI2VsaWYg
-ZGVmaW5lZChDT05GSUdfQ1BVX0ZSRVFfREVGQVVMVF9HT1ZfREVNQU5EQkFTRUQpCitleHRlcm4g
-c3RydWN0IGNwdWZyZXFfZ292ZXJub3IgY3B1ZnJlcV9nb3ZfZGJzOworI2RlZmluZSBDUFVGUkVR
-X0RFRkFVTFRfR09WRVJOT1IJJmNwdWZyZXFfZ292X2RicwogI2VuZGlmCiAKIC8qKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioK
+ZGlmZiAtcHVyTiBsaW51eC0yLjYuMC10ZXN0Ny9hcmNoL2kzODYva2VybmVsL2NwdS9jcHVmcmVx
+L2FjcGkuYyBsaW51eC0yLjYuMC10ZXN0Ny1kYnMvYXJjaC9pMzg2L2tlcm5lbC9jcHUvY3B1ZnJl
+cS9hY3BpLmMKLS0tIGxpbnV4LTIuNi4wLXRlc3Q3L2FyY2gvaTM4Ni9rZXJuZWwvY3B1L2NwdWZy
+ZXEvYWNwaS5jCTIwMDMtMTAtMjAgMTM6MzE6MTAuMDAwMDAwMDAwIC0wNzAwCisrKyBsaW51eC0y
+LjYuMC10ZXN0Ny1kYnMvYXJjaC9pMzg2L2tlcm5lbC9jcHUvY3B1ZnJlcS9hY3BpLmMJMjAwMy0x
+MC0yMCAxMzoyOTo0MS4wMDAwMDAwMDAgLTA3MDAKQEAgLTM0LDYgKzM0LDcgQEAKICNpbmNsdWRl
+IDxhc20vaW8uaD4KICNpbmNsdWRlIDxhc20vZGVsYXkuaD4KICNpbmNsdWRlIDxhc20vdWFjY2Vz
+cy5oPgorI2luY2x1ZGUgPGxpbnV4L3NlbS5oPgogCiAjaW5jbHVkZSA8bGludXgvYWNwaS5oPgog
+I2luY2x1ZGUgPGFjcGkvcHJvY2Vzc29yLmg+CkBAIC0zNjIsNyArMzYzLDggQEAgYWNwaV9wcm9j
+ZXNzb3Jfc2V0X3BlcmZvcm1hbmNlICgKIAljcHVmcmVxX2ZyZXFzLm5ldyA9IHBlcmYtPnN0YXRl
+c1tzdGF0ZV0uY29yZV9mcmVxdWVuY3kgKiAxMDAwOwogCiAJLyogbm90aWZ5IGNwdWZyZXEgKi8K
+LQljcHVmcmVxX25vdGlmeV90cmFuc2l0aW9uKCZjcHVmcmVxX2ZyZXFzLCBDUFVGUkVRX1BSRUNI
+QU5HRSk7CisJcGVyZi0+ZG9tYWlucC0+Y3B1ZnJlcV9ub3RpZnlfdHJhbnNpdGlvbl9wdHIoCisJ
+CQkmY3B1ZnJlcV9mcmVxcywgQ1BVRlJFUV9QUkVDSEFOR0UpOwogCiAJLyoKIAkgKiBGaXJzdCB3
+ZSB3cml0ZSB0aGUgdGFyZ2V0IHN0YXRlJ3MgJ2NvbnRyb2wnIHZhbHVlIHRvIHRoZQpAQCAtMzkw
+LDE0ICszOTIsMTcgQEAgYWNwaV9wcm9jZXNzb3Jfc2V0X3BlcmZvcm1hbmNlICgKIAl2YWx1ZSA9
+IHBhcmFtLnJldHZhbDsKIAogCS8qIG5vdGlmeSBjcHVmcmVxICovCi0JY3B1ZnJlcV9ub3RpZnlf
+dHJhbnNpdGlvbigmY3B1ZnJlcV9mcmVxcywgQ1BVRlJFUV9QT1NUQ0hBTkdFKTsKKwlwZXJmLT5k
+b21haW5wLT5jcHVmcmVxX25vdGlmeV90cmFuc2l0aW9uX3B0cigKKwkJCSZjcHVmcmVxX2ZyZXFz
+LCBDUFVGUkVRX1BPU1RDSEFOR0UpOwogCiAJaWYgKHZhbHVlICE9ICh1MTYpIHBlcmYtPnN0YXRl
+c1tzdGF0ZV0uc3RhdHVzKSB7CiAJCXVuc2lnbmVkIGludCB0bXAgPSBjcHVmcmVxX2ZyZXFzLm5l
+dzsKIAkJY3B1ZnJlcV9mcmVxcy5uZXcgPSBjcHVmcmVxX2ZyZXFzLm9sZDsKIAkJY3B1ZnJlcV9m
+cmVxcy5vbGQgPSB0bXA7Ci0JCWNwdWZyZXFfbm90aWZ5X3RyYW5zaXRpb24oJmNwdWZyZXFfZnJl
+cXMsIENQVUZSRVFfUFJFQ0hBTkdFKTsKLQkJY3B1ZnJlcV9ub3RpZnlfdHJhbnNpdGlvbigmY3B1
+ZnJlcV9mcmVxcywgQ1BVRlJFUV9QT1NUQ0hBTkdFKTsKKwkJcGVyZi0+ZG9tYWlucC0+Y3B1ZnJl
+cV9ub3RpZnlfdHJhbnNpdGlvbl9wdHIoCisJCQkJJmNwdWZyZXFfZnJlcXMsIENQVUZSRVFfUFJF
+Q0hBTkdFKTsKKwkJcGVyZi0+ZG9tYWlucC0+Y3B1ZnJlcV9ub3RpZnlfdHJhbnNpdGlvbl9wdHIo
+CisJCQkJJmNwdWZyZXFfZnJlcXMsIENQVUZSRVFfUE9TVENIQU5HRSk7CiAJCUFDUElfREVCVUdf
+UFJJTlQoKEFDUElfREJfV0FSTiwgIlRyYW5zaXRpb24gZmFpbGVkXG4iKSk7CiAJCXJldHVybl9W
+QUxVRSgtRU5PREVWKTsKIAl9CkBAIC01NjgsNyArNTczLDggQEAgYWNwaV9jcHVmcmVxX3Rhcmdl
+dCAoCiAJaWYgKHJlc3VsdCkKIAkJcmV0dXJuX1ZBTFVFKHJlc3VsdCk7CiAKLQlyZXN1bHQgPSBh
+Y3BpX3Byb2Nlc3Nvcl9zZXRfcGVyZm9ybWFuY2UgKHBlcmYsIG5leHRfc3RhdGUpOworCXJlc3Vs
+dCA9IHBlcmYtPmRvbWFpbnAtPmFjcGlfcHJvY2Vzc29yX3NldF9wZXJmb3JtYW5jZV9wdHIoCisJ
+CQlwZXJmLCBuZXh0X3N0YXRlKTsKIAogCXJldHVybl9WQUxVRShyZXN1bHQpOwogfQpAQCAtNjMw
+LDYgKzYzNiwxNDQgQEAgYWNwaV9wcm9jZXNzb3JfZ2V0X3BlcmZvcm1hbmNlX2luZm8gKAogCXJl
+dHVybl9WQUxVRSgwKTsKIH0KIAorc3RhdGljIHN0cnVjdCBhY3BpX3Byb2Nlc3Nvcl9kb21haW4g
+YWNwaV9wcm9jZXNzb3JfZG9tYWluX2RlZiA9IHsKKwkuc2VtID0gX19NVVRFWF9JTklUSUFMSVpF
+UihhY3BpX3Byb2Nlc3Nvcl9kb21haW5fZGVmLnNlbSksCisJLnJlZl9jbnQgPSAwLAorCS5hY3Bp
+X3Byb2Nlc3Nvcl9zZXRfcGVyZm9ybWFuY2VfcHRyID0gYWNwaV9wcm9jZXNzb3Jfc2V0X3BlcmZv
+cm1hbmNlLAorCS5jcHVmcmVxX25vdGlmeV90cmFuc2l0aW9uX3B0ciA9IGNwdWZyZXFfbm90aWZ5
+X3RyYW5zaXRpb24sCit9OworCisjaWZkZWYgQ09ORklHX1g4Nl9IVAorc3RhdGljIHZvaWQgY3B1
+ZnJlcV9ub3RpZnlfdHJhbnNpdGlvbl9odChzdHJ1Y3QgY3B1ZnJlcV9mcmVxcyAqY3B1ZnJlcV9m
+cmVxcywgdW5zaWduZWQgaW50IHN0YXRlKQoreworCXVuc2lnbmVkIGludCBjcHUgPSBjcHVmcmVx
+X2ZyZXFzLT5jcHU7CisJQUNQSV9GVU5DVElPTl9UUkFDRSgiY3B1ZnJlcV9ub3RpZnlfdHJhbnNp
+dGlvbl9odCIpOworCWNwdWZyZXFfbm90aWZ5X3RyYW5zaXRpb24oY3B1ZnJlcV9mcmVxcywgc3Rh
+dGUpOworCWNwdWZyZXFfZnJlcXMtPmNwdSA9IGNwdV9zaWJsaW5nX21hcFtjcHVdOworCWNwdWZy
+ZXFfbm90aWZ5X3RyYW5zaXRpb24oY3B1ZnJlcV9mcmVxcywgc3RhdGUpOworCWNwdWZyZXFfZnJl
+cXMtPmNwdSA9IGNwdTsKKwlyZXR1cm5fVk9JRDsKK30KKworc3RhdGljIGludCBhY3BpX3Byb2Nl
+c3Nvcl9zZXRfcGVyZm9ybWFuY2VfaHQoc3RydWN0IGFjcGlfcHJvY2Vzc29yX3BlcmZvcm1hbmNl
+ICpwZXJmLCBpbnQgc3RhdGUpCit7CisJc3RydWN0IGFjcGlfcHJvY2Vzc29yX2RvbWFpbiAJKmRv
+bWFpbnAgPSBwZXJmLT5kb21haW5wOworCWludAkJcmVzdWx0ID0gMDsKKwlpbnQgCQlpOworCWlu
+dCAJCWxvX3N0YXRlOyAvKiBoaWdoZXN0IGZyZXEgKi8KKworCUFDUElfRlVOQ1RJT05fVFJBQ0Uo
+ImFjcGlfcHJvY2Vzc29yX3NldF9wZXJmb3JtYW5jZV9odCIpOworCWRvd24oJihkb21haW5wLT5z
+ZW0pKTsKKwkvKgorCSAqIFRyYW5zaXRpb24gaW50byBuZXcgc3RhdGUsIG9ubHkgaWYgaXQgaXMg
+dGhlIGxvd2VzdCBhbW9uZworCSAqIGFsbCBzaWJsaW5nIHJlcXVlc3RlZCBzdGF0ZXMuCisJICog
+c2VtYXBob3JlIGJlbG93IHNob3VsZCBiZSBoZWxkIGFjcm9zcyB0aGUgcGFja2FnZS4KKwkgKi8K
+KwlwZXJmLT5yZXF1ZXN0ZWRfc3RhdGUgPSBzdGF0ZTsKKwlsb19zdGF0ZSA9IHN0YXRlOworCWZv
+ciAoaSA9IDA7IGkgPCBkb21haW5wLT5yZWZfY250OyBpKyspIHsKKwkJaWYgKHBlcmZvcm1hbmNl
+W2RvbWFpbnAtPm1lbWJlcnNbaV1dLnJlcXVlc3RlZF9zdGF0ZSA8IGxvX3N0YXRlKQorCQkJbG9f
+c3RhdGUgPSAKKwkJCSAgICBwZXJmb3JtYW5jZVtkb21haW5wLT5tZW1iZXJzW2ldXS5yZXF1ZXN0
+ZWRfc3RhdGU7CisJfQorCisJaWYgKGxvX3N0YXRlID09IGRvbWFpbnAtPmN1cl9zdGF0ZSkgewor
+CQl1cCgmKGRvbWFpbnAtPnNlbSkpOworCQlyZXR1cm5fVkFMVUUoMCk7CisJfQorCisJcmVzdWx0
+ID0gYWNwaV9wcm9jZXNzb3Jfc2V0X3BlcmZvcm1hbmNlKHBlcmYsIGxvX3N0YXRlKTsKKwlpZiAo
+cmVzdWx0ID09IDApIHsKKwkJZG9tYWlucC0+Y3VyX3N0YXRlID0gbG9fc3RhdGU7CisJCWZvciAo
+aSA9IDA7IGkgPCBkb21haW5wLT5yZWZfY250OyBpKyspCisJCQlwZXJmb3JtYW5jZVtkb21haW5w
+LT5tZW1iZXJzW2ldXS5zdGF0ZSA9IGxvX3N0YXRlOworCX0KKworCXVwKCYoZG9tYWlucC0+c2Vt
+KSk7CisJcmV0dXJuX1ZBTFVFKHJlc3VsdCk7Cit9CisKK3N0YXRpYyBpbnQKK2FjcGlfcHJvY2Vz
+c29yX2RvbWFpbl9odF9pbml0KAorCQlzdHJ1Y3QgYWNwaV9wcm9jZXNzb3JfcGVyZm9ybWFuY2Ug
+KnBlcmYsIGludCBjcHUpCit7CisJaW50IHNpYmxpbmdfY3B1ID0gY3B1X3NpYmxpbmdfbWFwW2Nw
+dV07CisJc3RydWN0IGFjcGlfcHJvY2Vzc29yX2RvbWFpbiAqZG9tYWlucDsKKworCUFDUElfRlVO
+Q1RJT05fVFJBQ0UoImFjcGlfcHJvY2Vzc29yX2RvbWFpbl9odF9pbml0Iik7CisJaWYgKGNwdSA8
+IHNpYmxpbmdfY3B1KSB7CisJCWRvbWFpbnAgPSBrbWFsbG9jKHNpemVvZihzdHJ1Y3QgYWNwaV9w
+cm9jZXNzb3JfZG9tYWluKSwKKwkJCQlHRlBfS0VSTkVMKTsKKwkJaWYgKGRvbWFpbnAgPT0gTlVM
+TCkKKwkJCXJldHVybl9WQUxVRSgtRU5PTUVNKTsKKworCQlpbml0X01VVEVYKCYoZG9tYWlucC0+
+c2VtKSk7CisJCWRvbWFpbnAtPmFjcGlfcHJvY2Vzc29yX3NldF9wZXJmb3JtYW5jZV9wdHIgPSAK
+KwkJCQlhY3BpX3Byb2Nlc3Nvcl9zZXRfcGVyZm9ybWFuY2VfaHQ7CisJCWRvbWFpbnAtPmNwdWZy
+ZXFfbm90aWZ5X3RyYW5zaXRpb25fcHRyID0gCisJCQkJY3B1ZnJlcV9ub3RpZnlfdHJhbnNpdGlv
+bl9odDsKKwkJZG9tYWlucC0+Y3VyX3N0YXRlID0gMDsKKwkJZG9tYWlucC0+cmVmX2NudCA9IDA7
+CisJCWRvbWFpbnAtPm1lbWJlcnNbZG9tYWlucC0+cmVmX2NudF0gPSBjcHU7CisJCWRvbWFpbnAt
+PnJlZl9jbnQrKzsKKwkJcGVyZltjcHVdLmRvbWFpbnAgPSBkb21haW5wOworCX0gZWxzZSB7CisJ
+CXBlcmZbY3B1XS5kb21haW5wID0gcGVyZltzaWJsaW5nX2NwdV0uZG9tYWlucDsKKwkJZG9tYWlu
+cCA9IHBlcmZbY3B1XS5kb21haW5wOworCQlpZiAoZG9tYWlucC0+cmVmX2NudCA9PSBBQ1BJX01B
+WF9DUFVTX1BFUl9ET01BSU4pIHsKKwkJCUFDUElfREVCVUdfUFJJTlQoKEFDUElfREJfRVJST1Is
+CisJCQkJIk9ubHkgJWQgQ1BVUyBwZXIgZG9tYWluIGlzIHN1cHBvcnRlZFxuIiwKKwkJCQlBQ1BJ
+X01BWF9DUFVTX1BFUl9ET01BSU4pKTsKKwkJCXJldHVybl9WQUxVRSgtMSk7CisJCX0KKwkJZG9t
+YWlucC0+bWVtYmVyc1tkb21haW5wLT5yZWZfY250XSA9IGNwdTsKKwkJZG9tYWlucC0+cmVmX2Nu
+dCsrOworCX0KKwlyZXR1cm5fVkFMVUUoMCk7Cit9CisjZW5kaWYgLyogQ09ORklHX1g4Nl9IVCAq
+LworCitzdGF0aWMgaW50CithY3BpX3Byb2Nlc3Nvcl9kb21haW5faW5pdChzdHJ1Y3QgYWNwaV9w
+cm9jZXNzb3JfcGVyZm9ybWFuY2UgKnBlcmYsIGludCBjcHUpCit7CisKKyNpZmRlZiBDT05GSUdf
+WDg2X0hUCisJaW50IGh0X3ByZXNlbnQgPSAoKGNwdV9oYXNfaHQpICYmIChzbXBfbnVtX3NpYmxp
+bmdzID09IDIpKTsKKyNlbmRpZgorCisJQUNQSV9GVU5DVElPTl9UUkFDRSgiYWNwaV9wcm9jZXNz
+b3JfZG9tYWluX2luaXQiKTsKKworI2lmZGVmIENPTkZJR19YODZfSFQKKwlpZiAoaHRfcHJlc2Vu
+dCkgeworCQlpbnQgcmV0dmFsOworCQlyZXR2YWwgPSBhY3BpX3Byb2Nlc3Nvcl9kb21haW5faHRf
+aW5pdChwZXJmLCBjcHUpOworCQlyZXR1cm5fVkFMVUUocmV0dmFsKTsKKwl9CisJLyogRkFMTFRI
+UlUgYW5kIHVzZSBkZWZhdWx0IGRvbWFpbiBzdHJ1Y3R1cmUgKi8KKyNlbmRpZgorCXBlcmZbY3B1
+XS5kb21haW5wID0gJmFjcGlfcHJvY2Vzc29yX2RvbWFpbl9kZWY7CisJcmV0dXJuX1ZBTFVFKDAp
+OworfQorCitzdGF0aWMgdm9pZAorYWNwaV9wcm9jZXNzb3JfZG9tYWluX2V4aXQoc3RydWN0IGFj
+cGlfcHJvY2Vzc29yX3BlcmZvcm1hbmNlICpwZXJmLCBpbnQgY3B1KQoreworCUFDUElfRlVOQ1RJ
+T05fVFJBQ0UoImFjcGlfcHJvY2Vzc29yX2RvbWFpbl9leGl0Iik7CisjaWZkZWYgQ09ORklHX1g4
+Nl9IVAorCWlmICghcGVyZltjcHVdLmRvbWFpbnApCisJCXJldHVybl9WT0lEOworCisJaWYgKHBl
+cmZbY3B1XS5kb21haW5wID09ICZhY3BpX3Byb2Nlc3Nvcl9kb21haW5fZGVmKQorCQlyZXR1cm5f
+Vk9JRDsKKworCXBlcmZbY3B1XS5kb21haW5wLT5yZWZfY250LS07CisJaWYgKHBlcmZbY3B1XS5k
+b21haW5wLT5yZWZfY250ID09IDApIHsKKwkJa2ZyZWUocGVyZltjcHVdLmRvbWFpbnApOworCQlw
+ZXJmW2NwdV0uZG9tYWlucCA9IE5VTEw7CisJfQorI2VuZGlmIC8qIENPTkZJR19YODZfSFQgKi8K
+KwlyZXR1cm5fVk9JRDsKK30KIAogc3RhdGljIGludAogYWNwaV9jcHVmcmVxX2NwdV9pbml0ICgK
+QEAgLTc0Miw4ICs4ODYsMTMgQEAgYWNwaV9jcHVmcmVxX2luaXQgKHZvaWQpCiAKIAkvKiByZWdp
+c3RlciBzdHJ1Y3QgYWNwaV9wcm9jZXNzb3JfcGVyZm9ybWFuY2UgcGVyZm9ybWFuY2UgKi8KIAlm
+b3IgKGk9MDsgaTxOUl9DUFVTOyBpKyspIHsKLQkJaWYgKGNwdV9vbmxpbmUoaSkpCisJCWlmIChj
+cHVfb25saW5lKGkpKSB7CiAJCQlhY3BpX3Byb2Nlc3Nvcl9yZWdpc3Rlcl9wZXJmb3JtYW5jZSgm
+cGVyZm9ybWFuY2VbaV0sICZwciwgaSk7CisJCQlpZiAoYWNwaV9wcm9jZXNzb3JfZG9tYWluX2lu
+aXQocGVyZm9ybWFuY2UsIGkpIDwgMCkgeworCQkJCXJlc3VsdCA9IC1FTk9NRU07CisJCQkJZ290
+byBlcnIwOworCQkJfQorCQl9CiAJfQogCiAJLyogaW5pdGlhbGl6ZSAgKi8KQEAgLTgwNCw2ICs5
+NTMsMTAgQEAgYWNwaV9jcHVmcmVxX2luaXQgKHZvaWQpCiAJY3B1ZnJlcV91bnJlZ2lzdGVyX2Ry
+aXZlcigmYWNwaV9jcHVmcmVxX2RyaXZlcik7CiAJCiAgZXJyMDoKKwlmb3IgKGkgPSAwOyBpIDwg
+TlJfQ1BVUzsgaSsrKQorCQlpZiAoY3B1X29ubGluZShpKSkKKwkJCWFjcGlfcHJvY2Vzc29yX2Rv
+bWFpbl9leGl0KHBlcmZvcm1hbmNlLCBpKTsKKwogCS8qIHVucmVnaXN0ZXIgc3RydWN0IGFjcGlf
+cHJvY2Vzc29yX3BlcmZvcm1hbmNlIHBlcmZvcm1hbmNlICovCiAJZm9yIChpPTA7IGk8TlJfQ1BV
+UzsgaSsrKSB7CiAJCWlmIChwZXJmb3JtYW5jZVtpXS5wcikgewpAQCAtODQyLDYgKzk5NSwxMCBA
+QCBhY3BpX2NwdWZyZXFfZXhpdCAodm9pZCkKIAkJfQogCX0KIAorCWZvciAoaSA9IDA7IGkgPCBO
+Ul9DUFVTOyBpKyspCisJCWlmIChjcHVfb25saW5lKGkpKQorCQkJYWNwaV9wcm9jZXNzb3JfZG9t
+YWluX2V4aXQocGVyZm9ybWFuY2UsIGkpOworCiAJa2ZyZWUocGVyZm9ybWFuY2UpOwogCiAJcmV0
+dXJuX1ZPSUQ7CmRpZmYgLXB1ck4gbGludXgtMi42LjAtdGVzdDcvaW5jbHVkZS9hY3BpL3Byb2Nl
+c3Nvci5oIGxpbnV4LTIuNi4wLXRlc3Q3LWRicy9pbmNsdWRlL2FjcGkvcHJvY2Vzc29yLmgKLS0t
+IGxpbnV4LTIuNi4wLXRlc3Q3L2luY2x1ZGUvYWNwaS9wcm9jZXNzb3IuaAkyMDAzLTEwLTIwIDEz
+OjMxOjEwLjAwMDAwMDAwMCAtMDcwMAorKysgbGludXgtMi42LjAtdGVzdDctZGJzL2luY2x1ZGUv
+YWNwaS9wcm9jZXNzb3IuaAkyMDAzLTEwLTIwIDEzOjA4OjExLjAwMDAwMDAwMCAtMDcwMApAQCAt
+Miw2ICsyLDcgQEAKICNkZWZpbmUgX19BQ1BJX1BST0NFU1NPUl9ICiAKICNpbmNsdWRlIDxsaW51
+eC9rZXJuZWwuaD4KKyNpbmNsdWRlIDxsaW51eC9zZW0uaD4KIAogI2RlZmluZSBBQ1BJX1BST0NF
+U1NPUl9CVVNZX01FVFJJQwkxMAogCkBAIC03NCw2ICs3NSw4IEBAIHN0cnVjdCBhY3BpX3Byb2Nl
+c3Nvcl9wZXJmb3JtYW5jZSB7CiAJdTE2CQkJc3RhdHVzX3JlZ2lzdGVyOwogCWludAkJCXN0YXRl
+X2NvdW50OwogCWludAkJCXNwYWNlX2lkOworCWludAkJCXJlcXVlc3RlZF9zdGF0ZTsKKwlzdHJ1
+Y3QgYWNwaV9wcm9jZXNzb3JfZG9tYWluICpkb21haW5wOwogCXN0cnVjdCBhY3BpX3Byb2Nlc3Nv
+cl9weCBzdGF0ZXNbQUNQSV9QUk9DRVNTT1JfTUFYX1BFUkZPUk1BTkNFXTsKIAlzdHJ1Y3QgY3B1
+ZnJlcV9mcmVxdWVuY3lfdGFibGUgZnJlcV90YWJsZVtBQ1BJX1BST0NFU1NPUl9NQVhfUEVSRk9S
+TUFOQ0VdOwogCXN0cnVjdCBhY3BpX3Byb2Nlc3NvciAgICpwcjsKQEAgLTEzMiw2ICsxMzUsMTgg
+QEAgc3RydWN0IGFjcGlfcHJvY2Vzc29yIHsKIAlzdHJ1Y3QgYWNwaV9wcm9jZXNzb3JfbGltaXQg
+bGltaXQ7CiB9OwogCisjZGVmaW5lIEFDUElfTUFYX0NQVVNfUEVSX0RPTUFJTiAJMgorc3RydWN0
+IGFjcGlfcHJvY2Vzc29yX2RvbWFpbiB7CisJLyogRG9tYWluIHdpZGUgZGF0YSAqLworCXN0cnVj
+dCBzZW1hcGhvcmUJc2VtOworCWludCAJCQljdXJfc3RhdGU7CisJaW50CQkJcmVmX2NudDsKKwlp
+bnQgCQkJbWVtYmVyc1tBQ1BJX01BWF9DUFVTX1BFUl9ET01BSU5dOworCS8qIERvbWFpbiB3aWRl
+IGZ1bmN0aW9uIHBvaW50ZXJzICovCisJaW50ICgqYWNwaV9wcm9jZXNzb3Jfc2V0X3BlcmZvcm1h
+bmNlX3B0cikoc3RydWN0IGFjcGlfcHJvY2Vzc29yX3BlcmZvcm1hbmNlICpwZXJmLCBpbnQgc3Rh
+dGUpOworCXZvaWQgKCpjcHVmcmVxX25vdGlmeV90cmFuc2l0aW9uX3B0cikoc3RydWN0IGNwdWZy
+ZXFfZnJlcXMgKmNwdWZyZXFfZnJlcXMsIHVuc2lnbmVkIGludCBzdGF0ZSk7Cit9OworCiBleHRl
+cm4gaW50IGFjcGlfcHJvY2Vzc29yX2dldF9wbGF0Zm9ybV9saW1pdCAoCiAJc3RydWN0IGFjcGlf
+cHJvY2Vzc29yKglwcik7CiBleHRlcm4gaW50IGFjcGlfcHJvY2Vzc29yX3JlZ2lzdGVyX3BlcmZv
+cm1hbmNlICgK
 
-------_=_NextPart_001_01C3977E.F5DFAB08--
+------_=_NextPart_001_01C3977E.EF61E970--

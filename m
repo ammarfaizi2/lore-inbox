@@ -1,79 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288678AbSADQhE>; Fri, 4 Jan 2002 11:37:04 -0500
+	id <S288679AbSADQjX>; Fri, 4 Jan 2002 11:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288679AbSADQgx>; Fri, 4 Jan 2002 11:36:53 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:18419 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S288678AbSADQgh>; Fri, 4 Jan 2002 11:36:37 -0500
-Date: Fri, 4 Jan 2002 17:32:34 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] 2.4.17/2.5.1 apic.c LVTERR fixes
-In-Reply-To: <200201041508.QAA12387@harpo.it.uu.se>
-Message-ID: <Pine.GSO.3.96.1020104164747.829A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288680AbSADQjN>; Fri, 4 Jan 2002 11:39:13 -0500
+Received: from chunnel.redhat.com ([12.107.208.220]:5616 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S288679AbSADQjE>; Fri, 4 Jan 2002 11:39:04 -0500
+Date: Fri, 4 Jan 2002 16:38:34 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        torrey.hoffman@myrio.com, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@math.psu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd 	kern el panic woes
+Message-ID: <20020104163834.H1896@redhat.com>
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB0F@mail0.myrio.com> <200112201946.fBKJkNw01262@penguin.transmeta.com> <20011221004251.K1477@athlon.random>, <20011221004251.K1477@athlon.random>; <20011221024910.L1477@athlon.random> <3C22CF16.C78B1F19@zip.com.au>, <3C22CF16.C78B1F19@zip.com.au>; <20011229164056.H1356@athlon.random> <3C2EB208.B2BA7CBF@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C2EB208.B2BA7CBF@zip.com.au>; from akpm@zip.com.au on Sat, Dec 29, 2001 at 10:19:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Mikael Pettersson wrote:
+Hi,
 
-> But a remote interrupt source supplies a vector, doesn't it? If we
-> assume that the local APIC checks the vector on arrival _of_the_vector_,
-> then it does make some sense that it also flags a null vector written
-> to one of the LVT entries as an error. The bug really is that it forgets
+[catching up from holidays]
 
- A local interrupt arriving when masked can be treated as one that's not
-destined to the APIC, hence no error should be signalled.  And certainly
-not at the LVT write time (especially as 0x00010000 is the power-up
-default as well, possibly used by software predating integrated local
-APICs). 
-
-> to take the mask bit into account. However, the behaviour _is_ there and
-> we have to avoid triggering it.
-
- Sure, but it'd better be marked as an APIC weirdness workaround or
-otherwise code seems looks clueless.  The weirdness is nowhere documented
-and the code is to be read by others -- the fact we know what is happening
-here doesn't help much. 
-
-> >> +		if (maxlvt > 3)		/* Due to Pentium errata 3AP and 11AP. */
-> >> +			apic_write(APIC_ESR, 0);
-> >
-> > Use apic_write_around() instead as the 11AP workaround -- it was
-> >introduced specifically for this purpose.  Using anything else doesn't
-> >guarantee no back-to-back APIC writes due to interrupts (specifically
-> >writes to the EOI register).
+On Sat, Dec 29, 2001 at 10:19:52PM -0800, Andrew Morton wrote:
 > 
-> I disagree. The write doesn't occur on P5s, so 11AP doesn't apply.
+> It appeared in 2.4.2-ac25, and it looks like sct was the author:
+> 
+> o       Fix higmem block_prepare_write crash            (Stephen Tweedie)
+> 
+> Which is interesting - from the changelog it looks like he was
+> fixing a different problem!  I always though that code was there
+> to prevent leakage of stale blocks.  Stephen?
 
- But the comment is misleading.  With an apic_write_around() no comment is
-needed (the code looks obvious) and the code is a bit smaller. 
+The code I fixed was the
 
-> If I had used an unconditional write_around() instead, then someone
-> would complain that I'm violating erratum 3AP (even though it doesn't
-> matter in this case). The test as written unambiguously handles both
+-			memset(bh->b_data, 0, bh->b_size);
++			memset(kaddr+block_start, 0, bh->b_size);
 
- If someone digs deeply enough to check what 3AP is, he should know why it
-doesn't apply.
+chunk to prevent the block_prepare_write out: error path from oopsing
+on highmem pages -- that's unrelated to the problem at hand here.
 
-> 3AP and 11AP, and is identical to the "clear ESR" code in
-> setup_local_APIC() around line 385.
-
- It's not identical -- the code in setup_local_APIC() doesn't discard what
-is read from ESR so it can't do apic_write_around().  Note that you must
-write to ESR before reading it on a P6 and you must not write to ESR
-before reading it on a Pentium if you want to retrieve meaningful data. 
-
- If you only want to clear ESR, you just need to ensure there is a
-write-read sequence somewhere.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Cheers,
+ Stephen

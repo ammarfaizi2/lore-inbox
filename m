@@ -1,60 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277808AbRJRRLw>; Thu, 18 Oct 2001 13:11:52 -0400
+	id <S277828AbRJRRPc>; Thu, 18 Oct 2001 13:15:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277828AbRJRRLn>; Thu, 18 Oct 2001 13:11:43 -0400
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:27480 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S277808AbRJRRLb>; Thu, 18 Oct 2001 13:11:31 -0400
-Posted-Date: Thu, 18 Oct 2001 07:32:09 GMT
-Date: Thu, 18 Oct 2001 08:32:09 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Timur Tabi <ttabi@interactivesi.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: *(int *)0 = 0
-In-Reply-To: <3BCB08B2.5060207@interactivesi.com>
-Message-ID: <Pine.LNX.4.21.0110180823550.4173-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277831AbRJRRPW>; Thu, 18 Oct 2001 13:15:22 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:20744 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S277828AbRJRRPL>;
+	Thu, 18 Oct 2001 13:15:11 -0400
+Date: Thu, 18 Oct 2001 19:15:39 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Tony Hoyle <tmh@nothing-on.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Input on the Non-GPL Modules
+Message-ID: <20011018191539.A5676@gondor.com>
+In-Reply-To: <Pine.LNX.4.21.0110181113020.9058-100000@wyrm.rakis.net> <20011018183217.A5055@gondor.com> <3bcf0c42.97910140@tony-home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3bcf0c42.97910140@tony-home>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Timur.
+On Thu, Oct 18, 2001 at 05:08:13PM +0000, Tony Hoyle wrote:
+> This is still a GPL violation, as the small module couldn't then be
+> linked with the proprietary module.  Most companies aren't prepared to
+> get into the legally murky ground that that sort of thing entails.
 
->>> What is the effect of the following statement at the end of a
->>> function definition?
->>>
->>>	*(int *)0 = 0;	
+Why not? It is obviously allowed to write proprietary modules, as long
+as they dont use GPL-only interfaces. 
 
->> That should throw a segmentation fault, in the kernel an OOPS, in
->> this statement the code is trying to dereference a NULL pointer and
->> store a value at 0x0.
-
-> A much smarter way to do this would be to use this code:
-
-> static inline void int3(void) { __asm__ __volatile__ (".byte 0xCC\n"); };
-
-> Granted, it's x86-specific, but it works better, since gdb will halt
-> the code right at that spot rather than inside some trap hander.  
-> And it's just more elegant.
-
-As I understand it, there's two problems with your suggestion:
-
- 1. The fact that it's x86-specific would rule it out as part of
-    the actual code of most functions, as they are designed to
-    work on any of the supported processors without change.
-
-    However, this can be dealt with by using a macro function and
-    dropping the macro definition in an arch-specific header file.
-
- 2. The code isn't normally designed for what gdb does with it,
-    but for what it does when run on its own. I believe that the
-    original results in an error message being thrown up on the
-    screen, but I suspect your replacement would just halt the
-    processor and make the user think Linux had crashed.
-
-Comments, anybody?
-
-Best wishes from Riley.
+Jan
 

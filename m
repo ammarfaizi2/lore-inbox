@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRABPiI>; Tue, 2 Jan 2001 10:38:08 -0500
+	id <S129267AbRABPto>; Tue, 2 Jan 2001 10:49:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRABPh6>; Tue, 2 Jan 2001 10:37:58 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:55428 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129183AbRABPhq>; Tue, 2 Jan 2001 10:37:46 -0500
-Date: Tue, 2 Jan 2001 10:07:03 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Matthew Galgoci <mgalgoci@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: iopener reboot
-In-Reply-To: <20010102095134.A32445@redhat.com>
-Message-ID: <Pine.LNX.3.95.1010102100037.11768B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129383AbRABPtf>; Tue, 2 Jan 2001 10:49:35 -0500
+Received: from mx3.sac.fedex.com ([199.81.208.11]:13582 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S129267AbRABPtT>; Tue, 2 Jan 2001 10:49:19 -0500
+Date: Tue, 2 Jan 2001 23:14:51 +0800
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Message-Id: <200101021514.f02FEp302397@silk.corp.fedex.com>
+To: Alan.Cox@linux.org, linux@silk.corp.fedex.com,
+        linux-kernel@silk.corp.fedex.com, lermen@fgan.de, jchua@fedex.com
+Subject: can't boot 2.2.x
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Matthew Galgoci wrote:
 
-> Hi,
-> 
-> I've gone and tried the ultimate acid test of crappy x86 hardware on the 
-> vanilla prerelease kernel, and installed it on my iopener. The kernel 
-> loads, uncompresses, initializes hardware, and then immediately reboots.
-> 
-> It all happens so fast that I do not really get a chance to see the last thing
-> printed before it fails.
-> 
-> The last kernel that I had running on this was a test12 pre something.
-> 
-> Any ideas?
-> 
-> --Matt Galgoci
-> 
+Got problem booting on Celeron or when initrd filesystem>4MB.
 
-Recompile as 'generic' as you can get. Pretend you have a '486. Use
-a known good 'C' compiler even though it may not be 'optimum'. Once
-this boots okay, try compiling for a Pentium '586' etc. You may
-have found some problem with CPU identification.
+Environment:
+	Linux 2.2.19pre3 or any 2.2.x
+	Linux 2.4.0-prerelease or any 2.4.x
+	Gcc 2.95.2
+	Glib 2.1.3
+	loadlin 1.6b
 
-A quick hack at the possibility of a BIOS reporting the wrong amount
-of memory is to put append="mem=16m" in your LILO config just to
-pretend that you only have 16 megabytes of RAM. Assuming you have
-more than 16 megabytes, if the machine boots, you have isolated the
-problem to bad BIOS reporting.
 
-Step-by-step, using these kinds of tricks, you should be able to
-find the problem.
+1) Pentium3
+	When the initrd ramdisk is greater than 4MB
+		linux 2.2.x failed
+		2.4.x still boot up
 
-Cheers,
-Dick Johnson
+2) Celeron
+	When the initrd ramdisk is greater than 4MB
+		linux 2.2.x failed
+		linux 2.4.x failed
 
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+Message on console:
 
+	Less than 4MB of memory.
+
+	-- System halted
+
+
+No problem booting when initrd ramdisk <4MB
+
+I don't know where the problem is.
+
+Jeff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

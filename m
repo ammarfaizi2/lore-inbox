@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313260AbSEESQP>; Sun, 5 May 2002 14:16:15 -0400
+	id <S313264AbSEESZP>; Sun, 5 May 2002 14:25:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313267AbSEESQO>; Sun, 5 May 2002 14:16:14 -0400
-Received: from p50887839.dip.t-dialin.net ([80.136.120.57]:42897 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S313260AbSEESQO>; Sun, 5 May 2002 14:16:14 -0400
-Date: Sun, 5 May 2002 12:16:03 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: make mrproper depends on .hdepend?
-Message-ID: <Pine.LNX.4.44.0205051206340.23089-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313267AbSEESZO>; Sun, 5 May 2002 14:25:14 -0400
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:15745 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S313264AbSEESZN>;
+	Sun, 5 May 2002 14:25:13 -0400
+Date: Sun, 5 May 2002 19:21:49 +0100
+Message-Id: <200205051821.g45ILnX02727@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at page_alloc.c:82
+In-Reply-To: <200205051706.TAA08782@cave.bitwizard.nl>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In article <200205051706.TAA08782@cave.bitwizard.nl> you wrote:
+> Christian [Borntr_ger] wrote:
+>> Fabian Svara wrote:
+>> > EIP:        0010:[<c0125183>]    Tainted: P
+>> 
+>> You have the Binary-NVIDIA Driver loaded, haven't you?
+> 
+> Would it be an idea to print the name of the module that (first)
+> tainted the kernel here? That would eliminate this "guessing".
 
-Hi,
+That would mean storing it in kernel memory and then people would object
+to using kernel memory for that....
 
-Something weird just broke my build of .hdepend. I tried to make clean 
-afterwards, and make clean aborted due to an aborted .hdepend. I tried to 
-make mrproper, but the problem reoccurred.
-
-I rm'd the .hdepend, then I could make clean and mrproper. However, IMO 
-make clean and make mrproper shouldn't depend on .hdepend to be complete. 
-Or is there any sane reason not to parse .hdepend for make mrproper & co.?
-
-Regards,
-Thunder
-- -- 
-if (errno == ENOTAVAIL)
-    fprintf(stderr, "Error: Talking to Microsoft server!\n");
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE81Xbn4FmIJJa453wRAto7AKCsssr7TVwdGiSGPcUCvGpkiI/NEQCglqEU
-liHwdPrRCJcfXlnJmH+aSUw=
-=0KQo
------END PGP SIGNATURE-----
-
+Anyway in this case there's no need.... this is a classic nvidia report;
+just the same as all the other dozens.... I wonder what bug the latest
+driver has to cause the exact same oops all over ;)

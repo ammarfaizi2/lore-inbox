@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267187AbTBDIol>; Tue, 4 Feb 2003 03:44:41 -0500
+	id <S267159AbTBDImE>; Tue, 4 Feb 2003 03:42:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267183AbTBDIol>; Tue, 4 Feb 2003 03:44:41 -0500
-Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:48027 "EHLO
-	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
-	id <S267184AbTBDIok> convert rfc822-to-8bit; Tue, 4 Feb 2003 03:44:40 -0500
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.5.59: ATI framebuffer compilation error
-Date: Tue, 4 Feb 2003 03:55:56 -0500
-User-Agent: KMail/1.5
+	id <S267160AbTBDImE>; Tue, 4 Feb 2003 03:42:04 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:47786 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S267159AbTBDImD>;
+	Tue, 4 Feb 2003 03:42:03 -0500
+Message-ID: <3E3F7F0C.4000309@candelatech.com>
+Date: Tue, 04 Feb 2003 00:51:24 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200302040356.12614.ivg2@cornell.edu>
+To: Ben Greear <greearb@candelatech.com>
+CC: "David S. Miller" <davem@redhat.com>, john@grabjohn.com,
+       cfriesen@nortelnetworks.com, ahu@ds9a.nl, linux-kernel@vger.kernel.org
+Subject: Re: problems achieving decent throughput with latency.
+References: <3E3EAF04.9010308@candelatech.com>	<20030203.211933.27826107.davem@redhat.com>	<3E3F70AD.7060901@candelatech.com> <20030203.233948.53493107.davem@redhat.com> <3E3F7CDA.9020701@candelatech.com>
+In-Reply-To: <3E3F7CDA.9020701@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ben Greear wrote:
 
-2.5.59 bitkeeper (as of 3:50 am Feb. 4 US Eastern time, changeset 1.973)
+[ a bunch of bogus math]
 
-  Generating include/linux/compile.h (updated)
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall 
-- -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
-- -mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default 
-- -fomit-frame-pointer -nostdinc -iwithprefix include    
-- -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -o init/version.o 
-init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
-init/do_mounts.o init/initramfs.o init/vermagic.o
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o 
-- --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  
-arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  
-mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  
-crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  
-sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o 
-.tmp_vmlinux1
-drivers/built-in.o(.text+0xa441a): In function `atyfb_copyarea':
-: undefined reference to `cfb_copyarea'
-make: *** [.tmp_vmlinux1] Error 1
-[root@cobra linux]# grep ATY ./include/linux/autoconf.h
-#undef CONFIG_FB_ATY128
-#define CONFIG_FB_ATY 1
-#define CONFIG_FB_ATY_CT 1
-#undef CONFIG_FB_ATY_GX
-[root@cobra linux]# 
+Sorry...I think my math is off by many zeros.  I should
+stick to reading slashdot this time of night!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Ben
 
-iD8DBQE+P4ApXQ/AjixQzHcRApN3AJ9RP1QP3BNe5pdEEUu7KqF438ybMwCfcYLA
-Y1cvH99glMb+SoiKMme+XIc=
-=o4PQ
------END PGP SIGNATURE-----
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

@@ -1,242 +1,161 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129100AbRBCOEB>; Sat, 3 Feb 2001 09:04:01 -0500
+	id <S129040AbRBCOJl>; Sat, 3 Feb 2001 09:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129056AbRBCODw>; Sat, 3 Feb 2001 09:03:52 -0500
-Received: from ovelix.softnet.tuc.gr ([147.27.7.103]:54021 "EHLO
-	kythira.softlab.tuc.gr") by vger.kernel.org with ESMTP
-	id <S129100AbRBCODc>; Sat, 3 Feb 2001 09:03:32 -0500
-Date: Sat, 3 Feb 2001 16:03:29 +0200 (EET)
-From: <apdim@ovelix.softnet.tuc.gr>
+	id <S129051AbRBCOJb>; Sat, 3 Feb 2001 09:09:31 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:8196 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129040AbRBCOJO>;
+	Sat, 3 Feb 2001 09:09:14 -0500
+Date: Sat, 3 Feb 2001 15:09:05 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
 To: linux-kernel@vger.kernel.org
-Subject: [new driver] Guillemot maxi radio
-Message-ID: <Pine.LNX.4.10.10102031556430.5418-200000@kythira.softlab.tuc.gr>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="462644999-1259679003-981209009=:5418"
+Subject: [PATCH] /proc/sys/vm/max_map_count
+Message-ID: <20010203150905.B1071@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+A few days ago, a colleague asked me for help with some malloc problem.
+I applied my usual solution, efence, and found the bug. Then she ran a
+larger simulation, and it promptly failed with ENOMEM. After a bit of
+searching, I found that MAX_MAP_COUNT was the culprit, and that in
+order to raise the limit, I had to rebuild the kernel and reboot the
+machine. Reboot a Linux system to change one stupid little integer !
+I felt very embarrassed ...
 
---462644999-1259679003-981209009=:5418
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Okay, here's a patch for 2.4.1 that should prevent further humiliations
+of that type from happening. (I'm now hitting a limit at around 229309
+maps (~0.87GB), but that's something else. Test program to exercise
+max_map_count at ftp://icaftp.epfl.ch/pub/people/almesber/junk/mm.c)
 
+BTW, I've noticed that mm/mmap.c:sys_brk and do_brk both check
+vm_enough_memory. Do we really need this ? Removing one of them may
+make sys_brk about 2% faster ;-)
 
-Hi, this is a driver for the Guillemot Maxi Radio FM 2000 PCI radio card.
-The driver was written for 2.4.0 but hopefully should work on 2.4.1
-(unless ReiserFS breaks it :)
+- Werner
 
-I was surprised that nobody has written a driver so far. Doesn't anybody
-listen to radio anymore?
+------------------------------------ patch ------------------------------------
 
-Anyway the PCI ids are missing so they are included in the source ,
-probably they should go to pci.h.
-
-#define PCI_VENDOR_ID_GUILLEMOT 0x5046
-#define PCI_DEVICE_ID_GUILLEMOT_MAXIRADIO 0x1001
-
-Hope this is will be included in the next 2.4.x release.
-
-
---462644999-1259679003-981209009=:5418
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="radio-maxiradio.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10102031603290.5418@kythira.softlab.tuc.gr>
-Content-Description: 
-Content-Disposition: attachment; filename="radio-maxiradio.c"
-
-LyogDQogKiBHdWlsbGVtb3QgTWF4aSBSYWRpbyBGTSAyMDAwIFBDSSByYWRp
-byBjYXJkIGRyaXZlciBmb3IgTGludXggDQogKiAoQykgMjAwMSBEaW1pdHJv
-bWFub2xha2lzIEFwb3N0b2xvcyA8YXBkaW1AZ3JlY2lhbi5uZXQ+DQogKg0K
-ICogQmFzZWQgaW4gdGhlIHJhZGlvIE1hZXN0cm8gUENJIGRyaXZlci4gQWN0
-dWFsbHkgaXQgdXNlcyB0aGUgc2FtZSBjaGlwDQogKiBmb3IgcmFkaW8gYnV0
-IGRpZmZlcmVudCBwY2kgY29udHJvbGxlci4NCiAqDQogKiBJIGRpZG4ndCBo
-YXZlIGFueSBzcGVjcyBJIHJldmVyc2VkIGVuZ2luZWVyZWQgdGhlIHByb3Rv
-Y29sIGZyb20NCiAqIHRoZSB3aW5kb3dzIGRyaXZlciAocmFkaW8uZGxsKS4g
-DQogKg0KICogVGhlIGNhcmQgdXNlcyB0aGUgVEVBNTc1NyBjaGlwIHRoYXQg
-aW5jbHVkZXMgYSBzZWFyY2ggZnVuY3Rpb24gYnV0IGl0DQogKiBpcyB1c2Vs
-ZXNzIGFzIEkgaGF2ZW4ndCBmb3VuZCBhbnkgd2F5IHRvIHJlYWQgYmFjayB0
-aGUgZnJlcXVlbmN5LiBJZiANCiAqIGFueWJvZHkgZG9lcyBwbGVhc2UgbWFp
-bCBtZS4NCiAqDQogKiBGb3IgdGhlIHBkZiBmaWxlIHNlZToNCiAqIGh0dHA6
-Ly93d3cuc2VtaWNvbmR1Y3RvcnMucGhpbGlwcy5jb20vcGlwL1RFQTU3NTdI
-L1YxDQogKiANCiAqLw0KDQojaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQoj
-aW5jbHVkZSA8bGludXgvaW5pdC5oPg0KI2luY2x1ZGUgPGxpbnV4L2lvcG9y
-dC5oPg0KI2luY2x1ZGUgPGxpbnV4L2RlbGF5Lmg+DQojaW5jbHVkZSA8bGlu
-dXgvc2NoZWQuaD4NCiNpbmNsdWRlIDxhc20vaW8uaD4NCiNpbmNsdWRlIDxh
-c20vdWFjY2Vzcy5oPg0KI2luY2x1ZGUgPGFzbS9zZW1hcGhvcmUuaD4NCiNp
-bmNsdWRlIDxsaW51eC9wY2kuaD4NCiNpbmNsdWRlIDxsaW51eC92aWRlb2Rl
-di5oPg0KDQojZGVmaW5lIERSSVZFUl9WRVJTSU9OCSIwLjciDQoNCiNpZm5k
-ZWYgUENJX1ZFTkRPUl9JRF9HVUlMTEVNT1QNCiNkZWZpbmUgUENJX1ZFTkRP
-Ul9JRF9HVUlMTEVNT1QgMHg1MDQ2DQojZW5kaWYNCg0KI2lmbmRlZiBQQ0lf
-REVWSUNFX0lEX0dVSUxMRU1PVA0KI2RlZmluZSBQQ0lfREVWSUNFX0lEX0dV
-SUxMRU1PVF9NQVhJUkFESU8gMHgxMDAxDQojZW5kaWYNCg0KDQovKiBURUE1
-NzU3IHBpbiBtYXBwaW5ncyAqLw0KY29uc3QgaW50IGNsayA9IDEsIGRhdGEg
-PSAyLCB3cmVuID0gNCwgbW9fc3QgPSA4LCBwb3dlciA9IDE2IDsNCg0KDQoj
-ZGVmaW5lIEZSRVFfTE8JCSA1MCoxNjAwMA0KI2RlZmluZSBGUkVRX0hJCQkx
-NTAqMTYwMDANCg0KI2RlZmluZSBGUkVRX0lGICAgICAgICAgMTcxMjAwIC8q
-IDEwLjcqMTYwMDAgICAqLw0KI2RlZmluZSBGUkVRX1NURVAgICAgICAgMjAw
-ICAgIC8qIDEyLjUqMTYgICAgICAqLw0KDQojZGVmaW5lIEZSRVEyQklUUyh4
-KQkoKCggKHVuc2lnbmVkIGludCkoeCkrRlJFUV9JRisoRlJFUV9TVEVQPDwx
-KSlcDQoJCQkvKEZSRVFfU1RFUDw8MikpPDwyKSAvKiAoeD09Zm1oeioxNiox
-MDAwKSAtPiBiaXRzICovDQoNCiNkZWZpbmUgQklUUzJGUkVRKHgpCSgoeCkg
-KiBGUkVRX1NURVAgLSBGUkVRX0lGKQ0KDQoNCnN0YXRpYyBpbnQgcmFkaW9f
-b3BlbihzdHJ1Y3QgdmlkZW9fZGV2aWNlICosIGludCk7DQpzdGF0aWMgaW50
-IHJhZGlvX2lvY3RsKHN0cnVjdCB2aWRlb19kZXZpY2UgKiwgdW5zaWduZWQg
-aW50LCB2b2lkICopOw0Kc3RhdGljIHZvaWQgcmFkaW9fY2xvc2Uoc3RydWN0
-IHZpZGVvX2RldmljZSAqKTsNCg0KDQovKiBpZiBhbnlib2R5IGtub3dzIGhv
-dyB0byBmaW5kIGFsbCB0aGUgY2FyZHMgZnJvbSB0aGUgdmlkZW9fZGV2aWNl
-Li4uICovDQppbnQgZm91bmQ7IA0KX191MTYgaW9fcG9ydHNbMTZdOw0KDQpz
-dGF0aWMgc3RydWN0IHZpZGVvX2RldmljZSBtYXhpcmFkaW9fcmFkaW89DQp7
-DQoJbmFtZToJCSJNYXhpIFJhZGlvIEZNMjAwMCByYWRpbyIsDQoJdHlwZToJ
-CVZJRF9UWVBFX1RVTkVSLA0KCWhhcmR3YXJlOglWSURfSEFSRFdBUkVfU0Yx
-Nk1JLA0KCW9wZW46CQlyYWRpb19vcGVuLA0KCWNsb3NlOgkJcmFkaW9fY2xv
-c2UsDQoJaW9jdGw6CQlyYWRpb19pb2N0bCwNCn07DQoNCnN0YXRpYyBzdHJ1
-Y3QgcmFkaW9fZGV2aWNlDQp7DQoJX191MTYJaW8sCS8qIGJhc2Ugb2YgTWFl
-c3RybyBjYXJkIHJhZGlvIGlvIChHUElPX0RBVEEpKi8NCgkJbXV0ZWQsCS8q
-IFZJREVPX0FVRElPX01VVEUgKi8NCgkJc3RlcmVvLAkvKiBWSURFT19UVU5F
-Ul9TVEVSRU9fT04gKi8JDQoJCXR1bmVkOwkvKiBzaWduYWwgc3RyZW5ndGgg
-KDAgb3IgMHhmZmZmKSAqLw0KCQkNCgl1bnNpZ25lZCBsb25nIGZyZXE7DQoJ
-DQoJc3RydWN0ICBzZW1hcGhvcmUgbG9jazsNCn0gcmFkaW9fdW5pdCA9IHsw
-LCAwLCAwLCAwLCB9Ow0KDQoNCnN0YXRpYyB2b2lkIHNsZWVwXzEyNW1zKHZv
-aWQpDQp7DQoJY3VycmVudC0+c3RhdGUgPSBUQVNLX0lOVEVSUlVQVElCTEU7
-DQoJc2NoZWR1bGVfdGltZW91dChIWiA+PiAzKTsNCn0NCg0KDQpzdGF0aWMg
-dm9pZCBvdXRiaXQodW5zaWduZWQgbG9uZyBiaXQsIF9fdTE2IGlvKQ0Kew0K
-CWlmKGJpdCAhPSAwKQ0KCQl7DQoJCQlvdXRiKCAgcG93ZXJ8d3JlbnxkYXRh
-ICAgICAsaW8pOyB1ZGVsYXkoNCk7DQoJCQlvdXRiKCAgcG93ZXJ8d3Jlbnxk
-YXRhfGNsayAsaW8pOyB1ZGVsYXkoNCk7DQoJCQlvdXRiKCAgcG93ZXJ8d3Jl
-bnxkYXRhICAgICAsaW8pOyB1ZGVsYXkoNCk7DQoJCX0NCgllbHNlCQ0KCQl7
-DQoJCQlvdXRiKCAgcG93ZXJ8d3JlbiAgICAgICAgICAsaW8pOyB1ZGVsYXko
-NCk7DQoJCQlvdXRiKCAgcG93ZXJ8d3JlbnxjbGsgICAgICAsaW8pOyB1ZGVs
-YXkoNCk7DQoJCQlvdXRiKCAgcG93ZXJ8d3JlbiAgICAgICAgICAsaW8pOyB1
-ZGVsYXkoNCk7DQoJCX0NCn0NCg0Kc3RhdGljIHZvaWQgdHVybl9wb3dlcihf
-X3UxNiBpbywgaW50IHApDQp7DQoJaWYocCAhPSAwKSBvdXRiKHBvd2VyLCBp
-byk7IGVsc2Ugb3V0YigwLGlvKTsNCn0NCg0KDQpzdGF0aWMgdm9pZCBzZXRf
-ZnJlcShfX3UxNiBpbywgX191MzIgZGF0YSkNCnsNCgl1bnNpZ25lZCBsb25n
-IGludCBzaTsNCglpbnQgYmw7DQoJDQoJLyogVEVBNTc1NyBzaGlmdCByZWdp
-c3RlciBiaXRzIChzZWUgcGRmKSAqLw0KDQoJb3V0Yml0KDAsaW8pOyAvLyAy
-NCAgc2VhcmNoIA0KCW91dGJpdCgxLGlvKTsgLy8gMjMgIHNlYXJjaCB1cC9k
-b3duDQoJDQoJb3V0Yml0KDAsaW8pOyAvLyAyMiAgc3RlcmVvL21vbm8NCg0K
-CW91dGJpdCgwLGlvKTsgLy8gMjEgIGJhbmQNCglvdXRiaXQoMCxpbyk7IC8v
-IDIwICBiYW5kIChvbmx5IDAwPUZNIHdvcmtzIEkgdGhpbmspDQoNCglvdXRi
-aXQoMCxpbyk7IC8vIDE5ICBwb3J0ID8NCglvdXRiaXQoMCxpbyk7IC8vIDE4
-ICBwb3J0ID8NCgkNCglvdXRiaXQoMCxpbyk7IC8vIDE3ICBzZWFyY2ggbGV2
-ZWwNCglvdXRiaXQoMCxpbyk7IC8vIDE2ICBzZWFyY2ggbGV2ZWwNCiANCiAg
-c2kgPSAweDgwMDA7DQoJZm9yKGJsID0gMTsgYmwgPD0gMTYgOyBibCsrKSB7
-IG91dGJpdChkYXRhICYgc2ksaW8pOyBzaSA+Pj0xOyB9DQoJDQoJb3V0Yihw
-b3dlcixpbyk7DQp9DQoNCnN0YXRpYyBpbnQgZ2V0X3N0ZXJlbyhfX3UxNiBp
-bykNCnsJDQoJb3V0Yihwb3dlcixpbyk7IHVkZWxheSgyKTsNCglyZXR1cm4g
-IShpbmIoaW8pICYgbW9fc3QpOw0KfQ0KDQpzdGF0aWMgaW50IGdldF90dW5l
-KF9fdTE2IGlvKQ0KewkNCglvdXRiKHBvd2VyK2Nsayxpbyk7IHVkZWxheSgy
-KTsNCglyZXR1cm4gIShpbmIoaW8pICYgbW9fc3QpOw0KfQ0KDQoNCmlubGlu
-ZSBzdGF0aWMgaW50IHJhZGlvX2Z1bmN0aW9uKHN0cnVjdCB2aWRlb19kZXZp
-Y2UgKmRldiwgDQoJCQkJIHVuc2lnbmVkIGludCBjbWQsIHZvaWQgKmFyZykN
-CnsNCglzdHJ1Y3QgcmFkaW9fZGV2aWNlICpjYXJkPWRldi0+cHJpdjsNCglz
-d2l0Y2goY21kKSB7DQoJCWNhc2UgVklESU9DR0NBUDogew0KCQkJc3RydWN0
-IHZpZGVvX2NhcGFiaWxpdHkgdjsNCgkJCQ0KCQkJc3RyY3B5KHYubmFtZSwg
-Ik1heGkgUmFkaW8gRk0yMDAwIHJhZGlvIik7DQoJCQl2LnR5cGU9VklEX1RZ
-UEVfVFVORVI7DQoJCQl2LmNoYW5uZWxzPXYuYXVkaW9zPTE7DQoJCQl2Lm1h
-eHdpZHRoPXYubWF4aGVpZ2h0PXYubWlud2lkdGg9di5taW5oZWlnaHQ9MDsN
-CgkJCQ0KCQkJaWYoY29weV90b191c2VyKGFyZywmdixzaXplb2YodikpKQ0K
-CQkJCXJldHVybiAtRUZBVUxUOw0KCQkJcmV0dXJuIDA7DQoJCX0NCgkJY2Fz
-ZSBWSURJT0NHVFVORVI6IHsNCgkJCXN0cnVjdCB2aWRlb190dW5lciB2Ow0K
-CQkJDQoJCQlpZihjb3B5X2Zyb21fdXNlcigmdiwgYXJnLHNpemVvZih2KSkh
-PTApDQoJCQkJcmV0dXJuIC1FRkFVTFQ7DQoJCQkJDQoJCQlpZih2LnR1bmVy
-KQ0KCQkJCXJldHVybiAtRUlOVkFMOw0KCQkJCQ0KCQkJY2FyZC0+c3RlcmVv
-ID0gZ2V0X3N0ZXJlbyhjYXJkLT5pbyk7DQoJCQljYXJkLT50dW5lZCA9IGdl
-dF90dW5lKGNhcmQtPmlvKTsNCgkJCQ0KCQkJdi5mbGFncyA9IFZJREVPX1RV
-TkVSX0xPVyB8IGNhcmQtPnN0ZXJlbzsNCgkJCXYuc2lnbmFsID0gY2FyZC0+
-dHVuZWQ7DQoJCQkNCgkJCXN0cmNweSh2Lm5hbWUsICJGTSIpOw0KCQkJDQoJ
-CQl2LnJhbmdlbG93ID0gRlJFUV9MTzsNCgkJCXYucmFuZ2VoaWdoID0gRlJF
-UV9ISTsNCgkJCXYubW9kZSA9IFZJREVPX01PREVfQVVUTzsNCgkJCWlmKGNv
-cHlfdG9fdXNlcihhcmcsJnYsIHNpemVvZih2KSkpDQoJCQkJcmV0dXJuIC1F
-RkFVTFQ7DQoJCSAgICAgICAgcmV0dXJuIDA7DQoJCX0NCgkJY2FzZSBWSURJ
-T0NTVFVORVI6IHsNCgkJCXN0cnVjdCB2aWRlb190dW5lciB2Ow0KCQkJaWYo
-Y29weV9mcm9tX3VzZXIoJnYsIGFyZywgc2l6ZW9mKHYpKSkNCgkJCQlyZXR1
-cm4gLUVGQVVMVDsNCgkJCWlmKHYudHVuZXIhPTApDQoJCQkJcmV0dXJuIC1F
-SU5WQUw7DQoJCQlyZXR1cm4gMDsNCgkJfQ0KCQljYXNlIFZJRElPQ0dGUkVR
-OiB7DQoJCQl1bnNpZ25lZCBsb25nIHRtcD1jYXJkLT5mcmVxOw0KCQkJDQoJ
-CQlpZihjb3B5X3RvX3VzZXIoYXJnLCAmdG1wLCBzaXplb2YodG1wKSkpDQoJ
-CQkJcmV0dXJuIC1FRkFVTFQ7DQoJCQkJDQoJCQlyZXR1cm4gMDsNCgkJfQ0K
-CQkNCgkJY2FzZSBWSURJT0NTRlJFUTogew0KCQkJdW5zaWduZWQgbG9uZyB0
-bXA7DQoJCQkNCgkJCWlmKGNvcHlfZnJvbV91c2VyKCZ0bXAsIGFyZywgc2l6
-ZW9mKHRtcCkpKQ0KCQkJCXJldHVybiAtRUZBVUxUOw0KCQkJCQ0KCQkJaWYg
-KCB0bXA8RlJFUV9MTyB8fCB0bXA+RlJFUV9ISSApDQoJCQkJcmV0dXJuIC1F
-SU5WQUw7DQoJCQkJDQoJCQlzZXRfZnJlcShjYXJkLT5pbywgRlJFUTJCSVRT
-KHRtcCkpOw0KCQkJc2xlZXBfMTI1bXMoKTsNCg0KCQkJcmV0dXJuIDA7DQoJ
-CX0NCgkJY2FzZSBWSURJT0NHQVVESU86IHsJDQoJCQlzdHJ1Y3QgdmlkZW9f
-YXVkaW8gdjsNCgkJCXN0cmNweSh2Lm5hbWUsICJSYWRpbyIpOw0KCQkJdi5h
-dWRpbz12LnZvbHVtZT12LmJhc3M9di50cmVibGU9di5iYWxhbmNlPXYuc3Rl
-cD0wOw0KCQkJdi5mbGFncz1WSURFT19BVURJT19NVVRBQkxFIHwgY2FyZC0+
-bXV0ZWQ7DQoJCQl2Lm1vZGU9VklERU9fU09VTkRfU1RFUkVPOw0KCQkJaWYo
-Y29weV90b191c2VyKGFyZywmdiwgc2l6ZW9mKHYpKSkNCgkJCQlyZXR1cm4g
-LUVGQVVMVDsNCgkJCXJldHVybiAwOwkJDQoJCX0NCgkJY2FzZSBWSURJT0NT
-QVVESU86IHsNCgkJCXN0cnVjdCB2aWRlb19hdWRpbyB2Ow0KCQkJDQoJCQlp
-Zihjb3B5X2Zyb21fdXNlcigmdiwgYXJnLCBzaXplb2YodikpKQ0KCQkJCXJl
-dHVybiAtRUZBVUxUOw0KCQkJCQ0KCQkJaWYodi5hdWRpbykNCgkJCQlyZXR1
-cm4gLUVJTlZBTDsNCgkJCQkNCgkJCXsNCgkJCQljYXJkLT5tdXRlZCA9IHYu
-ZmxhZ3MgJiBWSURFT19BVURJT19NVVRFOw0KCQkJCQ0KCQkJCWlmKGNhcmQt
-Pm11dGVkKSB0dXJuX3Bvd2VyKGNhcmQtPmlvLCAwKTsgZWxzZSB0dXJuX3Bv
-d2VyKGNhcmQtPmlvLCAxKTsNCgkJCQkNCgkJCQlyZXR1cm4gMDsNCgkJCX0N
-CgkJfQ0KCQljYXNlIFZJRElPQ0dVTklUOiB7DQoJCQlzdHJ1Y3QgdmlkZW9f
-dW5pdCB2Ow0KCQkJdi52aWRlbz1WSURFT19OT19VTklUOw0KCQkJdi52Ymk9
-VklERU9fTk9fVU5JVDsNCgkJCXYucmFkaW89ZGV2LT5taW5vcjsNCgkJCXYu
-YXVkaW89MDsNCgkJCXYudGVsZXRleHQ9VklERU9fTk9fVU5JVDsNCgkJCWlm
-KGNvcHlfdG9fdXNlcihhcmcsICZ2LCBzaXplb2YodikpKQ0KCQkJCXJldHVy
-biAtRUZBVUxUOw0KCQkJcmV0dXJuIDA7CQkNCgkJfQ0KCQlkZWZhdWx0OiBy
-ZXR1cm4gLUVOT0lPQ1RMQ01EOw0KCX0NCn0NCg0Kc3RhdGljIGludCByYWRp
-b19pb2N0bChzdHJ1Y3QgdmlkZW9fZGV2aWNlICpkZXYsIHVuc2lnbmVkIGlu
-dCBjbWQsIHZvaWQgKmFyZykNCnsNCglzdHJ1Y3QgcmFkaW9fZGV2aWNlICpj
-YXJkPWRldi0+cHJpdjsNCglpbnQgcmV0Ow0KCWRvd24oJmNhcmQtPmxvY2sp
-Ow0KCXJldCA9IHJhZGlvX2Z1bmN0aW9uKGRldiwgY21kLCBhcmcpOw0KCXVw
-KCZjYXJkLT5sb2NrKTsNCglyZXR1cm4gcmV0Ow0KfQ0KDQpzdGF0aWMgaW50
-IHJhZGlvX29wZW4oc3RydWN0IHZpZGVvX2RldmljZSAqZGV2LCBpbnQgZmxh
-Z3MpDQp7DQoJTU9EX0lOQ19VU0VfQ09VTlQ7DQoJcmV0dXJuIDA7DQp9DQoN
-CnN0YXRpYyB2b2lkIHJhZGlvX2Nsb3NlKHN0cnVjdCB2aWRlb19kZXZpY2Ug
-KmRldikNCnsNCglNT0RfREVDX1VTRV9DT1VOVDsNCn0NCg0KDQppbmxpbmUg
-c3RhdGljIF9fdTE2IHJhZGlvX2luc3RhbGwoc3RydWN0IHBjaV9kZXYgKnBj
-aWRldik7DQoNCk1PRFVMRV9BVVRIT1IoIkRpbWl0cm9tYW5vbGFraXMgQXBv
-c3RvbG9zLCBhcGRpbUBncmVjaWFuLm5ldCIpOw0KTU9EVUxFX0RFU0NSSVBU
-SU9OKCJSYWRpbyBkcml2ZXIgZm9yIHRoZSBHdWlsbGVtb3QgTWF4aSBSYWRp
-byBGTTIwMDAgcmFkaW8uIik7DQoNCkVYUE9SVF9OT19TWU1CT0xTOw0KDQp2
-b2lkIF9fZXhpdCBtYXhpcmFkaW9fcmFkaW9fZXhpdCh2b2lkKQ0Kew0KCWlu
-dCBrOw0KCQ0KCXZpZGVvX3VucmVnaXN0ZXJfZGV2aWNlKCZtYXhpcmFkaW9f
-cmFkaW8pOw0KDQoJZm9yKGs9MDtrPGZvdW5kO2srKykgcmVsZWFzZV9yZWdp
-b24oaW9fcG9ydHNba10sNCk7DQp9DQoNCmludCBfX2luaXQgbWF4aXJhZGlv
-X3JhZGlvX2luaXQodm9pZCkNCnsNCglzdHJ1Y3QgcGNpX2RldiAqcGNpZGV2
-ID0gTlVMTDsNCglpZighcGNpX3ByZXNlbnQoKSkNCgkJcmV0dXJuIC1FTk9E
-RVY7DQoJDQoJZm91bmQgPSAwOw0KDQoJd2hpbGUoKHBjaWRldiA9IHBjaV9m
-aW5kX2RldmljZShQQ0lfVkVORE9SX0lEX0dVSUxMRU1PVCwgDQoJCQkJCQkJ
-UENJX0RFVklDRV9JRF9HVUlMTEVNT1RfTUFYSVJBRElPLA0KCQkJCQkJICBw
-Y2lkZXYpKSkNCgkJZm91bmQgKz0gcmFkaW9faW5zdGFsbChwY2lkZXYpOw0K
-CQkNCglpZihmb3VuZCA9PSAwKSB7DQoJCXByaW50ayhLRVJOX0lORk8gInJh
-ZGlvLW1heGlyYWRpbzogbm8gZGV2aWNlcyBmb3VuZC5cbiIpOw0KCQlyZXR1
-cm4gLUVOT0RFVjsNCgl9DQoNCglwcmludGsoS0VSTl9JTkZPICJyYWRpby1t
-YXhpcmFkaW86ICVkIGRldmljZShzKSBmb3VuZC5cbiIsZm91bmQpOw0KCXJl
-dHVybiAwOw0KfQ0KDQptb2R1bGVfaW5pdChtYXhpcmFkaW9fcmFkaW9faW5p
-dCk7DQptb2R1bGVfZXhpdChtYXhpcmFkaW9fcmFkaW9fZXhpdCk7DQoNCmlu
-bGluZSBzdGF0aWMgX191MTYgcmFkaW9faW5zdGFsbChzdHJ1Y3QgcGNpX2Rl
-diAqcGNpZGV2KQ0Kew0KCXJhZGlvX3VuaXQuaW8gPSBwY2lkZXYtPnJlc291
-cmNlWzBdLnN0YXJ0Ow0KDQoJcGNpX2VuYWJsZV9kZXZpY2UocGNpZGV2KTsN
-CgltYXhpcmFkaW9fcmFkaW8ucHJpdiA9ICZyYWRpb191bml0Ow0KCWluaXRf
-TVVURVgoJnJhZGlvX3VuaXQubG9jayk7DQoJDQoJaWYodmlkZW9fcmVnaXN0
-ZXJfZGV2aWNlKCZtYXhpcmFkaW9fcmFkaW8sIFZGTF9UWVBFX1JBRElPKT09
-LTEpIHsNCgkJcHJpbnRrKCJyYWRpby1tYXhpcmFkaW86IGNhbid0IHJlZ2lz
-dGVyIGRldmljZSEiKTsNCgkJCXJldHVybiAwOw0KCQl9DQoJCQ0KCQkNCgkJ
-cHJpbnRrKEtFUk5fSU5GTyAicmFkaW8tbWF4aXJhZGlvOiB2ZXJzaW9uICIN
-CgkJICAgICAgIERSSVZFUl9WRVJTSU9OIA0KCQkgICAgICAgIiB0aW1lICIg
-DQoJCSAgICAgICBfX1RJTUVfXyAiICAiDQoJCSAgICAgICBfX0RBVEVfXw0K
-CQkgICAgICAgIlxuIik7DQoJCQkJCSANCgkJcHJpbnRrKEtFUk5fSU5GTyAN
-CgkJCSJyYWRpby1tYXhpcmFkaW86IGZvdW5kIEd1aWxsZW1vdCBNQVhJIFJh
-ZGlvIGRldmljZSAoaW8gPSAweCV4KVxuIiwNCgkJCXJhZGlvX3VuaXQuaW8N
-CgkJCSk7DQoNCg0KCWlmKCFyZXF1ZXN0X3JlZ2lvbihyYWRpb191bml0Lmlv
-LCA0LCAiTWF4aSBSYWRpbyBGTSAyMDAwIikpDQoJCXsNCgkJCXByaW50ayhL
-RVJOX0VSUiAicmFkaW8tbWF4aXJhZGlvOiBwb3J0IDB4JXggYWxyZWFkeSBp
-biB1c2VcbiIsDQoJCQlyYWRpb191bml0LmlvKTsNCgkJCQ0KCQkJcmV0dXJu
-IDA7DQoJCX0NCg0KCWlvX3BvcnRzW2ZvdW5kXSA9IHJhZGlvX3VuaXQuaW87
-DQoJCQkJCSANCglyZXR1cm4gMTsNCn0NCg0K
---462644999-1259679003-981209009=:5418--
+--- linux.orig/include/linux/sched.h	Tue Jan 30 08:24:56 2001
++++ linux/include/linux/sched.h	Sat Feb  3 14:29:41 2001
+@@ -195,7 +195,9 @@
+ }
+ 
+ /* Maximum number of active map areas.. This is a random (large) number */
+-#define MAX_MAP_COUNT	(65536)
++#define DEFAULT_MAX_MAP_COUNT	(65536)
++
++extern int max_map_count;
+ 
+ /* Number of map areas at which the AVL tree is activated. This is arbitrary. */
+ #define AVL_MIN_MAP_COUNT	32
+--- linux.orig/include/linux/sysctl.h	Tue Jan 30 08:24:55 2001
++++ linux/include/linux/sysctl.h	Sat Feb  3 14:29:49 2001
+@@ -132,7 +132,8 @@
+ 	VM_PAGECACHE=7,		/* struct: Set cache memory thresholds */
+ 	VM_PAGERDAEMON=8,	/* struct: Control kswapd behaviour */
+ 	VM_PGT_CACHE=9,		/* struct: Set page table cache parameters */
+-	VM_PAGE_CLUSTER=10	/* int: set number of pages to swap together */
++	VM_PAGE_CLUSTER=10,	/* int: set number of pages to swap together */
++	VM_MAX_MAP_COUNT=11,	/* int: Maximum number of active map areas */
+ };
+ 
+ 
+--- linux.orig/kernel/sysctl.c	Fri Dec 29 23:07:24 2000
++++ linux/kernel/sysctl.c	Sat Feb  3 14:28:05 2001
+@@ -257,6 +257,8 @@
+ 	 &pgt_cache_water, 2*sizeof(int), 0644, NULL, &proc_dointvec},
+ 	{VM_PAGE_CLUSTER, "page-cluster", 
+ 	 &page_cluster, sizeof(int), 0644, NULL, &proc_dointvec},
++	{VM_MAX_MAP_COUNT, "max_map_count",
++	 &max_map_count, sizeof(int), 0644, NULL, &proc_dointvec},
+ 	{0}
+ };
+ 
+--- linux.orig/mm/mmap.c	Mon Jan 29 17:10:41 2001
++++ linux/mm/mmap.c	Sat Feb  3 14:28:49 2001
+@@ -37,6 +37,7 @@
+ };
+ 
+ int sysctl_overcommit_memory;
++int max_map_count = DEFAULT_MAX_MAP_COUNT;
+ 
+ /* Check that a process has enough memory to allocate a
+  * new virtual mapping.
+@@ -207,7 +208,7 @@
+ 		return -EINVAL;
+ 
+ 	/* Too many mappings? */
+-	if (mm->map_count > MAX_MAP_COUNT)
++	if (mm->map_count > max_map_count)
+ 		return -ENOMEM;
+ 
+ 	/* mlock MCL_FUTURE? */
+@@ -691,7 +692,7 @@
+ 
+ 	/* If we'll make "hole", check the vm areas limit */
+ 	if ((mpnt->vm_start < addr && mpnt->vm_end > addr+len)
+-	    && mm->map_count >= MAX_MAP_COUNT)
++	    && mm->map_count >= max_map_count)
+ 		return -ENOMEM;
+ 
+ 	/*
+@@ -809,7 +810,7 @@
+ 	    > current->rlim[RLIMIT_AS].rlim_cur)
+ 		return -ENOMEM;
+ 
+-	if (mm->map_count > MAX_MAP_COUNT)
++	if (mm->map_count > max_map_count)
+ 		return -ENOMEM;
+ 
+ 	if (!vm_enough_memory(len >> PAGE_SHIFT))
+--- linux.orig/mm/filemap.c	Tue Jan 16 02:14:41 2001
++++ linux/mm/filemap.c	Sat Feb  3 14:18:02 2001
+@@ -1923,7 +1923,7 @@
+ 	int error = 0;
+ 
+ 	/* This caps the number of vma's this process can own */
+-	if (vma->vm_mm->map_count > MAX_MAP_COUNT)
++	if (vma->vm_mm->map_count > max_map_count)
+ 		return -ENOMEM;
+ 
+ 	if (start == vma->vm_start) {
+--- linux.orig/Documentation/sysctl/vm.txt	Tue Aug  8 08:01:34 2000
++++ linux/Documentation/sysctl/vm.txt	Sat Feb  3 14:33:14 2001
+@@ -21,6 +21,7 @@
+ - buffermem
+ - freepages
+ - kswapd
++- max_map_count
+ - overcommit_memory
+ - page-cluster
+ - pagecache
+@@ -171,6 +172,19 @@
+ and don't use much of it.
+ 
+ Look at: mm/mmap.c::vm_enough_memory() for more information.
++
++==============================================================
++
++max_map_count:
++
++This file contains the maximum number of memory map areas a
++process may have. Memory map areas are used as a side-effect
++of calling malloc, directly by mmap and mprotect, and also
++when loading shared libraries.
++
++While most applications need less than a thousand maps,
++certain programs, particularly malloc debuggers, may consume 
++lots of them, e.g. up to one or two maps per allocation.
+ 
+ ==============================================================
+ 
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273214AbSISV2g>; Thu, 19 Sep 2002 17:28:36 -0400
+	id <S273392AbSISVo3>; Thu, 19 Sep 2002 17:44:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273392AbSISV2A>; Thu, 19 Sep 2002 17:28:00 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43430 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S273214AbSISV1J>;
-	Thu, 19 Sep 2002 17:27:09 -0400
-Date: Thu, 19 Sep 2002 23:39:36 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] generic-pidhash-2.5.36-J2, BK-curr
-In-Reply-To: <Pine.LNX.4.33.0209191429410.1360-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209192337240.17366-100000@localhost.localdomain>
+	id <S273395AbSISVo3>; Thu, 19 Sep 2002 17:44:29 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:43143 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S273392AbSISVo2>;
+	Thu, 19 Sep 2002 17:44:28 -0400
+Message-ID: <3D8A464B.20209@us.ibm.com>
+Date: Thu, 19 Sep 2002 14:48:59 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Bond, Andrew" <Andrew.Bond@hp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TPC-C benchmark used standard RH kernel
+References: <45B36A38D959B44CB032DA427A6E106402D09E45@cceexc18.americas.cpqcorp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bond, Andrew wrote:
+ > Don't have any data yet on 8-ways.  Our focus for the cluster was
+ > 4-ways because those are what HP uses for most Oracle RAC
+ > configurations.  We had done some testing last year that showed
+ > very bad scaling from 4 to 8 cpus (only around 10% gain), but that
+ > was in the days of 2.4.5.  The kernel has come a long way from
+ > then, but like you said there is more work to do in the 8-way
+ > arena.
+ >
+ > Are the 8-way's you are talking about 8 full processors, or 4 with
+ > Hyperthreading?
 
-On Thu, 19 Sep 2002, Linus Torvalds wrote:
+The machines that I was talking about are normal 8 full processors. 
+   They're only PIII's, so we don't even have the option.
 
-> I'm also applying the session handling changes to tty_io.c as a separate
-> changeset, since the resulting code is certainly cleaner and reading
-> peoples areguments and looking at the code have made me think it _is_
-> correct after all.
-
-yes, i too think it's correct. In fact this is partly proven by one piece
-of code in the old tty_io.c file:
-
-void disassociate_ctty(int on_exit)
-[...]
-        read_lock(&tasklist_lock);
-        for_each_process(p)
-                if (p->session == current->session)
-                        p->tty = NULL;
-        read_unlock(&tasklist_lock);
-
-ie. if the SID-based iteration is incorrect, then the above code is 
-incorrect already - but we never saw any problems in this area.
-
-	Ingo
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

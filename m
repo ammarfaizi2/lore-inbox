@@ -1,43 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266867AbRGTJaB>; Fri, 20 Jul 2001 05:30:01 -0400
+	id <S266870AbRGTJav>; Fri, 20 Jul 2001 05:30:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266870AbRGTJ3v>; Fri, 20 Jul 2001 05:29:51 -0400
-Received: from mail19.bigmailbox.com ([209.132.220.50]:65036 "EHLO
-	mail19.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S266867AbRGTJ3j>; Fri, 20 Jul 2001 05:29:39 -0400
-Date: Fri, 20 Jul 2001 02:28:52 -0700
-Message-Id: <200107200928.CAA25069@mail19.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
-Mime-Version: 1.0
-X-Originating-Ip: [64.40.45.173]
-From: "Colin Bayer" <colin_bayer@compnerd.net>
-To: hmallat@cc.hut.fi
-Cc: linux-kernel@vger.kernel.org
-Subject: Framebuffer woes with 3dfx Voodoo5 5500
+	id <S266882AbRGTJal>; Fri, 20 Jul 2001 05:30:41 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:54521 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S266870AbRGTJa2>;
+	Fri, 20 Jul 2001 05:30:28 -0400
+Date: Fri, 20 Jul 2001 11:30:22 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200107200930.LAA25428@harpo.it.uu.se>
+To: torvalds@transmeta.com
+Subject: [PATCH] ide-tape & ksyms fixes for 2.4.7-pre9
+Cc: gadio@netvision.net.il, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-When I boot up my home box, a Pentium III/933MHz with an i810 onboard disabled to make way for a 3dfx Voodoo5 5500 PCI, two main problems occur if I boot my framebuffered kernel (2.4.7-pre7):
+The patch below fixes two problems in 2.4.7-pre9:
+1. Updates drivers/ide/ide-tape.c for the sem->completion changes.
+   (It doesn't compile in -pre9 due to the changes in "struct request".)
+2. Updates kernel/ksyms.c to export the new completion object functions.
+   Needed for modular drivers.
 
-1) It won't support anything over 640x480.  I've got the buffer set up to run in 1024x768x32, and it reverts to 640x480x32.
+/Mikael
 
-2) Corrupted cursors: until I start XFree86, the terminal cursors are corrupted; they're maybe 80x60 pixels and rendered as randomly black-and-white pixels.
-
-I know that because 3dfx is now no longer extant, there's fairly little chance that this will ever be resolved, but I currently have to boot with my non-frame-buffered kernel, which keeps me from seeing *cute widdle Tux* at boot-up. 8-)
-
-     -- Colin
-
-
-Colin Bayer <vogon_jeltz@users.sourceforge.net>
-Windows emulator for Linux: #include <stdio.h> 
-int main() { int n = *(int *)NULL; }
-fortytwo: Linux kernel 2.4.7-pre7 (i686; 1854.66 BogoMips)
-
-------------------------------------------------------------
-The CompNerd Network: http://www.compnerd.com/
-Where a nerd can be a nerd.  Get your free webmail@compnerd.net!
+--- linux-2.4.7-pre9/drivers/ide/ide-tape.c.~1~	Fri Jul 20 09:33:25 2001
++++ linux-2.4.7-pre9/drivers/ide/ide-tape.c	Fri Jul 20 10:15:34 2001
+@@ -419,6 +419,7 @@
+ #include <linux/pci.h>
+ #include <linux/ide.h>
+ #include <linux/smp_lock.h>
++#include <linux/completion.h>
+ 
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+@@ -978,7 +979,7 @@
+ 	int logical_blk_num;			/* logical block number */
+ 	__u16 wrt_pass_cntr;			/* write pass counter */
+ 	__u32 update_frame_cntr;		/* update frame counter */
+-	struct semaphore *sem;
++	struct completion *waiting;
+ 	int onstream_write_error;		/* write error recovery active */
+ 	int header_ok;				/* header frame verified ok */
+ 	int linux_media;			/* reading linux-specifc media */
+@@ -1886,8 +1887,8 @@
+ 						printk("ide-tape: %s: skipping over config parition..\n", tape->name);
+ #endif
+ 					tape->onstream_write_error = OS_PART_ERROR;
+-					if (tape->sem)
+-						up(tape->sem);
++					if (tape->waiting)
++						complete(tape->waiting);
+ 				}
+ 			}
+ 			remove_stage = 1;
+@@ -1903,8 +1904,8 @@
+ 					tape->nr_pending_stages++;
+ 					tape->next_stage = tape->first_stage;
+ 					rq->current_nr_sectors = rq->nr_sectors;
+-					if (tape->sem)
+-						up(tape->sem);
++					if (tape->waiting)
++						complete(tape->waiting);
+ 				}
+ 			}
+ 		} else if (rq->cmd == IDETAPE_READ_RQ) {
+@@ -3064,15 +3065,15 @@
+ }
+ 
+ /*
+- *	idetape_wait_for_request installs a semaphore in a pending request
++ *	idetape_wait_for_request installs a completion in a pending request
+  *	and sleeps until it is serviced.
+  *
+  *	The caller should ensure that the request will not be serviced
+- *	before we install the semaphore (usually by disabling interrupts).
++ *	before we install the completion (usually by disabling interrupts).
+  */
+ static void idetape_wait_for_request (ide_drive_t *drive, struct request *rq)
+ {
+-	DECLARE_MUTEX_LOCKED(sem);
++	DECLARE_COMPLETION(wait);
+ 	idetape_tape_t *tape = drive->driver_data;
+ 
+ #if IDETAPE_DEBUG_BUGS
+@@ -3081,12 +3082,12 @@
+ 		return;
+ 	}
+ #endif /* IDETAPE_DEBUG_BUGS */
+-	rq->sem = &sem;
+-	tape->sem = &sem;
++	rq->waiting = &wait;
++	tape->waiting = &wait;
+ 	spin_unlock(&tape->spinlock);
+-	down(&sem);
+-	rq->sem = NULL;
+-	tape->sem = NULL;
++	wait_for_completion(&wait);
++	rq->waiting = NULL;
++	tape->waiting = NULL;
+ 	spin_lock_irq(&tape->spinlock);
+ }
+ 
+--- linux-2.4.7-pre9/kernel/ksyms.c.~1~	Fri Jul 20 09:33:29 2001
++++ linux-2.4.7-pre9/kernel/ksyms.c	Fri Jul 20 10:54:06 2001
+@@ -45,6 +45,7 @@
+ #include <linux/fs.h>
+ #include <linux/tty.h>
+ #include <linux/in6.h>
++#include <linux/completion.h>
+ #include <asm/checksum.h>
+ 
+ #if defined(CONFIG_PROC_FS)
+@@ -361,6 +362,10 @@
+ EXPORT_SYMBOL(add_wait_queue);
+ EXPORT_SYMBOL(add_wait_queue_exclusive);
+ EXPORT_SYMBOL(remove_wait_queue);
++
++/* completion handling */
++EXPORT_SYMBOL(wait_for_completion);
++EXPORT_SYMBOL(complete);
+ 
+ /* The notion of irq probe/assignment is foreign to S/390 */
+ 

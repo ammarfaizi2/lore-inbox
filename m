@@ -1,54 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270228AbRHGXew>; Tue, 7 Aug 2001 19:34:52 -0400
+	id <S270227AbRHGXhC>; Tue, 7 Aug 2001 19:37:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270237AbRHGXen>; Tue, 7 Aug 2001 19:34:43 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64786 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270228AbRHGXef>; Tue, 7 Aug 2001 19:34:35 -0400
-Subject: Re: Via chipset
-To: oyhaare@online.no (=?ISO-8859-1?Q?=D8ystein?= Haare)
-Date: Wed, 8 Aug 2001 00:36:42 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <997225828.10528.4.camel@eagle> from "=?ISO-8859-1?Q?=D8ystein?= Haare" at Aug 08, 2001 01:10:28 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270219AbRHGXgx>; Tue, 7 Aug 2001 19:36:53 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:49413 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S270227AbRHGXgq>;
+	Tue, 7 Aug 2001 19:36:46 -0400
+Date: Wed, 8 Aug 2001 00:35:54 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Mark Atwood <mra@pobox.com>
+cc: Andrzej Krzysztofowicz <ankry@pg.gda.pl>,
+        Michael McConnell <soruk@eridani.co.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <m3g0b3v8zq.fsf@flash.localdomain>
+Message-ID: <Pine.LNX.4.33.0108072359440.30936-100000@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15UGOw-0004H2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm planning on getting a new workstation, and I kinda want an AMD
-> system. But it seems that most (all?) motherboards for the amd cpu's us=
-> e
-> VIA chipsets, and some people have experienced problems with via
-> chipsets and linux.
+Hi Mark.
 
-We have seen two big problem sets with the VIA chipsets and Athlon. The
-first is a bug in some of the bridges that caused corruption. We had partial
-workarounds but as of 2.4.7ac releases (and I sent it to Linus for
-2.4.8pre) we have an official workaround based on VIA provided info.
+ >>> Described above.
 
-The second problem is that some VIA chipset boards lock up running the
-Athlon optimised kernel. This seems to be board specific and we've also had
-'setting CAS3 not CAS2' and 'bigger PSU' reports of fixing it for some
-people. I'm still trying to put together a detailed enough study of what
-is going on to actually take it to VIA and AMD engineers.
+ >> What KERNEL problems then? I don't see any yet.
 
-So pick a board other folks say work. Personally I am using AMD chipset
-boards but I don't think thats actually a required solution to avoid the
-problem. 
+ > I smell the stench of finger pointing. It's a pity that it
+ > stinks jsut as bad in the open source world as it is I am
+ > "privileged" when closed source shops, or (even worse)
+ > telco/network folks start playing "blameball".
 
-As to the PIV. Right now I see no reason to go that way. The PIV is going to
-need new compiler tools to get good performance at the moment. It also
-requires rambus memory. The rambus memory requirement will change soon, the
-processor will go down to a smaller die size (0.13u) and should get both
-cheaper and cooler. Hopefully intel will also fix the performance problems
-with the extra silicon space they will get out of it.
+I'm trying not to point any fingers anywhere, but I have to admit that
+I'm finding it VERY difficult in this case. The basic problem that I
+have is that the "way it's done" that I referred to in my posts so far
+is the way that RedHat, Caldera, Debian, Mandrake, SUSE and Eridani
+Linux all do it by default (I can't comment on SlackWare as I've never
+been able to get it to install myself and don't know anybody who runs
+it).
 
-So if you think PIV wait for the new socket, new die size then study reviews
-IMHO.
+ > Userspace init scripts point the finger at kernel, saying "there
+ > is no good and no well documented mapping method". Kernel points
+ > its finger at userspace, saying "this is the way we do it" and
+ > "we cant guarantee a perfect 100% mapping solution, so we're not
+ > even going to try for 90%" and "futz with your drivers and
+ > modules.conf and init scripts till you get something that
+ > works".
 
-Alan
+I've certainly never stood in the position you call "Kernel" in that
+description. Here's the situation as I see it, put in those sort of
+terms, characters being InitScripts and Kernel respectively:
+
+ 1. InitScripts points at Kernel saying "there is no good and no
+    well documented mapping method".
+
+ 2. Kernel replies "There is a good mapping method, which is to
+    always map the ports starting with the lowest numbered one."
+
+ 3. InitScripts then tells Kernel "But I don't want to map the ports
+    in ascending numerical order!"
+
+So far, I've only seen the above scenario occur, and I have to admit
+to having very little sympathy with it. However, I'm always open to
+persuasion that the above is not the situation that is occurring.
+
+ > Fingers back and forth, fingers pointing all around
+
+ > and those of us with lots of different interfaces, and those of
+ > us with several hot-plug interfaces
+
+ > What happens to us?
+
+ > We get the finger.
+
+Not from me, you don't.
+
+Let's deal with the various scenarios that I can see:
+
+ 1. Just one interface, either static or hotplug.
+
+    By definition, there can be no problem here as the interface will
+    always be eth0 when present, and missing when not.
+
+ 2. Multiple identical static interfaces.
+
+    At the moment, you are required to initialise the interfaces in
+    ascending order of their name in the modules.conf file.
+
+    I've dealt with this situation on several occasions, and never
+    found this to be a problem in any way.
+
+ 3. Multiple different static interfaces.
+
+    At the moment, you are required to group these by the driver that
+    controls them, simply because each driver will automatically map
+    all interfaces that it supports when it is loaded. Likewise, you
+    are required to initialise interfaces in ascending order of their
+    name in the modules.conf file.
+
+    I've dealt with this situation on several occasions, and never
+    found this to be a problem in any way.
+
+ 4. Multiple hotplug interfaces.
+
+    I have to admit to never having dealt with hotplug interfaces, but
+    I understand some aspects of the interface are still being ironed
+    out by the kernel developers. As a result, I would not be at all
+    surprised to hear that problems still exist.
+
+ 5. Multiple static and hotplug interfaces.
+
+    At the moment, you are required to group these by whether the
+    interface is static or hotplug, configuring all static interfaces
+    before any of the hotplug ones. This therefore reduces to being
+    either case (2) or (3) followed by case (4), and should be dealt
+    with accordingly.
+
+As a result, the ONLY time I can see any problem occurring is when
+there are multiple hotplug interfaces to deal with (case (4) above),
+and this is acknowledged to be a case where some of the issues have
+not yet been fully ironed out.
+
+Can you agree with this analysis, or have I overlooked something?
+
+Best wishes from Riley.
+

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267068AbTAZX5S>; Sun, 26 Jan 2003 18:57:18 -0500
+	id <S267079AbTA0ASC>; Sun, 26 Jan 2003 19:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267079AbTAZX5S>; Sun, 26 Jan 2003 18:57:18 -0500
-Received: from pat.uio.no ([129.240.130.16]:33170 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S267068AbTAZX5S>;
-	Sun, 26 Jan 2003 18:57:18 -0500
+	id <S267080AbTA0ASC>; Sun, 26 Jan 2003 19:18:02 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:1988 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP
+	id <S267079AbTA0ASB>; Sun, 26 Jan 2003 19:18:01 -0500
+Message-ID: <3E347C84.8854075A@verizon.net>
+Date: Sun, 26 Jan 2003 16:25:40 -0800
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.54 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: restructuring of filesystems config menu
+References: <Pine.LNX.4.44.0301260503040.27173-100000@dell>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15924.30711.312462.624886@charged.uio.no>
-Date: Mon, 27 Jan 2003 01:06:15 +0100
-To: Christian Reis <kiko@async.com.br>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       NFS@lists.sourceforge.net
-Subject: Re: [NFS] Re: NFS client locking hangs for period
-In-Reply-To: <20030126215650.A26147@blackjesus.async.com.br>
-References: <20030124184951.A23608@blackjesus.async.com.br>
-	<15922.2657.267195.355147@notabene.cse.unsw.edu.au>
-	<20030126140200.A25438@blackjesus.async.com.br>
-	<shs8yx7lgyt.fsf@charged.uio.no>
-	<20030126204711.A25997@blackjesus.async.com.br>
-	<15924.26856.298449.357899@charged.uio.no>
-	<20030126215650.A26147@blackjesus.async.com.br>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [4.64.238.61] at Sun, 26 Jan 2003 18:27:13 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christian Reis <kiko@async.com.br> writes:
+"Robert P. J. Day" wrote:
+> 
+> On Sat, 25 Jan 2003, Randy.Dunlap wrote:
+> 
+> > Hi,
+> >
+> > > Date: Sun, 12 Jan 2003 07:57:33 -0500 (EST)
+> > > From: Robert P. J. Day <rpjday@mindspring.com>
+> > > Subject: restructuring of filesystems config menu
+> > >
+> > >   i've attached a gzipped patch against 2.5.56 for reorganizing
+> > > the filesystem menu under "make xconfig", and i'm certainly
+> > > open to feedback/comments/criticism/large sums of money.
+> >
+> > I finally looked at this on 2.5.59.  The fs menu certainly
+> > needs some help/work, so I'd like to see you keep plugging away
+> > at this.  I didn't see much feedback -- was there feedback?
+> > Maybe on a different subject/thread?  A newer version that I
+> > missed?
+> 
+> nope, didn't get much feedback.  i sent the patch directly to
+> linus but it hasn't yet been added.  perhaps in 2.5.60?
 
-     > Is there a way of finding out exactly *which* files are being
-     > locked at a certain time for a certain client?
+It doesn't apply cleanly to 2.5.59 or later, so it won't be
+applied.
 
-Not really. 'cat /proc/locks' is about the closest you can get. That
-will give you no NFS-specific information though.
+> > I expected to just see the filesystems listed in alpha order,
+> > but I don't have a problem with the groupings that you
+> > have made for them.
+> 
+> i thought about alphabetical order, but i settled on the more
+> common options at the top, and the more obscure ones further
+> down.
+> 
+> if i don't see a patch incorporated in a subsequent release, am
+> i supposed to submit it again?  what's the proper protocol?
 
-Cheers,
-  Trond
+Get feedback (as much as possible), act on feedback -> make
+changes, re-re-re-submit...
+
+~Randy

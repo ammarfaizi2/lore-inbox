@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbUKLSf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbUKLSko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbUKLSf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 13:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUKLSf5
+	id S262607AbUKLSko (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 13:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUKLSko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 13:35:57 -0500
-Received: from colo.lackof.org ([198.49.126.79]:4015 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262603AbUKLSfu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 13:35:50 -0500
-Date: Fri, 12 Nov 2004 11:35:47 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Michael Chan <mchan@broadcom.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, greg@kroah.com,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
-Subject: Re: [PATCH] pci-mmconfig fix for 2.6.9
-Message-ID: <20041112183547.GA8828@colo.lackof.org>
-References: <B1508D50A0692F42B217C22C02D84972020F3C99@NT-IRVA-0741.brcm.ad.broadcom.com>
+	Fri, 12 Nov 2004 13:40:44 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3847 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262608AbUKLSkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 13:40:37 -0500
+Date: Fri, 12 Nov 2004 19:40:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+Subject: Re: kconfig/build question..
+Message-ID: <20041112184005.GH2249@stusta.de>
+References: <Pine.LNX.4.58.0411100110170.1637@skynet> <Pine.LNX.4.61.0411101253460.17266@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <B1508D50A0692F42B217C22C02D84972020F3C99@NT-IRVA-0741.brcm.ad.broadcom.com>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+In-Reply-To: <Pine.LNX.4.61.0411101253460.17266@scrub.home>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 12, 2004 at 09:52:17AM -0800, Michael Chan wrote:
-> On Wednesday, November 10, 2004 11:58 PM Andi Kleen wrote:
-> > Where is it guaranteed that these writes are non posted?
+On Wed, Nov 10, 2004 at 12:55:32PM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> Intel chipset engineer confirmed that they are non-posted.
+> On Wed, 10 Nov 2004, Dave Airlie wrote:
+> 
+> > So what I want to do and what I think Kbuild can't do is:
+> > 
+> > if CONFIG_AGP=n then CONFIG_DRM can be n,m,y
+> > if CONFIG_AGP=m then CONFIG_DRM can be m but not y
+> > if CONFIG_AGP=y then CONFIG_DRM can be m,y
+> 
+> Do you really want to say that DRM can't be disabled if AGP is enabled?
+> Otherwise this should do it:
+> 
+> 	depends on AGP || AGP=n
 
-Michael,
-Thanks for digging that up.
-I think Andi was looking for references to the PCI-E spec.
-I found such a statement in "PCI Express(TM) Base Specification
-Revision 1.0a".
+I dislike this solution.
 
-Table 2-3 on page 47 says:
-| Cpl 00 0 1010 Completion without Data ­ Used for I/O and
-|               Configuration Write Completions and Read
-|               Completions (I/O, Configuration, or
-|               Memory) with Completion Status other than
-|               Successful Completion.
+consider:
+AGP=n
+DRM=y
 
-Section "2.2. Transaction Layer Protocol - Packet Definition"
-| Transactions are carried using Requests and Completions. Completions
-| are used only where required, for example, to return read data, or
-| to acknowledge Completion of I/O and Configuration Write Transactions.
-| Completions are associated with their corresponding Requests by the value
-| in the Transaction ID field of the Packet header.
+If the user then adds modular AGP to his kernel this will cause DRM=m 
+which might cause problems if he tries to use these modules.
 
-And "2.6.1 Flow Control Rules":
-| Flow Control distinguishes three types of TLPs (note relationship
-| to ordering rules ­ see Section 2.4):
-| ·   Posted Requests (P) ­ Messages and Memory Writes
-| ·   Non-Posted Requests (NP) ­ All Reads, I/O, and Configuration Writes
-| ·   Completions (CPL) ­ Associated with corresponding NP Requests
+I'm still of the opinion that adding a module shoudn't change the 
+static kernel.
 
+> bye, Roman
 
-hth,
-grant
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,91 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268343AbUGXHOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUGXH67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268343AbUGXHOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 03:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268344AbUGXHOZ
+	id S268355AbUGXH67 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 03:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268356AbUGXH67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 03:14:25 -0400
-Received: from [217.111.56.18] ([217.111.56.18]:54403 "EHLO spring.sncag.com")
-	by vger.kernel.org with ESMTP id S268343AbUGXHOW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 03:14:22 -0400
-To: "bradgoodman.com" <bkgoodman@bradgoodman.com>
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] 2.4.27 - MTD cfi_cmdset_0002.c - Duplicate cleanup in
- error path
-In-Reply-To: <200407231947.i6NJlwo32224@bradgoodman.com> (bradgoodman com's
- message of "Fri, 23 Jul 2004 15:47:58 -0400")
-References: <200407231947.i6NJlwo32224@bradgoodman.com>
-From: Rainer Weikusat <rainer.weikusat@sncag.com>
-Date: Sat, 24 Jul 2004 15:14:03 +0800
-Message-ID: <87k6wtlvwk.fsf@farside.sncag.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 24 Jul 2004 03:58:59 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:47280 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S268355AbUGXH6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 03:58:54 -0400
+Date: Sat, 24 Jul 2004 00:58:52 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Robert Love <rml@ximian.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       zaitcev@redhat.com
+Subject: Re: [patch] kernel events layer, updated
+Message-ID: <20040724075852.GA21299@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <1090604517.13415.0.camel@lucy> <20040723200335.521fe42a.akpm@osdl.org> <1090638679.2296.9.camel@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1090638679.2296.9.camel@localhost>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"bradgoodman.com" <bkgoodman@bradgoodman.com> writes:
-> Patch to 2.4.x: Corrects an obvious error where all of the cleanups are done
-> twice in the event of a chip programming error. This can result in
-> kernel BUG() getting called on subsequent programming attempts.
->
->
-> --- linux-2.4.22.prepatch/drivers/mtd/chips/cfi_cmdset_0002.c	Fri Jun 13 10:51:34 2003
-> +++ linux-2.4.22/drivers/mtd/chips/cfi_cmdset_0002.new	Thu Jul 15 14:44:30 2004
-> @@ -549,11 +549,6 @@
->  			}
->  		} else {
->  			printk(KERN_WARNING "Waiting for write to complete timed out in do_write_oneword.");        
-> -			
-> -			chip->state = FL_READY;
-> -			wake_up(&chip->wq);
-> -			cfi_spin_unlock(chip->mutex);
-> -			DISABLE_VPP(map);
->  			ret = -EIO;
->  		}
->  	}
+On Jul 23 2004, at 23:11, Robert Love was caught saying:
+> @@ -59,9 +60,15 @@
+>  	if (l & 0x1) {
+>  		printk(KERN_EMERG "CPU%d: Temperature above threshold\n", cpu);
+>  		printk(KERN_EMERG "CPU%d: Running in modulated clock mode\n",
+> -				cpu);
+> +			cpu);
+> +		send_kevent(KMSG_POWER,
+> +			"/org/kernel/devices/system/cpu/temperature", "high",
+> +			"Cpu: %d\n", cpu);
+>  	} else {
+>  		printk(KERN_INFO "CPU%d: Temperature/speed normal\n", cpu);
+> +		send_kevent(KMSG_POWER,
+> +			"/org/kernel/devices/system/cpu/temperature", "normal",
+> +			"Cpu: %d\n", cpu);
 
-I suggest the following instead:
+Robert,
 
---------------------------
---- cfi_cmdset_0002.c.orig	2004-07-24 15:05:31.000000000 +0800
-+++ cfi_cmdset_0002.c	2004-07-24 15:06:06.000000000 +0800
-@@ -461,7 +461,6 @@
- 	unsigned int dq6, dq5;	
- 	struct cfi_private *cfi = map->fldrv_priv;
- 	DECLARE_WAITQUEUE(wait, current);
--	int ret = 0;
- 
-  retry:
- 	cfi_spin_lock(chip->mutex);
-@@ -554,7 +553,7 @@
- 			wake_up(&chip->wq);
- 			cfi_spin_unlock(chip->mutex);
- 			DISABLE_VPP(map);
--			ret = -EIO;
-+			return -EIO;
- 		}
- 	}
- 
-@@ -563,7 +562,7 @@
- 	wake_up(&chip->wq);
- 	cfi_spin_unlock(chip->mutex);
- 
--	return ret;
-+	return 0;
- }
- 
- static int cfi_amdstd_write (struct mtd_info *mtd, loff_t to , size_t len, size_t *retlen, const u_char *buf)
-----------------------------
+What is the the specified naming scheme for objects and in the case of 
+devices, why not use the sysfs path as part of the object path? For example:
 
-That way, it is consistent with the other low-level chip access
-functions. But the algorithm is per se buggy, anyway, because except
-if DQ5 was raised before, the chip is not 'ready' (for reading array
-data), but still in programming mode and will remain there until the
-'embedded programming algorithm' stops, because (according to the
-docs) a reset command will not be accepted until DQ5 has been raised
-and the opportunityto check for that is gone after the syscall
-returned to the caller.
+	"/org/kernel/system/cpu/cpu0"
 
+Since we have unique paths for devices in syfs, this would remove the need 
+of having the anxiliary "CPU: %d" as it is embedded in the object name. 
 
+Also, why the "/org/kernel"? Since all message from the kernel
+can only come from the kernel, why do we need this as part of the object
+name?  Looking at the D-BUS spec, it looks like the "org.foo" is part of the 
+D-BUS/HAL/freedesktop naming scheme, but this should not be pushed into
+the kernel IMHO. As you yourself mentioned in your talk today, D-BUS
+is just one daemon that could use the kevents interface, so I don't
+think we want to push it's naming scheme into the kernel messages.
+The kernel should use an object name that is unique in the context 
+of the kernel (hence my suggestion to use sysfs path, but perhaps there
+is something else?) and D-BUS should generate the appropriate object 
+name that it expects.  The kernel is never going to send messages for 
+objects in org.freedesktop or anything !org.kernel, so we are just 
+stuffing extra bytes in the message that are very specific to a given 
+userland implementation.
+
+You also mentioned some interesting usage examples of HAL/D-BUS/kevents 
+in your talk. Any possibility of getting a patch with the kernel specific
+changes?  I ask b/c I would like to see how you imagine this being used in 
+the context of things like device add/remove and other things device driver 
+writers would be dealing with it.
+
+Tnx,
+~Deepak
+
+-- 
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+
+"Unlike me, many of you have accepted the situation of your imprisonment and
+ will die here like rotten cabbages." - Number 6

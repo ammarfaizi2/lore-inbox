@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129782AbRBVDTi>; Wed, 21 Feb 2001 22:19:38 -0500
+	id <S131095AbRBVDbb>; Wed, 21 Feb 2001 22:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131095AbRBVDT2>; Wed, 21 Feb 2001 22:19:28 -0500
-Received: from rhinocomputing.com ([161.58.241.147]:61456 "EHLO
-	rhinocomputing.com") by vger.kernel.org with ESMTP
-	id <S129782AbRBVDTW>; Wed, 21 Feb 2001 22:19:22 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14996.34104.791600.203558@rhino.thrillseeker.net>
-Date: Wed, 21 Feb 2001 22:19:20 -0500
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S131148AbRBVDbW>; Wed, 21 Feb 2001 22:31:22 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:65036 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S131095AbRBVDbJ>;
+	Wed, 21 Feb 2001 22:31:09 -0500
+Date: Wed, 21 Feb 2001 22:31:07 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: John Heil <kerndev@sc-software.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux-2.4.2
-In-Reply-To: <peter@cadcamlab.org> Wednesday, 21 February 2001 21:13:30 -0600
-In-Reply-To: <Pine.LNX.4.10.10102211811430.1005-100000@penguin.transmeta.com>
-	<Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com>
-	<20010221211330.A21010@cadcamlab.org>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Message-ID: <20010221223107.C5582@xi.linuxpower.cx>
+In-Reply-To: <Pine.LNX.4.10.10102211811430.1005-100000@penguin.transmeta.com> <Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com> <20010221211330.A21010@cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <20010221211330.A21010@cadcamlab.org>; from peter@cadcamlab.org on Wed, Feb 21, 2001 at 09:13:30PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following error in a make bzImage:
+On Wed, Feb 21, 2001 at 09:13:30PM -0600, Peter Samuelson wrote:
+[snip]
+> If you want stability, run the real Linus 2.4.  If you want all the
+> really minor bug fixes and more of the experimental code, run -ac.  If
+> you want production quality, run your kernel on a test server before
+> deploying.  (As always!)
 
-nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw] \)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
-make[1]: Entering directory `/usr/src/linux/arch/i386/boot'
-ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
-ld: cannot open binary: No such file or directory
-make[1]: *** [bbootsect] Error 1
-make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
-make: *** [bzImage] Error 2
+..and rely on a reputable distributor to help you choose what to run and
+provide you support to fix it when it breaks.
+

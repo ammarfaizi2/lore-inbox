@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282845AbSAASQl>; Tue, 1 Jan 2002 13:16:41 -0500
+	id <S282861AbSAASZa>; Tue, 1 Jan 2002 13:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282799AbSAASQU>; Tue, 1 Jan 2002 13:16:20 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:31506 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S282845AbSAASQO>; Tue, 1 Jan 2002 13:16:14 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-        "Harald Holzer" <harald.holzer@eunet.at>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-Date: Tue, 1 Jan 2002 10:15:59 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBMEAHEFAA.znmeb@aracnet.com>
+	id <S282880AbSAASZW>; Tue, 1 Jan 2002 13:25:22 -0500
+Received: from waste.org ([209.173.204.2]:4580 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S282861AbSAASZL>;
+	Tue, 1 Jan 2002 13:25:11 -0500
+Date: Tue, 1 Jan 2002 12:25:10 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: samson swanson <intellectcrew@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: a great C++ book?
+In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.43.0201011214560.7188-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <E16KOTk-0005F3-00@the-village.bc.nu>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because much of the memory cannot be used for kernel objects there is an
-> imbalance in available resources and its very hard to balance them sanely.
+On Mon, 31 Dec 2001, samson swanson wrote:
 
-As I understand it, in a Linux / i686 system, there are three zones: DMA
-(0 - 2^24-1), low (2^24 - 2^30-1) and high (2^30 and up). And the hardware
-(PAE) apparently distinguishes memory addresses above 2^32-1 as well.
-Questions:
+> hello again,
+>
+> i ask this group because i trust in your intellect.
+>
+> For a beginner to C++ what is your favorite book? A
+> book that goes in depth of teaching the language.
+> remeber i am  a beginner, new to c++.
 
-1. Shouldn't there be *four* zones: (DMA, low, high and PAE)?
+If you already know C well, Bjarne Stroustrup's "The C++ Programming
+Language" is decent. If not, start with Kernighan and Ritchie's "The C
+Programming Language". Put the two next to each other and you might gain
+some insight into the creeping horror that modern C++ has become.
 
-2. Isn't the boundary at 2^30 really irrelevant and the three "correct"
-zones are (0 - 2^24-1), (2^24 - 2^32-1) and (2^32 - 2^36-1)?
-
-3. On a system without ISA DMA devices, can DMA and low be merged into a
-single zone?
-
-4. It's pretty obvious exactly which functions require memory under 2^24 --
-ISA DMA. But exactly which functions require memory under 2^30 and which
-functions require memory under 2^32? It seems relatively easy to write a
-Perl script to truck through the kernel source and figure this out; has
-anyone done it? It would seem to me a valuable piece of information -- what
-the demands are for the relatively precious areas of memory under 1 GB and
-under 4 GB.
---
-M. Edward Borasky
-
-znmeb@borasky-research.net
-http://www.borasky-research.net
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,81 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbUBTRDw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 12:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbUBTRDw
+	id S261347AbUBTRMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 12:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUBTRMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 12:03:52 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:39833 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261345AbUBTRDn (ORCPT
+	Fri, 20 Feb 2004 12:12:24 -0500
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:39812 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S261347AbUBTRMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 12:03:43 -0500
-Date: Fri, 20 Feb 2004 18:04:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tridge <tridge@samba.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
-Message-ID: <20040220170438.GA19722@elte.hu>
-References: <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040220120417.GA4010@elte.hu> <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
+	Fri, 20 Feb 2004 12:12:19 -0500
+Date: Fri, 20 Feb 2004 18:12:12 +0100
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Tyler Trafford <ttrafford@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange problem with alsa, intel8x0 and ut2003/ut2004 on
+ 2.6.3(all above 2.6.2-rc3)
+Message-Id: <20040220181212.19d91042@phoebee>
+In-Reply-To: <E1Atqi4-0000BM-7q@torg>
+References: <1077197950.4034bc7ec9730@imp1-q.free.fr>
+	<E1Atqi4-0000BM-7q@torg>
+X-Mailer: Sylpheed version 0.9.9claws22 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+Hi there,
 
-> Your version is also not multi-threaded: you can never allow more than
-> one thread doing the "sys_mark_dir_clean()". That was the reason for
-> having two bits: so that anybody can do a lookup in parallell, and
-> only the "filldir" part needs to be serialized.
-> 
-> So I do believe you'd want two bits anyway.
+I have ut2003/2004, and in both I can hear the crackling with kernel 2.6.3.
+With 2.6.2-rc3 everything was fine.
 
-hm, right. So for the lookup to be lockless, it would have to be managed
-via a syscall variant similar in mechanism to the two-bit approach you 
-suggested:
+I tried another openal lib (selfcompiled, armyops) but it doesn't help.
+(I normally start my ut with "nice -n -1". If I start it with normal priority,
+the sound gets a bit less crackling)
+xmms works fine.
 
-	ret = sys_manage_dir_cache(fd, op);
+I have an intel8x0 alsa driver with oss support for my SiS chip
+(P4 2.4Ghz/SiS645DX). And I'm using the nvidia driver for my GF card.
+Kernel compiled with PREEMPT.
 
-where the following cache states are defined:
+Regards,
+Martin
 
-	(invalid, refill_in_progress, valid)
+-- 
+MyExcuse:
+The vulcan-death-grip ping has been applied.
 
-the following type of cache ops are defined:
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
 
-	(lookup, cache_filled)
+TechnoTrend AG <http://www.technotrend.de>
 
-the semantics of the sys_manage_dir_cache() syscall are the following:
+--Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh
+Content-Type: application/pgp-signature
 
-- op is 'lookup': the syscall returns 'valid' if state is valid. If the 
-  state is 'refill_in_progress' then lookup returns refill_in_progress. 
-  If the state is 'invalid', then the state goes to 'refill_in_progress' 
-  and 'invalid' is returned.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-- op is 'cache_filled': the syscall moves the state to 'valid' if state
-  is still 'refill_in_progress'. It goes to 'refill_in_progress' if the
-  state was 'invalid'.
+iD8DBQFANj/umjLYGS7fcG0RAvtnAKCe7PSKCn94/LqITRnQP848Ya5/1ACgmQJh
+t37RRuIfWMV7dAgDEykBV1I=
+=Rdh+
+-----END PGP SIGNATURE-----
 
-the kernel does the valid->invalid and refill_in_progress->invalid
-transitions automatically, when relevant VFS events occur. All dentries
-start out in state invalid.
-
-there's another class of problems: is it an issue that directory renames
-that move this directory (higher up in the directory hierarchy of this
-directory) do not invalidate the cache? In that case there's no dnotify
-event either.
-
-	Ingo
+--Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh--

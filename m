@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVCYW14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVCYWbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbVCYW14 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 17:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVCYWZf
+	id S261852AbVCYWbr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 17:31:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVCYW3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 17:25:35 -0500
-Received: from mail.dif.dk ([193.138.115.101]:62392 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261853AbVCYWXJ (ORCPT
+	Fri, 25 Mar 2005 17:29:39 -0500
+Received: from fire.osdl.org ([65.172.181.4]:25521 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261852AbVCYW1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 17:23:09 -0500
-Date: Fri, 25 Mar 2005 23:25:06 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] don't check for NULL before calling kfree() in fs/ntfs/
-Message-ID: <Pine.LNX.4.62.0503252322460.2498@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Mar 2005 17:27:16 -0500
+Date: Fri, 25 Mar 2005 14:27:13 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jason@stdbev.com, linux-kernel@vger.kernel.org,
+       Steven Cole <elenstev@mesatop.com>
+Subject: Re: 2.6.12-rc1-mm3 (cannot read cd-rom, 2.6.12-rc1 is OK)
+Message-ID: <20050325222713.GL28536@shell0.pdx.osdl.net>
+References: <20050325002154.335c6b0b.akpm@osdl.org> <42446B86.7080403@mesatop.com> <424471CB.3060006@mesatop.com> <20050325122433.12469909.akpm@osdl.org> <4244812C.3070402@mesatop.com> <761c884705af2ea412c083d849598ca7@stdbev.com> <20050325140654.430714e2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050325140654.430714e2.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please keep me on CC)
+* Andrew Morton (akpm@osdl.org) wrote:
+> 
+> (Please dont' edit the cc line.  Just do reply-to-all)
+> 
+> "Jason Munro" <jason@stdbev.com> wrote:
+> >
+> > > [  146.301026] rock: directory entry would overflow storage
+> > > [  146.301044] rock: sig=0x5245, size=8, remaining=0
+> > > [  158.388397] rock: directory entry would overflow storage
+> > > [  158.388415] rock: sig=0x5850, size=36, remaining=34
+> > > [root@spc1 steven]#
+> > 
+> > 
+> > Same results with mm3 here, though mm2 will not boot on my machine so I'm
+> > not sure about that. 2.6.12-rc1 works fine, rc1-mm3 successfully mounts the
+> > cdrom device but shows no contents. Releveant dmsesg output:
+> > 
+> > rock: directory entry would overflow storage
+> > rock: sig=0x4543, size=28, remaining=0
+> > rock: directory entry would overflow storage
+> 
+> Seems that I am unable to read.  It's the new rock-ridge bounds checking.
+> 
+> It worked for me.  Is someone able to get an image of a failing filesystem
+> into my hands?
 
+I'm interested as well.  It should only be the last in the series.
+Does reverting it allow the CD to work?  (I'm trying to make sure the
+other overflow check in the series isn't breaking things, I doubt is,
+but...).
 
-There's no need to check a pointer for NULL before calling kfree() on it - 
-kfree() handles NULL pointers just fine on its own.
+ftp.kernel.org:/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm3/broken-out/rock-handle-directory-overflows.patch
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.12-rc1-mm3-orig/fs/ntfs/dir.c	2005-03-25 15:28:59.000000000 +0100
-+++ linux-2.6.12-rc1-mm3/fs/ntfs/dir.c	2005-03-25 22:51:46.000000000 +0100
-@@ -183,8 +183,7 @@ found_it:
- 				name->len = 0;
- 				*res = name;
- 			} else {
--				if (name)
--					kfree(name);
-+				kfree(name);
- 				*res = NULL;
- 			}
- 			mref = le64_to_cpu(ie->data.dir.indexed_file);
-@@ -444,8 +443,7 @@ found_it2:
- 				name->len = 0;
- 				*res = name;
- 			} else {
--				if (name)
--					kfree(name);
-+				kfree(name);
- 				*res = NULL;
- 			}
- 			mref = le64_to_cpu(ie->data.dir.indexed_file);
-@@ -1462,10 +1460,8 @@ err_out:
- 		unlock_page(ia_page);
- 		ntfs_unmap_page(ia_page);
- 	}
--	if (ir)
--		kfree(ir);
--	if (name)
--		kfree(name);
-+	kfree(ir);
-+	kfree(name);
- 	if (ctx)
- 		ntfs_attr_put_search_ctx(ctx);
- 	if (m)
---- linux-2.6.12-rc1-mm3-orig/fs/ntfs/namei.c	2005-03-25 15:28:59.000000000 +0100
-+++ linux-2.6.12-rc1-mm3/fs/ntfs/namei.c	2005-03-25 22:52:36.000000000 +0100
-@@ -153,8 +153,7 @@ static struct dentry *ntfs_lookup(struct
- 			ntfs_error(vol->sb, "ntfs_iget(0x%lx) failed with "
- 					"error code %li.", dent_ino,
- 					PTR_ERR(dent_inode));
--		if (name)
--			kfree(name);
-+		kfree(name);
- 		/* Return the error code. */
- 		return (struct dentry *)dent_inode;
- 	}
---- linux-2.6.12-rc1-mm3-orig/fs/ntfs/super.c	2005-03-25 15:28:59.000000000 +0100
-+++ linux-2.6.12-rc1-mm3/fs/ntfs/super.c	2005-03-25 22:52:49.000000000 +0100
-@@ -1193,8 +1193,7 @@ static BOOL load_and_init_quota(ntfs_vol
- 		return FALSE;
- 	}
- 	/* We do not care for the type of match that was found. */
--	if (name)
--		kfree(name);
-+	kfree(name);
- 	/* Get the inode. */
- 	tmp_ino = ntfs_iget(vol->sb, MREF(mref));
- 	if (IS_ERR(tmp_ino) || is_bad_inode(tmp_ino)) {
-
-
+thanks,
+-chris

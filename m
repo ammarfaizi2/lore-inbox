@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUJJChS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUJJCkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268074AbUJJChS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 22:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUJJChR
+	id S268076AbUJJCkh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 22:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268077AbUJJCkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 22:37:17 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40343 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268074AbUJJChQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 22:37:16 -0400
-Date: Sat, 9 Oct 2004 19:35:05 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Cc: mbligh@aracnet.com, Simon.Derr@bull.net, colpatch@us.ibm.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041009193505.31fa1ed8.pj@sgi.com>
-In-Reply-To: <200410071918.i97JGlLC014534@owlet.beaverton.ibm.com>
-References: <20041007105425.02e26dd8.pj@sgi.com>
-	<200410071918.i97JGlLC014534@owlet.beaverton.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Oct 2004 22:40:37 -0400
+Received: from web13727.mail.yahoo.com ([66.163.176.66]:12691 "HELO
+	web13727.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268076AbUJJCke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 22:40:34 -0400
+Message-ID: <20041010024034.60520.qmail@web13727.mail.yahoo.com>
+Date: Sat, 9 Oct 2004 19:40:34 -0700 (PDT)
+From: Martins Krikis <mkrikis@yahoo.com>
+Subject: Re: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.28-pre3
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
+       mkrikis@yahoo.com
+In-Reply-To: <58cb370e041009190678aa4c87@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The only thing it *can't* do is assure
-> exclusivity, today .. correct?
+--- Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
 
-No.  Could you look back to my other posts of this
-last week and let us know if I've answered your query
-in more detail already?  Thanks.
+> We SHOULD be discouraging new people from
+> contributing to DEPRECATED kernel series.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+But 2.4 wasn't quite that deprecated when version 0.0.6
+of iswraid was announced on Nov 24, 2003. I don't know
+the exact 2.6 timeline but ChangeLog-2.6.0 at www.kernel.org
+seems to be dated Dec 17, 2003. Yes, perhaps we should
+have asked for consideration sooner...
+
+> > Actually, that is not the reason. There is very little
+> > dependence on ataraid in iswraid. It would be quite easy
+> > to make iswraid a completely standalone driver. It has not
+> > been ported to 2.6 primarily because it would not be welcome
+> 
+> not because user-space solution is superior?
+
+Like you said, superior from a maintenance point of view.
+The users might choose a different measure for superiority.
+The coder doing the work may choose yet another way of
+deciding which way to proceed. For example, if time was all
+that mattered, I think, it would be faster for me to just make
+an iswraid port to 2.6 than to try to work with dm+dmraid
+which I know very little about, in order to get the same
+features supported. But, because I can't speak for my employer,
+let me agree with you here and say that yes, I stand corrected,
+it is quite possible that it has not been ported because a user
+space solution is superior.
+
+> I'm sorry that I dare to not love iswraid... ;-)
+
+You've made your reasons so clear that I don't really mind.
+
+   These opinions are solely mine and
+   may not agree with those of my employer.
+
+   Martins Krikis
+
+
+
+		
+

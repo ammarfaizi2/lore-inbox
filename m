@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269552AbRHAAET>; Tue, 31 Jul 2001 20:04:19 -0400
+	id <S269553AbRHAAOU>; Tue, 31 Jul 2001 20:14:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269553AbRHAAEJ>; Tue, 31 Jul 2001 20:04:09 -0400
-Received: from srvr2.telecom.lt ([212.59.0.1]:23572 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S269552AbRHAADz>;
-	Tue, 31 Jul 2001 20:03:55 -0400
-Message-Id: <200108010004.CAA1062359@mail.takas.lt>
-Date: Wed, 1 Aug 2001 02:03:36 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re[4]: cannot copy files larger than 40 MB from CD
-To: Chris Vandomelen <chrisv@b0rked.dhs.org>
-cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
+	id <S269554AbRHAAOK>; Tue, 31 Jul 2001 20:14:10 -0400
+Received: from beauty.binarix.com ([203.41.202.9]:3332 "EHLO
+	beauty.binarix.com") by vger.kernel.org with ESMTP
+	id <S269553AbRHAANw>; Tue, 31 Jul 2001 20:13:52 -0400
+Message-ID: <3B6749ED.7E0E6E2D@binarix.com>
+Date: Wed, 01 Aug 2001 10:14:37 +1000
+From: Bojan Smojver <bojan@binarix.com>
+Organization: Binarix Corporation Pty Ltd
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <Pine.LNX.4.31.0107311656420.10245-100000@linux.local>
-In-Reply-To: <Pine.LNX.4.31.0107311656420.10245-100000@linux.local>
-X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+To: linux-kernel@vger.kernel.org
+Subject: ftape: kernel panic
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001 16:58:06 -0700 (PDT) Chris Vandomelen <chrisv@b0rked.dhs.org> wrote:
+I've discovered this purely by accident but it happened to me twice
+already and on different kernels (2.2.x) and 2.4.7. The drive in
+question is Seagate 8 GB internal ATAPI drive. I have had it on an Intel
+VX430 chipset motherboard, kernel 2.2.x and now I have on an SiS 5571
+chipset motherboard, running 2.4.7.
 
-CV> > Tried vfat, ext2 and reiserfs.
-CV> >
-CV> > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
-CV>                                ^^^^^^^^^^^
-CV> > that matters.
-CV> 
-CV> Have you tried compiling your kernel using kgcc?
+The problem occurs whey I attempted (by mistake) to write QTR-1 tape in
+a Travan 4 drive. The kernel panics. When attempting to read the QTR-1
+tape, an error about getting too much data starts occurring and then
+there is 'lost interrupt' message as well. This doesn't cause kernel
+panic. Writing/reading 8 GB cartridges is perfectly fine.
 
-No.
+It is very easy to replicate the problem (happens every time) by doing
+the above. I used tar to write to the tape.
 
-CV> gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
-CV> used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
+This is not necessarily very important, but it might save someone a few
+headaches when they insert QTR-1 tape into a Travan 4 drive by mistake
+or on purpose. Especially if the machine is otherwise important and is
+not supposed to be rebooted :-)
 
-As I remember Alan said recent 2.4 kernels should be compiled with gcc 2.95
-or 2.96 (preferably?).
+Bojan
 
-Regards,
-Nerijus
-
-
+PS. Bojan's Law: "All tape cartridges look the same at 6:30 am".

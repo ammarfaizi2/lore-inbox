@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288613AbSADMPy>; Fri, 4 Jan 2002 07:15:54 -0500
+	id <S288616AbSADMRe>; Fri, 4 Jan 2002 07:17:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288611AbSADMPp>; Fri, 4 Jan 2002 07:15:45 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6149 "HELO
+	id <S288611AbSADMQH>; Fri, 4 Jan 2002 07:16:07 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:10245 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S288607AbSADMPi>; Fri, 4 Jan 2002 07:15:38 -0500
-Date: Fri, 4 Jan 2002 10:15:17 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Harald Holzer <harald.holzer@eunet.at>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Timothy D. Witham" <wookie@osdl.org>
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-In-Reply-To: <Pine.LNX.4.21.0201041206290.16016-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L.0201041012520.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288607AbSADMP5>; Fri, 4 Jan 2002 07:15:57 -0500
+Date: Fri, 4 Jan 2002 10:16:08 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [tested PATCH] 2.5.2-pre7 advansys SCSI adapter driver
+Message-ID: <20020104101608.F26824@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+In-Reply-To: <3C3542AE.BAD31344@torque.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C3542AE.BAD31344@torque.net>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Hugh Dickins wrote:
-> On Thu, 3 Jan 2002, Rik van Riel wrote:
-> > On Thu, 3 Jan 2002, Alan Cox wrote:
-> > > A lot of it is the page structs (64bytes per page - which really
-> > > should be nearer the 32 some rival Unix OS's achieve on x86)
-> >
-> > The 2.4 kernel has the page struct at 52 bytes in size,
-> > William Lee Irwin and I have brought this down to 36.
+Em Fri, Jan 04, 2002 at 12:50:38AM -0500, Douglas Gilbert escreveu:
+
+> Changes were added in lk 2.5.2-pre7 to the advansys SCSI adapter driver
+> that let it compile. It would seem that the author didn't have any
+> appropriate hardware to check the driver (since it dies almost
+> immediately and takes the machine with it).
 >
-> Please restate those numbers, Rik: I share Alan's belief that the
-> current standard 2.4 kernel has page struct at 64 bytes in size.
+> This patch http://www.torque.net/sg/p/sg252p7.diff.gz
+> will hopefully make the advansys driver useful again.
+> It is not perfect but it:
+>   - runs on a Athlon UP box
+>   - runs on a dual Celeron SMP box
+>   - is running the machine that sent this post
+> I have been running variations of this patch for the last
+> 3 weeks and it has been sent to Linus and the lkml before.
+>
+> Perhaps those helpful people who send speculative fixes to Linus could
+> mark them clearly as "untested".
 
-Indeed, I counted wrong ... substracted the waitqueue when counting
-the first time, then substracted it again ;)
+That was the case. I said that it didn't had the board. But I planned to
+get one that Riel has on his test (iirc) machine to test the patch. Now you
+have fixed it, thanks.
 
-The struct page in the current kernel is indeed 64 bytes. In
-the rmap VM it's also 64 bytes (60 bytes if highmem is disabled).
+I'll take a look at your patch and see if with your changes the
+scsi_assign_lock patch that probably will appear in pre8 is still needed
+for the advansys driver.
 
-After removal of the waitqueue, that'll be 52 bytes, or 48 if
-highmem is disabled.
-
-kind regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+- Arnaldo

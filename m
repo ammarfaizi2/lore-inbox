@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262158AbSKCQXr>; Sun, 3 Nov 2002 11:23:47 -0500
+	id <S262161AbSKCQX0>; Sun, 3 Nov 2002 11:23:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262184AbSKCQXr>; Sun, 3 Nov 2002 11:23:47 -0500
-Received: from stine.vestdata.no ([195.204.68.10]:14798 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S262158AbSKCQXq>; Sun, 3 Nov 2002 11:23:46 -0500
-Date: Sun, 3 Nov 2002 17:30:16 +0100
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Bernd Eckenfels <ecki-news2002-09@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S262158AbSKCQXZ>; Sun, 3 Nov 2002 11:23:25 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:30093 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262161AbSKCQXY>; Sun, 3 Nov 2002 11:23:24 -0500
 Subject: Re: Filesystem Capabilities in 2.6?
-Message-ID: <20021103173016.E30076@vestdata.no>
-References: <1036328263.29642.23.camel@irongate.swansea.linux.org.uk> <E188MXo-00074b-00@sites.inka.de>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, davej@suse.de
+In-Reply-To: <Pine.GSO.4.21.0211030946300.25010-100000@steklov.math.psu.edu>
+References: <Pine.GSO.4.21.0211030946300.25010-100000@steklov.math.psu.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 16:50:59 +0000
+Message-Id: <1036342259.29642.51.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E188MXo-00074b-00@sites.inka.de>; from ecki-news2002-09@lina.inka.de on Sun, Nov 03, 2002 at 04:20:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 04:20:08PM +0100, Bernd Eckenfels wrote:
-> In article <1036328263.29642.23.camel@irongate.swansea.linux.org.uk> you wrote:
-> > Namespaces is a way to inherit revocation of rights on a large scale (or
-> > a small one true). #! is a way to handle program specific revocation of
-> > rights which _is_ filesystem persistent.
-> 
-> #! would be a nice option to increase capabilities on invocation. But the
-> final target must be linked to the invocation by an entity/revision binding.
-> Since we do not have modification versions i could think about checksums:
+On Sun, 2002-11-03 at 14:51, Alexander Viro wrote:
+> No messing with chroot needed - just a way to irrevertibly turn off the
+> ability (for anybody) to do mounts/umounts in a given namespace and ability
+> to clone that namespace.  Then give them ramfs for root and bind whatever
+> you need in there.  No breaking out of that, since there is nothing below
+> their root where they could break out to...
 
-Unfortenately it will be much harder to find all executables with
-increased capabilities on your system. 
+mkdir foo
+chroot foo
+cd ../../../..
+chroot .
 
+Alan
 
--- 
-Ragnar Kjørstad
-Big Storage

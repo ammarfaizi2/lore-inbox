@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279853AbRKLJHX>; Mon, 12 Nov 2001 04:07:23 -0500
+	id <S280481AbRKLJMM>; Mon, 12 Nov 2001 04:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280000AbRKLJHN>; Mon, 12 Nov 2001 04:07:13 -0500
-Received: from colin.muc.de ([193.149.48.1]:34571 "HELO colin.muc.de")
-	by vger.kernel.org with SMTP id <S279853AbRKLJHE>;
-	Mon, 12 Nov 2001 04:07:04 -0500
-Message-ID: <20011112100735.58403@colin.muc.de>
-Date: Mon, 12 Nov 2001 10:07:35 +0100
-From: Andi Kleen <ak@muc.de>
-To: discuss@x86-64.org, announce@x86-64.org, linux-kernel@vger.kernel.org
-Subject: [announcement] x86-64-2.4.14-1 linux kernel released
-Mime-Version: 1.0
+	id <S280679AbRKLJMC>; Mon, 12 Nov 2001 04:12:02 -0500
+Received: from wallext.webflex.nl ([212.115.150.250]:47028 "EHLO
+	palm.webflex.nl") by vger.kernel.org with ESMTP id <S280481AbRKLJLz>;
+	Mon, 12 Nov 2001 04:11:55 -0500
+Message-ID: <XFMail.20011112101120.mathijs@webflex.nl>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.88e
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <878zdcl8eb.fsf@fadata.bg>
+Date: Mon, 12 Nov 2001 10:11:20 +0100 (CET)
+From: Mathijs Mohlmann <mathijs@webflex.nl>
+To: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix loop with disabled tasklets
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-A new snapshot of the x86-64 linux kernel tree has been released. It is
-based now on the 2.4.14 kernel.
+On 12-Nov-2001 Momchil Velikov wrote:
+> In this patch, the first thing is to deschedule the tasklet. So, the
+> changes to interrupt.h are needed in order to put back the tasklet in
+> the queue.
+I know, but Andrea suggested not to allow scheduling of disabled tasklets
+Also, enableing the tasklet will result in a scheduled tasklet, regardless
+whether it was scheduled. Plus, we are not sure if it is scheduled on the
+same cpu that did the tasklet_schedule (but i might be the only one who
+cares about this  ;)
 
-Changes to previous snapshot:
-- Merged to 2.4.14
-- Some bug fixes
+> Mathijs> thisone we should add some comments to interrupt.h warning
+> Mathijs> about deadlocks etc.
+> What deadlocks ? ;)
+well, loops. Dont use tasklet_kill on disabled tasklet or on not scheduled
+tasklets.
 
-For information on how to compile and use it see http://www.x86-64.org
+        me
 
-Full tar:
-ftp://ftp.x86-64.org/pub/linux-x86_64/linux-x86_64-2.4.14-1.tar.bz2
-MD5: b249c589fe41995dd810945104a43425
 
-Patch against Linux 2.4.14:
-ftp://ftp.x86-64.org/pub/linux-x86_64/x86_64-2.4.14-1.bz2 
-MD5: 0e97844dd45107ca937f5d9baf1ee37c
-
-Enjoy,
-
--Andi
+-- 
+        me

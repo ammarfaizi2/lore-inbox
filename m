@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUIIUrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266821AbUIIUth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266115AbUIIUrU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 16:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUIIUrU
+	id S266821AbUIIUth (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 16:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUIIUtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 16:47:20 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:28319 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266115AbUIIUrI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 16:47:08 -0400
-Date: Thu, 9 Sep 2004 21:45:56 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Hans Reiser <reiser@namesys.com>
-cc: "Theodore Ts'o" <tytso@mit.edu>,
-       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
-       William Stearns <wstearns@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document
- the idea ofwhat reiser4 wants to do with metafiles and why
-In-Reply-To: <4140ABB6.6050702@namesys.com>
-Message-ID: <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org>
-References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com>
- <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com>
- <20040909090342.GA30303@thunk.org> <4140ABB6.6050702@namesys.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 9 Sep 2004 16:49:36 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:46267 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266117AbUIIUtU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 16:49:20 -0400
+Date: Thu, 9 Sep 2004 22:49:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, zwane@linuxpower.ca, hch@infradead.org,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org, scott@timesys.com,
+       arjanv@redhat.com
+Subject: Re: [patch] generic-hardirqs-2.6.9-rc1-mm4.patch
+Message-ID: <20040909204954.GA8635@elte.hu>
+References: <20040908120613.GA16916@elte.hu> <20040908182509.GA6009@elte.hu> <20040908211415.GA20168@elte.hu> <200409092224.49690.rjw@sisk.pl> <20040909134047.41aab7a4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040909134047.41aab7a4.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Sep 2004, Hans Reiser wrote:
 
-> Putting \ into filenames makes windows compatibility less trivial.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Err, I think Ted used \ as an example of how to escape |. It is not 
-part of the filename.
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > I've got this trace (on x86-64):
+> > 
+> >  general protection fault: 0000 [1] PREEMPT
+> >  CPU 0
+> >  Modules linked in: usbserial parport_pc lp parport joydev sg st sd_mod sr_mod 
+> >  scsi_mod snd_seq_oss snd_seq_midi_evend
+> >  Pid: 694, comm: kjournald Not tainted 2.6.9-rc1-mm4
+> >  RIP: 0010:[<ffffffff802ac605>] 
+> >  <ffffffff802ac605>{__journal_clean_checkpoint_list+389}
+> 
+> You should revert
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm4/broken-out/journal_clean_checkpoint_list-latency-fix.patch
+> - it seems to be sick.
 
-> Putting | into filenames seems like asking for trouble with shells.
+the variant in the VP patch (for this latency) is pretty stable. Will
+post splitups later.
 
-I think that was Ted's precise reason for arguing that | be used. Did 
-you even read his rationale? :)
-
-> If you think \| is user friendly, oh god, people like you are the 
-> reason why Unix is hated by many.
-
-I think he was arguing | (not \|) is the least worst seperator to 
-use.
-
-> Rather few people understand closure though, so I don't expect to 
-> do well in the politics of this. It is a bit like being for free 
-> trade, most people will never understand why it is so important 
-> because their mental gifts are in other matters,
-
-Lots of people understand why free-trade is important. It's taught in 
-introductory economics/business classes in secondary school.
-
-If you are similarly underestimating the understanding of those who 
-are debating merits of in-name-space streams with you, and 
-overestimating your own understanding, you're not going make progress 
-in convincing people of their merit (if at all).
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-The only way to keep your health is to eat what you don't want, drink what
-you don't like, and do what you'd rather not.
- 		-- Mark Twain
+	Ingo

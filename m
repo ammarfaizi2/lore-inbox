@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUINXzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUINX7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUINXzy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 19:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUINXzy
+	id S266352AbUINX7E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 19:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266633AbUINX7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 19:55:54 -0400
-Received: from [217.132.60.104] ([217.132.60.104]:27778 "EHLO localhost")
-	by vger.kernel.org with ESMTP id S266463AbUINXzj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 19:55:39 -0400
-Date: Wed, 15 Sep 2004 03:58:20 +0300
-From: Sasha Khapyorsky <sashak@smlink.com>
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97    
- patch)
-Message-ID: <20040915035820.1cdccaa5@localhost>
-In-Reply-To: <MPG.1bb164a85e6c9d459896e9@news.gmane.org>
-References: <200409111850.i8BIowaq013662@harpo.it.uu.se>
-	<20040912011128.031f804a@localhost>
-	<Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net>
-	<20040914175949.6b59a032@sashak.lan>
-	<MPG.1bb164a85e6c9d459896e9@news.gmane.org>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 14 Sep 2004 19:59:04 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:24495 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S266352AbUINX7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 19:59:02 -0400
+Date: Wed, 15 Sep 2004 01:58:24 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+Cc: Greg KH <greg@kroah.com>, "Marco d'Itri" <md@Linux.IT>,
+       "Giacomo A. Catenazzi" <cate@pixelized.ch>,
+       linux-kernel@vger.kernel.org
+Subject: Re: udev is too slow creating devices
+Message-ID: <20040914235824.GH3365@dualathlon.random>
+References: <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <20040914232011.GG3365@dualathlon.random> <1095204880.8493.153.camel@sherbert>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095204880.8493.153.camel@sherbert>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 23:04:41 +0200
-Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
+On Wed, Sep 15, 2004 at 12:34:40AM +0100, Gianni Tedesco wrote:
+> Surely fsck can be done on top of /etc/dev.d/ by just writing to a FIFO?
+> That'll serialize up the fsck caller...
 
-> Sasha Khapyorsky wrote:
-> > Such modems also exist (AC97 controller + MC97 codec + DAA), but
-> > less popular (especially with laptops there modem are mostly used).
-> 
-> I have one such built in in my Dell Inspiron 8200, which is why 
-> I'm following this thread with particular interest.
-> 
-> The strange thing is that under Windows the modem is configured 
-> as a Conexant thingie ... or is the problem that I have both 
-> and the Conexant thingie is the one connected to the actual 
-> modem plug? Is there a way to know this (other than having a 
-> look inside my laptop, that is)?
-
-If it looks like this:
-
-00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem Controller
-
-it is most likely on-board south bridge and MDC (or other riser)
-modem. This may work with ALSA.
-
-Or send me your lspci.
-
-Sasha.
-
+with file locking in /var/run I didn't necessairly meant to call
+flock(2), the fifo in your example would act like a mutex lock, but more
+than the fifo, we need a bit more of API, the dev.d script will have to
+look for a certain file in /var/run and block on it to serialize. I just
+hope the spin loops will go away soon from the userspace ;)

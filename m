@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135493AbRAGWlW>; Sun, 7 Jan 2001 17:41:22 -0500
+	id <S130112AbRAGWtO>; Sun, 7 Jan 2001 17:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135699AbRAGWlD>; Sun, 7 Jan 2001 17:41:03 -0500
-Received: from mailc.telia.com ([194.22.190.4]:31475 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S135493AbRAGWky>;
-	Sun, 7 Jan 2001 17:40:54 -0500
-Message-Id: <200101072240.XAA02615@zaphod.halden.lillfab.se>
-Date: Sun, 7 Jan 2001 23:40:19 +0100 (CET)
-From: 5116@telia.com
-Reply-To: 5116@telia.com
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
-To: linux-kernel@vger.kernel.org
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E14FKDI-00033e-00@the-village.bc.nu>
+	id <S130308AbRAGWtE>; Sun, 7 Jan 2001 17:49:04 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:12036 "EHLO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
+	id <S130112AbRAGWsu>; Sun, 7 Jan 2001 17:48:50 -0500
+From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
+Message-Id: <200101072248.OAA01920@cx518206-b.irvn1.occa.home.com>
+Subject: Re: posix_types.h  error
+To: mikeg@wen-online.de (Mike Galbraith)
+Date: Sun, 7 Jan 2001 14:48:53 -0800 (PST)
+Cc: root@chaos.analogic.com (Richard B. Johnson),
+        linux-kernel@vger.kernel.org (linux-kernel)
+Reply-To: barryn@pobox.com
+In-Reply-To: <Pine.Linu.4.10.10101071723420.1054-100000@mikeg.weiden.de> from "Mike Galbraith" at Jan 07, 2001 06:09:23 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/plain; CHARSET=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  7 Jan, Alan Cox wrote:
->> Um, what about people running their box as just a VLAN router/firewall?
->> That seems to be one of the principle uses so far.  Actually, in that case
->> both VLAN and IP traffic would come through, so it would be a tie if VLAN
->> came first, but non-vlan traffic would suffer worse.
+Mike Galbraith wrote:
+> On Sun, 7 Jan 2001, Richard B. Johnson wrote:
+[snip]
+> > None of the named compilers gripe? Where, prey tell, do I get the source-
+> > code of a compiler that works? The only source provided in the site
+> > listed in the Documentation does not.
 > 
-> Why would someone filter between vlans when any node on each vlan can happily
-> ignore the vlan partitioning
-> 
-You might be connected to a vlan capable switch which will only feed the
-`right' vlan to a certain port... In this case an one-armed firewall
-might make sense.
+> It's not the only source there.. egcs-1.1.2 is there as well.  You can
+> also try egcs.cygnus.com/pub/egcs or a mirror.
 
-/Daniel
--- 
+Richard is asking for source code. Documentation/Changes only gives the
+location of binaries.
 
+This is a bit of a problem IMO (I also tried, and failed, to find the egcs
+1.1.2 source code). Now that I know where it is, I'll soon post a patch
+for Documentation/Changes...
 
+-Barry K. Nathan <barryn@pobox.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318912AbSHEWlW>; Mon, 5 Aug 2002 18:41:22 -0400
+	id <S318925AbSHEWo4>; Mon, 5 Aug 2002 18:44:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318913AbSHEWlW>; Mon, 5 Aug 2002 18:41:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47822 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318912AbSHEWlV>; Mon, 5 Aug 2002 18:41:21 -0400
-Date: Tue, 6 Aug 2002 00:44:51 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alan Cox <alan@redhat.com>
+	id <S318926AbSHEWoz>; Mon, 5 Aug 2002 18:44:55 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:33038 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S318925AbSHEWoy>; Mon, 5 Aug 2002 18:44:54 -0400
+Date: Tue, 6 Aug 2002 00:48:21 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-ac4
-In-Reply-To: <200208051147.g75Blh720012@devserv.devel.redhat.com>
-Message-ID: <Pine.NEB.4.44.0208060039100.27501-100000@mimas.fachschaften.tu-muenchen.de>
+Subject: Re: [BK PATCH] devfs cleanups for 2.5.29
+In-Reply-To: <200208052212.g75MCrN17655@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.44.0208060034260.28515-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Hi,
 
-trying to compile a kernel with CONFIG_BLK_DEV_HD enabled fails with the
-following error:
+On Mon, 5 Aug 2002, Richard Gooch wrote:
 
-<--  snip  -->
+> > > Yes. RTFS.
+> >
+> > I'm trying - without getting headache.
+>
+> Take a valium.
 
-...
-gcc -D__KERNEL__
--I/home/bunk/linux/kernel-2.4/linux-2.4.19-full-nohotplug/inclu
-de -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
--fno-common
- -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=hd  -c -o hd.o hd.c
-hd.c: In function `dump_status':
-hd.c:210: warning: implicit declaration of function `IN_BYTE'
-...
-        --end-group \
-        -o vmlinux
-drivers/ide/idedriver.o: In function `dump_status':
-drivers/ide/idedriver.o(.text+0x68): undefined reference to `IN_BYTE'
-drivers/ide/idedriver.o: In function `reset_controller':
-drivers/ide/idedriver.o(.text+0x55e): undefined reference to `IN_BYTE'
-make: *** [vmlinux] Error 1
+Staying away from devfs sources is cheaper.
 
-<--  snip  -->
+> > In the "devfs=only" case, where is the module count incremented, when a
+> > block device is opened?
+>
+> The module count is incremented when the device is opened,
+> irrespective of whether it's a character or block device, or even a
+> "regular" file.
 
+Would you please answer my question and tell me where that exactly
+happens in that case?
 
-cu
-Adrian
+> > > No. I leverage fops_get(), a common function.
+> >
+> > Which is also insufficiently protected.
+>
+> Incorrect.
 
--- 
+What protects the module from unloading from getting the ops pointer until
+try_inc_mod_count()?
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+bye, Roman
 

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269182AbUJTTwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270555AbUJTUNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269182AbUJTTwG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 15:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270464AbUJTTtX
+	id S270555AbUJTUNb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 16:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270508AbUJTUI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:49:23 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:11788 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S269182AbUJTTdn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:33:43 -0400
-Date: Wed, 20 Oct 2004 14:28:58 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       romieu@fr.zoreil.com
-Subject: [patch 2.6.9 9/11] r8169: Add MODULE_VERSION
-Message-ID: <20041020142858.L8775@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, romieu@fr.zoreil.com
-References: <20041020141146.C8775@tuxdriver.com>
+	Wed, 20 Oct 2004 16:08:57 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:1355 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S270494AbUJTUI2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 16:08:28 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=rDz2BkyyC6I7LB3xYhCZbjHgsoQfPo1zWiRQg6bKGsjWo7U6Pfjxa8g8Ajxi0D9Wcjs7SvKhs3wkEMSwgoEdoVFwwSNKE6uFHiDBGU+ZKjVh/eWbNRE9RR8mVl+DwyMovV0nBZws3DMAb3tlPrOTmQbC4y1kGEj6vIeL4YVFDYI
+Message-ID: <7aaed091041020130823ce1665@mail.gmail.com>
+Date: Wed, 20 Oct 2004 22:08:25 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.9-rc4-mm1 amd64 Computer crashes on "Freeing unused kernel memory: 200k"
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041020145532.GA9689@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041020141146.C8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:11:46PM -0400
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <2QMVB-2nB-13@gated-at.bofh.it>
+	 <m3wtxn67h2.fsf@averell.firstfloor.org>
+	 <7aaed09104101908174a9e430a@mail.gmail.com>
+	 <7aaed09104101914093ff72736@mail.gmail.com>
+	 <20041020145532.GA9689@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MODULE_VERSION to r8169 driver.
+On 20 Oct 2004 16:55:32 +0200, Andi Kleen <ak@muc.de> wrote:
+> On Tue, Oct 19, 2004 at 11:09:10PM +0200, Espen Fjellv?r Olsen wrote:
+> > I'm sending my dmesg and lspci output, and my .config files.
+> 
+> Does it work with "noapic" or "nolapic" or "acpi=off" or
+> "noapic acpi_irq_balance" ?
+> 
+> -Andi
+> 
+It looks like it was a problem with Lilo or something. I managed to
+install grub, and then the error went straigth away.
+A bit weird tho.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-
- drivers/net/r8169.c |    1 +
- 1 files changed, 1 insertion(+)
-
---- linux-2.6.9/drivers/net/r8169.c.orig
-+++ linux-2.6.9/drivers/net/r8169.c
-@@ -362,6 +362,7 @@ MODULE_PARM(rx_copybreak, "i");
- MODULE_PARM(use_dac, "i");
- MODULE_PARM_DESC(use_dac, "Enable PCI DAC. Unsafe on 32 bit PCI slot.");
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(RTL8169_VERSION);
- 
- static int rtl8169_open(struct net_device *dev);
- static int rtl8169_start_xmit(struct sk_buff *skb, struct net_device *dev);
+-- 
+Mvh / Best regards
+Espen Fjellvær Olsen
+espenfjo@gmail.com
+Norway

@@ -1,80 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262030AbRENHq2>; Mon, 14 May 2001 03:46:28 -0400
+	id <S262034AbRENIKq>; Mon, 14 May 2001 04:10:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262063AbRENHqS>; Mon, 14 May 2001 03:46:18 -0400
-Received: from mx.demos.su ([194.87.0.32]:29351 "EHLO demos.su")
-	by vger.kernel.org with ESMTP id <S262030AbRENHqI>;
-	Mon, 14 May 2001 03:46:08 -0400
-Message-ID: <3AFFC427.7FC1F5E@cyberplat.ru>
-Date: Mon, 14 May 2001 15:40:23 +0400
-From: Oleg Makarenko <omakarenko@cyberplat.ru>
-Organization: Cyberplat.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19-0.17.4 i686)
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andi Kleen <ak@suse.de>, jgarzik@mandrakesoft.com
-Subject: Re: netif_wake_queue wrong was: [PATCH] NFS Server performance and 
- 8139too
-In-Reply-To: <3AFE3870.3BB1B69@cyberplat.ru> <20010513125329.B10250@gruyere.muc.suse.de>
-Content-Type: multipart/mixed;
- boundary="------------54C154790606E9505D44F52A"
+	id <S262063AbRENIKf>; Mon, 14 May 2001 04:10:35 -0400
+Received: from norma.kjist.ac.kr ([203.237.41.18]:56192 "EHLO
+	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S262034AbRENIK1>; Mon, 14 May 2001 04:10:27 -0400
+Date: Mon, 14 May 2001 17:09:52 +0900
+Message-Id: <200105140809.f4E89qO11455@norma.kjist.ac.kr>
+From: root <root@norma.kjist.ac.kr>
+To: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: 3c590 vs. tulip
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------54C154790606E9505D44F52A
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
 
-Andi Kleen wrote:
+Andi Kleen (ak@suse.de) wrote
+>
+>On Fri, May 11, 2001 at 09:27:29AM -0400, Dan Mann wrote: 
+>> I was just wondering if anybody had an idea which nic card might be a better 
+>> choice for me; I have a pci 3c590 and a pci smc that uses the tulip driver. 
+>> I don't have the card number for the smc with me handy, however I know both 
+>> cards were manufactured in 1995. Is either card/driver a better choice for 
+>> a mildly used file server (I am running 2.4.4 Linus)? 
+>
+>As of 2.4.4 newer 3c90x (I guess you mean that, 3c59x should be mostly 
+>extinct now) are a better choice because they support zero copy TX and 
+>hardware checksumming while tulip does not. 
+
+On http://www.scyld.com/expert/100mbps.html
+Venerable Don Becker wrote:
+
 > 
-> On Sun, May 13, 2001 at 11:32:00AM +0400, Oleg Makarenko wrote:
-> > Beware that I am not a kernel hacker so the patch can be completely
-> > wrong. But I hope it still can provide some useful information to
-> > somebody  who really knows what is going on here :)
-> 
-> The problem is that the netif_wake_queue() 2.4 compatibility macro that
-> was recently added to 2.2 was wrong. It should do a mark_bh(). 8139too
-> uses the 2.4 macros, and therefore the netbh was always scheduled for too
-> late and performance was bad.
-> 
-> This patch should fix all drivers that use the new framework.
-> 
+> DEC "Tulip" 21140/21142/21143 
+>     Bus master, with same clean and fast packet interface of the 10Mbs
+>     21040, but a with different serial subsubsystem. It's used on the SMC
+>     PCI EtherPower and most other 100Mbs cards.
+>     A limitation of the current chips is that packets may only be received
+>     into long-aligned buffers, which results in the IP header being
+>     misaligned. For some word-oriented architectures, such as Digital's
+>     own Alpha, this results in pointless copying. Programming info: The
+>     datasheet is readily available online or from DEC.
+>     Driver: I've written a Linux device driver that works with most
+>     Tulip-based adapter. 
+>     Multicast support: The DEC Tulip chip has the best design of the
+>     commodity chips. Its reception filter has several modes. In addition to
+>     the common hardware multicast hash filter mode (with 512 entries,
+>     rather than the common 64 entries), it has a mode where it can
+>     accept any of 16 specific addresses, either multicast or physical. 
+>     Large packet support: The tulip chips can be configured to extend
+>     the normal Tx jabber clock from 1.6-2.0 msec. (2048 to 2560
+>     transmitted octets) to 26-33 msec. Similarly, the "Rx watchdog"
+>     timer can be disabled so that any length packet may be received.
+>     (Untested.)
+> 3Com Vortex 
+>     Uses primarily a programmed-I/O interface similar to the 3c509, but
+>     has a limited bus master capability. The chip is used only on the
+>     3c595 board.
+>     Programming info: The programming manual is readily available
+>     from 3Com. 
+>     Driver: I've written a Linux device driver for the 3c590 and 3c595. 
+>     Large packet support: The Vortex chips can be explicitly
+>     configured to support 4.5K (FDDI-sized) packets. 
+>     Multicast support: The 3Com Vortex chips, like the rest of the
+>     EtherLink III series, have no hardware multicast filter. Multicast
+>     reception is enabled by a "receive all multicast packets" bit.
+> 3Com Boomerang 
+>     An update to the 3Com Vortex, this chip primarily uses a full
+>     descriptor-based bus-master interface, similar to the AMD, Tulip
+>     and Speedo3 chips. The programmed-I/O interface of the Vortex is
+>     currently retained, but is scheduled to be deleted in future chip
+>     revisions. This chip is used only on the 3Com EtherLink III XL
+>     boards, the 3c900 series.
+>     Programming info: The programming manual will soon be available
+>     from 3Com. 
+>     Driver: I've enhanced the Linux Vortex device driver to use this
+>     chip in PIO mode. A new driver supporting the full-bus-master
+>     mode is in progress. 
+>     Large packet support: Like the Vortex chip, the Boomerang can be
+>     explicitly configured to support 4.5K (FDDI-sized) packets. 
+>     Multicast support: This chip, like the rest of the EtherLink III
+>     series, have no hardware multicast filter. Multicast reception is
+>     enabled by a "receive all multicast packets" bit.
+> Intel Speedo-3 i82557/i82558 
+>     The chip has an interface similar to the other Intel network chips,
+>     with a direct PCI interface and the "SCB" implemented as registers
+>     visible in I/O and memory space. The chip is used on the Intel
+>     EtherExpress/Pro100B and 100+ boards, several OEM boards, and a
+>     custom board from Allied Telesyn.
+>     The i82558 chip integrates a i82555 transceiver, adds flow control,
+>     has improved firmware, and adds power
+>     management/wake-up-packet control. Programming info:
+>     Technical details are very difficult to obtain, and usually requires
+>     signing a NDA with Intel. 
+>     Driver: I've written a Linux device driver for the i82557 that
+>     demonstrates one way to use the Speedo-3. 
+>     Large packet support: Unknown. 
+>     Multicast support: The Intel EtherExpress PCI Pro 100B has a
+>     hardware multicast filter, but it illustrates characteristic Intel
+>     quirkiness and difficulty of use. A set-multicast-list command is
+>     queued on the Tx packet queue. The chip processes the list of
+>     multicast addresses to accept, and fills in an internal hash table.
+>     During the (presumably short) period that the set-multicast-list
+>     command is being processed, no packets are received(!). 
 
-Unfortunately it doesn't. 8139too (and every other driver in 2.2.19 
-source tree) uses its own version of netif_wake_queue(). So your patch
-doesn't solve the problem with 8139too.
+Basically, it appears that Don Becker praised the Tulip chipset the most.  
+How much important is "zero copy TX and hardware checksumming"?
 
-Here is another patch for 8139too that places mark_bh() into the 
-netif_wake_queue() macro definition in 8139too.c. 
+Best regards,
 
-Or with you patch for kcomp.h is it now better to completely remove 
-the macro redefinition from 8139too.c?
+Hugh
 
-My first patch is more of reverse type as it places mark_bh() 
-(that was lost) right after the netif_wake_queue() and 
-calls mark_bh() more often than it wakes the queue in a manner 
-of the older (working) 8139too version.
-
-oleg
---------------54C154790606E9505D44F52A
-Content-Type: application/octet-stream;
- name="linux-2.2.19-8139too.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="linux-2.2.19-8139too.patch"
-
-LS0tIGxpbnV4LTIuMi4yMHByZTIvZHJpdmVycy9uZXQvODEzOXRvby5jCU1vbiBNYXkgMTQg
-MTE6MTY6MzAgMjAwMQorKysgbGludXgtbW9sZS9kcml2ZXJzL25ldC84MTM5dG9vLmMJTW9u
-IE1heSAxNCAxMToxNzoyMiAyMDAxCkBAIC0xODcsNyArMTg3LDcgQEAKICNlbmRpZgogCiAj
-ZGVmaW5lIGRldl9rZnJlZV9za2JfaXJxKGEpCWRldl9rZnJlZV9za2IoYSkKLSNkZWZpbmUg
-bmV0aWZfd2FrZV9xdWV1ZShkZXYpCWNsZWFyX2JpdCgwLCAmZGV2LT50YnVzeSkKKyNkZWZp
-bmUgbmV0aWZfd2FrZV9xdWV1ZShkZXYpCWRvIHsgY2xlYXJfYml0KDAsICZkZXYtPnRidXN5
-KSA7IG1hcmtfYmgoTkVUX0JIKTsgfSB3aGlsZSgwKQogI2RlZmluZSBuZXRpZl9zdG9wX3F1
-ZXVlKGRldikJc2V0X2JpdCgwLCAmZGV2LT50YnVzeSkKIAogc3RhdGljIGlubGluZSB2b2lk
-IG5ldGlmX3N0YXJ0X3F1ZXVlKHN0cnVjdCBkZXZpY2UgKmRldikK
---------------54C154790606E9505D44F52A--
+ghsong at kjist dot ac dot kr
 
 

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVB1J7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVB1KNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbVB1J7w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 04:59:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVB1J7w
+	id S261572AbVB1KNR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 05:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVB1KNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 04:59:52 -0500
-Received: from hornet.berlios.de ([195.37.77.140]:7583 "EHLO hornet.berlios.de")
-	by vger.kernel.org with ESMTP id S261568AbVB1J7t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 04:59:49 -0500
-Date: Mon, 28 Feb 2005 10:59:35 +0100
-From: mhf@berlios.de
-To: pavel@suse.cz
-Cc: linux-kernel@vger.kernel.org, James@superbug.demon.co.uk
-Subject: Re: [BUG] 2.6.11-rc[234] setfont fails on i810 after resume from 
- ACPI-S3
-Message-ID: <4222EB87.nailFAE1RJ6JS@berlios.de>
-User-Agent: nail 10.5 4/27/03
-MIME-Version: 1.0
+	Mon, 28 Feb 2005 05:13:16 -0500
+Received: from ext-nj2gw-7.online-age.net ([64.14.56.43]:47322 "EHLO
+	ext-nj2gw-7.online-age.net") by vger.kernel.org with ESMTP
+	id S261572AbVB1KNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 05:13:13 -0500
+Date: Mon, 28 Feb 2005 11:12:48 +0100
+From: Kiniger <karl.kiniger@med.ge.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
+Message-ID: <20050228101248.GA14975@wszip-kinigka.euro.med.ge.com>
+References: <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu> <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu> <cv36kk$54m$1@gatekeeper.tmr.com> <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com> <1108998023.15518.93.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1108998023.15518.93.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 February 2005 17:59, Pavel Machek wrote:
-> Hi!
->
-> > >Well, dumping random stuff to console can produce
-> > > funny results. I'd call that normal. Try cat
-> > > /dev/urandom, that should be "enough random".
-> >
-> > I am also getting strange effects. I boot into 
-> > 2.6.11-rc4 and the console fonts looks fine. Come back
-> > a day later and the console font has corrupt
-> > characters. E.g. Displays a "D" instead of an "L" and
-> > stuff like that. It is mostly readable, except for a
-> > few characters. It is only the local console that is
-> > corrupted. ssh into the box displays correct
-> > characters, so all I can assume is that the VGA console
-> > is being programmed with different characters. The bad
-> > characters also survive a soft reboot( During BIOS boot
-> > up), until the linux kernel starts booting, and then it
-> > switches to a good font.
->
-> I have seen something similar on S3 cards with bad video
-> ram (we had
->
-> >3 of them). If it survives soft reboot... well, that
-> > looks like
->
-> hardware problem to me. [We may do something bad in
-> linux, too, but strange effects should not survive
-> reboot, that's hw bug. I'd suggest memtest on video ram,
-> but someone would need to write that tool, first].
->
->         Pavel
+On Mon, Feb 21, 2005 at 03:00:28PM +0000, Alan Cox wrote:
+> On Gwe, 2005-02-18 at 10:31, Kiniger, Karl (GE Healthcare) wrote:
+> > Not entirely true (at least for me). I actually tried to read the 
+> > last iso9660 data sector with a small C program (reading 2 kb) and
+> > it failed to read the sector. Using ide-scsi I was able to read it.....
+> 
+> Thats the bug that should now be fixed by the ide changes I did so that
+> ide-cd has the knowledge ide-scsi has for partial completions of I/O
 
-i810 uses system RAM (which was tested with memtest)
+Thanks Alan,
 
-In my case, it also does work fine with 2.4.29, thus problem 
-2.6 specific.
+hopefully these changes will go into the fedora core3 kernel soon.
 
+Greetings
+Karl
 
- Michael
+-- 
+Karl Kiniger   mailto:karl.kiniger@med.ge.com
+GE Medical Systems Kretztechnik GmbH & Co OHG
+Tiefenbach 15       Tel: (++43) 7682-3800-710
+A-4871 Zipf Austria Fax: (++43) 7682-3800-47

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266929AbSK2Byo>; Thu, 28 Nov 2002 20:54:44 -0500
+	id <S266932AbSK2CHq>; Thu, 28 Nov 2002 21:07:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266930AbSK2Byo>; Thu, 28 Nov 2002 20:54:44 -0500
-Received: from zork.zork.net ([66.92.188.166]:64235 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S266929AbSK2Byn>;
-	Thu, 28 Nov 2002 20:54:43 -0500
+	id <S266933AbSK2CHq>; Thu, 28 Nov 2002 21:07:46 -0500
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:772 "EHLO
+	lap.molina") by vger.kernel.org with ESMTP id <S266932AbSK2CHp>;
+	Thu, 28 Nov 2002 21:07:45 -0500
+Date: Thu, 28 Nov 2002 20:06:49 -0600 (CST)
+From: Thomas Molina <tmolina@copper.net>
+X-X-Sender: tmolina@lap.molina
 To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] [2.5.49] symbol_get doesn't work
-References: <20021128234536.DC53A2C113@lists.samba.org>
-	<buohee16u19.fsf@mcspd15.ucom.lsi.nec.co.jp>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: DISHONOURABLE INTENTIONS, STARKISM(S)
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 29 Nov 2002 02:02:05 +0000
-In-Reply-To: <buohee16u19.fsf@mcspd15.ucom.lsi.nec.co.jp> (Miles Bader's
- message of "29 Nov 2002 10:31:30 +0900")
-Message-ID: <6uel955e1u.fsf@zork.zork.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
+Subject: [PATCH] apm.c redefines savesegment in 2.5
+Message-ID: <Pine.LNX.4.44.0211282003310.878-100000@lap.molina>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Miles Bader quotation:
+I get the following when compiling 2.5.50:
 
-> Rusty Russell <rusty@rustcorp.com.au> writes:
->> > > int *ptr = symbol_get(their_integer);
->> > > if (!ptr) ...
->>
->> That's because it's a new primitive.  Very few places really want to
->> use it, they usually just want to use the symbol directly.  However,
->> there are some places where such a dependency is too harsh: it's more
->> "if I can get this, great, otherwise I'll do something else".
->
-> I find the name a bit wierd, BTW -- it sounds like it's going to return
-> the _value_ of the symbol.  How about something like `symbol_addr' instead?
+arch/i386/kernel/apm.c:336:1: warning: "savesegment" redefined
+In file included from include/linux/elf.h:5,
+                 from include/linux/module.h:17,
+                 from arch/i386/kernel/apm.c:205:
+include/asm/elf.h:63:1: warning: this is the location of the previous 
+definition
 
-Surely the value of a symbol is precisely that: an address.
+This patch fixes it:
 
--- 
- /                          |
-[|] Sean Neakums            |  Questions are a burden to others;
-[|] <sneakums@zork.net>     |      answers a prison for oneself.
- \                          |
+--- arch/i386/kernel/apm.c.orig	2002-11-20 18:13:04.000000000 -0600
++++ arch/i386/kernel/apm.c	2002-11-20 18:16:16.000000000 -0600
+@@ -331,12 +331,6 @@
+ #define DEFAULT_BOUNCE_INTERVAL		(3 * HZ)
+ 
+ /*
+- * Save a segment register away
+- */
+-#define savesegment(seg, where) \
+-		__asm__ __volatile__("movl %%" #seg ",%0" : "=m" (where))
+-
+-/*
+  * Maximum number of events stored
+  */
+ #define APM_MAX_EVENTS		20
+
+
+
+

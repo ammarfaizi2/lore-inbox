@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbTJAKOt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 06:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTJAKOs
+	id S261463AbTJAKGi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 06:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbTJAKGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 06:14:48 -0400
-Received: from web40602.mail.yahoo.com ([66.218.78.139]:60281 "HELO
-	web40602.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261763AbTJAKOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 06:14:46 -0400
-Message-ID: <20031001101445.62739.qmail@web40602.mail.yahoo.com>
-Date: Wed, 1 Oct 2003 11:14:45 +0100 (BST)
-From: =?iso-8859-1?q?Chris=20Rankin?= <rankincj@yahoo.com>
-Subject: Re: APIC error on SMP machine
-To: jamesclv@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>
-Cc: R.E.Wolff@BitWizard.nl
-In-Reply-To: <200309301852.47835.jamesclv@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 1 Oct 2003 06:06:38 -0400
+Received: from twix.hotpop.com ([204.57.55.70]:49541 "EHLO twix.hotpop.com")
+	by vger.kernel.org with ESMTP id S261463AbTJAKGh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 06:06:37 -0400
+Subject: 2.6.0-test6 Quake3/Wolfenstein Lockups
+From: Dan <overridex@punkass.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1065002791.5548.5.camel@nazgul.overridex.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 01 Oct 2003 06:06:31 -0400
+Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- James Cleverdon <jamesclv@us.ibm.com> wrote:
-> An APIC send accept error means that when trying to
-> send an interrupt, it was not accepted by the
-target. 
-> In this case, the target is a CPU, either your other
-> CPU or the same one (a CPU can send itself an 
-> interrupt).
-...
-> 3) Maybe the other CPU is broken and physically
-> cannot accept the interrupt.
+Hi there,
 
-Given the background, the most likely cause would seem
-to be bad a CPU/motherboard connection. I have
-realised that the APIC error is for CPU1, but I have
-actually removed CPU0. And a bad CPU0 would explain
-why "nosmp" didn't work either.
-
-It's a pity that "nosmp" doesn't (logially cannot?)
-take a "boot CPU number" as a parameter.
-
-> Do any previous kernels boot?
-
-Not any more. Everything started to hit the fan at the
-beginning of August, and I thought that I had
-"patched" things by underclocking the FSB. However,
-that only seems to have delayed the inevitable. CPU
-slot 2 on my motherboard just seems not to work any
-more. I have no idea why - it's not like I can see a
-lot of dust and dirt in there.
-
-Oh well, I hear that Dell are selling dual 2.6 GHz
-Xeons with RedHat preinstalled nowadays. (These should
-have "hyperthreading support", right ;-) ?)
-
-Cheers,
-Chris
+I'm experiencing frequent hard lockups (magic sysrq doesn't even work)
+when exiting quake3 or return to castle wolfenstein on 2.6.0-test5 and
+test6... they happen about 50% of the time, and usually my quake3 config
+file is missing when I boot back up.  They only happen after clicking to
+bypass the credits screens when exiting the games... is anyone
+experiencing this?  I'm unable to strace quake3 as it won't start up at
+all when straced, and I can't get return to castle wolfenstein to lockup
+when it's straced.  I'm running a dual athlon 1700 machine, with
+reiserfs and LVM.  This lockup doesn't happen on 2.4.x nor did it happen
+on 2.5.72 (though at the time I was running raid-0 and not lvm) If
+anyone else is having this problem I'd like to hear it, or if anyone
+else wants info just let me know.  Please cc me any replies. -Dan
 
 
-________________________________________________________________________
-Want to chat instantly with your online friends?  Get the FREE Yahoo!
-Messenger http://mail.messenger.yahoo.co.uk

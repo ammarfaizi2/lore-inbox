@@ -1,152 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbTJDLZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 07:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbTJDLZr
+	id S261984AbTJDLyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 07:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTJDLyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 07:25:47 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:58768 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S261982AbTJDLZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 07:25:43 -0400
-From: David Woodhouse <dwmw2@infradead.org>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <1065266733.16088.91.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Sat, 04 Oct 2003 12:25:33 +0100
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-Subject: JFFS2 swsusp / signal cleanup.
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
+	Sat, 4 Oct 2003 07:54:09 -0400
+Received: from mail.convergence.de ([212.84.236.4]:2285 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261984AbTJDLyD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 07:54:03 -0400
+Message-ID: <3F7EB4CC.8020606@linuxtv.org>
+Date: Sat, 04 Oct 2003 13:53:48 +0200
+From: Michael Hunold <hunold@linuxtv.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH[[2.4] Documentation cleanup: ioctl-number.txt
+Content-Type: multipart/mixed;
+ boundary="------------040804040103070602010504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How's this look?
+This is a multi-part message in MIME format.
+--------------040804040103070602010504
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-===== fs/jffs2/background.c 1.19 vs edited =====
---- 1.19/fs/jffs2/background.c	Wed May 28 16:01:05 2003
-+++ edited/fs/jffs2/background.c	Sat Oct  4 12:23:52 2003
-@@ -19,6 +19,7 @@
- #include <linux/completion.h>
- #include <linux/sched.h>
- #include <linux/unistd.h>
-+#include <linux/suspend.h>
- #include "nodelist.h"
- 
- 
-@@ -89,10 +90,10 @@
- 	set_user_nice(current, 10);
- 
- 	for (;;) {
--		spin_lock_irq(&current_sig_lock);
--		siginitsetinv (&current->blocked, sigmask(SIGHUP) | sigmask(SIGKILL) | sigmask(SIGSTOP) | sigmask(SIGCONT));
--		recalc_sigpending();
--		spin_unlock_irq(&current_sig_lock);
-+		allow_signal(SIGHUP);
-+		allow_signal(SIGKILL);
-+		allow_signal(SIGSTOP);
-+		allow_signal(SIGCONT);
- 
- 		if (!thread_should_wake(c)) {
- 			set_current_state (TASK_INTERRUPTIBLE);
-@@ -104,6 +105,13 @@
- 			schedule();
- 		}
- 
-+		if (current->flags & PF_FREEZE) {
-+			refrigerator(0);	/* When this loses its stupid flush_signals() 
-+						   and starts just calling recalc_sigpending(),
-+						   you can remove the following: */
-+			recalc_sigpending();
-+		}
-+
- 		cond_resched();
- 
- 		/* Put_super will send a SIGKILL and then wait on the sem. 
-@@ -112,9 +120,7 @@
- 			siginfo_t info;
- 			unsigned long signr;
- 
--			spin_lock_irq(&current_sig_lock);
--			signr = dequeue_signal(current, &current->blocked, &info);
--			spin_unlock_irq(&current_sig_lock);
-+			signr = dequeue_signal_lock(current, &current->blocked, &info);
- 
- 			switch(signr) {
- 			case SIGSTOP:
-@@ -138,10 +144,7 @@
- 			}
- 		}
- 		/* We don't want SIGHUP to interrupt us. STOP and KILL are OK though. */
--		spin_lock_irq(&current_sig_lock);
--		siginitsetinv (&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP) | sigmask(SIGCONT));
--		recalc_sigpending();
--		spin_unlock_irq(&current_sig_lock);
-+		disallow_signal(SIGHUP);
- 
- 		D1(printk(KERN_DEBUG "jffs2_garbage_collect_thread(): pass\n"));
- 		jffs2_garbage_collect_pass(c);
-===== include/linux/sched.h 1.168 vs edited =====
---- 1.168/include/linux/sched.h	Thu Oct  2 08:12:14 2003
-+++ edited/include/linux/sched.h	Sat Oct  4 12:23:15 2003
-@@ -577,6 +577,19 @@
- extern void flush_signals(struct task_struct *);
- extern void flush_signal_handlers(struct task_struct *, int force_default);
- extern int dequeue_signal(struct task_struct *tsk, sigset_t *mask, siginfo_t *info);
-+
-+static inline int dequeue_signal_lock(struct task_struct *tsk, sigset_t *mask, siginfo_t *info)
-+{
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&tsk->sighand->siglock, flags);
-+	ret = dequeue_signal(tsk, mask, info);
-+	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+
-+	return ret;
-+}	
-+
- extern void block_all_signals(int (*notifier)(void *priv), void *priv,
- 			      sigset_t *mask);
- extern void unblock_all_signals(void);
-@@ -674,6 +687,7 @@
- extern void reparent_to_init(void);
- extern void daemonize(const char *, ...);
- extern int allow_signal(int);
-+extern int disallow_signal(int);
- extern task_t *child_reaper;
- 
- extern int do_execve(char *, char __user * __user *, char __user * __user *, struct pt_regs *);
-===== kernel/exit.c 1.113 vs edited =====
---- 1.113/kernel/exit.c	Sun Sep 21 22:49:52 2003
-+++ edited/kernel/exit.c	Sat Oct  4 12:11:54 2003
-@@ -278,7 +278,20 @@
- 	return 0;
- }
- 
-+int disallow_signal(int sig)
-+{
-+	if (sig < 1 || sig > _NSIG)
-+		return -EINVAL;
-+
-+	spin_lock_irq(&current->sighand->siglock);
-+	sigaddset(&current->blocked, sig);
-+	recalc_sigpending();
-+	spin_unlock_irq(&current->sighand->siglock);
-+	return 0;
-+}
-+
- EXPORT_SYMBOL(allow_signal);
-+EXPORT_SYMBOL(disallow_signal);
- 
- /*
-  *	Put all the gunge required to become a kernel thread without
+Hello Marcelo,
 
--- 
-dwmw2
+please apply the following small patch against 2.4 which removes two 
+bogus informations from "ioctl-number.txt":
 
+1) The DVD decoder driver was never finished and never released. I 
+recently removed these informations from our website -- most of the work 
+that was freely available has gone into projects like libdvdread and 
+libdvdnav.
+
+2) There never was a "saa7146 driver" from Philips officially. Instead, 
+in 2.6. my saa7146 driver was included which drives various analog TV 
+cards and various DVB cards through Video4Linux-2.
+
+Thanks!
+
+Michael Hunold
+(LinuxTV.org CVS maintainer)
+
+--------------040804040103070602010504
+Content-Type: text/plain;
+ name="ioctl-number.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ioctl-number.diff"
+
+diff -ura linux/Documentation/ioctl-number.txt linux-new/Documentation/ioctl-number.txt
+--- linux/Documentation/ioctl-number.txt	2003-09-20 21:47:54.000000000 +0200
++++ linux-new/Documentation/ioctl-number.txt	2003-10-04 13:35:50.000000000 +0200
+@@ -171,10 +171,6 @@
+ 					<mailto:buk@buks.ipn.de>
+ 0xA0	all	linux/sdp/sdp.h		Industrial Device Project
+ 					<mailto:kenji@bitgate.com>
+-0xA2    00-0F   DVD decoder driver      in development:
+-                                        <http://linuxtv.org/dvd/api/>
+-0xA3	00-1F	Philips SAA7146 dirver	in development:
+-					<mailto:Andreas.Beckmann@hamburg.sc.philips.com>
+ 0xA3	80-8F	Port ACL		in development:
+ 					<mailto:tlewis@mindspring.com>
+ 0xA3	90-9F	linux/dtlk.h
+
+--------------040804040103070602010504--
 

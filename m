@@ -1,101 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265983AbUAKV0o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 16:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265987AbUAKV0o
+	id S265997AbUAKVfi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 16:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUAKVfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 16:26:44 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:53385 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265983AbUAKV0m
+	Sun, 11 Jan 2004 16:35:38 -0500
+Received: from mail3.cc.huji.ac.il ([132.64.1.21]:43500 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S265997AbUAKVff
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 16:26:42 -0500
-Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
-	0x37ffffff" warning.
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0401111242250.20018-100000@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.44.0401111242250.20018-100000@bigblue.dev.mdolabs.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ar3GrNa5AeIJjpxJu0r8"
-Message-Id: <1073856580.23742.2.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 11 Jan 2004 23:29:40 +0200
+	Sun, 11 Jan 2004 16:35:35 -0500
+Message-ID: <4001A598.6080305@mscc.huji.ac.il>
+Date: Sun, 11 Jan 2004 21:35:52 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en, he
+MIME-Version: 1.0
+To: Bernhard Kuhn <bkuhn@metrowerks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [announcement, patch] real-time interrupts for the Linux kernel
+References: <3FFE078D.20400@metrowerks.com> <400113EE.6060909@mscc.huji.ac.il> <40017BFC.9000408@metrowerks.com>
+In-Reply-To: <40017BFC.9000408@metrowerks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you :-)
+Liviu
 
---=-ar3GrNa5AeIJjpxJu0r8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Bernhard Kuhn wrote:
 
-On Sun, 2004-01-11 at 22:47, Davide Libenzi wrote:
-> On Sun, 11 Jan 2004, Martin Schlemmer wrote:
->=20
-> > On Sun, 2004-01-11 at 20:42, Davide Libenzi wrote:
-> > > On Sun, 11 Jan 2004, Martin Schlemmer wrote:
-> > >=20
-> > > > azarah@nosferatu tar $ as << EOF
-> > > > > PG=3D0xC0000000
-> > > > > VM=3D(128 << 20)
-> > > > > .long (-PG -VM)
-> > > > > .long (~PG + 1 - VM)
-> > > > > EOF
-> > > > {standard input}: Assembler messages:
-> > > > {standard input}:3: Warning: value 0x38000000 truncated to 0x380000=
-00
-> > > > {standard input}:4: Warning: value 0x38000000 truncated to 0x380000=
-00
-> > > > azarah@nosferatu tar $ objdump -D a.out
-> > > > =20
-> > > > a.out:     file format elf32-i386
-> > > > =20
-> > > > Disassembly of section .text:
-> > > > =20
-> > > > 00000000 <.text>:
-> > > >    0:   00 00                   add    %al,(%eax)
-> > > >    2:   00 38                   add    %bh,(%eax)
-> > > >    4:   00 00                   add    %al,(%eax)
-> > > >    6:   00 38                   add    %bh,(%eax)
-> > > > azarah@nosferatu tar $
-> > >=20
-> > > This is weird. I also verified the above with:
-> > >=20
-> > > GNU assembler 2.13.90.0.18 20030206
-> > >=20
-> > > and it works fine too.
-> > >=20
-> >=20
-> > What distro?  Might be an in-house patch ...
->=20
-> The 2.13.90.0.18 is std RH9, while 2.14 is self built.
-> Tested also with FC1:
->=20
-> GNU assembler 2.14.90.0.6 20030820
->=20
-> that is fine too.
->=20
+> Voicu Liviu wrote:
+>
+>> Can this be used for a normal desktop?
+>
+>
+> I don't think that real time interrupts are usefull for
+> a desktop environment: here, even interrupt latencies
+> below one millisecond should be more than good enough for
+> streaming/multimedia applications and games - if your
+> specific application is not "fast" or "reactive" enough,
+> i would tend to say that it is not the fault of the linux
+> kernel and it's the implementation of the application
+> itself or one of the related kernel drivers that needs
+> improovment. If you recognize interrupt response times
+> higher than a millisecond with a standard linux kernel,
+> then there is definitly a bad device driver or something
+> is broken with your hardware.
+>
+> The real time interrupt patch is mostly intended to be
+> used in control loop and data aquisition applications
+> where higher latencies or jitters higher than a few
+> mirocseconds could have catastrophic consequences.
+> However, i can imagine that it makes sense to use
+> this patch for some very special networking devices
+> where the kernel might sometimes not be able to response
+> quick enough because it is just processing an
+> interrupt of type SA_INTERRUPT that takes too much
+> time. But in these cases, i guess it's simpler to fix
+> that other device driver (by moving parts of the interrupt
+> handler to a tasklet) rather than introducing
+> real time interrupts - the only problem with this
+> variant is that for oftenly changing hardware
+> configurations, you can never be sure if you catched
+> all "longest execution paths" and you may end up
+> spending most of your time improving other device
+> drivers.
+>
+> BTW.: having interrupt priorities is only the first
+> step to make the kernel hard real time aware. The
+> next step would be to make the kernel scheduler
+> re-entrentable, so that a user space application
+> related to a high priority interrupt could run
+> at a higher priority than a low level interrupt service
+> routine (low priority interrupts are disabled while the
+> high priority application is running) - this scheme
+> is pretty similar to LXRT, except that the kernel scheduler
+> is used instead of an external dispatcher. But just
+> as like as with LXRT, you only have a very limited
+> set of system calls and you can easly lock up your system
+> when an application takes 100% of the CPU.
+>
+> best regards
+>
+> Bernhard
 
-Hmm.  Ok, ours is compiled with --enable-64-bit-bfd ...
-might do this?  Bit late now, but I'll try to test
-tomorrow ...
 
-
---=20
-Martin Schlemmer
-
---=-ar3GrNa5AeIJjpxJu0r8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAAcBEqburzKaJYLYRAhtwAKCXSrxOYAVJHBF/Wwn0p2h6caYpnACeLPsM
-ILYRHi6ps/t6wdC/hPmzDgw=
-=3mK1
------END PGP SIGNATURE-----
-
---=-ar3GrNa5AeIJjpxJu0r8--
 

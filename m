@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317390AbSFMBTR>; Wed, 12 Jun 2002 21:19:17 -0400
+	id <S317387AbSFMB3x>; Wed, 12 Jun 2002 21:29:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317391AbSFMBTQ>; Wed, 12 Jun 2002 21:19:16 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:16474 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S317390AbSFMBTQ>; Wed, 12 Jun 2002 21:19:16 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: marcelo@conectiva.com.br, david-b@pacbell.net, oliver@neukum.name,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4 add __dma_buffer alignment macro
-In-Reply-To: <52zny049r7.fsf@topspin.com> <3D079D44.4000701@pacbell.net>
-	<52wut42fig.fsf_-_@topspin.com>
-	<20020612.180725.18975907.davem@redhat.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 12 Jun 2002 18:19:12 -0700
-Message-ID: <52k7p42cxb.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317391AbSFMB3w>; Wed, 12 Jun 2002 21:29:52 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:46250 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S317387AbSFMB3v>; Wed, 12 Jun 2002 21:29:51 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        frankeh@watson.ibm.com
+Subject: Re: [PATCH] Futex Asynchronous Interface 
+In-Reply-To: Your message of "Wed, 12 Jun 2002 11:16:03 +0200."
+             <3D071153.9020607@loewe-komp.de> 
+Date: Thu, 13 Jun 2002 11:32:29 +1000
+Message-Id: <E17IJTR-0002ws-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+In message <3D071153.9020607@loewe-komp.de> you write:
+> What are the plans on how to deal with a waiter when the lock holder
+> dies abnormally?
+> 
+> What about sending a signal (SIGTRAP or SIGLOST), returning -1 and
+> setting errno to a reasonable value (EIO?)
 
-    David> Just use asm/dma.h, no need to make a new file.
+This is becoming an FAQ:
 
-I could do that, however my thinking was that if I added it to an
-existing file then it would add to the existing nested include bloat.
-For example <asm/dma.h> for i386 has 10 inline functions and includes
-<linux/config.h>, <linux/spinlock.h>, <asm/io.h> and <linux/delay.h>.
-Seems kind of excessive just to get one macro that ends up being the
-empty string, and I would prefer not to force people to include all
-that just to declare a structure.
+No, you can't.  These locks are fast because they don't go through the
+kernel in the contented case -> the kernel doesn't know who has it.
 
-Best,
-  Roland
+You can deal with this in userspace, though, if you make certain
+assumptions.  Have a daemon which say, polls the futexes every second
+and when a futex is taken for two seconds in a row, tries to grab it
+itself with a 1 second timeout: if it fails it assumes the lock is
+stuck and take action (note: anyone can lock or unlock, there's no
+lock "owner" except by convention).
+
+This is not perfect, but neither is the fcntl lock case of "process
+dies, lock vanishes, noone gets told".  And since the cleanup is
+app-specific, making the whole thing app-specific is not so crazy.
+
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,42 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316957AbSIIKK3>; Mon, 9 Sep 2002 06:10:29 -0400
+	id <S316857AbSIIKFQ>; Mon, 9 Sep 2002 06:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSIIKK2>; Mon, 9 Sep 2002 06:10:28 -0400
-Received: from ns.commfireservices.com ([216.6.9.162]:30482 "HELO
-	hemi.commfireservices.com") by vger.kernel.org with SMTP
-	id <S316957AbSIIKJ4>; Mon, 9 Sep 2002 06:09:56 -0400
-From: zwane@mwaikambo.name
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-To: bert hubert <ahu@ds9a.nl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-X-Originating-IP: 196.28.7.236
-X-Mailer: Webmin 0.940
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="bound1031566421"
-Message-Id: <20020909101341.2E3B2BC51@hemi.commfireservices.com>
-Date: Mon,  9 Sep 2002 06:13:41 -0400 (EDT)
+	id <S316883AbSIIKEB>; Mon, 9 Sep 2002 06:04:01 -0400
+Received: from smtpout.mac.com ([204.179.120.88]:36332 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S316857AbSIIKCC>;
+	Mon, 9 Sep 2002 06:02:02 -0400
+Message-Id: <200209091006.g89A6gOg000891@smtp-relay04-en1.mac.com>
+Date: Thu, 29 Aug 2002 21:56:27 +0200
+Mime-Version: 1.0 (Apple Message framework v482)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: [PATCH] 5/10 sound/oss/wf_midi.c
+From: pwaechtler@mac.com
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Cc: torvalds@transmeta.com
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+--- vanilla-2.5.33/sound/oss/wf_midi.c	Sat Apr 20 18:25:22 2002
++++ linux-2.5-cli-oss/sound/oss/wf_midi.c	Fri Aug 16 12:43:47 2002
+@@ -50,6 +50,7 @@
+  */
+ 
+ #include <linux/init.h>
++#include <linux/spinlock.h>
+ #include "sound_config.h"
+ 
+ #include <linux/wavefront.h>
+@@ -79,6 +80,7 @@
+ static struct wf_mpu_config *virt_dev = &devs[1];
+ 
+ static void start_uart_mode (void);
++static spinlock_t lock=SPIN_LOCK_UNLOCKED;
+ 
+ #define	OUTPUT_READY	0x40
+ #define	INPUT_AVAIL	0x80
+@@ -365,8 +367,8 @@
+ 	}
+ 
+ 	if (mi->m_busy) return;
++	spin_lock(&lock);
+ 	mi->m_busy = 1;
+-	sti (); 
+ 
+ 	if (!input_dev) {
+ 		input_dev = physical_dev;
+@@ -406,6 +408,7 @@
+ 	} while (input_avail() && n-- > 0);
+ 
+ 	mi->m_busy = 0;
++	spin_unlock(&lock);
+ }
+ 
+ static int
+@@ -486,18 +489,17 @@
+ 		for (timeout = 30000; timeout > 0 && !output_ready ();
+ 		     timeout--);
+       
+-		save_flags (flags);
+-		cli ();
++		spin_lock_irqsave(&lock, flags);
+       
+ 		if (!output_ready ()) {
+ 			printk (KERN_WARNING "WF-MPU: Send switch "
+ 				"byte timeout\n");
+-			restore_flags (flags);
++			spin_unlock_irqrestore(&lock, flags);
+ 			return 0;
+ 		}
+       
+ 		write_data (switchch);
+-		restore_flags (flags);
++		spin_unlock_irqrestore(&lock, flags);
+ 	} 
+ 
+ 	lastoutdev = dev;
+@@ -511,16 +513,15 @@
+ 
+ 	for (timeout = 30000; timeout > 0 && !output_ready (); timeout--);
+ 
+-	save_flags (flags);
+-	cli ();
++	spin_lock_irqsave(&lock, flags);
+ 	if (!output_ready ()) {
++		spin_unlock_irqrestore(&lock, flags);
+ 		printk (KERN_WARNING "WF-MPU: Send data timeout\n");
+-		restore_flags (flags);
+ 		return 0;
+ 	}
+ 
+ 	write_data (midi_byte);
+-	restore_flags (flags);
++	spin_unlock_irqrestore(&lock, flags);
+ 
+ 	return 1;
+ }
+@@ -768,14 +769,13 @@
+ {
+ 	unsigned long flags;
+ 
+-	save_flags (flags);
+-	cli();
++	spin_lock_irqsave(&lock, flags);
+ 
+ 	wf_mpu_close (virt_dev->devno);
+ 	/* no synth on virt_dev, so no need to call wf_mpu_synth_close() */
+ 	phys_dev->isvirtual = 0;
+ 
+-	restore_flags (flags);
++	spin_unlock_irqrestore(&lock, flags);
+ 
+ 	return 0;
+ }
+@@ -858,8 +858,7 @@
+ 	int             ok, i;
+ 	unsigned long   flags;
+ 
+-	save_flags (flags);
+-	cli ();
++	spin_lock_irqsave(&lock, flags);
+ 
+ 	/* XXX fix me */
+ 
+@@ -875,6 +874,6 @@
+ 		}
+ 	}
+ 
+-	restore_flags (flags);
++	spin_unlock_irqrestore(&lock, flags);
+ }
+ #endif
 
---bound1031566421
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-bert hubert <ahu@ds9a.nl> wrote ..
-> On Sun, Sep 08, 2002 at 03:01:02PM -0700, Linus Torvalds wrote:
-> 
-> >    setups (as opposed to most laptops, which often seem to put every PCI
-> >    device on the same irq)
-> 
-> I've always thought that this was a linux problem - any reason *why* laptops
-> do this?
-
-Hi Bert,
-   I'd presume the reason for that would be because the irq/pin mappings end up in a manner that all the devices end up having the same irq assigned to the pin they're using. This would be a BIOS/fw problem, although it can be alleviated with PCI IRQ router support for that particular chipset.
-
-     Zwane
-
---bound1031566421--

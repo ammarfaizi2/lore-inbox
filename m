@@ -1,39 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291898AbSBTPAY>; Wed, 20 Feb 2002 10:00:24 -0500
+	id <S291890AbSBTPEE>; Wed, 20 Feb 2002 10:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291890AbSBTPAO>; Wed, 20 Feb 2002 10:00:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6409 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291893AbSBTO75>; Wed, 20 Feb 2002 09:59:57 -0500
-Subject: Re: SC1200 support?
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Wed, 20 Feb 2002 15:14:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0202201423001.22702-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Feb 20, 2002 02:32:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291893AbSBTPDz>; Wed, 20 Feb 2002 10:03:55 -0500
+Received: from gw-nl4.philips.com ([212.153.190.6]:61199 "EHLO
+	gw-nl4.philips.com") by vger.kernel.org with ESMTP
+	id <S291890AbSBTPDk>; Wed, 20 Feb 2002 10:03:40 -0500
+From: fabrizio.gennari@philips.com
+To: linux-kernel@vger.kernel.org
+Cc: rmk@arm.linux.org.uk
+Subject: [PATCH] 16C950 clock autodetection
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFA899B703.CAA772E9-ONC1256B66.0051B253@diamond.philips.com>
+Date: Wed, 20 Feb 2002 16:02:52 +0100
+X-MIMETrack: Serialize by Router on hbg001soh/H/SERVER/PHILIPS(Release 5.0.5 |September
+ 22, 2000) at 20/02/2002 16:22:09
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16dYRh-0003nu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: multipart/mixed; boundary="=_mixed 00529325C1256B66_="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have this set-top box with a National Semiconductor Geode SC1200 chip
-> with a built-in watch-dog plus a lot more.
+--=_mixed 00529325C1256B66_=
+Content-Type: text/plain; charset="us-ascii"
 
-It depends what BIOS firmware you have
+Here is a patch that applies to drivers/char/serial.c in kernel 2.4.17, 
+that automatically detects the clock frequency in a 16C950 chip and sets 
+baud_base accordingly.
 
-> Does anyone know if there is any support for the sc1200-specific features
-> in the current kernels, or if there are patches available?
+There are two caveats:
+1. The patch has been tested on i386 machines and it works. It gives wrong 
+results on ARM.
+2. The patch sets baud_base if the serial chip is on a 16-bit PC card. If 
+it is on a PCI card (PCI slot or 32-bit CardBus card) the baud_base is 
+overwritten by the value in serial_pci_tbl[].
 
-Most Cyrix MediaGX / NatSemi Geode stuff seems to work. Its all a bit
-complicated because most of the hardware is a BIOS manufactured illusion
-using SMM mode. On the CS5530/5530x at least we support VSA1 video, audio
-(including the needed bug workarounds) etc. Not afaik the watchdog. 
-Watchdog drivers are easy to right fortunately.
+Fabrizio Gennari
+Philips Research Monza
+via G.Casati 23, 20052 Monza (MI), Italy
+tel. +39 039 2037816, fax +39 039 2037800
 
-If you have VSA2 based firmware then I've no idea what you'll get
+--=_mixed 00529325C1256B66_=
+Content-Type: application/octet-stream; name="clock.patch"
+Content-Disposition: attachment; filename="clock.patch"
+Content-Transfer-Encoding: base64
 
-Alan
+LS0tIHNlcmlhbC1vbGQuYwlXZWQgRmViIDIwIDE3OjIxOjQ1IDIwMDINCisrKyBzZXJpYWwuYwlX
+ZWQgRmViIDIwIDE3OjI2OjE2IDIwMDINCkBAIC01Nyw2ICs1Nyw5IEBADQogICogMTAvMDA6IGFk
+ZCBpbiBvcHRpb25hbCBzb2Z0d2FyZSBmbG93IGNvbnRyb2wgZm9yIHNlcmlhbCBjb25zb2xlLg0K
+ICAqCSAgS2Fub2ogU2FyY2FyIDxrYW5vakBzZ2kuY29tPiAgKE1vZGlmaWVkIGJ5IFRoZW9kb3Jl
+IFRzJ28pDQogICoNCisgKiAwMi8wMjogMTZDOTUwIGF1dG9tYXRpYyBjbG9jayBmcmVxdWVuY3kg
+ZGV0ZWN0aW9uLg0KKyAqCSAgRmFicml6aW8gR2VubmFyaSA8ZmFicml6aW8uZ2VubmFyaUBwaGls
+aXBzLmNvbT4NCisgKg0KICAqLw0KIA0KIHN0YXRpYyBjaGFyICpzZXJpYWxfdmVyc2lvbiA9ICI1
+LjA1YyI7DQpAQCAtMzUxMCw2ICszNTEzLDY0IEBADQogCXJldHVybiBjb3VudDsNCiB9DQogDQor
+LyogVGhlIGFsZ29yaXRobSBmb3IgZGV0ZWN0aW5nIHRoZSBjbG9jayBmcmVxdWVuY3kgaW4gMTZD
+OTUwIFVBUlRzDQorICAgd2FzIHN1Z2dlc3RlZCBieSBBbm5hIFRyZXR0IG9mIE94Zm9yZCBTZW1p
+Y29uZHVjdG9yICovDQorDQorc3RhdGljIGludCBhdXRvZGV0ZWN0XzE2Yzk1MF9jbG9jayhzdHJ1
+Y3QgYXN5bmNfc3RydWN0ICppbmZvLA0KKwkJCQkgICBzdHJ1Y3Qgc2VyaWFsX3N0YXRlICpzdGF0
+ZSkNCit7DQorCXVuc2lnbmVkIGNoYXIgb2xkX2Zjciwgb2xkX21jciwgb2xkX2RsbCwgb2xkX2Rs
+bSwgb2xkX3RjcjsNCisJaW50IG5jaGFyPTAsbnVtPTAscmVzdWx0Ow0KKwlzdHJ1Y3QgdGltZXZh
+bCBiZWZvcmUsYWZ0ZXI7DQorCWludCBodXNlY19lbGFwc2VkOw0KKw0KKwlvbGRfZmNyID0gc2Vy
+aWFsX2lucChpbmZvLCBVQVJUX0ZDUik7DQorCW9sZF9tY3IgPSBzZXJpYWxfaW5wKGluZm8sIFVB
+UlRfTUNSKTsNCisJc2VyaWFsX291dHAoaW5mbywgVUFSVF9GQ1IsIA0KKwkJICAgIFVBUlRfRkNS
+X0NMRUFSX1JDVlIgfCBVQVJUX0ZDUl9DTEVBUl9YTUlUKTsNCisJc2VyaWFsX291dHAoaW5mbywg
+VUFSVF9NQ1IsIFVBUlRfTUNSX0xPT1ApOw0KKwlzZXJpYWxfb3V0cChpbmZvLCBVQVJUX0xDUiwg
+VUFSVF9MQ1JfRExBQik7DQorCW9sZF9kbGwgPSBzZXJpYWxfaW5wKGluZm8sIFVBUlRfRExMKTsN
+CisJb2xkX2RsbSA9IHNlcmlhbF9pbnAoaW5mbywgVUFSVF9ETE0pOw0KKwlvbGRfdGNyID0gc2Vy
+aWFsX2lucChpbmZvLCBVQVJUX1RDUik7DQorCXNlcmlhbF9vdXRwKGluZm8sIFVBUlRfRExMLCAw
+eDAxKTsNCisJc2VyaWFsX291dHAoaW5mbywgVUFSVF9ETE0sIDB4MDApOw0KKwlzZXJpYWxfb3V0
+cChpbmZvLCBVQVJUX1RDUiwgMHgwMCk7DQorCXNlcmlhbF9vdXRwKGluZm8sIFVBUlRfTENSLCAw
+eDAzKTsNCisJcHJpbnRrKEtFUk5fSU5GTyAiQXV0b2RldGVjdGluZy4uLlxuIik7DQorDQorCS8q
+IFRoZSBiZXN0IHRoaW5nIHRvIGRvIHdvdWxkIGJlIHRvIGxvb3AgZm9yDQorCWEgc2V0IG51bWJl
+ciBvZiBqaWZmaWVzLiBCdXQgdGhlIHZhcmlhYmxlIGppZmZpZXMgZG9lcw0KKwlub3QgaW5jcmVt
+ZW50IGhlcmUuIFNvLCB3ZSBqdXN0IGxvb3AgdW50aWwgYSBzZXQgbnVtYmVyIA0KKwlvZiBjaGFy
+YWN0ZXJzIGlzIHJlY2VpdmVkIChpdCBzaG91bGQgdGFrZSAxIHNlYyBpZiBhIHN0YW5kYXJkDQor
+CWNsb2NrIGlzIHVzZWQpIGFuZCBtZWFzdXJlIGhvdyBtYW55IGh1bmRyZWRzIG9mIHVzZWNzIGl0
+IHRvb2ssDQorCXN0b3JpbmcgaXQgaW4gaHVzZWNfZWxhcHNlZCAqLw0KKw0KKwlkb19nZXR0aW1l
+b2ZkYXkoJmJlZm9yZSk7DQorCWRvew0KKwkJc2VyaWFsX291dHAoaW5mbywgVUFSVF9UWCwgKG51
+bSsrKSYweEZGKTsNCisJCWlmIChzZXJpYWxfaW5wKGluZm8sIFVBUlRfTFNSKSAmIFVBUlRfTFNS
+X0RSKXsNCisJCSAgbmNoYXIrKzsNCisJCSAgc2VyaWFsX2lucChpbmZvLCBVQVJUX1JYKTsNCisJ
+CX0NCisJfXdoaWxlKG5jaGFyPDExNTIwICYmIG51bSA8IDEwMDAwMDApOw0KKwlkb19nZXR0aW1l
+b2ZkYXkoJmFmdGVyKTsNCisJaHVzZWNfZWxhcHNlZD0oYWZ0ZXIudHZfc2VjLWJlZm9yZS50dl9z
+ZWMpKjEwMDAwKyhhZnRlci50dl91c2VjLWJlZm9yZS50dl91c2VjKS8xMDA7DQorCXByaW50ayhL
+RVJOX0lORk8gIm51bSAldSBuY2hhciAldSBlbGFwc2VkICV1XG4iLG51bSxuY2hhcixodXNlY19l
+bGFwc2VkKTsNCisgIAlzZXJpYWxfb3V0cChpbmZvLCBVQVJUX0ZDUiwgb2xkX2Zjcik7DQorCXNl
+cmlhbF9vdXRwKGluZm8sIFVBUlRfTUNSLCBvbGRfbWNyKTsNCisJc2VyaWFsX291dHAoaW5mbywg
+VUFSVF9MQ1IsIFVBUlRfTENSX0RMQUIpOw0KKwlzZXJpYWxfb3V0cChpbmZvLCBVQVJUX0RMTCwg
+b2xkX2RsbCk7DQorCXNlcmlhbF9vdXRwKGluZm8sIFVBUlRfRExNLCBvbGRfZGxtKTsNCisJc2Vy
+aWFsX291dHAoaW5mbywgVUFSVF9UQ1IsIG9sZF90Y3IpOw0KKw0KKwluY2hhciA9IG5jaGFyKjEw
+KjEwMDAwOw0KKwlwcmludGsoS0VSTl9JTkZPICJuY2hhciAldVxuIixuY2hhcik7DQorCXJlc3Vs
+dCA9IG5jaGFyL2h1c2VjX2VsYXBzZWQ7DQorCXByaW50ayhLRVJOX0lORk8gInJlcyAldVxuIixy
+ZXN1bHQpOw0KKwlyZXR1cm4gcmVzdWx0Ow0KK30NCisNCiAvKg0KICAqIFRoaXMgaXMgYSBoZWxw
+ZXIgcm91dGluZSB0byBhdXRvZGV0ZWN0IFN0YXJUZWNoL0V4YXIvT3hzZW1pIFVBUlQncy4NCiAg
+KiBXaGVuIHRoaXMgZnVuY3Rpb24gaXMgY2FsbGVkIHdlIGtub3cgaXQgaXMgYXQgbGVhc3QgYSBT
+dGFyVGVjaA0KQEAgLTM1NTYsNiArMzYxNyw3IEBADQogCQkJc3RhdGUtPnR5cGUgPSBQT1JUXzE2
+Qzk1MDsNCiAJCQlzdGF0ZS0+cmV2aXNpb24gPSBzZXJpYWxfaWNyX3JlYWQoaW5mbywgVUFSVF9S
+RVYpIHwNCiAJCQkJKHNjcmF0Y2gzIDw8IDgpOw0KKwkJCXN0YXRlLT5iYXVkX2Jhc2U9YXV0b2Rl
+dGVjdF8xNmM5NTBfY2xvY2soaW5mbyxzdGF0ZSk7DQogCQkJcmV0dXJuOw0KIAkJfQ0KIAl9DQo=
+--=_mixed 00529325C1256B66_=--

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289277AbSANXUO>; Mon, 14 Jan 2002 18:20:14 -0500
+	id <S289288AbSANXXP>; Mon, 14 Jan 2002 18:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289282AbSANXT7>; Mon, 14 Jan 2002 18:19:59 -0500
-Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:62219 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S289292AbSANXTK>;
-	Mon, 14 Jan 2002 18:19:10 -0500
-Date: Mon, 14 Jan 2002 23:22:47 +0000
-From: Ian Molton <spyro@armlinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away?
-Message-Id: <20020114232247.195bf441.spyro@armlinux.org>
-In-Reply-To: <Pine.LNX.4.40.0201141409580.22904-100000@dlang.diginsite.com>
-In-Reply-To: <20020114205124.2f05fc56.spyro@armlinux.org>
-	<Pine.LNX.4.40.0201141409580.22904-100000@dlang.diginsite.com>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; )
+	id <S289289AbSANXWa>; Mon, 14 Jan 2002 18:22:30 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:25223
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289290AbSANXUs>; Mon, 14 Jan 2002 18:20:48 -0500
+Date: Mon, 14 Jan 2002 18:05:22 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020114180522.A24120@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com> <20020114173854.C23081@thyrsus.com> <20020114180007.D30639@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020114180007.D30639@redhat.com>; from bcrl@redhat.com on Mon, Jan 14, 2002 at 06:00:08PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a sunny Mon, 14 Jan 2002 14:11:48 -0800 (PST) David Lang gathered a
-sheaf of electrons and etched in their motions the following immortal
-words:
-
-> the impact is in all calls to the module, if they are far calls instead
-> of near calls each and every call is (a hair) slower.
+Benjamin LaHaise <bcrl@redhat.com>:
+> On Mon, Jan 14, 2002 at 05:38:54PM -0500, Eric S. Raymond wrote:
+> > Point out one and I'll fix it.  I'm not satisfied that you have
+> > understood what fetchmail is doing yet.
 > 
-> so the code can be the same and still be slower to get to.
-> 
-> you can argue that it's not enough slower to matter, but even Alan admits
-> there is some impact.
+> Really?  Why am I the one receiving bounces from FETCHMAIL-DAEMON 
+> when subscribers to mailing lists misconfigure their boxes? 
 
-Ok, #1 please dont send me courtesy copies without indicating so.
+Because fetchmail is doing the same thing any other MTA would do in that
+situation -- throwing up its hands, because it doesn't have and can't get
+the information to compensate for the misconfiguration.
+ 
+If you have some magic patch to fix this, I'll take it.  If you have
+nothing constructive to contribute, please take your venom elsewhere.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-#2 Not all architectures have a problem with 'far' or 'near' calls, and
-frankly, I'm glad the kernels design isnt being crippled just to serve the
-fundamentally CRAP x86 architecture, for once.
+He who joyfully marches to music in rank and file has already earned my
+contempt.  He has been given a large brain by mistake, since for him the
+spinal cord would fully suffice.
+	-- Albert Einstein

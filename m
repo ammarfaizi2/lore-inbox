@@ -1,140 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285472AbRLGT1j>; Fri, 7 Dec 2001 14:27:39 -0500
+	id <S285473AbRLGT1j>; Fri, 7 Dec 2001 14:27:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285473AbRLGT1a>; Fri, 7 Dec 2001 14:27:30 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:11156 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S285472AbRLGT1R>; Fri, 7 Dec 2001 14:27:17 -0500
-Date: Fri, 7 Dec 2001 11:27:10 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Feasability of ia32 mmap() allocations growing downward?
-Message-ID: <Pine.LNX.4.33.0112070846200.32626-100000@mf1.private>
+	id <S285474AbRLGT13>; Fri, 7 Dec 2001 14:27:29 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:37127 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S285473AbRLGT1V>; Fri, 7 Dec 2001 14:27:21 -0500
+Message-ID: <3C111815.60312F84@linux-m68k.org>
+Date: Fri, 07 Dec 2001 20:27:17 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Thomas Hood <jdthood@mail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] /
+In-Reply-To: <1007740060.2031.2.camel@thanatos>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-Although pretty much a kernel newbie, I wanted to bring up an idea that I
-first saw here a year ago but which received no commentary.
+Thomas Hood wrote:
 
-Namely, from time to time an ia32 user will write about running out of
-user address space in one way or another.  The standard answer is that
-under ia32 Linux, the 32-bit address space for a program of size P is
-carved up as follows:
+> As Richard has pointed out, devfs is still marked
+> "experimental", so it's not unreasonable to make changes
+> if they are improvements.
 
-Start Address	Map Contents			Growth Direction
+Sure, he can, but that's no excuse if other drivers depend on a certain
+behaviuor.
 
-0x08000000	the executable's code segment	upwards
-0x08000000 + P	the executable's data segment	upwards
-0x08000000 + 2P	the program's heap		upwards
-0x40000000	mmap() without MAP_FIXED	upwards
-0xBFFFFFFF	the stack			downards
-0xC0000000	kernel space			upwards
-0xFFFFFFFF	top of the addresss space
-
-Thus a typical problem is that a program that wants to manage its own heap
-(using the brk() system call instead of malloc() from libc) will have a
-maximum heap size of 0x38000000 - 2P.  Or a program that heavily uses
-mmap() will only have 0x80000000 of mmap() address space.
-
-Various workaround are usually proposed, such as:
-
-o Modify the program to use malloc(), or tune the malloc() allocation
-  strategy parameters, as malloc() knows about the two distinct memory
-  allocation mechanisms, brk() below 0x40000000 and mmap() above it.
-
-o Change the value of TASK_UNMAPPED_BASE in the kernel from its default 
-  of 0x40000000.
-
-o Change __PAGE_OFFSET (and the associated value in vmlinux.lds) to 
-  0xE0000000 to reduce the kernel space to 512MB.
-
-The alternative idea (not mine) which I'm curious about is:
-
-o Pick a maximum stack size S and change the kernel so the "mmap()
-  without MAP_FIXED" region starts at 0xC0000000 - S and grows downwards. 
-
-This seems ideal, as it allows the balance between the mmap() region and
-the brk() region to vary for each process, automatically.  What changes
-would be required to the kernel to implement this properly and
-efficiently?  Is there some downside I am missing?
-
-FWIW, I made a very simple, very naive attempt at doing this about a year
-ago, against 2.2.19-prex.  The patch is included below, and it booted OK
-for me at the time.  I'm sure I made various poor choices in the patch,
-though, having not had the Big Picture.
-
-Cheers, Wayne
-
-
-diff -ru linux-2.2.19-pre7/include/asm-i386/processor.h linux-2.2.19-pre7-hack2/include/asm-i386/processor.h
---- linux-2.2.19-pre7/include/asm-i386/processor.h	Tue Jan  9 20:26:35 2001
-+++ linux-2.2.19-pre7-hack2/include/asm-i386/processor.h	Sat Jan 13 11:58:00 2001
-@@ -163,10 +163,22 @@
-  */
- #define TASK_SIZE	(PAGE_OFFSET)
- 
--/* This decides where the kernel will search for a free chunk of vm
-- * space during mmap's.
-+/* 
-+ * When looking for a free chunk of vm space during mmap's, the kernel
-+ * will search upwards from TASK_UNMAPPED_BASE (the usual algorithm),
-+ * unless TASK_UNMAPPED_CEILING is defined, in which case it will
-+ * search downwards from TASK_UNMAPPED_CEILING to TASK_UNMAPPED_FLOOR.
-  */
- #define TASK_UNMAPPED_BASE	(TASK_SIZE / 3)
-+
-+/* 
-+ * We need to allow room for the stack to grow downard from TASK_SIZE,
-+ * I really have no idea how large it can get, so I arbitrarily picked
-+ * 128MB.  Also, I'm not so sure where to stop searching and give up,
-+ * so I pick 128MB, which seems to be where exectuables get loaded.
-+ */
-+#define TASK_UNMAPPED_CEILING   (TASK_SIZE - 128 * 1024 * 1024)
-+#define TASK_UNMAPPED_FLOOR     (128 * 1024 * 1024)
- 
- /*
-  * Size of io_bitmap in longwords: 32 is ports 0-0x3ff.
-diff -ru linux-2.2.19-pre7/mm/mmap.c linux-2.2.19-pre7-hack2/mm/mmap.c
---- linux-2.2.19-pre7/mm/mmap.c	Sat Dec  9 21:29:39 2000
-+++ linux-2.2.19-pre7-hack2/mm/mmap.c	Sat Jan 13 11:58:00 2001
-@@ -365,6 +365,22 @@
- 
- 	if (len > TASK_SIZE)
- 		return 0;
-+#ifdef TASK_UNMAPPED_CEILING
-+	if (!addr)
-+		addr = TASK_UNMAPPED_CEILING - len;
-+
-+	do { 
-+		/* align addr downards; PAGE_ALIGN aligns it upwards */ 
-+		addr = addr&PAGE_MASK; 
-+		vmm = find_vma(current->mm,addr);
-+		/* At this point:  (!vmm || addr < vmm->vm_end). */	  
-+		if (!vmm || addr + len <= vmm->vm_start)
-+			return addr;
-+		addr = vmm->vm_start - len;
-+	} while (addr >= TASK_UNMAPPED_FLOOR);
-+
-+	return 0;
-+#else
- 	if (!addr)
- 		addr = TASK_UNMAPPED_BASE;
- 	addr = PAGE_ALIGN(addr);
-@@ -377,6 +393,7 @@
- 			return addr;
- 		addr = vmm->vm_end;
- 	}
-+#endif
- }
- 
- #define vm_avl_empty	(struct vm_area_struct *) NULL
-
-
-
-
+bye, Roman

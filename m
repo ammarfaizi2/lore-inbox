@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbUCEQnX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 11:43:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbUCEQmm
+	id S262645AbUCEQr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 11:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUCEQr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 11:42:42 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:56837 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262646AbUCEQmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 11:42:35 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: initrd does not boot in 2.6.3, working in 2.4.25
-Date: Fri, 5 Mar 2004 18:31:31 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-References: <200403051238.53470.vda@port.imtp.ilyichevsk.odessa.ua> <20040305110451.GR655@holomorphy.com>
-In-Reply-To: <20040305110451.GR655@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Mar 2004 11:47:57 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:60103 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262645AbUCEQrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 11:47:55 -0500
+Date: Fri, 5 Mar 2004 17:49:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: andrea@suse.de, peter@mysql.com, akpm@osdl.org, riel@redhat.com,
+       mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
+Message-ID: <20040305164902.GA17745@elte.hu>
+References: <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu> <20040305145947.GA4922@dualathlon.random> <20040305150225.GA13237@elte.hu> <p73ad2v47ik.fsf@brahms.suse.de> <20040305162319.GA16835@elte.hu> <20040310142125.6f448d28.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403051831.31271.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20040310142125.6f448d28.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 March 2004 13:04, William Lee Irwin III wrote:
-> On Fri, Mar 05, 2004 at 12:38:53PM +0200, vda wrote:
-> > I am using initrd in order to configure ethernet and
-> > mount NFS root. It works with 2.4.25 kernel, like this:
-> > linld image=2425 initrd=image.gz vga=4 "cl=root=/dev/ram
-> > init=/linuxrc.nfs.vda devfs=mount" that is, it unpacks image.gz into
-> > ramdisk #0, mounts it,
-> > mounts devfs on /dev and execs /linuxrc.nfs.vda.
-> > When I tried to boot 2.6.3 with
-> > linld image=263 initrd=image.gz vga=4 "cl=root=/dev/ram
-> > init=/linuxrc.nfs.vda devfs=mount" it unpacks image.gz into ramdisk #0,
-> > mounts it,
-> > mounts devfs on /dev and ... complains about NFS server.
-> > Wow. I did not say /dev/nfs, what NFS?
-> > ...
-> > VFS: Mounted root (ext2 filesystem)
-> > Mounted devfs on /dev
-> > 	(here 2.4.25 would say "Freed unused kernel mem..." and exec init)
-> > Root-NFS: No NFS server available, giving up
-> > VFS: Unable to mount root fs via NFS, trying floppy
-> > VFS: Insert root floppy and press ENTER
-> > Omitting devfs=mount does not help.
-> > root=/dev/ram0, root=/dev/rd/0 does not help.
-> > Config attached.
->
-> nfsroot works in 2.6.3 and above here. I'm not sure you need it per se
-> for initrd's; I think the way it's intended to work with that is for
-> the scripts to configure network interfaces, mount the nfsroot, and then
-> pivot_root(). Can you try without initrd?
->
-> Also, try passing ip= for these things.
 
-I run these things everyday.
-nfsroot and ip=.... works, no question about that.
+* Andi Kleen <ak@suse.de> wrote:
 
-Just imagine all-modular kernel which needs to load ethernet driver first,
-*then* mount nfs root and pivot_root. Or nfsroot-over-wireless :)
---
-vda
+> > > [...] Only drawback is that if a timer tick is delayed for too long it
+> > > won't fix that, but I guess that's reasonable for a 1s resolution.
+> > 
+> > what do you mean by delayed?
+> 
+> Normal gettimeofday can "fix" lost timer ticks because it computes the
+> true offset to the last timer interrupt using the TSC or other means.
+> xtime is always the last tick without any correction. If it got
+> delayed too much the result will be out of date.
 
+yeah - i doubt the softirq delay is a real issue.
+
+	Ingo

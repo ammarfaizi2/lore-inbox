@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264198AbUFPQtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUFPQwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbUFPQtl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 12:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264228AbUFPQse
+	id S264256AbUFPQwu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 12:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUFPQwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 12:48:34 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:39457 "EHLO
+	Wed, 16 Jun 2004 12:52:49 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:30551 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S264192AbUFPQqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 12:46:44 -0400
-Date: Wed, 16 Jun 2004 11:46:24 -0500 (CDT)
-From: Lori Gilbertson <loriann@sgi.com>
-Message-Id: <200406161646.i5GGkO5e194114@theriver.americas.sgi.com>
-To: Dimitri Sivanich <sivanich@sgi.com>, Christoph Hellwig <hch@infradead.org>
+	id S264258AbUFPQwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 12:52:11 -0400
+Date: Wed, 16 Jun 2004 11:51:55 -0500
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH]: Option to run cache reap in thread mode
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20040616142413.GA5588@sgi.com>
+Message-ID: <20040616165155.GA6069@sgi.com>
+References: <20040616142413.GA5588@sgi.com> <20040616160355.GA5963@sgi.com> <20040616160714.GA14413@infradead.org> <200406161225.11946.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406161225.11946.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hch wrote:
+On Wed, Jun 16, 2004 at 12:25:11PM -0400, Jesse Barnes wrote:
+> On Wednesday, June 16, 2004 12:07 pm, Christoph Hellwig wrote:
+> > Well, if you want deterministic interrupt latencies you should go for a
+> > realtime OS.
+> 
+> Although I don't want to see another kernel thread added as much as the next 
+> guy, I think that minimizing the amount of time that irqs are turned off is 
+> probably a good thing in general.  For example, the patch to allow interrupts 
+> in spin_lock_irq if the lock is already taken is generally a really good 
+> thing, because even though reducing lock contention should be a goal, locks 
+> by their very nature are taken sometimes, and allowing other CPUs to get 
+> useful work done while they're waiting for it is obviously desirable.
+> 
+> > I know Linux is the big thing in the industry, but you're 
+> > really better off looking for a small Hard RT OS. 
+> 
+> Sure, for some applications, an RTOS is necessary.  But it seems like keeping 
+> latencies down in Linux is a good thing to do nonetheless.
+> 
+> Can you think of other ways to reduce the length of time that interrupts are 
+> disabled during cache reaping?  It seems like the cache_reap loop might be a 
+> candidate for reorganization (though that would probably imply other 
+> changes).
 
-> Given you're @sgi.com address you probably know what
-> a freaking mess and maintaince nightmare IRIX has become because 
-> of that.
+I have another patch forthcoming that does some reorganizing of the locking.
+With the two patches I see substantial improvement.
 
-Hi Chris,
-
-I'm very curious about this comment - wondering what you base it
-on?  I'm the engineering manager for IRIX real-time - we have
-no open bugs against it and have many customers depending on it.
-At least for the last 5 years had very low maintenance cost,
-mostly adding features, fixing a couple of bugs and producing new 
-releases.  
-
-Perhaps you would be so kind to let me know what led you to
-your statement?
-
-Thanks,
-
-Lori Gilbertson
-
-----
-  Lori A. Gilbertson             
-  Mgr: CoreOS Development Group 
-       Silicon Graphics, Inc. (SGI)
-Email: loriann@sgi.com
-Phone: 651-683-3433
- Page: wwwmn.americas.sgi.com/~irixdev/os_core_sched/
-
-
+> 
+> Thanks,
+> Jesse

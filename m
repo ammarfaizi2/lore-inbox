@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281877AbRLDAUt>; Mon, 3 Dec 2001 19:20:49 -0500
+	id <S284415AbRLDAUs>; Mon, 3 Dec 2001 19:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284927AbRLDAS0>; Mon, 3 Dec 2001 19:18:26 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35849 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S284759AbRLCQU4>; Mon, 3 Dec 2001 11:20:56 -0500
-Date: Mon, 3 Dec 2001 11:14:23 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Slow start -- Linux vs. NT -- it's time to acknowledge the problem!
-In-Reply-To: <20011130.142843.31639840.davem@redhat.com>
-Message-ID: <Pine.LNX.3.96.1011203110304.21357A-100000@gatekeeper.tmr.com>
+	id <S284924AbRLDASY>; Mon, 3 Dec 2001 19:18:24 -0500
+Received: from dsl-213-023-038-044.arcor-ip.net ([213.23.38.44]:40719 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S284550AbRLCNS3>;
+	Mon, 3 Dec 2001 08:18:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+Subject: Re: Coding style - a non-issue
+Date: Mon, 3 Dec 2001 14:20:38 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Larry McVoy <lm@bitmover.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011130200239.A28131@hq2> <E16AhO2-0000C2-00@starship.berlin> <20011203050410.D16148@hq2>
+In-Reply-To: <20011203050410.D16148@hq2>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16At1U-0000GF-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Jessica Blank <jessica@twu.net>
->    Date: Fri, 30 Nov 2001 08:35:35 -0600 (CST)
+On December 3, 2001 01:04 pm, Victor Yodaiken wrote:
+> On Mon, Dec 03, 2001 at 01:55:08AM +0100, Daniel Phillips wrote:
+> > I'm sure Linus does have quite considerable talent for design, but I haven't 
+> > seen him exercise it much.  Mostly he acts as a kind of goodness daemon, 
+> > sitting in his little pinhole and letting what he considers 'good' stuff pass 
+> > into the box.  There's no doubt about it, it's different from the way you 
+> > like to develop, you and me both.  Equally clearly, it works pretty well.
 > 
->    	It is high time this problem is acknowledged and FIXED. I am
->    forced to share a network with a bunch of NT servers, some of which get
->    plenty of traffic-- enough so that they manage to crowd out my machine to
->    the tune of 600ish ms ping times to the Linux box versus only **70**
->    (!!!!!!) to the Windows box.
+> This is a good explanation of why Linux may fail as a project, but it is
+> pure fantasy as to how it has so far succeeded as a project. 
+> 
+> The tiny part of system I wrote directly and the larger part that
+      ^^^^^^^^^
+> I got to see up close involved a great deal of design, old fashioned 
+> careful engineering, and even aesthetic principles of what wasgood
+> design. 
 
-Okay, I acknowledge the problem and admit you don't understand networking.
-You have confused the slowstart feature (TCP) with ping (ICMP). TCP and
-ICMP are what are called protocols. Slowstart has nothing to do with ICMP.
+You're just supporting the point of view that Linus has been espousing, and 
+I personally support:  Linux is engineered at a micro level[1] but evolves
+on its own at a macro level.
 
-I will add that if you do an ifconfig I suspect you will see collisions on
-your interface, resulting in poor performance. This is caused by running
-the interface half duplex, and should not be used unless you are connected
-to a type of obsolete hardware known as a hub, instead of a switch. If you
-connect to a switch you should see zero collisions.
+Sure, Linux evolves with help from Linus, but he acts as a filter, not a 
+designer.  When Linus does on rare occasions forget himself and actually 
+design something, its micro-engineering like you or I would do.  So if Linux 
+is designed, who does do the designing, can you name him?  I can tell you for 
+sure it's not Linus.
 
-Finally, even 70ms is really poor ping time, I get better than that
-between Albany NY and San Jose CA! Local ping time, even between Pentium
-class utility machines on a thinnet (10Mbit half duplex technology) is
-70-1400us on a somewhat loaded network.
+> Don't drink the cool aid. Go back and look in the kernel archives and 
+> you will see extensive design discussions among all the core developers.
+> Linus has a point about the development of Linux not being in
+> accord with some master plan (at least not one anyone admits to) , but 
+> that's about as far as it goes.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Don't worry about me drinking the cool aid, first I already drank it and 
+second I'm personally already fully devoted to the notion of design process, 
+including all the usual steps:  blue sky, discussion, requirements, data 
+design, detail design, prototype, etc. etc.  You'll find the 'paper trails' 
+in the archives if you've got the patience to go spelunking, and you'll have 
+a hard time finding one of those designs that became a dead end.  This design 
+thing does work for me.  It doesn't change the fact that what I'm doing is 
+micro-engineering.
 
+I'll get really worried if Linus wakes up one day and decides that from now 
+on he's going to properly engineer every aspect of the Linux kernel.  The 
+same way I'd feel if Linux got taken over by a committee.
+
+--
+Daniel
+
+[1] In places.  All those little warts and occasional pools of sewage are 
+clearly not 'engineered'.

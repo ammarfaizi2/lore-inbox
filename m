@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUD2Erv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263565AbUD2FaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbUD2Erv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 00:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUD2Erv
+	id S263565AbUD2FaN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 01:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUD2FaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 00:47:51 -0400
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:11364 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261925AbUD2Eru (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 00:47:50 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: locking in psmouse
-Date: Wed, 28 Apr 2004 23:47:46 -0500
-User-Agent: KMail/1.6.1
-Cc: Pavel Machek <pavel@suse.cz>, vojtech@suse.cz
-References: <20040428213040.GA954@elf.ucw.cz>
-In-Reply-To: <20040428213040.GA954@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 29 Apr 2004 01:30:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9649 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263565AbUD2FaK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 01:30:10 -0400
+Date: Wed, 28 Apr 2004 22:29:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: busterbcook@yahoo.com, linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
+Message-Id: <20040428222950.6406a9f0.akpm@osdl.org>
+In-Reply-To: <20040428214741.7d5b3ae1.akpm@osdl.org>
+References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
+	<20040427230203.1e4693ac.akpm@osdl.org>
+	<Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
+	<20040428124809.418e005d.akpm@osdl.org>
+	<Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
+	<20040428182443.6747e34b.akpm@osdl.org>
+	<Pine.LNX.4.58.0404282244280.13311@ozma.hauschen>
+	<20040428210214.31efe911.akpm@osdl.org>
+	<Pine.LNX.4.58.0404282330390.13783@ozma.hauschen>
+	<20040428214741.7d5b3ae1.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404282347.47411.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 April 2004 04:30 pm, Pavel Machek wrote:
-> Hi!
-> 
-> psmouse-base.c does not have any locking. For example psmouse_command
-> could race with data coming from the mouse, resulting in problem. This
-> should fix it.
-> 								Pavel
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Now, that redirtying of the inode _should_ have moved the inode off the
+>  s_io list and onto the s_dirty list.  But for some reason it looks like it
+>  didn't, so we get stuck in a loop.  I need to think about it a bit more.
 
-Although I am not arguing that locking might be needed in psmouse module I
-am somewhat confused how it will help in case of data stream coming from the
-mouse... If mouse sent a byte before the kernel issue a command then it will
-be delivered by KBC controller and will be processed by the interrupt handler,
-probably messing up detection process. That's why as soon as we decide that
-the device behind PS/2 port is some kind of mouse we disable the stream mode.
+OK, it looks like nfs_writepages() might have been encountered the
+congested flag and it baled out without doing anything - the inode is still
+on the temporary s_io list, and no pages were redirtied, hence the inode
+wasn't redirtied, hence it remains stuck on the s_io list.  The patch I
+sent will fix that up.
 
--- 
-Dmitry

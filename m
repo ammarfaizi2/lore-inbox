@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264705AbUFTQ7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUFTRBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264705AbUFTQ7I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 12:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbUFTQ7I
+	id S264857AbUFTRBS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 13:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbUFTRBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 12:59:08 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:16845 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S264705AbUFTQ7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 12:59:02 -0400
-Date: Sun, 20 Jun 2004 17:57:39 +0100
-From: Ian Molton <spyro@f2s.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: James.Bottomley@SteelEye.com, rmk+lkml@arm.linux.org.uk,
-       david-b@pacbell.net, linux-kernel@vger.kernel.org, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-Subject: Re: DMA API issues
-Message-Id: <20040620175739.453dae8a.spyro@f2s.com>
-In-Reply-To: <20040620162611.GB16038@havoc.gtf.org>
-References: <40D359BB.3090106@pacbell.net>
-	<1087593282.2135.176.camel@mulgrave>
-	<40D36EDE.2080803@pacbell.net>
-	<1087600052.2135.197.camel@mulgrave>
-	<40D4849B.3070001@pacbell.net>
-	<20040619214126.C8063@flint.arm.linux.org.uk>
-	<1087681604.2121.96.camel@mulgrave>
-	<20040619234933.214b810b.spyro@f2s.com>
-	<1087738680.10858.5.camel@mulgrave>
-	<20040620165042.393f2756.spyro@f2s.com>
-	<20040620162611.GB16038@havoc.gtf.org>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+	Sun, 20 Jun 2004 13:01:17 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:44424 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S264857AbUFTRBP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 13:01:15 -0400
+Date: Sun, 20 Jun 2004 19:01:14 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Matroxfb in 2.6 still doesn't work in 2.6.7
+Message-ID: <20040620170114.GA4683@vana.vc.cvut.cz>
+References: <20040618211031.GA4048@irc.pl> <20040619190503.GB17053@vana.vc.cvut.cz> <20040619193053.GA3644@irc.pl> <20040619203954.GC17053@vana.vc.cvut.cz> <20040620160437.GA29046@irc.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040620160437.GA29046@irc.pl>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004 12:26:11 -0400
-Jeff Garzik <jgarzik@pobox.com> wrote:
-
+On Sun, Jun 20, 2004 at 06:04:37PM +0200, Tomasz Torcz wrote:
+> On Sat, Jun 19, 2004 at 10:39:54PM +0200, Petr Vandrovec wrote:
+> > > > It works for me, with CRT analog monitor... What if you boot with
+> > > > video=matroxfb:outputs:010,1280x1024-16@60 (if you plugged your LCD to analog
+> > > > output)
+> > 
+> > If you want exactly same videomode as you use under X, you should use
+> > video=matroxfb:vesa:0x11A,right:48,hslen:112,left:248,hslen:112,lower:1,vslen:3,upper:48
+> > maybe with ',sync:3' if +hsync/+vsync are mandatory for your monitor.
 > 
-> Are you purposefully ignoring James?
+>  Neither one works. During kernel boot resolution is switched to 1280x1024, but
+> screen become corrupted - there are some green points in upper part of
+> monitor. 
 
-No, Im failing to see his point which appears to be that if we modify
-the DMA API it has to work on all platforms, even if it doesnt work on
-them currently.
+It works exactly as your kernel is configured. It switched to graphics, but it does
+not paint your console there because you told you kernel to not do that.
+
+>  Also, the patch from platan do not compile:
+
+And this one too - my patch needs fbcon.
+
+> CONFIG_VGA_CONSOLE=y
+> CONFIG_MDA_CONSOLE=m
+> CONFIG_DUMMY_CONSOLE=y
+> # CONFIG_FRAMEBUFFER_CONSOLE is not set
+
+Enable this. Into the kernel, not as a module.
  
-> He is saying the DMA API must be uniform across all platforms.  Your
-> proposal 
-> 
-> 1) breaks this
+> #
+> # Logo configuration
+> #
+> # CONFIG_LOGO is not set
 
-How? I havent proposed any alteration to the API, just the allocation
-system inside it. No drivers would need modification and any platform
-not using these allocators would continue to not use them just as it
-currently does(nt).
-
-> 2) is unneeded, as many other drivers in this same situation simply
-> use ioremap
-
-Except that the OHCI driver (for example) doesnt. it uses the DMA API
-(quite rightly) and to use ioremap would mean creating two ohci drivers,
-one using the DMA API and one not, which is wasteful and asking for
-trouble.
+And enable this, so we can find whether fbdev works or not...
+								Best regards,
+									Petr Vandrovec
 

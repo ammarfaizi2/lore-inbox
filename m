@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265647AbUABVYc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 16:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265648AbUABVYc
+	id S265646AbUABVYY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 16:24:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUABVYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 16:24:32 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:26523 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S265647AbUABVYa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 16:24:30 -0500
-Date: Fri, 2 Jan 2004 22:23:24 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: DaMouse Networks <damouse@ntlworld.com>
+	Fri, 2 Jan 2004 16:24:24 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:51954 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S265646AbUABVYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 16:24:23 -0500
+Date: Fri, 2 Jan 2004 13:24:17 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Elliott Bennett <lkml@dhtns.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.1-rc1-mm1 with r8169 driver
-Message-ID: <20040102222324.A6827@electric-eye.fr.zoreil.com>
-References: <20040102190704.4a05092d@EozVul.WORKGROUP>
+Subject: Re: JFS resize=0 problem in 2.6.0
+Message-ID: <20040102212417.GG1882@matchmail.com>
+Mail-Followup-To: Elliott Bennett <lkml@dhtns.com>,
+	linux-kernel@vger.kernel.org
+References: <20031228153028.GB22247@faraday.dhtns.com> <20031229000503.GD1882@matchmail.com> <20040102201221.GA28116@faraday.dhtns.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040102190704.4a05092d@EozVul.WORKGROUP>; from damouse@ntlworld.com on Fri, Jan 02, 2004 at 07:07:04PM +0000
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <20040102201221.GA28116@faraday.dhtns.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DaMouse Networks <damouse@ntlworld.com> :
-> The r8169 Realtek driver hangs on bootup with the -mm1 patch but not with
-> the plain -rc1 patch (IIRC) any ideas?
+On Fri, Jan 02, 2004 at 03:12:21PM -0500, Elliott Bennett wrote:
+> Soo...I would say that something is awry with the resizing of JFS
+> filesystems.  My patch obviously doesn't fix everything, but at least
+> makes resizing to fill available space *possible*. :)
+> 
+> The code surrounding my patch change treats the same variable (resize,
+> which is a pointer to args[0].from) as a string, so it seems pretty
+> obvious to me it should be comparing to '0'.
 
-You can go to http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.0-test11 and
-apply the patches to plain -rc1 in order as described in the readme file.
-Once the patch which kills the driver is identified, I should be able to
-clean my mess. 
+I would be careful of DM and MD RAID in 2.6.0.  There are some bugs flying
+around mentioning XFS->DM->MD RAID, , but also reproducable with Ext3->DM.
 
-(if someone knows a retail store in Paris where r8169 clones are available,
-please drop me a mail, thanks)
+So if you're using DM, you might want to do some extra consistancy checks in
+your tests, and don't use it with important data.
 
---
-Ueimor

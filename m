@@ -1,94 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269288AbUINLME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269276AbUINLPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269288AbUINLME (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 07:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269277AbUINLME
+	id S269276AbUINLPU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 07:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269087AbUINLNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:12:04 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:31365 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269302AbUINLLV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:11:21 -0400
-Date: Tue, 14 Sep 2004 13:12:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: [patch] might_sleep() additions to fs-writeback.c
-Message-ID: <20040914111236.GA592@elte.hu>
-References: <20040914095731.GA24622@elte.hu> <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914110838.GA32466@elte.hu>
+	Tue, 14 Sep 2004 07:13:04 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:44476 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269273AbUINLJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 07:09:07 -0400
+Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: "C.Y.M." <syphir@syphir.sytes.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040914060628.GC2336@suse.de>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAjtLAU+gqyUq8AePOBiNtXQEAAAAA@syphir.sytes.net>
+	 <20040914060628.GC2336@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095156346.16572.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
-In-Reply-To: <20040914110838.GA32466@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 14 Sep 2004 11:05:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2004-09-14 at 07:06, Jens Axboe wrote:
+> Alan, I bet there are a lot of these. Maybe we should consider letting
+> the user manually flag support for FLUSH_CACHE, at least it is in their
+> hands then.
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+You are assuming the drive supports "FLUSH_CACHE" just because it
+doesn't error it. Thats a good way to have accidents. 
 
-
-add two more might_sleep() checks: to sync_inode() and
-generic_osync_inode().
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/fs/fs-writeback.c.orig	
-+++ linux/fs/fs-writeback.c	
-@@ -578,6 +578,7 @@ int sync_inode(struct inode *inode, stru
- {
- 	int ret;
- 
-+	might_sleep();
- 	spin_lock(&inode_lock);
- 	ret = __writeback_single_inode(inode, wbc);
- 	spin_unlock(&inode_lock);
-@@ -622,6 +623,7 @@ int generic_osync_inode(struct inode *in
- 	}
- 	current->flags &= ~PF_SYNCWRITE;
- 
-+	might_sleep();
- 	spin_lock(&inode_lock);
- 	if ((inode->i_state & I_DIRTY) &&
- 	    ((what & OSYNC_INODE) || (inode->i_state & I_DIRTY_DATASYNC)))
-
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="might_sleep-fs-writeback.patch"
+The patch I posted originally did turn wcache off for barrier if no
+flush cache support was present but had a small bug so that bit got
+dropped.
 
 
-add two more might_sleep() checks: to sync_inode() and
-generic_osync_inode().
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/fs/fs-writeback.c.orig	
-+++ linux/fs/fs-writeback.c	
-@@ -578,6 +578,7 @@ int sync_inode(struct inode *inode, stru
- {
- 	int ret;
- 
-+	might_sleep();
- 	spin_lock(&inode_lock);
- 	ret = __writeback_single_inode(inode, wbc);
- 	spin_unlock(&inode_lock);
-@@ -622,6 +623,7 @@ int generic_osync_inode(struct inode *in
- 	}
- 	current->flags &= ~PF_SYNCWRITE;
- 
-+	might_sleep();
- 	spin_lock(&inode_lock);
- 	if ((inode->i_state & I_DIRTY) &&
- 	    ((what & OSYNC_INODE) || (inode->i_state & I_DIRTY_DATASYNC)))
-
---sm4nu43k4a2Rpi4c--

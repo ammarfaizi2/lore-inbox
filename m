@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290491AbSBGRKN>; Thu, 7 Feb 2002 12:10:13 -0500
+	id <S290547AbSBGR0p>; Thu, 7 Feb 2002 12:26:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290490AbSBGRKD>; Thu, 7 Feb 2002 12:10:03 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:16342 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S290491AbSBGRJv>; Thu, 7 Feb 2002 12:09:51 -0500
-Date: Thu, 7 Feb 2002 18:09:32 +0100
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 64bit warning fixes
-Message-ID: <20020207180932.A25214@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S290490AbSBGR0f>; Thu, 7 Feb 2002 12:26:35 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:43025 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S289829AbSBGR0Y>;
+	Thu, 7 Feb 2002 12:26:24 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Patrick Mochel <mochel@osdl.org>
+Date: Thu, 7 Feb 2002 18:25:57 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] read() from driverfs files can read more bytes 
+CC: <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <11240BA04440@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  7 Feb 02 at 8:45, Patrick Mochel wrote:
+> On Thu, 7 Feb 2002, Andrey Panin wrote:
+> > Attached patch adds check that returned value is less then requested 
+> > byte count. I know that actual callback function device_read_status()
+> > should also be fixed, but I found this bug after midnight and 
+> > decided to sleep a little :)
+> 
+> That sanity check was in there, once upon a time. However, in moving the 
+> weight from the driver callbacks to the driverfs read_file() and 
+> write_file(), it must have got dropped...
+> 
+> Thank you. It's been applied and will be pushed forward.
 
-Hi Linus,
+[I have only 2.5.3 sources here yet]
 
-This patch just fixes some harmless but ugly warnings on 64bit compilations. 
+Can you also check for size >= PAGE_SIZE on enter to entry->show()
+procedure? It looks ugly to me that each driver has to check for this
+constant unless it wants to smash some innocent kernel memory.
 
->From the x86-64 tree. 
+And neither of driverfs_read_file nor driverfs_write_file supports
+semantic we use with other filesystems: If at least one byte was 
+read/written, return byte count (even if error happens). Only if zero 
+bytes was written, return error code.
+                                Thanks,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
 
-For 2.5.4pre2. Please consider applying.
-
-Thanks, 
-
--Andi
-
-
---- ../../v2.5/linux/include/linux/pm.h	Thu Feb  7 01:46:26 2002
-+++ linux/include/linux/pm.h	Thu Feb  7 17:32:17 2002
-@@ -103,8 +103,8 @@
- 	void		*data;
- 
- 	unsigned long	 flags;
--	int		 state;
--	int		 prev_state;
-+	unsigned long	 state;
-+	unsigned long	 prev_state;
- 
- 	struct list_head entry;
- };
---- ../../v2.5/linux/kernel/pm.c	Tue Jan 15 17:53:36 2002
-+++ linux/kernel/pm.c	Thu Feb  7 17:32:17 2002
-@@ -154,7 +154,7 @@
- int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data)
- {
- 	int status = 0;
--	int prev_state, next_state;
-+	unsigned long prev_state, next_state;
- 
- 	if (in_interrupt())
- 		BUG();
-@@ -163,7 +163,7 @@
- 	case PM_SUSPEND:
- 	case PM_RESUME:
- 		prev_state = dev->state;
--		next_state = (int) data;
-+		next_state = (unsigned long) data;
- 		if (prev_state != next_state) {
- 			if (dev->callback)
- 				status = (*dev->callback)(dev, rqst, data);

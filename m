@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbSJWRMF>; Wed, 23 Oct 2002 13:12:05 -0400
+	id <S265078AbSJWRWX>; Wed, 23 Oct 2002 13:22:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265100AbSJWRMF>; Wed, 23 Oct 2002 13:12:05 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:5350 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265102AbSJWRMD>;
-	Wed, 23 Oct 2002 13:12:03 -0400
-Message-ID: <3DB6D877.3D5489DA@us.ibm.com>
-Date: Wed, 23 Oct 2002 10:12:23 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S265103AbSJWRWX>; Wed, 23 Oct 2002 13:22:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:31366 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265078AbSJWRWV>; Wed, 23 Oct 2002 13:22:21 -0400
+Date: Wed, 23 Oct 2002 13:31:09 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Torrey Hoffman <thoffman@arnor.net>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, Pavel Roskin <proski@gnu.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: "Hearty AOL" for kexec
+In-Reply-To: <1035392282.30561.85.camel@rivendell.arnor.net>
+Message-ID: <Pine.LNX.3.95.1021023132644.14975A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       "David S. Miller" <davem@rth.ninka.net>, netdev@oss.sgi.com,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RESEND] tuning linux for high network performance?
-References: <200210231218.18733.roy@karlsbakk.net> <20021023130101.GA646@outpost.ds9a.nl> <1035379308.5950.3.camel@rth.ninka.net> <200210231542.48673.roy@karlsbakk.net> <20021023170102.GA5302@outpost.ds9a.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
+On 23 Oct 2002, Torrey Hoffman wrote:
 
-> I still refuse to believe that a 1.8GHz Pentium4 can only checksum
-> 250megabits/second. MD Raid5 does better and they probably don't use a
-> checksum as braindead as that used by TCP.
+> On Wed, 2002-10-23 at 08:03, Eric W. Biederman wrote:
+> > Pavel Roskin <proski@gnu.org> writes:
+> [...]
+> > > I really want to see this feature in the kernel.  It is very useful in
+> > > embedded systems.  Just imagine loading the bootstrap kernel, then
+> > > downloading the new kernel over anything - HDLC, 802.11, USB, decrypting
+> > > it from flash etc.  Possibilities are infinite.
+> > 
+> > Yay!!!!  My first embedded developer who doesn't think it is silly to
+> > use a kernel as a bootloader :)  Or at least the first to admit they
+> > embedded developer.
 > 
-> If the checksumming is not the problem, the copying is, which would be a
-> weakness of your hardware. The function profiled does both the copying and
-> the checksumming.
+> Yeah, another AOL "Me Too" here - I'm an embedded linux developer and
+> think would be useful.  Being able to network boot the device, download
+> software to a flash, and then directly "kexec" boot from the kernel on
+> the flash would be nice. 
+> 
+> Anything that reduces dependencies on the BIOS is good.  I'd use this
+> feature if it was available.
 
-Yep, its not so much the checksumming as the fact that this is
-done over each byte of data and copied.
+But 'downloading' (actually uploading) software and writing it to
+flash for a re-boot is a trivial user-mode task. The actual boot
+from such a virtual disk takes 4 seconds on a real system (AMD SC520)
+processor in an embedded system. You don't need any special kernel
+hooks.
 
-thanks,
-Nivedita
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
+
+

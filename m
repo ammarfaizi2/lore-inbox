@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263589AbUCUB4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 20:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbUCUB4N
+	id S263590AbUCUCXK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 21:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbUCUCXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 20:56:13 -0500
-Received: from codepoet.org ([166.70.99.138]:60371 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S263589AbUCUB4M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 20:56:12 -0500
-Date: Sat, 20 Mar 2004 18:55:46 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Call for HRT in 2.6 kernel was Re: finding out the value of HZ from userspace
-Message-ID: <20040321015546.GA15959@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	Karim Yaghmour <karim@opersys.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20040311141703.GE3053@luna.mooo.com> <200403161757.48786.mgross@linux.intel.com> <20040317023059.GD19564@mail.shareable.org> <200403170848.01156.mgross@linux.intel.com> <20040317200702.GA25293@mail.shareable.org> <4058F91C.9000207@opersys.com> <20040318115609.GA29382@mail.shareable.org> <4059BF0B.4030404@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4059BF0B.4030404@opersys.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 20 Mar 2004 21:23:10 -0500
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:30081 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S263590AbUCUCXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 21:23:08 -0500
+Message-ID: <405CFC85.70004@backtobasicsmgmt.com>
+Date: Sat, 20 Mar 2004 19:23:01 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
+       Device mapper devel list <dm-devel@redhat.com>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
+References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com>
+In-Reply-To: <405CAEC7.9080104@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Mar 18, 2004 at 10:23:55AM -0500, Karim Yaghmour wrote:
-> except that it's totally hardware independent. No to mention that a
-> nanokernel's behavior can be modified/extended while a CPU's behavior is
-> pretty much ... hmmm, well, fixed in silicone ...
+Jeff Garzik wrote:
 
-Silicone?  You expect CPU behavior to jiggle around
-a lot I suppose.  ;-)
+> So go ahead, and I'll lend you as much help as I can.  I have the full 
+> Promise RAID docs, and it seems like another guy on the lists has full 
+> Silicon Image "medley" RAID docs...
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+If these "soft" RAID implementations only support RAID-0/1/0+1/1+0, is 
+there really any need for a new DM target? Wouldn't you just need a 
+userspace tool to recognize the array and do the "dmsetup" operations to 
+make it usable?

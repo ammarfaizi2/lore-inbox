@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283265AbRLWCw7>; Sat, 22 Dec 2001 21:52:59 -0500
+	id <S283272AbRLWDBW>; Sat, 22 Dec 2001 22:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283269AbRLWCwt>; Sat, 22 Dec 2001 21:52:49 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:32337 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S283265AbRLWCwj>; Sat, 22 Dec 2001 21:52:39 -0500
-Date: Sat, 22 Dec 2001 21:52:31 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, sfr@gmx.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17rc1: KERNEL: assertion failed at tcp.c(1520):tcp_recvmsg ?
-Message-ID: <20011222215231.B19358@nostromo.devel.redhat.com>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, sfr@gmx.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011222083457.GA666@asterix> <20011222.155713.84363957.davem@redhat.com> <20011223004434.A19313@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011223004434.A19313@conectiva.com.br>; from acme@conectiva.com.br on Sun, Dec 23, 2001 at 12:44:34AM -0200
+	id <S283287AbRLWDBO>; Sat, 22 Dec 2001 22:01:14 -0500
+Received: from embolism.psychosis.com ([216.242.103.100]:37893 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S283272AbRLWDBC>; Sat, 22 Dec 2001 22:01:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: Booting a modular kernel through a multiple streams file
+Date: Sat, 22 Dec 2001 22:00:56 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Hysa-0002kc-00@schizo.psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnaldo Carvalho de Melo (acme@conectiva.com.br) said: 
-> Em Sat, Dec 22, 2001 at 03:57:13PM -0800, David S. Miller escreveu:
-> > What compiler are you using to build these kernels?  To be honest
-> > the assertion you have triggered ought to be impossible and this is
-> > the first report I've ever seen of it triggering.
-> 
-> IIRC he said he (or another guy with the same problem) was using gcc
-> 3.0.something available in Red Hat rawhide.
+On Saturday 22 December 2001 21:10, Alexander Viro wrote:
 
-If it's the one in rawhide, it's 3.1-0.10, off gcc HEAD. I have yet
-to see a kernel boot successfully compiled by this compiler, but
-YMMV. :)
+> > cpio is trivial.  tar is a bit more painful, but not too bad.  gzip is
+> > unacceptable, but should not be required.
+>
+> tar is ugly as hell and not going to be supported on the kernel side.
 
-Bill
+Excellent! You've settled on using using an archiver format nobody uses,
+instead of the defacto standard that's already been implemented by
+atleast two people.
+			G-E-N-I-U-S!
+
+>IIRC, his objections back then were about linking archive into the kernel
+>image.  s/disaster/ugly stuff that was nowhere near top-priority and got 
+>fixed since then/ and I agree with that one.
+
+Ahh good. Maybe you'll wise up to supporting tar as well. Then in
+maybe a year and a half from now standard Linux will finally have
+what I've had in production for 3 years...
+
+Dave
+
+-- 
+The time is now 22:54 (Totalitarian)  -  http://www.ccops.org/

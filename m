@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288206AbSAHSiP>; Tue, 8 Jan 2002 13:38:15 -0500
+	id <S288225AbSAHSlp>; Tue, 8 Jan 2002 13:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288209AbSAHSiF>; Tue, 8 Jan 2002 13:38:05 -0500
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:3966 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288206AbSAHSh5>; Tue, 8 Jan 2002 13:37:57 -0500
-Date: Tue, 8 Jan 2002 18:37:38 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Compile error 2.5.2-pre8 (ext3)
-Message-ID: <20020108183738.A29468@grobbebol.xs4all.nl>
-In-Reply-To: <20020105175727.A10286@rene-engelhard.de>
+	id <S288232AbSAHSlf>; Tue, 8 Jan 2002 13:41:35 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:54029 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288225AbSAHSl0>;
+	Tue, 8 Jan 2002 13:41:26 -0500
+Date: Tue, 8 Jan 2002 10:39:19 -0800
+From: Greg KH <greg@kroah.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Missing entries in Configuure.help)
+Message-ID: <20020108183919.GH14410@kroah.com>
+In-Reply-To: <20020106210233.A30319@thyrsus.com> <20020107085307.A17914@flint.arm.linux.org.uk> <20020108124334.A24742@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020105175727.A10286@rene-engelhard.de>
-User-Agent: Mutt/1.3.22.1i
-X-OS: Linux grobbebol 2.4.17 
+In-Reply-To: <20020108124334.A24742@thyrsus.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 11 Dec 2001 16:19:48 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 05, 2002 at 05:57:27PM +0100, Rene Engelhard wrote:
-> Does anyone know what do do here now?
-> I _have_ to compile the kernel with ext3 because / and all partitions
-> are ext3...
+On Tue, Jan 08, 2002 at 12:43:34PM -0500, Eric S. Raymond wrote:
+> 
+> Non-ARM:
+> 
+> USB_EHCI_HCD
 
-ext3 partitions canb be mounted witout ext3 support. you only loose
-journalling....
+Again, this one is described in 2.5.2-pre7 and later kernels.
 
--- 
-Grobbebol's Home                        |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel            | Use your real e-mail address   /\
-Linux 2.4.17 (noapic) SMP 466MHz/768 MB |        on Usenet.             _\_v  
+thanks,
+
+greg k-h

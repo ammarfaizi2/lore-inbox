@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311564AbSDCLeH>; Wed, 3 Apr 2002 06:34:07 -0500
+	id <S311594AbSDCLl2>; Wed, 3 Apr 2002 06:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311483AbSDCLd5>; Wed, 3 Apr 2002 06:33:57 -0500
-Received: from zork.zork.net ([66.92.188.166]:60433 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S311211AbSDCLdq>;
-	Wed, 3 Apr 2002 06:33:46 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Dell laptop crashes -- data point (was Re: Ext2 vs. ext3 recovery
- after crash)
-In-Reply-To: <Pine.LNX.3.96.1020402225256.9671A-100000@gatekeeper.tmr.com>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Message-Flag: Message text advisory: PRURIENT SUBTEXT, STYLE OVER
- SUBSTANCE
-X-Mailer: Norman
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Wed, 03 Apr 2002 12:33:45 +0100
-Message-ID: <6ulmc5nhie.fsf@zork.zork.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
- (i386-debian-linux-gnu)
+	id <S311211AbSDCLlS>; Wed, 3 Apr 2002 06:41:18 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:7542 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S311600AbSDCLlF>;
+	Wed, 3 Apr 2002 06:41:05 -0500
+Date: Wed, 3 Apr 2002 12:40:25 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] who's maintaining util-linux?
+In-Reply-To: <200204030938.g339cnX16298@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.33.0204031239290.1802-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Bill Davidsen quotation:
+Hi Denis,
 
-> I have a laptop (Dell Inspiron C600) which, like most Dell laptops,
-> crashes every time I log out of X.
+Andries Brouwer <Andries.Brouwer@cwi.nl> is the maintainer of util-linux.
 
-I have never had this happen with my Dell Inspiron 4100.  Running the
-latest Debian unstable X packages (with a 4.1.99 server + modules
-build overlaid for the non-VESA ATI Mobility support).
+Regards,
+Tigran
 
--- 
- /////////////////  |                  | The spark of a pin
-<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
- \\\\\\\\\\\\\\\\\  |                  | There is too much noise.
+On Wed, 3 Apr 2002, Denis Vlasenko wrote:
+
+> Hi folks,
+>
+> I'm using util-linux and have some problems with them.
+> The biggest of promlems is that I am unable to contact
+> maintainers of said utils :-(   Are they maintained?
+> --
+> vda
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

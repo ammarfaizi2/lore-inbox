@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261997AbSIPOc6>; Mon, 16 Sep 2002 10:32:58 -0400
+	id <S261998AbSIPOgM>; Mon, 16 Sep 2002 10:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261998AbSIPOc6>; Mon, 16 Sep 2002 10:32:58 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:40185 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S261997AbSIPOc5>; Mon, 16 Sep 2002 10:32:57 -0400
-Message-Id: <200209161437.g8GEbp2f288692@pimout1-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Date: Mon, 16 Sep 2002 05:37:44 -0400
-X-Mailer: KMail [version 1.3.1]
-References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com> <200209160236.g8G2a6Qn022070@pimout3-ext.prodigy.net> <20020916095004.3ae2b901.spyro@f2s.com>
-In-Reply-To: <20020916095004.3ae2b901.spyro@f2s.com>
+	id <S262012AbSIPOgM>; Mon, 16 Sep 2002 10:36:12 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:29897 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261998AbSIPOgM>; Mon, 16 Sep 2002 10:36:12 -0400
+Date: Mon, 16 Sep 2002 11:40:36 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Frederik Nosi <fredi@e-salute.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: BENCHMARK - contest results
+In-Reply-To: <200209161436.24243.fredi@e-salute.it>
+Message-ID: <Pine.LNX.4.44L.0209161139580.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 September 2002 04:50 am, Ian Molton wrote:
-> On Sun, 15 Sep 2002 17:35:59 -0400
->
-> Rob Landley <landley@trommello.org> wrote:
-> > I think we agree.  So why recommend against debuggers if they save
-> > time and effort while producing patches of equal quality?
->
-> I think the point here is that debuggers are not for everyone. They are
-> a tool, in much the same way as an adjustable wrench is. I prefer a set
-> of spanners.
->
-> Is there anything wrong with NOT wanting to use a debugger? really?
+On Mon, 16 Sep 2002, Frederik Nosi wrote:
 
-I don't want to use reiserfs.  I'm not lobbying to keep it out of the kernel 
-for the significant number of people who do want it.
+> 2.4.18-3  (RedHat kernel, booted without options)
+> **************************************************
+> noload          18:13.88                99%
+> cpuload         21:36.64                83%
+> ioload            28:22.85                63%
+> memload       21:42.91                83%
 
-It's Linus's final call, and now we can fake 95% of the same functionality by 
-attaching userspace debuggers to UML, so...
+This one has an (older) -rmap VM.
 
-Rob
+> 2.4.20-pre6  (Vanilla, booted with "vga=771")
+> **************************************************
+> noload         18:17.99                99%
+> cpuload       21:51.48                81%
+> ioload          30:28.49                58%
+> memload      22:01.68                81%
+
+And this is the vanilla VM.
+
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

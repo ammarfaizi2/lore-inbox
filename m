@@ -1,455 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264537AbUFGMbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264734AbUFGMfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbUFGMbK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 08:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUFGMaG
+	id S264734AbUFGMfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 08:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264737AbUFGMfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 08:30:06 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:3969 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264537AbUFGLzv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 07:55:51 -0400
-To: torvalds@osdl.org, akpm@osdl.org, vojtech@ucw.cz,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-Message-Id: <10866093532546@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <10866093533406@twilight.ucw.cz>
+	Mon, 7 Jun 2004 08:35:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13543 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264649AbUFGMNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 08:13:12 -0400
+Date: Mon, 7 Jun 2004 14:13:00 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Russell Leighton <russ@elegant-software.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <->	getpid() bug in 2.6?]
+Message-ID: <20040607121300.GB9835@devserv.devel.redhat.com>
+References: <40C1E6A9.3010307@elegant-software.com> <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> <40C32A44.6050101@elegant-software.com> <40C33A84.4060405@elegant-software.com> <1086537490.3041.2.camel@laptop.fenrus.com> <40C3AD9E.9070909@elegant-software.com>
 Mime-Version: 1.0
-Date: Mon, 7 Jun 2004 13:55:53 +0200
-Subject: [PATCH 15/39] input: Do not modify device's properties when probing for protocol extensions
-X-Mailer: gregkh_patchbomb_levon_offspring
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
+Content-Disposition: inline
+In-Reply-To: <40C3AD9E.9070909@elegant-software.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input-for-linus
 
-===================================================================
-
-ChangeSet@1.1371.753.22, 2004-04-23 02:45:14-05:00, dtor_core@ameritech.net
-  Input: do not modify device's properties when probing for protocol
-         extensions on reconnect as it may interfere with reconnect
-         process
+--TakKZr9L6Hm6aLOc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
- logips2pp.c    |  168 ++++++++++++++++++++++++++++++---------------------------
- logips2pp.h    |    5 +
- psmouse-base.c |   78 ++++++++++++++------------
- 3 files changed, 137 insertions(+), 114 deletions(-)
+On Sun, Jun 06, 2004 at 07:49:50PM -0400, Russell Leighton wrote:
+> Arjan van de Ven wrote:
+> 
+> >Note also that
+> >
+> >clone() is not a portable interface even within linux architectures.
+> >
+> > 
+> >
+> Really???!!! How so?
 
-===================================================================
+for example ia64 doesn't have it.
 
-diff -Nru a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
---- a/drivers/input/mouse/logips2pp.c	2004-06-07 13:12:31 +02:00
-+++ b/drivers/input/mouse/logips2pp.c	2004-06-07 13:12:31 +02:00
-@@ -89,7 +89,7 @@
-  * enabled if we do nothing to it. Of course I put this in because I want it
-  * disabled :P
-  * 1 - enabled (if previously disabled, also default)
-- * 0/2 - disabled 
-+ * 0/2 - disabled
-  */
- 
- static void ps2pp_set_smartscroll(struct psmouse *psmouse)
-@@ -103,14 +103,11 @@
- 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
- 	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
- 
--	if (psmouse_smartscroll == 1) 
--		param[0] = 1;
--	else
--	if (psmouse_smartscroll > 2)
--		return;
--
--	/* else leave param[0] == 0 to disable */
--	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+	if (psmouse_smartscroll < 2) {
-+		/* 0 - disabled, 1 - enabled */
-+		param[0] = psmouse_smartscroll;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+	}
- }
- 
- /*
-@@ -128,111 +125,128 @@
- 	psmouse_command(psmouse, &param, PSMOUSE_CMD_SETRES);
- }
- 
-+
-+static int is_model_in_list(unsigned char model, int *model_list)
-+{
-+	int i;
-+
-+	for (i = 0; model_list[i] != -1; i++)
-+		if (model == model_list[i])
-+			return 1;
-+	return 0;
-+}
-+
- /*
-- * Detect the exact model and features of a PS2++ or PS2T++ Logitech mouse or
-- * touchpad.
-+ * Set up input device's properties based on the detected mouse model.
-  */
- 
--static int ps2pp_detect_model(struct psmouse *psmouse, unsigned char *param)
-+static void ps2pp_set_properties(struct psmouse *psmouse, unsigned char protocol,
-+				 unsigned char model, unsigned char buttons)
- {
--	int i;
- 	static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52, 73, 80, -1 };
- 	static int logitech_wheel[] = { 52, 53, 75, 76, 80, 81, 83, 88, 112, -1 };
--	static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
--						76, 80, 81, 83, 88, 96, 97, 112, -1 };
- 	static int logitech_mx[] = { 61, 112, -1 };
- 
- 	psmouse->vendor = "Logitech";
--	psmouse->model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
-+	psmouse->model = model;
- 
--	if (param[1] < 3)
-+	if (buttons < 3)
- 		clear_bit(BTN_MIDDLE, psmouse->dev.keybit);
--	if (param[1] < 2)
-+	if (buttons < 2)
- 		clear_bit(BTN_RIGHT, psmouse->dev.keybit);
- 
--	psmouse->type = PSMOUSE_PS2;
-+	if (protocol == PSMOUSE_PS2PP) {
- 
--	for (i = 0; logitech_ps2pp[i] != -1; i++)
--		if (logitech_ps2pp[i] == psmouse->model)
--			psmouse->type = PSMOUSE_PS2PP;
--
--	if (psmouse->type == PSMOUSE_PS2PP) {
--
--		for (i = 0; logitech_4btn[i] != -1; i++)
--			if (logitech_4btn[i] == psmouse->model)
--				set_bit(BTN_SIDE, psmouse->dev.keybit);
--
--		for (i = 0; logitech_wheel[i] != -1; i++)
--			if (logitech_wheel[i] == psmouse->model) {
--				set_bit(REL_WHEEL, psmouse->dev.relbit);
--				psmouse->name = "Wheel Mouse";
--			}
-+		if (is_model_in_list(model, logitech_4btn))
-+			set_bit(BTN_SIDE, psmouse->dev.keybit);
-+
-+		if (is_model_in_list(model, logitech_wheel)) {
-+			set_bit(REL_WHEEL, psmouse->dev.relbit);
-+			psmouse->name = "Wheel Mouse";
-+		}
-+
-+		if (is_model_in_list(model, logitech_mx)) {
-+			set_bit(BTN_SIDE, psmouse->dev.keybit);
-+			set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+			set_bit(BTN_BACK, psmouse->dev.keybit);
-+			set_bit(BTN_FORWARD, psmouse->dev.keybit);
-+			set_bit(BTN_TASK, psmouse->dev.keybit);
-+			psmouse->name = "MX Mouse";
-+		}
-+	}
-+
-+	if (protocol == PSMOUSE_PS2TPP) {
-+		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		set_bit(REL_HWHEEL, psmouse->dev.relbit);
-+		psmouse->name = "TouchPad 3";
-+	}
-+}
- 
--		for (i = 0; logitech_mx[i] != -1; i++)
--			if (logitech_mx[i]  == psmouse->model) {
--				set_bit(BTN_SIDE, psmouse->dev.keybit);
--				set_bit(BTN_EXTRA, psmouse->dev.keybit);
--				set_bit(BTN_BACK, psmouse->dev.keybit);
--				set_bit(BTN_FORWARD, psmouse->dev.keybit);
--				set_bit(BTN_TASK, psmouse->dev.keybit);
--				psmouse->name = "MX Mouse";
--			}
- 
- /*
-- * Do Logitech PS2++ / PS2T++ magic init.
-+ * Logitech magic init. Detect whether the mouse is a Logitech one
-+ * and its exact model and try turning on extended protocol for ones
-+ * that support it.
-  */
- 
--		if (psmouse->model == 97) { /* TouchPad 3 */
-+int ps2pp_init(struct psmouse *psmouse, int set_properties)
-+{
-+	static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
-+					76, 80, 81, 83, 88, 96, 97, 112, -1 };
-+	unsigned char param[4];
-+	unsigned char protocol = PSMOUSE_PS2;
-+	unsigned char model, buttons;
- 
--			set_bit(REL_WHEEL, psmouse->dev.relbit);
--			set_bit(REL_HWHEEL, psmouse->dev.relbit);
-+	param[0] = 0;
-+	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+	param[1] = 0;
-+	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
- 
--			param[0] = 0x11; param[1] = 0x04; param[2] = 0x68; /* Unprotect RAM */
-+	if (param[1] != 0) {
-+		model = ((param[0] >> 4) & 0x07) | ((param[0] << 3) & 0x78);
-+		buttons = param[1];
-+/*
-+ * Do Logitech PS2++ / PS2T++ magic init.
-+ */
-+		if (model == 97) { /* Touch Pad 3 */
-+
-+			/* Unprotect RAM */
-+			param[0] = 0x11; param[1] = 0x04; param[2] = 0x68;
- 			psmouse_command(psmouse, param, 0x30d1);
--			param[0] = 0x11; param[1] = 0x05; param[2] = 0x0b; /* Enable features */
-+			/* Enable features */
-+			param[0] = 0x11; param[1] = 0x05; param[2] = 0x0b;
- 			psmouse_command(psmouse, param, 0x30d1);
--			param[0] = 0x11; param[1] = 0x09; param[2] = 0xc3; /* Enable PS2++ */
-+			/* Enable PS2++ */
-+			param[0] = 0x11; param[1] = 0x09; param[2] = 0xc3;
- 			psmouse_command(psmouse, param, 0x30d1);
- 
- 			param[0] = 0;
- 			if (!psmouse_command(psmouse, param, 0x13d1) &&
--				param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14) {
--				psmouse->name = "TouchPad 3";
--				return PSMOUSE_PS2TPP;
-+			    param[0] == 0x06 && param[1] == 0x00 && param[2] == 0x14) {
-+				protocol = PSMOUSE_PS2TPP;
- 			}
- 
--		} else {
-+		} else if (is_model_in_list(model, logitech_ps2pp)) {
- 
- 			param[0] = param[1] = param[2] = 0;
- 			ps2pp_cmd(psmouse, param, 0x39); /* Magic knock */
- 			ps2pp_cmd(psmouse, param, 0xDB);
- 
--			if ((param[0] & 0x78) == 0x48 && (param[1] & 0xf3) == 0xc2 &&
--				(param[2] & 3) == ((param[1] >> 2) & 3)) {
--					ps2pp_set_smartscroll(psmouse);
--					return PSMOUSE_PS2PP;
-+			if ((param[0] & 0x78) == 0x48 &&
-+			    (param[1] & 0xf3) == 0xc2 &&
-+			    (param[2] & 0x03) == ((param[1] >> 2) & 3)) {
-+				ps2pp_set_smartscroll(psmouse);
-+				protocol = PSMOUSE_PS2PP;
- 			}
- 		}
--	}
--
--	return 0;
--}
- 
--/*
-- * Logitech magic init.
-- */
--int ps2pp_detect(struct psmouse *psmouse)
--{
--	unsigned char param[4];
--
--	param[0] = 0;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	param[1] = 0;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+		if (set_properties)
-+			ps2pp_set_properties(psmouse, protocol, model, buttons);
-+	}
- 
--	return param[1] != 0 ? ps2pp_detect_model(psmouse, param) : 0;
-+	return protocol;
- }
- 
-diff -Nru a/drivers/input/mouse/logips2pp.h b/drivers/input/mouse/logips2pp.h
---- a/drivers/input/mouse/logips2pp.h	2004-06-07 13:12:31 +02:00
-+++ b/drivers/input/mouse/logips2pp.h	2004-06-07 13:12:31 +02:00
-@@ -10,8 +10,9 @@
- 
- #ifndef _LOGIPS2PP_H
- #define _LOGIPS2PP_H
--struct psmouse;
-+
- void ps2pp_process_packet(struct psmouse *psmouse);
- void ps2pp_set_800dpi(struct psmouse *psmouse);
--int ps2pp_detect(struct psmouse *psmouse);
-+int ps2pp_init(struct psmouse *psmouse, int set_properties);
-+
- #endif
-diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
---- a/drivers/input/mouse/psmouse-base.c	2004-06-07 13:12:31 +02:00
-+++ b/drivers/input/mouse/psmouse-base.c	2004-06-07 13:12:31 +02:00
-@@ -410,22 +410,21 @@
-  * the mouse may have.
-  */
- 
--static int psmouse_extensions(struct psmouse *psmouse, unsigned int max_proto)
-+static int psmouse_extensions(struct psmouse *psmouse,
-+			      unsigned int max_proto, int set_properties)
- {
- 	int synaptics_hardware = 0;
- 
--	psmouse->vendor = "Generic";
--	psmouse->name = "Mouse";
--	psmouse->model = 0;
--	psmouse->protocol_handler = psmouse_process_byte;
--
- /*
-  * Try Synaptics TouchPad
-  */
- 	if (max_proto > PSMOUSE_PS2 && synaptics_detect(psmouse)) {
- 		synaptics_hardware = 1;
--		psmouse->vendor = "Synaptics";
--		psmouse->name = "TouchPad";
-+
-+		if (set_properties) {
-+			psmouse->vendor = "Synaptics";
-+			psmouse->name = "TouchPad";
-+		}
- 
- 		if (max_proto > PSMOUSE_IMEX) {
- 			if (synaptics_init(psmouse) == 0)
-@@ -444,33 +443,44 @@
- 	}
- 
- 	if (max_proto > PSMOUSE_IMEX && genius_detect(psmouse)) {
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
- 
--		psmouse->vendor = "Genius";
--		psmouse->name = "Wheel Mouse";
-+		if (set_properties) {
-+			set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+			set_bit(BTN_SIDE, psmouse->dev.keybit);
-+			set_bit(REL_WHEEL, psmouse->dev.relbit);
-+			psmouse->vendor = "Genius";
-+			psmouse->name = "Wheel Mouse";
-+		}
-+
- 		return PSMOUSE_GENPS;
- 	}
- 
- 	if (max_proto > PSMOUSE_IMEX) {
--		int type = ps2pp_detect(psmouse);
--		if (type)
-+		int type = ps2pp_init(psmouse, set_properties);
-+		if (type > PSMOUSE_PS2)
- 			return type;
- 	}
- 
- 	if (max_proto >= PSMOUSE_IMPS && intellimouse_detect(psmouse)) {
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+
-+		if (set_properties) {
-+			set_bit(REL_WHEEL, psmouse->dev.relbit);
-+			if (!psmouse->name)
-+				psmouse->name = "Wheel Mouse";
-+		}
- 
- 		if (max_proto >= PSMOUSE_IMEX && im_explorer_detect(psmouse)) {
--			set_bit(BTN_SIDE, psmouse->dev.keybit);
--			set_bit(BTN_EXTRA, psmouse->dev.keybit);
- 
--			psmouse->name = "Explorer Mouse";
-+			if (!set_properties) {
-+				set_bit(BTN_SIDE, psmouse->dev.keybit);
-+				set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+				if (!psmouse->name)
-+					psmouse->name = "Explorer Mouse";
-+			}
-+
- 			return PSMOUSE_IMEX;
- 		}
- 
--		psmouse->name = "Wheel Mouse";
- 		return PSMOUSE_IMPS;
- 	}
- 
-@@ -520,12 +530,7 @@
- 	if (psmouse_command(psmouse, NULL, PSMOUSE_CMD_RESET_DIS))
- 		printk(KERN_WARNING "psmouse.c: Failed to reset mouse on %s\n", psmouse->serio->phys);
- 
--/*
-- * And here we try to determine if it has any extensions over the
-- * basic PS/2 3-button mouse.
-- */
--
--	return psmouse->type = psmouse_extensions(psmouse, psmouse_max_proto);
-+	return 0;
- }
- 
- /*
-@@ -663,7 +668,6 @@
- 	psmouse->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REL);
- 	psmouse->dev.keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT);
- 	psmouse->dev.relbit[0] = BIT(REL_X) | BIT(REL_Y);
--
- 	psmouse->state = PSMOUSE_CMD_MODE;
- 	psmouse->serio = serio;
- 	psmouse->dev.private = psmouse;
-@@ -675,13 +679,21 @@
- 		return;
- 	}
- 
--	if (psmouse_probe(psmouse) <= 0) {
-+	if (psmouse_probe(psmouse) < 0) {
- 		serio_close(serio);
- 		kfree(psmouse);
- 		serio->private = NULL;
- 		return;
- 	}
- 
-+	psmouse->type = psmouse_extensions(psmouse, psmouse_max_proto, 1);
-+	if (!psmouse->vendor)
-+		psmouse->vendor = "Generic";
-+	if (!psmouse->name)
-+		psmouse->name = "Mouse";
-+	if (!psmouse->protocol_handler)
-+		psmouse->protocol_handler = psmouse_process_byte;
-+
- 	sprintf(psmouse->devname, "%s %s %s",
- 		psmouse_protocols[psmouse->type], psmouse->vendor, psmouse->name);
- 	sprintf(psmouse->phys, "%s/input0",
-@@ -715,28 +727,24 @@
- {
- 	struct psmouse *psmouse = serio->private;
- 	struct serio_dev *dev = serio->dev;
--	int old_type;
- 
- 	if (!dev || !psmouse) {
- 		printk(KERN_DEBUG "psmouse: reconnect request, but serio is disconnected, ignoring...\n");
- 		return -1;
- 	}
- 
--	old_type = psmouse->type;
--
- 	psmouse->state = PSMOUSE_CMD_MODE;
--	psmouse->type = psmouse->acking = 0;
--	psmouse->cmdcnt = psmouse->pktcnt = psmouse->out_of_sync = 0;
-+	psmouse->acking = psmouse->cmdcnt = psmouse->pktcnt = psmouse->out_of_sync = 0;
- 	if (psmouse->reconnect) {
- 	       if (psmouse->reconnect(psmouse))
- 			return -1;
--	} else if (psmouse_probe(psmouse) != old_type)
-+	} else if (psmouse_probe(psmouse) < 0 ||
-+		   psmouse->type != psmouse_extensions(psmouse, psmouse_max_proto, 0))
- 		return -1;
- 
- 	/* ok, the device type (and capabilities) match the old one,
- 	 * we can continue using it, complete intialization
- 	 */
--	psmouse->type = old_type;
- 	psmouse_initialize(psmouse);
- 
- 	if (psmouse->ptport) {
+--TakKZr9L6Hm6aLOc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAxFvLxULwo51rQBIRAmg4AJ90C1HN+u+zP0akipslIBMsQ/ytdACgnCdc
+S27hkx/UY3APCIU4r6tyeA4=
+=pCbd
+-----END PGP SIGNATURE-----
+
+--TakKZr9L6Hm6aLOc--

@@ -1,98 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271970AbRHVTrF>; Wed, 22 Aug 2001 15:47:05 -0400
+	id <S272097AbRHVT7R>; Wed, 22 Aug 2001 15:59:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271956AbRHVTqz>; Wed, 22 Aug 2001 15:46:55 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:32741 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S271944AbRHVTqu>;
-	Wed, 22 Aug 2001 15:46:50 -0400
-Date: Wed, 22 Aug 2001 21:46:03 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200108221946.VAA01879@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH,RFC] make ide-scsi more selective
-Cc: alan@lxorguk.ukuu.org.uk, ionut@cs.columbia.edu
+	id <S272103AbRHVT7I>; Wed, 22 Aug 2001 15:59:08 -0400
+Received: from member.michigannet.com ([207.158.188.18]:55826 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S272097AbRHVT6x>; Wed, 22 Aug 2001 15:58:53 -0400
+Date: Wed, 22 Aug 2001 15:52:26 -0400
+From: Paul <set@pobox.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, Wilfried.Weissmann@gmx.at
+Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
+Message-ID: <20010822155226.A228@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, Andi Kleen <ak@suse.de>,
+	Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
+	alan@lxorguk.ukuu.org.uk, Wilfried.Weissmann@gmx.at
+In-Reply-To: <20010819004703.A226@squish.home.loc.suse.lists.linux.kernel> <3B831CDF.4CC930A7@didntduck.org.suse.lists.linux.kernel> <oupn14sny4f.fsf@pigdrop.muc.suse.de> <3B839E47.874F8F64@didntduck.org> <20010822141058.A18043@gruyere.muc.suse.de> <3B83A17C.CB8ABC53@didntduck.org> <20010822152203.A18873@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010822152203.A18873@gruyere.muc.suse.de>; from ak@suse.de on Wed, Aug 22, 2001 at 03:22:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Aug 2001 12:28:27 -0400 (EDT), Ion Badulescu wrote:
+Andi Kleen <ak@suse.de>, on Wed Aug 22, 2001 [03:22:03 PM] said:
+> 
+> Here is a new patch with both checks.
+> 
 
->The current IDE code doesn't allow the user to reserve a drive to be used 
->only with ide-scsi emulation, if the ide-scsi layer is compiled as a 
->module.
+	Dear Andi;
 
-I've been rather annoyed by a dual problem in the ide-scsi setup:
-during initialisation, ide-scsi will claim ALL currently unassigned
-IDE devices. This is a problem in modular setups, since there's
-no guarantee that currently unassigned devices actually are intended
-for ide-scsi.
+	Well, with this patch, the kernel doesnt oops, but vm86
+seems to be busted now. save_v86_state() pops out:
+	'vm86: could not access userspace vm86_info'
+and gives dosemu a segv.
 
-In my case ide-scsi would often steal my ATAPI tape drive since
-my ide-tape module usually isn't loaded. Since I don't want this
-to happen (for both practical and aesthetic reasons) I've used a
-hack in my /etc/modules.conf to forcibly load ide-tape before
-scsi_mod, but this is extremely ugly.
+Paul
+set@pobox.com
 
-Seeing Ion's comment I decided to do something about this, so I
-implemented a "units=" module parameter for ide-scsi, which causes
-ide-scsi to skip units not explicitly listed. For symmetry one can
-also specify this with a "idescsi=" kernel boot parameter.
-
-Caveat: When listing multiple units, don't use "," to separate their
-names (e.g. units=hdc,hdd). modutils insists that "," separates array
-elements but the actual MODULE_PARM is a single string. I'd use "+"
-instead (e.g. units=hdc+hdd), except I actually want to restrict
-ide-scsi to a single unit, so I pass "units=hdc" to it.
-
-The patch below implements this option for 2.4.8-ac9. I've also put
-it in http://www.csd.uu.se/~mikpe/linux/idescsi/ together with patches
-for 2.2.20pre9 with and without Andre's big IDE patch.
-
-Comments?
-
-/Mikael
-
---- linux-2.4.8-ac9/drivers/ide/ide.c.~1~	Wed Aug 22 14:13:03 2001
-+++ linux-2.4.8-ac9/drivers/ide/ide.c	Wed Aug 22 14:20:56 2001
-@@ -3006,6 +3006,9 @@
- 	if (strncmp(s,"hd",2) == 0 && s[2] == '=')	/* hd= is for hd.c   */
- 		return 0;				/* driver and not us */
- 
-+	if (!strncmp(s, "idescsi=", 8))	/* for ide-scsi.c not us */
-+		return 0;
-+
- 	if (strncmp(s,"ide",3) &&
- 	    strncmp(s,"idebus",6) &&
- 	    strncmp(s,"hd",2))		/* hdx= & hdxlun= */
---- linux-2.4.8-ac9/drivers/scsi/ide-scsi.c.~1~	Thu Feb 22 15:23:46 2001
-+++ linux-2.4.8-ac9/drivers/scsi/ide-scsi.c	Wed Aug 22 14:20:56 2001
-@@ -561,6 +561,19 @@
- 	NULL
- };
- 
-+static char *units;
-+#ifdef MODULE
-+MODULE_PARM(units, "s");
-+#else
-+/* the name "idescsi_setup" has already been taken :-( */
-+static int __init setup_idescsi(char *s)
-+{
-+	units = s;
-+	return 1;
-+}
-+__setup("idescsi=", setup_idescsi);
-+#endif
-+
- /*
-  *	idescsi_init will register the driver for each scsi.
-  */
-@@ -580,7 +593,8 @@
- 	for (i = 0; media[i] != 255; i++) {
- 		failed = 0;
- 		while ((drive = ide_scan_devices (media[i], idescsi_driver.name, NULL, failed++)) != NULL) {
--
-+			if (units && !strstr(units, drive->name))
-+				continue;
- 			if ((scsi = (idescsi_scsi_t *) kmalloc (sizeof (idescsi_scsi_t), GFP_KERNEL)) == NULL) {
- 				printk (KERN_ERR "ide-scsi: %s: Can't allocate a scsi structure\n", drive->name);
- 				continue;
+> 
+> --- include/asm-i386/hw_irq.h-SEG2	Mon Aug 20 02:54:53 2001
+> +++ include/asm-i386/hw_irq.h	Wed Aug 22 13:02:16 2001
+> @@ -114,8 +114,10 @@
+>  	"cmpl %eax,7*4(%esp)\n\t"  \
+>  	"je 1f\n\t"  \
+>  	"movl %eax,%ds\n\t" \
+> +	"1: cmpl %eax,8*4(%esp)\n\t" \
+> +	"je 2f\n\t" \
+>  	"movl %eax,%es\n\t" \
+> -	"1:\n\t"
+> +	"2:\n\t"
+>  
+>  #define IRQ_NAME2(nr) nr##_interrupt(void)
+>  #define IRQ_NAME(nr) IRQ_NAME2(IRQ##nr)
+> --- arch/i386/kernel/entry.S-SEG2	Sat Aug 18 08:41:53 2001
+> +++ arch/i386/kernel/entry.S	Wed Aug 22 15:07:44 2001
+> @@ -292,8 +292,11 @@
+>  	cmpl %edx,%ecx
+>  	jz	1f
+>  	movl %edx,%ds
+> +1:	movl %ds,%ecx
+> +	cmpl $(__KERNEL_DS),%edx
+> +	jz   2f	
+>  	movl %edx,%es
+> -1:	GET_CURRENT(%ebx)
+> +2:	GET_CURRENT(%ebx)
+>  	call *%edi
+>  	addl $8,%esp
+>  	jmp ret_from_exception
+> 
+> 
+> -Andi

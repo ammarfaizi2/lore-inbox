@@ -1,45 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbUCQSup (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 13:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbUCQSup
+	id S261964AbUCQSxn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 13:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUCQSxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 13:50:45 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:57011 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261946AbUCQSun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 13:50:43 -0500
-Date: Wed, 17 Mar 2004 19:50:41 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andrew Morton <akpm@osdl.org>, Mikael Pettersson <mikpe@csd.uu.se>
-Cc: thomas.schlichter@web.de, phil.el@wanadoo.fr, schwab@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
-In-Reply-To: <20040317102550.2ca7737c.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.55.0403171946550.14525@jurand.ds.pg.gda.pl>
-References: <200403090014.03282.thomas.schlichter@web.de>
- <20040308162947.4d0b831a.akpm@osdl.org> <20040309070127.GA2958@zaniah>
- <200403091208.20556.thomas.schlichter@web.de> <Pine.LNX.4.55.0403171734090.14525@jurand.ds.pg.gda.pl>
- <20040317102550.2ca7737c.akpm@osdl.org>
-Organization: Technical University of Gdansk
+	Wed, 17 Mar 2004 13:53:43 -0500
+Received: from 0x3ef3c060.odnxx1.adsl-dhcp.tele.dk ([62.243.192.96]:39434 "HELO
+	0x3ef3c060.odnxx1.adsl-dhcp.tele.dk") by vger.kernel.org with SMTP
+	id S261898AbUCQSx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 13:53:26 -0500
+Message-ID: <TRICSVGTTAHCULXLOERADB@hotmail.com>
+From: "Kendrick Logan" <auroraschorn@diamondemail.com>
+Reply-To: "Kendrick Logan" <auroraschorn@diamondemail.com>
+To: linux-kernel-owner@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-msdos@vger.kernel.org,
+       linux-net@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: re:
+Date: Wed, 17 Mar 2004 15:03:43 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="--39770087218289937"
+X-Webmail-Time: Thu, 18 Mar 2004 04:03:43 +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Mar 2004, Andrew Morton wrote:
+----39770087218289937
+Content-Type: text/plain;
+Content-Transfer-Encoding: 7Bit
 
-> I still have a couple of NMI patches in -mm:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi_watchdog-local-apic-fix.patch
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi-1-hz.patch
-> 
-> What should we do with these?
+Paradise SEX Island Awaits! Tropical 1 week vacations where anything 
+goes!
 
- I think we should ask Mikael Pettersson as he is the local APIC watchdog 
-expert.  Mikael?
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+We have lots of WOMEN, SEX, ALCOHOL, ETC!
+
+Every man's dream awaits on this island of pleasure.
+
+Ever wonder what a Fantasy Sex Holiday would be like? 
+
+If it was available at a reasonable cost.........would you go? 
+
+Check out more information on our site & we can make your dream 
+vacation a reality....
+
+
+*All contact, reservations, billings, are strcitly confidential & are 
+discussed directly with the client only.
+
+**Group discounts are available. ie. Bachelor parties, etc.
+
+MARCH/APRIL BONUS now available.
+
+http://www.intimate-travelclub.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This communication is privileged and contains confidential information 
+intended only for the person(s) to whom it is addressed.  Any 
+unauthorized disclosure, copying, other distribution  of this 
+communication or taking any action on its contents is strictly  prohibited. If you have 
+received this message in error, please notify us immediately OR remove 
+yourself from our list if there is no interest in regards to our 
+services.
+
+http://www.intimate-travelclub.com/remove/remove.html
+
+8
+kittenish ponce paso titanic decreeing duma conflagrate expansible carbide salk phone echidna excommunicate template 
+
+----39770087218289937--
+

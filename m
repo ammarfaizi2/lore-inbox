@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265918AbUAPWjR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 17:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUAPWjQ
+	id S265890AbUAPWdn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 17:33:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265895AbUAPWdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 17:39:16 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:35850 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S265918AbUAPWjK (ORCPT
+	Fri, 16 Jan 2004 17:33:43 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:3307 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S265890AbUAPWdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 17:39:10 -0500
-Date: Fri, 16 Jan 2004 23:40:56 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ashish sddf <buff_boulder@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ kernel module + Makefile
-Message-ID: <20040116224056.GA3227@mars.ravnborg.org>
-Mail-Followup-To: Ashish sddf <buff_boulder@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20040116210924.61545.qmail@web12008.mail.yahoo.com>
-Mime-Version: 1.0
+	Fri, 16 Jan 2004 17:33:42 -0500
+Date: Fri, 16 Jan 2004 15:39:19 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Stephen Smoogen <smoogen@lanl.gov>, linux-kernel@vger.kernel.org
+Subject: Re: AIC7xxx kernel problem with 2.4.2[234] kernels
+Message-ID: <2582475408.1074292759@aslan.btc.adaptec.com>
+In-Reply-To: <1074289406.5752.5.camel@smoogen2.lanl.gov>
+References: <1074289406.5752.5.camel@smoogen2.lanl.gov>
+X-Mailer: Mulberry/3.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040116210924.61545.qmail@web12008.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Does anyone can ideas about how to change the kernel
-> makefile to compile the C++ files the same way as C
-> files ?
+> Booting problems with aic7xxx with stock kernel 2.4.24.
 
-I assume you know the general opinion on C++ in the kernel - even in a module.
-I just did a quick untested hack - try this. It assumes extension .cc for
-c++ files.
-You also need to define CXX in top level makefile and export it.
-This patch will _not_ be pushed into mainline.
+...
 
-	Sam
+> Unexpected busfree while idle
+> SEQ 0x01
 
-===== scripts/Makefile.build 1.41 vs edited =====
---- 1.41/scripts/Makefile.build	Sun Oct  5 08:50:46 2003
-+++ edited/scripts/Makefile.build	Fri Jan 16 23:39:26 2004
-@@ -174,6 +174,23 @@
- %.o: %.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
-+# C++ support
-+      cmd_cc_o_cpp = $(CXX) $(c_flags) -c -o $@ $<
-+quiet_cmd_cc_o_cpp = C++    $@
-+
-+define rule_cc_o_cpp
-+	$(if $($(quiet)cmd_checksrc),echo '  $($(quiet)cmd_checksrc)';)   \
-+	$(cmd_checksrc)							  \
-+	$(if $($(quiet)cmd_cc_o_cpp),echo '  $($(quiet)cmd_cc_o_cpp)';)	  \
-+	$(cmd_cc_o_cpp);						  \
-+	scripts/fixdep $(depfile) $@ '$(cmd_cc_o_cpp)' > $(@D)/.$(@F).tmp;  \
-+	rm -f $(depfile);						  \
-+	mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd
-+endef
-+
-+%.o: %.cc FORCE
-+	$(call if_changed_rule,cc_o_cpp)
-+
- # Single-part modules are special since we need to mark them in $(MODVERDIR)
- 
- $(single-used-m): %.o: %.c FORCE
+A problem with similar symptoms was corrected in driver version 6.2.37
+back in August of last year.  Can you try using the latest driver source
+from here:
+
+	http://people.FreeBSD.org/~gibbs/linux/SRC/
+
+and see if your problem persists?  The aic79xx driver archive at the
+above location includes both the aic7xxx and aic79xx drivers.  If this
+does not resolve your problem there are other debugging options we can
+enable that may aid in tracking down the problem.
+
+--
+Justin
+

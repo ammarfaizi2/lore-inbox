@@ -1,90 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbUAZPvS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 10:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbUAZPvR
+	id S265572AbUAZPoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 10:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265573AbUAZPlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 10:51:17 -0500
-Received: from ida.rowland.org ([192.131.102.52]:3844 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264930AbUAZPvP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 10:51:15 -0500
-Date: Mon, 26 Jan 2004 10:51:14 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Greg KH <greg@kroah.com>, <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <mochel@digitalimplant.org>
-Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
- platform_device_unregister_wait() to the driver model core
-In-Reply-To: <20040126165035.2fda1b3e.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44L0.0401261016530.822-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Jan 2004 10:41:37 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:22757 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S265295AbUAZPlM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 10:41:12 -0500
+Date: Mon, 26 Jan 2004 07:41:11 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: problems connecting to kernel.bkbits.net
+Message-ID: <20040126154111.GB18032@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jan 2004, Rusty Russell wrote:
+Eric forwarded me this mail (thanks).
 
-> If you want to safely remove parts of the kernel, you have to maintain
-> reference counts.  At least with any sane scheme I've seen.
-> 
-> I know, I should go read the code...
-> Rusty.
+The BK->CVS gateway is still going strong but the CVS server part of it has
+been shut down because of security problems.  Nobody wants to run it because
+of the security problems that CVS has.  If someone wants to do that they 
+can mirror it from kernel.org, it's there under /pub/scm/linux/kernel/bkcvs
+and if you grab that you can start up a CVS server.
 
-The problem I raised originally is that in many cases the reference count
-can't be maintained properly without preventing the module from ever
-exiting at all.  The difficulty is that the reference count won't go
-down to 0 until the module code deregisters itself from some list.  But
-the deregistration only happens within the module's exit routine!
+----- Forwarded message from Stas Sergeev <stsp@aknet.ru> -----
 
-A two-step exit process, like that used for kobjects, would avoid this 
-difficulty.  During the first step the module would deregister itself.  
-The second step, unloading from memory, would occur when the reference 
-count was 0.
-
-Contrary what Linus said, in many modules it's not necessary to update the 
-module's reference count with every single transaction (packet or 
-whatever) that goes through.  Usually a single registration event, or just 
-a small handful, is critical for unloading.
-
-A good case in point is the one that led to the start of this thread.  A
-USB host controller driver registers a USB bus that it will manage, and
-from then on it handles lots of USB packets.  It's not necessary to update
-the driver module's reference count with every packet; all that matters is
-that the module has to wait for the bus to be released before it can be
-unloaded from memory.  (That's because existing mechanisms cause each
-packet to hold a reference to a USB device and the device holds a
-reference to the bus.)  For lack of any other way to avoid exiting early
-we simply have to wait for the bus's release callback to finish -- not
-waiting will cause a kernel panic if the module unloads before the release
-method runs.
-
-Furthermore, in other cases where it _is_ necessary to update a reference
-count with every packet, it's not necessary that doing so involve a lot of
-additional overhead such as acquiring a lock of some sort.  If some
-driver, like a network interface driver, is managing lots of packets then
-it must _already_ be using a lock to keep track of things like the total
-number of outstanding packets.  Any extra work could be done under the
-protection of this pre-existing lock and would involve minimal overhead.
+From: Stas Sergeev <stsp@aknet.ru>
+To: linux-kernel@vger.kernel.org
+Subject: problems connecting to kernel.bkbits.net
+Date:	Sun, 25 Jan 2004 20:11:35 +0300
 
 
-One aspect of what Linus wrote is absolutely right, however: Getting this 
-to work right, for all the loadable kernel modules, would be quite 
-difficult.  Here's one way to attack that, an incremental approach.
+Hello.
 
-Create a new module entry point, the module_unreg routine.  For all
-existing modules this entry point would be undefined and hence not used.  
-The module_unreg routine is called to start the deregistration process,
-invoked say by some special flag to rmmod.  The module_exit routine would
-then be called when an unregistered module's reference count dropped to 0.  
-Existing modules would experience exactly the same sequence of events as
-they do now, and newly-written modules could take advantage of the extra
-mechanism.
+I used a BK->CVS gateway on kernel.bkbits.net
+for some time, but it is already several
+month that I can't connect to it any more.
+Is it still alive?
 
-Admittedly, this is just a theoretical exercise.  Linus said that module 
-unloading should basically be unsupported.  I have no doubt that making it 
-even more complicated, like this, is not something he would approve of.
+Here is what I have:
 
-Alan Stern
+$ cvs update
+cvs [update aborted]: connect to kernel.bkbits.net(192.132.92.14):2401 
+failed: No route to host
 
+$ traceroute kernel.bkbits.net
+ 1  gate (192.168.3.1)  5.823 ms  16.544 ms  8.973 ms
+ 2  RINNet-MSU.iitp.ru (194.220.14.45)  12.531 ms  143.000 ms  69.300 ms
+ 3  RINNet-IITP.iitp.ru (194.220.14.129)  134.844 ms  212.712 ms 
+190.928 ms
+[.....]
+20  svl-edge-09.inet.qwest.net (205.171.14.98)  312.245 ms *  204.768 ms
+21  63.150.59.90 (63.150.59.90)  268.390 ms  217.756 ms  218.520 ms
+22  216.240.36.206 (216.240.36.206)  218.669 ms  248.692 ms  218.659 ms
+23  kernel.bkbits.net (192.132.92.14)  214.393 ms !<10>  243.426 ms 
+!<10> *
+
+$ ping kernel.bkbits.net
+PING kernel.bkbits.net (192.132.92.14) from 192.168.3.28 : 56(84) 
+bytes of data.64 bytes from kernel.bkbits.net (192.132.92.14): 
+icmp_seq=0 ttl=44 time=239.295 msec
+64 bytes from kernel.bkbits.net (192.132.92.14): icmp_seq=1 ttl=44 
+time=230.619 msec
+
+--- kernel.bkbits.net ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+round-trip min/avg/max/mdev = 230.619/234.957/239.295/4.338 ms
+
+
+Now I am lost. ping is fine, but traceroute
+shows code 10, which is "Host prohibited".
+Any ideas what can that be?
+I have googled a lot, but I have found
+nothing that looks even nearly similar to the
+problem I am having.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----

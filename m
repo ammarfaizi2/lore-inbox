@@ -1,79 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317975AbSGWG7l>; Tue, 23 Jul 2002 02:59:41 -0400
+	id <S317980AbSGWHbR>; Tue, 23 Jul 2002 03:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317976AbSGWG7l>; Tue, 23 Jul 2002 02:59:41 -0400
-Received: from spud.dpws.nsw.gov.au ([203.202.119.24]:52733 "EHLO
-	spud.dpws.nsw.gov.au") by vger.kernel.org with ESMTP
-	id <S317975AbSGWG7k>; Tue, 23 Jul 2002 02:59:40 -0400
-Message-Id: <sd3d8c36.078@out-gwia.dpws.nsw.gov.au>
-X-Mailer: Novell GroupWise Internet Agent 6.0.1
-Date: Tue, 23 Jul 2002 17:02:23 +1000
-From: "Daniel Lim" <Daniel.Lim@dpws.nsw.gov.au>
-To: <thunder@ngforever.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: mkinitrd problem
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-NAIMIME-Disclaimer: 1
-X-NAIMIME-Modified: 1
+	id <S317981AbSGWHbR>; Tue, 23 Jul 2002 03:31:17 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:12496 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317980AbSGWHbQ>; Tue, 23 Jul 2002 03:31:16 -0400
+Date: Tue, 23 Jul 2002 09:34:22 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@redhat.com>, <kirk@braille.uwo.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-rc3-ac2
+In-Reply-To: <200207230022.g6N0Mgh30698@devserv.devel.redhat.com>
+Message-ID: <Pine.NEB.4.44.0207230925360.10993-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Thanks again,
-I have this 
-# ls -l /dev/loop*
-brw-rw----    1 root     disk       7,   0 Jul 23 16:06 /dev/loop0
-brw-rw----    1 root     disk       7,   1 Jul 23 16:06 /dev/loop1
-brw-rw----    1 root     disk       7,  10 Jul 23 16:06 /dev/loop10
-brw-rw----    1 root     disk       7,  11 Jul 23 16:06 /dev/loop11
-brw-rw----    1 root     disk       7,  12 Jul 23 16:06 /dev/loop12
-brw-rw----    1 root     disk       7,  13 Jul 23 16:06 /dev/loop13
-brw-rw----    1 root     disk       7,  14 Jul 23 16:06 /dev/loop14
-brw-rw----    1 root     disk       7,  15 Jul 23 16:06 /dev/loop15
-brw-rw----    1 root     disk       7,   2 Jul 23 16:06 /dev/loop2
-brw-rw----    1 root     disk       7,   3 Jul 23 16:06 /dev/loop3
-brw-rw----    1 root     disk       7,   4 Jul 23 16:06 /dev/loop4
-brw-rw----    1 root     disk       7,   5 Jul 23 16:06 /dev/loop5
-brw-rw----    1 root     disk       7,   6 Jul 23 16:06 /dev/loop6
-brw-rw----    1 root     disk       7,   7 Jul 23 16:06 /dev/loop7
-brw-rw----    1 root     disk       7,   8 Jul 23 16:06 /dev/loop8
-brw-rw----    1 root     disk       7,   9 Jul 23 16:06 /dev/loop9
+There are compile errors with drivers/char/speakup/speakupmap:
+
+The first one:
+
+<--  snip  -->
+
+...
+ld -m elf_i386  -r -o char.o mem.o tty_io.o n_tty.o tty_ioctl.o raw.o
+pty.o misc.o random.o vt.o vc_screen.o consolemap.o consolemap_deftbl.o
+console.o selection.o serial.o keyboard.o speakup/speakupmap.o pc_keyb.o
+sysrq.o rocket.o mxser.o moxa.o epca.o cyclades.o stallion.o istallion.o
+ip2.o ip2main.o riscom8.o esp.o synclink.o n_hdlc.o specialix.o sx.o
+generic_serial.o rio/rio.o atixlmouse.o logibusmouse.o lp.o joystick/js.o
+busmouse.o dtlk.o n_r3964.o applicom.o sonypi.o msbusmouse.o qpmouse.o
+pc110pad.o mk712.o rtc.o nvram.o toshiba.o i8k.o i810_rng.o amd768_rng.o
+amd76x_pm.o tpqic02.o ftape/ftape.o speakup/spk.o ppdev.o pcwd.o
+acquirewdt.o advantechwdt.o ib700wdt.o mixcomwd.o sbc60xxwdt.o
+w83877f_wdt.o sc520_wdt.o wdt.o wdt_pci.o i810-tco.o machzwd.o
+eurotechwdt.o alim7101_wdt.o sc1200wdt.o wafer5823wdt.o softdog.o
+amd7xx_tco.o mwave/mwave.o
+speakup/spk.o(.data+0xad80): multiple definition of `ctrl_map'
+speakup/speakupmap.o(.data+0x300): first defined here
+...
+
+<--  snip  -->
+
+drivers/char/Makefile includes speakup/speakupmap.o that was already
+included in speakup/spk.o and the fix is simple:
+
+--- drivers/char/Makefile.old	Tue Jul 23 09:20:29 2002
++++ drivers/char/Makefile	Tue Jul 23 09:20:54 2002
+@@ -234,9 +234,6 @@
+ ifeq ($(CONFIG_SPEAKUP),y)
+ subdir-y += speakup
+ obj-y += speakup/spk.o
+-ifeq ($(CONFIG_SPEAKUP_KEYMAP),y)
+-KEYMAP = speakup/speakupmap.o
+-endif
+ endif
+
+ obj-$(CONFIG_H8) += h8.o
 
 
+Unfortunately this only leads to the next problem:
 
->>> Thunder from the hill <thunder@ngforever.de> 23/07/2002 16:54:02
->>>
-Hi,
+<--  snip  -->
 
-On Tue, 23 Jul 2002, Daniel Lim wrote:
-> The /proc/mounts does NOT show any loopback devices. I have however,
-> umounted 3 FS but it still failed with same messages??
+...
+ld -m elf_i386  -r -o char.o mem.o tty_io.o n_tty.o tty_ioctl.o raw.o
+pty.o misc.o random.o vt.o vc_screen.o consolemap.o consolemap_deftbl.o
+console.o selection.o serial.o keyboard.o defkeymap.o pc_keyb.o sysrq.o
+rocket.o mxser.o moxa.o epca.o cyclades.o stallion.o istallion.o ip2.o
+ip2main.o riscom8.o esp.o synclink.o n_hdlc.o specialix.o sx.o
+generic_serial.o rio/rio.o atixlmouse.o logibusmouse.o lp.o joystick/js.o
+busmouse.o dtlk.o n_r3964.o applicom.o sonypi.o msbusmouse.o qpmouse.o
+pc110pad.o mk712.o rtc.o nvram.o toshiba.o i8k.o i810_rng.o amd768_rng.o
+amd76x_pm.o tpqic02.o ftape/ftape.o speakup/spk.o ppdev.o pcwd.o
+acquirewdt.o advantechwdt.o ib700wdt.o mixcomwd.o sbc60xxwdt.o
+w83877f_wdt.o sc520_wdt.o wdt.o wdt_pci.o i810-tco.o machzwd.o
+eurotechwdt.o alim7101_wdt.o sc1200wdt.o wafer5823wdt.o softdog.o
+amd7xx_tco.o mwave/mwave.o
+speakup/spk.o(.data+0xad80): multiple definition of `ctrl_map'
+defkeymap.o(.data+0x300): first defined here
+...
+speakup/spk.o(.data+0xb884): multiple definition of `func_buf'
+defkeymap.o(.data+0xb04): first defined here
+ld: Warning: size of symbol `func_buf' changed from 153 to 151 in
+speakup/spk.o
+...
 
-It was about umounting loop filesystems...
+<--  snip  -->
 
-What do you have in /dev/loop (devfs), or what /dev/loopx devices (no 
-devfs, ls /dev/loop*) do you have?
 
-							Regards,
-							Thunder
+Two slightly different files defining the same symbols.  :-(
+
+
+cu
+Adrian
+
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
 
-
-
- This e-mail message (and attachments) is confidential, and / or privileged and is intended for the use of the addressee only. If you are not the intended recipient of this e-mail you must not copy, distribute, take any action in reliance on it or disclose it to anyone. Any confidentiality or privilege is not waived or lost by reason of mistaken delivery to you. DPWS is not responsible for any information not related to the business of DPWS. If you have received this e-mail in error please destroy the original and notify the sender.
-
-For information on services offered by DPWS, please visit our website at www.dpws.nsw.gov.au
-
-
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284696AbRLRT7O>; Tue, 18 Dec 2001 14:59:14 -0500
+	id <S284848AbRLRT6z>; Tue, 18 Dec 2001 14:58:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284849AbRLRT7A>; Tue, 18 Dec 2001 14:59:00 -0500
-Received: from pc3-stoc4-0-cust138.mid.cable.ntl.com ([213.107.175.138]:46596
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S284854AbRLRT5y>; Tue, 18 Dec 2001 14:57:54 -0500
-From: "Ian Chilton" <ian@ichilton.co.uk>
-To: "'Tony 'Nicoya' Mantler'" <nicoya@apia.dhs.org>,
-        "'David S. Miller'" <davem@redhat.com>
-Cc: <sparclinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.17-rc1 wont do nfs root on Javastation
-Date: Tue, 18 Dec 2001 19:57:45 -0000
-Message-ID: <000001c187fe$42c675b0$0a01a8c0@dipsy>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S284908AbRLRTtg>; Tue, 18 Dec 2001 14:49:36 -0500
+Received: from [212.159.14.225] ([212.159.14.225]:29427 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S284855AbRLRTtH>; Tue, 18 Dec 2001 14:49:07 -0500
+Date: Tue, 18 Dec 2001 19:47:55 +0000
+From: "J.P. Morris" <jpm@it-he.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AIC7850 panic (post 2.4.14)
+Message-Id: <20011218194755.7d1f8e5e.jpm@it-he.org>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-In-Reply-To: <v04003a11b84549aa834a@[24.70.162.28]>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Done a bit of checking and when the kernel boots, it says it got an
-answer from my boot server and my ip is 67.0.0.0.
+> I had the exact same problem with this chipset (Adaptec 2904), but I 
+> increased the "Initial bus reset delay" from 150 ms to 250 and solved it.
 
-When I did arp -a on the boot server it said <incomplete> for the mac
-address. I did a arp -f and it was fine, booted the javastation which
-still got 67.0.0.0 and arp -a showed <incomplete> again.
+I've tried that, and also reducing TCQs to 8 as suggested elsewhere.
+Unfortunately it hasn't solved the problem, it just takes longer to die.
 
-Very strange!
+> By the way, do you have cdrom's attached to your scsi card? Beware, 
+> since 2.5.1-pre8 (at least) the PC will hang solid if I try to mount a 
+> data cd. Up to 2.5.1-pre11 the problem remains. Can you verify this 
+> (without mounting any disk, of course)?
 
+Yes, the card drives a CDROM unit and a DVD-RAM drive.
+However I don't intend to try 2.5 for a good few months yet.
 
-Bye for Now,
+> Regards,
 
-Ian
-
-
-                                  \|||/
-                                  (o o)
- /-----------------------------ooO-(_)-Ooo----------------------------\
- |  Ian Chilton                    E-Mail: ian@ichilton.co.uk         |
- |  IRC Nick: GadgetMan            Backup: ian@linuxfromscratch.org   |
- |  ICQ: 16007717 & 106532995      Web   : http://www.ichilton.co.uk  |
- |--------------------------------------------------------------------|
- |          Your mouse has moved. Windows must be restarted           |
- |         for the change to take effect.  Reboot now? [ OK ]         |
- \--------------------------------------------------------------------/
- 
-
-
+-- 
+JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  doug@it-he.org
+Fun things to do with the Ultima games            http://www.it-he.org
+Developing a U6/U7 clone                          http://ire.it-he.org
+d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
+uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

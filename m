@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129693AbRBVDNr>; Wed, 21 Feb 2001 22:13:47 -0500
+	id <S129782AbRBVDTi>; Wed, 21 Feb 2001 22:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129782AbRBVDNh>; Wed, 21 Feb 2001 22:13:37 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:31757 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129693AbRBVDNd>; Wed, 21 Feb 2001 22:13:33 -0500
-Date: Wed, 21 Feb 2001 21:13:30 -0600
-To: John Heil <kerndev@sc-software.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.2
-Message-ID: <20010221211330.A21010@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.10.10102211811430.1005-100000@penguin.transmeta.com> <Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com>
-Mime-Version: 1.0
+	id <S131095AbRBVDT2>; Wed, 21 Feb 2001 22:19:28 -0500
+Received: from rhinocomputing.com ([161.58.241.147]:61456 "EHLO
+	rhinocomputing.com") by vger.kernel.org with ESMTP
+	id <S129782AbRBVDTW>; Wed, 21 Feb 2001 22:19:22 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com>; from kerndev@sc-software.com on Wed, Feb 21, 2001 at 06:31:18PM +0000
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
+Message-ID: <14996.34104.791600.203558@rhino.thrillseeker.net>
+Date: Wed, 21 Feb 2001 22:19:20 -0500
+From: Billy Harvey <Billy.Harvey@thrillseeker.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.2
+In-Reply-To: <peter@cadcamlab.org> Wednesday, 21 February 2001 21:13:30 -0600
+In-Reply-To: <Pine.LNX.4.10.10102211811430.1005-100000@penguin.transmeta.com>
+	<Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com>
+	<20010221211330.A21010@cadcamlab.org>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I get the following error in a make bzImage:
 
-[John Heil]
-> Which -ac series patch does this match up with or superceed ie should
-> this be considered superior to -ac19 ?
-
-Neither "supercedes" the other -- they are different trees.  The -ac
-series has some patches that Linus may never get because they are
-experimental, or still buggy.
-
-If you want stability, run the real Linus 2.4.  If you want all the
-really minor bug fixes and more of the experimental code, run -ac.  If
-you want production quality, run your kernel on a test server before
-deploying.  (As always!)
-
-Peter
+nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw] \)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
+make[1]: Entering directory `/usr/src/linux/arch/i386/boot'
+ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
+ld: cannot open binary: No such file or directory
+make[1]: *** [bbootsect] Error 1
+make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
+make: *** [bzImage] Error 2

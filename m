@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315593AbSFJR3B>; Mon, 10 Jun 2002 13:29:01 -0400
+	id <S315595AbSFJRaV>; Mon, 10 Jun 2002 13:30:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315595AbSFJR3A>; Mon, 10 Jun 2002 13:29:00 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:63016 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S315593AbSFJR27>; Mon, 10 Jun 2002 13:28:59 -0400
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+	id <S315606AbSFJRaU>; Mon, 10 Jun 2002 13:30:20 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:9934 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S315595AbSFJRaR>; Mon, 10 Jun 2002 13:30:17 -0400
+Date: Mon, 10 Jun 2002 10:29:09 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Oliver Neukum <oliver@neukum.name>
+Cc: Roland Dreier <roland@topspin.com>, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-In-Reply-To: <52d6v19r9n.fsf@topspin.com>
-	<20020608.222903.122223122.davem@redhat.com>
-	<15619.9534.521209.93822@nanango.paulus.ozlabs.org>
-	<20020609.212705.00004924.davem@redhat.com>
-	<523cvv9laj.fsf@topspin.com>
-	<20020610170309.GC14252@opus.bloom.county>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 10 Jun 2002 10:28:55 -0700
-Message-ID: <52u1ob82lk.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+Message-ID: <20020610172909.GE14252@opus.bloom.county>
+In-Reply-To: <52d6v19r9n.fsf@topspin.com> <523cvv9laj.fsf@topspin.com> <20020610170309.GC14252@opus.bloom.county> <200206101922.26985.oliver@neukum.name>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
+On Mon, Jun 10, 2002 at 07:22:26PM +0200, Oliver Neukum wrote:
+> 
+> > > So is the consensus now that in general drivers should make sure any
+> > > buffers passed to pci_map/unmap are aligned to SMP_CACHE_BYTES (and a
+> > > multiple of SMP_CACHE_BYTES in size)?  In other words if a driver uses
+> > > an unaligned buffer it should be fixed unless we can prove (and
+> > > document in a comment :) that it won't cause problems on an arch
+> > > without cache coherency and with a writeback cache.
+> >
+> > And how about we don't call it SMP_CACHE_BYTES too?  The processors
+> > where this matters certainly aren't doing SMP...
+> 
+> Definitely we should call it something different so we can limit it to 
+> architectures that need it.
 
-    Roland> So is the consensus now that in general drivers should
-    Roland> make sure any buffers passed to pci_map/unmap are aligned
-    Roland> to SMP_CACHE_BYTES (and a multiple of SMP_CACHE_BYTES in
-    Roland> size)?  In other words if a driver uses an unaligned
-    Roland> buffer it should be fixed unless we can prove (and
-    Roland> document in a comment :) that it won't cause problems on
-    Roland> an arch without cache coherency and with a writeback
-    Roland> cache.
+No.  We should just make it come out to a nop for arches that don't need
+it.  Otherwise we'll end up with ugly things like:
+#ifdef CONFIG_NOT_CACHE_COHERENT
+...
+#else
+...
+#endif
 
-    Tom> And how about we don't call it SMP_CACHE_BYTES too?  The
-    Tom> processors where this matters certainly aren't doing SMP...
+All over things like USB...
 
-Fair enough... there is of course L1_CACHE_BYTES but I'm not positive
-that's always the right thing.  If we want to introduce a new constant
-then we will have to touch every arch (which is not necessarily a
-killer but it means "fixed" drivers won't compile for everyone until
-their arch is fixed).
-
-What would you propose?  I don't have strong feelings about the exact
-form of a solution but I would like to decide something so we can have
-a standard way of fixing drivers that use unaligned DMA buffers (and
-convincing maintainers to apply the patches).
-
-Thanks,
-  Roland
-
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

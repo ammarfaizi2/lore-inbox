@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264487AbTLZFKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 00:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTLZFKJ
+	id S264485AbTLZFHL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 00:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTLZFHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 00:10:09 -0500
-Received: from [64.65.177.98] ([64.65.177.98]:11766 "EHLO mail.pacrimopen.com")
-	by vger.kernel.org with ESMTP id S264487AbTLZFKD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 00:10:03 -0500
-Subject: Re: 2.6.0 problems
-From: Joshua Schmidlkofer <kernel@pacrimopen.com>
-To: dan@eglifamily.dnsalias.net
-Cc: Eric <eric@cisu.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0312260106510.1888-100000@eglifamily.dnsalias.net>
-References: <Pine.LNX.4.44.0312260106510.1888-100000@eglifamily.dnsalias.net>
-Content-Type: text/plain
-Message-Id: <1072415388.27022.214.camel@menion.home>
+	Fri, 26 Dec 2003 00:07:11 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:19206 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S264485AbTLZFHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 00:07:09 -0500
+Date: Fri, 26 Dec 2003 03:17:46 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22: Sending data using raw IP. HELP!!
+Message-ID: <20031226051745.GI14954@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>,
+	linux-kernel@vger.kernel.org
+References: <3FEB9C70.9060504@tait.co.nz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 25 Dec 2003 21:09:48 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FEB9C70.9060504@tait.co.nz>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-25 at 17:07, dan@eglifamily.dnsalias.net wrote:
-> On Thu, 25 Dec 2003, Eric wrote:
-> 
-> > On Thursday 25 December 2003 02:57 pm, dan@eglifamily.dnsalias.net wrote:
-> > > I grabbed the 2.6.0 code yesterday. But when I tried to compile a
-> > > modular kernel, I got a *LOT* of unresolved symbols in the modules. I'm
-> > > attaching the stderr output from depmod's run of make modules_install.
-> > 	I had this problem with a RH9 install. Instead of modutils, upgrade the the 
-> > latest module-init-tools from ftp://kernel.org.
-> > 	The problem is that most of the module loading code has been moved from 
-> > userspace to kernel code to make module loading more portable. Be sure to 
-> > follow the upgrade instructions carefully. If done correctly it will keep 
-> > your old modutils in case you load a 2.4.x kernel and will default to the new 
-> > module-init-tools for 2.6.x kernels.
-> 
-> I'll try that, thanks!
-> 
-> Any ideas on the blank screen issue?
-> 
-> --- Dan
+Em Fri, Dec 26, 2003 at 03:26:56PM +1300, Dmytro Bablinyuk escreveu:
+> I need to send a data out using raw IP.
+> For start I tried to send an ICMP response using the code below, but it 
+> gives me a error (kernel 2.4.22) and clears the skb buffer without 
+> sending it.
 
+Could you please send this message to the linux-net@vger.kernel.org mailing
+list? That is the proper place for these kinds of questions.
 
-I took module-init-tools out of Redhat Severn beta, and I upgraded init
-scripts, ethtool, and module-init-tools at the same time, it worked vary
-nicely.
+Thanks,
 
--- 
-VB programmers ask why no one takes them seriously, 
-it's somewhat akin to a McDonalds manager asking employees 
-why they don't take their 'career' seriously.
-
+- Arnaldo

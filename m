@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282829AbRK0HJM>; Tue, 27 Nov 2001 02:09:12 -0500
+	id <S282827AbRK0HLw>; Tue, 27 Nov 2001 02:11:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282830AbRK0HIw>; Tue, 27 Nov 2001 02:08:52 -0500
-Received: from web14510.mail.yahoo.com ([216.136.224.169]:36881 "HELO
-	web14510.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S282829AbRK0HIq>; Tue, 27 Nov 2001 02:08:46 -0500
-Message-ID: <20011127070845.55943.qmail@web14510.mail.yahoo.com>
-Date: Mon, 26 Nov 2001 23:08:45 -0800 (PST)
-From: sekhar raja <manamraja@yahoo.com>
-Subject: Re: Doubt in Kernel Timers
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011127083602.0d19d985.johnpol@2ka.mipt.ru>
+	id <S282828AbRK0HLm>; Tue, 27 Nov 2001 02:11:42 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:35495 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S282827AbRK0HLf>; Tue, 27 Nov 2001 02:11:35 -0500
+From: "Alex Riesen" <riesen@synopsys.COM>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.16 alsa 0.5.12 mixer ioctl problem
+Date: Tue, 27 Nov 2001 08:11:24 +0100
+Message-ID: <HKEMJNBMMEMMAEHPEBGNCEBNCBAA.riesen@synopsys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, all
 
-Do we need to Stop the timers if we want to Restart
-the timers with new expiry time. 
+just tried to compile the mentioned alsa drivers under 2.4.16.
+Mixer doesnt work, yes. It compiles, installs, loads. And
+any program trying to open mixer (through libasound) get EINVAL.
 
-I see in some implementations the timers are not
-stoped before before they restart. Is it correct?
+All is compiled with gcc-2.95.3,
+single CPU, with APIC (is any sense to enable it on
+uniprocessors?).
 
-Thanks in Advance
--Rajasekhar
+Does anybody know what to do about it?
 
---- Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> On Mon, 26 Nov 2001 04:55:17 -0800 (PST)
-> sekhar raja <manamraja@yahoo.com> wrote:
-> 
-> > What do i mean is with out Doing add_timer() can
-> we
-> > use del_timer(). 
-> 
-> george anzinger is right, you may del_timer() at any
-> time.
-> If the timer was actually queued, del_timer()
-> returns 0, otherwise, it
-> returns 1.
-> 
-> But you should use del_timer_sync() to be sure, that
-> your timer function
-> is not currentky running on other CPU.
-> 
-> 
-> > Thanks in Advance
-> > -Rajasekhar 
-> ---
-> WBR. //s0mbre
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1
+-alex

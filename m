@@ -1,79 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269884AbUJSXBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270322AbUJTJ4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269884AbUJSXBj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270191AbUJSWzm
+	id S270322AbUJTJ4a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 05:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270057AbUJTJu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:55:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:61321 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270071AbUJSWqU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:20 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257321011@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:13 -0700
-Message-Id: <10982257333598@kroah.com>
+	Wed, 20 Oct 2004 05:50:27 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:15289 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S270113AbUJTJr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 05:47:56 -0400
+Date: Wed, 20 Oct 2004 02:47:47 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] change {get,put}_filesystem prototypes to static inlines
+Message-ID: <20041020094747.GA2102@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.7, 2004/10/06 11:20:43-07:00, greg@kroah.com
+Al,
 
-[PATCH] PCI: clean up the comments in search.c to be correct.
-
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Any objections/comments to something like this?
 
 
- drivers/pci/search.c |   18 ++++++++----------
- 1 files changed, 8 insertions(+), 10 deletions(-)
+
+Remove unneeded get_fs_type prototype.  Move get_filesystem and
+put_filesystem to fs.h and make them static inline.
+
+Signed-off-by: cw@f00f.org
 
 
-diff -Nru a/drivers/pci/search.c b/drivers/pci/search.c
---- a/drivers/pci/search.c	2004-10-19 15:27:21 -07:00
-+++ b/drivers/pci/search.c	2004-10-19 15:27:21 -07:00
-@@ -1,10 +1,10 @@
- /*
-  * 	PCI searching functions.
-  *
-- *	Copyright 1993 -- 1997 Drew Eckhardt, Frederic Potter,
-- *				David Mosberger-Tang
-- *	Copyright 1997 -- 2000 Martin Mares <mj@ucw.cz>
-- *	Copyright 2003 -- Greg Kroah-Hartman <greg@kroah.com>
-+ *	Copyright (C) 1993 -- 1997 Drew Eckhardt, Frederic Potter,
-+ *					David Mosberger-Tang
-+ *	Copyright (C) 1997 -- 2000 Martin Mares <mj@ucw.cz>
-+ *	Copyright (C) 2003 -- 2004 Greg Kroah-Hartman <greg@kroah.com>
+ fs/filesystems.c   |   11 -----------
+ fs/super.c         |    5 -----
+ include/linux/fs.h |   12 ++++++++++++
+ 3 files changed, 12 insertions(+), 16 deletions(-)
+
+
+===== fs/filesystems.c 1.19 vs edited =====
+--- 1.19/fs/filesystems.c	2004-10-18 22:26:38 -07:00
++++ edited/fs/filesystems.c	2004-10-20 02:40:35 -07:00
+@@ -30,17 +30,6 @@
+ static struct file_system_type *file_systems;
+ static rwlock_t file_systems_lock = RW_LOCK_UNLOCKED;
+ 
+-/* WARNING: This can be used only if we _already_ own a reference */
+-void get_filesystem(struct file_system_type *fs)
+-{
+-	__module_get(fs->owner);
+-}
+-
+-void put_filesystem(struct file_system_type *fs)
+-{
+-	module_put(fs->owner);
+-}
+-
+ static struct file_system_type **find_filesystem(const char *name)
+ {
+ 	struct file_system_type **p;
+===== fs/super.c 1.125 vs edited =====
+--- 1.125/fs/super.c	2004-10-19 08:00:43 -07:00
++++ edited/fs/super.c	2004-10-20 02:40:32 -07:00
+@@ -39,11 +39,6 @@
+ #include <linux/kobject.h>
+ #include <asm/uaccess.h>
+ 
+-
+-void get_filesystem(struct file_system_type *fs);
+-void put_filesystem(struct file_system_type *fs);
+-struct file_system_type *get_fs_type(const char *name);
+-
+ LIST_HEAD(super_blocks);
+ spinlock_t sb_lock = SPIN_LOCK_UNLOCKED;
+ 
+===== include/linux/fs.h 1.352 vs edited =====
+x--- 1.352/include/linux/fs.h	2004-10-19 02:40:29 -07:00
++++ edited/include/linux/fs.h	2004-10-20 02:40:35 -07:00
+@@ -7,6 +7,7 @@
   */
  
- #include <linux/init.h>
-@@ -258,12 +258,6 @@
-  * @from: Previous PCI device found in search, or %NULL for new search.
-  *
-  * Iterates through the list of known PCI devices.  If a PCI device is
-- * found with a matching @vendor and @device, a pointer to its device structure is
-- * returned.  Otherwise, %NULL is returned.
-- * A new search is initiated by passing %NULL to the @from argument.
-- * Otherwise if @from is not %NULL, searches continue from next device on the global list.
-- *
-- * Iterates through the list of known PCI devices.  If a PCI device is
-  * found with a matching @vendor and @device, the reference count to the
-  * device is incremented and a pointer to its device structure is returned.
-  * Otherwise, %NULL is returned.  A new search is initiated by passing %NULL
-@@ -325,6 +319,10 @@
-  * A new search is initiated by passing %NULL to the @from argument.
-  * Otherwise if @from is not %NULL, searches continue from next device
-  * on the global list.
-+ *
-+ * NOTE: Do not use this function anymore, use pci_get_class() instead, as
-+ * the pci device returned by this function can disappear at any moment in
-+ * time.
-  */
- struct pci_dev *
- pci_find_class(unsigned int class, const struct pci_dev *from)
-
+ #include <linux/config.h>
++#include <linux/module.h>
+ #include <linux/linkage.h>
+ #include <linux/limits.h>
+ #include <linux/wait.h>
+@@ -1537,6 +1538,17 @@
+ extern int vfs_stat(char __user *, struct kstat *);
+ extern int vfs_lstat(char __user *, struct kstat *);
+ extern int vfs_fstat(unsigned int, struct kstat *);
++
++/* WARNING: This can be used only if we _already_ own a reference */
++static inline void get_filesystem(struct file_system_type *fs)
++{
++	__module_get(fs->owner);
++}
++
++static inline void put_filesystem(struct file_system_type *fs)
++{
++	module_put(fs->owner);
++}
+ 
+ extern struct file_system_type *get_fs_type(const char *name);
+ extern struct super_block *get_super(struct block_device *);

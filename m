@@ -1,77 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279791AbRJ0HzF>; Sat, 27 Oct 2001 03:55:05 -0400
+	id <S278050AbRJ0IDJ>; Sat, 27 Oct 2001 04:03:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279792AbRJ0Hyy>; Sat, 27 Oct 2001 03:54:54 -0400
-Received: from torvi.fmi.fi ([193.166.211.16]:14355 "EHLO torvi.fmi.fi")
-	by vger.kernel.org with ESMTP id <S279791AbRJ0Hyj>;
-	Sat, 27 Oct 2001 03:54:39 -0400
-From: Kari Hurtta <hurtta@leija.mh.fmi.fi>
-Message-Id: <200110270755.f9R7t9hh028454@leija.fmi.fi>
-Subject: Re: [off topic?] Re: [PATCH] strtok --> strsep in framebuffer drivers
- (part 2)
-In-Reply-To: <200110270700.f9R70AkT028190@leija.fmi.fi>
-Date: Sat, 27 Oct 2001 10:55:09 +0300 (EEST)
-CC: =?ISO-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL95a (25)]
+	id <S278046AbRJ0IDA>; Sat, 27 Oct 2001 04:03:00 -0400
+Received: from mail014.mail.bellsouth.net ([205.152.58.34]:13382 "EHLO
+	imf14bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S278042AbRJ0ICo>; Sat, 27 Oct 2001 04:02:44 -0400
+Message-ID: <3BDA6A4F.D73EC73A@mandrakesoft.com>
+Date: Sat, 27 Oct 2001 04:03:27 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=ISO-8859-1
-X-Filter: torvi: 2 received headers rewritten with id 20011027/24797/01
-X-Filter: torvi: ID 23602, 1 parts scanned for known viruses
-X-Filter: leija.fmi.fi: ID 23375, 1 parts scanned for known viruses
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+To: Pavel Roskin <proski@gnu.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] More ioctls for VIA sound driver, Flash 5 now fixed
+In-Reply-To: <Pine.LNX.4.33.0110270256210.7888-100000@portland.hansa.lan>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > René Scharfe wrote:
+Pavel Roskin wrote:
 > 
-> > NAME
-> >        strsep - extract token from string
-> > [...]
-> > RETURN VALUE
-> >        The strsep() function returns a pointer to the  token,  or
-> >        NULL if delim is not found in stringp.
-> > 
-> > If strsep returns NULL, and you dereference it -> Oops.
-> > 
-> > 
-> > ! if (!this_opt)
-> > 	continue;
+> Hi, Jeff!
 > 
-> Is that manual page incorrect?
+> > > Flash 5 plugin plays just fine after applying the patch (check e.g.
+> > > http://wcrb.com/sparks.html)
+> >
+> > Thanks, applied.
+> >
+> > I always thought SNDCTL_DSP_NONBLOCK was stupid and never implemented
+> > it, since the same can be accomplished via fcntl(2).  But not only this
+> > but also some soundmodem utilities require this ioctl.  Sigh.  :)
 > 
-> I would think that 
+> I'm more surprised that every driver should implement those ioctls
+> individually.  There is no common ioctl handler for non-OSS based drivers.
+> There is almost no code sharing between sound drivers.  As a result, every
+> driver comes with it's unique set of bugs and limitations :-)
+
+This is very true...  Zab, Alan, I, and others complain about this often
+:)
+
+
+> I just hope that ALSA will solve this problem.
+
+Agreed.  I am hoping to finish my review of ALSA before 2.5 is
+released.  That's the direction we are heading for in 2.5, but a it
+needs outside review first, and at least one thing removed from their
+kernel code (software rate conversion in the kernel).
+
+
+> Here's another unique limitation of of the VIA driver.  The maximal
+> fragment size is limited to PAGE_SIZE (scan for VIA_MAX_FRAG_SIZE).  This
+> is just 4k.  Flash plugin version 4 (not 5) tries to set fragment size to
+> 8k, but doesn't check the result and plays the sound at "double speed".
+> I believe that it plays the first half of every fragment.
 > 
-> 	strsep() returns NULL  when *stringp points to '\0' character
-> 	
-> 	and that if delim is not found in stringp then stringp
-> 	is just advanced to '\0' character of string (and original
-> 	*stringp value is returned)
+> A workaround that actually works is to replace PAGE_SIZE with
+> (2*PAGE_SIZE) and PAGE_SHIFT with (PAGE_SHIFT+1).
 > 
-> If that is not true, then these all patches are incorrect.
-> Namely last token will be skipped.
+> For comparison, ymfpci.c allows fragment size up to 32k.  It also tries to
+> allocate 32k first (see DMABUF_DEFAULTORDER), then 16k, 8k and finally 4k.
+> 
+> Perhaps the same could be done in the VIA driver.  But maybe there is some
+> real reason to limit fragments to 4k?  Is there anything special with 4k
+> apart from it being PAGE_SIZE on i386?
 
-Seems that I have also good to talk to mayself....
+I do not recall if there are any hidden limitations, but I do not think
+there are.
 
-lib/string.c tells truth.
+Most of the job, I believe, would involve s/PAGE_SIZE/card->sg_buf_size/
 
-strsep() returns NULL when *stringp is NULL.
 
-if delim is not found *stringp is set to NULL (and original
-*stringp value is returned).
+> From what I see in via_chan_buffer_init(), it tries to allocate enough
+> 4k-sized buffers for the current chan->frag_number and chan->frag_size.
+> This is very different from other drivers that try to allocate one
+> contiguous buffer as big as the system allows and then limit the fragment
+> size accordingly.
 
-Because kernel code claims that 
+Correct and that is intentional -- the one big buffer approach is
+horrible.  If the system is heavily fragmented, one-big-alloc will fail,
+and limit the total size of your audio buffer.
 
- * It returns empty tokens, too, behaving exactly like the libc function
- * of that name. In fact, it was stolen from glibc2 and de-fancy-fied.
- * Same semantics, slimmer shape. ;)
+That is the beauty of scatter-gather hardware.  No matter how badly the
+system memory is fragmented, you can usually satisfy multiple small
+malloc requests, when larger requests would fail.
 
-quoted manual page IS incorrect (at least if it describes glibc2 function.)
+So, the preferred allocation algorithm would be:
+
+	if (OSS fragment size <= PAGE_SIZE)
+		allocate chan->pgtbl[] in PAGE_SIZE chunks
+	else
+		allocate chan->pgtbl[] in oss_frag_size chunks
+
+Another key thing to rememeber is that pci_alloc_consistent usually
+returns a -minimum- of one page, so it's useless to allocate less than
+that, without switching the entire driver to the pci_pool_xxx API.
+
+
+> I understand that Flash 4 is obsoleted by Flash 5 that now works, but
+> who knows if other programs need large fragments?  Do you think it should
+> be fixed?  What do you think would be the right fix?
+
+I agree that the driver should support >PAGE_SIZE fragments.  And I will
+gladly accept any tested patch which changes the driver to do such.  I'm
+too busy at the moment to tackle it myself.
+
+	Jeff
+
 
 -- 
-          /"\                           |  Kari 
-          \ /     ASCII Ribbon Campaign |    Hurtta
-           X      Against HTML Mail     |
-          / \                           |
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

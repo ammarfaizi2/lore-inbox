@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267577AbRG2J2S>; Sun, 29 Jul 2001 05:28:18 -0400
+	id <S267579AbRG2JZ7>; Sun, 29 Jul 2001 05:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267580AbRG2J2I>; Sun, 29 Jul 2001 05:28:08 -0400
-Received: from pD951F4D6.dip.t-dialin.net ([217.81.244.214]:25984 "EHLO
-	emma1.emma.line.org") by vger.kernel.org with ESMTP
-	id <S267577AbRG2J2D>; Sun, 29 Jul 2001 05:28:03 -0400
-Date: Sun, 29 Jul 2001 11:28:10 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010729112810.C9109@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010729011552.B9350@emma1.emma.line.org> <Pine.LNX.4.33L.0107282046560.11893-100000@imladris.rielhome.conectiva> <20010729020812.D9350@emma1.emma.line.org> <20010728195132.M30957@bluemug.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20010728195132.M30957@bluemug.com>
-User-Agent: Mutt/1.3.19i
+	id <S267577AbRG2JZs>; Sun, 29 Jul 2001 05:25:48 -0400
+Received: from hood.tvd.be ([195.162.196.21]:62062 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S267579AbRG2JZe>;
+	Sun, 29 Jul 2001 05:25:34 -0400
+Date: Sun, 29 Jul 2001 11:19:19 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: herbert@gondor.apana.org.au
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Paul Mackerras <paulus@linuxcare.com.au>
+Subject: Re: Patch in 2.2.18pre21 breaks fbcon logo
+In-Reply-To: <20010728180801.A671@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.05.10107291112320.10841-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, 28 Jul 2001, Mike Touloumtzis wrote:
+On Sat, 28 Jul 2001, it was written:
+> The following patch that appeared in 2.2.18pre21 breaks the fbcon logo.
+> Anyone knows what it was for?
 
-> You are blurring the boundaries between "undocumented behavior" and
-> "OS-specific behavior".  fsync() on a directory to sync metadata is a
-> defined (according to my copy of fsync(2)), Linux-specific behavior.
-> It is also very reasonable IMHO and in keeping with the traditional
-> Unix notion of directories as lists of files.
+When switching to a new VC, the palette must be set after the switch to the new
+VC. This matters for consoles where the palette handling is different for
+different video modes and thus depends on the current VC (different VCs may use
+a different video mode).
 
-No-one claims that fsync() the directory is a bad interface - it's
-non-portable however. Actually, chattr +S is well-documented - it just
-doesn't work on ReiserFS or Minix for now, and it may be unnecessarily
-slow on ext2.
+As an example, imagine switching from an 8-color pseudocolor console to a
+15-bit directcolor console.
 
-As pointed out more than once, "synchronous meta data" is documented e.
-g.  for FreeBSD, so in at least these two cases, the box relies on
-documented behaviour.
+Iff it introduced a problem, are you sure it wasn't fixed in a later 2.2.x
+release? If not, please compare with the corresponding 2.4.x console code.
 
-> http://www.google.com/search?q=autoconf
-> 
-> Writing portable Unix software has always meant some degree
-> of system-specific accomodation.  It's a bummer but it's life;
-> otherwise Unix wouldn't evolve.
+Hmmm... something jumps into my mind. Probably this change means the 16-color
+logo must use the VGA palette now, just like on 2.4.x. Fixes for that are on my
+webpage:
 
-How can autoconf figure if you need to fsync() the directory? Apart from
-that, which Unix MTA uses autoconf?
+    http://home.tvd.be/cr26864/Linux/fbdev/logo.html
 
-Remember, the whole discussion is about getting rid of the need for
-chattr +S and offering the admin the chance to mount or flag a directory
-for synchronous meta data updates.
+Linus applied them in recent 2.4.x.
 
--- 
-Matthias Andree
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

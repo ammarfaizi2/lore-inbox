@@ -1,57 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132224AbRDFRxj>; Fri, 6 Apr 2001 13:53:39 -0400
+	id <S132220AbRDFSCw>; Fri, 6 Apr 2001 14:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132301AbRDFRx2>; Fri, 6 Apr 2001 13:53:28 -0400
-Received: from andrew.Triumf.CA ([142.90.106.59]:20494 "EHLO andrew.triumf.ca")
-	by vger.kernel.org with ESMTP id <S132281AbRDFRxT>;
-	Fri, 6 Apr 2001 13:53:19 -0400
-Date: Fri, 6 Apr 2001 10:52:23 -0700 (PDT)
-From: Andrew Daviel <andrew@andrew.triumf.ca>
-Reply-To: Andrew Daviel <advax@triumf.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: syslog insmod please!
-In-Reply-To: <Pine.LNX.4.32.0104060429500.17426-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.30.0104061001490.6216-100000@andrew.triumf.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131724AbRDFSCn>; Fri, 6 Apr 2001 14:02:43 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31608 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132281AbRDFSCd>; Fri, 6 Apr 2001 14:02:33 -0400
+Date: Fri, 6 Apr 2001 20:22:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2 times faster rawio and several fixes (2.4.3aa3)
+Message-ID: <20010406202205.N28118@athlon.random>
+In-Reply-To: <20010406183440.B28118@athlon.random> <20010406190701.H28118@athlon.random> <20010406190232.A20258@gruyere.muc.suse.de> <20010406193621.M28118@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010406193621.M28118@athlon.random>; from andrea@suse.de on Fri, Apr 06, 2001 at 07:36:21PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Apr 2001, various people (Ion, David, James) wrote:
->Recent versions of modutils .. log to .. /var/log/ksymoops
->kmod only works when the user calles for the service ..
->consider unix.o
+On Fri, Apr 06, 2001 at 07:36:21PM +0200, Andrea Arcangeli wrote:
+> 2/4Mbytes naturally aligned area). so probably I will take the vmalloc way
 
-I'm still using 2.2 kernel where unix.o isn't a module and
-/var/log/ksymoops doesn't exist, so I suppose that my original suggestion
-would work there, no ?
+As expected vmalloc additional 2 tlbs aren't visible in the numbers (that
+are mostly dominated by I/O anyways), I think it's the best solution to avoid
+the order 2 multipage:
 
-In the usual game of catchup I guess that if RedHat issued a patch to
-insmod for RH6 then indeed insmod would be included in r+ootkits.
-Currently lr+k4,5 etc. can be detected by tripwire or my rkdet since they
-change ls, ps & netstat, but k+nark can't. I haven't seen it in a r+ootkit
-yet but it's only a matter of time.
+alpha:/home/andrea # time ./rawio-bench 
+Opening /dev/raw1
+Allocating 50MB of memory
+Reading from /dev/raw1
+Writing data to /dev/raw1
 
-I presume /var/log/ksymoops is local only (unless you take steps to copy
-it remotely) ?
+real    0m5.241s
+user    0m0.002s
+sys     0m1.119s
+alpha:/home/andrea # time ./rawio-bench 
+Opening /dev/raw1
+Allocating 50MB of memory
+Reading from /dev/raw1
+Writing data to /dev/raw1
 
-rkdet works on the basis of "I don't care how you got in, but
-you mess with /bin/ps and I'll panic the firewall". (of course, if
-an intruder finds it running under an identifiable name they can kill it)
-I'd like to extend this to LKM based cloaking schemes.
-I'd looked at LIDS in the past but don't want to patch the kernel.
-Besides, I'm not sure whether LIDS module locking allows lkm to run
-to load "good" modules like iso9660 on demand.
-Loading modules is OK; I can use an unpredictable name to hide it from
-scripts & kids.
+real    0m5.176s
+user    0m0.003s
+sys     0m1.128s
+alpha:/home/andrea # time ./rawio-bench 
+Opening /dev/raw1
+Allocating 50MB of memory
+Reading from /dev/raw1
+Writing data to /dev/raw1
 
-Again, is there any way to detect a module such as k+nark if someone has
-edited it out of the module list (by moving the "next" pointer) ?
+real    0m5.196s
+user    0m0.002s
+sys     0m1.132s
+alpha:/home/andrea # time ./rawio-bench 
+Opening /dev/raw1
+Allocating 50MB of memory
+Reading from /dev/raw1
+Writing data to /dev/raw1
 
+real    0m5.477s
+user    0m0.004s
+sys     0m1.146s
+alpha:/home/andrea # time ./rawio-bench 
+Opening /dev/raw1
+Allocating 50MB of memory
+Reading from /dev/raw1
+Writing data to /dev/raw1
 
-("r*kit" mungled to foil search engines - maybe)
--- 
-Andrew Daviel, TRIUMF, Canada
-security@triumf.ca
+real    0m5.217s
+user    0m0.004s
+sys     0m1.149s
+alpha:/home/andrea # 
 
+Tomorrow maybe I will try to speed it up furhter using the desing described in
+the first email.
+
+The s/kmem_cache_alloc/vmalloc/ change is here for now and it is rock solid
+for me (regression testing is still happy):
+
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.3/rawio-2
+
+I think it's ok for inclusion.
+
+Andrea

@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUIOPfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUIOPhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUIOPfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266474AbUIOPfZ
+	id S266481AbUIOPhV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUIOPhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:35:25 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:56151 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266467AbUIOPfR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:35:17 -0400
-Message-ID: <9e47339104091508354280713c@mail.gmail.com>
-Date: Wed, 15 Sep 2004 11:35:16 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] DRM: add missing pci_enable_device()
-Cc: Dave Airlie <airlied@linux.ie>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Evan Paul Fletcher <evanpaul@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095250966.19930.25.camel@localhost.localdomain>
+	Wed, 15 Sep 2004 11:37:21 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:64722 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266481AbUIOPg6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:36:58 -0400
+Date: Wed, 15 Sep 2004 17:35:28 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.8.1/x86] The kernel is _always_ compiled with -msoft-float
+Message-ID: <20040915153528.GE24818@thundrix.ch>
+References: <20040915021418.A1621@natasha.ward.six>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200409131651.05059.bjorn.helgaas@hp.com>
-	 <Pine.LNX.4.58.0409140026430.15167@skynet>
-	 <200409140845.59389.bjorn.helgaas@hp.com>
-	 <Pine.LNX.4.58.0409150008130.23838@skynet>
-	 <9e47339104091416416b9ae310@mail.gmail.com>
-	 <1095250966.19930.25.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0H629O+sVkh21xTi"
+Content-Disposition: inline
+In-Reply-To: <20040915021418.A1621@natasha.ward.six>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004 13:22:48 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Mer, 2004-09-15 at 00:41, Jon Smirl wrote:
-> > pci_enable/disable_device are correct in the dyn-minor patch. They
-> > also appear to correct in the currently checked in DRM cvs. If fbdev
-> > is loaded DRM does not do pci_enable/disable_device. It is assumed
-> > that these calls are handled by the fbdev device.
-> 
-> If you are calling pci_disable_device at all in the fb driver or DRI
-> driver it is wrong, always wrong, always will be wrong for the main
-> head. The video device is almost unique in that when you unload all
-> the video drivers vgacon still owns and is using it. On some devices
-> that needs PCI master enabled because of internal magic (like
-> rendering text modes from the bios via SMM traps)
-> 
 
-How do I trigger this mode on a card supported by DRM so that we can test it?
+--0H629O+sVkh21xTi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Salut,
+
+On Wed, Sep 15, 2004 at 02:14:18AM +0600, Denis Zaitsev wrote:
+> Why this kernel is always compiled with the FP emulation for x86?
+> This is the line from the beginning of arch/i386/Makefile:
+>=20
+> CFLAGS +=3D -pipe -msoft-float
+>=20
+> And it's hardcoded, it does not depend on CONFIG_MATH_EMULATION.  So,
+> is this just a typo or not?
+
+The problem  is that  the kernel can't  use the  FPU. I think  this is
+because  its context  is  not  saved on  context  switch (userland  ->
+kernel),  so  we'd end  up  messing up  the  FPU  state, and  userland
+applications  would get  silly results  for calculations  with context
+switches in between.
+
+Thus  we force gcc  to use  the library  functions for  floating point
+arith, and  since we  don't link  against gcc's lib,  FPU users  get a
+fancy linker error.
+
+If  you want to  use floating  point arith  inside the  kernel, you're
+probably wrong wanting it. If you really need it, you can
+
+a) emulate it using fixed-point math on unsigned long or
+b) manually save the FPU state, load your operations into it, operate,
+   get the results and restore the FPU state.
+
+I have yet to see someone  who really needs to do floating point maths
+inside the kernel.
+
+			    Tonnerre
+
+--0H629O+sVkh21xTi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBSGE//4bL7ovhw40RAjQ+AJ95LaxvepvOXyLz4fXlulAhR6nBkACeM3I8
+J7B0uYaFsdEnXNnyDGSSQIs=
+=MI0z
+-----END PGP SIGNATURE-----
+
+--0H629O+sVkh21xTi--

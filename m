@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUIJUbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUIJUeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267765AbUIJUbT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 16:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267767AbUIJUbT
+	id S267767AbUIJUeX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 16:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUIJUeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 16:31:19 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:42951 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S267765AbUIJUbR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 16:31:17 -0400
-Date: Fri, 10 Sep 2004 19:51:29 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: sdake@mvista.com,
-       Discussion of clustering software components including
-	 GFS <linux-cluster@redhat.com>,
-       Daniel Phillips <phillips@redhat.com>
-Cc: openais@lists.osdl.org, linux-ha-dev@lists.linux-ha.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-cluster] New virtual synchrony API for the kernel: was Re: [Openais] New API in openais
-Message-ID: <20040910175129.GT7359@marowsky-bree.de>
-References: <1093941076.3613.14.camel@persist.az.mvista.com> <1093973757.5933.56.camel@cherrybomb.pdx.osdl.net> <1093981842.3613.42.camel@persist.az.mvista.com> <200409011115.45780.phillips@redhat.com> <1094104992.5515.47.camel@persist.az.mvista.com>
+	Fri, 10 Sep 2004 16:34:23 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:6834 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267767AbUIJUeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 16:34:22 -0400
+Subject: Re: [PATCH] BSD Jail LSM (2/3)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Serge Hallyn <serue@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <1094847787.2188.101.camel@serge.austin.ibm.com>
+References: <1094847705.2188.94.camel@serge.austin.ibm.com>
+	 <1094847787.2188.101.camel@serge.austin.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094844708.18107.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1094104992.5515.47.camel@persist.az.mvista.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 10 Sep 2004 20:31:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-09-01T23:03:12,
-   Steven Dake <sdake@mvista.com> said:
+On Gwe, 2004-09-10 at 21:23, Serge Hallyn wrote:
+> Attached is a patch against the security Kconfig and Makefile to support
+> bsdjail, as well as the bsdjail.c file itself.  bsdjail offers
+> functionality similar to (but more limited than) the vserver patch.
 
-I've been pretty busy the last couple of days, so please bear with me
-for my late reply.
+Looking over the code the first question I would ask is that it supports
+AF_INET but not AF_INET6. That seems a bit limited in todays internet
+environment. 
 
-A virtual synchrony group messaging component would certainly be
-immensely helpful. As it pretty strongly ties to membership events (as
-you very correctly point out), I do think we need to review the APIs
-here.
+> A process in a jail lives under a chroot which is not vulnerable to the
+> well-known chdir(...)(etc)chroot(.) attack against normal chroots, and
+> may be locked to one ip address.  For additional features, please see
+> Documentation/bsdjail.txt, which is included in the next patch.
 
-Could you post some sample code and how / where you'd propose to merge
-it in?
+You can break out with someone co-operating from outside the jail but
+that I guess is pretty harmless anyway. 
 
-Also, again, I'm not sure this needs to be in the kernel. Do you have
-upper bounds of the memory consumption? Would the speed really benefit
-from being in the kernel?
-
-OTOH, all other networking protocols such as TCP, SCTP or even IP/Sec
-live in kernel space, so clearly there's prior evidence of this being a
-reasonable idea.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	   \\\  /// 
-SUSE Labs, Research and Development \honk/ 
-SUSE LINUX AG - A Novell company     \\// 
-
+Alan

@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263563AbUCTWpS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 17:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUCTWpS
+	id S263565AbUCTWue (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 17:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUCTWue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 17:45:18 -0500
-Received: from holomorphy.com ([207.189.100.168]:47497 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263563AbUCTWpO (ORCPT
+	Sat, 20 Mar 2004 17:50:34 -0500
+Received: from ns.suse.de ([195.135.220.2]:26063 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263565AbUCTWub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 17:45:14 -0500
-Date: Sat, 20 Mar 2004 14:45:00 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: rmk@arm.linux.org.uk, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040320224500.GP2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	rmk@arm.linux.org.uk, Andrew Morton <akpm@osdl.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org
-References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com> <20040320222639.K6726@flint.arm.linux.org.uk>
+	Sat, 20 Mar 2004 17:50:31 -0500
+Date: Sat, 20 Mar 2004 23:50:30 +0100
+From: Olaf Hering <olh@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm2
+Message-ID: <20040320225030.GB8542@suse.de>
+References: <20040314172809.31bd72f7.akpm@osdl.org> <20040315185458.GA17332@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20040320222639.K6726@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040315185458.GA17332@mars.ravnborg.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 12:50:53PM -0800, William Lee Irwin III wrote:
->> There are other reasons for doing it, e.g. unusual TLB attributes
->> and/or unusual pagetable structures backing the virtual region. I don't
->> see anyone standing up and screaming for more functionality than cache
->> coherency and/or disablement now, so as far as I'm concerned,
->> remap_area_pages() (or rmk's stuff) kills the issue.
+ On Mon, Mar 15, Sam Ravnborg wrote:
 
-On Sat, Mar 20, 2004 at 10:26:39PM +0000, Russell King wrote:
-> I'm no longer planning on this.  In fact, I see a future where I tell
-> people who want to use sound on ARM to go screw themselves because
-> there doesn't seem to be an acceptable solution to this problem.
-> Of course, this will lead to dirty hacks by many people who *REQUIRE*
-> sound to work, but I guess we just don't care about that.
-> (Yes, I'm pissed off over this issue.)
-
-This is the exact opposite of what I'd hoped come of this discussion.
-ISTR something about remap_area_pages() missing several pieces, but
-I pretty much need some kind of clarification to know what. Well, that,
-and I presumed your fixups for ALSA were headed toward mainline
-regardless after coping with whatever issue dwmw2 had (e.g. returning
-pfn's or something).
+> > 
+> > +kbuild-fix-early-dependencies.patch
+> > +kbuild-fix-early-dependencies-fix.patch
+> > 
+> >  Parallel build fix
+> 
+> Hi Andrew - here is an update, that includes the posted fixes.
+> It also fixes 'make sgmldocs', using correct path to docproc.
+> 
+> It replaces the above two patches, but description is still ok.
 
 
--- wli
+> diff -Nru a/scripts/Makefile b/scripts/Makefile
+> --- a/scripts/Makefile	Mon Mar 15 19:51:20 2004
+> +++ b/scripts/Makefile	Mon Mar 15 19:51:20 2004
+> @@ -17,10 +13,7 @@
+>  subdir-$(CONFIG_MODVERSIONS)	+= genksyms
+>  
+>  # Let clean descend into subdirs
+> -subdir-	+= lxdialog kconfig
+> -
+> -# fixdep is needed to compile other host programs
+> -$(addprefix $(obj)/,$(filter-out fixdep,$(always)) $(subdir-y)): $(obj)/fixdep
+> +subdir-	+= basic lxdialog kconfig
+>  
+>  # dependencies on generated files need to be listed explicitly
+>  
+
+I think that one made it into rc2. It breaks uml compilation, 
+
+  CC      kernel/acct.o
+  IKCFG   kernel/ikconfig.h
+  GZIP    kernel/config_data.gz
+  IKCFG   kernel/config_data.h
+/bin/sh: line 1: scripts/bin2c: No such file or directory
+make[1]: *** [kernel/config_data.h] Error 1
+make: *** [kernel] Error 2
+error: Bad exit status from /var/tmp/rpm-tmp.18419 (%build)
+
+looks like IKCFG does not depend on scripts/bin2c anymore?
+
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262286AbTJDQJF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 12:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTJDQJE
+	id S262202AbTJDQD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 12:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTJDQD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 12:09:04 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:41614 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262286AbTJDQJB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 12:09:01 -0400
-Message-ID: <3F7EF082.3020702@namesys.com>
-Date: Sat, 04 Oct 2003 20:08:34 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Max A. Krasilnikov" <pseudo@colocall.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs one user DoS?
-References: <20031004120625.GA41175@colocall.net>
-In-Reply-To: <20031004120625.GA41175@colocall.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Oct 2003 12:03:56 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:50428 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262202AbTJDQDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 12:03:55 -0400
+From: "Mail Delivery Service" <smtpprogram@aol.com>
+To: "Network User" <user@homeserver.com>
+Subject: {Virus?} Abort Announcement
+Mime-Version: 1.0
+Content-type: multipart/mixed; boundary="ragtmyt"
+Message-Id: <20031004160348.22CD1908EE@stationcentrale.com>
+Date: Sat,  4 Oct 2003 16:03:48 +0000 (UTC)
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be infected
+X-MailScanner-SpamCheck: not spam,
+	SpamAssassin (Message larger than max testing size)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max A. Krasilnikov wrote:
+--ragtmyt
+Content-Type: text/plain; charset="us-ascii"; name="VirusWarning.txt"
+Content-Disposition: inline; filename="VirusWarning.txt"
+Content-Transfer-Encoding: quoted-printable
 
->Hi!
->I have found such strange thing:
->
->pseudo@avalon at 14:04:00  ~> dd if=/dev/zero of=file bs=1 count=0 seek=1000000000000
->
->After that my Intel Celeron 800 MHz/384M RAM 60G/Seagate U6 under
->Linux-2.4.22-grsec on reiserfs was utilized 100% for more than 2 hours.
->dd process can't be killed.
->
->Is this my flow or real bug?
->
->  
->
-it is fixed in reiser4.  linux has a lot of DOS vulerabilities to logged 
-in users, mostly due to the ability to consume all of some resource or 
-another.  forgive me for not discussing them publicly.;-)
+Warning: This message has had one or more attachments removed
+Warning: (bkrmis.exe, msg-21837-279.html).
+Warning: Please read the "VirusWarning.txt" attachment(s) for more informat=
+ion.
 
--- 
-Hans
+This is a message from the MailScanner E-Mail Virus Protection Service
+----------------------------------------------------------------------
+The original e-mail attachment "msg-21837-279.html"
+was believed to be infected by a virus and has been replaced by this warning
+message.
 
+If you wish to receive a copy of the *infected* attachment, please
+e-mail helpdesk and include the whole of this message
+in your request. Alternatively, you can call them, with
+the contents of this message to hand when you call.
+
+At Sat Oct  4 12:03:50 2003 the virus scanner said:
+   msg-21837-279.html contains Exploit.IFrame.Gen=20
+
+Note to Help Desk: Look on the MailScanner in /var/spool/MailScanner/quaran=
+tine/20031004 (message 22CD1908EE).
+
+--ragtmyt
+Content-Type: text/plain; charset="us-ascii"; name="VirusWarning.txt"
+Content-Disposition: inline; filename="VirusWarning.txt"
+Content-Transfer-Encoding: quoted-printable
+
+This is a message from the MailScanner E-Mail Virus Protection Service
+----------------------------------------------------------------------
+The original e-mail attachment "bkrmis.exe"
+was believed to be infected by a virus and has been replaced by this warning
+message.
+
+If you wish to receive a copy of the *infected* attachment, please
+e-mail helpdesk and include the whole of this message
+in your request. Alternatively, you can call them, with
+the contents of this message to hand when you call.
+
+At Sat Oct  4 12:03:50 2003 the virus scanner said:
+   bkrmis.exe contains Worm.Gibe.F=20
+   No programs allowed (bkrmis.exe)
+
+Note to Help Desk: Look on the MailScanner in /var/spool/MailScanner/quaran=
+tine/20031004 (message 22CD1908EE).
+
+--ragtmyt--
 

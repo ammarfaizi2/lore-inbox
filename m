@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318848AbSH1ONO>; Wed, 28 Aug 2002 10:13:14 -0400
+	id <S318844AbSH1OMq>; Wed, 28 Aug 2002 10:12:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318850AbSH1ONO>; Wed, 28 Aug 2002 10:13:14 -0400
-Received: from smtp-out.voila.wanadooportails.com ([193.252.117.74]:2851 "EHLO
-	smtp-out.voila.wanadooportails.com") by vger.kernel.org with ESMTP
-	id <S318848AbSH1ONM> convert rfc822-to-8bit; Wed, 28 Aug 2002 10:13:12 -0400
-Date: Wed, 28 Aug 2002 16:16:59 +0200
-Message-Id: <H1K50B$AC854D30BB224167685C29984508D6D1@voila.fr>
-Subject: =?iso-8859-1?Q?devfs_cdrom_mount_pb?=
-MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "=?iso-8859-1?Q?qwerty314?=" <qwerty314@voila.fr>
-To: "=?utf-8?Q?linux-kernel?=" <linux-kernel@vger.kernel.org>
-X-XaM3-API-Version: 3.2 (B27)
-X-type: 0
-X-SenderIP: 134.214.65.155
+	id <S318848AbSH1OMk>; Wed, 28 Aug 2002 10:12:40 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26358 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318844AbSH1OMi>; Wed, 28 Aug 2002 10:12:38 -0400
+Subject: Re: Writing files to remote storage
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kevin Liao <kevinliao@iei.com.tw>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <00cf01c24e6b$678127e0$1d0d11ac@ieileb9wqxg5qq>
+References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com>
+	<20020828081412.GA1496@spunk> 
+	<00cf01c24e6b$678127e0$1d0d11ac@ieileb9wqxg5qq>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 28 Aug 2002 15:18:42 +0100
+Message-Id: <1030544322.7290.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-My linux box was runing fine till I decide to try devfs on RH7.3 with 2.4.18-3 kernel
-after some adjustments everything is nearly OK with the new /dev concepts but when I
-try to mount a cdrom it says that the device is not a block device.
-cat /proc/scsi/scsi gives :
+On Wed, 2002-08-28 at 09:17, Kevin Liao wrote:
+> If I mount a remote linux partition through smb or nfs and write one file to
+> that partition. How could I make sure that that file is really written to
+> the remote disk successfully? I know that some cache mechanisms existed in
+> linux kernel. So I guess there may be two possibilities as below:
 
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: PLEXTOR  Model: CD-R   PX-W1610A Rev: 1.02
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: SAMSUNG  Model: CD-ROM SC-152C   Rev: CS05
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-and ls -l /dev/scsi/host0/bus0/target1/lun0/* gives
-crw-rw-rw-    1 root     root      21,   1 jan  1  1970
-/dev/scsi/host0/bus0/target1/lun0/generic
-
-quid?
-why has my cdrom entry switched from a block to a character device and how to cure it ?
-
-thanks                Denis
-
-------------------------------------------
-
-Faites un voeu et puis Voila ! www.voila.fr 
+For NFS at least do an fsync(). Fsync should ensure the data hits the
+server. Whether the server commits to stable storage is protocol and
+configuration dependant (NFS says yes, some implementations fudge it)
+ 
 

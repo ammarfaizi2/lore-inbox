@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266623AbSKGX32>; Thu, 7 Nov 2002 18:29:28 -0500
+	id <S266635AbSKGXle>; Thu, 7 Nov 2002 18:41:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266624AbSKGX32>; Thu, 7 Nov 2002 18:29:28 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:21904 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S266623AbSKGX32>; Thu, 7 Nov 2002 18:29:28 -0500
-Date: Thu, 7 Nov 2002 18:35:37 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Urban Widmark <urban@teststation.com>
-cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: !(smbfs && O_LARGEFILE)
-In-Reply-To: <Pine.LNX.4.44.0211072325490.9298-100000@cola.enlightnet.local>
-Message-ID: <Pine.LNX.4.44.0211071832180.484-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266636AbSKGXle>; Thu, 7 Nov 2002 18:41:34 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:61708
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S266635AbSKGXld>; Thu, 7 Nov 2002 18:41:33 -0500
+Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
+From: Robert Love <rml@tech9.net>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <200211080953.22903.conman@kolivas.net>
+References: <200211080953.22903.conman@kolivas.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Nov 2002 18:48:10 -0500
+Message-Id: <1036712891.764.2055.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-11-07 at 17:53, Con Kolivas wrote:
 
-	Hello Urban ,  Have your 0[0-2]-smbfs-2.4.18-* &
-	smbfs-2.4.18-uid32.patch been put into 2.4.20-rc1 or
-	some simular version of them ?  My main concern it the
-	lfs(Large file support ???) .  Tia , JimL
+> io_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.5.44-mm6 [3]          284.1   28      20      10      3.98
+> 2.5.46 [1]              600.5   13      48      12      8.41
+> 2.5.46-mm1 [5]          134.3   58      6       8       1.88
+> 
+> Big change here. IO load is usually the one we feel the most.
 
-On Thu, 7 Nov 2002, Urban Widmark wrote:
-> On Thu, 7 Nov 2002, Roy Sigurd Karlsbakk wrote:
-> > hi all
-> > When will smbfs support O_LARGEFILE?
-> > I mean - smbfs tells me this, mounted from a win2k server
-> It's in 2.5. You just need to tell smbmount about it, see:
-> http://www.hojdpunkten.ac.se/054/samba/index.html
-> /Urban
---
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Nice.
+
+> Unfortunately I've only run this with preempt enabled so far and I believe 
+> many of the improvements are showing this effect.
+
+Since your aim is desktop performance, I would like it if you always ran
+with kernel preemption enabled.  That is what we are targeting for
+desktop performance.
+
+Good job,
+
+	Robert Love
 

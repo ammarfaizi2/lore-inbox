@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268817AbTCCVPo>; Mon, 3 Mar 2003 16:15:44 -0500
+	id <S268814AbTCCVOc>; Mon, 3 Mar 2003 16:14:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268819AbTCCVPo>; Mon, 3 Mar 2003 16:15:44 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:23762 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S268817AbTCCVPm>;
-	Mon, 3 Mar 2003 16:15:42 -0500
-Date: Mon, 3 Mar 2003 22:25:32 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Antonino Daplas <adaplas@pol.net>, James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-In-Reply-To: <20030303203500.GA2916@vana.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0303032222550.12650-100000@vervain.sonytel.be>
+	id <S268815AbTCCVOc>; Mon, 3 Mar 2003 16:14:32 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:50880 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S268814AbTCCVOb>; Mon, 3 Mar 2003 16:14:31 -0500
+Date: Mon, 03 Mar 2003 15:24:45 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 2.5.63] Teach page_mapped about the anon flag
+Message-ID: <107610000.1046726685@baldur.austin.ibm.com>
+In-Reply-To: <20030303131210.36645af6.akpm@digeo.com>
+References: <20030227025900.1205425a.akpm@digeo.com>
+ <200302280822.09409.kernel@kolivas.org>
+ <20030227134403.776bf2e3.akpm@digeo.com>
+ <118810000.1046383273@baldur.austin.ibm.com>
+ <20030227142450.1c6a6b72.akpm@digeo.com>
+ <103400000.1046725581@baldur.austin.ibm.com>
+ <20030303131210.36645af6.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003, Petr Vandrovec wrote:
->   My main concern now is 12x22 font... Accelerator setup
-> is so costly for each separate painted character that for 8bpp 
-> accelerated version is even slower than unaccelerated one :-(
-> (and almost twice as slow when compared with 2.4.x).
 
-Have you already tried Antonino's patches to use one imageblit for multiple
-characters with (fontwidth % 8) != 0? It should help.
+--On Monday, March 03, 2003 13:12:10 -0800 Andrew Morton <akpm@digeo.com>
+wrote:
 
-BTW, I still have to try it with amifb.
+> It is.  All callers which need to be 100% accurate are under
+> pte_chain_lock().
 
-Gr{oetje,eeting}s,
+Hmm, good point.  Some places may not need perfect accuracy.  Also, if it
+gives a false positive it means someone else is doing an atomic op on it,
+so it's likely to be in transition to/from true anyway.
 
-						Geert
+Ok, you've convinced me.  Please ignore the patch.  I'll hang onto it in
+case we get proved wrong at some point.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Dave
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

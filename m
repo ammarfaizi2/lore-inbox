@@ -1,83 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVATE0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVATEiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbVATE0v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 23:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVATE0v
+	id S262044AbVATEiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 23:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVATEiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 23:26:51 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:13009 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262042AbVATE0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 23:26:48 -0500
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft
-	rt	scheduling
-From: utz lehmann <lkml@s2y4n2c.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, paul@linuxaudiosystems.com, joq@io.com,
-       CK Kernel <ck@vds.kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       alexn@dsv.su.se
-In-Reply-To: <41EEFC4F.1090704@kolivas.org>
-References: <41EEE1B1.9080909@kolivas.org>
-	 <1106180177.4036.27.camel@segv.aura.of.mankind>
-	 <41EEFC4F.1090704@kolivas.org>
-Content-Type: text/plain
-Date: Thu, 20 Jan 2005 05:26:41 +0100
-Message-Id: <1106195201.4180.23.camel@segv.aura.of.mankind>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 19 Jan 2005 23:38:25 -0500
+Received: from lakermmtao03.cox.net ([68.230.240.36]:46011 "EHLO
+	lakermmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S262044AbVATEiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 23:38:16 -0500
+In-Reply-To: <ufad5w07s93.fsf@epithumia.math.uh.edu>
+References: <Pine.LNX.4.30.0501191309500.20626-100000@swamp.bayern.net> <ufad5w07s93.fsf@epithumia.math.uh.edu>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <18FE8C24-6A9D-11D9-A93E-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a3828f1c4d839cf12e8a3b808f7ed34
+Cc: Christoph Hellwig <hch@infradead.org>, Adam Radford <aradford@amcc.com>,
+       Peter Daum <gator@cs.tu-berlin.de>, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: 3ware driver (3w-xxxx) in 2.6.10: procfs entry
+Date: Wed, 19 Jan 2005 23:38:14 -0500
+To: Jason L Tibbitts III <tibbs@math.uh.edu>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-20 at 11:33 +1100, Con Kolivas wrote:
-> utz lehmann wrote:
-> > @@ -2406,6 +2489,10 @@ void scheduler_tick(void)
-> >  	task_t *p = current;
-> >  
-> >  	rq->timestamp_last_tick = sched_clock();
-> > +	if (iso_task(p) && !rq->iso_refractory)
-> > +		inc_iso_ticks(rq, p);
-> > +	else 
-> > +		dec_iso_ticks(rq, p);
-> > 
-> > scheduler_tick() is not only called by the timer interrupt but also form
-> > the fork code. Is this intended? I think the accounting for
-> 
-> The calling from fork code only occurs if there is one millisecond of 
-> time_slice left so it will only very rarely be hit. I dont think this 
-> accounting problem is worth worrying about.
+On Jan 19, 2005, at 21:23, Jason L Tibbitts III wrote:
+>>>>>> "PD" == Peter Daum <gator@cs.tu-berlin.de> writes:
+> You should report the problems you find to them.  They do indicate (in
+> the knowledge base on their web site) that you're going to need the
+> in-engineering files to run on the latest kernels.  It's only recently
+> that the newer tools acquired the ability to control older
+> controllers.
+>
+> According to a recent post from a 3ware employee on linux-ide-arrays,
+> a proper release is expected in February.  Obviously the best solution
+> is that they just give us the source to these tools so that we can fix
+> them ourselves.  Knowing that isn't going to happen I'm happy they're
+> at least giving us something while they catch up with the speed of
+> kernel progress.
+>
+> I can verify the fact that info is busted when the controller is
+> verifying the array; I'll gather some more info and pass this on to
+> 3ware.
 
-I had experimented with throttling runaway RT tasks. I use a similar
-accounting. I saw a difference between counting with or without the
-calling from fork. If i remember correctly the timeout expired too fast
-if the non-RT load was "while /bin/true; do :; done".
-With "while true; do :; done" ("true" is bash buildin) it worked good.
-But maybe it's not important in the real world.
+We have some 3ware 7000 ATA-RAID controllers that I've tested with  
+various
+versions of the tools trying to get them to work:
++---------------+--------------- 
++--------------------------------------------+
+| Kernel        | CLI Utility   | Functionality/Limitations              
+      |
++---------------+--------------- 
++--------------------------------------------+
+|               | 7000 - Stable | Works great, everything OK (Of course  
+:-D) |
+| Debian 2.4.28 |               |                                        
+      |
+|               | 7000 - In-Eng | [N/A] No such tool exists!             
+      |
++---------------+--------------- 
++--------------------------------------------+
+|               | 7000 - Stable | Works ok, except some operations fail  
+with |
+|               |               | unusual errors, and the info stuff  
+doesn't |
+|               |               | really work properly                   
+      |
+|               |               |                                        
+      |
+|               | 7000 - In-Eng | [N/A] No such tool exists!             
+      |
+|               |               |                                        
+      |
+|               | 9000 - Stable | Works great, everything OK, although  
+some  |
+|               |               | operations have status errors, though  
+they |
+|               |               | still function as expected.  This one  
+has  |
+| Debian 2.6.8  |               | an interesting new interface that I  
+like.  |
+|               |               |                                        
+      |
+|               | 9000 - In-Eng | This one lacks the new interface that  
+is   |
+|               |               | present in the tested release, which  
+is    |
+|               |               | kind of weird, given that it is a  
+much     |
+|               |               | newer version.  It also appears to  
+work    |
+|               |               | great on the 3ware 7000 card, but  
+without  |
+|               |               | the weird errors that plagued the  
+stable   |
+|               |               | tool.  This looks promising, but I  
+kinda   |
+|               |               | liked the interface of the 9000 tool.  
+      |
++---------------+--------------- 
++--------------------------------------------+
 
-> 
-> > Futher on i see a fundamental problem with this accounting for
-> > iso_refractory. What if i manage as unprivileged user to run a SCHED_ISO
-> > task which consumes all cpu and only sleeps very short during the timer
-> > interrupt? I think this will nearly lockup or very slow down the system.
-> > The iso_cpu limit can't guaranteed.
-> 
-> Right you are. The cpu accounting uses primitive on-interrupt run time 
-> which as we know is not infallible. To extend this I'll have to keep a 
-> timer based on the sched_clock which is already implemented. That's 
-> something for me to work on.
+Cheers,
+Kyle Moffett
 
-If i understand sched_clock correctly it only has higher resolution if
-you can use tsc. In the non tsc case it's jiffies based. (On x86).
-I think you can easily fool a timer tick/jiffies based accounting and do
-a local DoS.
-Making SCHED_ISO privileged if you don't have a high resolution
-sched_clock is ugly.
-I really like the idea of a unprivileged SCHED_ISO but it has to be safe
-for a multi user system. And the kernel default should be safe for multi
-user.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r   
+!y?(-)
+------END GEEK CODE BLOCK------
 
-cheers
-utz
 

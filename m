@@ -1,66 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTLMEJv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 23:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbTLMEJv
+	id S263645AbTLMEDN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 23:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTLMEDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 23:09:51 -0500
-Received: from [38.119.218.103] ([38.119.218.103]:5814 "HELO
-	mail.bytehosting.com") by vger.kernel.org with SMTP id S263637AbTLMEJt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 23:09:49 -0500
-X-Qmail-Scanner-Mail-From: drunk@conwaycorp.net via digital.bytehosting.com
-X-Qmail-Scanner: 1.20rc3 (Clear:RC:1:. Processed in 0.045737 secs)
-Date: Fri, 12 Dec 2003 22:09:47 -0600
-From: Nathan Poznick <kraken@drunkmonkey.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Handle R_ALPHA_REFLONG relocation on Alpha (2.6.0-test11)
-Message-ID: <20031213040947.GA3447@wang-fu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031213003841.GA5213@wang-fu.org> <yw1xisklwiyt.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-In-Reply-To: <yw1xisklwiyt.fsf@kth.se>
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Dec 2003 23:03:13 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:45842 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S263645AbTLMEDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 23:03:09 -0500
+Message-ID: <3FDA8F5F.1030506@nishanet.com>
+Date: Fri, 12 Dec 2003 23:02:39 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test11 ps2 mouse giving corrupt data?
+References: <200312121236.38692.andrew@walrond.org> <20031212141521.GA27405@ucw.cz>
+In-Reply-To: <20031212141521.GA27405@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik wrote:
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>On Fri, Dec 12, 2003 at 12:36:38PM +0000, Andrew Walrond wrote:
+>  
+>
+>>I have just switched from l2.4 to 2.6 on my thinkpad, and the mouse does 
+>>something wierd when I boot into x (kde)
+>>
+>>startx, then wait for everything to load, then move mouse. Mouse goes crazy, 
+>>menus pop up everywhere as though I were pressing buttons, and after about 3 
+>>seconds, it all settles down and works perfectly.
+>>    
+>>
+>
+>Most likely X does something nasty to the keyboard controller while it
+>is starting up. The psmouse kernel driver has an autosync feature which
+>can get it out of trouble if you don't move the mouse for two seconds.
+>  
+>
+When did the autosync feature arrive?
+It doesn't work for me(k2.6.11 with
+MSI K7N2 Delta nforce2 mboard
+and k2.6.11 with Shuttle Xpc SK41G
+FX41 mboard with VIA fsb) if ps2
+kvm switch(Belkin) is switched away.
 
-Thus spake M?ns Rullg?rd:
-> Which gcc and binutils versions do you use?  I've seen some variation
-> in which relocations they produce.
+When sync is lost on my pc's I have to
+reboot. Symptoms are the same, on X or
+text term--any mouse movement triggers
+selects and buttons down but the correct
+events do not occur.
 
-I'm using gcc 3.3.2 and binutils 2.14.90.0.7.  The patch shouldn't hurt
-when using versions which may produce other relocations, correct?  If
-R_ALPHA_REFLONG isn't generated, then that bit of the switch statement
-just wouldn't be hit.
+With a kvm switch k-2.6.? loses psmouse
+sync on the off pc. Rebooting is the only
+solution. I got tired of this and moved the
+mouse(logitech trackman fx) to one pc,
+so the other only has to boot with the
+mouse attached either to kvm or ps2
+port on pc. That's fine until moving the
+mouse back and forth for rebooting
+causes the pc with X running to lose
+sync. Then it can't regain sync.
 
-
---=20
-Nathan Poznick <kraken@drunkmonkey.org>
-
-If you write something wrong enough, I'll be glad to make up a new
-witticism just for you. -- Larry Wall
-
-
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/2pELYOn9JTETs+URAmbEAKCf7ZnkMs4QS9zqcBszcYc/zwyo4gCfeiI4
-oAgu42bjxG5D0D+vWugDtQ0=
-=QTel
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+-Bob

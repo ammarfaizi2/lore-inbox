@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266049AbRF1RWh>; Thu, 28 Jun 2001 13:22:37 -0400
+	id <S266046AbRF1RWp>; Thu, 28 Jun 2001 13:22:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266047AbRF1RWC>; Thu, 28 Jun 2001 13:22:02 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:47820 "EHLO
-	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266046AbRF1RVh>; Thu, 28 Jun 2001 13:21:37 -0400
-Message-ID: <3B3B6750.5EC2D4E5@vnet.ibm.com>
-Date: Thu, 28 Jun 2001 12:20:16 -0500
-From: Todd Inglett <tinglett@vnet.ibm.com>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3.c4eb i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: "David S. Miller" <davem@redhat.com>,
-        tgall%rchland.vnet@RCHGATE.RCHLAND.IBM.COM,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC: Changes for PCI
-In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com> <15162.33158.683289.641171@pizda.ninka.net> <3B3B5FCE.EF80E5E9@vnet.ibm.com> <3B3B62D1.A11A4444@mandrakesoft.com>
+	id <S266042AbRF1RWk>; Thu, 28 Jun 2001 13:22:40 -0400
+Received: from t2.redhat.com ([199.183.24.243]:12786 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S266046AbRF1RWL>; Thu, 28 Jun 2001 13:22:11 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <01062811090501.01130@spc.esa.lanl.gov> 
+In-Reply-To: <01062811090501.01130@spc.esa.lanl.gov> 
+To: scole@lanl.gov
+Cc: linux-kernel@vger.kernel.org, esr@thyrsus.com
+Subject: Re: 2.4.5-ac20 five more undocumented symbols 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 28 Jun 2001 18:21:52 +0100
+Message-ID: <6505.993748912@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> 2.5 is right around the corner, and sysdata should handle PCI
-> domains/segments just fine in 2.4.
-> 
-> Why do we need to patch 2.4 at all right now?   Since 2.5 is close I
-> don't think it's a big deal saying "use 2.5+ for >256 physical buses"
 
-I agree...and we can always maintain a 2.4 patch on the side to handle
-the bus limit.
+scole@lanl.gov said:
+> CONFIG_MTD_CFI_BE_BYTE_SWAP CONFIG_MTD_CFI_LART_BIT_SWAP
+> CONFIG_MTD_CFI_LE_BYTE_SWAP CONFIG_MTD_CFI_VIRTUAL_ER 
 
--- 
--todd
+Read the l-k archives.
+
+--
+dwmw2
+
+

@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265550AbUAPP42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 10:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265546AbUAPPxq
+	id S265538AbUAPPtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 10:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265546AbUAPPtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 10:53:46 -0500
-Received: from [217.73.129.129] ([217.73.129.129]:39810 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S265493AbUAPPxH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 10:53:07 -0500
-Date: Fri, 16 Jan 2004 17:52:33 +0200
-Message-Id: <200401161552.i0GFqXWU012657@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: [2.4.18]: Reiserfs: vs-2120: add_save_link: insert_item	returned -28
-To: reiser@namesys.com, linux-kernel@vger.kernel.org
-References: <200401091622.41352.lkml@kcore.org> <1074241063.2251.41.camel@tribesman.namesys.com> <4007A54A.3030005@namesys.com>
+	Fri, 16 Jan 2004 10:49:09 -0500
+Received: from jik.kamens.brookline.ma.us ([66.92.77.120]:48016 "EHLO
+	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
+	id S265538AbUAPPtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 10:49:06 -0500
+From: Jonathan Kamens <jik@kamens.brookline.ma.us>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16392.2027.90408.850335@jik.kamens.brookline.ma.us>
+Date: Fri, 16 Jan 2004 10:48:59 -0500
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Updated on UDMA BadCRC errors + subsequent problems (was: Is it safe to ignore UDMA BadCRC errors?)
+In-Reply-To: <200401161546.i0GFkkpa002053@81-2-122-30.bradfords.org.uk>
+References: <16368.20794.147453.255239@jik.kamens.brookline.ma.us>
+	<16389.63781.783923.930112@jik.kamens.brookline.ma.us>
+	<16391.24288.194579.471295@jik.kamens.brookline.ma.us>
+	<200401160747.i0G7ln1I000368@81-2-122-30.bradfords.org.uk>
+	<16392.734.505550.6731@jik.kamens.brookline.ma.us>
+	<200401161546.i0GFkkpa002053@81-2-122-30.bradfords.org.uk>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-Bogosity: No, tests=bogofilter
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+John Bradford writes:
 
-Hans Reiser <reiser@namesys.com> wrote:
->>>vs-2120: add_save_link: insert_item returned -28
->>This is just a warning. You should be able to free some disk space by
->>removing some files.
-HR> why do we generate this warning?  It should be fixed, yes?
+ > Maybe not - the most common cause I've seen for that message in the
+ > logs is trying to access S.M.A.R.T. information when S.M.A.R.T. is
+ > disabled.
+ > 
+ > I.E. the error should be reproducable with:
+ > 
+ > # smartctl -d /dev/hda
+ > # smartctl -a /dev/hda
+ > 
+ > Are you sure you weren't trying to get S.M.A.R.T. info from the
+ > drive at the time the error was logged?
 
-Yes, it is fixed in newer kernels.
+My smartctl wants "-s off" rather than "-d", but other than that,
+you're correct, that sequence of commands does ause the same error to
+appear in the logs.  But why/how would SMART be disabled on the drive?
+I've been running smartd on the drive for weeks with no errors of this
+sort, and I fail to see how SMART would suddenly be disabled on the
+drive with no action on my part, so it seems more likely that some
+other condition caused the error.
 
-Bye,
-    Oleg
+Thanks,
+
+  jik

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270808AbTGPJc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 05:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270810AbTGPJc0
+	id S270820AbTGPJie (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 05:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270822AbTGPJie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 05:32:26 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:18663 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S270808AbTGPJcZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 05:32:25 -0400
-Date: Wed, 16 Jul 2003 11:47:08 +0200 (MEST)
-Message-Id: <200307160947.h6G9l8iW007259@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: andrew.grover@intel.com, hugh@veritas.com, len.brown@intel.com
-Subject: RE: ACPI patches updated (20030714)
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
+	Wed, 16 Jul 2003 05:38:34 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:19216 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S270820AbTGPJid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 05:38:33 -0400
+Date: Wed, 16 Jul 2003 11:53:21 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: LVM2 user space, device mapper, Linux 2.4/2.6 dual boot no-go.
+Message-ID: <20030716095321.GF27177@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jul 2003 12:11:17 -0700, "Grover, Andrew" wrote:
->> From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
->> I would like to see HT_ONLY generalized to parsing the MADT for
->> I/O-APICs. The problem I have is that some mainboards, like my
->> i850 ASUS P4T-E, have I/O-APICs but no MP tables. The only way for
->> the Linux kernel to discover the I/O-APICs on these mainboard is
->> through MADT parsing.
->> 
->> However, this currently requires me to enable all of ACPI, which
->> I don't need or want for many reasons, including code bloat and
->> behavioural side-effects.
->> 
->> Replacing "HT_ONLY" with "MADT_PARSING_ONLY" would be ideal, IMO.
->
->This won't help you. If you have *no* MPS tables, then you need ACPI
->(and specifically the ability to execute the _PRT control methods) for
->interrupt routing information, in addition to ioapic and local apic
->(CPU) enumeration. If this wasn't the case, I'm sure someone would have
->implemented ioapic MADT enumeration code long ago.
+Ok,
 
-:-(
+here's the situation:
 
->Also, nothing is going to fundamentally change the size of the ACPI code
->(but we do keep chipping away at it, as evidenced by the dynamic SDT
->patch, -Os, etc.) but I'd like to hear more about the behavioral
->side-effects you'd mentioned, with an eye towards fixing them.
+I want to test drive 2.6, have 2.4.22-pre3-ac1 with LVM1, Device Mapper
+and XFS. I tried LVM2 user space on 2.4.22, it complained about ioctl
+mismatch (wants 4.x.y, gets 1.m.n). Do I need to disable LVM1?
 
-The main side-effect _was_ seeing the interpreter being run.
-I didn't know it was needed for figuring out IRQ routing.
+On 2.6, lvm lvmdiskscan works, but lvm vgscan stuffs my screen with
+"modprobe junk.", so I reverted to 2.4-with-LVM1-user-space for now.
 
-Concerning code size, the 70K number in ACPI's Kconfig help is
-out of date. A minimal ACPI (all user-selectable suboptions
-disabled) adds 145K to my 2.6.0-test1 kernel.
+Has anyone had success with running the same user-space LVM2 stuff on
+2.4 and 2.6? Which versions of device-mapper and LVM2 do you use for
+that purpose? What are the magic switches in Linux-2.4.22-preX-acY?
 
-/Mikael
+Help appreciated.
+
+-- 
+Matthias Andree

@@ -1,330 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbTIVPYm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 11:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTIVPYm
+	id S263198AbTIVPcY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 11:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbTIVPcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 11:24:42 -0400
-Received: from [61.95.227.64] ([61.95.227.64]:20458 "EHLO gateway.gsecone.com")
-	by vger.kernel.org with ESMTP id S262538AbTIVPYf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 11:24:35 -0400
-Subject: [PATCH 2.6.0-test5][ROSE] timer cleanups
-From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
-To: netdev@oss.sgi.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Global Security One
-Message-Id: <1064244315.4358.54.camel@lima.royalchallenge.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 22 Sep 2003 20:55:15 +0530
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Sep 2003 11:32:24 -0400
+Received: from jimknopf.rz.uni-frankfurt.de ([141.2.22.56]:60388 "EHLO
+	jimknopf.rz.uni-frankfurt.de") by vger.kernel.org with ESMTP
+	id S263198AbTIVPcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 11:32:22 -0400
+Message-ID: <3F6F1605.1040204@slit.de>
+Date: Mon, 22 Sep 2003 17:32:21 +0200
+From: Alexander Achenbach <xela@slit.de>
+Reply-To: xela@slit.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021205 Debian/1.2.1-0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] IDE modules + cmd640 (2.4.22)
+Content-Type: multipart/mixed;
+ boundary="------------010507020301020401040308"
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. Use mod_timer
-2. Use del_timer_sync in rose_loopback_clear 
-3. Use static timer initializaer
-4. Use skb_queue_purge
+This is a multi-part message in MIME format.
+--------------010507020301020401040308
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Hi all.
 
- af_rose.c       |    9 ++------
- rose_link.c     |   21 +++++++++---------
- rose_loopback.c |   37 +++++++--------------------------
- rose_route.c    |    7 ++----
- rose_timer.c    |   62 ++++++++++++++++++--------------------------------------
- 5 files changed, 45 insertions(+), 91 deletions(-)
+This patch intends to fix an unresolved symbol 'init_cmd640_vlb' error
+when compiling kernel 2.4.22 using
 
-diff -urN linux-2.6.0-test5/net/rose/af_rose.c linux-2.6.0-test5-nvk/net/rose/af_rose.c
---- linux-2.6.0-test5/net/rose/af_rose.c	2003-09-09 11:12:05.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/rose/af_rose.c	2003-09-22 16:25:33.000000000 +0530
-@@ -64,6 +64,7 @@
- 
- ax25_address rose_callsign;
- 
-+void rose_init_timers(struct sock *sk);
- /*
-  *	Convert a ROSE address into text.
-  */
-@@ -353,10 +354,8 @@
- 	if (atomic_read(&sk->sk_wmem_alloc) ||
- 	    atomic_read(&sk->sk_rmem_alloc)) {
- 		/* Defer: outstanding buffers */
--		init_timer(&sk->sk_timer);
- 		sk->sk_timer.expires  = jiffies + 10 * HZ;
- 		sk->sk_timer.function = rose_destroy_timer;
--		sk->sk_timer.data     = (unsigned long)sk;
- 		add_timer(&sk->sk_timer);
- 	} else
- 		sk_free(sk);
-@@ -529,8 +528,7 @@
- 	sock->ops    = &rose_proto_ops;
- 	sk->sk_protocol = protocol;
- 
--	init_timer(&rose->timer);
--	init_timer(&rose->idletimer);
-+	rose_init_timers(sk);
- 
- 	rose->t1   = sysctl_rose_call_request_timeout;
- 	rose->t2   = sysctl_rose_reset_request_timeout;
-@@ -576,8 +574,7 @@
- 	sk->sk_sleep    = osk->sk_sleep;
- 	sk->sk_zapped   = osk->sk_zapped;
- 
--	init_timer(&rose->timer);
--	init_timer(&rose->idletimer);
-+	rose_init_timers(sk);
- 
- 	orose		= rose_sk(osk);
- 	rose->t1	= orose->t1;
-diff -urN linux-2.6.0-test5/net/rose/rose_link.c linux-2.6.0-test5-nvk/net/rose/rose_link.c
---- linux-2.6.0-test5/net/rose/rose_link.c	2003-09-09 11:12:05.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/rose/rose_link.c	2003-09-22 18:21:21.000000000 +0530
-@@ -31,26 +31,25 @@
- static void rose_ftimer_expiry(unsigned long);
- static void rose_t0timer_expiry(unsigned long);
- 
--void rose_start_ftimer(struct rose_neigh *neigh)
-+void rose_neigh_init_timers(struct rose_neigh *neigh)
- {
--	del_timer(&neigh->ftimer);
-+	init_timer(&neigh->t0timer);
-+	neigh->t0timer.data     = (unsigned long)neigh;
-+	neigh->t0timer.function = &rose_t0timer_expiry;
- 
-+	init_timer(&neigh->ftimer);
- 	neigh->ftimer.data     = (unsigned long)neigh;
- 	neigh->ftimer.function = &rose_ftimer_expiry;
--	neigh->ftimer.expires  = jiffies + sysctl_rose_link_fail_timeout;
-+}
- 
--	add_timer(&neigh->ftimer);
-+void rose_start_ftimer(struct rose_neigh *neigh)
-+{
-+	mod_timer(&neigh->ftimer, jiffies + sysctl_rose_link_fail_timeout);
- }
- 
- void rose_start_t0timer(struct rose_neigh *neigh)
- {
--	del_timer(&neigh->t0timer);
--
--	neigh->t0timer.data     = (unsigned long)neigh;
--	neigh->t0timer.function = &rose_t0timer_expiry;
--	neigh->t0timer.expires  = jiffies + sysctl_rose_restart_request_timeout;
--
--	add_timer(&neigh->t0timer);
-+	mod_timer(&neigh->t0timer, jiffies + sysctl_rose_restart_request_timeout);
- }
- 
- void rose_stop_ftimer(struct rose_neigh *neigh)
-diff -urN linux-2.6.0-test5/net/rose/rose_loopback.c linux-2.6.0-test5-nvk/net/rose/rose_loopback.c
---- linux-2.6.0-test5/net/rose/rose_loopback.c	2003-09-09 11:12:05.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/rose/rose_loopback.c	2003-09-22 16:31:40.000000000 +0530
-@@ -14,19 +14,17 @@
- #include <net/rose.h>
- #include <linux/init.h>
- 
--static struct sk_buff_head loopback_queue;
--static struct timer_list loopback_timer;
-+static void rose_loopback_timer(unsigned long);
- 
--static void rose_set_loopback_timer(void);
-+static struct sk_buff_head loopback_queue;
-+static struct timer_list loopback_timer = TIMER_INITIALIZER(rose_loopback_timer, 0, 0);
- 
--void rose_loopback_init(void)
-+void __init rose_loopback_init(void)
- {
- 	skb_queue_head_init(&loopback_queue);
--
--	init_timer(&loopback_timer);
- }
- 
--static int rose_loopback_running(void)
-+static inline int rose_loopback_running(void)
- {
- 	return timer_pending(&loopback_timer);
- }
-@@ -43,25 +41,12 @@
- 		skb_queue_tail(&loopback_queue, skbn);
- 
- 		if (!rose_loopback_running())
--			rose_set_loopback_timer();
-+			mod_timer(&loopback_timer, jiffies + 10);
- 	}
- 
- 	return 1;
- }
- 
--static void rose_loopback_timer(unsigned long);
--
--static void rose_set_loopback_timer(void)
--{
--	del_timer(&loopback_timer);
--
--	loopback_timer.data     = 0;
--	loopback_timer.function = &rose_loopback_timer;
--	loopback_timer.expires  = jiffies + 10;
--
--	add_timer(&loopback_timer);
--}
--
- static void rose_loopback_timer(unsigned long param)
- {
- 	struct sk_buff *skb;
-@@ -100,12 +85,6 @@
- 
- void __exit rose_loopback_clear(void)
- {
--	struct sk_buff *skb;
--
--	del_timer(&loopback_timer);
--
--	while ((skb = skb_dequeue(&loopback_queue)) != NULL) {
--		skb->sk = NULL;
--		kfree_skb(skb);
--	}
-+	del_timer_sync(&loopback_timer);
-+	skb_queue_purge(&loopback_queue);
- }
-diff -urN linux-2.6.0-test5/net/rose/rose_route.c linux-2.6.0-test5-nvk/net/rose/rose_route.c
---- linux-2.6.0-test5/net/rose/rose_route.c	2003-09-09 11:12:05.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/rose/rose_route.c	2003-09-22 20:46:44.000000000 +0530
-@@ -49,6 +49,7 @@
- struct rose_neigh *rose_loopback_neigh;
- 
- static void rose_remove_neigh(struct rose_neigh *);
-+void rose_neigh_init_timers(struct rose_neigh *);
- 
- /*
-  *	Add a new route to a node, and in the process add the node and the
-@@ -106,8 +107,7 @@
- 
- 		skb_queue_head_init(&rose_neigh->queue);
- 
--		init_timer(&rose_neigh->ftimer);
--		init_timer(&rose_neigh->t0timer);
-+		rose_neigh_init_timers(rose_neigh);
- 
- 		if (rose_route->ndigis != 0) {
- 			if ((rose_neigh->digipeat = kmalloc(sizeof(ax25_digi), GFP_KERNEL)) == NULL) {
-@@ -389,8 +389,7 @@
- 
- 	skb_queue_head_init(&rose_loopback_neigh->queue);
- 
--	init_timer(&rose_loopback_neigh->ftimer);
--	init_timer(&rose_loopback_neigh->t0timer);
-+	rose_neigh_init_timers(rose_loopback_neigh);
- 
- 	spin_lock_bh(&rose_neigh_list_lock);
- 	rose_loopback_neigh->next = rose_neigh_list;
-diff -urN linux-2.6.0-test5/net/rose/rose_timer.c linux-2.6.0-test5-nvk/net/rose/rose_timer.c
---- linux-2.6.0-test5/net/rose/rose_timer.c	2003-09-09 11:12:05.000000000 +0530
-+++ linux-2.6.0-test5-nvk/net/rose/rose_timer.c	2003-09-22 17:24:25.000000000 +0530
-@@ -33,82 +33,62 @@
- static void rose_timer_expiry(unsigned long);
- static void rose_idletimer_expiry(unsigned long);
- 
--void rose_start_heartbeat(struct sock *sk)
-+void rose_init_timers(struct sock *sk)
- {
--	del_timer(&sk->sk_timer);
-+	rose_cb *rose = rose_sk(sk);
-+
-+	init_timer(&rose->timer);
-+	rose->timer.data     = (unsigned long)sk;
-+	rose->timer.function = &rose_timer_expiry;
- 
-+	init_timer(&rose->idletimer);
-+	rose->idletimer.data     = (unsigned long)sk;
-+	rose->idletimer.function = &rose_idletimer_expiry;
-+
-+	/* initialized by sock_init_data */
- 	sk->sk_timer.data     = (unsigned long)sk;
- 	sk->sk_timer.function = &rose_heartbeat_expiry;
--	sk->sk_timer.expires  = jiffies + 5 * HZ;
-+}
- 
--	add_timer(&sk->sk_timer);
-+void rose_start_heartbeat(struct sock *sk)
-+{
-+	mod_timer(&sk->sk_timer, jiffies + 5 * HZ);
- }
- 
- void rose_start_t1timer(struct sock *sk)
- {
- 	rose_cb *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
--
--	rose->timer.data     = (unsigned long)sk;
--	rose->timer.function = &rose_timer_expiry;
--	rose->timer.expires  = jiffies + rose->t1;
--
--	add_timer(&rose->timer);
-+	mod_timer(&rose->timer, jiffies + rose->t1);
- }
- 
- void rose_start_t2timer(struct sock *sk)
- {
- 	rose_cb *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
--
--	rose->timer.data     = (unsigned long)sk;
--	rose->timer.function = &rose_timer_expiry;
--	rose->timer.expires  = jiffies + rose->t2;
--
--	add_timer(&rose->timer);
-+	mod_timer(&rose->timer, jiffies + rose->t2);
- }
- 
- void rose_start_t3timer(struct sock *sk)
- {
- 	rose_cb *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
--
--	rose->timer.data     = (unsigned long)sk;
--	rose->timer.function = &rose_timer_expiry;
--	rose->timer.expires  = jiffies + rose->t3;
--
--	add_timer(&rose->timer);
-+	mod_timer(&rose->timer, jiffies + rose->t3);
- }
- 
- void rose_start_hbtimer(struct sock *sk)
- {
- 	rose_cb *rose = rose_sk(sk);
- 
--	del_timer(&rose->timer);
--
--	rose->timer.data     = (unsigned long)sk;
--	rose->timer.function = &rose_timer_expiry;
--	rose->timer.expires  = jiffies + rose->hb;
--
--	add_timer(&rose->timer);
-+	mod_timer(&rose->timer, jiffies + rose->hb);
- }
- 
- void rose_start_idletimer(struct sock *sk)
- {
- 	rose_cb *rose = rose_sk(sk);
- 
--	del_timer(&rose->idletimer);
--
--	if (rose->idle > 0) {
--		rose->idletimer.data     = (unsigned long)sk;
--		rose->idletimer.function = &rose_idletimer_expiry;
--		rose->idletimer.expires  = jiffies + rose->idle;
--
--		add_timer(&rose->idletimer);
--	}
-+	if (rose->idle > 0)
-+		mod_timer(&rose->idletimer, jiffies + rose->idle);
- }
- 
- void rose_stop_heartbeat(struct sock *sk)
+     CONFIG_IDE=m
+     CONFIG_BLK_DEV_IDE=m
 
+and an enabled 'CONFIG_BLK_DEV_CMD640' option. The problem would show up
+on the first attempt to run 'depmod' or otherwise deal with IDE modules.
+
+I've not seen any fix for this in any recent prerelease.
+
+The problem is caused by the way 'cmd640' is included in the kernel. If
+
+     CONFIG_BLK_DEV_CMD640=y
+
+(which is the only answer offered besides 'n' for a stock 2.4.22), the
+'cmd640' code will be put into the kernel statically. As 'ide-core.o'
+will be a module and it will contain a reference to the (unexported)
+function 'init_cmd640_vlb' of 'cmd640.c', symbol resolution will fail.
+
+The following patch assumes that 'cmd640' is meant to be an independent
+module now (as all other IDE drivers in 'drivers/ide/pci') if IDE core is
+modular. The patch only adds the required configuration option changes to
+allow an additional answer 'm' for 'CONFIG_BLK_DEV_CMD640' (and disabling
+'y' completely if IDE is modular). Boolean 'CONFIG_BLK_DEV_CMD640_ENHANCED'
+may now be set to 'y' if 'CONFIG_BLK_DEV_CMD640' is either 'y' or 'm'.
+
+With 'CONFIG_BLK_DEV_CMD640=m', the reference to 'init_cmd640_vlb' from
+'ide.c' will be omitted, leaving VLB handling to the respective module
+parameter of 'cmd640.o'.
+
+NB: While I have verified that symbols resolve cleanly and 'cmd640.o' loads
+     without problems, I currently have no hardware to actually test any
+     CMD640 chipsets on (I only added the driver to my configuration for
+     completeness), so I cannot tell whether the modular driver actually
+     works as it should. At least it doesn't break IDE module loading now.
+
+Best regards,
+Alex
+
+[ Please send answers to my From address.
+   I'm not subscribed to the kernel mailing list. ]
+
+--------------010507020301020401040308
+Content-Type: text/plain;
+ name="cmd640fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cmd640fix.diff"
+
+diff -ur linux-2.4.22/drivers/ide/Config.in linux-2.4.22-cmd640fix/drivers/ide/Config.in
+--- linux-2.4.22/drivers/ide/Config.in	Mon Aug 25 13:44:41 2003
++++ linux-2.4.22-cmd640fix/drivers/ide/Config.in	Sun Sep 21 17:03:19 2003
+@@ -27,8 +27,8 @@
+ 
+    comment 'IDE chipset support/bugfixes'
+    if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
+-      dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
+-      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
++      dep_tristate '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86 $CONFIG_BLK_DEV_IDE
++      dep_mbool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
+       dep_bool '  ISA-PNP EIDE support' CONFIG_BLK_DEV_ISAPNP $CONFIG_ISAPNP
+       if [ "$CONFIG_PCI" = "y" ]; then
+ 	 bool '  PCI IDE chipset support' CONFIG_BLK_DEV_IDEPCI
+
+--------------010507020301020401040308--
 

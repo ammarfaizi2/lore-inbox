@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278433AbRJSPck>; Fri, 19 Oct 2001 11:32:40 -0400
+	id <S278430AbRJSP3J>; Fri, 19 Oct 2001 11:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278432AbRJSPc3>; Fri, 19 Oct 2001 11:32:29 -0400
-Received: from [208.132.17.2] ([208.132.17.2]:13828 "HELO aegis.indstorage.com")
-	by vger.kernel.org with SMTP id <S278431AbRJSPcV>;
-	Fri, 19 Oct 2001 11:32:21 -0400
-From: n0ano@indstorage.com
-Date: Fri, 19 Oct 2001 09:52:07 -0600
-To: Ryan Sweet <rsweet@atos-group.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: random reboots of diskless nodes - 2.4.7 (fwd)
-Message-ID: <20011019095207.F13141@tlaloc.indstorage.com>
-In-Reply-To: <Pine.LNX.4.30.0110160228000.18043-100000@core-0>
+	id <S278431AbRJSP3A>; Fri, 19 Oct 2001 11:29:00 -0400
+Received: from cs6625129-123.austin.rr.com ([66.25.129.123]:50188 "HELO
+	dragon.taral.net") by vger.kernel.org with SMTP id <S278430AbRJSP2o>;
+	Fri, 19 Oct 2001 11:28:44 -0400
+Date: Fri, 19 Oct 2001 10:30:41 -0500
+From: Taral <taral@taral.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
+Message-ID: <20011019103041.D30774@taral.net>
+In-Reply-To: <3bceefa6.3cf6.0@panix.com> <3BCEF26E.12D69882@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.30.0110160228000.18043-100000@core-0>; from rsweet@atos-group.nl on Tue, Oct 16, 2001 at 02:28:46AM +0200
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My first guess would be power.  You said you tested the power source.
-Can you get ahold of a power line monitor with a strip chart recorder?
-You might have a situation where the power is normally fine but for some
-reason it could fluctuate at times and kick a machine into reset.
-I assume you've eliminated the possibility of the janitor who unplugs
-a machine to find an outlet for his floor polisher (don't laugh, it's
-happened).
-
-How's the temperature on the machines?  Even if it's OK it would be
-good to get another strip chart recorder on it to make sure the temp
-stays within bounds 24hrs/day.
-
-Also, do you have a serial console attached to each machine?  This is
-the only reliable way to make sure you have every console message that
-came out right before the reboot.
-
-On Tue, Oct 16, 2001 at 02:28:46AM +0200, Ryan Sweet wrote:
+On Thu, Oct 18, 2001 at 04:17:02PM +0100, Arjan van de Ven wrote:
 > 
-> I've posted about this problem before, but in the meantime I've managed to
-> test under several different configurations to help rule out some possible
-> causes.
+> > Exported interfaces are "methods of operation" in the sense of US
+> > Copyright Law.  Copyright Law affords no protection to "methods of
+> > operation".  The GPL, which gains its strength from Copyright Law, also
+> > has no rights in this area.  If a GPLed module does not want other code
+> > using its interfaces, they should not be exported.
 > 
-> Short version: 2.4.7 on nfsroot diskless nodes randomly re-boots and I
-> don't think it is a hardware problem or a problem with the server (which
-> is stable).  Rather than "try this, try that..." I (and more importantly
-> my boss) would really like to find (and then hopefully fix) the root cause
-> of the problem.
-> 
->
->...
->
-> 	- upgraded (replaced) the power supply in all nodes
-> 	- tested power source to computer room, moved to another computer
-> room with better available power, etc...
+> I think you're missing one thing: binary only modules are only allowed
+> because of an exception license grant Linus made for functions that are
+> marked EXPORT_SYMBOL(). EXPORT_SYMBOL_GPL() just says "not part of this 
+> exception grant"....
+
+Fine. I (the hypothetical binary driver maker) will just make two
+modules -- one which is MODULE_LICENCEd GPL, and the other which is not.
+The first will re-export your interfaces as unrestricted ones which the
+second can use. Are we going to start insisting on a transitivity of
+this restriction? If so, then it's possible that a large number of
+interfaces might go...
+
+I also think this is somewhat ridiculous. If I (the binary module maker)
+distribute a program which effectively replicates the functionality of
+insmod without the licence checking, and distribute that program with my
+module, am I violating any restrictions? I don't think so, since it's
+the end-user that ends up linking the kernel to the module. No linked
+products are actually distributed...
 
 -- 
-Don Dugger
-"Censeo Toto nos in Kansa esse decisse." - D. Gale
-n0ano@indstorage.com
-Ph: 303/652-0870x117
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose

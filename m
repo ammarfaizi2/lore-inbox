@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267414AbTBLSvY>; Wed, 12 Feb 2003 13:51:24 -0500
+	id <S267384AbTBLSuf>; Wed, 12 Feb 2003 13:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267415AbTBLSvY>; Wed, 12 Feb 2003 13:51:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32528 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267414AbTBLSvO>; Wed, 12 Feb 2003 13:51:14 -0500
-Date: Wed, 12 Feb 2003 10:57:40 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <jamie@shareable.org>
-cc: mika.penttila@kolumbus.fi, <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Re: [Bug 350] New: i386 context switch very slow compared to
- 2.4 due to wrmsr (performance)
-In-Reply-To: <20030212182305.GA12039@bjl1.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0302121056220.8062-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267394AbTBLSuf>; Wed, 12 Feb 2003 13:50:35 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:23952 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267384AbTBLSue>;
+	Wed, 12 Feb 2003 13:50:34 -0500
+Date: Wed, 12 Feb 2003 18:55:39 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Scott Robert Ladd <scott@coyotegulch.com>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.60 cheerleading...
+Message-ID: <20030212185539.GA20660@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Scott Robert Ladd <scott@coyotegulch.com>,
+	"Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <3E4A6DBD.8050004@pobox.com> <FKEAJLBKJCGBDJJIPJLJGELBELAA.scott@coyotegulch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <FKEAJLBKJCGBDJJIPJLJGELBELAA.scott@coyotegulch.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 12, 2003 at 01:17:27PM -0500, Scott Robert Ladd wrote:
 
-mika.penttila@kolumbus.fi wrote:
-> BTW, why is sysenter supposed to be disabled while in vm86? 
+ > I wonder if testers should post configs that worked, so developers can
+ > compare against configs that failed?
 
-The only reason is to make vm86-mode more "compatible". In other words, 
-trap the GP that happens if SYSENTER_CS is 0, and make sure vm86 mode 
-works the way it historically did.
+Please don't. .configs tend to be huge, and a flood of
+'me too' type posts will increase size of linux-kernel
+dramatically.
 
-We can choose to say "screw it", I guess, and just see if it actually 
-breaks anything.
-
-		Linus
-
+		Dave
+ 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

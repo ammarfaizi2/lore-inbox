@@ -1,182 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319697AbSH3WZh>; Fri, 30 Aug 2002 18:25:37 -0400
+	id <S310190AbSH3Wd0>; Fri, 30 Aug 2002 18:33:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319698AbSH3WZh>; Fri, 30 Aug 2002 18:25:37 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:3844 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S319697AbSH3WZe>;
-	Fri, 30 Aug 2002 18:25:34 -0400
-Date: Fri, 30 Aug 2002 15:28:57 -0700
-From: Greg KH <greg@kroah.com>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] PCI ops cleanups for 2.5.32-bk
-Message-ID: <20020830222857.GC10877@kroah.com>
-References: <20020830220720.GA10783@kroah.com> <20020830222642.GB10877@kroah.com>
+	id <S311025AbSH3WdZ>; Fri, 30 Aug 2002 18:33:25 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:36262 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S310190AbSH3WdY>;
+	Fri, 30 Aug 2002 18:33:24 -0400
+Date: Sat, 31 Aug 2002 00:36:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rmk@arm.linux.org.uk, jsimmons@transvirtual.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.31-serport
+Message-ID: <20020831003618.B33615@ucw.cz>
+References: <E17ktTz-000359-00@flint.arm.linux.org.uk> <20020830.150359.16679671.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020830222642.GB10877@kroah.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020830.150359.16679671.davem@redhat.com>; from davem@redhat.com on Fri, Aug 30, 2002 at 03:03:59PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2002 at 03:26:42PM -0700, Greg KH wrote:
+On Fri, Aug 30, 2002 at 03:03:59PM -0700, David S. Miller wrote:
+>    From: Russell King <rmk@arm.linux.org.uk>
+>    Date: Fri, 30 Aug 2002 22:39:11 +0100
 > 
-> Here's the patch for sparc64.  David, please apply to your tree.
+>    2. What happens if I open and try to read from this port while something
+>       has the serport_ldisc attached?  I suspect that you'll create nice
+>       loop of serio devices in serio.c and an infinite loop when you try to
+>       traverse the list to remove a different serio device.
+>       
+> SERIO devices are not meant to be registered as normal TTYs.
+> At least I don't do this for any of the Sparc serial ports
+> when they are the keyboard/mouse serio device.
 
-And here's the patch for sparc.  I am guessing that it should go to you
-too.
+No, but using serport.c, you can bind a serio to a tty via a line
+discipline, for example if you want a PC serial mouse on /dev/ttyS0 to
+talk to sermouse.c via serio. I don't like the approach much, I hope(d) we
+could switch somewhere below the tty layer, but it sort of works, and
+maybe will have the bugs fixed sooner or later.
 
-thanks,
-
-greg k-h
-
-diff -Nru a/arch/sparc/kernel/pcic.c b/arch/sparc/kernel/pcic.c
---- a/arch/sparc/kernel/pcic.c	Fri Aug 30 13:59:38 2002
-+++ b/arch/sparc/kernel/pcic.c	Fri Aug 30 13:59:38 2002
-@@ -196,36 +196,34 @@
- static int pcic_read_config_dword(struct pci_dev *dev, int where, u32 *value);
- static int pcic_write_config_dword(struct pci_dev *dev, int where, u32 value);
- 
--static int pcic_read_config_byte(struct pci_dev *dev, int where, u8 *value)
-+static int pcic_read_config(struct pci_bus *bus, unsigned int devfn,
-+			    int where, int size, u32 *value)
- {
- 	unsigned int v;
-+	unsigned char busnum = bus->number;
-+	struct linux_pcic *pcic;
-+	unsigned long flags;
-+	/* unsigned char where; */
- 
--	pcic_read_config_dword(dev, where&~3, &v);
--	*value = 0xff & (v >> (8*(where & 3)));
--	return PCIBIOS_SUCCESSFUL;
--}
--
--static int pcic_read_config_word(struct pci_dev *dev, int where, u16 *value)
--{
--	unsigned int v;
--	if (where&1) return PCIBIOS_BAD_REGISTER_NUMBER;
--
--	pcic_read_config_dword(dev, where&~3, &v);
--	*value = 0xffff & (v >> (8*(where & 3)));
--	return PCIBIOS_SUCCESSFUL;
--}
-+	switch (size) {
-+	case 1:
-+		pcic_read_config(bus, devfn, where&~3, 4, &v);
-+		*value = 0xff & (v >> (8*(where & 3)));
-+		return PCIBIOS_SUCCESSFUL;
-+		break;
- 
--static int pcic_read_config_dword(struct pci_dev *dev, int where, u32 *value)
--{
--	unsigned char bus = dev->bus->number;
--	unsigned char device_fn = dev->devfn;
--	/* unsigned char where; */
-+	case 2:
-+		if (where&1) return PCIBIOS_BAD_REGISTER_NUMBER;
- 
--	struct linux_pcic *pcic;
--	unsigned long flags;
-+		pcic_read_config(bus, devfn, where&~3, 4, &v);
-+		*value = 0xffff & (v >> (8*(where & 3)));
-+		return PCIBIOS_SUCCESSFUL;
-+		break;
-+	}
- 
-+	/* size == 4, i.e. dword */
- 	if (where&3) return PCIBIOS_BAD_REGISTER_NUMBER;
--	if (bus != 0) return PCIBIOS_DEVICE_NOT_FOUND;
-+	if (busnum != 0) return PCIBIOS_DEVICE_NOT_FOUND;
- 	pcic = &pcic0;
- 
- 	save_and_cli(flags);
-@@ -233,7 +231,7 @@
- 	pcic_speculative = 1;
- 	pcic_trapped = 0;
- #endif
--	writel(CONFIG_CMD(bus,device_fn,where), pcic->pcic_config_space_addr);
-+	writel(CONFIG_CMD(busnum,devfn,where), pcic->pcic_config_space_addr);
- #if 0 /* does not fail here */
- 	nop();
- 	if (pcic_trapped) {
-@@ -257,52 +255,46 @@
- 	return PCIBIOS_SUCCESSFUL;
- }
- 
--static int pcic_write_config_byte(struct pci_dev *dev, int where, u8 value)
--{
--	unsigned int v;
--
--	pcic_read_config_dword(dev, where&~3, &v);
--        v = (v & ~(0xff << (8*(where&3)))) |
--            ((0xff&(unsigned)value) << (8*(where&3)));
--	return pcic_write_config_dword(dev, where&~3, v);
--}
--
--static int pcic_write_config_word(struct pci_dev *dev, int where, u16 value)
-+static int pcic_write_config(struct pci_bus *bus, unsigned int devfn,
-+			     int where, int size, u32 value)
- {
- 	unsigned int v;
--
--	if (where&1) return PCIBIOS_BAD_REGISTER_NUMBER;
--	pcic_read_config_dword(dev, where&~3, &v);
--	v = (v & ~(0xffff << (8*(where&3)))) |
--	    ((0xffff&(unsigned)value) << (8*(where&3)));
--	return pcic_write_config_dword(dev, where&~3, v);
--}
--
--static int pcic_write_config_dword(struct pci_dev *dev, int where, u32 value)
--{
--	unsigned char bus = dev->bus->number;
--	unsigned char devfn = dev->devfn;
-+	unsigned char busnum = bus->number;
- 	struct linux_pcic *pcic;
- 	unsigned long flags;
- 
-+	switch (size) {
-+	case 1:
-+		pcic_read_config(bus, devfn, where&~3, 4, &v);
-+	        v = (v & ~(0xff << (8*(where&3)))) |
-+	            ((0xff&(unsigned)value) << (8*(where&3)));
-+		return pcic_write_config(bus, devfn, where&~3, 4, v);
-+		break;
-+
-+	case 2:
-+		if (where&1) return PCIBIOS_BAD_REGISTER_NUMBER;
-+		pcic_read_config(bus, devfn, where&~3, 4, &v);
-+		v = (v & ~(0xffff << (8*(where&3)))) |
-+		    ((0xffff&(unsigned)value) << (8*(where&3)));
-+		return pcic_write_config(bus, devfn, where&~3, 4, v);
-+		break;
-+	}
-+
-+	/* size == 4, i.e. dword */
- 	if (where&3) return PCIBIOS_BAD_REGISTER_NUMBER;
--	if (bus != 0) return PCIBIOS_DEVICE_NOT_FOUND;
-+	if (busnum != 0) return PCIBIOS_DEVICE_NOT_FOUND;
- 	pcic = &pcic0;
- 
- 	save_and_cli(flags);
--	writel(CONFIG_CMD(bus,devfn,where), pcic->pcic_config_space_addr);
-+	writel(CONFIG_CMD(busnum,devfn,where), pcic->pcic_config_space_addr);
- 	writel(value, pcic->pcic_config_space_data + (where&4));
- 	restore_flags(flags);
- 	return PCIBIOS_SUCCESSFUL;
- }
- 
- static struct pci_ops pcic_ops = {
--	pcic_read_config_byte,
--	pcic_read_config_word,
--	pcic_read_config_dword,
--	pcic_write_config_byte,
--	pcic_write_config_word,
--	pcic_write_config_dword,
-+	.read =		pcic_read_config,
-+	.write =	pcic_write_config,
- };
- 
- /*
+-- 
+Vojtech Pavlik
+SuSE Labs

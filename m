@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269404AbRHTVLU>; Mon, 20 Aug 2001 17:11:20 -0400
+	id <S269412AbRHTVOK>; Mon, 20 Aug 2001 17:14:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269412AbRHTVLK>; Mon, 20 Aug 2001 17:11:10 -0400
-Received: from [213.4.18.231] ([213.4.18.231]:23826 "EHLO fulanito.nisupu.com")
-	by vger.kernel.org with ESMTP id <S269404AbRHTVK5>;
-	Mon, 20 Aug 2001 17:10:57 -0400
-Message-ID: <009501c129bc$75724ca0$0414a8c0@10>
-From: =?iso-8859-1?Q?Carlos_Fern=E1ndez_Sanz?= 
-	<cfs-lk@fulanito.nisupu.com>
-To: "Ignacio Vazquez-Abrams" <ignacio@openservices.net>,
-        =?iso-8859-1?Q?Carlos_Fern=E1ndez_Sanz?= 
-	<cfs-lk@fulanito.nisupu.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108201659080.11734-100000@terbidium.openservices.net>
-Subject: Re: Fw: select(), EOF...
-Date: Mon, 20 Aug 2001 23:09:53 +0200
+	id <S269413AbRHTVOA>; Mon, 20 Aug 2001 17:14:00 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:34321 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269412AbRHTVNu>; Mon, 20 Aug 2001 17:13:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrey Nekrasov <andy@spylog.ru>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8/2.4.9 problem
+Date: Mon, 20 Aug 2001 23:20:37 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be> <20010819205452Z16128-32383+429@humbolt.nl.linux.org> <20010820011356.A6667@spylog.ru>
+In-Reply-To: <20010820011356.A6667@spylog.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010820211403Z16263-32383+585@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-a strace shows it works differently
+On August 19, 2001 11:13 pm, Andrey Nekrasov wrote:
+> Hello.
+> 
+> I am have problem with "kernel: __alloc_pages: 0-order allocation failed."
+> 
+> 1. syslog kern.*
+> 
+>    ...
+> 	 Aug 19 12:28:16 sol kernel: __alloc_pages: 0-order allocation failed.
+> 	 Aug 19 12:28:37 sol last message repeated 364 times
+> 	 Aug 19 12:29:17 sol last message repeated 47 times
+> [etc]
 
-nanosleep({1, 0}, {1, 0})               = 0
-fstat(3, {st_mode=S_IFREG|0600, st_size=227128, ...}) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], [RT_0], 8) = 0
-rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
-rt_sigprocmask(SIG_SETMASK, [RT_0], NULL, 8) = 0
+Could you please try it with this patch, which will tell us a little more 
+about what's happening (patch -p0):
 
-the file is opened just once (as I expected), and tail sleeps in nanosleep
-() until the file grows. I think strace isn't showing more nanosleep() as it
-should be looping there. BTW what's the reason for the sigprocmask, etc?
-
------ Original Message -----
-From: "Ignacio Vazquez-Abrams" <ignacio@openservices.net>
-To: "Carlos Fernández Sanz" <cfs-lk@fulanito.nisupu.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, August 20, 2001 11:00 PM
-Subject: Re: Fw: select(), EOF...
-
-
-> On Mon, 20 Aug 2001, Carlos Fernández Sanz wrote:
->
-> > How come the process is never runnable unless there's new data in the
-file?
-> > If it was opening and closing the file continously it would be using
-lots of
-> > CPU, while it's 0 if there's no data coming.
->
-> It sleep()s between close() and open().
->
-> --
-> Ignacio Vazquez-Abrams  <ignacio@openservices.net>
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+--- ../2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
++++ ./mm/page_alloc.c	Mon Aug 20 22:05:40 2001
+@@ -502,7 +502,7 @@
+ 	}
+ 
+ 	/* No luck.. */
+-	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
++	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed (gfp=0x%x/%i).\n", order, gfp_mask, !!(current->flags & PF_MEMALLOC));
+ 	return NULL;
+ }
+ 

@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVBYUbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVBYUb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVBYUbV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 15:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVBYUbV
+	id S261330AbVBYUb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 15:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVBYUb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 15:31:21 -0500
-Received: from fire.osdl.org ([65.172.181.4]:34437 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261309AbVBYUbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 15:31:18 -0500
-Date: Fri, 25 Feb 2005 12:31:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Paulo Marques <pmarques@grupopie.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: ARM undefined symbols.  Again.
-In-Reply-To: <20050225202349.C27842@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0502251227480.9237@ppc970.osdl.org>
-References: <20050124154326.A5541@flint.arm.linux.org.uk>
- <20050131161753.GA15674@mars.ravnborg.org> <20050207114359.A32277@flint.arm.linux.org.uk>
- <20050208194243.GA8505@mars.ravnborg.org> <20050208200501.B3544@flint.arm.linux.org.uk>
- <20050209104053.A31869@flint.arm.linux.org.uk> <20050213172940.A12469@flint.arm.linux.org.uk>
- <4210A345.6030304@grupopie.com> <20050225194823.A27842@flint.arm.linux.org.uk>
- <Pine.LNX.4.58.0502251158280.9237@ppc970.osdl.org> <20050225202349.C27842@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Feb 2005 15:31:59 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:20743 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261330AbVBYUbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 15:31:50 -0500
+Date: Fri, 25 Feb 2005 21:34:35 +0100
+To: tony osborne <tonyosborne_a@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why one stack per thread and one heap for all the threads?
+Message-ID: <20050225203435.GB1249@hh.idb.hist.no>
+References: <BAY14-F4195FF14B317E75D3A8EAD95650@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <BAY14-F4195FF14B317E75D3A8EAD95650@phx.gbl>
+User-Agent: Mutt/1.5.6+20040907i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 25 Feb 2005, Russell King wrote:
+On Fri, Feb 25, 2005 at 12:03:19PM +0000, tony osborne wrote:
+> Hi,
 > 
-> We can't say "you must use the current CVS binutils to build the
-> kernel" because that's not a sane toolchain base to build products
-> on.
+> I wish to be personally CC'ed the answers/comments posted to the list in 
+> response to this post
+> 
+> 
+> why in multithreading, each thread has its own stack, but all share the 
+> same heap?
+> I understand that one stack is needed for each thread as each could have 
+> its own procedure call. but why we don't associate a heap for each thread 
+> since each thread can also create dynamically its own data?
+> 
+> 
+Because stack memory management is so simple - all memory above the
+stack pointer is assumed to be free.  (Or below, depending
+on which way the stack grows.)  You allocate more
+simply by incrementing the stack pointer, and free memory by
+decrementing it.  Such a structure isn�'t trivially shareable!
 
-Sure. But it's probably enough that just a couple of core developers would 
-have a CVS version to make sure that when it occasionally happens, it gets 
-noticed quickly enough.
+Heaps on the other hand, have more complex memory management.
+You call into a routine, such as malloc() to reserve memory
+there.  Having several threads doing so simultaneosuly is not
+a problem, so there is no need for separate heaps.  Separate heaps
+would waste memory, as the threads might have very different needs
+for memory.  Sharing is better, when possible.
 
-In other words, I don't think you can say "get the CVS version" to most 
-users, but I do not see for example you you or some of the people around 
-you don't have at least one setup set up with that fixed version.
+If you want separate memory for each thread, consider separate processes
+instead.
 
-This has been going on for at least a year, probably longer. I could 
-understand it if it was a "we found this old bug, and haven't had time to 
-get around it", but what I don't understand is when there's been a tools 
-bug that's been known about for a long time, and apparently nobody has 
-ever even bothered to try the fixed versions.
-
-> And yes, the toolchain peoples point of view is "fix the kernel".
-
-For a known bug where just having _one_ active developer using a fixed 
-tool would mean that this doesn't happen?
-
-That makes no sense. Or, more likely, it means that the toolchain people 
-are incompetent bastards who don't care about bugs and have no pride at 
-all in what they do.
-
-		Linus
+Helge Hafting

@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbVCDM0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVCDM0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbVCDM0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbVCDMWd
+	id S262899AbVCDM0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 07:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbVCDMVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 07:22:33 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35854 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262844AbVCDLyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:54:46 -0500
-Date: Fri, 4 Mar 2005 11:54:39 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davej@redhat.com, torvalds@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304115439.F3932@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, davej@redhat.com,
-	torvalds@osdl.org, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <20050304034410.2ccfba74.akpm@osdl.org>
-Mime-Version: 1.0
+	Fri, 4 Mar 2005 07:21:53 -0500
+Received: from smtp08.auna.com ([62.81.186.18]:61391 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S262892AbVCDL6b convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:58:31 -0500
+Date: Fri, 04 Mar 2005 11:58:30 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: nothing in /proc/fs/nfs/exports ?
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Balsa 2.3.0
+Message-Id: <1109937510l.11030l.0l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050304034410.2ccfba74.akpm@osdl.org>; from akpm@osdl.org on Fri, Mar 04, 2005 at 03:44:10AM -0800
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 03:44:10AM -0800, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > On Fri, Mar 04, 2005 at 03:26:32AM -0800, Andrew Morton wrote:
-> > > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > >
-> > > > On Wed, Mar 02, 2005 at 08:38:12PM -0800, Andrew Morton wrote:
-> > > >  > Grump.  Have all these regressions received the appropriate level of
-> > > >  > visibility on this mailing list?
-> > > > 
-> > > >  Looking at the http://l4x.org/k/ site, it appears that all -mm versions
-> > > >  have broken ARM support with the defconfig, while Linus kernels at least
-> > > >  build fine.
-> > > 
-> > > It's very much in an arch maintainer's interest to make sure that
-> > > cross-compilers are easily obtainable.  Any hints?
-> > 
-> > Been trying to achieve that since it's a FAQ on ARM lists.  Even gone to
-> > the extent of setting up a separate mailing list, getting a volunteer to
-> > track what people want and do the hard work to build them.  That was
-> > about 6 months ago, and I haven't seen any results.
-> 
-> hm.  That's strange.  I'd have thought that 99% of the arm embedded
-> developers cross-build.
+Hi all...
 
-Yes - I think Dan Kegel's cross-tool gets used a fair bit...
+I have problems with NFS in 2.6.11. Just a simple test:
 
-> > Anyway, going back to why -mm doesn't work:
-> > 
-> >  arch/arm/kernel/built-in.o(.init.text+0xb64): In function `$a':
-> >  : undefined reference to `rd_size'
-> >  make[1]: *** [.tmp_vmlinux1] Error 1
+#!/bin/bash
 
-Actually, this highlights another problem - it's ARM binutils again.
-Jan's cross-binutils for ARM doesn't contain the patches to make the
-linker resolve addresses to the _correct_ symbol.  Don't ask me
-where they are, but I'm lead to believe that cross-tool knows.
+service nfslock stop
+service nfs stop
+rm -rf /var/lib/nfs/*
+service nfs start
+service nfslock start
+echo "===== /etc/exports"
+cat /etc/exports
+echo "===== exportsfs -v"
+exportfs -v
+echo "===== /var/lib/nfs/xtab"
+cat /var/lib/nfs/xtab
+echo "===== /proc/fs/nfs/exports"
+cat /proc/fs/nfs/exports
 
-This also means that Jan's compile test is rather worthless for ARM -
-it might be linking a kernel with undefined symbols due to the other
-assembler bug.
 
-> Ah.  Fixed, thanks.
+Results are:
 
-Thanks.
+Stopping NFS statd:                                             [  OK  ]
+Shutting down NFS mountd:                                       [  OK  ]
+Shutting down NFS daemon:                                       [  OK  ]
+Shutting down NFS services:                                     [  OK  ]
+Starting NFS services:                                          [  OK  ]
+Starting NFS daemon:                                            [  OK  ]
+Starting NFS mountd:                                            [  OK  ]
+Starting NFS statd:                                             [  OK  ]
+===== /etc/exports
+/store/media/music      192.168.0.2(ro,no_root_squash,no_subtree_check,insecure)
+===== exportsfs -v
+/store/media/music
+                ibook(ro,wdelay,insecure,no_root_squash,no_subtree_check)
+===== /var/lib/nfs/xtab
+===== /proc/fs/nfs/exports
+# Version 1.1
+# Path Client(Flags) # IPs
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Nothing in xtab ? Nothing in /proc ? Why ?
+
+werewolf:~# df /store
+Filesystem    Type   1K-blocks      Used Available Use% Mounted on
+/dev/hda1     ext3   115377640  39848024  69668704  37% /store
+
+Any hint ?
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.11-jam1 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
+
+

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264962AbUFHKjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264891AbUFHKvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264962AbUFHKjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 06:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbUFHKjr
+	id S264891AbUFHKvA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 06:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264970AbUFHKvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 06:39:47 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:64528 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S264970AbUFHKjp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 06:39:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Patric Ho <patric1972uk@yahoo.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: kenel memory usage question.
-Date: Tue, 8 Jun 2004 13:30:12 +0300
-X-Mailer: KMail [version 1.4]
-References: <20040608095730.39955.qmail@web25109.mail.ukl.yahoo.com>
-In-Reply-To: <20040608095730.39955.qmail@web25109.mail.ukl.yahoo.com>
+	Tue, 8 Jun 2004 06:51:00 -0400
+Received: from mail.codeweavers.com ([216.251.189.131]:9614 "EHLO
+	mail.codeweavers.com") by vger.kernel.org with ESMTP
+	id S264891AbUFHKu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 06:50:58 -0400
+Message-ID: <40C5AA89.4060803@codeweavers.com>
+Date: Tue, 08 Jun 2004 21:01:13 +0900
+From: Mike McCormack <mike@codeweavers.com>
+Organization: Codeweavers
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406081330.12995.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Ingo Molnar <mingo@elte.hu>
+CC: Jakub Jelinek <jakub@redhat.com>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+References: <40C2B51C.9030203@codeweavers.com> <20040606052615.GA14988@elte.hu> <40C2D5F4.4020803@codeweavers.com> <1086507140.2810.0.camel@laptop.fenrus.com> <20040608092055.GX4736@devserv.devel.redhat.com> <40C59FE9.1010700@codeweavers.com> <20040608103221.GA7632@elte.hu>
+In-Reply-To: <20040608103221.GA7632@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 June 2004 12:57, Patric Ho wrote:
-> I am working on linux used in embedded devices. I use
-> following method to calculate the actual amount of
-> memory used by kernel+processes (not including page
-> caches and swap is off in my system):
->
-> (from /proc/meminfo) MemTotal - MemFree - Buffers -
-> Cached.
->
-> I thought this should be a fairly constant number for
-> a minimal kernel, e.g. no network support, and
-> statistics are collected right after login. However
-> when I use different "mem=" kernel cmd-line option, I
-> got quite different numbers:
->
-> 7M: 2580K
-> 8M: 2612K
-> 16M: 2648K
-> 128M: 3584K
 
-some data tables are sized differently depending on RAM
-size (TCP hash table etc. look into dmesg)
 
-> Any idea why this happens? I can even see "Slab:"
-> changes from 1220K when mem=7M to 1968K when mem=128K.
-> It looks like kernel can adjust memory usage depends
-> on the actual physical memory available. I previously
-> thought only page caches can shrink in such way.
--- 
-vda
+Ingo Molnar wrote:
+
+>>I did not investigate this, but others who did think that it is not
+>>possible to create a segment that is reserve only so that does not
+>>unnecessarily consume virtual memory. Apparently ELF allows it, but
+>>Linux doesn't.
+> 
+> 
+> what do you mean by "Linux doesn't"?
+
+Apparently Linux will back all segments by swap space, even if they're 
+marked as non-accessable.  Maybe I was told the wrong thing?  Or maybe 
+the it's just difficult to create such a segment, as Jukub was saying?
+
+In any case, the solution we have now reserves exactly the amount of 
+memory that is needed.  If we were to use a fixed size segment, we would 
+be reserving too much memory most of the time, and preventing shared 
+libraries being loaded at their prefered addresses.
+
+Mike

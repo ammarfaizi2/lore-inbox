@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUEYNZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264741AbUEYNYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbUEYNZi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 09:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264749AbUEYNZi
+	id S264741AbUEYNYS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 09:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbUEYNYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 09:25:38 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:39404 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S264746AbUEYNZa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 09:25:30 -0400
-Message-ID: <40B34946.9030500@g-house.de>
-Date: Tue, 25 May 2004 15:25:26 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: de-de, de-at, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: baptiste coudurier <baptiste.coudurier@free.fr>
-Subject: Re: MORE THAN 10 IDE CONTROLLERS
-References: <40B23D4A.4010708@free.fr>
-In-Reply-To: <40B23D4A.4010708@free.fr>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 May 2004 09:24:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56246 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264741AbUEYNYQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 09:24:16 -0400
+Date: Tue, 25 May 2004 14:24:13 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Matthew Wilcox <willy@debian.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+Message-ID: <20040525132413.GD29154@parcelfarce.linux.theplanet.co.uk>
+References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525130116.GA16852@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040525130116.GA16852@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, May 25, 2004 at 03:01:16PM +0200, Arjan van de Ven wrote:
+> 
+> On Tue, May 25, 2004 at 09:54:53AM -0300, Marcelo Tosatti wrote:
+> > > > Marcelo, feel free to tell me otherwise if you do not want
+> > > > this in the 2.4 tree. 
+> > 
+> > Is this code necessary for PCI-Express devices/busses to work properly?
+> 
+> afaik not. It's an enhancement to make config space access to them somewhat
+> faster, but they just work using the existing method.
 
-baptiste coudurier schrieb:
-| Does anyone know what are major/minors for hdu, hdv, hdw, hdx ?
+It also allows access to the top 3840 bytes of config space.  The *spec*
+says you can't require access to that area for correct functioning of
+the device, but we all know how much people love to follow specs.
 
-not being a professional, i see:
-
-evil@sheep:~$ la /dev/hd?
-brw-rw----    1 root     disk       3,   0 2004-03-10 11:33 /dev/hda
-brw-rw----    1 root     disk       3,  64 2004-03-10 11:33 /dev/hdb
-brw-rw----    1 root     disk      22,   0 2004-03-10 11:33 /dev/hdc
-brw-rw----    1 root     disk      22,  64 2004-03-10 11:33 /dev/hdd
-brw-rw----    1 root     disk      33,   0 2004-03-10 11:40 /dev/hde
-brw-rw----    1 root     disk      33,  64 2004-03-10 11:40 /dev/hdf
-brw-rw----    1 root     disk      34,   0 2004-03-10 11:40 /dev/hdg
-brw-rw----    1 root     disk      34,  64 2004-03-10 11:40 /dev/hdh
-
-so, it's a major number for every controller (e.g. "22" for hdc+hdd each
-belonging to one controller). hdi+hdj would be major 35, minor [0|64] ?
-i'd try this out for hdx and further...
-
-did you try devfs/udev? perhaps it could solve this by itsself....?
-
-Christian.
-
-PS: maybe Documentation/devices.txt helps out too.
-
-- --
-BOFH excuse #75:
-
-There isn't any problem
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAs0lG+A7rjkF8z0wRAmp5AJ985JGLXpxX5rSJnQM0GJNq0LkcIQCfT4hH
-kj4lr37B1urPVTAMiLbMXlE=
-=fohg
------END PGP SIGNATURE-----
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

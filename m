@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262948AbTCKPVv>; Tue, 11 Mar 2003 10:21:51 -0500
+	id <S262946AbTCKPVB>; Tue, 11 Mar 2003 10:21:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262950AbTCKPVu>; Tue, 11 Mar 2003 10:21:50 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:53007 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262948AbTCKPVp>; Tue, 11 Mar 2003 10:21:45 -0500
-Date: Tue, 11 Mar 2003 15:31:55 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Antonino Daplas <adaplas@pol.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-In-Reply-To: <20030309212903.GC16578@vana.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.44.0303111527500.23668-100000@phoenix.infradead.org>
+	id <S262947AbTCKPVB>; Tue, 11 Mar 2003 10:21:01 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:13248 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262946AbTCKPVA>;
+	Tue, 11 Mar 2003 10:21:00 -0500
+Date: Tue, 11 Mar 2003 09:06:54 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Oliver Neukum <oliver@neukum.name>
+cc: Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: PCI driver module unload race?
+In-Reply-To: <200303111000.40387.oliver@neukum.name>
+Message-ID: <Pine.LNX.4.33.0303110902010.1003-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Hi James,
->   I tried to use fb_cursor and I have quite a lot problems with
-> it:
+> > > I think it's not easy. I haven't studied the code completely yet, but
+> > > e.g. when you attach a device to a driver you also have to get a
+> > > reference to the driver.
+> >
+> > You get a link to the driver, but you can't increment the module count
+> > of the driver at that time, as we have to be able to remove a module
+> > somehow :)
+> 
+> That is simple. Export a generic way to disconnect a driver from a device.
 
-I'm working on the code today. I just finished the final touchs on the 
-pixmap buffer code. The next step is to make the pixmaps have flag for 
-static data versus dynamic data. You can then use fastfonst with static 
-buffer. This comes with the tile code. But first the cursor code today.
+It's not that easy - Linux has always supported the operation of being
+able to remove a module while it is attached to devices. The reference
+count only goes up if a device is opened. 
 
-P.S
-  You can grab my latest work on the matroxfb driver at 
-
-http://phoenix.infradead.org/~jsimmons/matroxfb.diff.gz
-
+This means the module refcount must remain at 0, even after it's bound to 
+devices. Changing this would require a change in visible behavior, and 
+require an extra step by a user to disconnect the driver before they 
+unload the module. 
 
 
-
+	-pat
 

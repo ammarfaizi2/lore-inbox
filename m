@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbUEKD5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUEKEEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUEKD5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 23:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUEKD5G
+	id S262026AbUEKEEz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 00:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUEKEEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 23:57:06 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:38387 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262029AbUEKD5B (ORCPT
+	Tue, 11 May 2004 00:04:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28326 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262026AbUEKEEw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 23:57:01 -0400
-Date: Tue, 11 May 2004 04:57:00 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: rmk+serial@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] serial fifo size is ignored
-Message-ID: <Pine.LNX.4.58.0405110453540.3427@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 May 2004 00:04:52 -0400
+Date: Mon, 10 May 2004 21:02:43 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: gallir@atlas-iap.es, Matt_Domsch@dell.com, matthew.e.tolentino@intel.com
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: [PATCH] efivars: check enabled {2.6.6 doesn't boot with 4k stacks}
+Message-Id: <20040510210243.14bbd99b.rddunlap@osdl.org>
+In-Reply-To: <20040510172404.11a90ce9.rddunlap@osdl.org>
+References: <20040510172404.11a90ce9.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-When using register_serial the xmit_fifo_size parameter is accepted by the
-8250 driver, and copied to the uart_port fifosize parameter, however
-autoconfigure then comes along and overrides this from the
-dfl_xmit_fifo_size,
 
-this patch checks if fifosize is 0 and if it is updates from the default,
-otherwise it accepts the value,
+| Perhaps I missed some readme, but just in case. One of my computer, P4HT[*]
+| dies during booting. There is no log because nothing is still mounted, 
+| but I took a photograph of the stack dump in the screen.
+| 
+| http://mnm.uib.es/~gallir/tmp/hang1s.jpg
 
-ignore the 2.6.4 in the patch, it is against 2.6.6.
+Yes, easy to reproduce...
 
-Dave.
+| The .config file:
+| http://mnm.uib.es/~gallir/tmp/2.6.6-bad-config.txt
+| 
+| I unchecked the 4K stack option and it's working nice.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
 
---- linux26/drivers/serial/8250.c	2004-05-11 10:42:56.000000000 +1000
-+++ linux-2.6.4/drivers/serial/8250.c	2004-05-11 14:02:45.000000000 +1000
-@@ -697,7 +697,8 @@
- #endif
- 	serial_outp(up, UART_LCR, save_lcr);
+drivers/firmware/efivars.c::efivars_init & efivars_exit
+need to check for efi_enabled before doing anything.
 
--	up->port.fifosize = uart_config[up->port.type].dfl_xmit_fifo_size;
-+	if (up->port.fifosize==0)
-+		up->port.fifosize = uart_config[up->port.type].dfl_xmit_fifo_size;
- 	up->capabilities = uart_config[up->port.type].flags;
+or you could disable CONFIG_EFI_VARS, but the kernel shouldn't
+crash like that.
 
- 	if (up->port.type == PORT_UNKNOWN)
+
+// linux-266
+// efivars_init and efivars_exit need to check efi_enabled
+// instead of assuming that the system is using EFI;
+
+diffstat:=
+ drivers/firmware/efivars.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+
+diff -Naurp ./drivers/firmware/efivars.c~efi_check_enabled ./drivers/firmware/efivars.c
+--- ./drivers/firmware/efivars.c~efi_check_enabled	2004-05-09 19:33:13.000000000 -0700
++++ ./drivers/firmware/efivars.c	2004-05-10 20:45:55.000000000 -0700
+@@ -664,6 +664,9 @@ efivars_init(void)
+ 	unsigned long variable_name_size = 1024;
+ 	int i, rc = 0, error = 0;
+ 
++	if (!efi_enabled)
++		return 0;
++
+ 	printk(KERN_INFO "EFI Variables Facility v%s\n", EFIVARS_VERSION);
+ 
+ 	/*
+@@ -733,6 +736,9 @@ efivars_exit(void)
+ {
+ 	struct list_head *pos, *n;
+ 
++	if (!efi_enabled)
++		return;
++
+ 	list_for_each_safe(pos, n, &efivar_list)
+ 		efivar_unregister(get_efivar_entry(pos));
+ 
+
+
+
+
+--
+http://www.madrone.org/quotes/2003.0226.akpm.txt

@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVCUWkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVCUWkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVCUWkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVCUWgb
+	id S262127AbVCUWkY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVCUWgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:36:31 -0500
-Received: from fmr16.intel.com ([192.55.52.70]:40390 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262126AbVCUWcg convert rfc822-to-8bit (ORCPT
+	Mon, 21 Mar 2005 17:36:18 -0500
+Received: from alpha.polcom.net ([217.79.151.115]:33770 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S262097AbVCUWer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:32:36 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 21 Mar 2005 17:34:47 -0500
+Date: Mon, 21 Mar 2005 23:36:37 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: len.brown@intel.com, duncan.sands@free.fr,
+       linux-usb-users@lists.sourceforge.net, gregkh@suse.de,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: 2.6.11 (stable and -rc) ACPI breaks USB
+In-Reply-To: <20050321142056.7609d615.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0503212329190.6194@alpha.polcom.net>
+References: <Pine.LNX.4.62.0503030053120.6789@alpha.polcom.net>
+ <20050321142056.7609d615.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH 1/5] freepgt: free_pgtables use vma list
-Date: Mon, 21 Mar 2005 14:31:36 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F03210DD4@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/5] freepgt: free_pgtables use vma list
-Thread-Index: AcUuZUY3qS+fUTaJT1SVABfnQeFJjAAAFXgQ
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Hugh Dickins" <hugh@veritas.com>
-Cc: <akpm@osdl.org>, <nickpiggin@yahoo.com.au>, <benh@kernel.crashing.org>,
-       <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>
-X-OriginalArrivalTime: 21 Mar 2005 22:31:43.0624 (UTC) FILETIME=[C24BA880:01C52E65]
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Builds clean and boots on ia64.
+On Mon, 21 Mar 2005, Andrew Morton wrote:
 
-I haven't tried any hugetlb operations on it though.
+> Grzegorz Kulewski <kangur@polcom.net> wrote:
+>>
+>> Hi,
+>>
+>> I just installed 2.6.11 and I was hit by the same bug (or feature?) I
+>> found in -rcs. Basically my USB will work only if acpi=off was passed to
+>> the kernel. It looks like without acpi=off it will assign IRQ 10 and with
+>> acpi=off it will assign IRQ9. It worked at least with 2.6.9. I do not know
+>> if the USB is completly broken but at least my speedtouch modem will not
+>> work (the red led will be on for some time then completly black).
+>>
+>
+> I didn't really follow all the ins and outs on this one.  Will it end up
+> being adequately resolved for 2.6.12?
 
--Tony
+It was identified (by Bjorn) to be some ACPI VIA PCI IRQ routing quirk 
+logic change (as far as I understand it). Unfortunatelly it is not good 
+for my board (AMD 761 North and VIA 686B South). Bjorn (huge thanks to 
+him) produced testing patch that fixed it for me. Further patches were 
+presented and discussed in the other thread. The newest one is waiting for 
+final testing from me (in couple of minutes probably). I will CC you on my 
+reply (if you are not already). As of what to do next with this patch (if 
+it still works) Bjorn and others should reply.
+
+
+> Thanks.
+
+Thanks for interest,
+
+Grzegorz Kulewski
+

@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132120AbQK3KNv>; Thu, 30 Nov 2000 05:13:51 -0500
+        id <S132718AbQK3KQv>; Thu, 30 Nov 2000 05:16:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132718AbQK3KNl>; Thu, 30 Nov 2000 05:13:41 -0500
-Received: from pusa.informat.uv.es ([147.156.24.61]:60170 "EHLO
-        pusa.informat.uv.es") by vger.kernel.org with ESMTP
-        id <S132120AbQK3KNb>; Thu, 30 Nov 2000 05:13:31 -0500
-Date: Thu, 30 Nov 2000 10:43:01 +0100
+        id <S132764AbQK3KQm>; Thu, 30 Nov 2000 05:16:42 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:34567 "HELO chiara.elte.hu")
+        by vger.kernel.org with SMTP id <S132718AbQK3KQY>;
+        Thu, 30 Nov 2000 05:16:24 -0500
+Date: Thu, 30 Nov 2000 10:45:53 +0100
+From: KELEMEN Peter <fuji@elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: innofensive BUG and fix: area->map's size is not calculated ok
-Message-ID: <20001130104301.A22355@pusa.informat.uv.es>
+Subject: Re: File corruption part deux
+Message-ID: <20001130104553.A29224@chiara.elte.hu>
+Reply-To: KELEMEN Peter <fuji@elte.hu>
+In-Reply-To: <20001129163635.A406@the-penguin.otak.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-From: uaca@alumni.uv.es
+In-Reply-To: <20001129163635.A406@the-penguin.otak.com>; from lawrence@the-penguin.otak.com on Wed, Nov 29, 2000 at 04:36:35PM -0800
+Organization: ELTE Eotvos Lorand University of Sciences, Budapest, Hungary
+X-GPG-KeyID: 1024D/EE4C26E8 2000-03-20
+X-GPG-Fingerprint: D402 4AF3 7488 165B CC34  4147 7F0C D922 EE4C 26E8
+X-PGP-KeyID: 1024/45F83E45 1998/04/04
+X-PGP-Fingerprint: 26 87 63 4B 07 28 1F AD  6D AA B5 8A D6 03 0F BF
+X-Comment: Personal opinion.  Paragraphs might have been reformatted.
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Accept-Language: hu,en
+X-Beat: @448
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2000-11-29 16:36:35 -0800, Lawrence Walton wrote:
 
-In a 2.4 kernel, mm/page_alloc.c:free_area_init_core(), in the following
-assignement...
+> my system has been acting slightly odd on all the pre 12 kernels
+> with the fs going read only with out any messages until now.
+> no opps or anything like that, but I did get this just now.
 
-	bitmap_size = size >> i;
+> Nov 29 16:03:12 the-penguin kernel: EXT2-fs error
+> 	(device sd(8,2)): ext2_readdir:
+> 	bad entry in directory #458430:
+> 	directory entry across blocks - offset=152, inode=3393794200,
+> 	rec_len=12440, name_len=73
 
-...makes bitmap_size be the double of the needed size, this calculum
-assumes that with a 512 byte map size the kernel is mapping 8*512= 4096 chunks 
-of memory, that is: one bit of the map is used for each chunk of memory, 
-and that's not true. 
+> It is a SCSI only system.
 
-Really one bit of area->map is used to map two chunks of memory, so in the 
-example above an area->map of just 256 bytes is really needed, the other 256
-bytes are _never accessed_.
+I observed the same thing on EIDE (2.4.0-test11):
 
-So the righ thing would be to do is:
+Nov 27 17:16:41 octavianus kernel: EXT2-fs error (device ide0(3,6)):
+	ext2_readdir: bad entry in directory #60525:
+	directory entry across blocks - offset=308, inode=60543,
+	rec_len=34104, name_len=199
 
-	bitmap_size = size >> (i+1);
+Peter
 
-
-also I tested it and it works ok, so I believe I'm right...
-
-
-Please CC: your replies to (I'm not subscribed to this list)
-
-Ulisses Alonso Camaró	<uaca@NOSPAM.alumni.uv.es>	
-
-PD: my nick on #kernelnewbies is despistao
-
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
-
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
- 
+-- 
+    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
+ Kelemen Péter     /       \       /       \       /      fuji@elte.hu
+.+'         `+...+'         `+...+'         `+...+'         `+...+'
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

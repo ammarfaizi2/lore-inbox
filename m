@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVBBUJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262740AbVBBVC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbVBBUJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVBBT7X
+	id S262740AbVBBVC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 16:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVBBVCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:59:23 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7172 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262785AbVBBTwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:52:39 -0500
-Date: Wed, 2 Feb 2005 20:52:37 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Denis Oliver Kropp <dok@directfb.org>, Sven Neumann <neo@directfb.org>,
-       Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: [2.6 patch] savagefb.c: make some code static
-Message-ID: <20050202195237.GJ3313@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 2 Feb 2005 16:02:13 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:58639 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262445AbVBBVAo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 16:00:44 -0500
+Date: Wed, 2 Feb 2005 21:00:46 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Christoph Lameter <clameter@sgi.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: A scrub daemon (prezeroing)
+In-Reply-To: <20050202153256.GA19615@logos.cnet>
+Message-ID: <Pine.LNX.4.61L.0502022000470.9448@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
+ <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes some needlessly global code static.
+On Wed, 2 Feb 2005, Marcelo Tosatti wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > Some architectures tend to have spare DMA engines lying around. There's
+> > no need to use the CPU for zeroing pages. How feasible would it be for
+> > scrubd to use these?
+[...]
+> I suppose you are talking about DMA engines which are not being driven 
+> by any driver ?
 
----
+ E.g. the Broadcom's MIPS64-based SOCs have four general purpose DMA 
+engines onchip which can transfer data to/from the memory controller in 
+32-byte chunks over the 256-bit internal bus.  We have hardly any use for 
+these devices and certainly not for all four of them.
 
-This patch was already sent on:
-- 21 Nov 2004
+> Sounds very interesting idea to me. Guess it depends on whether the cost of 
+> DMA write for memory zeroing, which is memory architecture/DMA engine dependant, 
+> offsets the cost of CPU zeroing.
 
- drivers/video/savage/savagefb.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ I suppose so, at least with the Broadcom's chips you avoid cache 
+trashing, yet you don't need to care about stale data as coherency between 
+CPUs and the onchip memory controller is maintained automatically by 
+hardware.
 
---- linux-2.6.10-rc2-mm2-full/drivers/video/savage/savagefb.c.old	2004-11-21 14:57:29.000000000 +0100
-+++ linux-2.6.10-rc2-mm2-full/drivers/video/savage/savagefb.c	2004-11-21 14:58:53.000000000 +0100
-@@ -1458,7 +1458,7 @@
- }
- 
- 
--void savage_disable_mmio (struct savagefb_par *par)
-+static void savage_disable_mmio (struct savagefb_par *par)
- {
- 	unsigned char val;
- 
-@@ -2241,7 +2241,7 @@
- 
- /* ************************* init in-kernel code ************************** */
- 
--int __init savagefb_setup(char *options)
-+static int __init savagefb_setup(char *options)
- {
- #ifndef MODULE
- 	char *this_opt;
-@@ -2256,7 +2256,7 @@
- 	return 0;
- }
- 
--int __init savagefb_init(void)
-+static int __init savagefb_init(void)
- {
- 	char *option;
- 
-
+  Maciej

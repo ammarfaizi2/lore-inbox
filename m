@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262046AbUCDRrG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 12:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUCDRrG
+	id S262048AbUCDRtP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 12:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUCDRtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 12:47:06 -0500
-Received: from wblv-248-49.telkomadsl.co.za ([165.165.248.49]:9345 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S262046AbUCDRrD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 12:47:03 -0500
-Subject: Re: [ANNOUNCE] udev 021 release
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040303000957.GA11755@kroah.com>
-References: <20040303000957.GA11755@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XbI0q8iKjpXRw0tPnFQP"
-Message-Id: <1078422507.3614.20.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Mar 2004 19:48:27 +0200
+	Thu, 4 Mar 2004 12:49:15 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:6919 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S262048AbUCDRtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 12:49:12 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: dm-crypt, new IV and standards
+Date: Thu, 4 Mar 2004 17:44:25 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <c27ptp$dhp$1@abraham.cs.berkeley.edu>
+References: <20040220172237.GA9918@certainkey.com> <20040303150647.GC1586@certainkey.com> <Pine.LNX.4.58.0403031735210.26196@twinlark.arctic.org> <20040304132430.GA8213@certainkey.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1078422265 13881 128.32.153.228 (4 Mar 2004 17:44:25 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Thu, 4 Mar 2004 17:44:25 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jean-Luc Cooke  wrote:
+>Like you said, CBC is not trivial to temper with - though it is do able.  CTR
+>is trivial on the other hand.  Which is why NIST and every cryptographer will
+>recommend using a MAC with CTR.  (Why still have CTR?  Unlike CBC, you can
+>compute the N+1-th block without needing to know the output from the N-th
+>block, so there is the possibility for very high parallelizum).
 
---=-XbI0q8iKjpXRw0tPnFQP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2004-03-03 at 02:09, Greg KH wrote:
-> I've released the 021 version of udev.  It can be found at:
->  	kernel.org/pub/linux/utils/kernel/hotplug/udev-021.tar.gz
->=20
-
-Is the issue that causes missing events with udevsend (and udev in
-some cases - like alsa and it seems the -mm tree) with slower machines
-known yet?
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-XbI0q8iKjpXRw0tPnFQP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAR2vrqburzKaJYLYRAkM6AJ492hZp8UEB4UspvxS7BDi8fgjBEQCcCK5t
-YkNOcYoGO6aIevKBDBvMtUU=
-=1J2L
------END PGP SIGNATURE-----
-
---=-XbI0q8iKjpXRw0tPnFQP--
-
+I'm worried about the potential for confusion, so let me clarify: Good
+cryptographers will recommend using a MAC, whether you use CTR, CBC,
+or CFB.  The need for a MAC is not specific to CTR; CBC is not exempt.

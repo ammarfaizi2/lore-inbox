@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270930AbTG0WlA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 18:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270931AbTG0WlA
+	id S270933AbTG0Wwp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 18:52:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270967AbTG0Wwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 18:41:00 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:42757 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S270930AbTG0Wk7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 18:40:59 -0400
-Date: Mon, 28 Jul 2003 00:46:35 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: linux-kernel@vger.kernel.org
-Cc: jgarzik@pobox.com, hch@lst.de, torvalds@osdl.org
-Subject: [PATCH] 2.6.0-test2 - typo in drivers/net/arcnet/com20020-isa.c
-Message-ID: <20030728004635.A28671@electric-eye.fr.zoreil.com>
+	Sun, 27 Jul 2003 18:52:45 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:65009 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S270933AbTG0Wwo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 18:52:44 -0400
+Date: Sun, 27 Jul 2003 15:26:20 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Doruk Fisek <dfisek@fisek.com.tr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hw tcp v4 csum failed
+Message-Id: <20030727152620.5efa995d.davem@redhat.com>
+In-Reply-To: <20030727100246.4bfb860c.dfisek@fisek.com.tr>
+References: <20030727100246.4bfb860c.dfisek@fisek.com.tr>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Typo during last module refcounting fix.
+On Sun, 27 Jul 2003 10:02:46 +0300
+Doruk Fisek <dfisek@fisek.com.tr> wrote:
 
+> Hi,
+> 
+>  I am getting "hw tcp v4 csum failed" errors using a BCM5701 ethernet
+> adapter with the tigon3 driver in a vanilla 2.4.20 kernel.
+> 
+>  There seems to be no apparent problem (probably because of low-load).
+> 
+>  What can be the cause of these errors?
 
- drivers/net/arcnet/com20020-isa.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Nothing need to be done.
 
-diff -puN drivers/net/arcnet/com20020-isa.c~janitor-driver-com20020 drivers/net/arcnet/com20020-isa.c
---- linux-2.6.0-test2/drivers/net/arcnet/com20020-isa.c~janitor-driver-com20020	Mon Jul 28 00:19:49 2003
-+++ linux-2.6.0-test2-fr/drivers/net/arcnet/com20020-isa.c	Mon Jul 28 00:19:49 2003
-@@ -152,7 +152,7 @@ int init_module(void)
- 	lp->clockp = clockp & 7;
- 	lp->clockm = clockm & 3;
- 	lp->timeout = timeout & 3;
--	lp->owner = THIS_MODULE;
-+	lp->hw.owner = THIS_MODULE;
- 
- 	dev->base_addr = io;
- 	dev->irq = irq;
+They are usually happening because of one of two things:
 
-_
+1) The other host computed an incorrect checksum.
+2) Something between the foreign host and your's corrupted
+   the packet.
+
+Both of which are normal events and so you can ignore the
+message safely.

@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270649AbRHWWep>; Thu, 23 Aug 2001 18:34:45 -0400
+	id <S270657AbRHWWkf>; Thu, 23 Aug 2001 18:40:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270646AbRHWWee>; Thu, 23 Aug 2001 18:34:34 -0400
-Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:6396 "EHLO
-	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S270649AbRHWWeZ>; Thu, 23 Aug 2001 18:34:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: source control?
-Date: Thu, 23 Aug 2001 15:34:05 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0A4@orsmsx35.jf.intel.com>
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0A4@orsmsx35.jf.intel.com>
+	id <S270646AbRHWWk0>; Thu, 23 Aug 2001 18:40:26 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:6092 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S270645AbRHWWkT>;
+	Thu, 23 Aug 2001 18:40:19 -0400
+Message-ID: <3B8578E8.CFE4C64E@athlon.maya.org>
+Date: Thu, 23 Aug 2001 23:43:04 +0200
+From: Andreas Hartmann <andihartmann@freenet.de>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01082315340500.00172@c779218-a>
-Content-Transfer-Encoding: 7BIT
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: [Kernel 2.4.9] massive mount-problems
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 August 2001 02:29 pm, Grover, Andrew wrote:
-> Is Linux development ever going to use source control?
->
-> This was talked about at the Kernel Summit, and I haven't heard
-> anything about it since.
+Hello all,
 
-The kernel has source control, its name is Linus Torvalds, CVS with a 
-brain.
-Wether or not the mainstream kernel will ever go pure CVS or the like is 
-really up to Linus, and so far I've not seen much indication that he's 
-going to do it, at least not before he decides to retire from steering 
-the kernel's development.
+I'm sorry, but this time I found a massive mount-problem with kernel
+2.4.9. What have I done?
 
->
-> Regards -- Andy
+I tried to mount a cd-rw in my E-IDE cdrecorder with 'mount /cdburn'
+(/dev/sr0 with scsi-emulations-modules). Unfortunately the cdrecorder
+couldn't read the cd-rw. But mount-program hanged up and the kernel
+flooded my messages-file with thousands of the following messages:
+
+Aug 23 23:06:50 athlon kernel: SCSI host 0 abort (pid 0) timed out -
+resetting
+Aug 23 23:06:50 athlon kernel: SCSI bus is being reset for host 0
+channel 0.
+Aug 23 23:06:51 athlon kernel: scsi : aborting command due to timeout :
+pid 0, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 00 00 10 00 00 01
+00
+Aug 23 23:06:51 athlon kernel: SCSI host 0 abort (pid 0) timed out -
+resetting
+Aug 23 23:06:51 athlon kernel: SCSI bus is being reset for host 0
+channel 0.
+Aug 23 23:06:51 athlon kernel: scsi : aborting command due to timeout :
+pid 0, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 00 00 10 00 00 01
+00
+Aug 23 23:06:51 athlon kernel: SCSI host 0 abort (pid 0) timed out -
+resetting
+Aug 23 23:06:51 athlon kernel: SCSI bus is being reset for host 0
+channel 0.
+Aug 23 23:06:52 athlon kernel: scsi : aborting command due to timeout :
+pid 0, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 00 00 10 00 00 01
+00
+[...]
+
+
+I wasn't able to kill mount (even as root with sig 9). The only way to
+stop it, was to reboot :-( .
+I tried it with cdrecord -reset. Didn't help.
+I tried it with cdrecord -scanbus. Didn't help.
+
+
+BTW: I could fetch my cd from my cdrecorder though mount has been
+hanging. The cdrecorder didn't lock.
+
+
+Could you please fix this bug?
+
+
+Regards,
+Andreas Hartmann

@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262042AbSIYSDh>; Wed, 25 Sep 2002 14:03:37 -0400
+	id <S262041AbSIYSDN>; Wed, 25 Sep 2002 14:03:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262043AbSIYSDh>; Wed, 25 Sep 2002 14:03:37 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:45484 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262042AbSIYSDf>;
-	Wed, 25 Sep 2002 14:03:35 -0400
-From: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Page table sharing
-Date: Wed, 25 Sep 2002 20:12:36 +0200
-User-Agent: KMail/1.4.7
+	id <S262042AbSIYSDN>; Wed, 25 Sep 2002 14:03:13 -0400
+Received: from ns1.baby-dragons.com ([199.33.245.254]:6058 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S262041AbSIYSDM>; Wed, 25 Sep 2002 14:03:12 -0400
+Date: Wed, 25 Sep 2002 14:08:17 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: What/Where are the latest aic7xxx ? (was:aic7xxx support foraic7902)
+In-Reply-To: <1338716224.1032976056@aslan.btc.adaptec.com>
+Message-ID: <Pine.LNX.4.44.0209251402060.14461-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209252013.17714.gjwucherpfennig@gmx.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-What about page table sharing? Does anybody still care about this?
+	Hello Justin ,
+	What is the latest version # of the aic7xxx driver ?
+	Where is the latest version of the aic7xxx driver ?
+	I've been to:
+		http://people.freebsd.org/~gibbs/linux/
+	and it shows 6.2.5 .  My kernel 2.4.19 says 6.2.6 .
+	An email from you to the list mentions you rolling a 6.2.7 quite
+	sometime ago .  Help !-} .  Tia ,  JimL
 
-The patch from Daniel Phillips
-(http://www.geocrawler.com/mail/msg.php3?msg_id=7855063&list=35)
-is a few month old and I can't see any progress.
-
-Sorry, I'm not a kernel expert, so I can't help.
-But page table sharing is still listed as betaware at the
-Linux Kernel 2.5 Status page (http://kernelnewbies.org/status/latest.html)
-and Page Table sharing isn't marked post Halloween.
-
-Some comments from Daniel Phillips or Dave McCracken?
-
-
-Gerold
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9kfyY53zyw+ONqrERAlvgAJ0RCNWZm7MEf7wGshZcE09oA5N7LQCfVuhq
-L/EX/pUmmjOQAEtXpaDm2yA=
-=QdO3
------END PGP SIGNATURE-----
+On Wed, 25 Sep 2002, Justin T. Gibbs wrote:
+> > Justin,
+> > I've seen a special U320 driver aic79xx v1.10, but I suppose that the new
+> > U320 controllers will be folded into a new version of your aic7xxx driver
+> > (?).
+> Nope.  The U320 chips will never be supported in the aic7xxx driver due
+> to their very different architecture.  aic79xx v1.1.0 (or 1.1.1 which
+> includes the port to the 2.5.X kernels) is what you want.
+> > If so, I'd like to know which version of the aic7xxx driver will
+> > include support of the new aic7902 controller, and which kernel version
+> > will be targeted to have that folded in.
+> Which kernel version it will be folded into is beyond my control.  The
+> code has been sent to both Marcelo and Linus.
+> --
+> Justin
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

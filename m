@@ -1,87 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUBHD1i (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 22:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUBHD1i
+	id S261890AbUBHDaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 22:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUBHDaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 22:27:38 -0500
-Received: from [209.124.87.2] ([209.124.87.2]:14565 "EHLO
-	server.cyberhostplus.biz") by vger.kernel.org with ESMTP
-	id S261928AbUBHD1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 22:27:36 -0500
-From: "Steve Lee" <steve@tuxsoft.com>
-To: <gene.heskett@verizon.net>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: aRTS vs 2.6.3-rc1, aRTS loses
-Date: Sat, 7 Feb 2004 21:27:11 -0600
-Message-ID: <026201c3edf3$73ed8e50$e501a8c0@saturn>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <200402070647.54889.gene.heskett@verizon.net>
-Importance: Normal
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server.cyberhostplus.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - tuxsoft.com
+	Sat, 7 Feb 2004 22:30:25 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:56843 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S261890AbUBHDaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 22:30:19 -0500
+Date: Sat, 7 Feb 2004 22:09:14 -0500
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Adaptec aic7xxx driver problems?
+Message-ID: <20040208030914.GE10344@widomaker.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Microsoft Loves You!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having the same problem you described in your original message.  I
-built 2.6.3-rc1 as you described here, ".config + a make oldconfig" but
-arts dies with a message saying, "Sound server error, CPU overload".  I
-click OK, but about 30 seconds later it says the same thing again.  This
-is with KDE 3.2 all compiled from sources with GCC 3.3.2.  I boot under
-2.6.2 and everything works well again.  I did notice that the sound
-config file saved by doing "alsactl store" under 2.6.2 is not compatible
-with that of the 2.6.3-rc1 kernel or versus.  If anyone else has any
-ideas, I'm interested.  I was really hoping this kernel would solve some
-issues I was seeing with 2.6.2.
 
-Thanks,
-Steve
+Are there known issues with the Adaptec drivers on x86 systems?
 
+Since upgrading to kernel 2.6.1, I get system lockups every few days to
+a few weeks.
 
------Original Message-----
-From: Gene Heskett [mailto:gene.heskett@verizon.net] 
-Sent: Saturday, February 07, 2004 5:48 AM
-To: linux-kernel@vger.kernel.org
-Subject: Re: aRTS vs 2.6.3-rc1, aRTS loses
+There are no messages, no warnings, not even debugging information.
 
-On Saturday 07 February 2004 06:31, Gene Heskett wrote:
->Greetings;
->
->On rebooting to 2.6.3-rc1, I get a failed advisory from aRTS that I
->didn't get with 2.6.2.
->
->Is this a known problem?  FWIW, things like tvtime continue to make
->sound ok.
+The only thing I notice is that the SCSI bus appears to be hung, and the
+system halts.  Sometimes the bus hangs before the system stops, but not
+always.
 
-Must be a known operator problem, I just rebuilt it from the 
-2.6.2 .config + a make oldconfig, and its all working again.
+Doesn't happen under any 2.4.x kernel, and I do not believe it happened
+on the 2.6 betas I tried.
+
+What would be the possible reasons for not getting any debug
+information?  I do not have kernel debugging enabled, but do have SCSI
+debugging in place.
+
+If I enable kernel debugging, is that more likely to find something?
+
+In the past when I had this problem, it was usually a kernel or driver
+issue, and I rarely was able to get any debug information, but I'm open
+to suggestions.
+
+I cannot reproduce this problem on demand though.  It does happen when
+there is moderate SCSI traffic, but doesn't seem to happen at the
+highest SCSI bus loads.
+
+I tried to cause the crash this week, but could not.  Thirty minutes
+after I finally gave up, it happened.
+
+Still have no information to go on, but I thought I would ask here in
+case someone else is seeing trouble.
+
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
+shannon "AT" widomaker.com -- [4649 5920 4320 204e 4452 5420 5348 5920 4820
+2056 2054 434d 2048 4d54 2045 204e 5259 4820 444e 0a53]

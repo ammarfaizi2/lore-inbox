@@ -1,80 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbTBFIo0>; Thu, 6 Feb 2003 03:44:26 -0500
+	id <S265736AbTBFJDw>; Thu, 6 Feb 2003 04:03:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbTBFIo0>; Thu, 6 Feb 2003 03:44:26 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:36113 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S262038AbTBFIoY>; Thu, 6 Feb 2003 03:44:24 -0500
-Subject: [PATCH][FBDEV]: generic fb console rotation infrastructure
-From: Antonino Daplas <adaplas@pol.net>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1044434293.1170.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Feb 2003 16:38:15 +0800
+	id <S265777AbTBFJDw>; Thu, 6 Feb 2003 04:03:52 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:19975
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265736AbTBFJDu>; Thu, 6 Feb 2003 04:03:50 -0500
+Date: Thu, 6 Feb 2003 01:12:47 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: jeff millar <wa1hco@adelphia.net>
+cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Monta Vista software license terms
+In-Reply-To: <01c601c2cd7c$be4002a0$6a01a8c0@wa1hco>
+Message-ID: <Pine.LNX.4.10.10302060105570.11024-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
 
-I decided to add the Console rotation patch which I submitted before to
-linux-2.5.59.  The orientation of the display is determined by the
-valued of display.rotate, and the appropriate drawing functions in
-display.dispsw.  If the display is rotated, fontdata will be prerotated,
-and the appropriate console window dimenstions are swapped if necessary.
+Jeff,
 
-Currently, this is just an implementation and no hooks are provided yet
-to enable/disable this.  This will require some coordination between the
-console layer and fbdev.
+Since you have not signed their contract for product, you have no idea if
+there are restrictions.  Nor do I.
 
-Current limitations:
+Remember "Contract Law" may restrict what their customers can do.
 
-1.  cannot support a fontwidth not a multiple of 8 if rotated 180
-degrees, and a fontheight not a multiple of 8 if rotated by 90 degrees. 
-This is a limitation with fb_imageblit which has no support for bitmap
-clipping.
+Andre Hedrick
+LAD Storage Consulting Group
 
-2.  code for panning when rotated by 90 degrees is still buggy, so it's
-disabled.
+On Wed, 5 Feb 2003, jeff millar wrote:
 
-3.  minor graphics glitches.
-
-4.  no support for hardware based rotation, but this should be easy to
-add
-
-You can test this by defining DEBUG_ROTATE in the following code
-snippet:
-
-#undef DEBUG_ROTATE
-#ifdef DEBUG_ROTATE
-	/*
-	 * change to the appropriate orientation and 
-	 * drawing function to test for rotation
-	 */
-	p->dispsw = &fbcon_180_dispsw;
-	p->rotate = FB_VMODE_ROTATE_180
-	if (p->rotate) 
-		fbcon_rotate_fontdata(p->rotate, p); 
-#endif
-
-I've tested the code with several drivers including vga16fb and vesafb.
-
-The patch is at
-http://i810fb.sourceforge.net/linux-2.5.59-rotate.diff.gz
-
-
-Any comments welcome.
-
-Tony
-
-
-
-
-
-
+> So...could some kind soul with the source simply post it somewhere?
+> MontaVista doesn't have to provide it on their site.  But they can't prevent
+> anyone with a copy from posting it. I've got some hardware from an old
+> project running hardhat linux and would like to upgrade.
+> 
+> They used to post it and it helped. I had a "frank exchange of views" with
+> the MontaVista marketing folks about their change in policy a while back.
+> 
+> Some questions about posting the source, though...
+>     1. Can MontaVista add separate terms to their purchase agreement that
+> forbid/discourage/impede publishing the source?
+>     2. What if MV mixes GPL and proprietary code in the directories to make
+> it difficult to post the GPL portion?
+> 
+> jeff
+> 
+> > >     dj> I'm told that the preview kits do include kernel source,
+> > >     dj> although I haven't checked for myself in a couple of months.
+> > >
+> > So that you got the binaries now could you check where their written offer
+> > is and post it to lkml?  Afterwards anyone on this list could ask them
+> > for their source (and at least I want to).
+> >
+> > Btw, what do people think of a regular list where anyone who got such
+> > an offer can post it so anyone else can get source aswell?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129235AbRA1Rj7>; Sun, 28 Jan 2001 12:39:59 -0500
+	id <S136169AbRA1Rl3>; Sun, 28 Jan 2001 12:41:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135459AbRA1Rjt>; Sun, 28 Jan 2001 12:39:49 -0500
-Received: from 13dyn128.delft.casema.net ([212.64.76.128]:45837 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129235AbRA1Rjj>; Sun, 28 Jan 2001 12:39:39 -0500
-Message-Id: <200101281739.SAA05979@cave.bitwizard.nl>
-Subject: Re: ECN: Clearing the air (fwd)
-In-Reply-To: <Pine.GSO.4.30.0101280700580.24762-100000@shell.cyberus.ca> from
- jamal at "Jan 28, 2001 07:18:54 am"
-To: jamal <hadi@cyberus.ca>
-Date: Sun, 28 Jan 2001 18:39:32 +0100 (MET)
-CC: James Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S136222AbRA1RlT>; Sun, 28 Jan 2001 12:41:19 -0500
+Received: from colorfullife.com ([216.156.138.34]:62986 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S136169AbRA1RlC>;
+	Sun, 28 Jan 2001 12:41:02 -0500
+Message-ID: <3A7459AA.84CDCF7B@colorfullife.com>
+Date: Sun, 28 Jan 2001 18:40:58 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+In-Reply-To: <Pine.LNX.4.30.0101281653020.26076-100000@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
-> > Yes,
-> > those firewalls should be updated to allow ECN-enabled packets
-> > through. However, to break connectivity to such sites deliberately just
-> > because they are not supporting an *experimental* extension to the current
-> > protocols is rather silly.
-> >
+David Woodhouse wrote:
 > 
-> This is the way it's done with all protocols. or i should say the way it
-> used to be done. How do you expect ECN to be deployed otherwise?
-
-Thinking about this a bit more:
-
-A sufficiently paranoid firewall should block requests that he doesn't
-fully understand. ECN was in this category, so old firewalls are
-"right" to block these. (Sending an 'RST' is not elegant. So be it.)
-
-However, ECN is now "understood", and operators are now in a position
-to configure their firewall to "do the right thing". This is
-subjective.  If the firewall operator is sufficiently paranoid, they
-can say: "We don't trust the ECN implementation on our hosts behind
-the firewall, so we want to disable it.". Firewall operators make
-"lose connectivity to certain hosts/ports" decisions all the time.
-That's what a firewall is about.
-
-So... I think that the hotmail operators (or was it somewhere else
-that started this debate?) simply get to chose. Lose connectivity to
-part of the world because they block ECN or not.
-
-But let it be known that it is THEIR decision. 
+> TIOCMIWAIT does restore_flags() before interruptible_sleep_on(). It's
+> broken too.
+>
+Yes, and I found a second bug: it doesn't sti() immediately after
+interruptible_sleep_on(), thus cli() doesn't reacquire the global irq
+lock --> the atomic copy won't be atomic on SMP.
 
 
-- If you implement a standard badly, you can get to be inoperable if
-the standard gets expanded. That's what's happening here. Happens all
-the time. 
+And one more point for the Janitor's list:
+Get rid of superflous irqsave()/irqrestore()'s - in 90% of the cases
+either spin_lock_irq() or spin_lock() is sufficient. That's both faster
+and better readable.
 
-- Note that Dave politely waited with announcing the impending
-"cutoff" until he verified for sure that they did have a CHOICE.  
+spin_lock_irq(): you know that the function is called with enabled
+interrupts.
+spin_lock(): can be used in hardware interrupt handlers when only one
+hardware interrupt uses that spinlocks (most hardware drivers), or when
+all hardware interrupt handler set the SA_INTERRUPT flag (e.g. rtc and
+timer interrupt)
 
-- The users (/customers) have gotten two weeks to bother the operators
-into action, and the operators then have two weeks left to schedule
-the upgrade. That seems pretty fair and resonable to me. 
+There is one more rule when you can use spin_lock_irq():
+if you know that the function might sleep. E.g. compare make_request
+from 2.2.18 and __make_request() from 2.4.
+Since __get_request_wait() can sleep, the callers of make_request()
+cannot rely on disabled interrupts, thus spin_lock_irq instead of
+spin_lock_irqsave().
 
-
-			Roger.
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

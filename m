@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbTEEVcC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 17:32:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTEEVcC
+	id S261367AbTEEVYy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 17:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbTEEVYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 17:32:02 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:14863 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261387AbTEEVcB (ORCPT
+	Mon, 5 May 2003 17:24:54 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:13779 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261367AbTEEVYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 17:32:01 -0400
-Subject: Re: [COMPILATION ERROR] 2.5.69 drivers/bluetooth/hci_usb.c
-	USB_ZERO_PACKET
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052170326.11699.2.camel@nalesnik>
-References: <1052170326.11699.2.camel@nalesnik>
-Content-Type: text/plain
-Organization: K4 labs
-Message-Id: <1052170720.11697.6.camel@nalesnik>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 May 2003 22:38:43 +0100
+	Mon, 5 May 2003 17:24:53 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16054.55698.719829.130251@napali.hpl.hp.com>
+Date: Mon, 5 May 2003 14:37:22 -0700
+To: Christoph Hellwig <hch@lst.de>
+Cc: davidm@mostang.com, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] fixing the irqwcpustat mess
+In-Reply-To: <20030505212546.A24006@lst.de>
+References: <20030505212546.A24006@lst.de>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 22:32, Grzegorz Jaskiewicz wrote:
-> drivers/bluetooth/hci_usb.c : 
-> USB_ZERO_PACKET definition is missing if CONFIG_BT_SUB_ZERO_PACKET is
-> not defined.
-> 
-> #define USB_ZERO_PACKET 0
-> 
-> in this file helps, but i guess it is not the best and fully correct
-> solution :)
-Oh, one small question. I am wondering, shouldn't this define be done in
-some USB header file ? 
-If so, please give me some hints i will correct it my self :) 
+>>>>> On Mon, 5 May 2003 21:25:46 +0200, Christoph Hellwig <hch@lst.de> said:
 
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
+  Christoph> What about this patch instead to make __ARCH_IRQ_STAT
+  Christoph> useable?
 
+Looks great to me.
 
+Thanks,
+
+	--david

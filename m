@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbSJURpi>; Mon, 21 Oct 2002 13:45:38 -0400
+	id <S261474AbSJURqv>; Mon, 21 Oct 2002 13:46:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261224AbSJURpi>; Mon, 21 Oct 2002 13:45:38 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:33037 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261191AbSJURpf>; Mon, 21 Oct 2002 13:45:35 -0400
-Date: Mon, 21 Oct 2002 18:51:41 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@infradead.org>, webmaster@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Listmaster request: Blacklist rms@gnu.org
-Message-ID: <20021021185141.A25009@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, webmaster@vger.kernel.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021021182737.A23371@infradead.org> <1035223326.27309.226.camel@irongate.swansea.linux.org.uk>
+	id <S261478AbSJURqu>; Mon, 21 Oct 2002 13:46:50 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:30133 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261474AbSJURqs>; Mon, 21 Oct 2002 13:46:48 -0400
+Subject: Re: [PATCH] compile fix for dmi_scan.c in 2.4.bk-current
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.0210211404570.11201-100000@freak.distro.conectiva>
+References: <Pine.LNX.4.44L.0210211404570.11201-100000@freak.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 19:07:36 +0100
+Message-Id: <1035223656.27259.230.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1035223326.27309.226.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 21, 2002 at 07:02:06PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 07:02:06PM +0100, Alan Cox wrote:
-> On Mon, 2002-10-21 at 18:27, Christoph Hellwig wrote:
-> > Hi Matti, hi Dave,
-> > 
-> > I've adjusted my procmail filters now, still people using web archives
-> > suffer from Richard's ignorance of the technical charta, his bad
-> > trolling and offending everyone on the list.  As his previous posts
-> > have been of a similar "quality" I'd like to request blacklisting him
-> > from the vger list.
+On Mon, 2002-10-21 at 17:07, Marcelo Tosatti wrote:
+> > Lose the problem function and the HP specific quirk and you'll get the
+> > bits that actually do matter
 > 
-> Do you have the right to make that decision for them ? Is that any
-> different from a government deciding what you don't need to hear or a
-> corrupt police state dictator trying to hide things[1] 8). If you think
-> rms should be blacklisted I'd like to propose you are blacklisted too
-> for being dangerously naiive 8)
+> I merged the HP Pavilion quirks on my tree and then backed it all out
+> later because I thought the changes were not necessary for 2.4.20.
+> 
+> Which issues the DMI update is addressing?
 
-I want to blacklist for a histroy of 100% oftopic posts.  I don't want
-him to shutup at all, just post to a list where his rants are ontopic,
-say gnu-ethics.
+The stuff I sent you included a pile of correctness fixes for the DMI
+code that are in dmidecode and came from the lm-sensors folk
 

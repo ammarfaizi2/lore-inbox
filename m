@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130187AbRCFJVY>; Tue, 6 Mar 2001 04:21:24 -0500
+	id <S130044AbRCFJRy>; Tue, 6 Mar 2001 04:17:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130184AbRCFJVO>; Tue, 6 Mar 2001 04:21:14 -0500
-Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.42.218.237]:52477 "EHLO
-	scotch.homeip.net") by vger.kernel.org with ESMTP
-	id <S130045AbRCFJVF>; Tue, 6 Mar 2001 04:21:05 -0500
-Date: Tue, 6 Mar 2001 04:29:25 -0500 (EST)
-From: God <atm@pinky.penguinpowered.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Annoying CD-rom driver error messages
-In-Reply-To: <E14ZzTo-0007Rv-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103060428100.878-100000@scotch.homeip.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130062AbRCFJRp>; Tue, 6 Mar 2001 04:17:45 -0500
+Received: from kerberos.suse.cz ([195.47.106.10]:49414 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130045AbRCFJR0>;
+	Tue, 6 Mar 2001 04:17:26 -0500
+Date: Tue, 6 Mar 2001 10:16:54 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2-ac12 unknown southbridge
+Message-ID: <20010306101654.A1281@suse.cz>
+In-Reply-To: <Pine.LNX.4.33.0103060953360.2221-100000@mikeg.weiden.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0103060953360.2221-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Tue, Mar 06, 2001 at 10:09:05AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, Alan Cox wrote:
+On Tue, Mar 06, 2001 at 10:09:05AM +0100, Mike Galbraith wrote:
 
-> > > this isnt a kernel problem, its a _very_ stupid app
-> > ---
-> > 	Must be more than one stupid app...
+> The driver forget what it always called a vt82c596b before.  Reverting
+> the below brought it back on-line, and all seems well again.  (hope I
+> don't receive any unpleasant suprises.. I've not the foggiest clue what
+> that number means;)
 > 
-> Could well be. You have something continually trying to open your cdrom and
-> see if there is media in it
+> -	{ "vt82c596b",	PCI_DEVICE_ID_VIA_82C596,   0x12, 0x2f, VIA_UDMA_66 },
+> +	{ "vt82c596b",	PCI_DEVICE_ID_VIA_82C596,   0x10, 0x2f, VIA_UDMA_66 },
 
-Gnome / KDE? does exactly that... (rather annoying too) ..  what app
-specificaly I don't know...  
+Can you verify it's a 596b and not 596a? Preferably by looking on the
+chip? This change was brought in because I wasn't sure for the 10 and 11
+revisions. 586a doesn't have a functional UDMA66 engine and causes
+crashes if programmed to UDMA66.
 
+> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] (rev 11)
+
+It's the revision number - 11 in your case.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262395AbSJPLOq>; Wed, 16 Oct 2002 07:14:46 -0400
+	id <S264772AbSJPLZK>; Wed, 16 Oct 2002 07:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264648AbSJPLOq>; Wed, 16 Oct 2002 07:14:46 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:58119 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S262395AbSJPLOp>;
-	Wed, 16 Oct 2002 07:14:45 -0400
-Date: Wed, 16 Oct 2002 20:09:00 +0900 (JST)
-Message-Id: <20021016.200900.128068491.taka@valinux.co.jp>
-To: neilb@cse.unsw.edu.au
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: [PATCH] zerocopy NFS for 2.5.36
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <15788.57476.858253.961941@notabene.cse.unsw.edu.au>
-References: <15786.23306.84580.323313@notabene.cse.unsw.edu.au>
-	<20021014.210144.74732842.taka@valinux.co.jp>
-	<15788.57476.858253.961941@notabene.cse.unsw.edu.au>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S264804AbSJPLZK>; Wed, 16 Oct 2002 07:25:10 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:19728 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S264772AbSJPLZI>; Wed, 16 Oct 2002 07:25:08 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15789.19959.929002.906160@laputa.namesys.com>
+Date: Wed, 16 Oct 2002 15:31:03 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com
+Subject: Re: XFS build error on m68k in 2.5.43
+In-Reply-To: <Pine.GSO.4.21.0210161319210.9988-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0210161319210.9988-100000@vervain.sonytel.be>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+Tomato: Beige
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Geert Uytterhoeven writes:
+ > 
+ > When compiling a kernel for m68k (with CONFIG_XFS_FS=m), I get this error:
+ > 
+ > | make -f fs/xfs/Makefile 
+ > |    rm -f fs/xfs/built-in.o; m68k-linux-ar rcs fs/xfs/built-in.o
+ > |   m68k-linux-gcc -Wp,-MD,fs/xfs/linux/.xfs_stats.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -fno-strength-reduce -ffixed-a2 -nostdinc -iwithprefix include -DMODULE -Ifs/xfs -funsigned-char  -DKBUILD_BASENAME=xfs_stats   -c -o fs/xfs/linux/xfs_stats.o fs/xfs/linux/xfs_stats.c
+ > | In file included from fs/xfs/xfs.h:70,
+ > |                  from fs/xfs/linux/xfs_stats.c:33:
+ > | fs/xfs/xfs_bmap_btree.h:662: badly punctuated parameter list in `#define'
+ > | fs/xfs/xfs_log.h:62: warning: `_lsn_cmp' defined but not used
+ > | make[2]: *** [fs/xfs/linux/xfs_stats.o] Error 1
+ > | make[1]: *** [fs/xfs] Error 2
+ > | make: *** [fs] Error 2
+ > 
+ > Since it's not obvious to me what's wrong with that define, I'm asking here.
 
-> > It will be effective on large scale SMP machines as all kNFSd shares
-> > one NFS port. A udp socket can't send data on each CPU at the same
-> > time while MSG_MORE/UDP_CORK options are set.
-> > The UDP socket have to block any other requests during making a UDP frame.
-> > 
+Second parameter of xfs_bmbt_disk_set_allf is 0 (zero). Try to replace
+it with O.
 
-> After thinking about this some more, I suspect it would have to be
-> quite large scale SMP to get much contention.
+ > 
+ > Gr{oetje,eeting}s,
+ > 
+ > 						Geert
 
-I have no idea how much contention will happen. I haven't checked the
-performance of it on large scale SMP yet as I don't have such a great
-machines.
+Nikita.
 
-Does anyone help us?
-
-> The only contention on the udp socket is, as you say, assembling a udp
-> frame, and it would be surprised if that takes a substantial faction
-> of the time to handle a request.
-
-After assembling a udp frame, kNFSd may drive a NIC to transmit the frame.
-
-> Presumably on a sufficiently large SMP machine that this became an
-> issue, there would be multiple NICs.  Maybe it would make sense to
-> have one udp socket for each NIC.  Would that make sense? or work?
-
-Some CPUs often share one GbE NIC today as a NIC can handle much data
-than one CPU can. I think that CPU seems likely to become bottleneck.
-Personally I guess several CPUs will share one 10GbE NIC in the near
-future even if it's a high end machine. (It's just my guess)
-
-But I don't know how effective this patch works......
-
-devem> Doesn't make much sense.
-devem> 
-devem> Usually we are talking via one IP address, and thus over
-devem> one device.  It could be using multiple NICs via BONDING,
-devem> but that would be transparent to anything at the socket
-devem> level.
-devem> 
-devem> Really, I think there is real value to making the socket
-devem> per-cpu even on a 2 or 4 way system.
-
-I wish so.
-
-
+ > 

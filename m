@@ -1,86 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266078AbSLNXpn>; Sat, 14 Dec 2002 18:45:43 -0500
+	id <S266081AbSLNXvR>; Sat, 14 Dec 2002 18:51:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266081AbSLNXpn>; Sat, 14 Dec 2002 18:45:43 -0500
-Received: from vsmtp3.tin.it ([212.216.176.223]:12951 "EHLO smtp3.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S266078AbSLNXpm>;
-	Sat, 14 Dec 2002 18:45:42 -0500
-Message-ID: <3DFBC4F3.2070603@tin.it>
-Date: Sun, 15 Dec 2002 00:55:31 +0100
-From: AnonimoVeneziano <voloterreno@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
-X-Accept-Language: en
+	id <S266091AbSLNXvR>; Sat, 14 Dec 2002 18:51:17 -0500
+Received: from services.cam.org ([198.73.180.252]:62615 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S266081AbSLNXvQ>;
+	Sat, 14 Dec 2002 18:51:16 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH] kexec for 2.5.51....
+Date: Sat, 14 Dec 2002 18:59:07 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+References: <200212141215.49449.tomlins@cam.org> <m14r9gv1c8.fsf@frodo.biederman.org>
+In-Reply-To: <m14r9gv1c8.fsf@frodo.biederman.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE-CD and VT8235 issue!!!
-References: <3DFB7B21.7040004@tin.it> <200212142019.14449.black666@inode.at>
-In-Reply-To: <200212142019.14449.black666@inode.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212141859.07191.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Petermair wrote:
+On December 14, 2002 02:37 pm, Eric W. Biederman wrote:
+>
+> Hurray! a bug report :)
 
->Hi!
->
->Same problem here. I have addressed this issue several times...so far no 
->solution.
->
->My specs:
->MSI KT3 Ultra2 (VT8235)
->TOSHIBA DVD-ROM SD-M1302
->YAMAHA CRW8424E
->
->Kernel 2.4.19:
->The one I'm currently using. It doesn't detect the VT8235 and therefore 
->I have no dma. But I can access/mount my DVD without a problem.
->
->Kernel 2.4.20:
->Detects the VT8235 at boot but hangs with my DVD Rom (hdc) --> doesn't 
->boot. I have posted my problem here an Alan Cox suggested that I should 
->try the -ac tree.
->
->Kernel 2.4.20-ac2:
->Some improvements - It detects the VT8235 at boot, also my DVD and CDRW. 
->It boots fine and I have DMA on all my discs. But as soon as I try to 
->mount a CD/DVD (mount /cdrom) the system hangs and I get this:
->
->hdc: status timeout: status=0xd1 { Busy }
->hdc: status timeout: error=0x60LastFailedSense 0x06
->hdc: DMA disabled
->hdc: ATAPI reset timed-out, status=0x80
->hdd: DMA disabled
->ide1: reset: success
->hdc: status timeout: status=0x80 { Busy }
->hdc: status timeout: error=0x01IllegalLengthIndication
->hdc: ATAPI reset timed-out, status=0xd1
->ide1: reset: success
->hdc: status timeout: status=0x80 { Busy }
->hdc: status timeout: error=0x01IllegalLengthIndication
->end_request: I/O error, dev 16:00 (hdc), sector 0
->hdc: status timeout: status=0xd0 { Busy }
->
->and so on...
->
->My guess is the DVD-drive. I know many people with the same southbridge 
->(VT8235), who have dma since 2.4.20 an no problem at all at boot-time 
->or mounting a CD/DVD.
->
->Any hints?
->
->Patrick
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Please, anyone help us, I can't live with a 6 MB HD bandwith!!!:-D
+Feels good huh.
 
-Ciao
+> > One other datum.  Without the --append line a kernel booted with kexec
+> > hangs when
+> >
+> > tring to mount the real root - it cannot find the device.
+>
+> I suspect you want to specify --append="root=/dev/xyz" when calling kexec.
 
+This helps - see below.
+
+> > Am I using kexec correctly?  What else can I try?  Is there any debug
+> > info I can gather?
+>
+> Generally you want to put kexec -e your shutdown scripts just before
+> the call to reboot.  And then you can just say: kexec ...
+> and the you get a clean system shutdown.  Dropping to run level 1
+
+Why not include this info in kexec -h ?  Bet it would prevent a few
+failure reports...
+
+> before calling kexec tends to get most of the user space shutdown
+> called as well.  It is definitely a good idea to be certain X is
+> shutdown before calling kexec.
+
+droping to init 1, then calling kexec -e (with the root= and the rest
+of the appended parms) works and boots 2.5.51 just fine.  <grin>
+
+Two more possible additions to the kexec command.  
+
+1. kexec -q which returns rc=1 and types the pending selection and 
+   its command/append string if one exists and returns rc=0 if nothing 
+   is pending.  
+
+2. kexec -c which clears any pending kernels.
+
+> With respect to USB it is quite possible something in the USB drivers
+> does not shutdown correctly on a reboot, and the driver then has trouble
+> reinitializing the device.
+
+Very possible since I did not do an init 0/1/6 before the kexec -e.  Usb
+was probably being asked to do something very unexpected...
+
+> Since you got to the point of mounting root earlier when you did not
+> specify anything I wonder if you some of your command line arguments
+> made the situation worse.
+>
+> Which kernel are you booting with kexec anyway?
+
+2.5.51 + fbcon(bk) + usb(bk) + kexec
+
+> This is actually an expected failure mode, but one I have not seen
+> much of yet.  The new kernel not coming up because the old drivers
+> left the hardware in a state the new drivers cannot handle
+
+> Greg kh asked:
+
+>Could you enable CONFIG_USB_DEBUG to hopefully see more debugging
+>messages from the uhci driver during boot, so we could narrow this down?
+
+Done.  I will see if I get this to reoccur and will send you debug
+output.
+
+TIA,
+Ed Tomlinson

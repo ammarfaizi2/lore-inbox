@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266230AbRF3RtG>; Sat, 30 Jun 2001 13:49:06 -0400
+	id <S266232AbRF3Rwq>; Sat, 30 Jun 2001 13:52:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266228AbRF3Rs4>; Sat, 30 Jun 2001 13:48:56 -0400
-Received: from nic.lth.se ([130.235.20.3]:15493 "EHLO nic.lth.se")
-	by vger.kernel.org with ESMTP id <S266230AbRF3Rsu>;
-	Sat, 30 Jun 2001 13:48:50 -0400
-Date: Sat, 30 Jun 2001 19:48:36 +0200
-From: Jakob Borg <jakob@borg.pp.se>
-To: Jordan <ledzep37@home.com>, Jordan Breeding <jordan.breeding@inet.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB Keyboard errors with 2.4.5-ac
-Message-ID: <20010630194835.A730@borg.pp.se>
-In-Reply-To: <3B3CBA86.355500A@inet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B3CBA86.355500A@inet.com>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux narayan 2.4.3 i686
+	id <S266231AbRF3Rwg>; Sat, 30 Jun 2001 13:52:36 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:29711 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266232AbRF3Rwc>; Sat, 30 Jun 2001 13:52:32 -0400
+Date: Sat, 30 Jun 2001 10:50:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Steve Lord <lord@sgi.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Bounce buffer deadlock 
+In-Reply-To: <200106301748.f5UHmLs03109@jen.americas.sgi.com>
+Message-ID: <Pine.LNX.4.33.0106301048180.1470-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 29, 2001 at 12:27:34PM -0500, Jordan Breeding wrote:
-> lock a couple of times then the keyboard stops responding completely and
-> the kernel tells me that there was an error waiting on a IRQ on CPU #1. 
 
-You are using an SMP kernel. In my experience, nothing USB works with an SMP
-kernel >2.4.3.
+On Sat, 30 Jun 2001, Steve Lord wrote:
+>
+> OK, sounds reasonable, time to go download and merge again I guess!
 
-//jb
+For 2.4.7 or so, I'll make a backwards-compatibility define (ie make
+GFP_BUFFER be the same as the new GFP_NOIO, which is the historical
+behaviour and the anally safe value, if not very efficient), but I'm
+planning on releasing 2.4.6 without it, to try to flush out people who are
+able to take advantage of the new extended semantics out of the
+woodworks..
+
+		Linus
+

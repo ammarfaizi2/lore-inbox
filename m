@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269212AbRHQArg>; Thu, 16 Aug 2001 20:47:36 -0400
+	id <S269291AbRHQAtg>; Thu, 16 Aug 2001 20:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269226AbRHQAr0>; Thu, 16 Aug 2001 20:47:26 -0400
-Received: from odyssey.netrox.net ([204.253.4.3]:8628 "EHLO t-rex.netrox.net")
-	by vger.kernel.org with ESMTP id <S269212AbRHQArR>;
-	Thu, 16 Aug 2001 20:47:17 -0400
-Subject: Re: [PATCH] Optionally let Net Devices feed Entropy
-From: Robert Love <rml@tech9.net>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <212453020.997993720@[169.254.45.213]>
-In-Reply-To: <20010816190255.A17095@se1.cogenit.fr> 
-	<212453020.997993720@[169.254.45.213]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 16 Aug 2001 20:47:47 -0400
-Message-Id: <998009275.664.67.camel@phantasy>
-Mime-Version: 1.0
+	id <S269308AbRHQAtb>; Thu, 16 Aug 2001 20:49:31 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:37899 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269274AbRHQArW>;
+	Thu, 16 Aug 2001 20:47:22 -0400
+Date: Thu, 16 Aug 2001 21:46:59 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bulent Abali <abali@us.ibm.com>,
+        "Dirk W. Steinberg" <dws@dirksteinberg.de>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: Swapping for diskless nodes
+In-Reply-To: <20010816234639.E755@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.33L.0108162146120.5646-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Aug 2001 20:28:41 +0100, Alex Bligh - linux-kernel wrote:
-> As opposed to the huge amount of sense it currently makes to
-> collect it depending on your NIC manufacturer, as opposed to
-> dependent upon a config option?
+On Thu, 16 Aug 2001, Pavel Machek wrote:
 
-amen, thank you :)
+> I'd call that configuration error. If swap-over-nbd works in all but
+> such cases, its okay with me.
 
-> If you mean that the option should be labelled 'not for
-> the paranoid' I agree.
+Agreed. I'm very interested in this case too, I guess we
+should start testing swap-over-nbd and trying to fix things
+as we encounter them...
 
-agreed.
+regards,
 
-now, we talked earlier about this patch, Alex -- what are your opinions
-of it?  have you tried it?
+Rik
+--
+IA64: a worthy successor to i860.
 
-i know it is not exactly what you want (although i am still open to your
-way, too), but i made it due in no small part to our conversation and
-would like your opinion.  i am using it now.
+http://www.surriel.com/		http://distro.conectiva.com/
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

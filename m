@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262547AbSJ3D5Q>; Tue, 29 Oct 2002 22:57:16 -0500
+	id <S263760AbSJ3D67>; Tue, 29 Oct 2002 22:58:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbSJ3D5Q>; Tue, 29 Oct 2002 22:57:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30475 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262547AbSJ3D5Q>; Tue, 29 Oct 2002 22:57:16 -0500
-Date: Tue, 29 Oct 2002 20:03:33 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Incorrect 2.5.45 tar-balls created..
-Message-ID: <Pine.LNX.4.44.0210291957330.1626-100000@home.transmeta.com>
+	id <S263785AbSJ3D67>; Tue, 29 Oct 2002 22:58:59 -0500
+Received: from host-217-146-15-39.warsun.com ([217.146.15.39]:260 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id <S263760AbSJ3D66>;
+	Tue, 29 Oct 2002 22:58:58 -0500
+From: "SMITH HARRISON" <mdtooshtech@yahoo.com>
+Date: Wed, 30 Oct 2002 04:05:01
+To: linux-kernel@vger.kernel.org
+Subject: REQUEST.....
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20021030035858Z263760-32597+11963@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+								TOOSHTECH NIG LTD
+								6 SOLOKI STREET
+								AGUDA SURULERE 
+								LAGOS 
+								NIGERIA.		
 
-There was, for a while, bogus 2.5.45 tar-balls etc created from a BK tree
-that was never meant to be exported (translation: "Linus ran his automatic
-release-scripts on a bad tree because he is a booger-head").
+DEAR SIR,
 
-I've removed the offending files, and hopefully nobody even had time to
-download them, but just in case - if you get your kernels as tar-balls (or 
-as old-fashioned patches) rather than from the BK tree, and you saw a 
-2.5.45, you should ignore it.
+I HEREBY WRITE AS THE MANAGING DIRECTOR OF THE ABOVE COMPANY.
 
-		Linus "booger-head" Torvalds
+WE ARE HEREBY REQUESTING TO BE ONE OF YOUR MARKETERS AND SALES DISTRIBUTORS .
 
+WE ARE MARKETERS OF COMMUNICATION EQUIPMENTS AND WE ARE VERY GOOD AND RELIABLE AT DOING THIS.
+
+DUE TO THE HIGH DEMAND FOR GSM MOBILE PHONES IN OUR COUNTRY. WE STAND TO MAKE A VERY GOOD AND PROFITABLE BUSINESS WITH YOUR COMPANY SUPPLING US GSM PHONES AT A VERY PROFITABLE RATE.
+
+WE PROMISE A VERY GOOD AND PROFITABLE OUTCOME FOR BOTH PARTIES
+
+THANK YOU FOR YOUR COOPERATION .
+
+YOURS FAITHFULLY
+SMITH HARRISON
+
+FOR TOOSHTECH NIG LTD
+	

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278587AbRKVNCb>; Thu, 22 Nov 2001 08:02:31 -0500
+	id <S278592AbRKVNFc>; Thu, 22 Nov 2001 08:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278592AbRKVNCV>; Thu, 22 Nov 2001 08:02:21 -0500
-Received: from [194.228.240.2] ([194.228.240.2]:8723 "EHLO chudak.century.cz")
-	by vger.kernel.org with ESMTP id <S278587AbRKVNCK>;
-	Thu, 22 Nov 2001 08:02:10 -0500
-Message-ID: <3BFCF740.1030009@century.cz>
-Date: Thu, 22 Nov 2001 14:01:52 +0100
-From: Petr Titera <P.Titera@century.cz>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6+) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Filesize limit on SMBFS
-In-Reply-To: <Pine.LNX.4.30.0111221305520.4258-100000@cola.teststation.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278690AbRKVNFW>; Thu, 22 Nov 2001 08:05:22 -0500
+Received: from ids.big.univali.br ([200.169.51.11]:5248 "HELO
+	mail.big.univali.br") by vger.kernel.org with SMTP
+	id <S278592AbRKVNFM>; Thu, 22 Nov 2001 08:05:12 -0500
+Message-Id: <5.1.0.14.1.20011122105002.00ab7678@mail.big.univali.br>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 22 Nov 2001 11:04:25 -0200
+To: linux-kernel@vger.kernel.org
+From: Marcus Grando <marcus@big.univali.br>
+Subject: Input/output error
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark wrote:
+Hi list,
 
-> On Thu, 22 Nov 2001, Petr Tite(ra wrote:
-> 
-> 
->>    is maximum file size on SMBFS really 2GB? I cannot create file 
->>bigger than that.
->>
-> 
-> Yes.
-> 
-> I have patches if you want to be my victim^Wtester.
+After reboot in kernel 2.4.15-pre9 this problem occur:
 
+On try start syslog deamon occur this errrors "Input/output error" on many archives /var directory.
 
-I'd like to.
+I mount the /var at boot linux single, and when try ls on /var/run list all archives .pid, 
+before try ls -la on /var/run, not list all archives.
+Try remove .pid archives and the error occur again.
 
-> 
-> You must be using an NT/2k/XP machine as server, win9x has a 4G limit
-> (vfat limit?).
+/var partition use ext2
 
+Any suggestion?
 
-It's NT.
+Tanks in advance,
 
-> 
-> Let me know which 2.4 kernel you are using. And if you don't already run a
-> kernel you compiled yourself, please do that first as you must recompile
-> to test the patches anyway (smbfs as a module is recommended, then you
-> should be able to only rebuild the modules part).
+Regards
+Marcus Grando
 
-
-I use 2.4.15-pre7 (compiled myself :)
-
-> 
-> /Urban
-> 
-
-Petr
+	
 

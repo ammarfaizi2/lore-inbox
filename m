@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBGSGi>; Wed, 7 Feb 2001 13:06:38 -0500
+	id <S129027AbRBGSTL>; Wed, 7 Feb 2001 13:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129057AbRBGSG2>; Wed, 7 Feb 2001 13:06:28 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4356 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129027AbRBGSGS>; Wed, 7 Feb 2001 13:06:18 -0500
-Message-ID: <3A818D21.6619FE3C@transmeta.com>
-Date: Wed, 07 Feb 2001 10:00:01 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129053AbRBGSTB>; Wed, 7 Feb 2001 13:19:01 -0500
+Received: from betty.magenta-netlogic.com ([193.37.229.181]:12817 "EHLO
+	betty.magenta-netlogic.com") by vger.kernel.org with ESMTP
+	id <S129032AbRBGSS1>; Wed, 7 Feb 2001 13:18:27 -0500
+Message-ID: <3A81920A.90601@magenta-netlogic.com>
+Date: Wed, 07 Feb 2001 18:20:58 +0000
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; 0.7) Gecko/20010109
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: Petr Vandrovec <vandrove@vc.cvut.cz>, mingo@redhat.com,
-        linux-kernel@vger.kernel.org, mikpe@csd.uu.se
-Subject: Re: UP APIC reenabling vs. cpu type detection ordering
-In-Reply-To: <Pine.GSO.3.96.1010207184159.1418E-100000@delta.ds2.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
+To: Tony Hoyle <tmh@magenta-netlogic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ACPI slowdown...
+In-Reply-To: <3A818BC4.7020007@magenta-netlogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" wrote:
-> 
-> > In other words, I'd like to see a reason for making any vendor-specific
-> > determinations, and if so, they should ideally be centralized to the CPU
-> > feature-determination code.
-> 
->  It would be hard to decide how to classify it.  It's something like "the
-> CPU has a local APIC that we know how to handle in the non-MPS system".
-> 
->  It might be viable just to delete the test altogether, though and just
-> trap #GP(0) on the MSR access.  For the sake of simplicity.  If a problem
-> with a system ever arizes, we may handle it then.
-> 
->  Note that we still have to choose appropriate vendor-specific PeMo
-> handling and an event for the NMI watchdog anyway.
-> 
+Tony Hoyle wrote:
 
-Right... if that is the case then it seems reasonable.
+I'm talking to myself :-)
 
-	-hpa
+OK I see that safe_halt() will re-enable interrupts.  However this is only
+called in S1.  If your machine gets as far as S3 you have...
+
+         for (;;) {
+                 unsigned long time;
+                 unsigned long diff;
+
+                 __cli();
+                 if (current->need_resched)
+                         goto out;
+                 if (acpi_bm_activity())
+                         goto sleep2;
+
+                 time = acpi_read_pm_timer();
+                 inb(acpi_pblk + ACPI_P_LVL3);
+                 /* Dummy read, force synchronization with the PMU */
+                 acpi_read_pm_timer();
+                 diff = acpi_compare_pm_timers(time, acpi_read_pm_timer());
+
+                 __sti();
+                 if (diff < acpi_c3_exit_latency)
+                         goto sleep2;
+         }
+
+There is no halt here... the interrupts are enabled for only a couple of 
+instructions (one comparison and a jump) before being disabled again. 
+It seems to me if the computer gets into S3 it'll effectively die until 
+some kind of busmaster device wakes it up (DMA?).
+
+The simple fix is to delete lines 332-337 of cpu.c, which disables the 
+idle process (and explains why I've had no slowdown on my SMP machine). 
+  Lots of people (like me) only use ACPI for the power-off/shutdown 
+functionality anyway.  Laptop users will probably have to wait for a 
+proper fix (unfortunately the ACPI4Linux mailing list looks dead - it's 
+just full of people complaining about 2.4.1...)
+
+Tony
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
+The only secure computer is one that's unplugged, locked in a safe,
+and buried 20 feet under the ground in a secret location... and i'm
+not even too sure about that one"--Dennis Huges, FBI.
+
+tmh@magenta-netlogic.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

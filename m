@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266240AbUGJM5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266241AbUGJM6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUGJM5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 08:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUGJM5y
+	id S266241AbUGJM6a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 08:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUGJM6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 08:57:54 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:46524 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266240AbUGJM5w (ORCPT
+	Sat, 10 Jul 2004 08:58:30 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:50332 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S266241AbUGJM62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 08:57:52 -0400
-Date: Sat, 10 Jul 2004 14:55:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dave Jones <davej@redhat.com>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
+	Sat, 10 Jul 2004 08:58:28 -0400
+Message-ID: <2a4f155d04071005585b5d8999@mail.gmail.com>
+Date: Sat, 10 Jul 2004 15:58:28 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
 Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040710125535.GA27644@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <40EF3FAA.5000907@kolivas.org> <20040710010429.GB6386@redhat.com>
+Cc: Redeeman <lkml@metanurb.dk>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+In-Reply-To: <20040710123520.GA27278@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040710010429.GB6386@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=0, required 5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040709182638.GA11310@elte.hu> <1089407610.10745.5.camel@localhost> <20040710080234.GA25155@elte.hu> <20040710085044.GA14262@elte.hu> <2a4f155d040710035512f21d34@mail.gmail.com> <20040710123520.GA27278@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Dave Jones <davej@redhat.com> wrote:
-
-> On Sat, Jul 10, 2004 at 11:00:26AM +1000, Con Kolivas wrote:
+> what filesystem are you using?
 > 
->  > >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.7-bk20-H2
->  > Looks nice.
->  > 
->  > I think you may have mixed up your trees. I think this change is the cfq 
->  > bad allocation fix which I dont think is part of your voluntary 
->  > preemption patch:
->  > 
->  > --- linux/drivers/block/cfq-iosched.c.orig	
->  
-> It was this patch that found this bug 8-)  Without voluntary-preempt
-> it had been lying there unexposed for a while.  It's sort of must-have
-> if you use this patch, so I guess that's why Ingo rolled it in until
-> mainline gets the same fix.
 
-correct. E.g. 2.6.7-mm7 already has the patch so for that tree there's
-no cfq-iosched.c change in the voluntary-preempt patch. And for
-2.6.7-vanilla there's a big cfq-iosched.c delta to include the other
-improvements from Jens as well on which the bugfix depends.
+XFS
 
-the patch didnt really trigger the bug itself, it triggered an annoying
-debugging message instead ;)
- 
-	Ingo
+> also, are you sure it's not pure IO latency (or swapout) that hits you?
+> Do you get the same if you copy the music file to /dev/shm and play from
+> there?
+
+Ok tested with mplayer -ao jack it *didn't* skip once during a large
+copy ( Tested with CFQ ). So I guess aRts has some problems with jack.
+
+Cheers,
+ismail
+
+-- 
+Time is what you make of it

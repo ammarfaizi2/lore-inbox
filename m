@@ -1,24 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292035AbSBOA1E>; Thu, 14 Feb 2002 19:27:04 -0500
+	id <S292015AbSBOAeE>; Thu, 14 Feb 2002 19:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292033AbSBOA0y>; Thu, 14 Feb 2002 19:26:54 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:155 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S292032AbSBOA0k>; Thu, 14 Feb 2002 19:26:40 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Hans-Christian Armingeon <johnny@allesklar.de>
-To: linux-kernel@vger.kernel.org
-Subject: fett sorry, die nummer von Gelinde war falsch!!!!
-Date: Fri, 15 Feb 2002 02:27:41 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S292032AbSBOAdy>; Thu, 14 Feb 2002 19:33:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28681 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292015AbSBOAdf>; Thu, 14 Feb 2002 19:33:35 -0500
+Subject: Re: Problems with VM
+To: ccroswhite@get2chip.com
+Date: Fri, 15 Feb 2002 00:47:24 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C6C53C0.E7562704@get2chip.com> from "ccroswhite@get2chip.com" at Feb 14, 2002 04:18:08 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <16bWBv-1R0cWOC@fmrl00.sul.t-online.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16bWX6-0001hc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Schütt Gerlinde
-(0 71 92) 33 25
-71540 Murrhardt, Friedenstr. 50
+> as 'normal' ran.  Consequently, I will have a machine that has 5M
+> 'normal' RAM, 800M 'cache' RAM and the reset coming out of swap space.
+> I need this 'cache' RAM placed back into the available RAM pool to be
+> used by applications.  Is there a patch/kernel configuration that I can
+> change this behavior?
+
+2.4.18-rc1 should fix the worst of that. The rmap patches in 2.4.18-ac
+definitely fix it

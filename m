@@ -1,77 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276135AbRJKM3j>; Thu, 11 Oct 2001 08:29:39 -0400
+	id <S276249AbRJKMxe>; Thu, 11 Oct 2001 08:53:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276233AbRJKM33>; Thu, 11 Oct 2001 08:29:29 -0400
-Received: from radium.jvb.tudelft.nl ([130.161.76.91]:41477 "HELO
-	radium.jvb.tudelft.nl") by vger.kernel.org with SMTP
-	id <S276135AbRJKM3T>; Thu, 11 Oct 2001 08:29:19 -0400
-From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 / 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
-Date: Thu, 11 Oct 2001 14:29:56 +0200
-Message-ID: <002001c15250$6fad3c50$020da8c0@nitemare>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S276271AbRJKMxZ>; Thu, 11 Oct 2001 08:53:25 -0400
+Received: from yktgi01e0-s1.watson.ibm.com ([198.81.209.16]:61398 "HELO
+	ssm22.watson.ibm.com") by vger.kernel.org with SMTP
+	id <S276249AbRJKMxL>; Thu, 11 Oct 2001 08:53:11 -0400
+Date: Thu, 11 Oct 2001 06:52:56 -0400
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Mika Liljeberg <Mika.Liljeberg@welho.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+Message-ID: <20011011065256.A5832@watson.ibm.com>
+In-Reply-To: <E15pWfR-0006g5-00@the-village.bc.nu> <3BC02709.A8E6F999@welho.com> <20011009163724.A4903@watson.ibm.com> <3BC38D38.4F24BD0@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <3BC38D38.4F24BD0@mvista.com>; from george anzinger on Tue, Oct 09, 2001 at 04:50:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Done. I put the ALS2001 paper on CPU pooling and load balancing 
+on the lse.sourceforge.net/scheduling website. Here is a direct shortcut
+http://lse.sourceforge.net/scheduling/als2001/pmqs.ps
+The patches are a bit behind. Will be updated soon.
 
-I can confirm that the known bug in the Intel EtherExpress Pro/100
-adapter is still not worked around in recent kernels. The bug only
-manifests itself when the card is operating on 10 Mbit half duplex. On
-100 Mbit there are no problems. The problem is that after the device
-received certain amount of traffic (between 80 and 130 Mb in my tests)
-the device will lockup on new connections. Processes start to hang after
-this and logging in is impossible. The only solution is to reset the
-interface (using a previously logged in root session) and reboot the
-system.
+If you have some suggestions on what is a good metric to move 
+tasks please let me know. We can incorporate them.
 
-This is tested on :
-Linus kernels:
-	- 2.4.5
-	- 2.4.10-pre2
-	- 2.4.10
-	- 2.4.11pre6
-	- 2.4.11
-	- 2.4.11 with eepro100.c from ac kernel 2.4.10ac11 (minor diffs)
+-- Hubertus
 
-Again, on 100 Mbit there are no more problems.
-
-This is my relevant dmesg output:
-
-eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin
-<saw@saw.sw.com.sg> and others
-eth0: OEM i82557/i82558 10/100 Ethernet, 00:D0:B7:E8:A2:02, IRQ 17.
-  Board assembly 749658-005, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0xdbd8681d).
-
-cat /proc/pci part:
-  Bus  0, device  13, function  0:
-    Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev
-9).
-      IRQ 17.
-      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
-      Non-prefetchable 32 bit memory at 0xda020000 [0xda020fff].
-      I/O at 0xc800 [0xc83f].
-      Non-prefetchable 32 bit memory at 0xda000000 [0xda01ffff].
-
-These are taken from the current setup on 100 Mbit.
-
-Regards,
-- Robbert Kouprie, System Administrator, The Netherlands
-
+* george anzinger <george@mvista.com> [20011009 19;50]:"
+> Hubertus Franke wrote:
+> > 
+> > * Mika Liljeberg <Mika.Liljeberg@welho.com> [20011007 05;57]:"
+> > > Alan Cox wrote:
+> > > > This isnt idle speculation - I've done some minimal playing with this but
+> > > > my initial re-implementation didnt handle SMP at all and I am still not 100%
+> > > > sure how to resolve SMP or how SMP will improve out of the current cunning
+> > > > plan.
+> > >
+> > > Here's some idle speculation on SMP to top it off. :) I tend to think
+> > > that the load balancing between CPUs should be a completely separate
+> > > algorithim and should not necessarily be run at every schedule(). The
+> > > idea is to compeletely decouple the problem of scheduling a single CPU
+> > > between tasks and the problem of load balancing between the CPUs, making
+> > > each problem simpler to solve.
+> > >
+> > 
+> > This is what we implemented as an extension to our MQ scheduler.
+> > I will present on the results for this during ALS technical session:
+> > "CPU Pooling and Load Balancing in Linux MultiQueue Scheduling".
+> > If interested I can already put an earlier version on lse.sourceforge.net.
+> 
+> Please do.  It should be a good read.
+> 
+> George
+> 
+> > 
+> > It basically does (1) and (2). (3) is done unintelligently right now.
+> > 
+> > > Consider the following basic rules:
+> > >
+> > > A) When a new task comes along, pick the "least loaded" CPU and lock the
+> > > new task onto that.
+> > > B) Whenever the load imbalance between least loaded CPU and most loaded
+> > > CPU becomes too great, move one or more tasks from most loaded CPU to
+> > > the least loaded CPU.
+> > >
+> > > The rules themselves should be self-explanatory: A provides initial load
+> > > balancing, while B tries to keep the balance (with a sensible hysteresis
+> > > to avoid thrashing). However, there are a few minor details to solve:
+> > >
+> > > 1) How to determine the load of a CPU? If we can quantify this clearly,
+> > > we can easily set a hysteresis level to trigger load balancing between
+> > > two CPUs.
+> > > 2) When and how often to check for load imbalance?
+> > > 3) How to select the task(s) that should be moved between two CPUs to
+> > > correct an imbalance?
+> > >
+> > > For problems 1 and 2 I propose the following solution: Insert the the
+> > > load balancing routine itself as a (fake) task on each CPU and run it
+> > > when the CPU gets around to it. The load balancer should behave almost
+> > > like a CPU-bound task, scheduled on the lowest priority level with other
+> > > runnable tasks. The last bit is important: the load balancer should not
+> > > be allowed to starve but should be invoked approximately once every
+> > > "full rotation" of the scheduler.
+> > >
+> > > With the above it is easy to estimate the load of a CPU. We can simply
+> > > use the elapsed time between two invokations of the load balancer task.
+> > > When the load balancer task of a particular CPU gets run, it chalks up
+> > > the elapsed time on a score board somewhere, and checks whether there is
+> > > a significant imbalance between itself and some other CPU. If there is,
+> > > it commences to move some tasks between itself and the other CPU (note
+> > > rule B, though, it should be enough to mess with just two CPU queues at
+> > > a time to minimize balancing and locking overhead).
+> > >
+> > > Problem 3 is tricky. Basically, there should be a cost/benefit function
+> > > F(tasks to move) that should be minimized. Ideally F(task_i), the
+> > > cost/benefit of moving a single task, would be calculated as a byproduct
+> > > of the CPU scheduler algorithm.
+> > >
+> > > F(task_i) might be function of elapsed time since task_i was last
+> > > scheduled and the average time slice used by task_i, to account for the
+> > > probable cache hit. This would leave it up to the load balancer to move
+> > > as many lowest cost tasks to a new CPU as is needed to correct the
+> > > imbalance (average time slices used by each task would be needed in
+> > > order to make this decision).
+> > >
+> > > Naturally, some additional rules might be necessary to make a task
+> > > eligible for moving, e.g., never move the only/last CPU bound task to
+> > > another CPU. In addition, it might actually make sense to move at most
+> > > one task at each invocation of the load balancer, to further reduce the
+> > > probability of thrashing. The load would still converge fairly quickly
+> > > towards a balanced state. It would also scale fairly well with the
+> > > number of CPUs.
+> > >
+> > > How does that sound?
+> > >
+> > >       MikaL
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,88 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265408AbUAFWrC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 17:47:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265420AbUAFWrC
+	id S265415AbUAFWk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 17:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbUAFWk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 17:47:02 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:32272 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S265408AbUAFWq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 17:46:57 -0500
-Date: Tue, 6 Jan 2004 23:43:40 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Hans Reiser <reiser@namesys.com>,
-       "Tigran A. Aivazian" <tigran@veritas.com>,
-       Hans Reiser <reiserfs-dev@namesys.com>,
-       Daniel Pirkl <daniel.pirkl@email.cz>,
-       Russell King <rmk@arm.linux.org.uk>, Will Dyson <will_dyson@pobox.com>,
-       linux-kernel@vger.kernel.org, nikita@namesys.com
-Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related
- to sector_t being unsigned, advice requested
-In-Reply-To: <20040106174650.GD1882@matchmail.com>
-Message-ID: <Pine.LNX.4.56.0401062251290.8384@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk>
- <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk>
- <20040106174650.GD1882@matchmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jan 2004 17:40:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61317 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265415AbUAFWkX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 17:40:23 -0500
+Date: Tue, 6 Jan 2004 14:40:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: patmans@ibm.com, neuffer@goofy.zdv.uni-mainz.de, a.arnold@kfa-juelich.de,
+       linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.1-rc1: SCSI: `TIMEOUT' redefined
+Message-Id: <20040106144059.0c896eea.akpm@osdl.org>
+In-Reply-To: <20040106183325.GJ11523@fs.tum.de>
+References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org>
+	<20040106183325.GJ11523@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 6 Jan 2004, Mike Fedyk wrote:
-
-> On Tue, Jan 06, 2004 at 12:28:34PM +0100, Jesper Juhl wrote:
-> > --- linux-2.6.1-rc1-mm2-orig/fs/reiserfs/inode.c        2004-01-06 01:33:08.000000000 +0100
-> > +++ linux-2.6.1-rc1-mm2/fs/reiserfs/inode.c     2004-01-06 12:16:16.000000000 +0100
-> > @@ -574,11 +574,6 @@ int reiserfs_get_block (struct inode * i
-> >      th.t_trans_id = 0 ;
-> >      version = get_inode_item_key_version (inode);
-> >
-> > -    if (block < 0) {
-> > -       reiserfs_write_unlock(inode->i_sb);
-> > -       return -EIO;
-> > -    }
-> > -
+Adrian Bunk <bunk@fs.tum.de> wrote:
 >
-> Did you check the locking after this is removed?
->
+> On Wed, Dec 31, 2003 at 12:36:49AM -0800, Linus Torvalds wrote:
+> >...
+> > Summary of changes from v2.6.0 to v2.6.1-rc1
+> > ============================================
+> >...
+> > Patrick Mansfield:
+> >   o consolidate and log scsi command on send and completion
+> >...
+> 
+> This adds a #define TIMEOUT to scsi.h conflicting with a different 
+> TIMEOUT #define in drivers/scsi/eata_generic.h:
 
-reiserfs_write_unlock(inode->i_sb); is called at the beginning of the
-function, and as far as I can tell it's matched by a call to
-reiserfs_write_unlock(inode->i_sb); at every potential return point in the
-function, and I see no other locks being taken.
-Besides, since  if (block < 0)  will never be true and
-	reiserfs_write_unlock(inode->i_sb);
-	return -EIO;
-will never execute in any case, locking should behave identical to what it
-did before removing the code.
-Locking /seems/ OK to me in this function.
+eww, bad idea.  I count more than twenty #defines of TIMEOUT in the kernel
+tree.
 
-Also, I did a build of fs/reiserfs/ both with and without the above patch,
-and then did a disassemble of inode.o (objdump -d) and compared the
-generated code for reiserfs_get_block , and the generated code is
-byte-for-byte identical in both cases, which means that gcc realizes that
-the if() statement will never execute and optimizes it away in any case.
+We should change scsi.h - "TIMEOUT" is waaay too collision-prone.
 
-This is a further indication that removing the code should be safe.
-And it seems to me that any code that assumes that a sector_t value can be
-negative is either broken or obsolete.
+In fact, a lot of those identifiers are quite poorly chosen:
 
+#define NEEDS_RETRY     0x2001
+#define SUCCESS         0x2002
+#define FAILED          0x2003
+#define QUEUED          0x2004
+#define SOFT_ERROR      0x2005
+#define ADD_TO_MLQUEUE  0x2006
+#define TIMEOUT         0x2007
 
-> Maybe after the sector_t merges, this code covered a case that is left open
-> now...
->
+That's just asking for it.
 
-I'm not familliar with those "sector_t merges" you are refering to, but I
-found some mention of a 64bit sector_t merge in the 2.5.x kernel
-Changelogs, so I downloaded the 2.5.10 kernel source (first reference to
-sector_t I found was in the 2.5.11 changelog) and took a look at how
-sector_t used to be defined. It seems that it was an unsigned value even
-back then.
-Has sector_t ever been signed?
+This untested patch purports to fix just the TIMEOUT thing:
+
+(hmm, SD_TIMEOUT is already taken, too).
 
 
-/Jesper Juhl
+diff -puN drivers/scsi/scsi.c~scsi-rename-TIMEOUT drivers/scsi/scsi.c
+--- 25/drivers/scsi/scsi.c~scsi-rename-TIMEOUT	Tue Jan  6 14:37:24 2004
++++ 25-akpm/drivers/scsi/scsi.c	Tue Jan  6 14:37:35 2004
+@@ -441,7 +441,7 @@ void scsi_log_completion(struct scsi_cmn
+ 			case FAILED:
+ 				printk("FAILED ");
+ 				break;
+-			case TIMEOUT:
++			case SD_CMD_TIMEOUT:
+ 				/* 
+ 				 * If called via scsi_times_out.
+ 				 */
+diff -puN drivers/scsi/scsi_error.c~scsi-rename-TIMEOUT drivers/scsi/scsi_error.c
+--- 25/drivers/scsi/scsi_error.c~scsi-rename-TIMEOUT	Tue Jan  6 14:37:24 2004
++++ 25-akpm/drivers/scsi/scsi_error.c	Tue Jan  6 14:37:45 2004
+@@ -164,7 +164,7 @@ int scsi_delete_timer(struct scsi_cmnd *
+  **/
+ void scsi_times_out(struct scsi_cmnd *scmd)
+ {
+-	scsi_log_completion(scmd, TIMEOUT);
++	scsi_log_completion(scmd, SD_CMD_TIMEOUT);
+ 	if (unlikely(!scsi_eh_scmd_add(scmd, SCSI_EH_CANCEL_CMD))) {
+ 		panic("Error handler thread not present at %p %p %s %d",
+ 		      scmd, scmd->device->host, __FILE__, __LINE__);
+diff -puN include/scsi/scsi.h~scsi-rename-TIMEOUT include/scsi/scsi.h
+--- 25/include/scsi/scsi.h~scsi-rename-TIMEOUT	Tue Jan  6 14:37:24 2004
++++ 25-akpm/include/scsi/scsi.h	Tue Jan  6 14:37:54 2004
+@@ -302,7 +302,7 @@ struct scsi_lun {
+ #define QUEUED          0x2004
+ #define SOFT_ERROR      0x2005
+ #define ADD_TO_MLQUEUE  0x2006
+-#define TIMEOUT         0x2007
++#define SD_CMD_TIMEOUT  0x2007
+ 
+ /*
+  * Midlevel queue return values.
+
+_
 

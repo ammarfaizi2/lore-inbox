@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267619AbUIUMg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267632AbUIUMfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267619AbUIUMg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 08:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267633AbUIUMgZ
+	id S267632AbUIUMfh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 08:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267633AbUIUMfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 08:36:25 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:60432 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S267619AbUIUMgT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 08:36:19 -0400
-Date: Tue, 21 Sep 2004 14:36:22 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: linux-kernel@vger.kernel.org
-Subject: RARP support disapeard in kernel 2.6.x ?
-Message-ID: <Pine.LNX.4.60L.0409211432000.15099@rudy.mif.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-903867316-1095770182=:15099"
+	Tue, 21 Sep 2004 08:35:37 -0400
+Received: from mail.gmx.net ([213.165.64.20]:53659 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267632AbUIUMfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 08:35:30 -0400
+X-Authenticated: #1725425
+Date: Tue, 21 Sep 2004 14:36:13 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
+Cc: torvalds@osdl.org, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+Message-Id: <20040921143613.2dc78e2f.Ballarin.Marc@gmx.de>
+In-Reply-To: <1095721742.5886.128.camel@bach>
+References: <1095721742.5886.128.camel@bach>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Tue, 21 Sep 2004 09:09:02 +1000
+"Rusty Russell (IBM)" <rusty@au1.ibm.com> wrote:
 
---8323328-903867316-1095770182=:15099
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+> Name: Warn that ipchains and ipfwadm are going away
+> Status: Trivial
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> Start off with a warning for 2.6.9, so any remaining users have a
+> chance to migrate.  Their firewall scripts might not check return
+> values, and they might get a nasty surprise when this goes away.
 
+Isn't a compile-time warning a bit "soft"? Especially when compilation of
+a kernel easily produces > 100 warnings, as it does right now.
 
-I'm just try prepare ARP/RARP/TFTP boot host and ..
-
-# rarp -a
-This kernel does not support RARP.
-# modprobe rarp
-FATAL: Module rarp not found.
-
-[linux-2.6.8.1]$ grep RARP .config
-[linux-2.6.8.1]$
-
-What hepen with RARP support in kernel 2.6.x ?
-
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---8323328-903867316-1095770182=:15099--
+Regards

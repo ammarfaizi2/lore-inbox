@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285556AbSACVtA>; Thu, 3 Jan 2002 16:49:00 -0500
+	id <S287359AbSACVva>; Thu, 3 Jan 2002 16:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287359AbSACVsv>; Thu, 3 Jan 2002 16:48:51 -0500
-Received: from vena.lwn.net ([206.168.112.25]:27146 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S285556AbSACVsk>;
-	Thu, 3 Jan 2002 16:48:40 -0500
-Message-ID: <20020103214839.9953.qmail@eklektix.com>
-To: Michael Zhu <mylinuxk@yahoo.ca>
+	id <S287368AbSACVvV>; Thu, 3 Jan 2002 16:51:21 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:53776 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S287359AbSACVvG>;
+	Thu, 3 Jan 2002 16:51:06 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alexander Viro <viro@math.psu.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: The CURRENT macro 
-From: corbet@lwn.net (Jonathan Corbet)
-In-Reply-To: Your message of "Thu, 03 Jan 2002 16:34:55 EST."
-             <20020103213455.34699.qmail@web14911.mail.yahoo.com> 
-Date: Thu, 03 Jan 2002 14:48:39 -0700
+Subject: Re: State of the new config & build system 
+In-Reply-To: Your message of "Thu, 03 Jan 2002 16:30:55 CDT."
+             <Pine.GSO.4.21.0201031623580.23693-100000@weyl.math.psu.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 04 Jan 2002 08:50:52 +1100
+Message-ID: <21246.1010094652@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In Alessandro Rubini's book Linux Device Driver(Second
-> Edition), Chatper 12
+On Thu, 3 Jan 2002 16:30:55 -0500 (EST), 
+Alexander Viro <viro@math.psu.edu> wrote:
+><shrug> kernel build doesn't have to use it - if I mount a writable layer
+>atop of the clean tree and build in the resulting tree, build system
+>doesn't need to have any idea of that fact.
 
-Alessandro and...um...some other guy...:)
+I have one big problem with unionfs and make, it cannot handle this
+scenario.
 
-> he said that "By accessing the
-> fields in the request structure, usually by way of
-> CURRENT" and "CURRENT is just a pointer into
-> blk_dev[MAJOR_NR].request_queue". I know CURRENT is
-> just a macro. Where can I find the definition of this
-> macro?
+* Mount COW layer over clean tree.
+* Edit a file, writing to the COW layer.
+* Build the kernel.
+* Decide that you don't want the change, delete the COW version,
+  exposing the original version of the file, timestamp goes backwards.
+* Build the kernel.
+* make sees source timestamp < object timestamp and does not rebuild,
+  the kernel source and object do not match.
 
-A little grepping in the source would give you the answer there.  It's in
-.../include/linux/blk.h.  
+Obviously this is a design flaw in make, using only timestamps has been
+shown to be unreliable.  As long as people use the standard make
+program, they will have problems with union filesystems.  The problem
+is not restricted to unionfs, NFS timestamp skew also affects make, as
+well as checking out code from source repositories when the timestamp
+goes backwards.
 
-> I just don't know how to get the struct request from
-> the request_queue(a request_queue_t struct). CURRENT
-> points to which field in the
-> blk_dev[MAJOR_NR].request_queue? Thank you very much.
+>That's the point - you are
+>emulating the thing that is generally useful and belongs to different
+>layer - namely, the kernel.
 
-CURRENT is one way.  There's also functions like blkdev_entry_next_request
-(also described in that chapter) that will pull a request off the queue for
-you, if that's what you need.
+I agree that unionfs is useful but it is not the panacea for kbuild
+that you think it is.  The kbuild wrapper around make takes care of the
+timestamp problems as well as handling separate source and object
+trees, IOW it does unionfs plus a lot more work.
 
-Note that all this stuff has changed quite a bit in 2.5.
+If make did not rely on timestamps I would have been pushing for
+unionfs a long time ago, but as long as we are stuck with make's
+design, unionfs is not a fix.  I thought about replacing make entirely
+with another tool like Scons but decided that none of the other tools
+on their own could cope with the peculiarities of the kernel build nor
+were they stable enough yet.
 
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net

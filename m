@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbUKBWgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbUKBWmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbUKBWgg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 17:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbUKBWgd
+	id S262315AbUKBWmB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 17:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbUKBWhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 17:36:33 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:7088 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262424AbUKBWep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:34:45 -0500
-Message-Id: <200411022230.iA2MUxq18736@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Theurer'" <habanero@us.ibm.com>, <kernel@kolivas.org>,
-       <ricklind@us.ibm.com>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [RFC][PATCH] sched: aggressive idle balance
-Date: Tue, 2 Nov 2004 14:34:31 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcTBGQamiIpc72EvSHmRPO0laO+SkAAEL6sA
-In-Reply-To: <200411021416.38119.habanero@us.ibm.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 2 Nov 2004 17:37:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57549 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262417AbUKBWel (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 17:34:41 -0500
+Date: Tue, 2 Nov 2004 17:34:08 -0500 (EST)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: andrea@novell.com, <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64) 
+In-Reply-To: <4187FA6D.3070604@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0411021728460.8117-100000@dhcp83-105.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Theurer wrote on Tuesday, November 02, 2004 12:17 PM
->
-> This patch allows more aggressive idle balances, reducing idle time in
-> scenarios where should not be any, where nr_running > nr_cpus.  We have seen
-> this in a couple of online transaction workloads.  Three areas are targeted:
->
-> 1) In try_to_wake_up(), wake_idle() is called to move the task to a sibling if
-> the task->cpu is busy and the sibling is idle.  This has been expanded to any
-> idle cpu, but the closest idle cpu is picked first by starting with cpu->sd,
-> then going up the domains as necessary.
 
-It occurs to me that half of the patch only applicable to HT, like the change
-in wake_idle().  And also, do you really want to put that functionality in
-wake_idle()?  Seems defeating the original intention of that function, which
-only tries to wake up sibling cpu as far as how I understand the code.
+On Tue, 2 Nov 2004, Dave Hansen wrote:
 
-My setup is 4-way SMP, no HT (4-way itanium2 processor), sorry, I won't be able
-to tell you how this portion of the change affect online transaction workload.
+> This patch:
+> 
+> > From: Andrea Arcangeli <andrea@novell.com>
+> > 
+> > - fix silent memleak in the pageattr code that I found while searching
+> >   for the bug Andi fixed in the second patch below (basically reference
+> >   counting in split page was done on the pmd instead of the pte).
+> > 
+> > - Part of this patch is also needed to make the above work on x86 (otherwise
+> >   one of my new above BUGS() will trigger signalling the fact a bug was
+> >   there).  The below patch creates a subtle dependency that (_PAGE_PCD << 24)
+> >   must not be zero.  It's not the cleanest thing ever, but since it's an
+> >   hardware bitflag I doubt it's going to break.
+> > 
+> > Signed-off-by: Andi Kleen <ak@suse.de>
+> > Signed-off-by: Andrea Arcangeli <andrea@novell.com>
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > ---
+> > 
+> >  25-akpm/arch/i386/mm/ioremap.c    |    4 ++--
+> >  25-akpm/arch/i386/mm/pageattr.c   |   13 +++++++------
+> >  25-akpm/arch/x86_64/mm/ioremap.c  |   14 +++++++-------
+> >  25-akpm/arch/x86_64/mm/pageattr.c |   23 ++++++++++++++---------
+> >  4 files changed, 30 insertions(+), 24 deletions(-)
+> 
+> is hitting this BUG() during bootup:
+> 
+>         /* memleak and potential failed 2M page regeneration */
+>         BUG_ON(!page_count(kpte_page));
+> 
+> in 2.6.10-rc1-mm2.
+> 
 
-- Ken
+I've seen the page_count being -1 (not sure why), for a number of pages in
+the identity mapped region...So the BUG() on 0 doesn't seem valid to me.
+ 
+Also, in order to tell if the pages should be merged back to create a huge
+page, i don't see how the patch differentiates b/w pages that were split
+and those that weren't simply based on the page_count....
+
+-Jason
+
 
 

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266620AbUGKQAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266621AbUGKQKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266620AbUGKQAm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 12:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266621AbUGKQAm
+	id S266621AbUGKQKo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 12:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUGKQKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 12:00:42 -0400
-Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:28809 "EHLO
-	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id S266620AbUGKQAk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 12:00:40 -0400
-Date: Sun, 11 Jul 2004 18:00:40 +0200
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-Subject: Re: suspend/resume success and failure report and questions
-In-reply-to: <20040710083027.GB27827@gamma.logic.tuwien.ac.at>
-To: linux-kernel@vger.kernel.org
-Message-id: <200407111800.40401@zodiac.zodiac.dnsalias.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-15
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-X-Ignorant-User: yes
-References: <20040710083027.GB27827@gamma.logic.tuwien.ac.at>
+	Sun, 11 Jul 2004 12:10:44 -0400
+Received: from S010600104b97db1e.gv.shawcable.net ([24.68.211.67]:16659 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id S266621AbUGKQKn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 12:10:43 -0400
+Date: Sun, 11 Jul 2004 09:05:04 -0700
+From: carbonated beverage <ramune@net-ronin.org>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bk pull from bkbits screwy?
+Message-ID: <20040711160504.GA1006@net-ronin.org>
+References: <20040710065802.GA29604@net-ronin.org> <20040710221529.GA12455@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040710221529.GA12455@hexapodia.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 10. Juli 2004 10:30 schrieben Sie:
-> - general
-> 	clock is completely wrong - where is a post-resume script (see below)
+On Sat, Jul 10, 2004 at 05:15:29PM -0500, Andy Isaacson wrote:
+> How about giving the command that didn't work, and the error messages it
+> printed?  I just did a pull using bk://linux.bkbits.net/linux-2.5 and it
+> succeeded:
 
-Same here. The kernelclock is restored after resuming, but not set to the rtc.
+cd linux-2.5 ; bk pull
 
-> - Is it possible to get S2R to the level of S2D without problems?
+The command then told me there was nothing to pull.
 
-Not yet, I suppose. But "we" are working in this area.
+While I never had a problem with the http:// URL, the bk:// URL seems to
+work some days and show nothing pending on other days, even when there are
+change sets that are several weeks old in bkbits that aren't in my local
+repo.
 
-> - is there a way to get things done BEFORE the suspend (this I managed via
->   the acpi script), but also AFTER the resume.
-
-Don't know. With acpid or apmd this could work.
-
-regards
-Alex
-
--- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
-
+-- DN
+Daniel

@@ -1,95 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262354AbSLFSzI>; Fri, 6 Dec 2002 13:55:08 -0500
+	id <S265513AbSLFTFB>; Fri, 6 Dec 2002 14:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265513AbSLFSzH>; Fri, 6 Dec 2002 13:55:07 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:55535 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S262354AbSLFSzG>;
-	Fri, 6 Dec 2002 13:55:06 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A57A@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: acpi-devel@sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: ACPI patches updated (20021205)
-Date: Fri, 6 Dec 2002 11:02:27 -0800 
+	id <S265587AbSLFTFB>; Fri, 6 Dec 2002 14:05:01 -0500
+Received: from packet.digeo.com ([12.110.80.53]:16062 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265513AbSLFTFB>;
+	Fri, 6 Dec 2002 14:05:01 -0500
+Message-ID: <3DF0F69E.FF0E513A@digeo.com>
+Date: Fri, 06 Dec 2002 11:12:30 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Chris Mason <mason@suse.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: [patch] fix the ext3 data=journal unmount bug
+References: <3DF03B35.AA5858DC@digeo.com> <1039197769.7939.46.camel@tiny>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Dec 2002 19:12:31.0368 (UTC) FILETIME=[6CDB2080:01C29D5B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Chris Mason wrote:
+> 
+> On Fri, 2002-12-06 at 00:52, Andrew Morton wrote:
+> >
+> >
+> > This patch fixes the data loss which can occur when unmounting a
+> > data=journal ext3 filesystem.
+> >
+> > The core problem is that the VFS doesn't tell the filesystem enough
+> > about what is happening.  ext3 _needs_ to know the difference between
+> > regular memory-cleansing writeback and sync-for-data-integrity
+> > purposes.
+> >
+> 
+> What happens when the user does a sync() immediately after kupdate
+> trigger a write_super?
+> 
+> Since ext3_write_super just clears s_dirt, I don't see how sync_fs()
+> will get called.
+> 
 
-New ACPI patches against 2.4.20 and 2.5.50 are now available at
-http://sf.net/projects/acpi . Non-Linux releases will be available tonight,
-from http://developer.intel.com/technology/iapc/acpi/downloads.htm .
+It won't.  There isn't really a sane way of doing this properly unless
+we do something like:
 
-Regards -- Andy
+1) Add a new flag to the superblock
+2) Set that flag against all r/w superblocks before starting the sync
+3) Use that flag inside the superblock walk.
 
-----------------------------------------
-05 December 2002.  Summary of changes for version 20021205.
-
-1) Linux
-
-Fix check of schedule_work()'s return value (Ducrot Bruno)
-
-Never return a value from the PCI device's Interrupt Line field if
-it might be bogus -- return 0 instead.
-
-Eliminate spurious unused variables warning w.r.t. ACPI_MODULE_NAME
-
-2) ACPI CA Core Subsystem:
-
-Fixed a problem where a store to a String or Buffer object
-could cause corruption of the DSDT if the object type being
-stored was the same as the target object type and the length
-of the object being stored was equal to or smaller than the
-original (existing) target object.  This was seen to cause
-corruption of battery _BIF buffers if the _BIF method modified
-the buffer on the fly.
-
-Fixed a problem where an internal error was generated if a
-control method invocation was used in an OperationRegion,
-Buffer, or Package declaration.  This was caused by the
-deferred parsing of the control method and thus the deferred
-creation of the internal method object.  The solution to this
-problem was to create the internal method object at the moment
-the method is encountered in the first pass - so that
-subsequent references to the method will able to obtain the
-required parameter count and thus properly parse the method
-invocation.  This problem presented itself as an
-AE_AML_INTERNAL during the pass 1 parse phase during table
-load.
-
-Fixed a problem where the internal String object copy routine
-did not always allocate sufficient memory for the target
-String object and caused memory corruption.  This problem was
-seen to cause "Allocation already present in list!" errors as
-memory allocation became corrupted.
-
-Implemented a new function for the evaluation of namespace
-objects that allows the specification of the allowable return
-object types.  This simplifies a lot of code that checks for a
-return object of one or more specific objects returned from
-the evaluation (such as _STA, etc.)  This may become and
-external function if it would be useful to ACPI-related
-drivers.
-
-Completed another round of prefixing #defines with "ACPI_" for
-clarity.
-
-Completed additional code restructuring to allow more modular
-linking for iASL compiler and AcpiExec.  Several files were
-split creating new files.  New files:  nsparse.c dsinit.c
-evgpe.c
-
-Implemented an abort mechanism to terminate an executing
-control method via the AML debugger.  This feature is useful
-for debugging control methods that depend (wait) for specific
-hardware responses.
-
------------------------------
-Andrew Grover
-Intel Labs / Mobile Architecture
-andrew.grover@intel.com
-
+That would provide a reasonable solution, but I don't believe we
+need to go to those lengths in 2.4, do you?

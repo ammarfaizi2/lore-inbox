@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132318AbRD3Jbd>; Mon, 30 Apr 2001 05:31:33 -0400
+	id <S131626AbRD3Jbx>; Mon, 30 Apr 2001 05:31:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131644AbRD3JbY>; Mon, 30 Apr 2001 05:31:24 -0400
-Received: from [24.70.141.118] ([24.70.141.118]:4340 "EHLO asdf.capslock.lan")
-	by vger.kernel.org with ESMTP id <S131626AbRD3JbT>;
-	Mon, 30 Apr 2001 05:31:19 -0400
-Date: Mon, 30 Apr 2001 05:30:56 -0400 (EDT)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Lee Mitchell <lee@spamtastic.demon.co.uk>
-cc: Linux Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 Sound corruption
-In-Reply-To: <006901c0cfc8$982452a0$0a01a8c0@spamtastic.demon.co.uk>
-Message-ID: <Pine.LNX.4.33.0104300524450.21901-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-X-Spam-To: uce@ftc.gov
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131644AbRD3Jbo>; Mon, 30 Apr 2001 05:31:44 -0400
+Received: from tilde.ookhoi.dds.nl ([194.109.10.165]:24705 "HELO
+	humilis.ookhoi.dds.nl") by vger.kernel.org with SMTP
+	id <S131626AbRD3Jbd>; Mon, 30 Apr 2001 05:31:33 -0400
+Date: Mon, 30 Apr 2001 11:31:18 +0200
+From: Ookhoi <ookhoi@dds.nl>
+To: Francois Gouget <fgouget@free.fr>
+Cc: linux-kernel@vger.kernel.org, elmer@ylenurme.ee
+Subject: Re: Aironet doesn't work
+Message-ID: <20010430113117.F324@humilis>
+Reply-To: ookhoi@dds.nl
+In-Reply-To: <Pine.LNX.4.21.0104300011070.10183-100000@amboise.dolphin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.21.0104300011070.10183-100000@amboise.dolphin>; from fgouget@free.fr on Mon, Apr 30, 2001 at 12:25:18AM -0700
+X-Uptime: 13:06:18 up 4 min,  4 users,  load average: 0.07, 0.13, 0.07
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Apr 2001, Lee Mitchell wrote:
+Hi Francois,
 
->Playing mp3's under 2.4.4 (SMP) results in bursts of noise overlayed on top
->of actual music being played.
->Works fine running 2.4.3 (SMP)
+>    I'm having trouble getting a Cisco 340 wireless card to work with the
+> aironet driver from 2.4.3-ac6. The driver loads fine but then cardmgr
+> says:
+> 
+> Apr 29 22:37:35 oleron cardmgr[613]: initializing socket 0
+> Apr 29 22:37:35 oleron cardmgr[613]: socket 0: Aironet PC4800
+> Apr 29 22:37:35 oleron cardmgr[613]: executing: 'modprobe aironet4500_core'
+> Apr 29 22:37:35 oleron cardmgr[613]: executing: 'modprobe aironet4500_cs'
+> Apr 29 22:37:36 oleron cardmgr[613]: get dev info on socket 0 failed: Resource temporarily unavailable
+> 
+>    I'm using the debian pcmcia-cs package version 3.1.22-0.2potato. I
+> would be happy to help debug this but I won't have the card for long.
+> Where should I go from there?
+>    My laptop is a Sony Vaio F560. I also have a 3com pcmcia network card
+> which works just fine so I know that pcmcia is working. I tried the
+> cisco card in each socket, with and without the 3com card at the same
+> time. My /etc/pcmcia/config file says:
+> 
+> --- cut here ---
+> device "airo_cs"
+>   class "network" module "aironet4500_core", "aironet4500_cs"
+> #  class "network" module "airo", "airo_cs"
+> 
+> card "Aironet PC4500"
+>   manfid 0x015f, 0x0005
+>   bind "airo_cs"
+> 
+> card "Aironet PC4800"
+>   manfid 0x015f, 0x0007
+>   bind "airo_cs"
+> --- cut here ---
 
-I have the same problem using XMMS in both a UP system running
-2.4.2-2 (RH kernel) as well as stock 2.4.4 both UP and SMP.
+The aironet drivers included in the kernel never worked for me (early
+2.4.x-ac), so I use the airo and airo_cs modules which are disabled in
+your pcmcia config.
 
-It doesn't occur right away though.  It takes a half hour maybe
-an hour, perhaps more.  I dunno if it is tied to system activity
-or not.
+You find the sources at www.cse.ucsc.edu/~breed (airo.c and airo_cs.c).
+Copy them over the airo.c and airo_cs.c in pcmcia-cs-3.1.xx/wireless,
+build the modules and there you are. :-)
 
-This occurs on a 300Mhz K6-III, and a dual 1Ghz Xeon Compaq
-Proliant ML530.  It doesn't occur with enough frequency to be
-able to force it to reproduce.
-
-
-------------------------------------------------------------------------
-Signature poll:  I'm planning on getting a 12 or 16 port autosensing
-10/100 ethernet switch soon for home use, and am interested in hearing
-others recommendations on what to buy.  Cost isn't as important as is
-functionality and quality.  Any suggestions appreciated.
-------------------------------------------------------------------------
-
+	Ookhoi

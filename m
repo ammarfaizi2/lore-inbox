@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265403AbSJSAA4>; Fri, 18 Oct 2002 20:00:56 -0400
+	id <S265412AbSJSADO>; Fri, 18 Oct 2002 20:03:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265405AbSJSAA4>; Fri, 18 Oct 2002 20:00:56 -0400
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:39050 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S265403AbSJSAA4>; Fri, 18 Oct 2002 20:00:56 -0400
-Date: Fri, 18 Oct 2002 19:59:10 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: 2.5.43 : net/ipv4/ip_forward.c compile error
-Message-ID: <Pine.LNX.4.44.0210181957310.9556-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265414AbSJSADO>; Fri, 18 Oct 2002 20:03:14 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:9234 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265412AbSJSAC4>;
+	Fri, 18 Oct 2002 20:02:56 -0400
+Date: Fri, 18 Oct 2002 17:08:25 -0700
+From: Greg KH <greg@kroah.com>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+Subject: Re: [PATCH] fixes for building kernel using Intel compiler
+Message-ID: <20021019000825.GD11924@kroah.com>
+References: <F2DBA543B89AD51184B600508B68D4000E6ADE5B@fmsmsx103.fm.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F2DBA543B89AD51184B600508B68D4000E6ADE5B@fmsmsx103.fm.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  I haven't seen this posted on l-k yet (If I missed it, sorry in 
-advance). While a 'make bzImage' on 2.5.43, I received the following 
-error.
+On Fri, Oct 18, 2002 at 04:48:34PM -0700, Nakajima, Jun wrote:
+> Hi Linus,
+> 
+> Attached is the patch that resolves some of the redundant code and casting
+> that are required to build the Linux kernel usning Intel compiler. We would
+> like to get this patch incorporated to allow the kernel built with Intel
+> Compiler.
 
-Regards,
-Frank
+The patch is wrapped, and can't apply.
 
-net/ipv4/ip_forward.c: In function `ip_forward_finish':
-net/ipv4/ip_forward.c:56: structure has no member named `key'
-net/ipv4/ip_forward.c:56: structure has no member named `key'
-make[2]: *** [net/ipv4/ip_forward.o] Error 1
-make[1]: *** [net/ipv4] Error 2
-make: *** [net] Error 2
+And what version of the Intel compiler is this for?  I tried to get a
+previous version to build a kernel, but I had to change a lot more
+things than you did (like build flags, etc.)
 
+thanks,
+
+greg k-h

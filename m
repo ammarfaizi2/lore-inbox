@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbULKUh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbULKUlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbULKUh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 15:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbULKUhZ
+	id S262012AbULKUlG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 15:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbULKUlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 15:37:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21137 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261638AbULKUhR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 15:37:17 -0500
-Message-ID: <41BB5A78.1040008@pobox.com>
-Date: Sat, 11 Dec 2004 15:37:12 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: EC <wingman@waika9.com>
-CC: "'Alan J. Wylie'" <alan@wylie.me.uk>, linux-kernel@vger.kernel.org,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>
-Subject: Re: 2.4.29-pre1 OOPS early in boot with Intel ICH5 SATA controller
-References: <20041211202423.6CF4B1734ED@postfix3-1.free.fr>
-In-Reply-To: <20041211202423.6CF4B1734ED@postfix3-1.free.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 11 Dec 2004 15:41:06 -0500
+Received: from waste.org ([209.173.204.2]:63427 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262012AbULKUlB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 15:41:01 -0500
+Date: Sat, 11 Dec 2004 12:40:29 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Adam Heath <doogie@debian.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Bernard Normier <bernard@zeroc.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Concurrent access to /dev/urandom
+Message-ID: <20041211204028.GZ8876@waste.org>
+References: <20041209015705.GB6978@thunk.org> <20041209212936.GO8876@waste.org> <20041210044759.GQ8876@waste.org> <20041210163558.GB10639@thunk.org> <20041210182804.GT8876@waste.org> <20041210212815.GB25409@thunk.org> <20041210222306.GV8876@waste.org> <Pine.LNX.4.58.0412101821330.2173@gradall.private.brainfood.com> <20041211173317.GA28382@thunk.org> <Pine.LNX.4.58.0412111358150.2173@gradall.private.brainfood.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0412111358150.2173@gradall.private.brainfood.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-EC wrote:
->>-----Message d'origine-----
->>De : Jeff Garzik [mailto:jgarzik@pobox.com]
->>Envoyé : samedi 11 décembre 2004 19:52
->>À : Alan J. Wylie
->>Cc : linux-kernel@vger.kernel.org; EC; Marcelo Tosatti
->>Objet : Re: 2.4.29-pre1 OOPS early in boot with Intel ICH5 SATA controller
->>
->>Alan J. Wylie wrote:
->>
->>>Code;  c01ccd07 <ata_host_add+57/80>
->>>00000000 <_EIP>:
->>>Code;  c01ccd07 <ata_host_add+57/80>   <=====
->>>   0:   ff 50 50                  call   *0x50(%eax)   <=====
->>>Code;  c01ccd0a <ata_host_add+5a/80>
->>>   3:   89 da                     mov    %ebx,%edx
->>>Code;  c01ccd0c <ata_host_add+5c/80>
->>>   5:   85 c0                     test   %eax,%eax
->>>Code;  c01ccd0e <ata_host_add+5e/80>
->>>   7:   75 12                     jne    1b <_EIP+0x1b>
->>>Code;  c01ccd10 <ata_host_add+60/80>
->>>   9:   8b 5c 24 14               mov    0x14(%esp),%ebx
->>>Code;  c01ccd14 <ata_host_add+64/80>
->>>   d:   89 d0                     mov    %edx,%eax
->>>Code;  c01ccd16 <ata_host_add+66/80>
->>>   f:   8b 74 24 18               mov    0x18(%esp),%esi
->>>Code;  c01ccd1a <ata_host_add+6a/80>
->>>  13:   8b 00                     mov    (%eax),%eax
->>
->>If you are getting an oops there, it looks like your ata_piix driver is
->>mismatched from the libata core.  Did you compile them both at the same
->>time, from the same source kernel?
->>
->>The assembly code above is where function ata_host_add in libata-core.c
->>calls "ap->ops->port_start", which definitely exists in ata_piix.c.
->>
->>	Jeff
+On Sat, Dec 11, 2004 at 01:58:45PM -0600, Adam Heath wrote:
+> On Sat, 11 Dec 2004, Theodore Ts'o wrote:
 > 
+> > On Fri, Dec 10, 2004 at 06:22:37PM -0600, Adam Heath wrote:
+> > >
+> > > Actually, I think this is a security issue.  Since any plain old program can
+> > > read from /dev/urandom at any time, an attacker could attempt to read from
+> > > that device at the same moment some other program is doing so, and thereby
+> > > gain some knowledge as to the other program's state.
+> >
+> > It could be a potential exploit, but....
+> >
+> > 	(a) it only applies on SMP machines
+> > 	(b) it's not a remote exploit; the attacker needs to have
+> > 		the ability to run arbitrary programs on the local
+> > 		machine
+> > 	(c) the attacker won't get all of other programs' reads of
+> > 		/dev/urandom, and
+> > 	(d) the attacker would have to have a program continuously
+> > 		reading from /dev/urandom, which would take up enough
+> > 		CPU time that it would be rather hard to hide.
+> >
+> > That's not to say that we shouldn't fix it at our earliest
+> > convenience, and I'd urge Andrew to push this to Linus for 2.6.10 ---
+> > but I don't think we need to move heaven and earth to try to
+> > accelerate the 2.6.10 release process, either.
 > 
-> After some more testing I made my system work again. 
-> With 2.4.27 kernel + patch : SATA Only works fine in BIOS.
-> With 2.4.28 kerenl, no patch : *Must* put enhanced mode (SATA Only makes
-> oops).
+> Is it a problem for other kernel versions?  2.4?  Shouldn't this patch be
+> pushed out separately to distributions?
 
-Can you provide oops output decoded with ksymoops?
+It's a problem for all kernels back to 1.3.57 (when SMP was added) and
+perhaps earlier for kernel-internal get_random_bytes users. Fixing
+pre-2.6 means backporting the whole driver but not the changes in the
+network area.
 
-	Jeff
-
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

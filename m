@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319094AbSHMSQA>; Tue, 13 Aug 2002 14:16:00 -0400
+	id <S319095AbSHMSSe>; Tue, 13 Aug 2002 14:18:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319061AbSHMSQA>; Tue, 13 Aug 2002 14:16:00 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.98]:45777 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S319094AbSHMSP6>; Tue, 13 Aug 2002 14:15:58 -0400
-Message-Id: <200208131818.g7DIIgf321912@pimout5-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Rik van Riel <riel@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: large page patch (fwd) (fwd)
-Date: Tue, 13 Aug 2002 09:18:36 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Phillips <phillips@arcor.de>,
-       Larry McVoy <lm@bitmover.com>, <frankeh@watson.ibm.com>,
-       <davidm@hpl.hp.com>, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L.0208131425500.23404-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44L.0208131425500.23404-100000@imladris.surriel.com>
+	id <S319097AbSHMSSd>; Tue, 13 Aug 2002 14:18:33 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:16030 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319095AbSHMSSL>;
+	Tue, 13 Aug 2002 14:18:11 -0400
+Date: Tue, 13 Aug 2002 20:22:13 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] exit_free(), 2.5.31-A0
+In-Reply-To: <Pine.LNX.4.44.0208131112270.7411-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208132015530.6362-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 August 2002 01:29 pm, Rik van Riel wrote:
-> On Tue, 13 Aug 2002, Linus Torvalds wrote:
-> > Also, a license is a two-way street. I do not think it is morally right
-> > to change an _existing_ license for any other reason than the fact that
-> > it has some technical legal problem.
->
-> Agreed, but we might be running into one of these.
->
-> > I don't like patents. But I absolutely _hate_ people who play politics
-> > with other peoples code. Be up-front, not sneaky after-the-fact.
->
-> Suppose somebody sends you a patch which implements a nice
-> algorithm that just happens to be patented by that same
-> somebody.  You don't know about the patent.
 
-That would be entrapment.  When they submit the patch, they're giving you an 
-implied license to use it, even if they don't SAY so, just because they 
-voluntarily submitted it and can't claim to be surpised it was then used, or 
-that they didn't want it to be.  You could put up a heck of a defense in 
-court on that one.
+On Tue, 13 Aug 2002, Linus Torvalds wrote:
 
-It's people who submit patches that use OTHER people's patents you have to 
-worry about, and that's something you just can't filter for with the patent 
-numbers rapidly approaching what, eight digits?
+> If the parent wants to get notified on child death, it should damn well
+> get notified on child death. Not "in case the child exists politely".
 
-> Having a license that explicitly states that people who
-> contribute and use Linux shouldn't sue you over it might
-> prevent some problems.
+yes i agree. If the parent wants that, then it does not specify the
+CLONE_DETACHED flag when creating the child thread. It is the parent that
+specifies this flag and it has the freedom to decide whether it wants
+signal based notification or not.
 
-Such a clause is what IBM insisted on having in ITS open source license.  You 
-sue, your rights under this license terminate, which is basically automatic 
-grounds for a countersuit for infringement.
+if CLONE_DETACHED is not specified upon creation then *no matter what the
+child thread does* - both sys_exit() and sys_exit_free() notify the
+parent. It's not a matter of politeness.
 
-(IBM has a lot of lawyers, and they pay them a lot of money.  It's 
-conceivable they may actually have a point from time to time... :)
+> We don't depend on processes calling "exit()" to clean up all the stuff
+> they left behind. The VM gets cleaned up even for bad processes.
 
-> regards,
->
-> Rik
+We'd be more than happy to do this cleanup in userspace, but how do you
+free a stack which might as well be used by a debugger or a signal handler
+right before executing the final "int $0x80" instruction?
 
-Rob
+should every signal handler start with code that tries to figure out
+whether the stack is still valid (by calling gettid() and comparing it
+with the TID written into a special offset on the stack)? Should the
+exiting thread mask all signals before freeing the stack and calling
+sys_exit()?
+
+	Ingo
+

@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265777AbSLPPJA>; Mon, 16 Dec 2002 10:09:00 -0500
+	id <S265880AbSLPPZx>; Mon, 16 Dec 2002 10:25:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265880AbSLPPJA>; Mon, 16 Dec 2002 10:09:00 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:20230 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S265777AbSLPPI7>; Mon, 16 Dec 2002 10:08:59 -0500
-Date: Mon, 16 Dec 2002 10:16:39 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.52
-Message-ID: <20021216151639.GQ504@hopper.phunnypharm.org>
-References: <Pine.LNX.4.44.0212151930120.12906-100000@penguin.transmeta.com> <20021216102639.A27589@infradead.org>
+	id <S266200AbSLPPZx>; Mon, 16 Dec 2002 10:25:53 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62429
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265880AbSLPPZx>; Mon, 16 Dec 2002 10:25:53 -0500
+Subject: Re: Dual Xeon w/ HT: Kernel can't find second CPU
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Patrick R. McManus" <mcmanus@ducksong.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021216144243.GA9352@ducksong.com>
+References: <233C89823A37714D95B1A891DE3BCE5202AB1AD5@xch-a.win.zambeel.com>
+	<20021212162914.E28629@deltelco.com>  <20021216144243.GA9352@ducksong.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Dec 2002 16:13:20 +0000
+Message-Id: <1040055200.13910.47.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021216102639.A27589@infradead.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 10:26:40AM +0000, Christoph Hellwig wrote:
-> On Sun, Dec 15, 2002 at 07:34:09PM -0800, Linus Torvalds wrote:
-> > Ben Collins <bcollins@debian.org>:
-> >   o IEEE-1394/Firewire update
-> 
-> This merge looks fishy.  It seems to be yet another let's throw my CVS
-> repo in merge and backs out Al's work yo get rid of lots of devfs crap.
+On Mon, 2002-12-16 at 14:42, Patrick R. McManus wrote:
+> I can't build a kernel for my dual xeon e7500 board, with
+> hyperthreading enabled, that sees 4 logical processors. I can boot the
+> redhat 8 kernel and that sees 4, but my build of  2.4.20-ac2 gets me
+> 'warning sibling not found' messages and just 2 cpus. 
 
-Quit talking shit. I go through a lot of effort to merge in changes sent
-to Linus' tree into the Linux1394 repo. I don't just dump changes for no
-good reason.
+The -ac tree gets this wrong in some cases. Since Marcelo is merging
+code that is newer and replaces the buggy bits I don't see any point in
+fixing my -ac tree for this one as it is going to get dropped out anyway
 
-How about pointing out some specifics? Maybe make my job easier by
-getting me some patches directly. Trying to track two seperate source
-tree's isn't as easy as you might think.
-
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/

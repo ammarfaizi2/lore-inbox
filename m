@@ -1,76 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbTIKLFC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 07:05:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbTIKLFC
+	id S261206AbTIKLCj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 07:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbTIKLCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 07:05:02 -0400
-Received: from dyn-ctb-203-221-74-143.webone.com.au ([203.221.74.143]:6919
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S261212AbTIKLE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 07:04:56 -0400
-Message-ID: <3F6056CD.6040402@cyberone.com.au>
-Date: Thu, 11 Sep 2003 21:04:45 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: habanero@us.ibm.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-References: <200309102155.16407.habanero@us.ibm.com>
-In-Reply-To: <200309102155.16407.habanero@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Sep 2003 07:02:39 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39556 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261206AbTIKLCT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 07:02:19 -0400
+Date: Thu, 11 Sep 2003 16:38:53 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: akpm@osdl.org, manfred@colorfullife.com
+Cc: linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>,
+       dipankar@in.ibm.com
+Subject: [patch] Make slab allocator work with SLAB_MUST_HWCACHE_ALIGN
+Message-ID: <20030911110853.GB3700@llm08.in.ibm.com>
+References: <20030910081654.GA1129@llm08.in.ibm.com> <1063208464.700.35.camel@localhost> <20030911055428.GA1140@llm08.in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911055428.GA1140@llm08.in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Andrew Theurer wrote:
-
->Robert Love <rml@tech9.net> wrote:
->
->>> There are a _lot_ of scheduler changes in 2.6-mm, and who knows which
->>> ones are an improvement, a detriment, and a noop?
->>>
->
->>We know that sched-2.6.0-test2-mm2-A3.patch caused the regression, and
->>we now that sched-CAN_MIGRATE_TASK-fix.patch mostly fixed it up.
->>
->
->>What we don't know is whether the thing which
->>sched-CAN_MIGRATE_TASK-fix.patch
->>fixed was the thing which sched-2.6.0-test2-mm2-A3.patch broke.
->>
->
->Sorry for jumping into this late.  I didn't even know the can_migrate patch 
->was being discussed, let alone in -mm :).  And to be fair, this really is 
->Ingo's aggressive idle steal patch.
->
->Anyway, these patches are somewhat related.  It would seem that A3's 
->shortening the tasks' run time would not only slow performance beacuse of 
->cache thrash, but could possibly break CAN_MIGRATE's cache warmth check, 
->right?  That in turn would stop load balancing from working well, leading to 
->more idle time, which the CAN_MIGRATE patch sort of bypassed for idle cpus.
+On Thu, Sep 11, 2003 at 11:24:30AM +0530, Ravikiran G Thirumalai wrote:
+> On Wed, Sep 10, 2003 at 11:41:04AM -0400, Robert Love wrote:
+> > On Wed, 2003-09-10 at 04:16, Ravikiran G Thirumalai wrote:
+> > 
+> > > Am I missing something or can there really be two objects on the same 
+> > > cacheline even when SLAB_HWCACHE_ALIGN is specified?
+> > 
+> > No, you are right.
+> > 
+> > If your object _must_ be cache aligned, use SLAB_MUST_HWCACHE_ALIGN.
+> > 
+> 
+> WOW!!!
+> Looking at the code though, SLAB_MUST_HWCACHE_ALIGN is never considered
+> by kmem_cache_create or kmem_cache_alloc. So, right now, there is no way of 
+> getting objects which are _guaranteed_ to be cacheline aligned!!!(?)
 >
 
-Yeah thats probably right. Good thinking.
+Hi Andrew, Manfred
+Looks like SLAB_HWCACHE_ALIGN does not guarantee cacheline alignment
+and SLAB_MUST_HWCACHE_ALIGN is not at all recognised by the slab code.
+(Right now, SLAB_MUST_HWCACHE_ALIGN caches are aligned to sizeof (void *)!!)
 
->
->I see Nick's balance patch as somewhat harmless, at least combined with A3 
->patch.  However, one concern is that the "ping-pong" steal interval is not 
->really 200ms, but 200ms/(nr_cpus-1), which without A3, could show up as a 
->problem, especially on an 8 way box.  In addition, I do think there's a 
->problem with num tasks we steal.  It should not be imbalance/2, it should be:  
->max_load - (node_nr_running / num_cpus_node).  If we steal any more than 
->this, which is quite possible with imbalance/2, then it's likely this_cpu now 
->has too many tasks, and some other cpu will steal again.  Using *imbalance/2 
->works fine on 2-way smp, but I'm pretty sure we "over steal" tasks on 4 way 
->and up.  Anyway, I'm getting off topic here...
->
+The following patch fixes the slab for this.  Note that I have replaced
+alignment arithmetic to use ALIGN macro too.  I have done some basic
+testing on a 4 way pIII with 32 byte cacheline -- but the patch probably
+needs testing on other archs.  Please give it a whirl on mm* trees.  
+This should help task_struct cache and pte_chain caches (other users of 
+SLAB_MUST_HWCACHE_ALIGN also use SLAB_HWCACHE_ALIGN -- smart huh?)
 
-IIRC max_load is supposed to be the number of tasks on the runqueue
-being stolen from, isn't it?
+I also propose to rename SLAB_HWCACHE_ALIGN to SLAB_MAY_HWCACHE_ALIGN since
+SLAB_HWCACHE_ALIGN seems very misleading -- if everyone agrees.
+
+Andrew, this also means alloc_percpu in its current form is not guaranteed
+to work on machines with cacheline sizes greater than 32 bytes.  I am
+working on a fix for alloc_percpu.
+
+Thanks,
+Kiran
 
 
+diff -ruN -X dontdiff.1 linux-2.6.0-test5-mm1/mm/slab.c slabfix-2.6.0-test5-mm1/mm/slab.c
+--- linux-2.6.0-test5-mm1/mm/slab.c	Thu Sep 11 15:08:37 2003
++++ slabfix-2.6.0-test5-mm1/mm/slab.c	Thu Sep 11 15:23:28 2003
+@@ -1101,7 +1101,7 @@
+ #endif
+ #endif
+ 	align = BYTES_PER_WORD;
+-	if (flags & SLAB_HWCACHE_ALIGN)
++	if ((flags & SLAB_HWCACHE_ALIGN) | (flags & SLAB_MUST_HWCACHE_ALIGN))
+ 		align = L1_CACHE_BYTES;
+ 
+ 	/* Determine if the slab management is 'on' or 'off' slab. */
+@@ -1112,12 +1112,14 @@
+ 		 */
+ 		flags |= CFLGS_OFF_SLAB;
+ 
+-	if (flags & SLAB_HWCACHE_ALIGN) {
++	if (flags & SLAB_MUST_HWCACHE_ALIGN) {
+ 		/* Need to adjust size so that objs are cache aligned. */
++		size = ALIGN(size, align);
++	} else if (flags & SLAB_HWCACHE_ALIGN) {
+ 		/* Small obj size, can get at least two per cache line. */
+ 		while (size <= align/2)
+ 			align /= 2;
+-		size = (size+align-1)&(~(align-1));
++		size = ALIGN(size, align);
+ 	}
+ 
+ 	/* Cal size (in pages) of slabs, and the num of objs per slab.
+@@ -1175,8 +1177,7 @@
+ 	}
+ 
+ 	/* Offset must be a multiple of the alignment. */
+-	offset += (align-1);
+-	offset &= ~(align-1);
++	offset = ALIGN(offset, align);
+ 	if (!offset)
+ 		offset = L1_CACHE_BYTES;
+ 	cachep->colour_off = offset;

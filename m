@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264975AbTAJQtK>; Fri, 10 Jan 2003 11:49:10 -0500
+	id <S265355AbTAJQyW>; Fri, 10 Jan 2003 11:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbTAJQtK>; Fri, 10 Jan 2003 11:49:10 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:57059 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264975AbTAJQtJ>; Fri, 10 Jan 2003 11:49:09 -0500
-Date: Fri, 10 Jan 2003 08:57:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>
-cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Minature NUMA scheduler
-Message-ID: <967810000.1042217859@titus>
-In-Reply-To: <200301101734.56182.efocht@ess.nec.de>
-References: <52570000.1042156448@flay> <1042176966.30434.148.camel@kenai> <200301101734.56182.efocht@ess.nec.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S265368AbTAJQyW>; Fri, 10 Jan 2003 11:54:22 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:7810 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265355AbTAJQyV>;
+	Fri, 10 Jan 2003 11:54:21 -0500
+Date: Fri, 10 Jan 2003 17:00:38 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Shawn Starr <shawn.starr@datawire.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030110170038.GD23375@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Shawn Starr <shawn.starr@datawire.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200301101139.57342.shawn.starr@datawire.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200301101139.57342.shawn.starr@datawire.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Having some sort of automatic node affinity of processes and equal
-> node loads in mind (as design targets), we could:
->  - take the minimal NUMA scheduler
->  - if the normal (node-restricted) find_busiest_queue() fails and
->  certain conditions are fulfilled (tried to balance inside own node
->  for a while and didn't succeed, own CPU idle, etc... ???) rebalance
->  over node boundaries (eg. using my load balancer)
-> This actually resembles the original design of the node affine
-> scheduler, having the cross-node balancing separate is ok and might
-> make the ideas clearer.
+On Fri, Jan 10, 2003 at 11:39:57AM -0500, Shawn Starr wrote:
+ > There will be a new kernel tree that will fit this purpose soon called -xlk 
+ > (eXtendable or Extended Linux Kernel). The hope to make it an 'official' like 
+ > -ac, -mm tree for stuffing experimental stuff into a post 2.6 (or just before 
+ > 2.6 goes live) kernel. I will need help in getting this to become a reality 
+ > in the coming months to 2.6.
 
-This seems like the right approach to me, apart from the trigger to
-do the cross-node rebalance. I don't believe that has anything to do
-with when we're internally balanced within a node or not, it's
-whether the nodes are balanced relative to each other. I think we should 
-just check that every N ticks, looking at node load averages, and do 
-a cross-node rebalance if they're "significantly out".
+The effort is really much better spent trying to get to 2.6 first before
+worrying about things like 2.7.  I hope 2.6 doesn't turn into the
+"heres my 2.4+preempt+rmap patchset" monster that we saw six months ago.
+ 
+ > We want code that will add new drivers / devices and general 
+ > improvements to the kernel.
 
-The definintion of "N ticks" and "significantly out" would be a tunable
-number, defined by each platform; roughly speaking, the lower the NUMA
-ratio, the lower these numbers would be. That also allows us to wedge
-all sorts of smarts in the NUMA rebalance part of the scheduler, such
-as moving the tasks with the smallest RSS off node. The NUMA rebalancer
-is obviously completely missing from the current implementation, and 
-I expect we'd use mainly Erich's current code to implement that. 
-However, it's suprising how well we do with no rebalancer at all,
-apart from the exec-time initial load balance code.
+non-core changes (ie, new drivers) still get added during code freeze,
+and during 2.6.x, there's no need for a specific tree just for this.
+Adding a new driver doesn't (or at least shouldn't) impact any existing
+users if done right.
+ 
+ > The goal is once these are stabilized they can be 
+ > submitted to Linus and friends for blessings and inclusion into 2.7 dev 
+ > *early* so we won't have a mad rush for features before the next feature 
+ > freeze.
 
-Another big advantage of this approach is that it *obviously* changes
-nothing at all for standard SMP systems (whereas your current patch does),
-so it should be much easier to get it accepted into mainline ....
+Nice try. It'll still happen regardless. Bombing Linus with ten zillion
+patches when he opens up 2.7.x with "has been tested in 2.6-xyz" isn't
+the way to do it. Everything has to happen incrementally, or you end
+up with a mess.
 
-M.
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

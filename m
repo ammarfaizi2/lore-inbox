@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbTFXXrY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 19:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTFXXrY
+	id S263355AbTFXXsf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 19:48:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTFXXsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 19:47:24 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45579 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262568AbTFXXrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 19:47:23 -0400
-Message-ID: <3EF8E631.5060108@zytor.com>
-Date: Tue, 24 Jun 2003 17:00:49 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
+	Tue, 24 Jun 2003 19:48:35 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:37257 "EHLO
+	mwinf0601.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263355AbTFXXsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 19:48:30 -0400
+Message-ID: <3EF937FA.1090300@free.fr>
+Date: Wed, 25 Jun 2003 07:49:46 +0200
+From: Olivier Fauchon <olivier.fauchon@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: jlnance@unity.ncsu.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.72: follow_mount / follow_link
-References: <3EF86337.1020103@sun.com> <20030624145418.GP6754@parcelfarce.linux.theplanet.co.uk> <bd9ri0$fn2$1@cesium.transmeta.com> <20030624235049.GA9292@ncsu.edu>
-In-Reply-To: <20030624235049.GA9292@ncsu.edu>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: suspend on ram ... LCD & backlight restore problem. 
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@unity.ncsu.edu wrote:
-> On Tue, Jun 24, 2003 at 08:42:56AM -0700, H. Peter Anvin wrote:
-> 
-> 
->>Unfortunately, this is probably the only realistic way to ever get
->>working direct mounts, so please don't dismiss it out of hand.
->>follow_link on a directory has turned out to be a really useful way of
->>doing automounting.
-> 
-> 
-> Hi Peter,
->     I have always wondered why direct mounts, as well as things like
-> /net/host are difficult with Linux.  If you have a couple of minutes,
-> would you explain the problem?  Also, do you have any idea how Solaris
-> does this and is it easier there?
-> 
+Hi,
 
-It's a pretty long lecture, and I have had it enough time that I'm not
-really keen on repeating it every time anyone asks.  Look at the
-archives of the autofs mailing list on linux.kernel.org.
+I tried suspend on ram on my VAio FX 801 & kernel 2.5.69,
 
-	-hpa
+with echo "3" > /proc/acpi/sleep
+
+That works great, system goes to sleep and red light blinking.
+
+But When i try to resume, i can see the display coming back for a few 
+milliseconds, and then LCD goes black & backlight turns off.
+
+I'm sure the kernel is correctly restored because i run commands like 
+locate -u or reboot in "blind mode", so my problem is the video mode 
+restoring.
+
+if i try acpi_sleep=s3_bios, i get blacklight on & LCD all white.
+
+Do you have ideas on what can cause this strange behaviour. any comments 
+welcome
+
+NB: my vaio pass blacklist test at boot up
+
+thanks.
+
+Olivier Fauchon
+
+
 
 

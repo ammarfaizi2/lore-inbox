@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbTIXIg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 04:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTIXIg6
+	id S261334AbTIXIrv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 04:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbTIXIrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 04:36:58 -0400
-Received: from [62.231.65.103] ([62.231.65.103]:52195 "EHLO
-	gw-rtr.ultrapopular.com") by vger.kernel.org with ESMTP
-	id S261270AbTIXIg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 04:36:58 -0400
-Message-ID: <3F7155E5.6060400@easynet.ro>
-Date: Wed, 24 Sep 2003 11:29:25 +0300
-From: Alexandru Damian <ddalex_krn@easynet.ro>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ro-RO; rv:1.4) Gecko/20030624
-X-Accept-Language: ro, en, en-us
-MIME-Version: 1.0
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: i875 Watchdog
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Sep 2003 04:47:51 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:59142 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S261334AbTIXIru
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 04:47:50 -0400
+Date: Wed, 24 Sep 2003 10:46:16 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: ATTACK TO MY SYSTEM
+Message-ID: <20030924084616.GA16727@alpha.home.local>
+References: <200309240740.h8O7eZNI000474@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309240740.h8O7eZNI000474@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 24, 2003 at 08:40:35AM +0100, John Bradford wrote:
+ 
+> RFC 822, section 3.4.7, makes clear that case is _not_ significant for
+> these field names.  RFC 2822 doesn't change this.
 
-  Has anybody succesfully use the watchdog feature on the i875 chipset,
-perhaps using Wim Van Sebroeck's patch to 2.4.22 kernel ?
+Sorry John about the mis-information. Of course case is not significant,
+otherwise we would simply not receive these mails. I should have said
+"common usage" and not "protocols", since I really thought the former
+eventhough I wrote the later.
 
-Regards,
-Alex Famian
+> Just because no commonly used E-Mail application seems to generate
+> uppercase field names, how do you know something like a password
+> auto-responder script won't?
 
+I don't know. It's only an empirical choice based on observations. Many of us
+are more concerned by hundreds of mails a day than risking to get a rare
+false-positive. But I agree, I should have been clearer.
+
+I have nearly the same .procmailrc as the one Joern Engel proposed :
+
+  :0 D
+  * ^FORM:
+  spam/swen
+
+And I too agree that I have 0% false positive so far. But just like any filter,
+use at your own risk...
+
+Willy
 

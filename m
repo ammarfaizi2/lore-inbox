@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265680AbSKAKTm>; Fri, 1 Nov 2002 05:19:42 -0500
+	id <S265673AbSKAKRI>; Fri, 1 Nov 2002 05:17:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265685AbSKAKTm>; Fri, 1 Nov 2002 05:19:42 -0500
-Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:36528 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265680AbSKAKTk>; Fri, 1 Nov 2002 05:19:40 -0500
-Date: Fri, 1 Nov 2002 03:25:54 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: davidel@xmailserver.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch: linux-2.5.45/fs/fcblist.c - export symbols for unix sockets
-Message-ID: <20021101032554.A441@baldur.yggdrasil.com>
+	id <S265674AbSKAKRH>; Fri, 1 Nov 2002 05:17:07 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:33035 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S265673AbSKAKRH>; Fri, 1 Nov 2002 05:17:07 -0500
+Date: Fri, 1 Nov 2002 11:23:27 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
+       zam@namesys.com, umka <umka@thebsh.namesys.com>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+Message-ID: <20021101102327.GA26306@louise.pinerecords.com>
+References: <3DC19F61.5040007@namesys.com> <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com> <3DC1D63A.CCAD78EF@digeo.com> <3DC1D885.6030902@namesys.com> <3DC1D9D0.684326AC@digeo.com> <3DC1DF02.7060307@namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="9amGYk9869ThD9tj"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+In-Reply-To: <3DC1DF02.7060307@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The atomic transactions that reiser4 offers are a much higher level of 
+> data security than data journaling.  Really, you should read the 17 page 
+> papers I send you URLs to;-).....
+> (www.namesys.com/v4/fast_reiser4.html).
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Am I to assume the following is expected behavior then?
 
-	linux-2.5.45/fs/fcblist.c contains some symbols that are
-needed for unix domain sockets if unix sockets are compiled as a
-module.  fcblist.o is already in the export-objs declaration in
-fs/Makefile, so I think the intention was for the EXPORT_SYMBOL
-declarations to be in that file.
+# mkfs.reiser4 /dev/sda2
+mkfs.reiser4, 0.1.0
+Information: Reiser4 is going to be created on /dev/sda2.
+(Yes/No): y
+Creating reiser4 on /dev/sda2 with default40 profile...done
+Synchronizing /dev/sda2...done
+# mount /dev/sda2 /ap
+# df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332       136   1490196   1% /ap
+# (cd /ap && tar xzf /usr/src/linux-2.5.45.tgz)
+# df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332    200508   1289824  14% /ap
+# sync
+# df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332    200468   1289864  14% /ap
+# rm -rf /ap/linux-2.5.45
+# df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332    255436   1234896  18% /ap
+# # wtf is going on here?
+# sync
+# df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332     85848   1404484   6% /ap
+# umount /ap
+# mount /dev/sda2 /ap
+# df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332     54532   1435800   4% /ap
+# # and here?
 
-	Here is the patch.  I have verified that unix domain sockets
-load with this patch (possibly with some more EXPORT_SYMBOL changes in
-my netsyms.c, which has a bunch of additional exports).
-
-	Davide: please let me know if this patch is OK (others are
-welcome to comment too), and, if so, if you are going to forward this
-to Linus or if you want me to do something more.
-
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fcblist.diff"
-
---- linux-2.5.45/fs/fcblist.c	2002-10-30 16:43:07.000000000 -0800
-+++ linux/fs/fcblist.c	2002-10-31 02:39:38.000000000 -0800
-@@ -31,6 +31,7 @@
- 	0,		/* POLL_PRI */
- 	ION_HUP		/* POLL_HUP */
- };
-+EXPORT_SYMBOL(ion_band_table);
- 
- long poll_band_table[NSIGPOLL] = {
- 	POLLIN | POLLRDNORM,			/* POLL_IN */
-@@ -40,6 +41,7 @@
- 	POLLPRI | POLLRDBAND,			/* POLL_PRI */
- 	POLLHUP | POLLERR			/* POLL_HUP */
- };
-+EXPORT_SYMBOL(poll_band_table);
- 
- 
- 
-@@ -65,6 +67,7 @@
- 
- 	read_unlock_irqrestore(&filep->f_cblock, flags);
- }
-+EXPORT_SYMBOL(file_notify_event);
- 
- 
- /*
-
---9amGYk9869ThD9tj--
+T.

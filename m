@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266637AbSKGWpe>; Thu, 7 Nov 2002 17:45:34 -0500
+	id <S266639AbSKGWrm>; Thu, 7 Nov 2002 17:47:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266635AbSKGWpe>; Thu, 7 Nov 2002 17:45:34 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:53405 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S266637AbSKGWpd>;
-	Thu, 7 Nov 2002 17:45:33 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: davem@redhat.com
-Date: Thu, 7 Nov 2002 23:52:01 +0200
+	id <S266641AbSKGWrm>; Thu, 7 Nov 2002 17:47:42 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:3200 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S266639AbSKGWrj> convert rfc822-to-8bit; Thu, 7 Nov 2002 17:47:39 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] 2.5.46-mm1 with contest
+Date: Fri, 8 Nov 2002 09:53:18 +1100
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Preempt count check when leaving IRQ? (Was: Re: 2.5.44 
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
-       roger.larsson@skelletftea.mail.telia.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <6DEAE382FC9@vcnet.vc.cvut.cz>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211080953.22903.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  7 Nov 02 at 1:41, Roger Larsson wrote:
-> 
-> This is another CHECK to do then.
-> 
-> Make a copy of preempt count when entering an IRQ.
-> Check that we have the same value when leaving.
-> (using -acX we only have to add the check when leaving)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi Dave,
-  I have bad news for you: doing 'cat /proc/net/arp' sometime kills
-my system hard.
+Here are contest results showing 2.5.46-mm1 with preempt enabled. The other 
+kernels have it disabled.
 
-  Problem is with reading /proc/net/arp: arp_seq_start does
-read_lock_bh(&arp_tbl.lock), and this lock is held and held and held...
-as long as neigh_get_bucket() returns non-NULL, or until reading
-of /proc/net/arp stops...
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          75.7    91      0       0       1.06
+2.5.46 [2]              74.1    92      0       0       1.04
+2.5.46-mm1 [5]          74.0    93      0       0       1.04
 
-... and so it sometime happens that lock is still held when accessing 
-userspace while copying data in read, and shortly after that we run
-userspace with (1) this lock held and (2) bh disabled, and scheduler
-does not like such configuration.
+cacherun:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          69.3    99      0       0       0.97
+2.5.46 [2]              67.9    99      0       0       0.95
+2.5.46-mm1 [5]          68.9    99      0       0       0.96
 
-I'd say that all machines here are affected, and only I suffer
-from problem because of I'm running shell script which periodically pings
-all machines on subnet, reading their ethernet addresses back from 
-/proc/net/arp...
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          190.6   36      166     63      2.67
+2.5.45 [5]              91.0    75      33      27      1.27
+2.5.46 [1]              92.9    74      36      29      1.30
+2.5.46-mm1 [5]          82.7    82      21      21      1.16
 
-Unfortunately I do not have any idea how to fix it correctly, so for now
-I just removed /proc/net/arp from my system, because of 'cat /proc/net/arp'
-preceded by ping is quickest way I know to kill my system from user account.
-                                        Thanks,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+Much improved 
+
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          97.3    79      1       5       1.36
+2.5.46 [1]              98.3    80      1       7       1.38
+2.5.46-mm1 [5]          95.3    80      1       5       1.33
+
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          207.6   37      2       7       2.91
+2.5.46 [1]              113.5   67      1       8       1.59
+2.5.46-mm1 [5]          227.1   34      3       7       3.18
+
+Whatever was causing this to be high in 2.5.44-mm6 is still there now.
+
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          284.1   28      20      10      3.98
+2.5.46 [1]              600.5   13      48      12      8.41
+2.5.46-mm1 [5]          134.3   58      6       8       1.88
+
+Big change here. IO load is usually the one we feel the most.
+
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          104.3   73      7       4       1.46
+2.5.46 [1]              103.5   75      7       4       1.45
+2.5.46-mm1 [5]          103.2   74      6       4       1.45
+
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          95.3    75      1       20      1.33
+2.5.46 [1]              96.8    74      2       22      1.36
+2.5.46-mm1 [5]          101.4   70      1       22      1.42
+
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.44-mm6 [3]          226.9   33      50      2       3.18
+2.5.46 [3]              148.0   51      34      2       2.07
+2.5.46-mm1 [5]          180.5   41      35      1       2.53
+
+And this remains relatively high but better than 2.5.44-mm6
+
+Unfortunately I've only run this with preempt enabled so far and I believe 
+many of the improvements are showing this effect.
+
+Con.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9yu7eF6dfvkL3i1gRAqGIAJ9f6XFfwO0sQOVBn5qZPfAFY5JdlwCggOZt
+WXizAEgC23W+AURXApih9xc=
+=MCT0
+-----END PGP SIGNATURE-----
+

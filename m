@@ -1,31 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269651AbRHCWrD>; Fri, 3 Aug 2001 18:47:03 -0400
+	id <S269648AbRHCWpn>; Fri, 3 Aug 2001 18:45:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269653AbRHCWqz>; Fri, 3 Aug 2001 18:46:55 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10381 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269651AbRHCWqg>;
-	Fri, 3 Aug 2001 18:46:36 -0400
-Date: Fri, 3 Aug 2001 18:45:47 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic
- change patch)
-In-Reply-To: <20010804100143.A17774@weta.f00f.org>
-Message-ID: <Pine.GSO.4.21.0108031840090.5264-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269651AbRHCWpe>; Fri, 3 Aug 2001 18:45:34 -0400
+Received: from unthought.net ([212.97.129.24]:36046 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S269648AbRHCWp1>;
+	Fri, 3 Aug 2001 18:45:27 -0400
+Date: Sat, 4 Aug 2001 00:45:22 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Paul G. Allen" <pgallen@randomlogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] DMCA loop hole
+Message-ID: <20010804004522.B24281@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Paul G. Allen" <pgallen@randomlogic.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010803165221.C11011@ksu.edu> <E15Sn80-00044A-00@the-village.bc.nu> <20010803171657.D11011@ksu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010803171657.D11011@ksu.edu>; from jap3003@ksu.edu on Fri, Aug 03, 2001 at 05:16:58PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 03, 2001 at 05:16:58PM -0500, Joseph Pingenot wrote:
+...
+> >In the USA its a lot less clear. You can find laws explicitly claiming both,
+> >and since US law is primarily about who has loads of money, its a bit
+> >irrelevant
+> 
+> Heh.  Criticism accepted.  Maybe one of the prerequisites for running for
+>   office should be Free Software / Open Source development.  :)  Seriously,
+>   though, anyone listening interested in running for office?  Maybe we should
+>   start the Free Software Party.
 
+No please, not seriously   ;)
 
-On Sat, 4 Aug 2001, Chris Wedgwood wrote:
+This was actually the april's fool's joke this year, from SSLUG (Skaane
+Sjaelland Linux User Group) (http://www.sslug.dk/).
 
-> Linus, one more thing --- the first argument to ->fsync is struct file*
-> and nothing uses it, I'd like to blow it away or would you prefer we
+People are too different politically - one common cause (which is probably not
+common at all - poeple are here for many different reasons!) won't cut it.
 
-nfs_fsync().
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316952AbSEaVWJ>; Fri, 31 May 2002 17:22:09 -0400
+	id <S316954AbSEaVkj>; Fri, 31 May 2002 17:40:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316954AbSEaVWI>; Fri, 31 May 2002 17:22:08 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:33652 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316952AbSEaVWH>; Fri, 31 May 2002 17:22:07 -0400
-Date: Fri, 31 May 2002 23:21:33 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: jlnance@intrex.net, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.4 VM sucks. Again
-Message-ID: <20020531212133.GA1172@dualathlon.random>
-In-Reply-To: <200205231311.g4NDBO613726@mail.pronto.tv> <20020523141243.A1178@tricia.dyndns.org> <200205241036.g4OAaXR28572@mail.pronto.tv>
+	id <S316957AbSEaVki>; Fri, 31 May 2002 17:40:38 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:62727 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S316954AbSEaVke>;
+	Fri, 31 May 2002 17:40:34 -0400
+Date: Fri, 31 May 2002 17:34:20 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+        yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+Message-ID: <20020531173420.A17892@mark.mielke.cc>
+In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022604318.4123.114.camel@irongate.swansea.linux.org.uk> <3CF42179.29A2CAED@linux-m68k.org> <1022678678.4123.189.camel@irongate.swansea.linux.org.uk> <20020531115742.D37@toy.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 12:36:32PM +0200, Roy Sigurd Karlsbakk wrote:
-> On Thursday 23 May 2002 20:12, jlnance@intrex.net wrote:
-> > On Thu, May 23, 2002 at 03:11:24PM +0200, Roy Sigurd Karlsbakk wrote:
-> > > Starting up 30 downloads from a custom HTTP server (or Tux - or Apache -
-> > > doesn't matter), file size is 3-6GB, download speed = ~4.5Mbps. After
-> > > some time the kernel (a) goes bOOM (out of memory) if not having any
-> > > swap, or (b) goes gong swapping out anything it can.
-> >
-> > Does this work if the client and the server are on the same machine?  It
-> > would make reproducing this a lot easier if it only required 1 machine.
-> 
-> I guess it'd work fine with only one machine, as IMO, the problem must be the 
-> kernel not releasing buffers
+On Fri, May 31, 2002 at 11:57:42AM +0000, Pavel Machek wrote:
+> > > Victor denies the RTAI people any clear answers about the license.
+> > 	"We think you need a license if you use proprietary software 
+> > 	 with this" and "Ask a lawyer"
+> I dont see whyhe could not answer "LGPL is ojkay according to us, and we 
+> promise not to sue you."
 
-too much variable.
+Realize of course, that unless it is a signed piece of paper with
+specifically listed terms, the 'it is ok and we promise not to sue you'
+is not legally binding, and is therefore meaningless.
 
-Also keep in mind if you grow the socket buffer to hundred mbyte on an
-highmem machine the zone-normal will finish too fast and you may run out
-of memory. 2.4.19pre9aa2 in such case should at least return -ENOMEM and
-not deadlock.
+The piece of paper usually takes the form of a license.
 
-Andrea
+See where this goes? :-) Round and round...
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

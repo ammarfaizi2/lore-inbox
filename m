@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264314AbUD0Tk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUD0Tns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264314AbUD0Tk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 15:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbUD0Tk6
+	id S264299AbUD0Tns (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 15:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbUD0TmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 15:40:58 -0400
-Received: from mail1.drkw.com ([62.129.121.35]:422 "EHLO mail1.drkw.com")
-	by vger.kernel.org with ESMTP id S264314AbUD0Tkj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 15:40:39 -0400
-From: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
-To: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, davej@redhat.com,
-       oschoett@t-online.de
-Subject: Re: [PATCH] SIS AGP vs 2.6.6-rc2
-In-Reply-To: <200404271929.16786.volker.hemmann@heim9.tu-clausthal.de>
-References: <20040426082159.90513.qmail@web10102.mail.yahoo.com> 
-    <1082971956.24569.2.camel@pandora> <1083063853.24569.88.camel@pandora> 
-    <200404271929.16786.volker.hemmann@heim9.tu-clausthal.de>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1083094853.7581.14.camel@pandora>
-Mime-Version: 1.0
-Date: Tue, 27 Apr 2004 20:40:54 +0100
-Content-Transfer-Encoding: 8BIT
-X-SA-Exim-Mail-From: Oliver.Heilmann@drkw.com
+	Tue, 27 Apr 2004 15:42:09 -0400
+Received: from piedra.unizar.es ([155.210.11.65]:5510 "EHLO relay.unizar.es")
+	by vger.kernel.org with ESMTP id S264310AbUD0Tl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 15:41:57 -0400
+From: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>
+Reply-To: koke@sindominio.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Date: Tue, 27 Apr 2004 21:41:51 +0200
+User-Agent: KMail/1.6.1
+Cc: Grzegorz Kulewski <kangur@polcom.net>, Valdis.Kletnieks@vt.edu
+References: <20040427165819.GA23961@valve.mbsi.ca> <200404272103.21925.koke_lkml@amedias.org> <Pine.LNX.4.58.0404272113110.9618@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.58.0404272113110.9618@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404272141.51222.koke_lkml@amedias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot, this (-l) will probably do the trick for you:
-patch -p1 -l < sis.agp.patch
+On Martes, 27 de Abril de 2004 21:16, Grzegorz Kulewski wrote:
+>
+> I think that /proc/tainted would be better than spamming logs after each
+> load of tainted module...
+> But probably modules should not be removed from /proc/tainted on unloading
+> (to prevent from "un-tainting" the kernel by "clever" users).
+>
 
-On Tue, 2004-04-27 at 18:29, Hemmann, Volker Armin wrote:
-> Hi,
-> I tried your patch and is has rejects again:
-> energy linux # patch -p1 < sis.agp.patch
-> patching file drivers/char/agp/sis-agp.c
-> Hunk #1 succeeded at 13 with fuzz 2.
-> Hunk #2 succeeded at 69 with fuzz 2.
-> Hunk #3 FAILED at 96.
-> Hunk #4 FAILED at 224.
-> 2 out of 5 hunks FAILED -- saving rejects to file 
-> drivers/char/agp/sis-agp.c.rej
-> 
-> Attached is the .rej file. 
-> 
-> Glück Auf
-> Volker
+2 ideas:
 
+Printing if the tainted module is loaded or unloaded
 
---------------------------------------------------------------------------------
-The information contained herein is confidential and is intended solely for the
-addressee. Access by any other party is unauthorised without the express
-written permission of the sender. If you are not the intended recipient, please
-contact the sender either via the company switchboard on +44 (0)20 7623 8000, or
-via e-mail return. If you have received this e-mail in error or wish to read our
-e-mail disclaimer statement and monitoring policy, please refer to 
-http://www.drkw.com/disc/email/ or contact the sender.
---------------------------------------------------------------------------------
+and/or
+
+using the /proc/tainted interface to enable/disable loading of tainted 
+modules.
+
+So that are 2 different things: a) how do we handle the tainted mods 
+notifications and b) if we let the user decide if he/she wants tainted 
+modules to be "blocked"
 

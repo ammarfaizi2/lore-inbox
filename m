@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264143AbTDJS0n (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTDJS0n (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 14:26:43 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25250
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264143AbTDJS0m (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 14:26:42 -0400
-Subject: RE: questions regarding Journalling-FSes and w-cache reordering
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "'Oliver S.'" <Follow.Me@gmx.net>
-In-Reply-To: <1049924154.5404.26.camel@torrey.et.myrio.com>
-References: <785F348679A4D5119A0C009027DE33C102E0D0B1@mcoexc04.mlm.maxtor.com>
-	 <1049919134.10871.5.camel@dhcp22.swansea.linux.org.uk>
-	 <1049924154.5404.26.camel@torrey.et.myrio.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049996358.10871.29.camel@dhcp22.swansea.linux.org.uk>
+	id S264152AbTDJSdM (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbTDJSdL (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 14:33:11 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:8832 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id S264152AbTDJSdL (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 14:33:11 -0400
+Date: Thu, 10 Apr 2003 11:44:49 -0700
+From: Bob Miller <rem@osdl.org>
+To: trivial@rustcorp.com.au, mbligh@aracnet.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.67] Fix compiler errors in drivers/char/rio/rio_linux.c
+Message-ID: <20030410184449.GA3607@doc.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Apr 2003 18:39:19 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-09 at 22:35, Torrey Hoffman wrote:
-> Can anyone recommend some decent 120 GB or larger IDE drives which don't
-> play these games?   
+When the compatmac.h include file was deleted the indirect include
+of asm/uaccess.h was lost.  This patch adds a direct include of
+asm/uaccess.h.
 
-On the newer drives you should be fine. You may need to tell the drive to
-remember settings over a reset.
+This fixes bugme.osdl.org bug number 566.
 
-Alan
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
 
+===== drivers/char/rio/rio_linux.c 1.16 vs edited =====
+--- 1.16/drivers/char/rio/rio_linux.c	Mon Mar 31 15:55:28 2003
++++ edited/drivers/char/rio/rio_linux.c	Thu Apr 10 11:25:23 2003
+@@ -60,6 +60,7 @@
+ #include <linux/init.h>
+ 
+ #include <linux/generic_serial.h>
++#include <asm/uaccess.h>
+ 
+ #if BITS_PER_LONG != 32
+ #  error FIXME: this driver only works on 32-bit platforms

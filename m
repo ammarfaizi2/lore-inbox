@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288384AbSA3EMK>; Tue, 29 Jan 2002 23:12:10 -0500
+	id <S288414AbSA3EOk>; Tue, 29 Jan 2002 23:14:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288414AbSA3EMA>; Tue, 29 Jan 2002 23:12:00 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:62212 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288384AbSA3ELu>;
-	Tue, 29 Jan 2002 23:11:50 -0500
-Date: Tue, 29 Jan 2002 20:10:39 -0800
-From: Greg KH <greg@kroah.com>
-To: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
-Cc: mochel@osdl.org, linux-usb-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driverfs support for USB - take 2
-Message-ID: <20020130041039.GB23261@kroah.com>
-In-Reply-To: <20020130002418.GB21784@kroah.com> <Pine.LNX.4.44.0201291748390.1012-100000@stag.slac.stanford.edu>
+	id <S288402AbSA3EOU>; Tue, 29 Jan 2002 23:14:20 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33482 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S288395AbSA3EOI>;
+	Tue, 29 Jan 2002 23:14:08 -0500
+Date: Tue, 29 Jan 2002 23:14:03 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Chris Ricker <kaboom@gatech.edu>,
+        World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020129231403.A22449@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net> <Pine.LNX.4.33.0201291851270.1766-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0201291748390.1012-100000@stag.slac.stanford.edu>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 02 Jan 2002 01:56:59 -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201291851270.1766-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 29, 2002 at 06:54:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 05:49:36PM -0800, Stephen J. Gowdy wrote:
-> Hi Greg,
-> 	Not that it matters for this discussion, but I thought the USB2.0 
-> cards had two OHCI and one EHCI controllers?
+On Tue, Jan 29, 2002 at 06:54:04PM -0800, Linus Torvalds wrote:
+> Basically, I'd really like documentation to go with the thing it
+> documents. This is something where the docbook stuff helped noticeably.
 
-I think you're right.
+Well...  kinda sorta.
 
-greg k-h
+We -used- to really have documentation with the thing it documents, like
+drivers/foo/README.  In-lined source comments are one piece of the
+puzzle yes, but the -bulk- of the docs are not anywhere near the thing
+it documents.
+
+I actually don't like stuffing documents in Documentation/DocBook
+proper...  I've put docs for two drivers in there, but if the trend
+continues a new dir structure will need to evolve.
+
+Either we'll want Documentation/DocBook/<category>, or move the docbook
+docs into the standard Documentation/* hierarchy......... or we'll start
+moving docs back outside Documentation/*
+
+	Jeff, on a semi-tangent
+
+
+

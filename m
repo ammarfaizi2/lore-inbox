@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267173AbSLEB1F>; Wed, 4 Dec 2002 20:27:05 -0500
+	id <S267175AbSLEBhi>; Wed, 4 Dec 2002 20:37:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267175AbSLEB1F>; Wed, 4 Dec 2002 20:27:05 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:21642 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id <S267173AbSLEB1E>;
-	Wed, 4 Dec 2002 20:27:04 -0500
-Date: Thu, 5 Dec 2002 01:34:41 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
+	id <S267176AbSLEBhi>; Wed, 4 Dec 2002 20:37:38 -0500
+Received: from f121.law15.hotmail.com ([64.4.23.121]:4624 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S267175AbSLEBhh>;
+	Wed, 4 Dec 2002 20:37:37 -0500
+X-Originating-IP: [61.129.109.226]
+From: "Yiyan Yang" <edwardyang6@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Process verification while running
-Message-ID: <Pine.LNX.4.44.0212050125420.14956-100000@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: new kernel can't boot
+Date: Thu, 05 Dec 2002 09:45:05 +0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F121O3YnDKvLVFDWTYT00001ed0@hotmail.com>
+X-OriginalArrivalTime: 05 Dec 2002 01:45:05.0727 (UTC) FILETIME=[EF8594F0:01C29BFF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+im using RHAS 2.1 kernel 2.4.9-e.3, to install oracle RAC on the server, we
+have to change some parameter(character device - watch dog) and rebuild 
+kernel.
 
-Hi,
-	I have an embedded Linux project that requires (by standards +
-laws) that all code running in the system be verified against prestored
-CRCs at a number of stages of execution.... (and they mean all code : both
-kernel and userspace) to protect against memory issue and tampering. I
-don't wish to debate the merits of these ideas, they are cast in stone,
-what I want to know what is the best approach to doing this under Linux?
-There is no swap in the system, and all process will be running with
-mlockall().
+I build the kernel according to the customization manual but the kernel 
+fails
+to boot, the error is:
 
-For the kernel I'm going to add a kernel thread that loops over the text
-segment verifying integrity.
+  Kernel Panic: VFS: Unable to mount root fs on 01:00
 
-For userspace I was initially going to use a userspace daemon that reads
-via /proc/pid/mem interface and tests the text segments against what I
-hope is in there.. but this seems to be a problem as I need to ptrace
-attach the process (which starts sending SIGSTOPs around when the process
-gets a signal) to get a /proc/pid/mem.
+My root is on ext3 FS and I did the mkinitrm RAM Disk.
+Cause im not in the email-list, please directly reply to me.
 
-My other option is to implement my own kernel module to do the work, and
-have a kernel thread running around.. I'd have to feed it the CRCs and
-stuff at the start and let it go...
+Thanks very much.
 
-Could I remove the check that stops other processes reading /proc/pid/mem?
-safely enough considering this system runs embedded with very little scope
-for outside interference...
 
-Thanks,
-Dave.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied@skynet.ie
-pam_smb / Linux DecStation / Linux VAX / ILUG person
-
+_________________________________________________________________
+Tired of spam? Get advanced junk mail protection with MSN 8. 
+http://join.msn.com/?page=features/junkmail
 

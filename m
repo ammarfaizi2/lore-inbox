@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288952AbSBOMgU>; Fri, 15 Feb 2002 07:36:20 -0500
+	id <S288958AbSBOMiK>; Fri, 15 Feb 2002 07:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288958AbSBOMgK>; Fri, 15 Feb 2002 07:36:10 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:20754 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S288952AbSBOMfx>; Fri, 15 Feb 2002 07:35:53 -0500
-Date: Fri, 15 Feb 2002 23:36:42 +1100
-From: john slee <indigoid@higherplane.net>
-To: Ken Brownfield <brownfld@irridia.com>
-Cc: Robert Love <rml@tech9.net>, J Sloan <joe@tmsusa.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: tux officially in kernel?
-Message-ID: <20020215123642.GB5996@higherplane.net>
-In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net> <3C67F327.8010404@tmsusa.com> <20020213135841.GB4826@higherplane.net> <3C6C4942.4050305@lexus.com> <1013730883.807.251.camel@phantasy> <20020214190003.B1518@asooo.flowerfire.com>
+	id <S288960AbSBOMiA>; Fri, 15 Feb 2002 07:38:00 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:48134 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S288958AbSBOMhv>; Fri, 15 Feb 2002 07:37:51 -0500
+Date: Fri, 15 Feb 2002 13:37:49 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
+        kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Re: IDE cleanup for 2.5.4-pre3
+Message-ID: <20020215133749.E5096@suse.cz>
+In-Reply-To: <20020208231346.GA1209@elf.ucw.cz> <20020211094230.E1957@suse.de> <20020211134443.GC20854@atrey.karlin.mff.cuni.cz> <20020211181013.K729@suse.de> <20020213225326.A10409@suse.cz> <20020214094046.B37@toy.ucw.cz> <3C6CC19C.3040608@evision-ventures.com> <20020215132030.A5096@suse.cz> <3C6CFDFF.5080108@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020214190003.B1518@asooo.flowerfire.com>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C6CFDFF.5080108@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Feb 15, 2002 at 01:24:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 14, 2002 at 07:00:03PM -0600, Ken Brownfield wrote:
-> The problem with X15 is that it's unavailable.  I've tried for months
-> and months to get someone at that company to respond or get a copy to
-> try.  Also, is it GPL?  Free?
+On Fri, Feb 15, 2002 at 01:24:31PM +0100, Martin Dalecki wrote:
 
-i believe it was free for noncommercial use, a restriction imposed by
-the author's company.  i didn't bother to read back on the archives
-though so don't accept this as verified fact :-)
+> >On Fri, Feb 15, 2002 at 09:06:52AM +0100, Martin Dalecki wrote:
+> >
+> my bla bla was here...
+> 
+> >
+> >And these steps also sound very good to me.
+> >
+> 
+> How wired is yours setup and would you engage in testing? I'm in especially
+> a bit of in fear to the fact that I don't have access to any ATAPI 
+> interface based streamer (the rest I can get around with ;-).
 
-> As for TUX, I would certainly prefer user-space if it was indeed as fast
+I'll test it, yes, but I also don't have an ATAPI streamer available. I
+have CD-ROMs, DVD-ROMs, CD-RW, can test it on an ATAPI ZIP, and that's
+about it.
 
-also thttpd is very very fast on linux.  really to need this sort of
-performance on modern hardware is quite unusual at least in the public
-internet.
-
-> in all cases.  But I don't think X15 is really a factor in TUX's
-
-maybe not x15 on its own.  but the existence of multiple userspace
-servers that can provide similar performance may be a good reason to not
-include it, as well as ...
-
-> inclusion.  I'd say replacing khttpd with TUX2 is a no-brainer unless
-> X15's performance has been proven and it's GPL.  And while khttpd is an
-
-there's no reason why it can't stay as an external patch.  redhat provide
-tux rpms for example.  i think khttpd should be removed altogether from
-the standard kernel and not replaced with tux.
-
-j.
+I'm also planning to start cleaning up ide-pci.c, removing most of that
+file in the process.
 
 -- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+Vojtech Pavlik
+SuSE Labs

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267912AbTAHUbB>; Wed, 8 Jan 2003 15:31:01 -0500
+	id <S267923AbTAHUex>; Wed, 8 Jan 2003 15:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267916AbTAHUbB>; Wed, 8 Jan 2003 15:31:01 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:47826 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S267912AbTAHUa7>; Wed, 8 Jan 2003 15:30:59 -0500
-Date: Thu, 09 Jan 2003 09:39:15 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Fabio Massimo Di Nitto <fabbione@fabbione.net>,
-       Maciej Soltysiak <solt@dns.toxicfilms.tv>
-cc: Wichert Akkerman <wichert@wiggy.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: ipv6 stack seems to forget to send ACKs
-Message-ID: <92200000.1042058355@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.51.0301082129180.12716@diapolon.int.fabbione.net>
-References: <Pine.LNX.4.44.0301082122190.32244-100000@dns.toxicfilms.tv>
- <Pine.LNX.4.51.0301082129180.12716@diapolon.int.fabbione.net>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+	id <S267924AbTAHUex>; Wed, 8 Jan 2003 15:34:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58379 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267923AbTAHUew>; Wed, 8 Jan 2003 15:34:52 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH][TRIVIAL] menuconfig color sanityExpires:
+Date: 8 Jan 2003 12:43:30 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <avi2hi$136$1@cesium.transmeta.com>
+References: <20030108104714.GM268@gage.org> <Pine.LNX.3.96.1030108095857.21895A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Probably not slow and/or overloaded.  I'd think it's more likely that it 
-has a routing update problem or an unreliable link.  But whatever, this 
-seemed to me to be a classic 'dodgy box in the middle' rather than an end 
-host problem.
+Followup to:  <Pine.LNX.3.96.1030108095857.21895A-100000@gatekeeper.tmr.com>
+By author:    Bill Davidsen <davidsen@tmr.com>
+In newsgroup: linux.dev.kernel
+> 
+> Man, did you look at this on a console? That is uglier than a hedgehog's
+> asshole! Good idea, poor implementation. Please retry, the default colors
+> are not as bad on an xterm as the new colors on a console. And with small
+> memory machines I sure don't build kernels using X! 
+> 
 
-Andrew
+Also, whatever color set is chosen: make sure it works on a
+512-character font console, which doesn't have the high-intensity
+colors.
 
---On Wednesday, January 08, 2003 21:31:04 +0100 Fabio Massimo Di Nitto 
-<fabbione@fabbione.net> wrote:
+	-hpa
 
->
-> Definitly it is somehow unstable. Difficult to find the reason.
-> Anyway Im sure that there is asimmetric routing between me and
-> ipv6.lkml.org and I could see pkts coming back. It might not have been the
-> case for Wichert
->
-> Fabio
->
-> On Wed, 8 Jan 2003, Maciej Soltysiak wrote:
->
->> > Probably on the server's side it got an ICMP Host Unreachable or two as
->> > some router updated its tables, and decided to close the connection.
->> Sounds reasonable to me. Could it mean that this router that we are
->> talking about is simply slow or overloaded ?
->>
->> Maciej
->>
->>
->>
->
->
-
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

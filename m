@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVCUSKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVCUSRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVCUSKw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 13:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVCUSKv
+	id S261426AbVCUSRW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 13:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVCUSRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 13:10:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61125 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261394AbVCUSKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 13:10:34 -0500
-Message-ID: <423F0E09.50101@pobox.com>
-Date: Mon, 21 Mar 2005 13:10:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andre Tomt <andre@tomt.net>
-CC: Carlos Fernandez Sanz <cfs-lk@nisupu.com>, linux-kernel@vger.kernel.org
-Subject: Re: Status of SATA support
-References: <423EB3B0.8070500@nisupu.com> <423F0A5F.1010200@pobox.com> <423F0BE0.9090606@tomt.net>
-In-Reply-To: <423F0BE0.9090606@tomt.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 13:17:22 -0500
+Received: from are.twiddle.net ([64.81.246.98]:47747 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S261426AbVCUSRT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 13:17:19 -0500
+Date: Mon, 21 Mar 2005 10:16:18 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
+       Leendert van Doorn <leendert@watson.ibm.com>,
+       Reiner Sailer <sailer@watson.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] alpha build fixes
+Message-ID: <20050321181618.GA7136@twiddle.net>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+	Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
+	Leendert van Doorn <leendert@watson.ibm.com>,
+	Reiner Sailer <sailer@watson.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net> <1111416728.14833.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111416728.14833.20.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Tomt wrote:
-> Jeff Garzik wrote:
-> 
->> Carlos Fernandez Sanz wrote:
->>
->>> Since this document is a bit our of date:
->>>
->>> http://linux.yyz.us/sata/sata-status.html
->>
->>
->>
->> What's out-of-date about that URL?
->>
->>     Jeff
->>
-> 
-> A update on the Marvell status? :-P
+On Mon, Mar 21, 2005 at 02:52:10PM +0000, Alan Cox wrote:
+> The issue is bigger - it's needed for the CMD controllers on PA-RISC for
+> example it appears - and anything else where IDE legacy IRQ is wired
+> oddly.
 
-No Marvell status change, so no need to update...
+Sure, but who queries this information?  That's my question.
 
 
-> Anyway, is there any of the current work on Marvell available somewhere, 
-> so that someone could possibly pick up on it?
-
-It's mainly a skeleton that I would rather not release.  Someone with 
-docs (and you need docs) could re-create it in ten seconds.
-
-	Jeff
-
-
+r~

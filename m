@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVADLMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVADLQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVADLMT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 06:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVADLKy
+	id S261160AbVADLQr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 06:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVADLQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 06:10:54 -0500
-Received: from gprs214-29.eurotel.cz ([160.218.214.29]:13495 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261159AbVADLJx (ORCPT
+	Tue, 4 Jan 2005 06:16:47 -0500
+Received: from gprs214-29.eurotel.cz ([160.218.214.29]:42673 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261160AbVADLQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 06:09:53 -0500
-Date: Tue, 4 Jan 2005 12:08:40 +0100
+	Tue, 4 Jan 2005 06:16:32 -0500
+Date: Tue, 4 Jan 2005 12:15:18 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Oliver Neukum <oliver@neukum.org>
+To: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swsusp hanging the second time
-Message-ID: <20050104110839.GF18777@elf.ucw.cz>
-References: <200501041154.19030.oliver@neukum.org>
+Subject: Re: 2.6.10 resuming laptop from suspension f*cks usb subsystem
+Message-ID: <20050104111518.GG18777@elf.ucw.cz>
+References: <41D2C4FA.7010806@telefonica.net> <20050103220704.GB25250@elf.ucw.cz> <41DA79EB.20102@telefonica.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501041154.19030.oliver@neukum.org>
+In-Reply-To: <41DA79EB.20102@telefonica.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,22 +27,31 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> there's a second, more serious problem with this laptop. It hangs the
-> in the second swsusp cycle on suspension.
-> As before 2.6.10, i386/UP/no highmem.
-> On the screen I get the two messages "radeonfb resumed!" and
-> "setting latency" superimposed and it hangs forever. This is a regression
-> the previous user commented: "It worked under 2.6.6"
+> >>In 2.6.10, resuming from suspend mode just (randomly) crashes the USB 
+> >>subsystem, and I get the same messages (not sure about the whole message 
+> >>but the "-84" part really is there) over and over again until I reboot.
+> >>   
+> >>
+> >
+> >Does it still happen with noapic? 2.6.10 has some interrupt related
+> >problems with APIC...
 
-Unless it was on the same hardware/config, I'd not call it regression.
+> I have just rebooted 2.6.10 with this LILO command line
+> 
+>    LILO Boot: Linux-2.6.10 noapic
+> 
+> and if that disables APIC, then I've got the same problem. After 
+> suspending the laptop
+> two times, I get the same lines (described below) and the usb system 
+> goes nuts. After
+> removing & inserting uhci_hcd everything works fine again.
+> 
+> The lines are (endless loop):
+> drivers/usb/input/hid-core.c: input irq status -84 received
 
-Anyway two suspends in the row seem to work here on 2.6.10+my
-patches. I suspect you have problems with some more obscure driver.
-
-Can you try going with minimal driver config to see if it is
-reproducible? If it is broken even with minimal drivers, I'll try
-harder to reproduce it here (but I believe it will just go away).
-
+I guess you need to ask on usb lists. If removing/inserting uhci_hcd
+helps, it is likely that uhci_hcd needs to do a bit more in its
+suspend/resume callbacks.
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

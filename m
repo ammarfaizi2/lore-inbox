@@ -1,54 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVCDE0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVCDE0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVCDE0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 23:26:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVCCTj7
+	id S261443AbVCDE0X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 23:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVCCTmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:39:59 -0500
-Received: from krusty.vfxcomputing.com ([66.92.20.10]:47276 "EHLO
-	krusty.vfxcomputing.com") by vger.kernel.org with ESMTP
-	id S262208AbVCCTGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:06:52 -0500
-Date: Thu, 3 Mar 2005 14:06:38 -0500 (EST)
-From: Mark Canter <marcus@vfxcomputing.com>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
-       Pierre Ossman <drzeus-list@drzeus.cx>,
-       LKML <linux-kernel@vger.kernel.org>, alsa-devel@lists.sourceforge.net
-Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
-In-Reply-To: <1109875926.2908.26.camel@mindpipe>
-Message-ID: <Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>
-References: <4227085C.7060104@drzeus.cx>  <29495f1d05030309455a990c5b@mail.gmail.com>
-  <Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>
- <1109875926.2908.26.camel@mindpipe>
+	Thu, 3 Mar 2005 14:42:23 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:56770 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S262518AbVCCTVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 14:21:12 -0500
+Message-ID: <42276399.40709@dgreaves.com>
+Date: Thu, 03 Mar 2005 19:20:57 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering - an orthogonal solution
+References: <200503031644.j23Gi0Eh011165@laptop11.inf.utfsm.cl> <Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503030855460.25732@ppc970.osdl.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
-Correct, but if you want to use your headphones you would have to enable 
-headphones on your mixer, which would negate your speaker output through 
-your docking station's output.  If you want to use the docking station 
-speakers, you would have to disable the headphones in order to get the 
-docking station speakers to work; no?  If that is the case, then you would 
-still have to enable/disable each time you wanted to change the direction 
-of headphones/external speakers.  Again, this is not the case under <= 
-2.6.10 where it works regardless of enabling/disabling headphones.
-
-I'd hate to rant and rave here under something that has worked under 2.4.x 
-and <= 2.6.10.  But this seems like a very un-userfriendly solution to 
-something that has had no issues for quite some time.  In that case, what 
-deemed the change necessary?  As far as I see the 8x0 driver added support 
-for ICH7.  I'm sure there's more to it than just that, I just haven't 
-looked into it the rest of the way.
-
-On Thu, 3 Mar 2005, Lee Revell wrote:
-
-> On Thu, 2005-03-03 at 13:46 -0500, Mark Canter wrote:
+>On Thu, 3 Mar 2005, Horst von Brand wrote:
+>  
 >
-> You don't have to disable and re-enable it each time, if your system is
-> configured correctly then your mixer settings will be saved.
+>>[I'm pulling bk daily, and have it mixed with the ipw tree too, so I'm just
+>> the kind of tester you are looking for... haven't seen any of the
+>> showstopper bugs everybody is talking about, or I'd have screamed.]
+>>    
+>>
 >
-> Lee
+>Yeah, I wish everybody was like that. Sadly, it seems to be pretty rare to
+>have people do weekly builds, much less daily. Daily builds is the holy
+>grail for me, if just a small percentage of people did that, we'd be
+>really well off.. Right not it's not even a "percentage", it's a very much
+>self-selected small group of people, usually with what ends up actually
+>being fairly similar high-end PC hardware.
 >
+>Now, I haven't actually gotten any complaints about 2.6.11 (apart from 
+>"gcc4 still has problems" with fairly trivial solutions), so maybe the 
+>whole cycle really worked out well this time, and I happened to choose a 
+>really bad time to bring up this discussion. Or maybe this discussion 
+>scared away people, and I just need to give it another week or two ;)
+>
+>		Linus
+>  
+>
+I suspect you don't mean 'everybody'.
+So who do you mean?
+
+Why isn't there some advice on www.kernel.org that says:
+
+  Do you use the Linux kernel?
+  _You_ can make it better!!
+  Here's how you can help...
+
+and goes on to tell people how, depending on their familiarity and 
+risk-aversion/linux-love ratio, they can install -mm kernels or -ck ones 
+or -rc ones or -pre ones...
+
+and it explains clearly what the intent and promises around each one are
+
+and it explains the risks (probably in terms of likelihood of losing 
+their digital photos!)
+
+and it tells them how to subscribe to linux-kernel-announce
+
+So they don't have to monitor lkml to know about them.
+
+
+Maybe people like Horst could publicise the way in which they 
+automatically download and deploy kernels.
+I certainly wouldn't mind rebooting my desktop once a week to try a 
+current kernel.
+
+David

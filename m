@@ -1,109 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266989AbSKWMVw>; Sat, 23 Nov 2002 07:21:52 -0500
+	id <S266995AbSKWM06>; Sat, 23 Nov 2002 07:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbSKWMVw>; Sat, 23 Nov 2002 07:21:52 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:6017 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S266989AbSKWMVv> convert rfc822-to-8bit; Sat, 23 Nov 2002 07:21:51 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-Date: Sat, 23 Nov 2002 23:30:27 +1100
-User-Agent: KMail/1.4.3
+	id <S266996AbSKWM06>; Sat, 23 Nov 2002 07:26:58 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:9732 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266995AbSKWM05>; Sat, 23 Nov 2002 07:26:57 -0500
+Date: Sat, 23 Nov 2002 13:34:04 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: linux-kernel@vger.kernel.org, <vandrove@vc.cvut.cz>
+Subject: Re: [RFC] module fs or how to not break everything at once
+In-Reply-To: <200211230458.UAA17701@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44.0211231308250.2113-100000@serv>
+References: <200211230458.UAA17701@adam.yggdrasil.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Rik van Riel <riel@conectiva.com.br>
-Subject: [BENCHMARK] 2.4.19-rmap15 with contest
-Message-Id: <200211232330.38419.conman@kolivas.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Here is a set of contest (http://contest.kolivas.net) benchmarks for 
-2.4.19-rmap15
+On Fri, 22 Nov 2002, Adam J. Richter wrote:
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [5]              71.7    93      0       0       0.99
-2.4.19 [5]              69.0    97      0       0       0.95
-2.4.19-rmap15 [3]       73.1    92      0       0       1.01
+> 	I will try to find that discussion.  In the meantime, I'll just
+> point out that you can still use the linker with two .o files instead
+> of one .o and an ld script.  At the very least, it you would be
+> relying on one less GNUism (linker scripts).
 
-cacherun:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [2]              66.6    99      0       0       0.92
-2.4.19 [2]              68.0    99      0       0       0.94
-2.4.19-rmap15 [3]       67.7    99      0       0       0.94
+If you manage to remove arch/*/vmlinux.lds, we can continue this 
+discussion. I need the module linker script for very much the same 
+reasons.
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              109.5   57      119     44      1.51
-2.4.19 [3]              106.5   59      112     43      1.47
-2.4.19-rmap15 [3]       112.7   56      123     44      1.56
+> >Why would you kill insmod with SIGKILL?
+> 
+> 	For example, you might be aborting a shutdown, or you might
+> have decided to kill all processes on a certain terminal because
+> you're trying to kill some runaway activity.
 
-Marginally slower here.
+Well, if you kill processes with SIGKILL, you get exactly what you ask 
+for.
 
+> >You're trying here to assign tasks to insmod it shouldn't know about. The 
+> >more insmod knows about the module layout the harder is it to change it 
+> >from the kernel side and the more you loose flexibilty.
+> >All this can be easily done by the kernel.
+> 
+> 	By that logic, we must go with Rusty's kernel module loader,
+> perhaps with an interface like "int sys_insmod(char **argv)."
 
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              117.4   63      1       7       1.62
-2.4.19 [2]              106.5   70      1       8       1.47
-2.4.19-rmap15 [3]       98.4    77      1       6       1.36
+Think _very_ carefully about what I wrote earlier:
+"Overall this means all module tasks become nicely separated. During build 
+we prepare the module with all the information the kernel needs, the 
+loader takes care of dependencies and just relocates the module, modfs 
+maps it into the kernel and starts the module. If the interfaces are 
+halfway flexible, changes in one part don't require a change somewhere 
+else."
+This is the basic design goal and I will not change it without a very good 
+reason.
 
-First significant difference. Notably faster while creating tars.
+Otherwise I stop this discussion here, I doubt you will get _anyone_ to 
+implement the features you want. It also makes little sense to discuss 
+details of an implementation, which doesn't exist yet. As soon as it does 
+exist, you are free to implement whatever you want on top of it. If you 
+get anyone to look at it without a barf bag, I'll consider it. If you 
+think you can do better, try to implement your own module loader, I think 
+it will be an interesting learning experience for you.
 
+bye, Roman
 
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              150.8   49      2       8       2.09
-2.4.19 [1]              132.4   55      2       9       1.83
-2.4.19-rmap15 [3]       130.2   55      1       19      1.80
-
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              474.1   15      36      10      6.56
-2.4.19 [3]              492.6   14      38      10      6.81
-2.4.19-rmap15 [3]       222.9   33      13      9       3.08
-
-Well this is nice. io_load is the most felt of the slowdowns and rmap manages 
-to blunt the effect io load has (note io load uses quite a bit of ram to do 
-the io load).
-
-
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              102.3   70      6       3       1.41
-2.4.19 [2]              134.1   54      14      5       1.85
-2.4.19-rmap15 [3]       129.5   56      20      5       1.79
-
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              90.2    76      1       17      1.25
-2.4.19 [1]              89.8    77      1       20      1.24
-2.4.19-rmap15 [3]       90.4    76      0       12      1.25
-
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              103.3   70      32      3       1.43
-2.4.19 [3]              100.0   72      33      3       1.38
-2.4.19-rmap15 [3]       105.3   72      37      5       1.46
-
-Note that while mem_load is marginally slower with rmap, the machine was in a 
-much more usable state after running the mem_load. Much less was coming back 
-from swap upon using it after the benchmark, and contest cant show this 
-effect.
-
-
-Looking good Rik.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE933TmF6dfvkL3i1gRAsPGAJsGcgRoKaMUtIVebjIHlFeyuzBgeACePG7N
-GUhW6kzYg7amphsfe4W5GQ4=
-=+NY1
------END PGP SIGNATURE-----

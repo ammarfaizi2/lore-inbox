@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292605AbSBUBkZ>; Wed, 20 Feb 2002 20:40:25 -0500
+	id <S292611AbSBUBmD>; Wed, 20 Feb 2002 20:42:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292307AbSBUBkO>; Wed, 20 Feb 2002 20:40:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:784 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292306AbSBUBj7>; Wed, 20 Feb 2002 20:39:59 -0500
-Subject: Re: ide cd-recording not working in 2.4.18-rc2-ac1
-To: ed.sweetman@wmich.edu (Ed Sweetman)
-Date: Thu, 21 Feb 2002 01:54:17 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1014237877.441.7.camel@psuedomode> from "Ed Sweetman" at Feb 20, 2002 03:44:32 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292607AbSBUBlx>; Wed, 20 Feb 2002 20:41:53 -0500
+Received: from rcpt-expgw.biglobe.ne.jp ([210.147.6.213]:14563 "EHLO
+	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
+	id <S292306AbSBUBll>; Wed, 20 Feb 2002 20:41:41 -0500
+X-Biglobe-Sender: <k-suganuma@mvj.biglobe.ne.jp>
+Date: Wed, 20 Feb 2002 17:40:56 -0800
+From: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
+To: Paul Jackson <pj@engr.sgi.com>
+Subject: Re: [Lse-tech] Re: [PATCH] O(1) scheduler set_cpus_allowed for non-current tasks
+Cc: Erich Focht <focht@ess.nec.de>, Robert Love <rml@tech9.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@elte.hu>, Matthew Dobson <colpatch@us.ibm.com>,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <Pine.SGI.4.21.0202201619560.565754-100000@sam.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.21.0202202337320.10032-100000@sx6.ess.nec.de> <Pine.SGI.4.21.0202201619560.565754-100000@sam.engr.sgi.com>
+Message-Id: <20020220173242.2BDF.K-SUGANUMA@mvj.biglobe.ne.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16diR7-0005RF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Becky! ver. 2.00.05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I get this on every cd I try and I've tried more than I'd have liked to.
+Hi all,
+
+On Wed, 20 Feb 2002 17:12:21 -0800
+Paul Jackson <pj@engr.sgi.com> wrote:
+
+> > Another problem is the right moment to change the cpu field of the
+> > task. ... The IPI to the target CPU is the same as in the
+> > initial design of Ingo. It has to wait for the task to unschedule and
+> > knows it will find it dequeued.
 > 
-> Performing OPC...
-> /usr/bin/cdrecord: Input/output error. write_g1: scsi sendcmd: no error
-> CDB:  2A 00 00 00 00 1F 00 00 1F 00
-> status: 0x2 (CHECK CONDITION)
-> Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 21 00 00 00
-> Sense Key: 0x5 Illegal Request, Segment 0
-> Sense Code: 0x21 Qual 0x00 (logical block address out of range) Fru 0x0
+> How about not changing anything of the target task synchronously,
+> except for some new "proposed_cpus_allowed" field.  Set that
+> field and get out of there.  Let the target process run the
+> set_cpus_allowed() routine on itself, next time it passes through
+> the schedule() code.  Leave it the case that the set_cpus_allowed()
+> routine can only be run on the current process.
+> 
+> Perhaps others need this cpus_allowed change (and the migration
+> of a task to a different allowed cpu) to happen "right away".
+> But I don't, and I don't (yet) know that anyone else does.
 
-Thats saying that cdrecord sent the drive a bogus command.
+CPU hotplug needs to change cpus_allowed in definite time.
+When a process is sleeping for 100000 seconds, how can we offline
+a CPU the process belongs?
 
-> Now I know every cd isn't bad because they used to work in older
-> 2.4.17ish kernels.  I have scsi-generic support compiled as a module as
+Regards,
+Kimi
 
-Does it still work with them ?
+-- 
+Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
 
-> SCSI subsystem driver Revision: 1.00
-> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-
-Right same as I am using
-
-> not sure what else I can get informationwize about what the drive is
-> doing.  
-
-What type of IDE controller ?

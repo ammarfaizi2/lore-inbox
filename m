@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267885AbTB1OJN>; Fri, 28 Feb 2003 09:09:13 -0500
+	id <S267918AbTB1OIp>; Fri, 28 Feb 2003 09:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267892AbTB1OJN>; Fri, 28 Feb 2003 09:09:13 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:18472 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S267885AbTB1OJL>; Fri, 28 Feb 2003 09:09:11 -0500
-Date: Fri, 28 Feb 2003 16:19:18 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Protecting processes from the OOM killer
-Message-ID: <20030228141917.GF159052@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3E5EB9A8.3010807@kegel.com> <1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267919AbTB1OIp>; Fri, 28 Feb 2003 09:08:45 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:16372 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267918AbTB1OIo>;
+	Fri, 28 Feb 2003 09:08:44 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15967.28629.35699.473056@gargle.gargle.HOWL>
+Date: Fri, 28 Feb 2003 15:19:01 +0100
+To: fauxpas@temp123.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IOAPIC on Via KT266a
+In-Reply-To: <20030227165248.GA12030@temp123.org>
+References: <20030227165248.GA12030@temp123.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 01:40:19PM +0000, you [Alan Cox] wrote:
-> 
-> How about by not allowing your system to excessively overcommit.
-> Everything else is armwaving "works half the time" stuff. 
+fauxpas@temp123.org writes:
+ > I have a UP system with Via kt266a chipset.  When I enable APIC in
+ > the BIOS and in Linux, the system boots mostly normally, but I get
+ > a fairly constant stream of
+ > 
+ > APIC error on CPU0: 02(02)
+ > 
+ > with a smattering of other numeric codes from time to time.  Most
+ > things still work, but there are a number of oddities and instabilities,
+ > most notably my integrated uhci USB controllers give usb bulk-msg
+ > timeouts on every device.
 
-Which invites the question: the strict overcommit stuff from -ac (the 'echo
-{2,3} > /proc/sys/vm/overcommit_memory' stuff) hasn't found it's way to
-mainline yet, has it? I wonder if it would be compatible with up-to-date
--aa vm...
+02 is "Receive Checksum Error", and it's explained both in apic.c
+and in Intel's IA32 Volume 3 manual.
 
+This is almost certainly a hardware problem: your machine's APIC bus
+is corrupting messages, or some other agent than the CPU is creating
+corrupt messages. This isn't exactly unheard of for non-Intel chipsets.
 
--- v --
+Disable IO_APIC support and you should be fine. If you still get these
+errors, you'll have to either live with them or disable UP local APIC
+support as well.
 
-v@iki.fi
+/Mikael

@@ -1,54 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317466AbSHCFBX>; Sat, 3 Aug 2002 01:01:23 -0400
+	id <S317458AbSHCE6o>; Sat, 3 Aug 2002 00:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317468AbSHCFBW>; Sat, 3 Aug 2002 01:01:22 -0400
-Received: from mta02ps.bigpond.com ([144.135.25.134]:33531 "EHLO
-	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S317466AbSHCFBW>; Sat, 3 Aug 2002 01:01:22 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>,
-       "Greg KH" <greg@kroah.com>
-Subject: Re: installation of latest kernel on compaq notebook
-Date: Sat, 3 Aug 2002 15:00:05 +1000
-User-Agent: KMail/1.4.5
+	id <S317466AbSHCE6o>; Sat, 3 Aug 2002 00:58:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19883 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317458AbSHCE6o>;
+	Sat, 3 Aug 2002 00:58:44 -0400
+Date: Fri, 02 Aug 2002 21:50:08 -0700 (PDT)
+Message-Id: <20020802.215008.38071049.davem@redhat.com>
+To: austin@digitalroadkill.net
 Cc: linux-kernel@vger.kernel.org
-References: <20020803041256.2352.qmail@webmail10.rediffmail.com>
-In-Reply-To: <20020803041256.2352.qmail@webmail10.rediffmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200208031500.05358.bhards@bigpond.net.au>
+Subject: Re: Tigon3 support in 2.4.19-RC1 is odd.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1028306594.8885.12.camel@UberGeek.coremetrics.com>
+References: <1028306594.8885.12.camel@UberGeek.coremetrics.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Aug 2002 14:12, Enugala Venkata Ramana wrote:
-> Hi Greg,
->   I tried to configure my kernel. But when ever i try with kerel
-> 2.4.xx i always find the catc driver for the usb is not enabled. I
-> cannot add that into my kernel at all.can u please let me know
-> what needs to be done in this is situation and what is the kernal
-> version from which it is been enabled.
-The use of "enabled" is confusing me. You aren't describing
-the problem very well.
+   From: Austin Gonyou <austin@digitalroadkill.net>
+   Date: 02 Aug 2002 11:43:14 -0500
 
-Do you mean that you cannot select in when you are doing
-a "make menuconfig" or "make xconfig"?
+   The Tx Bytes and Rx Bytes counters won't seem to go beyond 4gb. Has that
+   been fixed? TIA.
 
-Or do you mean that you have selected it, but it isn't being
-compiled?
-
-Or do you mean that you have it compiled, but the kernel
-won't boot (or you can't modprobe the module)?
-
-Or do you mean that it boots and the kernel shows
-the catc driver (in /proc/bus/usb/drivers) but the 
-device isn't being claimed (as shown in /proc/bus/usb/devices).
-
-Exactly what are you trying to do, and what is happening?
-
-Brad
-
--- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+It will be fixed in 2.4.20, for now just treat it as a feature.

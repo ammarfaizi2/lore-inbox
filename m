@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVCZRWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVCZRcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVCZRWa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 12:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVCZRW3
+	id S261190AbVCZRcT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 12:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVCZRcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 12:22:29 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:8971
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261200AbVCZRWY
+	Sat, 26 Mar 2005 12:32:19 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:56213 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261190AbVCZRcQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 12:22:24 -0500
-Date: Sat, 26 Mar 2005 09:22:22 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>, Luca <kronos@kronoz.cjb.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Garbage on serial console after serial driver loads
-Message-ID: <20050326172222.GB6121@linuxace.com>
-References: <20050325202414.GA9929@dreamland.darkstar.lan> <20050325203853.C12715@flint.arm.linux.org.uk> <20050325210132.GA11201@dreamland.darkstar.lan> <Pine.LNX.4.61.0503261115480.28431@yvahk01.tjqt.qr> <20050326151005.D12809@flint.arm.linux.org.uk> <20050326155549.GA5881@linuxace.com> <20050326163729.A23306@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050326163729.A23306@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Sat, 26 Mar 2005 12:32:16 -0500
+In-Reply-To: <1111850358.8042.34.camel@laptopd505.fenrus.org>
+References: <200503261701.08774.chunkeey@web.de> <1111850358.8042.34.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <bf8a98cafc4141c67d3b4cabfde65ed2@dalecki.de>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, Chuck <chunkeey@web.de>
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: How's the nforce4 support in Linux?
+Date: Sat, 26 Mar 2005 18:32:04 +0100
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 04:37:29PM +0000, Russell King wrote:
-> > serio: i8042 AUX port at 0x60,0x64 irq 12
-> > serio: i8042 KBD port at 0x60,0x64 irq 1
-> > Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
 
-Garbage here
+On 2005-03-26, at 16:19, Arjan van de Ven wrote:
 
-Sorry -- I was relying upon my (flawed) memory of the bootup sequence,
-but sending you the contents from /var/log/dmesg.  
+> `
+>> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>> hda: dma_intr: error=0x84 { DriveStatusError BadCRC
+>
+> BadCRC is 99% sure a cabling issue; either a bad/overheated cable or a
+> cable used at too high a speed for the cable.
 
-Phil
+No. It is more likely that the timing programming between the disk and 
+host controller
+are in a miss-match state. UDMA mode detection can come in to mind too.
+It makes sense to experiment with hdparm to see if the problem goes 
+away in non
+Ultra DMA modes.
+

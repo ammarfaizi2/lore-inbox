@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSFRQfV>; Tue, 18 Jun 2002 12:35:21 -0400
+	id <S317483AbSFRQic>; Tue, 18 Jun 2002 12:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317483AbSFRQfU>; Tue, 18 Jun 2002 12:35:20 -0400
-Received: from [212.3.242.3] ([212.3.242.3]:62715 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S317482AbSFRQfU>;
-	Tue, 18 Jun 2002 12:35:20 -0400
+	id <S317484AbSFRQib>; Tue, 18 Jun 2002 12:38:31 -0400
+Received: from gromit.trivadis.com ([193.73.126.130]:28568 "EHLO trivadis.com")
+	by vger.kernel.org with ESMTP id <S317483AbSFRQia>;
+	Tue, 18 Jun 2002 12:38:30 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Tue, 18 Jun 2002 18:29:45 +0200
+From: Tim Tassonis <timtas@cubic.ch>
+To: linux-kernel@vger.kernel.org
+Subject: New Pre Kernel by Friday?
+X-Mailer: Sylpheed version 0.7.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: root@chaos.analogic.com
-Subject: Re: VMM - freeing up swap space
-Date: Tue, 18 Jun 2002 18:32:55 +0200
-User-Agent: KMail/1.4.1
-References: <Pine.LNX.3.95.1020618110445.3808A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1020618110445.3808A-100000@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206181832.55655.devilkin-lkml@blindguardian.org>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17KLrV-0002Ue-00@trivadis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 June 2002 17:10, Richard B. Johnson wrote:
-> On Tue, 18 Jun 2002, Gregory Giguashvili wrote:
-> > Hello,
-> >
-> > Running an application allocating huge amounts of memory would push some
-> > data from RAM to swap area. After the application terminates, swap area
-> > is usually still occupied.
-> >
-> > Is there any way to clean up the swap area by pushing the data back to
-> > RAM?
-> >
-> > Thanks in advance
-> > Giga
->
-> Sure. Execute `swapoff -a`, followed by `swapon -a`. This is no joke.
+Hi
 
-Hmm. Now if you happen to get out of memory during the swapoff part, you'll 
-get the OO killer on your tail? Or will the system just go freeze solid?
+Is it true that there will be a new -pre of the kernel by Friday, since
+Marcelo will have more time after Brasil drop out of the World Cup against
+England?
 
-Just a small question.
-
-DK
--- 
-Reclaimer, spare that tree!
-Take not a single bit!
-It used to point to me,
-Now I'm protecting it.
-It was the reader's CONS
-That made it, paired by dot;
-Now, GC, for the nonce,
-Thou shalt reclaim it not.
+Bye
+Tim
 

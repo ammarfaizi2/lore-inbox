@@ -1,67 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271514AbRIGHJa>; Fri, 7 Sep 2001 03:09:30 -0400
+	id <S271587AbRIGH0w>; Fri, 7 Sep 2001 03:26:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271550AbRIGHJV>; Fri, 7 Sep 2001 03:09:21 -0400
-Received: from ja.mac.ssi.bg ([212.95.166.194]:47364 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S271514AbRIGHJM>;
-	Fri, 7 Sep 2001 03:09:12 -0400
-Date: Fri, 7 Sep 2001 10:10:01 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-X-X-Sender: <ja@u.domain.uli>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-cc: Wietse Venema <wietse@porcupine.org>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip
- aliasbug 2.4.9 and 2.2.19]
-Message-ID: <Pine.LNX.4.33.0109070944510.1449-100000@u.domain.uli>
+	id <S271577AbRIGH0m>; Fri, 7 Sep 2001 03:26:42 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:12812 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S271568AbRIGH0g>;
+	Fri, 7 Sep 2001 03:26:36 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200109070726.f877QeQ27567@oboe.it.uc3m.es>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <m2y9nrn7p0.fsf@sympatico.ca> from "Bill Pringlemeir" at "Sep 6,
+ 2001 08:52:27 pm"
+To: "Bill Pringlemeir" <bpringle@sympatico.ca>
+Date: Fri, 7 Sep 2001 09:26:40 +0200 (MET DST)
+Cc: ptb@it.uc3m.es, "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
+        linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"A month of sundays ago Bill Pringlemeir wrote:"
+>   > // possible implemetation with type sanity checks - alter to taste
+>   > #define MIN(x,y) ({\
+>   >    const typeof(x) _x = ~(typeof(x))0; \
+>   >    const typeof(y) _y = ~(typeof(y))0; \
+>   >    void MIN_BUG(); \
+>   >    if (sizeof(_x) != sizeof(_y)) \
+>   >      MIN_BUG(); \
+>   >    if ((_x > 0 && _y < 0) || (_x < 0 && _y > 0)) \
+>   >      MIN_BUG(); \
+>   >    __MIN(x,y); \
+>   >  })
+> 
+> min/max.  I just went through 1800 LKML emails and I am not quite
+> clear what happened.  I have put my code that I posted earlier at the
 
-	Hello,
+The final version evoked a compile-time error instead of BUG(), and
+also was more careful about the kind of zero it compares with! Linus
+okayed it in principle and "real life" tests showed that it works
+and catches what it's supposed to catch. For me it turned up one
+kernel report (in tun.c) and three more in the xfs patches. The
+trial covered about a quarter of the kernel.
 
-Andrey Savochkin wrote:
+Some people spotted that the error case can probably be reduced to
+large signed versus small unsigned, both of size at least int.
 
-> > > connect a datagram socket (which won't produce any actual traffic) to
-> > > the remote host with INADDR_ANY as the local address, and then query
-> > > the local address.  If the local address is the same as the remote
-> > > address, the address is local.
-> >
-> > That will always work, even when you have multiple ethernet
-> > interfaces??
->
-> It will work almost always, except cases where administrator set different
-> preffered sources in local routes.
+> end of this email.  This was the result of someone's `fanciful comment'
+> `what if gcc could handle "if(strcmp(typeof(a),typeof(b))!=0)"'.
+> 
+> So here is the important part.  The code Peter has introduced a cast
+> in the lines "const typeof(x) _x = ~(typeof(x))0;" etc.  I think that
+> the approach of declaring a variable of the type and initializing to
+> zero and then comparing "x - 1" _might_ be better.
 
-	It seems if connect() is called without bind() and the target
-is local address the selected source is the same (the preferred address
-is not used). The postfix guys simply can try this proposal (I don't
-know whether they tried it already). I don't expect netfilter to make
-loops by connecting the both ends on same host, so such solution can
-return the best actual result that is possible at the time of the request.
-Any assumptions on daemon start what are the local IP addresses can be
-wrong for some strange setups.
+I don't know. I intended only to turn the sign bit on. I'm not sure how
+1's complement arithmetic works, so I don't know if it works for 1's
+complement arithmetic.
 
-	May be someone can check whether this is a portable way to
-check whether one IP is local. [We know that bind() to IP is not such
-solution, at least in Linux]. If this is true, I think, it is better than
-using ioctls or talking rtnetlink.
+> The version of min() at the end calls the following an error, were
+> Peter's does not [after removing the sizeof() restriction].
+> 
+>  unsigned char Cx = 1; unsigned int Ix = 1; unsigned long  Lx = 1;
+>  Ix = min(Cx,Ix); Lx = min(Cx,Lx); 
+> 
+> Here the unsigned char is being promoted to int as discussed before.
+> I think that this is `more faithful' as what we are try to achieve is
 
-	As for the "local networks" there is no such thing. There are
-trusted and non-trusted networks, gatewayed and non-gatewayed, etc. So, it
-should be a user-defined setting, if used somehow at all.
+When someone states what the problem is exactly, and what portion
+of it they want to test for, then the test can be modified to suit.
+I intended to show that the test can be performed and a two
+arg min thereby retained.
 
-> I.e. it is indeed a very good approximation, but autofs shouldn't still hang
-> or do nasty things if the check with the datagram socket shows that address
-> isn't local, but in reality it happens to be local.
-> A subtle misbehavior or loss of efficiency are acceptable, in my opinion.
+> to check the sign that will be used in the min comparison; almost
+> like applying a proper warned signed selectively to the min/max
+> macros.
+> 
+> Otherwise, I think we have independently came up with the same thing
+> and the `error' throwing can of course be changed to whatever.
 
-Regards
+Probably!
 
---
-Julian Anastasov <ja@ssi.bg>
-
+Peter

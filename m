@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129805AbQKTS6y>; Mon, 20 Nov 2000 13:58:54 -0500
+	id <S129511AbQKTTDP>; Mon, 20 Nov 2000 14:03:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129712AbQKTS6o>; Mon, 20 Nov 2000 13:58:44 -0500
-Received: from moot.mb.ca ([64.4.83.10]:19987 "EHLO moot.cdir.mb.ca")
-	by vger.kernel.org with ESMTP id <S129553AbQKTS6d>;
-	Mon, 20 Nov 2000 13:58:33 -0500
-Date: Mon, 20 Nov 2000 12:28:31 -0600 (CST)
-From: "Michael J. Dikkema" <mjd@moot.mb.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Abit VP6 HPT370 support?
-Message-ID: <Pine.LNX.4.21.0011201227001.3379-100000@sliver.moot.mb.ca>
+	id <S129411AbQKTTDF>; Mon, 20 Nov 2000 14:03:05 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:30214 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129166AbQKTTC4>;
+	Mon, 20 Nov 2000 14:02:56 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Ben Collins <bcollins@debian.org>
+Date: Mon, 20 Nov 2000 19:32:39 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Bug in large files ext2 in 2.4.0-test11 ?
+CC: Zdenek Kabelac <kabi@fi.muni.cz>, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <D69EF5976ED@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20 Nov 00 at 13:19, Ben Collins wrote:
+> 
+> Does kernel 2.4.x compile and run well for all of our supported archs?
 
-Does Linux 2.4pre support the raid controller on the abit vp6? The kernel
-says it supports the 370, but it doesn't mention raid. I was confused as
-to if there was a difference or not.
+AFAIK yes. At least on all Debian archs.
 
-Also, OT, does anyone know if the controller is managed through hardware
-or through software?
+> Do programs compiled against a glibc with LFS (2.4.x kernel) support, and
+> using that LFS support, work on kernel 2.2.x machines?
 
-Thanks.
+Yes. Even glibc (2.2) compiled against kernel without LFS support has LFS
+interface. Of course limited to 2GB files only.
+ 
+> Secondly, anyone who thinks they know what they are doing, can simply
+> download the Debian glibc sources files, and build against kernel-2.4.0
+> headers with this simple command:
+> 
+> LINUX_SOURCE=/usr/src/linux-2.4.0-test11 apt-get -b source glibc
+> 
+> Simple, eh? :)
 
-,.;::
-: Michael J. Dikkema
-| Systems / Network Admin - Internet Solutions, Inc.
-| http://www.moot.mb.ca   Work: (204) 982-1060
-; mjd@moot.mb.ca
-',.
-
+But time consuming... If you already invested CPU power to compile
+that large beast...
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

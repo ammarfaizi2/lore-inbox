@@ -1,41 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbTEEOVq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 10:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTEEOVq
+	id S262266AbTEEOUM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 10:20:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbTEEOUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 10:21:46 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:3083 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262267AbTEEOVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 10:21:45 -0400
-Date: Mon, 5 May 2003 15:34:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Terje Eggestad <terje.eggestad@scali.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030505153414.A24056@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-	Terje Eggestad <terje.eggestad@scali.com>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no> <20030505112531.B16914@infradead.org> <1052133798.2821.122.camel@pc-16.office.scali.no> <20030505135211.A21658@infradead.org> <1052142082.2821.169.camel@pc-16.office.scali.no> <20030505144353.B23483@infradead.org> <1052142626.2821.173.camel@pc-16.office.scali.no> <20030505145519.A23727@infradead.org> <3EB674F7.8060807@gmx.net>
+	Mon, 5 May 2003 10:20:11 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:25793 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262266AbTEEOUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 10:20:03 -0400
+Subject: 2.5.68-mm4 broke ide cdrw
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1052145150.2349.6.camel@mars.goatskin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EB674F7.8060807@gmx.net>; from c-d.hailfinger.kernel.2003@gmx.net on Mon, May 05, 2003 at 04:28:08PM +0200
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 05 May 2003 10:32:30 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 04:28:08PM +0200, Carl-Daniel Hailfinger wrote:
-> LSM?
+Hi,
 
-LSM is explicitly not syscall hooks.  And educated readers of lkml should
-now my opinion on LSM...
+I am unable to record a cd in 2.5.68-mm4 and 2.5.69-mm1 but it works in
+2.5.68-mm2 and 2.5.69. So it might have broken in -mm3 but I did not try
+it. I am also backing out the dev_t from the -mm kernels. The problem is
+cdrecord is unable to find the drive or at least a 'cdrecord
+-dev=/dev/hdc -inq' hangs for a while and then only comes up with some
+other, 'FAKE' ide drive, that doesn't work. This is using cdrecord
+version 2.0 on a UP x86 box with preempt.
+
+ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:DMA, hdd:pio
+hdc: LG CD-RW CED-8120B, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 32X CD-ROM CD-R/RW drive, 8192kB Cache, DMA
+
+and it is plugged in here..
+
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+
+2.5.68-mm4: (Not working)   
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+Using libscg version 'schily-0.7'
+Device type    : Disk
+Version        : 2
+Response Format: 2
+Capabilities   : 
+Vendor_info    : 'ADAPTEC '
+Identifikation : 'ACB-5500        '
+Revision       : 'FAKE'
+Device seems to be: Adaptec 5500.
+
+2.5.68-mm2 (Working)
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+Using libscg version 'schily-0.7'
+Device type    : Removable CD-ROM
+Version        : 2
+Response Format: 2
+Capabilities   : 
+Vendor_info    : 'LG      '
+Identifikation : 'CD-RW CED-8120B '
+Revision       : '1.03'
+Device seems to be: Generic mmc CD-RW.
+
+I tried a few different versions of cdrtools, and they were the same.
+
+Regards,
+
+Shane
+
+
+
+
+
 

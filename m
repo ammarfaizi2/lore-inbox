@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318891AbSHSMOe>; Mon, 19 Aug 2002 08:14:34 -0400
+	id <S318690AbSHSMWP>; Mon, 19 Aug 2002 08:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318892AbSHSMOd>; Mon, 19 Aug 2002 08:14:33 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1783 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318891AbSHSMOd>; Mon, 19 Aug 2002 08:14:33 -0400
-Subject: Re: 2.4.20-pre3 boot hang
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Markus Plail <plail@web.de>
-Cc: linux mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <87r8gv702r.fsf@plailis.homelinux.net>
-References: <20020818153145.GA3184@df1tlpc.local.here>
-	<87vg6811p6.fsf@plailis.homelinux.net>
-	<1029694978.16822.10.camel@irongate.swansea.linux.org.uk> 
-	<87r8gv702r.fsf@plailis.homelinux.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 19 Aug 2002 13:18:45 +0100
-Message-Id: <1029759525.19375.3.camel@irongate.swansea.linux.org.uk>
+	id <S318696AbSHSMWP>; Mon, 19 Aug 2002 08:22:15 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:51471 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S318690AbSHSMWN>; Mon, 19 Aug 2002 08:22:13 -0400
+Date: Mon, 19 Aug 2002 14:26:12 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Re: vfsv0 quota patch
+Message-ID: <20020819122612.GA10569@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020818.221833.100352848.davem@redhat.com> <Pine.LNX.4.44.0208191250120.28677-100000@aurora.nsu.ru>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208191250120.28677-100000@aurora.nsu.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-19 at 08:57, Markus Plail wrote:
-> >Oops log, dmesg boot log of 2.4.18 and 2.4.20pre2-ac3 ?
+On Mon, 19 Aug 2002, Dmitry N. Hramtsov wrote:
+
+> On Sun, 18 Aug 2002, David S. Miller wrote:
 > 
-> Here it comes. I tried ac4 this morning and it's still the same.
+> > It is inaccessible because the city of Prague is currently under
+> > several feet of water, if you haven't heard.
+> 
+> I am sorry.  I haven't juxtapose this two facts.
+> I hope that this force majeur is not for a long.
 
-Ok thanks. That one does tell me something useful. The scsi layer (most
-likely ide-scsi itself) passed down a buffer that did not have a valid
-mapping.
+It will pass in some days or weeks, but who is doing the cleaning up and
+the repairs or rebuilds (not of software, but of houses, roads, rail
+roads, you name it) damaged? Who is paying for all that?
 
-Do you have Highmem/highio enabled ?
+It's not only Prague that has been struck, but also parts in Southern
+Russia, other parts of the Czech Republic, Germany, Austria... Just grab
+a good map and look where the Elbe, Danube and Molde rivers flow, to
+name just three that have wreaked havoc recently.
 
+Certainly, getting a certain *.cz computer up and running is of a
+subordinate concern in Prague.
 
+Please don't discuss this here further, but just understand that people
+have bigger worries for the time being.
+
+-- 
+Matthias Andree

@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261556AbSJDL0E>; Fri, 4 Oct 2002 07:26:04 -0400
+	id <S261496AbSJDLhP>; Fri, 4 Oct 2002 07:37:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbSJDL0E>; Fri, 4 Oct 2002 07:26:04 -0400
-Received: from mail.spylog.com ([194.67.35.220]:30933 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S261556AbSJDL0C>;
-	Fri, 4 Oct 2002 07:26:02 -0400
-Date: Fri, 4 Oct 2002 15:31:28 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org, linux.nics@intel.com
-Subject: NIC on Intel STL2 - bad work with eepro100 & e100
-Message-ID: <20021004113128.GA31145@an.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux.nics@intel.com
+	id <S261558AbSJDLhP>; Fri, 4 Oct 2002 07:37:15 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:33802 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261496AbSJDLhO>; Fri, 4 Oct 2002 07:37:14 -0400
+Date: Fri, 4 Oct 2002 12:42:47 +0100
+From: John Levon <levon@movementarian.org>
+To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: export of sys_call_table
+Message-ID: <20021004114247.GA98207@compsoc.man.ac.uk>
+References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003233504.GA20570@suse.de> <20021003235022.GA82187@compsoc.man.ac.uk> <mailman.1033691043.6446.linux-kernel2news@redhat.com> <200210040403.g9443Vu03329@devserv.devel.redhat.com> <20021003233221.C31444@openss7.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: SpyLOG ltd.
+In-Reply-To: <20021003233221.C31444@openss7.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Thu, Oct 03, 2002 at 11:32:21PM -0600, Brian F. G. Bidulock wrote:
 
+> You do know that there *is* open source code which is not
+> contained in the Linux kernel ;)
 
-1. Hardware:
-			Intel Server Board STL2.
-      Network: onboard NIC "Intel(R) 82559 single chip PCI LAN controller"
+I think the fact that downloading the kernel source, applying a patch,
+fixing the conflicts, and rebooting, can be a significant PITA for
+admin/developers has completely passed them by.
 
-   Software: 
-			Linux kernel up-to version 2.4.20pre9 + arp hidden patch.
+> development kernels only), because the symbol is no longer
+> exported and no registration procedure was provided for
+> registering otherwise non-implemented system calls (in
+> particular the UNIX98 and iBCS/ABI standard putmsg/getmsg
+> calls).
 
+Look, why don't you submit the module-loading patch for LiS already ?
 
-2. dmesg:
+Btw, anybody know what the BKL is actually protecting against in
+sys_nfsservctl ?
 
-...
-Intel(R) PRO/100 Network Driver - version 2.1.15-k1
-Copyright (c) 2002 Intel Corporation
+> And what about AFS?  I see that it uses a sys_ni_syscall slot as
+> well...
 
-e100: hw init failed
-e100: Failed to initialize, instance #0
-...
+I thought it got fixed last time round.
 
-
-3. cat /proc/pci
-
-...
-  Bus  0, device   3, function  0:
-    Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 8).
-      IRQ 18.
-      Master Capable.  Latency=66.  Min Gnt=8.Max Lat=56.
-      Non-prefetchable 32 bit memory at 0xfb101000 [0xfb101fff].
-      I/O at 0x5400 [0x543f].
-      Non-prefetchable 32 bit memory at 0xfb000000 [0xfb0fffff].
-...
-
-
-ps. eepro100 driver work, but bad.
-
-dmesg:
-...
-<4>eepro100.c:v1.09j-t 9/29/99 Donald Becker http://www.scyld.com/network/eepro100.html
-<4>eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.s
-<6>eth0: OEM i82557/i82558 10/100 Ethernet, 00:D0:B7:B6:B2:8B, IRQ 18.
-<6>  Board assembly 000000-000, Physical connectors present: RJ45
-<6>  Primary interface chip i82555 PHY #1.
-<6>  General self-test: passed.
-<6>  Serial sub-system self-test: passed.
-<6>  Internal registers self-test: passed.
-<6>  ROM checksum self-test: passed (0x04f4518b).
-...
-...
-eepro100: wait_for_cmd_done timeout!
-eepro100: wait_for_cmd_done timeout!
-eepro100: wait_for_cmd_done timeout!
-eepro100: wait_for_cmd_done timeout!
-eepro100: wait_for_cmd_done timeout!
-eepro100: wait_for_cmd_done timeout!
-...
-
-And periodically freeze.
-
-
+regards
+john
 
 -- 
-bye.
-Andrey Nekrasov, SpyLOG.
+"Me and my friends are so smart, we invented this new kind of art:
+ Post-modernist throwing darts"
+	- the Moldy Peaches

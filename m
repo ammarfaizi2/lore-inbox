@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280467AbRKSVbi>; Mon, 19 Nov 2001 16:31:38 -0500
+	id <S279952AbRKSV31>; Mon, 19 Nov 2001 16:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280727AbRKSVb2>; Mon, 19 Nov 2001 16:31:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53508 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280467AbRKSVbQ>; Mon, 19 Nov 2001 16:31:16 -0500
-Date: Mon, 19 Nov 2001 13:26:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Simon Kirby <sim@netnation.com>, Andrea Arcangeli <andrea@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: VM-related Oops: 2.4.15pre1
-In-Reply-To: <Pine.LNX.4.21.0111191755460.7451-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0111191325040.8600-100000@penguin.transmeta.com>
+	id <S280727AbRKSV3R>; Mon, 19 Nov 2001 16:29:17 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17936 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279952AbRKSV3I>; Mon, 19 Nov 2001 16:29:08 -0500
+Subject: Re: Devlinks.  Code.  (Dcache abuse?)
+To: linux-kernel@alex.org.uk
+Date: Mon, 19 Nov 2001 21:36:38 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), neilb@cse.unsw.edu.au (Neil Brown),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1920682161.1006202518@[195.224.237.69]> from "Alex Bligh - linux-kernel" at Nov 19, 2001 08:41:59 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E165w5m-0007mR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Which trademark law are you violating by having that in a directory
+> name path, which you are not also violating by having it in the
+> kernel source, make config, name of the module and its printk()
+> on load, etc. etc.
 
-On Mon, 19 Nov 2001, Marcelo Tosatti wrote:
->
-> We ended up talking about the possibility of a reschedule (IRQ) happening
-> before after the "spin_unlock(pagecache_lock)" but before the
-> "lru_cache_add()".
-
-So?
-
-The worst that happens is that the page is not on the LRU list, which just
-means that it won't be free'd until we add it (which we will do when the
-lru_cache_add() resumes..
-
-		Linus
-
+You can change all the other names with almost zero impact

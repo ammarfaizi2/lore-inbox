@@ -1,106 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264087AbTE0T4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 15:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbTE0T4Z
+	id S264103AbTE0T7O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 15:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbTE0T6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 15:56:25 -0400
-Received: from 216-42-72-155.ppp.netsville.net ([216.42.72.155]:25484 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S264087AbTE0T4U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 15:56:20 -0400
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-From: Chris Mason <mason@suse.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org,
+	Tue, 27 May 2003 15:58:02 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50842
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264104AbTE0T5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 15:57:16 -0400
+Date: Tue, 27 May 2003 22:10:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
        Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
        manish <manish@storadinc.com>,
        Christian Klose <christian.klose@freenet.de>,
        William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <Pine.LNX.4.55L.0305271530580.2100@freak.distro.conectiva>
-References: <3ED2DE86.2070406@storadinc.com>
-	 <200305271952.34843.m.c.p@wolk-project.de>
-	 <Pine.LNX.4.55L.0305271457090.756@freak.distro.conectiva>
-	 <200305272004.02376.m.c.p@wolk-project.de>
-	 <20030527182547.GG3767@dualathlon.random>
-	 <Pine.LNX.4.55L.0305271530580.2100@freak.distro.conectiva>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054066135.32363.73.camel@tiny.suse.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527201028.GJ3767@dualathlon.random>
+References: <3ED2DE86.2070406@storadinc.com> <200305272004.02376.m.c.p@wolk-project.de> <20030527182547.GG3767@dualathlon.random> <200305272032.03645.m.c.p@wolk-project.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 27 May 2003 16:08:55 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305272032.03645.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-27 at 14:33, Marcelo Tosatti wrote:
+Hi,
 
-> Andrea,
+On Tue, May 27, 2003 at 08:35:33PM +0200, Marc-Christian Petersen wrote:
+> On Tuesday 27 May 2003 20:25, Andrea Arcangeli wrote:
 > 
-> It seems your "fix-pausing" patch is fixing a potential wakeup
-> miss, right? (I looked quickly throught it). Could you explain me the
-> problem its trying to fix and how?
+> Hi Andrea,
 > 
-> Its too late to fix that in 2.4.21 (rc5 is going out in hours).
+> > not exactly decreases I/O throughput, the latest I/O benchmarks I seen
+> it decreases performance. I've seen this, Con also saw this (well it's better 
+> than the 'nr_requests = 4' change ;) but mouse stops are still there.
+> 
+> > from Randy (dbench/tiotest/bonnie/etc..) were still the fastest and it
+> > included the lowlatency elevator patch. So it may not help latency but
+> > it doesn't hurt in the numbers, at least not in the high end (that in
+> > theory is the one that needs the overkill length in the I/O queue most).
+> I agree with the last sentence, in theory, but practice showed something 
+> different (about 10% to 15% performance decrease)
+> 
+> But I am quite sure that this depends on your machine/hardware. Using IDE 
+> instead of SCSI for example.
 
-The bug report seems to be on ext2, and on a box with 3.5GB of ram and
-4G of dirty data.  So, I don't think he is hitting the fix-pausing bug,
-which needs just the right set of conditions to miss unplugs:  
+10/15 performance drop doesn't sound good, no matter what hardware ;).
 
-1) bdflush can't be awake, so the percentage of dirty buffers has to be
-somewhat low.  Otherwise bdflush will trigger unplugs.
+However in contest I recall there was quite an improvement in latency at
+least (I mean, it had some positive effect too)
 
-2) kupdate needs to be stuck waiting on the super lock, otherwise
-kupdate would be triggering unplugs
-
-2a) Some process needs to be calling wait_on_buffer() with the super
-lock held.  This makes it pretty much impossible to trigger on ext2
-without using O_SYNC mode.
-
-3) You've got to race in __wait_on_buffer (cut n' paste from an old mail
-from Andrea)
-
-       CPU0                    CPU1 
-       -----------------       ------------------------ 
-       reiserfs_writepage 
-       lock_buffer() 
-                               fsync_buffers_list() under lock_super() 
-                               wait_on_buffer() 
-                               run_task_queue(&tq_disk) -> noop 
-                               schedule() <- hang with lock_super acquired 
-       submit_bh() 
-       /* don't unplug here */ 
+Getting the best throughput and latency at the same time is normally not
+possible, however evaluating if it's losing excessive throughput given a
+certain latency improvement is difficult.
 
 
-With ext3, you can trigger with two procs, it gets much easier if you
-toss a schedule() into submit_bh(), right before generic_make_request. 
-reiserfs + the data logging patches is easier to trigger and produces
-longer pauses.
+> 
+> > However it definitely helps latency for me and I had a number of
+> > positive reports.
+> It helps but it's not as good as 2.4.18 stock.
 
-For ext3:
-A: while(1) sync
-B: while(1) write(fd, 8k); fsync(fd); ftruncate(fd, 0);
+I'll try to find what's the precise reason of the interactivity drop
+with the 2.4.18->2.4.19 blkdev changes on Thu. I think I shortly looked
+into it once but there was no definitive answer, or anyways going back
+to the 2.4.18 code didn't appeal or make much sense.
 
-The idea behind proc B is to increase the chances the
-sync and the fsync are trying to write and wait on the same buffer. 
+However I suspect this responsiveness issue could be storage hardware
+dependent.
 
-ext3 is hung on a metadata block, while it tries to get write access to
-the block before logging it.  This ends up calling wait_on_buffer with
-the super held while in proc B, while proc A is in sync flushing the
-metadata block.  
-
-I  trigged the hang in ext3 during block allocation, so the ftruncate
-makes sure ext3 is constantly allocating blocks (and always dirtying the
-same bitmap/direct block).
-
-It isn't a perfect reproduction of the hang, because in ext3 kjournald
-wakes up every once and a while (~30 seconds or more) and kicks the
-transaction.  But, with more procs running, someone could be waiting
-with the journal lock held, which would keep kjournald from fixing
-things.
+The sentence by Linus in the last few days while talking with Jens,
+about storage that reorders stuff and starve requests at the two ends of
+the platter was very scary, maybe you're really bitten by something like
+that. Linux does the right thing but your hardware keeps posting stuff
+under the os and mine doesn't.
 
 
+> 
+> > Also make sure that you elvtune -r 0 -w 0 /dev/hda, also the journaling
+> I also tried that.
+> 
+> > may affect the latency so you can try with plain ext2 to be sure it's
+> > not a fs issue.
+> Sure, I did this too. FS independent, where ReiserFS is still the best for 
+> this scenario with the most few pauses than any other FS (ext2, ext3, ...)
+> 
+> But for desktop usage: not acceptable! No way, No go!
+> 
+> > the lowlatency elevator patch may not be perfect but it definitely seems
+> > to work better here. especially since there's no apparent throughput
+> > loss, it makes lots of sense to keep it applied, or it would waste lots
+> > of ram for apparently no gain.
+> hehe, well wasting RAM for no gain is my next part on my todo ;) (cache 
+> everything even if there is no RAM for example, well but this is not the 
+> point in this thread)
+> 
+> ciao, Marc
+> 
 
+
+Andrea

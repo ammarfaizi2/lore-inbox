@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281910AbRLDRmP>; Tue, 4 Dec 2001 12:42:15 -0500
+	id <S282906AbRLDSOM>; Tue, 4 Dec 2001 13:14:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280766AbRLDRkr>; Tue, 4 Dec 2001 12:40:47 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22723 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S283197AbRLDRka>; Tue, 4 Dec 2001 12:40:30 -0500
-Date: Tue, 4 Dec 2001 10:40:26 -0700
-Message-Id: <200112041740.fB4HeQu08196@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.5.1-pre5 AudioCD with cdrom modules
-In-Reply-To: <3C0D087D.573B6174@wanadoo.fr>
-In-Reply-To: <3C0CC182.B65B6A52@wanadoo.fr>
-	<200112041657.fB4GvQV06981@vindaloo.ras.ucalgary.ca>
-	<3C0D087D.573B6174@wanadoo.fr>
+	id <S281156AbRLDSMn>; Tue, 4 Dec 2001 13:12:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31749 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282404AbRLDSLR>; Tue, 4 Dec 2001 13:11:17 -0500
+Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
+To: davidm@hpl.hp.com
+Date: Tue, 4 Dec 2001 18:19:55 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), tony.luck@intel.com,
+        arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org,
+        linux-ia64@linuxia64.org, marcelo@conectiva.com.br, davem@redhat.com
+In-Reply-To: <15373.4236.462183.167170@napali.hpl.hp.com> from "David Mosberger" at Dec 04, 2001 10:06:04 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16BKAe-0002x7-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet writes:
-> Richard Gooch wrote:
-> > 
-> > Pierre Rousselet writes:
-> > > What may cause an AudioCD no being recognized at first attempt but
-> > > only after unloading/reloading the modules ide-cd cdrom ?
-> > >
-> > > I'm testing 2.5.1-pre5 + devfs-patch-v202.
-> > >
-> > > My CRD-8240B is known as /dev/cdroms/cdrom0 in fstab, to mount it
-> > > manually on /cdrom, and in the gnome CD player gtcd preferences panel.
-> > >
-> > > ide-cd and cdrom are loaded at boot time (i don't need that, 2.4.16 does
-> > > it as well). After loging in i can mount /cdrom but if it is an AudioCD
-> > > gtcd tells me 'no disc'.
-> > >
-> > > After rmmod ide-cd cdrom, gtcd finds the AudioCD OK.
-> > >
-> > > This doesn't happen on plain 2.4.16
-> > 
-> > Please try kernel 2.4.17-pre2 + devfs-patch-v199.2. That will help
-> > determine if the problem is devfs-related, or (more likely) due to the
-> > block I/O changes happening in 2.5.
+>   Alan> I don't see the need: GFP_DMA is the ISA DMA zone. pci_* API
+>   Alan> is used by everyone else [for 2.5].
 > 
-> Excellent, can you hear Diana Krall?
+> Without a 4GB zone, you may end up creating bounce buffers needlessly
+> for 32-bit capable DMA devices, no?
 
-??? You'll have to explain what you mean by this.
+Yes - but it becomes an implementation detail. Drivers don't go around
+asking for kmalloc in 4Gb zone anymore they ask for PCI memory that a 32bit
+pci address can hit. I'm sure a 4Gb zone is what will be there internally
+but you don't need GFP_4GBZONE as a visible driver detail.
 
-> 2.4.17-pre2 + devfs-patch-v199.2 does not have this feature. The
-> AudioCD is identified at the first attempt.
+Alan
 
-OK, since 2.4.17-pre2 + devfs-patch-v199.2 works fine, it suggests the
-block I/O changes in 2.5. I've Cc'ed Jens, who likes hearing about
-these problems :-)
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

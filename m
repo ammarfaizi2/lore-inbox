@@ -1,94 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVCJPG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbVCJPMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbVCJPG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 10:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVCJPG2
+	id S262631AbVCJPMi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 10:12:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVCJPMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 10:06:28 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:2486 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262650AbVCJPGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 10:06:19 -0500
-Subject: [patch 1/1] SELinux AVC audit log ipaddr field support (for
-	task_struct->curr_ip)
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: selinux@tycho.nsa.gov
-X-IMP: AR MAPS ORDB: 0.00,AR AHBL: 0.00,AR CBL: 0.00,AR SBL: 0.00,AR SORBS:
-	0.00,AR SPAMCOP: 0.00,AR XBL: 0.00,AV NONE,CLOUDMARK: 0.00
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-e87FcoiNfDlRfWmDqNvP"
-Date: Thu, 10 Mar 2005 16:05:40 +0100
-Message-Id: <1110467140.9190.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.1.6 
+	Thu, 10 Mar 2005 10:12:38 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:14725 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262631AbVCJPMd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 10:12:33 -0500
+Message-ID: <423063DB.40905@g-house.de>
+Date: Thu, 10 Mar 2005 16:12:27 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: elenstev@mesatop.com, Mauricio Lin <mauriciolin@gmail.com>
+Subject: Re: oom with 2.6.11
+References: <422DC2F1.7020802@g-house.de>	 <3f250c710503090518526d8b90@mail.gmail.com> <3f250c7105030905415cab5192@mail.gmail.com> <422F016A.2090107@g-house.de>
+In-Reply-To: <422F016A.2090107@g-house.de>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ok,
 
---=-e87FcoiNfDlRfWmDqNvP
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+as "promised", it the OOM happened again with the same plain 2.6.11,
+details here.
 
-Provides support for a new field ipaddr within the SELinux
-AVC audit log, relying in task_struct->curr_ip (ipv4 only)
-provided by the task-curr_ip or grSecurity patch to be applied
-before.It was first implemented by Joshua Brindle (a.k.a Method)
-from the Hardened Gentoo project.
+http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11_2.txt
 
-An example of the audit messages with ipaddr field:
-audit(1110432234.161:0): avc:  denied  { search } for  pid=3D19057
-exe=3D/usr/bin/wget name=3Dportage dev=3Dhda3 ino=3D1024647 ipaddr=3D192.16=
-8.1.30
-scontext=3Droot:sysadm_r:portage_fetch_t tcontext=3Dsystem_u:object_r:porta=
-ge_tmp_t tclass=3Ddir
+the following is a quite long, but please read on
+(if anyone is reading at all :))
 
-It's also available at http://pearls.tuxedo-es.org/patches/selinux-avc_audi=
-t-log-curr_ip.patch
+this time it happened at 08:01, and i could image some heavy cron jobs
+were going on. but as i said: "it did not happen before". there are also
+output of SYSRQ-T/M/P. i did SYSRQ-E to recover the machine, but then
+decided to reboot back to 2.6.11-rc5-bk2.
 
-Signed-off-by: Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
----
+i had a look at the changelogs too and noticed that ChangeLog-2.6.11
+contains 7 occurrences of "OOM" in the patch desctiption:
 
- linux-2.6.11-lorenzo/security/selinux/avc.c |    6 ++++++
- 1 files changed, 6 insertions(+)
+[PATCH] mm: overcommit updates, 2005-01-03
+[PATCH] vmscan: count writeback pages in nr_scanned, 2005-01-08
+[PATCH] possible rq starvation on oom, 2005-01-13
+[PATCH] mm: adjust dirty threshold for lowmem-only mappings, 2005-01-25
+[PATCH] mm: oom-killer tunable, 2005-02-02
+[PATCH] mm: fix several oom killer bugs, 2005-02-02
+[PATCH] Fix oops in alloc_zeroed_user_highpage() when [...],2005-02-09
 
-diff -puN security/selinux/avc.c~selinux-avc_audit-log-curr_ip security/sel=
-inux/avc.c
---- linux-2.6.11/security/selinux/avc.c~selinux-avc_audit-log-curr_ip	2005-=
-03-10 15:52:12.810227040 +0100
-+++ linux-2.6.11-lorenzo/security/selinux/avc.c	2005-03-10 15:52:12.8172259=
-76 +0100
-@@ -205,6 +205,12 @@ void avc_dump_query(struct audit_buffer=20
- 	char *scontext;
- 	u32 scontext_len;
-=20
-+/* CONFIG_GRKERNSEC_PROC_IPADDR if grSecurity is present */
-+#ifdef CONFIG_PROC_IPADDR
-+	if (current->curr_ip)
-+		audit_log_format(ab, "ipaddr=3D%u.%u.%u.%u ", NIPQUAD(current->curr_ip))=
-;
-+#endif /* CONFIG_PROC_IPADDR */
-+
-  	rc =3D security_sid_to_context(ssid, &scontext, &scontext_len);
- 	if (rc)
- 		audit_log_format(ab, "ssid=3D%d", ssid);
-_
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+release dates:
+2.6.11-rc5-bk1  26-Feb-2005
+2.6.11-rc5-bk2  27-Feb-2005  <
+2.6.11-rc5-bk3  28-Feb-2005
+2.6.11-rc5-bk4  01-Mar-2005
+2.6.11          02-Mar-2005
 
---=-e87FcoiNfDlRfWmDqNvP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+so i really don't see any patches that *could* have something to do with
+the issue here.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+now comes the weird part:
 
-iD8DBQBCMGJEDcEopW8rLewRAuraAKDA923lf9w29aUpcVvB1TsByQfkjgCdFRpM
-mfmsP1HDaB/cP14huN8d3fc=
-=C5b3
------END PGP SIGNATURE-----
+i was going to compile 2.6.11-rc5-bk4, to sort out the "bad" kernel.
+compiling went fine. ok, finished some email, ok, suddenly my swap was
+used up again, and no memory left - uh oh! OOM again, with 2.6.11-rc5-bk2!
 
---=-e87FcoiNfDlRfWmDqNvP--
+to summarize it:
+i've run 2.6.11-rc2-bk10 during whole february, then switched to
+2.6.11-rc5-bk2 on 28.02.2005, then to 2.6.11 on 05.03.2005 - and only
+noticed with 2.6.11 first, now with 2.6.11-rc5-bk2 too.
 
+there is an interesting part in the logfiles:
+
+http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11.txt
+http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11_2.txt
+http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11-rc5-bk2.txt
+
+every last message before the "OOM" messages is something with pppd:
+
+Mar 10 13:45:55 sheep pppd[1567]: Starting link
+Mar 10 14:12:29 sheep kernel: oom-killer: gfp_mask=0x1d2
+
+Mar  8 00:59:58 sheep pppd[418]: Starting link
+Mar  8 01:27:33 sheep kernel: oom-killer: gfp_mask=0xd0
+
+Mar  9 07:33:49 sheep pppd[30937]: Starting link
+Mar  9 08:01:35 sheep kernel: oom-killer: gfp_mask=0x1d2
+
+and 30min later OOM kicks in. normally, pppd (pppoe) gives messages like this:
+
+Mar 10 14:23:38 sheep pppd[26365]: Starting link
+Mar 10 14:23:38 sheep pppd[26365]: Serial connection established.
+Mar 10 14:23:38 sheep pppd[26365]: Connect: ppp0 <--> /dev/pts/0
+Mar 10 14:23:38 sheep pppoe[26383]: PADS: Service-Name: ''
+Mar 10 14:23:38 sheep pppoe[26383]: PPP session is 6804
+Mar 10 14:23:39 sheep pppd[26365]: CHAP authentication succeeded
+Mar 10 14:23:40 sheep pppd[26365]: Local IP address changed to
+[...]
+
+is this strange? or not?
+
+i hope someone has a hint for me, because "going back to the stable
+kernel" would mean "being bound to 2.6.11-rc2-bk10" :(
+
+thank you for any hints,
+Christian.
+
+PS: Steven, i've cc'ed you because you have trouble with new 2.6.11
+kernels and pppd too. maybe unrelated, maybe not.
+-- 
+BOFH excuse #185:
+
+system consumed all the paper for paging

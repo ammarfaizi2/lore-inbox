@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266462AbUAOJgn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 04:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUAOJgn
+	id S265066AbUAOLdL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 06:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265049AbUAOLdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 04:36:43 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:21909 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266462AbUAOJgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 04:36:42 -0500
-Date: Thu, 15 Jan 2004 10:36:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: markw@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 oops w/ reiserfs + deadline elevator
-Message-ID: <20040115093636.GJ5507@suse.de>
-References: <200401142115.i0ELFDo23784@mail.osdl.org>
+	Thu, 15 Jan 2004 06:33:11 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19172 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266474AbUAOLcu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 06:32:50 -0500
+Date: Thu, 15 Jan 2004 12:32:44 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Thomas Winischhofer <thomas@winischhofer.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jsimmons@infradead.org
+Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
+Message-ID: <20040115113244.GP23383@fs.tum.de>
+References: <20040109014003.3d925e54.akpm@osdl.org> <20040109233714.GL1440@fs.tum.de> <3FFF79E5.5010401@winischhofer.net> <20040113190443.GR9677@fs.tum.de> <40048EB4.9010500@winischhofer.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401142115.i0ELFDo23784@mail.osdl.org>
+In-Reply-To: <40048EB4.9010500@winischhofer.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 14 2004, markw@osdl.org wrote:
-> I'm getting the following oops with our DBT-2 workload.  It appears that
-> I can only reproduce the problem with a combination of an aacraid
-> controller, reiserfs, and the deadline elevator.  I'm also using lvm2
-> but I can't really try to do the same test without lvm2 though.  I have
-> seen everything behave properly with the AS elevator or without an
-> aacraid controller.
+On Wed, Jan 14, 2004 at 01:35:00AM +0100, Thomas Winischhofer wrote:
+> >
+> >Until the framebuffer stuff in 2.6 gets updated, I'm suggesting the 
+> >patch below to mark FB_SIS as BROKEN.
+> 
+> I think that's a bit harsh. It basically works, it just illegally uses 
+> some FP operations (as it still does in 2.4 until Marcelo finally 
+> applies the patch I have sent him for three times now - hint, hint)
 
-I don't believe this has anything to do with the io scheduler, it looks
-clearly like a problem deep inside the aac driver (and thus completely
-io scheduler independent). The fact that it triggers with deadline is
-likely completely coincidental.
+Now that -mm uses -msoft-float, this means that FB_SIS does no longer 
+compile...
 
-Looks like scsicmd->scsi_done == NULL which is very odd. You may want to
-try and add some debug prints checking that (and dumping scsicmd state)
-fact.
+> Thomas
+
+cu
+Adrian
 
 -- 
-Jens Axboe
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

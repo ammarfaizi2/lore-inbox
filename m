@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbTEUR0a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 13:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbTEUR0a
+	id S262211AbTEURZO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 13:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTEURZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 13:26:30 -0400
-Received: from [208.186.192.194] ([208.186.192.194]:9421 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262219AbTEUR02 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 13:26:28 -0400
-Message-Id: <200305211739.h4LHdRI04558@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Andrew Morton <akpm@digeo.com>
-cc: Cliff White <cliffw@osdl.org>, linux-kernel@vger.kernel.org,
-       cliffw@osdl.org
-Subject: Re: re-aim - 2.5.69, -mm6 
-In-Reply-To: Message from Andrew Morton <akpm@digeo.com> 
-   of "Wed, 21 May 2003 09:25:36 PDT." <20030521092536.1e04edd1.akpm@digeo.com>
+	Wed, 21 May 2003 13:25:14 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:28934 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262211AbTEURZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 13:25:13 -0400
+Date: Wed, 21 May 2003 18:38:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ross Biro <rossb@google.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch FIOFLUSH
+Message-ID: <20030521183814.A1291@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ross Biro <rossb@google.com>, linux-kernel@vger.kernel.org
+References: <3ECBB723.7070707@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 21 May 2003 10:39:27 -0700
-From: Cliff White <cliffw@osdl.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3ECBB723.7070707@google.com>; from rossb@google.com on Wed, May 21, 2003 at 10:28:03AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Cliff White <cliffw@osdl.org> wrote:
-> >
-> > The two runs are done like this -> (4 cpu machine)
-> >  ./reaim -s4 -x -t -i4 -f workfile.new_dbase -r3 -b -lstp.config -> for the 
-> >  maxjobs convergence
-> >  ./reaim -s4 -q -t -i4 -f workfile.new_dbase -r3 -b -lstp.config -> for the 
-> >  'quick' convergence
-> > 
-> >  stp.config has the poolsizes and path for disk directories:
-> >  FILESIZE 80k
-> >  POOLSIZE 1024k
-> >  DISKDIR /mnt/disk1
-> >  DISKDIR /mnt/disk2
-> >  DISKDIR /mnt/disk3
-> >  DISKDIR /mnt/disk4
+On Wed, May 21, 2003 at 10:28:03AM -0700, Ross Biro wrote:
 > 
-> Well I spent a few hours running this on the quad xeon (aic7xxx).
-> 
-> There were no hangs, and there was no appreciable performance difference
-> between 2.5.69, 2.6.69-mm7++ with AS and 2.5.69-mm7++ with deadline.
-> 
-> Please confirm that the hang only happened with the anticipatory scheduler?
-Yes. Those are the only hangs. 
-> 
-> It could require a particular device driver to reproduce.  Please see if
-> you can generate that sysrq-T output.  Also if you can try a different
-> device driver sometime that would be interesting.  There seem to be several
-> alternate ISP drivers around - the feral driver perhaps, and the new one in
-> the linux-scsi tree.
+> Here's a patch against 2.4.18 that allows user space to flush a file 
+> from both the buffer cache and the page cache.  The reason for flushing 
+> a file from the caches is to the read the file again to verify it made 
+> it to more permanent storage correctly.  Someone may want to add 
+> similiar code to 2.5.
 
-Okay - i have been using qlogicfc,but there are others.. 
-OSDL is moving this weekend, so it'll be a bit before i have a machine up.
-cliffw
-
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+This came up at SGI some time ago and the right solution is _not_ a new
+ioctl but fadvise(..., POSIX_FADV_DONTNEED).   I'll submit a clean backport
+once 2.4.21 is out (if that will ever happen)
 

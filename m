@@ -1,112 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131108AbRAWSHr>; Tue, 23 Jan 2001 13:07:47 -0500
+	id <S129729AbRAWSLH>; Tue, 23 Jan 2001 13:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131106AbRAWSH1>; Tue, 23 Jan 2001 13:07:27 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:51224 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S131105AbRAWSH0>; Tue, 23 Jan 2001 13:07:26 -0500
-Message-ID: <3A6DC816.9AE801A1@sgi.com>
-Date: Tue, 23 Jan 2001 12:06:14 -0600
-From: Aaron Laffin <alaffin@sgi.com>
-Reply-To: alaffin@sgi.com
-Organization: Silicon Graphics, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.15-3SGI_39 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: using open() on a looping symlink with O_CREAT set fails incorrectly.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129880AbRAWSLB>; Tue, 23 Jan 2001 13:11:01 -0500
+Received: from fluent1.pyramid.net ([206.100.220.212]:10292 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S129729AbRAWSKs>; Tue, 23 Jan 2001 13:10:48 -0500
+Message-Id: <4.3.2.7.2.20010123094723.00b192c0@mail.fluent-access.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Tue, 23 Jan 2001 10:10:34 -0800
+To: Steve Underwood <steveu@coppice.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+From: Stephen Satchell <satch@fluent-access.com>
+Subject: Re: [OT?] Coding Style
+In-Reply-To: <3A6D78EA.5B09C379@coppice.org>
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com>
+ <20010122082254.D9530@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 08:28 PM 1/23/01 +0800, Steve Underwood wrote:
+>During a period of making a liveing out of
+>sorting out severly screwed up projects I made a little comment
+>stripper. I found comments so unreliable, and so seldom useful, I was
+>better off reading the code without the confusion they might cause. I
+>do, however, try to document the non-obvious through comments in what I
+>write.
 
-We've found a case on 2.4.0 where an open performed on a looping symlink
-(a symlink that points to itself) does not fail correctly when the open
-flag O_CREAT is set.  When opening the looping link with only one of
-O_RDONLY, O_RDWR, or O_WRONLY, open() fails as expected with an ELOOP. 
-Using O_CREAT or'ed with one of O_RDONLY, O_RDWR, or O_WRONLY fails as
-follows.  All of these should fail with an ELOOP (apparently):
+Ditto.  Mine had the option of leaving the block comments in place (line 
+count was a parameter) because the block comments proved to be more useful 
+than the in-line comments.
 
-open("link",O_RDONLY|O_CREAT) : reports a successful open.  Examination
-of /proc/<pid>/fd indicates that the opened descriptor refers to the
-directory the link is in.  
-open("link",O_WRONLY|O_CREAT) : fils with errno EISDIR (21) "Is a
-directory"
-open("link",O_WRONLY|O_RDWR) : fils with errno EISDIR (21) "Is a
-directory"
+>Some people still seem to be living in the age of K&R C, with 6 or 7
+>character variable names that demand some explanation. Maybe some day
+>they will awake to the expressive power of long (and well chosen) names.
 
-ver_linux output:
+Actually, they are still living as though the KSR-33 and ASR-33 teletypes 
+were the only input device.  :)
 
-Linux greenhouse 2.4.0 #1 SMP Thu Jan 4 18:27:27 CST 2001 i686 unknown
-Kernel modules         2.3.23
-Gnu C                  egcs-2.91.66
-Binutils               2.9.5.0.22
-Linux C Library        2.1.3
-Dynamic linker         ldd (GNU libc) 2.1.3
-Procps                 2.0.6
-Mount                  2.10f
-Net-tools              1.54
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         ipx nfs autofs nfsd lockd sunrpc eepro100
-ncr53c8xx
+True story:  I was retained to solve a particular problem for a company 
+over a one-year time period.  I wrote some rather nifty code to solve the 
+problem, and was happily doing data extraction and conversion for that time 
+period.  Then there was a management turnover at the client and the new guy 
+decided to implement a cost-cutting measure:  cut out as many outsiders as 
+possible.  He decided that I should give him the code I had developed over 
+the year (that wasn't part of the contract, of course) so that he could 
+have in-house people do it.  Not just executable programs, of course.  "We 
+bought the development of that code, so we deserve the source."  The 
+bastard backed up the demand with his lawyer.  Not wanting to spend the 
+money on the threatened lawsuit, I gave him exactly what he asked for:  the 
+source to the latest working version of the programs I wrote to do the job.
 
-Illustration code
+It took a while to prepare the source for this jerk.  Here is what I did to 
+the source I gave the guy:
 
-All of the test cases in this code should fail with an ELOOP.  They do
-fail correctly on 2.2.16.  On our 2.4 system, the last three cases with
-O_CREAT fail unexpectedly (discussed above):
+1)  Used the output of CPP, which stripped out all include files and strips 
+all comments.  This had the interesting side effect of making the source 
+compiler-dependent.
+2)  Stripped all newlines, and converted strings of spaces and tabs not in 
+quotes to a single space.  This made the source one line long...a VERY LONG 
+line.
+3)  Converted each reasonable variable name to a string of seven random 
+characters from the set [A-Aa-z0-9_], with the first character restricted 
+to [A-Za-z].  A list of #define statements equated the random name to the 
+proper library name or symbol.  (Because the names included a number of 
+internal variables in the compiler library, this was a HUGE list.)  The 
+resulting symbol table was so large that I had to use disk to keep all the 
+names.  Inadvertently I had also randomized lexical elements such as "for", 
+"while" and so forth, but #define statements took care of that problem.
+4)  Determined that the output of the compiler with the mangled source was 
+exactly the same as the output of the compiler with the original source.
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
+As you can guess, I discovered a few bugs with the compiler I was 
+using.  The compiler writer (who was just down the road) was highly amused 
+with this and asked if they could "borrow" my mangler "for test 
+purposes."  (Just who do they think they were kiddin'?)
 
-void call_open(int mode, char *strmode)
-{
-  int fd;
+Satch
 
-  fd = open("testlink",mode);
-  
-  if (fd<0)
-  {
-    printf("open(%s) of looping symlink failed: %d:
-%s\n",strmode,errno,strerror(errno));
-  }
-  else
-  {
-    printf("hmm, open(%s) should have failed\n",strmode);
-    close(fd);
-  }
-}
-
-int main()
-{
-  int fd;
-
-  symlink("testlink","testlink");
-
-  call_open(O_RDONLY,"O_RDONLY");
-  call_open(O_WRONLY,"O_WRONLY");
-  call_open(O_RDWR,"O_RDWR");
-  call_open(O_RDONLY|O_CREAT,"O_RDONLY|O_CREAT");
-  call_open(O_WRONLY|O_CREAT,"O_WRONLY|O_CREAT");
-  call_open(O_RDWR|O_CREAT,"O_RDWR|O_CREAT");
-
-  unlink("testlink");
-}
-
-I'm not subscribed directly to the list, please CC me in responses.
-
---aaron
-
--- 
-Aaron Laffin
-SGI Linux Test Project http://oss.sgi.com/projects/ltp/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

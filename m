@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVAYWpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVAYWrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbVAYWpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVAYWn2
+	id S262220AbVAYWrI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVAYWqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:43:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61605 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262200AbVAYWmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:42:52 -0500
-Date: Tue, 25 Jan 2005 22:42:47 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050125224247.GA29849@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050125125323.GA19055@infradead.org> <1106662284.5257.53.camel@uganda> <20050125142356.GA20206@infradead.org> <1106666690.5257.97.camel@uganda>
+	Tue, 25 Jan 2005 17:46:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:21204 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262204AbVAYWnL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 17:43:11 -0500
+Date: Tue, 25 Jan 2005 14:42:59 -0800
+From: Greg KH <greg@kroah.com>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: [PATCH 2.6] I2C: Prevent buffer overflow on SMBus block read in i2c-viapro
+Message-ID: <20050125224258.GA18228@kroah.com>
+References: <20050125230348.294aa0b9.khali@linux-fr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106666690.5257.97.camel@uganda>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20050125230348.294aa0b9.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Zeroing can be found easily - the whole structure is NULL pointer, 
-> and will always panic if accessed(from running superio code), 
-> but redzoning is only happen on borders,
-> and can catch writes over the boards, which is rarely in this case.
-
-As I mentioned the redzoning was a brainfar on my side.  Slab debug
-code memsets all code with an easily recognizable pattern (which 0 is _NOT_).
-
-So this is totally useless, please don't do it - as all major subsystems
-don't do it either.
-
-> Each superio chip is registered with superio core without any devices.
-> Each logical device is registered with superio core without any superio
-> chip.
+On Tue, Jan 25, 2005 at 11:03:48PM +0100, Jean Delvare wrote:
+> Hi Greg, Linus, all,
 > 
-> Then core checks if some chip is found in some superio device, and
-> links 
-> it to appropriate device.
-> So if board has several superio chips(like soekris board) and several
-> logical devices in it, then we only have 2 superio small drivers, and
-> several 
-> logical device drivers, but not
-> number_of_superio_chips*number_of_logical_devices drivers.
+> I just hit a buffer overflow while playing around with i2cdump and
+> i2c-viapro through i2c-dev. This is caused by a missing length check on
+> a buffer operation when doing a SMBus block read in the i2c-viapro
+> driver. The problem was already known and had been fixed upon report by
+> Sergey Vlasov back in August 2003 in lm_sensors (2.4 kernel version of
+> the driver) but for some reason it was never ported to the 2.6 kernel
+> version.
+> 
+> I am not a security expert but I would guess that such a buffer overflow
+> could possibly be used to run arbitrary code in kernel space from user
+> space through i2c-dev. The severity obviously depends on the permisions
+> set on the i2c device files in /dev. Maybe it wouldn't be a bad idea to
+> push this patch upstream rather sooner than later.
 
-That's how just about any bus driver works so far.
+Hm, all distros leave the i2c-dev /dev nodes writable only by root, so
+this isn't that "big" of an issue.  I also thought I had caught all of
+this previously, when Sergey did the 2.4 patches. 
 
-Now somewhere else in the thread I read the a single logical device
-might belong to multiple superio devices.  Which is kinda odd, but in
-that case it's indeed needed.
+> --- linux-2.6.11-rc1-bk8/drivers/i2c/busses/i2c-viapro.c.orig	2005-01-21 20:05:05.000000000 +0100
+> +++ linux-2.6.11-rc1-bk8/drivers/i2c/busses/i2c-viapro.c	2005-01-25 21:45:01.000000000 +0100
+> @@ -233,8 +233,8 @@
+>  			len = data->block[0];
+>  			if (len < 0)
+>  				len = 0;
+> -			if (len > 32)
+> -				len = 32;
+> +			if (len > I2C_SMBUS_BLOCK_MAX)
+> +				len = I2C_SMBUS_BLOCK_MAX;
+>  			outb_p(len, SMBHSTDAT0);
+>  			i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
+>  			for (i = 1; i <= len; i++)
+> @@ -268,6 +268,8 @@
+>  		break;
+>  	case VT596_BLOCK_DATA:
+>  		data->block[0] = inb_p(SMBHSTDAT0);
+> +		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+> +			data->block[0] = I2C_SMBUS_BLOCK_MAX;
 
-So please add a big comment explaining that properperty because it
-is extemly uncommon, and make 'ptr' in the chain structure typed
-instead of void *
+But data->block[0] just came from the hardware, right?  Not from a user.
+Now if we have broken hardware, then we might have a problem here, but
+otherwise I don't see it as a security issue right now.
 
-> Yes, and it is better than removing module whose structures are in use.
-> SuperIO core is asynchronous in it's nature, one can use logical device 
-> through superio core and remove it's module on other CPU, above loop
-> will
-> wait untill all reference counters are dropped.
+thanks,
 
-General rule is: increment module reference count while the hardware
-is actually in use, and let device structures be allocated by the
-bus core so drivers can be freed with them still allocated.  That's
-how the driver model and thus about every other subsystem works.
-
+greg k-h

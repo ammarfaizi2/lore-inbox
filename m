@@ -1,72 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbUJ3PuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbUJ3Pyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbUJ3PuG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 11:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbUJ3Ps0
+	id S261287AbUJ3Pyh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 11:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUJ3Pue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 11:48:26 -0400
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:10503 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261277AbUJ3Pie
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 11:38:34 -0400
-Message-ID: <4183B572.60804@tebibyte.org>
-Date: Sat, 30 Oct 2004 17:38:26 +0200
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: pt-br, pt
+	Sat, 30 Oct 2004 11:50:34 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:20868 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261199AbUJ3PtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 11:49:04 -0400
+From: tabris <tabris@tabris.net>
+To: Eric Mudama <edmudama@gmail.com>
+Subject: Re: [BK PATCHES] ide-2.6 update
+Date: Sat, 30 Oct 2004 11:48:52 -0400
+User-Agent: KMail/1.7
+Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+References: <200410271213_MC3-1-8D44-F2D8@compuserve.com> <200410271458.17499.gene.heskett@verizon.net> <311601c90410281319596a1ec1@mail.gmail.com>
+In-Reply-To: <311601c90410281319596a1ec1@mail.gmail.com>
 MIME-Version: 1.0
-To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
-References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com> <20041028120650.GD5741@logos.cnet> <41824760.7010703@tebibyte.org> <41834FE7.5060705@jp.fujitsu.com> <418354C0.3060207@tebibyte.org> <418357C5.4070304@jp.fujitsu.com> <41835F4D.2060508@tebibyte.org> <4183649C.7070601@jp.fujitsu.com>
-In-Reply-To: <4183649C.7070601@jp.fujitsu.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410301148.52450.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 28 October 2004 4:19 pm, Eric Mudama wrote:
+> One of two things is happening:
+>
+> 1) Two drives are identically corrupted, producing the invalid serial
+> numbers being reported in the ID block.  My belief is that this
+> wasn't likely, given the low volume of reports.  The reported bad SN
+> was "M0000000000000000000" which based on our firmware, I don't see
+> how it could happen.  A corruption of the config sector (the most
+> likely cause) *should* be catastrophic to the drive's functionality.
+>
+	Mine was the "D3000000" serial, not the "M0000000000000000000" serial. 
+and the drives are not 100% identical, tho they are the same capacity, 
+hooked to the same PDC20265 IDE bus, on a ASUS A7V266-E.
 
+	I'd submit the /proc/ide/hd[gh]/identify but atm /proc seems to be 
+blocking on that request. I'd submitted it before anyway.
 
-Hiroyuki KAMEZAWA escreveu:
-> Oh, Okay, my patch was wrong ;(.
-> Very sorry for wrong hack.
-> This one will be Okay.
+> 2) There is a code or hardware bug somewhere outside of the drive
+> itself that is causing this data to become corrupted.
+>
+> Either way, I believe the best course of action is to RMA the drives
+> for new ones.  I don't think good stuff will come from having the
+> linux kernel use drives that appear to be broken.
+	The drives worked previously before the ide-probe patch, and have not 
+been a problem before. and as I believe they only have a 1 year Maxtor 
+warranty, i'm not sure i can RMA them, tho i'll keep it in mind.
+>
+> It'd be nice to test these drives on more systems, or with a bus
+> analyzer, to identify the cause.
+	Well... if i can't RMA them, and I do replace them, I offer to send 
+them to you via UPS or FedEx.
+>
+> --eric
+>
+>
+>
+>
+>
+>
+> On Wed, 27 Oct 2004 14:58:17 -0400, Gene Heskett
+>
+> <gene.heskett@verizon.net> wrote:
+> > On Wednesday 27 October 2004 12:18, Alan Cox wrote:
+> > >On Mer, 2004-10-27 at 17:10, Chuck Ebbert wrote:
+> > >>         - accept bad Maxtor drive serial number
+> > >
+> > >This should not be applied. If your drive is no longer reporting
+> > > its serial number then its faulty.
+> >
+> > ISTR he wrote that he had 2 (identical?) drives that were reporting
+> > the same serial number.  Somewhat, but not exactly like I have two
+> > different epson printers, both usb driven, and which except for the
+> > reported serial number, return otherwise identical data when
+> > queried by the usb drivers during dmesg.  Which I find odd because
+> > one is a C82, 4 color model, and the other is a Photo 820, 6 color
+> > model.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-That works, now my oom report looks like this...
-
-Oct 30 17:32:22 sleepy oom-killer: gfp_mask=0x1d2
-Oct 30 17:32:22 sleepy DMA per-cpu:
-Oct 30 17:32:22 sleepy cpu 0 hot: low 2, high 6, batch 1
-Oct 30 17:32:22 sleepy cpu 0 cold: low 0, high 2, batch 1
-Oct 30 17:32:22 sleepy Normal per-cpu:
-Oct 30 17:32:22 sleepy cpu 0 hot: low 4, high 12, batch 2
-Oct 30 17:32:22 sleepy cpu 0 cold: low 0, high 4, batch 2
-Oct 30 17:32:22 sleepy HighMem per-cpu: empty
-Oct 30 17:32:22 sleepy
-Oct 30 17:32:22 sleepy Free pages:         332kB (0kB HighMem)
-Oct 30 17:32:22 sleepy Active:11887 inactive:517 dirty:0 writeback:0 
-unstable:0 free:83 slab:1347 mapped:11930 pagetables:247
-Oct 30 17:32:22 sleepy DMA free:60kB min:60kB low:120kB high:180kB 
-active:11256kB inactive:436kB present:16384kB pages_scanned:11686 
-all_unreclaimable? yes
-Oct 30 17:32:22 sleepy protections[]: 0 0 0
-Oct 30 17:32:22 sleepy Normal free:272kB min:188kB low:376kB high:564kB 
-active:36292kB inactive:1632kB present:49144kB pages_scanned:6922 
-all_unreclaimable? no
-Oct 30 17:32:22 sleepy protections[]: 0 0 0
-Oct 30 17:32:22 sleepy HighMem free:0kB min:128kB low:256kB high:384kB 
-active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
-Oct 30 17:32:22 sleepy protections[]: 0 0 0
-Oct 30 17:32:22 sleepy DMA: 1*4kB 1*8kB 1*16kB 1*32kB 0*64kB 0*128kB 
-0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 60kB
-Oct 30 17:32:22 sleepy Normal: 0*4kB 12*8kB 1*16kB 1*32kB 0*64kB 1*128kB 
-0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 272kB
-Oct 30 17:32:22 sleepy HighMem: empty
-Oct 30 17:32:22 sleepy Swap cache: add 136776, delete 129314, find 
-37853/51620, race 0+0
-Oct 30 17:32:22 sleepy Out of Memory: Killed process 12395 (ld).
-
-
+-- 
+Windows 95 is crash compatible with Windows 1.0, 2.x, and 3.x.

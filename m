@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263591AbUJ2VEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263568AbUJ2Uwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbUJ2VEO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbUJ2VDD
+	id S263568AbUJ2Uwg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUJ2UuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:03:03 -0400
-Received: from mail.kroah.org ([69.55.234.183]:38593 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263572AbUJ2Uzv (ORCPT
+	Fri, 29 Oct 2004 16:50:15 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:58016 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263509AbUJ2U3c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:55:51 -0400
-Date: Fri, 29 Oct 2004 15:55:05 -0500
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Norbert Preining <preining@logic.at>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
-Message-ID: <20041029205505.GB30638@kroah.com>
-References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <20041027153715.GB13991@kroah.com> <200410272012.44361.dtor_core@ameritech.net>
+	Fri, 29 Oct 2004 16:29:32 -0400
+Date: Fri, 29 Oct 2004 22:30:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: John Gilbert <jgilbert@biomail.ucsd.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5.2
+Message-ID: <20041029203031.GB5186@elte.hu>
+References: <OFDD5E88CA.56DEE781-ON86256F3C.0059C080-86256F3C.0059C0A2@raytheon.com> <20041029162622.GA8016@elte.hu> <41828348.4000700@biomail.ucsd.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410272012.44361.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <41828348.4000700@biomail.ucsd.edu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've thought about this a bunch recently.  A lot of people emailed me
-privately about it too.  Here's my reasoning as to why I did this:
 
-On Wed, Oct 27, 2004 at 08:12:44PM -0500, Dmitry Torokhov wrote:
-> I wonder what are the technical merits of this change. I certainly agree
-> with Pat's assertion that the rest of driver model functions should be used
-> by in-kernel subsystems (such as PCI, USB, serio etc) only and not exposed
-> to the outside world. This will allow freely fix/enhance the core without
-> fear of silently breaking external modules.
-> 
-> But class_simple is itself a limited and contained interface with well-
-> defined semantic. Which I believe was advertised aat one time as a wrapper
-> for the objects wanting to plug into hotplug/udev model but either living
-> outside of established subsystems or within subsystem not yet ready to
-> implement proper refcounting needed for full-blown sysfs integration.
+* John Gilbert <jgilbert@biomail.ucsd.edu> wrote:
 
-You are right, class_simple is merely a wrapper around the core class
-and class_device functions.  It makes it easier for a driver subsystem
-to implement a very common feature.
+> Hello all, Ingo,
+> Here's a few bugs on boot with V0.5.2, and a question: what's needed to 
+> get back to the verbose latency messages of previous preempt patches 
+> (see the terse second log)?
 
-See, "wrapper" is the point here.  If we were to have someone try to
-submit the class_simple code today, after the driver core had the GPL
-function exports on them, we would laugh them out of the room on the
-grounds that they were wrapping GPL interfaces with a looser one.  So,
-because of that, I'm going to mark these functions this way.
+> (ksoftirqd/0/2/CPU#0): new 1003 us maximum-latency wakeup.
 
-As to people saying it's futile to try to get companies to change, I
-don't buy that.  Go look up the history of the EXPORT_SYMBOL_GPL marker
-and see who used it first.  I know for a fact that because of this
-marking on some kernel functions a very large company totally switched
-directions and rethought their policies about Linux kernel
-drivers/modules.  Now that company has plays very nicely with the Linux
-kernel community, and contributes a lot of very good, useful, and needed
-code, all under the GPL.
+if you have LATENCY_TRACING enabled then the wakeup trace of the last 
+wakeup will be in /proc/latency_trace.
 
-So we can change things, little things like this can help everyone out,
-even if I'm going to get a ton of nvidia user hate mail directed to me
-after the next kernel comes out...
+the reason that the messages are less verbose is that by default we are
+not measuring critical sections anymore, but 'wakeup latency'. Wakeup 
+latency is measured from the point of wakeup to the point where the task 
+runs - so it makes no sense to dump the stack (which is why the previous 
+tracing output was more verbose) - a stackdump would always show the 
+scheduler codepath where we stop measuring.
 
-Remember, binary kernel modules are a leach on our community.
+you can switch back to critical section timing though, via:
 
-thanks,
+	echo 0 > /proc/sys/kernel/preempt_wakeup_timing
 
-greg k-h
+this will also turn the stackdumps back on. (those make sense in this
+case because we measure 'start of critical section' to 'end of critical
+section', in which case both a stackdump and the symbolic printout of
+the start and end address is useful - because it's variable.
+
+	Ingo

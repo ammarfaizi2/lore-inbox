@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135980AbRA1MMG>; Sun, 28 Jan 2001 07:12:06 -0500
+	id <S136970AbRA1MN0>; Sun, 28 Jan 2001 07:13:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136168AbRA1ML4>; Sun, 28 Jan 2001 07:11:56 -0500
-Received: from finch-post-10.mail.demon.net ([194.217.242.38]:4101 "EHLO
-	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S135980AbRA1MLs>; Sun, 28 Jan 2001 07:11:48 -0500
-Date: Sun, 28 Jan 2001 12:11:47 +0000
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre8 losing pages
-Message-ID: <20010128121147.A1877@colonel-panic.com>
-Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
-In-Reply-To: <20010126194605.A923@colonel-panic.com> <200101261948.f0QJm6q09263@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101261948.f0QJm6q09263@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Jan 26, 2001 at 07:48:05PM +0000
-From: Peter Horton <pdh@colonel-panic.com>
+	id <S136682AbRA1MNQ>; Sun, 28 Jan 2001 07:13:16 -0500
+Received: from front4m.grolier.fr ([195.36.216.54]:35009 "EHLO
+	front4m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S136168AbRA1MNJ> convert rfc822-to-8bit; Sun, 28 Jan 2001 07:13:09 -0500
+Date: Sun, 28 Jan 2001 12:12:17 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: paradox3 <paradox3@maine.rr.com>
+cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
+In-Reply-To: <003f01c088fb$a35c06e0$b001a8c0@caesar>
+Message-ID: <Pine.LNX.4.10.10101281157220.1110-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 07:48:05PM +0000, Russell King wrote:
-> Peter Horton writes:
-> > The corruption is dependent on having a swapped on swap partition. If I
-> > "swapoff" the corruption goes away, but it comes back when I "swapon"
-> > again. I feel this a kernel bug, but as I'm the only person out here who's
-> > seeing it I'm at a loss ...
-> 
-> The reason I ask is that on an ARM box running plain 2.4.0 with swap
-> enabled I get rather a lot of SEGVs.  Turn swap off, and I don't see
-> any.
-> 
-> It sounds like it may be related.
-> 
 
-Okay, scratch that. It does still happen when there's no swap, but for
-some reason it happens a lot less often. Looks like it's timing related,
-it only fails when using 7200rpm drives, not older 5400rpm ones (even
-though they too are using UDMA33). I've ruled out the filing system, the
-IDE controller, the drives and the RAM, so that leaves the kernel or the
-CPU - I'll try and beg/borrow/steal another CPU and try that. I can
-compile kernels / run X whilst the test is running without a problem so it
-looks like it's the bulk write that's the problem.
 
-P.
+On Sun, 28 Jan 2001, paradox3 wrote:
+
+> I have an SMP machine (dual PII 400s) running 2.2.16 with one 10,000 RPM IBM
+> 10 GB SCSI drive
+> (AIC 7890 on motherboard, using aic7xxx.o), and four various IDE drives. The
+> SCSI drive
+> performs the worst. In tests of writing 100 MB and sync'ing, one of my IDE
+> drives takes 31 seconds. The SCSI drive (while doing nothing else) took
+> 2 minutes, 10 seconds. This is extremely noticable in file transfers that
+> completely
+> monopolize the SCSI drive, and are much slower than when involving the IDE
+> drives.
+> After a large data operation on the SCSI drive, the system will hang for
+> several minutes.
+> Anyone know what could be causing this? Thanks.
+> 
+> Attached are some data to help.
+
+You didn't provide enough information for anybody to have a single idea
+about the cause of the problem you report, in my opinion.
+
+Just any not too old 10,000 RPM disk is able to sustain more that 25 MB/s
+sequential data transfer, but cannot do better than 5 milli-seconds
+latency with random IO patterns. So, result for 100 MB transfer can be
+less than 4 seconds in the best case but greater than (25000*5)/1000=125
+seconds for random 4K IO pattern, for example.
+
+What you want to do, in my opinion, could be:
+
+- Check in the syslog the actual transfer speed that has been negotiated
+  for your SCSI disk.
+- Also check if error messages related to disk IOs have been reported by 
+  the kernel.
+- Run some benchmark to check, at least, sequential IO performance (iozone
+  for example will fit)
+
+Gérard.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

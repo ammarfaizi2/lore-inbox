@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263641AbUDGN5N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 09:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbUDGN5N
+	id S263652AbUDGOCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 10:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUDGOCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 09:57:13 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:39041 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263641AbUDGN5D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 09:57:03 -0400
-Date: Wed, 7 Apr 2004 09:58:49 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Sean Neakums <sneakums@zork.net>
-cc: Mohamed Aslan <mkernel@linuxmail.org>, linux-kernel@vger.kernel.org
+	Wed, 7 Apr 2004 10:02:34 -0400
+Received: from users.linvision.com ([62.58.92.114]:19603 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263652AbUDGOC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 10:02:29 -0400
+Date: Wed, 7 Apr 2004 16:02:27 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Mohamed Aslan <mkernel@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
 Subject: Re: Rewrite Kernel
-In-Reply-To: <6un05oszfx.fsf@zork.zork.net>
-Message-ID: <Pine.LNX.4.53.0404070957490.10718@chaos>
+Message-ID: <20040407140227.GD5223@harddisk-recovery.com>
 References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com>
- <6un05oszfx.fsf@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Apr 2004, Sean Neakums wrote:
+On Wed, Apr 07, 2004 at 08:54:06PM +0800, Mohamed Aslan wrote:
+> i wanna to rewrite a version of linux kernel from scratch in assembly for intel 386+ fo speed and a libc also in assembly for speed
+> what do u think guys
 
-> "Mohamed Aslan" <mkernel@linuxmail.org> writes:
->
-> > i wanna to rewrite a version of linux kernel from scratch in assembly for intel 386+ fo speed and a libc also in assembly for speed
-> > what do u think guys
->
-> Why not just write a program to translate 'C' code into assembly?
->
-
-It's called a compiler and we already have several versions, none
-optimum.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+That you should read the FAQ: http://www.tux.org/lkml/#s15-2
 
 
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

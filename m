@@ -1,60 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbULEXqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbULEXsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbULEXqP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 18:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbULEXqP
+	id S261420AbULEXsi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 18:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbULEXsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 18:46:15 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2312 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261423AbULEXqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 18:46:08 -0500
-Date: Mon, 6 Dec 2004 00:46:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] dynamic syscalls revisited
-Message-ID: <20041205234605.GF2953@stusta.de>
-References: <1101741118.25841.40.camel@localhost.localdomain> <20041129151741.GA5514@infradead.org> <Pine.LNX.4.53.0411291740390.30846@yvahk01.tjqt.qr> <1101748258.25841.53.camel@localhost.localdomain>
+	Sun, 5 Dec 2004 18:48:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:29910 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261420AbULEXs3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 18:48:29 -0500
+Subject: Re: [linux-pm] swsusp-bigdiff: power-managment changes that are
+	waiting in my tree
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, mjg59@srcf.ucam.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <20041205233110.GB1490@elf.ucw.cz>
+References: <20041205214910.GA1293@elf.ucw.cz>
+	 <1102284611.11763.97.camel@gaston>  <20041205233110.GB1490@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 06 Dec 2004 10:47:56 +1100
+Message-Id: <1102290476.11761.116.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101748258.25841.53.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 12:10:58PM -0500, Steven Rostedt wrote:
-> On Mon, 2004-11-29 at 17:41 +0100, Jan Engelhardt wrote:
-> > I do not see how dsyscalls could be better than static ones, so they are
-> > one-on-one. Maybe someone could elaborate why they are "a really bad idea"?
+
+> Oh I just wanted to have ON for future expansion, like that "warning
+> userland is going away" or something like that. Maybe it can be eve
+> killed.
+
+Ok, I'm a bit confused by the "ON" terminology. I wouldn't mind having 2
+separate messages: NOTIFY_WILL_SUSPEND and NOTIFY_RESUMED here, but we
+can keep that on hold for now. We'll need a system-wide notifier at one
+point too I suppose. I also need to think how to hoook the APM emulation
+in there (which is the missing piece even on x86/ACPI S3 for X to work
+properly in lots of cases on resume).
+
+> > Note that we should probably fix kmalloc itself to turn GFP_KERNEL into
+> > GFP_NOIO during the suspend process. For call_usermodehelper, I wnated
+> > to "queue" them, but greg suggested that instead, we fail them, and at
+> > the end of the suspend process, we send a special /sbin/hotplug event
+> > telling userland to rescan sysfs.
 > 
-> The one argument against them, that I agree with, is Linus' hooks to
-> avoid the GPL.  A binary only module could easily add their own hooks
-> into the kernel.
+> Actually I do not think that automatically doing GFP_NOIO instead of
+> GFP_KERNEL is right thing. Is it that hard to teach drivers to get it
+> right?
+
+But what about non-drivers ? Teaching drivers is hard because that would
+require every single of them to actually have notifiers to "know" that
+we are about to start the suspend dance or that we have completed it,
+which mean keeping track additional state, etc... So that is a
+significant burden on drivers to add. Besides, as I wrote earlier, it
+may concern things implicitely called by drivers, or other kernel
+subsystems (like things in keventd, we don't wnat keventd to block or
+work_queues would stop, and drivers could die on flush_work_queues,
+which is common to be called on suspend) etc...
+ 
+> No idea, it is certainly usefull for me :-). Hopefully noone is stupid
+> enough to do case according to this, and flags are not even defined
+> just yet, so spending extra time writing docs does not seem that great
+> right now...
 > 
-> I've made this patch with the option to turn this off. I should have put
-> the option in Kernel debugging with the default off (the default is
-> currently on so that if you apply the patch, you have it automatically).
-> This way binary only modules can't take advantage of the dynamic
-> syscalls without recompiling the kernel.  If the user needed to compile
-> the kernel, then a patch can easily be added, so this is just as good of
-> a defense. 
+> Anyway, feel free to send improved version...
 
-Why don't you EXPORT_SYMBOL_GPL dsyscall_{,un}register?
+Yes, I'm thinking about rewriting it in the plane to France next
+week-end :)
 
-This should at least fix the binary only module concerns.
+> > > +Powerdown at end of swsusp -- very similar to SYSTEM_SHUTDOWN, except wake
+> > > +may need to be enabled on some devices. This actually has at least 3
+> > > +subtypes, system can reboot, enter S4 and enter S5 at the end of
+> > > +swsusp. event = FREEZE, flags = SWSUSP and one of SYSTEM_REBOOT,
+> > > +SYSTEM_SHUTDOWN, SYSTEM_S4
+> > 
+> > Hrm... shuoldn't we rather use different calls for the above ? For S3/S4
+> > do a SUSPEND call rather than freeze ?
+> 
+> S3 needs SUSPEND (and I specify it like that). At suspend-to-disk, you
+> don't care about hardware state before poweroff (on PC anyway) so
+> FREEZE seems like right thing to do.
 
-> -- Steve
+Oh, I meant S4/S5... shouldn't it be SUSPEND rather than FREEZE ? I
+mean, don't some BIOSes who do S4/S5 expect us to actually suspend the
+HW (while other machines that don't have BIOS support will do a normal
+SHUTDOWN and thus wouldn't care). I don't know for sure here, this is an
+x86 thing ...
 
-cu
-Adrian
-
+> Attached is my version of file with one paragraph added.
+> 								Pavel
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

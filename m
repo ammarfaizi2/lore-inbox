@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267244AbTA0VEQ>; Mon, 27 Jan 2003 16:04:16 -0500
+	id <S267310AbTA0VVc>; Mon, 27 Jan 2003 16:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267246AbTA0VEQ>; Mon, 27 Jan 2003 16:04:16 -0500
-Received: from newpeace.netnation.com ([204.174.223.7]:9358 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S267244AbTA0VEP>; Mon, 27 Jan 2003 16:04:15 -0500
-Date: Mon, 27 Jan 2003 13:13:33 -0800
-From: Simon Kirby <sim@netnation.com>
-To: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21-pre3] Netfilter does not compile with this .config
-Message-ID: <20030127211333.GA25522@netnation.com>
-References: <20030127210116.GB23198@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030127210116.GB23198@netnation.com>
-User-Agent: Mutt/1.4i
+	id <S267311AbTA0VVc>; Mon, 27 Jan 2003 16:21:32 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16649 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267310AbTA0VVb>; Mon, 27 Jan 2003 16:21:31 -0500
+Date: Mon, 27 Jan 2003 16:27:57 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: David C Niemi <lkernel2003@tuxers.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
+In-Reply-To: <Pine.LNX.4.44.0301241237160.29548-100000@harappa.oldtrail.reston.va.us>
+Message-ID: <Pine.LNX.3.96.1030127162417.27928B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 01:01:16PM -0800, Simon Kirby wrote:
+On Fri, 24 Jan 2003, David C Niemi wrote:
 
-> net/network.o(.text+0x42485): In function `match':
-> : undefined reference to `ip_conntrack_get'
-> net/network.o(.text.init+0x13ca): In function `init':
-> : undefined reference to `ip_conntrack_module'
-> make: *** [vmlinux] Error 1
+> 
+> I have been experiencing some baffling SSH client hangs under 2.5.59 (and
+> 55) in which the session totally hangs up after I have typed (typically)
+> 10-100 characters.  Right before it hangs permanently, a character is
+> echo'd back to the screen several seconds late.  Interestingly, data due
+> back for my client which is initiated by the server side does make it, I 
+> just can't type anything further.
+> 
+> To reproduce this: ssh in to a somewhat distant host.  At a command 
+> prompt, hold down a letter key for a couple of minutes, or just type text 
+> in.  If you cut'n'paste text, it rarely hangs (my guess is that this 
+> requires a lot fewer round trips than interactive typing).  It should hang 
+> before you get a screenful (sometimes the sessions hang even before they 
+> are set up).
 
-This may be the correct fix:
+Sorry to say I sometimes see this on 2.4 kernels as well, even on PPP
+dialed connections. The symptoms are that the local ssh client just stops
+sending packets. That's very easy to tell with an external modem:-) The
+connection is still fine, if I have multiple connections to the host only
+one hangs, and I believe it's a client issue in ssh.
 
---- linux.alfie/net/ipv4/netfilter/Config.in.orig	2002-12-26 11:25:40.000000000 -0800
-+++ linux.alfie/net/ipv4/netfilter/Config.in	2003-01-27 13:08:30.000000000 -0800
-@@ -31,9 +31,7 @@
-   dep_tristate '  TTL match support' CONFIG_IP_NF_MATCH_TTL $CONFIG_IP_NF_IPTABLES
-   dep_tristate '  tcpmss match support' CONFIG_IP_NF_MATCH_TCPMSS $CONFIG_IP_NF_IPTABLES
-   if [ "$CONFIG_IP_NF_CONNTRACK" != "n" ]; then
--    dep_tristate '  Helper match support' CONFIG_IP_NF_MATCH_HELPER $CONFIG_IP_NF_IPTABLES
--  fi
--  if [ "$CONFIG_IP_NF_CONNTRACK" != "n" ]; then
-+    dep_tristate '  Helper match support' CONFIG_IP_NF_MATCH_HELPER $CONFIG_IP_NF_CONNTRACK $CONFIG_IP_NF_IPTABLES
-     dep_tristate '  Connection state match support' CONFIG_IP_NF_MATCH_STATE $CONFIG_IP_NF_CONNTRACK $CONFIG_IP_NF_IPTABLES 
-     dep_tristate '  Connection tracking match support' CONFIG_IP_NF_MATCH_CONNTRACK $CONFIG_IP_NF_CONNTRACK $CONFIG_IP_NF_IPTABLES 
-   fi
+What I see may or may not be related to your problem.
 
-(If not, a flamewar will surely ensue which will result in the correct
- fix being posted. :) )
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Simon-
-
-[        Simon Kirby        ][        Network Operations        ]
-[     sim@netnation.com     ][     NetNation Communications     ]
-[  Opinions expressed are not necessarily those of my employer. ]

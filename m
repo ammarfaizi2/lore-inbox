@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129502AbRCBVZX>; Fri, 2 Mar 2001 16:25:23 -0500
+	id <S129506AbRCBV1O>; Fri, 2 Mar 2001 16:27:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129506AbRCBVZO>; Fri, 2 Mar 2001 16:25:14 -0500
-Received: from ausxc08.us.dell.com ([143.166.99.216]:59332 "EHLO
-	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
-	id <S129502AbRCBVZA>; Fri, 2 Mar 2001 16:25:00 -0500
-Message-ID: <CDF99E351003D311A8B0009027457F1403BF9DFB@ausxmrr501.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.4 and 2GB swap partition limit
-Date: Fri, 2 Mar 2001 15:23:34 -0600 
+	id <S129509AbRCBV1E>; Fri, 2 Mar 2001 16:27:04 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1183 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129506AbRCBV0t>;
+	Fri, 2 Mar 2001 16:26:49 -0500
+Date: Fri, 2 Mar 2001 16:26:24 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Pavel Roskin <proski@gnu.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net
+Subject: [FIX] Re: usbdevfs can be mounted multiple times
+In-Reply-To: <Pine.LNX.4.33.0103021605570.22765-100000@fonzie.nine.com>
+Message-ID: <Pine.GSO.4.21.0103021617500.15463-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus has spoken, and 2.4.x now requires swap = 2x RAM.
-But, the 2GB per swap partition limit still exists, best as we can tell.
-So, we sell machines with say 8GB RAM.  We need 16GB swap, but really we
-need like an 18GB disk with 8 2GB swap partitions, or ideally 8 disks with a
-2GB swap partition on each.  That's ugly.
-
-Is the 2GB per swap partition going to go away any time soon?
-
-Thanks,
-Matt
 
 
---
-Matt Domsch
-Dell Linux Systems Group
-Linux OS Development
-www.dell.com/linux
+On Fri, 2 Mar 2001, Pavel Roskin wrote:
+
+> Hello!
+> 
+> I understand that root can do many strange and unsafe things, but mounting
+> the same filesystem many times is not allowed for systems other than
+> usbdevfs.
+
+Mounting the same fs many times _is_ perfectly legitimate. However, I really
+don't like the fact that you've been able to do it several times on the same
+mountpoint...  Ah. I see - Linus, could you please do the following?
+
+vi drivers/usb/inode.c '-c/DECLARE_FSTYPE/s/0/FS_SINGLE/
+x'
+
+I.e. replace the last argument in declaration of usbdevfs with FS_SINGLE -
+without that we get a new instance every time.
+
+								Cheers,
+									Al
 

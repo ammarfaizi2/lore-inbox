@@ -1,96 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbTIOLiP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 07:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbTIOLiP
+	id S261288AbTIOLc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 07:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTIOLc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 07:38:15 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13958 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261235AbTIOLiM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 07:38:12 -0400
-Date: Mon, 15 Sep 2003 07:39:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Timothy Miller <miller@techsource.com>
-cc: James Clark <jimwclark@ntlworld.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-In-Reply-To: <3F6231D7.6040702@techsource.com>
-Message-ID: <Pine.LNX.4.53.0309150734560.4129@chaos>
-References: <1062637356.846.3471.camel@cube> <200309042114.45234.jimwclark@ntlworld.com>
- <Pine.LNX.4.53.0309041723090.9557@chaos> <3F5F8E90.4020701@techsource.com>
- <Pine.LNX.4.53.0309101640550.18999@chaos> <3F6231D7.6040702@techsource.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Sep 2003 07:32:59 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:22401 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261288AbTIOLc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 07:32:56 -0400
+Date: Mon, 15 Sep 2003 12:46:33 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309151146.h8FBkXcw001170@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, piggin@cyberone.com.au
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Sep 2003, Timothy Miller wrote:
-
->
->
-> Richard B. Johnson wrote:
-> > On Wed, 10 Sep 2003, Timothy Miller wrote:
-> >
-> >
-> >>I just have one quick question about all of this:
+> >>>>>>>That's a non-issue.  300 bytes matters a lot on some systems.  The
+> >>>>>>>fact that there are drivers that are bloated is nothing to do with
+> >>>>>>>it.
+> >>>>>>>
+> >>>>>>Its kind of irrelevant when by saying "Athlon" you've added 128 byte
+> >>>>>>alignment to all the cache friendly structure padding.
+> >>>>>>
+> >>>>>My intention is that we won't have done 128 byte alignments just by
+> >>>>>'supporting' Athlons, only if we want to run fast on Athlons.  A
+> >>>>>distribution kernel that is intended to boot on all CPUs needs
+> >>>>>workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
+> >>>>>
+> >>>>>Obviously using such a kernel for anything other than getting a system
+> >>>>>up and running to compile a better kernel is a Bad Thing, but the
+> >>>>>distributions could supply separate Athlon, PIV, and 386 _optimised_
+> >>>>>kernels.
+> >>>>>
+> >>>>Why bother with that complexity? Just use 128 byte lines. This allows
+> >>>>a decent generic kernel. The people who have space requirements would
+> >>>>only compile what they need anyway.
+> >>>>
+> >>>So, basically, if you compile a kernel for a 386, but think that maybe
+> >>>one day you might need to run it on an Athlon for debugging purposes,
+> >>>you use 128 byte padding, because it's not too bad on the 386?  Seems
+> >>>pretty wasteful to me when the obvious, simple, elegant solution is to
+> >>>allow independent selection of workaround inclusion and optimisation.
+> >>>Especially since half of the work has already been done.
+> >>>
+> >>I missed the "simple, elegant" part. Conceptually elegant maybe.
 > >>
-> >>People mention that driver interfaces don't change much in stable
-> >>releases, but if memory serves, symbol versioning information changes
-> >>with each minor release, requiring a recompile of modules.
+> >>If you mean to use the optimise option only to set cache line size, then
+> >>that might be a bit saner.
 > >>
-> >>Would it be possible to have a driver module which can be dropped into,
-> >>say, 2.6.17 that can also be dropped into 2.6.18 as long as the
-> >>interface doesn't change?
-> >>
+> >>As far as the case study goes though: if you were worried about being
+> >>wasteful, why wouldn't you compile just for the 386 and debug from that?
 > >
-> >
-> > Short answer, YES. Anything that can be done is possible. The
-> > problem is that different kernel versions end up with different
-> > structure members, etc. So, you can't use code for 2.2.xxx in
-> > 2.4.xx because, amongst other things, the first element in
-> > 'struct file_operations' was added and the others moved up.
+> >In the model I'm proposing, the 386 kernel would be missing the Athlon
+> >workarounds.
 >
-> That's all fine and dandy.  When the kernel changes its interface, then
-> you have to recompile (or rewrite) drivers.  No problem.  I'm just
-> trying to avoid having to recompile drivers if the interface DOESN'T change.
->
-> >
-> > Now, you can make a different module interface that maintains
-> > a compatibility level ABI. This has been discussed. Unfortunately,
-> > this adds code in the execution path. This extra code gets
-> > executed every time the module code is accessed. The result being
-> > that the module can't possibly operate as fast as it would if
-> > there were no such compatibility layer(s). It might be "good enough",
-> > but it is unlikely that the module contributors/maintainers would
-> > allow such an interface because the loss of performance is measurable
-> > and there has been no requirement to trade-off performance for
-> > anything (your and my convenience doesn't count, those are not
-> > technical issues).
->
-> I am not interested in adding additional layers of abstraction.  At
-> least not here.  I do it plenty of other places, but that's not
-> important right now.  If someone else wants to make an abstraction layer
-> (which seems to have been done here and there), then that's just fine,
-> and I may or may not use it.
->
-> My point is that I'm not advocating any of the kruft associated with
-> backward-compatible interfaces.  I'm advocating not having to recompile
-> only in the cases where the interface DOES NOT change.
->
+> No, debug the kernel while its running on the 386.
 
-In those cases, you simply use "-f" on the `insmod` command line
-to force the loading of a module. We have that capability now.
-But, the offsets of things your module(s) access can, read will,
-be incompatible if the version changed. You "takes you chances and
-cross you fingers...." if you use the "-f" option.
+What if the 386 is a wristwatch, or similar embedded device?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+> And what of my other
+> concerns?
 
+Since nobody seemed to agree with me, I was sparing the list the
+bandwidth, but...
 
+> 1. It doesn't appear to be simple and elegant.
+
+Well, it's obviously not as simple as just using 128 byte padding all
+the time, but the basic idea of, 'choose required work-arounds, and
+optimisations independently of each other', is fairly simple, (in
+concept), and elegant, (as it lets you compile the most finely tuned
+binary).
+
+Maybe we are not thinking along the same lines.
+
+Up to now, selecting a CPU to compile for basically means, "Use
+compiler optimisations for this CPU, and don't care about
+compatibility with anything before it".  Adrian's patch to change this
+to an arbitrary bitmap selection of CPUs to support seems like a good
+idea to me for two reasons, firstly with increasing numbers of
+work-arounds, it's silly to include them all in a kernel for a 386.
+Secondly, ever since we included support for optimising for the 686,
+the idea that a kernels compiled for progressively more recent CPUs
+would be faster than each other on the same hardware has been false -
+a kernel compiled for a Pentium is slower on a 686 than a kernel
+compiled for a 486 is.
+
+So, if we move from selecting a range of CPUs to support, I.E. 386 ->
+whatever, to selecting individual CPUs, E.G. 386, PIV, and Athlon,
+there is no question about which workarounds we should include.  By
+the way, I am talking about including them at compile time, not
+checking at run time whether they are needed - maybe I wasn't clear
+about that.  I don't see the point in checking at runtime - any kernel
+that supports multiple CPUs is not optimial anyway, so why bother
+trying to optimise it at all?  I know there is another way of looking
+at it, that distributions will want a kernel that runs on anything,
+(well, these days, probably a 486 or higher CPU), that is not
+particularly sub-optimial on any CPU, so that users can just install
+it, and have it work.  In that case, I totally agree with you that 128
+byte padding is the most sensible way to go, but that is a
+distribution thing.  Anybody who compiles their own kernel is probably
+going to want to compile it for the processor it's destined to run on,
+rather than make a generic kernel, unless they are making a boot disk
+for emergencies, in which case performance is not usually an issue.
+So, the question of which workarounds to include is simple, but what
+to do about optimisation?  In the current model, where you are
+selecting a range of CPUs to support, (E.G. 386->Pentium), the
+question is answered by saying, OK, we'll optimise for the most recent
+processor in that range.  With an arbitrary selection, E.G. PIV and
+Athlon, which do you pad for?  Whichever is least harmful to
+performance on the others?  This is what I meant by simple and elegant
+- you just present independent choice to the user in the
+configurator.
+
+> 2. It would drive developers nuts if it was used for anything other than
+>    a couple of critical functions (cache size would be one).
+
+OK, well by using the 'optimisation' setting simply for setting cache
+size alone, you'd still get a nice tunable kernel.  Much better than
+just setting it to an arbitrary value.
+
+> 3. Are there valid situations where you would need it? This isn't a
+>    rhetorical question. Your example would be fine if somebody really
+>    needed to do that.
+
+Personally, I compile specific kernels for all of my boxes separately.
+No box runs any kind of generic kernel in normal use, so I'd like to
+see as many unnecessary workarounds removed from the code as possible
+at compile time, and appropriate compiler optimisations for only the
+specific CPU the kernel is destined for.  That maximises kernel
+performance on that mahcine.  On the other hand, if I'm working on an
+embedded project with a 386 or a 486, I'm usually running the same
+environment on a more powerful box as well, for testing purposes, so I
+need workarounds for the, (E.G. Athlon), CPU in the development box,
+but I don't want performance optimisations for that faster CPU,
+especially if they have a negative effect on the embedded CPU.
+
+John.

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272417AbRH3UsZ>; Thu, 30 Aug 2001 16:48:25 -0400
+	id <S272445AbRH3Utz>; Thu, 30 Aug 2001 16:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272444AbRH3UsF>; Thu, 30 Aug 2001 16:48:05 -0400
-Received: from bugs.unl.edu.ar ([168.96.132.208]:50052 "HELO bugs.unl.edu.ar")
-	by vger.kernel.org with SMTP id <S272443AbRH3UsD>;
-	Thu, 30 Aug 2001 16:48:03 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: =?iso-8859-1?q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: ipfilter on kernel 2.2
-Date: Thu, 30 Aug 2001 17:47:37 -0300
-X-Mailer: KMail [version 1.3]
+	id <S272446AbRH3Utp>; Thu, 30 Aug 2001 16:49:45 -0400
+Received: from d-dialin-2885.addcom.de ([213.61.82.5]:55534 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S272445AbRH3Uti>; Thu, 30 Aug 2001 16:49:38 -0400
+Date: Thu, 30 Aug 2001 22:49:24 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Erik Tews <erik.tews@gmx.net>
+cc: Alan Cox <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.9-ac4
+In-Reply-To: <20010830181856.A6691@no-maam.dyndns.org>
+Message-ID: <Pine.LNX.4.33.0108302130420.4426-100000@vaio>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20010830204738.67A892AB44@bugs.unl.edu.ar>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to use ipfilter on a server with kernel 2.2.19, but in the 
-ipfilter documentation it always talks about patches and other stuff for 
-kernel 2.0.31.
-What should I do differnet with a 2.2.19 kernel?
+On Thu, 30 Aug 2001, Erik Tews wrote:
 
-Saludos... :-)
+> On Thu, Aug 30, 2001 at 03:46:37PM +0100, Alan Cox wrote:
+> > 2.4.9-ac4
+> > o	Fix X.75 with new hisax drivers and an isdn	(Kai Germaschewski)
+> > 	disconnect race
+> 
+> What is that exactly? I got the problem that mppp is not working
+> correctly with 2.4.9 and 2.4.10-pre2 (and I tried some 2.4.9-ac too).
 
--- 
-Porqué usar una base de datos relacional cualquiera,
-si podés usar PostgreSQL?
------------------------------------------------------------------
-Martín Marqués                  |        mmarques@unl.edu.ar
-Programador, Administrador, DBA |       Centro de Telematica
-                       Universidad Nacional
-                            del Litoral
------------------------------------------------------------------
+These fixes only affect the new ST5481 USB driver.
+
+> When I came to my router, I had the following lines on my console
+> 
+> isdn_ppp_mp_receive: lpq->ppp_slot -1
+> isdn_ppp_mp_receive: lpq->ppp_slot -1
+> isdn_ppp_mp_receive: lpq->ppp_slot -1
+> isdn_ppp_mp_receive: lpq->ppp_slot -1
+> isdn_ppp_xmit: lp->ppp_slot -1
+
+MPPP is still buggy, and unfortunately nobody seems to have the time to 
+fix it - probably because it seems easier to rewrite it than to fix the 
+mess.
+
+--Kai
+
+

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbSLCMKV>; Tue, 3 Dec 2002 07:10:21 -0500
+	id <S261645AbSLCMRq>; Tue, 3 Dec 2002 07:17:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266271AbSLCMKV>; Tue, 3 Dec 2002 07:10:21 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42676 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265414AbSLCMKU>;
-	Tue, 3 Dec 2002 07:10:20 -0500
-Date: Tue, 3 Dec 2002 12:15:21 +0000
+	id <S261868AbSLCMRq>; Tue, 3 Dec 2002 07:17:46 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:50356 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261645AbSLCMRp>;
+	Tue, 3 Dec 2002 07:17:45 -0500
+Date: Tue, 3 Dec 2002 12:22:38 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Valdis.Kletnieks@vt.edu
+To: Ian Chilton <ian@ichilton.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: lkml, bugme.osdl.org?
-Message-ID: <20021203121521.GB30431@suse.de>
+Subject: Re: 2.4.20 Compile Failure
+Message-ID: <20021203122238.GD30431@suse.de>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu>
+	Ian Chilton <ian@ichilton.co.uk>, linux-kernel@vger.kernel.org
+References: <20021203120928.GC8351@buzz.ichilton.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu>
+In-Reply-To: <20021203120928.GC8351@buzz.ichilton.co.uk>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 03, 2002 at 02:24:04AM -0500, Valdis.Kletnieks@vt.edu wrote:
- > Out of curiosity, is it preferred that if bugs/patches get found, that they
- > be posted here, to the Bugzilla database, or both?  I've been putting them
- > at both places, so there's discussion here and a history there...
+On Tue, Dec 03, 2002 at 12:09:29PM +0000, Ian Chilton wrote:
 
-- simple things like compile errors
-  here. no need to clog up bugzilla with lots of trivial things.
+ > If I remove this..:
+ > --- DRM 4.1 drivers
+ > <*>   SiS
+ > ...it works fine.
+ > drivers/char/drm/drm.o: In function `sis_fb_alloc':
+ > drivers/char/drm/drm.o(.text+0x73d8): undefined reference to
+ > `sis_malloc'
+ > drivers/char/drm/drm.o(.text+0x7486): undefined reference to `sis_free'
+ > drivers/char/drm/drm.o: In function `sis_fb_free':
+ > drivers/char/drm/drm.o(.text+0x74f9): undefined reference to `sis_free'
+ > drivers/char/drm/drm.o: In function `sis_final_context':
+ > drivers/char/drm/drm.o(.text+0x791f): undefined reference to `sis_free'
+ > make: *** [vmlinux] Error 1
 
-- architecture xxx doesn't compile
-  there's a few of these now in bugzilla, and personally I don't think
-  they belong there. Any arch other than i386 is always going to be
-  playing catchup, and is nearly always out of date in mainline.
-
-- trivial patches
-  send to rusty, cc here.
-
-- anything else
-  here. if you don't get a quick-fix, bugzilla it too.
-  this way important bugs won't get lost amongst the archives.
-  (as long as bugzilla remains usable)
-
-whilst on the subject of bugzilla:
-a few people (myself included) go through the bug database once a week
-or so pruning out-of-date/fixed entries. So far the ones I've closed have
-been quite sensible, but there are a few there of the form..
-
-"xxx doesn't work in 2.5.47", then Rusty's module rewrite happened,
-and the tester didn't (or couldn't) see if it got fixed in subsequent
-kernels. I'll send out pings to such reports when they get to something
-like 5 kernels old. If the problem then doesn't get re-ACKed, I'll
-close it. Any objections?
+compile in the sis frame buffer too. They need each other iirc.
 
 		Dave
-
 -- 
 | Dave Jones.        http://www.codemonkey.org.uk
 | SuSE Labs

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267433AbTB1DEh>; Thu, 27 Feb 2003 22:04:37 -0500
+	id <S267436AbTB1DKB>; Thu, 27 Feb 2003 22:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267436AbTB1DEh>; Thu, 27 Feb 2003 22:04:37 -0500
-Received: from h-64-105-34-105.SNVACAID.covad.net ([64.105.34.105]:53378 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267433AbTB1DEg>; Thu, 27 Feb 2003 22:04:36 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 27 Feb 2003 19:14:48 -0800
-Message-Id: <200302280314.TAA11682@baldur.yggdrasil.com>
-To: miquels@cistron-office.nl
-Subject: Re: Patch: 2.5.62 devfs shrink
-Cc: linux-kernel@vger.kernel.org
+	id <S267437AbTB1DKB>; Thu, 27 Feb 2003 22:10:01 -0500
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:13707 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id <S267436AbTB1DKA>; Thu, 27 Feb 2003 22:10:00 -0500
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200302280318.h1S3IoxM008387@wildsau.idv.uni.linz.at>
+Subject: emm386 hangs when booting from linux
+To: linux-kernel@vger.kernel.org
+Date: Fri, 28 Feb 2003 04:18:50 +0100 (MET)
+Cc: herp@wildsau.idv.uni.linz.at (Herbert Rosmanith)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-miquels@cistron-office.nl wrote:
->If you're making it not 100% compatible anyway, now is the time
->to do away with that horrible 'disc' spelling ;). 'disk' is a
->harddisk or floppy disk, 'disc' is for compact disc (try Google
->on both spellings and you'll see that the world agrees ..).
->Just do s/disc/disk/g in devfs_register().
 
-	The names of devices are not chosen by fs/devfs/*.[ch].  They
-are chosen by the client code in device drivers and elsewhere that
-call call devfs.  In the case of the /dev/discs/ names, they are
-chose by devfs_{create,remove}_partitions in fs/partitions/check.c,
-which, from the comments, was apparently written by Linus Torvalds
-and Russell King.
+hello,
 
-Tangential note:	
+for some reason, I am using the "switch to 16 bit realmode" function
+present in the linux kernel to execute various 16bit code. One thing
+that I am doing is to read the mbr off a harddisk to 0x7c00 and then
+jump to there. This allows to e.g. "quickboot dos" from linux without
+having to go through bios startup.
 
-	For what it's worth, my preference would be to change from
-/dev/discs/disc0/part1 to /dev/disk/0/part1, but I think it would
-probably do more harm than good to try to coordinate such a change
-with switching devfs.  If you want to try to make a change where
-people will eventually have to update their systems, I think it would
-probably make more sense to survey existing devfs naming practices and
-try to come up with some recommendations harmonize them a bit.  For
-example, should the directory names be singular or plural (/dev/loop
-or /dev/loops, /dev/disk or /dev/disks)?  I would recommend signular
-because it is less English-centric.  There are probably four or five
-recommendations like these that could be put into a Documentation
-file.  More consistent naming schemes in anything tend to make
-a system more readily usable.
+I got this working with *one* exception: as soon as I load emm386
+in config.sys, the system hangs. It doesn't hang completely, e.g.
+the num-lock led changes light when pressing num-lock, and ctrlaltdel
+reboots the system. When I "REM"ark the emm386.exe, then dos will
+boot and display a "C:\>" prompt.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+"machine_real_restart" is in <arch/i386/kernel/process.c> - possibly
+it forgets to reset something particular in the cpu/mmu...and later on,
+emm386.exe will hang the system. Interestingly, DOS4GW will *not* hang
+the system and vertex-inducing games like doom & co. will work like
+a charm (woah ... I haven't been playing doom for ages! <streisand> "memories"
+</streisand>).
+
+emm386.exe is about 116k byte, so it's probably not written in asm.
+I've been searching the web for source-code for some emm, but so far,
+no luck. any hint about what could be wrong? maybe I am only 1 bit
+away from success, but I will like searching the bit in the haystack.
+
+thanks in advance,
+herp

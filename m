@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVBHPgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVBHPgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVBHPgD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 10:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVBHPgD
+	id S261500AbVBHPgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 10:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVBHPgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 10:36:03 -0500
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:40865 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261490AbVBHPgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 10:36:00 -0500
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-References: <20050203033459.GA29409@bitmover.com>
-	<20050203193220.GB29712@sd291.sivit.org>
-	<20050203202049.GC20389@bitmover.com>
-	<20050203220059.GD5028@deep-space-9.dsnet>
-	<20050203222854.GC20914@bitmover.com>
-	<20050204130127.GA3467@crusoe.alcove-fr>
-	<20050204160631.GB26748@bitmover.com>
-	<Pine.LNX.4.61.0502060025020.6118@scrub.home>
-	<20050206173910.GB24160@bitmover.com>
-	<Pine.LNX.4.61.0502061859000.30794@scrub.home>
-	<20050207021030.GA25673@bitmover.com>
-	<Pine.LNX.4.61.0502071516100.30794@scrub.home>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Tue, 08 Feb 2005 15:36:02 +0000
-In-Reply-To: <Pine.LNX.4.61.0502071516100.30794@scrub.home> (Roman Zippel's
- message of "Tue, 8 Feb 2005 15:57:14 +0100 (CET)")
-Message-ID: <tnxu0on3vz1.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Tue, 8 Feb 2005 10:36:23 -0500
+Received: from 66-162-60-3.gen.twtelecom.net ([66.162.60.3]:15264 "EHLO
+	lpdsrv13.logicpd.com") by vger.kernel.org with ESMTP
+	id S261500AbVBHPgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 10:36:20 -0500
+Message-ID: <4208DC72.8010401@visi.com>
+Date: Tue, 08 Feb 2005 09:36:18 -0600
+From: Jeff Cooper <jacooper@visi.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Disk corruption problem with nVidia motherboard and Silicon Image
+  680 ATA controller
+References: <3vlXO-27l-9@gated-at.bofh.it> <3vmhl-2kt-33@gated-at.bofh.it>
+In-Reply-To: <3vmhl-2kt-33@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Feb 2005 15:36:19.0294 (UTC) FILETIME=[EF4CF7E0:01C50DF3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> wrote:
-> Did you know, there are other scm systems out 
-> there? Once one studied a few of them, one basically also knows how bk 
-> works and it certainly helps to put your "facts" into perspective.
+Prakash Punnoor wrote:
+> Jeff Cooper schrieb:
+> 
+>> I'm running a Gentoo system with a 2.6.10-r6 kernel.  This is the
+>> gentoo-dev-sources ebuild.  My motherboard is a Asus A7N8X with an
+>> nForce2 nVidia chipset.  The system has five 40 gig hard drives, all set
+>>
+>>
+>> Thanks for any advice anyone can offer!
+> 
+> 
+> Search in bios for ext-p2p discard time and set it to a higher value, at 
+> least
+> 1ms. I alrealdy reported this to lkml but there apperantly is no 
+> interest in
+> implementing a kernel quirk.
+> 
 
-On the same line of ideas, a script that some people might find useful:
+Well I checkd my BIOS and it doesn't have the ability to adjust that 
+option.  There are no new updates for the BIOS of my motherboard or the 
+SIIG ATA controllers.
 
-http://wiki.gnuarch.org/moin.cgi/BKCVS_20to_20Arch_20Script_20for_20Linux_20Kernel
+Is this a SATA option?  I only have PATA drives in my system.
 
-Catalin
+Does anyone else have any other suggestions?
 
+thanks,
+Jeff

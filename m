@@ -1,145 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbTAUIKR>; Tue, 21 Jan 2003 03:10:17 -0500
+	id <S266406AbTAUIjy>; Tue, 21 Jan 2003 03:39:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266406AbTAUIKR>; Tue, 21 Jan 2003 03:10:17 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:959 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266379AbTAUIKP>; Tue, 21 Jan 2003 03:10:15 -0500
-Date: Tue, 21 Jan 2003 00:19:11 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.5.59-mjb1 (scalability / NUMA patchset)
-Message-ID: <19610000.1043137151@titus>
-In-Reply-To: <190030000.1042787514@titus>
-References: <19270000.1038270642@flay><134580000.1039414279@titus><32230000.1039502522@titus><568990000.1040112629@titus><21380000.1040717475@titus> <821470000.1041579423@titus> <214500000.1041821919@titus> <676880000.1042101078@titus> <922170000.1042183282@titus> <437220000.1042531505@titus> <190030000.1042787514@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S266537AbTAUIjy>; Tue, 21 Jan 2003 03:39:54 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:28314 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266406AbTAUIjw>; Tue, 21 Jan 2003 03:39:52 -0500
+Message-Id: <200301210835.h0L8ZhOf002653@eeyore.valparaiso.cl>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch?: linux-2.5.59/sound/soundcore.c referenced non-existant errno variable 
+In-Reply-To: Your message of "Mon, 20 Jan 2003 11:53:54 PST."
+             <200301201953.LAA15002@adam.yggdrasil.com> 
+Date: Tue, 21 Jan 2003 09:35:43 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Adam J. Richter" <adam@yggdrasil.com> said:
+> On Mon, 20 Jan 2003, Horst von Brand wrote:
+> >"Adam J. Richter" <adam@yggdrasil.com> said:
+> >> 	To my knowledge, a goto in this case is not necessary for
+> >> avoiding code duplication.  If there are a small number of failable
+> >> steps that may need to be unwound, you could adopt the style of my patch
+> >> (which shortened the code slightly):
+> >> 
+> >>        if (step1() == ok) {
+> >> 		if (step2() == ok) {
+> >> 			if (strep3() == ok)
+> >> 				return OK;
+> >> 			undo_step2();
+> >> 		}
+> >> 		undo_step1();
+> >> 	}
+> >> 	return failure;
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
+> >The "undo_stepX()"'s pollute the CPU's cache,
+> 
+> 	I believe my example should generate exactly the same machine
+> object code as what Petr was describing,
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+You very much overestimate current C compilers. The code in real examples
+is much more complicated than a single undo_foo line, with its own control
+structures. 
 
-http://www.aracnet.com/~fletch/linux/2.5.59/patch-2.5.59-mjb1.bz2
+>                                          that is, something like this,
+> which is longer and has more labels to remember or potentially a
+> mistake in jumping to the wrong label:
+> 
+> 	if (step1() != ok)
+> 		goto abort1;
+> 
+> 	if (step2() != ok)
+> 		goto abort2;
+> 
+> 	if (step3() == ok)
+> 		return OK;
+> 
+> 	undo_step2();
+> abort2:
+> 	undo_step1();
+> abort1:
+> 	return failure;
+> 
+> 	In both cases, the compiler is normally going to put all of
+> error handling code after all of the success code,
 
-Since 2.5.58-mjb2 (~ = changed, + = added, - = dropped)
+In a simple case like this, maybe; in complex cases it won't.
 
-Notes:
-Lots of good stuff merged up with Linus. x440 distcontigmem seems to have
-problems in some circumstances, but APCI should work in this release.
+>                                                    so the only extra
+> instructions read into the cache will be from the tail end of the
 
-merged with Linus:
+> >and (even much worse) the gentle reader's.
+> 
+> 	Don't know what you mean here, given that the number of
+> steps is small.
 
-- summit1					James Cleverdon / John Stultz
-- summit2					James Cleverdon / John Stultz
-- summit3					James Cleverdon / John Stultz
-- summit4					James Cleverdon / John Stultz
-- summit5					James Cleverdon / John Stultz
-- min_numasched					Martin J. Bligh
-- numasched_ilb					Michael Hohnbaum
-- numa_rebalancer				Erich Focht
-- vm_enough_memory				Martin J. Bligh
+The number of steps in cleanups generally isn't all that small. Besides, a
+stack of:
 
-Other:
+   label2:
+       undo_2;
+   label1:
+       undo_1;
+   label0:
+       finish_up;
+       return;
 
-+ ingosched					Ingo Molar
-~ sched_tunables				Robert Love
-+ acpi_x440_hack				Anonymous Coward
-+ numaq_ioapicids				William Lee Irwin
-+ oprofile_p4					John Levon
-+ starfire					Ion Badulescu
+is easier to check that all undoX' get done in the right order.
 
-Pending:
-Notsc automatic enablement (someone, please ... anyone?)
-scheduler callers profiling (Anton)
-PPC64 NUMA patches (Anton)
-Lockless xtime structures (Andi)
-Child runs first (akpm)
-New qlogic driver (Badari ??)
+[...]
 
+> >screws up or gives bad code due to compiler
+> >bugs.
+> 
+> 	Can you elaborate on this?  "if()" obviously is a widely used
+> facility, so I assume you're talking about something more specific,
+> but I don't know what.  I'd be interested if you could point me to the
+> specific bug or bugs you are refererring to.
 
-dcache_rcu					Dipankar / Maneesh
-	Use RCU type locking for the dentry cache.
- 
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
+There have been cases where gcc generated rather funny code for inline
+functions, or just didn't optimize over inline function boundaries.
 
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
+> >Plus has the gentle reader who wants to check error handling chasing
+> >all over the place.
+> 
+> 	But that is even more the case with gotos, which involves
+> remembering labels and noramlly has no indentation to show the
+> structure of the branches.
 
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
+The structure (in the kernel's use of this) is very simple, linear as shown
+above. Sure, you can make a real mess, but I'm saying you should be careful
+not to.
 
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
+> >> 	In general, I recommend using goto only when it is
+> >> topologically necessary to avoid code duplication or due to some
+> >> compiler quirk where you want to sqeeze a few more cycles out of code
+> >> in a critical path.  That way, the use of goto basically flags these
+> >> unusual cases for other programmers.
+> 
+> >IMVHO, any general criterion that is not strictly based on code
+> >understandability, possibly mitigated by a justified need of maximal speed,
+> >is flawed. This might come close, but won't cut it for me.
+> 
+> 	Firstly, I think my recommendation happens to be "based on
+> code understandability, possibly mititgated by a justified need for
+> maximal speed".
 
-ingosched					Ingo Molnar
-	Modify NUMA scheduler to have independant tick basis.
+Topology sure has a relation to the cognitive processes involved in code
+understanding, but can't be all AFAICS. "Topologically necessary" doesn't
+consider size of code involved (perhaps duplicating one simple line is
+clearer code in the end), and doesn't distinguish between functions of code
+streches, i.e., main code vs auxiliary code (like error handling). Perhaps
+a goto is topologically unnecessary, placing the error handling into the
+main code stream, or even worse, placing main and auxiliary code in similar
+positions, where it is harder to distinguish between them. And code is put
+to different uses, sometimes I'll concentrate on the main flow (error
+handling is irrelevant), others I'm checking errors are handled in the
+right order (main flow is unimportant then), a separation is useful. What
+distinguishes stepX() and undoX() in your example is just their names, if
+they where a dozen lines of code each with their own control structures,
+you'd have no clue which is main code and which is cleanup. In Linus'
+style, the error handling code is all together, at the end, clearly
+separated from the main flow of control.
 
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+> 	Secondly, at the risk of going off on a tangent, I also happen
+> to think your thesis is not well defined and also wrong in some cases.
 
-local_pgdat					William Lee Irwin
-	Move the pgdat structure into the remapped space with lmem_map
+> 	Your thesis uses the terms "strictly" and "flawed" without
+> defining them well.  If you were to replace those terms with a more
+> objective descriptions (e.g., "will likely cause more bugs to be
+> missed" if that is only what you mean) then it would be clearer
+> whether I (or any other reader) agrees or disagrees with your claim,
+> and exactly where.
 
-notsc						Martin Bligh
-	Enable notsc option for NUMA-Q (new version for new config system)
+There has not been (and probably can't be) a quantitative comparison of
+debuggability of code written with differing styles and restrictions of
+goto use, so this is moot.
 
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
+> 	To the extent that I think we might agree on possible meanings
+> for terms like "flawed", I think your thesis is technically false
+> because it fails to consider that there may be other desired benefits.
+> I can think of numerous general criteria that are not "strictly based
+> on the need for understandability, possibly mititigated by speed."
+> For instance, deleting functionality can make code more understandable
+> and faster, and yet I would not say that every criteria of the form
+> "functionality X is should be provided for reason Y" is flawed.
 
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
+If you are bound to "reason Y" has to be provided, the question is not IF
+but HOW. And the "cut out crap" is an extremely fruitful design strategy.
 
-noframeptr					Martin Bligh
-	Disable -fomit_frame_pointer
+> Otherwise, perhaps you would want to run the following very
+> understandable and fast kernel:
+> 
+> 		/* This is the entire kernel.  It is very understandable
+> 		   and fast! */
+> 		void linux_version_3_0(void) {
+> 			for(;;)
+> 				;
 
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-mpc_apic_id					Martin J. Bligh
-	Fix null ptr dereference (optimised away, but ...)
-
-doaction					Martin J. Bligh
-	Fix cruel torture of macros and small furry animals in io_apic.c
-
-discontig_x440					Pat Gaughen / Chandra
-	SLIT/SRAT parsing for x440 discontigmem
-
-topo_hack					Pat Gaughen
-	Disable some topo stuff for Summit because we're cowards.
-
-acpi_x440_hack					Anonymous Coward
-	Stops x440 crashing, but owner is ashamed of it ;-)
-
-numaq_ioapicids					William Lee Irwin
-	Stop 8 quad NUMA-Qs from panicing due to phys apicid "exhaustion".
-
-oprofile_p4					John Levon
-	Updates for oprofile for P4s. Needs new userspace tools.
-
-starfire					Ion Badulescu
-	64 bit aware starfire driver	
-
--mjb						Martin Bligh
-	Add a tag to the makefile
-
+Right. Full POSIX compatible, I presume.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

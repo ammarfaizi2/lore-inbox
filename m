@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbTIHL4b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 07:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbTIHL4b
+	id S262228AbTIHMGP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 08:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTIHMGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 07:56:31 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:38785
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261623AbTIHL4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 07:56:30 -0400
-Date: Mon, 8 Sep 2003 07:55:24 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6] asm-arm/tlbflush.h needs some extra headers
-In-Reply-To: <20030908084009.A1092@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.53.0309080754240.14426@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.53.0309080026100.14426@montezuma.fsmlabs.com>
- <20030908084009.A1092@flint.arm.linux.org.uk>
+	Mon, 8 Sep 2003 08:06:15 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:59562 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262228AbTIHMGO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 08:06:14 -0400
+Message-ID: <3F5C70EE.7010505@softhome.net>
+Date: Mon, 08 Sep 2003 14:07:10 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Fruhwirth Clemens <clemens-dated-1063831246.78c1@endorphin.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: nasm over gas?
+References: <snJB.8dk.25@gated-at.bofh.it> <snTm.8qD.41@gated-at.bofh.it> <sTpW.18Z.19@gated-at.bofh.it> <teE5.2XZ.9@gated-at.bofh.it>
+In-Reply-To: <teE5.2XZ.9@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Sep 2003, Russell King wrote:
-
-> Hmm, does akpm's -mm6 patch contain any header file cleanups?  I know
-> this file built in Linus' bk tree last night, although this wasn't
-> for SA1100.
+Fruhwirth Clemens wrote:
 > 
-> Can you check whether arch/arm/kernel/setup.c includes asm/cacheflush.h
-> just before asm/tlbflush.h (which is a recent fix which went into Linus'
-> tree recently.)
+> I started to work on converting it to gas, but I stopped after the first
+> hour. It's just too much work to be fun. I won't convert it.
+> 
+> Regards, Clemens
 
-Nope it does not. I'll pick that from Linus' tree.
+   > masm ,,,
+   % objdump | less
 
-Thanks
+   Probably this way it could be easier/funnier ;-)
+

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbRCGAIT>; Tue, 6 Mar 2001 19:08:19 -0500
+	id <S129727AbRCGAMT>; Tue, 6 Mar 2001 19:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129734AbRCGAIJ>; Tue, 6 Mar 2001 19:08:09 -0500
-Received: from jalon.able.es ([212.97.163.2]:31945 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129733AbRCGAH5>;
-	Tue, 6 Mar 2001 19:07:57 -0500
-Date: Wed, 7 Mar 2001 01:07:34 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Ying Chen <yingchenb@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: threads
-Message-ID: <20010307010734.C1132@werewolf.able.es>
-In-Reply-To: <F41oVQAiEGKROptzzpY000014a6@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <F41oVQAiEGKROptzzpY000014a6@hotmail.com>; from yingchenb@hotmail.com on Wed, Mar 07, 2001 at 00:55:55 +0100
-X-Mailer: Balsa 1.1.2
+	id <S129737AbRCGAMJ>; Tue, 6 Mar 2001 19:12:09 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:41477 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129727AbRCGALw>; Tue, 6 Mar 2001 19:11:52 -0500
+Message-Id: <200103070010.f270ApO14502@aslan.scsiguy.com>
+To: "Phil Oester" <kernel@theoesters.com>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Error compiling aic7xxx driver on 2.4.2-ac13 
+In-Reply-To: Your message of "Tue, 06 Mar 2001 15:43:22 PST."
+             <000f01c0a697$3b1924f0$0200a8c0@theoesters.com> 
+Date: Tue, 06 Mar 2001 17:10:51 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>make[5]: Entering directory
+>`/usr/src/linux-2.4.2-ac13/drivers/scsi/aic7xxx/aicasm'
+>lex  -t aicasm_scan.l > aicasm_scan.c
+>gcc -I/usr/include -ldb aicasm_gram.c aicasm_scan.c aicasm.c
+>aicasm_symbol.c -o aicasm
+>aicasm_symbol.c:39: db/db_185.h: No such file or directory
+>make[5]: *** [aicasm] Error 1
+>make[5]: Leaving directory
+>`/usr/src/linux-2.4.2-ac13/drivers/scsi/aic7xxx/aicasm'
 
-On 03.07 Ying Chen wrote:
-> 2. We ran multi-threaded application using Linux pthread library on 2-way 
-> SMP and UP intel platforms (with both 2.2 and 2.4 kernels). We see 
-> significant increase in context switching when moving from UP to SMP, and 
-> high CPU usage with no performance gain in turns of actual work being done 
-> when moving to SMP, despite the fact the benchmark we are running is 
-> CPU-bound. The kernel profiler indicates that the a lot of kernel CPU ticks 
-> went to scheduling and signaling overheads. Has anyone seen something like 
-> this before with pthread applications running on SMP platforms? Any 
-> suggestions or pointers on this subject?
-> 
+Is it prudent to build the assembler from within the kernel
+build?  I'd personally love to ditch the aic7xxx_seq.h and
+aic7xxx_reg.h files from the kernel distribution and I even
+have the makefiles for version 6.1.6 of the driver.  The only
+question is, with so many distributions out there can we rely
+on lex, yacc, and berkeley DB existing on the host system?
 
-Too much contention ? How frequently do you create and destroy threads ?
-How much frequently do they access shared-writable-data ?
-How do you protect them ?
+As to your *real* problem.  My guess is that the dependency
+to regenerate the files is getting hit.  This often happens
+during a patch upgrade where only one of the two generated files
+is updated.  If you touch aic7xxx_reg.h and aic7xxx_seq.h the
+build will work fine.  Alternatively, you can figure out how to
+get Berekeley DB installed on your system.
 
-It seems like your system spents more time creating and killing threads
-that doing real work.
-
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.2-ac13 #3 SMP Wed Mar 7 00:09:17 CET 2001 i686
-
+--
+Justin

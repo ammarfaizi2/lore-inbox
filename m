@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277112AbRKMRPo>; Tue, 13 Nov 2001 12:15:44 -0500
+	id <S277258AbRKMRPX>; Tue, 13 Nov 2001 12:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277165AbRKMRPe>; Tue, 13 Nov 2001 12:15:34 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:43793 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S277112AbRKMRPS>; Tue, 13 Nov 2001 12:15:18 -0500
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x has finally made it!
-In-Reply-To: <Pine.GSO.4.33.0111131002200.14971-100000@gurney>
-	<20011113171836.A14967@emma1.emma.line.org>
-	<m34rnyk511.fsf@belphigor.mcnaught.org>
-	<20011113174250.A15774@emma1.emma.line.org>
-From: Doug McNaught <doug@wireboard.com>
-Date: 13 Nov 2001 12:15:12 -0500
-In-Reply-To: Matthias Andree's message of "Tue, 13 Nov 2001 17:42:50 +0100"
-Message-ID: <m3vggeiodb.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S277165AbRKMRPE>; Tue, 13 Nov 2001 12:15:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45066 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277112AbRKMRO4>; Tue, 13 Nov 2001 12:14:56 -0500
+Subject: Re: Merge BUG in 2.4.15-pre4 serial.c
+To: dalecki@evision.ag
+Date: Tue, 13 Nov 2001 17:11:22 +0000 (GMT)
+Cc: rmk@arm.linux.org.uk (Russell King), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <3BF15A72.793A1BF2@evision-ventures.com> from "Martin Dalecki" at Nov 13, 2001 06:37:54 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E163h5m-0001kJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
+> Well I still think that the 8 lines can be deleted. Once again my famous
+> notbook is perfectly __i386__ and doesn't contain any devices served by
+> serial.c
+> unless I configure IrDA. Pushing the port numbers artificially behind
+> doesn't make sense for me and makes some setserial unknown tricks
+> neccessary
 
-> On Tue, 13 Nov 2001, Doug McNaught wrote:
-> 
-> > It's a benchmark, lighten up!  ;)
-> 
-> Well, he wanted to benchmark everyday use, and disk latency is also an
-> issue for everyday use, of course;
-
-But it's more a measure of your disk subsystem than your VM efficiency 
-(unless something is badly wrong). 
-
->                                   so that's kind of pointless getting
-> rid of I/O and benchmarking the cache. fsync() efficiency comes into
-> play and wants to be benchmarked as well. How do you know if your
-> fsync() syncs what's needed, the whole partition, the partition's meta
-> data (softupdates!) or the world (all blocks)?
-
-A very good point that I hadn't considered. 
-
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+Renumbering everyones serial ports by suprise seems to be a 2.5 thing

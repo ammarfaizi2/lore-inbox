@@ -1,104 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317789AbSFMWnq>; Thu, 13 Jun 2002 18:43:46 -0400
+	id <S317844AbSFMXV1>; Thu, 13 Jun 2002 19:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317829AbSFMWnp>; Thu, 13 Jun 2002 18:43:45 -0400
-Received: from ierw.net.avaya.com ([198.152.13.101]:50305 "EHLO
-	ierw.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S317789AbSFMWno>; Thu, 13 Jun 2002 18:43:44 -0400
-Message-ID: <3D09201A.5060305@avaya.com>
-Date: Thu, 13 Jun 2002 16:43:38 -0600
-From: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Organization: Avaya, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.0rc2) Gecko/20020512 Netscape/7.0b1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Richard Seaman, Jr." <dick@seaman.org>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.4.18
-In-Reply-To: <Pine.LNX.4.44.0206132007010.8525-100000@elte.hu> <3D090B4D.4060104@avaya.com> <20020613171101.A20472@seaman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Jun 2002 22:43:55.0843 (UTC) FILETIME=[CCB06930:01C2132B]
+	id <S317852AbSFMXV0>; Thu, 13 Jun 2002 19:21:26 -0400
+Received: from ns.suse.de ([213.95.15.193]:2835 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317844AbSFMXVZ>;
+	Thu, 13 Jun 2002 19:21:25 -0400
+Date: Fri, 14 Jun 2002 01:17:09 +0200
+From: Dave Jones <davej@suse.de>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Andrey Panin <pazke@orbita1.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager (3/4/5xxx series)
+Message-ID: <20020614011709.E16772@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	James Bottomley <James.Bottomley@HansenPartnership.com>,
+	Andrey Panin <pazke@orbita1.ru>, linux-kernel@vger.kernel.org
+In-Reply-To: <pazke@orbita1.ru> <200206131548.g5DFmv407602@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And my patch *MAKES* it compliant with these definitions. The scheduler 
-was *NOT* compliant with these definitions.
+On Thu, Jun 13, 2002 at 11:48:57AM -0400, James Bottomley wrote:
+ > > [Q1] Will it be better to  create separate directory for PC
+ > > architecture and split some PC'isms from arch/i386/generic ? Right now
+ > > it contains acpi.c, bootflag.c and dmi_scan.c which are not generic in
+ > > any way :) 
+ > The thinking currently is that arch/i386 is really PC plus a few exceptions 
+ > rather than a truly generic x86 plus additonal machine architectures, so it 
+ > makes sense under this view that `generic' and PC be the same thing.
 
-You've quoted me out of context below. My statement that you quote 
-applies to SCHED_OTHER processes.
+Would it make sense for the subarchs to use the generic code where possible,
+and only reimplement it's own (for eg) apic.c as and when it actually
+*needs* to be different ?
 
-Please see my original post with the patch. And thanks for reinforcing 
-what I was saying!
+For the most part, I'd expect the existing subarchs we know about
+(sgi visws, voyager, numaq), the amount of "own version" copies of
+files would be quite low.
 
-- Bhavesh
+The big advantage of doing it this way, is that it reduces the overhead
+of having to update every subarch when someone changes function
+parameters. The downside is possibly slightly ickier Makefile's.
 
-Richard Seaman, Jr. wrote:
-> On Thu, Jun 13, 2002 at 03:14:53PM -0600, Bhavesh P. Davda wrote:
-> 
-> 
->>I would think that the logical place to add any process to the runqueue 
->>would be the back of the runqueue. If all processes are ALWAYS added to 
->>the back of the runqueue, then every process is GUARANTEED to eventually 
->>be scheduled. No process will be starved indefinitely.
-> 
-> 
-> FYI, from SuSv3:
-> 
-> "Under the SCHED_FIFO policy, the modification of the definitional
-> thread lists is as follows:
-> 
-> 1. When a running thread becomes a preempted thread, it becomes
-> the head of the thread list for its priority.
-> 
-> 2. When a blocked thread becomes a runnable thread, it becomes
-> the tail of the thread list for its priority.
-> 
-> ....
-> 
-> 7. If a thread whose policy or priority has been modified other
-> than by pthread_setschedprio() is a running thread or is runnable,
-> it then becomes the tail of the thread list for its new priority.
-> 
-> 8. If a thread whose policy or priority has been modified by
-> pthread_setschedprio() is a running thread or is runnable, the
-> effect on its position in the thread list depends on the direction
-> of the modification, as follows:
-> 
->    1. If the priority is raised, the thread becomes the tail of
->       the thread list.
->    2. If the priority is unchanged, the thread does not change
->       position in the thread list.
->    3. If the priority is lowered, the thread becomes the head
->       of the thread list.
-> 
-> 9. When a running thread issues the sched_yield() function, the
-> thread becomes the tail of the thread list for its priority.
-> 
-> ...."
-> 
-> Also, regarding SCHED_RR:
-> 
-> "...This policy shall be identical to the SCHED_FIFO policy with the
-> additional condition that when the implementation detects that a
-> running thread has been executing as a running thread for a time
-> period of the length returned by the sched_rr_get_interval() function
-> or longer, the thread shall become the tail of its thread list and
-> the head of that thread list shall be removed and made a running
-> thread......"
-> 
-> I'm not suggesting Linux HAS to comply with these requirements,
-> but its worth consideration.
-> 
+ > > [Q2] May be directory naming like mach-visws, mach-voyager and
+ > > possible  mach-pc will be more convinent ? 
+ > To be more consistent with the way arch/arm does it?  Certainly the renames 
+ > can be done easily enough, what does the rest of the list think?
 
+Sounds quite logical. What does the current patches you have do ?
+I've not had chance to look at them yet.
 
+        Dave
 
 -- 
-Bhavesh P. Davda
-Avaya Inc
-Room B3-B03                     E-mail : bhavesh@avaya.com
-1300 West 120th Avenue          Phone  : (303) 538-4438
-Westminster, CO 80234           Fax    : (303) 538-3155
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,118 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267153AbTB0XEq>; Thu, 27 Feb 2003 18:04:46 -0500
+	id <S267070AbTB0XEH>; Thu, 27 Feb 2003 18:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbTB0XEp>; Thu, 27 Feb 2003 18:04:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13583 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267153AbTB0XEi>; Thu, 27 Feb 2003 18:04:38 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH] New dcache / inode hash tuning patch
-Date: Thu, 27 Feb 2003 23:10:05 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b3m5sd$1ad$1@penguin.transmeta.com>
-References: <20030226164904.GA21342@wotan.suse.de>
-X-Trace: palladium.transmeta.com 1046387690 16972 127.0.0.1 (27 Feb 2003 23:14:50 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 27 Feb 2003 23:14:50 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S267153AbTB0XEH>; Thu, 27 Feb 2003 18:04:07 -0500
+Received: from h-64-105-35-241.SNVACAID.covad.net ([64.105.35.241]:46797 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267070AbTB0XEE>; Thu, 27 Feb 2003 18:04:04 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 27 Feb 2003 15:13:41 -0800
+Message-Id: <200302272313.PAA11724@baldur.yggdrasil.com>
+To: akpm@digeo.com
+Subject: Re: Patch: 2.5.62 devfs shrink
+Cc: alistair@devzero.co.uk, cloos@jhcloos.com, elenstev@mesatop.com,
+       jordan.breeding@attbi.com, linux-kernel@vger.kernel.org,
+       maneesh@in.ibm.com, scole@lanl.gov, solarce@fallingsnow.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030226164904.GA21342@wotan.suse.de>,
-Andi Kleen  <ak@suse.de> wrote:
->
->Unlike the previous version this one should actually compile.
->
->The purpose of the patch is to address the excessive cache misses
->observed on some boxes when accessing the dcache hash table.
+On Tue, 25 Feb 2003, Andrew Morton wrote, about my devfs code shrink:
+>Adam, could you please provide a description of the incompatibilities between
+>this implementation and the present one?  For both kernel and userspace.
 
-I don't think that the hash-list approach is really worth it.
+	OK.  Here is a first draft of what I plan to put in
+linux/Documentation/filesystems/devfs/small-devfs.  Corrections and
+comments are welcome.
 
-There are two things the hash-list helps with:
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
- - memory usage
 
-   But quite frankly, if the hash list heads are actually noticeable
-   memory users, the hash is likely to be _way_ too big. The list heads
-   are _much_ smaller than the entries they point to, the hash list just
-   shouldn't be big enough that it really matters.
+---------------------------CUT HERE----------------------------------
 
- - hash list cache footprint
+This document describes the differences between Richard Gooch's
+original devfs and my "small" devfs.
 
-   Again: the hash head array itself is at least dense in the cache, and
-   each entry is _much_ smaller than the actual data structures it
-   points to.  So even if you improve the hash heads to be better from a
-   cache standpoint, you're only getting a very small percentage of the
-   real cache costs. 
+This new devfs replaces the internal devfs file system with one
+derived from ramfs, a reduction of more than 2400 lines of source
+code, although file systems based on ramfs rely on the 345 line
+file fs/libfs.c.
 
-   So let's say that the cache costs of the dcache is 4% (according to
-   the oprofile run), then saving a few procent of that is not actually
-   going to be noticeable at a user level.
 
-And the downsides of the hash list is that addition/removal is costlier
-due to the conditionals, and a non-conditional version (a common
-optimization using a special "tail marker entry" that is shared across
-the different chains) has absolutely _horrible_ false sharing
-characteristics on SMP systems. 
+User level differences:
 
-In other words: it may be that our current dentry hashes are too big,
-and that is certainly worth fixing if so.  But the "hlist" approach very
-fundamentally cannot really help the _real_ problem very much, and it
-will (slightly) hurt the case where the hashes are actually cached. 
+1. devfsd replaced by devfs_helper
 
-So I really think that the only longterm fix is to make the lookup data
-structures be "local" to the base of the lookup, in order to get away
-from the inherently non-local nature of the current hash lookups. 
+	devfs_helper implements a subset of devfsd functionality.
+devfsd is not a deamon.  Instead, the new devfs invokes devfs_helper
+with argument for each event.  The new devfs currently only calls
+devfs_helper for "LOOKUP" and "REGISTER" events.  devfs_helper
+uses the existing /etc/devfsd.conf file and supports devfsd's regular
+expression matching.  Like devfsd, devfs_helper is optional.  It is
+available from the following FTP directory.
 
-That "local" thing doesn't have to be on a direct per-directory level
-either, btw.  A fairly simple scheme might be to _force_ some locality
-by having some of the hash bits always come from the parent directory,
-rather than trying to get a "perfect distribution".
+	ftp://ftp.yggdrasil.com/pub/dist/device_control/devfs/
 
-For example, one approach might be to just change the "d_hash()"
-function, to something more like
 
-	#define HASHBITS_DENTRY 5	// just an example value
-	#define HASHBITS_PARENT 5	// just an example value
-	#define HASHBITS_TOTAL (HASHBITS_DENTRY + HASHBITS_PARENT)
+2. Old device names not automatically installed.
 
-	static inline struct list_head * d_hash(struct dentry * parent, unsigned long hash)
-	{
-		unsigned long parenthash = (unsigned long) parent / L1_CACHE_BYTES;
-		parenthash ^= parent->d_hash;
+   Unlike devfsd, devfs_helper does not install old "compatible"
+   device names.  This keeps devfs_helper small, which is particularly
+   important since devfs_helper is invoked repeatedly.
 
-		parenthash = parenthash ^ (parenthash >> HASHBITS_TOTAL);
-		parenthash &= (1 << HASHBITS_TOTAL)-1;
-		hash = hash ^ (hash >> HASHBITS_DENRY);
-		hash &= (1 << HASHBITS_DENTRY)-1;
-		return parenthash ^ hash;
-	}
+   If you want to install a bunch of alternate device
+   names (such as /dev/hda1 for /dev/ide/host0/bus0/target0/lun0/part1),
+   you can do this at boot time after /dev has been mounted.  For
+   example, you could maintain a tree of device nodes to overlay
+   on /dev in, say /dev.overlay, and then add something like the
+   following to a boot script:
 
-ie the high bits are _solely_ based on the parent, while the low bits
-are based on some hash of the parent and the dentry itself.
+	( cd /dev.overlay && tar cf - ) | ( cd /dev && tar xfp - )
 
-(Yeah, don't tell me the hash for the parent sucks.  I'm a retard, and
-the point is really more to try to make the hash "worse" by actually
-giving it more locality, so that lookups within one directory won't blow
-the whole cache).
+   Note that you should not use "cp" or even "cp -a" for this
+   operation, as that "cp" will always try to open devices and
+   read from them.
 
-Will this help? I dunno.  It's kind of a "cheap hash partitioning"
-thing.  It will obviously result in huge hash chain imbalances if you
-for example have only one directory with millions of entries, and
-because of the above that directory will only populate 5% of the whole
-hash list.
+   If you want to save the current /dev every time you shut your
+   system down, you could add a line like the following to a
+   halt script:
 
-And traditionally a hash imbalance has always been considered a bad
-thing.  I'm claiming that _maybe_ the hash imbalance can actually be a
-good thing too, as long as we try to make sure it's not _too_ extreme.
+	( cd /dev && tar cf - ) | ( cd /dev.overlay && tar xfp - )
 
-I'd frankly prefer truly local lookups (ie each dentry has it's own
-rbtree associated with it), since that would also potentially help
-locking a lot (ability to use private locks rather than a global dcache
-lock), but I don't see any good low-cost algorithms for something like
-the dcache that is _extremely_ performance-sensitive.
+   Note that if you want to support booting both with and without
+   devfs, a simpler approach might be to convert your non-devfs
+   system to use devfs-style names, at least for the devices that
+   are needed for booting (/dev/vc/0, /dev/vc/1... for virtual
+   consoles, /dev/discs/disc0/disc for the first whole hard disk,
+   /dev/discs/discs0/part1 for the first partition of the first
+   disk, /dev/floppy/0).
 
-			Linus
+
+3. Future: DEVFS_MOUNT and "devfs=nomount" may disappear.
+
+   The option to have the kernel automatically mount /dev may
+   disappear in the future.  As with old devfs, you can already
+   eliminate this feature by not defining DEVFS_MOUNT.  If you
+   do this, the kernel will not be able to open /dev/console
+   before invoking /sbin/init.  Eliminating DEVFS_MOUNT shrinks
+   the kernel, allowing this functionality to be provided by
+   user level programs (which don't necessarily remain resident
+   in memory and which may want to do something different anyhow).
+   The init program can do something like the following untested
+   code to mount /dev and open /dev/console:
+
+	mount("", "/dev", "devfs", 0, NULL);
+	close(0); close(1); close(2);	/* Just to make sure. */
+	open("/dev/console", O_RDONLY); /* This will return fd 0. */
+	open("/dev/console", O_WRONLY); /* This will return fd 1. */
+	dup2(1, 2);			/* stderr = stdout. */
+
+
+4. Partition table support now matches non-devfs systems (i.e., no
+   automatic partition table rereading, which was causing problems).
+
+	The old devfs would automatically reread partition tables
+at various times.  This was a functional difference with non-devfs
+systems, and made it nearly impossible to use drivers that returned
+incorrect "media changed" information such as with CompactFlash cards
+on systems that used user level partition reading programs like partx
+to keep the kernel small.  Basically, the old devfs would make the
+kernel forget CompactFlash partition tables on nearly every operation.
+This misfeature is removed in smalldevfs.  smalldevfs systems now
+handle partition tables just like non-devfs systems.
+
+
+Kernel differences:
+
+5. "ops" argument to devfs_register is temporarily ignored
+
+	If you are using devfs to register a character or block
+device, you should not notice any difference.  The difference is that
+the ops argument to devfs_register is currently ignored.  So, for the
+time being, access to all devices still go through major and minor
+device numbers.  Eventually, I would like to restore the functionality
+of potentially eliminating major and minor device numbers, but, for
+now, this functionality is temporarily gone.
+
+	Because this functionality is gone, you can only register
+character or block devices to get device-like behavior.  The only
+users of this functionality were a couple of interfaces that
+duplicated /proc interfaces.  They were removed from the kernel
+recently anyhow.
+
+	In the future, I hope to restore this functionality in a way
+that will allow even more device support code to removed (or
+"configured out") as a result than under the old devfs.  So, please
+continue to pass the character or block device operations pointer to
+devfs_register, even if devfs_register is currently not using it.
+
+
+5a. devfs_only() always returns 0
+
+	devfs_only() is supposed to return 1 on systems that always
+use the ops field in devfs_register and therefore do not need to
+reference devices by number.  Because of #2, devfs_only() currently
+always return 0.  This should change in the future, so please do not
+delete code that tests devfs_only().  The compiler will optimize out
+the unnecessary code in the meantime.
+
+
+Adam J. Richter
+adam@yggdrasil.com

@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265797AbSK1Qkm>; Thu, 28 Nov 2002 11:40:42 -0500
+	id <S265736AbSK1QoL>; Thu, 28 Nov 2002 11:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265656AbSK1Qkl>; Thu, 28 Nov 2002 11:40:41 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:1482 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S265736AbSK1Qkj>;
-	Thu, 28 Nov 2002 11:40:39 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 28 Nov 2002 17:47:53 +0100 (MET)
-Message-Id: <UTC200211281647.gASGlrq03953.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com
-Subject: [PATCH] scsi/hosts.c device_register fix
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+	id <S265828AbSK1QoL>; Thu, 28 Nov 2002 11:44:11 -0500
+Received: from bitmover.com ([192.132.92.2]:56223 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S265736AbSK1QoK>;
+	Thu, 28 Nov 2002 11:44:10 -0500
+Date: Thu, 28 Nov 2002 08:51:28 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: [rmk@arm.linux.org.uk: Re: connectivity to bkbits.net?]
+Message-ID: <20021128085128.A4846@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many scsi hosts do scsi_register, and when the corresponding
-host is not found or fails to work, do scsi_unregister again.
-Thus, actions in scsi_unregister should be the inverses of those
-in scsi_register, just like actions in scsi_remove_host should be
-the inverses of those in scsi_add_host.
+Thanks to Russell for doing my legwork.
 
-However, device_register() is done in scsi_add_host() while the
-corresponding device_unregister() is done in scsi_unregister().
+Mea culpa, I never thought to check to see if sgi had turned off pings.
+They apparently have (bummer).
 
-This causes crashes at boot (in 2.5.49 and 2.5.50).
+Sorry for the noise, 
 
-Below a fix. This patch was first given by James Bottomley.
+--lm
 
-Andries
+----- Forwarded message from Russell King <rmk@arm.linux.org.uk> -----
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
---- a/drivers/scsi/hosts.c	Thu Nov 28 15:28:19 2002
-+++ b/drivers/scsi/hosts.c	Thu Nov 28 17:22:02 2002
-@@ -309,7 +309,6 @@
- 	printk(KERN_INFO "scsi%d : %s\n", shost->host_no,
- 			sht->info ? sht->info(shost) : sht->name);
- 
--	device_register(&shost->host_driverfs_dev);
- 	scsi_scan_host(shost);
- 			
- 	list_for_each_entry (sdev, &shost->my_devices, siblings) {
-@@ -358,11 +357,6 @@
-  * @shost_tp:	pointer to scsi host template
-  * @xtr_bytes:	extra bytes to allocate for driver
-  *
-- * Note:
-- * 	We call this when we come across a new host adapter. We only do
-- * 	this once we are 100% sure that we want to use this host adapter -
-- * 	it is a pain to reverse this, so we try to avoid it 
-- *
-  * Return value:
-  * 	Pointer to a new Scsi_Host
-  **/
-@@ -478,6 +472,8 @@
- 
- 	shost->hostt->present++;
- 
-+	device_register(&shost->host_driverfs_dev);
-+
- 	return shost;
- }
- 
+Date: Thu, 28 Nov 2002 16:41:19 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: connectivity to bkbits.net?
+
+On Thu, Nov 28, 2002 at 08:25:50AM -0800, Larry McVoy wrote:
+> We've been having problems getting out to certain parts of the net for the
+> last few days, in particular, we can't get to sgi.com which is unusual.
+> If you are having problems getting to bkbits.net, let me know.  We have
+> a couple of machines at rackspace and I can push repos over there.
+
+I think you're hitting their firewall.  If I traceroute to the same
+address, it stops at the same place.  However, telnet sgi.com 80
+"GET /" connects and returns data, so it is reachable.
+
+Unfortunately, in this day and age, telnetting to the http port seems to
+be a better test of connectivity than traceroute ever was.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+
+----- End forwarded message -----
+
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266796AbUG1IBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266831AbUG1IHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266796AbUG1IBz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 04:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266831AbUG1HsH
+	id S266831AbUG1IHU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 04:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266814AbUG1ICN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 03:48:07 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:60584 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266806AbUG1HQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 03:16:18 -0400
-Message-ID: <410752BE.80808@yahoo.com.au>
-Date: Wed, 28 Jul 2004 17:16:14 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Avi Kivity <avi@exanet.com>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
- server on local NFS mount
-References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz> <4106B992.8000703@exanet.com> <20040727203438.GB2149@elf.ucw.cz> <4106C2E8.905@exanet.com> <41070183.5000701@yahoo.com.au> <4107357C.9080108@exanet.com> <410739BD.2040203@yahoo.com.au> <41075034.7080701@exanet.com>
-In-Reply-To: <41075034.7080701@exanet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 28 Jul 2004 04:02:13 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:36830 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266827AbUG1H7s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 03:59:48 -0400
+Date: Wed, 28 Jul 2004 01:00:40 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Interesting race condition...
+Message-Id: <20040728010040.172101bf.pj@sgi.com>
+In-Reply-To: <ce6e3r$i4n$1@gatekeeper.tmr.com>
+References: <Pine.HPX.4.58L.0407231058420.12978@punch.eng.cam.ac.uk>
+	<Pine.HPX.4.58L.0407231058420.12978@punch.eng.cam.ac.uk>
+	<200407240317.57032.rob@landley.net>
+	<ce6e3r$i4n$1@gatekeeper.tmr.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
-> Nick Piggin wrote:
+Bill writes:
+> When piped. For instance
+>    ps eaxf
+> does not [show environ], while
+>    ps eaxf | cat
+> does
 
->>
->> The solution is that PF_MEMALLOC tasks are allowed to access the reserve
->> pool. Dependencies don't matter to this system. It would be your job to
->> ensure all tasks that might need to allocate memory in order to free
->> memory have the flag set.
-> 
-> 
-> In the general case that's not sufficient. What if the NFS server wrote 
-> to ext3 via the VFS? We might have a ton of ext3 pagecache waiting for 
-> kswapd to reclaim NFS memory, while kswapd is waiting on the NFS server 
-> writing to ext3.
-> 
+Neither the behaviour I'm seeing on my SuSE 8.2 box, and the code I see
+in some random procps-3.2.1 I happened to have laying around, agree with
+your description.
 
-It is sufficient.
+Rather, both behaviour and code have the 'e' option as a BSD option
+(applicable if no '-' option flag) requesting that the environment be
+shown, and I get the environment so shown, regardless of whether the
+output is a pipe or a tty.
 
-You didn't explain your example very well, but I'll assume it is the
-following:
+... This subthread is of course off-topic to Rob Landley's
+original post - he wasn't using the 'e' option.
 
-dirty NFS data -> NFS server on localhost -> ext3 filesystem.
-
-So kswapd tries to reclaim some memory and writes out the dirty NFS
-data. The NFS server then writes this data to ext3 (it can do this
-because it is PF_MEMALLOC). The data gets written out, the NFS server
-tells the client it is clean, kswapd continues.
-
-Right?
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

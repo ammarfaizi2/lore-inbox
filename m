@@ -1,106 +1,139 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312426AbSD2OrI>; Mon, 29 Apr 2002 10:47:08 -0400
+	id <S312447AbSD2Oys>; Mon, 29 Apr 2002 10:54:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312427AbSD2OrI>; Mon, 29 Apr 2002 10:47:08 -0400
-Received: from ppp65-120.verat.net ([217.26.65.120]:41856 "EHLO
-	spnew.snpe.co.yu") by vger.kernel.org with ESMTP id <S312426AbSD2OrF>;
-	Mon, 29 Apr 2002 10:47:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: snpe <snpe@snpe.co.yu>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: ABI & SMP
-Date: Mon, 29 Apr 2002 14:58:52 +0200
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200204271227.06609.snpe@snpe.co.yu> <20020429114312.A3627@infradead.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200204291458.52342.snpe@snpe.co.yu>
+	id <S312449AbSD2Oyr>; Mon, 29 Apr 2002 10:54:47 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:38540 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S312447AbSD2Oyq>;
+	Mon, 29 Apr 2002 10:54:46 -0400
+Date: Mon, 29 Apr 2002 20:24:46 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@brutus.conectiva.com.br
+Subject: [PATCH]Fix: Init page count for all pages during higher order allocs
+Message-ID: <20020429202446.A2326@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 April 2002 12:43 pm, Christoph Hellwig wrote:
-> On Sat, Apr 27, 2002 at 12:27:06PM +0200, snpe wrote:
-> > Hello,
-> >    I have kernel 2.4.17 and abi 2.4.17 patch
-> > I have used aplication (oracle sqlforms30, runmenu for sco 5, coff).
-> > Hardware is Compaq Proliant 1600 with 2 processors.
-> > If I use kernel with one processor all is ok, but with SMP kernel
-> > I have problem.
-> > Application work btw one hour and then I get segmentation fault.
-> > I am tried unload moduls and load again without success.
-> > After reset all work one hour ...
->
-> Do you have any OOPS message or something like that?  Also a trace
-> (echo 0xffff > /proc/sys/abi/trace) would be nice to find out the
-> last emulated syscall.
+The call to set_page_count(page, 1) in page_alloc.c appears to happen 
+only for the first page, for order 1 and higher allocations.
+This leaves the count for the rest of the pages in that block 
+uninitialised.
 
-This is oops (kernel 2.4.17 + abi-patch 2.4.17) :
+We ran into this while working on some lkcd changes where we check
+the page count to help exclude unreferenced pages, and found
+that we were missing some referenced pages too (e.g the second page
+of thread_info/stack pages which involve order 1 allocations)
 
-Apr 22 08:05:07 jugosped kernel:  <7>[runmenu50:16014]: set personality to 
-7000003
-Apr 22 08:05:07 jugosped kernel: Unable to handle kernel paging request at 
-virtual address e0950000
-Apr 22 08:05:07 jugosped kernel:  printing eip:
-Apr 22 08:05:07 jugosped kernel: 001853e5
-Apr 22 08:05:07 jugosped kernel: *pde = 01938067
-Apr 22 08:05:07 jugosped kernel: *pte = 00000000
-Apr 22 08:05:07 jugosped kernel: Oops: 0000
-Apr 22 08:05:07 jugosped kernel: CPU:    1
-Apr 22 08:05:07 jugosped kernel: EIP:    0023:[<001853e5>]    Not tainted
-Apr 22 08:05:07 jugosped kernel: EFLAGS: 00010246
-Apr 22 08:05:07 jugosped kernel: eax: 00000036   ebx: 00000000   ecx: 00000000   
-edx: 00000400
-Apr 22 08:05:07 jugosped kernel: esi: 00518648   edi: 005186d8   ebp: bffff3b8   
-esp: bffff38c
-Apr 22 08:05:07 jugosped kernel: ds: 002b   es: 002b   ss: 002b
-Apr 22 08:05:07 jugosped kernel: Process runmenu50 (pid: 16014, 
-stackpage=c2135000)
-Apr 22 08:05:10 jugosped kernel:  <7>[runmenu50:16018]: set personality to 
-7000003
-Apr 22 08:05:10 jugosped kernel: Unable to handle kernel paging request at 
-virtual address e0950000
-Apr 22 08:05:10 jugosped kernel:  printing eip:
-Apr 22 08:05:10 jugosped kernel: 00187b35
-Apr 22 08:05:10 jugosped kernel: *pde = 01938067
-Apr 22 08:05:10 jugosped kernel: *pte = 00000000
-Apr 22 08:05:10 jugosped kernel: Oops: 0000
-Apr 22 08:05:10 jugosped kernel: CPU:    1
-Apr 22 08:05:10 jugosped kernel: EIP:    0023:[<00187b35>]    Not tainted
-Apr 22 08:05:10 jugosped kernel: EFLAGS: 00010246
-Apr 22 08:05:10 jugosped kernel: eax: 00000032   ebx: 080d028c   ecx: 080d5e0c   
-edx: 080ff00c
-Apr 22 08:05:10 jugosped kernel: esi: 080d028c   edi: 080d028c   ebp: bffff938   
-esp: bffff928
-Apr 22 08:05:10 jugosped kernel: ds: 002b   es: 002b   ss: 002b
-Apr 22 08:05:10 jugosped kernel: Process runmenu50 (pid: 16018, 
-stackpage=c96d7000)
+Here is a patch from Bharata B. Rao that sets the page count 
+for all the pages allocated. This is along the same lines
+as the code in slab.c to issue SET_PAGE_CACHE/SET_PAGE_SLAB
+on all the pages in an allocated block based on the slab order.
+(That code seems to be preceded by a somewhat scary comment
+ so hope there is nothing to be concerned about; are there 
+ any caveats ? )
 
-Apr 22 08:09:24 jugosped kernel:  <7>[runform30:16287]: set personality to 
-7000003
-Apr 22 08:09:24 jugosped kernel: Unable to handle kernel paging request at 
-virtual address e0950000
-Apr 22 08:09:24 jugosped kernel:  printing eip:
-Apr 22 08:09:24 jugosped kernel: 00186e3d
-Apr 22 08:09:24 jugosped kernel: *pde = 01938067
-Apr 22 08:09:24 jugosped kernel: *pte = 00000000
-Apr 22 08:09:24 jugosped kernel: Oops: 0000
-Apr 22 08:09:24 jugosped kernel: CPU:    1
-Apr 22 08:09:24 jugosped kernel: EIP:    0023:[<00186e3d>]    Not tainted
-Apr 22 08:09:24 jugosped kernel: EFLAGS: 00010246
-Apr 22 08:09:24 jugosped kernel: eax: 00000032   ebx: 080d0a8c   ecx: 080d0a4c   
-edx: 080ff00c
-Apr 22 08:09:24 jugosped kernel: esi: 080d0a8c   edi: 080d0a8c   ebp: bffff8a0   
-esp: bffff890
-Apr 22 08:09:24 jugosped kernel: ds: 002b   es: 002b   ss: 002b
-Apr 22 08:09:24 jugosped kernel: Process runform30 (pid: 16287, 
-stackpage=db38d000)
+Comments ? 
+Does this look like the right thing to do ?
 
-I don't make trace now, because machine is production and I compile UP kernel
-In next few days, I get obtain 2-processor machine (Dell, probably) and tried 
-trace
+Regards
+Suparna
 
-regards
-haris peco
-snpe@snpe.co.yu 
+--- 2418-pure/mm/page_alloc.c	Tue Feb 26 01:08:14 2002
++++ linux-2.4.18+lkcd/mm/page_alloc.c	Mon Apr 29 14:16:37 2002
+@@ -181,7 +181,7 @@
+ static struct page * rmqueue(zone_t *zone, unsigned int order)
+ {
+ 	free_area_t * area = zone->free_area + order;
+-	unsigned int curr_order = order;
++	unsigned int i, curr_order = order;
+ 	struct list_head *head, *curr;
+ 	unsigned long flags;
+ 	struct page *page;
+@@ -206,13 +206,18 @@
+ 			page = expand(zone, page, index, order, curr_order, area);
+ 			spin_unlock_irqrestore(&zone->lock, flags);
+ 
+-			set_page_count(page, 1);
+-			if (BAD_RANGE(zone,page))
+-				BUG();
+-			if (PageLRU(page))
+-				BUG();
+-			if (PageActive(page))
+-				BUG();
++			i = 1UL << order;
++			page += i;
++			do {
++				page--;
++				set_page_count(page, 1);
++				if (BAD_RANGE(zone,page))
++					BUG();
++				if (PageLRU(page))
++					BUG();
++				if (PageActive(page))
++					BUG();
++			} while (--i);
+ 			return page;	
+ 		}
+ 		curr_order++;
+@@ -236,6 +241,7 @@
+ {
+ 	struct page * page = NULL;
+ 	int __freed = 0;
++	unsigned int i;
+ 
+ 	if (!(gfp_mask & __GFP_WAIT))
+ 		goto out;
+@@ -264,25 +270,29 @@
+ 				if (tmp->index == order && memclass(tmp->zone, classzone)) {
+ 					list_del(entry);
+ 					current->nr_local_pages--;
+-					set_page_count(tmp, 1);
+-					page = tmp;
+ 
+-					if (page->buffers)
+-						BUG();
+-					if (page->mapping)
+-						BUG();
+-					if (!VALID_PAGE(page))
+-						BUG();
+-					if (PageSwapCache(page))
+-						BUG();
+-					if (PageLocked(page))
+-						BUG();
+-					if (PageLRU(page))
+-						BUG();
+-					if (PageActive(page))
+-						BUG();
+-					if (PageDirty(page))
+-						BUG();
++					i = 1UL << order;
++					page = tmp + i;
++					do {
++						page--;
++						set_page_count(page, 1);
++						if (page->buffers)
++							BUG();
++						if (page->mapping)
++							BUG();
++						if (!VALID_PAGE(page))
++							BUG();
++						if (PageSwapCache(page))
++							BUG();
++						if (PageLocked(page))
++							BUG();
++						if (PageLRU(page))
++							BUG();
++						if (PageActive(page))
++							BUG();
++						if (PageDirty(page))
++							BUG();
++					} while (--i);
+ 
+ 					break;
+ 				}

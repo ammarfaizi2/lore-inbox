@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315924AbSENRr3>; Tue, 14 May 2002 13:47:29 -0400
+	id <S315926AbSENRvQ>; Tue, 14 May 2002 13:51:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315926AbSENRr2>; Tue, 14 May 2002 13:47:28 -0400
-Received: from a217-118-40-108.bluecom.no ([217.118.40.108]:59154 "EHLO
-	mail.circlestorm.org") by vger.kernel.org with ESMTP
-	id <S315924AbSENRr1>; Tue, 14 May 2002 13:47:27 -0400
-Message-ID: <009701c1fb6f$68282e90$0d01a8c0@studio2pw0bzm4>
-From: "Dead2" <dead2@circlestorm.org>
-To: "Tigran Aivazian" <tigran@veritas.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0205141837310.1577-100000@einstein.homenet>
+	id <S315929AbSENRvP>; Tue, 14 May 2002 13:51:15 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:33042 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S315926AbSENRto>;
+	Tue, 14 May 2002 13:49:44 -0400
+Date: Tue, 14 May 2002 18:49:48 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Dead2 <dead2@circlestorm.org>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Initrd or Cdrom as root
-Date: Tue, 14 May 2002 19:47:24 +0200
+In-Reply-To: <Pine.LNX.4.33.0205141837310.1577-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.33.0205141848100.1577-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately it boots too fast for me to see that message..
+also, don't forget to pass "rootfstype=iso9660" if your cdrom's filesystem
+is iso9660. It shouldn't be needed because the kernel tries to mount using
+all registered filesystem types in turn, but specifying rootfstype
+explicitly avoids silly messages from FAT about wrong sector size so I
+always pass it.
 
-This is my isolinux.cfg file:
----
-DEFAULT zoac
-
-LABEL zoac
-    KERNEL /boot/bzImage
-    APPEND "enableapic rootcd=1"
----
->From what I know, that should work.. right?
-
--=Dead2=-
-
------ Original Message -----
-From: "Tigran Aivazian" <tigran@veritas.com>
-To: "Dead2" <dead2@circlestorm.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, May 14, 2002 7:41 PM
-Subject: Re: Initrd or Cdrom as root
-
+On Tue, 14 May 2002, Tigran Aivazian wrote:
 
 > did you forget to pass "rootcd=1" in the boot command line?
 >
 > When the kernel boots it shows the command line like this:
 >
->   Kernel command line: BOOT_IMAGE=linux-nopae ro root=305
-BOOT_FILE=/boot/vmlinuz-2.4.18 rootcd=1
+>   Kernel command line: BOOT_IMAGE=linux-nopae ro root=305 BOOT_FILE=/boot/vmlinuz-2.4.18 rootcd=1
 >
 > What does it look like in your case?
 >

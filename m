@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263379AbRFFIXI>; Wed, 6 Jun 2001 04:23:08 -0400
+	id <S263400AbRFFIXs>; Wed, 6 Jun 2001 04:23:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263400AbRFFIW6>; Wed, 6 Jun 2001 04:22:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38921 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263379AbRFFIWw>; Wed, 6 Jun 2001 04:22:52 -0400
-Subject: Re: "Nvidia takes a crack at PCs" -- Interesting article from ZDNet
-To: miles@megapathdsl.net (Miles Lane)
-Date: Wed, 6 Jun 2001 09:21:13 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B1DE407.F74A28A@megapathdsl.net> from "Miles Lane" at Jun 06, 2001 01:04:23 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263402AbRFFIX2>; Wed, 6 Jun 2001 04:23:28 -0400
+Received: from AMontpellier-201-1-3-224.abo.wanadoo.fr ([193.252.1.224]:10489
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S263400AbRFFIXW>; Wed, 6 Jun 2001 04:23:22 -0400
+Subject: Re: Break 2.4 VM in five easy steps
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Derek Glidden <dglidden@illusionary.com>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Jeffrey "W." Baker <jwbaker@acm.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010605231908.A10520@illusionary.com>
+In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
+	<Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
+	<3B1D927E.1B2EBE76@uow.edu.au>  <20010605231908.A10520@illusionary.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <E157YYz-000817-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 06 Jun 2001 10:19:30 +0200
+Message-Id: <991815578.30689.1.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I noticed this article on ZDNet and wondered if any of the kernel
-> developers might be able to get a prototype motherboard from NVidia
-> in order to do early support work for this new chipset.  It sounds
-> like pretty interesting technology.
+On 05 Jun 2001 23:19:08 -0400, Derek Glidden wrote:
+> On Wed, Jun 06, 2001 at 12:16:30PM +1000, Andrew Morton wrote:
+> > "Jeffrey W. Baker" wrote:
+> > > 
+> > > Because the 2.4 VM is so broken, and
+> > > because my machines are frequently deeply swapped,
+> > 
+> > The swapoff algorithms in 2.2 and 2.4 are basically identical.
+> > The problem *appears* worse in 2.4 because it uses lots
+> > more swap.
+> 
+> I disagree with the terminology you're using.  It *is* worse in 2.4,
+> period.  If it only *appears* worse, then if I encounter a situation
+> where a 2.2 box has utilized as much swap as a 2.4 box, I should see the
+> same results.  Yet this happens not to be the case. 
 
-Given Nvidia still only provides mangled basically binary graphics drivers
-Im not stunningly hopeful. Maybe nvidia will prove me wrong but I suspect 
-Linux on such a device won't support the audio, won't support the graphics
-in full and might only get you basic PIO IDE and no AGP
+Did you try to put twice as much swap as you have RAM ? (e.g. add a 512M
+swapfile to your box)
+This is what Linus recommended for 2.4 (swap = 2 * RAM), saying that
+anything less won't do any good: 2.4 overallocates swap even if it
+doesn't use it all. So in your case you just have enough swap to map
+your RAM, and nothing to really swap your apps.
 
-It does look an interesting chipset. It would be very nice to get it supported
-as well as they other embedded chipsets like the i815.
-
-Alan
+Xav
 

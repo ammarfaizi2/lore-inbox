@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285161AbSBJWnb>; Sun, 10 Feb 2002 17:43:31 -0500
+	id <S285093AbSBJXXw>; Sun, 10 Feb 2002 18:23:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285093AbSBJWnV>; Sun, 10 Feb 2002 17:43:21 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:24973 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S284794AbSBJWnF>; Sun, 10 Feb 2002 17:43:05 -0500
-Message-ID: <3C66F7C4.D559680D@oracle.com>
-Date: Sun, 10 Feb 2002 23:44:20 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.4-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.4-pre6 fails to build on UP (sched.c)
-Content-Type: text/plain; charset=us-ascii
+	id <S284794AbSBJXXm>; Sun, 10 Feb 2002 18:23:42 -0500
+Received: from zero.tech9.net ([209.61.188.187]:21515 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284987AbSBJXXa>;
+	Sun, 10 Feb 2002 18:23:30 -0500
+Subject: Re: 2.5.4-pre6 fails to build on UP (sched.c)
+From: Robert Love <rml@tech9.net>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C66F7C4.D559680D@oracle.com>
+In-Reply-To: <3C66F7C4.D559680D@oracle.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 10 Feb 2002 18:23:27 -0500
+Message-Id: <1013383408.6783.369.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.4-pre6/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c -o sched.o sched.c
-sched.c: In function `schedule':
-sched.c:664: `global_irq_holder' undeclared (first use in this function)
-sched.c:664: (Each undeclared identifier is reported only once
-sched.c:664: for each function it appears in.)
-make[2]: *** [sched.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.4-pre6/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.4-pre6/kernel'
-make: *** [_dir_kernel] Error 2
+On Sun, 2002-02-10 at 17:44, Alessandro Suardi wrote:
 
-It appears that global_irq_holder will only be seen from
- <asm/hardirq.h> if CONFIG_SMP is defined. I haven't dug
- deeper to see whether this is due to CONFIG_PREEMPT (to
- which I said 'Y') or not.
+> It appears that global_irq_holder will only be seen from
+>  <asm/hardirq.h> if CONFIG_SMP is defined. I haven't dug
+>  deeper to see whether this is due to CONFIG_PREEMPT (to
+>  which I said 'Y') or not.
 
---alessandro
+Indeed, there is a compile error if preemption is enabled but SMP is
+not.  I apologize.  Fix is attached.
 
- "If your heart is a flame burning brightly
-   you'll have light and you'll never be cold
-  And soon you will know that you just grow / You're not growing old"
-                              (Husker Du, "Flexible Flyer")
+	Robert Love
+
+diff -urN linux-2.5.4-pre6/include/asm-i386/smplock.h linux/include/asm-i386/smplock.h
+--- linux-2.5.4-pre6/include/asm-i386/smplock.h	Sun Feb 10 15:35:55 2002
++++ linux/include/asm-i386/smplock.h	Sun Feb 10 18:15:55 2002
+@@ -15,6 +15,7 @@
+ #else
+ #ifdef CONFIG_PREEMPT
+ #define kernel_locked()		preempt_get_count()
++#define global_irq_holder	0
+ #else
+ #define kernel_locked()		1
+ #endif
+

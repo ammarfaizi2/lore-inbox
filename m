@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBIH2T>; Fri, 9 Feb 2001 02:28:19 -0500
+	id <S129030AbRBIH37>; Fri, 9 Feb 2001 02:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129030AbRBIH2J>; Fri, 9 Feb 2001 02:28:09 -0500
-Received: from [210.212.54.4] ([210.212.54.4]:60165 "EHLO mail.cse.iitk.ac.in")
-	by vger.kernel.org with ESMTP id <S129026AbRBIH2G>;
-	Fri, 9 Feb 2001 02:28:06 -0500
-Date: Fri, 9 Feb 2001 00:11:26 +0530 (IST)
-From: Avinash vyas <avyas@cse.iitk.ac.in>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, kernelnewbies@humbolt.nl.linux.org,
-        "Atul Kumar (9721171)" <ak@cse.iitk.ac.in>,
-        "Rajiv A.R" <rajiva@cse.iitk.ac.in>
-Subject: Re: Problem with schedule_timeout..
-In-Reply-To: <E14QqLB-0003RI-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10102090006280.1187-100000@csews5.cse.iitk.ac.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130059AbRBIH3t>; Fri, 9 Feb 2001 02:29:49 -0500
+Received: from oker.escape.de ([194.120.234.254]:49928 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S129030AbRBIH3i>;
+	Fri, 9 Feb 2001 02:29:38 -0500
+Date: Fri, 9 Feb 2001 08:29:22 +0100
+From: Jochen Striepe <jochen@tolot.escape.de>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] modify ver_linux to check e2fsprogs and more.
+Message-ID: <20010209082922.A25273@tolot.escape.de>
+In-Reply-To: <01020813571906.04066@localhost.localdomain> <20010208223133.D21223@tolot.escape.de> <01020820024207.04066@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <01020820024207.04066@localhost.localdomain>; from elenstev@mesatop.com on Thu, Feb 08, 2001 at 08:02:42PM -0700
+X-Editor: vim/5.7.24
+X-Signature: http://alfie.ist.org/sigd/
+X-Signature-Color: blue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
-	Yes the problem was what Sir Alan Cox told, when i called my
-device driver poll function after making the TASK_INTERRUPTIBLE, it made
-the process state again to RUNNING (In a rpc_call() function).
 
-Thanx
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-                 ########################################
-                 #     Avinash Vyas                     #
-                 #     M.Tech. CSE                      #
-                 #     IIT Kanpur                       #
-                 #                                      #                 
-                 #   Address: C-302,                    #
-                 #            Hall IV,                  #
-                 #            IIT Kanpur.               #
-                 #   E-mail: avyas@cse.iitk.ac.in       #
-                 #           avyas@iitk.ac.in           #
-                 #                                      #
-                 ########################################
+        Hi,
+
+On 08 Feb 2001, Steven Cole <elenstev@mesatop.com> wrote:
+>=20
+> But, there is an easy solution:
+> [root@localhost scripts]# ifconfig --version
+> net-tools 1.57
+> ifconfig 1.40 (2000-05-21)
+>=20
+> I replaced the old code for Net-tools with this:
+>=20
+> ifconfig --version 2>&1 | grep tools | awk \
+> 'NR=3D=3D1{print "Net-tools             ", $NF}'
+>=20
+> That should work.  I hope.  Try it please.
+
+This works great for me. Thanks!
 
 
+Greetings from Germany,
+
+Jochen Striepe.
+
+--=20
+"Gosh that takes me back ... or forward.  That's the trouble with time
+travel, you never can tell."
+                -- Dr. Who
 
 
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6g5xRm3eMyUx1sM4RAvrcAJwIL7ooeivjJ7ecQcS2qMzhKhFwCQCdGkfB
+ulDmuABaeKkfRlD2cmJCu9s=
+=ap4X
+-----END PGP SIGNATURE-----
+
+--M9NhX3UHpAaciwkO--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

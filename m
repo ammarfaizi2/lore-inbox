@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284853AbRLURbW>; Fri, 21 Dec 2001 12:31:22 -0500
+	id <S284882AbRLURgB>; Fri, 21 Dec 2001 12:36:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284731AbRLURbM>; Fri, 21 Dec 2001 12:31:12 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48654 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284874AbRLURbF>; Fri, 21 Dec 2001 12:31:05 -0500
-Date: Fri, 21 Dec 2001 15:30:19 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Greg KH <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: oops in mm/memory.c remap_page_range() in 2.2.20
-In-Reply-To: <20011221091646.C21051@kroah.com>
-Message-ID: <Pine.LNX.4.33L.0112211527590.28489-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S284879AbRLURfm>; Fri, 21 Dec 2001 12:35:42 -0500
+Received: from isis.telemach.net ([213.143.65.10]:23313 "HELO
+	isis.telemach.net") by vger.kernel.org with SMTP id <S284874AbRLURfh>;
+	Fri, 21 Dec 2001 12:35:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Problems with ATA hard disk(s)
+Date: Fri, 21 Dec 2001 18:39:27 +0100
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011221173533.C66C87A102@isis.telemach.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001, Greg KH wrote:
-> On Fri, Dec 21, 2001 at 09:05:11AM -0800, Greg KH wrote:
-> > Running "cvs update" on a 2.2.20 kernel with 16Mb of real memory I got
-> > the following oops:
->
-> Sorry, had /boot/System.map pointing to the wrong place, this is the
-> correct symbols:
+Good day,
 
-> >>EIP; c01194a0 <vmtruncate_list+c/a8>   <=====
+I am a beginner when it comes to Linux, so please bear with me.
 
-OK, lets take a look at the code in memory.c, first at line 736:
+I have two ATA hard disks. Proc/../model says Maxtor 91021U2 and ST31722A 
+respectively.  The /dev/hda one is  Maxtor 91021U2.  The mainboard model is 
+P5I430TX TITANIUM IB and CPU is Intel P200 MMX. Softwarewise I am using 
+ReiserFS and 2.4.16 version of the kernel. 
+I tried to tune HDD performance, so I put this into /etc/rc.local:
+/sbin/hdparm -c1 -A1 -m16 -d1 /dev/hda
 
-static void vmtruncate_list(struct vm_area_struct *mpnt, unsigned long
-offset)
-{
-        do {
-                struct mm_struct *mm = mpnt->vm_mm;
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+When I look at the HDD settings after boot, I see that almost everything is 
+turned off:
+[root@tm-68-65 grega]# /sbin/hdparm /dev/hda
 
-This is the line where the system oopses, so vmtruncate_list
-is being called with mpnt==0x00000002
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 1245/255/63, sectors = 20010816, start = 0
 
-Time to take a step back and look in vmtruncate(), line 769:
+In the logs I have bunch of such errors:
 
-        if (inode->i_mmap)
-                vmtruncate_list(inode->i_mmap, offset);
-        if (inode->i_mmap_shared)
-                vmtruncate_list(inode->i_mmap_shared, offset);
+messages:Dec 21 16:21:27 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 16:21:27 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 16:21:27 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 16:21:27 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 16:22:41 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 16:22:41 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 16:22:41 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 16:22:42 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 17:48:56 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 17:48:56 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 17:48:56 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
+messages:Dec 21 17:48:56 tm-68-65 kernel: hda: dma_intr: error=0x84 { 
+DriveStatusError BadCRC }
 
+If you need more info, don't hesitate to ask. Please CC me, as I am not on 
+the list.
 
-This suggests that you have a single-bit error somewhere in RAM
-and vmtruncate_list() simply should never have been called.
-
-kind regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Regards,
+Grega Fajdiga

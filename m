@@ -1,68 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbUDEPu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 11:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUDEPu2
+	id S262870AbUDEPuX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 11:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUDEPuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 11:50:28 -0400
-Received: from ip68-230-241-33.sd.sd.cox.net ([68.230.241.33]:57266 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S262882AbUDEPuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 11:50:24 -0400
-Date: Mon, 5 Apr 2004 08:50:22 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: Sven Hartge <hartge@ds9.gnuu.de>, linux-kernel@vger.kernel.org,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
-Message-ID: <20040405155022.GL31152@smtp.west.cox.net>
-References: <20040329151515.GD2895@smtp.west.cox.net> <Pine.GSO.4.44.0403301430180.12030-100000@math.ut.ee> <E1B8OEW-0006Jb-BX@ds9.argh.org> <40704743.3000909@g-house.de>
+	Mon, 5 Apr 2004 11:50:23 -0400
+Received: from m244.net81-65-141.noos.fr ([81.65.141.244]:46492 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S262870AbUDEPuR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 11:50:17 -0400
+Date: Mon, 5 Apr 2004 17:50:12 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: davej@codemonkey.org.uk, cpufreq@www.linux.org.uk, linux@brodo.de
+Subject: [PATCH 2.6] cpufreq longrun driver fix
+Message-ID: <20040405155012.GI2718@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	davej@codemonkey.org.uk, cpufreq@www.linux.org.uk, linux@brodo.de
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40704743.3000909@g-house.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 04, 2004 at 07:34:59PM +0200, Christian Kujau wrote:
+Hi,
 
-> [ cc'ing linuxppc-dev ]
-> 
-> Sven Hartge wrote:
-> | Meelis Roos <mroos@linux.ee> wrote:
-> |
-> |
-> |>>Ok.  Can both of you try the following patch on top of the version
-> |>>which fails?
-> |
-> |
-> |>Tried it on top of fresh 2.6.5-rc3, no changes, it still hangs.
-> |
-> |
-> | Same here, still totally dead after tftp.
-> 
-> not so dead here. 2.6.4 is ok, 2.6.5-rc1|2|3 are loaded within the OF
-> menu, but no bootprompt appears. but: i can hear the scsi disk
-> initalizing, short after this, the atkbd is recognized and the LEDs on
-> my keyboard are flashing. then again my nfs-root is supposed to be
-> mounted, but my PReP still locks up completely upon network-init. (last
-> working is still 2.5.30).
+My TM5600 Crusoe processor, found inside a Sony Vaio C1VE laptop,
+does not work with the longrun cpufreq driver.
 
-OK, hmm.  I've got some better ideas then.  It sounds like the code to
-have puts show up on VGA isn't selected/compiled in.  Or, there's still
-some other problem wrt the OF transition code.  Just having a serial
-console selected still doesn't give output however, right?
+Upon investigation, the reason is that trying to set the performance 
+to 80% in longrun_determine_freqs leaves the performance to 100%.
+The performance level, at least on this particular model, can be lowered
+only in 33% steps. And in order to put the performance to 66%, the
+code should try to set the barrier to 70%.
 
-> another issue here: i was finally able to cross-compile 2.5.x / 2.6.x
-> kernels (on x86). i tried to compile kernels from 2.5.21 on with
-> "allnoconfig" (was introduced in 2.5.21). only 2.5.30 can be built, all
-> other attempts to build "zImage" fail...(still compiling 2.5.6x)...
-> (full logs of builds available...)
+The following patch does even more, it tries every value from 80%
+to 10% in 10% steps, until it succeeds in lowering the performance.
+I'm not sure this is the best way to do it but in any case, 
+it works for me (and should continue to work for everybody else).
 
-The simple answer is, don't use allnoconfig :).  Do a 'make
-common_defconfig' and then from there turn off stuff you don't need.
+Stelian.
 
+===== arch/i386/kernel/cpu/cpufreq/longrun.c 1.18 vs edited =====
+--- 1.18/arch/i386/kernel/cpu/cpufreq/longrun.c	Thu Feb 19 03:48:38 2004
++++ edited/arch/i386/kernel/cpu/cpufreq/longrun.c	Mon Apr  5 17:06:12 2004
+@@ -142,6 +142,7 @@
+ 	u32 msr_lo, msr_hi;
+ 	u32 save_lo, save_hi;
+ 	u32 eax, ebx, ecx, edx;
++	u32 try_hi;
+ 	struct cpuinfo_x86 *c = cpu_data;
+ 
+ 	if (!low_freq || !high_freq)
+@@ -184,12 +185,14 @@
+ 	 * upper limit to make the calculation more accurate.
+ 	 */
+ 	cpuid(0x80860007, &eax, &ebx, &ecx, &edx);
+-	if (ecx > 90) {
+-		/* set to 0 to 80 perf_pctg */
++	/* try decreasing in 10% steps, some processors react only
++	 * on some barrier values */
++	for (try_hi = 80; try_hi > 0 && ecx > 90; try_hi -=10) {
++		/* set to 0 to try_hi perf_pctg */
+ 		msr_lo &= 0xFFFFFF80;
+ 		msr_hi &= 0xFFFFFF80;
+ 		msr_lo |= 0;
+-		msr_hi |= 80;
++		msr_hi |= try_hi;
+ 		wrmsr(MSR_TMTA_LONGRUN_CTRL, msr_lo, msr_hi);
+ 
+ 		/* read out current core MHz and current perf_pctg */
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Stelian Pop <stelian@popies.net>

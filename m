@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262817AbUCOVxA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 16:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUCOVwn
+	id S262807AbUCOVwc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 16:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUCOVwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 16:52:43 -0500
-Received: from colino.net ([62.212.100.143]:30966 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262816AbUCOVvc (ORCPT
+	Mon, 15 Mar 2004 16:52:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5265 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262807AbUCOVvb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 16:51:32 -0500
-Date: Mon, 15 Mar 2004 22:50:31 +0100
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux-usb-devel@lists.sf.net
-Subject: 2.6.4-bk3 and usb key: OOPS at removal
-Message-Id: <20040315225031.224ccbaa@jack.colino.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
+	Mon, 15 Mar 2004 16:51:31 -0500
+Date: Mon, 15 Mar 2004 13:53:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ncunningham@users.sourceforge.net
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, mochel@digitalimplant.org
+Subject: Re: Remove pmdisk from kernel
+Message-Id: <20040315135328.0f704933.akpm@osdl.org>
+In-Reply-To: <1079379519.5350.20.camel@calvin.wpcb.org.au>
+References: <20040315195440.GA1312@elf.ucw.cz>
+	<20040315125357.3330c8c4.akpm@osdl.org>
+	<20040315205752.GG258@elf.ucw.cz>
+	<20040315132146.24f935c2.akpm@osdl.org>
+	<1079379519.5350.20.camel@calvin.wpcb.org.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
+>
+> On Tue, 2004-03-16 at 10:21, Andrew Morton wrote:
+> > Pavel Machek <pavel@ucw.cz> wrote:
+> > >
+> > > I believe that you don't want swsusp2 in 2.6. It has hooks all over
+> > > the place:
+> > > ...
+> > > 109 files changed, 3254 insertions(+), 624 deletions(-)
+> > 
+> > Ahem.  Agreed.
+>
+> Most of those changes are hooks to make the freezer for more reliable.
+> That part of the functionality could be isolated from the bulk of
+> suspend2. Would that make you happy?
 
-Using 2.6.4-bk3 (the patch found at kernel.org), on an iBook G4 (ohci/ehci), i get oopses when disconnecting an usb key:
+It would make us happier.  Even happier would be a series of small, well
+explained patches which bring swsusp into a final shape upon which more
+than one developer actually agrees.
 
-P: C008C130 LR: C008D32C SP: C0D9FD70 REGS: c0d9fcc0 TRAP: 0301    Not tainted
-MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 00000008, DSISR: 40000000
-TASK = c0c46000[5] 'khubd' Last syscall: 120
-GPR00: C008D32C C0D9FD70 C0C46000 00000000 C0249294 E748F1C0 C0334350 C0350000
-GPR08: 0000000C C02BB82C C02B7580 E6E32650 42008028
-Call trace:
- [c008d32c] sysfs_remove_link+0x14/0x24
- [c010a4e0] class_device_dev_unlink+0x38/0x3c
- [c010aa00] class_device_del+0xd0/0x12c
- [c010aa74] class_device_unregister+0x18/0x34
- [c015c2e4] scsi_remove_device+0x54/0xb0
- [c015b70c] scsi_forget_host+0x40/0x7c
- [c0154c70] scsi_remove_host+0x2c/0x6c
- [ea3b9614] storage_disconnect+0x50/0x6c [usb_storage]
- [c0198adc] usb_unbind_interface+0x88/0x8c
- [c0109a40] device_release_driver+0x84/0x88
- [c0109be0] bus_remove_device+0x74/0xd0
- [c01085a8] device_del+0xac/0x104
- [c019f538] usb_disable_device+0x9c/0xd8
- [c01997a8] usb_disconnect+0x9c/0x134
- [c019bbbc] hub_port_connect_change+0x28c/0x290
-
-hth,
--- 
-Colin
+These wholesale replacements and deletions are an indication that something
+has gone wrong with the development process here.

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290157AbSA3RM5>; Wed, 30 Jan 2002 12:12:57 -0500
+	id <S290080AbSA3QvG>; Wed, 30 Jan 2002 11:51:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290119AbSA3RMi>; Wed, 30 Jan 2002 12:12:38 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18955
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S290230AbSA3RMR> convert rfc822-to-8bit; Wed, 30 Jan 2002 12:12:17 -0500
-Date: Wed, 30 Jan 2002 09:04:17 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Eduardo =?iso-8859-1?Q?Tr=E1pani?= <etrapani@unesco.org.uy>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] clipped disk reports clipped lba size
-In-Reply-To: <3C580AF6.90EF7086@unesco.org.uy>
-Message-ID: <Pine.LNX.4.10.10201300903110.16570-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S290127AbSA3Qtf>; Wed, 30 Jan 2002 11:49:35 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:62880
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S290082AbSA3Qsf>; Wed, 30 Jan 2002 11:48:35 -0500
+Date: Wed, 30 Jan 2002 09:47:38 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Larry McVoy <lm@work.bitmover.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130164738.GP25973@opus.bloom.county>
+In-Reply-To: <E16Vp2w-0000CA-00@starship.berlin> <Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com> <20020130154233.GK25973@opus.bloom.county> <20020130080308.D18381@work.bitmover.com> <20020130160707.GL25973@opus.bloom.county> <20020130081134.F18381@work.bitmover.com> <20020130161825.GM25973@opus.bloom.county> <20020130083756.I23269@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020130083756.I23269@work.bitmover.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Eduardo Trápani wrote:
-
+On Wed, Jan 30, 2002 at 08:37:56AM -0800, Larry McVoy wrote:
+> > Er, not the pristine tree, the linuxppc_2_4 tree, sorry.  I'll try
+> > again.  One of the problems we hit frequently is that we have to move
+> > files from linuxppc_2_4_devel into linuxppc_2_4, once they prove stable.
+> > But just creating a normal patch, or cp'ing the files means when we pull
+> > linuxppc_2_4 back into linuxppc_2_4_devel we get a file conflict, and
+> > have to move one of the files (the previously existing one) into the
+> > deleted dir.  How do we cleanly move just a few files from a child tree
+> > into the parent?  I think this is a lot like what would happen, if Linus
+> > used BK and we wanted to send him support for some platforms, but not
+> > all of the other changes we have.
 > 
-> Since my BIOS does not support my disk (WD400) I had to clip to 33.8G.  At boot time Linux (2.4.17) uses the lba size reported by the disk, that is 33.8 and does not allow me to access the rest of the disk.
+> BitKeeper is like a distributed, replicated file system with atomic changes.
+> That has certain advantages, much like a database.  What you are asking 
+> violates the database rules, if I understand you properly.  Are you asking
+> to move part of a changeset?  That's a no no, that's like moving the 
+> increment to your bank account without the decrement to mine; the banks
+> frown on that :-)
 > 
-> The problem is that even though the whole disk can be used after clipping, Linux uses only the reported lba size even if I force the geometry.
-> 
-> Here is a patch to solve that.  I am sure there is a more elegant solution, I guess we could add a "lba_size=" or something like that as a boot parameter.
-> 
-> The patch against 2.4.17 does this:  if the geometry has been forced then use it to calculate the lba size and ignore the (possibly clipped) answer from the disk.
-> 
-> Eduardo.
+> Or are you asking more about the out of order stuff, i.e., whole changesets
+> are fine but not all of them.
 
-Maybe if 2.4 would ever take a patch ... You would have this option at
-compile time.
+Unfortunatly I think the PPC tree has hit both cases :)  The restriction
+that everything gets moved as a changeset is fine tho. One problem is
+an out-of-order (or rather a single) changeset which creates a few
+files.
 
-Regards,
+The other problem is we create a file (say
+arch/ppc/kernel/prpmc750_setup.c) and then 4-5 changesets effect this
+file (code, code, bk mv, code, code).  If this is doable in multiple
+out-of-order sends to the parent, that'd probably be OK.
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

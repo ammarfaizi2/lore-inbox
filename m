@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313852AbSDQMgr>; Wed, 17 Apr 2002 08:36:47 -0400
+	id <S313833AbSDQMi2>; Wed, 17 Apr 2002 08:38:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313854AbSDQMgp>; Wed, 17 Apr 2002 08:36:45 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1545 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313852AbSDQMgm>; Wed, 17 Apr 2002 08:36:42 -0400
-Date: Wed, 17 Apr 2002 08:33:34 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: bert hubert <ahu@ds9a.nl>
-cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Olaf Fraczyk <olaf@navi.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: please merge 64-bit jiffy patches.
-In-Reply-To: <20020417131228.A16445@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.3.96.1020417082823.31842A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313854AbSDQMi1>; Wed, 17 Apr 2002 08:38:27 -0400
+Received: from skunk.directfb.org ([212.84.236.169]:41665 "EHLO
+	skunk.directfb.org") by vger.kernel.org with ESMTP
+	id <S313833AbSDQMi0>; Wed, 17 Apr 2002 08:38:26 -0400
+Date: Wed, 17 Apr 2002 14:37:56 +0200
+From: Denis Oliver Kropp <dok@directfb.org>
+To: Thomas Winischhofer <thomas@winischhofer.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, xpert@XFree86.org,
+        debian-user@debian.org, debian-x@debian.org
+Subject: Re: SIS 315/550/650/640/740 - testers wanted
+Message-ID: <20020417123756.GA17545@skunk.convergence.de>
+Reply-To: Denis Oliver Kropp <dok@directfb.org>
+In-Reply-To: <3CBC85FD.4A9BC7FB@winischhofer.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, bert hubert wrote:
+Quoting Thomas Winischhofer (thomas@winischhofer.net):
+> 
+> Hi,
+> 
+> I am desperatly looking for people who are willing to help me testing
+> (and eventually developing) the kernel framebuffer and X driver for
+> these chipsets.
+> 
+> If you're interested, please drop me a note.
 
-> Anything I can do to help, just let me know. Right now I am actually facing
-> costs because of this issue, so I am very much in favour of saving those
-> costs 500 days from now :-)
+Hi,
 
-  Other than a few things reporting wrong numbers, what costs do you
-anticipate? I have servers in six USA states (four timezones) and I
-haven't seen any real ill-effect on this.
+I have a SIS 315 connected to a TV using it in PAL mode.
+The driver produces kernel oopses sometimes, especially when
+doing mode and VT switches. Also the TV out is broken for
+some resolutions. I can do more testing and give you more
+details if you want.
 
-  Back in the Xenix days we had servers on three continents and they were
-doing critical applications. There were serious costs there, people did
-have to be on site for a reboot.
+I am willing to test new driver versions and am also thinking
+about writing an accelerated driver for DirectFB.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Best regards,
+  Denis Oliver Kropp
 
+.------------------------------------------.
+| DirectFB - Hardware accelerated graphics |
+| http://www.directfb.org/                 |
+"------------------------------------------"
+
+                            Convergence GmbH

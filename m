@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281691AbRLAV2c>; Sat, 1 Dec 2001 16:28:32 -0500
+	id <S281692AbRLAVaw>; Sat, 1 Dec 2001 16:30:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281690AbRLAV2W>; Sat, 1 Dec 2001 16:28:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24336 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281696AbRLAV2M>; Sat, 1 Dec 2001 16:28:12 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: esr cut off my genitives
-Date: 1 Dec 2001 13:28:01 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ubi11$eq5$1@cesium.transmeta.com>
-In-Reply-To: <200112011714.fB1HErY09774@snark.thyrsus.com> <1007229787.2134.10.camel@addlestones>
+	id <S281696AbRLAVan>; Sat, 1 Dec 2001 16:30:43 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:19334 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S281692AbRLAVad>; Sat, 1 Dec 2001 16:30:33 -0500
+Message-ID: <3C094BAA.2A730D3B@randomlogic.com>
+Date: Sat, 01 Dec 2001 13:29:14 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
+        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <3C07CCCD.EA5E340A@randomlogic.com> <3C07D669.6C234598@mandrakesoft.com> <3C07E6D3.89A648AB@randomlogic.com> <20011201185312.P5770@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1007229787.2134.10.camel@addlestones>
-By author:    Richard Russon <ldm@flatcap.org>
-In newsgroup: linux.dev.kernel
->
-> Hi esr,
+David Weinehall wrote:
 > 
-> There are a couple of lines of the patch I'm not quite happy with.
+> On Fri, Nov 30, 2001 at 12:06:43PM -0800, Paul G. Allen wrote:
 > 
-> > -Windows' Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
-> > +Windows Logical Disk Manager (Dynamic Disk) support (EXPERIMENTAL)
+> [snip]
+> > A person shouldn't _need_ a decent editor to pick out the beginning/end
+> > of a code block (or anything else for that matter). The problem is
+> > exacerbated when such a block contains other blocks and quickly picking
+> > out where each begins/ends becomes tiresome. I _do_ have excellent
+> > editors, IDEs, and source code browsers and have used many different
+> > kinds in many different jobs. They still can not replace what the human
+> > eye and mind perceive.
 > 
-> > -Windows' LDM extra logging
-> > +Windows LDM extra logging
-> 
-> Not wishing to sound too pedantic, but I did put the apostropes in on
-> purpose.  "Windows" is a plural noun and the genitive of it is "Windows'".
-> 
-> Of course if it's a limitation of the new config tool I'll understand :-)
-> (and you'll need to apply the following, too).
-> 
-> -IBM's S/390 architecture
-> +IBMs S/390 architecture
+> Uhhhm, knowing when a code block begins? Usually you'll notice this from
+> the indentation. It's quite hard not to notice a tabsized shift
+> to the right...
 > 
 
-However, the use of genitives in the construction above is not really
-the common usage.  However, "IBMs S/390" is completely bogus -- it
-should be "IBM S/390".
+Whitespace can be placed almost anywhere and the program will still
+compile. It can even be removed altogether. The only thing that keeps a
+program legible is proper formatting. It's real damn easy to miss a
+brace when the formatting is poor. And real easy to spend an hour trying
+to figure out where that missing brace goes, that is after the hour you
+spent figuring out that it was missing in the first place.
 
-Also, if the tool can't handle ' I would fix the bloody tool.
+I guess some people Just Don't Get It. Some people just do not know how
+to write maintainable code.
 
-	-hpa
-
+PGA
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Paul G. Allen
+UNIX Admin II ('til Dec. 3)/FlUnKy At LaRgE (forever!)
+Akamai Technologies, Inc.
+www.akamai.com

@@ -1,115 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312320AbSC3ALn>; Fri, 29 Mar 2002 19:11:43 -0500
+	id <S312321AbSC3ARx>; Fri, 29 Mar 2002 19:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312321AbSC3ALd>; Fri, 29 Mar 2002 19:11:33 -0500
-Received: from CPE-203-51-25-11.nsw.bigpond.net.au ([203.51.25.11]:4081 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S312320AbSC3ALU>; Fri, 29 Mar 2002 19:11:20 -0500
-Message-ID: <3CA502A0.54547786@eyal.emu.id.au>
-Date: Sat, 30 Mar 2002 11:11:12 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre5: bad config
-In-Reply-To: <Pine.LNX.4.21.0203291842530.6417-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------BFDC496D99796A8619B54904"
+	id <S312322AbSC3ARn>; Fri, 29 Mar 2002 19:17:43 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:19728 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S312321AbSC3ARe>;
+	Fri, 29 Mar 2002 19:17:34 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Amit S. Kale" <kgdb@vsnl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: announce: kgdb 1.5 with reworked buggy smp handling 
+In-Reply-To: Your message of "Fri, 29 Mar 2002 20:33:19 +0530."
+             <3CA48237.EA4D3F08@vsnl.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 30 Mar 2002 11:17:21 +1100
+Message-ID: <330.1017447441@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------BFDC496D99796A8619B54904
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Fri, 29 Mar 2002 20:33:19 +0530, 
+"Amit S. Kale" <kgdb@vsnl.net> wrote:
+>Keith Owens wrote:
+>> 
+>> On Fri, 29 Mar 2002 16:01:36 +0530,
+>> "Amit S. Kale" <kgdb@vsnl.net> wrote:
+>> >kgdb 1.5 at http://kgdb.sourceforge.net/
+>> >
+>> >smp handling is completely reworked. Previous kgdb had a bug
+>> >which caused it to hang when a processor spun with
+>> >interrupts disabled and another processor enters kgdb. kgdb
+>> >now uses nmi watchdog for holding other processors while
+>> >a machine is in kgdb.
+>> 
+>> IA64 disabled spin loops ignore NMI :(.
+>
+>Thanks for the info.
+>
+>Isn't there any way get into an interrupt disabled spinning
+>processor on an ia64 smp machine?
 
-Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes pre5. I've trimmed down the changelog because its just too big,
-> and the ones who actually want to see all changelog can get it from
-> linux.bkbits.net.
+Only via an INIT interrupt.  But that is also used to initialise a cpu
+at startup, INIT interrupts go through PAL and SAL and have side
+effects.  I don't use them for kdb, they are too heavy.
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
--DKBUILD_BASENAME=sa1100_generic  -c -o sa1100_generic.o
-sa1100_generic.c
-sa1100_generic.c:40: linux/cpufreq.h: No such file or directory
-sa1100_generic.c:50: linux/cpufreq.h: No such file or directory
-sa1100_generic.c:58: asm/hardware.h: No such file or directory
-sa1100_generic.c:62: asm/arch/assabet.h: No such file or directory
-sa1100_generic.c: In function `sa1100_pcmcia_set_io_map':
-sa1100_generic.c:595: warning: implicit declaration of function
-`cpufreq_get'
-sa1100_generic.c:597: `MECR' undeclared (first use in this function)
-sa1100_generic.c:597: (Each undeclared identifier is reported only once
-sa1100_generic.c:597: for each function it appears in.)
-sa1100_generic.c: In function `sa1100_pcmcia_set_mem_map':
-sa1100_generic.c:703: `MECR' undeclared (first use in this function)
-sa1100_generic.c: In function `sa1100_pcmcia_proc_status':
-sa1100_generic.c:751: `MECR' undeclared (first use in this function)
-sa1100_generic.c: In function `sa1100_pcmcia_driver_init':
-sa1100_generic.c:1079: warning: implicit declaration of function
-`_PCMCIA'
-sa1100_generic.c:1079: `PCMCIASp' undeclared (first use in this
-function)
-sa1100_generic.c:1095: warning: implicit declaration of function
-`_PCMCIAAttr'
-sa1100_generic.c:1096: warning: implicit declaration of function
-`_PCMCIAMem'
-sa1100_generic.c:1097: warning: implicit declaration of function
-`_PCMCIAIO'
-sa1100_generic.c:1110: `MECR' undeclared (first use in this function)
-sa1100_generic.c: In function `sa1100_pcmcia_driver_shutdown':
-sa1100_generic.c:1165: `PCMCIASp' undeclared (first use in this
-function)
-make[2]: *** [sa1100_generic.o] Error 1
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/pcmcia'
-
-The source of the problem seems to be a bad dependency in the pcmcia
-config.
-Since CONFIG_ARCH_SA1100 is undefined, it cannot be used on the shell
-command
-line for the dep_tristate.
-
-I guess inside the ARM arch tree it is always defined and is safe on
-command
-lines as used in many places there.
-
-In drivers/mtd/maps/Config.in CONFIG_ARM is used in the condition, so
-maybe a better patch will be to do the same here? I leave this to the
-experts.
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------BFDC496D99796A8619B54904
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.19-pre5-sa1100.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.19-pre5-sa1100.patch"
-
---- linux/drivers/pcmcia/Config.in.orig	Sat Mar 30 10:48:11 2002
-+++ linux/drivers/pcmcia/Config.in	Sat Mar 30 10:57:18 2002
-@@ -24,6 +24,8 @@
-       dep_tristate '  HD64465 host bridge support' CONFIG_HD64465_PCMCIA $CONFIG_PCMCIA
-    fi
- fi
--dep_tristate '  SA1100 support' CONFIG_PCMCIA_SA1100 $CONFIG_ARCH_SA1100 $CONFIG_PCMCIA
-+if [ "$CONFIG_ARCH_SA1100" = "y" ]; then
-+	dep_tristate '  SA1100 support' CONFIG_PCMCIA_SA1100 $CONFIG_PCMCIA
-+fi
- 
- endmenu
-
---------------BFDC496D99796A8619B54904--
+For more background, see the thread "Replacements for local_irq_xxx()"
+https://external-lists.vasoftware.com/archives//linux-ia64/2001-May/thread.html
 

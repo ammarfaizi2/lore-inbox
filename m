@@ -1,84 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbTJAAhX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 20:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJAAhX
+	id S261774AbTI3Vsp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 17:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTI3Vsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 20:37:23 -0400
-Received: from host4-122.pool80116.interbusiness.it ([80.116.122.4]:52237 "HELO
-	host4-122.pool80116.interbusiness.it") by vger.kernel.org with SMTP
-	id S261861AbTJAAhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 20:37:14 -0400
-Message-ID: <kpv6i4677dd7$075@2i7q5h9i4k9>
-From: "Donna Slaughter" <5r5qy4y1u4t@juno.com>
-Reply-To: "Donna Slaughter" <5r5qy4y1u4t@juno.com>
-To: linux-kernel-owner@vger.kernel.org
-Cc: <linux-kernel@vger.kernel.org>, <linux-msdos@vger.kernel.org>,
-       <linux-net@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       <linux-serial@vger.kernel.org>
-Subject: Buy Vicodin online today, overnight shipping k pvk abrbwqmshbpzik
-Date: Wed, 01 Oct 03 15:35:35 GMT
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+	Tue, 30 Sep 2003 17:48:45 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:38814
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S261774AbTI3Vsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 17:48:43 -0400
+Message-ID: <3F79FA20.4010706@redhat.com>
+Date: Tue, 30 Sep 2003 14:48:16 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20030924 Thunderbird/0.4a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="0C26760.73_"
-X-Priority: 3
-X-MSMail-Priority: Normal
+To: Hugh Dickins <hugh@veritas.com>
+CC: Jamie Lokier <jamie@shareable.org>,
+       linux mailing-list <linux-kernel@vger.kernel.org>,
+       "Hu, Boris" <boris.hu@intel.com>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: 2.6.0-test6 oops futex"
+References: <Pine.LNX.4.44.0309302141220.4388-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0309302141220.4388-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins wrote:
 
---0C26760.73_
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+> (Oh, while you're there, be nice to fix nr_requeue 0.)
 
-Vicodin ES 90 Tab Special. 
--Free Doctors consultation
--No Rx Required
--Overnight Shipping
--Other Drugs Available Including SOMA, HYDROCODONE, LEVITRA...
+Not necessary.  FUTEX_REQUEUE with nr_requeue == 0 is the same as
+FUTEX_WAKE.  When we wrote the code we decided that it is better to
+optimize the requeue as much as possible and leave worrying about
+invalid parameters to the user.  Not that the code will not cause any
+crashes or so.
 
-Buy Now!
-http://www.rxdiscountusa.biz/medical
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-take off list
-http://www.rxdiscountusa.biz/a.html
-
-
-
-
-
-
-baq xilkdd   avom
-
-veazlszsxyln
-ztxzg  x
- f p spzuav  zaocgk qzs
-lwat
-pvh
-lkwydas d 
-
---0C26760.73_--
+-- 
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
 

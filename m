@@ -1,78 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbTFBFVi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 01:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTFBFVi
+	id S261893AbTFBFmV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 01:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTFBFmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 01:21:38 -0400
-Received: from adsl-66-136-200-10.dsl.austtx.swbell.net ([66.136.200.10]:60800
-	"EHLO dragon.taral.net") by vger.kernel.org with ESMTP
-	id S261876AbTFBFVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 01:21:37 -0400
-Date: Mon, 2 Jun 2003 00:35:00 -0500
-From: Taral <taral@taral.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5 drivers/pcmcia/cs.c non-isa fix
-Message-ID: <20030602053500.GA4490@taral.net>
+	Mon, 2 Jun 2003 01:42:21 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:44786 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S261893AbTFBFmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 01:42:20 -0400
+Subject: Re: [PATCH] include/linux/sysctl.h needs linux/compiler.h
+From: Martin Schlemmer <azarah@gentoo.org>
+To: "ismail (cartman) donmez" <kde@myrealbox.com>
+Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306011136.27211.kde@myrealbox.com>
+References: <3ED8D5E4.6030107@cox.net>
+	 <200306010016.05548.kde@myrealbox.com> <3ED93CC6.30200@cox.net>
+	 <200306011136.27211.kde@myrealbox.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054532617.5270.4.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 02 Jun 2003 07:43:37 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-06-01 at 10:36, ismail (cartman) donmez wrote:
+> On Sunday 01 June 2003 02:37, Kevin P. Fleming wrote:
+> > Oh, I saw that discussion. I fully agree. If I can help the process of
+> > creating a sanitized userspace set of kernel headers I'll be happy to.
+> >
 
---/WwmFnJnmDyWGHa4
-Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
-Content-Disposition: inline
+Well, Redhat do have "sanitized kernel headers", but according to the
+whole thread about glibc being broken, it is not the preferred solution.
+
+The solution is to have a set of API headers that userspace can use,
+and that the kernel headers in turn include.
+
+Problem now (as usual), is that even though I and a few others did
+offer to help or organise help if one kernel hacker is willing to take
+the lead, nobody responded, so I guess we will not see this any time
+soon.
+
+> > In the meantime, a small change to a kernel header, that provides _zero_
+> > functional difference to the kernel itself (it's only there for source
+> > code checkers, as best I can tell) shouldn't break existing userspace
+> > libraries.
+> Fully ACK.
+> 
+
+Same here, as the "solution" will not be seen any time soon :/
 
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regards,
 
-RequestIRQ of a 16-bit card on a kernel without CONFIG_ISA will succeed
-without setting AssignedIRQ. This patch causes it to fail (based on
-current BK).
-
---=20
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Most parents have better things to do with their time than take care of
-their children." -- Me
-
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="cs.c.patch"
+-- 
+Martin Schlemmer
 
 
---- 1.29/drivers/pcmcia/cs.c	Fri May 30 00:42:33 2003
-+++ edited/drivers/pcmcia/cs.c	Mon Jun  2 00:32:07 2003
-@@ -1980,6 +1980,9 @@
- 	    irq = req->IRQInfo1 & IRQ_MASK;
- 	    ret = try_irq(req->Attributes, irq, 1);
- 	}
-+#else
-+    } else {
-+	ret = CS_UNSUPPORTED_MODE;
- #endif
-     }
-     if (ret != 0) return ret;
-
---J2SCkAp4GZ/dPZZf--
-
---/WwmFnJnmDyWGHa4
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+2uIEoQQF8xCPwJQRAnO3AJ44fyeYdZa1x80KqXJS2skp+9c3TwCfSfU8
-UlhPnKo/bzrWlNQ+bC+W8v0=
-=Tb0f
------END PGP SIGNATURE-----
-
---/WwmFnJnmDyWGHa4--

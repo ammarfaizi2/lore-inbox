@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265126AbSLBWeZ>; Mon, 2 Dec 2002 17:34:25 -0500
+	id <S265102AbSLBWcJ>; Mon, 2 Dec 2002 17:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbSLBWeZ>; Mon, 2 Dec 2002 17:34:25 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63506
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S265126AbSLBWeZ>; Mon, 2 Dec 2002 17:34:25 -0500
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-From: Robert Love <rml@tech9.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, marcelo@connectiva.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021202223800.A24773@infradead.org>
-References: <20021202192652.A25938@sgi.com>
-	 <1919608311.1038822649@[10.10.2.3]> <20021202201101.A26164@sgi.com>
-	 <1038869248.8945.18.camel@irongate.swansea.linux.org.uk>
-	 <20021202223800.A24773@infradead.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1038868912.869.60.camel@phantasy>
+	id <S265114AbSLBWcJ>; Mon, 2 Dec 2002 17:32:09 -0500
+Received: from bitmover.com ([192.132.92.2]:63910 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S265102AbSLBWcI>;
+	Mon, 2 Dec 2002 17:32:08 -0500
+Date: Mon, 2 Dec 2002 14:39:32 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: erik@hensema.xs4all.nl, andrew@erlenstar.demon.co.uk,
+       linux-kernel@vger.kernel.org, Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: bincancels in linux.kernel
+Message-ID: <20021202143932.M2857@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jeff Garzik <jgarzik@pobox.com>, erik@hensema.xs4all.nl,
+	andrew@erlenstar.demon.co.uk, linux-kernel@vger.kernel.org,
+	Rene Herman <rene.herman@keyaccess.nl>
+References: <20021202221858.GA3289@hensema.net> <3DEBDF0D.4050808@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 02 Dec 2002 17:41:53 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DEBDF0D.4050808@pobox.com>; from jgarzik@pobox.com on Mon, Dec 02, 2002 at 05:30:37PM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-02 at 17:38, Christoph Hellwig wrote:
-> On Mon, Dec 02, 2002 at 10:47:28PM +0000, Alan Cox wrote:
-> > > Ingo vetoed it.
-> > 
-> > I wasnt aware Ingo had a veto
-> 
-> It's not exactly considered nice to merge code against the intention
-> of it's author.  (which doesn't mean it's impossible, of course)
+> Why bother?  I thought use of Usenet was deprecated...
 
-Ingo did explicitly mention he thought the O(1) scheduler was not 2.4
-material.  Whether this has changed, e.g. due to stabilization of the
-scheduler, I do not know.  But I do recall he had an opinion in the
-past.
-
-	Robert Love
-
+groups.google.com is absolutely the most useful source of "how do I get
+this to work" information in the world.  I sure hope that never goes 
+away, it's how I find out if your drivers are working :)
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,127 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbTF0SEq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 14:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbTF0SEq
+	id S264678AbTF0SIY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 14:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTF0SIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 14:04:46 -0400
-Received: from rj.sgi.com ([192.82.208.96]:22951 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S264638AbTF0SEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 14:04:42 -0400
-Message-ID: <3EFC8AA8.7000501@sgi.com>
-Date: Fri, 27 Jun 2003 13:19:20 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 27 Jun 2003 14:08:24 -0400
+Received: from mail59-s.fg.online.no ([148.122.161.59]:27105 "EHLO
+	mail59.fg.online.no") by vger.kernel.org with ESMTP id S264678AbTF0SIW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 14:08:22 -0400
+From: Svein Ove Aas <svein.ove@aas.no>
 To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@digeo.com>, Manfred Spraul <manfred@colorfullife.com>,
-       Andi Kleen <ak@suse.de>, trivial@rustcorp.com.au,
-       alan@lxorguk.ukuu.org.uk
-Subject: PROBLEM: Bug in __pollwait() can cause select() and poll() to hang
- in  2.4.22-pre2 -- second try
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: TCP send behaviour leads to cable modem woes
+Date: Fri, 27 Jun 2003 20:20:54 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Description: clearsigned data
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306272020.57502.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-      In low memory situations, a process that issues a call to select()
-or poll() can sleep forever in the kernel.
+My internet connection is via a cable modem, and thereon from Telenor. (A 
+Norwegian ISP.)
 
-[2.] Full description of the problem/report:
+In general, when I download something I can get up to 1400-1500 Kb/s, which is 
+pretty good for a 1024/256 account. (They don't appear to oversubscribe their 
+lines (yahoo!), but mine is also uncapped when there is spare capacity. Think 
+traffic-control.)
 
-      select() and poll() call a common routine: __pollwait().  On the
-first call to __pollwait(), it calls __get_free_page(GFP_KERNEL) to
-allocate a table to hold wait queues.  In the natural course of things,
-this calls into __alloc_pages().  In low memory situations, the process
-can then end up in the rebalance code at the bottom of __alloc_pages()
-where there is a call to yield().  If the process makes this call, this
-is a bad thing [tm], since the process state at that point is
-TASK_INTERRUPTIBLE.  There is no wait queue yet for the process (that is
-done later in __pollwait()) and no schedule timeout event has yet been
-created (that is done later in select()) so the process will never
-return from the call to yield().
+So far, so good.
 
-[3.] Keywords (i.e., modules, networking, kernel):
+My account includes 4 IP addresses, and when I actually have four computers 
+directly connected I can easily get 7-8Kb/s upload from each of them.
+Oddly, when one of them is acting as a firewall/bridge for the others or I'm 
+just uploading from one, I get 7-8Kb/s for *all* of them. (Or the one.)
 
-      Kernel
+This is, dare I say, *not* expected behaviour.
+I've been in contact with telenor about it, and have garnered the following 
+information.
 
-[4.] Kernel version (from /proc/version):
+(A)	Although the line appear to be straight Ethernet attached to a 
+packet-filtering switch (just ARP-filtering, actually), it's *actually* an 
+ATM-based line. This should come as no surprise.
 
-      This bug appears to be present in every 2.4 kernel from (at least)
-2.4.13 thru 2.4.22-pre2.  It is not present in 2.5.70, since a different
-method of waiting for memory to free up is used there (in
-__alloc_pages()).
+(B)	Whatever they have allocating the ATM cells for transfer is doing it in 
+bursts of about 16KB. Or possibly 32KB. Well, the tech I talked to was pretty 
+sure it was a power of two, at least.
 
-[5.] Output of Oops.. message (if applicable) with symbolic information
-      resolved (see Documentation/oops-tracing.txt)
+(C)	This means that while I get 8 bursts (or more) of 16KB per second on 
+download (empirically confirmed, but the cable modem will tend to space it 
+out when the line is at capacity), giving me a latency of 128-256 ms and so 
+on and so forth (which I have), I get only *two* bursts per second to upload 
+things. I think. You may want to apply a multiplier somewhere.
 
-      N/A.
+And, finally, (D):
 
-[6.] A small shell script or example program which triggers the
-      problem (if possible)
+This thoroughly screws up TCP/IP for uploading purposes. It *completely* 
+breaks Realtek cards, screws up uploading speeds in Linux and Windows XP (I 
+assume they think there is a lot of intermittent packet loss because of the 
+delay), and has no apparent effect on Windows 9x/2000.
 
-      We ecountered this whilst running batch queue tests that are too
-complex to include here.
+The cable modem in question is manufactured by Coresma and is marked NeMo. 
+It's also supposed to have a pretty large send buffer, so if I could just 
+force Linux to send at some user-defined speed without being so paranoid 
+about overloading the line, I could get a lot more use out of it.
 
-[7.] Environment
+For the curious, if I do just that with UDP, I can indeed send at up to 30KB/s 
+without losing packets. They *do* come in bursts, though.
 
-[7.1.] Software (add the output of the ver_linux script here)
 
-[7.2.] Processor information (from /proc/cpuinfo):
+Please, save me before I lose my mind!
 
-       We encountered this on ia64, however, this is in machine
-independent code and we believe the bug is present on all 2.4.21
-platforms.
+- - Svein Ove Aas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-[7.3.] Module information (from /proc/modules):
-
-[7.4.] Loaded driver and hardware information (/proc/ioports,
-/proc/iomem)
-
-[7.5.] PCI information ('lspci -vvv' as root)
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-
-[7.7.] Other information that might be relevant to the problem
-        (please look in /proc and include all information that you
-        think to be relevant):
-
-[X.] Other notes, patches, fixes, workarounds:
-
-      The simplest fix (as suggested by Manfred Spraul) is to set
-current=>state to TASK_RUNNING just before the call to yield() in
-__alloc_pages().  I have tested this sufficiently that I believe
-this does not change the user level semantics of select() (my
-concern was that if state got set to TASK_RUNNING that the syscall
-could return before any fd's are ready or the select() timeout has
-expired, but this does not appear to be the case).
-
-Here is a trivial patch against 2.4.22-pre2:
-
---- linux-2.4.22-pre2.orig/mm/page_alloc.c      Thu Nov 28 17:53:15 2002
-+++ linux-2.4.22-pre2/mm/page_alloc.c   Fri Jun 27 13:47:49 2003
-@@ -418,6 +418,7 @@
-                 return NULL;
-
-         /* Yield for kswapd, and try again */
-+        set_current_state(TASK_RUNNING);
-         yield();
-         goto rebalance;
-  }
-
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-Jun 23-Jul 18 I will be at: 970-513-4743
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+iD8DBQE+/IsG9OlFkai3rMARAmZ4AKCeGIXGhREfh0kcA4Dr8FJs9fNuFgCg1sTb
+1bk3+ipUs9tS35oZidxcY4I=
+=Zz5P
+-----END PGP SIGNATURE-----
 

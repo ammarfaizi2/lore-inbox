@@ -1,59 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291007AbSAaKm0>; Thu, 31 Jan 2002 05:42:26 -0500
+	id <S290596AbSAaKws>; Thu, 31 Jan 2002 05:52:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290596AbSAaKmM>; Thu, 31 Jan 2002 05:42:12 -0500
-Received: from turing.cs.hmc.edu ([134.173.42.99]:1473 "EHLO turing.cs.hmc.edu")
-	by vger.kernel.org with ESMTP id <S290521AbSAaKl6>;
-	Thu, 31 Jan 2002 05:41:58 -0500
-Date: Thu, 31 Jan 2002 02:43:00 -0800 (PST)
-From: Nathan Field <nathan@cs.hmc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: BUG: PTRACE_POKETEXT modifies memory in related processes
-Message-ID: <Pine.GSO.4.32.0201310055030.23602-100000@turing.cs.hmc.edu>
+	id <S290600AbSAaKwj>; Thu, 31 Jan 2002 05:52:39 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:52673 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S290596AbSAaKw2>; Thu, 31 Jan 2002 05:52:28 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix xconfig help
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: 31 Jan 2002 11:52:05 +0100
+Message-ID: <878zaeiyi2.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe I have found a bug in recent 2.4 linux kernels (at least 2.4.17)
-running on x86 related to using ptrace to modify a processes memory. From
-a quick scan of the 2.4.17 code it looks like ptrace.c:access_process_vm
-is not checking to see if the page of memory it is writing to has write
-permission, so it is not properly copy-on-write'ing. This means that if I
-have a simple program like this:
+Hi,
 
-main() {
-  int pid = fork();
-  while(1) {
-    printf("pid is: %d\n", pid);
-    sleep(1);
-  }
-}
+here is a small patch to fix the missing help in make xconfig.
 
-and I set a breakpoint on the printf() line in the parent both the parent
-and the child will hit that breakpoint.
+Regards, Olaf.
 
-This bug was not present in any 2.2 kernel that I've tested or in 2.4.2 or
-2.4.7 (RH stock kernels for 7.1 and 7.2). Looking at the code for 2.4.14 I
-noticed that access_one_page, which is called through access_process_vm,
-does a lot more work to make sure that page faults are handled correctly.
-I haven't tested 2.4.14 though, so I can't say that it does the correct
-thing. I'm not familiar with kernel source, but it looks to me like
-get_user_pages is supposed to handle the fault, and it is being passed a
-len of 1 rather than the len passed into access_process_vm. Not that I
-think that's the bug, just an observation.
-
-I'm more than willing to test out patches, provide more information, or
-just have a fireside chat. Please CC replies to my address as I'm on the
-daily digest list.
-
-	nathan
-
-------------
-Nathan Field  Root is not something to be shared with strangers.
-
-"It is commonly the case with technologies that you can get the best
- insight about how they work by watching them fail."
-        -- Neal Stephenson
-
+diff -X dontdiff -urN v2.5.3/scripts/header.tk linux/scripts/header.tk
+--- v2.5.3/scripts/header.tk	Thu Jan 31 11:46:23 2002
++++ linux/scripts/header.tk	Thu Jan 31 11:38:30 2002
+@@ -449,29 +449,24 @@
+ 	catch {destroy $w}
+ 	toplevel $w -class Dialog
+ 
+-	set filefound 0
+ 	set found 0
+-	set lineno 0
+ 
+-	if { [file readable Documentation/Configure.help] == 1} then {
+-		set filefound 1
+-		# First escape sed regexp special characters in var:
+-		set var [exec echo "$var" | sed s/\[\]\[\/.^$*\]/\\\\&/g]
+-		# Now pick out right help text:
+-		set message [exec sed -n "
+-			/^$var\[ 	\]*\$/,\${
+-				/^$var\[ 	\]*\$/c\\
++	# First escape sed regexp special characters in var:
++	set var [exec echo "$var" | sed s/\[\]\[\/.^$*\]/\\\\&/g]
++	# Now pick out right help text:
++	set message [exec find . -name Config.help | xargs sed -n "
++		/^$var\[ 	\]*\$/,\${
++			/^$var\[ 	\]*\$/c\\
+ ${var}:\\
+ 
+-				/^#/b
+-				/^\[^ 	\]/q
+-				s/^  //
+-				/<file:\\(\[^>\]*\\)>/s//\\1/g
+-				p
+-			}
+-			" Documentation/Configure.help]
+-		set found [expr [string length "$message"] > 0]
+-	}
++			/^#/b
++			/^\[^ 	\]/q
++			s/^  //
++			/<file:\\(\[^>\]*\\)>/s//\\1/g
++			p
++		}
++		" ]
++	set found [expr [string length "$message"] > 0]
+ 
+ 	frame $w.f1
+ 	pack $w.f1 -fill both -expand on
+@@ -494,13 +489,8 @@
+ 	pack $w.f1.canvas -side right -fill y -expand on
+ 
+ 	if { $found == 0 } then {
+-		if { $filefound == 0 } then {
+-		message $w.f1.f.m -width 750 -aspect 300 -relief flat -text \
+-			"No help available - unable to open file Documentation/Configure.help.  This file should have come with your kernel."
+-		} else {
+ 		message $w.f1.f.m -width 400 -aspect 300 -relief flat -text \
+ 			"No help available for $var"
+-		}
+ 		label $w.f1.bm -bitmap error
+ 		wm title $w "RTFM"
+ 	} else {

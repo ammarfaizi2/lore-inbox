@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266084AbRF1SNp>; Thu, 28 Jun 2001 14:13:45 -0400
+	id <S266081AbRF1SRF>; Thu, 28 Jun 2001 14:17:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266082AbRF1SNg>; Thu, 28 Jun 2001 14:13:36 -0400
-Received: from t2.redhat.com ([199.183.24.243]:22002 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S266079AbRF1SNX>; Thu, 28 Jun 2001 14:13:23 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0106281055410.15199-100000@penguin.transmeta.com> 
-In-Reply-To: <Pine.LNX.4.33.0106281055410.15199-100000@penguin.transmeta.com> 
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, chuckw@altaserv.net,
-        Vipin Malik <vipin.malik@daniel.com>,
-        Aaron Lehmann <aaronl@vitelus.com>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch. 
+	id <S266082AbRF1SQ4>; Thu, 28 Jun 2001 14:16:56 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:28632 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S266081AbRF1SQm>; Thu, 28 Jun 2001 14:16:42 -0400
+Date: Thu, 28 Jun 2001 13:16:41 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch.
+Message-Id: <20010628131641.5e10ecca.reynolds@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0106281057170.15199-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0106281040000.10308-100000@localhost.localdomain>
+	<Pine.LNX.4.33.0106281057170.15199-100000@penguin.transmeta.com>
+X-Mailer: Sylpheed version 0.4.61 (GTK+ 1.2.9; Linux 2.4.2-2local; i686)
+Organization: Red Hat Software, Inc. / Embedded Development
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Jun 2001 19:13:08 +0100
-Message-ID: <11977.993751988@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> was pleased to say:
 
-torvalds@transmeta.com said:
->  I consider them harmful when I start getting annoying patches that
-> start adding more and more of them.
+> If they are shut off, then where's the drumming? Because if people start
+> making copyright printk's normal, I will make "quiet" the default.
 
-> Which is how this whole thread started. 
+Amen.  This is like editing a program to remove the "harmless" compiler warning
+messages.  If I don't get a useless message, I don't have to decide to ignore
+it.  Describing what's happening is OK; don't gush.
 
-Sort of. The point of the patch which started this thread was as a wake-up
-call to a company who had taken the code, renamed it to appear as their own,
-commented out the version and copyright printk, and shipped it to their
-customers in an RPM which claimed it was proprietary code.
+-- 
 
-That wake-up call served its primary purpose quite effectively.
-
-The new line was added simply to ensure that if such a thing happens again,
-the newly-named copyright holder will be in a position to do something about
-it.
-
-Take them all out if you must. I stand by my prediction.
-
---
-dwmw2
-
-
+Tommy Reynolds                               |
+Red Hat, Inc. (Embedded Development)         | Join my presentation at:
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | Red Hat TechWorld Brussels
+mailto:reynolds@redhat.com                   | http://www.redhat-techworld.com
+Phone:  +1.256.704.9286                      |
+Mobile: +1.919.641.2923                      |

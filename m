@@ -1,108 +1,268 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUG0XKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266701AbUG0XKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUG0XKe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 19:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266712AbUG0XKe
+	id S266701AbUG0XKR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 19:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266707AbUG0XKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 19:10:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37006 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266704AbUG0XKM (ORCPT
+	Tue, 27 Jul 2004 19:10:16 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:7310 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266701AbUG0XJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 19:10:12 -0400
-Date: Tue, 27 Jul 2004 19:09:29 -0400
-From: Alan Cox <alan@redhat.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: PATCH: serial-cs and unusable port size ranges
-Message-ID: <20040727230929.GA31501@devserv.devel.redhat.com>
+	Tue, 27 Jul 2004 19:09:20 -0400
+Message-ID: <757c55c604072716094582d8d4@mail.gmail.com>
+Date: Tue, 27 Jul 2004 20:09:18 -0300
+From: Maikon Bueno <maikon@gmail.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: bytes from mouse
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040727190200.GA1599@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <757c55c6040727084035039172@mail.gmail.com> <20040727190200.GA1599@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of GSM GPRS PCMCIA cards advertise 16 rather than 8 port sized windows
-for their serial interface. This breaks our current pcmcia serial driver
-which ignores any windows that are not 8 bytes.
-
-To avoid any regressions on other cards given this driver contains a certain
-amount of "magic" the patch below looks for 8 byte windows first so will
-not break existing supported cards (I hope ;))
-
-Patch-by: Alan Cox <alan@redhat.com>
-OSDL Developer Certiticate Of Origin included herein by reference
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.7/drivers/serial/serial_cs.c 2.6.7-ac/drivers/serial/serial_cs.c
---- linux-2.6.7/drivers/serial/serial_cs.c	2004-06-16 21:10:07.000000000 +0100
-+++ 2.6.7-ac/drivers/serial/serial_cs.c	2004-06-19 14:17:04.000000000 +0100
-@@ -366,6 +366,7 @@
- static int simple_config(dev_link_t * link)
- {
- 	static ioaddr_t base[5] = { 0x3f8, 0x2f8, 0x3e8, 0x2e8, 0x0 };
-+	static int size_table[2] = { 8, 16 };
- 	client_handle_t handle = link->handle;
- 	struct serial_info *info = link->priv;
- 	tuple_t tuple;
-@@ -374,6 +375,7 @@
- 	cistpl_cftable_entry_t *cf = &parse.cftable_entry;
- 	config_info_t config;
- 	int i, j, try;
-+	int s;
- 
- 	/* If the card is already configured, look up the port and irq */
- 	i = pcmcia_get_configuration_info(handle, &config);
-@@ -399,29 +401,31 @@
- 	tuple.Attributes = 0;
- 	tuple.DesiredTuple = CISTPL_CFTABLE_ENTRY;
- 	/* Two tries: without IO aliases, then with aliases */
--	for (try = 0; try < 2; try++) {
--		i = first_tuple(handle, &tuple, &parse);
--		while (i != CS_NO_MORE_ITEMS) {
--			if (i != CS_SUCCESS)
--				goto next_entry;
--			if (cf->vpp1.present & (1 << CISTPL_POWER_VNOM))
--				link->conf.Vpp1 = link->conf.Vpp2 =
--				    cf->vpp1.param[CISTPL_POWER_VNOM] / 10000;
--			if ((cf->io.nwin > 0) && (cf->io.win[0].len == 8) &&
--			    (cf->io.win[0].base != 0)) {
--				link->conf.ConfigIndex = cf->index;
--				link->io.BasePort1 = cf->io.win[0].base;
--				link->io.IOAddrLines = (try == 0) ?
--				    16 : cf->io.flags & CISTPL_IO_LINES_MASK;
--				i = pcmcia_request_io(link->handle, &link->io);
--				if (i == CS_SUCCESS)
--					goto found_port;
-+	for (s = 0; s < 2; s++)
-+	{
-+		for (try = 0; try < 2; try++) {
-+			i = first_tuple(handle, &tuple, &parse);
-+			while (i != CS_NO_MORE_ITEMS) {
-+				if (i != CS_SUCCESS)
-+					goto next_entry;
-+				if (cf->vpp1.present & (1 << CISTPL_POWER_VNOM))
-+					link->conf.Vpp1 = link->conf.Vpp2 =
-+					    cf->vpp1.param[CISTPL_POWER_VNOM] / 10000;
-+				if ((cf->io.nwin > 0) && (cf->io.win[0].len == size_table[s]) &&
-+					    (cf->io.win[0].base != 0)) {
-+					link->conf.ConfigIndex = cf->index;
-+					link->io.BasePort1 = cf->io.win[0].base;
-+					link->io.IOAddrLines = (try == 0) ?
-+					    16 : cf->io.flags & CISTPL_IO_LINES_MASK;
-+					i = pcmcia_request_io(link->handle, &link->io);
-+					if (i == CS_SUCCESS)
-+						goto found_port;
-+				}
-+			      next_entry:
-+				i = next_tuple(handle, &tuple, &parse);
- 			}
--		      next_entry:
--			i = next_tuple(handle, &tuple, &parse);
- 		}
- 	}
--
- 	/* Second pass: try to find an entry that isn't picky about
- 	   its base address, then try to grab any standard serial port
- 	   address, and finally try to get any free port. */
+Hi...   
+Thanks, but I couldn't do that... I already had loaded the module and whenever
+the   mouse changes its state, I receive some bytes   from serial, in the 0x3f8
+address, but these bytes don't follow the mouse standard encoding.
+I don't know what is the error.
 
 
-
+On Tue, 27 Jul 2004 21:02:00 +0200, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Tue, Jul 27, 2004 at 12:40:50PM -0300, Maikon Bueno wrote:
+> 
+> > Hi all,
+> > In the follow code, I try to get the bytes from the mouse, but the
+> > bytes that I got are always either 0 or -128, in any state of mouse
+> > (with or without pressed buttons).
+> > I'm using COM1 and I read the bytes from the 0x3f8 port.
+> > Am I reading the values from the correct address? Is there other way to do that?
+> >
+> > Thanks.
+> 
+> How about
+> 
+> modprobe serport
+> modprobe sermouse
+> inputattach --msc /dev/ttyS0 &
+> 
+> 
+> 
+> > --------------------------
+> >
+> >
+> >
+> > #define MODULE
+> > #define __KERNEL__
+> >
+> > #include<linux/ioport.h>
+> > #include <linux/config.h>
+> >
+> > #include <linux/module.h>
+> >
+> > #include<linux/sched.h>
+> > #include<linux/poll.h>
+> > #include<linux/interrupt.h>
+> > #include<linux/miscdevice.h>
+> > #include<linux/init.h>
+> >
+> > #include <linux/kernel.h>
+> > #include<linux/slab.h>
+> > #include <linux/fs.h>
+> > #include <linux/errno.h>
+> > #include <linux/types.h>
+> > #include <linux/proc_fs.h>
+> > #include <linux/fcntl.h>
+> > #include <linux/devfs_fs_kernel.h>
+> >
+> > #include <linux/string.h>
+> > #include <linux/unistd.h>
+> > #include <asm/system.h>
+> > #include <asm/io.h>
+> > #include <asm/irq.h>
+> > #define PORT 0x3f8 //COM1
+> > #define LCR  3
+> > #define MSB 1
+> > #define LSB 0
+> > #define FCR 2
+> > #define SCR 7
+> >
+> > #define OURMOUSE_BASE 0x300
+> > #define OURMOUSE_MINOR 1
+> > #define OURMOUSE_MAJOR 56
+> > #define MOUSE_IRQ 4 //COM1
+> >
+> > static int mouse_users = 0;
+> > static int mouse_dx = 0;
+> > static int mouse_dy = 0;
+> > static int mouse_event = 0;
+> > static int mouse_buttons = 0;
+> > static int mouse_intr = MOUSE_IRQ;
+> > static int interrupt_count=0;
+> >
+> > static struct wait_queue *mouse_wait;
+> > static spinlock_t mouse_lock = SPIN_LOCK_UNLOCKED;
+> > static devfs_handle_t ourmouse_dir;
+> > static devfs_handle_t ourmouse_dev;
+> >
+> > static int ourmouse_open(struct inode *inode, struct file *file);
+> > static int ourmouse_close(struct inode *inode,struct file *file);
+> > static void ourmouse_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+> > static unsigned int mouse_poll(struct file *file, poll_table *wait);
+> > static int enable_irq_interrupt();
+> >
+> > static int bufferin;
+> > static int bufferout;
+> > static char buffer[1024];
+> > static unsigned interrupt_enabled = 0;
+> >
+> > MODULE_LICENSE("GPL");
+> > MODULE_AUTHOR("OURMOUSE");
+> >
+> > char ourmouse_str[] = "Hi Baby!\n ";
+> >
+> > ssize_t ourmouse_read(struct file *filp , char *buf,
+> >                  size_t count, loff_t *offp)
+> > {
+> >     struct inode *inode = filp->f_dentry->d_inode;
+> >     int minor = MINOR(inode->i_rdev);
+> >     char *txt;
+> >
+> >     if (filp->private_data) {
+> >         txt = filp->private_data;
+> >     } else {
+> >         txt = ourmouse_str;
+> >     }
+> >     if (count > strlen(txt)) count = strlen(txt);
+> >     copy_to_user(buf, txt, count);
+> >     *offp += count;
+> >     return count;
+> > }
+> >
+> > struct file_operations ourmouse_fops = {
+> >           read:   ourmouse_read,
+> >           open:   ourmouse_open,
+> >           release:  ourmouse_close,
+> > };
+> >
+> > int init_module(void){
+> >       printk("<1> initing\n");
+> >       if(check_region(OURMOUSE_BASE, 3))
+> >               return -ENODEV;
+> >       request_region(OURMOUSE_BASE, 3,"Ourmouse");
+> >
+> >       devfs_register_chrdev(OURMOUSE_MAJOR,"Ourmouse",&ourmouse_fops);
+> >       ourmouse_dir = devfs_mk_dir(NULL,"Ourmouse", NULL);
+> >       if(ourmouse_dir == NULL){
+> >               printk("<1> Couldn't make the Ourmouse's dir\n");
+> >       }
+> >       ourmouse_dev = devfs_register(ourmouse_dir,
+> > "Ourmouse",DEVFS_FL_NONE,OURMOUSE_MAJOR,OURMOUSE_MINOR, S_IFCHR |
+> > S_IRUGO,&ourmouse_fops, NULL);
+> >       if (ourmouse_dev == NULL){
+> >               printk("<1> Couldn't register Ourmouse\n");
+> >       }
+> >
+> >       interrupt_enabled=!enable_irq_interrupt();
+> >       if (!interrupt_enabled)
+> >         return -EBUSY;
+> >
+> >       return 0;
+> > }
+> >
+> > void cleanup_module(void){
+> >       release_region(OURMOUSE_BASE, 3);
+> >       devfs_unregister(ourmouse_dev);
+> >       free_irq(mouse_intr, NULL);
+> >       printk("<1> Bye %i\n",interrupt_count);
+> > }
+> >
+> > static int ourmouse_open(struct inode *inode, struct file *file)
+> > {
+> >     int err = 0;
+> >     if(mouse_users++)
+> >         return 0;
+> >     if(!interrupt_enabled)
+> >     {
+> >       mouse_users--;
+> >         return -EBUSY;
+> >     }
+> >
+> >     mouse_dx = 0;
+> >     mouse_dy = 0;
+> >     mouse_buttons = 0;
+> >     mouse_event = 0;
+> >     MOD_INC_USE_COUNT;
+> >
+> >     return 0;
+> > }
+> >
+> > static int ourmouse_close(struct inode *inode,struct file *file)
+> > {
+> >     if(--mouse_users)
+> >             return 0;
+> >     MOD_DEC_USE_COUNT;
+> >     return 0;
+> > }
+> >
+> > static void ourmouse_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+> > {
+> >     //interrupt_count++;
+> >
+> >       int i;
+> >       do {
+> >               i = inb(PORT + 5);
+> >               if (i & 1) {
+> >                       buffer[bufferin] = inb(PORT);
+> >                       printk("<1> Byte %i: %i\n",bufferin,buffer[bufferin]);
+> >                       bufferin++;
+> >                       if (bufferin == 1024) bufferin = 0;
+> >               }
+> >       }while (i & 1);
+> >
+> > }
+> >
+> > static unsigned int mouse_poll(struct file *file, poll_table *wait)
+> > {
+> >     return 0;
+> > }
+> >
+> > static int enable_irq_interrupt()
+> > {
+> >       unsigned long flags;
+> >       int i;
+> >       bufferin = 0;
+> >       bufferout = 0;
+> >       save_flags(flags); cli();
+> >       i=request_irq(mouse_intr,ourmouse_interrupt,SA_INTERRUPT,"Ourmouse",NULL);
+> >       if(i) {
+> >               restore_flags(flags);
+> >               return i;
+> >       }
+> >       outb(0,PORT + 1);     // Turn off interrupts - Port1
+> >       outb(0,PORT + 1);     // Disable interrupts - bit 0 ->0
+> >       outb(0x80,PORT + 3);  // enable DLAB - bit 7 ->1
+> >       outb(0x0C,PORT + 0);  // Set Divisor LSB
+> >       outb(0x00,PORT + 1);  // Set Divisor MSB
+> >       outb(0x03,PORT + 3);  // 8 Bits, No Parity, 1 Stop Bit
+> >       outb(0xC7,PORT + 2);  // Enable FIFO if UART is 16500+
+> >       outb(0x0B,PORT + 4);  // Turn on DTR, RTS, and OUT2
+> >       outb(0x01,PORT + 1);  // Interrupt when data received
+> >       printk("<1> sioEnable --ok ... irq: %d\n", mouse_intr);
+> >       restore_flags(flags);
+> >       return 0;
+> >
+> > }
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> --
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+>

@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132754AbRAaB4x>; Tue, 30 Jan 2001 20:56:53 -0500
+	id <S132349AbRAaB6Y>; Tue, 30 Jan 2001 20:58:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132349AbRAaB4o>; Tue, 30 Jan 2001 20:56:44 -0500
-Received: from mercury.ukc.ac.uk ([129.12.21.10]:26578 "EHLO mercury.ukc.ac.uk")
-	by vger.kernel.org with ESMTP id <S132754AbRAaB42>;
-	Tue, 30 Jan 2001 20:56:28 -0500
-To: migras@atlas.uvigo.es
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Crash using DRI with 2.4.0 and 2.4.1
-In-Reply-To: <3A7733F6.4070505@terra.es>
-From: Adam Sampson <azz@gnu.org>
-Organization: The Campaign For The Writing Of "a lot" As Two Words
-In-Reply-To: Miguel Rodriguez Perez's message of "Tue, 30 Jan 2001 22:36:54
- +0100"
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Carlsbad Caverns)
-Date: 31 Jan 2001 01:56:16 +0000
-Message-ID: <87n1c832nz.fsf@cartman.azz.net>
+	id <S132957AbRAaB6P>; Tue, 30 Jan 2001 20:58:15 -0500
+Received: from getafix.lostland.net ([216.29.29.27]:60946 "EHLO
+	getafix.lostland.net") by vger.kernel.org with ESMTP
+	id <S132349AbRAaB56>; Tue, 30 Jan 2001 20:57:58 -0500
+Date: Tue, 30 Jan 2001 20:57:28 -0500 (EST)
+From: adrian <jimbud@lostland.net>
+To: Prasanna P Subash <psubash@turbolinux.com>
+cc: John Jasen <jjasen1@umbc.edu>, Matthew Gabeler-Lee <msg2@po.cwru.edu>,
+        <linux-kernel@vger.kernel.org>, AmNet Computers <amnet@amnet-comp.com>
+Subject: Re: bttv problems in 2.4.0/2.4.1
+In-Reply-To: <20010130171528.B25507@turbolinux.com>
+Message-ID: <Pine.BSO.4.30.0101302052020.1103-100000@getafix.lostland.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Rodriguez Perez <migrax@terra.es> writes:
 
-> Hi, I have a Matrox G200 card installed on an Ali motherboard.
-> Sometimes when I use any opengl program my box crashes. It is more
-> likely that it will crash if I have used the xvideo extension or the
-> matroxfb, but this is not a must, it simply increases the chance of
-> a crash, which is very high anyway.
+Hmmm,
 
-> I have tried both 2.4.0 and 2.4.1 kernels with Xfree 4.0.2 both with
-> the same results.
+   I have a bt848 based video capture card, and get near the same results:
+2.4.0-test10 through 2.4.1 all lock when i2c registers the device.  The
+card has its own interrupt.  With 2.2.18, the card initialized and the
+kernel continued to boot.  Interesting.
 
-Are you sure you get the same results with 2.4.1? I'm in the exact
-same position (G200 on a Gigabyte GA5AX with ALi M1541/3). There was a
-patch to properly support AGP on these boards which went in between
-2.4.0 and 2.4.1 which solved the problem for me (at least in 2.4.0; I
-haven't tested DRI throughly in 2.4.1 yet).
+Regards,
+Adrian
 
--- 
 
-Adam Sampson
-azz@gnu.org
+On Tue, 30 Jan 2001, Prasanna P Subash wrote:
+
+> I have experienced similar issues with 2.4.0 and its test. I have a bttv848 chipset.
+> I even tried compiling in kdb as a part of the kernel to see if it oopses, but no luck.
+>
+> I will try trying 0.7.47 today.
+>
+> this works on 2.2.16, last time i tried.
+>
+> --
+> Prasanna Subash   ---   psubash@turbolinux.com   ---     TurboLinux, INC
+> ------------------------------------------------------------------------
+> Linux, the choice          | "You've got to think about tomorrow!"
+> of a GNU generation   -o)  | "TOMORROW!  I haven't even prepared for
+> Kernel 2.4.0-ac4      /\\  | yesterday* yet!"
+> on a i686            _\\_v |
+>                            |
+> ------------------------------------------------------------------------
+>
+> On Tue, Jan 30, 2001 at 07:53:11PM -0500, John Jasen wrote:
+> > On Tue, 30 Jan 2001, Matthew Gabeler-Lee wrote:
+> >
+> > > These errors all occur in the same way (as near as I can tell) in
+> > > kernels 2.4.0 and 2.4.1, using bttv drivers 0.7.50 (incl. w/ kernel),
+> > > 0.7.53, and 0.7.55.
+> > >
+> > > I am currently using 2.4.0-test10 with bttv 0.7.47, which works fine.
+> > >
+> > > I have sent all this info to Gerd Knorr but, as far as I know, he hasn't
+> > > been able to track down the bug yet.  I thought that by posting here,
+> > > more eyes might at least make more reports of similar situations that
+> > > might help track down the problem.
+> >
+> > Try flipping the card into a different slot. A lot of the cards
+> > exceptionally do not like IRQ/DMA sharing, and a lot of the motherboards
+> > share them between different slots.
+> >
+> > --
+> > -- John E. Jasen (jjasen1@umbc.edu)
+> > -- In theory, theory and practise are the same. In practise, they aren't.
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
+>
+>
+>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

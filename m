@@ -1,103 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268683AbUIAGKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268995AbUIAG0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268683AbUIAGKg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 02:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268716AbUIAGKf
+	id S268995AbUIAG0i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 02:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268988AbUIAG0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 02:10:35 -0400
-Received: from florence.buici.com ([206.124.142.26]:19933 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S268683AbUIAGI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 02:08:59 -0400
-Date: Tue, 31 Aug 2004 23:08:58 -0700
-From: Marc Singer <elf@buici.com>
-To: linux-kernel@vger.kernel.org
-Subject: [wee PATCH] add SMC91x ethernet for LPD7A40X
-Message-ID: <20040901060858.GA3171@buici.com>
+	Wed, 1 Sep 2004 02:26:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32747 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268995AbUIAG0e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 02:26:34 -0400
+Date: Tue, 31 Aug 2004 23:26:28 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Clemens Schwaighofer <cs@tequila.co.jp>, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: oops in 2.6.8.1-mm4 and usb
+Message-Id: <20040831232628.39dae8a3@lembas.zaitcev.lan>
+In-Reply-To: <mailman.1093944725.30419.linux-kernel2news@redhat.com>
+References: <mailman.1093944725.30419.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I posted this patch three weeks ago to linux-net without any interest.
-It adds the support necessary to get the SMC91x ethernet controller to
-operate with the Logic Product Development LH7a40x implementations.
+On Tue, 31 Aug 2004 18:26:51 +0900
+Clemens Schwaighofer <cs@tequila.co.jp> wrote:
 
-I'd really appreciate it if this got into the kernel.
+> So I could mount it and then copied some files there. But when I tried
+> to unmount the disk light on the iriver never went of. So after ~1 hour
+> I just pulled the usb cable. I got the oops (see below).
 
+> end_request: I/O error, dev uba, sector 64
+> FAT bread failed in fat_clusters_flush
+> Unable to handle kernel NULL pointer dereference at virtual address 0000004c
+> EFLAGS: 00010202   (2.6.8.1-mm4)
+> EIP is at kobject_get+0xf/0x4e
+> ~ [<c02b03ee>] get_device+0x18/0x21
+> ~ [<c02b0209>] device_remove_file+0x1b/0x4e
+> ~ [<e19d7e4c>] ub_disconnect+0x105/0x1b5 [ub]
+> ~ [<c032d855>] usb_unbind_interface+0x7a/0x7c
+> ~ [<c02b1271>] device_release_driver+0x64/0x66
+> ~ [<c02b148a>] bus_remove_device+0x64/0xa5
+> ~ [<c02b045e>] device_del+0x5d/0x9b
+> ~ [<c0334ac1>] usb_disable_device+0xb9/0xf9
 
-PATCH FOLLOWS
+This oops is very mysterious, because it indicates that sc->intf was
+NULL, which is not possible when device_remove_file was called.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/15 20:36:21-07:00 elf@florence.buici.com 
-#   Small patch that adds support for the Logic Product Development variant
-#   of the smc91x implementation.  The SMC_IOBARRIER is necessary to work-around a
-#   peculiarity of the memory controller that interfaces the network controller to
-#   the bus.
-# 
-# drivers/net/smc91x.h
-#   2004/08/15 20:34:32-07:00 elf@florence.buici.com +43 -0
-#   Small patch that adds support for the Logic Product Development variant
-#   of the smc91x implementation.  The SMC_IOBARRIER is necessary to work-around a
-#   peculiarity of the memory controller that interfaces the network controller to
-#   the bus.
-# 
-diff -Nru a/drivers/net/smc91x.h b/drivers/net/smc91x.h
---- a/drivers/net/smc91x.h	Sun Aug 15 20:58:47 2004
-+++ b/drivers/net/smc91x.h	Sun Aug 15 20:58:47 2004
-@@ -160,6 +160,49 @@
- #define SMC_insw(a, r, p, l)	insw((a) + (r), p, l)
- #define SMC_outsw(a, r, p, l)	outsw((a) + (r), p, l)
+I'll look at it. For the moment, just make sure you have this:
+
+--- linux-2.6.8.1-mm3/drivers/block/ub.c	2004-08-20 21:37:29.000000000 -0700
++++ linux-2.6.8.1-mm3-ub/drivers/block/ub.c	2004-08-31 23:12:53.918679808 -0700
+@@ -1185,9 +1217,17 @@
+ 		goto error;
+ 	}
  
-+#elif	defined(CONFIG_MACH_LPD7A400) || defined(CONFIG_MACH_LPD7A404)
++	/*
++	 * ``If the allocation length is eighteen or greater, and a device
++	 * server returns less than eithteen bytes of data, the application
++	 * client should assume that the bytes not transferred would have been
++	 * zeroes had the device server returned those bytes.''
++	 */
+ 	memset(&sc->top_sense, 0, UB_SENSE_SIZE);
 +
-+#include <asm/arch/constants.h>	/* IOBARRIER_VIRT */
-+
-+#define SMC_CAN_USE_8BIT	0
-+#define SMC_CAN_USE_16BIT	1
-+#define SMC_CAN_USE_32BIT	0
-+#define SMC_NOWAIT		0
-+#define SMC_IOBARRIER		({ barrier (); readl (IOBARRIER_VIRT); })
-+
-+static inline unsigned short SMC_inw (unsigned long a, int r)
-+{
-+	unsigned short v;
-+	v = readw (a + r);
-+	SMC_IOBARRIER;
-+	return v;
-+}
-+
-+static inline void SMC_outw (unsigned short v, unsigned long a, int r)
-+{
-+	writew (v, a + r);
-+	SMC_IOBARRIER;
-+}
-+
-+static inline void SMC_insw (unsigned long a, int r, unsigned char* p, int l)
-+{
-+	while (l-- > 0) {
-+		*((unsigned short*)p)++ = readw (a + r);
-+		SMC_IOBARRIER;
-+	}
-+}
-+
-+static inline void SMC_outsw (unsigned long a, int r, unsigned char* p, int l)
-+{
-+	while (l-- > 0) {
-+		writew (*((unsigned short*)p)++, a + r);
-+		SMC_IOBARRIER;
-+	}
-+}
-+
-+#define RPC_LSA_DEFAULT		RPC_LED_TX_RX
-+#define RPC_LSB_DEFAULT		RPC_LED_100_10
-+
- #else
- 
- #define SMC_CAN_USE_8BIT	1
+ 	scmd = &sc->top_rqs_cmd;
+ 	scmd->cdb[0] = REQUEST_SENSE;
++	scmd->cdb[4] = UB_SENSE_SIZE;
+ 	scmd->cdb_len = 6;
+ 	scmd->dir = UB_DIR_READ;
+ 	scmd->state = UB_CMDST_INIT;
 
------ End forwarded message -----
+It won't resolve your oops, but at least the I/O should succeed now,
+so you would have a chance to unmount the thing before unplugging.
+
+-- Pete

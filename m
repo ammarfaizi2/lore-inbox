@@ -1,42 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbUL0UNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbUL0USP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbUL0UNH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 15:13:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbUL0UMr
+	id S261971AbUL0USP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 15:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbUL0USP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 15:12:47 -0500
-Received: from gprs214-251.eurotel.cz ([160.218.214.251]:30852 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261982AbUL0UJ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 15:09:27 -0500
-Date: Mon, 27 Dec 2004 21:09:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Twibright I2C2P driver
-Message-ID: <20041227200907.GB24561@elf.ucw.cz>
-References: <20041227131840.GC3045@beton.cybernet.src> <20041227150618.GG1043@openzaurus.ucw.cz> <20041227155621.GC4626@beton.cybernet.src>
+	Mon, 27 Dec 2004 15:18:15 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:13432 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261971AbUL0UOy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 15:14:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=UfteH2gvV2eQ5Ur0h2FI5vyye9Gq6ZQN/JrweI3Xp+6cH0T6ILZXt9NtZVH1bFvgdmO8r8C3lYBVlb8SG0XKLOqzC6fz93ykXdve1g8CxSF//WWNc65AiBUPJ/MyUbt4gVogkJukQsGc4rvnpAH6WRDPO4XfNr5OzXkD9Qa1BGM=
+Message-ID: <d5a95e6d04122712148459507@mail.gmail.com>
+Date: Mon, 27 Dec 2004 17:14:53 -0300
+From: Diego <foxdemon@gmail.com>
+Reply-To: Diego <foxdemon@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: About NFS4 in kernel 2.6.9
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0412272045020.9354@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041227155621.GC4626@beton.cybernet.src>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <d5a95e6d04122711183596d0c8@mail.gmail.com>
+	 <20041227192508.GC18869@freenet.de>
+	 <d5a95e6d04122711355a0a9b04@mail.gmail.com>
+	 <Pine.LNX.4.61.0412272045020.9354@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Thanks for your help,
+I´ve checked what Jan said, and in .config is NFS_FS=y. When i do
+modprobe sunrpc shows me:
 
-> > Avoid signing comments like this. Neccessary info is
-> > in bitkeeper logs anyway.
+[root@laca01 ~]# modprobe sunrpc
+FATAL: Module sunrpc not found.
+FATAL: Error running install command for sunrpc
+
+It´s really annoyng :)
+
+On Mon, 27 Dec 2004 20:46:38 +0100 (MET), Jan Engelhardt
+<jengelh@linux01.gwdg.de> wrote:
+> >First sorry about my poor english. I read in internet that it´s best
+> >if i recompile NFS4 as module, so i did it. But i have this error
+> >message. I dont know wht to do. when i do make xconfig, in filesystem,
+> >i have checked all that have NFS and RPC, but it insist in not work.
 > 
-> How does the general public determine? BK is a proprietary software, they
-> can't just download and check. Or is this information not supposed to be
-> published?
-
-It is available through the web frontend and through the cvs
-repository, too.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> Really? I have this in fs/Kconfig (2.6.8+2.6.9-rc2):
+> 
+> menu "Network File Systems"
+>        depends on NET
+> 
+> config NFS_FS
+>        tristate "NFS file system support"
+>        depends on INET
+>        select LOCKD
+>        select SUNRPC
+>        select NFS_ACL_SUPPORT if NFS_ACL
+> 
+> So SUNRPC should always be selected whenever you say yes/module to "NFS file
+> system support".
+> Check the .config if NFS_FS=y or =m, that'd be my guess.
+> 
+> 
+> Jan Engelhardt
+> --
+> ENOSPC
+>

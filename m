@@ -1,191 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262191AbSJFVKa>; Sun, 6 Oct 2002 17:10:30 -0400
+	id <S262195AbSJFVRE>; Sun, 6 Oct 2002 17:17:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262192AbSJFVK3>; Sun, 6 Oct 2002 17:10:29 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:59860 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262191AbSJFVK1>; Sun, 6 Oct 2002 17:10:27 -0400
-To: torvalds@transmeta.com
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.40: accessfs 1/2
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Sun, 06 Oct 2002 23:15:55 +0200
-Message-ID: <87r8f36zg4.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S262196AbSJFVRE>; Sun, 6 Oct 2002 17:17:04 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:56967 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262195AbSJFVRD>; Sun, 6 Oct 2002 17:17:03 -0400
+Date: Sun, 6 Oct 2002 18:22:26 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Troy Benjegerdes <hozer@hozed.org>, Hans Reiser <reiser@namesys.com>,
+       walt <wa1ter@hotmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021006105821.L29486@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44L.0210061811100.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Sun, 6 Oct 2002, Larry McVoy wrote:
 
-this patch adds two hooks to IPv4 and IPv6. These hooks allow modules
-to control, who may bind to low numbered ports (< 1024).
+> If we GPL it or we allow clones, all that does is stop the development.
+> It's not a question of is there the ability in the community to do what
+> we do, there certainly is. It's a question of will they.  And the answer
+> is no they won't or they would have already.
 
-Please, apply.
+As usual, I agree with this point and think it's worth highlighting.
 
-Regards, Olaf.
+The GPL fanatics can flame me all they want, but that's not going
+to change the reality.  The only thing that _will_ change the
+situation is a team of people getting together to develop a GPL
+alternative to bitkeeper.
 
-diff -urN a/include/net/sock.h b/include/net/sock.h
---- a/include/net/sock.h	Sat Oct  5 18:45:53 2002
-+++ b/include/net/sock.h	Sun Oct  6 16:52:37 2002
-@@ -828,4 +828,21 @@
- extern __u32 sysctl_wmem_max;
- extern __u32 sysctl_rmem_max;
- 
-+/* Networking hooks */
-+#ifdef	CONFIG_NET_HOOKS
-+struct net_hook_operations {
-+	int	(*ip_prot_sock)(struct socket *sock,
-+				struct sockaddr *uaddr, int addr_len);
-+	int	(*ip6_prot_sock)(struct socket *sock,
-+				 struct sockaddr *uaddr, int addr_len);
-+};
-+
-+extern struct net_hook_operations	*net_ops;
-+
-+extern int default_ip_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len);
-+extern int default_ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len);
-+extern void net_hooks_register(struct net_hook_operations *ops);
-+extern void net_hooks_unregister(struct net_hook_operations *ops);
-+#endif
-+
- #endif	/* _SOCK_H */
-diff -urN a/net/Config.help b/net/Config.help
---- a/net/Config.help	Sat Oct  5 18:44:47 2002
-+++ b/net/Config.help	Sun Oct  6 16:52:37 2002
-@@ -512,3 +512,10 @@
-   performance will be written to /proc/net/profile. If you don't know
-   what it is about, you don't need it: say N.
- 
-+CONFIG_NET_HOOKS
-+  This option enables other kernel parts or modules to hook into the
-+  networking area and provide fine grained control over the access to
-+  IP ports.
-+
-+  If you're unsure, say N.
-+
-diff -urN a/net/Config.in b/net/Config.in
---- a/net/Config.in	Sat Oct  5 18:45:54 2002
-+++ b/net/Config.in	Sun Oct  6 16:52:37 2002
-@@ -29,6 +29,8 @@
-    if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-       source net/sctp/Config.in
-    fi
-+
-+   dep_bool '  Networking hooks (EXPERIMENTAL)' CONFIG_NET_HOOKS $CONFIG_EXPERIMENTAL
- fi
- if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-    bool 'Asynchronous Transfer Mode (ATM) (EXPERIMENTAL)' CONFIG_ATM
-diff -urN a/net/Makefile b/net/Makefile
---- a/net/Makefile	Sat Oct  5 18:45:54 2002
-+++ b/net/Makefile	Sun Oct  6 16:52:37 2002
-@@ -5,7 +5,7 @@
- # Rewritten to use lists instead of if-statements.
- #
- 
--export-objs :=	netsyms.o
-+export-objs :=	netsyms.o hooks.o
- 
- obj-y	:= socket.o core/
- 
-@@ -34,6 +34,7 @@
- obj-$(CONFIG_ECONET)		+= econet/
- obj-$(CONFIG_VLAN_8021Q)	+= 8021q/
- obj-$(CONFIG_IP_SCTP)		+= sctp/
-+obj-$(CONFIG_NET_HOOKS)		+= hooks.o
- 
- ifeq ($(CONFIG_NET),y)
- obj-$(CONFIG_MODULES)		+= netsyms.o
-diff -urN a/net/hooks.c b/net/hooks.c
---- a/net/hooks.c	Thu Jan  1 01:00:00 1970
-+++ b/net/hooks.c	Sun Oct  6 16:52:37 2002
-@@ -0,0 +1,56 @@
-+/* Copyright (c) 2002 Olaf Dietsche
-+ *
-+ * Networking hooks. Currently for IPv4 and IPv6 only.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/in.h>
-+#include <linux/in6.h>
-+#include <net/sock.h>
-+
-+int default_ip_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len)
-+{
-+	struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
-+	unsigned short snum = ntohs(addr->sin_port);
-+	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	return 0;
-+}
-+
-+int default_ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len)
-+{
-+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-+	struct sockaddr_in6 *addr = (struct sockaddr_in6 *) uaddr;
-+	unsigned short snum = ntohs(addr->sin6_port);
-+	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+		return -EACCES;
-+
-+	return 0;
-+#else
-+	return -EACCES;
-+#endif
-+}
-+
-+static struct net_hook_operations default_net_ops = {
-+	.ip_prot_sock =	default_ip_prot_sock,
-+	.ip6_prot_sock =	default_ip6_prot_sock,
-+};
-+
-+struct net_hook_operations *net_ops = &default_net_ops;
-+
-+void net_hooks_register(struct net_hook_operations *ops)
-+{
-+	net_ops = ops;
-+}
-+
-+void net_hooks_unregister(struct net_hook_operations *ops)
-+{
-+	net_ops = &default_net_ops;
-+}
-+
-+EXPORT_SYMBOL(net_ops);
-+EXPORT_SYMBOL(default_ip_prot_sock);
-+EXPORT_SYMBOL(default_ip6_prot_sock);
-+EXPORT_SYMBOL(net_hooks_register);
-+EXPORT_SYMBOL(net_hooks_unregister);
-diff -urN a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
---- a/net/ipv4/af_inet.c	Sat Oct  5 18:45:19 2002
-+++ b/net/ipv4/af_inet.c	Sun Oct  6 16:52:37 2002
-@@ -531,7 +531,11 @@
- 
- 	snum = ntohs(addr->sin_port);
- 	err = -EACCES;
-+#ifdef	CONFIG_NET_HOOKS
-+	if (net_ops->ip_prot_sock(sock, uaddr, addr_len))
-+#else
- 	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+#endif
- 		goto out;
- 
- 	/*      We keep a pair of addresses. rcv_saddr is the one
-diff -urN a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
---- a/net/ipv6/af_inet6.c	Sat Oct  5 18:45:19 2002
-+++ b/net/ipv6/af_inet6.c	Sun Oct  6 16:52:37 2002
-@@ -313,7 +313,11 @@
- 	}
- 
- 	snum = ntohs(addr->sin6_port);
-+#ifdef	CONFIG_NET_HOOKS
-+	if (net_ops->ip6_prot_sock(sock, uaddr, addr_len))
-+#else
- 	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+#endif
- 		return -EACCES;
- 
- 	lock_sock(sk);
+Subversion isn't it, we can't work from the same repository with
+tens of thousands of people, any BK replacement would have to be
+a distributed system.
+
+PRCS2 might become a suitable system, if somebody gets around to
+picking up its development.  Arch might work too, but I remember
+talking to some Arch fans a while back who "were about to" import
+the whole kernel history into an Arch repository ... the fact
+that I never heard from them again makes it look like maybe Arch
+couldn't yet handle a repository the size of the kernel.
+
+In short, until somebody builds a free (as in RMS-free) source
+control system that's as good as bitkeeper for what the kernel
+needs, bitkeeper is the only available tool for the job.
+
+If you (for random values of you) care enough about bitkeeper
+not being free, you should probably implement something as good
+as, or better, than bitkeeper ;)
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

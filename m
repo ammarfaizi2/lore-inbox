@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUCAJER (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 04:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUCAJER
+	id S261237AbUCAJEe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 04:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUCAJEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 04:04:17 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:26886 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S261225AbUCAJEJ convert rfc822-to-8bit
+	Mon, 1 Mar 2004 04:04:33 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:27398 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S261237AbUCAJEK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 04:04:09 -0500
-To: Pavel Machek <pavel@suse.cz>
+	Mon, 1 Mar 2004 04:04:10 -0500
+To: Marc Giger <gigerstyle@gmx.ch>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropping CONFIG_PM_DISK?
-References: <1ulUA-33w-3@gated-at.bofh.it>
-	<20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz>
-	<yw1x4qt93i6y.fsf@kth.se> <20040229181053.GD286@elf.ucw.cz>
+Subject: Re: kernel unaligned acc on Alpha
+References: <20040229215546.065f42e9.gigerstyle@gmx.ch>
+	<yw1xvflp1sv6.fsf@kth.se> <20040229230318.493034b2.gigerstyle@gmx.ch>
 From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Sun, 29 Feb 2004 19:29:16 +0100
-In-Reply-To: <20040229181053.GD286@elf.ucw.cz> (Pavel Machek's message of
- "Sun, 29 Feb 2004 19:10:53 +0100")
-Message-ID: <yw1xznb120zn.fsf@kth.se>
+Date: Sun, 29 Feb 2004 23:36:48 +0100
+In-Reply-To: <20040229230318.493034b2.gigerstyle@gmx.ch> (Marc Giger's
+ message of "Sun, 29 Feb 2004 23:03:18 +0100")
+Message-ID: <yw1xishp1pj3.fsf@kth.se>
 User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
  Obscurity, linux)
 MIME-Version: 1.0
@@ -28,36 +27,64 @@ Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+Marc Giger <gigerstyle@gmx.ch> writes:
 
-> Hi!
+> Hi Måns,
 >
->> >> > Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
->> >> > It seems noone is maintaining it, equivalent functionality is provided
->> >> > by swsusp, and it is confusing users...
->> >> 
->> >> It may be ugly, it may be unmaintained, but I get the impression that it
->> >> works for some people for whom swsusp doesn't. So unless swsusp works for
->> >> everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
->> >
->> > Do you have example when pmdisk works and swsusp does not? I'm not
->> > aware of any in recent history...
+> On Sun, 29 Feb 2004 22:24:45 +0100
+> mru@kth.se (Måns Rullgård) wrote:
+>
+>> Marc Giger <gigerstyle@gmx.ch> writes:
 >> 
->> For me, none of them (pmdisk, swsusp and swsusp2) work.  I did manage
->> to get pmdisk to resume once, and swsusp2 makes it half-way through
->> the resume.  The old swsusp doesn't even get that far.
+>> > Hi All,
+>> >
+>> > I have a lot of unaligned accesses in kernel space:
+>> >
+>> > kernel unaligned acc    : 2191330
+>> > (pc=fffffffc002557d8,va=fffffffc00256059)
+>> >
+>> > It seems to be located in the networking part (iptables?) from the
+>> > kernel. Can someone please help me how to find the location of these
+>> > uac's? I already have recompiled the kernel with debugging enabled
+>> > and tried to debug it with gdb. 
+>> 
+>> Find the matching function in System.map.  Look for the entry with the
+>> highest address less than or equal to the pc value.
 >
-> Try current swsusp with minimal drivers, init=/bin/bash.
+> The highest address in System.map is 
+> fffffc000076fab0 A _end
+>
+> /proc/ksyms is more informative. It seems the function is in a
+> module.
 
-Well, if I do that it works.  Or at least some old version did, I
-assume the later ones would too.  However, that sort of removes the
-whole point.  Taking down the system enough to be able to unload
-almost everything is as close as rebooting you'll get.
+Yes, of course.
 
-BTW, is there some easier way to track the development than using the
-patches from the web page?  Unpatching after a couple of BK merges
-isn't the easiest thing.  Is there a BK tree somewhere I can pull
-from?
+> fffffffc00254800 ipt_unregister_table   [ip_tables]
+> fffffffc00256051 __insmod_ip_tables_S.rodata_L16        [ip_tables]
+
+That seems to support my suspicion that something is doing unaligned
+accesses of static data.
+
+> ipt_unregister_table is the most matching funtion, but makes no sense to
+> me, since I don't load and unload it 2191330 times:-)
+
+There is probably some function after ipt_unregister_table in the
+source code that is not being exported from the object file.
+
+> Do you have more tips how to find the right funtion in the modules?
+
+Disassemble (objdump -s) the module and look for load or store
+instructions with the same page offset as the reported pc value, in
+this case 0x17d8.  You'll want to compile with debugging symbols so
+you get the function names printed even for static functions.
+
+Another thing is to look for casts to (int *) or (long *) in the
+source code.  There's often one somewhere close to the unaligned
+access.  You might also check where static data is being accessed.
+Depending on the amount of static data and the number of accesses this
+might be more trouble than it's worth.
+
+BTW, which kernel version is this?
 
 -- 
 Måns Rullgård

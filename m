@@ -1,93 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267314AbRGMMfz>; Fri, 13 Jul 2001 08:35:55 -0400
+	id <S267457AbRGMNbA>; Fri, 13 Jul 2001 09:31:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbRGMMfp>; Fri, 13 Jul 2001 08:35:45 -0400
-Received: from [62.8.161.162] ([62.8.161.162]:3090 "EHLO mail.tevox.de")
-	by vger.kernel.org with ESMTP id <S267314AbRGMMfd>;
-	Fri, 13 Jul 2001 08:35:33 -0400
-Date: Fri, 13 Jul 2001 14:35:27 +0200
-From: Lars Weitze <cd@kalkatraz.de>
-To: linux-kernel@vger.kernel.org
-Subject: Corruption with ATA100 Maxtor 80 GB
-Message-Id: <20010713143527.4f2f6884.cd@kalkatraz.de>
-Organization: http://www.liquidsteel.net
-X-Mailer: Sylpheed version 0.5.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Server: VPOP3 V1.4.0b - Registered to: TEVOX GmbH
+	id <S267475AbRGMNau>; Fri, 13 Jul 2001 09:30:50 -0400
+Received: from pat.uio.no ([129.240.130.16]:21978 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S267457AbRGMNad>;
+	Fri, 13 Jul 2001 09:30:33 -0400
+To: Alan Cox <alan@redhat.com>
+Cc: neilb@cse.unsw.edu.au (Neil Brown),
+        abramo@alsa-project.org (Abramo Bagnara),
+        linux-kernel@vger.kernel.org (Linux Kernel),
+        nfs-devel@linux.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [NFS] [PATCH] Bug in NFS - should umask be allowed to set umask???
+In-Reply-To: <200107131212.f6DCC0v16274@devserv.devel.redhat.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 13 Jul 2001 15:30:21 +0200
+In-Reply-To: Alan Cox's message of "Fri, 13 Jul 2001 08:12:00 -0400 (EDT)"
+Message-ID: <shsu20hvtw2.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> " " == Alan Cox <alan@redhat.com> writes:
 
-I have following problem: When coping large files from one 80 GB Harddisk
-to it's counterpart (sync made with cpbk every night) the kernel just
-crashes. This happend when connected to the on-bord (IDE82371AB PIIX4 IDE
-(rev 01) )  the first time. Then I switched to an Promise Ultra100 TX2
-Controller (20268 Chip) and installed hedricks ide-patch. I still had bugs
-left. Now after using hdparm -X32 /dev/hdx the system seems stable. 
-Also i had: 
-Jul 10 21:30:23 bigmama kernel: EXT2-fs error (device ide0(3,2)):
-ext2_free_blocks: Freeing blocks not in datazone - block = 134217728,
-count = 1
-Jul 10 21:30:23 bigmama last message repeated 8 times
+    >> 1/ Claim that redhat is broken. Leave them to fix SysVinit.  2/
+    >> Have nfsd over-write the umask setting that /sbin/init imposed.
+    >> This is effectively what your patch does.  3/ Decide that it is
+    >> inappropriate for nfsd to share the current->fs fs_struct with
+    >> init.  Unfortunately this means changing or replacing
+    >> daemonize().
 
-Any idea if it's a hardware bug or bad drivers?
-Lars
------
-PCI devices found:
-   Bus  0, device   0, function  0:
-     Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev
-2).
-       Master Capable.  Latency=64.  
-       Prefetchable 32 bit memory at 0xe4000000 [0xe7ffffff].
-   Bus  0, device   1, function  0:
-     PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev
-2).
-       Master Capable.  Latency=64.  Min Gnt=128.
-   Bus  0, device   4, function  0:
-     ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 2).
-   Bus  0, device   4, function  1:
-     IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 1).
-       Master Capable.  Latency=32.  
-       I/O at 0xd800 [0xd80f].
-   Bus  0, device   4, function  2:
-     USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 1).
-       IRQ 15.
-       Master Capable.  Latency=32.  
-       I/O at 0xd400 [0xd41f].
-   Bus  0, device   4, function  3:
-     Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 2).
-       IRQ 9.
-   Bus  0, device   6, function  0:
-     SCSI storage controller: Adaptec AHA-2940U2/W / 7890 (rev 0).
-       IRQ 15.
-       Master Capable.  Latency=32.  Min Gnt=39.Max Lat=25.
-       I/O at 0xd000 [0xd0ff].
-       Non-prefetchable 64 bit memory at 0xe2000000 [0xe2000fff].
-   Bus  0, device  10, function  0:
-     Unknown mass storage controller: Promise Technology, Inc. 20268 (rev
-1).
-       IRQ 12.
-       Master Capable.  Latency=32.  Min Gnt=4.Max Lat=18.
-       I/O at 0xb800 [0xb807].
-       I/O at 0xb400 [0xb403].
-       I/O at 0xb000 [0xb007].
-       I/O at 0xa800 [0xa803].
-       I/O at 0xa400 [0xa40f].
-       Non-prefetchable 32 bit memory at 0xe1800000 [0xe1803fff].
-   Bus  0, device  11, function  0:
-     Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev
-48).
-       IRQ 10.
-       Master Capable.  Latency=32.  Min Gnt=10.Max Lat=10.
-       I/O at 0xa000 [0xa07f].
-       Non-prefetchable 32 bit memory at 0xe1000000 [0xe100007f].
-   Bus  0, device  12, function  0:
-     VGA compatible controller: Matrox Graphics, Inc. MGA 2064W
-[Millennium] (rev 1).
-       IRQ 11.
-       Non-prefetchable 32 bit memory at 0xe0800000 [0xe0803fff].
-       Prefetchable 32 bit memory at 0xe3000000 [0xe37fffff].
+     > #3 seems right. Of course its not clear whose fs struct should
+     > #be shared
+
+Well, you can either use the fs_struct from init, or that of the first
+process to call nfsd. I'm not sure if there's any real point in having
+a chrooted nfsd, but it's easy to implement.
+
+In either case, the principle is the same: use copy_fs_struct() on
+whatever you want to clone, then have all the nfsd daemons and the
+lockd daemon attach to the new shared fs_struct when they get set up.
+No need to replace daemonize...
+
+Cheers,
+  Trond

@@ -1,100 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281217AbRKEQfV>; Mon, 5 Nov 2001 11:35:21 -0500
+	id <S281235AbRKEQi7>; Mon, 5 Nov 2001 11:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281223AbRKEQfL>; Mon, 5 Nov 2001 11:35:11 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:55286 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281217AbRKEQfA>;
-	Mon, 5 Nov 2001 11:35:00 -0500
-Date: Sat, 3 Nov 2001 13:03:38 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] clarify timer macros for jiffies wrap
-Message-ID: <20011103130338.A9732@lynx.no>
-Mail-Followup-To: torvalds@transmeta.com,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+	id <S281233AbRKEQiu>; Mon, 5 Nov 2001 11:38:50 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:42766 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S281230AbRKEQij>;
+	Mon, 5 Nov 2001 11:38:39 -0500
+Subject: Re: Regression testing of 2.4.x before release?
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Dan Kegel <dank@kegel.com>
+Cc: Luigi Genoni <kernel@Expansa.sns.it>, Mike Galbraith <mikeg@wen-online.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stp@osdl.org
+In-Reply-To: <3BE5F0B5.52274D07@kegel.com>
+In-Reply-To: <Pine.LNX.4.33.0111041955290.30596-100000@Expansa.sns.it> 
+	<3BE5F0B5.52274D07@kegel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100+cvs.2001.11.02.21.57 (Preview Release)
+Date: 05 Nov 2001 08:39:37 -0800
+Message-Id: <1004978377.1226.22.camel@wookie-laptop.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Alan,
-I don't know if you were following the 64-bit jiffies thread, but it came
-out that initializing jiffies to a pre-wrap state causes system instability,
-partly caused by failure to handle jiffies wrap properly.
+On Sun, 2001-11-04 at 17:51, Dan Kegel wrote:
+> Luigi Genoni wrote:
+> > Problem is:
+> > there is a lot of HW out there, and we should ALL do stress tests, to have
+> > a wide basis for HWs and test cases.  Basically it is very hard to agree
+> > about a set of stress tests, because we all have different needs, and our
+> > tests are based on our needs. That is a streght, because they tend to be
+> > real life tests.
+> 
 
-I started checking a bunch of code for improper timer wrap handling and
-thought I would add this patch to clarify the usage of the time_defore()
-and time_after() macros so that it is clearer how to use them.  I always
-have to sit down and think about how to use these macros, so we may
-as well make it clear in the comment.  I expanded the time_before{_eq}
-definitions as it makes it easier to see which one to use when existing
-code to use one of the macros.
+  I agree having the users run their applications and under their usage
+model is a very good way of testing code drops.  Dan, I think that what
+you are trying to say is that it might be a good idea to take a group
+of tests and make them the standard set of "pass/fail" that people
+should look to before doing their own testing.
 
-I also put a pointer to these macros at the jiffies definition, so people
-are more likely to use them.
+> Sure, no argument there.
+> 
+> > In my esperience, if some default set of tests comes out, then software
+> > tend to be optimized for this set. And that is badly wrong.
+>
 
-I will be sending patches for fixing up jiffies comparisons separately.
-As the comment at the time_{before,after} macros says, I'm changing all
-comparisons of jiffies values to use these macros (even if they are
-correctly done) so that (a) it insulates driver code if we change to a
-64-bit jiffies value, and (b) makes people more aware that they should
-always use these macros when dealing with jiffies.
+  Any time you start optimizing for a set of performance tests you
+take the chance of doing things that only benefit the single test. The
+good part about open source is that if somebody tries to do that
+the rest of us can point out what a useless (or even counter productive)
+optimization they are trying to implement. 
 
-Cheers, Andreas
-=========================================================================
---- linux/include/linux/timer.h.orig	Thu Oct 25 10:02:34 2001
-+++ linux/include/linux/timer.h	Sat Nov  3 12:38:01 2001
-@@ -53,20 +53,23 @@
- }
+  Regression type pass/fail tests don't tend to have the benchmark
+optimization issue but like any test they usually only find the
+problems that you either already have had in the past or that are
+obvious.  Not complete but they should be dynamic environment that
+things are being added to all the time.  Also the nice part about a
+knows series of tests is that if a problem pops up it is much
+easier to reproduce for debugging purposes.
+
+> My post was motivated by two observations:
+> 
+> 1. Alan Cox complains occasionally that Linus' trees are not well tested,
+>    and can't survive the torture tests that the ac tree goes through before
+>    release.  (e.g.
+> "2.4.8-ac12
+>         I'm trying to make sure I can keep this testable
+>         as 2.4.9 vanilla isnt being stable on my test sets "
+> 
+> 2. The STP at OSDLab seems like a great resource that we might be able
+> to leverage to solve the problem Alan points out.
+>
+
+  The nice part about the way that STP was designed is that it is 
+extensible.  If somebody comes up with another test we can add it.
+If we need to add additional equipment to get the run times down
+to a usable level then that is easy to do also. 
  
- /*
-- *	These inlines deal with timer wrapping correctly. You are 
-- *	strongly encouraged to use them
-+ * These inlines deal with timer wrapping correctly. You are
-+ * strongly encouraged to use them:
-  *	1. Because people otherwise forget
-  *	2. Because if the timer wrap changes in future you wont have to
-  *	   alter your driver code.
-  *
-+ * The macros are most commonly used in the form (unknown) after (known),
-+ * or (unknown) before (known), where "unknown" is usually "jiffies".
-+ *
-  * Do this with "<0" and ">=0" to only test the sign of the result. A
-  * good compiler would generate better code (and a really good compiler
-  * wouldn't care). Gcc is currently neither.
-  */
--#define time_after(a,b)		((long)(b) - (long)(a) < 0)
--#define time_before(a,b)	time_after(b,a)
-+#define time_after(unknown,known)	((long)(known) - (long)(unknown) < 0)
-+#define time_before(unknown,known)	((long)(unknown) - (long)(known) < 0)
+> I'm not suggesting anyone do any less testing.  Just the opposite;
+> if we set things up properly with the STP, we might be able to run
+> many more tests before each final release.
+>
+
+  We are in the process of setting up the Kernel STP to automatically
+grab the Linus and -ac kernels and run the full setup.  This will
+do part of what Dan is asking for and it will also allow people who
+are looking to supply patches a baseline for there patch testing.
+
+Tim
+
  
--#define time_after_eq(a,b)	((long)(a) - (long)(b) >= 0)
--#define time_before_eq(a,b)	time_after_eq(b,a)
-+#define time_after_eq(unknown,known)	((long)(unknown) - (long)(known) >= 0)
-+#define time_before_eq(unknown,known)	((long)(known) - (long)(unknown) >= 0)
- 
- #endif
---- linux/kernel/timer.c.orig	Thu Oct 25 02:09:35 2001
-+++ linux/kernel/timer.c	Sat Nov  3 12:50:41 2001
-@@ -65,6 +65,10 @@
- 
- extern int do_setitimer(int, struct itimerval *, struct itimerval *);
- 
-+/*
-+ * Use the time_before{_eq}() and time_after{_eq}() macros when comparing
-+ * two jiffies values to correctly handle timer wrap.  See timer.h.
-+ */
- unsigned long volatile jiffies;
- 
- unsigned int * prof_buffer;
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> - Dan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
+
 

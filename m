@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261835AbRE3S6R>; Wed, 30 May 2001 14:58:17 -0400
+	id <S261843AbRE3S61>; Wed, 30 May 2001 14:58:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbRE3S6H>; Wed, 30 May 2001 14:58:07 -0400
-Received: from r109m208.cybercable.tm.fr ([195.132.109.208]:1296 "HELO
-	alph.dyndns.org") by vger.kernel.org with SMTP id <S261835AbRE3S5x>;
-	Wed, 30 May 2001 14:57:53 -0400
+	id <S261851AbRE3S6R>; Wed, 30 May 2001 14:58:17 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:29472 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S261843AbRE3S6G>; Wed, 30 May 2001 14:58:06 -0400
+Date: Wed, 30 May 2001 20:57:08 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: andrea@e-mind.com, Mark Hemment <markhe@veritas.com>,
-        Jens Axboe <axboe@kernel.org>,
+Cc: Mark Hemment <markhe@veritas.com>, Jens Axboe <axboe@kernel.org>,
         Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] 4GB I/O, cut three
-In-Reply-To: <Pine.LNX.4.21.0105301542210.12540-100000@imladris.rielhome.conectiva>
-From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
-Date: 30 May 2001 20:57:50 +0200
-In-Reply-To: <Pine.LNX.4.21.0105301542210.12540-100000@imladris.rielhome.conectiva>
-Message-ID: <87r8x6k6kx.fsf@mandrakesoft.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+Message-ID: <20010530205708.E25242@athlon.random>
+In-Reply-To: <20010530162607.D1408@athlon.random> <Pine.LNX.4.21.0105301542210.12540-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0105301542210.12540-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Wed, May 30, 2001 at 03:42:51PM -0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
-
+On Wed, May 30, 2001 at 03:42:51PM -0300, Rik van Riel wrote:
 > On Wed, 30 May 2001 andrea@e-mind.com wrote:
 > 
 > > btw, I think such heuristic is horribly broken ;), the highmem zone
@@ -33,11 +33,7 @@ Rik van Riel <riel@conectiva.com.br> writes:
 > 
 > 2.3.51 did this, we all know the result.
 
-Just a note, 
-I remember the 2.3.51 kernel as the most usable kernel I ever used 
-talking about VM.
+I've no idea about what 2.3.51 does, but I was obviously wrong about
+that. Forget such what I said above.
 
--- 
-Yoann Vandoorselaere | C makes it easy to shoot yourself in the foot. C++ makes
-MandrakeSoft         | it harder, but when you do, it blows away your whole
-                     | leg. - Bjarne Stroustrup
+Andrea

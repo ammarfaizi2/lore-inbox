@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316601AbSHXSvg>; Sat, 24 Aug 2002 14:51:36 -0400
+	id <S316609AbSHXSyb>; Sat, 24 Aug 2002 14:54:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316609AbSHXSvg>; Sat, 24 Aug 2002 14:51:36 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:19693
-	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
-	id <S316601AbSHXSvg>; Sat, 24 Aug 2002 14:51:36 -0400
-Message-ID: <20020824185548.913.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
-To: <linux-kernel@vger.kernel.org>
-cc: dag@newtech.fi
-Subject: Re: Preempt note in the logs 
-Content-type: TEXT/PLAIN; charset=iso-8859-1
-In-reply-to: Your message of "Sat, 24 Aug 2002 12:20:46 MDT."
-             <Pine.LNX.4.44.0208241219150.3234-100000@hawkeye.luckynet.adm> 
-Date: Sat, 24 Aug 2002 21:55:48 +0300
-From: Dag Nygren <dag@newtech.fi>
+	id <S316610AbSHXSyb>; Sat, 24 Aug 2002 14:54:31 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:49068 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S316609AbSHXSya>; Sat, 24 Aug 2002 14:54:30 -0400
+Message-ID: <20020824185838.2961.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: conman@kolivas.net, linux-kernel@vger.kernel.org
+Date: Sun, 25 Aug 2002 02:58:38 +0800
+Subject: Re: Combined performance patches update for 2.4.19
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from quoted-printable to 8bit by alpha.home.local id g7OJ4iqd006207
 
+From: conman@kolivas.net
+Date: Sat, 24 Aug 2002 22:21:37 +1000
 
+> > > > BTW, thank you for your great work!!
+> > > 
+> > > My pleasure, but really the hard work is done by the developers!
+> > Sure, but your "performance" approach is really intersting! Do you use a
+> > benchmark?
+> 
+> I don't really have the time to benchmark these things any more than "it feels
+> faster". Really I'm spending way too much time on this as it is and I'm not
+> remotely any authority on what benchmarks to use.
+Maybe I can find the time to run a few tests, can anyone suggest me an "intersting" test?
 
-Whhops,
+ 
+> > > > I'm also testing the compressed cache (the 
+> > > > patch you've discarded, and I got good performance!)
+> > > 
+> > > I'm thinking of eventually merging the latest version of this into 2.4.19
+> > too
+> > > since it can be enabled or disabled. Depends on the demand.
+> > Just an hint ('cause I made some of the test you can see on the compressed
+> > cache web page on sourceforge),
+> > if you use that patch boot your box with the 
+> > compressed=XXM in order to set the amount of the compressed cache. My box
+> > runs fast and happy with 32MiB or 64MiB of compressed cache. My box has
+> > 256MiB of Ram.
+> 
+> Ok thanks for the info. I believe the newer cc patch (not in my 2.4.18-ck4) is
+> better anyway. I'm afraid the cc will be later in the piece assuming I can kill
+> off the other bug I've created in the merge. I'd prefer to see a cc patch
+> specifically for 2.4.19 as forward porting it to .19 and then to O(1) (and so
+> on) are just too many steps. 
+Fair enough.
+I think that soon we'll see the cc path for the 2.4.19, Rodrigo?
 
-Lots of discussion,
-but this is what I like with Linux:
-lots of people that know what they are talking about
-commenting/discussing things.
-
-Anyway:
-- I am not running xfs, but I do run resiserfs.
-- I also have the ck2 patch that includes the low latency patch,
-  could that be it?
-
-My patch got rid of the messages and my laptop behaves again,
-but really I think that there is something fishy going on,
-the messages shouldn't happen....
-
-I am leaving it in your hands guys, as I don't have the experience
-nor the time to go get this one.
-
-BRGDS
-
-
+Ciao,
+          Paolo
 -- 
-Dag Nygren                               email: dag@newtech.fi
-Oy Espoon NewTech Ab                     phone: +358 9 8024910
-Träsktorpet 3                              fax: +358 9 8024916
-02360 ESBO                              Mobile: +358 400 426312
-FINLAND
+Get your free email from www.linuxmail.org 
 
 
+Powered by Outblaze

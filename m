@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268945AbTBSRSI>; Wed, 19 Feb 2003 12:18:08 -0500
+	id <S268949AbTBSRTy>; Wed, 19 Feb 2003 12:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268949AbTBSRSI>; Wed, 19 Feb 2003 12:18:08 -0500
-Received: from happy.phnet.fi ([62.165.128.129]:20639 "HELO happy.phnet.fi")
-	by vger.kernel.org with SMTP id <S268945AbTBSRSH>;
-	Wed, 19 Feb 2003 12:18:07 -0500
-Message-ID: <3E53BEA0.8000808@sci.fi>
-Date: Wed, 19 Feb 2003 19:28:00 +0200
-From: Janne Heikkinen <jamse@sci.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S268950AbTBSRTx>; Wed, 19 Feb 2003 12:19:53 -0500
+Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:40675
+	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
+	id <S268949AbTBSRTw>; Wed, 19 Feb 2003 12:19:52 -0500
+Date: Wed, 19 Feb 2003 12:28:38 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
+In-Reply-To: <20030219092046.458c2876.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.44.0302191225510.29393-100000@guppy.limebrokerage.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 oopses with OSS/munmap
-References: <3E532DE8.1080303@sci.fi>
-In-Reply-To: <3E532DE8.1080303@sci.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Janne Heikkinen wrote:
+On Wed, 19 Feb 2003, Randy.Dunlap wrote:
 
-> When trying to to use mmap with OSS with kernel version 2.4.20, 
-> program causes oops
-> when munmapping takes place (either when calling munmap directly or 
-> when program is
-> terminating).  
+> Does this help with being able to printk() a <dma_addr_t>?  How?
+> Always use a cast to (u64) or something else?
 
-I looked into it more carefully and most of the time I don't actually 
-get oops but system
-just goes unstable. It is allways second time when program is run when 
-this hang with
-munmap() happens.
+It doesn't help with printk(), but frankly if you're printing a dma_addr_t 
+then you're probably debugging, not performance-tuning, so the cast to u64 
+is acceptable.
 
-Program that causes this maps DMA buffer with mmap, uses SNDCTL_DSP_GETIPTR
-ioctl() after select()  and then copies data from mmap'd buffer into 
-another buffer. Everything
-goes fine until munmap().
+Ion
 
-It seems to be exactly the same problem that Paul Forgey had run into 
-and wrote
-about in January with subject "oss bug introduced since 2.4.18?".
-
-Janne Heikkinen
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

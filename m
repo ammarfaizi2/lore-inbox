@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266444AbTGJTjj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 15:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266436AbTGJTjj
+	id S266454AbTGJTkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 15:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbTGJTkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 15:39:39 -0400
-Received: from storm.he.net ([64.71.150.66]:5065 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S266444AbTGJTji (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 15:39:38 -0400
-Date: Thu, 10 Jul 2003 12:54:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mikael.starvik@axis.com
-Subject: Re: [PATCH] CRIS architecture update for 2.5.74
-Message-ID: <20030710195409.GA13060@kroah.com>
-References: <200307101818.h6AIIVMI024938@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307101818.h6AIIVMI024938@hera.kernel.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 10 Jul 2003 15:40:09 -0400
+Received: from mail-out2.apple.com ([17.254.0.51]:6045 "EHLO
+	mail-out2.apple.com") by vger.kernel.org with ESMTP id S266454AbTGJTkF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 15:40:05 -0400
+Date: Thu, 10 Jul 2003 12:53:44 -0700
+Subject: Re: [PATCH] Fix do_div() for all architectures
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v551)
+Cc: Dale Johannesen <dalej@apple.com>, Richard Henderson <rth@twiddle.net>,
+       Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Peter Chubb <peter@chubb.wattle.id.au>,
+       Andrew Morton <akpm@digeo.com>, Ian Molton <spyro@f2s.com>,
+       gcc@gcc.gnu.org
+To: Bernardo Innocenti <bernie@develer.com>
+From: Dale Johannesen <dalej@apple.com>
+In-Reply-To: <200307102131.45474.bernie@develer.com>
+Message-Id: <3645F0F8-B310-11D7-890F-000393D76DAA@apple.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.551)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 05:30:06PM +0000, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1358.18.1, 2003/07/10 10:30:06-07:00, mikael.starvik@axis.com
-> 
-> 	[PATCH] CRIS architecture update for 2.5.74
-> 	
-> #	arch/cris/drivers/usb-host.c	1.11    ->         (deleted)      
-> #	arch/cris/drivers/usb-host.h	1.2     ->         (deleted)      
+On Thursday, July 10, 2003, at 12:31  PM, Bernardo Innocenti wrote:
+>
+>  The compiler could easily tell what memory can be clobbered by a 
+> pointer
+> by applying type-based aliasing rules. For example, a function taking a
+> "char *" can't clobber memory objects declared as "long bar" or
+> "struct foo".
 
-Is there going to be a future update for this, or have you all dropped
-USB support for CRIS?
+No, for two reasons.  First, anything can be aliased by a char.  Second,
+the restriction is on the type of the eventual memory reference,
+not on the type of the pointer.  Assuming an int* p, you can still do 
+*((char*)p) and
+that may alias anything.  So you must check each dereference; this 
+can't be
+done easily at function entry.
 
-thanks,
-
-greg k-h

@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135686AbRDXSYj>; Tue, 24 Apr 2001 14:24:39 -0400
+	id <S135560AbRDXSR1>; Tue, 24 Apr 2001 14:17:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135704AbRDXSY3>; Tue, 24 Apr 2001 14:24:29 -0400
-Received: from goat.cs.wisc.edu ([128.105.166.42]:44807 "EHLO goat.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id <S135686AbRDXSYP>;
-	Tue, 24 Apr 2001 14:24:15 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: BUG: Global FPU corruption in 2.2
-From: Victor Zandy <zandy@cs.wisc.edu>
-Date: 24 Apr 2001 13:21:41 -0500
-Message-ID: <cpxitjurwei.fsf@goat.cs.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
+	id <S135686AbRDXSRR>; Tue, 24 Apr 2001 14:17:17 -0400
+Received: from zmailer.org ([194.252.70.162]:11533 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S135560AbRDXSRF>;
+	Tue, 24 Apr 2001 14:17:05 -0400
+Date: Tue, 24 Apr 2001 21:16:51 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Greetings! <kill children first>
+Message-ID: <20010424211651.D805@mea-ext.zmailer.org>
+In-Reply-To: <Pine.GSO.4.33.0104241253470.178-100000@fugue.cs.utexas.edu> <Pine.LNX.3.95.1010424135734.18005A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1010424135734.18005A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Apr 24, 2001 at 02:03:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Linus Torvalds writes:
-> Ahh.. This actually _does_ look like a race on "current->flags": 
-> PTRACE_ATTACH will do a 
+On Tue, Apr 24, 2001 at 02:03:44PM -0400, Richard B. Johnson wrote:
+> On Tue, 24 Apr 2001, Chin-Tser Huang wrote:
+> > Because there was a mail whose subject is "Children first in fork".
 > 
->         child->flags |= PF_PTRACED; 
-> 
-> without waiting for the child to have stopped. 
+> Gotta watch out for source-code that uses a 'reaper' to kill children
+> from SIGCHLD. We'll get auto-mail from pervert.snuffer.com.
 
-I can see how this could case PF_USEDFPU to be cleared inadvertently,
-but I do not have any ideas for testing this.  Is it clear that this
-is the source of the problem?
+	:-)    I added  "@safestory.com" to be forbidden in headers.
+		This topic WILL die  ;)
 
-What would be involved in backporting the split ptrace flags to 2.2?
-Are there other solutions?
+> Cheers,
+> Dick Johnson
 
-Vic
+/Matti Aarnio

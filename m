@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbUCLWza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 17:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbUCLWza
+	id S263012AbUCLXBq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 18:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbUCLXBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 17:55:30 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:47620 "EHLO
+	Fri, 12 Mar 2004 18:01:46 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:49412 "EHLO
 	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S263007AbUCLWz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 17:55:29 -0500
-Date: Sat, 13 Mar 2004 01:55:26 +0300
+	id S263012AbUCLXBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 18:01:44 -0500
+Date: Sat, 13 Mar 2004 02:01:41 +0300
 From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Thomas Steudten <alpha@steudten.com>
+To: Marc Giger <gigerstyle@gmx.ch>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Msg from scsi aic7xxx driver or PCI layer on alpha
-Message-ID: <20040313015526.A4021@den.park.msu.ru>
-References: <4051DA83.90902@steudten.com>
+Subject: Re: 2.6.4 on Alpha uninterruptible sleep of processes
+Message-ID: <20040313020141.B4021@den.park.msu.ru>
+References: <20040312154613.7567adab@hdg.gigerstyle.ch> <20040312182754.A680@jurassic.park.msu.ru> <20040312184115.B680@jurassic.park.msu.ru> <20040312165907.626d4a08@hdg.gigerstyle.ch> <20040312224649.A750@den.park.msu.ru> <20040312215215.1041889a@hdg.gigerstyle.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <4051DA83.90902@steudten.com>; from alpha@steudten.com on Fri, Mar 12, 2004 at 04:42:59PM +0100
+In-Reply-To: <20040312215215.1041889a@hdg.gigerstyle.ch>; from gigerstyle@gmx.ch on Fri, Mar 12, 2004 at 09:52:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 04:42:59PM +0100, Thomas Steudten wrote:
-> I got this messages from the pci allocator and the
-> scsi aic7xxx driver on kernel 2.6.4 on alpha after
-> reboot: (why is this driver don´t using dma?)
+On Fri, Mar 12, 2004 at 09:52:15PM +0100, Marc Giger wrote:
+> Right now I'm recompiling the kernel. So you say this patch isn't a fix
+> but a test? 
 
-I suspect that you have both "old" and "new" AIC7xxx drivers enabled,
-so all sorts of weird things can happen.
+Yes. That patch just reverts new alpha semaphore stuff which went
+into 2.6.4.
 
-> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+> This time I have additionally "semaphore debugging" enabled,
+> perhaps it's useful for you.
 
-This is from "new" driver.
+Thanks, this might be helpful.
 
-> XXX PCI: Unable to reserve mem region #2:1000@a051000 for device 0000:00:07.0
-> aic7xxx: <Adaptec AHA-294X Ultra SCSI host adapter> at PCI 0/7/0
-> XXX aic7xxx: I/O ports already in use, ignoring.
+> > The answer is here:
+> > http://bugzilla.kernel.org/show_bug.cgi?id=397
+> 
+> That's no answer, that's a statement:-) Do know the exactly reason why
+> it should be a bad idea? Is it mostly a bad idea on alpha?
 
-And this is from "old" one. Naturally, I/O ports are already reserved
-by the "new" driver.
+Hmm, I haven't discussed that with Richard, so I can't speak for him :-)
+IMHO, the benefits of the kernel preempt support in general are more than
+doubtful, the level of complexity that it adds to the kernel code is
+just unacceptable.
 
 Ivan.

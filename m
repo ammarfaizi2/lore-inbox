@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263419AbUEPJ7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUEPKCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263419AbUEPJ7H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 05:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUEPJ7H
+	id S263429AbUEPKCR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 06:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUEPKCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 05:59:07 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:46514 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263419AbUEPJ67 (ORCPT
+	Sun, 16 May 2004 06:02:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:29372 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263448AbUEPKCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 05:58:59 -0400
-Date: Sun, 16 May 2004 11:58:46 +0200 (MEST)
-Message-Id: <200405160958.i4G9wksI006575@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@muc.de
-Subject: Re: [PATCH][3/7] perfctr-2.7.2 for 2.6.6-mm2: x86_64
-Cc: bos@serpentine.com, linux-kernel@vger.kernel.org
+	Sun, 16 May 2004 06:02:15 -0400
+Date: Sun, 16 May 2004 03:01:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: torvalds@osdl.org, adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
+ s->tree' failed: The saga continues.)
+Message-Id: <20040516030136.2081898a.akpm@osdl.org>
+In-Reply-To: <200405152231.15099.elenstev@mesatop.com>
+References: <200405132232.01484.elenstev@mesatop.com>
+	<Pine.LNX.4.58.0405151914280.10718@ppc970.osdl.org>
+	<Pine.LNX.4.58.0405152029110.10718@ppc970.osdl.org>
+	<200405152231.15099.elenstev@mesatop.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 May 2004 21:26:40 +0200, Andi Kleen wrote:
->On Sat, May 15, 2004 at 04:44:13PM +0200, Mikael Pettersson wrote:
->> On Sat, 15 May 2004 11:09:11 +0200, Andi Kleen wrote:
->> >> entail; just look at the horrendous mess that is the P4 performance
->> >> counter event selector.
->> >
->> >There is no way around that - there are kernel users (like the
->> >nmi watchdog or oprofile) and kernel users cannot be made dependent 
->> >on user space modules.
->> 
->> The NMI watchdog uses a simple static mapping. No problem there.
+Steven Cole <elenstev@mesatop.com> wrote:
 >
->So how do you prevent your user applications from overwriting
->the single perfctr the watchdog uses?
+> The script only reported one
+>  iteration finished, while I got it to do 36 iterations over several hours earlier
+>  today (with a 2.6.3-4mdk vendor kernel), so I'm going to add some timing 
+>  tests to the script to see if things are really slowing down with current kernels,
+>  or if it's just my worried imaginings.
 
-Since kernel 2.6.6-rc<something> there is a new API in
-place which makes the NMI watchdog the default owner of
-the lapic NMI hardware (perfctrs + LVTPC). This API also
-allows other drivers to reserve the hardware. If the NMI
-watchdog currently owns the hardware, it voluntarily
-gives it up. If driver Y tries to reserve the hardware
-while it is reserved by driver X, then Y gets -EBUSY.
-When a driver releases the hardware, it reverts to the
-NMI watchdog.
+I did a bit of testing on a 256MB laptop with a fairly slow disk, ext3. 
+Three iterations of the test took:
 
-This allows oprofile and perfctr to coexist safely,
-and keeps the watchdog running whenever the hardware
-isn't reserved.
+2.6.6:		1055.53s user 327.14s system 32% cpu 1:10:06.71 total
 
-John Levon (original oprofile maintainer) has been
-involved in the design of this, and he has expressed
-no concerns about the semantics.
+2.4.27-pre2:	1042.03s user 307.21s system 32% cpu 1:09:46.00 total
 
->> User-space needs to know about it anyway. For instance, unless
->> you understand the HW constraints, you may try to enable mutually
->> exclusive events. Some events may be unconstrained, but you need
->> to know about the constrained ones before you assign the
->> unconstrained ones. And user-space must know the mapping anyway
->> for the RDPMC instruction.
->
->Sure, but it could still ask the kernel if it's available, no?
+2.6.3:		1053.23s user 326.16s system 27% cpu 1:22:07.24 total
 
-It could.
 
->> We don't put an abstract floating-point module in the kernel,
->> charging it with choosing x87, 3dnow!, or sse code, and
->> performing register allocation, do we?
->
->Bad analogy.  The kernel switches the FP state and each process
->has its own and does not impact any other processes.
+So there's nothing particularly wild there.  It's possible I guess that the
+2.6 VM is very sucky but something else made up for it - possibly the
+anticipatory scheduler but more likely the Orlov allocator.
 
-Which is _exactly_ what perfctr's per-process counters adds,
-but for the performance counters. The only difference is that
-FP has been in the user-level state for a long time so people
-naturally expect it to be there, and that FP tends to have
-fewer supervisor-only control registers than the performance
-counters. (x86 has none I think, but PowerPC has two FP control
-bits in one supervisor-only register, so Linux on PowerPC has a
-special prctl() call to control those bits.)
+You're using reiserfs, yes?
 
-/Mikael
+Are you sure the IDE disks are in DMA mode?

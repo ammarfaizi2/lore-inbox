@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268453AbRG3KIk>; Mon, 30 Jul 2001 06:08:40 -0400
+	id <S268450AbRG3KKU>; Mon, 30 Jul 2001 06:10:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268451AbRG3KIa>; Mon, 30 Jul 2001 06:08:30 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:42513 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268453AbRG3KIT>; Mon, 30 Jul 2001 06:08:19 -0400
-Message-ID: <3B653211.FD28320@namesys.com>
-Date: Mon, 30 Jul 2001 14:08:17 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@ns.caldera.de>
-CC: Matthew Gardiner <kiwiunixman@yahoo.co.nz>,
-        kernel <linux-kernel@vger.kernel.org>,
-        Joshua Schmidlkofer <menion@srci.iwpsd.org>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S268451AbRG3KKK>; Mon, 30 Jul 2001 06:10:10 -0400
+Received: from aravis.cur-archamps.fr ([195.202.0.99]:20239 "EHLO
+	aravis.cur-archamps.fr") by vger.kernel.org with ESMTP
+	id <S268450AbRG3KJ5>; Mon, 30 Jul 2001 06:09:57 -0400
+Date: Mon, 30 Jul 2001 12:10:04 +0200
+From: Thierry Laronde <thierry@cri74.org>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: thierry@cri74.org, Debian boot mailing list <debian-boot@lists.debian.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PCI] building PCI IDs/drivers DB from Linux kernel sources
+Message-ID: <20010730121004.A25213@pc04.cri.cur-archamps.fr>
+In-Reply-To: <3B65314A.6060707@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B65314A.6060707@debian.org>; from cate@debian.org on Mon, Jul 30, 2001 at 12:04:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Christoph Hellwig wrote:
-> 
- 
-> Reiserfs as implemented in the 2.4.2-based kernel of OpenLinux 3.1 is
-> everything but stable and has a lot of issues (e.g. NFS-exporting doesn't
-> work).  That is the reason why it is a) marked experimental and is completly
-> unsupported (and that is written _big_ _fat_ in manuals and similar stuff)
-> and b) has debugging enabled to have the additional sanity checks that are
-> under this option and give addtional hints if reiserfs fails again.
+On Mon, Jul 30, 2001 at 12:04:58PM +0200, Giacomo Catenazzi wrote:
+> Hello.
 
-The debugging won't prevent a single crash, it will only print a diagnostic that
-might help to understand why it crashed.  It makes zero sense for a distro to
-have it on, and I think we make that pretty clear in the help button.  It would
-be nice if distros read the help buttons before selecting options when
-configuring their kernels.:-/
+Hello,
+> 
+> I've already done something and it should be included on kernel 2.5,
+> with my
+> autoprobe configuration utility.
+> The sources are in
+> http://people.debian.org/~cate/files/kautoconfigure/autoconfigure/
+> (note that autoconfigure.rule is a simple bash script, so you can
+> extract
+> and transform data in a few shell commands)
 
-I make no claims that users should use ReiserFS as it is in a 2.4.2 kernel....
+OK, I will give it a look.
 > 
->         Christoph
-> 
-> --
-> Of course it doesn't work. We've performed a software upgrade.
+> (I will chek you program and maybe I would stole some of your result, It
+> is GPL?)
+
+Yes! (this is indicated in cpcidb.linux --- the main script; yes I know the
+name is too long...)
+
+Cheers,
+-- 
+Thierry LARONDE, Centre de Ressources Informatiques, Archamps - France
+http://www.cri74.org/

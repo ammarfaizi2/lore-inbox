@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSGVHF0>; Mon, 22 Jul 2002 03:05:26 -0400
+	id <S315218AbSGUXjH>; Sun, 21 Jul 2002 19:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSGVHF0>; Mon, 22 Jul 2002 03:05:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5904 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316535AbSGVHF0>;
-	Mon, 22 Jul 2002 03:05:26 -0400
-Message-ID: <3D3BB14F.44C93587@zip.com.au>
-Date: Mon, 22 Jul 2002 00:16:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cantab.net>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 13/13] lseek speedup
-References: <3D35A024.1635E12E@zip.com.au> <5.1.0.14.2.20020717185356.00ae4ec0@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S315265AbSGUXjH>; Sun, 21 Jul 2002 19:39:07 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1016 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315218AbSGUXjG>; Sun, 21 Jul 2002 19:39:06 -0400
+Subject: Re: [PATCH] Alan says this needs fixing... (timer/cpu_relax)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020721235154.M26376@flint.arm.linux.org.uk>
+References: <20020721235154.M26376@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 01:54:06 +0100
+Message-Id: <1027299246.17234.121.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+On Sun, 2002-07-21 at 23:51, Russell King wrote:
+> While looking at some stuff, I noticed the following.  Alan confirmed
+> that this patch is probably a good idea...
 > 
-> At 17:49 17/07/02, Andrew Morton wrote:
-> >Anton Altaparmakov wrote:
-> > >
-> > > >  Now, why are we taking i_sem for lseek/readdir
-> > > >exclusion and not a per-file lock?
-> > >
-> > > Because it also excludes against directory modifications, etc. Just imagine
-> > > what "rm somefile" or "mv somefile otherfile" or "touch newfile" would do
-> > > to the directory contents and what a concurrent readdir() would do... A
-> > > very loud *BANG* is the only thing that springs to mind...
-> >
-> >That's different.  i_size, contents of things, yes - i_sem for
-> >those.
-> >
-> >But protection of struct file should not be via any per-inode thing.
-> 
-> Oh, I see. But that would mean adding yet another lock to an existing
-> locking scheme? So both i_sem and the "per file lock" would nead to be held
-> over readdir(). That's doable but it would have to be a semaphore based
-> lock due to readdir()...
+> --- orig/kernel/timer.c	Sun Jul  7 23:21:28 2002
+> +++ linux/kernel/timer.c	Sun Jul 21 23:50:17 2002
+> @@ -176,7 +176,7 @@
+>  #define timer_enter(t) do { running_timer = t; mb(); } while (0)
+>  #define timer_exit() do { running_timer = NULL; } while (0)
+>  #define timer_is_running(t) (running_timer == t)
+> -#define timer_synchronize(t) while (timer_is_running(t)) barrier()
+> +#define timer_synchronize(t) while (timer_is_running(t)) cpu_relax()
 
-Adding a sleeping lock to struct file for this would make sense; using
-i_sem to protect the innards of struct file ain't right.
+You still need the barrier() as well
 
-However I'm not sure that the VFS needs to be serialising lseek
-and readdir at all.  The fs can do that if it really needs to.
-
-And does it really need to?  Setting aside the non-atomic 64-bit
-read, it may be sufficient for the fs to do what ext2_readdir
-does:  read f_pos once on entry, write it once on exit and if
-there was a concurrent lseek then its results get stomped on.
-
-Can you see any problem with that?
-
-Anyway.  It's not exactly a top-priority thing.  I'll park
-it for a while and just stop running that test ;)
-
--

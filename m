@@ -1,122 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264024AbTDJKtV (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 06:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbTDJKtU (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 06:49:20 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:53377 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264024AbTDJKtS (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 06:49:18 -0400
-Message-Id: <200304101100.h3AB0iL04960@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: linux-kernel
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: mflt1@micrologica.com.hk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre7, 2.5.66, IDE Errors during boot - just a nuisance ? 
-In-Reply-To: Your message of "Thu, 10 Apr 2003 01:02:56 PDT."
-             <Pine.LNX.4.10.10304100102180.12558-100000@master.linux-ide.org> 
+	id S264025AbTDJKwE (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 06:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbTDJKwE (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 06:52:04 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:41230 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264025AbTDJKwD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 06:52:03 -0400
+Date: Thu, 10 Apr 2003 13:00:16 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: henrique.gobbi@cyclades.com
+Cc: henrique2.gobbi@cyclades.com, jgarzik@mandrakesoft.com,
+       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: PC300 driver for kernel 2.4
+Message-Id: <20030410130016.60e1e70b.skraw@ithnet.com>
+In-Reply-To: <3E93EC32.3030302@cyclades.com>
+References: <20030407171037.GB8178@wohnheim.fh-wedel.de>
+	<20030408093329.GT23095@lug-owl.de>
+	<20030408142020.GS159052@niksula.cs.hut.fi>
+	<3E93EC32.3030302@cyclades.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain
-Date: Thu, 10 Apr 2003 13:00:44 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 09 Apr 2003 09:47:30 +0000
+Henrique Gobbi <henrique2.gobbi@cyclades.com> wrote:
 
-Hi Andre,
-
-> All it is an aborted command.
-> just a nuisanse and noise maker!
-
-OK.  But can you please explain a bit more what is happening ?
-Why is the command aborted ?
-
-I get a similar error when inserting a PCMCIA CompactFlash adapter
-in my RH 9 laptop (RH kernel 2.4.20-9):
-
-    hdc: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-    hdc: task_no_data_intr: error=0x00 { }
-
-Besides the kernel error the machine completely freezes for 20 seconds.
-(See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=88411 )
-
-	greetings,
-	Rob van Nieuwkerk
-
-> On Thu, 10 Apr 2003, Michael Frank wrote:
 > 
-> > Noticed this for some time in 2.5.64 and up, and now also in 2.4.21-pre6 and pre7. It was OK 2.4.20. No functional problems were encountered  with 2.4.21, 2.5.6x so far.
-> > 
-> > Its a  P1, lspci follows
-> > 
-> > 00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev 03)
-> > 00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-> > 00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-> > 00:09.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01)
-> > 00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-> > 00:0b.0 SCSI storage controller: Adaptec AHA-7850 (rev 01)
-> > 
-> > 
-> > Apr 10 15:17:30 mhfl1 kernel: Linux version 2.4.21-pre7-mhf18-np (mhf@mhfl3) (gcc version 2.95.3 20010315 (release)) #2 
-> > 
-> > Apr 10 15:12:42 mhfl1 kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
-> > Apr 10 15:12:42 mhfl1 kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> > Apr 10 15:12:42 mhfl1 kernel: PIIX3: IDE controller at PCI slot 00:07.1
-> > Apr 10 15:12:42 mhfl1 kernel: PIIX3: chipset revision 0
-> > Apr 10 15:12:42 mhfl1 kernel: PIIX3: not 100%% native mode: will probe irqs later
-> > Apr 10 15:12:42 mhfl1 kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-> > Apr 10 15:12:42 mhfl1 kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-> > Apr 10 15:12:42 mhfl1 kernel: hda: QUANTUM BIGFOOT2550A, ATA DISK drive
-> > Apr 10 15:12:42 mhfl1 kernel: blk: queue c0347ae0, I/O limit 4095Mb (mask 0xffffffff)
-> > Apr 10 15:12:42 mhfl1 kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > Apr 10 15:12:43 mhfl1 kernel: hda: attached ide-disk driver.
-> > 
-> > ------------------------------\/
-> > Apr 10 15:12:43 mhfl1 kernel: hda: task_no_data_intr: status=0x53 { DriveReady SeekComplete Index Error }
-> > Apr 10 15:12:43 mhfl1 kernel: hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> > 
-> > Apr 10 15:12:43 mhfl1 kernel: hda: 5033952 sectors (2577 MB) w/87KiB Cache, CHS=624/128/63, DMA
-> > Apr 10 15:12:43 mhfl1 kernel: Partition check:
-> > Apr 10 15:12:43 mhfl1 kernel:  hda: hda1 hda2 hda3
-> > 
-> > ----------
-> > Mar 30 15:46:51 mhfl1 kernel: Linux version 2.5.66-mhf2 (mhf@mhfl2) (gcc version 2.95.3 20010315 (release)) #12 Sat Mar 29 
-> > 
-> > Mar 30 15:47:05 mhfl1 kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> > Mar 30 15:47:05 mhfl1 kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> > Mar 30 15:47:05 mhfl1 kernel: PIIX3: IDE controller at PCI slot 00:07.1
-> > Mar 30 15:47:05 mhfl1 kernel: PIIX3: chipset revision 0
-> > Mar 30 15:47:05 mhfl1 kernel: PIIX3: not 100%% native mode: will probe irqs later
-> > Mar 30 15:47:05 mhfl1 kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-> > Mar 30 15:47:05 mhfl1 kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-> > Mar 30 15:47:05 mhfl1 kernel: hda: QUANTUM BIGFOOT2550A, ATA DISK drive
-> > Mar 30 15:47:05 mhfl1 kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > 
-> > ------------------------------\/
-> > Mar 30 15:47:05 mhfl1 kernel: hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> > Mar 30 15:47:05 mhfl1 kernel: hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> > 
-> > Mar 30 15:47:05 mhfl1 kernel: hda: 5033952 sectors (2577 MB) w/87KiB Cache, CHS=4994/16/63, DMA
-> > Mar 30 15:47:05 mhfl1 kernel:  hda: hda1 hda2 hda3
-> > 
-> > Regards
-> > Michael
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
+> Hello !!!
 > 
-> Andre Hedrick
-> LAD Storage Consulting Group
+> Please include the patch attached to the e-mail to the next pre release
+> of the kernel 2.4.21. This patch contains the Cyclades PC300 driver and
+> the Makefiles modifications to compile such driver.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> thanks in advance
+> Henrique
 
+Thanks Henrique,
+
+I am still very much for its inclusion. Just to give a positive vote ...
+
+Regards,
+Stephan
 

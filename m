@@ -1,90 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUJINLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUJINPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUJINLc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 09:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUJINLc
+	id S266805AbUJINPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 09:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUJINPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 09:11:32 -0400
-Received: from vsmtp3alice.tin.it ([212.216.176.143]:50378 "EHLO
-	vsmtp3alice.tin.it") by vger.kernel.org with ESMTP id S266802AbUJINL3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 09:11:29 -0400
-Message-ID: <4167E3A5.8080807@ircom.org>
-Date: Sat, 09 Oct 2004 15:12:05 +0200
-From: Fwiffo <fwiffo@ircom.org>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 9 Oct 2004 09:15:33 -0400
+Received: from main.gmane.org ([80.91.229.2]:18135 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266805AbUJINP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 09:15:28 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: GPL issues with a company
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Date: Sat, 09 Oct 2004 15:15:13 +0200
+Message-ID: <yw1xk6u0hw2m.fsf@mru.ath.cx>
+References: <41677E4D.1030403@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 197.80-202-92.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:xkmejeLN051YtGZYekuoX7wIosM=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Excuse me if I'm sending it in the wrong place, but since I don't really 
-know were to send it to, I've put the thing in here, since I think this 
-should be noticed by whom is passing time over code where someone else 
-now is doing whatevere he wants without respect...
 
-Since I don't have much time, I'm pasting the letter I sent to the 
-squashfs author, it contains necessary information, plus I add something 
-in the end:
+I got this thing to build by adding a few EXPORT_SYMBOL, patch below.
+Now it seems to be running quite well.  I am, however, getting
+occasional "bad: scheduling while atomic!" messages, all alike:
 
-*-----------------------------------*
-Hi,
+bad: scheduling while atomic!
+ [<c02ef301>] schedule+0x4e5/0x4ea
+ [<c0114cbe>] try_to_wake_up+0x99/0xa8
+ [<c01332e2>] __p_mutex_down+0xfe/0x190
+ [<c029e238>] alloc_skb+0x32/0xc3
+ [<c01335e0>] kmutex_is_locked+0x1f/0x33
+ [<c029fa63>] skb_queue_tail+0x1c/0x45
+ [<c02eb43e>] unix_stream_sendmsg+0x22c/0x38c
+ [<c029ab03>] sock_sendmsg+0xc9/0xe3
+ [<c029f95a>] skb_dequeue+0x4a/0x5b
+ [<c02eb9e6>] unix_stream_recvmsg+0x119/0x430
+ [<c0137f06>] __alloc_pages+0x1cc/0x33f
+ [<c01168ca>] autoremove_wake_function+0x0/0x43
+ [<c029af4b>] sock_readv_writev+0x6e/0x97
+ [<c029afec>] sock_writev+0x37/0x3e
+ [<c029afb5>] sock_writev+0x0/0x3e
+ [<c014ebb8>] do_readv_writev+0x1db/0x21f
+ [<c01168ca>] autoremove_wake_function+0x0/0x43
+ [<c014e5ca>] vfs_read+0xd0/0xf5
+ [<c014ec94>] vfs_writev+0x49/0x52
+ [<c014ed5a>] sys_writev+0x47/0x76
+ [<c0103f09>] sysenter_past_esp+0x52/0x71
 
-I'm sending this notice to communicate to you that a company, formely 
-named dynalink, in new zeland,
-http://www.dynalink.co.nz/ is selling one (at least to my knowledge, I 
-don't have investigated any further) ADSL that contain a modified Linux 
-Kernel version with squashfs support, further investigation to the 
-relevant portion of the squashfs filesystem gave me notice that maybe 
-they've done relevant modification to your filesystem, but haven't, 
-until now, and after my request, put a single source code line, nor of 
-the linux kernel, nor of the uclib nor of the squashfs and whatever 
-they've there....
+USB, sound and wireless are all working nicely.
 
-http://fwiffo.altervista.org/gigaset.bin contains the firmware of the 
-modem in question (known as RTA230 in the dynalink page), the processor 
-is a MIPS32, below output from modem's proc filesys:
------
-system type             : RTA230
-processor               : 0
-cpu model               : BCM6345 V0.0
-BogoMIPS                : 92.97
-wait instruction        : no
-microsecond timers      : yes
-tlb_entries             : 32
-extra interrupt vector  : no
-hardware watchpoint     : no
-VCED exceptions         : not available
-VCEI exceptions         : not available
------
-As you can see in the gigaset.bin, after exactly 256 bytes begins the 
-squashfs (typical big endian style, since we are talking of big endian 
-machine), but, at least to my little knowledge of programming and of the 
-filesystem in question (I'm very ignorant for that matter, but at least 
-I've spotted a few things....) I've seen that this isn't the usual 
-output of one of your squashfs tools....
-And also, I've taken the squashfs image from the device directly as 
-output from the RTA230 's modem, but hadn't any success in using it with 
-any of your patch, so, we are in front of a modification maybe?!
-...I hope that at least those things will be useful to you...If you also 
-look in http://fwiffo.altervista.org even if the page is in italian, you 
-will see an image of the modem in the end of the page; that very modem 
-is distributed by Telecom Italia S.p.A., a company were I work, and is 
-rebranded by Siemens, here the modem's name is: Alice ADSL Gigaset .
+Now the patch:
 
-If you want to know something else, I'm here to answer.
+--- kernel/kmutex.c~	2004-10-09 12:51:37 +02:00
++++ kernel/kmutex.c	2004-10-09 13:50:43 +02:00
+@@ -20,6 +20,7 @@
+ #include <linux/config.h>
+ #include <linux/kmutex.h>
+ #include <linux/sched.h>
++#include <linux/module.h>
+ 
+ # if defined CONFIG_PMUTEX
+ #   include <linux/pmutex.h>
+@@ -40,11 +41,14 @@
+         return p_mutex_trylock(&(lock->kmtx));
+ }
+ 
++EXPORT_SYMBOL(kmutex_trylock);
+ 
+ inline int kmutex_is_locked(struct kmutex *lock)
+ {
+ 	return p_mutex_is_locked(&(lock->kmtx));
+ }
++
++EXPORT_SYMBOL(kmutex_is_locked);
+ # endif
+ 
+ 
+@@ -60,6 +64,7 @@
+ #endif
+ } 
+ 
++EXPORT_SYMBOL(kmutex_init);
+ 
+ /*
+  * print warning is case kmutex_lock is called while preempt count is
+@@ -88,6 +93,8 @@
+ #endif
+ } 
+ 
++EXPORT_SYMBOL(kmutex_lock);
++
+ void kmutex_unlock(struct kmutex *lock) 
+ { 
+ #if defined CONFIG_KMUTEX_DEBUG
+@@ -102,6 +109,7 @@
+ #endif
+ }
+ 
++EXPORT_SYMBOL(kmutex_unlock);
+ 
+ void kmutex_unlock_wait(struct kmutex * lock)
+ { 
+@@ -111,4 +119,4 @@
+                 }  
+ }
+ 
+-
++EXPORT_SYMBOL(kmutex_unlock_wait);
 
-Puligheddu Karsten
 
-PS: I guess they're also violating GPL....and I guess I will send 
-similiar notices to LINUX ML and uclib authors... *
------------------------------------
-# cat /proc/version
-Linux version 2.4.17 (michaelc@ADSL_SW1_LINUX) (gcc version 3.1) #1 Mon 
-May 10 1
-5:30:45 CST 2004
-*
+-- 
+Måns Rullgård
+mru@mru.ath.cx
+

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318074AbSG2Axp>; Sun, 28 Jul 2002 20:53:45 -0400
+	id <S318107AbSG2A4q>; Sun, 28 Jul 2002 20:56:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318075AbSG2Axo>; Sun, 28 Jul 2002 20:53:44 -0400
-Received: from holomorphy.com ([66.224.33.161]:18090 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318074AbSG2Axn>;
-	Sun, 28 Jul 2002 20:53:43 -0400
-Date: Sun, 28 Jul 2002 17:56:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S318109AbSG2A4q>; Sun, 28 Jul 2002 20:56:46 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:31502 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318107AbSG2A4p>; Sun, 28 Jul 2002 20:56:45 -0400
+Date: Sun, 28 Jul 2002 21:59:45 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
 To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
-Message-ID: <20020729005649.GT25038@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D448808.CF8D18BA@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
+In-Reply-To: <3D449388.7CE9A47A@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0207282158530.3086-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 05:10:48PM -0700, Andrew Morton wrote:
-> - Few pages use ->private for much.  Hash for it.  4(ish) bytes
->   saved.
+On Sun, 28 Jul 2002, Andrew Morton wrote:
 
-Do you know an approximate reasonable constant of proportionality
-for how many pages have ->private attached?
+> And we took the lru_cache_del() out of truncate_complete_page()
+> because, err, I forget.  There was a situation in which the page
+> could still be mapped into process pagetables, and the lru_cache_del()
+> would have left it unswappable until process exit.
+>
+> Rik, can you remember the exact scenario?
 
+Truncate vs. the page fault path.  It would be possible for
+pages to be removed from the lru list by truncate and turning
+into anonymous process memory.
 
-On Sun, Jul 28, 2002 at 05:10:48PM -0700, Andrew Morton wrote:
-> - Remove the rmap chain (I just broke ptep_to_address() anyway).  4 bytes
->   saved.  struct page is now 20 bytes.
+This becomes a leak when only pages on the lru list can be
+paged out.
 
-How did ptep_to_address() break? I browsed over your latest changes and
-missed the bit where that fell apart. I'll at least take a stab at fixing
-it up until the other bits materialize.
+regards,
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Cheers,
-Bill

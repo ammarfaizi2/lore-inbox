@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbSKINdj>; Sat, 9 Nov 2002 08:33:39 -0500
+	id <S265191AbSKINsU>; Sat, 9 Nov 2002 08:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265108AbSKINdj>; Sat, 9 Nov 2002 08:33:39 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:53913 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S265099AbSKINdi>;
-	Sat, 9 Nov 2002 08:33:38 -0500
-Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-From: Stephen Lord <lord@sgi.com>
+	id <S265420AbSKINsU>; Sat, 9 Nov 2002 08:48:20 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:50913 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265191AbSKINsT>;
+	Sat, 9 Nov 2002 08:48:19 -0500
+Date: Sat, 9 Nov 2002 14:54:46 +0100
+From: Jens Axboe <axboe@suse.de>
 To: Con Kolivas <conman@kolivas.net>
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <200211100009.55844.conman@kolivas.net>
-References: <200211091300.32127.conman@kolivas.net>
-	<200211091612.08718.conman@kolivas.net> <20021109112135.GB31134@suse.de> 
-	<200211100009.55844.conman@kolivas.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Nov 2002 07:35:04 -0600
-Message-Id: <1036848906.1061.17.camel@laptop.americas.sgi.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+Message-ID: <20021109135446.GA2551@suse.de>
+References: <200211091300.32127.conman@kolivas.net> <200211091612.08718.conman@kolivas.net> <20021109112135.GB31134@suse.de> <200211100009.55844.conman@kolivas.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211100009.55844.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-09 at 07:09, Con Kolivas wrote:
+On Sun, Nov 10 2002, Con Kolivas wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
 > 
@@ -52,19 +48,18 @@ On Sat, 2002-11-09 at 07:09, Con Kolivas wrote:
 > 2.4.20-rc1 [2]          1142.2  6       90      10      16.00
 > 2420rc1r64 [3]          575.0   12      43      10      8.05
 > 
-> That's it then. Should I run a family of different values and if so over what 
-> range?
-> 
+> That's it then. Should I run a family of different values and if so
+> over what range?
 
+The default is 2048. How long does the io_load test take, or rather how
+many tests are appropriate to do? To get a good picture of how it looks
+you should probably try: 0, 8, 16, 64, 128, 512. Once you get some of
+these results, it will be easier to determine which area(s) would be
+most interesting to further explore.
 
-There is more going on than this, XFS suffered a major slowdown in some
-metadata write only benchmarks - the file create/delete phase of 
-bonnie++. Now thats a single app only doing writes. Slowdown on the
-order of 500% to 600%. Since we did not follow the pre kernels in
-2.4.20 we do not really know when it was introduced and there is
-a possibility XFS itself has not followed some api change.
+There's also the write passover, I don't think it will have much impact
+on this test though.
 
-Steve
-
-
+-- 
+Jens Axboe
 

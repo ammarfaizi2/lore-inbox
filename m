@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287770AbSAFIcp>; Sun, 6 Jan 2002 03:32:45 -0500
+	id <S287784AbSAFIyN>; Sun, 6 Jan 2002 03:54:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287769AbSAFIcg>; Sun, 6 Jan 2002 03:32:36 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:11427 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S287768AbSAFIcS>; Sun, 6 Jan 2002 03:32:18 -0500
-Date: Sun, 6 Jan 2002 01:32:09 -0700
-Message-Id: <200201060832.g068W9411534@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: Jason Thomas <jason@topic.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br
-Subject: Re: oops in devfs
-In-Reply-To: <20020105202715.N12868@lynx.no>
-In-Reply-To: <20020103014507.GB19702@topic.com.au>
-	<200201030724.g037ONj04041@vindaloo.ras.ucalgary.ca>
-	<20020103224744.GB29846@topic.com.au>
-	<200201060047.g060l4p08166@vindaloo.ras.ucalgary.ca>
-	<20020105202715.N12868@lynx.no>
+	id <S287781AbSAFIyE>; Sun, 6 Jan 2002 03:54:04 -0500
+Received: from web20508.mail.yahoo.com ([216.136.226.143]:61706 "HELO
+	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S287768AbSAFIxo>; Sun, 6 Jan 2002 03:53:44 -0500
+Message-ID: <20020106085343.70369.qmail@web20508.mail.yahoo.com>
+Date: Sun, 6 Jan 2002 09:53:43 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: The plethora of kernel versions
+To: brian@worldcontrol.com, Willy Tarreau <wtarreau@free.fr>
+Cc: reddog83@chartermi.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20020105173304.B3160@top.worldcontrol.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger writes:
-> On Jan 05, 2002  17:47 -0700, Richard Gooch wrote:
-> > Ah! You're using LVM! There are known bugs in LVM which cause memory
-> > corruptions. I told Heinz about this on 16-DEC, but it appears the CVS
-> > tree hasn't been updated yet. So grab the latest CVS tree (which fixes
-> > some bugs) and then apply the appended patch (which fixes more
-> > bugs). You definately need both. The patch should be applied in the
-> > drivers/md directory.
-> 
-> Hmm, my understanding was that the LVM CVS already had this patch
-> applied, but I could be wrong...  In any case, I haven't seen
-> anything about updating the kernel LVM to match CVS since Alan
-> merged in his -ac LVM code into 2.4.15 or so.
+> Often there is nothing in emails that idenfity what
+> versions the other is talking about.
 
-When I wrote this message, I had just before downloaded LVM using CVS,
-following the instructions at: http://www.sistina.com/products_CVS.htm
-AFAIK, that's the most recent version of LVM.
+even more true these days with 2.5. Sometimes, you can
+only rely on the poster to guess what version he's
+talking about. Eg: at least when I see Linus, Jens or
+Dave Jones, I assume it's about 2.5 before reading the
+mail.
 
-Hm. Andreas: do you have write access?
+> how about the various "versions" including something
+> that I can use to identify and toss those messages I
+> am not interested in.
 
-				Regards,
+That's what regular posters tend to do :
+"[PATCH-2.4]", "[BUG in 2.2.20]", or "[OT]"...
+The problem is more about newcomers who don't know
+about these posting rules.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> I'm primarily a 2.4 user, why do I care about all
+> this 2.5 discussion?
+
+sometimes, a 2.5 bug/fix may also affect 2.4, and this
+is only told in the message body.
+
+Willy
+
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

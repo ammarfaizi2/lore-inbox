@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVCNTnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVCNTnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbVCNTnu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 14:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVCNTns
+	id S261794AbVCNTnD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 14:43:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVCNTkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:43:48 -0500
-Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:62733
-	"EHLO graphe.net") by vger.kernel.org with ESMTP id S261770AbVCNTku
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:40:50 -0500
-Date: Mon, 14 Mar 2005 11:40:36 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org, Shai Fultheim <Shai@Scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] del_timer_sync scalability patch
-In-Reply-To: <42343C61.6A1210C0@tv-sign.ru>
-Message-ID: <Pine.LNX.4.58.0503141134240.31933@server.graphe.net>
-References: <4231E959.141F7D85@tv-sign.ru> <42343C61.6A1210C0@tv-sign.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Mon, 14 Mar 2005 14:40:53 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:12929 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261772AbVCNTjy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 14:39:54 -0500
+Subject: 2.6.11-bk10 build problems
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: kai@germaschewski.name, sam@ravnborg.org
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 11:39:37 -0800
+Message-Id: <1110829177.19340.8.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm having some intermittent build problems on 2.6.11-bk10.  First of
+all, doing a 'make -j8 O=... install' errors out not being able to find
+a vmlinux:
 
-On Sun, 13 Mar 2005, Oleg Nesterov wrote:
+$ make O=../mhp-build/i386-plain/ -j8 install
+make[3]: *** No rule to make target `vmlinux', needed by
+`arch/i386/boot/compressed/vmlinux.bin'.  Stop.
+make[2]: *** [arch/i386/boot/compressed/vmlinux] Error 2
+make[1]: *** [install] Error 2
+make: *** [install] Error 2
 
-> I suspect that del_timer_sync() in its current form is racy.
->
-> CPU 0						CPU 1
->
-> __run_timers() sets timer->base = NULL
->
-> 						del_timer_sync() starts, calls del_timer(), it returns
-> 						because timer->base == NULL.
->
-> 						waits until the run is complete:
-> 							while (base->running_timer == timer)
-> 								preempt_check_resched();
->
-> 						calls schedule(), or long interrupt happens.
->
-> timer reschedules itself, __run_timers()
-> exits.
->
-> 						base->running_timer == NULL, end of loop.
->
-> next timer interrupt, __run_timers() picks
-> this timer again, sets timer->base = NULL
->
-> 						if (timer_pending(timer))	// no, timer->base == NULL
+Also, I just ran menuconfig, changed an option, and did another 'make
+install', and it went straight to the install script with no
+compiling.  
 
-timer->base is != NULL because the timer has rescheduled itself.
-__mod_timer sets timer->bBase
+Note that these are with O=, so it might be just a separate build tree
+problem.
 
-> 							goto del_again;		// not taken
+Any ideas?
 
-Yes it is taken!
+-- Dave
 
->
-> 						del_timer_sync() returns
->
-> timer runs.
-
-Nope.

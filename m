@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317999AbSFSU2U>; Wed, 19 Jun 2002 16:28:20 -0400
+	id <S318000AbSFSUez>; Wed, 19 Jun 2002 16:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318001AbSFSU2T>; Wed, 19 Jun 2002 16:28:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54289 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317999AbSFSU2S>; Wed, 19 Jun 2002 16:28:18 -0400
-Date: Wed, 19 Jun 2002 13:24:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-cc: Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>,
-       Dave Jones <davej@suse.de>, Daniel Phillips <phillips@bonn-fries.net>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-       <rwhron@earthlink.net>
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-In-Reply-To: <Pine.LNX.4.44.0206191310590.4292-100000@loke.as.arizona.edu>
-Message-ID: <Pine.LNX.4.33.0206191322480.2638-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318001AbSFSUey>; Wed, 19 Jun 2002 16:34:54 -0400
+Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:7814 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S318000AbSFSUex>; Wed, 19 Jun 2002 16:34:53 -0400
+Date: Wed, 19 Jun 2002 21:34:48 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Christopher Li <chrisl@gnuchina.org>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+       DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+Message-ID: <20020619213448.A22803@redhat.com>
+References: <20020619113734.D2658@redhat.com> <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain> <20020619211051.E5119@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020619211051.E5119@redhat.com>; from sct@redhat.com on Wed, Jun 19, 2002 at 09:10:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, 19 Jun 2002, Craig Kulesa wrote:
+On Wed, Jun 19, 2002 at 09:10:51PM +0100, Stephen C. Tweedie wrote:
+
+> cvs -d :ext:FOO@cvs.gkernel.sourceforge.net:/cvsroot/gkernel co ext3
+> The branches being used are
 > 
-> I'll try a more varied set of tests tonight, with cpu usage tabulated.
+> 	cvs up -r ext3-1_0-branch	# HEAD of ext3 development
+> 	cvs up -r features-branch	# For htree, ACLs etc
 
-Please do a few non-swap tests too. 
+And one other thing: the subdirectories tools/, testing/ and scripts/
+on the cvs trunk contain various tools for testing and stressing the
+filesystem and VM.
 
-Swapping is the thing that rmap is supposed to _help_, so improvements in
-that area are good (and had better happen!), but if you're only looking at
-the swap performance, you're ignoring the known problems with rmap, ie the
-cases where non-rmap kernels do really well.
-
-Comparing one but not the other doesn't give a very balanced picture..
-
-		Linus
-
+--Stephen

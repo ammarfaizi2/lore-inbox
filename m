@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311180AbSDECHb>; Thu, 4 Apr 2002 21:07:31 -0500
+	id <S311025AbSDECGL>; Thu, 4 Apr 2002 21:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311121AbSDECHM>; Thu, 4 Apr 2002 21:07:12 -0500
-Received: from zero.tech9.net ([209.61.188.187]:34571 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S311092AbSDECHH>;
-	Thu, 4 Apr 2002 21:07:07 -0500
-Subject: Re: [PATCH] preemptive kernel behavior change: don't be rude
-From: Robert Love <rml@tech9.net>
-To: george anzinger <george@mvista.com>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <3CAD0311.CFCCCDB@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 04 Apr 2002 21:06:29 -0500
-Message-Id: <1017972405.22304.720.camel@phantasy>
+	id <S311092AbSDECGC>; Thu, 4 Apr 2002 21:06:02 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2552
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S311025AbSDECFu>; Thu, 4 Apr 2002 21:05:50 -0500
+Date: Thu, 4 Apr 2002 18:07:52 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cleanup KERNEL_VERSION definition and linux/version.h
+Message-ID: <20020405020752.GJ961@matchmail.com>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020404011251Z313077-616+5298@vger.kernel.org> <17913.1017884166@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-04 at 20:51, george anzinger wrote:
-
-> This line implies that entry.S calls with preempt count of 0.  It use to
-> call with 1 or was that WAY back there?  
-
-No you are right, this line needs to be pushed back out to
-preempt_enable OR we need to duplicate preempt_schedule in the entry.S
-code.  For now, I will just push this back into preempt_enable.
-
-> If this is the way it is and it works, then the += and -= below can be
-> changed to = and the second reference to PREEMPT_ACTIVE becomes 0.
+On Thu, Apr 04, 2002 at 11:36:06AM +1000, Keith Owens wrote:
+> On Thu, 04 Apr 2002 10:12:29 +0900, 
+> Hiroyuki Toda <might@might.dyn.to> wrote:
+> >
+> >Keith> This file will change completely in 2.5 when kbuild 2.5 goes in.  Why
+> >Keith> does it need to be rearranged in 2.4?
+> >
+> >Will kbuild 2.5 go in 2.4 tree also?
 > 
-> I think I would rather have entry.S set preempt_count to PREEMPT_ACTIVE
-> with the interrupt system off, turn it on, make the call directly to
-> schedule(), and then set to zero on return.  I really am concerned with
-> taking an interrupt during the call, i.e. between the interrupt on and
-> the store below.  This can lead to stack overflow rather easily.
+> No, but version.h is working at the moment in 2.4.  Why change it?
 
-Agreed.  This is probably the best way to do it ... for now I'll do it
-like above.
-
-	Robert Love
-
+Why do so many drivers enable options depending on the kernel version?
+Shouldn't that be stripped out before a patch is accepted into the kernel?

@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTIXDCk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 23:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbTIXDCk
+	id S261336AbTIXDRj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 23:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTIXDRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 23:02:40 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:39850 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261299AbTIXDCh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 23:02:37 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Tue, 23 Sep 2003 23:17:39 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:20103 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261336AbTIXDRh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 23:17:37 -0400
+Date: Tue, 23 Sep 2003 20:16:02 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Larry McVoy <lm@bitmover.com>, andrea@kernel.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030924031602.GA7887@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
+	andrea@kernel.org, Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Matthew Wilcox <willy@debian.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+References: <20030923221528.GP1269@velociraptor.random> <Pine.LNX.4.44.0309231524160.24527-100000@home.osdl.org> <20030924003652.GI16314@velociraptor.random> <20030924011951.GA5615@work.bitmover.com> <20030924020409.GL16314@velociraptor.random> <20030924022948.GA6496@work.bitmover.com> <20030924023928.GN16314@velociraptor.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16240.35153.564994.931355@napali.hpl.hp.com>
-Date: Tue, 23 Sep 2003 10:56:33 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au,
-       bcrl@kvack.org, ak@suse.de, iod00d@hp.com, peterc@gelato.unsw.edu.au,
-       linux-ns83820@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-In-Reply-To: <20030923102735.42a59d57.davem@redhat.com>
-References: <16234.33565.64383.838490@wombat.disy.cse.unsw.edu.au>
-	<20030919043847.GA2996@cup.hp.com>
-	<20030919044315.GC7666@wotan.suse.de>
-	<16234.36238.848366.753588@wombat.chubb.wattle.id.au>
-	<20030919055304.GE16928@wotan.suse.de>
-	<20030919064922.B3783@kvack.org>
-	<16239.38154.969505.748461@wombat.chubb.wattle.id.au>
-	<20030922203629.B21836@kvack.org>
-	<20030922232237.28a5ac4a.davem@redhat.com>
-	<16240.8965.91289.460763@wombat.chubb.wattle.id.au>
-	<20030923035118.578203d5.davem@redhat.com>
-	<16240.24511.375148.520203@napali.hpl.hp.com>
-	<20030923102735.42a59d57.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20030924023928.GN16314@velociraptor.random>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 23 Sep 2003 10:27:35 -0700, "David S. Miller" <davem@redhat.com> said:
+On Wed, Sep 24, 2003 at 04:39:28AM +0200, Andrea Arcangeli wrote:
+> On Tue, Sep 23, 2003 at 07:29:48PM -0700, Larry McVoy wrote:
+> > On Wed, Sep 24, 2003 at 04:04:09AM +0200, andrea@kernel.org wrote:
+> > > > What we expected in return was the same understanding.
+> > > 
+> > > that is not accurate, you also asked us to giveup the freedom of
+> > > development in your area. 
+> > 
+> > If you were actually doing some significant development then maybe I'd
+> > respect you.  But you aren't.  So I don't.  You don't have the slightest
+> > understanding in this area, you've proved that beyond all reasonable
+> > doubt.  So you are just complaining about something you don't understand.
+> > 
+> > I truly hope you follow in the footsteps of others who got pissed at the
+> > BK licensing and try to implement a replacement.  BK makes VM systems
+> > seem like child's play.  Centralized systems like CVS are child's play.
+> 
+> If you weren't using the linux VM I'd respect you, but you are, and
+> still I respected you so far, probably I was wrong.
 
-  DaveM> On Tue, 23 Sep 2003 07:59:11 -0700
-  DaveM> David Mosberger <davidm@napali.hpl.hp.com> wrote:
-
-  >> The printk() is rate-controlled and doesn't happen for every unaligned
-  >> access.  It's average cost can be made as low as we want to, by adjusting
-  >> the rate.
-
-  DaveM> But if the event is normal, you shouldn't be logging it as if
-  DaveM> it weren't.
-
-An event that causes a slow-down of 500 times or so is not "normal".
-On Alpha, we did have just a counter.  Guess what, nobody ever noticed
-when things ran much slower than they should have.
-
-  DaveM> Anyone who tries to use IP over appletalk or certain protocols
-  DaveM> over PPP are going to see your silly messages.
-
-  DaveM> As I understand it, you even do this stupid printk for user apps
-  DaveM> as well, that makes it more than rediculious.  I'd be surprised
-  DaveM> if anyone can find any useful kernel messages on an ia64 system
-  DaveM> in the dmesg output with all the unaligned access crap there.
-
-Ever heard of prctl --unalign=silent?
-I don't normaly do that and I still get very few unaligned warning messages.
-
-	--david
+Yeah.  I'm using the Linux VM.  And it _still_ isn't up to what I managed
+to accomplish in SunOS.  Wake up, dude.  You aren't the first one to
+work in this area, you are just one of the first to work in this area
+without learning from the people who came before you.  Don't believe me?
+Go to OLS and read the papers.  Then read the OS research that has
+happened in the last 20 years or so.  So far you are still catching up.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpHAHhYpyvi/tRWuzpkOfTiGkIA==
+thread-index: AcQVpIKIl+rQ2gBlTtqmQf01qGEyPQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 10:33:53 +0000
-Message-ID: <01c001c415a4$70074140$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft CDO for Exchange 2000
-Date: Mon, 29 Mar 2004 16:42:27 +0100
+Delivery-date: Sun, 04 Jan 2004 17:03:29 +0000
+Message-ID: <021b01c415a4$8288a6b0$d100000a@sbs2003.local>
+Subject: Re: Pentium M config option for 2.6
 Content-Class: urn:content-classes:message
+From: "Rob Love" <rml@ximian.com>
 Importance: normal
-From: "Jens Axboe" <axboe@suse.de>
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Hugang" <hugang@soulinfo.com>, "Bart Samwel" <bart@samwel.tk>,
-        "Andrew Morton" <akpm@osdl.org>, <smackinlay@mail.com>,
-        "Bartek Kania" <mrbk@gnarf.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] laptop-mode-2.6.0 version 5
-References: <3FF3887C.90404@samwel.tk> <20031231184830.1168b8ff.akpm@osdl.org> <3FF43BAF.7040704@samwel.tk> <3FF457C0.2040303@samwel.tk> <20040101183545.GD5523@suse.de> <20040102170234.66d6811d@localhost> <20040102112733.GA19526@suse.de> <20040102193849.6ff090da@localhost> <20040102120327.GA19822@suse.de> <16375.57972.132841.32878@wombat.chubb.wattle.id.au>
-MIME-Version: 1.0
+Cc: "Mikael Pettersson" <mikpe@csd.uu.se>, <szepe@pinerecords.com>,
+        <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040104165028.GC31585@redhat.com>
+References: <200401041227.i04CReNI004912@harpo.it.uu.se> <1073228608.2717.39.camel@fur> <20040104162516.GB31585@redhat.com> <1073233988.5225.9.camel@fur>  <20040104165028.GC31585@redhat.com>
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <16375.57972.132841.32878@wombat.chubb.wattle.id.au>
+	charset="iso-8859-1"
+MIME-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Mon, 29 Mar 2004 16:42:58 +0100
+Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:28.0218 (UTC) FILETIME=[70A94DA0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:58.0359 (UTC) FILETIME=[82A07470:01C415A4]
 
-On Sun, Jan 04 2004, Peter Chubb wrote:
-> >>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
-> 
-> Jens> The dump printk() needs to be changed anyways, the rw
-> Jens> deciphering is not correct. Something like this is more
-> Jens> appropriate:
-> 
-> Jens>	if (unlikely(block_dump)) { 
-> Jens>		char b[BDEVNAME_SIZE];
-> Jens>		printk("%s(%d): %s block %Lu on %s\n", current->comm, current-> pid, (rw & WRITE) ? "WRITE" : "READ",
-> Jens>		(u64) bio->bi_sector, bdevname(bio->bi_bdev, b)); 
-> Jens>	}
-> 
-> Please cast to (unsigned long long) not (u64) because on 64-bit
-> architectures u64 is unsigned long, and you'll get a compiler warning.
+On Sun, 2004-01-04 at 11:50, Dave Jones wrote:
 
-Yeah Andrew noted the same thing, my bad.
+> FWIW, I agree with it too on the grounds that its non obvious the optimal
+> setting is CONFIG_MPENTIUMIII. This seems cleaner IMO than changing the
+> helptext to read...
+> 
+>  "Pentium II"
+>  "Pentium III / Pentium 4M"
+>  "Pentium 4"
 
--- 
-Jens Axboe
+Oh, very much agreed.  Giving it a separate configure option also opens
+the door for easily adding an march=pentiumm whenever the gcc folks get
+around to adding that.
+
+> My other mail may have sounded like I objected to the patch per se, I don't.
+
+I did not think that, I thought perhaps that you thought that I objected
+:)
+
+	Rob Love
 

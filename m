@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280609AbRKTVQX>; Tue, 20 Nov 2001 16:16:23 -0500
+	id <S280660AbRKTVMv>; Tue, 20 Nov 2001 16:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280824AbRKTVQN>; Tue, 20 Nov 2001 16:16:13 -0500
-Received: from [194.46.8.33] ([194.46.8.33]:54802 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S280609AbRKTVQE>;
-	Tue, 20 Nov 2001 16:16:04 -0500
-Date: Tue, 20 Nov 2001 21:20:55 +0000
-From: Dale Amon <amon@vnl.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Subject: Re: A return to PCI ordering problems...
-Message-ID: <20011120212055.A22590@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011120190316.H19738@vnl.com> <Pine.LNX.3.95.1011120144925.14138A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S280824AbRKTVMm>; Tue, 20 Nov 2001 16:12:42 -0500
+Received: from elin.scali.no ([62.70.89.10]:7686 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S280660AbRKTVMe>;
+	Tue, 20 Nov 2001 16:12:34 -0500
+Message-ID: <3BFAC5A1.81474E74@scali.no>
+Date: Tue, 20 Nov 2001 22:05:37 +0100
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13win4lin i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+CC: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Swap
+In-Reply-To: <Pine.LNX.3.95.1011120111730.7650A-100000@chaos.analogic.com> <3BFA8F87.9FB4C13E@nortelnetworks.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1011120144925.14138A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux, the choice of a GNU generation
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 03:03:23PM -0500, Richard B. Johnson wrote:
-> FYI, if you care about the name of your ethernet device, your
-> configuration is probably broken. The IEEE station address can
-> be used to identify a device and it's accessible from `ifconfig`
-> without setting any network parameters. So, given this, you
-> can set any number of boards found, to anything you need to
-> configure, including complicated servers and routers, with a
-> simple shell-script.
+Christopher Friesen wrote:
+> 
+> "Richard B. Johnson" wrote:
+> >
+> > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
+> >
+> > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
+> > > > When a page is deleted for one executable (because we can re-read it from
+> > > > on-disk binary), it is discarded, not paged out.
+> > >
+> > > What happens if the on-disk binary has changed since loading the program?
+> > > -
+> >
+> > It can't. That's the reason for `install` and other methods of changing
+> > execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
+> > The currently open, and possibly mapped file can be re-named, but it
+> > can't be overwritten.
+> 
+> Actually, with NFS (and probably others) it can.  Suppose I change the file on
+> the server, and it's swapped out on a client that has it mounted.  When it swaps
+> back in, it can get the new information.
+> 
 
-I presume IEEE station address == MAC...
+This sounds really dangerous... What about shared libraries ??
 
-I haven't really much choice. I can't use modules for
-security reasons; I have to assign the motherboard MAC
-to eth0 because a commercial package we are installing
-licenses on the MAC address of eth0.  
-
-Ifconfig cannot, to my knowledge, swap the identify of
-eth0 and eth1. However I the iproute2 calls, if they are
-available, might do the trick. I will have to see.
-
-The only thing I really have control over is the kernel
-itself, not the dist even.
-
-Has the pci=reverse option been removed? That might
-have done the trick.
-
-Also, I don't really see anything inherently wrong with
-being able to force some of these things at the boot
-command line. 
-
+Regards,
 -- 
-------------------------------------------------------
-    Nuke bin Laden:           Dale Amon, CEO/MD
-  improve the global          Islandone Society
-     gene pool.               www.islandone.org
-------------------------------------------------------
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
+ mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

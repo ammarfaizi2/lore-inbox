@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUIOMbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUIOMhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUIOMbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 08:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUIOMay
+	id S265887AbUIOMhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 08:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUIOMhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 08:30:54 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:55469 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S265487AbUIOMao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 08:30:44 -0400
-Date: Wed, 15 Sep 2004 14:29:20 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, an.li.wang@intel.com
-Subject: truncate shows non zero data beyond the end of the inode with MAP_SHARED
-Message-ID: <20040915122920.GA4454@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Wed, 15 Sep 2004 08:37:08 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:39833 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S264953AbUIOMhC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 08:37:02 -0400
+Message-ID: <4148370B.4070704@rtr.ca>
+Date: Wed, 15 Sep 2004 08:35:23 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Mark Lord <lsml@rtr.ca>, James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] New QStor SATA/RAID Driver for 2.6.9-rc2
+References: <41471163.10709@rtr.ca> <414723B0.1090600@pobox.com> <1095186343.2008.29.camel@mulgrave> <4147AB5A.4060804@rtr.ca> <20040915024720.GA23694@havoc.gtf.org>
+In-Reply-To: <20040915024720.GA23694@havoc.gtf.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I would really like to work on consolidating the ATA code in libata,
+though.  As the name implies, it's a library -- don't feel that your
+driver must conform to the libata driver API in order to make use of all
+its functions.  And feel free to add to it.
 
-I've been told we're not posix compliant the way we handle MAP_SHARED
-on the last page of the inode. Basically after we map the page into
-userspace people can make the data beyond the i_size non-zero and we
-should clear it in the transition from page_mapcount 1 -> 0.  The bug
-is that if you truncate-extend, the new data will not be guaranteed to
-be zero.
+Yes, there are definite code sharing possibilities there to be explored.
+Right now, my first priority is to get support for this hardware
+into the kernel.  This same driver source will also be backported
+to mid-2.4.xx series, both Redhat and generic.
 
-msync + power outage and writing to the page with sys_write at the same
-time it's being mapped (and in turn queueing it for pdflush writeout)
-are the two worst offeners. To fix those we'd need to mark the pte
-readonly, flush the tlb with a worst-case IPI broadcast, writepage, then
-mark the pte read-write and flush the tlb again with another IPI
-broadcast.
+After that, we can modify some interfaces to reduce the small overlaps
+that may present.
 
-That is going to have a significant cost methinks. So maybe we shouldn't
-fix it after all...
+Next revision is due out later today.  It may still have a few warts
+to work out, but I think it is looking much better than before.
+
+Better to have a decent hardware driver within the tree,
+than an unknown vendor-only binary driver outside the tree.
+
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

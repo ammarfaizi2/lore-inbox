@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318255AbSHMQUK>; Tue, 13 Aug 2002 12:20:10 -0400
+	id <S318222AbSHMQ3J>; Tue, 13 Aug 2002 12:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318268AbSHMQUK>; Tue, 13 Aug 2002 12:20:10 -0400
-Received: from mnh-1-01.mv.com ([207.22.10.33]:19973 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S318255AbSHMQUF>;
-	Tue, 13 Aug 2002 12:20:05 -0400
-Message-Id: <200208131727.MAA02464@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: UML 2.5.31
-Mime-Version: 1.0
+	id <S318224AbSHMQ3I>; Tue, 13 Aug 2002 12:29:08 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:56021 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318222AbSHMQ3I>;
+	Tue, 13 Aug 2002 12:29:08 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Aug 2002 12:27:50 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15705.13490.713278.815154@napali.hpl.hp.com>
+Date: Tue, 13 Aug 2002 09:32:50 -0700
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Erik Andersen <andersen@codepoet.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] clone_startup(), 2.5.31-A0
+In-Reply-To: <20020813171138.A12546@infradead.org>
+References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain>
+	<20020813164415.A11554@infradead.org>
+	<20020813160924.GA3821@codepoet.org>
+	<20020813171138.A12546@infradead.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UML has been updated to 2.5.31 and UML 2.4.18-52.
+>>>>> On Tue, 13 Aug 2002 17:11:38 +0100, Christoph Hellwig <hch@infradead.org> said:
 
-The changes since 2.5.30 have been mostly bug fixes and cleanups.  
+  Chris> On Tue, Aug 13, 2002 at 10:09:24AM -0600, Erik Andersen
+  Chris> wrote:
+  >> > First the name souns horrible.  What about spawn_thread or
+  >> create_thread > instead?  it's not our good old clone and not a
+  >> lookalike, it's some > pthreadish monster..
+  >>
+  >> How about "clone2"?
 
-I fixed a "I'm tracing myself and can't get out" race.  
+  Chris> Already used by ia64 for a hybrid between the good old clone
+  Chris> and the new monster :)
 
-The kernel entry and exit code was cleaned up and reduced from three copies 
-to one.
+The original clone() system call was misdesigned.  Even if you chose
+to ignore ia64, clone() cannot be used by portable applications to
+specify a stack (think "stack-growth direction").
 
-telnetd is now killed when UML shuts down, so telnet connections to UML 
-consoles die properly.
+clone() should have specified a stack memory *area* from the
+beginning.  (UNIX got this right from the beginning, see, e.g.,
+sigaltstack()).
 
-Fixed a crash caused by a non-GFP_ATOMIC allocation in an interrupt.
-
-UML now exits when 'debug' is asked for and CONFIG_PT_PROXY is disabled.
-
-Fixed some bugs in the ubd device plugging code.
-
-Fixed ethertap by making CLOEXEC optional in os_pipe.
-
-Made UML build on 2.2 by defining the SHUT_* macros if no header file does.
-
-The patch is available at
-	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.31-1.bz2
-
-For the other UML mirrors and other downloads, see 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
-
-Other links of interest:
-
-	The UML project home page : http://user-mode-linux.sourceforge.net
-	The UML Community site : http://usermodelinux.org
-
-				Jeff
-
+	--david

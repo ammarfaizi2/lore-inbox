@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUEQPky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUEQPlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUEQPky (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 11:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUEQPky
+	id S261680AbUEQPlL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 11:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUEQPlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 11:40:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36050 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261638AbUEQPkw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 11:40:52 -0400
-Subject: Re: 1352 NUL bytes at the end of a page?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Wayne Scott <wscott@bitmover.com>,
-       akpm@osdl.org, elenstev@mesatop.com, lm@bitmover.com,
-       wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com, scole@lanl.gov,
-       support@bitmover.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org>
-References: <200405162136.24441.elenstev@mesatop.com>
-	 <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org>
-	 <20040516231120.405a0d14.akpm@osdl.org>
-	 <20040517.085640.30175416.wscott@bitmover.com>
-	 <20040517151738.GA4730@thunk.org>
-	 <Pine.LNX.4.58.0405170820560.25502@ppc970.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4LWhxcX1iKH+Nnf7jWid"
-Organization: Red Hat UK
-Message-Id: <1084808421.7410.0.camel@laptop.fenrus.com>
+	Mon, 17 May 2004 11:41:11 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:29358 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261680AbUEQPlD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 11:41:03 -0400
+Message-Id: <200405171540.i4HFeuFK003144@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: tglx@linutronix.de
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.26] drivers/char/vt.c fix compiler warnings 
+In-Reply-To: Your message of "Mon, 17 May 2004 14:47:56 +0200."
+             <200405171447.56737.tglx@linutronix.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <200405151505.23250.tglx@linutronix.de> <20040517104729.GA8933@wsdw14.win.tue.nl>
+            <200405171447.56737.tglx@linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 17 May 2004 17:40:21 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_1104724183P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 17 May 2004 11:40:55 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-4LWhxcX1iKH+Nnf7jWid
-Content-Type: text/plain
+--==_Exmh_1104724183P
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
+On Mon, 17 May 2004 14:47:56 +0200, Thomas Gleixner said:
 
->=20
-> Who came up with that braindead idea? Is it some crazed Mach developer=20
-> that infiltrated the glibc development=20
+> Ooops, did not think about that. Was just annoyed from the compiler war=
+nings.
+> What about:
 
-afaik it's optional and off by default, for reads it sort of kinda makes
-sense but it can't be on by default otherwise a truncate would cause
-fscanf() to throw a sigbus, that's not legal posix wise.
+> +#if MAX_NR_KEYMAPS < 256		=
+
+>  	if (i >=3D NR_KEYS || s >=3D MAX_NR_KEYMAPS)
+> +#else
+> +	if (i >=3D NR_KEYS)
+> +#endif	=
+
+>  		return -EINVAL;	=
 
 
---=-4LWhxcX1iKH+Nnf7jWid
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Speaking as somebody who's had stuff rejected for doing this sort of ifde=
+f'ing,
+the *right* fix is to go back and look at the definitions of everything, =
+and
+see if there's a reason why the compiler is tossing the warning.
+
+Canonical example is, of course the userland:
+
+	char c;
+	if ((c=3Dgetc()) !=3D EOF) {....
+
+(I don't have a 2.4 tree handy to double-check, but maybe the variable 's=
+'
+should be something wider?  It's *quite* possible that there is/will be s=
+ome
+keyboard of the Chinese/Japanese/Korean persuasion which actually ends up=
+ with
+more than 256 keymap entries.....
+
+
+
+
+--==_Exmh_1104724183P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQBAqNzlxULwo51rQBIRAgPmAKCGx9yH1obhUGM6irZWIqlISlvPCwCfeC2X
-6UmL/rWN2kCFGi5jF3ELAa0=
-=yS8A
+iD8DBQFAqN0HcC3lWbTT17ARAv2HAJ9s8td4mZ8iOMwxx7V+xk49Tth8gQCg6vxg
+wt1AW4MHhc4WkT4HBFkYaNM=
+=ov0Y
 -----END PGP SIGNATURE-----
 
---=-4LWhxcX1iKH+Nnf7jWid--
-
+--==_Exmh_1104724183P--

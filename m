@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313183AbSERQs2>; Sat, 18 May 2002 12:48:28 -0400
+	id <S313305AbSERQzP>; Sat, 18 May 2002 12:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313305AbSERQs1>; Sat, 18 May 2002 12:48:27 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:42123 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S313183AbSERQs0>;
-	Sat, 18 May 2002 12:48:26 -0400
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: VIA686A - timer problems, time jumps
-Date: Sat, 18 May 2002 18:50:22 +0200
-Organization: Privat
-Message-ID: <ac60oe$95l$1@ID-44327.news.dfncis.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: susi.maya.org 1021740622 9397 192.168.1.3 (18 May 2002 16:50:22 GMT)
-X-Complaints-To: abuse@fu-berlin.de
-User-Agent: KNode/0.7.1
+	id <S313307AbSERQzO>; Sat, 18 May 2002 12:55:14 -0400
+Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.228]:38095 "EHLO
+	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S313305AbSERQzN>; Sat, 18 May 2002 12:55:13 -0400
+Message-ID: <3CE6863A.2070806@linuxhq.com>
+Date: Sat, 18 May 2002 12:50:02 -0400
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+In-Reply-To: <86256BBD.00223AD9.00@smtpnotes.altec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Wayne.Brown@altec.com wrote:
+> 
+> Someone said here on the list a few months ago that "make bzlilo" was replaced
+> by "make install" and that it was necessary to configure the "install" option's
+> behavior.
+> 
+
+Actually, the "install behavior" is quite nice.  I wrote a script that 
+installs the kernel and sets it up in the right way for my 
+non-kbuild-2.5 kernel... much of this script is doing stuff like getting 
+the current kernel version, etc... the new kbuild allows you to specify 
+the install script you want to use and exports a bunch of variables that 
+make this script easier to write.  Moreover, I believe there is a 
+default install that mimicks that of the current kernel so that the 
+changing of install's behavior is not mandatory.
 
 
-some time ago I wrote about problems with the via-timer and kernel 2.4.x.
 
-Meanwhile I tested kernel linux-2.4.19-pre7ac2 and newly pre8ac4. I couldn't 
-detect any problems with the timer (sudden time jumps). Does anybody know 
-the reason why? I couldn't find any patch related to this problem in the 
-Changelogs.
-
-The problem occures in pre7 - I didn't test pre8.
-
-
-Regards,
-Andreas Hartmann

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265710AbUBFXdf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 18:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUBFXdf
+	id S265833AbUBFXna (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 18:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbUBFXna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 18:33:35 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:29388 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265710AbUBFXd2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 18:33:28 -0500
-Date: Fri, 06 Feb 2004 15:33:07 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <piggin@cyberone.com.au>, Rick Lindsley <ricklind@us.ibm.com>
-cc: Anton Blanchard <anton@samba.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-Message-ID: <231480000.1076110387@flay>
-In-Reply-To: <40242152.5030606@cyberone.com.au>
-References: <200402062311.i16NBdF14365@owlet.beaverton.ibm.com> <40242152.5030606@cyberone.com.au>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 6 Feb 2004 18:43:30 -0500
+Received: from lanshark.nersc.gov ([128.55.16.114]:38536 "EHLO
+	lanshark.nersc.gov") by vger.kernel.org with ESMTP id S265553AbUBFXm7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 18:42:59 -0500
+Message-ID: <40242651.3080207@lbl.gov>
+Date: Fri, 06 Feb 2004 15:42:09 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: i_size_write called without i_sem..
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From a later email ....
->
-> Hopefully just tending to round down more would damp it better.
-> *imbalance = (*imbalance + SCHED_LOAD_SCALE/2) >> SCHED_LOAD_SHIFT;
-> Or even remove the addition all together.
+I've found these in my dmesg..
 
-I'd side with just removing the addition alltogether ...
+i_size_write() called without i_sem
+Call Trace:
+ [<c01436c5>] i_size_write_check+0x55/0x60
+ [<c0163d2b>] generic_commit_write+0x4b/0x80
+ [<c01b3bf5>] ext2_commit_chunk+0x25/0x70
+ [<c01b4bbf>] ext2_make_empty+0x12f/0x1b0
+ [<c01b8434>] ext2_mkdir+0x94/0x120
+ [<c016fafe>] vfs_mkdir+0x4e/0x90
+ [<c016fbcf>] sys_mkdir+0x8f/0xd0
+ [<c015fc7e>] sys_write+0x2e/0x50
+ [<c02ca1ba>] sysenter_past_esp+0x43/0x69
 
->>Moreover, as Rick pointed out, it's particularly futile over idle cpus ;-)
->
-> I don't follow...
+kernel info:
 
-If CPU 7 has 1 task, and cpu 8 has 0 tasks, there's an imbalance of 1.
-There is no point whatsoever in bouncing that task back and forth
-between cpu 7 and 8 - it just makes things slower, and trashes the cache.
-There's *no* fairness issue here.
+Linux version 2.6.2-mm1 (root@lanshark.nersc.gov) (gcc version 3.3.2 20031022 (Red Hat Linux 3.3.2-1)) #1 SMP Thu Feb 5 15:50:03 PST 2004
 
-If CPU 8 has 2 tasks, and cpu 1 has 1 task, there's an imbalance of 1.
-*If* that imbalance persists (and it probably won't, given tasks being
-created, destroyed, and blocking for IO), we may want to rotate that 
-to 1 vs 2, and then back to 2 vs 1, etc. in the interests of fairness,
-even though it's slower throughput overall.
+Hints?
 
-However, my point is that we shouldn't do that as agressively (in terms
-of how long the imbalance persists for) as we should for loads of 3 vs 1 -
-that's a "real" imbalance, not just a fairness problem.
-
-M.
-
+thomas

@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbUJZIc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbUJZIdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbUJZIc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 04:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbUJZIc1
+	id S262186AbUJZIdY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 04:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUJZIdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 04:32:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64722 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262189AbUJZIcZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 04:32:25 -0400
-Date: Tue, 26 Oct 2004 01:30:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Robert Love <rml@novell.com>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] make dnotify a configure-time option
-Message-Id: <20041026013026.6b65bd24.akpm@osdl.org>
-In-Reply-To: <1098767891.6034.50.camel@localhost>
-References: <1098765164.6034.38.camel@localhost>
-	<20041025214947.63031519.akpm@osdl.org>
-	<1098767891.6034.50.camel@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Oct 2004 04:33:23 -0400
+Received: from host-ip82-243.crowley.pl ([62.111.243.82]:3336 "HELO
+	software.com.pl") by vger.kernel.org with SMTP id S262186AbUJZIdK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 04:33:10 -0400
+From: Karol Kozimor <kkozimor@aurox.org>
+Organization: Aurox Sp. z o.o.
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
+Date: Tue, 26 Oct 2004 10:32:47 +0200
+User-Agent: KMail/1.7
+Cc: Stelian Pop <stelian@popies.net>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+References: <200410210154.58301.dtor_core@ameritech.net> <20041025135036.GA3161@crusoe.alcove-fr> <20041025221238.GB5207@elf.ucw.cz>
+In-Reply-To: <20041025221238.GB5207@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410261032.47467.kkozimor@aurox.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@novell.com> wrote:
+On Tuesday 26 of October 2004 00:12, Pavel Machek wrote:
+> > * allocate a FN key event and let FN be a modifier.
+> >
+> >   This is much nicer (less events allocated in input.h), but I haven't
+> >   found a way (and I'm not sure there is one) to say to X that Fn is
 >
-> make dnotify configurable, via CONFIG_DNOTIFY.
+> I think this is *bad* idea. In such case, userland would see
+> Fn-F3. My notebook has "sleep" key on Fn-F3, but your notebook
+> probably has something else there. You'd need another mapping in
+> userspace...
+>
+> I believe Fn-F3 on my machine is meant to be replacement for hardware
+> sleep button (and it has sleep label on it!), and we really should
+> generate sleep event for Fn-F3...
 
-I don't think we want people accidentally disabling dnotify and making
-kernels which don't implement the standard kernel API.  So...
+Then map the button to invoke the suspend script in userspace. First we're 
+mapping ACPI events to input events, then the other way around? Sounds 
+fishy to me.
+Best regards,
 
-
-diff -puN fs/Kconfig~make-dnotify-a-configure-time-option-embedded fs/Kconfig
---- 25/fs/Kconfig~make-dnotify-a-configure-time-option-embedded	2004-10-26 01:28:44.866957712 -0700
-+++ 25-akpm/fs/Kconfig	2004-10-26 01:29:09.498213192 -0700
-@@ -441,7 +441,7 @@ config QUOTACTL
- 	default y
- 
- config DNOTIFY
--	bool "Dnotify support"
-+	bool "Dnotify support" if EMBEDDED
- 	default y
- 	help
- 	  Dnotify is a directory-based per-fd file change notification system
-_
-
+-- 
+Karol Kozimor
+kkozimor@aurox.org

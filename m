@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267314AbUIARoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIARkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267314AbUIARoA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 13:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUIARnE
+	id S267235AbUIARkN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 13:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUIARg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 13:43:04 -0400
-Received: from holomorphy.com ([207.189.100.168]:64454 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267314AbUIARh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 13:37:56 -0400
-Date: Wed, 1 Sep 2004 10:37:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Kirill Korotaev <kksx@mail.ru>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [7/7] remove casting of __detach_pid() results to void
-Message-ID: <20040901173749.GK5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Kirill Korotaev <kksx@mail.ru>, akpm@osdl.org, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <E1C2TZ1-000JZr-00.kksx-mail-ru@f7.mail.ru> <20040901153624.GA5492@holomorphy.com> <20040901165808.GD5492@holomorphy.com> <20040901172710.GE5492@holomorphy.com> <20040901172839.GF5492@holomorphy.com> <20040901173027.GG5492@holomorphy.com> <20040901173218.GH5492@holomorphy.com> <20040901173327.GI5492@holomorphy.com> <20040901173529.GJ5492@holomorphy.com>
+	Wed, 1 Sep 2004 13:36:59 -0400
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:49880 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S267382AbUIARfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 13:35:43 -0400
+Date: Wed, 1 Sep 2004 10:35:09 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc1-mm2
+Message-ID: <20040901173509.GC19730@smtp.west.cox.net>
+References: <20040830235426.441f5b51.akpm@osdl.org> <200408311454.48673.gene.heskett@verizon.net> <20040831194135.GB19724@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040901173529.GJ5492@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040831194135.GB19724@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 10:35:29AM -0700, William Lee Irwin III wrote:
-> The renaming of ->pid_chain was spurious; the following patch backs it out.
+On Tue, Aug 31, 2004 at 09:41:35PM +0200, Sam Ravnborg wrote:
+> On Tue, Aug 31, 2004 at 02:54:48PM -0400, Gene Heskett wrote:
+> > make modules_install
+> > /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
+> > `fs/nls/nls_koi8-r.ko' given more than once in the same rule.
+> > /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
+> > `fs/nls/nls_koi8-ru.ko' given more than once in the same rule.
+> > /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
+> > `fs/nls/nls_koi8-u.ko' given more than once in the same rule.
+> 
+> Thanks!
+> Know issue (reported off-list) - can be fixed with below patch.
+> 
+> 	Sam
+> 
+> # This is a BitKeeper generated diff -Nru style patch.
+> #
+> # ChangeSet
+> #   2004/08/31 21:36:26+02:00 sam@mars.ravnborg.org 
+> #   kbuild: Fix modules_install
+> #   
+> #   modules_install failed for modules with 'ko' in their name.
+> #   Fixes this.
+> #   
+> #   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> # 
+> # scripts/Makefile.modinst
+> #   2004/08/31 21:36:09+02:00 sam@mars.ravnborg.org +1 -1
+> #   Fix installing of modules with ko in their name - do not find too many filenames in $(MODVERDIR)
+> # 
+> diff -Nru a/scripts/Makefile.modinst b/scripts/Makefile.modinst
+> --- a/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
+> +++ b/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
+> @@ -9,7 +9,7 @@
+>  
+>  #
+>  
+> -__modules := $(sort $(shell grep -h .ko /dev/null $(wildcard $(MODVERDIR)/*.mod)))
+> +__modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
+>  modules := $(patsubst %.o,%.ko,$(wildcard $(__modules:.ko=.o)))
+>  
+>  .PHONY: $(modules)
 
-Casting an expression to void to ignore the result is only necessary
-for __must_check function calls and in the interior of nop macros. The
-following patch backs out the addition of void casts on the result of
-__detach_pid().
+D'oh...  Wouldn't .modpost need the same change?
 
-
-Index: kirill-2.6.9-rc1-mm2/kernel/pid.c
-===================================================================
---- kirill-2.6.9-rc1-mm2.orig/kernel/pid.c	2004-09-01 10:16:27.524209800 -0700
-+++ kirill-2.6.9-rc1-mm2/kernel/pid.c	2004-09-01 10:17:50.529591064 -0700
-@@ -234,13 +234,13 @@
-  */
- void switch_exec_pids(task_t *leader, task_t *thread)
- {
--	(void)__detach_pid(leader, PIDTYPE_PID);
--	(void)__detach_pid(leader, PIDTYPE_TGID);
--	(void)__detach_pid(leader, PIDTYPE_PGID);
--	(void)__detach_pid(leader, PIDTYPE_SID);
-+	__detach_pid(leader, PIDTYPE_PID);
-+	__detach_pid(leader, PIDTYPE_TGID);
-+	__detach_pid(leader, PIDTYPE_PGID);
-+	__detach_pid(leader, PIDTYPE_SID);
- 
--	(void)__detach_pid(thread, PIDTYPE_PID);
--	(void)__detach_pid(thread, PIDTYPE_TGID);
-+	__detach_pid(thread, PIDTYPE_PID);
-+	__detach_pid(thread, PIDTYPE_TGID);
- 
- 	leader->pid = leader->tgid = thread->pid;
- 	thread->pid = thread->tgid;
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

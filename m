@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264651AbTKNRy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 12:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264652AbTKNRy6
+	id S264564AbTKNR7n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 12:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264566AbTKNR7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 12:54:58 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:63237 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S264651AbTKNRyv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 12:54:51 -0500
-Date: Fri, 14 Nov 2003 18:54:42 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Timothy Miller <miller@techsource.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "things are about right" kernel test?
-In-Reply-To: <3FB50CA4.9080108@techsource.com>
-Message-ID: <Pine.LNX.4.44.0311141838510.7550-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Nov 2003 12:59:43 -0500
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:24057 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S264564AbTKNR7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 12:59:42 -0500
+Date: Fri, 14 Nov 2003 10:57:24 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Florian Lohoff <flo@rfc822.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9 / EXT3-fs warning...ext3_unlink: Deleting nonexistent file
+Message-ID: <20031114105724.D11847@schatzie.adilger.int>
+Mail-Followup-To: Florian Lohoff <flo@rfc822.org>,
+	linux-kernel@vger.kernel.org
+References: <20031114174254.GA5594@paradigm.rfc822.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031114174254.GA5594@paradigm.rfc822.org>; from flo@rfc822.org on Fri, Nov 14, 2003 at 06:42:54PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I recall some people mentioning that if they have 1GiB of RAM, something 
-> (I forget what) performs badly.  They set it to 900-some MiB, and then 
-> things work better.  A test for that with built-in tips for solving the 
-> problem might be helpful.
+On Nov 14, 2003  18:42 +0100, Florian Lohoff wrote:
+> i seem to have experienced some ext3 inconsistencys - After some reboots
+> today i was wondering why cron wasnt running and discovered that
+> starting cron failed because /var/run/crond.pid could not be written.
+> ls did not show and file under that name. touch showed i/o error on that
+> file although other file in that directory could be touched.
+> 
+> When i tried to rm crond.pid this showed up:
+> 
+> EXT3-fs warning (device hda8): ext3_unlink: Deleting nonexistent file (107669), 0
+> 
+> After that i could touch the file again and crond did not refuse to start anymore.
 
-Regarding the 1GB limit (or rather 1024-128 MB = 896 MB limit), this is 
-due to Kernel space beginning at 0xC0000000 (giving 1GB of ram for the 
-kernel from 0xC0000000..0xFFFFFFFF) of which 128 MB are reserved for 
-vmalloc and other uses...  The question is: is there any reason why this 
-0xC0000000 couldn't be lowered by 128 MB (to 0xBE000000)?
+This sounds like the htree "get back deleted entry on directory split" bug
+that was fixed months ago in 2.6 htree, but not in any 2.4 patches.  Did
+you test htree on this system under 2.4 recently?
 
-This would allow using the full 1GB of Ram without using highmem.  As I
-understand it using highmem does involve some performance loss.  
-Effectively for me this means that PAGE_OFFSET in include/asm-i386/page.h
-should be set to either 4GB-128MB-512MB (allowing 512MB ram without
-highmem) or 4GB-128MB-1GB (allowing 1GB ram without highmem).  Afterall
-I'd expect real life memory configurations are for the majority power of 2
-situations - which means you're likely to hit 512MB or 1GB - having the
-limit at 896 MB seems pointless.  1GB memory configurations are becoming
-more and more common and they are just barely above the highmem cut-off
-point, changeing it would fix all the 1GB problems and not really affect
-anything else (like those machines with even more RAM).  Sure this limits
-the memory available for user processes (from 3 GB to 2.875 GB), but then
-the true limit in user space (if I understand this correctly) is that mmap
-starts mapping at 1GB anyway [TASK_UNMAPPED_BASE = TASK_SIZE/3 =
-PAGE_OFFSET/3 = 1GB currently], if this was changed to a lower value
-(likely a static 16MB or even 1MB+64KB would be OK) then we'd effectively
-increase the amount of mmaping you could do (sure this doesn't affect brk,
-oh well.)
-
-Comments,
-
-MaZe.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

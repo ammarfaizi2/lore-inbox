@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263768AbREYPYp>; Fri, 25 May 2001 11:24:45 -0400
+	id <S263765AbREYP2z>; Fri, 25 May 2001 11:28:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263766AbREYPYf>; Fri, 25 May 2001 11:24:35 -0400
-Received: from t111.niisi.ras.ru ([193.232.173.111]:59744 "EHLO
-	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
-	id <S263765AbREYPYc>; Fri, 25 May 2001 11:24:32 -0400
-Message-ID: <3B0EE8CF.7040502@niisi.msk.ru>
-Date: Fri, 25 May 2001 19:20:47 -0400
-From: Alexandr Andreev <andreev@niisi.msk.ru>
-Organization: niisi
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; rv:0.9) Gecko/20010507
-X-Accept-Language: ru, en
+	id <S263766AbREYP2p>; Fri, 25 May 2001 11:28:45 -0400
+Received: from node16.benchmk.com ([207.180.73.116]:18436 "EHLO noop.")
+	by vger.kernel.org with ESMTP id <S263765AbREYP2a>;
+	Fri, 25 May 2001 11:28:30 -0400
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI - console problems 2.4.4
+In-Reply-To: <m3ae46fzgs.fsf@yahoo.com> <20010523163231.B33@toy.ucw.cz>
+From: Nick Papadonis <npapadon@yahoo.com>
+Organization: None
+X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
+ <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
+ !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
+Content-Type: text/plain; charset=US-ASCII
+Date: 25 May 2001 11:27:15 -0400
+In-Reply-To: <20010523163231.B33@toy.ucw.cz> (Pavel Machek's message of "Wed, 23 May 2001 16:32:32 +0000")
+Message-ID: <m34ru95u0c.fsf@yahoo.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Disabling interrupts before block device request call
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, list
-In ll_rw_block.c, before calling block device specific request function 
-( i mean do_hd_request, do_ftl_request, ... ) the io_request_lock is 
-locking, and all interrupts are disabling. I know, that request handler 
-routine have to be atomic, but when we read data from a flash device ( 
-for example ) we use a timeouts. Where do we have to enable timer 
-interrupts, or should we disable all interrupts?
+Pavel Machek <pavel@suse.cz> writes:
+
+> Hi!
+> 
+> > Is anyone having problems with ACPI causing console problems in kernel
+> > 2.4.4 w/ Intel's patches?   When watching my system boot over the
+> > serial console, things work fine.  When looking at my VAIO-FX140's
+> > LCD, my console no longer updates after ACPI starts initializing _INI methods.
+> > 
+> > I am able to login and shutdown without my LCD echoing back.
+> > 
+> > Here is my output from the serial port:
+> 
+> Is this vanilla 2.4.4? I somehow doubt that.
+> 								Pavel
+Yes it is, however with Intel's ACPI patches.
+
+I suspect there is a problem with the VGA adapter + ACPI.  I haven't
+been able to use ACPI at all because of this.
+
+Is there ANYONE out there that has a VAIO?  It would be nice if
+someone could reproduce this too.
+
+- Nick
+
 

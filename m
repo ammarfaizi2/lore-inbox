@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280367AbRJaRwc>; Wed, 31 Oct 2001 12:52:32 -0500
+	id <S280366AbRJaR4c>; Wed, 31 Oct 2001 12:56:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280365AbRJaRwP>; Wed, 31 Oct 2001 12:52:15 -0500
-Received: from mailrelay3.inwind.it ([212.141.54.103]:9121 "EHLO
-	mailrelay3.inwind.it") by vger.kernel.org with ESMTP
-	id <S280364AbRJaRwC>; Wed, 31 Oct 2001 12:52:02 -0500
-Message-Id: <3.0.6.32.20011031185523.01fc2d30@pop.tiscalinet.it>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Wed, 31 Oct 2001 18:55:23 +0100
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Re: VM: qsbench
+	id <S280364AbRJaR4Q>; Wed, 31 Oct 2001 12:56:16 -0500
+Received: from miro.qualcomm.com ([129.46.64.223]:33748 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S280352AbRJaRyw>; Wed, 31 Oct 2001 12:54:52 -0500
+Message-Id: <5.1.0.14.0.20011031095211.0dbc23f0@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 31 Oct 2001 09:55:47 -0800
+To: <pcg@goof.com ( Marc A. Lehmann )>, "David S. Miller" <davem@redhat.com>
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: 2.4.13-ac5 && vtun not working
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BDFED26.4350646B@mandrakesoft.com>
-In-Reply-To: <3.0.6.32.20011031131253.01fb8e40@pop.tiscalinet.it>
+In-Reply-To: <20011031104323.A2263@schmorp.de>
+In-Reply-To: <20011031.003056.63128206.davem@redhat.com>
+ <5.1.0.14.0.20011029174700.08e93090@mail1>
+ <20011029.175312.26299226.davem@redhat.com>
+ <20011031010500.B383@schmorp.de>
+ <20011031.003056.63128206.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07.23 31/10/01 -0500, Jeff Garzik wrote:
->Lorenzo Allegrucci wrote:
->> Linux-2.4.14-pre6:
->> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
->> Out of Memory: Killed process 224 (qsbench).
->> 69.890u 3.430s 2:12.48 55.3%    0+0k 0+0io 16374pf+0w
->> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
->> Out of Memory: Killed process 226 (qsbench).
->> 69.550u 2.990s 2:11.31 55.2%    0+0k 0+0io 15374pf+0w
->> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
->> Out of Memory: Killed process 228 (qsbench).
->> 69.480u 3.100s 2:13.33 54.4%    0+0k 0+0io 15950pf+0w
->> 0:01 kswapd
->> 
->> This is interesting, -pre6 killed qsbench _just_ before qsbench exited.
->> Unreliable results.
+At 10:43 AM 10/31/01 +0100, pcg@goof.com ( Marc) (A.) (Lehmann ) wrote:
+>On Wed, Oct 31, 2001 at 12:30:56AM -0800, "David S. Miller" <davem@redhat.com> wrote:
+>> You're right, it should allow the "string has no '%' at all" case
+>> as well.  Please, someone send me a patch which does this.
 >
->Can you give us some idea of the memory usage of this application?  Your
->amount of RAM and swap?
+>My original mail contained a one-line fix, suboptimal but works fine for me.
+>I also found a more elaborate patch:
+>
+>   http://www.geocrawler.com/lists/3/SourceForge/12162/0/6896612/
+>
+>it seems to use a fancier algorithm and has been used by more people.
 
-256M of RAM + 200M of swap, qsbench allocates about 343M.
+Here is the patch for TUN/TAP to remove that suboptimality :). 
+So we won't call dev_alloc_name if name is not a template.
 
+--- tun.c.old   Tue Oct 30 21:00:55 2001
++++ tun.c       Tue Oct 30 21:10:17 2001
+@@ -377,8 +377,11 @@
+                if (*ifr->ifr_name)
+                        name = ifr->ifr_name;
+ 
+-               if ((err = dev_alloc_name(&tun->dev, name)) < 0)
+-                       goto failed;
++               if (strchr(name, '%')) { 
++                       err = dev_alloc_name(&tun->dev, name);
++                       if (err) goto failed;
++               }
++
+                if ((err = register_netdevice(&tun->dev)))
+                        goto failed;
 
--- 
-Lorenzo
+Untested but looks obvious. 
+
+Max
+

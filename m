@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267471AbUBSSe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUBSSeZ
+	id S267475AbUBSSeh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUBSSeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:34:25 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:16906
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S267471AbUBSSdz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:33:55 -0500
-Date: Thu, 19 Feb 2004 10:34:49 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: ak@suse.de
+	Thu, 19 Feb 2004 13:34:36 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:56961 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S267475AbUBSSeU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 13:34:20 -0500
+Date: Thu, 19 Feb 2004 19:34:16 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Kieran <kieran@ihateaol.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Intel x86-64 support patch breaks amd64
-Message-ID: <20040219183448.GB8960@atomide.com>
+Subject: Re: proc_pid_stat crashes in 2.6.2 (was 2.6.0-test11: Crash in ps axH)
+Message-ID: <20040219183416.GA12962@vana.vc.cvut.cz>
+References: <20040219182329.GA10868@vana.vc.cvut.cz> <403500DA.3060906@ihateaol.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <403500DA.3060906@ihateaol.co.uk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+On Thu, Feb 19, 2004 at 06:30:50PM +0000, Kieran wrote:
+> >Hi,
+> >  I already reported this crash twice on 2.6.0-test11, and now I
+> >reproduced it on something more fresh - on 2.6.2-bk-something like it
+> >was actual on Feb 4. It is really annoying, as any user can do 'ps axH'
+> >and crash system after some uptime :-( Crash is identical to one
+> >I got with 2.6.0-test11, so it looks like that I'll have to go back
+> >to 2.4.x on publicly accessible machines. After about 14 days uptime. 
+> >
+> >  I've got no replies to previous reports.
+> >  						Thanks,
+> >							Petr Vandrovec
+> >							vandrove@vc.cvut.cz
+> 
+> what version of procps?
 
-I guess you probably already know about this, but the recent changeset
-1.1561.1.1 breaks compiling and booting for amd64.
+Not that it should matter, as walking through /proc/* could do same,
+but... 3.1.15-3. I have no idea what procps were installed at the
+beginning of February or in the December. Until crash 'ps ax' does not
+cause problem. Only 'axH', which descends to /task/ subdirectories,
+crashes.
 
-First, this breaks for the compile:
+usermap:~# dpkg -l procps
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Installed/Config-files/Unpacked/Failed-config/Half-installed
+|/ Err?=(none)/Hold/Reinst-required/X=both-problems (Status,Err: uppercase=bad)
+||/ Name                       Version                    Description
++++-==========================-==========================-====================================================================
+ii  procps                     3.1.15-3                   The /proc file system utilities
+usermap:~#
 
-arch/x86_64/kernel/setup.c: In function detect_ht':
-arch/x86_64/kernel/setup.c:599: error: smp_num_siblings' undeclared (first
-use in this function)
-arch/x86_64/kernel/setup.c:599: error: (Each undeclared identifier is
-reported only once
-arch/x86_64/kernel/setup.c:599: error: for each function it appears in.)
-make[1]: *** [arch/x86_64/kernel/setup.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
+							Petr Vandrovec
 
-After #if 0 out some parts to make it compile, it fails to boot with no
-output at all. Sorry, don't have low level debugging or serial console on 
-this machine configured, let me know if you need further information.
-
-Undoing this cset makes things work as before.
-
-Regards,
-
-Tony

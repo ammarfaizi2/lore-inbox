@@ -1,101 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312483AbSC0NzM>; Wed, 27 Mar 2002 08:55:12 -0500
+	id <S313014AbSC0OBv>; Wed, 27 Mar 2002 09:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313014AbSC0NzA>; Wed, 27 Mar 2002 08:55:00 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:9225 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S312483AbSC0Nyt>; Wed, 27 Mar 2002 08:54:49 -0500
-Date: Wed, 27 Mar 2002 13:54:48 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
-Message-ID: <Pine.LNX.4.33.0203271323330.24894-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313016AbSC0OBm>; Wed, 27 Mar 2002 09:01:42 -0500
+Received: from c0s29.ami.com.au ([203.55.31.94]:29965 "EHLO
+	dugite.os2.ami.com.au") by vger.kernel.org with ESMTP
+	id <S313014AbSC0OBa>; Wed, 27 Mar 2002 09:01:30 -0500
+Message-Id: <200203262253.g2QMrlS15084@numbat.Os2.Ami.Com.Au>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Jeremy Jackson" <jerj@coplanar.net>
+cc: "John Summerfield" <summer@os2.ami.com.au>, linux-kernel@vger.kernel.org,
+        summer@numbat.Os2.Ami.Com.Au, Mark Lord <mlord@pobox.com>
+Subject: Re: IDE and hot-swap disk caddies 
+In-Reply-To: Message from "Jeremy Jackson" <jerj@coplanar.net> 
+   of "Mon, 25 Mar 2002 21:28:21 PST." <01c501c1d487$14ce9180$7e0aa8c0@bridge> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 27 Mar 2002 06:53:47 +0800
+From: John Summerfield <summer@os2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> At the interface level, there is some support.
+> Look at hdparm's -b option to tristate the bus.
 
-A while ago, I did some longish runs of OSDB (osdb.sf.net)
-against PostgreSQL 7.2.  All runs were on kernel 2.5.6 + the
-dc395x driver and the futexes patch.  I'd have included
-reiserfs too, but in 2.5.6 it seemed to oops on mount.  2.5.7
-doesn't boot for me, but I'll run these again when a more
-interesting kernel appears.
+There is no mention of -b in hdparm's help screen, and in the man page 
+it's only mentioned in the description of -L.
 
-Hardware is: 2 x P3-450, 384Mb, 3 x 9Gb Quantum disks on
-internal aic7xxx (new driver).  Except for a "vmstat 1", the
-system was otherwise unused during the tests.  There was no
-other mounted filesystem on the disk with the test partition.
-The numbers seem pretty consistent -- if they're more than 5%
-different, that's probably a valid comparision (no, I'm not a
-statistician and can't justify that).
-
-The scripts I used are available on request, but they do
-roughly:
-
-	stop postgres
-	umount
-	mkfs
-	mount
-	create postgres data directories
-	start postgres (incl. creating postgres database)
-	"osdb-pg --datadir /scratch/data-40mb/ --short"
+Is there a newer version of hdparm I need?
 
 
-"Tuning" key:
-"dd"	-- default PG, default FS opts
-"dn"	-- default PG, "noatime"
-"bn"	-- big PG buffers, "noatime"
+> But that's the whole bus.  If the controller implements
 
-		PostgreSQL
-	tuning?	single	ir	mx-ir	oltp	mixed-oltp
-		(sec)	(tps)	(sec)	(tps)	(sec)
-ext2	dd	1304.72	66.64	214.25	188.50	230.55
-	dn	1288.31	65.93	209.57	234.08	213.75
-	bn	1283.50	77.90	1867.71	192.43	226.77
+IDE1? That's okay for me, I can control the hardware configuration to 
+that extent. If the other device is a CD reader, I'm not going to 
+corrupt anything. If necessary, I'll make sure it's unmounted.
 
-ext3	dd	1303.84	66.87	212.49	66.06	361.04
-	dn	1288.03	64.62	209.27	111.41	278.54
-	bn	1285.32	65.98	1996.41	90.05	307.79
+> master/slave on one cable, you're hosed, electrically.
+> It's the whole interface.  95% of controlers are like this.
+> 
+> Intel's PIIX can do master/slave on separate ports, but
+> then you loose one bus.  Laptops with bays also do things
+> like this, but that's special hardware, hard to get programming
+> specs for.
+> 
+> I think if you add the drive *after* boot, it doesn't
+> have the benefit of the BIOS setting up PIO/UDMA modes,
+> so I would try the hdparm -X speed settings also.
 
-ext3-wb	dn	1291.68	66.06	209.94	138.25	242.28
-	bn	1287.31	98.42	2149.38	125.13	236.02
+At present the system hangs if I add a master when the primary's 
+present, before I get to do anything.
 
-jfs	dd	1308.97	66.82	212.59	117.28	273.08
-	dn	1288.60	65.08	211.56	116.18	218.22
-	bn	1279.89	81.00	2059.26	114.20	225.56
+I've not tried adding a slave to an existing master.
 
-minix	dd	1305.26	67.38	207.74	193.90	228.81
-	dn	1331.27	67.14	210.07	223.70	214.33
-	bn	1299.24	89.58	1988.31	231.17	231.17
-
-
-My conclusions:
-
-1. I'll have to spend more time learning to tune postgres,
-   but clearly something went wrong there -- the
-   "agg_simple_report" test accounted for almost all of the
-   differences.
-
-2. "noatime" is very useful switch for these circumstances.
-
-3. The journalled filesystems do have measurable overhead
-   for this workload.
-
-Questions:
-
-1. Is there anything else I should try in the way of fs
-   options, etc?
-
-2. What does jfs do in the way of data journalling?  Is it
-   "ordered" or "writeback", in ext3-speak?  (I assume
-   fully journalled data would give much worse performance.)
+As to the BIOS settings, I only configure drives required for booting. 
+I've been doing that for years, before I ever used Linux, when I 
+discovered that OS/2 wasn't paying attention to them. (A good thing in 
+the case of OS/2 as the instructions for one of my drives gave the 
+wrong geometry;-().
 
 
-Cheers,
-Matthew.
+
+> 
+> Jeremy
+> 
+> ----- Original Message ----- 
+> From: "John Summerfield" <summer@os2.ami.com.au>
+> Sent: Monday, March 25, 2002 3:16 PM
+> Subject: Re: IDE and hot-swap disk caddies 
+>  
+> > > > The device is hot-swap capable and has a switch (others have a key) 
+> > > > that locks the drive in and powers it up; in the other position the 
+> > > > drive is powered down and can be removed.
+> > > 
+> > > Linux doesn't support IDE hot swap at the drive level. Its basically
+> > > waiting people to want it enough to either fund it or go write the code
+> > > 
+> > 
+> > What needs to be done? How extensive is the surgery needed?
+> 
+
+-- 
+Cheers
+John Summerfield
+
+Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+
+Note: mail delivered to me is deemed to be intended for me, for my 
+disposition.
+
+==============================
+If you don't like being told you're wrong,
+	be right!
+
+
 

@@ -1,62 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287939AbSBMRjW>; Wed, 13 Feb 2002 12:39:22 -0500
+	id <S287882AbSBMRtX>; Wed, 13 Feb 2002 12:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287966AbSBMRjJ>; Wed, 13 Feb 2002 12:39:09 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:18186 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S287946AbSBMRis>; Wed, 13 Feb 2002 12:38:48 -0500
-Message-ID: <3C6AA495.3030103@evision-ventures.com>
-Date: Wed, 13 Feb 2002 18:38:29 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
-In-Reply-To: <Pine.LNX.4.33.0202131059250.13632-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287855AbSBMRtN>; Wed, 13 Feb 2002 12:49:13 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:24162 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S287882AbSBMRs6>;
+	Wed, 13 Feb 2002 12:48:58 -0500
+Date: Wed, 13 Feb 2002 10:47:55 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] queue barrier support
+Message-ID: <20020213104755.H25535@lynx.turbolabs.com>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020213135134.A1907@suse.de> <E16b0l7-0001nn-00@starship.berlin> <20020213161838.P1907@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020213161838.P1907@suse.de>; from axboe@suse.de on Wed, Feb 13, 2002 at 04:18:38PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Feb 13, 2002  16:18 +0100, Jens Axboe wrote:
+> On Wed, Feb 13 2002, Daniel Phillips wrote:
+> > On February 13, 2002 01:51 pm, Jens Axboe wrote:
+> > > Patches attached, comments welcome.
+> > 
+> > A meta-comment: the BK url's are wonderfully informative and useful, but
+> > they are long and _ugly_!  Is there anything that can be done about that?
+> 
+> Yeah I like them too, maybe if I just figured out how to get BitKeeper
+> to dump full changeset info I could just inline them in the mail
+> instead. I'll look at up and try that next time.
 
->
->On Wed, 13 Feb 2002, Jeff Garzik wrote:
->
->>Applying a patch like s/virt_to_bus/virt_to_phys/ makes it more
->>difficult to find the right spots to change later.
->>
->
->Yes and no.
->
->The thing is, for architectures that care, you can just grep for
->"virt_to_phys()". It's basically _never_ the right thing to do on
->something like sparc.
->
->My personal preference would actually be to keep "virt_to_bus()" for x86
->for now, and undo the change to make it complain. Instead, make it
->complain on other architectures where it _is_ wrong, so that you don't
->have to fix up drivers that simply aren't an issue. What's the point of
->breaking some drivers that only exist on x86?
->
-I think that the suggestion from Jeff Garzik, that there is currently 
-just too much of code
-duplication for quite common cases in drivers is the right way to go. 
-Most of the
-stuff doing the virt_to_phys is doing quite common things from a broader 
-point of view.
+bk send -wgzip_uu -r<rev> - > foo-<rev>.bk
 
-Well even worser, there is quite a lot of code replication there as well 
-...  see for example the
-ide and scsi midlayers ;-). The whole hostadapter/iobus/device stuff 
-handling could be made common
-at least. There is no real need for different driver handler lookup 
-mechanisms between them.
+This will dump a gzipped-uuencoded changset to the file.  The receiver
+just do "| bk receive [repository] -avv" to import it on the other end.
 
-HWIF(device)-> and Scsi_Host_Templ come into mind...
+My preferred format for sending BK CSETs is below.  The gzip_uu CSET
+data only adds maybe 10% for large patches, and about doubles the size
+of very small patches.  I also created a bz64 (bzip2 + base64) wrapper
+which makes the CSET data smaller, but that is only useful if other BK
+developers have this wrapper also.
 
+Cheers, Andreas
+=============================== bksend ====================================
+#!/bin/sh
+# A script to format BK changeset output in a manner that is easy to read.
+# Andreas Dilger <adilger@turbolabs.com>  13/02/2002
+
+PROG=bksend
+
+usage() {
+	echo "usage: $PROG -r<rev>"
+	echo -e "\twhere <rev> is of the form '1.23', '1.23..', '1.23..1.27',"
+	echo -e "\tor '+' to indicate the most recent revision"
+
+	exit 1
+}
+
+case $1 in
+-r) REV=$2; shift ;;
+-r*) REV=`echo $1 | sed 's/^-r//'` ;;
+*) echo "$PROG: no revision given, you probably don't want that";;
+esac
+
+[ -z "$REV" ] && usage
+
+bk changes -r$REV
+bk export -tpatch -du -h -r$REV
+echo -e "\n================================================================\n\n"
+bk send -wgzip_uu -r$REV -
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

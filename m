@@ -1,80 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262554AbTJOKdN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 06:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbTJOKbU
+	id S262538AbTJOK1V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 06:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbTJOK0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 06:31:20 -0400
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:36759 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262572AbTJOKa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 06:30:28 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [NFS] RE: [autofs] multiple servers per automount
-Date: Wed, 15 Oct 2003 12:28:02 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Ian Kent <raven@themaw.net>,
-       linux-kernel@vger.kernel.org, Ian Kent <raven@themaw.net>,
-       linux-kernel@vger.kernel.org, Ian Kent <raven@themaw.net>,
-       linux-kernel@vger.kernel.org, Ian Kent <raven@themaw.net>
-References: <Pine.LNX.4.44.0310142131090.3044-100000@raven.themaw.net> <bmhn7t$odm$1@cesium.transmeta.com> <3F8C82EF.2010104@sun.com>
-In-Reply-To: <3F8C82EF.2010104@sun.com>
+	Wed, 15 Oct 2003 06:26:18 -0400
+Received: from smtp2.att.ne.jp ([165.76.15.138]:51451 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262538AbTJOK0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 06:26:06 -0400
+Message-ID: <00eb01c39306$aaa1e790$3eee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "John Bradford" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <200310131033.h9DAXkHu000365@81-2-122-30.bradfords.org.uk> <33d201c3917d$668c8310$5cee4ca5@DIAMONDLX60> <200310131202.h9DC2KlZ000194@81-2-122-30.bradfords.org.uk>
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
+Date: Wed, 15 Oct 2003 19:23:20 +0900
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200310151228.02741.ioe-lkml@rameria.de>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 October 2003 01:12, Mike Waychison wrote:
-> The problem still remains in 2.6 that we limit the count to 256.  I've
-> attached a quick patch that I've compiled and tested.  I don't know if
-> there is a better way to handle dynamic assignment of minors (haven't
-> kept up to date in that realm), but if there is, then we should probably
->   use it instead.
+John Bradford replied to me:
 
+> >   IF the bad sector doesn't get reused then great, then the next bit of
+> > effort will be to try to get the sector marked as bad, if there is any way
+> > to do that under Linux.  See the next question, which is now being reposted
+> > for at least the fourth time.
+> >   BUT IF the same sector number gets rewritten then hopefully the same
+> > sector number will be associated with a reallocated non-defective sector and
+> > the data will get written properly.
+>
+> Yes, that's what I'd hope, unless the disk ran out of spare space to
+> allocate.
 
-In your patch you allocate inside the spinlock.
+Surely two reallocations wouldn't have made it run out of spare space?
 
-I would suggest to do sth. like the following:
+Besides, the S.M.A.R.T. log didn't have any statistics anywhere near
+failure, and if the drive had run out of spare space then surely one or two
+of the statistics should have gone down to zero.
 
-void *local;
-if (!unamed_dev_inuse) {
-    local = get_zeroed_page(GFP_KERNEL);
+> > > >    How can I tell Linux to mark the sector as bad, knowing the LBA
+> > > >    sector number?
+> > >
+> > > Don't.  If the drive can't fix this problem itself, throw it in the bin.
+> >
+> > THE DRIVE HAS 1, ONE, HITOTSU, UNO, UN, BAD SECTOR.
+>
+> No, the last SMART test re-allocated one sector.
 
-    if (!local) 
-        return -ENOMEM;
-}
+Yeah, but it's not even quite clear if the reallocated sector is the same as
+the defective sector.  Something is pretty screwy, and I've asked some
+friends at Toshiba to discuss it during their next visit (and they know
+they're getting cat food instead of my wife's cooking  _^o^_)  Nonetheless,
+it is customary to dump drives when they have increasingly numerous defects,
+not when they have one.
 
-spinlock(&unamed_dev_lock);
-mb();
-if (!unamed_dev_inuse) {
-    unamed_dev_inuse = local;
+> That sector may have gone bad in the next few minutes.  Unlikely, but possible.
 
-    /* Used globally, don't free now */
-    local = NULL;
-}
+I think you mean that the replacement sector might have gone bad in the
+minutes after the reallocation.  Unlikely but possible, yes.  I guess I will
+probably try to write zeroes to the sector using the suggestion by Maciej
+Zenczykowski, but first I'll ask the Toshiba people if they have different
+preferences.
 
-/* 
-  Do the lookup and alloc
- */
+> > The drive is capable of
+> > doing reallocations.  What kind of operation can be done that will persuade
+> > the drive to do the reallocation?
+>
+> The drive has _done_ a reallocation.  You posted that the reallocated
+> sector count had gone from 1 to 2.  This is why I said if it can't fix
+> the problem, bin it.  It doesn't seem to have fixed the problem yet.
 
-spinunlock(&unamed_dev_lock);
+It's not obvious if the reallocated sector was the same one as the detected
+defective sector.  I thought it seemed not to be.  You pointed out that it
+is unlikely but possible.
 
-/* Free page, because of race on allocation. */
-if (local) 
-    free_page(local);
+> Somebody else might read this thread, and want full instructions.
 
+OK, sorry I thought you just hadn't read what you were replying to.
 
-Which will swap the pointers atomically and still alloc outside the
-non-sleeping locking.
+> 3. Run the tests again.  Your drive fixed one bad sector, let's see if
+>    it completes the test again without finding more.
 
-
-Regards
-
-Ingo Oeser
-
-
+Yeah, but I was already upset by finding that the same sector number
+remained bad even after it "should" have been the one that was reallocated.

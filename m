@@ -1,29 +1,28 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153947-6332>; Tue, 24 Nov 1998 00:04:07 -0500
-Received: from snowcrash.cymru.net ([163.164.160.3]:1297 "EHLO snowcrash.cymru.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154467-6332>; Mon, 23 Nov 1998 17:09:41 -0500
-Message-Id: <m0zi6M1-0007U1C@the-village.bc.nu>
-From: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Subject: Re: differences in between 2.0 and 2.1 SMP?
-To: losi@altrimedia.it
-Date: Tue, 24 Nov 1998 00:29:16 +0000 (GMT)
+Received: by vger.rutgers.edu id <153952-17796>; Tue, 24 Nov 1998 17:16:17 -0500
+Received: from wsdw01.win.tue.nl ([131.155.70.5]:3402 "EHLO wsdw01.win.tue.nl" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <153957-17796>; Tue, 24 Nov 1998 15:16:38 -0500
+Date: Tue, 24 Nov 1998 22:42:47 +0100 (MET)
+From: dwguest@win.tue.nl (Guest section DW)
+Message-Id: <199811242142.WAA25598@wsdw01.win.tue.nl>
+To: ankh@canuck.gen.nz, dwguest@win.tue.nl
+Subject: Re: The history of the Linux OS
 Cc: linux-kernel@vger.rutgers.edu
-In-Reply-To: <36599C9E.D100032F@altrimedia.it> from "root" at Nov 23, 98 05:34:22 pm
-Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> What are the architectural differences between SMP code in 2.0 and 2.1?
-> I'm a very beginner kernel hacker and I'm still in the code grepping
-> stage...
-> it seems to me that only one of the CPUs can execute the kernel code...
-> is that correct?
+	From ankh@canuck.gen.nz Tue Nov 24 15:33:19 1998
+	From: "J. S. Connell" <ankh@canuck.gen.nz>
 
-2.0.x only one CPU is _running_ in kernel at a time (others may be sleeping
-on things but inside a kernel sleep). IRQs are forwarded to the CPU that
-has the lock
+	On Mon, 23 Nov 1998, Guest section DW wrote:
 
-2.1.x IRQs are taken on all CPUs spin locks guard data structures some kernel
-subsystems are not subject to the main kernel lock at all
+	> You can do it yourself. No effort is required.
 
+	May I ask where you found UNIX v5 and a PDP-11 simulator?
+
+There are several around.
+I think the one I showed was from
+	ftp://ftp.digital.com/pub/DEC/sim/sources/
+
+Andries
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbTFKO5F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 10:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTFKO5F
+	id S262197AbTFKPBb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 11:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTFKPBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 10:57:05 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11527 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262470AbTFKO4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 10:56:55 -0400
-Date: Wed, 11 Jun 2003 08:08:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Frank Cusack <fcusack@fcusack.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number
- mismatch)
-In-Reply-To: <1055334814.2084.12.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0306110804360.4413-100000@home.transmeta.com>
+	Wed, 11 Jun 2003 11:01:31 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:17886 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262164AbTFKPB2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 11:01:28 -0400
+Message-ID: <3EE747BD.6010408@austin.ibm.com>
+Date: Wed, 11 Jun 2003 10:16:13 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.70-mm2 causes performance drop of random read O_DIRECT
+References: <3EE5190D.3070401@austin.ibm.com> <3EE522AA.7020200@cyberone.com.au> <3EE5E5AA.6020901@austin.ibm.com> <3EE67F38.9030702@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
 
-On 11 Jun 2003, Alan Cox wrote:
-> 
-> For vfat at least its all broken. 
+> Steven Pratt wrote:
+>
+>> Nick Piggin wrote:
+>>
+>>> Steven Pratt wrote:
+>>>
+>>>> Starting in 2.5.70-mm2 and continuing in the mm tree, there is a 
+>>>> significant degrade in random read for block devices using 
+>>>> O_DIRECT.   The drop occurs for all block sizes and ranges from 
+>>>> 30%-40.  CPU usage is also lower although it may already be so low 
+>>>> as to be irrelavent.
+>>>
+>>> Hi Steven, this is quite likely to be an io scheduler problem.
+>>> Is your test program rawread v2.1.5?
+>>
+>> This test was actually using 2.1.4, but the only difference in the 
+>> 2.1.5 version is a fix for the test label array for the aio versions 
+>> of the test.  No functional change, just fixed the outputed test 
+>> description.
+>>
+>>> What is the command line you are using to invoke the program? 
+>>
+>> rawread -t6 -p8 -m1 -d2 -s4096 -n65536 -l1 -z -x
+>>
+>> Which you can find if you follow either results link and look in the 
+>> benchmark directory where all raw benchmark out put is stored. 
+>
+> OK thanks, I can now reproduce this! I'll work on it.
 
-Looks like a different issue, not dentry aliasing per se.
+Looks like Andrew beat you to it.  Both 2.5.70-mm7 and mm8 are back up 
+to the previous performance levels for random reads.
 
-> cd foo
-> mv ../file .
-> more file
-> 
-> ESTALE.
-
-Yes, VFAT ends up encoding the parent directory in the FH, so renaming 
-will invalidate the old file handle, and if you cache inodes (and thus 
-filehandles) over a directory move, badness happens.
-
-Arguably it's a NFS client problem - the path revalidate at open time 
-should have caught the ESTALE and forced a new inode lookup. But I think 
-you can also argue that VFAT over NFS is just non-unixy enough that it 
-just isn't really "supported".
-
-I think it's more of a "you can NFS-export strange filesystems for some
-limited file sharing, but if things break, you get to keep both pieces".
-
-		Linus
+Steve
 

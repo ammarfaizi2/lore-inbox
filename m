@@ -1,54 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293161AbSCKVgl>; Mon, 11 Mar 2002 16:36:41 -0500
+	id <S293258AbSCKVuw>; Mon, 11 Mar 2002 16:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293162AbSCKVgb>; Mon, 11 Mar 2002 16:36:31 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:62606 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S293161AbSCKVgQ>; Mon, 11 Mar 2002 16:36:16 -0500
-Message-Id: <200203112048.NAA12104@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Hans Reiser <reiser@namesys.com>, elenstev@mesatop.com
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Date: Mon, 11 Mar 2002 14:33:55 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu> <200203111755.KAA11787@tstac.esa.lanl.gov> <3C8D0260.8070700@namesys.com>
-In-Reply-To: <3C8D0260.8070700@namesys.com>
+	id <S293285AbSCKVut>; Mon, 11 Mar 2002 16:50:49 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27406 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293258AbSCKVu3>;
+	Mon, 11 Mar 2002 16:50:29 -0500
+Message-ID: <3C8D2693.9000801@mandrakesoft.com>
+Date: Mon, 11 Mar 2002 16:50:11 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: jt@hpl.hp.com
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.6] New wireless driver API part 2
+In-Reply-To: <20020311115523.A10682@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 March 2002 12:15 pm, Hans Reiser wrote:
-> Steven Cole wrote:
-> >I fiddled around a bit with VMS, and it looks like the following command
-> > set things up for me so that I only have one version for any new files I
-> > create:
-> >
-> >SET DIRECTORY/VERSION_LIMIT=1 SYS$SYSDEVICE:[USERS.STEVEN]
-> >
-> >This change was persistant across logins.  Hope this helps.
-> >
-> >Steven
+Jean Tourrilhes wrote:
+
+>+
+>+/* ---------------------------------------------------------------- */
+>+/*
+>+ * Main event dispatcher. Called from other parts and drivers.
+>+ * Send the event on the apropriate channels.
+>+ * May be called from interrupt context.
+>+ */
+>+void wireless_send_event(struct net_device *	dev,
+>+			 unsigned int		cmd,
+>+			 union iwreq_data *	wrqu,
+>+			 char *			extra)
+>+{
+>+	const struct iw_ioctl_description *	descr = NULL;
+>+	int extra_len = 0;
+>+	struct iw_event  *event;		/* Mallocated whole event */
+>+	int event_len;				/* Its size */
+>+	int hdr_len;				/* Size of the event header */
+>+	/* Don't "optimise" the following variable, it will crash */
+>+	unsigned	cmd_index;		/* *MUST* be unsigned */
+>+
+>+	/* Get the description of the IOCTL */
+>+	if(cmd <= SIOCIWLAST) {
+>+		cmd_index = cmd - SIOCIWFIRST;
+>+		if(cmd_index < standard_ioctl_num)
+>+			descr = &(standard_ioctl[cmd_index]);
+>+	} else {
+>+		cmd_index = cmd - IWEVFIRST;
+>+		if(cmd_index < standard_event_num)
+>+			descr = &(standard_event[cmd_index]);
+>+	}
+>+	/* Don't accept unknown events */
+>+	if(descr == NULL) {
+>+		/* Note : we don't return an error to the driver, because
+>+		 * the driver would not know what to do about it. It can't
+>+		 * return an error to the user, because the event is not
+>+		 * initiated by a user request.
+>+		 * The best the driver could do is to log an error message.
+>+		 * We will do it ourselves instead...
+>+		 */
+>+	  	printk(KERN_ERR "%s (WE) : Invalid Wireless Event (0x%04X)\n",
+>+		       dev->name, cmd);
+>+		return;
+>+	}
+>+#ifdef WE_EVENT_DEBUG
+>+	printk(KERN_DEBUG "%s (WE) : Got event 0x%04X\n",
+>+	       dev->name, cmd);
+>+	printk(KERN_DEBUG "%s (WE) : Header type : %d, Token type : %d, size : %d, token : %d\n", dev->name, descr->header_type, descr->token_type, descr->token_size, descr->max_tokens);
+>+#endif	/* WE_EVENT_DEBUG */
+>+
+>+	/* Check extra parameters and set extra_len */
+>+	if(descr->header_type == IW_HEADER_TYPE_POINT) {
+>+		/* Check if number of token fits within bounds */
+>+		if(wrqu->data.length > descr->max_tokens) {
+>+		  	printk(KERN_ERR "%s (WE) : Wireless Event too big (%d)\n", dev->name, wrqu->data.length);
+>+			return;
+>+		}
+>+		if(wrqu->data.length < descr->min_tokens) {
+>+		  	printk(KERN_ERR "%s (WE) : Wireless Event too small (%d)\n", dev->name, wrqu->data.length);
+>+			return;
+>+		}
+>+		/* Calculate extra_len - extra is NULL for restricted events */
+>+		if(extra != NULL)
+>+			extra_len = wrqu->data.length * descr->token_size;
+>+#ifdef WE_EVENT_DEBUG
+>+		printk(KERN_DEBUG "%s (WE) : Event 0x%04X, tokens %d, extra_len %d\n", dev->name, cmd, wrqu->data.length, extra_len);
+>+#endif	/* WE_EVENT_DEBUG */
+>+	}
+>+
+>+	/* Total length of the event */
+>+	hdr_len = event_type_size[descr->header_type];
+>+	event_len = hdr_len + extra_len;
+>+
+>+#ifdef WE_EVENT_DEBUG
+>+	printk(KERN_DEBUG "%s (WE) : Event 0x%04X, hdr_len %d, event_len %d\n", dev->name, cmd, hdr_len, event_len);
+>+#endif	/* WE_EVENT_DEBUG */
+>+
+>+	/* Create temporary buffer to hold the event */
+>+	event = kmalloc(event_len, GFP_ATOMIC);
+>+	if(event == NULL)
+>+		return;
+>+
+>+	/* Fill event */
+>+	event->len = event_len;
+>+	event->cmd = cmd;
+>+	memcpy(&event->u, wrqu, hdr_len - IW_EV_LCP_LEN);
+>+	if(extra != NULL)
+>+		memcpy(((char *) event) + hdr_len, extra, extra_len);
+>+
+>+#ifdef WE_EVENT_NETLINK
+>+	/* rtnetlink event channel */
+>+	rtmsg_iwinfo(dev, (char *) event, event_len);
+>+#endif	/* WE_EVENT_NETLINK */
+>+
+>+	/* Cleanup */
+>+	kfree(event);
+>+
+>+	return;		/* Always success, I guess ;-) */
+> }
 >
-> This affects all directories and all files for user steven, or just one
-> directory?
+>
 
-The above example affected all subsequently created files and subsequently
-created directories under user steven, such as DKA300:[USERS.STEVEN.TESTTHIS].
-Previously created directories retain their previous version_limit setting, which
-I checked in DKA300:[USERS.STEVEN.HELLOWORLD].  Previously created files also
-retain their previous version_limit setting.
+Overall looks good.  My only minor objection would be that this function 
+should return an error value.  Clearly the kmalloc can fail, at least.
 
-I also set the version_limit for the whole disk (as SYSTEM) with 
-SET DIRECTORY/VERSION_LIMIT=1 DKA300:[000000], but again this only affected
-subsequently created files and directories along with the files they contain.
+    Jeff
 
-I have not figured out how to set the version_limit retroactively; perhaps it is
-not possible with a simple command.  Obviously, you could do this with a DCL 
-script if you really wanted to.
 
-Steven
+
+

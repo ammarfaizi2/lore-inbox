@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271466AbRHZTGz>; Sun, 26 Aug 2001 15:06:55 -0400
+	id <S271473AbRHZTVQ>; Sun, 26 Aug 2001 15:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271467AbRHZTGp>; Sun, 26 Aug 2001 15:06:45 -0400
-Received: from qn-212-127-164-130.quicknet.nl ([212.127.164.130]:53263 "EHLO
-	mail.loesberg.com") by vger.kernel.org with ESMTP
-	id <S271466AbRHZTGb>; Sun, 26 Aug 2001 15:06:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marcel Loesberg <mhll@dds.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with module esssolo1.o
-Date: Sun, 26 Aug 2001 22:00:20 +0200
-X-Mailer: KMail [version 1.2]
+	id <S271486AbRHZTVG>; Sun, 26 Aug 2001 15:21:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39952 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271473AbRHZTUx>; Sun, 26 Aug 2001 15:20:53 -0400
+Subject: Re: VCool - cool your Athlon/Duron during idle
+To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
+Date: Sun, 26 Aug 2001 20:24:20 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20010826181315Z271401-760+6195@vger.kernel.org> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at Aug 26, 2001 08:09:34 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <01082622002001.00938@sharkie>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15b5W8-0002cC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Have you read something about this Athlon/Duron cooling problem?
+> Can this code included into your (and/or the official) tree?
+> Maybe it is needed for the AMD 750/760/760MP/760MPX, too?
 
-I'm not a kernel developer and I have no idea where I should send this 
-request to. I hope you can forward it to the right person/list.
-Please also ask if he/she/they can "Cc:" me on the discussion because I'm not
-a member of the list.
+Well my German isnt that good, but it appears to be just another variant
+on CPU idling. We do hlt or APM already, and APM should be doing other
+work if appropriate.
 
-My problem:
-
-When I try to compile and install the esssolo1.o module I get the following
-error after typing "make modules_install".
-
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.8/kernel/drivers/sound/esssolo1.o
-depmod:         gameport_register_port
-depmod:         gameport_unregister_port
-
-I tried this with kernel 2.4.8 and 2.4.9
-My system is a IBM Thinkpad 390e (the version with a Celeron CPU).
-The sound card is a ESS Solo 1 that is build into the laptop.
-The laptop/soundcard doesn't have a gameport.
-With the kernel that ships with RedHat Linux 7.1 (2.4.2-2) the soundcard does
-work.
-
-I hope you can tell me how I can get it working with the latest kernel.
-
-With kind regards,
-
-Marcel Loesberg
+Alan

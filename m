@@ -1,100 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbUCEBGI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 20:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbUCEBGI
+	id S262154AbUCEBT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 20:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbUCEBT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 20:06:08 -0500
-Received: from mail1.speakeasy.net ([216.254.0.201]:22473 "EHLO
-	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S262141AbUCEBGC
+	Thu, 4 Mar 2004 20:19:28 -0500
+Received: from twinlark.arctic.org ([168.75.98.6]:17602 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262154AbUCEBT1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 20:06:02 -0500
-Date: Thu, 4 Mar 2004 19:05:41 -0600 (CST)
-From: Matthew Strait <quadong@users.sourceforge.net>
-X-X-Sender: straitm@dsl093-017-216.msp1.dsl.speakeasy.net
-To: Patrick McHardy <kaber@trash.net>
-cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] matching any helper in ipt_helper.c
-In-Reply-To: <4047A42E.6080307@trash.net>
-Message-ID: <Pine.LNX.4.60.0403041821010.21790@dsl093-017-216.msp1.dsl.speakeasy.net>
-References: <Pine.LNX.4.60.0403031947450.8957@dsl093-017-216.msp1.dsl.speakeasy.net>
- <40469E10.7080100@trash.net> <Pine.LNX.4.60.0403032150000.8957@dsl093-017-216.msp1.dsl.speakeasy.net>
- <4046BFB9.809@trash.net> <Pine.LNX.4.60.0403041500280.10634@dsl093-017-216.msp1.dsl.speakeasy.net>
- <4047A42E.6080307@trash.net>
+	Thu, 4 Mar 2004 20:19:27 -0500
+Date: Thu, 4 Mar 2004 17:19:26 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+cc: James Morris <jmorris@redhat.com>, Christophe Saout <christophe@saout.de>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: dm-crypt, new IV and standards
+In-Reply-To: <20040304132430.GA8213@certainkey.com>
+Message-ID: <Pine.LNX.4.58.0403041702180.794@twinlark.arctic.org>
+References: <20040220172237.GA9918@certainkey.com>
+ <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com>
+ <20040221164821.GA14723@certainkey.com> <Pine.LNX.4.58.0403022352080.12846@twinlark.arctic.org>
+ <20040303150647.GC1586@certainkey.com> <Pine.LNX.4.58.0403031735210.26196@twinlark.arctic.org>
+ <20040304132430.GA8213@certainkey.com>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It seems like I'd have to make significantly more invasive changes than
-> > are really called for to get it to accept an empty string.  What do you
-> > think?
->
-> You just need to remove the check for empty strings in ipt_helper.c:
->
->         /* verify that we actually should match anything */
->         if ( strlen(info->name) == 0 )
->                 return 0;
+On Thu, 4 Mar 2004, Jean-Luc Cooke wrote:
 
-Silly me, I assumed that the error was generated in user space.  Ok.  In
-that case, let's forget translating "any" to "", because that just makes
-the output of "iptables -L" confusing.  Sound good?
+> recommend using a MAC with CTR.  (Why still have CTR?  Unlike CBC, you can
+> compute the N+1-th block without needing to know the output from the N-th
+> block, so there is the possibility for very high parallelizum).
 
-Kernel patch:
+for disk crypto there are other opportunities for parallelism using
+bitslicing to encrypt/decrypt multiple blocks in parallel (for example see
+<http://www.cs.utexas.edu/users/atri/papers/spaa.ps>).  there's a
+latency/throughput tradeoff though...
 
---- ipt_helper.c.old    2004-03-03 21:34:05.000000000 -0600
-+++ ipt_helper.c        2004-03-04 18:38:32.234521176 -0600
-@@ -68,8 +68,11 @@
-        DEBUGP("master's name = %s , info->name = %s\n",
-                exp->expectant->helper->name, info->name);
-
--       ret = !strncmp(exp->expectant->helper->name, info->name,
--                      strlen(exp->expectant->helper->name)) ^ info->invert;
-+       if(info->name[0] == '\0') /* special case meaning "any" */
-+               ret = !info->invert;
-+       else
-+               ret = !strncmp(exp->expectant->helper->name, info->name,
-+                              strlen(exp->expectant->helper->name)) ^ info->invert;
- out_unlock:
-        READ_UNLOCK(&ip_conntrack_lock);
-        return ret;
-@@ -89,10 +92,6 @@
-        if (matchsize != IPT_ALIGN(sizeof(struct ipt_helper_info)))
-                return 0;
-
--       /* verify that we actually should match anything */
--       if ( strlen(info->name) == 0 )
--               return 0;
--
-        return 1;
- }
-
-
-
-
-And documentational changes in iptables:
-
---- libipt_helper.c.old 2004-03-03 21:39:07.000000000 -0600
-+++ libipt_helper.c     2004-03-04 18:31:54.156038304 -0600
-@@ -15,6 +15,7 @@
-        printf(
- "helper match v%s options:\n"
- "[!] --helper string        Match helper identified by string\n"
-+"                           (or any helper if string is \"\")"
- "\n",
- IPTABLES_VERSION);
- }
-
-
---- iptables.8.old      2004-03-04 18:35:11.994962216 -0600
-+++ iptables.8  2004-03-04 18:34:38.263090240 -0600
-@@ -458,6 +458,8 @@
- For other ports append -portnr to the value, ie. "ftp-2121".
- .PP
- Same rules apply for other conntrack-helpers.
-+.PP
-+If string is "", it will match any packet related to a conntrack-helper.
- .RE
- .SS icmp
- This extension is loaded if `--protocol icmp' is specified.  It
-
+-dean

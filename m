@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269694AbUHZXIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269740AbUHZXJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269694AbUHZXIx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 19:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269753AbUHZXEg
+	id S269740AbUHZXJf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 19:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUHZXJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 19:04:36 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:55175 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S269766AbUHZW7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 18:59:09 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-Cc: Christophe Saout <christophe@saout.de>, Rik van Riel <riel@redhat.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Date: Thu, 26 Aug 2004 15:52:24 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <200408270030.20647.lkml@felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.60.0408261548410.27825@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com>
- <1093536282.5482.6.camel@leto.cs.pocnet.net> <Pine.LNX.4.60.0408261348370.27825@dlang.diginsite.com>
- <200408270030.20647.lkml@felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 26 Aug 2004 19:09:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:41947 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269688AbUHZXCj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:02:39 -0400
+Date: Thu, 26 Aug 2004 16:02:04 -0700
+From: Greg KH <greg@kroah.com>
+To: ismail d?nmez <ismail.donmez@gmail.com>
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
+       Paul Fulghum <paulkf@microgate.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, olh@suse.org
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+Message-ID: <20040826230204.GD12762@kroah.com>
+References: <2a4f155d040817070854931025@mail.gmail.com> <412247FF.5040301@microgate.com> <2a4f155d0408171116688a87f1@mail.gmail.com> <4122501B.7000106@microgate.com> <2a4f155d04081712005fdcdd9b@mail.gmail.com> <412272C8.6050203@microgate.com> <1092778561.8998.18.camel@nosferatu.lan> <2a4f155d040817224449ef0874@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2a4f155d040817224449ef0874@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004, Felipe Alfaro Solana wrote:
+On Wed, Aug 18, 2004 at 08:44:28AM +0300, ismail d?nmez wrote:
+> On Tue, 17 Aug 2004 23:36:02 +0200, Martin Schlemmer <azarah@nosferatu.za.org> 
+> > He has the wrong permissions in
+> > /etc/udev/permissions.d/50-udev.permissions (or whatever), or no
+> > entry for it, and his default_mode (in /etc/udev/udev.conf) is very
+> > restrictive, or he does not use pam_console (or using it with a
+> > display manager?), or add some other explanation.  Personally I would
+> > just say that he/his_distribution should fix the shipped
+> > udev.permissions.
+> 
+> I run Slackware 10 and got this in /etc/udev/permissions.d/udev.permissions :
+> 
+> # console devices
+> console:root:tty:0600
+> tty:root:tty:0666
+> tty[0-9][0-9]*:root:tty:0660
+> vc/[0-9]*:root:tty:0660
+> 
+> 
+> But the real problem is not permissions but the fact that /dev/tty is
+> a directory now not a character device. Is this intended? If yes this
+> will break many userspace applications which will assume /dev/tty is a
+> character device. Greg can you please comment?
 
-> On Thursday 26 August 2004 23:05, David Lang wrote:
->
->> I also don't see why the VFS/Filesystem can't decide that (for example)
->> this tar.gz is so active that instead of storing it as a tar.gz and
->> providing a virtual directory of the contents that it instead stores the
->> directory of the contents and makes the tar.gz virtual (regenerating it as
->> needed or as extra system resources are available)
->
-> Because that would mean the kernel should "talk" the tar format, which is,
-> IMHO, a Bad Idea (TM). Maybe the kernel could notify a user-space daemon to
-> perform this task, instead.
->
+/dev/tty is a char device on my system.  Perhaps your rules files are
+making that not happen properly.
 
-the kernel will definantly need the ability to use user-space code to do 
-the transformations from one version to the other (if nothing else think 
-of the thumbnail version of images, we don't want the image manipulation 
-code in the kernel and we definantly want this sort of option available)
+thanks,
 
-the interesting issue is going to be defining the kernel->user-space 
-interface for doing the extractions.
-
-David Lang
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+greg k-h

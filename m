@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264270AbUFXLgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264275AbUFXLnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264270AbUFXLgL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 07:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbUFXLgL
+	id S264275AbUFXLnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 07:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUFXLnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 07:36:11 -0400
-Received: from colin2.muc.de ([193.149.48.15]:5133 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264270AbUFXLgJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 07:36:09 -0400
-Date: 24 Jun 2004 13:36:08 +0200
-Date: Thu, 24 Jun 2004 13:36:08 +0200
-From: Andi Kleen <ak@muc.de>
-To: Yusuf Goolamabbas <yusufg@outblaze.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: finish_task_switch high in profiles in 2.6.7
-Message-ID: <20040624113608.GA31080@colin2.muc.de>
-References: <2ayz2-1Um-15@gated-at.bofh.it> <m3n02tz203.fsf@averell.firstfloor.org> <20040624104416.GB8798@outblaze.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624104416.GB8798@outblaze.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 24 Jun 2004 07:43:25 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:27032 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264275AbUFXLnX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 07:43:23 -0400
+Message-ID: <40DABE5A.6040603@namesys.com>
+Date: Thu, 24 Jun 2004 15:43:22 +0400
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.7-mm[12]] kernel BUG at include/linux/list.h:164!
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmm, Is there a way to determine which syscall would be the culprit. I
-> guess this is where something like DTrace would be invaluable
+Hello
 
-Find out which program does it (most likely those with the most
-system time) and then strace it.
-> 
-> http://www.sun.com/bigadmin/content/dtrace/
+It appears regularly when I try to compile 
+http://thebsh.namesys.com/snapshots/2004.03.26/reiser4progs-0.5.3.tar.gz
 
-Sounds like a inferior clone of dprobes to me. But I doubt it 
-would help tracking this down.
+Well, on 2.6.7-mm1 it breaks easier. on 2.6.7-mm2 - it manages to 
+compelte once.
 
--Andi
+(gdb) bt
+#0  0xc013c75a in anon_vma_unlink (vma=0xcdb7a3c0) at 
+include/linux/list.h:164
+Cannot access memory at address 0xc013c738
+
+Has anyone ever seen something similar? Is there workaround already?
+I would be glad to perform any tests to help fixing this
+
+
+

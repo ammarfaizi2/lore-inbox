@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVAGWR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVAGW0C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVAGWR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVAGWOr
+	id S261664AbVAGW0C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:26:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVAGWXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:14:47 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:28102 "EHLO
+	Fri, 7 Jan 2005 17:23:50 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:38342 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261660AbVAGWLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:11:12 -0500
-Date: Fri, 7 Jan 2005 22:10:59 +0000
+	id S261664AbVAGWTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:19:13 -0500
+Date: Fri, 7 Jan 2005 22:19:05 +0000
 From: Christoph Hellwig <hch@infradead.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, paul@linuxaudiosystems.com,
-       arjanv@redhat.com, hch@infradead.org, mingo@elte.hu, chrisw@osdl.org,
-       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107221059.GA17392@infradead.org>
+Cc: mingo@elte.hu, viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com, torvalds@osdl.org
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050107221905.GA17567@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-	paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
-	chrisw@osdl.org, alan@lxorguk.ukuu.org.uk, joq@io.com,
-	linux-kernel@vger.kernel.org
-References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org>
+	Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+	viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
+	arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+	wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+	greghk@us.ibm.com, torvalds@osdl.org
+References: <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106234123.GA27869@infradead.org> <20050106162928.650e9d71.akpm@osdl.org> <20050107002624.GA29006@infradead.org> <20050107090014.GA24946@elte.hu> <20050107091542.GA5295@infradead.org> <20050107140034.46aec534.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050107134941.11cecbfc.akpm@osdl.org>
+In-Reply-To: <20050107140034.46aec534.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 01:49:41PM -0800, Andrew Morton wrote:
-> Chris Wright <chrisw@osdl.org> wrote:
-> >
-> > ...
-> > Last I checked they could be controlled separately in that module.  It
-> > has been suggested (by me and others) that one possible solution would
-> > be to expand it to be generic for all caps.
+On Fri, Jan 07, 2005 at 02:00:34PM -0800, Andrew Morton wrote:
+> No, I'd say that unexports are different.  They can clearly break existing
+> code and so should only be undertaken with caution, and with lengthy notice
+> if possible.
+
+As mentioned before we only unexported symbols were we were pretty clear
+that all users of it are indeep utterly broken.  I got about a dozend
+replies for this patches, and for more than half of it where the reporter
+was either the author or the module was opensource I could help them to
+actually fix their code.  In this case the code is far more broken than
+the others, but we've even been trying to help them fix their code for
+more than a year, but IBM folks have been constanly refusing.
+
+> The cost to us of maintaining those two lines of code for a year is
+> basically zero.
+
+But as long as IBM people don't fix their %$^%! they'll continue annoying
+us and the Distibutors about adding more and more hacks for it, and other
+people will write similarly crappy code using it again and making the
+removal even more difficult. 
+
+> > <sarcasm>
+> > <osdl-salespitch>
+> > Unfortunately you don't have the financial and political powers IBM
+> > has, so your opinion doesn't matter as much.  Maybe you should become
+> > OSDL member to influence the direction of Linux development.
+> > </osdl-salespitch>
+> > </sarcasm>
 > 
-> Maybe this is the way?
+> Christoph, it would be better to constraint yourself to commenting on other
+> people's actions rather than entering into premature speculation regarding
+> their motivations, especially when that speculation involves accusations of
+> corruption.
 
-It's at least not as bad as the current hack (when properly done in
-the capabilities modules instead of adding one ontop).
+Hey, you got messages in this thread from half a dozen kernel contributors
+here and still stand against all of them and for IBM who's violating our
+copyrights that don't allow non-propritary derived works from it which
+any user of these deeply-internal modules clearly is.
 
-I must say I'm not exactly happy with that idea still.  It ties the
-privilegues we have been separating from a special uid (0) to filesystem
-permissions again.  It's not nessecarily a bad idea per, but it doesn't
-really fit into the model we've been working to.  I'd expect quite a few
-unpleasant devices when a user detects that the distibution had been
-binding various capabilities to uids/gids behinds his back.
+I don't know nor care nor want to speculate over anyones motives, but the
+situation is at least strange enough to deserve a little sarcastic anekdote.
 
-So to make forward progress I'd like the audio people to confirm whether
-the mlock bits in 2.6.9+ do help that half of their requirement first
-(and if not find a way to fix it) and then tackle the scheduling part.
-For that one I really wonder whether the combination of the now actually
-working nicelevels (see Mingo's post) and a simple wrapper for the really
-high requirements cases doesn't work.

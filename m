@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270653AbRHJVzp>; Fri, 10 Aug 2001 17:55:45 -0400
+	id <S270652AbRHJVvE>; Fri, 10 Aug 2001 17:51:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270654AbRHJVzf>; Fri, 10 Aug 2001 17:55:35 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:61451 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270653AbRHJVz0>; Fri, 10 Aug 2001 17:55:26 -0400
-Date: Fri, 10 Aug 2001 14:55:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/<n>/maps getting _VERY_ long
-In-Reply-To: <20010806194120.A5803@thefinal.cern.ch>
-Message-ID: <Pine.LNX.4.33.0108101445350.7596-100000@penguin.transmeta.com>
+	id <S270653AbRHJVuo>; Fri, 10 Aug 2001 17:50:44 -0400
+Received: from mail.valinux.com ([198.186.202.175]:18190 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S270652AbRHJVun>;
+	Fri, 10 Aug 2001 17:50:43 -0400
+Message-ID: <3B7456E2.4090507@valinux.com>
+Date: Fri, 10 Aug 2001 15:49:22 -0600
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: imran.badr@cavium.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: how to check whether other threads are waiting ..
+In-Reply-To: <001701c121e3$612a27d0$6401a8c0@IMRANPC>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Imran Badr wrote:
 
-On Mon, 6 Aug 2001, Jamie Lokier wrote:
->
-> There are garbage collectors that use mprotect() and SEGV trapping per
-> page.  It would be nice if there was a way to change the protections per
-> page without requiring a VMA for each one.
+> Hi,
+> 
+> How can I find out in my kernel code that if mutiple threads are waiting for
+> a particular semaphore?
+> 
+> Thanks,
+> imran.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+I haven't looked at the semaphore implementation for other arch's 
+closely, but on the ia32 there is a waitqueue in struct semaphore.  
+Examine that to detrimine if there are processes waiting, how many, etc.
 
-This is actually how Linux used to work a long long time ago - all
-protection information was in the page tables, and you could do per-page
-things without having to worry about piddling details like vma's.
+-Jeff
 
-It does work, but it had major downsides. Trivial things like re-creating
-the permission after throwing a page out or swapping it out.
-
-We used to have these "this is a COW page" and "this is shared writable"
-bits in the page table etc - there are two sw bits on x86, and I think we
-used them both.
-
-These days, the vma's just have too much information, and the page tables
-can't be counted on to have enough bits.
-
-So on one level I basically agree with you, but at the same time it's just
-not feasible any more. The VM got a lot better, and got ported to other
-architectures. And it started needing more information - it used to be
-enough to know whether a page was shared writable or privately writable or
-not writable at all, but back then we didn't really support the full
-semantics of shared memory or mprotect, so we didn't need all the
-information we have to have now.
-
-They were "the good old days", but trust me, you really don't want them
-back. The vma's have some overhead, but it is not excessive, and they
-really make things like a portable VM layer possible..
-
-It's very hard to actually see any performance impact of the VMA handling.
-It's a small structure, with reasonable lookup algorithms, and the common
-case is still to not have all that many of them.
-
-		Linus
 

@@ -1,52 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbUKNLQC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbUKNLQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbUKNLQC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 06:16:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbUKNLQC
+	id S261285AbUKNLQs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 06:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbUKNLQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 06:16:02 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:31241 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261284AbUKNLP4 (ORCPT
+	Sun, 14 Nov 2004 06:16:47 -0500
+Received: from pop.gmx.net ([213.165.64.20]:4832 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261285AbUKNLQC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 06:15:56 -0500
-Date: Sun, 14 Nov 2004 12:15:51 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] __init in mm/slab.c
-Message-ID: <20041114111551.GA8680@pclin040.win.tue.nl>
-References: <E1CTDXF-0006mU-00@bkwatch.colorfullife.com> <419714B8.3030804@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419714B8.3030804@colorfullife.com>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Sun, 14 Nov 2004 06:16:02 -0500
+X-Authenticated: #427522
+Message-ID: <41973E70.6030400@gmx.de>
+Date: Sun, 14 Nov 2004 12:16:00 +0100
+From: Mathis Ahrens <Mathis.Ahrens@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.3) Gecko/20041028
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Jan De Luyck <lkml@kcore.org>
+CC: Luc Saillard <luc@saillard.org>,
+       Gergely Nagy <algernon@bonehunter.rulez.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: pwc driver status?
+References: <200411132134.52872.lkml@kcore.org> <1100380178.16772.23.camel@melkor> <20041113211816.GC22949@sd291.sivit.org> <200411141111.38951.lkml@kcore.org>
+In-Reply-To: <200411141111.38951.lkml@kcore.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 14, 2004 at 09:18:00AM +0100, Manfred Spraul wrote:
+Jan De Luyck wrote:
 
-> g_cpucache_up is NONE during bootstrap and FULL after boot. Thus the 
-> initarray is never accessed after boot.
-> 
-> Andries, why did you propose this change? Does the current code trigger 
-> an automatic test?
+>On Saturday 13 November 2004 22:18, Luc Saillard wrote:
+>  
+>
+>>On Sat, Nov 13, 2004 at 10:09:38PM +0100, Gergely Nagy wrote:
+>>    
+>>
+>>>>Unfortunately, upgrading is not an option right now for other
+>>>>reasons...
+>>>>        
+>>>>
+>>>That's a pity... because there is no 2.4 version of Luc's driver as far
+>>>as I know :(
+>>>      
+>>>
+>>I don't use a 2.4 kernel, so i can produce patch for older kernel, but i'll
+>>not test them. If someone want a 2.4 kernel tell me, and i'll try to mande
+>>a patch using difftools. I prefer to add features like v4l2, than
+>>supporting and testing old kernel (or writing documentation).
+>>    
+>>
+>
+>Understandable. I'll look into getting the other box upgraded, tho the owner 
+>of it is kinda reluctant to do so.
+>  
+>
+I don't think you have to.
+The latest release from nemosoft is not in the kernel anymore, but still
+online:
 
-Yes. I was a bit more explicit in the timer patch:
+    http://www.smcc.demon.nl/webcam/
 
-"The i386 timers use a struct timer_opts that has a field init
-pointing at a __init function. The rest of the struct is not __init.
-Nothing is wrong, but if we want to avoid having references to init stuff
-in non-init sections, some reshuffling is needed."
+It is supposed to still work with 2.4
 
-So yesterday's series of __init patches is not because there were
-bugs, but because it is desirable to have the situation where
-static inspection of the object code shows absence of references
-to .init stuff. Much better than having to reason that there is
-a reference but that it will not be used.
+>  
+>
+>>>>Is this driver also supporting the Logitech Quickcam for Notebooks? I
+>>>>found some references that the 'official' one used to do that, but I
+>>>>can't find much docs...
+>>>>        
+>>>>
+>>>As far as I know, yes. The source code seems to indicate the same.
+>>>      
+>>>
+>>If the old driver supports, mine too (minor some very old webcam).
+>>    
+>>
+>
+>Ok, good to know. Would be nice tho to have some actual 'confirmation' of this 
+>fact before I run off to spend money ;p
+>
+ From the philips.txt included in the above reference:
 
-Where the memory win is important the code should be rewritten a bit.
+    As of this moment, the following cameras are supported:
+    [...]
+     * Logitech QuickCam Notebook Pro
+    [...]
 
-Andries
+(Note the 'Pro', this might be important!)
+
+And as Luc said, once you upgrade to 2.6 you will have the same
+support with his driver.
+
+Cheers,
+Mathis

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUJSHcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268455AbUJSHi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268335AbUJSHcf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 03:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268357AbUJSHcf
+	id S268455AbUJSHi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 03:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUJSHi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 03:32:35 -0400
-Received: from [203.200.194.71] ([203.200.194.71]:58195 "EHLO
-	semsoftindia-samsung.com") by vger.kernel.org with ESMTP
-	id S268335AbUJSHcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 03:32:31 -0400
-Reply-To: <srinivas@semsoftindia-samsung.com>
-From: "Srinivas Naga Vutukuri" <srinivas@semsoftindia-samsung.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: initrd stuff & need of software layer for virtual to physical address translation ?
-Date: Tue, 19 Oct 2004 13:02:18 +0530
-Message-ID: <HEEPIMMIBFKCAGHPIBKDKEFFCAAA.srinivas@semsoftindia-samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 19 Oct 2004 03:38:29 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:57703 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268455AbUJSHi0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 03:38:26 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=QwRkJskdcXTeegSZIZTR/cZrkHONs+3RxFXuC6X0hpHLFEJaK9rEIy7unB6fuGeI3xultLcCKJtQ4/ry0glQjepJwdVAqYoeFHdPfeBOMQPU6GLBnZy4UJdAEZwpJ/ZYK94VLXVHtn0N6oxMIMwLGe6DMOHx9+jVArqVPCfTJBw
+Message-ID: <5d6b65750410190038410a2f5d@mail.gmail.com>
+Date: Tue, 19 Oct 2004 09:38:26 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: "T. Weyergraf" <kirk@colinet.de>
+Subject: Re: patch-2.6.9 against 2.6.8.1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200410190723.i9J7NNuv027374@hydra.colinet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+References: <200410190723.i9J7NNuv027374@hydra.colinet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 19 Oct 2004 09:23:23 +0200 (CEST), T. Weyergraf <kirk@colinet.de> wrote:
+> Hi all,
+> 
+> I just build 2.6.9 using the patch-2.6.9, as always. Previously,
+> I was using 2.6.8.1 and i expected patch-2.6.9 to work on the
+> 2.6.8.1 tree.
+
+The patch is against 2.6.8.
 
 
-
- check the manual information is useful..
-  
- http://www.rt.com/man/initrd.4.html
-
-
-
-regards,
-srinivas.
-
-
-
-
-********************************************************************
-No virus was detected in the attachment no filename
-
-Your mail has been scanned by InterScan.
-********************************************************************
-
-
-The information contained in this electronic message and any attachments 
-to this message are intended for the exclusive use of the addressee(s) 
-and may contain confidential or privileged information.
-If you are not the intended recipient, please notify the sender at 
-Samsung Electro-Mechanics Co. Ltd. or admin@semsoftindia-samsung.com
-immediately and destroy all copies of this message and any attachments.
-Any unauthorized review, use, disclosure, dissemination, forwarding, 
-printing or copying of this email or any action taken in reliance on
-this e-mail is strictly prohibited and may be unlawful.
+Cheers,
+Buddy

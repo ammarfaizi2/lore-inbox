@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314529AbSH0GNP>; Tue, 27 Aug 2002 02:13:15 -0400
+	id <S314548AbSH0GYn>; Tue, 27 Aug 2002 02:24:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314548AbSH0GNP>; Tue, 27 Aug 2002 02:13:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:11402 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S314529AbSH0GNO>;
-	Tue, 27 Aug 2002 02:13:14 -0400
-Date: Mon, 26 Aug 2002 23:11:57 -0700 (PDT)
-Message-Id: <20020826.231157.10296323.davem@redhat.com>
-To: dipankar@in.ibm.com
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, davej@suse.de, andrea@suse.de,
-       paul.mckenney@us.ibm.com
-Subject: Re: [BKPATCH] Read-Copy Update 2.5
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020827114152.A2072@in.ibm.com>
-References: <20020827022239.C31269@in.ibm.com>
-	<20020826193708.0C64C2C07B@lists.samba.org>
-	<20020827114152.A2072@in.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314602AbSH0GYn>; Tue, 27 Aug 2002 02:24:43 -0400
+Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:25526 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S314548AbSH0GYm>; Tue, 27 Aug 2002 02:24:42 -0400
+Date: Tue, 27 Aug 2002 00:28:50 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Felix Seeger <felix.seeger@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: USB keyboards (patch)
+In-Reply-To: <200208270750.49576.felix.seeger@gmx.de>
+Message-ID: <Pine.LNX.4.44.0208270028320.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dipankar Sarma <dipankar@in.ibm.com>
-   Date: Tue, 27 Aug 2002 11:41:52 +0530
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-   On Tue, Aug 27, 2002 at 10:24:30AM +1000, Rusty Russell wrote:
-   > > +#ifdef CONFIG_PREEMPT
-   > > +/* Fake initialization to work around compiler breakage */
-   > > +DEFINE_PER_CPU(atomic_t[2], rcu_preempt_cntr) = 
-   > > +			{ATOMIC_INIT(0), ATOMIC_INIT(0)};
-   > > +DEFINE_PER_CPU(atomic_t, *curr_preempt_cntr) = NULL;
-   > > +DEFINE_PER_CPU(atomic_t, *next_preempt_cntr) = NULL;
-   > 
-   > Also static I assume?
-   
-   So, only statics are broken by gcc 2.95, right ?
+Hi,
 
-I think it gets both static and non-static wrong.
+On Tue, 27 Aug 2002, Felix Seeger wrote:
+> Does this Patch solves the kernel panic on startup with USB Mouse plugged in
+> the second usb part and MS Usb keyboard plugged in the first port ?
 
-Why don't we just specify that DEFINE_PER_CPU()'s must
-have explicit initializers then we never need to think
-about this ever again.
+Care to find out?
+
+			Thunder
+- -- 
+- --./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+- --/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+- --./.-/-.../.-./.././.-../.-.-.-
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9axwmC3BvqgN/skgRAr0VAKDri4yg11WPA86ZrZ2GQPIWdtFcdwCg3UZy
+Xv6zNEISeZZf4aOWG7WGpqU=
+=7CrU
+-----END PGP SIGNATURE-----
+

@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265171AbUAaWwn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 17:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUAaWwn
+	id S265152AbUAaXS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 18:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUAaXS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 17:52:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:25254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265171AbUAaWwl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 17:52:41 -0500
-Date: Sat, 31 Jan 2004 14:52:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: NTPL: waitpid() doesn't return?
-In-Reply-To: <20040131211109.GC2160@kiste>
-Message-ID: <Pine.LNX.4.58.0401311441490.2033@home.osdl.org>
-References: <20040131104606.GA25534@kiste> <Pine.LNX.4.58.0401311052180.2105@home.osdl.org>
- <20040131200050.GA2160@kiste> <Pine.LNX.4.58.0401311223110.2105@home.osdl.org>
- <20040131211109.GC2160@kiste>
+	Sat, 31 Jan 2004 18:18:58 -0500
+Received: from nms.rz.uni-kiel.de ([134.245.1.2]:29931 "EHLO uni-kiel.de")
+	by vger.kernel.org with ESMTP id S265152AbUAaXS4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 18:18:56 -0500
+From: Mike Gabriel <mgabriel@ecology.uni-kiel.de>
+Reply-To: mgabriel@ecology.uni-kiel.de
+To: linux-kernel@vger.kernel.org
+Subject: page allocation failed in 2.4.24
+Date: Sun, 1 Feb 2004 00:18:23 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200402010018.23725.mgabriel@ecology.uni-kiel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi there,
+
+can anyone tell me what these messages mean? running linux-2.4.24 on asus 
+p4p800 deluxe.
+
+Jan 31 02:38:02 galileo kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0xf0/0)
+Jan 31 02:38:02 galileo kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0x1d2/0)
+Jan 31 02:38:02 galileo kernel: VM: killing process slapd
+Jan 31 02:38:50 galileo kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0xf0/0)
+Jan 31 02:38:50 galileo kernel: ENOMEM in journal_get_undo_access_R9add2900, 
+retrying.
+Jan 31 02:38:53 galileo kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0xf0/0)
+Jan 31 02:39:19 galileo last message repeated 3 times
+Jan 31 02:39:25 galileo kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0x1d2/0)
+Jan 31 02:39:25 galileo kernel: VM: killing process sshd
+Jan 31 02:39:25 galileo kernel: __alloc_pages: 0-order allocation failed 
+(gfp=0x1d2/0)
+Jan 31 02:39:25 galileo kernel: VM: killing process sshd
+
+I get plenty of them during copying (cp -av <source> <dest>) a huge amount of 
+data, which is densely filled with hard links from one raid to another... the 
+cp command runs in a screen session. on huge directories, it starts blasting 
+other processes from the system (sshd, nmbd, spong-client, etc.)
+
+any ideas?
+mike
 
 
-On Sat, 31 Jan 2004, Matthias Urlichs wrote:
->
-> So there's definitely something fishy going on here.
 
-Yes. Especially as the actual clone() we're waiting for was this 
-one:
+-- 
 
-31342 clone( <unfinished ...>
-31342 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x416dbc18) = 31346
+Oekologiezentrum
+Christian-Albrecht-Universität zu Kiel
+- netzwerkteam -
+Mike Gabriel
+Olshausenstr 75.
+24118 Kiel
 
-which wasn't the detached one at all. I looked at the wrong clone().
+fon: +49 431 880-1186
+mail: mgabriel@ecology.uni-kiel.de
+www: http://www.ecology.uni-kiel.de, http://zope.ecology.uni-kiel.de
+     
 
-> Besides, bert's test program exhibits exactly the same clone()
-> arguments, yet it works ...
-
-[ twilight zone music ]
-
-Anyway. It's interesting to see who gets the SIGCHLD (which is why I 
-looked at the wrong clone) - that goes to 31340:
-
-	31346 exit_group(0)                     = ?
-	31340 --- SIGCHLD (Child exited) @ 0 (0) ---
-	31342 waitpid(31346,  <unfinished ...>
-
-which is just because we send a thread-group signal, so the signal isn't 
-actually necessarily directed toward the "real parent".
-
-But the real parent _should_ have been woken up by __wake_up_parent().  
-And I don't see why that wouldn't happen.
-
-		Linus

@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVB1X3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVB1Xau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVB1X3N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 18:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVB1X3N
+	id S261818AbVB1Xau (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 18:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVB1Xau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 18:29:13 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:15312 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261810AbVB1X3I
+	Mon, 28 Feb 2005 18:30:50 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:17581 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261815AbVB1XaZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 18:29:08 -0500
-Subject: Re: [RFC] PCI bridge driver rewrite
-From: Adam Belay <abelay@novell.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200502241502.15163.jbarnes@sgi.com>
-References: <1109226122.28403.44.camel@localhost.localdomain>
-	 <9e473391050223224532239c9d@mail.gmail.com>
-	 <1109228638.28403.71.camel@localhost.localdomain>
-	 <200502241502.15163.jbarnes@sgi.com>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 18:27:47 -0500
-Message-Id: <1109633268.28403.77.camel@localhost.localdomain>
+	Mon, 28 Feb 2005 18:30:25 -0500
+Subject: Re: [PATCH 3/5] abstract discontigmem setup
+From: Dave Hansen <haveblue@us.ibm.com>
+To: linux-mm <linux-mm@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, kmannth@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <E1D5q2Q-0007eV-00@kernel.beaverton.ibm.com>
+References: <E1D5q2Q-0007eV-00@kernel.beaverton.ibm.com>
+Content-Type: multipart/mixed; boundary="=-E0c7nWu8qtH6CsSR5UHX"
+Date: Mon, 28 Feb 2005 15:30:14 -0800
+Message-Id: <1109633414.6921.69.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 15:02 -0800, Jesse Barnes wrote:
-> On Wednesday, February 23, 2005 11:03 pm, Adam Belay wrote:
-> 
-> > > Jesse can comment on the specific support needed for multiple legacy IO
-> > > spaces.
-> >
-> > That would be great.  Most of my experience has been with only a couple
-> > legacy IO port ranges passing through the bridge.
-> 
-> Well, I'll give you one, somewhat perverse, example.  On SGI sn2 machines, 
-> each host<->pci bridge (either xio<->pci or numalink<->pci) has two pci 
-> busses and some additional host bus ports.  The bridges are capable of 
-> generating low address bus cycles on both busses simultaneously, so we can do 
-> ISA memory access and legacy port I/O on every bus in the system at the same 
-> time.
-> 
-> The main host chipset has no notion of VGA or legacy routing though, so doing 
-> a port access to say 0x3c8 is ambiguous--we need a bus to target (though the 
-> platform code could provide a 'default' bus for such accesses to go to, this 
-> may be what VGA or legacy routing means for us under your scheme).  Likewise, 
-> accessing ISA memory space like 0xa0000 needs a bus to target.
-> 
-> It would be nice if this sort of thing was taken into account in your new 
-> model, so that for example we could have the vgacon driver talking to 
-> multiple different VGA cards at the same time.
-> 
-> Thanks,
-> Jesse
 
-How can we specify which bus to target?  Also is the legacy IO space
-mapped to IO Memory on the other side of the bridge?
+--=-E0c7nWu8qtH6CsSR5UHX
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thanks,
-Adam
+The $SUBJECT patch has a small, obvious, compile bug in it on the
+NUMA-Q, which I introduced while cleaning it up.  Please apply this
+patch on top of that one.
 
+-- Dave
+
+--=-E0c7nWu8qtH6CsSR5UHX
+Content-Disposition: attachment; filename=A3.2.1-fix-numaq.patch
+Content-Type: text/x-patch; name=A3.2.1-fix-numaq.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
+
+The "abstract discontigmem setup" patch has a small compile bug in
+it on the NUMA-Q, which I introduced while "cleaning it up."
+
+Please apply after that patch.
+
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
+
+ memhotplug-dave/arch/i386/kernel/numaq.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
+
+diff -puN arch/i386/kernel/numaq.c~A3.2.1-fix-numaq arch/i386/kernel/numaq.c
+--- memhotplug/arch/i386/kernel/numaq.c~A3.2.1-fix-numaq	2005-02-28 14:16:23.000000000 -0800
++++ memhotplug-dave/arch/i386/kernel/numaq.c	2005-02-28 14:16:59.000000000 -0800
+@@ -62,7 +62,9 @@ static void __init smp_dump_qct(void)
+ 
+ 			memory_present(node,
+ 				node_start_pfn[node], node_end_pfn[node]);
+-			node_remap_size[node] = node_memmap_size_bytes(node);
++			node_remap_size[node] = node_memmap_size_bytes(node,
++							node_start_pfn[node],
++							node_end_pfn[node]);
+ 		}
+ 	}
+ }
+_
+
+--=-E0c7nWu8qtH6CsSR5UHX--
 

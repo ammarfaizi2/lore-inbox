@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbTLWSkd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTLWSkd
+	id S262161AbTLWSoM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 13:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTLWSoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:40:33 -0500
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:58743 "EHLO
-	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S262127AbTLWSka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:40:30 -0500
-Subject: Re: SCO's infringing files list
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1072203269.11807.23.camel@harry>
-References: <1072125736.1286.170.camel@duergar>
-	 <200312221519.04677.tcfelker@mtco.com>
-	 <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
-	 <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de>
-	 <3FE811E3.6010708@debian.org>
-	 <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch>
-	 <20031223160425.GB45620@gaz.sfgoth.com>
-	 <20031223174454.GD45620@gaz.sfgoth.com>
-	 <Pine.LNX.4.58.0312230946010.14184@home.osdl.org>
-	 <1072203269.11807.23.camel@harry>
-Content-Type: text/plain
-Message-Id: <1072204828.11195.4.camel@slappy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 23 Dec 2003 13:40:28 -0500
+	Tue, 23 Dec 2003 13:44:12 -0500
+Received: from imo-d01.mx.aol.com ([205.188.157.33]:4859 "EHLO
+	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S262161AbTLWSoK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 13:44:10 -0500
+Message-ID: <3FE88CE8.1020109@netscape.net>
+Date: Tue, 23 Dec 2003 14:43:52 -0400
+From: John Gluck <jgluckca@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: question about setup.c 
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AOL-IP: 67.60.153.181
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-23 at 13:14, Harry McGregor wrote:
-> http://www.ibiblio.org/pub/Linux/libs/oldlibs/libc-2.2.2/
+Hi
 
-Yep. Thats the binary he's talked repeatedly about already having.  Got
-sources?
+I've been poking around the kernel startup code to try and understand 
+the sequence of events. I came across something I don't understand and 
+which might be redundant.
 
--- 
-Disconnect <lkml@sigkill.net>
+This is from the 2.6.0 kernel:
+
+In arch/i386/kernel/setup.c the parse_cmdline_early() function, the 
+argument "mem=XXX[kKmM]" is parsed.
+
+In arch/sh/kernel/setup.c the parse_cmdline() function also parses 
+"mem=XXX[kKmM]"
+
+Could someone please explain this.
+
+I am not subscribed to this list so a reply directly to me would be 
+appreciated.
+
+Thanks and a Merry Christmas to everyone
+
+John
 

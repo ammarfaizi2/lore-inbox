@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281478AbRK0Q4x>; Tue, 27 Nov 2001 11:56:53 -0500
+	id <S281504AbRK0Q7d>; Tue, 27 Nov 2001 11:59:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281504AbRK0Q4l>; Tue, 27 Nov 2001 11:56:41 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:4358 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S281478AbRK0Q4c>; Tue, 27 Nov 2001 11:56:32 -0500
-Date: Tue, 27 Nov 2001 17:56:29 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Journaling pointless with today's hard disks?
-Message-ID: <20011127175629.E13416@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10111261229190.8817-100000@master.linux-ide.org> <0111261535070J.02001@localhost.localdomain> <20011126165920.N730@lynx.no> <9tumf0$dvr$1@cesium.transmeta.com> <9tuo54$e8p$1@cesium.transmeta.com>
+	id <S281541AbRK0Q7Y>; Tue, 27 Nov 2001 11:59:24 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:25869 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S281504AbRK0Q7S>; Tue, 27 Nov 2001 11:59:18 -0500
+Subject: Re: mounting NTFS
+From: Richard Russon <ntfs@flatcap.org>
+To: linuxlist@visto.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BE042D00016CB26@iso1.vistocorporation.com> (added by
+	administrator@vistocorporation.com)
+In-Reply-To: <3BE042D00016CB26@iso1.vistocorporation.com> (added by
+	administrator@vistocorporation.com)
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.25.15.53 (Preview Release)
+Date: 27 Nov 2001 16:59:15 +0000
+Message-Id: <1006880355.5585.26.camel@home.flatcap.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <9tuo54$e8p$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, H. Peter Anvin wrote:
+Hi Rohit,
 
-> On the subject of write barriers... such a setup probably should have
-> a serial number field for each write barrier command, and a "WAIT FOR
-> WRITE BARRIER NUMBER #" command -- which will wait until all writes
-> preceeding the specified write barrier has been committed to stable
-> storage.  It might also be worthwhile to have the equivalent
-> nonblocking operation -- QUERY LAST WRITE BARRIER COMMITTED.
+> I have a kernel version of 2.4.7
 
-A query model is not useful, because it involves polling, which is not
-what you want because it clogs up the CPU.
+Ah.  Is that RedHat's 2.4.7?
 
-Write barriers may be fun, however, they impose ordering constraints on
-the host side, which is not too useful. Real tagged commands and tagged
-completion will be really useful for performance, with write barriers,
-for example:
+> When I try ,
+> 
+>  mount -t ntfs /dev/hda1 /mnt/msdos
+> 
+> I get a message ntfs not supported, where as the manual on mount
+> indicates that ntfs is supported / mountable.
 
-data000 group A
-data001 group B
-data254 group A
-data253 group A
-data274 group B
-barrier group A
-data002 group B
+As Francois says, check /proc/filesystems.  If you don't find ntfs
+there, you'll have to build a new kernel (not as scary as it sounds).
 
-or something, and the drive could reorder anything, but it would only
-have to guarantee that all group-A data sent before the barrier would
-have made it to disk when the barrier command completed.
+  http://www.linuxdoc.org/HOWTO/Kernel-HOWTO.html
+
+covers ALL the details.  If you have a RedHat system, then install the
+kernel source and you'll find a .config that matches your system.  You
+just need to select NTFS support.
+
+If you have any more questions or problems please go to our NTFS help
+forum:
+
+  http://sourceforge.net/forum/forum.php?forum_id=44085
+
+Cheers,
+  FlatCap (Rich)
+  ntfs@flatcap.org
+
+
+

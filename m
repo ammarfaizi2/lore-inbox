@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbTDJXOr (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbTDJXOr (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 19:14:47 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:63162 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S264233AbTDJXOr (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 19:14:47 -0400
-Date: Thu, 10 Apr 2003 19:23:50 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: kernel support for non-english user messages
-To: Bernd Petrovitsch <bernd@gams.at>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304101926_MC3-1-33EA-AB12@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	id S264244AbTDJXVv (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbTDJXVv (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 19:21:51 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:57315 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264237AbTDJXVt (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 19:21:49 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 11 Apr 2003 01:33:29 +0200 (MEST)
+Message-Id: <UTC200304102333.h3ANXTi28340.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, pbadari@us.ibm.com
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From: Badari Pulavarty <pbadari@us.ibm.com>
 
->>>> "%s: name %p is %d\n", "stringval", 0x4790243, 44
->[...]
->> The real problem I see is that this approach doesn't make it any
->>easier to translate the messages.
->
->If you habe the above, you could use/copy/reuse gettext() since the 
->format string is used a key/hash/unique id for the translation.
+    > Then we don't know which disks have disappeared. Pity.
+    > If the number space is infinite then
+    >    index = next_index++;
+    > gives a new number each time we need one.
 
+    Yes !! I agree. I am not worried about running out them.
+    I am more worried about names slipping. I atleast hope
+    to see device names not changing by just doing
+    rmmod/insmod.
 
- If all you need is the hash of the format string, why not put that
-at the end of the log message, i.e.
+But you see, the present sd_index_bits[] gives no such
+guarantee. In sd_detach a bit is cleared, in sd_attach
+the first free bit is given out. There is no memory.
 
-  <severity>message<hash>
-
-(Note this is the hash of the *format* string, not the message.)
-
-This would be nearly-trivial to do.
-
-
---
- Chuck
+Andries

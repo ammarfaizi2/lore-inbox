@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTFOGF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 02:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTFOGF0
+	id S261936AbTFOGOL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 02:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTFOGOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 02:05:26 -0400
-Received: from rth.ninka.net ([216.101.162.244]:32384 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261928AbTFOGFX (ORCPT
+	Sun, 15 Jun 2003 02:14:11 -0400
+Received: from venus.uos.ac.kr ([210.125.183.202]:25026 "EHLO venus.uos.ac.kr")
+	by vger.kernel.org with ESMTP id S261936AbTFOGOK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 02:05:23 -0400
-Subject: Re: New struct sock_common breaks parisc 64 bit compiles with a
-	misalignment
-From: "David S. Miller" <davem@redhat.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055221067.11728.14.camel@mulgrave>
-References: <1055221067.11728.14.camel@mulgrave>
-Content-Type: text/plain
+	Sun, 15 Jun 2003 02:14:10 -0400
+From: "Youngmin Kim" <blhole@venus.uos.ac.kr>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Where or when are L2(ethernet) src/dst addresses changed during forwarding or local-out?
+Date: Sun, 15 Jun 2003 15:27:58 +0900
+Message-ID: <001401c33307$43afacc0$1e6ef9cb@LocalHost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055657946.6481.6.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jun 2003 23:19:06 -0700
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-09 at 21:57, James Bottomley wrote:
-> The problem seems to be that the new struct sock_common ends with a
-> pointer and an atomic_t (which is an int on parisc), so the compiler
-> adds an extra four bytes of padding where none previously existed in
-> struct tcp_tw_bucket, so the __u64 ptr tricks with tw_daddr fail.
+Where or when are L2(ethernet) src/dst addresses changed during
+forwarding or local-out?
 
-I'm fixing this, but why does it "fail"?  You should get unaligned
-traps which get fixed up by the trap handler.
+In linux kernel about network, Which functions and forwarding phases
+are
+related above?
 
-If that isn't happening, lots of things in the networking should
-break on you.
 
--- 
-David S. Miller <davem@redhat.com>
+
+forwarding phase : 
+
+1. 
+packet --> NF_IP6_PRE_ROUTE --> decision of forwarding or local in
+--> (if forwarding) NF_IP6_FORWARD --> NF_IP6POST_ROUTING
+2. 
+packet --> NF_IP6_LOCAL_OUT --> routing --> NF_IP6_POST_ROUTING
+
+
+Thank you!!
+

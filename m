@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVAYG0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVAYG3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVAYG0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 01:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVAYG0W
+	id S261837AbVAYG3J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 01:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVAYG3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 01:26:22 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:29932 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261663AbVAYG0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 01:26:08 -0500
-Message-ID: <41F5E686.1080205@comcast.net>
-Date: Tue, 25 Jan 2005 01:26:14 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
+	Tue, 25 Jan 2005 01:29:09 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:335 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261837AbVAYG3F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 01:29:05 -0500
+Message-ID: <41F5E727.4000208@yahoo.com.au>
+Date: Tue, 25 Jan 2005 17:28:55 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Complex logging in the kernel
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+To: "Jack O'Quin" <joq@io.com>
+CC: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit tunable
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>	<20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us>
+In-Reply-To: <87k6q2umla.fsf@sulphur.joq.us>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Jack O'Quin wrote:
+> Ingo Molnar <mingo@elte.hu> writes:
+> 
+> 
+>>* Ingo Molnar <mingo@elte.hu> wrote:
+>>
+>>this patch adds the /proc/sys/kernel/rt_cpu_limit tunable: the maximum
+>>amount of CPU time all RT tasks combined may use, in percent. Defaults
+>>to 80%.
+>>
+>>just apply the patch to 2.6.11-rc2 and you should be able to run e.g. 
+>>"jackd -R" as an unprivileged user.
+> 
+> 
+> This is a far better idea from an API perspective.  We can continue
+> writing to the POSIX realtime standard interfaces.  Yet users can
+> actually take advantage of them.  I like it.
+> 
 
-What systems exist for complex logging and security auditing in the kernel?
+This still doesn't solve your privlige problem though. If I can't
+renice something as a regular user, it makes no sense to allow such
+realtime behaviour.
 
-For example, let's say I wanted to register my specific code (i.e. a
-security module) to log, and adjust to log level N.  I also want another
-module to log at log level L, which is lower than N.  I want to print
-logs at log level N..+2 and below to the console, but silently log all
-log messages >N+2 to the syslog.
+I still think the ulimit patches aren't a bad idea to solve your
+privilege problem. At that point, is there still a need for
+rt_cpu_limit?
 
-Anything?
+Nick
 
-If there's nothing, I'll write one.  Shouldn't be too hard.
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB9eaGhDd4aOud5P8RAlacAKCBztJpKckHnYHrfyiUxiHOdIBqXACgjuoA
-Wk8hEbKRKWSWGsLZ1WGqKto=
-=zYCD
------END PGP SIGNATURE-----

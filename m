@@ -1,29 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284545AbRLESKg>; Wed, 5 Dec 2001 13:10:36 -0500
+	id <S284544AbRLESOg>; Wed, 5 Dec 2001 13:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284543AbRLESK1>; Wed, 5 Dec 2001 13:10:27 -0500
-Received: from mustard.heime.net ([194.234.65.222]:51605 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S284540AbRLESKU>; Wed, 5 Dec 2001 13:10:20 -0500
-Date: Wed, 5 Dec 2001 19:09:51 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
-In-Reply-To: <Pine.LNX.4.21.0112051450310.20481-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0112051909210.2966-100000@mustard.heime.net>
+	id <S284543AbRLESO0>; Wed, 5 Dec 2001 13:14:26 -0500
+Received: from mail006.mail.bellsouth.net ([205.152.58.26]:23164 "EHLO
+	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284542AbRLESOV>; Wed, 5 Dec 2001 13:14:21 -0500
+Message-ID: <3C0E63F8.8CD0B9CA@mandrakesoft.com>
+Date: Wed, 05 Dec 2001 13:14:16 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Weinehall <tao@acc.umu.se>
+CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Todo] Remove usage of (f)suser in kernel
+In-Reply-To: <20011205181558.R360@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do you also have VM pressure going on or do you have lots of free memory ?
+David Weinehall wrote:
+> After a quick round of grep:ing, I came up with the following files
+> needing fixes to substitute usage of (f)suser for proper capabilities:
+[...]
+> Since I don't know what the maintainers of some of these files want
+> as capabilities, I've decided not to fix this myself. zr36120.c is
+> only a matter of removing an #ifdef/#else/#endif combo and doing some
+> reindenting, though.
 
-I've got a lot of memory (some 380 megs), but what is VM pressure?
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+We need to kill those in 2.5 I think.  s/suser/capable(...)/ has been on
+the kernel janitor's list for a while.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+	Jeff
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

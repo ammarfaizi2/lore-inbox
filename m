@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271106AbRH1O3k>; Tue, 28 Aug 2001 10:29:40 -0400
+	id <S271118AbRH1OnR>; Tue, 28 Aug 2001 10:43:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271082AbRH1O3a>; Tue, 28 Aug 2001 10:29:30 -0400
-Received: from habariff.pdc.kth.se ([130.237.221.55]:57728 "EHLO
-	habariff.pdc.kth.se") by vger.kernel.org with ESMTP
-	id <S271106AbRH1O3S>; Tue, 28 Aug 2001 10:29:18 -0400
-To: bgerst@didntduck.org
-Cc: haba@pdc.kth.se, linux-kernel@vger.kernel.org
-Subject: Re: Size of pointers in sys_call_table?
-From: Harald Barth <haba@pdc.kth.se>
-In-Reply-To: Your message of "Tue, 28 Aug 2001 09:26:24 -0400"
-	<3B8B9C00.4842710D@didntduck.org>
-In-Reply-To: <3B8B9C00.4842710D@didntduck.org>
-X-Mailer: Mew version 1.93 on Emacs 20.4 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010828163020P.haba@pdc.kth.se>
-Date: Tue, 28 Aug 2001 16:30:20 +0200
-X-Dispatcher: imput version 980905(IM100)
+	id <S271124AbRH1OnH>; Tue, 28 Aug 2001 10:43:07 -0400
+Received: from mailgw.netvision.net.il ([194.90.1.14]:8578 "EHLO
+	mailgw1.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S271118AbRH1Om6>; Tue, 28 Aug 2001 10:42:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Aviv Greenberg <deca@netvision.net.il>
+Reply-To: deca@netvision.net.il
+To: linux-kernel@vger.kernel.org
+Subject: TCP_IPV4_MATCH macro
+Date: Tue, 28 Aug 2001 17:43:58 +0300
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01082817435800.06072@aviv_linuxddd>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The layout of the sys_call_table is totally architecture dependant.  The
-> question to ask here is why do you need to use it?  Modifying it to hook
-> into syscalls is frowned upon.
 
-I want to set the "frowning upon" aside just for the moment and point
-to the fact that the symbol actually is exported and in consequence
-should be described by some data type. The data type may be "totally
-architecture dependant".
+In tcp.h line 238 :
 
-I can join the frowning upon if we extend it to be about the export
-of the sys_call_table in the first place, but there are no other means
-to populate a syscall from a module, or have I missed something?
+#define TCP_IPV4_MATCH(__sk, __cookie, __saddr, __daddr, __ports, __dif)\
+	(((__sk)->daddr			== (__saddr))	&&		\
+	 ((__sk)->rcv_saddr		== (__daddr))	&&		\
+	 ((*((__u32 *)&((__sk)->dport)))== (__ports))   &&		\
+	 (!((__sk)->bound_dev_if) || ((__sk)->bound_dev_if == (__dif))))
 
-The different AFS implementations have used this for years.
+the ((*((__u32 *)&((__sk)->dport))) part is nasty because it assumes that the 
+next field in the structure is 'num'. Why not use the TCP_COMBINED_PORTS
+for that.? There are other such nasties in the macros there. 
 
-Harald.
+An alternative would be a nice comment in the sock structure.
+
+Alexey ? DaveM ? Someone ? :)
+
+-- 
+	- Aviv Greeberg

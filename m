@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277143AbRKSKAo>; Mon, 19 Nov 2001 05:00:44 -0500
+	id <S277165AbRKSKDo>; Mon, 19 Nov 2001 05:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277112AbRKSKAe>; Mon, 19 Nov 2001 05:00:34 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:35592 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S277152AbRKSKA0>;
-	Mon, 19 Nov 2001 05:00:26 -0500
-Date: Mon, 19 Nov 2001 11:00:27 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fatal error compiling on 2.4.15-pre6aa1.
-Message-ID: <Pine.LNX.4.33.0111191058190.28483-100000@Expansa.sns.it>
+	id <S277294AbRKSKDe>; Mon, 19 Nov 2001 05:03:34 -0500
+Received: from suphys.physics.usyd.edu.au ([129.78.129.1]:12029 "EHLO
+	suphys.physics.usyd.edu.au") by vger.kernel.org with ESMTP
+	id <S277165AbRKSKDS> convert rfc822-to-8bit; Mon, 19 Nov 2001 05:03:18 -0500
+Date: Mon, 19 Nov 2001 21:03:01 +1100 (EST)
+From: Tim Connors <tcon@Physics.usyd.edu.au>
+To: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+cc: Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org
+Subject: Re: Swap
+In-Reply-To: <3BF839AA.4050508@wanadoo.fr>
+Message-ID: <Pine.SOL.3.96.1011119210005.12304A-100000@suphys.physics.usyd.edu.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 18 Nov 2001, [ISO-8859-15] François Cami wrote:
 
-HI, compiling this kernel for ultrasparc64, i got also this error,
+> Dan Maas wrote:
+> 
+> 
+> > Still, it puzzles me why a system with no swap space would appear to be more
+> > responsive than one with swap (assuming their working sets are quite a bit
+> > smaller than total amount of RAM)... Can you do a controlled test somehow,
+> > to rule out any sort of placebo effect?
+> 
+> It's pretty simple... Try putting as much progs as you can into RAM
+> (but less than total RAM size) when you have RAM+swap.
+> Switching from one prog to another now takes time, because if you need
+> to go e.g. from mozilla to openoffice for example, if openoffice has
+> been swapped, it'll take ages.
+> 
+> Another good example is launching X and a few heavy X apps, going back
+> to console, doing a few things, like compiling different kernel trees.
+> If you have swap, the X + X apps will be swapped. going back to X will
+> take ages, because all that data + code has to be moved out to RAM to
+> cache the data in the two kernel trees.
+> If you don't have swap, maybe one, or both of the two kernel trees
+> will end up being not cached into main memory, depending on how much
+> RAM left you have. but going back to X will take 1 second instead of 20,
+> and thus the system will be more responsive.
+> 
+> It depends clearly on the situation you're in. I believe running with
+> swap is beneficial when your memory load is more than 75% of total
+> RAM, and less so when you have a few hundred megs of RAM left with all
+> useful apps loaded into RAM (which is not too unlikely these days,
+> due to the low price of SD/DDR RAM).
 
-sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux-2.4.15-pre6/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc
--mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare
--Wa,--undeclared-regs    -c -o ioctl32.o ioctl32.c
-ioctl32.c: In function `do_lvm_ioctl':
-ioctl32.c:2636: warning: assignment makes pointer from integer without a
-cast
-ioctl32.c:2670: structure has no member named `inode'
-ioctl32.c:2711: warning: assignment from incompatible pointer type
-ioctl32.c:2712: structure has no member named `inode'
-ioctl32.c:2719: structure has no member named `inode'
-ioctl32.c:2732: structure has no member named `inode'
-ioctl32.c:2611: warning: `v' might be used uninitialized in this function
-make[1]: *** [ioctl32.o] Error 1
+A perfect example of why a system _needs_ tuning knobs - this view of
+Linus's that we need a self tuning system is idiotic, because some of us
+don't care how long a kernel compile takes (or even how long it takes to
+serve a couple of web pages per hour), but _do_ care about the general
+system responsiveness. The system cannot predict what *I* the user wants
+out of it. Hence we need /proc interfaces to the the VM that say this is a
+compiling machine, or this is a desktop machine.....
 
-LVM support is statically enable in my configuration
+-- 
+TimC -- http://www.physics.usyd.edu.au/~tcon/
 
-
-Luigi
+cat ~/.signature
+Passing cosmic ray (core dumped)
 

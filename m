@@ -1,93 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271610AbRHZWdw>; Sun, 26 Aug 2001 18:33:52 -0400
+	id <S271560AbRHZWxq>; Sun, 26 Aug 2001 18:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271560AbRHZWdn>; Sun, 26 Aug 2001 18:33:43 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:19175 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S271609AbRHZWda>; Sun, 26 Aug 2001 18:33:30 -0400
-Date: Sun, 26 Aug 2001 23:33:43 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Rik van Riel <riel@conectiva.com.br>, pcg@goof.com,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Message-ID: <20010826233343.A6193@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33L.0108261651080.5646-100000@imladris.rielhome.conectiva> <20010826200133Z16190-32385+242@humbolt.nl.linux.org>
+	id <S271573AbRHZWxh>; Sun, 26 Aug 2001 18:53:37 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:17681 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S271560AbRHZWxW>; Sun, 26 Aug 2001 18:53:22 -0400
+Date: Sun, 26 Aug 2001 23:53:37 +0100
+From: John Levon <moz@compsoc.man.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Documentation/ changes
+Message-ID: <20010826235337.A19041@compsoc.man.ac.uk>
+In-Reply-To: <Pine.LNX.4.33.0108261731140.5038-100000@pita.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010826200133Z16190-32385+242@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Sun, Aug 26, 2001 at 10:08:07PM +0200
+In-Reply-To: <Pine.LNX.4.33.0108261731140.5038-100000@pita.lan>
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: 0898 Dave - Brack Dragon
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 26, 2001 at 10:08:07PM +0200, Daniel Phillips wrote:
-> No, he's streaming mp3's:
+On Sun, Aug 26, 2001 at 05:35:15PM -0400, Rob Radez wrote:
 
-I'd like to take the time to share some extra information on the VM
-state of Nico's system.  It consists of a log of the state of every
-single page in his system, which was taken after he hit the point of
-no progress, and consists of the following output:
+> --- linux-2.4.9/Documentation/KernelProjects.orig	Sun Aug 26 16:15:07 2001
+> +++ linux-2.4.9/Documentation/KernelProjects	Sun Aug 26 16:15:38 2001
+> +
+> +This is a quick list of major kernel projects. It is by no means complete and
+> +probably never will be. Feel free to e-mail updates to <rob@osinvestor.com>.
 
-<sysrq-m output>
-Zone: free 255, inactive clean 26, inactive dirty 0
-      min 255, low 510, high 765
-<lots of pages>
-c04fd000:  0 00000002 00000000 [----] -- [---]
-c04fe000:  1 00000002 00000000 [--s-] -- [---]
-c04ff000:  1 00000000 c180f0f8 [----] -- [-c-]
-c0500000:  1 00000002 00000000 [--s-] -- [---]
-c0501000:  1 00000005 00000000 [----] -- [---]
-c0502000:  1 00000002 00000000 [--s-] -- [---]
-<lots of pages>
-c05af000:  1 00000005 00000000 [----] -- [---]
-c05b0000:  1 00000005 00000000 [----] -- [---]
-c05b1000:  1 00000005 00000000 [----] -- [---]
-c05b2000:  1 00000011 00000000 [----] -- [---]
-c05b3000:  1 00000005 00000000 [----] -- [---]
-c05b4000:  1 00000008 00000000 [----] -- [---]
-<lots of pages>
+this just duplicates that available on kernelnewbies.org
 
-In order, that is:
-  virtual page address
-  page->count
-  paeg->age
-  page->mapping
+As this is static and kernelnewbies.org isn't, I feel it is much more sensible
+to tell people to go there instead.
 
-Then 4 flags:
-  R - reserved
-  S - swap cache
-  s - slab page
-  r - (not really a flag) ramdisk page
+fwiw, kernel-docs.txt is way out of date too. I've asked the maintainer about it
+but never got a satisfactory reply.
 
-Then 2 flags:
-  r - referenced
-  D - dirty
+regards
+john
 
-Then 3 list flags:
-  a - active list
-  d - inactive dirty list
-  c - inactive clean list
-
-It's a little big (380K), so I won't post it here, but I'll provide a
-summary of the state:
-
-Of the 8192 pages in his system, there are 4687 anonymous pages like the
-above, 466 slab pages, 636 reserved pages, 376 unused pages (for reserved
-allocation) and 2000 ramdisk pages.  That leaves 27 pages, which are the
-26 inactive clean pages (from the above), plus one page cache page.
-
-Feel free to use this information to formulate new strategies on improving
-the VM.
-
-[note that it takes around 1 minute to get 32MB-worth of information out
-of a serial console at 38400 baud.  You don't want to do this on GB boxes].
-
-Thanks.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-- 
+"That's just kitten-eating wrong."
+	- Richard Henderson

@@ -1,37 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263517AbTJWJbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 05:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbTJWJbE
+	id S261705AbTJWJ0o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 05:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTJWJ0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 05:31:04 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:13453 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S263517AbTJWJa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 05:30:59 -0400
-Message-ID: <3F97A009.1C12F466@nospam.org>
-Date: Thu, 23 Oct 2003 11:31:53 +0200
-From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
-References: <200310171610.36569.bjorn.helgaas@hp.com> <20031017155028.2e98b307.akpm@osdl.org> <20031019181756.GP1659@openzaurus.ucw.cz> <20031023083316.GB5272@sourcefrog.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Oct 2003 05:26:44 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:11137 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261705AbTJWJ0m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 05:26:42 -0400
+Date: Thu, 23 Oct 2003 11:26:41 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
+Message-ID: <20031023092641.GO20846@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0310222102160.25868-100000@chimarrao.boston.redhat.com> <000801c39903$034d3910$0201a8c0@joe>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wBPuIvTBT75rft3J"
+Content-Disposition: inline
+In-Reply-To: <000801c39903$034d3910$0201a8c0@joe>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some machines may require special memory zones, e.g. for ia64
-architectures you need to keep the "minimal state save" area
-for the Processor Abstraction Layer in un-cached memory.
-If you read the memory "in the usual way" then you access the
-memory through the HW caches.
-The ia64 architecture forbids to have both cached and un-cached
-access to the same memory location (by any of the CPUs, DMAs),
-otherwise you create a cache paradox => machine check.
-Think twice before even trying a "dd if=/dev/mem"...
 
-Zoltan Menyhart
+--wBPuIvTBT75rft3J
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2003-10-22 20:14:30 -0500, Joseph D. Wagner <theman@josephdwagner.i=
+nfo>
+wrote in message <000801c39903$034d3910$0201a8c0@joe>:
+> > > Version 2.6 is still in beta.  Besides, this should have been done ye=
+ars
+> > > ago before 2.6 existed.
+> >=20
+> > So why haven't you done it?
+>=20
+> Um... because I don't have cvs WRITE access.
+
+Nearly onbody has. However, you can download the latest kernel source
+tarball, do your hacks and send us a patch to LKML. Then, you'll
+possibly get some comments (better change this to do that, some
+potential to do things better, ...). Send it again, until it's quite
+good. Then, send it to Linus (or to the guy that's maintaining the part
+you've changed) and LKML until it gets accepted.
+
+That's the way it works.
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--wBPuIvTBT75rft3J
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/l57RHb1edYOZ4bsRArl0AJ0XBjZBbSKYv2tLpeUMBbOSfoD3xwCggwbi
+7Xao10UYIV/8yFpt6vDgNec=
+=8teO
+-----END PGP SIGNATURE-----
+
+--wBPuIvTBT75rft3J--

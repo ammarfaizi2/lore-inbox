@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288338AbSAHVD4>; Tue, 8 Jan 2002 16:03:56 -0500
+	id <S288356AbSAHVF4>; Tue, 8 Jan 2002 16:05:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288351AbSAHVDs>; Tue, 8 Jan 2002 16:03:48 -0500
-Received: from pa147.antoniuk.sdi.tpnet.pl ([213.25.59.147]:36849 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S288338AbSAHVDg>; Tue, 8 Jan 2002 16:03:36 -0500
-Date: Tue, 8 Jan 2002 22:02:29 +0100
-From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jpopl@interia.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.20 vs 2.4.17 on 486 server
-Message-ID: <20020108220229.A13462@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S288344AbSAHVFr>; Tue, 8 Jan 2002 16:05:47 -0500
+Received: from cc5993-b.ensch1.ov.nl.home.com ([212.204.161.160]:19461 "HELO
+	packetstorm.nu") by vger.kernel.org with SMTP id <S288356AbSAHVFc>;
+	Tue, 8 Jan 2002 16:05:32 -0500
+Reply-To: <alex@packetstorm.nu>
+From: "Alex Scheele" <alex@packetstorm.nu>
+To: "Andrew Morton" <akpm@zip.com.au>
+Cc: <heckmann@hbe.ca>, "Lkml" <linux-kernel@vger.kernel.org>
+Subject: RE: [problem captured] Re: cerberus on 2.4.17-rc2 UP
+Date: Tue, 8 Jan 2002 22:05:24 +0100
+Message-ID: <IOEMLDKDBECBHMIOCKODMECOCFAA.alex@packetstorm.nu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3C3B579D.7B8E534F@zip.com.au>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have simple 486 server with: 
-- 2 ISA ethernet cards (eepro.o)
-- ppp connection to Internet
-I installed 2.4.17 (then 2.4.18-pre2) there, and discovered, that two connected
-workstations has very bad Internet connection (for example it was impossible to
-watch huge www pages or download pictures, edonkey/kza transfers were small).
-So i tested:
-- WWW speed on server -> OK (every page opens without problems) 
-- scp transfer between server and workstations -> OK (more than 100KB/s)
-There is squid installed on my server. But even if I used it on workstation -
-WWW still works bad! Looks like something was really bad with MASQ. But
-everything was OK on much faster (k6-2 500) system.
+Andrew Morton wrote:
+> 
+> 
+> Alan Cox wrote:
+> > 
+> > > end_request: buffer-list destroyed
+> > > hda1: bad access: block=12440, count=-8
+> > > end_request: I/O error, dev 03:01 (hda), sector 12440
+> > > hda1: bad access: block=12448, count=-16
+> > 
+> > That looks like a race in the IDE/block layer (or somewhere 
+> above it maybe)
+> > Someone trashed a request in progress.
+> > 
+> > > Is this a bug or could it be the hardware's fault? The 
+> hardware is new lspci
+> > 
+> > Other people have reported it too. Its clearly a kernel race
+> 
+> Yes, I can generate it at will on two quite different IDE machines
+> with the run-bash-shared-mapping script from
+> http://www.zip.com.au/~akpm/ext3-tools.tar.gz
+> 
+> It's on my list of things-to-do, filed under "hard".  It even happens
+> on uniprocessor, with unmask_irq=0.
+> 
+> Interestingly, I _think_ it only ever occurs against the
+> swap device.  But I need to confirm this.  Marc, do you
+> have swap on /dev/hda1?
 
-So I installed 2.2.20 - and all problems disappeared!
+I have had this problem on several machines to. But not only 
+against the swap device. I have 1 machine with a SCSI disk as 
+root disk /dev/sda1, the swap device is /dev/sda2. 
+Then there is a 4 disk ide raid0 (software raid) mounted 
+on /mnt and if i run it there i have the same problem.
+This machine is a SMP machine, tho is has also happend
+on UP machines.
 
-I am almost sure I compiled similiar stuff to every kernel, there was exactly
-the same ipchains rules and route. How can I check what was bad with 2.4.x ? 
+Hope it helps.
 
--- 
-decopter - free SDL/OpenGL simulator under heavy development
-download it from http://decopter.sourceforge.net
+--
+	Alex (alex@packetstorm.nu)
+
+

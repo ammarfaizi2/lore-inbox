@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273031AbRIIUYf>; Sun, 9 Sep 2001 16:24:35 -0400
+	id <S273037AbRIIU0Z>; Sun, 9 Sep 2001 16:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273033AbRIIUYT>; Sun, 9 Sep 2001 16:24:19 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1028 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S273031AbRIIUXs>;
-	Sun, 9 Sep 2001 16:23:48 -0400
-Message-ID: <20010909220921.A19145@bug.ucw.cz>
-Date: Sun, 9 Sep 2001 22:09:21 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Booting linux using Novell NetWare Remote Program Loader
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
+	id <S273033AbRIIU0J>; Sun, 9 Sep 2001 16:26:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:27403 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273032AbRIIUZz>; Sun, 9 Sep 2001 16:25:55 -0400
+Date: Sun, 9 Sep 2001 17:26:01 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Purpose of the mm/slab.c changes
+In-Reply-To: <E15g7jk-0007Rb-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0109091725070.21049-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 9 Sep 2001, Alan Cox wrote:
 
-I've rather nice machine (elonex ws-425x), unfortunately it comes with
-netware bootrom, which is in system rom (not easy to replace). It is
-not equipped with floppy or hdd, and connectors are non-standard.
+> > > doesn't matter which free page is used first/last.
+> >
+> > You're full of crap.
+> > LIFO is obviously superior due to cache re-use.
+>
+> Interersting question however. On SMP without sufficient per CPU
+> slab caches is tht still the case ?
 
-Therefore I'd like to network boot it... However I've no netware
-server to watch. Could someone network boot machine using netware,
-capture whole session using 
+By definition, no.
 
-tcpdump -xi eth0 
+If we're allocating and freeing the slabs at such a fast
+speed that the slabs which are NOT in the per-CPU caches
+are still in the cache, chances are our per-CPU caches
+are too small.
 
-and send results to me? It should be rather easy to emulate initial
-handshake and use mars (netware emulator) to boot workstation...
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

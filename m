@@ -1,59 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbUKLTVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbUKLT17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbUKLTVA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 14:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUKLTTB
+	id S261469AbUKLT17 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 14:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUKLTZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 14:19:01 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:12465 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261903AbUKLTSi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 14:18:38 -0500
-Date: Fri, 12 Nov 2004 21:19:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Gunther Persoons <gunther_persoons@spymac.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
-Message-ID: <20041112201936.GA15133@elte.hu>
-References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <41951380.2080801@spymac.com>
+	Fri, 12 Nov 2004 14:25:57 -0500
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:59820 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S261608AbUKLTVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 14:21:12 -0500
+Date: Fri, 12 Nov 2004 20:18:52 +0100
+From: Guido Guenther <agx@sigxcpu.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: adaplas@pol.net,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+Message-ID: <20041112191852.GA4536@bogon.ms20.nix>
+References: <200411080521.iA85LbG6025914@hera.kernel.org> <200411090402.22696.adaplas@hotpop.com> <Pine.LNX.4.58.0411081211270.2301@ppc970.osdl.org> <200411090608.02759.adaplas@hotpop.com> <Pine.LNX.4.58.0411081422560.2301@ppc970.osdl.org> <20041112125125.GA3613@bogon.ms20.nix> <Pine.LNX.4.58.0411120755570.2301@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41951380.2080801@spymac.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.58.0411120755570.2301@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 12, 2004 at 08:01:00AM -0800, Linus Torvalds wrote:
+> On Fri, 12 Nov 2004, Guido Guenther wrote:
+> >
+> > Doesn't work for me. This one works:
+> > 
+> > diff -u -u linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h
+> > --- linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h	2004-11-12 13:42:54.000000000 +0100
+> > +++ linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h	2004-11-12 13:47:29.400807920 +0100
+> > @@ -75,12 +75,12 @@
+> >   */
+> >  #include <asm/io.h>
+> >  
+> > -#define NV_WR08(p,i,d)  (__raw_writeb((d), (void __iomem *)(p) + (i)))
+> > -#define NV_RD08(p,i)    (__raw_readb((void __iomem *)(p) + (i)))
+> > -#define NV_WR16(p,i,d)  (__raw_writew((d), (void __iomem *)(p) + (i)))
+> > -#define NV_RD16(p,i)    (__raw_readw((void __iomem *)(p) + (i)))
+> > -#define NV_WR32(p,i,d)  (__raw_writel((d), (void __iomem *)(p) + (i)))
+> > -#define NV_RD32(p,i)    (__raw_readl((void __iomem *)(p) + (i)))
+> > +#define NV_WR08(p,i,d)  (writeb((d), (u8 __iomem *)(p) + (i)))
+> > +#define NV_RD08(p,i)    (readb((u8 __iomem *)(p) + (i)))
+> > +#define NV_WR16(p,i,d)  (__raw_writew((d), (u16 __iomem *)(p) + (i)/2))
+> > +#define NV_RD16(p,i)    (__raw_readw((u16 __iomem *)(p) + (i)/2))
+> > +#define NV_WR32(p,i,d)  (__raw_writel((d), (u32 __iomem *)(p) + (i)/4))
+> > +#define NV_RD32(p,i)    (__raw_readl((u32 __iomem *)(p) + (i)/4))
+> 
+> Can you please try without the broken "u16" and "(i/2)" things (and u32
+> and i/4)? They really should not be needed, unless something is
+> _seriously_ broken. The only thing they do is the automatically align the
+> reference - and quite frankly, it looks like anybody passing an unaligned
+> register offset is _quite_ buggy.
+O.k., it was the __raw_{write,read}b which broke things, not the
+"alignment". This one works:
 
-* Gunther Persoons <gunther_persoons@spymac.com> wrote:
+diff -u -u linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h
+--- linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h	2004-11-12 13:42:54.000000000 +0100
++++ linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h	2004-11-12 17:39:22.000000000 +0100
+@@ -75,8 +75,8 @@
+  */
+ #include <asm/io.h>
+ 
+-#define NV_WR08(p,i,d)  (__raw_writeb((d), (void __iomem *)(p) + (i)))
+-#define NV_RD08(p,i)    (__raw_readb((void __iomem *)(p) + (i)))
++#define NV_WR08(p,i,d)  (writeb((d), (void __iomem *)(p) + (i)))
++#define NV_RD08(p,i)    (readb((void __iomem *)(p) + (i)))
+ #define NV_WR16(p,i,d)  (__raw_writew((d), (void __iomem *)(p) + (i)))
+ #define NV_RD16(p,i)    (__raw_readw((void __iomem *)(p) + (i)))
+ #define NV_WR32(p,i,d)  (__raw_writel((d), (void __iomem *)(p) + (i)))
 
-> I cant use my pcmcia wireless network card with this version, i can
-> use it with V0.7.25-0. dhcpcd and ifconfig lock when i try to use
-> them.  config attached.
+Signed-off-by: Guido Guenther <agx@sigxcpu.org>
 
-extremely weird - there simply was no change between -0 and -1 that
-could have affected it. If you do this on the -1 kernel:
-
-	echo 0 > /proc/sys/kernel/preempt_wakeup_timing
-	echo 1 > /proc/sys/kernel/debug_direct_keyboard
-
-then you'll get precisely the -0 kernel, bit for bit. (plus the symbol
-export fix in rtc.ko, which should have zero relevance to your setup.)
-
-[note that debug_direct_keyboard is dangerous.]
-
-so i believe the explanation has to be something else:
-
- - are you sure the build is correct?
-
- - are you sure it still works with the -0 kernel, maybe the bug is 
-   transient?
-
-	Ingo
+> IOW, it would seem that the real difference is the "__raw_writeb" vs
+> "writeb". Can you test just that change?
+> 
+> >  #define VGA_WR08(p,i,d) NV_WR08(p,i,d)
+> >  #define VGA_RD08(p,i)   NV_RD08(p,i)
+> > 
+> > Interesting enough this one doesn't (only differenc in NV_{WR,RW}08:
+> > 
+> 
+> I don't see the difference to your other patch. Did you put in the wrong
+> patch?
+There aren't any, I actually attached the wrong patch. The non-working
+version has __raw_{read,write}b8 instead of {read,write}b8. In 2.6.9
+riva_hw.h used {in,out}_8 for NV_{RD,WR}08 so using the "non-raw"
+writeb/readb now looks correct since these map to {in,out}_8 now.
+Cheers,
+ -- Guido

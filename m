@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266375AbUFQFTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266371AbUFQF2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266375AbUFQFTu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 01:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUFQFTu
+	id S266371AbUFQF2U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 01:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUFQF2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 01:19:50 -0400
-Received: from smtp-out5.xs4all.nl ([194.109.24.6]:51730 "EHLO
-	smtp-out5.xs4all.nl") by vger.kernel.org with ESMTP id S266375AbUFQFTs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 01:19:48 -0400
-Date: Thu, 17 Jun 2004 07:19:31 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: David Eger <eger@havoc.gtf.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] fix radeonfb panning and make it play nice with copyarea()
-Message-ID: <20040617051931.GA1378@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20040616182415.GA8286@middle.of.nowhere> <20040617022100.GA11774@havoc.gtf.org>
+	Thu, 17 Jun 2004 01:28:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12447 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266371AbUFQF2T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 01:28:19 -0400
+Date: Wed, 16 Jun 2004 22:23:35 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] remove blank line in show_trace()
+Message-Id: <20040616222335.027f001c.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040617022100.GA11774@havoc.gtf.org>
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Eger <eger@havoc.gtf.org>
-Date: Wed, Jun 16, 2004 at 10:21:00PM -0400
-> 
-> /me looks at vanilla 2.6.7
-> 
-> I believe the following patch will fix the bug you describe.
-> (part of this patch I sent to benh before, but it never made it to 2.6.7)
-> 
-> Please try the following bugfix.  It works for me.
-> If it works for you, I'll ask Andrew/James to merge.
-> 
-> -dte
-> 
-> 
-> radeonfb: fix panning corruption on a large virtual screen,
->   Make panning and copyarea() play nicely with each other.
-> 
-> Signed-off-by: David Eger <eger@havoc.gtf.org>
-> 
-> # drivers/video/aty/radeon_base.c
-> #   2004/06/17 03:47:12+02:00 eger@rosencrantz.theboonies.us +13 -0
-> #   add some fifo_wait()s to lick this corruption problem
-> # 
-> # drivers/video/aty/radeon_accel.c
-> #   2004/06/17 03:47:12+02:00 eger@rosencrantz.theboonies.us +2 -2
-> #   make radeon accel play nice when the user wants to have a large virtual
-> #   screen to pan on.  fix previous drain bramage.
-> # 
 
-Unfortunately, this doesn't fix it for me.
+Delete a blank line for more error reporting on-screen.
 
-horizontal scrolling in angband is still very broken, and vertical
-scrolling (even as simple as recalling previous command-lines in bash)
-is also still broken.
+A couple of days ago, Norm Diamond reported some instances
+of newlines taking up valuable screen space instead of those
+lines containing useful registers/stack/messages.
+This removes one instance of an unneeded blank line.
 
-For example, recalling the previous commandline goes OK the first time,
-and the second time, part of the line is shifted some 120 characters to
-the right.
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-Sorry,
-Jurriaan
--- 
-Cole's Law:
-  Thinly sliced cabbage.
-Debian (Unstable) GNU/Linux 2.6.7 2x6078 bogomips load 0.14
+
+diffstat:=
+ arch/i386/kernel/traps.c |    1 -
+ 1 files changed, 1 deletion(-)
+
+diff -Naurp ./arch/i386/kernel/traps.c~stack_newline ./arch/i386/kernel/traps.c
+--- ./arch/i386/kernel/traps.c~stack_newline	2004-06-15 22:19:01.000000000 -0700
++++ ./arch/i386/kernel/traps.c	2004-06-16 21:48:15.000000000 -0700
+@@ -163,7 +163,6 @@ void show_trace(struct task_struct *task
+ 			break;
+ 		printk(" =======================\n");
+ 	}
+-	printk("\n");
+ }
+ 
+ void show_stack(struct task_struct *task, unsigned long *esp)
+
+
+--
+~Randy

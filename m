@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131429AbRDBWku>; Mon, 2 Apr 2001 18:40:50 -0400
+	id <S131457AbRDBWjK>; Mon, 2 Apr 2001 18:39:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131424AbRDBWkk>; Mon, 2 Apr 2001 18:40:40 -0400
-Received: from hyperion.expio.net.nz ([202.27.199.10]:34576 "EHLO expio.co.nz")
-	by vger.kernel.org with ESMTP id <S131459AbRDBWk3>;
-	Mon, 2 Apr 2001 18:40:29 -0400
-Message-ID: <011f01c0bbc5$ffc92e60$1400a8c0@expio.net.nz>
-From: "Simon Garner" <sgarner@expio.co.nz>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14kCnK-0006pa-00@the-village.bc.nu>
-Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot
-Date: Tue, 3 Apr 2001 10:40:36 +1200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131429AbRDBWjB>; Mon, 2 Apr 2001 18:39:01 -0400
+Received: from jalon.able.es ([212.97.163.2]:55017 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131424AbRDBWix>;
+	Mon, 2 Apr 2001 18:38:53 -0400
+Date: Tue, 3 Apr 2001 00:38:04 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+   Oliver Xymoron <oxymoron@waste.org>, David Lang <dlang@diginsite.com>,
+   Manfred Spraul <manfred@colorfullife.com>,
+   "Albert D . Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
+   linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+Message-ID: <20010403003804.I17148@werewolf.able.es>
+In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com> <Pine.LNX.4.30.0104021436110.24812-100000@waste.org> <20010402234045.C17148@werewolf.able.es> <3AC8F881.F20A19A6@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3AC8F881.F20A19A6@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Apr 03, 2001 at 00:09:05 +0200
+X-Mailer: Balsa 1.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
 
-> > I've seen the exact same behavior with my CUV4X-D (2x1GHz) under
-> > 2.4.2 (debian woody).  In addition, the kernel would sometimes hang
-> > around NMI watchdog enable.  At least, I think it's trying to
+On 04.03 Jeff Garzik wrote:
+> "J . A . Magallon" wrote:
+> > Could <installkernel> make part of the kernel scripts, or in one other
+> > standard software package, like modutils, so its versions are controlled
+> 
+> There is value in putting it into the Linux kernel source tree, in
+> linux/scripts dir.  But most vendors can and should take this script as
+> a sample, and customize it for their distro.  The Linux-Mandrake
+> installkernel script definitely gets touched every so often, and
+> decisions it makes, like updating lilo.conf or grub/menu.lst, or
+> autodetecting the boot loader, are definitely not to be applied for all
+> cases.
 >
-> Known problem. Thats one reason why -ac trees had nmi watchdog turned off.
 
+I think that should be split in two, one thing is building and install a kernel
+and one other is add the entry in your bootloader config ('update-bootloader',
+for example, that looks into /boot and adds missing entries).
 
-It still crashes with nmi_watchdog turned off.
+> FWIW here is our /sbin/installkernel command line usage help text, to
+> give a glimpse of what it does and can do:
 
-Running with noapic fixes it but then the system crashes if you access the
-RTC with hwclock (and probably creates a hundred other problems...).
+I know, run Cooker.
 
-How can I get this chipset/motherboard supported properly under Linux? I'm
-happy to test patches etc. on the box. *pleading*
+> 
+> There will never be an official place to put this stuff, because that's
+> a distro policy decision.  A quick search just now reveals no reference
+> to /boot in the i386 Makefiles, and only a quick reference in the README
+> file.
 
+linux/Makefile, #INSTALL_PATH=/boot
 
-Cheers
+> 
+> > And you can add something like /proc/signature/map, /proc/signature/config,
+> > etc to md5-check if a certain file fits running kernel.
+> 
 
-Simon Garner
+I usually think about /proc like the way to do a 'cat' instead of a 'syscall',
+in this case to ask kernel for various md5 sigs,
+but of course you can always write a user app that queries kernel and prints
+result for your scripting pleasure...
+
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
+
+Linux werewolf 2.4.3 #2 SMP Fri Mar 30 15:42:05 CEST 2001 i686
 

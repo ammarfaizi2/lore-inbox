@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270737AbTGNSXu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 14:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270741AbTGNSXt
+	id S270673AbTGNSaa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270669AbTGNSaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 14:23:49 -0400
-Received: from beta.galatali.com ([216.40.241.205]:30120 "EHLO
-	beta.galatali.com") by vger.kernel.org with ESMTP id S270737AbTGNSXl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 14:23:41 -0400
-Subject: Re: Linux 2.6-pre1 Does not boot on ASUS L3800C: lock up in acpi
-	while "Executing all Devices _STA and_INIT methods"
-From: Tugrul Galatali <tugrul@galatali.com>
-To: linux-kernel@vger.kernel.org, andrew.grover@intel.com,
-       acpi-devel@lists.sourceforge.net
-In-Reply-To: <3F12AF06.6080004@free.fr>
-References: <3F12AF06.6080004@free.fr>
+	Mon, 14 Jul 2003 14:30:30 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:48067
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270660AbTGNSa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 14:30:26 -0400
+Subject: Re: -- END OF BLOCK --
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Kara <jack@suse.cz>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <20030714174115.GA8620@atrey.karlin.mff.cuni.cz>
+References: <200307141239.h6ECdqXP002766@hraefn.swansea.linux.org.uk>
+	 <Pine.LNX.4.55L.0307140947210.18257@freak.distro.conectiva>
+	 <1058187405.606.65.camel@dhcp22.swansea.linux.org.uk>
+	 <Pine.LNX.4.55L.0307141000150.18257@freak.distro.conectiva>
+	 <20030714174115.GA8620@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain
-Message-Id: <1058207908.704.5.camel@duality.galatali.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 14 Jul 2003 14:38:28 -0400
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058208131.561.100.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 19:42:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-14 at 09:24, Eric Valette wrote:
-> I happily run 2.4.21-pre5 with ACPI enabled and everything works just 
-> fine. I tried today 2.6-pre1 with exactly the same hardware 
-> configuration as the 2.4 one and the laptop does not boot. It hangs 
-> while dispaying : "Executing all Devices _STA and_INIT methods" 
-> allthough it has already printed several '.'
+On Llu, 2003-07-14 at 18:41, Jan Kara wrote:
+> just into the last 2.5 kernel so it's not Christophs fault he didn't
+> send them to you. Actually I just wanted to send them to you myself today...
+> Anyway now it seems everything is sorted out.
 
-	I get that error plus the message I've been getting from >2.5.69
-kernels when booting with ACPI on my Compaq W8000. dmesg/lspci/configs
-at 
-
-	http://acm.cs.nyu.edu/~tugrul/acpi/
-
-	The 2.6.0-test1 error is pretty big for hand transcription, but I'll
-try setting up serial console if requested.
-
-	Tugrul Galatali
-
+Yes I think so. Its also somewhat cleaner than the older -ac code which is
+nice.
 

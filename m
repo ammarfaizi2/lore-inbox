@@ -1,53 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315971AbSE3AyA>; Wed, 29 May 2002 20:54:00 -0400
+	id <S315993AbSE3BBa>; Wed, 29 May 2002 21:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSE3Ax7>; Wed, 29 May 2002 20:53:59 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:49291 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315971AbSE3Ax6>; Wed, 29 May 2002 20:53:58 -0400
-Date: Wed, 29 May 2002 17:54:06 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, john stultz <johnstul@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Disable TSCs on CONFIG_MULTIQUAD
-Message-ID: <521610000.1022720046@flay>
-In-Reply-To: <1022722675.4124.337.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S316023AbSE3BB3>; Wed, 29 May 2002 21:01:29 -0400
+Received: from mx0.gmx.de ([213.165.64.100]:48792 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S315993AbSE3BB1>;
+	Wed, 29 May 2002 21:01:27 -0400
+Date: Thu, 30 May 2002 03:01:23 +0200 (MEST)
+From: a_new_hope@gmx.de
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Off-Topic: We need your Help! Please help Cargolifter!
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0015337027@gmx.net
+X-Authenticated-IP: [217.226.198.33]
+Message-ID: <9711.1022720483@www54.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Anyway, if you really would rather see what you suggested, I'll happily
->> change it (I do like the idea of breaking the CONFIG_X86_TSC_UNSYNCED
->> notion out of CONFIG_MULTIQUAD).
-> 
-> Not all the other places are "there is no TSC" most of them deal with
-> the ability to use a TSC. There are other setups where TSC exists but
-> isnt usable so distinguishing matters
+Hello,
 
-I think the CONFIG_X86_TSC option is most confusing (bad naming, at
-best).
+as you probably know from the press,
+the airship company "Cargolifter AG" is in bad trouble.
 
-Without CONFIG_X86_TSC:
-You get the ability to have a TSC or not, both code paths are compiled
-in, and it dynamically detects at boot time. You can override this with the
-"notsc" option, or overriding the tsc_disable variable, as we did here.
+Cargolifter is the only company in the world that
+is building large airships
+to carry heavy lift loads (up to 160 metric tons)
+or transport medical equipment within hours to desaster areas.
 
-With CONFIG_X86_TSC:
-You remove all the code which supports non-TSC systems.
 
-Perhaps I'm just mentally slow, but I think my little brain would find this
-area easier of it was called CONFIG_X86_ONLY_TSC or some such.
+We, a group of Cargolifter enthusiast
+want to collect money to help that 
+company to survive so that it can continue
+to build those large airships that will
+help many people all over the world
+in times of disasters (like earthquakes, famines etc.)
+or in transportating goods, needed for building
+infrastructures all over the world.
 
-So if John's patch was rewritten to leave the CPU type switching on
-CONFIG_X86_TSC, then have the multiquad switch turn that into 
-CONFIG_X86_ONLY_TSC (and change the in code #ifdefs to that)
-would that be more palletable? Would make things more readable in
-the main code to my mind ....
 
-M.
+
+That is the website of our help-initiative:
+
+http://www.zukunft-in-brand.de/ 
+
+
+And that is the website of the company Cargolifter:
+
+In English:
+http://www.cargolifter.com/2002/repository/splash_e.html
+
+In German:
+http://www.cargolifter.com
+
+
+
+
+Here some technical infos about the airship of the type CL160:
+
+Measurements:
+ 65  meters in diameter
+ 265 meters in length 
+ 82  meters total height
+
+Payload:
+ up to 160 metric tons
+ 
+
+We apologie for being off-topic.
+We think that this airsphip is very important for
+the whole humanity, especially in times of disasters.
+We can't let this project die, that would be a big loss.
+
+-- 
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
 

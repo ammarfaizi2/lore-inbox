@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbTH3KAE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 06:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTH3KAE
+	id S263487AbTH3KHw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 06:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTH3KHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 06:00:04 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:40972 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261642AbTH3KAC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 06:00:02 -0400
-Date: Sat, 30 Aug 2003 11:53:30 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-ac1
-Message-ID: <20030830095330.GM734@alpha.home.local>
-References: <200308291237.h7TCbYc12849@devserv.devel.redhat.com> <20030830090223.GC27477@charite.de>
-Mime-Version: 1.0
+	Sat, 30 Aug 2003 06:07:52 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:9629 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S263487AbTH3KHv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 06:07:51 -0400
+X-Comment-To: Ed Sweetman
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC] extents support for EXT3
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: Sat, 30 Aug 2003 14:13:19 +0400
+In-Reply-To: <3F4F923F.9070207@wmich.edu> (Ed Sweetman's message of "Fri, 29
+ Aug 2003 13:49:51 -0400")
+Message-ID: <m3oey7o3ls.fsf@bzzz.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>
+	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>
+	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
+	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
+	<m3isogpgna.fsf@bzzz.home.net> <3F4F923F.9070207@wmich.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030830090223.GC27477@charite.de>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 30, 2003 at 11:02:23AM +0200, Ralf Hildebrandt wrote:
-> * Alan Cox <alan@redhat.com>:
-> 
-> > Linux 2.4.22-ac1
-> 
-> Did you forget to adjust the version string in the patch? It reports
-> as bk2 here.
+>>>>> Ed Sweetman (ES) writes:
 
-are you sure you didn't apply it on top of -bk2 yourself ? In this case, you
-should get at least a Makefile.rej because an empty EXTRAVERSION was expected.
 
-Willy
+ ES> I'm using the largest inode size possible for ext3 for the filesystem
+ ES> tested.
+
+inode size doesn't make sense because extents use i_data space only
+
 

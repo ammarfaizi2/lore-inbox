@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbTIEVQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 17:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTIEVQI
+	id S262556AbTIEVSH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 17:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTIEVSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 17:16:08 -0400
-Received: from codepoet.org ([166.70.99.138]:62166 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S262661AbTIEVQE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 17:16:04 -0400
-Date: Fri, 5 Sep 2003 15:16:04 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel header separation
-Message-ID: <20030905211604.GB16993@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk> <20030903014908.GB1601@codepoet.org> <20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+	Fri, 5 Sep 2003 17:18:06 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:40439 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262556AbTIEVRC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 17:17:02 -0400
+Message-ID: <3F58FD2D.40100@mvista.com>
+Date: Fri, 05 Sep 2003 14:16:29 -0700
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Yann Droneaud <yann.droneaud@mbda.fr>
+CC: root@chaos.analogic.com,
+       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: nasm over gas?
+References: <20030904104245.GA1823@leto2.endorphin.org> <3F5741BD.5000401@mbda.fr> <Pine.LNX.4.53.0309041001090.3367@chaos> <3F57527B.7050204@mbda.fr>
+In-Reply-To: <3F57527B.7050204@mbda.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Sep 05, 2003 at 03:41:54PM +0100, Matthew Wilcox wrote:
-> On Tue, Sep 02, 2003 at 07:49:09PM -0600, Erik Andersen wrote:
-> > Header files intended for use by users should probably drop
-> > linux/types.h just include <stdint.h>,,,  Then convert the 
-> > types over to ISO C99 types.
+Yann Droneaud wrote:
+> Richard B. Johnson wrote:
 > 
-> stdint.h is a userspace header.  I suppose we could clone it for the
-> kernel, but I don't see any need to.
 > 
-> > s/__u8/uint8_t/g
-> > s/__u16/uint16_t/g
-> > s/__u32/uint32_t/g
-> > s/__u64/uint64_t/g
+>>GAS also has macro capability. It's just "strange". However, it
+>>does everything MASM (/ducks/) can do. It's just strange, backwards, etc.
+>>It takes some getting used to.
+>>
+>>If you decide to use gcc as a preprocessor, you can't use comments,
+>>NotGood(tm) because the "#" and some stuff after it gets "interpreted"
+>>by cpp.
+>>
 > 
-> i think all these _t types are ugly ;-(
+> 
+> Yep, this is why arch/i386/boot/Makefile use -traditional flag.
 
-They may be ugly, but they are standardized and have very 
-precise meanings defined by ISO C99, which is a very good
-thing for code interoperability...
+Isn't this throwing out the baby with the bath?  It makes writting a 
+header that is use in both C and ASM all that much harder.
 
- -Erik
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

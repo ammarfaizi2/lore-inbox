@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135312AbRAHV5M>; Mon, 8 Jan 2001 16:57:12 -0500
+	id <S133051AbRAHV5M>; Mon, 8 Jan 2001 16:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132964AbRAHV5G>; Mon, 8 Jan 2001 16:57:06 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:47120 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S133051AbRAHV45>;
-	Mon, 8 Jan 2001 16:56:57 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <200101080124.RAA08134@pizda.ninka.net>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 08 Jan 2001 22:56:48 +0100
-In-Reply-To: "David S. Miller"'s message of "Sun, 7 Jan 2001 17:24:24 -0800"
-Message-ID: <d366jp4sin.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+	id <S135312AbRAHV5E>; Mon, 8 Jan 2001 16:57:04 -0500
+Received: from abort.boom.net ([66.54.4.10]:58373 "HELO abort.boom.net")
+	by vger.kernel.org with SMTP id <S132964AbRAHV4b>;
+	Mon, 8 Jan 2001 16:56:31 -0500
+Date: Mon, 8 Jan 2001 13:56:29 -0800
+From: Taner Halicioglu <taner@taner.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.18 and EMU10K1 problems...
+Message-ID: <20010108135629.S3871@boom.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-URL: http://www.taner.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+(please cc me if you reply - thanks :)
 
-David> I've put a patch up for testing on the kernel.org mirrors:
+I probably missed a message or note or something about this, but when I went
+from 2.2.17 to 2.2.18, my sound card (SB Live!) stopped working.  It seems
+that in 2.2.18, it gets detected TWICE:
 
-David> /pub/linux/kernel/people/davem/zerocopy-2.4.0-1.diff.gz
+--------------------------------
+kernel: Linux version 2.2.18
+[...]
+kernel: Creative EMU10K1 PCI Audio Driver, version 0.7, 20:05:23 Jan  7 2001 
+kernel: emu10k1: EMU10K1 rev 5 model 0x21 found, IO at 0xb400-0xb41f, IRQ 10 
+[... IDE, floppy, SCSI, eth0, partition check ...]
+kernel: Creative EMU10K1 PCI Audio Driver, version 0.7, 20:05:23 Jan  7 2001 
+--------------------------------
 
-David> It provides a framework for zerocopy transmits and delayed
-David> receive fragment coalescing.  TUX-1.01 uses this framework.
+This is what it normally does:
 
-David> Zerocopy transmit requires some driver support, things run as
-David> they did before for drivers which do not have the support
-David> added.  Currently sg+csum driver support has been added to
-David> Acenic, 3c59x, sunhme, and loopback drivers.  We had eepro100
-David> support coded at one point, but it was removed because we
-David> didn't know how to identify the cards which support hw csum
-David> assist vs. ones which could not.
+--------------------------------
+kernel: Linux version 2.2.17
+[...]
+kernel: Creative EMU10K1 PCI Audio Driver, version 0.6, 20:25:53 Jan  7 2001 
+kernel: emu10k1: EMU10K1 rev 5 model 0x21 found, IO at 0xb400-0xb41f, IRQ 10 
+[...]
+--------------------------------
 
-I haven't had time to test this patch, but looking over the changes to
-the acenic driver I have to say that I am quite displeased with the
-way the changes were done. I can't comment on how authors of the other
-drivers which were changed feel about it. However I find it highly
-annoying that someone goes off and makes major cosmetic structural
-changes to someone elses code without even consulting the author who
-happens to maintain the code. It doesn't help that the patch reverts
-changes that should not have been reverted.
+In the 2.2.18 case, /proc/interrupts doesn't show anything on int 10.
 
-I don't think it's too much to ask that one actually tries to
-communicate with an author of a piece of code before making such major
-changes and submitting them opting for inclusion in the kernel.
+I guess I should (and will) take this up with the EMU10k people, but I was
+just wondering if anyone here has seen this problem before?  I'm curious how
+a broken driver would have made it into .18 like that ;-)  ...unless I'm the
+one that is broken :)
 
-Jes
+Thanks,
+
+	-Taner
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

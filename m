@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268896AbUHMAES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268900AbUHMAIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268896AbUHMAES (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 20:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268898AbUHMAES
+	id S268900AbUHMAIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 20:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268901AbUHMAIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 20:04:18 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:10719 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268896AbUHMAEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 20:04:16 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Paul Davis <paul@linuxaudiosystems.com>
-In-Reply-To: <1092347654.11134.10.camel@mindpipe>
-References: <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <1092174959.5061.6.camel@mindpipe>
-	 <20040811073149.GA4312@elte.hu> <20040811074256.GA5298@elte.hu>
-	 <1092210765.1650.3.camel@mindpipe> <20040811090639.GA8354@elte.hu>
-	 <20040811141649.447f112f@mango.fruits.de> <20040811124342.GA17017@elte.hu>
-	 <1092268536.1090.7.camel@mindpipe>  <20040812072127.GA20386@elte.hu>
-	 <1092347654.11134.10.camel@mindpipe>
-Content-Type: text/plain
-Message-Id: <1092355488.1304.52.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 20:04:49 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 20:08:41 -0400
+Received: from customermex-148-244-153-195.alestra.net.mx ([148.244.153.195]:12323
+	"HELO netscape.net") by vger.kernel.org with SMTP id S268900AbUHMAIj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 20:08:39 -0400
+From: dasuki3@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: Charity Assistant.
+X-Priority: 3
+Message-Id: <S268900AbUHMAIj/20040813000839Z+869@vger.kernel.org>
+Date: Thu, 12 Aug 2004 20:08:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 17:54, Lee Revell wrote:
-> I still have not had a chance to test with the latest
-> patches & config changes.
+Hello Friend.
 
-Here are all the log entries produced during this test:
+As you read this, I don't want you to feel sorry for me because I believe
+Everyone will die someday. My name is Dasuki AL-Mehmood, a merchant
+in Dubai U.A.E.
 
-rlrevell@mindpipe:~$ for test in 1 2 3 4 5; do echo; echo "Test $test";
-jackd -n 100000 --realtime -d alsa --rate 48000 -D -P hw:0,0 -C hw:0,2
--p 32 -S >> mm2; done
+I have been diagnosed with esophageal cancer. It has defiled all forms of
+Medical treatment, and right now I have only about a few months to live,
+According to medical experts. I have not particularly lived my life so
+Well, as I never really cared for anyone (not even myself) but my business.
+Though I am very rich, I was never generous, I was always hostile to people
+and only focused on my business as that was the only thing I cared for. But
+now I regret all this as I now know that there is more to life than just
+Wanting to have or make all the money in the world.
 
-http://krustophenia.net/2.6.8-rc3-O5-A2/kern.log.txt
+I believe when God gives me a second chance to come to this world I would
+Live my life a different way from how I have lived it. Now that God has
+Called me, I have willed and given most of my property and assets to my
+Immediate and extended family members as well as a few close friends.
 
-When one jackd process is running, starting another jackd process, 
-using a different device produces an xrun in the first.  If mlockall-test 
-is run while a jackd process is running, this also produces an xrun in 
-the jackd process.
+I want God to be merciful to me and accept my soul so, I have decided to
+give alms to charity organizations, as I want this to be one of the last
+good deeds I do on earth.
 
-So, it seems that if a SCHED_FIFO process opens a PCM device using mmap, 
-then mlockall's the memory, then another process mlockall's memory, the 
-result is an xrun 100% of the time.
+Now that my health has deteriorated so badly, I cannot do this myself
+Anymore. I once asked members of my family to close one of my accounts and
+distribute the money which I have there to charity organization in Bulgaria
+and Pakistan; they refused and kept the money to themselves. Hence, I do
+not trust them anymore, as they seem not to be contended with what I have
+left for them.
 
-Lee
- 
+The last of my money which no one knows of is the huge cash deposit of $6M.
+(Six  Million United States Dollars) that I have with a finance/Security
+Company abroad. I will want you to help me collect this deposit and
+Dispatched it to charity organizations. I have set aside 10 % for you and
+for your time. All correspondence should be directed via this private email
+dasuk-al-mehmo@excite.com
+
+May Allah be with you.
+
+Dasuki Al- Mehmood
+Dasuk-al-mehmo@excite.com
+
+
 

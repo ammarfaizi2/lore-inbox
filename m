@@ -1,133 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288854AbSAEQOz>; Sat, 5 Jan 2002 11:14:55 -0500
+	id <S288853AbSAEQSF>; Sat, 5 Jan 2002 11:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288853AbSAEQOq>; Sat, 5 Jan 2002 11:14:46 -0500
-Received: from inreach-gw1.idiom.com ([209.209.13.26]:15634 "EHLO
-	smile.idiom.com") by vger.kernel.org with ESMTP id <S288852AbSAEQOe>;
-	Sat, 5 Jan 2002 11:14:34 -0500
-Message-ID: <3C372658.1B548E80@obviously.com>
-Date: Sat, 05 Jan 2002 11:14:16 -0500
-From: Bryce Nesbitt <bryce@obviously.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S288855AbSAEQRq>; Sat, 5 Jan 2002 11:17:46 -0500
+Received: from e120116.upc-e.chello.nl ([213.93.120.116]:25362 "EHLO
+	stempel.dhs.org") by vger.kernel.org with ESMTP id <S288853AbSAEQRo>;
+	Sat, 5 Jan 2002 11:17:44 -0500
+Date: Sat, 5 Jan 2002 17:17:28 +0100 (CET)
+From: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Edward Stempel <eazstempel@cal009001.student.utwente.nl>,
+        linux-kernel mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
+In-Reply-To: <20020101232022.A7608@suse.cz>
+Message-ID: <Pine.LNX.4.21.0201051708250.11947-100000@nieuw3.stempel.dhs.org>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl, util-linux@math.uio.no
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Why would a valid DVD show zero files on Linux?
-In-Reply-To: <UTC200201050250.CAA232926.aeb@cwi.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the table of contents mounted three ways.  First udf, then
-iso9660, then iso9660 nojoliet.  Only the udf version works with the
-application.  Note that the huge udf filesizes are not a mistake -
-this DVD is also offered as 7 CD set.
+On Tue, 1 Jan 2002, Vojtech Pavlik wrote:
 
-
-/mnt/cdrom1/:
-total 14
-dr-xr-xr-x    3 4294967295 4294967295      184 Feb 28  2001 .
-drwxr-xr-x   24 root     root         4096 Jan  5 10:27 ..
--r--r--r--    1 4294967295 4294967295     2763 Feb 28  2001 CD.TXT
-dr-xr-xr-x    2 4294967295 4294967295      380 Feb 28  2001 DATA
--r--r--r--    1 4294967295 4294967295      196 Feb 28  2001 PDATASET.TXT
-
-/mnt/cdrom1/DATA:
-total 3266832
-dr-xr-xr-x    2 4294967295 4294967295      380 Feb 28  2001 .
-dr-xr-xr-x    3 4294967295 4294967295      184 Feb 28  2001 ..
--r--r--r--    1 4294967295 4294967295 34735660 Feb 28  2001 GRIDAK.DAT
--r--r--r--    1 4294967295 4294967295  1921298 Feb 28  2001 GRIDAK.IND
--r--r--r--    1 4294967295 4294967295 1832319997 Feb 28  2001 GRID.DAT
--r--r--r--    1 4294967295 4294967295 51128921 Feb 28  2001 GRID.IND
--r--r--r--    1 4294967295 4294967295    34839 Feb 28  2001 VEC.COV
--r--r--r--    1 4294967295 4294967295 1424439251 Feb 28  2001 VEC.V
--r--r--r--    1 4294967295 4294967295   643405 Feb 28  2001 VEC.VI
-
-
-/mnt/cdrom1/:
-total 1
-dr-xr-xr-x    1 root     root            1 Feb 28  2001 .
-
-
-
-/mnt/cdrom1/:
-total 12
-dr-xr-xr-x    1 root     root         2048 Feb 28  2001 .
-drwxr-xr-x   24 root     root         4096 Jan  5 10:27 ..
--r-xr-xr-x    1 root     root         2763 Feb 28  2001 cd.txt
-dr-xr-xr-x    1 root     root         2048 Feb 28  2001 data
--r-xr-xr-x    1 root     root          196 Feb 28  2001 pdataset.txt
-
-/mnt/cdrom1/data:
-total 22849
-dr-xr-xr-x    1 root     root         2048 Feb 28  2001 .
-dr-xr-xr-x    1 root     root         2048 Feb 28  2001 ..
--r-xr-xr-x    1 root     root      1181228 Feb 28  2001 gridak.dat
--r-xr-xr-x    1 root     root      1921298 Feb 28  2001 gridak.ind
--r-xr-xr-x    1 root     root      3603453 Feb 28  2001 grid.dat
--r-xr-xr-x    1 root     root       797273 Feb 28  2001 grid.ind
--r-xr-xr-x    1 root     root        34839 Feb 28  2001 vec.cov
--r-xr-xr-x    1 root     root     15153107 Feb 28  2001 vec.v
--r-xr-xr-x    1 root     root       643405 Feb 28  2001 vec.vi
-
-
-As this is one clear example of differing iso9660 and udf views
-of the same disc, I propose to change mount(8) and fstab(5) to warn the
-two can be different (either intentionally, accidentally, or because
-of iso9660 limitations).
-
-I also propose to change "mount -t auto" to try udf first, and fall back to
-iso9660.  This, of course, requires more discussion first.  But based
-on serching other lists, reading the udf "iso9660 bridge" spec,
-and email conversations, it seems to be the right long term answer.
-Since udf is used on CD's, I propose that udf be tried first for
-all meda, not just DVD's.
-
-The kernel, of course, remains unchanged, and because you're using Linux,
-you would still be able force mount anything you want.
-
-			-Bryce
-
-
-
-Andries.Brouwer@cwi.nl wrote:
+> On Tue, Jan 01, 2002 at 11:03:52PM +0100, Edward Stempel wrote:
+> > In my BIOS-setup there is an option "PCI latency" which defaults to
+> > 32. First I changed it to 128. That worked perfect. Later I have decreased
+> > it to 64, 48 and 40. But 40 still gave some problems (a little bit
+> > distortion of my sound). After that I tried 44, but the disk was to slow
+> > with this setting (30 MB/s instead of 40 MB/s). So now I have a PCI
+> > latency of 48. The strange thing is that it seems not to work
+> > directly. After the system boot when I do hdparm -t, I get about 5
+> > MB/s. But then when I switch using_dma off and on again using hdparm, I
+> > get the full 40 MB/s and no distortion of my es1371. Any ideas what might
+> > cause this?
 > 
-> > Here are the first 2048 1024 byte blocks.
+> You'd have to tell me all other settings in your setup first so I can
+> guess the cause. What options do you use? Is DMA enabled automatically?
+> Etc, etc ...
+
+I am not sure which settings you need. But I compiled a kernel with:
+- Generic PCI IDE chipset support
+- Sharing PCI IDE interrupt support
+- Generic PCI bus-master DMA support
+- Use PCI DMA by default when available
+- VIA82CXXX chipset support
+
+After booting this kernel hdparm -v reports that I am using dma, but
+hdparm -t only reports about 5 MB/s data transfer rate. When I switch the
+using of dma off and on with hdparm -d the transfer rate becomes about
+40MB/s
+
+The PCI latency is set in the BIOS setup, and according to /proc/pci this
+latency is applied to all PCI devices except my matrox G550 video card,
+which has a latency of 64.
+
+
+I hope this explains something.
+
+
+
 > 
-> Hmm. I am a bit slow, but just looked at this image.
-> It looks fine in iso9660 style, provided you give the
-> nojoliet option. I get:
+> > 
+> > Regards,
+> > 
+> > Edward  
+> >  
+> > 
+> > 
+> > 
+> > ---------- Forwarded message ----------
+> > Date: Tue, 1 Jan 2002 18:14:41 +0100
+> > From: Vojtech Pavlik <vojtech@suse.cz>
+> > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
+> > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
+> > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
+> > 
+> > On Fri, Dec 28, 2001 at 05:10:43PM +0100, Edward Stempel wrote:
+> > 
+> > > Excellent! That solved my problem.
+> > 
+> > What exactly did you have to change? It might be worth to include the
+> > changing of the latency setting in the kernel.
+> > 
+> > > 
+> > > Thankx
+> > > 
+> > > Edward
+> > > 
+> > > 
+> > > 
+> > > 
+> > > Date: Fri, 28 Dec 2001 10:15:05 +0100
+> > > From: Vojtech Pavlik <vojtech@suse.cz>
+> > > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
+> > > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
+> > > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
+> > > 
+> > > On Fri, Dec 28, 2001 at 03:32:34AM +0100, Edward Stempel wrote:
+> > > 
+> > > > I have an Asus a7v266 mother board and an Ensoniq sound card in it. 
+> > > > The ide chipset is a VIA VT8233 that is capable of UDMA100. So I built a
+> > > > kernel with the es1371 sound driver and the via82cxxx ide driver
+> > > > configured in it. Actually I tried the kernel 2.4.17 first, and the latest
+> > > > I tried is 4.5.1 with the latest patch (patch-2.5.2-pre3) applied to it.
+> > > > I also tried the kernel 2.5.1 with Vojtech  patch (via-3.33.diff from
+> > > > his email dated 2001-12-23 23:20:48) applied to it, with the same
+> > > > (negative) results.
+> > > > 
+> > > > The good thing is that hdparm reports appr. 40 MB/sec when using DMA and
+> > > > about 6 MB/sec when not using DMA.
+> > > > Unfortunately using DMA for ide results in some ugly distortion of the
+> > > > sound from my soundcard whenever some IO to the disk is done.  :((
+> > > > 
+> > > > I have assigned different interrupts to the PCI-cards (ide is 
+> > > > on-board) and I even changed the sound card's PCI slot, so it shared
+> > > > its interrupt with another device (acpi instead of USB). It did not solve
+> > > > the problem. Because the problem only occurs when switching on using_dma
+> > > > on the ide driver, I think it is a DMA problem with the ide driver. It may
+> > > > be the es1371 driver as well off course, but I suspect it is the ide
+> > > > driver (or chipset).
+> > > >   
+> > > > Reading the list archive from linux-kernel, I discovered there have been
+> > > > more problems with DMA using this chipset, but I did not find anyone
+> > > > having the same problem as I have now.
+> > > > 
+> > > > Has someone also dealt with these problems, or can someone help me
+> > > > solving this problem? Please help!  
+> > > > 
+> > > > Below are some outputs using kernel 5.1 with patch-2.5.2-pre3.
+> > > 
+> > > You may try changing the PCI latency settings on either the IDE
+> > > controller or the sound card. Other than that, I don't know how to help.
+> > > 
+> > > -- 
+> > > Vojtech Pavlik
+> > > SuSE Labs
+> > 
+> > -- 
+> > Vojtech Pavlik
+> > SuSE Labs
 > 
-> # mount DeLorme_TopoUSA_DVD.head /mnt -t iso9660 -o loop,nojoliet
-> # ls -l /mnt
-> total 12
-> dr-xr-xr-x    1 root     root         2048 Feb 28  2001 .
-> drwxr-xr-x   31 root     root         4096 Jan  3 02:11 ..
-> -r-xr-xr-x    1 root     root         2763 Feb 28  2001 cd.txt
-> dr-xr-xr-x    1 root     root         2048 Feb 28  2001 data
-> -r-xr-xr-x    1 root     root          196 Feb 28  2001 pdataset.txt
 > 
-> and
-> 
-> # mount DeLorme_TopoUSA_DVD.head /mnt -t udf -o loop
-> # ls -l /mnt
-> total 14
-> dr-xr-xr-x    3 4294967295 4294967295      184 Feb 28  2001 .
-> drwxr-xr-x   31 root     root         4096 Jan  3 02:11 ..
-> -r--r--r--    1 4294967295 4294967295     2763 Feb 28  2001 CD.TXT
-> dr-xr-xr-x    2 4294967295 4294967295      380 Feb 28  2001 DATA
-> -r--r--r--    1 4294967295 4294967295      196 Feb 28  2001 PDATASET.TXT
-> 
-> so the iso9660 version looks a bit better than the udf version.
-> (But I cannot look at the actual contents because the initial
-> fragment is not large enough. You can check for yourself
-> whether the nojoliet mount is OK.)
-> 
-> Thus, there do not seem reasons to change mount(2) or mount(8)
-> in the way you suggested. There is no "empty iso9660 filesystem" here.
-> 
-> Andries
+
+

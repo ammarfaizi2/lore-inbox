@@ -1,41 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbULNPLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbULNPYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbULNPLx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 10:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULNPLx
+	id S261526AbULNPYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 10:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbULNPYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 10:11:53 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:27274 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261520AbULNPLw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 10:11:52 -0500
-Date: Tue, 14 Dec 2004 16:11:50 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: cdrecording status
-In-Reply-To: <20041214115102.GB23031@animx.eu.org>
-Message-ID: <Pine.LNX.4.61.0412141611050.10000@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0412132255060.7005@yvahk01.tjqt.qr>
- <200412141049.39499@fortytwo.ch> <Pine.LNX.4.61.0412141117240.18625@yvahk01.tjqt.qr>
- <20041214115102.GB23031@animx.eu.org>
+	Tue, 14 Dec 2004 10:24:43 -0500
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:26566 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S261526AbULNPYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 10:24:36 -0500
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: Anticipatory prefaulting in the page fault handler V1
+Date: Wed, 15 Dec 2004 00:25:34 +0900
+User-Agent: KMail/1.5.4
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, nickpiggin@yahoo.com.au,
+       Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, hugh@veritas.com,
+       benh@kernel.crashing.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain> <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com> <200412142124.11685.amgta@yacht.ocn.ne.jp>
+In-Reply-To: <200412142124.11685.amgta@yacht.ocn.ne.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412150025.34368.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Honestly I do not know, but I hope they can at least sustain as much as CD-RW 
->> can (usually 1000x). Plus, it's for DVD+RW, it always uses packet mode, and as 
->> such I damn hope that DVD+RW manufacturers keep in mind that a byte position 
->> might be overwritten more than 1000 times.
+On Tuesday 14 December 2004 21:24, Akinobu Mita wrote:
+
+> But there is not any guarantee that the page_tables for addr+PAGE_SIZE,
+> addr+2*PAGE_SIZE, ...  have not been mapped yet.
 >
->Isn't that what DVD-RAM is for?  IIRC, it's overwrite count is 100,000.
+> Anyway, I will try your V2 patch.
+>
 
-Now that's "just" 100 times more than a CD/DVD. However, the buffer cache is a 
-really nice thing to have -- especially on such media.
+Below patch fixes V2 patch, and adds debug printk. 
+The output coincides with segfaulted processes.
+
+# dmesg | grep ^comm:
+
+comm: xscreensaver, addr_orig: ccdc40, addr: cce000, pid: 2995
+comm: rhn-applet-gui, addr_orig: b6fd8020, addr: b6fd9000, pid: 3029
+comm: rhn-applet-gui, addr_orig: b6e95020, addr: b6e96000, pid: 3029
+comm: rhn-applet-gui, addr_orig: b6fd8020, addr: b6fd9000, pid: 3029
+comm: rhn-applet-gui, addr_orig: b6e95020, addr: b6e96000, pid: 3029
+comm: rhn-applet-gui, addr_orig: b6fd8020, addr: b6fd9000, pid: 3029
+comm: X, addr_orig: 87e8000, addr: 87e9000, pid: 2874
+comm: X, addr_orig: 87ea000, addr: 87eb000, pid: 2874
+
+---
+The read access prefaulting may override the page_table which has been
+already mapped. this patch fixes it. and it shows which process might
+suffer this problem.
 
 
+--- 2.6-rc/mm/memory.c.orig	2004-12-14 22:06:08.000000000 +0900
++++ 2.6-rc/mm/memory.c	2004-12-14 23:42:34.000000000 +0900
+@@ -1434,6 +1434,7 @@ do_anonymous_page(struct mm_struct *mm, 
+ {
+ 	pte_t entry;
+  	unsigned long end_addr;
++ 	unsigned long addr_orig = addr;
+ 
+ 	addr &= PAGE_MASK;
+ 
+@@ -1517,9 +1518,15 @@ do_anonymous_page(struct mm_struct *mm, 
+  		/* Read */
+ 		entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
+ nextread:
+-		set_pte(page_table, entry);
+-		pte_unmap(page_table);
+-		update_mmu_cache(vma, addr, entry);
++		if (!pte_none(*page_table)) {
++			printk("comm: %s, addr_orig: %lx, addr: %lx, pid: %d\n",
++				current->comm, addr_orig, addr, current->pid);
++			pte_unmap(page_table);
++		} else {
++			set_pte(page_table, entry);
++			pte_unmap(page_table);
++			update_mmu_cache(vma, addr, entry);
++		}
+ 		addr += PAGE_SIZE;
+ 		if (unlikely(addr < end_addr)) {
+ 			pte_offset_map(pmd, addr);
 
-Jan Engelhardt
--- 
-ENOSPC
+

@@ -1,38 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278698AbRJXSLz>; Wed, 24 Oct 2001 14:11:55 -0400
+	id <S278693AbRJXSMF>; Wed, 24 Oct 2001 14:12:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278697AbRJXSLf>; Wed, 24 Oct 2001 14:11:35 -0400
-Received: from maild.telia.com ([194.22.190.101]:61888 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S278695AbRJXSLb>;
-	Wed, 24 Oct 2001 14:11:31 -0400
-Date: Thu, 25 Oct 2001 20:15:08 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: Linux-Kernel Development Mailinglist 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13: some compilerwarnings...
-Message-ID: <20011025201508.B11646@telia.com>
-Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011024195342.A464@Zenith.starcenter>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011024195342.A464@Zenith.starcenter>
-User-Agent: Mutt/1.3.23i
+	id <S278697AbRJXSL4>; Wed, 24 Oct 2001 14:11:56 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:31935 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S278695AbRJXSLm>; Wed, 24 Oct 2001 14:11:42 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Keith Owens <kaos@ocs.com.au>, Linux Kernel <linux-kernel@vger.kernel.org>
+Date: Wed, 24 Oct 2001 09:50:39 -0700 (PDT)
+Subject: Re: VM
+In-Reply-To: <20011024175507Z16346-698+175@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.40.0110240936160.14041-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Vermeulen <sven.vermeulen@rug.ac.be> wrote:
+those were the files that his patches were changing, since then we also
+have had linus, rik and alan making changes in the various trees.
 
-> {standard input}:1040: Warning: indirect lcall without `*'
-> {standard input}:1125: Warning: indirect lcall without `*'
-> {standard input}:1208: Warning: indirect lcall without `*'
+are you willing to bet that the only changes in those files are related to
+the VM system changes and that there are no other -ac related changes in
+those files due to the other ac changes? without someone who really
+understands the rik VM I wouldn't trust breaking them out of the -ac
+tree and the same thing goes for the aa VM and the linus tree (to add that
+into the ac tree)
 
-I think Alan once mentioned that this was sort of a feature to make old
-versions of binutils work too. I'm not sure exactly how old those are
-though, and if they are older than the recommended 2.9.1.0.25 I vote for
-fixing these ugly warnings.
--- 
+as I see it this requires a few steps.
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+1. linus and alan agree to implement such a thing (which includes
+alanbeing willing to track the appropriate differences)
+
+2. rik and/or aa and/or alan seperate out the rik VM from the ac tree and
+submit it to linus.
+
+3. rik and/or aa and/or alan seperate out the aa VM from the linus tree
+and submit it to alan.
+
+it's a lot of work to get it setup this way, and it does duplicate a bunch
+of files that could get out of sync if not carefully managed but it's
+about the only way that I can see people able to test just the different
+VM systems.
+
+now if one of the above four states that there are files (or directories)
+that are only the VM system and it is as simple as swapping out everything
+in those files between the linus and ac trees then steps 2&3 get much
+simpler.
+
+David Lang
+
+On Wed, 24 Oct 2001, Daniel Phillips wrote:
+
+> Date: Wed, 24 Oct 2001 19:56:00 +0200
+> From: Daniel Phillips <phillips@bonn-fries.net>
+> To: David Lang <david.lang@digitalinsight.com>
+> Cc: Keith Owens <kaos@ocs.com.au>,
+>      Linux Kernel <linux-kernel@vger.kernel.org>
+> Subject: Re: VM
+>
+> On October 24, 2001 06:24 pm, David Lang wrote:
+> > the problem is that there isn't a patchset available from either aa or rik
+> > that converts one to the other, the only patchset readily available
+> > converts linus+aa to ac+rik this changes a lot more then just the VM stuff
+> > so without going to a lot of effort it's not possible to directly compare
+> > the two VM designs while keeping the rest of the kernel the same.
+>
+> A non-kernel-hacker can easily make the patch.  Andrea posted a list of all
+> the files affected back at the beginning of his 'vm rewrite' thread.
+>
+> > > > Daniel, I think the suggestion isn't to break out the differences in a
+> > > > bunch of config options, but rather to do something like duplicating all
+> > > > files that are VM related into two files, foo.c becomes foo.aa.c and
+> > > > foo.rik.c at that point your config file either uses all the .rik files
+> > > > or all the .aa files and both would be in the same tree, but not
+> > > > interact with each other.
+> > > >
+> > > > yes, there would be a lot of duplication between them, but something
+> > > > like this would let people compare the two directly without also having
+> > > > all the other linus vs ac changes potentially affecting their tests.
+> > >
+> > > Patch and lilo are your friends.
+>
+> --
+> Daniel
+>

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTDIWot (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 18:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbTDIWos (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 18:44:48 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:13003
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263857AbTDIWoq (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 18:44:46 -0400
-Message-ID: <3E94A4F8.8060304@redhat.com>
-Date: Wed, 09 Apr 2003 15:55:52 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030407
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: fdavis@si.rr.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel support for non-english user messages
-References: <3E93A958.80107@si.rr.com> <20030409080803.GC29167@mea-ext.zmailer.org> <20030409080803.GC29167@mea-ext.zmailer.org> <20030409190700.H19288@almesberger.net> <3E94A1B4.6020602@si.rr.com>
-In-Reply-To: <3E94A1B4.6020602@si.rr.com>
-X-Enigmail-Version: 0.74.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	id S263842AbTDIWp2 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 18:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbTDIWpX (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 18:45:23 -0400
+Received: from smtp2.us.dell.com ([143.166.85.133]:63158 "EHLO
+	smtp2.us.dell.com") by vger.kernel.org with ESMTP id S263842AbTDIWo7 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 18:44:59 -0400
+Subject: balance_irq()'s move() while in machine_restart() hangs system
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: mingo@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049928786.5244.108.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Apr 2003 17:56:38 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ingo, if one processor is in move() when another processor calls
+machine_restart(), the system will hang.  All otherCPUs will move into
+the hlt state, but one in move(), by virtue of smp_num_cpus getting set
+to 1 in smp_send_stop() before the 4th CPU has completed its work and
+gets out of move().  It will loop in move() in this chunk:
 
-Frank Davis wrote:
+		if (direction == 1) {
+			cpu++;
+			if (cpu >= smp_num_cpus)
+				cpu = 0;
+		} else {
+			cpu--;
+			if (cpu == -1)
+				cpu = smp_num_cpus-1;
+		}
+	} while (!IRQ_ALLOWED(cpu,allowed_mask) ||
+			(search_idle && !IDLE_ENOUGH(cpu,now)));
 
-> "My suggestion would be to add the required i18n support to klogd, so
-> that kernel messages are translated as they are removed from dmesg into
-> syslog. Then, like any i18n support,
+with smp_num_cpus=1 and never manage to exit.
 
-This is _not_ like any i18n support.  The problem is that normal
-translation support a la gettext or catgets() see the format strings and
-not the results.  Translating format strings is easy, translating
-results isn't since the translation part has to take the expansion of
-the format elements into account.
+Is it fair to change smp_send_stop() to call
+smp_call_function(stop_this_cpu, NULL, 1, 1) instead (make it wait for
+the other CPUs to complete before continuing)?
 
-For numeric format elements this might be possible.  But not without
-major problems with %s.  Take hostnames or filenames, which could in
-theory contain spaces <U0020>.  You'd have to match using complex
-regular expressions.
+Thanks,
+Matt
 
-Another problem is the explosion of messages.  Message lines are often
-composed from different sources.  If you see only the end result you'll
-have to account for all the different combinations.
-
-
-I don't say this is impossible, but it is a lot more work, a much more
-complex and slower translation mechanism, and (most critical) requires
-very strict rules for the creation of messages in the kernel.  I think
-the latter point is the killer.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+lKT42ijCOnn/RHQRAlvSAJ9etqgCfTjZ6jZ2M6N+hRY0Hx97AgCeLERp
-nPqnFOWpR2s3PuUAuTYfN4E=
-=tTfW
------END PGP SIGNATURE-----
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

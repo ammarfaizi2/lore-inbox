@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290289AbSCDPkr>; Mon, 4 Mar 2002 10:40:47 -0500
+	id <S292421AbSCDPpU>; Mon, 4 Mar 2002 10:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292283AbSCDPkh>; Mon, 4 Mar 2002 10:40:37 -0500
-Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:20655 "EHLO
-	server1.i-a.co.uk") by vger.kernel.org with ESMTP
-	id <S290289AbSCDPkT>; Mon, 4 Mar 2002 10:40:19 -0500
-Date: Mon, 4 Mar 2002 15:40:07 +0000
-From: Andy Jeffries <lkml@andyjeffries.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HPT372 on KR7A-RAID
-Message-Id: <20020304154007.62716a6c.lkml@andyjeffries.co.uk>
-In-Reply-To: <E16dtBF-0006tG-00@the-village.bc.nu>
-In-Reply-To: <20020221091319.37e74cba.lkml@andyjeffries.co.uk>
-	<E16dtBF-0006tG-00@the-village.bc.nu>
-Organization: Scramdisk Linux
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S292382AbSCDPpN>; Mon, 4 Mar 2002 10:45:13 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:51616 "EHLO due.stud.ntnu.no")
+	by vger.kernel.org with ESMTP id <S292283AbSCDPoz>;
+	Mon, 4 Mar 2002 10:44:55 -0500
+Date: Mon, 4 Mar 2002 16:44:53 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
+        linux-net@vger.kernel.org
+Subject: Re: [BETA-0.94] Fifth test release of Tigon3 driver
+Message-ID: <20020304164453.A27587@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020304.041252.13772021.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020304.041252.13772021.davem@redhat.com>; from davem@redhat.com on Mon, Mar 04, 2002 at 04:12:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002 13:22:37 +0000 (GMT), Alan Cox
-<alan@lxorguk.ukuu.org.uk> wrote:
-> > I don't know if this has been fixed in 2.4.17/18, if it has...sorry!
-> > :-)
-> 
-> Its fixed in 2.4.18-ac at least, and I think in 2.4.18-rc2. Give that a
-> go and check its ok
+David S. Miller:
+> How does this thing perform for people?  In particular lmbench
+> 'bw_tcp' and 'lat_tcp' numbers over gigabit on beefy hardware are
+> considered very interesting...
 
-Hi Alan,
+Ok, here I am again; doing some benchmarking :)
 
-It's not fixed in 2.4.18 (released version).
+(all this is done with same hardware as before, and your tg3 v0.94 driver in
+both ends):
+test8:/usr/src/LMbench/bin/i686-pc-linux-gnu# ./bw_tcp 129.241.56.160
+initial bandwidth measurement: move=10485760, usecs=117352: 89.35 MB/sec
+move=693633024, XFERSIZE=65536
+Socket bandwidth using 129.241.56.160: 104.73 MB/sec
 
-At least, the array of HPT chipsets doesn't have the 372 entry.  Does it
-fix it neatly (if the index of the revision is above the array label it as
-unknown)?
+test8:/usr/src/LMbench/bin/i686-pc-linux-gnu# ./lat_tcp 129.241.56.160
+TCP latency using 129.241.56.160: 100.0089 microseconds
 
-It doesn't seem to as line 225 in drivers/ide/hpt366.c seems to just use
-class_rev as an index in to the chipset_names array (which will bomb out
-it it tries to access class_rev=5).
 
-Any chance of getting the earlier patch submitted to the mainstream Kernel
-by someone who Linus will listen to ;-)  (P.S. Linus, if you're listening
-sorry for the aspersion that you ignore patches from people, it's just
-that I am a lowly Kernel newbie who you won't know/trust (YET!)).
-
-Cheers,
-
+Do you want any more benchmark; just say so :)
 
 -- 
-Andy Jeffries
-Linux/PHP Programmer
-
-- Windows Crash HOWTO: compile the code below in VC++ and run it!
-main (){for(;;){printf("Hung up\t\b\b\b\b\b\b");}}
+Thomas

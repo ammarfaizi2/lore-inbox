@@ -1,105 +1,188 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289817AbSCHWaS>; Fri, 8 Mar 2002 17:30:18 -0500
+	id <S289272AbSCHWha>; Fri, 8 Mar 2002 17:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290333AbSCHWaJ>; Fri, 8 Mar 2002 17:30:09 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:39176 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S289817AbSCHWaE>; Fri, 8 Mar 2002 17:30:04 -0500
-Date: Fri, 8 Mar 2002 23:30:01 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Danek Duvall <duvall@emufarm.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: root-owned /proc/pid files for threaded apps?
-Message-ID: <20020308233001.B7163@devcon.net>
-Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-	Danek Duvall <duvall@emufarm.org>, linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net> <20020308214148.GA750@lorien.emufarm.org>
-Mime-Version: 1.0
+	id <S290689AbSCHWhV>; Fri, 8 Mar 2002 17:37:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21253 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289813AbSCHWhM>;
+	Fri, 8 Mar 2002 17:37:12 -0500
+Message-ID: <3C893CAE.A2FCFD@zip.com.au>
+Date: Fri, 08 Mar 2002 14:35:26 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: truncate_list_pages()  BUG and confusion
+In-Reply-To: <3C880EFF.A0789715@zip.com.au>,		<3C8809BA.4070003@us.ibm.com> <3C880EFF.A0789715@zip.com.au> <17920000.1015622098@flay> <3C8932CC.761C8829@zip.com.au> <3C89379B.4020107@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020308214148.GA750@lorien.emufarm.org>; from duvall@emufarm.org on Fri, Mar 08, 2002 at 01:41:49PM -0800
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 01:41:49PM -0800, Danek Duvall wrote:
-> > 
-> > > So it also turns out that either by changing that argument to 0 or
-> > > just reverting that hunk of the patch, xmms starts skipping whenever
-> > > mozilla loads a page, even a really simple one.
-> > ie. always when mozilla tries to do a socket(PF_INET6, ...), which
-> > ends up requesting the ipv6 module. 
-> I don't think so -- modprobe logs its attempts in /var/log/ksymoops/ and
-> there aren't nearly as many attempts to load net-pf-10 logged there as
-> pages I reloaded.
+Dave Hansen wrote:
+> 
+> Andrew Morton wrote:
+> > If the page_cache_release() in truncate_complete_page() is calling
+> > __free_pages_ok() then something really horrid has happened.
+> 
+> Something horrid _IS_ happening:
+> 
+> kernel BUG at page_alloc.c:109!
+> ...
+>  > Is this happening with the dbench/ENOSPC/1k blocksize testcase?
+> yes
+> 
+> For this particular one, dbench ran without failure, but while rm'ing
+> the leftover directories, it BUGged.
 
-Hmm, right. Actually, it should only try to open an IPv6 socket if
-you stomp on a webserver which runs IPv6 already.
+Are you also seeing the 'VFS: free of freed buffer' message?
 
-> > Maybe it's related to the wmb() done by set_user() if dumpclear is
-> > set? (although it's actually a nop on most x86 (which arch are you
-> > using?))
-> AMD K6-III, just to be specific.
+There were some changes made in both 2.4 and 2.5 in this area.
+These were to handle the situation where block allocation fails
+when we're partway through mapping a page to disk.
 
-OK, if you didn't compile your kernel for an IDT WinChip, wmb() only
-affects the compilers optimizer (it stops the compiler from reordering
-memory writes across it, so it's effect is not changed by the if
-around it in this case).
+Here's the 2.5 diff.  A `patch -R' of this will revert those
+changes.
 
-> > Just for testing, can you try moving the wmb() in set_user()
-> > (kernel/sys.c, line 512 in 2.4.19-pre2-ac3) out of the if statement?
-> I'd expect to see the skipping regardless, then, right?
+There are three independent parts to this - generic_file_write(),
+block_write_full_page() and __block_prepare_write().  If reversion
+of this entire patch makes the problem go away, then would you be
+able to narrow it down to one of those three functions?
 
-Nope, the other way round. At the moment, the wmb() in set_user() is
-only done if dumpclear is set, ie. with set_user(0, 1).
 
-But as stated above, moving the wmb() should not change anything on an
-x86 (non-WinChip) machine. I think your problem is buried somewhere
-else ...
+--- linux-2.5.5-pre1/fs/buffer.c	Wed Feb 13 15:22:00 2002
++++ 25/fs/buffer.c	Thu Feb 14 22:43:33 2002
+@@ -1431,6 +1431,7 @@ static int __block_write_full_page(struc
+ 	int err, i;
+ 	unsigned long block;
+ 	struct buffer_head *bh, *head;
++	int need_unlock;
+ 
+ 	if (!PageLocked(page))
+ 		BUG();
+@@ -1486,8 +1487,34 @@ static int __block_write_full_page(struc
+ 	return 0;
+ 
+ out:
++	/*
++	 * ENOSPC, or some other error.  We may already have added some
++	 * blocks to the file, so we need to write these out to avoid
++	 * exposing stale data.
++	 */
+ 	ClearPageUptodate(page);
+-	UnlockPage(page);
++	bh = head;
++	need_unlock = 1;
++	/* Recovery: lock and submit the mapped buffers */
++	do {
++		if (buffer_mapped(bh)) {
++			lock_buffer(bh);
++			set_buffer_async_io(bh);
++			need_unlock = 0;
++		}
++		bh = bh->b_this_page;
++	} while (bh != head);
++	do {
++		struct buffer_head *next = bh->b_this_page;
++		if (buffer_mapped(bh)) {
++			set_bit(BH_Uptodate, &bh->b_state);
++			clear_bit(BH_Dirty, &bh->b_state);
++			submit_bh(WRITE, bh);
++		}
++		bh = next;
++	} while (bh != head);
++	if (need_unlock)
++		UnlockPage(page);
+ 	return err;
+ }
+ 
+@@ -1518,6 +1545,7 @@ static int __block_prepare_write(struct 
+ 			continue;
+ 		if (block_start >= to)
+ 			break;
++		clear_bit(BH_New, &bh->b_state);
+ 		if (!buffer_mapped(bh)) {
+ 			err = get_block(inode, block, bh, 1);
+ 			if (err)
+@@ -1552,12 +1580,35 @@ static int __block_prepare_write(struct 
+ 	 */
+ 	while(wait_bh > wait) {
+ 		wait_on_buffer(*--wait_bh);
+-		err = -EIO;
+ 		if (!buffer_uptodate(*wait_bh))
+-			goto out;
++			return -EIO;
+ 	}
+ 	return 0;
+ out:
++	/*
++	 * Zero out any newly allocated blocks to avoid exposing stale
++	 * data.  If BH_New is set, we know that the block was newly
++	 * allocated in the above loop.
++	 */
++	bh = head;
++	block_start = 0;
++	do {
++		block_end = block_start+blocksize;
++		if (block_end <= from)
++			goto next_bh;
++		if (block_start >= to)
++			break;
++		if (buffer_new(bh)) {
++			if (buffer_uptodate(bh))
++				printk(KERN_ERR "%s: zeroing uptodate buffer!\n", __FUNCTION__);
++			memset(kaddr+block_start, 0, bh->b_size);
++			set_bit(BH_Uptodate, &bh->b_state);
++			mark_buffer_dirty(bh);
++		}
++next_bh:
++		block_start = block_end;
++		bh = bh->b_this_page;
++	} while (bh != head);
+ 	return err;
+ }
+ 
+--- linux-2.5.5-pre1/mm/filemap.c	Sun Feb 10 22:00:36 2002
++++ 25/mm/filemap.c	Thu Feb 14 22:42:15 2002
+@@ -2999,7 +2999,7 @@ generic_file_write(struct file *file,con
+ 		kaddr = kmap(page);
+ 		status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
+ 		if (status)
+-			goto unlock;
++			goto sync_failure;
+ 		page_fault = __copy_from_user(kaddr+offset, buf, bytes);
+ 		flush_dcache_page(page);
+ 		status = mapping->a_ops->commit_write(file, page, offset, offset+bytes);
+@@ -3024,6 +3024,7 @@ unlock:
+ 		if (status < 0)
+ 			break;
+ 	} while (count);
++done:
+ 	*ppos = pos;
+ 
+ 	if (cached_page)
+@@ -3045,6 +3046,18 @@ out:
+ fail_write:
+ 	status = -EFAULT;
+ 	goto unlock;
++
++sync_failure:
++	/*
++	 * If blocksize < pagesize, prepare_write() may have instantiated a
++	 * few blocks outside i_size.  Trim these off again.
++	 */
++	kunmap(page);
++	UnlockPage(page);
++	page_cache_release(page);
++	if (pos + bytes > inode->i_size)
++		vmtruncate(inode, inode->i_size);
++	goto done;
+ 
+ o_direct:
+ 	written = generic_file_direct_IO(WRITE, file, (char *) buf, count, pos);
 
-> I'll give it a
-> shot tonight and report back.
 
-... but really testing it doesn't hurt, so please proceed :-)
-
-What you can also try is making the kernel do those module requests
-without the rest of mozilla around it. Try running the following test
-program a few times while you are listening to music.
-
----------- snip ----------
-/*
- * Save as ipv6test.c and compile with "gcc -o ipv6test ipv6test.c". 
- * Run with "./ipv6test".
- */
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdio.h>
-
-int main(void)
-{
-        int s;
-
-        printf("Creating IPv6 socket...");
-        if ((s = socket(PF_INET6, SOCK_STREAM, 0)) != -1) {
-                printf(" succeeded.\n");
-                close(s);
-        }
-        else
-                printf("failed.\nsocket: %m\n");
-        return 0;
-}
----------- snip ----------
-
-If this doesn't cause skips, it seems very unlikely to me that your
-skips are related to request_module() or the functions called by it.
-
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+-

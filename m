@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261472AbTCJVRq>; Mon, 10 Mar 2003 16:17:46 -0500
+	id <S261481AbTCJVTD>; Mon, 10 Mar 2003 16:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261474AbTCJVRq>; Mon, 10 Mar 2003 16:17:46 -0500
-Received: from ns.suse.de ([213.95.15.193]:49423 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261472AbTCJVRp>;
-	Mon, 10 Mar 2003 16:17:45 -0500
-To: John Bradford <john@grabjohn.com>
-Cc: phillips@arcor.de (Daniel Phillips), ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, tytso@mit.edu, adilger@clusterfs.com,
-       chrisl@vmware.com, bzzz@tmi.comex.ru
-Subject: Re: [RFC] Improved inode number allocation for HTree
-X-Yow: Talking Pinhead Blues:
- Oh, I LOST my ``HELLO KITTY'' DOLL and I get BAD reception on
-  channel TWENTY-SIX!!
- Th'HOSTESS FACTORY is closin' down and I just heard ZASU PITTS
-  has been DEAD for YEARS..  (sniff)
- My PLATFORM SHOE collection was CHEWED up by th'dog, ALEXANDER
-  HAIG won't let me take a SHOWER 'til Easter.. (snurf)
- So I went to the kitchen, but WALNUT PANELING whup me
-  upside mah HAID!! (on no, no, no..  Heh, heh)
-From: Andreas Schwab <schwab@suse.de>
-Date: Mon, 10 Mar 2003 22:28:25 +0100
-In-Reply-To: <200303102104.h2AL43iZ000875@81-2-122-30.bradfords.org.uk> (John
- Bradford's message of "Mon, 10 Mar 2003 21:04:03 +0000 (GMT)")
-Message-ID: <jebs0iq5c6.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.3.50
-References: <200303102104.h2AL43iZ000875@81-2-122-30.bradfords.org.uk>
+	id <S261483AbTCJVTD>; Mon, 10 Mar 2003 16:19:03 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63362 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261481AbTCJVSt>; Mon, 10 Mar 2003 16:18:49 -0500
+Date: Mon, 10 Mar 2003 16:32:39 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Luben Tuikov <luben@splentec.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] coding style addendum
+In-Reply-To: <3E6CFC04.7000401@splentec.com>
+Message-ID: <Pine.LNX.3.95.1030310162308.14367A-100000@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> writes:
+On Mon, 10 Mar 2003, Luben Tuikov wrote:
 
-|> > Though the journal only becomes involved when blocks are modified,
-|> > unfortunately, because of atime updates, this includes all directory
-|> > operations.  We could suggest to users that they should disable
-|> > atime updating if they care about performance, but we ought to be
-|> > able to do better than that.
-|> 
-|> On a separate note, since atime updates are not usually very important
-|> anyway, why not have an option to cache atime updates for a long time,
-|> or until either a write occurs anyway.
+> Someone may find this helpful and descriptive of how kernel code
+> should be developed.
+[SNIPPED...]
 
-mount -o noatime
+> +      Make sure every module/subroutine hides something.
 
-Andreas.
+This is not correct. Well known example:
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+#include <math.h>
+
+double hypot(double x, double y) {
+    return sqrt((x * x) + (y * y));
+}
+
+This subroutine hides nothing. It receives input parameters
+and returns the result of its operations. Such a subroutine
+is properly implemented and should not be be forced to hide
+anything.
+
+The input parameters are copies, owned by the called function.
+They can be manipulated like local data and must not be required
+to be copied into "local data". The return value is also not
+locally stored and therefore not hidden. Your rule would require
+the replication of three floating-point variables NotGood(tm).
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

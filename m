@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266178AbUBCVLe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 16:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUBCVLe
+	id S265647AbUBCVYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 16:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUBCVYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 16:11:34 -0500
-Received: from [62.38.227.126] ([62.38.227.126]:45198 "EHLO pfn1.pefnos")
-	by vger.kernel.org with ESMTP id S266178AbUBCVLc (ORCPT
+	Tue, 3 Feb 2004 16:24:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47248 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265647AbUBCVYT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 16:11:32 -0500
-From: "P. Christeas" <p_christ@hol.gr>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Subject: Re: Q: large files in iso9660 ?
-Date: Tue, 3 Feb 2004 23:10:23 +0200
-User-Agent: KMail/1.6
-References: <200402020024.31785.p_christ@hol.gr> <20040203133551.GA11957@bitwizard.nl>
-In-Reply-To: <20040203133551.GA11957@bitwizard.nl>
-Cc: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 3 Feb 2004 16:24:19 -0500
+Date: Tue, 3 Feb 2004 13:18:15 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add syscalls.h
+Message-Id: <20040203131815.68030c0a.rddunlap@osdl.org>
+In-Reply-To: <20040203202916.GC31138@waste.org>
+References: <20040130163547.2285457b.rddunlap@osdl.org>
+	<20040201222254.39bc5b39.rddunlap@osdl.org>
+	<20040201224344.43d1c37d.akpm@osdl.org>
+	<20040203202916.GC31138@waste.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402032310.23609.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> The kernel (2.6 and 2.4) has the following code in isofs_read_inode():
->
->         /*
->          * The ISO-9660 filesystem only stores 32 bits for file size.
->          * mkisofs handles files up to 2GB-2 = 2147483646 = 0x7FFFFFFE
-> bytes * in size. This is according to the large file summit paper from
-> 1996. * WARNING: ISO-9660 filesystems > 1 GB and even > 2 GB are fully *   
->       legal. Do not prevent to use DVD's schilling@fokus.gmd.de */
->         if ((inode->i_size < 0 || inode->i_size > 0x7FFFFFFE) &&
->             sbi->s_cruft == 'n') {
->                 printk(KERN_WARNING "Warning: defective CD-ROM.  "
->                        "Enabling \"cruft\" mount option.\n");
->                 sbi->s_cruft = 'y';
->         }
->
-> IOW: your kernel should have warned you about the defective CDROM and
-> truncated filesizes to 16MB (which is what the "cruft" mount option
-> does).
->
->
-> Erik
+On Tue, 3 Feb 2004 14:29:16 -0600 Matt Mackall <mpm@selenic.com> wrote:
 
-Makes perfect sense.
-However, this *does* enforce the limit on DVD files. If I try to disable this 
-code and make inode sizes uint32, can there be any other negative 
-implication? Of course, I am still limited to 3GB..
+| On Sun, Feb 01, 2004 at 10:43:44PM -0800, Andrew Morton wrote:
+| > +extern asmlinkage long sys_unlink(const char __user *pathname);
+| > +extern asmlinkage long sys_chmod(const char __user *filename, mode_t mode);
+| > +extern asmlinkage long sys_fchmod(unsigned int fd, mode_t mode);
+| > 
+| > Maybe lose the `extern' too.  It's just a waste of space.  I normally put
+| > it in for consistency if the surrounding code is done that way, but for a
+| > new header file, why bother?
+| 
+| I'd really like to see the extern go, if only to discourage that
+| particular bit of cargo cult programming. There are actually people
+| who think it serves a purpose..
+
+They are already gone in the v2 version of the patch.
+
+--
+~Randy
+kernel-janitors project:  http://janitor.kernelnewbies.org/

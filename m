@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267347AbUGNKdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUGNKdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267347AbUGNKdR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 06:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267355AbUGNKdR
+	id S267357AbUGNKdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 06:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267358AbUGNKdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 06:33:17 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:56214 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S267347AbUGNKdO (ORCPT
+	Wed, 14 Jul 2004 06:33:44 -0400
+Received: from holomorphy.com ([207.189.100.168]:412 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267357AbUGNKdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 06:33:14 -0400
-Date: Wed, 14 Jul 2004 12:33:12 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Hermann Gottschalk <hg@ostc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange Network behaviour
-Message-ID: <20040714103311.GA5411@k3.hellgate.ch>
-Mail-Followup-To: Hermann Gottschalk <hg@ostc.de>,
+	Wed, 14 Jul 2004 06:33:42 -0400
+Date: Wed, 14 Jul 2004 03:33:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Lenar L?hmus <lenar@vision.ee>, linux-kernel@vger.kernel.org
+Subject: Re: preempt-timing-2.6.8-rc1
+Message-ID: <20040714103334.GO3411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Takashi Iwai <tiwai@suse.de>, Lenar L?hmus <lenar@vision.ee>,
 	linux-kernel@vger.kernel.org
-References: <20040702153028.GD15170@ostc.de> <20040704164654.GA18688@outpost.ds9a.nl> <20040714080036.GC11178@ostc.de> <20040714090208.GA2274@k3.hellgate.ch> <20040714102849.GD11727@ostc.de>
+References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <40F40080.8010801@vision.ee> <20040713221654.GJ21066@holomorphy.com> <40F4E7F9.3020603@vision.ee> <s5hekneanl4.wl@alsa2.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040714102849.GD11727@ostc.de>
-X-Operating-System: Linux 2.6.7-bk20 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <s5hekneanl4.wl@alsa2.suse.de>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jul 2004 12:28:49 +0200, Hermann Gottschalk wrote:
-> > If you set debug in via-rhine to 3, you'll get a more interesting
-> > log. Does booting with noacpi help at all?
-> 
-> I will try noapic.
+At Wed, 14 Jul 2004 10:59:53 +0300, Lenar L?hmus wrote:
+>> And this still seems to be very long and real:
+>> 50ms non-preemptible critical section violated 2 ms preempt threshold 
+>> starting at snd_pcm_action_lock_irq+0x1b/0x1d0 [snd_pcm] and ending at 
+>> snd_pcm_action_lock_irq+0x65/0x1d0 [snd_pcm]
+>> Trace has this:
+>> [<f9239b09>] snd_pcm_playback_ioctl1+0x49/0x2f0 [snd_pcm]
+>> So maybe this too is ioctl related (non-educated guess)?
 
-noapic != noacpi
-Both ACPI and APIC have been known to cause problems, though.
+On Wed, Jul 14, 2004 at 12:29:43PM +0200, Takashi Iwai wrote:
+> If it's SNDRV_PCM_IOCTL_PREPARE, I'm modifying the relevant code with
+> rwsem instead of rwlock.  But it's still in BKL of ioctl.  Do we need
+> to unlock internally?
 
-Roger
+Yes, otherwise it'll be non-preemptible.
+
+
+-- wli

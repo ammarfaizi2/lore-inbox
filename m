@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269748AbRHDB02>; Fri, 3 Aug 2001 21:26:28 -0400
+	id <S269751AbRHDB3i>; Fri, 3 Aug 2001 21:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269745AbRHDB0S>; Fri, 3 Aug 2001 21:26:18 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:64908 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S269747AbRHDB0G>; Fri, 3 Aug 2001 21:26:06 -0400
-Message-ID: <3B6B50C4.D9FBF398@kegel.com>
-Date: Fri, 03 Aug 2001 18:32:52 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S269750AbRHDB32>; Fri, 3 Aug 2001 21:29:28 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:21259 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269751AbRHDB3Q>;
+	Fri, 3 Aug 2001 21:29:16 -0400
+Date: Fri, 3 Aug 2001 22:29:07 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.33.0108031812120.23074-100000@touchme.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.33L.0108032144310.11893-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Christopher Smith <x@xman.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: Michael Elkins <me@toesinperil.com>, Zach Brown <zab@zabbo.net>
-Subject: sigopen() vs. /dev/sigtimedwait
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So I've been thinking about the sigopen() system call I proposed.
-(To recap: sigopen() would let you use read() instead of sigwaitinfo()
- to retrieve lots of realtime signals at one go, AND would
- protect your signal from being swiped by hostile code elsewhere
- in the application, a la Sun's JDK.)
+On Fri, 3 Aug 2001, Ben LaHaise wrote:
 
-Upon further consideration, maybe I should model it after
-/dev/epoll.  That would get rid of nagging questions like
-"but read() can't leave holes like sigtimedwait could",
-and would be even higher performance than read()
-(see graphs at http://www.xmailserver.org/linux-patches/nio-improve.html )
+> --- vm-2.4.7/drivers/block/ll_rw_blk.c.2	Fri Aug  3 19:06:46 2001
+> +++ vm-2.4.7/drivers/block/ll_rw_blk.c	Fri Aug  3 19:32:46 2001
+> @@ -1037,9 +1037,16 @@
+>  		 * water mark. instead start I/O on the queued stuff.
+>  		 */
+>  		if (atomic_read(&queued_sectors) >= high_queued_sectors) {
+> -			run_task_queue(&tq_disk);
+> -			wait_event(blk_buffers_wait,
+> -			 atomic_read(&queued_sectors) < low_queued_sectors);
 
-So I'm proposing the following user story:
+... OUCH ...
 
-  // open a fd linked to signal mysignum
-  int fd = open("/dev/sigtimedwait", O_RDWR);
-  int sigs[1]; sigs[0] = mysignum;
-  write(fd, sigs, sizeof(sigs[0]));
+> bah.  Doesn't fix it.  Still waiting indefinately in ll_rw_blk().
 
-  // memory map a result buffer
-  struct siginfo_t *map = mmap(NULL, mapsize, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+And it's obvious why.
 
-  for (;;) {
-      // grab recent siginfo_t's
-      struct devsiginfo dsi;
-      dsi.dsi_nsis = 1000;
-      dsi.dsi_sis = NULL;      // NULL means "use map instead of buffer"
-      dsi.dsi_timeout = 1;
-      int nsis = ioctl(fd, DS_SIGTIMEDWAIT, &dvp);   
+The code above, as well as your replacement, are have a
+VERY serious "fairness issue".
 
-      // use 'em.  Some might be completion notifications; some might be readiness notifications.
-      for (i=0; i<nsis; i++)
-          handle_siginfo(map+i);
-  }
+	task 1			task 2
 
-Sure, the interface is crap, but it's fast, and at least it doesn't
-add any syscalls (the sigopen() proposal required two new syscalls: sigopen()
-and timedread()).
+ queued_sectors > high
+   ==> waits for
+   queued_sectors < low
 
-Comments?
+                             write stuff, submits IO
+                             queued_sectors < high  (but > low)
+                             ....
+                             queued sectors still < high, > low
+                             happily submits more IO
+                             ...
+                             etc..
 
-BTW I'm halfway thru "Understanding the Linux Kernel" and it's
-a very good read (modulo some strange lingo, e.g. "cycle" for "loop"
-and "table" for "record" or "struct").
-So since I only halfway understand the linux kernel, the above proposal
-may be half baked.
-- Dan
+It is quite obvious that the second task can easily starve
+the first task as long as it keeps submitting IO at a rate
+where queued_sectors will stay above low_queued_sectors,
+but under high_queued sectors.
 
--- 
-"I have seen the future, and it licks itself clean." -- Bucky Katt
+There are two possible solutions to the starvation scenario:
+
+1) have one threshold
+2) if one task is sleeping, let ALL tasks sleep
+   until we reach the lower threshold
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265279AbTLaXK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 18:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbTLaXK7
+	id S265285AbTLaXQl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 18:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTLaXQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 18:10:59 -0500
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:10989 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S265279AbTLaXK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 18:10:58 -0500
-Subject: Re: udev and devfs - The final word
-From: Rob Love <rml@ximian.com>
-To: Tommi Virtanen <tv@tv.debian.net>
-Cc: Nathan Conrad <lk@bungled.net>, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-In-Reply-To: <3FF3436A.7050503@tv.debian.net>
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local>
-	 <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur>
-	 <20031231220107.GC11032@bungled.net> <1072909218.11003.24.camel@fur>
-	 <3FF3436A.7050503@tv.debian.net>
-Content-Type: text/plain
-Message-Id: <1072912256.11003.30.camel@fur>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Wed, 31 Dec 2003 18:10:56 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Dec 2003 18:16:41 -0500
+Received: from dp.samba.org ([66.70.73.150]:12981 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265285AbTLaXQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 18:16:39 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [PATCH 1/2] kthread_create 
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-reply-to: Your message of "Tue, 30 Dec 2003 21:56:05 -0800."
+             <Pine.LNX.4.44.0312302149350.1457-100000@bigblue.dev.mdolabs.com> 
+Date: Wed, 31 Dec 2003 17:27:44 +1100
+Message-Id: <20031231231637.912362C013@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-31 at 16:45, Tommi Virtanen wrote:
+In message <Pine.LNX.4.44.0312302149350.1457-100000@bigblue.dev.mdolabs.com> you write:
+> plus eventually a spinlock) of the task struct. But IMO the code would be 
+> cleaner, since you know who is the target of the message.
 
-> Let me try to rephrase Nathan's question more explicitly.
-> 
-> If user policy decides all naming, how does the kernel parse e.g. 
-> root=/dev/foo arguments? Or the swap partition to use for swsuspend?
+<shrug> The code's really not that complicated.
 
-Oh.  That has always been a hack, ala name_to_dev_t().
+> Also, what happens in the task woke up by a send does not reschedule 
+> before another CPU does another send? Wouldn't a message be lost?
 
-We will have to continue doing that hack so long as those users are in
-the kernel proper (and not early user-space, for example).
+There's a lock, so only one communication happens at a time, and all
+communication is request-response, so it's pretty straightforward.
 
-	Rob Love
+But an alternate implementation would be to have a "kthread" kernel
+thread, which would actually be parent to the kthread threads.  This
+means it can allocate and clean up, since it catches *all* thread
+deaths, including "exit()".
 
-
+What do you think?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

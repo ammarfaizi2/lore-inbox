@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317641AbSHOXEX>; Thu, 15 Aug 2002 19:04:23 -0400
+	id <S317661AbSHOXLl>; Thu, 15 Aug 2002 19:11:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSHOXEX>; Thu, 15 Aug 2002 19:04:23 -0400
-Received: from mons.uio.no ([129.240.130.14]:22698 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S317641AbSHOXEX>;
-	Thu, 15 Aug 2002 19:04:23 -0400
+	id <S317693AbSHOXLl>; Thu, 15 Aug 2002 19:11:41 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:31580 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S317661AbSHOXLl>; Thu, 15 Aug 2002 19:11:41 -0400
+Date: Fri, 16 Aug 2002 00:16:06 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Gilad Ben-Yossef <gilad@benyossef.com>
+cc: Marcelo <marcelo@conectiva.com.br>,
+       The Usual Suspects <linux-kernel@vger.kernel.org>,
+       Patch Trivia <trivial@rustcorp.com.au>
+Subject: Re: [PATCH] Add PAGE_CACHE_PAGES
+In-Reply-To: <1029443580.2508.18.camel@gby.benyossef.com>
+Message-ID: <Pine.LNX.4.44.0208152359360.1161-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15708.13368.625078.207115@charged.uio.no>
-Date: Fri, 16 Aug 2002 01:07:36 +0200
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dax Kelson <dax@gurulabs.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Kendrick M. Smith" <kmsmith@umich.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>,
-       <beepy@netapp.com>
-Subject: Re: Will NFSv4 be accepted?
-In-Reply-To: <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com>
-	<Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+On 15 Aug 2002, Gilad Ben-Yossef wrote:
+> 
+> Thus spake mm/shmem.c:
+> 
+>   idx = (address - vma->vm_start) >> PAGE_CACHE_SHIFT;
+>   idx += vma->vm_pgoff;
+> 
+> But include/linux/mm.h says:
+> 
+> unsigned long vm_pgoff;         /* Offset (within vm_file) in PAGE_SIZE
+>                                    units, *not* PAGE_CACHE_SIZE */
 
-     > I personally doubt that NFS would be the thing driving
-     > this. Judging by past performance, NFS security issues don't
-     > seem to bother people. I'd personally assume that the thing
-     > that would be important enough to people for vendors to add it
-     > is VPN or encrypted (local) disks.
+Good observation, but it's certainly not something for Marcelo to worry
+about for 2.4.  This is only one of many confusions which would need to
+be fixed to get PAGE_CACHE_SIZE > PAGE_SIZE working.  mm/shmem.c
+is probably especially confused (since it's backing a PAGE_CACHE_SIZE-
+orientated filesystem with PAGE_SIZE-orientated swap), but much else too.
 
-As I said: one of the main motivations for NFSv4 is WAN support, and
-in those environments, strong authentication is a must.
+I think it was a mistake to introduce the PAGE_CACHE_SIZE definition
+before it could be allowed to diverge from PAGE_SIZE: I find it very
+hard to work out the right way to go, and would prefer it to vanish. 
+But Ben LaHaise did succeed in getting a PAGE_CACHE_SIZE > PAGE_SIZE
+patch working on 2.4.6 (no patch to mm/shmem.c, but it was a little
+different then anyway, right or wrong I don't know).
 
-That said, the plan is to also prepare a 'null' authentication scheme
-for RPCSEC_GSS (basically using RPCSEC_GSS as a wrapper for AUTH_UNIX)
-so that the strong auth can be provided as a simple plugin in case its
-inclusion in the kernel would not be acceptable.
+Hugh
 
-Cheers,
-  Trond

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317011AbSFAMjK>; Sat, 1 Jun 2002 08:39:10 -0400
+	id <S317012AbSFAMxc>; Sat, 1 Jun 2002 08:53:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317012AbSFAMjJ>; Sat, 1 Jun 2002 08:39:09 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:60808 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S317011AbSFAMjI> convert rfc822-to-8bit;
-	Sat, 1 Jun 2002 08:39:08 -0400
-Message-Id: <200206011238.g51CcsZ15378@mail.pronto.tv>
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: Pronto TV AS
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Subject: Re: [BUG] in sendfile() under high load
-Date: Sat, 1 Jun 2002 14:38:54 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206010856290.13503-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S317013AbSFAMxb>; Sat, 1 Jun 2002 08:53:31 -0400
+Received: from mta11n.bluewin.ch ([195.186.1.211]:11609 "EHLO
+	mta11n.bluewin.ch") by vger.kernel.org with ESMTP
+	id <S317012AbSFAMxb>; Sat, 1 Jun 2002 08:53:31 -0400
+Date: Sat, 1 Jun 2002 14:52:39 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Urban Widmark <urban@teststation.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix VIA Rhine time outs (some)
+Message-ID: <20020601125238.GA7055@k3.hellgate.ch>
+In-Reply-To: <20020601105745.GA2726@k3.hellgate.ch> <Pine.LNX.4.44.0206011335300.15719-100000@cola.enlightnet.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.8-ac9 on i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since you're doing that testing anyway, do you have profiling enabled? It
-> might give you a few pointers.
+On Sat, 01 Jun 2002 13:55:42 +0200, Urban Widmark wrote:
+> You shouldn't use virt_to_bus().
 
-I have profiling enabled, but can't find any clues of what's using all the 
-system time
+Drats. Of course you're right. Ivan G. told me that, too. Can we agree that
+this is a experimental patch (that's why I didn't cc Jeff) and that we
+don't care? ;-) For my development version I broke out the whole restart
+stuff into a separate inline function which comes with plenty of space to
+hide away pointer arithmetics, and that's where I'm basically doing what
+you suggest.  Currently I am just trying to a) find out how effective the
+smallest fix I could possibly come up with is, and b) save time since I'm
+kinda busy right now. Feel free to rewrite the patch to make DMA-mapping.txt
+happy, though <g>.
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Roger

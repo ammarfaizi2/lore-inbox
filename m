@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277246AbRJQViT>; Wed, 17 Oct 2001 17:38:19 -0400
+	id <S277255AbRJQVpa>; Wed, 17 Oct 2001 17:45:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277252AbRJQViM>; Wed, 17 Oct 2001 17:38:12 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:43757 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S277246AbRJQVh7>; Wed, 17 Oct 2001 17:37:59 -0400
-Date: Wed, 17 Oct 2001 23:38:11 +0200 (CEST)
-From: bartscgr@t-online.de (Guenter Bartsch)
-X-X-Sender: <guenter@goofy.disney.gb>
-Reply-To: <bartscgr@studbox.uni-stuttgart.de>
-To: <linux-kernel@vger.kernel.org>
-cc: xine-dev <xine-devel@lists.sourceforge.net>
-Subject: Re: xine pauses with recent (not -ac) kernels
-Message-ID: <Pine.LNX.4.33.0110172335160.3116-100000@goofy.disney.gb>
+	id <S277256AbRJQVpU>; Wed, 17 Oct 2001 17:45:20 -0400
+Received: from [200.250.64.5] ([200.250.64.5]:7339 "EHLO nat.brsat.com.br")
+	by vger.kernel.org with ESMTP id <S277255AbRJQVpI>;
+	Wed, 17 Oct 2001 17:45:08 -0400
+Message-ID: <3BCE0ACE.9000006@brsat.com.br>
+Date: Wed, 17 Oct 2001 19:48:46 -0300
+From: Roberto Orenstein <roberto@brsat.com.br>
+Reply-To: roberto@brsat.com.br
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.12-ac3 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: pt-br, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: alan@lxorguk.ukuu.org.uk
+Subject: Re: new Rik` patch kicks ass
+In-Reply-To: <200110172139.f9HLdVt01368@vegae.deep.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Samium Gromoff wrote:
 
-after some experimentation it seems clear to me that the problem is (at
-least not fully) raw-device related. Some plugins authenticate and unlock
-the drive each time they're opened and some of the ioctl's used for that
-seem to hang for a long time :-(
+>       hello folks, i`m here to report significant success in VM area
+>    achieved by latest Rik van Riel` patch vs 2.4.12-ac3.
+>     The system resposiveness on 24M ram in X improved quite considerable, 
+>    even though i started an additional xmms over gimp with opened image +
+>    opera + some xterms. This leaves me with 37MB swap and system no more
+>    goes mad when i point`n`click random windows...
+> 
+>     Btw xmms havent clicked...
+> 
+>    Overall: quite great job!
 
-...ist there any hope that this is going to be fixed soon?
+Just to complement with another success case :)
+The patch improved my system response with high load pretty much.
+Now i'm even able to stress the system with quintela's memtest suite and 
+keep using the machine, wich was nearly impossible without the patch
 
-please cc any reply if you're reading this on the kernel mailing list as
-I'm not subscribed to that list.
+Good work
 
-Cheers,
+Roberto
 
-   Guenter
+ 
 
---
-time is a funny concept
 

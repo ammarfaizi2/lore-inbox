@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTGAQ6I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 12:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTGAQ6I
+	id S262874AbTGAQ6o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 12:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTGAQ6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 12:58:08 -0400
-Received: from adsl-66-120-156-55.dsl.lsan03.pacbell.net ([66.120.156.55]:64765
-	"EHLO river.fishnet") by vger.kernel.org with ESMTP id S262861AbTGAQ6B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 12:58:01 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       kuznet@ms2.inr.ac.ru, jmorris@redhat.com
-Subject: Re: negative tcp_tw_count and other TIME_WAIT weirdness?
-References: <200307010025.h610PGmX007656@river.fishnet>
-	<20030701.012107.42800729.davem@redhat.com>
-From: John Salmon <jsalmon@thesalmons.org>
-Date: Tue, 01 Jul 2003 10:12:18 -0700
-In-Reply-To: <20030701.012107.42800729.davem@redhat.com> (David S. Miller's
- message of "Tue, 01 Jul 2003 01:21:07 -0700 (PDT)")
-Message-ID: <m3brwedvd9.fsf@river.fishnet>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 1 Jul 2003 12:58:44 -0400
+Received: from moraine.clusterfs.com ([216.138.243.178]:33160 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S262874AbTGAQ6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 12:58:38 -0400
+Date: Tue, 1 Jul 2003 11:12:45 -0600
+From: "Peter J. Braam" <braam@clusterfs.com>
+To: chyang@clusterfs.com
+Cc: Miles T Lane <miles_lane@yahoo.com>, linux-kernel@vger.kernel.org,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, Ben Pfaff <pfaffben@debian.org>
+Subject: Re: 2.5.73-bk5 -- intermezzo.ko needs unknown symbol set_fs_root, vga16fb.ko needs unknown symbol screen_info
+Message-ID: <20030701171245.GZ9463@peter.cfs>
+References: <20030628014710.32726.qmail@web40602.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030628014710.32726.qmail@web40602.mail.yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chen, 
 
-Thanks for the tip.  I'll try the patch.
+This requires a small patch to the kernel/ksyms.c file and possibly a
+prototyp in fs.h. 
 
-Another question - is there any chance that this bug could be
-responsible for a slowdown in network processing.  Some of my machines
-get themselves into a state in which their ability to serve
-network traffic (they're running squid) is significantly reduced -
-perhaps by a factor of two.  I wish I had more specific data, but at
-this point it's a mystery.  What I'm really wondering is whether
-there's any chance at all that this kernel bug could be behind my
-performance problem, or should I look elsewhere.
+Can you fix it and send to Linus.
 
-TIA,
-John Salmon
+- Peter -
 
-
->>>>> "David" == David S Miller <davem@redhat.com> writes:
-
-David>    From: John Salmon <jsalmon@thesalmons.org>
-David>    Date: Mon, 30 Jun 2003 17:25:16 -0700
-
-David>    I have several fairly busy servers reporting a negative value
-David>    for tcp_tw_count.
-
-David>  I have a sneaking suspicion that this patch (already in 2.4.22-preX)
-David>  will fix your problem.
-
-David> # This is a BitKeeper generated patch for the following project:
-David> # Project Name: Linux kernel tree
-David> # This patch format is intended for GNU patch command version 2.5 or higher.
-David> # This patch includes the following deltas:
-David> #	           ChangeSet	1.930.114.22 -> 1.930.114.23
-David> #	net/ipv4/tcp_minisocks.c	1.13    -> 1.14   
-David> #
-David> # The following is the BitKeeper ChangeSet Log
-David> # --------------------------------------------
-David> # 03/05/07	olof@austin.ibm.com	1.930.114.23
-David> # [TCP]: tcp_twkill leaves death row list in inconsistent state over tcp_timewait_kill.
-David> # --------------------------------------------
-David> #
-David> diff -Nru a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-David> --- a/net/ipv4/tcp_minisocks.c	Tue Jul  1 01:25:26 2003
-David> +++ b/net/ipv4/tcp_minisocks.c	Tue Jul  1 01:25:26 2003
-David> @@ -447,6 +447,8 @@
- 
-David>  	while((tw = tcp_tw_death_row[tcp_tw_death_row_slot]) != NULL) {
-David>  		tcp_tw_death_row[tcp_tw_death_row_slot] = tw->next_death;
-David> +		if (tw->next_death)
-David> +			tw->next_death->pprev_death = tw->pprev_death;
-tw-> pprev_death = NULL;
-David>  		spin_unlock(&tw_death_lock);
- 
-
+On Fri, Jun 27, 2003 at 06:47:10PM -0700, Miles T Lane wrote:
+> if [ -r System.map ]; then /sbin/depmod -ae -F
+> System.map  2.5.73-bk5; fi
+> WARNING:
+> /lib/modules/2.5.73-bk5/kernel/fs/intermezzo/intermezzo.ko
+> needs unknown symbol set_fs_root
+> WARNING:
+> /lib/modules/2.5.73-bk5/kernel/fs/intermezzo/intermezzo.ko
+> needs unknown symbol set_fs_pwd
+> WARNING:
+> /lib/modules/2.5.73-bk5/kernel/drivers/video/vga16fb.ko
+> needs unknown symbol screen_info
+> 
+> 
+> __________________________________
+> Do you Yahoo!?
+> SBC Yahoo! DSL - Now only $29.95 per month!
+> http://sbc.yahoo.com
+- Peter -

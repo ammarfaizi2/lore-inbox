@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279623AbRJ2X3k>; Mon, 29 Oct 2001 18:29:40 -0500
+	id <S279617AbRJ2X3k>; Mon, 29 Oct 2001 18:29:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279616AbRJ2X3f>; Mon, 29 Oct 2001 18:29:35 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:18459 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S279617AbRJ2X3N>; Mon, 29 Oct 2001 18:29:13 -0500
-Date: Mon, 29 Oct 2001 18:29:49 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: please revert bogus patch to vmscan.c
-Message-ID: <20011029182949.H25434@redhat.com>
-In-Reply-To: <20011029.151422.102554141.davem@redhat.com> <Pine.LNX.4.33.0110291520260.16656-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0110291520260.16656-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 29, 2001 at 03:22:28PM -0800
+	id <S279623AbRJ2X3c>; Mon, 29 Oct 2001 18:29:32 -0500
+Received: from ix.esoft.com ([199.45.143.3]:44293 "EHLO esoft.com")
+	by vger.kernel.org with ESMTP id <S279616AbRJ2X2h>;
+	Mon, 29 Oct 2001 18:28:37 -0500
+Message-ID: <3BDDE642.8000901@acm.org>
+Date: Mon, 29 Oct 2001 16:29:06 -0700
+From: Jonathan Briggs <zlynx@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty suprise with uptime
+In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu> <3BDDBE89.397E42C0@lexus.com> <20011029124753.F21285@one-eyed-alien.net> <4.3.2.7.2.20011029172525.00bb2270@mail.osagesoftware.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 29, 2001 at 03:22:28PM -0800, Linus Torvalds wrote:
-> Does it make the accessed bit less reliable? Sure it does. But basically,
-> either the page is accessed SO much that it stays in the TLB all the time
-> (which is basically not really possible if you page heavily, I suspect),
-> or it will age out of the TLB on its own at which point we get the
-> accessed bit back.
+A 32 bit uptime patch should also include a new kernel parameter that 
+could be passed from LILO: uptime.  Then you could test the uptime patch 
+by passing uptime=4294967295
 
-Think of CPUs with tagged tlbs and lots of entries.  Or even a system that 
-only runs 1 threaded app.  Easily triggerable.  If people want to optimise 
-it, great.  But go for correctness first, please...
+Or make /proc/uptime writable.
 
-		-ben
+David Relson wrote:
+
+> Let's assume you have the counter changed to 32 bits - RIGHT NOW 
+> (tm).  Build a kernel, install it, reboot.  It'll be over a year 
+> (approx Jan 2003) before the change will be noticeable...
+>
+> Methinks that's a long time to wait for a result :-)
+>
+> David
+>
+
+

@@ -1,35 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292656AbSBQA6C>; Sat, 16 Feb 2002 19:58:02 -0500
+	id <S293501AbSBRBz0>; Sun, 17 Feb 2002 20:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292657AbSBQA5w>; Sat, 16 Feb 2002 19:57:52 -0500
-Received: from pD9E6B262.dip.t-dialin.net ([217.230.178.98]:20099 "EHLO
-	fefe.de") by vger.kernel.org with ESMTP id <S292656AbSBQA5f>;
-	Sat, 16 Feb 2002 19:57:35 -0500
-Date: Sun, 17 Feb 2002 01:57:27 +0100
-From: Felix von Leitner <usenet-20020216@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible breakthrough in the CML2 logjam?
-Message-ID: <20020217005727.GF9701@fefe.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1013810923.807.1055.camel@phantasy> <20020215232832.N27880@suse.de> <3C6DE87C.FA96D1D6@mandrakesoft.com> <20020216095202.M23546@thyrsus.com> <3C6E7C75.A6659D72@mandrakesoft.com> <20020216105219.A31001@thyrsus.com> <3C6E8A15.D5C209B1@mandrakesoft.com> <20020216115739.B32311@thyrsus.com> <3C6E9717.86D66D54@mandrakesoft.com> <20020216123252.B1582@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020216123252.B1582@thyrsus.com>
-User-Agent: Mutt/1.3.25i
+	id <S293502AbSBRBzR>; Sun, 17 Feb 2002 20:55:17 -0500
+Received: from dsl-213-023-043-245.arcor-ip.net ([213.23.43.245]:16520 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S293501AbSBRBzN>;
+	Sun, 17 Feb 2002 20:55:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [TEST] page tables filling non-highmem
+Date: Mon, 18 Feb 2002 02:59:26 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+        rsf@us.ibm.com
+In-Reply-To: <20020215045106.GB26322@holomorphy.com> <E16beDZ-0002jy-00@starship.berlin> <20020218023800.A23743@athlon.random>
+In-Reply-To: <20020218023800.A23743@athlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16cd5S-0000Ij-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Eric S. Raymond (esr@thyrsus.com):
-> Jeff, I'm not asking "other people".  I'm asking *you*.  
+On February 18, 2002 02:38 am, Andrea Arcangeli wrote:
+> On Fri, Feb 15, 2002 at 09:59:45AM +0100, Daniel Phillips wrote:
+> > On February 15, 2002 05:51 am, William Lee Irwin III wrote:
+> > > The following testcase brought down 2.4.17 mainline on an
+> > > 8-way P-III 700MHz machine with 12GB of RAM. The last thing
+> > > logged from it was a LowFree of 2MB with 9GB of highmem free
+> > > after something like 6-8 hours of pounding away, at which
+> > > time the machine stopped responding (IIRC it was given ~12
+> > > hours to echo another character).
+> > > 
+> > > This testcase is a blatant attempt to fill the direct-mapped
+> > > portion of the kernel virtual address space with process pagetables.
+> > > It was suspected such a thing was happening in another failure scenario
+> > > which is what motivated me to devise this testcase. I believe a fix
+> > > already exists (i.e. aa's ptes in highmem stuff) though I've not yet
+> > > verified its correct operation here.
+> > 
+> > As you described it to me on irc, this demonstration turns up a
+> > considerably worse problem than just having insufficient space for
+> > page tables - the system locks up hard instead of doing anything
+> > reasonable on page table-related oom.  It's wrong that the system
+> > should behave this way, it is after all, just an oom.
+> > 
+> > Now that basic stability issues seem to be under control, perhaps
+> > it's time to give the oom problem the attention it deserves?
+> 
+> My tree doesn't lock up hard even without pte-highmem applied.  The task
+> gets killed.
 
-> You're one of the people Linus says he trusts.
+Well, the obvious question is: Why Isn't It In Mainline???
 
-Eric, why don't you try to make a system that is not openly disgusting
-and revolting?  The kernel affects everyone.  Bribing congress is a
-tactic worthy of Microsoft, not of you.  Please concentrate on making
-good software and not on fast talking to Jeff until he takes a
-sabbatical to get some rest at all.
+> backout pte-highmem, try the same testcase again on my tree
+> and you'll see. The oom handling in mainline is deadlock prone, I always
+> known this and that's why I always rejected it. Nobody but me
+> acklowledged this problem
 
-The more of your mails about CML I see, the more I am disgusted with it.
+Lots of people acknowleged it, it seems just one guy fixed it.
+
+> and I spent quite an amount of time convincing
+> mainline maintainers about those deadlock flaws of the mainline approch
+> but I failed so I giveup waiting for a report like this, just like with
+> all the other stuff that is now in my vm patch, 90% of it I tried to
+> push it separately into mainline before having to accumulate it.
+
+What I'd suggest is, just post a list of each item outstanding item that
+haven't been pushed to mainline, and an explanation of which problem it
+fixes.
+
+Incorrect oom accounting has been a bleeding wound for well over a year,
+and if you've got a fix that's provably correct...
+
+Marcelo??  Is this just a stupid communication problem?
+
+-- 
+Daniel

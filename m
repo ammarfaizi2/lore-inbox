@@ -1,73 +1,172 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275862AbRJBIf4>; Tue, 2 Oct 2001 04:35:56 -0400
+	id <S275856AbRJBIc0>; Tue, 2 Oct 2001 04:32:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275963AbRJBIfq>; Tue, 2 Oct 2001 04:35:46 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:45539 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S275862AbRJBIfi>;
-	Tue, 2 Oct 2001 04:35:38 -0400
-From: "LA Walsh" <law@sgi.com>
-To: "Matti Aarnio" <matti.aarnio@zmailer.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: 'dd' local works, but not over net, help as to why?
-Date: Tue, 2 Oct 2001 01:35:28 -0700
-Message-ID: <NDBBJDKDKDGCIJFBPLFHAEKACGAA.law@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20011002112005.K1144@mea-ext.zmailer.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+	id <S275862AbRJBIcR>; Tue, 2 Oct 2001 04:32:17 -0400
+Received: from balabit.bakats.tvnet.hu ([195.38.106.66]:4882 "EHLO
+	kuka.balabit") by vger.kernel.org with ESMTP id <S275856AbRJBIcC>;
+	Tue, 2 Oct 2001 04:32:02 -0400
+Date: Tue, 2 Oct 2001 10:31:12 +0200
+From: Balazs Scheidler <bazsi@balabit.hu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reproducible bug in 2.2.19 & 2.4.x
+Message-ID: <20011002103112.A13638@balabit.hu>
+In-Reply-To: <20010928130138.A19532@balabit.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010928130138.A19532@balabit.hu>; from bazsi@balabit.hu on Fri, Sep 28, 2001 at 01:01:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Matti Aarnio
-> Sent: Tuesday, October 02, 2001 1:20 AM
-> To: LA Walsh
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 'dd' local works, but not over net, help as to why?
->
->
-> On Tue, Oct 02, 2001 at 12:52:48AM -0700, LA Walsh wrote:
-> > I'm sure there's an obvious answer to this, but it is eluding me.
->     Probably...
->
-> > If I am on my local laptop, I can 'dd' an 8G partition to a
-> > removable HD of the same or slightly larger size (slightly large
-> > because of geometry differences).
-> >
-> > If I am on my desktop, "I can 'dd' the same size partition to
-> > a slightly larger one -- again, no problem.
-> >
-> > But if I use:
-> >
-> > dd if=/dev/hda2 bs=1M|rsh other-system of=/dev/sda2 bs=1M, I
-> > get failures of running out of room on target.  I've tried
-> > a variety of block size ranging from 1K->64G, but no luck.
->
->    You are missing one 'dd' from the other system side, but
->    are you also sure that the remote system can support large
->    files, and that the dd in there does support large files ?
----
-	Missing 'dd' typo.  It's on the other system I tried copying the 8G
-to a slightly large 9G partition -- that worked.  On the source system
-I can copy 8G to another 8G partition.  Just running them over rsh seems to
-be a problem.  Same version of 'dd' on each side (SuSE 7.2).
+On Fri, Sep 28, 2001 at 01:01:38PM +0200, Balazs Scheidler wrote:
+> I added a backtrace function to my test program to show where it
+> aborts, and here's the result:
+> 
+> Signal (11) received, stackdump follows; eax='ffffffe0', ebx='0000000c', ecx='be5ff96c', edx='00000400', eip='00000001'
+> retaddr=0x1, ebp=0xbe5ff944
+> retaddr=0x804892a, ebp=0xbe5ffd74
+> retaddr=0x4001bc9f, ebp=0xbe5ffe34
+> 
+> The program _always_ aborted at eip=0x1.
+> 
+> the program didn't abort if I removed the syslog() function call from the
+> thread.
 
-	Maybe I can fool ftp with symlinks tomorrow into doing the copy and see
-if that works.  Just for fun I tried 'cat' as well -- same error -- out of
-space on target.
+I received an idea, suggesting that syslog() is not reentrant and this
+causes problems.
 
-It transfers a lot of data -- right around 2G the first time I tried it, so
-it looked awfully suspicious.
+I added mutexes around my syslog call and the problem still occurs, although
+slower.
 
-Linda
+I'm trying to remove syslog() and add some sigaction calls instead (which I
+think is the culprit) I attach my modified stressthreads.c
 
+-- 
+Bazsi
+PGP info: KeyID 9AF8D0A9 Fingerprint CD27 CFB0 802C 0944 9CFD 804E C82C 8EB1
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="stressthreads.c"
+
+#include <pthread.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <signal.h>
+#include <syslog.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+#define BACKTRACE 0
+
+
+#if BACKTRACE
+void inline 
+z_dump_backtrace(unsigned long eip, unsigned long first_ebp)
+{
+  /* NOTE: this is i386 specific */
+  unsigned long *ebp;
+  
+  fprintf(stderr, "retaddr=0x%lx, ebp=0x%lx\n", eip, first_ebp);
+  
+  ebp = (unsigned long *) first_ebp;
+  while (ebp > (unsigned long *) &ebp && *ebp) 
+    {
+      fprintf(stderr, "retaddr=0x%lx, ebp=0x%lx\n", *(ebp+1), *ebp);
+      ebp = (unsigned long *) *ebp;
+    }
+}
+
+void
+z_fatal_signal_handler(int signo)
+{
+  struct sigcontext *p = (struct sigcontext *) (((char *) &p) + 16);
+
+  fprintf(stderr, "Signal (%d) received, stackdump follows; eax='%08lx', ebx='%08lx', ecx='%08lx', edx='%08lx', eip='%08lx'\n",
+        signo, p->eax, p->ebx, p->ecx, p->edx, p->eip);
+  z_dump_backtrace(p->eip, p->ebp);
+  exit(1);
+}
+#endif
+
+pthread_mutex_t syslog_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void *thread_func(void *arg)
+{
+  int fd = *(int *) arg;
+  int i;
+  char buf[1024];
+
+  pthread_mutex_lock(&syslog_mutex);
+  syslog(LOG_DEBUG, "thread started...%p\n", pthread_self());
+  pthread_mutex_unlock(&syslog_mutex);
+  memset(buf, 'a', sizeof(buf));
+  for (i = 0; i < 1024; i++)
+    {
+      write(fd, buf, sizeof(buf));
+    }
+  close(fd);
+  //syslog(LOG_DEBUG, "thread stopped...%p\n", pthread_self());
+  free(arg);
+  return NULL;
+}
+
+int main()
+{
+  int fd;
+  struct sockaddr_in sin;
+  int tmp = 1;
+  
+#if BACKTRACE
+  signal(SIGSEGV, z_fatal_signal_handler);
+#endif
+  signal(SIGPIPE, SIG_IGN);
+  
+  fd = socket(AF_INET, SOCK_STREAM, 0);
+  
+  sin.sin_family = AF_INET;
+  sin.sin_port = htons(10000);
+  sin.sin_addr.s_addr = INADDR_ANY;
+  
+  setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &tmp, sizeof(tmp));
+  
+  if (bind(fd, (struct sockaddr *) &sin, sizeof(sin)) < 0)
+    {
+      perror("bind");
+      return 0;
+    }
+  
+  listen(fd, 255);
+  
+  while (1)
+    {
+      int newfd;
+      int tmplen;
+      pthread_t t;
+      
+      tmplen = sizeof(sin);
+      newfd = accept(fd, (struct sockaddr *) &sin, &tmplen);
+      if (newfd == -1)
+        {
+          perror("accept");
+        }
+      else
+        {
+          int *state = (int *) malloc(sizeof(int));
+          
+          *state = newfd;
+          pthread_create(&t, NULL, thread_func, state);
+        }
+    }
+}
+
+--Q68bSM7Ycu6FN28Q--

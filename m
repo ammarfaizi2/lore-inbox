@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264943AbSKERFd>; Tue, 5 Nov 2002 12:05:33 -0500
+	id <S265146AbSKESIL>; Tue, 5 Nov 2002 13:08:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264945AbSKERFc>; Tue, 5 Nov 2002 12:05:32 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62728 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264943AbSKERFI>; Tue, 5 Nov 2002 12:05:08 -0500
-Date: Tue, 5 Nov 2002 12:09:17 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: yodaiken@fsmlabs.com
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-In-Reply-To: <20021103072657.C30041@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.3.96.1021105115830.17410D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265150AbSKESIL>; Tue, 5 Nov 2002 13:08:11 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:38811 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265146AbSKESIJ>;
+	Tue, 5 Nov 2002 13:08:09 -0500
+Date: Tue, 5 Nov 2002 19:14:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 vi .config ; make oldconfig not working
+Message-ID: <20021105181431.GB3515@suse.de>
+References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> <20021105171409.GA1137@suse.de> <1036517201.5601.0.camel@localhost.localdomain> <20021105172617.GC1830@suse.de> <1036520436.4791.114.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036520436.4791.114.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Nov 2002 yodaiken@fsmlabs.com wrote:
-
-> On Sun, Nov 03, 2002 at 08:48:30AM -0500, Bill Davidsen wrote:
-> > Quite clearly SCO, Sun, and IBM have been doing this for years without
-> > offering dozens of options. I don't need it to sing and dance, I just need
-> > a way to put the dump where I can find it. I'm not going to put another
-> > box in at the end of a serial or parallel port, I don't have NVram, I do
-> > have lopts of disk, and so does almost everyone else. I have remote
-> > systems in wiring closets all over the country (all four time zones). They
-> > are at the end of open net connections, unreliable and untrusted. I don't
-> > want to bet that I have a working VPN, or that I can safely send all that
-> > data without it being read by someone other than me.
+On Tue, Nov 05 2002, Alan Cox wrote:
+> On Tue, 2002-11-05 at 17:26, Jens Axboe wrote:
+> > You're wrong, it's always worked. I've never used anything but that.
 > > 
-> > The AIX support has a group just to beat on dumps customers send. What
-> > more evidence is needed that people can and do use the capability.
+> > > # CONFIG_NFSD_V4 is not set
+> > 
+> > Come on, you really expect me to type the whole damn thing? That's
+> > silly.
+> 
+> So write a sed script to turn n into "is not set" or submit a change to
+> cover it. Its luck =n ever did what you expected though.
 
-> You paid someone for this for AIX. So the solution is obvious for Linux.
+5 years of luck isn't bad, I ought to start gambling.
 
-No, it's included in AIX, SCO and Solaris. And analysis is included in
-support contracts. With all the stuff added to Linux to keep up with both
-M$ and commercial UNIX, I can't imagine why anyone would be against this.
-At least anyone who wanted Linux to compete in the commercial server
-market.
+I'll write the script, just a damn shame that this feature is gone now.
+.config editing is less powerful now.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Jens Axboe
 

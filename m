@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVBUBwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVBUCET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVBUBwt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 20:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVBUBws
+	id S261411AbVBUCET (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 21:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVBUCET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 20:52:48 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54223 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261380AbVBUBw3 (ORCPT
+	Sun, 20 Feb 2005 21:04:19 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:61644 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261411AbVBUCEO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 20:52:29 -0500
-Date: Sun, 20 Feb 2005 17:50:19 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: ak@suse.de, raybry@sgi.com, ak@muc.de, raybry@austin.rr.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
- II
-Message-Id: <20050220175019.0e588466.pj@sgi.com>
-In-Reply-To: <20050220223510.GB14486@wotan.suse.de>
-References: <20050215121404.GB25815@muc.de>
-	<421241A2.8040407@sgi.com>
-	<20050215214831.GC7345@wotan.suse.de>
-	<4212C1A9.1050903@sgi.com>
-	<20050217235437.GA31591@wotan.suse.de>
-	<4215A992.80400@sgi.com>
-	<20050218130232.GB13953@wotan.suse.de>
-	<42168FF0.30700@sgi.com>
-	<20050220214922.GA14486@wotan.suse.de>
-	<20050220143023.3d64252b.pj@sgi.com>
-	<20050220223510.GB14486@wotan.suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Feb 2005 21:04:14 -0500
+Date: Mon, 21 Feb 2005 01:59:00 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Michal Januszewski <spock@gentoo.org>
+cc: Pavel Machek <pavel@suse.cz>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bootsplash for 2.6.11-rc4
+In-Reply-To: <20050220132600.GA19700@spock.one.pl>
+Message-ID: <Pine.LNX.4.61.0502210152240.6600@student.dei.uc.pt>
+References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl>
+ <20050219230326.GB13135@kroah.com> <20050219232519.GC1372@elf.ucw.cz>
+ <20050220132600.GA19700@spock.one.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCT-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Give the shared libraries and any other files a suitable policy
-> (by mapping them and applying mbind) 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ah - I think you've said this before, and I'm being a bit retarded.
+On Sun, 20 Feb 2005, Michal Januszewski wrote:
 
-You're saying that one could horse around with the physical placement of
-existing files mapped into another tasks space by mapping them into ones
-own space and using mbind, (once mbind is hooked up to page migration,
-to quote one of your earlier posts ;).  Ok.
+> On Sun, Feb 20, 2005 at 12:25:19AM +0100, Pavel Machek wrote:
+>
+>> How many distros do use some variant of bootsplash? SuSE does, from
+>> above url I guess gentoo does, too... Does RedHat do something
+>> similar? [Or do they just set log-level to very high giving them clean
+>> look?] What about Debian?
+>
+> As far as I know: SuSE uses bootsplash, Gentoo and PLD use fbsplash,
+> RedHat uses rhgb (100% userspace solution, based on xvesa, doesn't
+> provide graphical backgrounds on vt's - for that a kernel patch like
+> bootsplash or fbsplash is necessary). I don't know about Debian - they
+> probably have some (possibly unofficial) support for both bootsplash
+> and fbsplash.
 
-How well does this work with a mapped file if the pages of that file
-have been placed (allocated on nodes) using some intricate first-touch
-pattern that is only encoded in some inscrutable initialization code of
-the application, and that is heavily fragmented, with few contiguous
-pages on the same node?
+Indeed, there is bootsplash and fbsplash for Debian, but only unofficial
+packages.
 
-It seems to me that you can't migrate such regions efficiently using the
-above explicit mbind'ing -- it could require a vma per page in the
-limit.  And you can't migrate such regions using a migrate_pages() for
-all anonymous pages in a tasks space, because these aren't anon pages.
+Marcos Marado
 
-Do you have in mind being able to tag such mapped files with an
-attribute that causes their pages to be migrated along with the
-anon pages on the migrate_pages() call?  That might work ...
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
+iD8DBQFCGUFmmNlq8m+oD34RAtbqAJ43WanT3YNwRy8bkUIbrIqCl8u1mgCggy6R
+4jZqOJQoO3vCeBe/fE/WUhk=
+=CFlt
+-----END PGP SIGNATURE-----
 
-> > How would you recommend that the batch manager move that job to the
-> > nodes that can run it?   ...
-> 
-> You have to walk to full node mapping for each array, but
-> even with hundreds of nodes that should not be that costly
-
-I presume if you knew that the job only had pages on certain nodes,
-perhaps due to aggressive use of cpusets, that you would only have to
-walk those nodes, right?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

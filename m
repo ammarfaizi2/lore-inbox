@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281874AbRK1EOs>; Tue, 27 Nov 2001 23:14:48 -0500
+	id <S281878AbRK1E1S>; Tue, 27 Nov 2001 23:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281878AbRK1EOi>; Tue, 27 Nov 2001 23:14:38 -0500
-Received: from zero.tech9.net ([209.61.188.187]:20490 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S281874AbRK1EO3> convert rfc822-to-8bit;
-	Tue, 27 Nov 2001 23:14:29 -0500
-Subject: Re: Unresponiveness of 2.4.16
+	id <S281879AbRK1E1I>; Tue, 27 Nov 2001 23:27:08 -0500
+Received: from zero.tech9.net ([209.61.188.187]:21002 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281870AbRK1E1B>;
+	Tue, 27 Nov 2001 23:27:01 -0500
+Subject: Re: heads-up: preempt kernel and tux NO-GO
 From: Robert Love <rml@tech9.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Andrew Morton <akpm@zip.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200111280353.fAS3rEB05638@zero.tech9.net>
-In-Reply-To: <20011128013129Z281843-17408+21534@vger.kernel.org>
-	<3C044855.3CF2DCA3@zip.com.au>
-	<20011127183429.B862@mikef-linux.matchmail.com> 
-	<200111280353.fAS3rEB05638@zero.tech9.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: J Sloan <jjs@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C043B11.2FA17A19@pobox.com>
+In-Reply-To: <3C043B11.2FA17A19@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 27 Nov 2001 23:14:53 -0500
-Message-Id: <1006920894.820.0.camel@phantasy>
+Date: 27 Nov 2001 23:27:32 -0500
+Message-Id: <1006921653.824.2.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-11-27 at 22:53, Dieter Nützel wrote:
+On Tue, 2001-11-27 at 20:17, J Sloan wrote:
 
-> To Robert Love:
-> I get the following in dmesg:
-> lock-break-rml-2.4.16-1.patch
-> 
-> date: busy buffer
-> lock_break: buffer.c:681: count was 2 not 551
-> invalidate: busy buffer
-> lock_break: buffer.c:681: count was 2 not 551
-> invalidate: busy buffer
+> So, there is an issue with tux and the preempt
+> patch - I've got big plans for tux atm, so for
+> now I will have to do without preempt -
 
-Thanks for the feedback, Dieter.
+Tux makes heavy use of per-CPU data and some of it is undoubtedly not
+preempt-safe.  It is probably trivial to fix but would take some
+familiarity with the codebase...Ingo would know best.  Its not on the
+top of my todo list, but I will look into it. 
 
 	Robert Love
 

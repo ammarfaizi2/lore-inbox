@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262475AbREXWyH>; Thu, 24 May 2001 18:54:07 -0400
+	id <S262489AbREXXAH>; Thu, 24 May 2001 19:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262476AbREXWx5>; Thu, 24 May 2001 18:53:57 -0400
-Received: from team.iglou.com ([192.107.41.45]:45263 "EHLO iglou.com")
-	by vger.kernel.org with ESMTP id <S262475AbREXWxt>;
-	Thu, 24 May 2001 18:53:49 -0400
-Date: Thu, 24 May 2001 18:53:34 -0400
-From: Jeff Mcadams <jeffm@iglou.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Fulghum <paulkf@microgate.com>, linux-kernel@vger.kernel.org
-Subject: Re: SyncPPP Generic PPP merge
-Message-ID: <20010524185333.B7667@iglou.com>
-In-Reply-To: <002501c0e48f$ffed1e40$0c00a8c0@diemos> <E1533Ra-0005hC-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E1533Ra-0005hC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 24, 2001 at 11:18:58PM +0100
+	id <S262485AbREXW75>; Thu, 24 May 2001 18:59:57 -0400
+Received: from pobox.sibyte.com ([208.12.96.20]:14599 "HELO pobox.sibyte.com")
+	by vger.kernel.org with SMTP id <S262490AbREXW7q>;
+	Thu, 24 May 2001 18:59:46 -0400
+From: Justin Carlson <carlson@sibyte.com>
+Reply-To: carlson@sibyte.com
+Organization: Sibyte
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        engler@csl.Stanford.EDU (Dawson Engler)
+Subject: Re: [CHECKER] free bugs in 2.4.4 and 2.4.4-ac8
+Date: Thu, 24 May 2001 15:55:32 -0700
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1533qI-0005jT-00@the-village.bc.nu>
+In-Reply-To: <E1533qI-0005jT-00@the-village.bc.nu>
+MIME-Version: 1.0
+Message-Id: <0105241559150L.01510@plugh.sibyte.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Alan Cox
->> Instead of using ifconfig to bring an interface up or down, the user
->> must now work with pppd. And the net device naming changes (allocated
->> by ppp_generic.c instead of using the net device allocated by low
->> level driver).
 
->I suspect that bit can be fixed if need be. Its nice to keep a constant
->naming between cisco/ppp modes. cisco/ppp autodetect is also possible
->and would be rather nice to support 
+> > /u2/engler/mc/oses/linux/2.4.4-ac8/drivers/char/rio/rio_linux.c:1036:rio_init_datastructures: ERROR:FREE:1031:1036: WARN: Use-after-free of "RIOHosts"! set by 'kfree':1031
+> >         kfree (p->RIOPortp[i]);
+> > 	rio_dprintk (RIO_DEBUG_INIT, "Not enough memory! %p %p %p %p %p\n", 
+> > Error --->
+> >         	       p, p->RIOHosts, p->RIOPortp, rio_termios, rio_termios);
+> 
+> Not a bug - you need to teach your code that printf has formats that print the
+> value of a pointer not dereference it
+> 
 
-Indeed.  And let me just throw out another thought.  A clean abstraction
-of the various portions of the PPP functionality is beneficial in other
-ways.  My personal pet project being to add L2TP support to the kernel
-eventually.  A good abstraction of the framing capabilities and basic
-PPP processing would be rather useful in that project.
+Take another look.  p is potentially bogus here, meaning those p->RIOHosts and
+p->RIOPortp references are bad.
 
->> Or is it to *add* generic PPP support to syncppp, leaving (at least
->> temporarily) the existing PPP capability in syncppp for
->> compatibility?  (implying a new syncppp flag USE_GENERIC_PPP?)
-
->Assuming this is a 'when 2.5 starts' discussion I'd like initially to
->keep the syncppp api is but the pppd code going via generic ppp - and
->yes it would break configs.
-
->Clearly thats not 2.4 acceptable
-
-I would agree that such a project would be 2.5 material.
-
-I'll try to keep up with things on the list, but if this goes off-list,
-I would appreciate being kept in the loop if possible.  :)  Thanks!
--- 
-Jeff McAdams                            Email: jeffm@iglou.com
-Head Network Administrator              Voice: (502) 966-3848
-IgLou Internet Services                        (800) 436-4456
+-Justin

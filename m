@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265704AbSJXWbm>; Thu, 24 Oct 2002 18:31:42 -0400
+	id <S265725AbSJXWep>; Thu, 24 Oct 2002 18:34:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265697AbSJXWbm>; Thu, 24 Oct 2002 18:31:42 -0400
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:25241 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265704AbSJXWbl>;
-	Thu, 24 Oct 2002 18:31:41 -0400
-Date: Thu, 24 Oct 2002 23:37:49 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Dan Maas <dmaas@maasdigital.com>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: sendfile(2) behaviour has changed?
-Message-ID: <20021024223749.GA852@bjl1.asuk.net>
-References: <20021020055020.A3289@morpheus>
-Mime-Version: 1.0
+	id <S265726AbSJXWep>; Thu, 24 Oct 2002 18:34:45 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:28869 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265725AbSJXWeo>; Thu, 24 Oct 2002 18:34:44 -0400
+Date: Thu, 24 Oct 2002 15:38:36 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       landley@trommello.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
+Message-ID: <2862423467.1035473915@[10.10.2.3]>
+In-Reply-To: <200210242351.56719.efocht@ess.nec.de>
+References: <200210242351.56719.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20021020055020.A3289@morpheus>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Maas wrote:
-> >> It really needs a new interface for recvfile/copyfile/whatever
-> >> anyway, as you can only specify an off_t for the from fd at
-> >> present.
-> >   
-> > Ummm, you can use lseek() on the 'to' fd perhaps?
-> 
-> Wouldn't that be non-atomic and therefore likely to cause problems
-> with concurrent writes?
+> The situation is really funny: Everybody seems to agree that the design
+> ideas in my NUMA aproach are sane and exactly what we want to have on
+> a NUMA platform in the end. But instead of concentrating on tuning the
+> parameters for the many different NUMA platforms and reshaping this
+> aproach to make it acceptable, IBM concentrates on a very much stripped
+> down aproach.
 
-sendfile() from a mapped tmpfs file is a nice way to get zero-copy
-writes of program-generated data, for example HTTP headers.
+>From my point of view, the reason for focussing on this was that 
+your scheduler degraded the performance on my machine, rather than
+boosting it. Half of that was the more complex stuff you added on
+top ... it's a lot easier to start with something simple that works 
+and build on it, than fix something that's complex and doesn't work
+well.
 
-If it were possible to recvfile() _to_ a tmpfs file, you could use
-this to implement zero-copy forwarding between sockets, in userspace,
-while still having a program inspect part of the data and possibly
-change it.  There are lots of proxy services that could potentially
-use this.
+I still haven't been able to get your scheduler to boot for about 
+the last month without crashing the system. Andrew says he has it 
+booting somehow on 2.5.44-mm4, so I'll steal his kernel tommorow and
+see how it looks. If the numbers look good for doing boring things
+like kernel compile, SDET, etc, I'm happy.
 
-This is an example of when you'd want many concurrent writes to the
-same file.  (Naturally, for performance, you'd want to use one large
-tmpfs file and allocate portions of it on the fly, rather then
-multiple opens or lots of small files).
+M.
 
-enjoy,
--- Jamie

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbTIVA24 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 20:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTIVA24
+	id S262709AbTIVA1A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 20:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTIVA1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 20:28:56 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12856 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262740AbTIVA1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 20:27:50 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Sep 2003 18:27:44 -0600
-Message-ID: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sun, 21 Sep 2003 20:27:00 -0400
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:17293 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S262729AbTIVAT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 20:19:27 -0400
+Date: Sun, 21 Sep 2003 20:12:25 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Fixes for 2.6.0-test5
+Message-ID: <20030921201225.GG24897@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <20030921200935.GB24897@neo.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030921200935.GB24897@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-inb_p and outb_p issue outb's to port 0x80 to achieve a short delay.
-In a reasonable system there is nothing listening to port 0x80 
-or there is a post card, but there are no other devices there.
-
-On a modern system with no post card the outb travels it's
-way down to the LPC bus, and the outb is terminated by an abort
-because nothing is listening.
-
-So far so good.  Except for the fact that recent high volume
-ROM chips get confused when they see an abort on the LPC
-bus.  Making it problematic to update the ROM from under Linux.
-
-I don't know if there are other buggy LPC devices or not.  But
-I do know that it is generally bad form do I/O to a random port.
-
-So can we gradually kill inb_p, outb_p in 2.6?  An the other
-miscellaneous users of I/O port 0x80 for I/O delays?
-
-Or possibly rewriting outb_p to look something like:
-outb(); udelay(200);  or whatever the appropriate delay is?
-
-When debugging this I modified arch/i386/io.h to read:
-#define  __SLOW_DOWN_IO__ ""
-Which totally removed the delay and the system ran fine.
-
-Eric
+# --------------------------------------------
+# 03/09/21	ambx1@neo.rr.com	1.1359
+# [ISAPNP] remove unused isapnp_allow_dma0 modparam
+# 
+# It looks like this option has been moved from isapnp to resource.c,
+# but the MODULE_PARM line is still there:
+# 
+# patch from: Gerald Teschl <gt@esi.ac.at>
+# --------------------------------------------
+#
+diff -Nru a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
+--- a/drivers/pnp/isapnp/core.c	Sun Sep 21 19:45:47 2003
++++ b/drivers/pnp/isapnp/core.c	Sun Sep 21 19:45:47 2003
+@@ -64,7 +64,6 @@
+ MODULE_PARM_DESC(isapnp_rdp, "ISA Plug & Play read data port");
+ MODULE_PARM(isapnp_reset, "i");
+ MODULE_PARM_DESC(isapnp_reset, "ISA Plug & Play reset all cards");
+-MODULE_PARM(isapnp_allow_dma0, "i");
+ MODULE_PARM(isapnp_verbose, "i");
+ MODULE_PARM_DESC(isapnp_verbose, "ISA Plug & Play verbose mode");
+ MODULE_LICENSE("GPL");

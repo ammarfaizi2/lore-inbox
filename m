@@ -1,68 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbTHTIb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 04:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTHTIb1
+	id S261817AbTHTIXX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 04:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTHTIMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 04:31:27 -0400
-Received: from hitpro.hitachi.co.jp ([133.145.224.7]:51163 "EHLO
-	hitpro.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id S261826AbTHTIa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 04:30:27 -0400
-Message-Id: <5.1.1.9.2.20030820134120.05201298@sdl99c>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1-Jr4
-Date: Wed, 20 Aug 2003 17:30:31 +0900
+	Wed, 20 Aug 2003 04:12:42 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:57293 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S261817AbTHTIER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 04:04:17 -0400
+Date: Wed, 20 Aug 2003 18:05:26 +1000
+Message-Id: <200308200805.h7K85QXi011792@theirongiant.lochness.weebeastie.net>
 To: linux-kernel@vger.kernel.org
-From: Yumiko Sugita <sugita@sdl.hitachi.co.jp>
-Subject: Release LKST v1.5
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 14/16] C99: 2.6.0-t3-bk7/include
+Cc: Linus Torvalds <torvalds@osdl.org>
+From: CaT <cat@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
-
-  I'd like to announce publication of Linux Kernel State Tracer(LKST)
-version 1.5, which is a tracer for Linux kernel.
-
-  We release patches to support both IA32 and IA64 platforms.
-And we provide watchdog handler and heartbeat program (addons).
-#The details are described in changes-1.5.txt.
-
-Remarks:
-   To support IA64, we changed some codes in the following programs.
-   - KernelHooks
-   - LKCD
-
-
-  LKST binaries, source code and documents are available in the
-following site,
-         https://sourceforge.net/projects/lkst/
-         http://sourceforge.jp/projects/lkst/
-
-  We prepared a mailing list written below in order to let users
-know update of LKST.
-
-  lkst-users@lists.sourceforge.net
-  lkst-users@lists.sourceforge.jp
-
-  To subscribe, please refer following URL,
-
-  http://lists.sourceforge.net/lists/listinfo/lkst-users
-  http://lists.sourceforge.jp/mailman/listinfo/lkst-users
-
-    And if you have any comments, please send to the above list,
-or to another mailing-list written below.
-
-  lkst-develop@lists.sourceforge.net
-  lkst-develop@lists.sourceforge.jp
-
-  With kindest regards,
-  All of the LKST developers
-
-----------------
-  Yumiko Sugita
-  Hitachi,Ltd., Systems Development Laboratory
-  Email:sugita@sdl.hitachi.co.jp 
-
+diff -aur linux.backup/include/asm-arm/proc-armo/processor.h linux/include/asm-arm/proc-armo/processor.h
+--- linux.backup/include/asm-arm/proc-armo/processor.h	Thu Oct 31 11:42:20 2002
++++ linux/include/asm-arm/proc-armo/processor.h	Wed Aug 20 16:40:22 2003
+@@ -43,7 +43,7 @@
+ 	uaccess_t	*uaccess;		/* User access functions*/
+ 
+ #define EXTRA_THREAD_STRUCT_INIT		\
+-	uaccess:	&uaccess_kernel,
++	.uaccess	= &uaccess_kernel,
+ 
+ #define start_thread(regs,pc,sp)					\
+ ({									\
+diff -aur linux.backup/include/asm-arm/xor.h linux/include/asm-arm/xor.h
+--- linux.backup/include/asm-arm/xor.h	Thu Oct 31 11:42:54 2002
++++ linux/include/asm-arm/xor.h	Wed Aug 20 16:40:22 2003
+@@ -125,11 +125,11 @@
+ }
+ 
+ static struct xor_block_template xor_block_arm4regs = {
+-	name:	"arm4regs",
+-	do_2:	xor_arm4regs_2,
+-	do_3:	xor_arm4regs_3,
+-	do_4:	xor_arm4regs_4,
+-	do_5:	xor_arm4regs_5,
++	.name	= "arm4regs",
++	.do_2	= xor_arm4regs_2,
++	.do_3	= xor_arm4regs_3,
++	.do_4	= xor_arm4regs_4,
++	.do_5	= xor_arm4regs_5,
+ };
+ 
+ #undef XOR_TRY_TEMPLATES
+diff -aur linux.backup/include/asm-arm26/processor.h linux/include/asm-arm26/processor.h
+--- linux.backup/include/asm-arm26/processor.h	Mon Jul 21 23:35:02 2003
++++ linux/include/asm-arm26/processor.h	Wed Aug 20 16:40:22 2003
+@@ -51,7 +51,7 @@
+         uaccess_t       *uaccess;         /* User access functions*/
+ 
+ #define EXTRA_THREAD_STRUCT_INIT                \
+-        uaccess:        &uaccess_kernel,
++        .uaccess        = &uaccess_kernel,
+ 
+ // FIXME?!!
+ 
+diff -aur linux.backup/include/asm-arm26/xor.h linux/include/asm-arm26/xor.h
+--- linux.backup/include/asm-arm26/xor.h	Thu Jun 26 23:47:49 2003
++++ linux/include/asm-arm26/xor.h	Wed Aug 20 16:40:22 2003
+@@ -125,11 +125,11 @@
+ }
+ 
+ static struct xor_block_template xor_block_arm4regs = {
+-	name:	"arm4regs",
+-	do_2:	xor_arm4regs_2,
+-	do_3:	xor_arm4regs_3,
+-	do_4:	xor_arm4regs_4,
+-	do_5:	xor_arm4regs_5,
++	.name	= "arm4regs",
++	.do_2	= xor_arm4regs_2,
++	.do_3	= xor_arm4regs_3,
++	.do_4	= xor_arm4regs_4,
++	.do_5	= xor_arm4regs_5,
+ };
+ 
+ #undef XOR_TRY_TEMPLATES

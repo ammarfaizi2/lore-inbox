@@ -1,76 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270756AbTHOSgs (ORCPT <rfc822;willy@w.ods.org>);
+	id S270753AbTHOSgs (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 15 Aug 2003 14:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270755AbTHOSfB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270754AbTHOSfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 14:35:01 -0400
-Received: from daffy.hulpsystems.net ([64.246.21.252]:43483 "EHLO
-	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S270765AbTHOSd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 14:33:27 -0400
-Subject: Re: Centrino support
-From: Martin List-Petersen <martin@list-petersen.se>
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m2wude3i2y.fsf@tnuctip.rychter.com>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kHRnFxAEShp4f7sQ0vJD"
-Message-Id: <1060972391.15341.19.camel@loke>
+	Fri, 15 Aug 2003 14:35:54 -0400
+Received: from mail.kroah.org ([65.200.24.183]:51588 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270753AbTHOSdH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 14:33:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1060972405413@kroah.com>
+Subject: Re: [PATCH] i2c driver changes 2.6.0-test3
+In-Reply-To: <10609724051936@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 15 Aug 2003 11:33:25 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 15 Aug 2003 20:33:11 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1123.18.2, 2003/08/11 14:36:29-07:00, khali@linux-fr.org
 
---=-kHRnFxAEShp4f7sQ0vJD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[PATCH] i2c: user/kernel bug and memory leak in i2c-dev
 
-On Fri, 2003-08-15 at 20:13, Jan Rychter wrote:
-> From http://news.com.com/2100-1006-993896.html:
->=20
->   Intel plans Linux support for Centrino
->=20
->   Intel is working on Linux support for Centrino, its package of chips fo=
-r
->   mobile computers with wireless networking abilities, but the company
->   hasn't yet decided how or when to release it.
->=20
-> That was on March 24, 2003.
->=20
-> Well, that was almost 5 months ago. So I figured I'd ask if there's any
-> progress -- so far the built-in wireless in my notebook still doesn't
-> work with Linux and the machine is monstrously power-hungry because
-> Linux doesn't scale the CPU frequency.
->=20
-> I know there are some Intel people on the list -- perhaps someone can
-> comment?
 
-Status:
-Wlan - not supported
+ drivers/i2c/i2c-dev.c |   41 ++++++++++++++++++++++++++---------------
+ 1 files changed, 26 insertions(+), 15 deletions(-)
 
-CPU - CPUfreq (-ac tree) and ACPI throttling work just fine. I've got my
-Pentium M running at 600 MHz when the Power Supply is plugged out.
 
-Regards,
-Martin List-Petersen
-martin at list-petersen dot se
---
-for ARTIFICIAL FLAVORING!!
-
---=-kHRnFxAEShp4f7sQ0vJD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/PSdnzAGaxP8W1ugRAsXiAJ0WvVWS+vQea9C6libpluNeuk5AAwCg7Ie3
-xe0dRi4zbpk+odbe3PLGpTQ=
-=g08B
------END PGP SIGNATURE-----
-
---=-kHRnFxAEShp4f7sQ0vJD--
+diff -Nru a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+--- a/drivers/i2c/i2c-dev.c	Fri Aug 15 11:27:09 2003
++++ b/drivers/i2c/i2c-dev.c	Fri Aug 15 11:27:09 2003
+@@ -181,6 +181,7 @@
+ 	struct i2c_smbus_ioctl_data data_arg;
+ 	union i2c_smbus_data temp;
+ 	struct i2c_msg *rdwr_pa;
++	u8 **data_ptrs;
+ 	int i,datasize,res;
+ 	unsigned long funcs;
+ 
+@@ -214,7 +215,7 @@
+ 		return (copy_to_user((unsigned long __user *)arg, &funcs,
+ 		                     sizeof(unsigned long)))?-EFAULT:0;
+ 
+-        case I2C_RDWR:
++	case I2C_RDWR:
+ 		if (copy_from_user(&rdwr_arg, 
+ 				   (struct i2c_rdwr_ioctl_data __user *)arg, 
+ 				   sizeof(rdwr_arg)))
+@@ -231,28 +232,37 @@
+ 
+ 		if (rdwr_pa == NULL) return -ENOMEM;
+ 
++		if (copy_from_user(rdwr_pa, rdwr_arg.msgs,
++				   rdwr_arg.nmsgs * sizeof(struct i2c_msg))) {
++			kfree(rdwr_pa);
++			return -EFAULT;
++		}
++
++		data_ptrs = (u8 **) kmalloc(rdwr_arg.nmsgs * sizeof(u8 *),
++					    GFP_KERNEL);
++		if (data_ptrs == NULL) {
++			kfree(rdwr_pa);
++			return -ENOMEM;
++		}
++
+ 		res = 0;
+ 		for( i=0; i<rdwr_arg.nmsgs; i++ ) {
+-		    	if(copy_from_user(&(rdwr_pa[i]),
+-					&(rdwr_arg.msgs[i]),
+-					sizeof(rdwr_pa[i]))) {
+-			        res = -EFAULT;
+-				break;
+-			}
+ 			/* Limit the size of the message to a sane amount */
+ 			if (rdwr_pa[i].len > 8192) {
+ 				res = -EINVAL;
+ 				break;
+ 			}
++			data_ptrs[i] = rdwr_pa[i].buf;
+ 			rdwr_pa[i].buf = kmalloc(rdwr_pa[i].len, GFP_KERNEL);
+ 			if(rdwr_pa[i].buf == NULL) {
+ 				res = -ENOMEM;
+ 				break;
+ 			}
+ 			if(copy_from_user(rdwr_pa[i].buf,
+-				rdwr_arg.msgs[i].buf,
++				data_ptrs[i],
+ 				rdwr_pa[i].len)) {
+-			    	res = -EFAULT;
++					++i; /* Needs to be kfreed too */
++					res = -EFAULT;
+ 				break;
+ 			}
+ 		}
+@@ -260,18 +270,18 @@
+ 			int j;
+ 			for (j = 0; j < i; ++j)
+ 				kfree(rdwr_pa[j].buf);
++			kfree(data_ptrs);
+ 			kfree(rdwr_pa);
+ 			return res;
+ 		}
+-		if (!res) {
+-			res = i2c_transfer(client->adapter,
+-				rdwr_pa,
+-				rdwr_arg.nmsgs);
+-		}
++
++		res = i2c_transfer(client->adapter,
++			rdwr_pa,
++			rdwr_arg.nmsgs);
+ 		while(i-- > 0) {
+ 			if( res>=0 && (rdwr_pa[i].flags & I2C_M_RD)) {
+ 				if(copy_to_user(
+-					rdwr_arg.msgs[i].buf,
++					data_ptrs[i],
+ 					rdwr_pa[i].buf,
+ 					rdwr_pa[i].len)) {
+ 					res = -EFAULT;
+@@ -279,6 +289,7 @@
+ 			}
+ 			kfree(rdwr_pa[i].buf);
+ 		}
++		kfree(data_ptrs);
+ 		kfree(rdwr_pa);
+ 		return res;
+ 
 

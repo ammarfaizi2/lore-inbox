@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131326AbRAEUaF>; Fri, 5 Jan 2001 15:30:05 -0500
+	id <S129324AbRAEUdy>; Fri, 5 Jan 2001 15:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131306AbRAEU3z>; Fri, 5 Jan 2001 15:29:55 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:55536 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131176AbRAEU3m>; Fri, 5 Jan 2001 15:29:42 -0500
-Date: Fri, 5 Jan 2001 18:29:29 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-In-Reply-To: <Pine.LNX.4.21.0101051630150.2882-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101051827440.1295-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129818AbRAEUdq>; Fri, 5 Jan 2001 15:33:46 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:50698 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S129324AbRAEUd2>; Fri, 5 Jan 2001 15:33:28 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: "Matthew D. Pitts" <mpitts@suite224.net>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <862569CB.0070DDEE.00@smtpnotes.altec.com>
+Date: Fri, 5 Jan 2001 14:33:12 -0600
+Subject: Re: Change of policy for future 2.2 driver submissions
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2001, Marcelo Tosatti wrote:
-> On Fri, 5 Jan 2001, Chris Mason wrote:
-> > On Friday, January 05, 2001 01:43:07 PM -0200 Marcelo Tosatti
-> > <marcelo@conectiva.com.br> wrote:
-> > > On Fri, 5 Jan 2001, Chris Mason wrote:
-> > > 
-> > >> 
-> > >> Here's the latest version of the patch, against 2.4.0.  The
-> > >> biggest open issues are what to do with bdflush, since
-> > >> page_launder could do everything bdflush does.  
-> > > 
-> > > I think we want to remove flush_dirty_buffers() from bdflush. 
-> > > 
-> > 
-> > Whoops.  If bdflush doesn't balance the dirty list, who does?
-> 
-> Who marks buffers dirty. 
-> 
-> Linus changed mark_buffer_dirty() to use flush_dirty_buffers() in case
-> there are too many dirty buffers.
-> 
-> Also, I think in practice page_launder will help on balancing. 
 
-Chris is right. It is possible (not very likely, but possible
-notheless) that the majority of the dirty pages are _active_
-pages ... in that case page_launder() won't help one bit and
-only flush_dirty_buffers() can do the job.
 
-Also, you do not want the writer to block on writing out buffers
-if bdflush could write them out asynchronously while the dirty
-buffer producer can work on in the background.
+Either I'm blind, or especially dense today, or both (quite possible :-) but I
+don't see any reference in patch-kernel to the extra version information.
+EXTRAVERSION is defined in the kernel Makefile, and I tried using the script
+found in the 2.4.0-test1 source like this:
 
-regards,
+patch-kernel /usr/src/linux /pub/linux/kernel/v2.4/test-kernels
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
+but the test-2 and following patches are not applied.  All I get is "Current
+kernel version is 2.4.0."  What am I missing?
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Wayne
+
+
+
+
+"Matthew D. Pitts" <mpitts@suite224.net> on 01/05/2001 12:50:26 PM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   linux-kernel@vger.kernel.org
+
+Subject:  Re: Change of policy for future 2.2 driver submissions
+
+
+
+
+Wayne,
+
+The versions of patch-kernel included in 2.3/2.4 support extra version
+information, so patches from Linus and others (i.e. Alan Cox) can be applied
+if proper information is placed in the kernel Makefile.
+
+Matthew D. Pitts
+mpitts@suite224.net
+
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278672AbRJSV4g>; Fri, 19 Oct 2001 17:56:36 -0400
+	id <S278676AbRJSWAH>; Fri, 19 Oct 2001 18:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278673AbRJSV4Z>; Fri, 19 Oct 2001 17:56:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:9094 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278672AbRJSV4L>;
-	Fri, 19 Oct 2001 17:56:11 -0400
-Date: Fri, 19 Oct 2001 14:56:39 -0700 (PDT)
-Message-Id: <20011019.145639.59667516.davem@redhat.com>
-To: bcrl@redhat.com
-Cc: ak@muc.de, sim@netnation.com, linux-kernel@vger.kernel.org
-Subject: Re: Awfully slow /proc/net/tcp, netstat, in.identd in 2.4 (updated)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011019173055.G9206@redhat.com>
-In-Reply-To: <k23d4fwkv6.fsf@zero.aec.at>
-	<20011019.135924.112609345.davem@redhat.com>
-	<20011019173055.G9206@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S278675AbRJSV7r>; Fri, 19 Oct 2001 17:59:47 -0400
+Received: from a1as17-p73.stg.tli.de ([195.252.193.73]:4585 "EHLO
+	dea.linux-mips.net") by vger.kernel.org with ESMTP
+	id <S278673AbRJSV7f>; Fri, 19 Oct 2001 17:59:35 -0400
+Date: Fri, 19 Oct 2001 23:59:51 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: pci_alloc_consistent question
+Message-ID: <20011019235951.A29083@dea.linux-mips.net>
+In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4A5@axcs13.cos.agilent.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4A5@axcs13.cos.agilent.com>; from hiren_mehta@agilent.com on Fri, Oct 19, 2001 at 03:24:14PM -0600
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Benjamin LaHaise <bcrl@redhat.com>
-   Date: Fri, 19 Oct 2001 17:30:55 -0400
+On Fri, Oct 19, 2001 at 03:24:14PM -0600, MEHTA,HIREN (A-SanJose,ex1) wrote:
 
-   On Fri, Oct 19, 2001 at 01:59:24PM -0700, David S. Miller wrote:
-   > And, for a 640MB ram machine, a 4MB hash table is perfectly
-   > reasonable.
-   
-   That isn't wholly true.  A 4MB hash table can never fit in the cache of 
-   an Athlon, and for one that's being used as a workstation with 1GB of 
-   ram and maybe 60 connections active on average, that's a huge waste of 
-   ram, and a guarantee that there will be lots of cache misses which just 
-   aren't required.  Keep the cache footprint as low as possible -- it 
-   results in a system that performs better.
-   
-It doesn't need to "fit in the cache" to perform optimally, that's
-a load of crap Ben.
+> so, what is the conservative number ? 1MB ?
 
-I actually tested this, and in fact on a cpu that has a meager 512K
-cache at the time, and it did turn out to be more important to keep
-the hash chains short than to keep it fitting in the cache.
+Even far below that.  Most systems will allocate that memory using
+get_free_pages and by allocating large pages such as 1mb you'll produce
+high memory pressure.  Try to get away with PAGE_SIZE * 2 if you can.
+Large allocation are only ok if they're rare.
 
-So please don't give me any crap about "fitting in the cache" unless
-you can show me hard numbers that show that it does in fact perform
-worse.
-
-Let me clue you in.  If the hash chains get long, you (instead of
-cache missing on the table itself) are missing the cache several
-times over walking the long hash chains.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+  Ralf

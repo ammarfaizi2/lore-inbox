@@ -1,121 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbTIAK6P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 06:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTIAK6P
+	id S261208AbTIALNM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 07:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTIALNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 06:58:15 -0400
-Received: from platane.lps.ens.fr ([129.199.121.28]:8576 "EHLO
-	platane.lps.ens.fr") by vger.kernel.org with ESMTP id S262866AbTIAK6M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 06:58:12 -0400
-Date: Mon, 1 Sep 2003 12:57:59 +0200
-From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-To: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Power Management Update
-Message-ID: <20030901105759.GA17637@lps.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.25i
+	Mon, 1 Sep 2003 07:13:12 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:28164 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261208AbTIALNK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 07:13:10 -0400
+Date: Mon, 1 Sep 2003 13:13:00 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Jamie Lokier <jamie@shareable.org>
+cc: Kars de Jong <jongk@linux-m68k.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux/m68k kernel mailing list 
+	<linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+In-Reply-To: <20030901100807.GB1903@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.44.0309011311330.20748-100000@serv>
+References: <Pine.GSO.4.21.0309011027310.5048-100000@waterleaf.sonytel.be>
+ <1062407310.13046.6.camel@laptop.locamation.com> <20030901100807.GB1903@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To: mochel@osdl.org,linux-kernel@vger.kernel.org
-Subject: Re: Power Management Update
+Hi,
 
-(Resend. Seems it didn't get through the first time.)
+On Mon, 1 Sep 2003, Jamie Lokier wrote:
 
-In mailing-lists linux-kernel, you wrote:
->
->I'm pleased to announce the release of the first patchset of power
->management changes for 2.6.0. The purpose of this release is to give
->people a chance to review and test the PM code before it's sent on to
->Linus.
+> I would prefer that you run the attached program.  It fixes a bug in
+> the function which tests whether the problem is in the L1 cache or
+> store buffer.  The bug probably didn't affect the test, but it might
+> have.
 
-I gave this patch a try...  All data concerning my computer (config
-files, boot messages, dsdt, etc.) is available on
-<http://perso.nerim.net/~tudia/bug-reports>.
+This is the result for a 060:
 
-On my computer, echoing anything to /sys/power/state does nothing at all.
-Not even a line in the logs.
+$ ./a.out
+(256) [175,175,11] Test separation: 4096 bytes: pass
+(256) [173,175,11] Test separation: 8192 bytes: pass
+(256) [176,175,10] Test separation: 16384 bytes: pass
+(256) [174,173,11] Test separation: 32768 bytes: pass
+(256) [174,175,11] Test separation: 65536 bytes: pass
+(256) [175,175,10] Test separation: 131072 bytes: pass
+(256) [176,176,10] Test separation: 262144 bytes: pass
+(256) [175,175,11] Test separation: 524288 bytes: pass
+(256) [173,175,11] Test separation: 1048576 bytes: pass
+(256) [174,174,11] Test separation: 2097152 bytes: pass
+(256) [176,176,10] Test separation: 4194304 bytes: pass
+(256) [177,177,9] Test separation: 8388608 bytes: pass
+(256) [175,176,10] Test separation: 16777216 bytes: pass
+VM page alias coherency test: all sizes passed
+$ cat /proc/cpuinfo
+CPU:            68060
+MMU:            68060
+FPU:            68060
+Clocking:       49.7MHz
+BogoMips:       99.53
+Calibration:    497664 loops
 
-On the text console (but with XFree and kde running in the background),
+bye, Roman
 
-        echo 1 > /proc/acpi/sleep
-
-        the screen blinks and the fan speed goes up. (fan speed is set by
-        bios. Loading module i2c reinitialize the motherboard sensors and
-        make fan speed go up too. But here, i2c was not loaded nor
-        compiled in.) In the logs, I have:
-
-Stopping tasks: ==================================================|
-hdc: start_power_step(step: 0)
-hdc: completing PM request, suspend
-hda: start_power_step(step: 0)
-hda: start_power_step(step: 1)
-hda: complete_power_step(step: 1, stat: 50, err: 0)
-hda: completing PM request, suspend
- hwsleep-0257 [16] acpi_enter_sleep_state: Entering sleep state [S1]
-Back to C!
-PM: Finishing up.
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-PCI: Setting latency timer of device 0000:00:1d.1 to 64
-PCI: Setting latency timer of device 0000:00:1d.2 to 64
-PCI: Setting latency timer of device 0000:00:1f.5 to 64
-eth0: Setting half-duplex based on auto-negotiated partner ability 0000.
-hda: Wakeup request inited, waiting for !BSY...
-hda: start_power_step(step: 1000)
-blk: queue df60d800, I/O limit 4095Mb (mask 0xffffffff)
-hda: completing PM request, resume
-hdc: Wakeup request inited, waiting for !BSY...
-hdc: start_power_step(step: 1000)
-hdc: completing PM request, resume
-Restarting tasks... done
-
-        Note that, sometimes, the computer waits after printing "Entering
-        sleep state [S1]", and resumes if I hit the key. The screen is
-        however fully lit, so I am not sure that this is a success.
-
-        echo 3 > /proc/acpi/sleep
-
-        Maybe the screen blinks a little bit, but I am not sure. It is so
-        fast... In the logs, I have:
-
-PM: Preparing system for suspend
-Stopping tasks:
-=========================================================|
-Restarting tasks... done
-
-
-        echo 4 > /proc/acpi/sleep
-
-        Suspend is working, the computer writes things in the swapfile
-        and shuts down. On resume, I have a kernel panic. I have hand
-        written this:
-
-Process swapper
-Call queue:
-        start_request
-        ide_do_request
-        __elv_do_drive_cmd
-        generic_ide_suspend
-        autoremove_wake_function
-        printk
-        suspend_device
-        device_suspend
-        prepare
-        pm_resume
-        do_initcalls
-        init_workqueues
-        init
-        init
-        kernel_thread_helper
-Code: Bad EIP value
-Kernel panic: Attemppted to kill init
-
-
-Regards,
-
-        Éric Brunet

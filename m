@@ -1,143 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265033AbSKFNNf>; Wed, 6 Nov 2002 08:13:35 -0500
+	id <S265042AbSKFNUg>; Wed, 6 Nov 2002 08:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265034AbSKFNNf>; Wed, 6 Nov 2002 08:13:35 -0500
-Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:35270 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265033AbSKFNNe>; Wed, 6 Nov 2002 08:13:34 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 6 Nov 2002 05:20:04 -0800
-Message-Id: <200211061320.FAA28007@adam.yggdrasil.com>
-To: viro@math.psu.edu
-Subject: Re: Patch?: 2.5.46/drivers/block/genhd.c - static allocation of gendisks
-Cc: linux-kernel@vger.kernel.org
+	id <S265046AbSKFNUg>; Wed, 6 Nov 2002 08:20:36 -0500
+Received: from gra-vd1.iram.es ([150.214.224.250]:32388 "EHLO gra-vd1.iram.es")
+	by vger.kernel.org with ESMTP id <S265042AbSKFNUf>;
+	Wed, 6 Nov 2002 08:20:35 -0500
+Date: Wed, 6 Nov 2002 14:27:02 +0100 (CET)
+From: Gabriel Paubert <paubert@iram.es>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: New nanosecond stat patch for 2.5.44
+In-Reply-To: <aphqqo$261$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.32.0211061324110.19072-100000@gra-vd1.iram.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-
-| static void disk_release(struct kobject * kobj)
-| {
-| 	struct gendisk *disk = to_disk(kobj);
-|-	kfree(disk->random);
-        ^^^^^^^^^^^^^^^^^^^^
-|-	kfree(disk->part);
-|-	kfree(disk);
-|+	if (disk->destructor)
-|+		(*disk->destructor)(disk);
-| }
 
 
-	Arg!  I did not mean to include that deletion in my patch.
-That line is deleted from my source tree due to the disk->random
-change that we discussed yestrday.  Here is a corrected version
-of my patch.
+On 31 Oct 2002, H. Peter Anvin wrote:
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+> Followup to:  <20021027214913.GA17533@clusterfs.com>
+> By author:    Andreas Dilger <adilger@clusterfs.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > 3) The fields you are usurping in struct stat are actually there for the
+> >    Y2038 problem (when time_t wraps).  At least that's what Ted said when
+> >    we were looking into nsec times for ext2/3.  Granted, we may all be
+> >    using 64-bit systems by 2038...  I've always thought 64 bits is much
+> >    to large for time_t, so we could always use 20 or 30 bits for sub-second
+> >    times, and the remaining bits for extending time_t at the high end,
+> >    and mask those off for now, but that is a separate issue...
+> >
+>
+> 64-bit time_t is nice because you don't *ever* need to worry about
+> overflow; it's capable of handling times on a galactic lifespan
+> scale.  It's overkill, of course, but it's the *right* kind of
+> overkill.
+
+Indeed.
+
+>
+> We probably need to revamp struct stat anyway, to support a larger
+> dev_t, and possibly a larger ino_t (we should account for 64-bit ino_t
+> at least if we have to redesign the structure.)  At that point I would
+> really like to advocate for int64_t ts_sec and uint32_t ts_nsec and
+> quite possibly a int32_t ts_taidelta to deal with leap seconds... I'd
+> personally like struct timespec to look like the above everywhere.
+
+I basically agree but I suspect that filesystem writers will not be very
+happy if you want to use 16 bytes for each timestamp, especially when 8 of
+the bytes (the 32 high order bits from the second count and the TAI-UT
+offset) do not change very often. (besides that tv_nsec is defined as a
+long, i.e.  64 bit on 64 bit machines and _signed_ , stupid if you ask me
+but I digress).
+
+The goal as I understand it is to avoid first the possibility of ambiguous
+timestamps, but then we have to be careful also not to break existing
+applications (although they already broken wrt leap seconds).
+
+I don't know how to trim the highly repeated most significant bytes of the
+tv_sec field (it's probably file system specific), but 4 bytes can easily
+be shaved from the on-disk structure by packing the leap second
+information in the high order bits of the nsec field: since the number of
+nanoseconds per second is unlikely to ever need more than 30 bits to be
+encoded ;-), the 2 most significant bits can be used to encode inserted
+leap seconds. Actually 1 bit should be sufficient but some texts claim
+that up to 2 leap seconds can be inserted, this has however actually never
+happened AFAICT and I believe that NTP for example does not support 2 leap
+seconds in a row.
+
+Converting this encoding to the format you suggest for stat(2) is trivial:
+it only needs a table of leap seconds. I don't care whether it's in the
+kernel or in user space: it's small and grows slowly.
+
+For now I have more problems with the fact that gettimeofday and friends
+do not properly handle leap seconds and lead to ambiguous timestamps.
+Once this problem (a real killer for astronomical data acquisition, leap
+seconds are infrequent but they are a problem) is solved, filesystems can
+be updated.
+
+What could be important now is to mask the low 30 bits of the nsec field
+and declare the 2 MSB reserved so that no kernel is out in the wild that
+simply copies the full nsec field to user space.
+
+	Regards,
+	Gabriel.
 
 
---- linux-2.5.46/include/linux/genhd.h	2002-11-04 14:30:08.000000000 -0800
-+++ linux/include/linux/genhd.h	2002-11-06 04:19:13.000000000 -0800
-@@ -107,6 +108,7 @@
- 	int in_flight;
- 	unsigned long stamp, stamp_idle;
- 	unsigned time_in_queue;
-+	void (*destructor)(struct gendisk *disk);
- };
- 
- /* drivers/block/ll_rw_blk.c */
-@@ -283,8 +285,9 @@
- extern void add_partition(struct gendisk *, int, sector_t, sector_t);
- extern void delete_partition(struct gendisk *, int);
- 
-+extern void init_disk(struct gendisk *disk, int minors);
- extern struct gendisk *alloc_disk(int minors);
- extern struct gendisk *get_disk(struct gendisk *disk);
- extern void put_disk(struct gendisk *disk);
---- linux-2.5.46/drivers/block/genhd.c	2002-11-04 14:30:27.000000000 -0800
-+++ linux/drivers/block/genhd.c	2002-11-06 05:17:01.000000000 -0800
-@@ -369,14 +366,19 @@
- 	NULL,
- };
- 
--static void disk_release(struct kobject * kobj)
-+static void disk_destructor(struct gendisk *disk)
- {
--	struct gendisk *disk = to_disk(kobj);
- 	kfree(disk->random);
--	kfree(disk->part);
- 	kfree(disk);
- }
- 
-+static void disk_release(struct kobject * kobj)
-+{
-+	struct gendisk *disk = to_disk(kobj);
-+	if (disk->destructor)
-+		(*disk->destructor)(disk);
-+}
-+
- struct subsystem block_subsys = {
- 	.kobj	= { .name = "block" },
- 	.release	= disk_release,
-@@ -384,28 +386,31 @@
- 	.default_attrs	= default_attrs,
- };
- 
-+/* init_disk assumes disk should is initialized to all zeroes,
-+   except for disk->part, which points to the partitions structures,
-+   which are also assumed to be initialized to all zeroes. */
-+void init_disk(struct gendisk *disk, int minors)
-+{
-+	disk->minors = minors;
-+	while (minors >>= 1)
-+		disk->minor_shift++;
-+	kobject_init(&disk->kobj);
-+	disk->kobj.subsys = &block_subsys;
-+	INIT_LIST_HEAD(&disk->full_list);
-+	rand_initialize_disk(disk);
-+}
-+
- struct gendisk *alloc_disk(int minors)
- {
--	struct gendisk *disk = kmalloc(sizeof(struct gendisk), GFP_KERNEL);
-+	int size = sizeof(struct gendisk) +
-+		(minors - 1) * sizeof(struct hd_struct);
-+	struct gendisk *disk = kmalloc(size, GFP_KERNEL);
- 	if (disk) {
--		memset(disk, 0, sizeof(struct gendisk));
--		if (minors > 1) {
--			int size = (minors - 1) * sizeof(struct hd_struct);
--			disk->part = kmalloc(size, GFP_KERNEL);
--			if (!disk->part) {
--				kfree(disk);
--				return NULL;
--			}
--			memset(disk->part, 0, size);
--		}
--		disk->minors = minors;
--		while (minors >>= 1)
--			disk->minor_shift++;
--		kobject_init(&disk->kobj);
--		disk->kobj.subsys = &block_subsys;
--		INIT_LIST_HEAD(&disk->full_list);
-+		memset(disk, 0, size);
-+		disk->part = (struct hd_struct*) &disk[1];
-+		init_disk(disk, minors);
-+		disk->destructor = disk_destructor;
- 	}
--	rand_initialize_disk(disk);
- 	return disk;
- }
- 
-@@ -426,6 +431,7 @@
- 		kobject_put(&disk->kobj);
- }
- 
-+EXPORT_SYMBOL(init_disk);
- EXPORT_SYMBOL(alloc_disk);
- EXPORT_SYMBOL(get_disk);
- EXPORT_SYMBOL(put_disk);
+

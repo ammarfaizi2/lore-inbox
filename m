@@ -1,59 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129663AbQLAU2r>; Fri, 1 Dec 2000 15:28:47 -0500
+	id <S129741AbQLAUk2>; Fri, 1 Dec 2000 15:40:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130290AbQLAU22>; Fri, 1 Dec 2000 15:28:28 -0500
-Received: from stm.lbl.gov ([131.243.16.51]:12553 "EHLO stm.lbl.gov")
-	by vger.kernel.org with ESMTP id <S129821AbQLAU1c>;
-	Fri, 1 Dec 2000 15:27:32 -0500
-Date: Fri, 1 Dec 2000 11:43:47 -0800
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Pls add this driver to the kernel tree !!
-Message-ID: <20001201114347.A3439@stm.lbl.gov>
-Reply-To: David Schleef <ds@schleef.org>
-In-Reply-To: <20001130203703Z129437-440+118@vger.kernel.org> <200011301803.eAUI3Pu16137@webber.adilger.net> <20001130203703Z129437-440+118@vger.kernel.org> <24827.975662789@redhat.com>
+	id <S130075AbQLAUkT>; Fri, 1 Dec 2000 15:40:19 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:59737
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129932AbQLAUkG>; Fri, 1 Dec 2000 15:40:06 -0500
+Date: Fri, 1 Dec 2000 21:09:30 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: vma@iol.unh.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: #ifdef cleanup for drivers/net/fc/iph5526.c (240-test12-pre3)
+Message-ID: <20001201210930.H621@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <24827.975662789@redhat.com>; from dwmw2@infradead.org on Fri, Dec 01, 2000 at 09:26:29AM +0000
-From: David Schleef <ds@stm.lbl.gov>
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2000 at 09:26:29AM +0000, David Woodhouse wrote:
-> 
-> ttabi@interactivesi.com said:
-> >  Not necessarily - it all depends on what your driver does.  In many
-> > cases, supporting 2.2 and 2.4 is easy, and all you need are a few
-> > #if's.  It's certainly much better to have a dozen or so #if's
-> > sprinkled throughout the code than to have two separate source trees,
-> > and have to make the same change to multiple files.
-> 
-> It's even better to do it without the ugly preprocessor magic - see 
-> include/linux/compatmac.h
-> 
-> There are a few things missing from there - include/linux/mtd/compatmac.h 
-> has more. One day we'll get round to removing the latter and merging it 
-> into the main one, hopefully. 
+Hi.
+
+I recently investigated an 'unused function' warning in iph5526.c. Looking
+at it (both the code causing the warning and the whole driver) convinced
+me that the driver cannot be used without PCI enabled. 
+
+I therefore propose that we add a dependency in net/Config.in for this
+driver and clean the driver itself of #ifdef CONFIG_PCI stuff. The patch 
+below does this and additionally some trivial code reordering to elininate
+some further #ifdefs.
+
+Please comment.
 
 
-A while ago, I started working on the Mother Of All compatmac.h files,
-trying to merge Don Becker's stuff, yours, David Hinds, and stuff
-from my own Comedi package.  It quickly got out of control, as
-including compatmac.h (or kern_compat.h, as I called it) would
-include most of the include/linux directory.  I've since settled for
-setting up a separate include/linux tree with header files
-named pci.h, mm.h, etc., that #define the right things and then
-do an #include_next.  Interested parties can find it in Comedi
-(http://stm.lbl.gov/comedi).
+--- linux-240-t12-pre3-clean/drivers/net/fc/iph5526.c	Wed Nov 22 22:41:40 2000
++++ linux/drivers/net/fc/iph5526.c	Fri Dec  1 20:48:16 2000
+@@ -220,32 +220,23 @@
+ 
+ static void iph5526_timeout(struct net_device *dev);
+ 
+-#ifdef CONFIG_PCI
+ static int iph5526_probe_pci(struct net_device *dev);
+-#endif
+-
+ 
+ int __init iph5526_probe(struct net_device *dev)
+ {
+-#ifdef CONFIG_PCI
+ 	if (pci_present() && (iph5526_probe_pci(dev) == 0))
+ 		return 0;
+-#endif
+     return -ENODEV;
+ }
+ 
+-#ifdef CONFIG_PCI
+ static int __init iph5526_probe_pci(struct net_device *dev)
+ {
+-#ifndef MODULE
+-struct fc_info *fi;
+-static int count = 0;
+-#endif
+ #ifdef MODULE
+-struct fc_info *fi = (struct fc_info *)dev->priv;
+-#endif
+-
+-#ifndef MODULE
++	struct fc_info *fi = (struct fc_info *)dev->priv;
++#else
++	struct fc_info *fi;
++	static int count = 0;
++ 
+ 	if(fc[count] != NULL) {
+ 		if (dev == NULL) {
+ 			dev = init_fcdev(NULL, 0);
+@@ -277,7 +268,6 @@
+ 	display_cache(fi);
+ 	return 0;
+ }
+-#endif  /* CONFIG_PCI */
+ 
+ static int __init fcdev_init(struct net_device *dev)
+ {
+--- linux-240-t12-pre3-clean/drivers/net/Config.in	Wed Nov 22 22:41:40 2000
++++ linux/drivers/net/Config.in	Wed Nov 29 20:00:37 2000
+@@ -258,7 +258,7 @@
+ 
+ bool 'Fibre Channel driver support' CONFIG_NET_FC
+ if [ "$CONFIG_NET_FC" = "y" ]; then
+-   dep_tristate '  Interphase 5526 Tachyon chipset based adapter support' CONFIG_IPHASE5526 $CONFIG_SCSI
++   dep_tristate '  Interphase 5526 Tachyon chipset based adapter support' CONFIG_IPHASE5526 $CONFIG_SCSI $CONFIG_PCI
+ fi
+ 
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
 
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-
-
-dave...
-
+"The glass is not half full, nor half empty. The glass is just too big."
+  --Anonymous
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135220AbRDLQ3g>; Thu, 12 Apr 2001 12:29:36 -0400
+	id <S135210AbRDLQdQ>; Thu, 12 Apr 2001 12:33:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135221AbRDLQ30>; Thu, 12 Apr 2001 12:29:26 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:26130 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135220AbRDLQ3R>;
-	Thu, 12 Apr 2001 12:29:17 -0400
-Date: Thu, 12 Apr 2001 13:29:02 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Hugh Dickins <hugh@veritas.com>, Valdis.Kletnieks@vt.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: scheduler went mad?
-In-Reply-To: <E14njYc-0000vA-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0104121327450.18260-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S135222AbRDLQdH>; Thu, 12 Apr 2001 12:33:07 -0400
+Received: from postoffice.sarnoff.com ([130.33.10.147]:404 "EHLO
+	postoffice.sarnoff.com") by vger.kernel.org with ESMTP
+	id <S135210AbRDLQcz>; Thu, 12 Apr 2001 12:32:55 -0400
+Message-ID: <3AD5D9BA.E5B9BFC7@sarnoff.com>
+Date: Thu, 12 Apr 2001 12:37:15 -0400
+From: "Sharath Kumar" <skumar@sarnoff.com>
+Organization: Sarnoff Corporation
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Sockets in a Module
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, Alan Cox wrote:
+Hi All,
+   I am trying to implement  a client using sockets in a Linux module,
+and not having much success with it.  Does anyone have some suggesstions
+on how do i go about it?
+If anyone has an example, it would be great.
 
-> > 2.4.3-pre6 quietly made a very significant change there:
-> > it used to say "if (!order) goto try_again;" and now just
-> > says "goto try_again;".  Which seems very sensible since
-> > __GFP_WAIT is set, but I do wonder if it was a safe change.
-> > We have mechanisms for freeing pages (order 0), but whether
-> > any higher orders come out of that is a matter of chance.
-> 
-> The fundamental problem is that it should say
-> 
-> 	wait_for_mm_progress();
-> 	goto try_again;
-> 
-> and we dont have that facility right now.
+Thanks in Advance,
+-Sharath.
 
->From mm/page_alloc.c, around line 453:
 
-                if (gfp_mask & __GFP_WAIT) {
-                        memory_pressure++;
-                        try_to_free_pages(gfp_mask);
-                        wakeup_bdflush(0);
-                        goto try_again;
-                }
-
-I guess we should remove the wakeup_bdflush(0) ... who put it
-there anyway ?
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267712AbTATA4C>; Sun, 19 Jan 2003 19:56:02 -0500
+	id <S267747AbTATBL1>; Sun, 19 Jan 2003 20:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267700AbTATA4C>; Sun, 19 Jan 2003 19:56:02 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:26872 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S267695AbTATA4C> convert rfc822-to-8bit; Sun, 19 Jan 2003 19:56:02 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <Valdis.Kletnieks@vt.edu>
-CC: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Sun, 19 Jan 2003 17:05:02 -0800
-In-Reply-To: <200301200036.h0K0aCIJ012273@turing-police.cc.vt.edu>
-Subject: Re: Is the BitKeeper network protocol documented?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030120010504.AAA18836@shell.webmaster.com@whenever>
+	id <S267748AbTATBL1>; Sun, 19 Jan 2003 20:11:27 -0500
+Received: from pat.uio.no ([129.240.130.16]:14727 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S267747AbTATBL0>;
+	Sun, 19 Jan 2003 20:11:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15915.20185.976523.595180@charged.uio.no>
+Date: Mon, 20 Jan 2003 02:20:25 +0100
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with nfs-server in 2.5 bk as of 030115
+In-Reply-To: <1043025455.657.1.camel@tux.rsn.bth.se>
+References: <1043012373.7986.94.camel@tux.rsn.bth.se>
+	<15915.8496.899499.957528@charged.uio.no>
+	<1043016608.727.0.camel@tux.rsn.bth.se>
+	<15915.13242.291976.585239@charged.uio.no>
+	<1043021842.679.1.camel@tux.rsn.bth.se>
+	<15915.18967.933150.49658@charged.uio.no>
+	<1043025455.657.1.camel@tux.rsn.bth.se>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jan 2003 19:36:12 -0500, Valdis.Kletnieks@vt.edu wrote:
+>>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
 
->Moral: Let's not get silly here...
+     > Do you have working nfs-server?
 
-	Don't blame me. The GPL just says the "preferred" form and leaves us 
-to wonder. As I understand it, however, you cannot ship binaries of a 
-GPL'd project unless you can distribute the source code in the 
-"preferred form .. for making modifications to it".
+Yes (and I see no messages such as the ones you describe)...
 
-	I'm still perplexed what you do if the preferred modification form 
-for a work requires consent to a license more restrictive than the 
-GPL in order to make modifications to it. As I see it, you just can't 
-GPL such a project.
-
-	And you can't take a GPL'd work and turn it into a non-GPL'd work 
-and continue to distribute binaries.
-
-	DS
-
-
+Cheers,
+  Trond

@@ -1,53 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318821AbSG0UrR>; Sat, 27 Jul 2002 16:47:17 -0400
+	id <S317772AbSG0U5J>; Sat, 27 Jul 2002 16:57:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318822AbSG0UrR>; Sat, 27 Jul 2002 16:47:17 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12046 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318821AbSG0UrQ>; Sat, 27 Jul 2002 16:47:16 -0400
-Date: Sat, 27 Jul 2002 17:50:17 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Buddy Lumpkin <b.lumpkin@attbi.com>
-cc: Ville Herva <vherva@niksula.hut.fi>, DervishD <raul@pleyades.net>,
+	id <S318822AbSG0U5J>; Sat, 27 Jul 2002 16:57:09 -0400
+Received: from adsl-66-136-196-103.dsl.austtx.swbell.net ([66.136.196.103]:40320
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S317772AbSG0U5I>; Sat, 27 Jul 2002 16:57:08 -0400
+Subject: Re: About the need of a swap area
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Ville Herva <vherva@niksula.hut.fi>, DervishD <raul@pleyades.net>,
        Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: About the need of a swap area
-In-Reply-To: <FJEIKLCALBJLPMEOOMECGEPDCPAA.b.lumpkin@attbi.com>
-Message-ID: <Pine.LNX.4.44L.0207271748060.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <200207271904.g6RJ4jT27545@Port.imtp.ilyichevsk.odessa.ua>
+References: <3D42907C.mailFS15JQVA@viadomus.com>
+	 <20020727144228.GQ1548@niksula.cs.hut.fi>
+	 <200207271904.g6RJ4jT27545@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1027803522.18360.17.camel@UberGeek.digitalroadkill.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 27 Jul 2002 15:58:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jul 2002, Buddy Lumpkin wrote:
-
-> >Much more.
+On Sat, 2002-07-27 at 19:02, Denis Vlasenko wrote:
+> On 27 July 2002 12:42, Ville Herva wrote:
+> > >     I created a swap area twice as large as my RAM size (just an
+> > > arbitrary size), that is 1G. I've tested with lower sizes too. My RAM
+> > > is never filled (well, I haven't seen it filled, at least) since I
+> > > always work on console, no X and things like those. Even compiling
+> > > two or three kernels at a time don't consume my RAM. What I try to
+> > > explain is that the swap is not really needed in my machine, since
+> > > the memory is not prone to be filled.
 > >
-> >The latency difference seems to be on the order of 100000 times.
-> >It is the latency we care about because that determines how long
-> >the CPU cannot do anything useful but has to wait.
->
-> And if you look at the ratio between the access time of ram which is in
-> the low nanoseconds (1* 10 ^ -9) ... and compare it to the seek +
-> rotational delay of a discrete spindal which is in low milliseconds (1*
-> 10 ^ -3) that puts you at a ratio of about 1000000.
+> > So you have 512MB of RAM? All the programs (without X) will fit there
+> > easily. You'll still have plenty for disk cache.
+> 
+> With today's software I'd say you probably need swap if you have
+> less than 256M of RAM and use X. You _definitely_ need it if you have less 
+> than 128M.
 
-Indeed.
+You really must think beyond the desktop as well. With large servers
+running many databases, or a single large database, you will inherently
+use swap. Maybe not much, but it will get used. 
+On a P4 Xeon 1MB L3 server with 8GB ram, I've got 4GB swap configured,
+and use about 2 of that with a 4 oracle instances running. The largest
+instance is ~700GB, whereas the 4 others are ~30GB ea. 
 
-Now imagine one in every million memory accesses results in
-a major page fault ... your computer would run at 1/2 speed.
+In this scenario you have a large SHMMAX defined (4GB in this case), or
+50% available RAM. As Oracle, Java, and other bits are used in the
+system threading or not, most of the entirety of the availble ram will
+eventually get used. The available to cache ratio on a box like this
+with 2.4.19-rc1 is ~2% free ram, and 95% cached, and 3% active. 
+Swap is ~50% right now. So regardless of how much ram you have, you will
+swap some, somewhere.
 
-The difference between a 99.999% hit rate and 99.9999% hit
-rate becomes rather important with these latency ratios ;)
+> X is regularly uses 50+ megs, Mozilla and OpenOffice are big
+> leaky beasts too. Hopes for improvements are dim.
+> 
+> Really, we have to fight software bloat instead of adding tons of RAM
+> and swap, but sadly we have quite a number of vital desktop software
+> packages overbloated.
 
-regards,
+This is another scenario as well. On my 1.333Ghz Athlon-C I've got 512MB
+ram. My swap total is 265064 KB, but my free is 263600KB. I'm not
+swapping much right now, but I also just rebooted last night. Either
+way, Memfree is 19256 KB. After running some video applications or
+ogg123 or something like this, the swap typically will go up to ~40 or
+~100 mb used. Thankfully the -aa tree reclaims this very well, and it
+will usually go back down to nearly 0KB used..or like it is now at 2-3MB
+used. 
 
-Rik
+> I am enormously grateful for all kernel developers for Linux kernel
+> which is:
+> 
+> Memory: 124644k/129536k available
+> (1403k kernel code, 4436k reserved, 403k data, 152k init, 0k highmem)
+> 
+> Only 1.5 megs of code, 0.5 megs of data!
+> --
+> vda
+> -
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Austin Gonyou <austin@digitalroadkill.net>

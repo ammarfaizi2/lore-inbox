@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132829AbQLRAvq>; Sun, 17 Dec 2000 19:51:46 -0500
+	id <S132860AbQLRBBU>; Sun, 17 Dec 2000 20:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132860AbQLRAvg>; Sun, 17 Dec 2000 19:51:36 -0500
-Received: from rsn-rby-gw.hk-r.se ([194.47.128.222]:8370 "EHLO tux.rsn.hk-r.se")
-	by vger.kernel.org with ESMTP id <S132859AbQLRAv1>;
-	Sun, 17 Dec 2000 19:51:27 -0500
-Date: Mon, 18 Dec 2000 01:20:27 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test13-pre3 and ext2 as module
-In-Reply-To: <Pine.LNX.4.21.0012180116450.26302-100000@tux.rsn.hk-r.se>
-Message-ID: <Pine.LNX.4.21.0012180119320.26302-100000@tux.rsn.hk-r.se>
+	id <S132870AbQLRBBL>; Sun, 17 Dec 2000 20:01:11 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:4 "EHLO
+	pobox.com") by vger.kernel.org with ESMTP id <S132860AbQLRBAx>;
+	Sun, 17 Dec 2000 20:00:53 -0500
+From: "Barry K. Nathan" <barryn@pobox.com>
+Message-Id: <200012180030.QAA00753@pobox.com>
+Subject: [BUG] 2.4.0test13-pre3 apm.o unresolved symbols
+To: linux-kernel@vger.kernel.org
+Date: Sun, 17 Dec 2000 16:30:46 -0800 (PST)
+Reply-To: barryn@pobox.com
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2000, Martin Josefsson wrote:
+When I try "modprobe apm" I get these errors:
 
-> On Mon, 18 Dec 2000, Alan Cox wrote:
-> 
-> > > I compiled test13-pre3 a few minutes ago and when running
-> > > make modules_install I got this:
-> > > 
-> > > depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre3/kernel/fs/ext2/ext2.o
-> > > depmod:         buffer_insert_inode_queue
-> > > depmod:         fsync_inode_buffers
-> > 
-> > Jeff Raubitschek posted a patch for this on the 12th. 
-> 
-> Thanks for the quick response, testing the patch now.
-> If it works I'll ask Linux to include it in the next pre-patch
+/lib/modules/2.4.0-test13-pre3/kernel/arch/i386/kernel/apm.o: unresolved
+symbol pm_send_all
+/lib/modules/2.4.0-test13-pre3/kernel/arch/i386/kernel/apm.o: unresolved
+symbol pm_active
 
-Gaah, why do I write Linux instead of Linus... maybe I should get some
-sleep..
+This is my first time building APM as a module, so I don't know when the
+error was first introduced...
 
-/Martin
+-Barry K. Nathan <barryn@pobox.com>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

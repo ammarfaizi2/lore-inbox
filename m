@@ -1,32 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268402AbRHFNEH>; Mon, 6 Aug 2001 09:04:07 -0400
+	id <S268429AbRHFNMH>; Mon, 6 Aug 2001 09:12:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268428AbRHFND7>; Mon, 6 Aug 2001 09:03:59 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16145 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268377AbRHFNDw>; Mon, 6 Aug 2001 09:03:52 -0400
-Subject: Re: [LONGish] Brief analysis of VMAs (was: /proc/<n>/maps getting
-To: david_luyer@pacific.net.au (David Luyer)
-Date: Mon, 6 Aug 2001 14:05:52 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <997093086.7179.21.camel@typhaon> from "David Luyer" at Aug 06, 2001 08:18:06 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268428AbRHFNLw>; Mon, 6 Aug 2001 09:11:52 -0400
+Received: from [194.30.80.67] ([194.30.80.67]:59911 "EHLO
+	serv_correo.ingecom.net") by vger.kernel.org with ESMTP
+	id <S268429AbRHFNLh>; Mon, 6 Aug 2001 09:11:37 -0400
+Message-ID: <004401c11e79$6866fae0$66011ec0@frank>
+From: "Frank Torres" <frank@ingecom.net>
+To: <root@chaos.analogic.com>
+Cc: "Russell King" <rmk@arm.linux.org.uk>, <jdow@earthlink.net>,
+        "Linux-Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1010806081157.3088A-100000@chaos.analogic.com>
+Subject: Re: Duplicate console output to a RS232C and keep keyb where it is
+Date: Mon, 6 Aug 2001 15:12:08 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Tk4u-0000wy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, that's what's happening above.  And it's what's causing the
-> splits in the vmas.  So basically evolution-mail is doing exactly what
-> your test program was doing, and causing exactly the same thing.
-> 
-> Seems strange that glibc would do this unless there was some performance
-> reason on past kernels to do it?
+> On Mon, 6 Aug 2001, Frank Torres wrote:
+>
+> >
+> > > On Fri, Aug 03, 2001 at 04:01:28PM +0200, Frank Torres wrote:
+> > > > > This is not valid. You cannot reasonably have parity and 8 bits.
+One
+> > > > > of them has to go. Either use 8 bits and no parity or 7 bits with
+> > > > > parity.
+> > >
+> > > All standard 16550 family ports support 8 bits _and_ parity.  Ancient
+> > > serial ports did have a restriction, but that restriction is no more.
+> > >
+>
+> The current problem:
+> During the console initialization sequence, its speed gets set to
+> 38400 baud. This means nothing to a virtual terminal. However, if
+> the attached RS-232C termional is also being set to the same speed,
+> this could explain the garbage characters.
+>
+> So I suggest that Frank set his terminal to 38400 baud and see if
+> the problems disappear.
+>
 
-Are you sure thats not evolution being built with a debugging malloc of
-some kind ?
+I tried it out since the beginning Dick, but the display is
+hardware-configured to its max. speed (9600) So if I'd like to change the
+speed to a lower one I'd have to take a soldering iron and change the hard
+way. I could,  but I'm obtaining the right characters at the display after
+writing an rc.serial with
+
+    setserial /dev/ttyS2 UART 16550A IRQ 10 spd_cust divisor 12
+    stty -F /dev/ttyS2 speed 9600 parenb parodd cs8 cstopb -crtscts
+
+I don't care if I don't see the kernel messages. When rc.sysinit starts
+through init it calls rc.serial and configure the port. The problem is that
+I can't come to that point.. The moment rc.sysinit shows the message, it
+falls into a loop showing the message again and again. I've saved that
+output. If you want to, I can send U the file.
+
+I just want to change the output to the serial port, but not the input.
+
+inittab creates another prompt for login, that's not useful for me unless I
+can tell it to get the input from keyboard.
+
+I've been trying some other choices. I've read that when Linux starts it
+uses the first display available. If it doesn't find one, it uses the first
+serial port, thus, ttyS0. But ttyS0 is a RC-232 and I need RC-232Cs to feed
+the display. So I swapped the major of ttyS0 and ttyS2, removed the display
+card and restarted the system, but when the kernel starts, I can't see
+nothing there. So I restored everything.
+I'm trying desperate ways. Have U noticed it? :)
+
+Greatfully, frank.
 

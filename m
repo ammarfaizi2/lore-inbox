@@ -1,123 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268174AbTAKXQh>; Sat, 11 Jan 2003 18:16:37 -0500
+	id <S268175AbTAKXX6>; Sat, 11 Jan 2003 18:23:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268175AbTAKXQh>; Sat, 11 Jan 2003 18:16:37 -0500
-Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:29478 "EHLO
-	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S268174AbTAKXQf>; Sat, 11 Jan 2003 18:16:35 -0500
-Date: Sat, 11 Jan 2003 18:23:23 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-reply-to: <20030111222619.GG9153@nbkurt.casa-etp.nl>
-To: Kurt Garloff <kurt@garloff.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042327403.1033.71.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
- <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
- <20030111020738.GC9373@work.bitmover.com>
- <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
- <20030111021741.GF9373@work.bitmover.com>
- <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
- <20030111214437.GD9153@nbkurt.casa-etp.nl>
- <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
- <20030111222619.GG9153@nbkurt.casa-etp.nl>
+	id <S268176AbTAKXX6>; Sat, 11 Jan 2003 18:23:58 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:3306 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S268175AbTAKXXy>; Sat, 11 Jan 2003 18:23:54 -0500
+Date: Sat, 11 Jan 2003 16:24:07 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BK fbdev updates]
+Message-ID: <Pine.LNX.4.33.0301111623070.8368-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-11 at 17:26, Kurt Garloff wrote:
-> It is presumptuous. Very much so.
 
-I'll accept that on face value, and take your comments five comments as
-good pieces of information which I'll comment only briefly on.
+Linus, please do a
 
-> 1. A patch does not necessarily indicate something is wrong with the
->    original code. It may only show that people have ideas on how to
->    do things better, more efficiently, more nicely or to support
->    new features or hardware.
+	bk pull http://fbdev.bkbits.net:8080/fbdev-2.5
 
-"Idea on how to do things better" implies "well, gee, it wasn't done so
-great to begin with" :-) which was kinda my point.  
+This will update the following files:
 
-By the way, if I sounded too serious, i'm having fun, otherwise I
-wouldn't be wasting my time here.
+ drivers/video/tridentfb.h        |  169 ----
+ include/video/font.h             |   24
+ arch/m68k/kernel/m68k_defs.c     |    2
+ drivers/video/Kconfig            |    2
+ drivers/video/Makefile           |    7
+ drivers/video/aty/atyfb.h        |    1
+ drivers/video/aty/atyfb_base.c   |   93 --
+ drivers/video/aty/mach64_accel.c |   12
+ drivers/video/console/Kconfig    |   14
+ drivers/video/console/fbcon.c    |   90 +-
+ drivers/video/console/sticon.c   |  101 +-
+ drivers/video/console/sticore.c  |  159 ++--
+ drivers/video/fbmem.c            |   13
+ drivers/video/fbmon.c            |  411 ++++++++++
+ drivers/video/i810/i810.h        |    2
+ drivers/video/i810/i810_accel.c  |   11
+ drivers/video/i810/i810_dvt.c    |    2
+ drivers/video/i810/i810_main.c   |   51 -
+ drivers/video/i810/i810_main.h   |   79 --
+ drivers/video/riva/Makefile      |    2
+ drivers/video/riva/fbdev.c       | 1468 ++++++++++++++++++---------------------
+ drivers/video/riva/nv_driver.c   |  212 +++++
+ drivers/video/riva/riva_hw.c     |  350 +++++++--
+ drivers/video/riva/rivafb.h      |   15
+ drivers/video/sstfb.c            |  711 +++++++++---------
+ drivers/video/sstfb.h            |   31
+ drivers/video/sticore.h          |   58 -
+ drivers/video/stifb.c            |  103 ++
+ drivers/video/tridentfb.c        | 1213 +++++++++++++++-----------------
+ include/linux/fb.h               |   13
+ include/linux/font.h             |   30
+ include/video/trident.h          |  175 ++++
+ 32 files changed, 3195 insertions(+), 2429 deletions(-)
 
-> 2. If a patch fixes a bug, you should be aware that the complexity
->    of an operating system is slightly higher than you think.
->    We're talking about a general purpose operating system that works
->    in real life and solves problems there. Not a toy system or a
->    specialized one.
+through these ChangeSets:
 
-The complexity may be somewhat less than you think.  If you break the OS
-down into components, then take a look at any one of those compnents,
-you can look at, study, and understand, and probably explain exactly
-what any one of those components do at the code level (possibly even if
-they are drivers for devices you are unfamiliar with).  Build up your
-understanding of all of those little components, then you realize that
-it's not as complex as you think.  The whole is just the sum of its
-parts, and the parts are not that complex.
+<jsimmons@maxwell.earthlink.net> (03/01/11 1.891)
+   [TRIDENT FBDEV] Driver ported to the new api.
 
-> 3. The amount of supported subsystems and hardware of the Linux kernel
->    is enormous. The hardware you deal with very often already is complex
->    and/or buggy. And needs things you never even thought about when
->    doing userspace programs before. Like protection from concurrent 
->    accesses to hardware.
+<jsimmons@maxwell.earthlink.net> (03/01/10 1.887.1.4)
+   Final updtes to the GTF code. Now the code can gnerate GTF timings regardless of the validity of info->monospecs.
 
-I've thought about concurrent access to hardware from multiple
-processors, and didn't like it -- but that's where "Simple" (not
-complex) concepts like spinlocks come in (call 'em mutexes or semaphores
-or whatever your buzzword of choice is).  You wait for the resource to
-become available then you access it.
+   [ATYFB] Updates to the aty driver.
 
-As per buggy hardware, the software should _not_ have to support it. 
-The software should report that the hardware has a bug and stop. 
-Otherwise, you wind up writing really bad code for other hardware at the
-same time that you're trying to work with one particular piece of bad
-hardware.
+<jsimmons@maxwell.earthlink.net> (03/01/08 1.887.1.1)
+   Remove fb_set_var. Some how it was missed in a merge conflict.
 
-> 4. In kernel land, you have less tools available than a normal programmer
->    has. Things you assume just to be there and to work in userland programs
->    are unavailable and have to be done by yourself. Like I/O. Memory
->    allocation and management. 
+<jsimmons@kozmo.(none)> (03/01/08 1.889)
+   [ATY] Somehow a merge mistake happened. We removed fb_set_var.
 
-You have the same tools, but they have different names.  For example,
-instead of "printf" you have "printk", sure it's implemented in the
-kernel itself, but it's there.  As per memory management, if you wanted
-the kernel to do it for you, why the hell would you need to write a
-kernel.
+<jsimmons@maxwell.earthlink.net> (03/01/08 1.887)
+   [MONITOR support] GTF support for VESA complaint monitors. Here we calculate the general timings needed so we don't over step the bounds for a monitor.
 
-> 5. The impact of a bug in kernel is much higher than in a normal program.
+   [fbmem.c cleanup] Name change to make teh code easier to read.
 
-Yeah, kernel processes have access to all memory, while user programs
-run in protected mode.  Among other things.  With responsibility comes
-power they say, or was it the other way around :-)
+<jsimmons@maxwell.earthlink.net> (03/01/07 1.879.2.95)
+   Updates from Helge Deller for the console/fbdev drivers for the PARISC platform. Small fix for clearing the screen and a string typo for the Voodoo 1/2 driver.
 
-> It is naïve to believe that the fact that many bugs are found indicates 
-> poor quality of a code. 
+<jsimmons@maxwell.earthlink.net> (03/01/06 1.879.2.93)
+   [RIVA FBDEV] Driver now uses its own fb_open and fb_release function again. It has no ill effects. The drivers uses strickly hardware acceleration so we don't need cfb_fillrect and cfb_copyarea.
+   Cleaned up font.h. Geerts orignal pacth broke them up into a font.h in video and one in  linux. Now I put them back together again in include/linux. The m68k platform has been updated for this change.
 
-It is equally naive to discard the possibility.  On the other hand, we
-don't see the list of bugs that are fixed on a daily basis internally at
-companies like microsoft.  
 
-> Just compare the stability of Linux to other operating systems. 
+<jsimmons@maxwell.earthlink.net> (03/01/06 1.879.2.92)
+   Added resize support for the framebuffer console. Now you can change the console size via stty. Also support for color palette changing on VC switch is supported.
 
-There aren't any comparable systems for stability.
+<jsimmons@maxwell.earthlink.net> (03/01/06 1.879.2.91)
+   I810 fbdev updates. Cursor fix for ati mach 64 cards on big endian machines. Buffer over flow fix for fbcon putcs function. C99 initializers for the STI console drivers.Voodoo 1/2 and NVIDIA driver updates.
 
-> Go and start to work on a free software project of comparable size.
-> If you think you can do it, create Robix. If your enthusiast enough,
-> and technically good enough, you will find people who find it exciting
-> and will help you.
+Standard diff is at
 
-The enthusiastic enough part will be the tough part...  Why do something
-which is already done?  If I can do it better, who am I trying to do it
-for and why?  As they say "Code it first, then talk", well, I'm not
-coding at this stage, so I guess I have no right to talk then.
+http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
--Rob
 

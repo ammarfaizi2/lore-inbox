@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281044AbRKTLzd>; Tue, 20 Nov 2001 06:55:33 -0500
+	id <S281034AbRKTLzy>; Tue, 20 Nov 2001 06:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281040AbRKTLzX>; Tue, 20 Nov 2001 06:55:23 -0500
-Received: from MAILGW01.bang-olufsen.dk ([193.89.221.116]:3850 "EHLO
-	mailgw01.bang-olufsen.dk") by vger.kernel.org with ESMTP
-	id <S281034AbRKTLzI>; Tue, 20 Nov 2001 06:55:08 -0500
-To: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OT: FireWire
-In-Reply-To: <200111201123592.SM00162@there>
-From: Kristian Hogsberg <hogsberg@users.sourceforge.net>
-Date: 20 Nov 2001 12:55:08 +0100
-In-Reply-To: <200111201123592.SM00162@there>
-Message-ID: <m3itc5ejxf.fsf@dk20037170.bang-olufsen.dk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S281040AbRKTLzn>; Tue, 20 Nov 2001 06:55:43 -0500
+Received: from [209.1.214.217] ([209.1.214.217]:59914 "EHLO
+	iso2.vistocorporation.com") by vger.kernel.org with ESMTP
+	id <S281034AbRKTLzc> convert rfc822-to-8bit; Tue, 20 Nov 2001 06:55:32 -0500
+Message-ID: <3BE1CB8E000E8CF4@iso2.vistocorporation.com> (added by
+	    administrator@vistocorporation.com)
+Reply-To: linuxlist@visto.com
+From: "rohit prasad" <linuxlist@visto.com>
+Subject: tftp boot loader source
+Date: Tue, 20 Nov 2001 03:54:00 -0800
+X-Mailer: Visto
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on BeoSmtp/Bang & Olufsen/DK(Release 5.0.6a |January
- 17, 2001) at 20-11-2001 12:55:05,
-	Serialize by Router on dzln11/Bang & Olufsen/DK(Release 5.0.6 |December 14, 2000) at
- 20-11-2001 12:55:00,
-	Serialize complete at 20-11-2001 12:55:00
+X-Mailer: Visto Server
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Szentmihalyi <robert.szentmihalyi@entracom.de> writes:
+Hi, 
 
-> Hi!
->
-> Could somebody please suggest a FireWire card which is supported
-> well enough for production use?
-> I haven't found much information on this topic so far.
+ There is a tftpboot directory in Red Hat 7.2 what I have just installed.
 
-Anything with an ohci chipset should work.  The driver development is
-hosted on sourceforge, see linux1394.sourceforge.net.  If you decide
-to try it out, I recommend you get the latest cvs snapshot of the
-drivers as described here: http://linux1394.sourceforge.net/cvs.html.
+ Where can i find the source code for the server and client for the tftp boot loader.
 
-As for production use: the entire 1394 subsystem is marked as
-experimental so dont expect to break uptime records while playing
-with 1394 :-)
-
-Kristian
+ Thanks in advance,
+Rohit
+___________________________________________________________________________
+Visit http://www.visto.com.
+Find out  how companies are linking mobile users to the 
+enterprise with Visto.
 

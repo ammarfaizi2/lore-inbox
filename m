@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTJFQAz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 12:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTJFQAz
+	id S262373AbTJFQJU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 12:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbTJFQJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 12:00:55 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:50841 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262101AbTJFQAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 12:00:54 -0400
-Subject: Re: [PATCH] s390 (2/7): common i/o layer.
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, viro@www.linux.org.uk
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OFA892CF2E.C36F5F22-ONC1256DB7.00570E6C-C1256DB7.0057D283@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 6 Oct 2003 17:59:15 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 06/10/2003 17:59:47
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Mon, 6 Oct 2003 12:09:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:10237 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262373AbTJFQJO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 12:09:14 -0400
+Date: Mon, 6 Oct 2003 09:08:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031006160846.GA4125@us.ibm.com>
+References: <20031006085915.GE4220@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031006085915.GE4220@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.6.0-test6-bk5 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 06, 2003 at 02:29:15PM +0530, Maneesh Soni wrote:
+> 
+> 				2.6.0-test6		With patches.
+> -----------------
+> dentry_cache (active)		2520			2544
+> inode_cache (active)		1058			1050
+> LowFree			875032 KB		874748 KB
 
-> That's a trivial deadlock.  You _can't_ do that sysfs.  Static kobject in
-> a module is a bug.  Period.
+So with these patches we actually eat up more LowFree if all sysfs
+entries are searched, and make the dentry_cache bigger?  That's not good :(
 
-Are you trying to say that a device_register in module_init and a
-device_unregister in module_exit is not allowed? Because if you
-do a kmalloc/kfree to get the memory for your object or allocate
-it statically is irrelevant if the release function is part of the
-module you are trying to unload.
+Remember, every kobject that's created will cause a call to
+/sbin/hotplug which will cause udev to walk the sysfs tree to get the
+information for that kobject.  So I don't see any savings in these
+patches, do you?
 
-blue skies,
-   Martin
+thanks,
 
-
+greg k-h

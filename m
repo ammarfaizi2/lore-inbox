@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129432AbQKGNwf>; Tue, 7 Nov 2000 08:52:35 -0500
+	id <S129795AbQKGN4Z>; Tue, 7 Nov 2000 08:56:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130024AbQKGNw0>; Tue, 7 Nov 2000 08:52:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20092 "EHLO
+	id <S129781AbQKGN4P>; Tue, 7 Nov 2000 08:56:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36988 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129432AbQKGNwS>; Tue, 7 Nov 2000 08:52:18 -0500
-Subject: Re: [PATCH] Re: Negative scalability by removal of
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Tue, 7 Nov 2000 13:52:44 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3A07FB88.E73D0D2D@uow.edu.au> from "Andrew Morton" at Nov 07, 2000 11:54:32 PM
+	id <S129673AbQKGN4I>; Tue, 7 Nov 2000 08:56:08 -0500
+Subject: Re: Persistent module storage - modutils design
+To: vonbrand@inf.utfsm.cl (Horst von Brand)
+Date: Tue, 7 Nov 2000 13:55:59 +0000 (GMT)
+Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
+In-Reply-To: <200011071330.eA7DUdw26230@pincoya.inf.utfsm.cl> from "Horst von Brand" at Nov 07, 2000 10:30:39 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13t9B8-0007Qv-00@the-village.bc.nu>
+Message-Id: <E13t9EH-0007Ra-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyway, version 2 below uses LIFO for the accept() wakeups.  This
-> appears to be a 5%-10% win for Apache.  The browsing loop for
-> exclusive tasks will now pull in cachelines 0 and 2, rather
-> than the previous 0 and 1.
+> Note! This _has_ to be in the / filesystem so it works before mounting the
+> rest of the stuff (if ever). This would rule out /var, and leave just
+> /lib/modules/<version>. Makes me quite unhappy...
 
-That makes it much worse for the newest cpus which use 64byte lines (Athlon
-and PIV)
+The /lib filesystem is likely not writable so /var is the right default. 
+Any reason it cant be overridden in modules.conf ?
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264027AbTFDUDk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 16:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264035AbTFDUDk
+	id S264026AbTFDUEE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 16:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTFDUEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 16:03:40 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:65478
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S264027AbTFDUDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 16:03:39 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andrew Morton <akpm@digeo.com>,
-       "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Subject: Union mounts (was: Re: sysfs-diskstat)
-Date: Wed, 4 Jun 2003 16:19:38 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <D9B4591FDBACD411B01E00508BB33C1B014052AC@mesadm.epl.prov-liege.be> <20030604021716.0b2a121a.akpm@digeo.com>
-In-Reply-To: <20030604021716.0b2a121a.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jun 2003 16:04:04 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:60313 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S264026AbTFDUEC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 16:04:02 -0400
+Date: Wed, 4 Jun 2003 22:16:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: hugang <hugang@soulinfo.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE Power Management (Was: software suspend in 2.5.70-mm3)
+Message-ID: <20030604201652.GC524@elf.ucw.cz>
+References: <20030603211156.726366e7.hugang@soulinfo.com> <1054646566.9234.20.camel@dhcp22.swansea.linux.org.uk> <20030603223511.155ea2cc.hugang@soulinfo.com> <1054649308.9233.26.camel@dhcp22.swansea.linux.org.uk> <1054659866.20839.10.camel@gaston> <1054732481.20839.30.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306041619.38928.rob@landley.net>
+In-Reply-To: <1054732481.20839.30.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 June 2003 05:17, Andrew Morton wrote:
-> "Frederick, Fabian" <Fabian.Frederick@prov-liege.be> wrote:
-> > Hi !
-> >
-> > 	Someone could tell me if the proc/diskstat stuff will be kept in 2.6
-> > and above or do we have to refer _only_
-> >  to sysfs by now ?
->
-> death, taxes and /proc/diskstats.  It ain't going away.
+Hi!
 
-Out of morbid curiosity, what's the status of union mounts?  I've had this 
-sneaking suspicion that /proc would eventually be broken up into two 
-filesystems: 1) what /proc was originally meant for (a subdirectory for each 
-pid), 2) all the extra crap that got shoehorned into it back when it was the 
-only synthetic filesystem (and after everybody got into the habit of putting 
-synthetic fs stuff into /proc).
+> > > Still races. Ben's stuff is needed
+> > 
+> > I have it working with some fixes from what I sent earlier, I'll
+> > repost that tonight or tomorrow, I need to extract that from
+> > a half-broken tree ;)
+> 
+> Ok, here is it. It still need a bit of cleanup (removal of magic
+> number for "steps" -> enum, etc...) and we may want to do more
+> things on wakeup especially for ide-cd, Also I don't deal with
+> ide-tape or ide-floppy in there and haven't fully studied the
+> impact with ide-scsi....
+> 
+> So it's not meant to be merged as-is, though I'd appreciate to
+> know if it helps for you.
+> 
+> Bartolomiej: Any comments appreciated, I won't do the ide-tape/floppy
+> part as I don't know/own these, I think i'll let you decide if
+> anything more is needed on the wakeup path for ide-cd... Once I
+> have enough feedback, I'll send you a cleanified version as
+> candidate for upstream merge.
 
-Of course making this work with legacy tools would require union mounting both 
-procfs and crapfs onto /proc.  Which gets us back to "how are union mounts 
-doing"?
+Please send cleaned up version ASAP... Waiting will do no good. If it
+handles only ide-disks, that's okay, its still way better than whats
+in the tree.
 
-Rob
-
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

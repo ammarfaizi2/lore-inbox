@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbTEHPiu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 11:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEHPit
+	id S261786AbTEHPpK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 11:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTEHPpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 11:38:49 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:20742 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261789AbTEHPis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 11:38:48 -0400
-Date: Thu, 8 May 2003 16:51:18 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: "David S. Miller" <davem@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-Message-ID: <20030508165118.A12791@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ben Collins <bcollins@debian.org>,
-	"David S. Miller" <davem@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-References: <20030507104008$12ba@gated-at.bofh.it> <200305071154.h47BsbsD027038@post.webmailer.de> <20030507124113.GA412@elf.ucw.cz> <20030507135600.A22642@infradead.org> <1052318339.9817.8.camel@rth.ninka.net> <20030508151643.GO679@phunnypharm.org>
+	Thu, 8 May 2003 11:45:10 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7047
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261786AbTEHPpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 11:45:09 -0400
+Subject: Re: The disappearing sys_call_table export.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Terje Malmedal <terje.malmedal@usit.uio.no>
+Cc: Terje Eggestad <terje.eggestad@scali.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       D.A.Fedorov@inp.nsk.su
+In-Reply-To: <E19DkT9-0000Wh-00@aqualene.uio.no>
+References: <1052122784.2821.4.camel@pc-16.office.scali.no>
+	 <20030505092324.A13336@infradead.org>
+	 <1052127216.2821.51.camel@pc-16.office.scali.no>
+	 <1052133402.29361.2.camel@dhcp22.swansea.linux.org.uk>
+	 <E19DkT9-0000Wh-00@aqualene.uio.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052405926.10037.55.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030508151643.GO679@phunnypharm.org>; from bcollins@debian.org on Thu, May 08, 2003 at 11:16:43AM -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 May 2003 15:58:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 11:16:43AM -0400, Ben Collins wrote:
-> How would the driver differentiate between .compat_ioctl == NULL being a
-> case where it should fail because there is no translation, or a case
-> where it should use the compatible .ioctl? Maybe there should be an
-> extra flag like use_compat_ioctl. So:
+On Iau, 2003-05-08 at 13:25, Terje Malmedal wrote:
+> How about a
+> 
+> EXPORT_SYMBOL_GPL_AND_DONT_EVEN_THINK_ABOUT_SENDING_A_BUG_REPORT(sys_call_table);
 
-.compat_ioctl == NULL:  fail
-.compat_ioctl == .ioctl: everythings fine, I read the docs
+Its in read only space nowdays anyway
 
-> This would also solve the current problem where a module that is
-> compiled with compat ioctl's using register_ioctl32_conversion() is not
-> usable on a kernel compiled without CONFIG_COMPAT, even though it very
-> well should be.
+> A server for an online internet game had several months of uptime and
+> I needed to rotate the log-files so I made a module which trapped
+> sys_write and closed and reopened the file with a new name before
+> continuing[1]. 
 
-You mean you want to load the same binary module in differently
-compiled kernels?  That's a flawed idea to start with..
+man ptrace
 

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbTAOLUN>; Wed, 15 Jan 2003 06:20:13 -0500
+	id <S266228AbTAOLiw>; Wed, 15 Jan 2003 06:38:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266210AbTAOLUM>; Wed, 15 Jan 2003 06:20:12 -0500
-Received: from dp.samba.org ([66.70.73.150]:43476 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265643AbTAOLUM>;
-	Wed, 15 Jan 2003 06:20:12 -0500
-Date: Wed, 15 Jan 2003 22:24:12 +1100
-From: Anton Blanchard <anton@samba.org>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
-Message-ID: <20030115112412.GA5062@krispykreme>
-References: <20030115105802.GQ940@holomorphy.com>
+	id <S266233AbTAOLiw>; Wed, 15 Jan 2003 06:38:52 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:11794 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S266228AbTAOLiv>; Wed, 15 Jan 2003 06:38:51 -0500
+Date: Wed, 15 Jan 2003 12:41:30 +0100
+From: DervishD <raul@pleyades.net>
+To: jw schultz <jw@pegasys.ws>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+Message-ID: <20030115114130.GD66@DervishD>
+References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc> <20030115082527.GA22689@pegasys.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030115105802.GQ940@holomorphy.com>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030115082527.GA22689@pegasys.ws>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi JW :)
 
-> 	-- I've already tried and failed on PCI segments.
-> 	-- I would be much obliged for advice on this one, especially
-> 	-- since the workaround cripples the machine.
+> > > right after your envp.  So, writing more info there would blow away
+> > > your stack.
+> > I can smell the next hack... memmove() the stack down to make room... :-)
+> No need.  You can memcpy the environment.  See setenv(3),
+> putenv(3) and related library routines.
 
-I was wondering if we could use pci_scan_bus_parented as a start.
-Assuming we fixed pci_bus_exists, this should allow us to create
-overlapping busses.
+    I'm afraid that the best solution, well, the one which involves
+less code and less problems (no need to relocate the environment or
+things like that) is to write to argv[0] a shorter string that the
+existing one, and overwrite with nulls the rest of arguments, just in
+case the stack layout is not what expected.
 
-What else needs fixing? To start with:
+    Really, I'm thinking seriously about not rewritting argv[0] at
+all. The problem is that may confuse the user when issuing 'ps' or
+looking at /proc :((
 
-* pci config read/writes
-	Should be arch specific, can hide things in struct pci_bus
-	which is passed in. (eg on ppc64 we have to pass an identifier
-	into the low level config read or write)
-
-* pci IO/memory reads/writes
-	No problems on ppc64, it should just work. Are there problems
-	on x86? 
-
-* /proc/bus/pci/
-	As davem pointed out we have a backwards compatibility bit
-	where all devices on domain 0 appear as they always have.
-	Additionally we create another level of directories to represent
-	the domain.
-
-* /proc/pci
-	Need to print the domain
-
-* device printing
-	We need a macro that drivers can use to print their PCI location
-	Then we make that print the domain.
-
-* sysfs
-	I havent looked into this yet
-
-Does anything else spring to mind?
-
-Anton
+    Raúl

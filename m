@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310293AbSCGMIp>; Thu, 7 Mar 2002 07:08:45 -0500
+	id <S310289AbSCGMGZ>; Thu, 7 Mar 2002 07:06:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310292AbSCGMIZ>; Thu, 7 Mar 2002 07:08:25 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:39173 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S310293AbSCGMIT>; Thu, 7 Mar 2002 07:08:19 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>
-Cc: lse-tech@lists.sourceforge.net
-Subject: furwocks: Fast Userspace Read/Write Locks
-Date: Thu, 07 Mar 2002 23:11:38 +1100
-Message-Id: <E16iwkE-000216-00@wagner.rustcorp.com.au>
+	id <S310292AbSCGMGP>; Thu, 7 Mar 2002 07:06:15 -0500
+Received: from web11804.mail.yahoo.com ([216.136.172.158]:41227 "HELO
+	web11804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S310289AbSCGMGK>; Thu, 7 Mar 2002 07:06:10 -0500
+Message-ID: <20020307120609.85742.qmail@web11804.mail.yahoo.com>
+Date: Thu, 7 Mar 2002 13:06:09 +0100 (CET)
+From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+Subject: Re: [patch] delayed disk block allocation
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a userspace implementation of rwlocks on top of futexes.
+> With "allocate on flush", (aka delayed allocation), file data is
+> assigned a disk mapping when the data is being written out, rather than
+> at write(2) time.  This has the following advantages:
 
-Release was delayed because tdbtorture started crashing... turns out
-it's unrelated 2.5.6-pre2 wierdness (after a good 6 hours debugging
-<SIGH>).
+  I do agree that this is a better solution than current one,
+ but (even if I did not had time to test the patch), I have
+ a question: How about bootloaders?
 
-So I don't have numbers, but I'm pretty sure this is as good as it
-gets without explicit kernel support for rwlocks.  Kudos to Paul
-Mackerras for the brainwork on this one.  Blame me for the name.
+ IHMO all current bootloaders need to write to disk a "chain" of sector
+ to load for their own initialisation, i.e. loading the remainning
+ part of code stored on a file in one filesystem from the 512 bytes
+ bootcode. This "chain" of sector can only be known once the file
+ has been allocated to disk - and it has to be written on the same file,
+ at its allocated space.
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/futex-1.2.tar.gz
+  So can you upgrade LILO or GRUB with your patch installed?
+  It is not a so big problem (the solution being to install the
+ bootloader on an unmounted filesystem with tools like e2fsprogs),
+ but it seems incompatible with the current executables.
 
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+  Comment?
+  Etienne.
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

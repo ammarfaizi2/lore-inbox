@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318355AbSGaN1w>; Wed, 31 Jul 2002 09:27:52 -0400
+	id <S318367AbSGaNbz>; Wed, 31 Jul 2002 09:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318367AbSGaN1w>; Wed, 31 Jul 2002 09:27:52 -0400
-Received: from sprocket.loran.com ([209.167.240.9]:2035 "EHLO
-	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
-	id <S318355AbSGaN1v>; Wed, 31 Jul 2002 09:27:51 -0400
-Subject: RE: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: David Luyer <david_luyer@pacific.net.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1028125599.7886.68.camel@irongate.swansea.linux.org.uk>
-References: <00c201c23892$1c5fb450$638317d2@pacific.net.au> 
-	<1028125599.7886.68.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
+	id <S318371AbSGaNbz>; Wed, 31 Jul 2002 09:31:55 -0400
+Received: from CPE-203-51-28-61.nsw.bigpond.net.au ([203.51.28.61]:46835 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S318367AbSGaNby>; Wed, 31 Jul 2002 09:31:54 -0400
+Message-ID: <3D47E796.3188C62@eyal.emu.id.au>
+Date: Wed, 31 Jul 2002 23:35:18 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RAID problems
+References: <Pine.LNX.3.96.1020730223102.6974A-100000@gatekeeper.tmr.com> <004501c23841$03265a30$6a01a8c0@wa1hco>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 31 Jul 2002 09:31:17 -0400
-Message-Id: <1028122277.13632.3.camel@dlacoste.ottawa.loran.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-31 at 13:59, David Luyer wrote:
->   printf("%d\n", sysconf(_SC_NPROCESSORS_CONF));
-> }
-> luyer@praxis8:~$ ./cpus
-> 4
+jeff millar wrote:
+[trimmed]
+> Raid needs an automatic way to maintain device synchronization.  Why should
+> I have to...
+>     manually examine the device data (lsraid)
+>     find two devices that match
+>     mark the others failed in /etc/raidtab
+>     reinitialize the raid devices...putting all data at risk
+>     hot add the "failed" device
+>     wait for it to recover (hours)
 
-I ran your test program on a Compaq DL360 and an IBM x330
-and both showed '2' for the CPU count (2.4.18 stock, glibc 2.2.3)
+There is no need to wait here, go a head and remount it now if you need
+it.
 
-Just a point of reference to help narrow the problem area down :)
+>     change /etc/raidtab again
+>     retest everything
 
-Dana Lacoste
-Ottawa, Canada
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

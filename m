@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273534AbRJ0PWq>; Sat, 27 Oct 2001 11:22:46 -0400
+	id <S273588AbRJ0P01>; Sat, 27 Oct 2001 11:26:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273588AbRJ0PWg>; Sat, 27 Oct 2001 11:22:36 -0400
-Received: from a1d15hel.dial.kolumbus.fi ([212.54.8.1]:53643 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S273534AbRJ0PWV>; Sat, 27 Oct 2001 11:22:21 -0400
-Message-ID: <3BDAD140.2993B571@kolumbus.fi>
-Date: Sat, 27 Oct 2001 18:22:40 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
+	id <S273996AbRJ0P0Q>; Sat, 27 Oct 2001 11:26:16 -0400
+Received: from dobit2.rug.ac.be ([157.193.42.8]:59025 "EHLO dobit2.rug.ac.be")
+	by vger.kernel.org with ESMTP id <S273588AbRJ0P0L>;
+	Sat, 27 Oct 2001 11:26:11 -0400
+Date: Sat, 27 Oct 2001 17:26:46 +0200 (MEST)
+From: Frank Cornelis <Frank.Cornelis@rug.ac.be>
+To: <linux-kernel@vger.kernel.org>
+Subject: fixes: current_text_addr
+Message-ID: <Pine.GSO.4.31.0110271724540.16025-100000@eduserv.rug.ac.be>
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: Samium Gromoff <_deepfire@mail.ru>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
-In-Reply-To: <200110251930.f9PJUJl26883@vegae.deep.net> <20011025160103.I23000@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> 
-> >       Host A: p166, ISA NE2K, linux-2.4.12-ac4
-> Solution: replace NE2K with a decent network card.
+Hi,
 
-Load of NE2k running at full 10 Mbps is 60% on P100 running OpenBSD...
+Next patch fixes the current_text_addr macro to work also with optimized
+code.
+There is also a documentation fix included.
 
+Frank.
 
- - Jussi Laako
+--- processor.h.orig	Fri Oct 26 16:37:51 2001
++++ processor.h	Fri Oct 26 16:39:15 2001
+@@ -22,7 +22,8 @@
+  * Default implementation of macro that returns current
+  * instruction pointer ("program counter").
+  */
+-#define current_text_addr() ({ void *pc; __asm__("movl $1f,%0\n1:":"=g" (pc)); pc; })
++#define current_text_addr() \
++({ void *pc; __asm__ __volatile__("movl $1f,%0\n1:":"=g" (pc)); pc; })
 
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+ /*
+  *  CPU type and hardware bug flags. Kept separately for each CPU.
+--- threads.h.orig	Fri Oct 26 16:46:52 2001
++++ threads.h	Fri Oct 26 16:47:19 2001
+@@ -5,7 +5,7 @@
+
+ /*
+  * The default limit for the nr of threads is now in
+- * /proc/sys/kernel/max-threads.
++ * /proc/sys/kernel/threads-max.
+  */
+
+ #ifdef CONFIG_SMP
+

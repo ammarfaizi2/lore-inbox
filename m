@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbUKPPAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbUKPPCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbUKPPAI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 10:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbUKPO6w
+	id S262003AbUKPPCs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 10:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262002AbUKPPAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:58:52 -0500
-Received: from irulan.endorphin.org ([212.13.208.107]:57357 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S261995AbUKPO6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:58:11 -0500
-Subject: Re: GPL version, "at your option"?
-From: Fruhwirth Clemens <clemens@endorphin.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20041116143546.GA4398@harddisk-recovery.com>
-References: <1100614115.16127.16.camel@ghanima>
-	 <20041116143546.GA4398@harddisk-recovery.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-m+Y3WCsq6qP6ru4rP2ED"
-Date: Tue, 16 Nov 2004 15:58:09 +0100
-Message-Id: <1100617089.16127.20.camel@ghanima>
+	Tue, 16 Nov 2004 10:00:44 -0500
+Received: from mail.shareable.org ([81.29.64.88]:40323 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262000AbUKPO6f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:58:35 -0500
+Date: Tue, 16 Nov 2004 14:58:03 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: bert hubert <ahu@ds9a.nl>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, mingo@elte.hu
+Subject: Re: Futex queue_me/get_user ordering
+Message-ID: <20041116145803.GA15599@mail.shareable.org>
+References: <20041113164048.2f31a8dd.akpm@osdl.org> <20041114090023.GA478@mail.shareable.org> <20041114010943.3d56985a.akpm@osdl.org> <20041114092308.GA4389@mail.shareable.org> <20041114095051.GA11391@outpost.ds9a.nl> <20041115141247.GC25502@mail.shareable.org> <4199BAA0.1070608@jp.fujitsu.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4199BAA0.1070608@jp.fujitsu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hidetoshi Seto wrote:
+> I have to deeply apologize to all for my mistake.
+> If my understanding is correct, this bug is "2.4 futex"(RHEL3) *SPECIFIC*!!
+> I had swallow the story that 2.6 futex has the same problem...
 
---=-m+Y3WCsq6qP6ru4rP2ED
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Wrong, 2.6 has the same behaviour!
 
-On Tue, 2004-11-16 at 15:35 +0100, Erik Mouw wrote:
-> On Tue, Nov 16, 2004 at 03:08:35PM +0100, Fruhwirth Clemens wrote:
-> > I'm about to submit a patch for a new cipher mode called LRW, adding ne=
-w
-> > code/files to the crypto tree. My question is, especially to the
-> > maintainers: Are you going to accept code covered by the terms:
-> >=20
-> >  * This program is free software; you can redistribute it and/or modify
-> >  * it under the terms of the GNU General Public License as published by
-> >  * the Free Software Foundation, version 2 of the License.
->=20
-> There's already quite some code that's only licensed with GPLv2. Look
-> for example at arch/arm/common/dmabounce.c which does the same as you
-> want but with slightly different words:
+> So I realize that 2.6 futex never behave:
+> >>      "returns 0 if the futex was not equal to the expected value, but
+> >>       the process was woken by a FUTEX_WAKE call."
+> 
+> Update of manpage is now unnecessary, I think.
 
-Thanks, I wasn't sure, what to grep for.=20
+It is necessary.
 
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+> First of all, I would appreciate if you could read my old post:
+> "Kernel bug in futex_wait, cause application hang with NPTL"
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0409.0/2044.html
 
---=-m+Y3WCsq6qP6ru4rP2ED
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> If my understanding is correct, 2.6 futex does not get any spinlocks,
+> but a semaphore:
+>
+>  286 static int futex_wake(unsigned long uaddr, int nr_wake)
+>   :
+>  294         down_read(&current->mm->mmap_sem);
+>
+>  477 static int futex_wait(unsigned long uaddr, int val, unsigned long time)
+>   :
+>  483         down_read(&current->mm->mmap_sem);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+> This semaphore prevents a waiter which temporarily queued to check the val
+> from being target of wakeup.
 
-iD8DBQBBmhWBW7sr9DEJLk4RAv/8AKCGeLu1zMLUODTYnWw4c4hAapSzMgCffDzd
-4gBTNaf2dHo+WjIksHaGksA=
-=nwo8
------END PGP SIGNATURE-----
+No, because it's a read-write semaphore, and we do "down_read" on it
+which is a shared lock.  It does not prevent concurrent wake and wait
+operations!
 
---=-m+Y3WCsq6qP6ru4rP2ED--
+The only reason we use this semaphore is to block against vma-changing
+operations (like mmap) while we look up the futex key and memory word.
+
+> (If it is not possible that there are threads which go around with same
+> futex/condvar but each have different mmap_sem,)
+
+Actually it is possible, with process-shared condvars, but it's
+irrelevant because down_read doesn't prevent concurrent wakes and
+waits.
+
+[About 2.4 futex in RHEL3U2 which takes spinlocks instead]:
+> However, this spinlocks fail to prevent topical waiters from wakeups.
+> Because the spinlocks are released *before* unqueue_me(&q) (line 343 & 373).
+> So this failure allows wake_Y to touch the queue while wait_A is in it.
+
+This order is necessary, because it's not safe to call get_user()
+while holding any spinlocks.  It is not a bug in RHEL.
+
+> At least 2.4 futex in RHEL3U2 is buggy.
+
+I don't think it is, because I think the behaviour you'll see with
+RHEL3U2 is no different than 2.6, just slower ;)
+
+-- Jamie

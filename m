@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265898AbTBPGpv>; Sun, 16 Feb 2003 01:45:51 -0500
+	id <S265947AbTBPHEw>; Sun, 16 Feb 2003 02:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265936AbTBPGpv>; Sun, 16 Feb 2003 01:45:51 -0500
-Received: from packet.digeo.com ([12.110.80.53]:33219 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265898AbTBPGpu>;
-	Sun, 16 Feb 2003 01:45:50 -0500
-Date: Sat, 15 Feb 2003 22:56:18 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Andi Kleen <ak@suse.de>
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, tim@physik3.uni-rostock.de
-Subject: Re: [PATCH] make jiffies wrap 5 min after boot
-Message-Id: <20030215225618.538f4c70.akpm@digeo.com>
-In-Reply-To: <p73znowybo5.fsf@amdsimf.suse.de>
-References: <Pine.LNX.4.33L2.0302040935230.6174-100000@dragon.pdx.osdl.net.suse.lists.linux.kernel>
-	<Pine.LNX.4.33.0302160232120.7975-100000@gans.physik3.uni-rostock.de.suse.lists.linux.kernel>
-	<20030216020808.GF9833@krispykreme.suse.lists.linux.kernel>
-	<p73znowybo5.fsf@amdsimf.suse.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265987AbTBPHEw>; Sun, 16 Feb 2003 02:04:52 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:16367 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S265947AbTBPHEv>;
+	Sun, 16 Feb 2003 02:04:51 -0500
+Message-ID: <3E4F3A40.3090502@mvista.com>
+Date: Sat, 15 Feb 2003 23:14:08 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Wuertele <dave-gnus@bfnet.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: how to interactively break gdb debugging kernel over serial?
+References: <20030214234557.GC13336@doc.pdx.osdl.net> <m38ywia054.fsf@bfnet.com>
+In-Reply-To: <m38ywia054.fsf@bfnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Feb 2003 06:55:34.0138 (UTC) FILETIME=[671345A0:01C2D588]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> Anton Blanchard <anton@samba.org> writes:
+David Wuertele wrote:
+> I'm debugging the kernel with gdb over a serial port.  Breakpoints and
+> stepping through code works great, except for the fact that once the
+> kernel is running, I can't seem to use Control-C to stop it.  Is there
+> a keypress or other interactive way to break a running kernel?
 > 
-> > Hi,
-> > 
-> > > +#define INITIAL_JIFFIES (0xffffffffUL & (unsigned long)(-300*HZ))
-> > 
-> > In order to make 64bit arches wrap too, you might want to use -1UL here.
-> > Not that jiffies should wrap on a 64bit machine...
+> Thanks,
+> Dave
 > 
-> Seems somewhat pointless.
-> 
-> (2^64-1) / (1000 * 3600 * 24 * 365)
->         ~584942417.35507203243911719939
-> 
-> I doubt any system ever will have an uptime of > 584 million years
-> (assuming HZ=1000) and if jiffies wrap will be the least of their
-> problems.
-> 
+Dave,
 
-But the point of this patch is to catch jiffy wrap bugs in generic code as
-well as in platform-specific code.
+There are a great number of kgdb patches in the wild.  You would help 
+us out a lot if you were to name the one you are using.  If you are on 
+then 2.5 kernel I suggest you check out Andrew Morton's area and use 
+that one.
 
-Doing it for 64-bit platforms as well will give us just that bit more testing
-coverage, and has no cost.  (Well, 8 more bytes of kernel image...)
+If you are using the one from source forge on a 2.4 kernel, there is a 
+mailing list for it that can be found at the same sourceforge site.
+
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

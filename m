@@ -1,54 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUEQKBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUEQKCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbUEQKBT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 06:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbUEQKBT
+	id S264955AbUEQKCX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 06:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbUEQKCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 06:01:19 -0400
-Received: from adsl-74-86.38-151.net24.it ([151.38.86.74]:10509 "EHLO
-	gateway.milesteg.arr") by vger.kernel.org with ESMTP
-	id S264953AbUEQKBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 06:01:00 -0400
-Date: Mon, 17 May 2004 12:00:58 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: Eric BENARD / Free <ebenard@free.fr>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.6 : bad PCI device ID for SiS ISA bridge => SiS900 eth0: Can not find ISA bridge
-Message-ID: <20040517100058.GB4347@gateway.milesteg.arr>
-Mail-Followup-To: Eric BENARD / Free <ebenard@free.fr>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <200405162004.57041.ebenard@free.fr> <40A7E161.5060207@pobox.com> <200405170829.15275.ebenard@free.fr>
+	Mon, 17 May 2004 06:02:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:24762 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264955AbUEQKCG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 06:02:06 -0400
+Date: Mon, 17 May 2004 12:01:59 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@suse.de>, davej@redhat.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: i810 AGP fails to initialise (was Re: 2.6.6-mm2)
+Message-ID: <20040517100159.GC4903@wotan.suse.de>
+References: <20040513032736.40651f8e.akpm@osdl.org> <6usme4v66s.fsf@zork.zork.net> <20040513135308.GA2622@redhat.com> <20040513155841.6022e7b0.ak@suse.de> <6ulljwtoge.fsf@zork.zork.net> <20040513174110.5b397d84.ak@suse.de> <6u8yfvsbd4.fsf@zork.zork.net> <6uk6zeow52.fsf@zork.zork.net> <6u65avmo97.fsf@zork.zork.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405170829.15275.ebenard@free.fr>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <6u65avmo97.fsf@zork.zork.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 17, 2004 at 08:29:14AM +0200, Eric BENARD / Free wrote:
-> This is what I mean in my email. 
-> Yes sis900.c should check for both 0x08 and 0x18.
-> But, I don't understand why the ID has changed (on the same hardware) between 
-> 2.6.3 & 2.6.6 
+On Mon, May 17, 2004 at 09:49:56AM +0100, Sean Neakums wrote:
+> Sean Neakums <sneakums@zork.net> writes:
+> 
+> > Sean Neakums <sneakums@zork.net> writes:
+> >
+> >> Andi Kleen <ak@suse.de> writes:
+> >>
+> >>> Sean, can you double check that when you compile the AGP driver as module
+> >>> that the 7124 PCI ID appears in modinfo intel-agp ? 
+> >>> And does the module also refuse to load ? 
+> >>
+> >> I rebuilt with agpgart, intel-agp and i810 as modules, modprobed them,
+> >> and it works.
+> >
+> > I just realised that I probably forgot to reapply the patch before
+> > doing this test.  Will check Monday.  Sorry about this.
+> 
+> Below is modinfo output.  The module loads but doesn't initialise the
+> AGP.
 
-sis900 didn't change in the past few kernel versions, so there must be
-something else somewhere that changed the ID, as Jeff pointed out.
+Someone else reported that it worked modular at least. When you apply
+the following patch what output do you get in the kernel log when you
+load the module?
 
-But since that ID is also valid, I'll make a patch for this issue also
-(I'm still working on the patch for the other bug that came out in
-another thread).
 
-Bye.
+-Andi
 
--- 
------------------------------
-Daniele Venzano
-Web: http://teg.homeunix.org
+
+--- linux-2.6.6-work/drivers/char/agp/intel-agp.c.~2~	2004-05-10 20:59:24.000000000 +0200
++++ linux-2.6.6-work/drivers/char/agp/intel-agp.c	2004-05-17 11:56:01.000000000 +0200
+@@ -1263,9 +1263,13 @@
+ 	u8 cap_ptr = 0;
+ 	struct resource *r;
+ 
++	printk("agp_intel_probe device %x\n", pdev->device); 
++
+ 	cap_ptr = pci_find_capability(pdev, PCI_CAP_ID_AGP);
+-	if (!cap_ptr)
++	if (!cap_ptr) { 
++		printk("no cap\n");
+ 		return -ENODEV;
++	}
+ 
+ 	bridge = agp_alloc_bridge();
+ 	if (!bridge)
+@@ -1432,6 +1436,7 @@
+ 	pci_set_drvdata(pdev, bridge);
+ 	return agp_add_bridge(bridge);
+  fail:
++	printk("failure\n");
+ 	agp_put_bridge(bridge);
+ 	return -ENODEV;
+ }
+@@ -1518,6 +1523,7 @@
+ 		return 0;
+ 	agp_initialised=1;
+ 
++	printk("agp_intel_init\n");
+ 	return pci_module_init(&agp_intel_pci_driver);
+ }
+ 
 

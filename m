@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUFVRaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264895AbUFVReF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264946AbUFVRaW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 13:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUFVRaO
+	id S264895AbUFVReF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 13:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUFVReE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 13:30:14 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52996 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265041AbUFVR0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:26:47 -0400
-Subject: Re: [PATCH] Staircase scheduler v7.3 for 2.6.7
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Panagiotis Papadakos <papadako@csd.uoc.gr>,
-       Pauli Virtanen <pauli.virtanen@hut.fi>
-In-Reply-To: <40D8507C.3010208@kolivas.org>
-References: <40D8507C.3010208@kolivas.org>
-Content-Type: text/plain
-Date: Tue, 22 Jun 2004 19:26:34 +0200
-Message-Id: <1087925194.2273.0.camel@teapot.felipe-alfaro.com>
+	Tue, 22 Jun 2004 13:34:04 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:26249 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264895AbUFVRcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 13:32:16 -0400
+Date: Tue, 22 Jun 2004 18:32:15 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: linux-kernel@vger.kernel.org, Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040622173215.GA6300@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-kernel@vger.kernel.org, Petr Vandrovec <VANDROVE@vc.cvut.cz>
+References: <A095D7F069C@vcnet.vc.cvut.cz> <20040622151236.GE20632@lug-owl.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040622151236.GE20632@lug-owl.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-23 at 01:30 +1000, Con Kolivas wrote:
-> This is a complete scheduler policy rewrite designed to be intrinsically 
-> interactive yet very simple and scalable. See previous announcements for 
-> more details.
-> 
-> This version addresses a few minor bugs that are somewhat difficult to 
-> stumble upon but can cause problems. Thanks to the many people who 
-> reported their experiences so far, and especially to Pauli Virtanen for 
-> extensive testing of a nasty bug and feedback along the way.
-> 
-> This version improves the gameplay on some games that seem to depend on 
-> yield() for locking in places (eg Unreal Tournament), as well as 
-> removing an "exploit".
+On Tue, Jun 22, 2004 at 05:12:36PM +0200, Jan-Benedict Glaw wrote:
+> Just merge the vmware modules upstream. Then, such breakage will be
+> detected early and probably fixed without putting a lot of work into it
+> (from your point of view).
 
-No problems so far :-)
-Nice work!
+a) vmware modules themselves aren't under a free license
+b) even if they were there's not really much interest in modules that can't
+   work with non-free userspace
 

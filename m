@@ -1,106 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbUKHSuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbUKHSuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbUKHSuB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:50:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUKHSsn
+	id S261174AbUKHSuA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUKHSsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 13:48:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59917 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261172AbUKHSby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 13:31:54 -0500
-Date: Mon, 8 Nov 2004 19:31:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Pawe?? Sikora <pluto@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kill IN_STRING_C
-Message-ID: <20041108183120.GB15077@stusta.de>
-References: <20041107142445.GH14308@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <200411081904.13969.pluto@pld-linux.org>
+	Mon, 8 Nov 2004 13:48:51 -0500
+Received: from bay10-f46.bay10.hotmail.com ([64.4.37.46]:63272 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261174AbUKHSlK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 13:41:10 -0500
+X-Originating-IP: [146.229.163.26]
+X-Originating-Email: [getarunsri@hotmail.com]
+From: "Arun Srinivas" <getarunsri@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: problem with printk--  somebody please help
+Date: Tue, 09 Nov 2004 00:10:13 +0530
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411081904.13969.pluto@pld-linux.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY10-F469WbbjykeNX00014ef5@hotmail.com>
+X-OriginalArrivalTime: 08 Nov 2004 18:41:04.0775 (UTC) FILETIME=[80C22170:01C4C5C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 07:04:13PM +0100, Pawe?? Sikora wrote:
-> On Monday 08 of November 2004 17:31, you wrote:
-> > On Mon, Nov 08, 2004 at 05:19:35PM +0100, Andi Kleen wrote:
-> > > > Rethinking it, I don't even understand the sprintf example in your
-> > > > changelog entry - shouldn't an inclusion of kernel.h always get it
-> > > > right?
-> > >
-> > > Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str)
-> > > transparently.
-> >
-> > Which gcc is "Newer"?
-> >
-> > My gcc 3.4.2 didn't show this problem.
-> 
-> #include <stdio.h>
-> #include <string.h>
-> char buf[128];
-> void test(char *str)
-> {
->     sprintf(buf, "%s", str);
-> }
->...
->         jmp     strcpy
->...
+hi
 
+I am new to the kernel world and would be very glad if somebody could
+help me with this problem.
 
-This is the userspace example.
+I am unable to do printk or even a macro call like rdtsc()...(for
+reading the time stamp counter) from within the "activate_task"
+function on a kernel with smp support.But these work under the main
+schedule() function.
 
-The kernel example is:
+I was able to do all these i.e., inside "activate_task" on a kernel
+without smp support.Can anybody suggest a solution as to what could be
+the problem??
 
-#include <linux/string.h>
-#include <linux/kernel.h>
+somebody please help.
 
-char buf[128];
-void test(char *str)
-{
-  sprintf(buf, "%s", str);
-}
+Thanks
+Arun
 
-
-This results with gcc-3.4 (GCC) 3.4.2 (Debian 3.4.2-3) in:
-
-        .file   "test.c"
-        .section        .rodata.str1.1,"aMS",@progbits,1
-.LC0:
-        .string "%s"
-        .text
-        .p2align 4,,15
-.globl test
-        .type   test, @function
-test:
-        pushl   %eax
-        pushl   $.LC0
-        pushl   $buf
-        call    sprintf
-        addl    $12, %esp
-        ret
-        .size   test, .-test
-.globl buf
-        .bss
-        .align 32
-        .type   buf, @object
-        .size   buf, 128
-buf:
-        .zero   128
-        .section        .note.GNU-stack,"",@progbits
-        .ident  "GCC: (GNU) 3.4.2 (Debian 3.4.2-3)"
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+_________________________________________________________________
+The all-new MSN Search. Get fast and precise results. 
+http://search.msn.co.in Try it now!
 

@@ -1,106 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUA2T2g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 14:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUA2T2f
+	id S266311AbUA2Ta3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 14:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUA2T2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 14:28:35 -0500
-Received: from mail.gmx.net ([213.165.64.20]:35538 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266296AbUA2T1r (ORCPT
+	Thu, 29 Jan 2004 14:28:42 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:5794 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266316AbUA2T2K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 14:27:47 -0500
-X-Authenticated: #13243522
-Message-ID: <40195A95.C675952C@gmx.de>
-Date: Thu, 29 Jan 2004 20:10:13 +0100
-From: Michael Schierl <schierlm@gmx.de>
-X-Mailer: Mozilla 4.75 [de]C-CCK-MCD QXW0324v  (Win95; U)
-X-Accept-Language: de,en
+	Thu, 29 Jan 2004 14:28:10 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Stephen Rothwell <fr@canb.auug.org.au>, linux-laptop@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-Subject: Re: [PATCH] [APM] Is this the correct way to fix suspend bug introduced 
- in 2.6.0-test4?
-References: <13zy7qdcyz1q7$.50e5l3rpbsyx$.dlg@40tude.net> <20040128174655.GE1200@elf.ucw.cz>
-Content-Type: multipart/mixed;
- boundary="------------BE7EB52A260B9EC72C2D134E"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16409.24257.589224.818006@napali.hpl.hp.com>
+Date: Thu, 29 Jan 2004 11:28:01 -0800
+To: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
+Cc: davidm@hpl.hp.com, ak@suse.de (Andi Kleen), davidm@napali.hpl.hp.com,
+       iod00d@hp.com, ishii.hironobu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
+In-Reply-To: <200401290823.i0T8NTDi024477@mtv-vpn-hw-mfl-2.corp.sgi.com>
+References: <16408.3157.336306.812481@napali.hpl.hp.com>
+	<200401290823.i0T8NTDi024477@mtv-vpn-hw-mfl-2.corp.sgi.com>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dies ist eine mehrteilige Nachricht im MIME-Format.
---------------BE7EB52A260B9EC72C2D134E
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+>>>>> On Thu, 29 Jan 2004 09:23:20 +0100 ("CET), Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com> said:
 
-Pavel Machek schrieb:
-> 
-> Hi!
-> >
-> > the patch below (against 2.6.1-mm5) fixes my APM problems (my laptop, Acer
-> > TravelMate 210TEV (Celeron 700, 128 MB RAM), hangs after resuming from APM
-> > since 2.6.0-test4).
-> >
-> > If you have any suggestions, tell me 
+  Matthias> We have done a rather large study with DIMMs that had SBEs
+  Matthias> and have found no evidence that a SBE turns into a UCE,
+  Matthias> i.e. the fact that a SBE is reported, is no indication
+  Matthias> that the device might fail soon.
 
-> I think you should use device_power_down() and device_power_up(),
-> instead. Check it, but it looks to me like that's better way.
+  Matthias> As a matter of fact the soft error rates increases while
+  Matthias> parts use smaller process technologies and lower supply
+  Matthias> voltages. Cosmic rays are one source for soft
+  Matthias> errors. Another source are alpha particles emitted by the
+  Matthias> solder.
 
-Works for me as well (Patch attached).
+Ehh, wait a second: you're saying that your study proved that if the
+device isn't failing, it isn't failing. ;-) Of course you'll get noise
+and perhaps even lots of it due to cosmic rays but this doesn't say
+anything about the error pattern you when a device _is_ failing (e.g.,
+due to overheating, over-clocking, or wrong voltage).  Or did your
+study cover the cases where a system is operated under "out-of-spec"
+situation?
 
-> > if you think that's okay like that, please submit that to the guy who is
-> > responsible for 2.6 (is it Linus or Andrew? did not follow lkml
-> > recently).
-> 
-> Andrew.
+  Matthias> Still I think it's important to log SBEs, but you probably
+  Matthias> will need a treshhold in case you hit a hard SBE. Also
+  Matthias> scrubbing the memory location (and re-read the location to
+  Matthias> check if the error was transient or not) might be a good
+  Matthias> idea if the memory controller supports this.  If it is a
+  Matthias> true, hard SBE it should be reported. It also might be a
+  Matthias> good idea to mark the page, so it does not get
+  Matthias> re-allocated.
 
-Thanks. BTW: I did not get any response from Stephen Rothwell (the guy
-who is listed as maintainer for APM in the MAINTAINERS file). How long
-should I wait for a response? Or should I simply submit the patch to
-Andrew?
+Yes.  And once I finally received Andi's earlier mails (guess I have
+to thank MyDoom for that... ;-( ), it was clear that nobody argued for
+turning off the error reporting.  The issue was only whether or not to
+log a message via printk() (which, in this case, clearly isn't a good
+idea).  So I think we're all in violent agreement.
 
-Michael
---------------BE7EB52A260B9EC72C2D134E
-Content-Type: text/plain; charset=us-ascii;
- name="apm-bug-introduced-in-test4-v2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="apm-bug-introduced-in-test4-v2.patch"
-
---- linux-2.6.2-rc2-mm1/arch/i386/kernel/apm.c.old	Thu Jan 29 16:22:03 2004
-+++ linux-2.6.2-rc2-mm1/arch/i386/kernel/apm.c	Thu Jan 29 16:22:07 2004
-@@ -1201,6 +1201,7 @@ static int suspend(int vetoable)
- 	}
- 
- 	device_suspend(3);
-+	device_power_down(3);
- 
- 	/* serialize with the timer interrupt */
- 	write_seqlock_irq(&xtime_lock);
-@@ -1234,6 +1235,7 @@ static int suspend(int vetoable)
- 	if (err != APM_SUCCESS)
- 		apm_error("suspend", err);
- 	err = (err == APM_SUCCESS) ? 0 : -EIO;
-+	device_power_up();
- 	device_resume();
- 	pm_send_all(PM_RESUME, (void *)0);
- 	queue_event(APM_NORMAL_RESUME, NULL);
-@@ -1252,6 +1254,7 @@ static void standby(void)
- {
- 	int	err;
- 
-+	device_power_down(3);
- 	/* serialize with the timer interrupt */
- 	write_seqlock_irq(&xtime_lock);
- 	/* If needed, notify drivers here */
-@@ -1261,6 +1264,7 @@ static void standby(void)
- 	err = set_system_power_state(APM_STATE_STANDBY);
- 	if ((err != APM_SUCCESS) && (err != APM_NO_ERROR))
- 		apm_error("standby", err);
-+	device_power_up();
- }
- 
- static apm_event_t get_event(void)
-
---------------BE7EB52A260B9EC72C2D134E--
-
-
+	--david

@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292730AbSCKUlB>; Mon, 11 Mar 2002 15:41:01 -0500
+	id <S292883AbSCKUuX>; Mon, 11 Mar 2002 15:50:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292883AbSCKUkv>; Mon, 11 Mar 2002 15:40:51 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:37504
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S292730AbSCKUkp>; Mon, 11 Mar 2002 15:40:45 -0500
-Date: Mon, 11 Mar 2002 13:39:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [bkpatch] do_mmap cleanup
-Message-ID: <20020311203947.GA735@opus.bloom.county>
-In-Reply-To: <20020308185350.E12425@redhat.com> <20020311120818.A38@toy.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020311120818.A38@toy.ucw.cz>
-User-Agent: Mutt/1.3.27i
+	id <S292983AbSCKUuN>; Mon, 11 Mar 2002 15:50:13 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:11524 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292883AbSCKUuD>;
+	Mon, 11 Mar 2002 15:50:03 -0500
+Date: Mon, 11 Mar 2002 17:36:23 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Larry McVoy <lm@bitmover.com>
+Cc: "Jonathan A. George" <JGeorge@greshamstorage.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+In-Reply-To: <20020311090512.N26447@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44L.0203111731420.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 12:08:18PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > Below is a vm cleanup that can be pulled from bk://bcrlbits.bk.net/vm-2.5 .
-> > The bulk of the patch is moving the down/up_write on mmap_sem into do_mmap 
-> > and removing that from all the callers.  The patch also includes a fix for 
-> > do_mmap which caused mapping of the last page in the address space to fail.
-> 
-> Was not that a workaround for CPU bugs?
+On Mon, 11 Mar 2002, Larry McVoy wrote:
+> On Thu, Mar 07, 2002 at 08:59:47PM -0300, Rik van Riel wrote:
+> > 3) graphical 2-way merging tool like bitkeeper has
+> >    (this might not seem essential to people who have
+> >    never used it, but it has saved me many many hours)
+>
+> I haven't verified this, but I suspect what Rik is using is the 3-way
+> file merge.  If it looks like
+>
+> 	http://www.bitkeeper.com/newmerge.gif
 
-In generic code, I'd hope not.
+Actually, I've tried both the 3-way and the 2-way merge tools ...
 
+> If Rik is using the 2 way file merge and likes that, he's in for a
+> quantum leap in productivity, commercial customers have reported as much
+> as an 18:1 productivity increase from the 3 way file merge.
+
+... and I prefer the one which is chosen with 'f2', nothing beats
+the [left] [right] buttons!
+
+I guess maybe 10% of the time I need to edit something by hand,
+but by far the most of the time I can just choose the code variant
+on the left or on the right.
+
+One mouse click is so much easier and faster than editing 5 lines
+of code.
+
+regards,
+
+Rik
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

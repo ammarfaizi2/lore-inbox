@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268327AbUIWIn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268329AbUIWIrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268327AbUIWIn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 04:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268328AbUIWIn6
+	id S268329AbUIWIrx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 04:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268330AbUIWIrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 04:43:58 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:53723 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S268327AbUIWIn4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 04:43:56 -0400
-Date: Thu, 23 Sep 2004 14:15:02 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com,
-       Tom Rini <trini@kernel.crashing.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Patch] kprobes exception notifier fix 2.6.9-rc2
-Message-ID: <20040923084502.GC1291@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20040923053029.GB1291@in.ibm.com> <20040923080627.GA89752@muc.de>
+	Thu, 23 Sep 2004 04:47:52 -0400
+Received: from are.twiddle.net ([64.81.246.98]:8323 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S268329AbUIWIru (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 04:47:50 -0400
+Date: Thu, 23 Sep 2004 01:47:46 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: __attribute__((always_inline)) fiasco
+Message-ID: <20040923084746.GA9101@twiddle.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040923080627.GA89752@muc.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+I'm displeased with someone's workaround for decisions made by
+the (rather weak) inliner in gcc 3.[123].  In particular, that
+someone doesn't understand all of the implications of always_inline.
 
-On Thu, Sep 23, 2004 at 10:06:28AM +0200, Andi Kleen wrote:
-> On Thu, Sep 23, 2004 at 11:00:29AM +0530, Prasanna S Panchamukhi wrote:
-> > In order to make other debuggers use exception notifiers, kprobes 
-> > notifier return values are required to be modified. This patch modifies the
-> > return values of kprobes notifier return values in a clean way.
-> 
-> It's incompatible to x86-64. If you change anything in exception
-> notifiers change both.
-> 
+This attribute was invented to handle certain cases in <altivec.h>
+and <xmmintrin.h> that contain assembly instructions that require
+constant arguments.  These instructions *cannot* be emitted unless
+the user of the function supplies a constant.  Which, under normal
+usage situations is not a problem -- when the user doesn't give us
+a constant, we error and that's the end.  But it does mean that 
+the compiler is specifically *not* allowed to emit an out-of-line
+copy of such a function, since there is in fact no way to legally
+do so.
 
-Yes, I will make the changes to x86_64 exception notifiers as well and
-send a patch to you.
+In the Alpha port I have a number of places in which I have 
+functions that I would like inlined when they are called directly,
+but I also need to take their address so that they may be registered
+as part of a dispatch vector for the specific machine model.
 
-> And I don't really see the sense of inverting the test: NOTIFY_OK
-> for handling the exception should be as good as NOTIFY_STOP.
-> 
+This scheme fails because my functions got marked always_inline
+behind my back, which means they didn't get emitted in the right
+place.
 
-NOTIFY_OK does not stop notifying others registered for the same event.
-This was causing problems when Kprobes and KGDB co-exist and KGDB handler
-would get involked, when kprobes handler would have already handled its own
-breakpoint. NOTIFY_BAD will also work, but returning NOTIFY_BAD would mean 
-Bad/Veto action. This patch solves the problem by returning NOTIFY_OK | NOTIFY_STOP_MASK in a clean way.
+Rather than fight the unwinnable fight to remove this hack entirely,
+may I ask that at least one of the different names for inline, e.g.
+__inline__, be left un-touched so that it can be used by those that
+understand what the keyword is supposed to mean?
 
-Please let me know your comments.
+Of course, there does not exist a variant that isn't used by all
+sorts of random code, so presumably all existing occurences would
+have to get renamed to plan "inline" in order to keep people happy...
 
-Thanks
-Prasanna
 
-> -Andi
-
--- 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+r~

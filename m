@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292931AbSCPEK3>; Fri, 15 Mar 2002 23:10:29 -0500
+	id <S293402AbSCPESa>; Fri, 15 Mar 2002 23:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292975AbSCPEKT>; Fri, 15 Mar 2002 23:10:19 -0500
-Received: from relay1.pair.com ([209.68.1.20]:64270 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S292931AbSCPEKI>;
-	Fri, 15 Mar 2002 23:10:08 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C92C818.3B7E370A@kegel.com>
-Date: Fri, 15 Mar 2002 20:20:40 -0800
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S293408AbSCPESU>; Fri, 15 Mar 2002 23:18:20 -0500
+Received: from smtp.Lynuxworks.COM ([207.21.185.24]:14354 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP
+	id <S293402AbSCPESQ>; Fri, 15 Mar 2002 23:18:16 -0500
+Message-ID: <3C92C7D6.4020907@lnxw.com>
+Date: Fri, 15 Mar 2002 20:19:34 -0800
+From: Petko Manolov <pmanolov@Lnxw.COM>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020314
+X-Accept-Language: en, bg
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Ulrich Drepper <drepper@redhat.com>
-Subject: Re: libc/1427: gprof does not profile threads 
-Content-Type: text/plain; charset=us-ascii
+To: "David S. Miller" <davem@redhat.com>
+CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: debugging eth driver
+In-Reply-To: <20020315.154527.98068496.davem@redhat.com>	<E16m1oW-00057N-00@the-village.bc.nu> <20020315.155748.68123299.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri Mar 15, 2002 at 04:19:17PM -0800, Ulrich Drepper wrote:
-> > On Fri, 2002-03-15 at 13:56, Dan Kegel wrote:
-> > > Ulrich, do you at least agree that it would be desirable for
-> > > gprof to work properly on multithreaded programs?
-> >
-> > No.  gprof is uselss in today world.
-> 
-> Then why not change sysdeps/generic/initfini.c with something like:
-> 
-> -      if (gmon_start)
-> +      if (gmon_start && __pthread_initialize_minimal)
->           gmon_start ();
-> 
-> So it doesn't even try when threading?
+	Hi folks,
 
-I believe Ulrich's proposed fix would be
+I'm playing with an usb-ethernet device and it seems to me
+it receive correct frames, but when i pass them to the
+upper layer they just disappear.  I passed complete junk to
+the IP layer expecting it to scream, but surprisingly (to me)
+nothing happened.
 
-> -      if (gmon_start)
-> +      if (gmon_start && 0)
->           gmon_start ();
+How am i supposed to get a feedback from the upper layers?
 
-as he did not distinguish between threaded and nonthreaded programs
-when he said gprof was useless.
 
-- Dan
+		Petko
+

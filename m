@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbTEHLuI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 07:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbTEHLuI
+	id S261360AbTEHLtS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 07:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTEHLtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 07:50:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34953 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261387AbTEHLuG (ORCPT
+	Thu, 8 May 2003 07:49:18 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47846 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261360AbTEHLtQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 07:50:06 -0400
-Date: Thu, 08 May 2003 03:54:42 -0700 (PDT)
-Message-Id: <20030508.035442.85387749.davem@redhat.com>
-To: hch@infradead.org
-Cc: romieu@fr.zoreil.com, chas@locutus.cmf.nrl.navy.mil,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ATM] [PATCH] unbalanced exit path in Forerunner HE
- he_init_one()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030508060640.A24325@infradead.org>
-References: <200305071813.h47IDpc9010906@hera.kernel.org>
-	<20030508010146.A20715@electric-eye.fr.zoreil.com>
-	<20030508060640.A24325@infradead.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Thu, 8 May 2003 07:49:16 -0400
+Date: Thu, 8 May 2003 14:01:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+Message-ID: <20030508120145.GR823@suse.de>
+References: <20030507175033.GR823@suse.de> <Pine.SOL.4.30.0305072119530.27561-100000@mion.elka.pw.edu.pl> <20030507201949.GW823@suse.de> <20030508075609.GJ823@suse.de> <1052391717.10037.5.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052391717.10037.5.camel@dhcp22.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@infradead.org>
-   Date: Thu, 8 May 2003 06:06:40 +0100
-   
-   Who reviewed this driver before inclusion?
+On Thu, May 08 2003, Alan Cox wrote:
+> On Iau, 2003-05-08 at 08:56, Jens Axboe wrote:
+> > That part is added, I still kept it at 65535 though akin to how we don't
+> > use that last sector in 28-bit commands either. For 48-bit commands this
+> > is totally irelevant, 32MiB or 32MiB-512b doesn't matter either way.
+> 
+> Actually I changed the LBA28 code to use the last sector a while ago. It
+> has (unsuprisingly) caused zero problems because other OS's also
+> generate such requests.
 
-This one goes all the way back to when Werner still maintained
-the ATM layer, and frankly back then we didn't give a crap
-about these issues as much as we do now.
+That's great, if you remember that was my requirement for usage of the
+last sector, that the Other OS used it. If it does, it can't be buggy.
+
+-- 
+Jens Axboe
+

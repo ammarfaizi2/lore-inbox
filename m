@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136678AbREARuL>; Tue, 1 May 2001 13:50:11 -0400
+	id <S136680AbREAR5w>; Tue, 1 May 2001 13:57:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136679AbREARuB>; Tue, 1 May 2001 13:50:01 -0400
-Received: from smtp102.urscorp.com ([38.202.96.105]:43024 "EHLO
-	smtp102.urscorp.com") by vger.kernel.org with ESMTP
-	id <S136678AbREARtr>; Tue, 1 May 2001 13:49:47 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: isa_read/write not available on ppc - solution suggestions ??
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-From: mike_phillips@urscorp.com
-Message-ID: <OF8F30DD01.CDAFFB0E-ON85256A3F.005BE8E3@urscorp.com>
-Date: Tue, 1 May 2001 13:41:53 -0400
-X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
- 05/01/2001 01:45:32 PM,
-	Serialize complete at 05/01/2001 01:45:32 PM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S136683AbREAR5m>; Tue, 1 May 2001 13:57:42 -0400
+Received: from [209.202.46.62] ([209.202.46.62]:2176 "HELO fluke.haryan.to")
+	by vger.kernel.org with SMTP id <S136680AbREAR5Y>;
+	Tue, 1 May 2001 13:57:24 -0400
+Date: Tue, 1 May 2001 12:57:21 -0500
+From: Ronny Haryanto <ronny-linux@haryan.to>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tulip driver broken in 2.4.4?
+Message-ID: <20010501125721.A1734@haryan.to>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010501110512.A8148@haryan.to> <3AEEE16E.52A9F4D1@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3AEEE16E.52A9F4D1@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 01, 2001 at 12:16:46PM -0400
+X-GPG-Key: Get my public key from http://ronny.haryan.to/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I would suggest the opposite approach instead: make the PPC just 
-> support isa_readx/isa_writex instead.
->
-> Much simpler, and doesn't need changes to (correct) driver sources.
->
-> I bet that the patch will be smaller too. It's a simple case of
-> - do the ioremap() _once_ at bootup, save the result in a static
->   variable somewhere.
-> - implement the (one-liner) isa_readx/isa_writex functions.
->
-> On many architectures you don't even need to do the ioremap, as it's
-> always available (same as on x86).
+On 01-May-2001, Jeff Garzik wrote:
+> Ronny Haryanto wrote:
+> > 
+> > Just tried 2.4.4 yesterday and found that my eth1 was dead after 5 minutes.
+> 
+> Does 2.4.3 work for you?
 
-That would be my preferred solution as well. The one-liners are easy, the 
-ioremap may be more fun. Time to investigate the ppc code and docs. 
+Yes. I just tried 2.4.3, and it works fine. So it looks like there's a bug
+introduced between 2.4.3 and 2.4.4. Too bad I can't use 2.4.3; I need 2.4.4
+due to the VIA chipset bug. Is there any other info that I could provide
+from here to help debugging?
 
-Unless one of the kindly ppc maintainers who knows far more about the arch 
-than me would like to do it :)
-
-Mike
-
+Ronny

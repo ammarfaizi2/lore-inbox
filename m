@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263257AbTCZFGT>; Wed, 26 Mar 2003 00:06:19 -0500
+	id <S264529AbTCZFOs>; Wed, 26 Mar 2003 00:14:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263279AbTCZFGT>; Wed, 26 Mar 2003 00:06:19 -0500
-Received: from [131.215.233.56] ([131.215.233.56]:41226 "EHLO bryanr.org")
-	by vger.kernel.org with ESMTP id <S263257AbTCZFGT>;
-	Wed, 26 Mar 2003 00:06:19 -0500
-Date: Tue, 25 Mar 2003 21:04:49 -0800
-From: Bryan Rittmeyer <bryanr@bryanr.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [patch] oprofile + ppc750cx perfmon
-Message-ID: <20030326050449.GB32590@bryanr.org>
-References: <20030325050900.GA30294@bryanr.org> <20030325085759.GB30294@bryanr.org> <1048585501.581.16.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048585501.581.16.camel@zion.wanadoo.fr>
-User-Agent: Mutt/1.3.28i
+	id <S264564AbTCZFOs>; Wed, 26 Mar 2003 00:14:48 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:44677 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S264529AbTCZFOr>; Wed, 26 Mar 2003 00:14:47 -0500
+Message-Id: <200303260525.h2Q5PulK314364@pimout2-ext.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: dan carpenter <d_carpenter@sbcglobal.net>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sleeping function called from illegal context at mm/slab.c:1723
+Date: Tue, 25 Mar 2003 13:05:10 +0100
+X-Mailer: KMail [version 1.3.2]
+References: <200303251501.22938.schlicht@uni-mannheim.de>
+In-Reply-To: <200303251501.22938.schlicht@uni-mannheim.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 10:45:02AM +0100, Benjamin Herrenschmidt wrote:
-> I also think we could actually be smarter and only
-> soft-disable IRQs with a flag in the descriptor, and hard disable
-> them if and only if they actually occur while disabled.
+On Tuesday 25 March 2003 03:01 pm, Thomas Schlichter wrote:
+> Every second I get following Debug message with kernel 2.5.66:
+>
+> Debug: sleeping function called from illegal context at mm/slab.c:1723
+> Call Trace:
 
-yup. minimizing open_pic I/O could be a big win. the fact that
-the PIC shows up _way_ ahead of the network driver and stack is
-pretty freakish compared to a profile on x86 using io-apic
-(the legacy x86 pic has similar but less severe issues as open_pic).
+Yes.  This is a known bug in the frame buffer driver.  James Simmons is 
+working on a fix for this.
 
--Bryan
+regards,
+dan carpenter
+

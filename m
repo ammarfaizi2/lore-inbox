@@ -1,84 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQLKJXT>; Mon, 11 Dec 2000 04:23:19 -0500
+	id <S129183AbQLKJgX>; Mon, 11 Dec 2000 04:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130281AbQLKJXJ>; Mon, 11 Dec 2000 04:23:09 -0500
-Received: from c334580-a.snvl1.sfba.home.com ([65.5.27.33]:5 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129370AbQLKJW7>; Mon, 11 Dec 2000 04:22:59 -0500
-Message-ID: <01ae01c0634f$c2dcf280$0400a8c0@playtoy>
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: <jamagallon@able.es>
+	id <S129552AbQLKJgN>; Mon, 11 Dec 2000 04:36:13 -0500
+Received: from smtp3.jp.psi.net ([154.33.63.113]:15113 "EHLO smtp3.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S129183AbQLKJf5>;
+	Mon, 11 Dec 2000 04:35:57 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
 Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0012100306530.4353-100000@playtoy.hislinuxbox.com> <20001211005821.A2556@werewolf.able.es>
-Subject: Re: No shared memory??
-Date: Mon, 11 Dec 2000 00:52:05 -0800
+Subject: RE: Signal 11
+Date: Mon, 11 Dec 2000 18:05:24 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGAEMHCIAA.rmager@vgkk.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGGELMCIAA.rmager@vgkk.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah I just read that. Thanks for the info. Knew nothing about it being
-kicked out there. I usually only read looking for package locations of
-needed software to run the kernels. Now it looks like I should be reading
-more. Thanks for the blow to the head to get me thinking right again. :)
-
-BTW, I have that mounted now like the docs say but I still do not get any
-shared info. I've gotten a couple of other emails about it, one of which
-states that it ate up too much CPU time.
-
-What I'm wondering is, is it possible to get that info some other way? I
-realize walking the process tree is a pain in the ass and expensive CPU and
-time wise. Also, I'm not sure if that information would include each
-process's private memory space.
-
-The reason I'm asking is that taking the overall memory used, subtracting
-the cached and buffered memory may not always leave the right amount of
-shared memory.
-
-(If I show 26MB used total, 21MB which is cached and 1MB that's buffered is
-it a FACT that the remaining 4MB unaccounted for is actually and completely
-shared memory?)
-
-Any other information on this would be appreciated.
-
-TO THE KERNEL DEVELOPERS
-=========================
-BTW, I love the devfs stuff. REALLY makes s big difference. I'm developing
-my own flavor of linux and it's quickly being modified to use ONLY devfs
-entries.
+Well, I just had a Signal 11 even with the patch. What can I do to help
+figure this out?
 
 
+Thanks,
+
+--Rainer
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Friday, December 08, 2000 11:07 PM
+To: David Woodhouse
+Cc: Andi Kleen; Rainer Mager; linux-kernel@vger.kernel.org; Mark Vojkovich
+Subject: Re: Signal 11
+
+
+> > wrong with it.  I've only seen this under 2.3.x/2.4 SMP kernels.  I
+> > would say that this is definitely a kernel problem.=20
 >
-> On Sun, 10 Dec 2000 12:11:14 David D.W. Downey wrote:
-> >
-> > OK, got a tiny little bug here.
-> >
-> > When running top, procinfo, or free I get 0 for Shared memory. Obviously
-> > this is incorrect. What has changed from the 2.2.x and the 2.4.x that
-> > would cause these apps to misreport this information.
-> >
->
-> Have you mounted /dev/shm (shared memory) filesystem ?
-> Take a look at kernel documentation under linux/Documentation/Changes.
->
-> --
-> Juan Antonio Magallon Lacarta                                 #> cd /pub
-> mailto:jamagallon@able.es                                     #> more beer
->
-> Linux werewolf 2.2.18-pre25-vm #4 SMP Fri Dec 8 01:59:48 CET 2000 i686
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+> XFree86 3.9 and XFree86 4 were rock solid for a _long_ time on 2.[34]
+> kernels - even on my BP6=B9. The random crashes started to happen when =
+> I
+> upgraded my distribution=B2 - and are only seen by people using 2.4. So=
+>  I
+> suspect that it's the combination of glibc and kernel which is triggeri=
+> ng
+> it.
+
+Have any of the folks seeing it checked if Ben LaHaise's fixes for the page
+table updating race help ?
+
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,487 +1,663 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263210AbTDGDHz (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTDGDHz (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:07:55 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:6419
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S263210AbTDGDHq 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 23:07:46 -0400
-Subject: Re: 2.5.66-bk12 causes "rpm" errors
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1049685316.894.5.camel@localhost>
-References: <20030406183234.1e8abd7f.akpm@digeo.com>
-	 <Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
-	 <20030406182815.65dd9304.akpm@digeo.com> <1049685316.894.5.camel@localhost>
-Content-Type: multipart/mixed; boundary="=-0L8Tu7KdPZBo9v8B9zMc"
+	id S263214AbTDGDJv (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 23:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbTDGDJv (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 23:09:51 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:62427 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263214AbTDGDJc (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 23:09:32 -0400
+Date: Mon, 07 Apr 2003 15:17:56 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: PATCH: 2.5.66 incremental (#4: Discontiguous patches & Dynamic
+	PageFlag Bitmap)
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1049685473.13733.4.camel@laptop-linux.cunninghams>
 Organization: 
-Message-Id: <1049685554.894.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 06 Apr 2003 23:19:15 -0400
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---=-0L8Tu7KdPZBo9v8B9zMc
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This is pretty much the same as the original discontiguous pagedirs
+patch that you've already seen, except that instead of using real
+pageflags, bitmaps are made on the fly and discarded (as previously
+discussed). I've left the NoSave flag as a real pageflag so that drivers
+etc can mark pages Nosave if need be (is this a real possibility?).
 
-On Sun, 2003-04-06 at 23:15, Robert Love wrote:
-> On Sun, 2003-04-06 at 21:28, Andrew Morton wrote:
-> 
-> > I am now very confused.
-> 
-> It is a battle tactic.
+Regards,
 
-Here is the the strace of `rpm -q glibc' without disabling NPTL.  It
-fails.
+Nigel
 
-	Robert Love
+diff -ruN linux-2.5.66-inc03/arch/i386/kernel/swsusp.c linux-2.5.66-inc04/arch/i386/kernel/swsusp.c
+--- linux-2.5.66-inc03/arch/i386/kernel/swsusp.c	2003-04-05 21:33:38.000000000 +1200
++++ linux-2.5.66-inc04/arch/i386/kernel/swsusp.c	2003-04-06 15:52:53.000000000 +1200
+@@ -210,7 +210,7 @@
+ /* Local variables for do_magic */
+ static int loop __nosavedata = 0;
+ static int loop2 __nosavedata = 0;
+-extern suspend_pagedir_t *pagedir_nosave __nosavedata;
++extern suspend_pagedir_t **pagedir_nosave __nosavedata;
+ 
+ /*
+  * FIXME: This function should really be written in assembly. Actually
+@@ -256,8 +256,8 @@
+ 	for (loop=0; loop < nr_copy_pages; loop++) {
+ 		/* You may not call something (like copy_page) here: see above */
+ 		for (loop2=0; loop2 < (PAGE_SIZE / sizeof(unsigned long)); loop2++) {
+-			*(((unsigned long *)((pagedir_nosave+loop)->orig_address))+loop2) =
+-				*(((unsigned long *)((pagedir_nosave+loop)->address))+loop2);
++			*(((unsigned long *)(PAGEDIR_ENTRY(pagedir_nosave, loop)->orig_address))+loop2) =
++				*(((unsigned long *)(PAGEDIR_ENTRY(pagedir_nosave, loop)->address))+loop2);
+ 			__flush_tlb();
+ 		}
+ 		
+diff -ruN linux-2.5.66-inc03/include/linux/suspend.h linux-2.5.66-inc04/include/linux/suspend.h
+--- linux-2.5.66-inc03/include/linux/suspend.h	2003-04-05 20:55:20.000000000 +1200
++++ linux-2.5.66-inc04/include/linux/suspend.h	2003-04-06 15:47:18.000000000 +1200
+@@ -34,7 +34,7 @@
+ 	char version[20];
+ 	int num_cpus;
+ 	int page_size;
+-	suspend_pagedir_t *suspend_pagedir;
++	suspend_pagedir_t **suspend_pagedir;
+ 	unsigned int num_pbes;
+ 	struct swap_location {
+ 		char filename[SWAP_FILENAME_MAXLENGTH];
+@@ -42,6 +42,8 @@
+ };
+ 
+ #define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
++#define PAGEDIR_CAPACITY(x)     (((x)*PAGE_SIZE/sizeof(struct pbe)))
++#define PAGEDIR_ENTRY(pagedir, i) (pagedir[i/PAGEDIR_CAPACITY(1)] + (i%PAGEDIR_CAPACITY(1)))
+    
+ /* mm/vmscan.c */
+ extern int shrink_mem(void);
+@@ -61,7 +63,7 @@
+ extern void thaw_processes(void);
+ 
+ extern unsigned int nr_copy_pages __nosavedata;
+-extern suspend_pagedir_t *pagedir_nosave __nosavedata;
++extern suspend_pagedir_t **pagedir_nosave __nosavedata;
+ 
+ /* Communication between kernel/suspend.c and arch/i386/suspend.c */
+ 
+diff -ruN linux-2.5.66-inc03/kernel/suspend.c linux-2.5.66-inc04/kernel/suspend.c
+--- linux-2.5.66-inc03/kernel/suspend.c	2003-04-05 21:25:18.000000000 +1200
++++ linux-2.5.66-inc04/kernel/suspend.c	2003-04-07 15:08:21.000000000 +1200
+@@ -96,7 +96,6 @@
+ static int new_loglevel = 7;
+ static int orig_loglevel = 0;
+ static int orig_fgconsole, orig_kmsg;
+-static int pagedir_order_check;
+ static int nr_copy_pages_check;
+ 
+ static int resume_status = 0;
+@@ -116,9 +115,9 @@
+    allocated at time of resume, that travels through memory not to
+    collide with anything.
+  */
+-suspend_pagedir_t *pagedir_nosave __nosavedata = NULL;
+-static suspend_pagedir_t *pagedir_save;
+-static int pagedir_order __nosavedata = 0;
++suspend_pagedir_t **pagedir_nosave __nosavedata = NULL;
++static suspend_pagedir_t **pagedir_save = NULL;
++static int pagedir_size __nosavedata = 0;
+ 
+ struct link {
+ 	char dummy[PAGE_SIZE - sizeof(swp_entry_t)];
+@@ -160,6 +159,68 @@
+ #define MDELAY(a)
+ #endif
+ 
++#define BITS_PER_PAGE (PAGE_SIZE * 8)
++#define PAGES_PER_BITMAP ((max_mapnr + BITS_PER_PAGE - 1) / BITS_PER_PAGE)
++#define BITMAP_ORDER (get_bitmask_order(PAGES_PER_BITMAP))
++
++static unsigned long * inusemap = NULL;
++//Not yet used. Here so you can see this needs to be generic
++//static unsigned long * pageset2map = NULL;
++
++static void clear_map(unsigned long * pagemap)
++{
++	int i;
++	for(i=0; i < (max_mapnr / (8 * sizeof(unsigned long))); i++) {
++		pagemap[i]=0;
++	}
++}
++
++static int allocatemap(unsigned long ** pagemap)
++{
++	void * check;
++	if (*pagemap) {
++		printk("Error. Pagemap already allocated.\n");
++	} else {
++		check = (void *) __get_free_pages(__GFP_FAST, BITMAP_ORDER);
++		if (!check) {
++			return 1;
++		}
++		*pagemap = (unsigned long *) check;
++	}
++	clear_map(*pagemap);
++	return 0;
++}
++/* Not yet used
++static int freemap(unsigned long ** pagemap)
++{
++	if (!*pagemap) {
++		printk("Error. Pagemap not allocated.\n");
++		return 1;
++	} else {
++		free_pages((unsigned long) *pagemap, BITMAP_ORDER);
++		*pagemap = NULL;
++		return 0;
++	}
++}
++*/
++#define PAGENUMBER(page) (page-mem_map)
++#define PAGEINDEX(page) ((PAGENUMBER(page))/(8*sizeof(unsigned long)))
++#define PAGEBIT(page) ((int) ((PAGENUMBER(page))%(8 * sizeof(unsigned long))))
++
++/* 
++ * freepagesmap is used in two ways: 
++ * - During suspend, to tag pages which are not used (to speed up count_data_pages);
++ * - During resume, to tag pages which are is pagedir1. This does not tag pagedir2
++ *   pages, so !== first use.
++ */
++#define PageInUse(page)		test_bit(PAGEBIT(page), &inusemap[PAGEINDEX(page)])
++#define SetPageInUse(page)	set_bit(PAGEBIT(page), &inusemap[PAGEINDEX(page)])
++#define ClearPageInUse(page)	clear_bit(PAGEBIT(page), &inusemap[PAGEINDEX(page)])
++
++#define PagePageset2(page)	test_bit(PAGEBIT(page), &pageset2map[PAGEINDEX(page)])
++#define SetPagePageset2(page)	set_bit(PAGEBIT(page), &pageset2map[PAGEINDEX(page)])
++#define ClearPagePageset2(page)	clear_bit(PAGEBIT(page), &pageset2map[PAGEINDEX(page)])
++
+ /*
+  * Refrigerator and related stuff
+  */
+@@ -395,7 +456,7 @@
+ {
+ 	int i;
+ 	swp_entry_t entry, prev = { 0 };
+-	int nr_pgdir_pages = SUSPEND_PD_PAGES(nr_copy_pages);
++	int pagedir_size = SUSPEND_PD_PAGES(nr_copy_pages);
+ 	union diskpage *cur,  *buffer = (union diskpage *)get_zeroed_page(GFP_ATOMIC);
+ 	unsigned long address;
+ 	struct page *page;
+@@ -410,16 +471,15 @@
+ 		if (swapfile_used[swp_type(entry)] != SWAPFILE_SUSPEND)
+ 			panic("\nPage %d: not enough swapspace on suspend device", i );
+ 	    
+-		address = (pagedir_nosave+i)->address;
++		address = PAGEDIR_ENTRY(pagedir_nosave,i)->address;
+ 		page = virt_to_page(address);
+ 		rw_swap_page_sync(WRITE, entry, page);
+-		(pagedir_nosave+i)->swap_address = entry;
++		PAGEDIR_ENTRY(pagedir_nosave,i)->swap_address = entry;
+ 	}
+ 	printk( "|\n" );
+-	printk( "Writing pagedir (%d pages): ", nr_pgdir_pages);
+-	for (i=0; i<nr_pgdir_pages; i++) {
+-		cur = (union diskpage *)((char *) pagedir_nosave)+i;
+-		BUG_ON ((char *) cur != (((char *) pagedir_nosave) + i*PAGE_SIZE));
++	printk( "Writing pagedir (%d pages): ", pagedir_size);
++	for (i=0; i<pagedir_size; i++) {
++		cur = (union diskpage *) pagedir_nosave[i];
+ 		printk( "." );
+ 		if (!(entry = get_swap_page()).val) {
+ 			printk(KERN_CRIT "Not enough swapspace when writing pgdir\n" );
+@@ -467,7 +527,7 @@
+ }
+ 
+ /* if pagedir_p != NULL it also copies the counted pages */
+-static int count_and_copy_data_pages(struct pbe *pagedir_p)
++static int count_and_copy_data_pages(struct pbe **pagedir_p)
+ {
+ 	int chunk_size;
+ 	int nr_copy_pages = 0;
+@@ -507,65 +567,88 @@
+ 			   critical bios data? */
+ 		} else	BUG();
+ 
+-		nr_copy_pages++;
+ 		if (pagedir_p) {
+-			pagedir_p->orig_address = ADDRESS(pfn);
+-			copy_page((void *) pagedir_p->address, (void *) pagedir_p->orig_address);
+-			pagedir_p++;
++			PAGEDIR_ENTRY(pagedir_p, nr_copy_pages)->orig_address = ADDRESS(pfn);
++			copy_page((void *) PAGEDIR_ENTRY(pagedir_p, nr_copy_pages)->address, (void *) PAGEDIR_ENTRY(pagedir_p, nr_copy_pages)->orig_address);
+ 		}
++		nr_copy_pages++;
+ 	}
+ 	return nr_copy_pages;
+ }
+ 
+-static void free_suspend_pagedir(unsigned long this_pagedir)
++static void free_suspend_pagedir(struct pbe ** this_pagedir)
+ {
+-	struct page *page;
+-	int pfn;
+-	unsigned long this_pagedir_end = this_pagedir +
+-		(PAGE_SIZE << pagedir_order);
++	int i;
++	int rangestart = -1, rangeend = -1;
+ 
+-	for(pfn = 0; pfn < num_physpages; pfn++) {
+-		page = pfn_to_page(pfn);
+-		if (!TestClearPageNosave(page))
+-			continue;
++	if (pagedir_size == 0)
++		return;
+ 
+-		if (ADDRESS(pfn) >= this_pagedir && ADDRESS(pfn) < this_pagedir_end)
+-			continue; /* old pagedir gets freed in one */
+-		
+-		free_page(ADDRESS(pfn));
++	for(i = 0; i < nr_copy_pages; i++) {
++		if (PAGEDIR_ENTRY(this_pagedir,i)->address) {
++			if (rangestart > -1) {
++				printk("Pagedir entry %d-%d address2 not set!\n", rangestart, rangeend);
++				rangestart = -1;
++			}
++			ClearPageNosave(virt_to_page(PAGEDIR_ENTRY(this_pagedir,i)->address));
++			free_page(PAGEDIR_ENTRY(this_pagedir,i)->address);
++		} else {
++			if (rangestart == -1)
++				rangestart = i;
++			rangeend = i;
++		}
+ 	}
+-	free_pages(this_pagedir, pagedir_order);
++		
++	if (rangestart > -1)
++		printk("Pagedir entry %d-%d address not set!\n", rangestart, nr_copy_pages - 1);
++
++	for(i = 0; i < pagedir_size; i++)
++		free_page((unsigned long) this_pagedir[i]);
++
++	free_page((unsigned long) this_pagedir);
++	this_pagedir = NULL;
++	nr_copy_pages = 0;
++	pagedir_size = 0;
+ }
+ 
+-static suspend_pagedir_t *create_suspend_pagedir(int nr_copy_pages)
++static suspend_pagedir_t **create_suspend_pagedir(int nr_copy_pages)
+ {
++	suspend_pagedir_t **pagedir;
++	struct pbe **p;
+ 	int i;
+-	suspend_pagedir_t *pagedir;
+-	struct pbe *p;
+-	struct page *page;
+ 
+-	pagedir_order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
++	pagedir_size = SUSPEND_PD_PAGES(nr_copy_pages);
+ 
+-	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD, pagedir_order);
+-	if(!pagedir)
++	p = pagedir = (suspend_pagedir_t **)__get_free_pages(GFP_ATOMIC | __GFP_COLD, 0);
++	if(!p)
+ 		return NULL;
+ 
+-	page = virt_to_page(pagedir);
+-	for(i=0; i < 1<<pagedir_order; i++)
+-		SetPageNosave(page++);
+-		
++	/* We aren't setting the pagedir itself Nosave because we have to be able
++	 * to free it during resume, after restoring the image. This means nr_copy_pages
++	 * needs to be adjusted */
++	
++	for (i = 0; i < pagedir_size; i++) {
++		p[i] = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, 0);
++		if (!p[i]) {
++			int j;
++			for (j = 0; j < i; j++) {
++				free_page((unsigned long) p[j]);
++			}
++			free_page((unsigned long) p);
++			return NULL;
++		}
++	}
++
+ 	while(nr_copy_pages--) {
+-		p->address = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
+-		if(!p->address) {
+-			free_suspend_pagedir((unsigned long) pagedir);
++		PAGEDIR_ENTRY(p, nr_copy_pages)->address = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
++		if(!PAGEDIR_ENTRY(p, nr_copy_pages)->address) {
++			free_suspend_pagedir(p);
+ 			return NULL;
+ 		}
+-		printk(".");
+-		SetPageNosave(virt_to_page(p->address));
+-		p->orig_address = 0;
+-		p++;
++		SetPageNosave(virt_to_page(PAGEDIR_ENTRY(p, nr_copy_pages)->address));
++		PAGEDIR_ENTRY(p, nr_copy_pages)->orig_address = 0;
+ 	}
+-	return pagedir;
++	return p;
+ }
+ 
+ static int prepare_suspend_console(void)
+@@ -684,6 +767,7 @@
+ 	pagedir_nosave = NULL;
+ 	printk( "/critical section: Counting pages to copy" );
+ 	nr_copy_pages = count_and_copy_data_pages(NULL);
++	nr_copy_pages += 1 + SUSPEND_PD_PAGES(nr_copy_pages);
+ 	nr_needed_pages = nr_copy_pages + PAGES_FOR_IO;
+ 	
+ 	printk(" (pages needed: %d+%d=%d free: %d)\n",nr_copy_pages,PAGES_FOR_IO,nr_needed_pages,nr_free_pages());
+@@ -713,7 +797,6 @@
+ 		return 1;
+ 	}
+ 	nr_copy_pages_check = nr_copy_pages;
+-	pagedir_order_check = pagedir_order;
+ 
+ 	drain_local_pages();	/* During allocating of suspend pagedir, new cold pages may appear. Kill them */
+ 	if (nr_copy_pages != count_and_copy_data_pages(pagedir_nosave))	/* copy */
+@@ -789,12 +872,11 @@
+ void do_magic_resume_2(void)
+ {
+ 	BUG_ON (nr_copy_pages_check != nr_copy_pages);
+-	BUG_ON (pagedir_order_check != pagedir_order);
+ 
+ 	__flush_tlb_global();		/* Even mappings of "global" things (vmalloc) need to be fixed */
+ 
+ 	PRINTK( "Freeing prev allocated pagedir\n" );
+-	free_suspend_pagedir((unsigned long) pagedir_save);
++	free_suspend_pagedir(pagedir_save);
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	drivers_resume(RESUME_ALL_PHASES);
+ 
+@@ -831,7 +913,7 @@
+ 	spin_lock_irq(&suspend_pagedir_lock);	/* Done to disable interrupts */ 
+ 	mdelay(1000);
+ 
+-	free_pages((unsigned long) pagedir_nosave, pagedir_order);
++	free_suspend_pagedir(pagedir_nosave);
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
+ 	PRINTK(KERN_WARNING "%sLeaving do_magic_suspend_2...\n", name_suspend);	
+@@ -894,37 +976,29 @@
+ 
+ /* More restore stuff */
+ 
+-/* FIXME: Why not memcpy(to, from, 1<<pagedir_order*PAGE_SIZE)? */
+-static void copy_pagedir(suspend_pagedir_t *to, suspend_pagedir_t *from)
+-{
+-	int i;
+-	char *topointer=(char *)to, *frompointer=(char *)from;
+-
+-	for(i=0; i < 1 << pagedir_order; i++) {
+-		copy_page(topointer, frompointer);
+-		topointer += PAGE_SIZE;
+-		frompointer += PAGE_SIZE;
+-	}
+-}
+-
+-#define does_collide(addr) does_collide_order(pagedir_nosave, addr, 0)
+-
+-/*
+- * Returns true if given address/order collides with any orig_address 
+- */
+-static int does_collide_order(suspend_pagedir_t *pagedir, unsigned long addr,
+-		int order)
+-{
++static int warmup_collision_cache(suspend_pagedir_t **pagedir) {
+ 	int i;
+-	unsigned long addre = addr + (PAGE_SIZE<<order);
+ 	
+-	for(i=0; i < nr_copy_pages; i++)
+-		if((pagedir+i)->orig_address >= addr &&
+-			(pagedir+i)->orig_address < addre)
+-			return 1;
++	if (!(allocatemap(&inusemap)))
++			return 1;	/* Doesn't get deallocated because forgotten
++					   when we copy PageDir1 back. Doesn't matter
++					   if collides because not used during copy back.
++					 */
++	PRINTK("Setting up pagedir cache");
++	for (i = 0; i < max_pfn; i++)
++		ClearPageInUse(pfn_to_page(i));
+ 
++	for(i=0; i < nr_copy_pages; i++) {
++		SetPageInUse(virt_to_page(PAGEDIR_ENTRY(pagedir, i)->orig_address));
++		if (!(i%800)) {
++			PRINTK(".");
++		}
++	}
++	PRINTK("%d", i);
++	PRINTK("|\n");
+ 	return 0;
+ }
++#define does_collide(address) (PageInUse(virt_to_page(address)))
+ 
+ /*
+  * We check here that pagedir & pages it points to won't collide with pages
+@@ -932,64 +1006,106 @@
+  */
+ static int check_pagedir(void)
+ {
+-	int i;
++	int i, nrdone = 0;
++	void **eaten_memory = NULL;
++	void **c = eaten_memory, *f, *addr;
+ 
+ 	for(i=0; i < nr_copy_pages; i++) {
+-		unsigned long addr;
+-
+-		do {
+-			addr = get_zeroed_page(GFP_ATOMIC);
+-			if(!addr)
+-				return -ENOMEM;
+-		} while (does_collide(addr));
+-
+-		(pagedir_nosave+i)->address = addr;
++		while ((addr = (void *) get_zeroed_page(GFP_ATOMIC))) {
++			memset(addr, 0, PAGE_SIZE);
++			if (!does_collide((unsigned long) addr)) {
++				break;
++			}
++			eaten_memory = addr;
++			*eaten_memory = c;
++			c = eaten_memory;
++		}
++		PAGEDIR_ENTRY(pagedir_nosave,i)->address = (unsigned long) addr;
++		nrdone++;
+ 	}
++	
++	// Free unwanted memory
++	c = eaten_memory;
++	while(c) {
++		f = c;
++		c = *c;
++		if (f)
++			free_page((unsigned long) f);
++  	}
++	eaten_memory = NULL;
++	
+ 	return 0;
+ }
+ 
+ static int relocate_pagedir(void)
+ {
++	void **eaten_memory = NULL;
++	void **c = eaten_memory, *m = NULL, *f;
++	int oom = 0, i, numeaten = 0;
++	int pagedir_size = SUSPEND_PD_PAGES(nr_copy_pages);
++
+ 	/*
+ 	 * We have to avoid recursion (not to overflow kernel stack),
+ 	 * and that's why code looks pretty cryptic 
+ 	 */
+-	suspend_pagedir_t *new_pagedir, *old_pagedir = pagedir_nosave;
+-	void **eaten_memory = NULL;
+-	void **c = eaten_memory, *m, *f;
+-
+-	printk("Relocating pagedir");
+-
+-	if(!does_collide_order(old_pagedir, (unsigned long)old_pagedir, pagedir_order)) {
+-		printk("not necessary\n");
+-		return 0;
+-	}
+ 
+-	while ((m = (void *) __get_free_pages(GFP_ATOMIC, pagedir_order))) {
+-		memset(m, 0, PAGE_SIZE);
+-		if (!does_collide_order(old_pagedir, (unsigned long)m, pagedir_order))
+-			break;
+-		eaten_memory = m;
+-		printk( "." ); 
+-		*eaten_memory = c;
+-		c = eaten_memory;
++	PRINTK("Relocating conflicting parts of pagedir.\n");
++  
++	for (i = -1; i < pagedir_size; i++) {
++		int this_collides = 0;
++  
++		if (i == -1)
++			this_collides = does_collide((unsigned long) pagedir_nosave);
++		else
++			this_collides = does_collide((unsigned long) pagedir_nosave[i]);
++		
++		if (this_collides) {
++			while ((m = (void *) __get_free_pages(GFP_ATOMIC, 0))) {
++				memset(m, 0, PAGE_SIZE);
++				if (!does_collide((unsigned long)m)) {
++					if (i == -1) {
++						copy_page(m, pagedir_nosave);
++						free_page((unsigned long) pagedir_nosave);
++						pagedir_nosave = m;
++					}
++					else {
++						copy_page(m, (void *) pagedir_nosave[i]);
++						free_page((unsigned long) pagedir_nosave[i]);
++						pagedir_nosave[i] = m;
++					}
++					break;
++				}
++				numeaten++;
++				eaten_memory = m;
++				PRINTK("Eaten: %d. Still to try:%d\r", numeaten, nr_free_pages()); 
++				*eaten_memory = c;
++				c = eaten_memory;
++			}
++			if (!m) {
++				printk("\nRan out of memory trying to relocate pagedir (tried %d pages).\n", numeaten);
++				oom = 1;
++				break;
++			}
++		}
++  
+ 	}
+-
+-	if (!m)
++		
++	PRINTK("\nFreeing rejected memory locations...");
++  	c = eaten_memory;
++  	while(c) {
++		f = c;
++  		c = *c;
++  		if (f)
++			free_pages((unsigned long) f, 0);
++  	}
++	eaten_memory = NULL;
++	
++	PRINTK("\n");
++	
++	if (oom) 
+ 		return -ENOMEM;
+-
+-	pagedir_nosave = new_pagedir = m;
+-	copy_pagedir(new_pagedir, old_pagedir);
+-
+-	c = eaten_memory;
+-	while(c) {
+-		printk(":");
+-		f = *c;
+-		c = *c;
+-		if (f)
+-			free_pages((unsigned long)f, pagedir_order);
+-	}
+-	printk("|\n");
++	else
++		return 0;
+ 	return 0;
+ }
+ 
+@@ -1062,7 +1178,7 @@
+ static int __read_suspend_image(struct block_device *bdev, union diskpage *cur, int noresume)
+ {
+ 	swp_entry_t next;
+-	int i, nr_pgdir_pages;
++	int i, pagedir_size;
+ 
+ #define PREPARENEXT \
+ 	{	next = cur->link.next; \
+@@ -1110,24 +1226,39 @@
+ 
+ 	pagedir_save = cur->sh.suspend_pagedir;
+ 	nr_copy_pages = cur->sh.num_pbes;
+-	nr_pgdir_pages = SUSPEND_PD_PAGES(nr_copy_pages);
+-	pagedir_order = get_bitmask_order(nr_pgdir_pages);
++	pagedir_size = SUSPEND_PD_PAGES(nr_copy_pages);
+ 
+-	pagedir_nosave = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, pagedir_order);
++	pagedir_nosave = (suspend_pagedir_t **)__get_free_pages(GFP_ATOMIC, 0);
+ 	if (!pagedir_nosave)
+ 		return -ENOMEM;
+ 
++	{
++		int i;
++		for (i = 0; i < pagedir_size; i++) {
++			pagedir_nosave[i] = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, 0);
++			if (!pagedir_nosave[i]) {
++				int j;
++				for (j = 0; j < i; j++)
++					free_page((unsigned long) pagedir_nosave[j]);
++				free_page((unsigned long) pagedir_nosave);
++				spin_unlock_irq(&suspend_pagedir_lock);
++				return -ENOMEM;
++			}
++		}
++	}
+ 	PRINTK( "%sReading pagedir, ", name_resume );
+ 
+ 	/* We get pages in reverse order of saving! */
+-	for (i=nr_pgdir_pages-1; i>=0; i--) {
++	for (i=pagedir_size-1; i>=0; i--) {
+ 		BUG_ON (!next.val);
+-		cur = (union diskpage *)((char *) pagedir_nosave)+i;
++		cur = (union diskpage *) pagedir_nosave[i];
+ 		if (bdev_read_page(bdev, next.val, cur)) return -EIO;
+ 		PREPARENEXT;
+ 	}
+ 	BUG_ON (next.val);
+ 
++ 	warmup_collision_cache(pagedir_nosave);
++ 
+ 	if (relocate_pagedir())
+ 		return -ENOMEM;
+ 	if (check_pagedir())
+@@ -1135,12 +1266,12 @@
+ 
+ 	printk( "Reading image data (%d pages): ", nr_copy_pages );
+ 	for(i=0; i < nr_copy_pages; i++) {
+-		swp_entry_t swap_address = (pagedir_nosave+i)->swap_address;
++		swp_entry_t swap_address = PAGEDIR_ENTRY(pagedir_nosave,i)->swap_address;
+ 		if (!(i%100))
+ 			printk( "." );
+ 		/* You do not need to check for overlaps...
+ 		   ... check_pagedir already did this work */
+-		if (bdev_read_page(bdev, swp_offset(swap_address) * PAGE_SIZE, (char *)((pagedir_nosave+i)->address)))
++		if (bdev_read_page(bdev, swp_offset(swap_address) * PAGE_SIZE, (char *)(PAGEDIR_ENTRY(pagedir_nosave,i)->address)))
+ 			return -EIO;
+ 	}
+ 	printk( "|\n" );
 
---=-0L8Tu7KdPZBo9v8B9zMc
-Content-Disposition: attachment; filename=rpm-nptl.log
-Content-Type: text/plain; name=rpm-nptl.log; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-1271  execve("/bin/rpm", ["rpm", "-q", "glibc"], [/* 29 vars */]) = 0
-1271  uname({sys="Linux", node="phantasy", ...}) = 0
-1271  brk(0)                            = 0x8069000
-1271  old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40016000
-1271  open("/etc/ld.so.preload", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/etc/ld.so.cache", O_RDONLY) = 3
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=36231, ...}) = 0
-1271  old_mmap(NULL, 36231, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40017000
-1271  close(3)                          = 0
-1271  open("/usr/lib/librpm-4.2.so", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\240\233"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=298016, ...}) = 0
-1271  old_mmap(NULL, 344020, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40020000
-1271  old_mmap(0x40066000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x46000) = 0x40066000
-1271  old_mmap(0x40069000, 45012, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40069000
-1271  close(3)                          = 0
-1271  open("/usr/lib/librpmdb-4.2.so", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\300|\1"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=898968, ...}) = 0
-1271  old_mmap(NULL, 911744, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40074000
-1271  old_mmap(0x4014d000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xd8000) = 0x4014d000
-1271  old_mmap(0x40151000, 6528, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40151000
-1271  close(3)                          = 0
-1271  open("/usr/lib/librpmio-4.2.so", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`\300\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=349912, ...}) = 0
-1271  old_mmap(NULL, 384636, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40153000
-1271  old_mmap(0x401a2000, 28672, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x4f000) = 0x401a2000
-1271  old_mmap(0x401a9000, 32380, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x401a9000
-1271  close(3)                          = 0
-1271  open("/usr/lib/libpopt.so.0", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\20\24\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=26896, ...}) = 0
-1271  old_mmap(NULL, 29872, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401b1000
-1271  old_mmap(0x401b8000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x6000) = 0x401b8000
-1271  close(3)                          = 0
-1271  open("/usr/lib/libelf.so.1", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\214\33"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=62272, ...}) = 0
-1271  old_mmap(NULL, 65164, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401b9000
-1271  old_mmap(0x401c8000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xe000) = 0x401c8000
-1271  close(3)                          = 0
-1271  open("/lib/tls/libpthread.so.0", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\320>\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=79744, ...}) = 0
-1271  old_mmap(NULL, 50040, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401c9000
-1271  old_mmap(0x401d3000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xa000) = 0x401d3000
-1271  old_mmap(0x401d4000, 4984, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x401d4000
-1271  close(3)                          = 0
-1271  open("/lib/librt.so.1", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\220\33"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=37552, ...}) = 0
-1271  old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x401d6000
-1271  old_mmap(NULL, 73720, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401d7000
-1271  old_mmap(0x401dd000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x5000) = 0x401dd000
-1271  old_mmap(0x401df000, 40952, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x401df000
-1271  close(3)                          = 0
-1271  open("/usr/lib/libbz2.so.1", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`\22\0\000"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=62128, ...}) = 0
-1271  old_mmap(NULL, 61008, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401e9000
-1271  old_mmap(0x401f7000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xe000) = 0x401f7000
-1271  close(3)                          = 0
-1271  open("/lib/tls/libc.so.6", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`V\1B4\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=1531064, ...}) = 0
-1271  old_mmap(0x42000000, 1257224, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x42000000
-1271  old_mmap(0x4212e000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x12e000) = 0x4212e000
-1271  old_mmap(0x42131000, 7944, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x42131000
-1271  close(3)                          = 0
-1271  old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x401f8000
-1271  mprotect(0x40153000, 323584, PROT_READ|PROT_WRITE) = 0
-1271  mprotect(0x40153000, 323584, PROT_READ|PROT_EXEC) = 0
-1271  set_thread_area({entry_number:-1 -> 6, base_addr:0x401f8500, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
-1271  munmap(0x40017000, 36231)         = 0
-1271  set_tid_address(0x401f8548)       = 1271
-1271  rt_sigaction(SIGRTMIN, {0x401cce30, [], SA_RESTORER, 0x401d2618}, NULL, 8) = 0
-1271  rt_sigprocmask(SIG_UNBLOCK, [RTMIN], NULL, 8) = 0
-1271  getrlimit(0x3, 0xbffff944)        = 0
-1271  brk(0)                            = 0x8069000
-1271  brk(0x806a000)                    = 0x806a000
-1271  brk(0)                            = 0x806a000
-1271  open("/usr/lib/locale/locale-archive", O_RDONLY|O_LARGEFILE) = 3
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=30313968, ...}) = 0
-1271  mmap2(NULL, 2097152, PROT_READ, MAP_PRIVATE, 3, 0) = 0x401f9000
-1271  close(3)                          = 0
-1271  open("/usr/lib/rpm/rpmpopt-4.2", O_RDONLY|O_LARGEFILE) = 3
-1271  _llseek(3, 0, [20870], SEEK_END)  = 0
-1271  _llseek(3, 0, [0], SEEK_SET)      = 0
-1271  read(3, "#/*! \\page config_rpmpopt Defaul"..., 20870) = 20870
-1271  close(3)                          = 0
-1271  brk(0)                            = 0x806a000
-1271  brk(0x806b000)                    = 0x806b000
-1271  brk(0)                            = 0x806b000
-1271  brk(0x806c000)                    = 0x806c000
-1271  brk(0)                            = 0x806c000
-1271  brk(0x806d000)                    = 0x806d000
-1271  open("/etc/popt", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  getuid32()                        = 0
-1271  geteuid32()                       = 0
-1271  open("/home/rml/.popt", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  execve("/usr/lib/rpm/rpmq", ["/usr/lib/rpm/rpmq", "-q", "glibc"], [/* 29 vars */]) = 0
-1271  uname({sys="Linux", node="phantasy", ...}) = 0
-1271  brk(0)                            = 0x804b000
-1271  old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40016000
-1271  open("/etc/ld.so.preload", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/etc/ld.so.cache", O_RDONLY) = 3
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=36231, ...}) = 0
-1271  old_mmap(NULL, 36231, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40017000
-1271  close(3)                          = 0
-1271  open("/usr/lib/librpmbuild-4.2.so", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\0Q\0\000"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=142268, ...}) = 0
-1271  old_mmap(NULL, 216060, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40020000
-1271  old_mmap(0x40041000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x21000) = 0x40041000
-1271  old_mmap(0x40043000, 72700, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40043000
-1271  close(3)                          = 0
-1271  open("/usr/lib/librpm-4.2.so", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\240\233"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=298016, ...}) = 0
-1271  old_mmap(NULL, 344020, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40055000
-1271  old_mmap(0x4009b000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x46000) = 0x4009b000
-1271  old_mmap(0x4009e000, 45012, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4009e000
-1271  close(3)                          = 0
-1271  open("/usr/lib/librpmdb-4.2.so", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\300|\1"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=898968, ...}) = 0
-1271  old_mmap(NULL, 911744, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x400a9000
-1271  old_mmap(0x40182000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xd8000) = 0x40182000
-1271  old_mmap(0x40186000, 6528, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40186000
-1271  close(3)                          = 0
-1271  open("/usr/lib/librpmio-4.2.so", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`\300\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=349912, ...}) = 0
-1271  old_mmap(NULL, 384636, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40188000
-1271  old_mmap(0x401d7000, 28672, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x4f000) = 0x401d7000
-1271  old_mmap(0x401de000, 32380, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x401de000
-1271  close(3)                          = 0
-1271  open("/usr/lib/libpopt.so.0", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\20\24\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=26896, ...}) = 0
-1271  old_mmap(NULL, 29872, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401e6000
-1271  old_mmap(0x401ed000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x6000) = 0x401ed000
-1271  close(3)                          = 0
-1271  open("/usr/lib/libelf.so.1", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\214\33"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=62272, ...}) = 0
-1271  old_mmap(NULL, 65164, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401ee000
-1271  old_mmap(0x401fd000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xe000) = 0x401fd000
-1271  close(3)                          = 0
-1271  open("/lib/tls/libpthread.so.0", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\320>\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=79744, ...}) = 0
-1271  old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x401fe000
-1271  old_mmap(NULL, 50040, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x401ff000
-1271  old_mmap(0x40209000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xa000) = 0x40209000
-1271  old_mmap(0x4020a000, 4984, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4020a000
-1271  close(3)                          = 0
-1271  open("/lib/librt.so.1", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\220\33"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=37552, ...}) = 0
-1271  old_mmap(NULL, 73720, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x4020c000
-1271  old_mmap(0x40212000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x5000) = 0x40212000
-1271  old_mmap(0x40214000, 40952, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40214000
-1271  close(3)                          = 0
-1271  open("/usr/lib/libbz2.so.1", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`\22\0\000"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=62128, ...}) = 0
-1271  old_mmap(NULL, 61008, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x4021e000
-1271  old_mmap(0x4022c000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xe000) = 0x4022c000
-1271  close(3)                          = 0
-1271  open("/lib/tls/libc.so.6", O_RDONLY) = 3
-1271  read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`V\1B4\0"..., 512) = 512
-1271  fstat64(3, {st_mode=S_IFREG|0755, st_size=1531064, ...}) = 0
-1271  old_mmap(0x42000000, 1257224, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x42000000
-1271  old_mmap(0x4212e000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x12e000) = 0x4212e000
-1271  old_mmap(0x42131000, 7944, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x42131000
-1271  close(3)                          = 0
-1271  old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x4022d000
-1271  mprotect(0x40188000, 323584, PROT_READ|PROT_WRITE) = 0
-1271  mprotect(0x40188000, 323584, PROT_READ|PROT_EXEC) = 0
-1271  set_thread_area({entry_number:-1 -> 6, base_addr:0x4022d8c0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
-1271  munmap(0x40017000, 36231)         = 0
-1271  set_tid_address(0x4022d908)       = 1271
-1271  rt_sigaction(SIGRTMIN, {0x40202e30, [], SA_RESTORER, 0x40208618}, NULL, 8) = 0
-1271  rt_sigprocmask(SIG_UNBLOCK, [RTMIN], NULL, 8) = 0
-1271  getrlimit(0x3, 0xbffff924)        = 0
-1271  brk(0)                            = 0x804b000
-1271  brk(0x804c000)                    = 0x804c000
-1271  brk(0)                            = 0x804c000
-1271  open("/usr/lib/locale/locale-archive", O_RDONLY|O_LARGEFILE) = 3
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=30313968, ...}) = 0
-1271  mmap2(NULL, 2097152, PROT_READ, MAP_PRIVATE, 3, 0) = 0x4022e000
-1271  close(3)                          = 0
-1271  open("/usr/lib/rpm/rpmpopt-4.2", O_RDONLY|O_LARGEFILE) = 3
-1271  _llseek(3, 0, [20870], SEEK_END)  = 0
-1271  _llseek(3, 0, [0], SEEK_SET)      = 0
-1271  read(3, "#/*! \\page config_rpmpopt Defaul"..., 20870) = 20870
-1271  close(3)                          = 0
-1271  brk(0)                            = 0x804c000
-1271  brk(0x804d000)                    = 0x804d000
-1271  brk(0)                            = 0x804d000
-1271  brk(0x804e000)                    = 0x804e000
-1271  open("/etc/popt", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  getuid32()                        = 0
-1271  geteuid32()                       = 0
-1271  open("/home/rml/.popt", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/etc/rpm/platform", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  uname({sys="Linux", node="phantasy", ...}) = 0
-1271  rt_sigaction(SIGILL, {0x400887e0, [ILL], SA_RESTORER|SA_RESTART, 0x420275c8}, {SIG_DFL}, 8) = 0
-1271  rt_sigprocmask(SIG_BLOCK, NULL, [], 8) = 0
-1271  open("/usr/lib/rpm/rpmrc", O_RDONLY|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  gettimeofday({1049685359, 231411}, NULL) = 0
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=10193, ...}) = 0
-1271  mmap2(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 231794}, NULL) = 0
-1271  read(3, "#/*! \\page config_rpmrc Default "..., 8192) = 8192
-1271  gettimeofday({1049685359, 231926}, NULL) = 0
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 232069}, NULL) = 0
-1271  read(3, "sv4.2\n\nos_compat: FreeMiNT: mint"..., 8192) = 2001
-1271  gettimeofday({1049685359, 232150}, NULL) = 0
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 232278}, NULL) = 0
-1271  read(3, "", 6191)                 = 0
-1271  gettimeofday({1049685359, 232346}, NULL) = 0
-1271  gettimeofday({1049685359, 232414}, NULL) = 0
-1271  close(3)                          = 0
-1271  gettimeofday({1049685359, 232489}, NULL) = 0
-1271  gettimeofday({1049685359, 232549}, NULL) = 0
-1271  gettimeofday({1049685359, 232583}, NULL) = 0
-1271  munmap(0x40017000, 8192)          = 0
-1271  brk(0)                            = 0x804e000
-1271  brk(0x804f000)                    = 0x804f000
-1271  brk(0)                            = 0x804f000
-1271  brk(0x8050000)                    = 0x8050000
-1271  brk(0)                            = 0x8050000
-1271  brk(0x8051000)                    = 0x8051000
-1271  brk(0)                            = 0x8051000
-1271  brk(0x8052000)                    = 0x8052000
-1271  brk(0)                            = 0x8052000
-1271  brk(0x8053000)                    = 0x8053000
-1271  open("/usr/lib/rpm/redhat/rpmrc", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/etc/rpmrc", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/home/rml/.rpmrc", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/usr/lib/rpm/macros", O_RDONLY|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  gettimeofday({1049685359, 234477}, NULL) = 0
-1271  mmap2(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 234714}, NULL) = 0
-1271  read(3, "#/*! \\page config_macros Default"..., 8192) = 8192
-1271  gettimeofday({1049685359, 234842}, NULL) = 0
-1271  brk(0)                            = 0x8053000
-1271  brk(0x8054000)                    = 0x8054000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 236325}, NULL) = 0
-1271  read(3, "ity with legacy\n#\tversions of rp"..., 8192) = 8192
-1271  gettimeofday({1049685359, 236423}, NULL) = 0
-1271  brk(0)                            = 0x8054000
-1271  brk(0x8055000)                    = 0x8055000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 237874}, NULL) = 0
-1271  read(3, "================================"..., 8192) = 8192
-1271  gettimeofday({1049685359, 237971}, NULL) = 0
-1271  brk(0)                            = 0x8055000
-1271  brk(0x8056000)                    = 0x8056000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 240345}, NULL) = 0
-1271  read(3, "\\\n  RPM_DOC_DIR=\\\"%{_docdir}\\\"\\\n"..., 8192) = 8192
-1271  gettimeofday({1049685359, 240445}, NULL) = 0
-1271  brk(0)                            = 0x8056000
-1271  brk(0x8057000)                    = 0x8057000
-1271  brk(0)                            = 0x8057000
-1271  brk(0x8058000)                    = 0x8058000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 246284}, NULL) = 0
-1271  read(3, "LAGS:-%{-s:-s}}\"  ; export LDFLA"..., 8192) = 3503
-1271  gettimeofday({1049685359, 246369}, NULL) = 0
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 246496}, NULL) = 0
-1271  read(3, "", 4689)                 = 0
-1271  gettimeofday({1049685359, 246575}, NULL) = 0
-1271  brk(0)                            = 0x8058000
-1271  brk(0x8059000)                    = 0x8059000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 247422}, NULL) = 0
-1271  read(3, "", 8192)                 = 0
-1271  gettimeofday({1049685359, 247489}, NULL) = 0
-1271  gettimeofday({1049685359, 247546}, NULL) = 0
-1271  close(3)                          = 0
-1271  gettimeofday({1049685359, 247616}, NULL) = 0
-1271  gettimeofday({1049685359, 247654}, NULL) = 0
-1271  gettimeofday({1049685359, 247687}, NULL) = 0
-1271  munmap(0x40017000, 8192)          = 0
-1271  open("/usr/lib/rpm/i686-linux/macros", O_RDONLY|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  gettimeofday({1049685359, 247883}, NULL) = 0
-1271  mmap2(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 248071}, NULL) = 0
-1271  read(3, "# Per-platform rpm configuration"..., 8192) = 2429
-1271  gettimeofday({1049685359, 248165}, NULL) = 0
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 248329}, NULL) = 0
-1271  read(3, "", 5763)                 = 0
-1271  gettimeofday({1049685359, 248398}, NULL) = 0
-1271  brk(0)                            = 0x8059000
-1271  brk(0x805a000)                    = 0x805a000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 249684}, NULL) = 0
-1271  read(3, "", 8192)                 = 0
-1271  gettimeofday({1049685359, 249751}, NULL) = 0
-1271  gettimeofday({1049685359, 249789}, NULL) = 0
-1271  close(3)                          = 0
-1271  gettimeofday({1049685359, 249857}, NULL) = 0
-1271  gettimeofday({1049685359, 249893}, NULL) = 0
-1271  gettimeofday({1049685359, 249927}, NULL) = 0
-1271  munmap(0x40017000, 8192)          = 0
-1271  open("/etc/rpm/macros.specspo", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/etc/rpm/macros.prelink", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/etc/rpm/macros.solve", O_RDONLY|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  gettimeofday({1049685359, 250203}, NULL) = 0
-1271  mmap2(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 250386}, NULL) = 0
-1271  read(3, "#\tThe path to the dependency uni"..., 8192) = 768
-1271  gettimeofday({1049685359, 250473}, NULL) = 0
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 250616}, NULL) = 0
-1271  read(3, "", 7424)                 = 0
-1271  gettimeofday({1049685359, 250683}, NULL) = 0
-1271  select(4, [3], NULL, NULL, {1, 0}) = 1 (in [3], left {1, 0})
-1271  gettimeofday({1049685359, 251131}, NULL) = 0
-1271  read(3, "", 8192)                 = 0
-1271  gettimeofday({1049685359, 251198}, NULL) = 0
-1271  gettimeofday({1049685359, 251236}, NULL) = 0
-1271  close(3)                          = 0
-1271  gettimeofday({1049685359, 251302}, NULL) = 0
-1271  gettimeofday({1049685359, 251338}, NULL) = 0
-1271  gettimeofday({1049685359, 251371}, NULL) = 0
-1271  munmap(0x40017000, 8192)          = 0
-1271  open("/etc/rpm/macros.up2date", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/etc/rpm/macros", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/etc/rpm/i686-linux/macros", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  open("/home/rml/.rpmmacros", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  time(NULL)                        = 1049685359
-1271  rt_sigprocmask(SIG_BLOCK, ~[], [], 8) = 0
-1271  rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-1271  rt_sigprocmask(SIG_BLOCK, ~[], [], 8) = 0
-1271  rt_sigaction(SIGHUP, {0x400ca860, [], SA_RESTORER, 0x40208618}, {SIG_DFL}, 8) = 0
-1271  rt_sigaction(SIGINT, {0x400ca860, [], SA_RESTORER, 0x40208618}, {SIG_DFL}, 8) = 0
-1271  rt_sigaction(SIGTERM, {0x400ca860, [], SA_RESTORER, 0x40208618}, {SIG_DFL}, 8) = 0
-1271  rt_sigaction(SIGQUIT, {0x400ca860, [], SA_RESTORER, 0x40208618}, {SIG_DFL}, 8) = 0
-1271  rt_sigaction(SIGPIPE, {0x400ca860, [], SA_RESTORER, 0x40208618}, {SIG_DFL}, 8) = 0
-1271  rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-1271  getgid32()                        = 0
-1271  getuid32()                        = 0
-1271  stat64("/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-1271  stat64("/var/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-1271  stat64("/var/lib/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-1271  stat64("/var/lib/rpm", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
-1271  access("/var/lib/rpm", W_OK)      = 0
-1271  access("/var/lib/rpm/__db.001", F_OK) = 0
-1271  access("/var/lib/rpm/Packages", F_OK) = 0
-1271  open("/usr/share/locale/locale.alias", O_RDONLY) = 3
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=2601, ...}) = 0
-1271  mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
-1271  read(3, "# Locale name alias data base.\n#"..., 4096) = 2601
-1271  read(3, "", 4096)                 = 0
-1271  close(3)                          = 0
-1271  munmap(0x40017000, 4096)          = 0
-1271  open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/rpm.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en_US.utf8/LC_MESSAGES/rpm.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en_US/LC_MESSAGES/rpm.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en.UTF-8/LC_MESSAGES/rpm.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en.utf8/LC_MESSAGES/rpm.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en/LC_MESSAGES/rpm.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  brk(0)                            = 0x805a000
-1271  brk(0x805b000)                    = 0x805b000
-1271  stat64("/var/lib/rpm/DB_CONFIG", 0xbfffe490) = -1 ENOENT (No such file or directory)
-1271  open("/var/lib/rpm/DB_CONFIG", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-1271  stat64("/var/lib/rpm/__db.001", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  open("/var/lib/rpm/__db.001", O_RDWR|O_DIRECT|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  close(3)                          = 0
-1271  select(0, NULL, NULL, NULL, {3, 0}) = 0 (Timeout)
-1271  stat64("/var/lib/rpm/__db.001", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  open("/var/lib/rpm/__db.001", O_RDWR|O_DIRECT|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  close(3)                          = 0
-1271  select(0, NULL, NULL, NULL, {6, 0}) = 0 (Timeout)
-1271  stat64("/var/lib/rpm/__db.001", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  open("/var/lib/rpm/__db.001", O_RDWR|O_DIRECT|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  close(3)                          = 0
-1271  select(0, NULL, NULL, NULL, {9, 0}) = 0 (Timeout)
-1271  stat64("/var/lib/rpm/__db.001", {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  open("/var/lib/rpm/__db.001", O_RDWR|O_DIRECT|O_LARGEFILE) = 3
-1271  fcntl64(3, F_SETFD, FD_CLOEXEC)   = 0
-1271  fstat64(3, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-1271  close(3)                          = 0
-1271  write(2, "rpmdb: ", 7)            = 7
-1271  write(2, "unable to join the environment", 30) = 30
-1271  write(2, "\n", 1)                 = 1
-1271  open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en_US.utf8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en_US/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en.UTF-8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en.utf8/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  open("/usr/share/locale/en/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-1271  brk(0)                            = 0x805b000
-1271  brk(0x805d000)                    = 0x805d000
-1271  write(2, "error: ", 7)            = 7
-1271  write(2, "db4 error(11) from dbenv->open: "..., 65) = 65
-1271  write(2, "error: ", 7)            = 7
-1271  write(2, "cannot open Packages index using"..., 77) = 77
-1271  rt_sigprocmask(SIG_BLOCK, ~[], [], 8) = 0
-1271  rt_sigaction(SIGHUP, {SIG_DFL}, NULL, 8) = 0
-1271  rt_sigaction(SIGINT, {SIG_DFL}, NULL, 8) = 0
-1271  rt_sigaction(SIGTERM, {SIG_DFL}, NULL, 8) = 0
-1271  rt_sigaction(SIGQUIT, {SIG_DFL}, NULL, 8) = 0
-1271  rt_sigaction(SIGPIPE, {SIG_DFL}, NULL, 8) = 0
-1271  rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-1271  write(2, "error: ", 7)            = 7
-1271  write(2, "cannot open Packages database in"..., 46) = 46
-1271  fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 0), ...}) = 0
-1271  mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
-1271  write(1, "package glibc is not installed\n", 31) = 31
-1271  munmap(0x40017000, 4096)          = 0
-1271  exit_group(1)                     = ?
-
---=-0L8Tu7KdPZBo9v8B9zMc--
 

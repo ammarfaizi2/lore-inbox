@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbUKPQDC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbUKPQGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbUKPQDC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 11:03:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbUKPQDC
+	id S262015AbUKPQGY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 11:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUKPQGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 11:03:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11456 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262008AbUKPQC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 11:02:58 -0500
-Date: Tue, 16 Nov 2004 08:02:44 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: fork pagesize patch
-In-Reply-To: <20968.1100619491@redhat.com>
-Message-ID: <Pine.LNX.4.58.0411160800060.2222@ppc970.osdl.org>
-References: <20968.1100619491@redhat.com>
+	Tue, 16 Nov 2004 11:06:24 -0500
+Received: from atarelbas02.hp.com ([156.153.255.213]:43202 "EHLO
+	atlrel7.hp.com") by vger.kernel.org with ESMTP id S262015AbUKPQF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 11:05:27 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: gene.heskett@verizon.net
+Subject: Re: Old thread: Nobody cared, chapter 10^3rd
+Date: Tue, 16 Nov 2004 09:05:24 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>
+References: <200411150052.22271.gene.heskett@verizon.net> <1100556963.5875.970.camel@d845pe> <200411152250.25036.gene.heskett@verizon.net>
+In-Reply-To: <200411152250.25036.gene.heskett@verizon.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411160905.24277.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 16 Nov 2004, David Howells wrote:
+On Monday 15 November 2004 8:50 pm, Gene Heskett wrote:
+> On Monday 15 November 2004 17:16, Len Brown wrote:
+> >Any difference when you tested with "pci=routeirq"?
+> >
+> Dunno Len, but I'll add that to grub.conf and reboot for effects. BRB.
 > 
-> You seem to have turned:
+> Well, it shut that particular message off, but it sure made ACPI noisy!
 
-No, Andrew probably did.
+I think we're just rediscovering the floppy and i8042 issues that we found
+and fixed in -mm a while back.  The i8042 patch is contained in here:
 
-> 
-> 	+#if THREAD_SIZE >= PAGE_SIZE
-> 		max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
-> 	+#else
-> 	+	max_threads = mempages / 8;
-> 	+#endif
-> 	+
-> 
-> Into:
-> 
-> 	if (THREAD_SIZE >= PAGE_SIZE)
-> 		max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
-> 	else
-> 		max_threads = mempages / 8;
-> 
-> Please don't do that. What you've done causes a divide-by-zero error to be
-> emitted by the compiler if PAGE_SIZE > THREAD_SIZE. That's why I used the
-> preprocessor in the first place.
+ ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/broken-out/bk-input.patch
 
-What kind of broken compiler are _you_ using? Fix your compiler.
-
-If THREAD_SIZE is smaller than PAGE_SIZE, then the compiler IS NOT ALLOWED 
-to do the divide-by-zero. Your compiler is so incredibly broken that this 
-is not even worth fixing. Complain to the gcc guys.
-
-		Linus
+I have no idea whether this will apply directly to Linus' kernel, or
+whether it depends on other patches, but it should fix the problem.

@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264762AbTFEQ6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 12:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTFEQ6X
+	id S264765AbTFERDK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 13:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264768AbTFERDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 12:58:23 -0400
-Received: from uldns1.unil.ch ([130.223.8.20]:919 "EHLO uldns1.unil.ch")
-	by vger.kernel.org with ESMTP id S264762AbTFEQ6W convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 12:58:22 -0400
-Date: Thu, 5 Jun 2003 19:11:51 +0200
-From: Gregoire Favre <greg@magma.unil.ch>
-To: Michael Hunold <hunold@convergence.de>
-Cc: linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org
-Subject: Re: [linux-dvb] Re: Can't boot since 2.4.21-rc2-ac3 with dvb-kernel
-Message-ID: <20030605171151.GA18492@magma.unil.ch>
-References: <20030602171613.GA1609@magma.unil.ch> <20030605163932.GA17573@magma.unil.ch> <3EDF742C.2040500@convergence.de>
+	Thu, 5 Jun 2003 13:03:10 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:23712 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264765AbTFERDJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 13:03:09 -0400
+Date: Thu, 5 Jun 2003 10:04:10 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] PCI and PCI Hotplug changes and fixes for 2.5.70
+Message-ID: <20030605170410.GA5284@kroah.com>
+References: <10547787473026@kroah.com> <10547787472263@kroah.com> <20030605101936.D960@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3EDF742C.2040500@convergence.de>
+In-Reply-To: <20030605101936.D960@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.4.1i
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 05, 2003 at 06:47:40PM +0200, Michael Hunold wrote:
+On Thu, Jun 05, 2003 at 10:19:36AM +0100, Russell King wrote:
+> On Wed, Jun 04, 2003 at 07:05:47PM -0700, Greg KH wrote:
+> > diff -Nru a/drivers/pci/bus.c b/drivers/pci/bus.c
+> > --- a/drivers/pci/bus.c	Wed Jun  4 18:11:51 2003
+> > +++ b/drivers/pci/bus.c	Wed Jun  4 18:11:51 2003
+> > @@ -129,6 +129,5 @@
+> >  	}
+> >  }
+> >  
+> > -EXPORT_SYMBOL(pci_bus_alloc_resource);
+> >  EXPORT_SYMBOL(pci_bus_add_devices);
+> >  EXPORT_SYMBOL(pci_enable_bridges);
+> 
+> Please don't remove this one.  Its there for stuff like:
+> 
+> drivers/pcmcia/cardbus.c
 
-Hello Michael and otherss ;-)
+Sorry, I don't see that in the current kernel version of cardbus.c,
+otherwise I would not have moved it out.  Feel free to put it back, if
+you need it for any future cardbus changes.
 
-> Are you sure you have used the v4l2 "videodev.o" (backported from 2.5) 
-> that comes from the "build-2.4" directory from the "dvb-kernel" cvs tree?
+Oh, and I was looking at cardbus.c when doing these changes and saw this
+old comment:
 
-Argh!!!
+/*
+ * This file is going away.  Cardbus handling has been re-written to be
+ * more of a PCI bridge thing, and the PCI code basically does all the
+ * resource handling. This has wrappers to make the rest of the PCMCIA
+ * subsystem not notice that it's not here any more.
+ *
+ *              Linus, Jan 2000
+ */
 
-> Please do a
-> > find /lib/modules/ -iname "*videodev*"
+Is that ever going to happen?  Just curious, because if so, I can remove
+some more functions from pci.h :)
 
-/lib/modules/2.4.20-xfs-2003-04-27/kernel/drivers/media/video/videodev.o
-/lib/modules/2.4.21-rc1-ac3/misc/videodev.o
-/lib/modules/2.4.21-rc2-ac2/misc/videodev.o
-/lib/modules/2.4.21-rc2-ac3/misc/videodev.o
-/lib/modules/2.4.21-rc2-ac3/kernel/drivers/media/video/videodev.o
-/lib/modules/2.4.21-rc6-ac1/misc/videodev.o
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/media/video/videodev.o
-/lib/modules/2.4.21-rc7-ac1/misc/videodev.o
-/lib/modules/2.4.21-rc7-ac1/kernel/drivers/media/video/videodev.o
-/lib/modules/2.4.20-xfs/misc/videodev.o
+thanks,
 
-I completely forgot this!!!
-
-> If you have a "videodev.o" in .../kernel/drivs/media/video, then this 
-> will be used. But this is the plain old 2.4 video4linux-*1* videodev 
-> module, which does not work in conjunction with the "dvb-kernel" CVS 
-> driver, which needs the 2.5 video4linux-*2* videodev.
-
-Well, I have rebooted now under 2.4.21-rc7-ac1 and it works just
-great!!!
-
-> Please don't CC the linux kernel mailing list the next time, since this 
-> is a dvd only issue. Thanks!
-
-I completely agree with this, unfirtunately, as I completely forgot to
-remove the kernel/drivers/media/video/videodev.o to kernels newer than
-2.4.21-rc2-ac2 and as the compilation of new dvb-kernel worked perfectly
-for 2.4.21-rc2-ac2 I thought it was due to a change in the kernel...
-
-Sorry for the posts!!! But thank you very much,
-
-	Grégoire
-__________________________________________________________________
-http://www-ima.unil.ch/greg ICQ:16624071 mailto:greg@magma.unil.ch
+greg k-h

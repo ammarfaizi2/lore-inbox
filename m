@@ -1,80 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbUGGW4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265663AbUGGW4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265654AbUGGW4K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 18:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUGGW4K
+	id S265663AbUGGW4k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 18:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUGGW4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 18:56:10 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:35786 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S265654AbUGGW4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 18:56:03 -0400
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Daniel Phillips <phillips@redhat.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200407051629.54737.phillips@redhat.com>
-References: <200407051442.27397.phillips@redhat.com>
-	 <40E9A722.8020402@nortelnetworks.com>
-	 <200407051629.54737.phillips@redhat.com>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1089240951.822.144.camel@persist.az.mvista.com>
+	Wed, 7 Jul 2004 18:56:35 -0400
+Received: from mail-relay-1.tiscali.it ([212.123.84.91]:15245 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S265661AbUGGW42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 18:56:28 -0400
+Date: Thu, 8 Jul 2004 00:56:35 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Cc: programming@johnwross.com
+Subject: Re: Increasing IDE Channels
+Message-ID: <20040707225635.GA26832@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 07 Jul 2004 15:55:51 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-05 at 13:29, Daniel Phillips wrote:
-> On Monday 05 July 2004 15:08, Chris Friesen wrote:
-> > Daniel Phillips wrote:
-> > > Don't you think we ought to take a look at how OCFS and GFS might
-> > > share some of the same infrastructure, for example, the DLM and
-> > > cluster membership services?
-> >
-> > For cluster membership, you might consider looking at the OpenAIS CLM
-> > portion.  It would be nice if this type of thing was unified across 
-> > more than just filesystems.
+John W. Ross <programming@johnwross.com> ha scritto:
+> Greetings,
 > 
-> My own project is a block driver, that's not a filesystem, right?  
-> Cluster membership services as implemented by Sistina are generic, 
-> symmetric and (hopefully) raceless.  See:
+> I've spent several days working to increase the number of IDE channels above
+> the 10 allowed in the kernel.
+[cut]
+> Changed ide.h:
 > 
->   http://www.usenix.org/publications/library/proceedings/als00/2000papers/papers/full_papers/preslan/preslan.pdf
+> IDE_NR_PORTS  (10)
+> to
+> IDE_NR_PORTS  (12)
 > 
-> There is much overlap between the OpenAIS and Sistina's Symmetric 
-> Cluster Architecture.  You are right, we do need to get together.
+> In major.h I added:
 > 
-> By the way, how do I get your source code if I don't agree with the 
-> BitKeeper license?
+> #define IDE10_MAJOR     240
+> #define IDE11_MAJOR     241
 > 
-
-Daniel
-
-If you mean how do you get source code to the openais project without
-bk, it is available as a nightly tarball download from
-developer.osdl.org:
-
-http://developer.osdl.org/cherry/openais
-
-If you want to contribute to openais, you can still contribute by using
-diff by sending patches to:
-
-openais@lists.osdl.org
-
-Regards
--steve
-
-> Regards,
+> in ide.c I changed
 > 
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> static const u8 ide_hwif_to_major[] = { IDE0_MAJOR, IDE1_MAJOR,
+>     IDE2_MAJOR, IDE3_MAJOR,
+>     IDE4_MAJOR, IDE5_MAJOR,
+>     IDE6_MAJOR, IDE7_MAJOR,
+>     IDE8_MAJOR, IDE9_MAJOR };
+> 
+> to :
+> 
+> static const u8 ide_hwif_to_major[] = { IDE0_MAJOR, IDE1_MAJOR,
+>     IDE2_MAJOR, IDE3_MAJOR,
+>     IDE4_MAJOR, IDE5_MAJOR,
+>     IDE6_MAJOR, IDE7_MAJOR,
+>     IDE8_MAJOR, IDE9_MAJOR,
+>     IDE10_MAJOR, IDE11_MAJOR)
+> 
+ 
+> 1.) Could someone please explain why there is a limit of 10 interfaces (is
+> this something that I shouldn't even try)?
 
+Because hwifs are statically allocated, see drivers/ide/ide.c:
+
+ide_hwif_t ide_hwifs[MAX_HWIFS];        /* master data repository */
+
+Also if names are ide0..ide9, the following would be ide: and ide; (see
+init_hwif_data in drivers/ide/ide.c).
+
+> 2.)What did I miss on moving to 12?
+
+You can try and set MAX_HWIFS to 12 too (see include/asm-i386/ide.h),
+but you may find other problems.
+
+I don't know ide layer very much, I'm sorry but I can't help you more.
+
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Non capisco tutta questa eccitazione per il Multitasking: 
+io sono anni che leggo in bagno.

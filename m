@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277740AbRJLPsb>; Fri, 12 Oct 2001 11:48:31 -0400
+	id <S277739AbRJLPzU>; Fri, 12 Oct 2001 11:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277739AbRJLPsV>; Fri, 12 Oct 2001 11:48:21 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:21006 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277740AbRJLPsL>;
-	Fri, 12 Oct 2001 11:48:11 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: kdb v1.9 is available for kernel 2.4.12{-ac1}
-Date: Sat, 13 Oct 2001 01:47:46 +1000
-Message-ID: <11477.1002901666@ocs3.intra.ocs.com.au>
+	id <S277750AbRJLPzL>; Fri, 12 Oct 2001 11:55:11 -0400
+Received: from soul.helsinki.fi ([128.214.3.1]:63748 "EHLO soul.helsinki.fi")
+	by vger.kernel.org with ESMTP id <S277742AbRJLPyz>;
+	Fri, 12 Oct 2001 11:54:55 -0400
+Date: Fri, 12 Oct 2001 18:55:25 +0300 (EET DST)
+From: Mikael Johansson <mpjohans@pcu.helsinki.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: (memory?) bug between 2.4.9-ac10 and -ac14
+In-Reply-To: <20011012083616.C9992@cpe-24-221-152-185.az.sprintbbd.net>
+Message-ID: <Pine.OSF.4.30.0110121841270.13202-100000@soul.helsinki.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
+Hello All!
 
-ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.9-2.4.12.bz2
-ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.9-2.4.12-ac1.bz2
+A bug report which seems related to at least memory management:
 
-Upgrade to kernels 2.4.12 and 2.4.12-ac1.  2.4.12 also fits 2.4.13-pre1.
+If becoming root and then su:ing some other, non-local, userid, an oops
+with segfault is the outcome. Non-local here means that the user info is
+located on another machine, our server. su:ing the dummy local user
+seems to work OK.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+I remember the new shell being the process that oopses, but can't
+unfortunately get the output (other than "segmentation fault") before
+Monday as the machine is behind locked doors :-/
 
-iD8DBQE7xxCbi4UHNye0ZOoRAnf1AKDvMaJCeoZdVD4eR7WyqYLyc3VkKACeMUaj
-xUP9gdEqN7QBcnRSToABI7s=
-=0UUx
------END PGP SIGNATURE-----
+Anyway, this occurs if I boot the machine with the full 1.5GB of memory,
+but _not_ if I specify mem=512M in lilo.conf, so there seems to be some
+sort of "large memory support" issue.
+
+The system is fine with 2.4.9-ac10, and unfine with these (all I've
+tested): ac-14, ac-15, ac-18.
+
+I can get more detailed info on Monday, but thought that maybe someone has
+come across this before.
+
+Brief system specs:
+Athlon 1.4GHz
+Abit KT7A (with Athlon/VIA-bug)
+3x512MB SDRAM
+2x40GB => RAID-0
+
+Have a nice day,
+    Mikael J.
 

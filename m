@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbTLARvd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 12:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTLARvd
+	id S263823AbTLASGe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 13:06:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbTLASGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 12:51:33 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54546 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263806AbTLARvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 12:51:32 -0500
-Date: Mon, 1 Dec 2003 17:51:28 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: 2.4.23 *_task_struct() observations ...
-Message-ID: <20031201175128.B13621@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-References: <20031201172620.GA312@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031201172620.GA312@MAIL.13thfloor.at>; from herbert@13thfloor.at on Mon, Dec 01, 2003 at 06:26:20PM +0100
+	Mon, 1 Dec 2003 13:06:34 -0500
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:32239 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S263823AbTLASGc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 13:06:32 -0500
+Message-ID: <3FCB8312.3050703@rackable.com>
+Date: Mon, 01 Dec 2003 10:06:10 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: libata in 2.4.24?
+References: <Pine.LNX.4.44.0312010836130.13692-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0312010836130.13692-100000@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Dec 2003 18:06:30.0087 (UTC) FILETIME=[D8759D70:01C3B835]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 01, 2003 at 06:26:20PM +0100, Herbert Poetzl wrote:
-> just wanted to get an opinion on the following ...
+Marcelo Tosatti wrote:
 > 
-> include/asm-i386/processor.h  defines ...
+> On Sat, 29 Nov 2003, Marcelo Tosatti wrote:
 > 
->   #define alloc_task_struct() ((struct task_struct *) \
-> 				__get_free_pages(GFP_KERNEL,1))
->   #define free_task_struct(p)  free_pages((unsigned long) (p), 1)
->   #define get_task_struct(tsk) atomic_inc(&virt_to_page(tsk)->count)
 > 
-> now there seems to be no put_task_struct(), but
-> there are some examples where get/free is used 
-> where I would expect a put_* ...
+>>
+>>On Sat, 29 Nov 2003, Samuel Flory wrote:
+>>
+>>
+>>>   Are you considering including libata support for 2.4.24?  From my 
+>>>testing with a number of different embedded sata chipsets (mostly ICH, 
+>>>SI, and Promise) it appears very stable.  I'm not seeing any data 
+>>>corruption or lockups when running Cerberus with 2.4.23-rc5 + libata 
+>>>patch.  The only troubles I've had were with initialization of embedded 
+>>>promise sata controllers. (I still need to test with Jeff's latest fixes 
+>>>for this.)
+>>
+>>I'm happy to include it in 2.4 when Jeff thinks its stable enough for a 
+>>stable series. ;)
+> 
+> 
+> I thought a bit more about this issue and I have a different opinion now.
+> 
+> 2.6 is getting more and more stable and already includes libata --- users 
+> who need it should use 2.6.
 
-put_* is free_*.  The reference count for the task struct is the page
-count (virt_to_page(tsk)->count).
+   While I agree that 2.6 is looking better every day.  I've been 
+running my desktop on it for sometime.  I'm not sure agree we should be 
+forcing  people to use 2.6 simply to be able to read their hard drive.
+
+
+   It's getting harder to find a newly released motherboard without 
+onboard sata.  Not having  libata support means that anyone running 2.4 
+unpatched will be unable to use such systems.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+

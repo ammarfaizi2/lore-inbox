@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264303AbRF2Xu1>; Fri, 29 Jun 2001 19:50:27 -0400
+	id <S263745AbRF3ABa>; Fri, 29 Jun 2001 20:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263675AbRF2XuQ>; Fri, 29 Jun 2001 19:50:16 -0400
-Received: from otto.colonization.com ([128.171.80.37]:40964 "EHLO
-	otto.cfht.hawaii.edu") by vger.kernel.org with ESMTP
-	id <S264389AbRF2XuG>; Fri, 29 Jun 2001 19:50:06 -0400
-From: Sidik Isani <isani@cfht.hawaii.edu>
-Message-Id: <200106292350.NAA08050@otto.cfht.hawaii.edu>
-Subject: CRAMFS error "attempt to access beyond end of device"
+	id <S264327AbRF3ABT>; Fri, 29 Jun 2001 20:01:19 -0400
+Received: from mail1.home.nl ([213.51.129.225]:62883 "EHLO mail1.home.nl")
+	by vger.kernel.org with ESMTP id <S263745AbRF3ABB>;
+	Fri, 29 Jun 2001 20:01:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: elko <elko@home.nl>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 29 Jun 2001 13:50:04 -1000 (HST)
-X-Mailer: ELM [version 2.5 PL0]
+Subject: some linux history online...
+Date: Sat, 30 Jun 2001 02:06:44 +0200
+X-Mailer: KMail [version 1.2]
+X-Owner: ElkOS
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <0106300206440A.00626@ElkOS>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello -
+just a fun read:
 
-  Is there maybe a missing boundary check in cramfs that causes
-  accesses slightly past (up to 24 or 32K?) the end of a device?
-  Here's an example of a cramfs image mounted on a loop device
-  (the same thing happens with other block devices, and when the
-  kernel itself mounts a partition as cramfs-root.)
+1. "As of March 17, 1993, the current version of Linux is 0.99 patchlevel 7."
+2. "Linux runs only on 386/486 machines with an ISA or EISA bus."
 
-attempt to access beyond end of device
-07:01: rw=0, want=1156, limit=1152
-attempt to access beyond end of device
-07:01: rw=0, want=1160, limit=1152
-attempt to access beyond end of device
-07:01: rw=0, want=1164, limit=1152
-
-  The messages appear while running "diff -r" against the original tree.
-  The diff itself doesn't find any problems with the filesystem.
-  The size of the cramfs is 1179648 bytes, or exactly 1152 * 1024.
-  My kernel version is 2.4.5, but this behavior has existed since
-  the 2.4.0-test kernels.
-
-  If anyone has ideas on this, please let me know.
-
-- Sidik
+http://www.bombthebox.com/Archive/Linux/ 
+article: Linux - Free Unix Information Sheet.txt
+-- 
+elko

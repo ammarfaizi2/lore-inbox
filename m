@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263395AbRFKScm>; Mon, 11 Jun 2001 14:32:42 -0400
+	id <S263404AbRFKSkn>; Mon, 11 Jun 2001 14:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbRFKScc>; Mon, 11 Jun 2001 14:32:32 -0400
-Received: from c1123685-a.crvlls1.or.home.com ([65.12.164.15]:63496 "EHLO
-	inbetween.blorf.net") by vger.kernel.org with ESMTP
-	id <S263395AbRFKScW>; Mon, 11 Jun 2001 14:32:22 -0400
-Date: Mon, 11 Jun 2001 11:31:58 -0700 (PDT)
-From: Jacob Luna Lundberg <kernel@gnifty.net>
-Reply-To: jacob@chaos2.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister
- table
-In-Reply-To: <E159UNC-0008P4-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0106111126070.14070-100000@inbetween.blorf.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263443AbRFKSkd>; Mon, 11 Jun 2001 14:40:33 -0400
+Received: from [209.234.73.40] ([209.234.73.40]:530 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S263404AbRFKSkZ>;
+	Mon, 11 Jun 2001 14:40:25 -0400
+Date: Mon, 11 Jun 2001 13:39:49 -0500
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Zehetbauer Thomas <TZ@link.topcall.co.at>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: IBM PPC 405 series little endian?
+Message-ID: <20010611133949.Q753@altus.drgw.net>
+In-Reply-To: <41EA756DBC9FD0118CFC0020AFDB5C5A188DE7@tcint1ntsrv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <41EA756DBC9FD0118CFC0020AFDB5C5A188DE7@tcint1ntsrv>; from TZ@link.topcall.co.at on Mon, Jun 11, 2001 at 01:34:21PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 11, 2001 at 01:34:21PM +0200, Zehetbauer Thomas wrote:
+> Has someone experimented with running linux in little-endian mode on IBM
+> PowerPC 405 (Walnut) yet?
 
-On Mon, 11 Jun 2001, Alan Cox wrote:
-> "The source code for a work means the preferred form of the work for
-                                        ^^^^^^^^^
-Preferred by whom?  The FSF?  Richard Stallman?  Hackers in general when
-they take a vote?  Programmers in general?  What if the market is full of
-VB programmers who prefer VB?  What if none of them know assembly?  They
-might all vote that assembly isn't a preferred form.  If they aren't the
-ones who count, then who does?  Maybe the authors count for more than
-other people?  If so then it does seem they might like to write binaries
-because they're crazy and they think it's fun or something.  I think that
-the intention of the GPL is clear here but the language is not...
+Well, first, I have to ask, why??
 
-> making modifications to it.  For an executable work, complete source
-> code means all the source code for all modules it contains, plus any
-> associated interface definition files, plus the scripts used to
-> control compilation and installation of the executable."
+First, if you need to deal with little endian data, on a PPC stwbrx &
+lwbrx are your friends.
 
-All of this chunk talks about what ``complete'' means not what ``source
-code'' means.
+With the possible exception of the matrox guy, I haven't heard of ANYONE 
+running in LE mode on ppc. The second problem is going to be to recompile 
+ALL the applications you want and hope they work.
 
--Jacob
+Finally, if you're doing anything that connects to the internet, remember 
+that network byte order is big-endian. You might find it interesting that 
+even Intel is now re-discovering the usefullness of big-endian in some of 
+their strongarm/Xscale processors.
 
 --
-This is the moment where the joystick snaps off in Comstock's hand.
-Still, he can pound haplessly on the control panel.
-
- - Neal Stephenson, ``Cryptonomicon''
-
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Shulz

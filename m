@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263316AbTJOOdb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 10:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTJOOdb
+	id S262608AbTJOO1l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 10:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTJOO1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 10:33:31 -0400
-Received: from mx01.netapp.com ([198.95.226.53]:44452 "EHLO mx01.netapp.com")
-	by vger.kernel.org with ESMTP id S263316AbTJOOd3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 10:33:29 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Subject: RE: [NFS] RE: [autofs] multiple servers per automount
-Date: Wed, 15 Oct 2003 07:31:47 -0700
-Message-ID: <482A3FA0050D21419C269D13989C6113020AC516@lavender-fe.eng.netapp.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [NFS] RE: [autofs] multiple servers per automount
-Thread-Index: AcOS7dCC96WKq66jTF2sWh22fC38lQAOq38A
-From: "Lever, Charles" <Charles.Lever@netapp.com>
-To: "Ian Kent" <raven@themaw.net>
-Cc: "Joseph V Moss" <jmoss@ichips.intel.com>,
-       "Ogden, Aaron A." <aogden@unocal.com>,
-       "Mike Waychison" <Michael.Waychison@Sun.COM>,
-       "autofs mailing list" <autofs@linux.kernel.org>,
-       <nfs@lists.sourceforge.net>,
-       "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+	Wed, 15 Oct 2003 10:27:41 -0400
+Received: from users.linvision.com ([62.58.92.114]:27071 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262608AbTJOO1j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 10:27:39 -0400
+Date: Wed, 15 Oct 2003 16:27:38 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Josh Litherland <josh@temp123.org>, linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031015142738.GG24799@bitwizard.nl>
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <16269.20654.201680.390284@laputa.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16269.20654.201680.390284@laputa.namesys.com>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent said:
-> Do you think that the possible NFS port allocation problems
-> should hold up this work or should it drive updates to NFS?
+On Wed, Oct 15, 2003 at 05:50:38PM +0400, Nikita Danilov wrote:
+> Erik Mouw writes:
+>  > Nowadays disks are so incredibly cheap, that transparent compression
+>  > support is not realy worth it anymore (IMHO).
+> 
+> But disk bandwidth is so incredibly expensive that compression becoming
+> more and more useful: on compressed file system bandwidth of user-data
+> transfers can be larger than raw disk bandwidth. It is the same
+> situation as with allocation of disk space for files: disks are cheap,
+> but storing several files in the same block becomes more advantageous
+> over time.
 
-hi ian-
+You have a point, but remember that modern IDE drives can do about
+50MB/s from medium. I don't think you'll find a CPU that is able to
+handle transparent decompression on the fly at 50MB/s, even not with a
+simple compression scheme as used in NTFS (see the NTFS docs on
+SourceForge for details).
 
-the port stuff has to be addressed at some point, but i don't
-think you should wait for it, because it is behind a long queue
-of other RPC work (like Kerberos for Linux NFS) that has a
-higher priority.  also, there are other patches that partially
-address this limitation, and certainly those will be used by
-the desparate few who need it now. :^)
 
-IMHO.
+Erik
+
+PS: let me guess: among other things, reiser4 comes with transparent
+    compression? ;-)
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+| Data lost? Stay calm and contact Harddisk-recovery.com

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130676AbQLQUM3>; Sun, 17 Dec 2000 15:12:29 -0500
+	id <S131233AbQLQUdr>; Sun, 17 Dec 2000 15:33:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131233AbQLQUMU>; Sun, 17 Dec 2000 15:12:20 -0500
-Received: from tahallah.claranet.co.uk ([212.126.138.206]:1028 "EHLO
-	tahallah.clara.co.uk") by vger.kernel.org with ESMTP
-	id <S130676AbQLQUML>; Sun, 17 Dec 2000 15:12:11 -0500
-Date: Sun, 17 Dec 2000 19:41:03 +0000 (GMT)
-From: Alex Buell <alex.buell@tahallah.clara.co.uk>
-Reply-To: <alex.buell@tahallah.clara.co.uk>
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.2.18 ide-scsi & scsi generic modules
-Message-ID: <Pine.LNX.4.30.0012171937290.275-100000@tahallah.clara.co.uk>
+	id <S131366AbQLQUdh>; Sun, 17 Dec 2000 15:33:37 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:61709 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131233AbQLQUdU>; Sun, 17 Dec 2000 15:33:20 -0500
+Date: Sun, 17 Dec 2000 12:02:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test13-pre1 lockup: run_task_queue or tty_io are wrong
+In-Reply-To: <20001217192351.A18244@pcep-jamie.cern.ch>
+Message-ID: <Pine.LNX.4.10.10012171200310.25447-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was a post on linux-kernel earlier today stating that "hdx=scsi" did
-not work correctly if both were compiled as modules for 2.4.10-testxx and
-a patch was posted.
 
-I can confirm that this is true for 2.2.x, with "hdx=ide-scsi". Once I
-compiled both statically into the kernel, it works.
 
-Perhaps somone can backport the fixes? It would be nice to change 2.2 so
-it can accept "hdx=scsi" for compatiblity with 2.4.
+On Sun, 17 Dec 2000, Jamie Lokier wrote:
+> 
+> How about using a sentinel list entry representing the current position
+> in run_task_queue's loop?
 
-Cheers,
-Alex
--- 
-The truth is out there.
+Nope.
 
-http://www.tahallah.clara.co.uk
+There may be multiple concurrent run_task_queue's executing, so for now
+I've applied Andrew Morton's patch that most closely gets the old
+behaviour of having a private list.
+
+HOWEVER, this does need to be re-visited. The task-queue handling is
+potantially something that should be completely re-vamped in the future.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

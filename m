@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317547AbSGTWQr>; Sat, 20 Jul 2002 18:16:47 -0400
+	id <S317567AbSGTW0A>; Sat, 20 Jul 2002 18:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317551AbSGTWQr>; Sat, 20 Jul 2002 18:16:47 -0400
-Received: from ns2.bizsystems.net ([63.77.172.2]:8201 "EHLO
-	ns2.is.bizsystems.com") by vger.kernel.org with ESMTP
-	id <S317547AbSGTWQr>; Sat, 20 Jul 2002 18:16:47 -0400
-Message-Id: <200207202219.g6KMJvpK026242@ns2.is.bizsystems.com>
-From: "Michael" <michael@insulin-pumpers.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 20 Jul 2002 15:19:57 -0800
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: build error when SMP = No
-Reply-to: michael@insulin-pumpers.org
+	id <S317568AbSGTW0A>; Sat, 20 Jul 2002 18:26:00 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:7139 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S317567AbSGTW0A>;
+	Sat, 20 Jul 2002 18:26:00 -0400
+Date: Sun, 21 Jul 2002 00:29:05 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: keyboard ONLY functions in 2.5.27 with local APIC on for UP
+Message-ID: <20020720222905.GA15288@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i86 based build of 
-2.4.19-rc2
+Vojtech, list,
 
-When 
-Symmetric multi-processing support (CONFIG_SMP) [Y/n/?] n
+I find that my keyboard only works if I turn on the local APIC on UP on my
+laptop. The only clue I see scrolling past is something about 'AT keyboard
+timeout, not present?'. I don't have my nullmodem cable handy to check it
+out further.
 
-is Yes, everything builds fine.
-if No, the following fatal error occurs
+I do see it talking about interrupt 1 and IO 0x60. I've also compiled it
+with the SERIO debugging setting and ATKBD debugging on, but I still don't
+see anything useful.
 
-/usr/src/linux-2.4.19-rc2.2/include/linux/kernel_stat.h:45:
-`smp_num_cpus' undeclared (first use in this function)
-/usr/src/linux-2.4.19-rc2.2/include/linux/kernel_stat.h:45: (Each
-undeclared identifier is reported only once
-/usr/src/linux-2.4.19-rc2.2/include/linux/kernel_stat.h:45: for each
-function it appears in.) make[2]: *** [ksyms.o] 
-Error 1 make[2]: Leaving directory 
-`/usr/src/linux-2.4.19-rc2.2/kernel' make[1]: *** [first_rule] 
+Every once in a while it would say 'unknown scancode from keybord set 0,
+0x2' and then some more numbers. I feel bad that I can't be anymore specific
+right now.
 
-Any joy out there??
-Michael
-Michael@Insulin-Pumpers.org
+If you want me to do some more checking, let me know, and I'll hook up the
+serial.
+
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

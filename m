@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264827AbUEYJ7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUEYK1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264827AbUEYJ7A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 05:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEYJ7A
+	id S264833AbUEYK1o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 06:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEYK1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 05:59:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53699 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264827AbUEYJ66 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 05:58:58 -0400
-Date: Tue, 25 May 2004 02:58:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Help understanding slow down
-Message-Id: <20040525025826.6c31c71f.akpm@osdl.org>
-In-Reply-To: <20040525114258.GA6674@elte.hu>
-References: <20040524062754.GO1833@holomorphy.com>
-	<20040524063959.5107.qmail@web90007.mail.scd.yahoo.com>
-	<20040524005331.71465614.akpm@osdl.org>
-	<20040525103238.GA4212@elte.hu>
-	<20040525022941.62ab4cc4.akpm@osdl.org>
-	<20040525114258.GA6674@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 25 May 2004 06:27:44 -0400
+Received: from mail01.hansenet.de ([213.191.73.61]:60816 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S264833AbUEYK1m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 06:27:42 -0400
+Date: Tue, 25 May 2004 12:26:59 +0200
+From: Malte =?ISO-8859-1?B?U2NocvZkZXI=?= <MalteSch@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@muc.de>
+Subject: Re: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
+Message-Id: <20040525122659.395783f4@highlander.Home.LAN>
+In-Reply-To: <m3r7t9d3li.fsf@averell.firstfloor.org>
+References: <1ZqbC-5Gl-13@gated-at.bofh.it>
+	<m3r7t9d3li.fsf@averell.firstfloor.org>
+Reply-To: MalteSch@gmx.de
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Ingo Molnar <mingo@elte.hu> wrote:
-> > >
-> > >  with the patch below we will print a big fat warning. (I did not want to
-> > >  deny idle=poll altogether - future HT implementations might work fine
-> > >  with polling idle.)
-> > 
-> > idle=poll is handy when profiling the kernel with oprofile
-> > clock-unhalted events.  Because if you use the normal halt-based idle
-> > loop no profile "ticks" are accounted to idle time at all and the
-> > results are really hard to understand.
-> 
-> it makes it a bit more plausible, but kernel profiling based on ticks in
-> a HT environment is still quite unreliable, even with idle=poll. The HT
-> cores will yield to each other on various occasions - like spinlock
-> loops. This disproportionatly increases the hits of various looping
-> functions, creating false impressions of lock contention where there's
-> only little contention. Plus idle=poll is a constant ~20% performance
-> drain on the non-idle HT core, further distorting the profile. HT makes
-> profiling really hard, no matter what.
+--Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But often one is looking for relativities rather than real absolute
-numbers.  (In which case the absent idle time doesn't matter, but it freaks
-me out...)
+New information :)
+I didn't profile it yet but I think I found what caused the problem.
+It turned out that I have to disable alsa mmap-support in xine (mplayer wor=
+ked w/o problems, it does not offer alsa mmap), so X is not involved at all=
+. Do you still need a profile or is this a known thing?
+Ah, before I forget, my userspace is 32bit-only, I have a 64-bit chroot I w=
+anted to do some testing with.
 
-> but ... we agree on the warning printk, right?
+Greets
+--=20
+---------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+---------------------------------------
 
-yup.
+
+--Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAsx924q3E2oMjYtURAoojAKCf/UsclBrNXP9tXPtMDI4xizqilACfeWy2
+u5jsJnugpkv6Zi7m4UT8p5c=
+=IqUh
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__25_May_2004_12_26_59_+0200_7_eN9eeQO+VrbEtf--

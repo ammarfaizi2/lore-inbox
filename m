@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316952AbSEWQhT>; Thu, 23 May 2002 12:37:19 -0400
+	id <S316954AbSEWQiU>; Thu, 23 May 2002 12:38:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316954AbSEWQhT>; Thu, 23 May 2002 12:37:19 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47329 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316952AbSEWQhR>;
-	Thu, 23 May 2002 12:37:17 -0400
-Date: Thu, 23 May 2002 09:21:55 -0700 (PDT)
-Message-Id: <20020523.092155.70675460.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, andrea@suse.de,
-        torvalds@transmeta.com
-Subject: Re: Q: PREFETCH_STRIDE/16
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15597.6222.724619.443491@napali.hpl.hp.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316955AbSEWQiT>; Thu, 23 May 2002 12:38:19 -0400
+Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:38661 "HELO
+	alhambra.merseine.nu") by vger.kernel.org with SMTP
+	id <S316954AbSEWQiR>; Thu, 23 May 2002 12:38:17 -0400
+Date: Thu, 23 May 2002 19:35:02 +0300
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: linux-kernel@vger.kernel.org
+Subject: ppp_deflate.o taints the kernel?
+Message-ID: <20020523193502.H15025@actcom.co.il>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Thu, 23 May 2002 09:26:54 -0700
-   
-   That code certainly wasn't optimized for ia64.  Furthermore, I also do
-   not like the prefetch distance it's using.  In fact, in my ia64-patch,
-   I use the following code instead:
-   
-   		prefetchw(pmd + j + PREFETCH_STRIDE/sizeof(*pmd));
-   
-   This is more sensible (because it really does prefetch by the
-   PREFETCH_STRIDE distance) and it also happens to run (slightly) faster
-   on Itanium.
+Salutations, 
 
-All of these particular prefetches are amusing, with or without your
-fix, considering there are other more powerful ways to optimize this
-stuff. :-)
+The ppp_deflate.o module has the license string "BSD without
+advertisement clause". Loading this module appears to taint the
+kernel, which agrees with the allowed licenses list in
+include/module.h, and with list in latest modutils (2.4.16),
+obj/obj_gpl_license, where this license string does not appear.
 
+I plead an utter lack of clue in regards to licenses, but assume that
+it's GPL compatible if it's distributed with the kernel. In that case,
+shouldn't it be added to the license list?
+
+Thanks, 
+-- 
+Monday 1 Forelithe 7466
+
+http://vipe.technion.ac.il/~mulix/
+http://syscalltrack.sf.net/

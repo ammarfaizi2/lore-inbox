@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132411AbQL1WYq>; Thu, 28 Dec 2000 17:24:46 -0500
+	id <S132517AbQL1W2g>; Thu, 28 Dec 2000 17:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132501AbQL1WYg>; Thu, 28 Dec 2000 17:24:36 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:28684 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132411AbQL1WYU>;
-	Thu, 28 Dec 2000 17:24:20 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Pixel@the-truth.nobis.phear.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: New driver 
-In-Reply-To: Your message of "Thu, 28 Dec 2000 22:19:37 BST."
-             <20001228211937.7175.qmail@the-truth.nobis.phear.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Dec 2000 08:53:43 +1100
-Message-ID: <13378.978040423@ocs3.ocs-net>
+	id <S132518AbQL1W20>; Thu, 28 Dec 2000 17:28:26 -0500
+Received: from esteel10.client.dti.net ([209.73.14.10]:33252 "EHLO
+	nynews01.e-steel.com") by vger.kernel.org with ESMTP
+	id <S132517AbQL1W2P>; Thu, 28 Dec 2000 17:28:15 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
+Newsgroups: e-steel.mailing-lists.linux.linux-kernel
+Subject: Re: Abysmal RAID 0 performance on 2.4.0-test10 for IDE?
+Date: 28 Dec 2000 16:57:43 -0500
+Organization: e-STEEL Netops news server
+Message-ID: <m3elysi4yw.fsf@shookay.e-steel.com>
+In-Reply-To: <200012261952.TAA11390@mauve.demon.co.uk> <Pine.LNX.4.30.0012271620530.24075-100000@rossi.itg.ie> <20001228134244.A1684@scutter.internal.splhi.com>
+NNTP-Posting-Host: shookay.e-steel
+X-Trace: nynews01.e-steel.com 978040585 2088 192.168.3.43 (28 Dec 2000 21:56:25 GMT)
+X-Complaints-To: news@nynews01.e-steel.com
+NNTP-Posting-Date: 28 Dec 2000 21:56:25 GMT
+X-Newsreader: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000 22:19:37 +0100 (CET), 
-Pixel@the-truth.nobis.phear.org wrote:
->I wanted to share what I've done but since I'm very new to kernel hacking
->I don't know what to do with my patch. Could you give me some hints?
+timw@splhi.com (Tim Wright) writes:
 
-linux/Documentation/SubmittingPatches
+> On Wed, Dec 27, 2000 at 04:23:43PM +0000, Paul Jakma wrote:
+> > On Tue, 26 Dec 2000, Ian Stirling wrote:
+> > 
+> > > The PCI bus can move around 130MB/sec,
+> > 
+> > in bursts yes, but sustained data bandwidth of PCI is a lot lower,
+> > maybe 30 to 50MB/s. And you won't get sustained RAID performance >
+> > sustained PCI performance.
+> > 
+> 
+> No. A well-designed card and driver doing cache-line sized transfers can
+> achieve ~100MB/s. On the IBM (Sequent) NUMA machines, we achieved in excess
+> of 3GB/s sustained read I/O (database full table scan) on a 16-quad (32 PCI
+> bus) system. That works out at around 100MB/s per bus.
 
+Sadly, I am sure that your "well-designed" system must be costly as
+hell... :(
+
+-- 
+Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@e-steel.com
+     Learning French is trivial: the word for horse is cheval, and
+               everything else follows in the same way.
+                        -- Alan J. Perlis
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

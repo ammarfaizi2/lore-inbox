@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267921AbRGRT0y>; Wed, 18 Jul 2001 15:26:54 -0400
+	id <S267918AbRGRT1E>; Wed, 18 Jul 2001 15:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267919AbRGRT0e>; Wed, 18 Jul 2001 15:26:34 -0400
-Received: from www.wen-online.de ([212.223.88.39]:44041 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S267914AbRGRT00>;
-	Wed, 18 Jul 2001 15:26:26 -0400
-Date: Wed, 18 Jul 2001 21:25:21 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Inclusion of zoned inactive/free shortage patch
-In-Reply-To: <Pine.LNX.4.33L.0107181536590.28730-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0107182119360.313-100000@mikeg.weiden.de>
+	id <S267914AbRGRT0y>; Wed, 18 Jul 2001 15:26:54 -0400
+Received: from [200.197.178.146] ([200.197.178.146]:4086 "EHLO desenv00")
+	by vger.kernel.org with ESMTP id <S267918AbRGRT0d>;
+	Wed, 18 Jul 2001 15:26:33 -0400
+Message-ID: <3B55E2AB.5080608@usa.net>
+Date: Wed, 18 Jul 2001 16:25:31 -0300
+From: Eduardo <eduardo.sp@usa.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.6 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH] gamecon.c change for SNES controller
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jul 2001, Rik van Riel wrote:
+Pavlik -
 
-> On Wed, 18 Jul 2001, Mike Galbraith wrote:
-> > On Wed, 18 Jul 2001, Rik van Riel wrote:
->
-> > > Marcelo, now that you have the nice VM statistics
-> > > patch, do you have some numbers on how this patch
-> > > affects the system, or is this patch based on
-> > > guesswork ?  ;)
-> >
-> > Have you read Dirk's logs or read the pertinent threads at all?
->
-> Yes. Read the one from "Mon, 16 Jul 2001 15:14:02 -0400 (EDT)", the
-> one where Dirk replies to his own email with "wishful thinking ;-(".
+I've had to applie the following change to make the SNES controller work 
+at the parallel port. It have been applied to two computers. The old 
+code was giving the same values when you pressed right or left or when 
+you pressed up or down. The new code have been done to not use expensive 
+codification (i.e. multiplication).
 
-You didn't paying enough attention.  Marcelo is hot on the trail
-of a problem.
+It have been applied to kernel 2.4.6, and compiled with gcc 3.0.
 
-	-Mike
+See ya,
+
+Eng. Eduardo Bortoluzzi Junior
+mailto:eduardo.sp@usa.net
+
+
+--- start of patch ---
+
+--- drivers/char/joystick/gamecon.c.orig Sat Jul 14 19:03:12 2001
++++ drivers/char/joystick/gamecon.c     Wed Jul 18 16:00:50 2001
+@@ -345,8 +345,8 @@
+                        s = gc_status_bit[i];
+ 
+                        if (s & (gc->pads[GC_NES] | gc->pads[GC_SNES])) {
+-                               input_report_abs(dev + i, ABS_X, ! - !(s 
+& data[6]) - !(s & data[7]));
+-                               input_report_abs(dev + i, ABS_Y, ! - !(s 
+& data[4]) - !(s & data[5]));
++                               input_report_abs(dev + i, ABS_X, - !!(s 
+& data[6]) + !!(s & data[7]));
++                               input_report_abs(dev + i, ABS_Y, - !!(s 
+& data[4]) + !!(s & data[5]));
+                        }
+ 
+                        if (s & gc->pads[GC_NES])
+
+--- end of patch ---
 

@@ -1,41 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315293AbSFIXWH>; Sun, 9 Jun 2002 19:22:07 -0400
+	id <S315337AbSFIXjK>; Sun, 9 Jun 2002 19:39:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315334AbSFIXWG>; Sun, 9 Jun 2002 19:22:06 -0400
-Received: from ns.suse.de ([213.95.15.193]:28169 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315293AbSFIXWG>;
-	Sun, 9 Jun 2002 19:22:06 -0400
-Date: Mon, 10 Jun 2002 01:22:07 +0200
-From: Dave Jones <davej@suse.de>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.21] i386 arch subdivision into machine types
-Message-ID: <20020610012207.L13140@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	James Bottomley <James.Bottomley@HansenPartnership.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200206091729.g59HTnv08471@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315338AbSFIXjJ>; Sun, 9 Jun 2002 19:39:09 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:45327 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S315337AbSFIXjI>; Sun, 9 Jun 2002 19:39:08 -0400
+Message-ID: <3D03E68E.8010704@megapathdsl.net>
+Date: Sun, 09 Jun 2002 16:36:46 -0700
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: PATCH -- Re: 2.5.21 -- emumpu401.c:309: parse error before "emu10k1_midi_init"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 01:29:49PM -0400, James Bottomley wrote:
- > This code rearranges the arch/i386 directory structure to allow for sliding 
- > additional non-pc hardware in here in an easily separable (and thus easily 
- > maintainable) fashion.  The idea is that all the code for the particular 
- > problem hardware should be able to go in a separate directory with only 
- > additional build options in config.in.
+This patch adds linux/init.h in all the necessary places to
+get the emu10k1 driver building again.
 
-Now that Linus has taken Patricks large reorganisation, I think we're
-ready to start looking at this.   I'll experiment with it a little when
-I get around to syncing against 2.5.21
+	Miles
 
-        Dave.
+--- linux/sound/pci/emu10k1/emumpu401.c~        Sun Jun  9 04:30:46 2002
++++ linux/sound/pci/emu10k1/emumpu401.c Sun Jun  9 04:31:51 2002
+@@ -22,6 +22,7 @@
+ #define __NO_VERSION__
+ #include <sound/driver.h>
+ #include <linux/time.h>
++#include <linux/init.h>
+ #include <sound/core.h>
+ #include <sound/emu10k1.h>
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+diff -u -r ../tmp2/emufx.c sound/pci/emu10k1/emufx.c
+--- ../tmp2/emufx.c	Thu May 30 23:12:54 2002
++++ sound/pci/emu10k1/emufx.c	Sun Jun  9 16:25:12 2002
+@@ -28,6 +28,7 @@
+  #define __NO_VERSION__
+  #include <sound/driver.h>
+  #include <linux/delay.h>
++#include <linux/init.h>
+  #include <linux/slab.h>
+  #include <sound/core.h>
+  #include <sound/emu10k1.h>
+diff -u -r ../tmp2/emumixer.c sound/pci/emu10k1/emumixer.c
+--- ../tmp2/emumixer.c	Thu May 30 23:19:29 2002
++++ sound/pci/emu10k1/emumixer.c	Sun Jun  9 16:24:29 2002
+@@ -29,6 +29,7 @@
+  #define __NO_VERSION__
+  #include <sound/driver.h>
+  #include <linux/time.h>
++#include <linux/init.h>
+  #include <sound/core.h>
+  #include <sound/emu10k1.h>
+
+diff -u -r ../tmp2/emupcm.c sound/pci/emu10k1/emupcm.c
+--- ../tmp2/emupcm.c	Thu May 30 23:13:53 2002
++++ sound/pci/emu10k1/emupcm.c	Sun Jun  9 16:10:40 2002
+@@ -29,6 +29,7 @@
+  #include <sound/driver.h>
+  #include <linux/slab.h>
+  #include <linux/time.h>
++#include <linux/init.h>
+  #include <sound/core.h>
+  #include <sound/emu10k1.h>
+
+diff -u -r ../tmp2/emuproc.c sound/pci/emu10k1/emuproc.c
+--- ../tmp2/emuproc.c	Thu May 30 23:13:53 2002
++++ sound/pci/emu10k1/emuproc.c	Sun Jun  9 16:23:41 2002
+@@ -28,6 +28,7 @@
+  #define __NO_VERSION__
+  #include <sound/driver.h>
+  #include <linux/slab.h>
++#include <linux/init.h>
+  #include <sound/core.h>
+  #include <sound/emu10k1.h>
+
+

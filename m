@@ -1,91 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267338AbTAQAR7>; Thu, 16 Jan 2003 19:17:59 -0500
+	id <S267339AbTAQA0H>; Thu, 16 Jan 2003 19:26:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267339AbTAQAR7>; Thu, 16 Jan 2003 19:17:59 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:21512 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267338AbTAQAR6>; Thu, 16 Jan 2003 19:17:58 -0500
-Message-ID: <3E2745E8.D8908505@linux-m68k.org>
-Date: Fri, 17 Jan 2003 00:53:12 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+	id <S267340AbTAQA0H>; Thu, 16 Jan 2003 19:26:07 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:2697 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S267339AbTAQA0A>; Thu, 16 Jan 2003 19:26:00 -0500
+Message-ID: <3E274FB1.EF85F6E0@attbi.com>
+Date: Thu, 16 Jan 2003 19:34:57 -0500
+From: Jim Houston <jim.houston@attbi.com>
+Reply-To: jim.houston@attbi.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-CC: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-References: <20030115063349.A1521@almesberger.net> <20030116013125.ACE0F2C0A3@lists.samba.org> <20030115234258.E1521@almesberger.net> <3E26F6DC.D9150735@linux-m68k.org> <20030116155815.A29595@almesberger.net>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: linux-kernel@vger.kernel.org,
+       high-res-timers-discourse@lists.sourceforge.net, jim.houston@ccur.com
+Subject: Re: [PATCH] improved boot time TSC synchronization
+References: <200301161644.h0GGitX02052@linux.local> <20030116213332.GA14040@bjl1.asuk.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Werner Almesberger wrote:
-
-> > You can simplify this. All you need are the following simple functions:
-> >
-> > - void register();
-> > - void unregister();
-> > - int is_registered();
-> > - void inc_usecount();
-> > - void dec_usecount();
-> > - int get_usecount();
+Jamie Lokier wrote:
 > 
-> I'm not sure if you, you're not changing the semantics.
-
-See above functions as primitives, which one can use to build any other
-resource management you want.
-The module code does the get_usecount() test for every driver and if it
-was zero it disables inc_usecount() and only then the driver is allowed
-to unregister(). The module code has to add another is_active state for
-this and is so actually adding more complexity to it.
-
-> What I was
-> describing was a non-blocking interface, e.g.
+> It looks like not only can you synchronise with a certain accuracy,
+> you can determine an upper bound on that accuracy (assuming the
+> underlying CPU clocks are locked).
 > 
->         if (!prepare_deregister(foo))
->                 return -E...;
->         if (!prepare_deregister(bar)) {
->                 undo_deregister(foo);
->                 return -E...;
->         }
->         commit_deregister(foo);
->         commit_deregister(bar);
->         return 0;
+> Maybe that figure could be put into /proc/cpuinfo?
+> 
+> As well as being an interesting value, it may be useful for programs
+> to know the effective accuracy of `rdtsc'.
+> 
+> -- Jamie
 
-You are making it too complex, as you probably need an is_active state
-as well, it would be just per interface instead of global.
-If you really want to reduce complexity, all you can do, is to get rid
-of the is_active state. For the majority of drivers such state isn't
-needed at all, but it's currently forced on all drivers.
-So to keep things simple, we should just finish shutting down the
-driver, as soon as we started with it and don't restart or undo
-anything. To avoid the sleeping we can also simply return -EBUSY and
-continue later, so the cleanup could look like this:
+Hi Jamie,
 
-	if (!ptr)
-		return 0;
-	if (is_registered())
-		unregister();
-	if (get_usecount())
-		return -EBUSY;
-	release();
-	return 0;
+Yeah, I'd be glad to add the round-trip time to cpuinfo.  I see
+this as a bogomips like metric.  It tells you how quickly you 
+can move cache lines from chip to chip.
 
-This way the caller just needs to do the following, which can be called
-as often as necessary:
+The patch currently prints the round-trip time and the max_delta.
+On a Quad P4 Xeon, I got round-trip times in the 0.7 microsecond
+range which is disappointing. The max_delta was almost always
+zero cycles meaning that the feedback loop thinks that the TSC values
+are perfectly synchronized.
 
-	if (shutdown(ptr))
-		return -EBUSY;
-	ptr = NULL;
-
-There is really no need to introduce extra states to make things more
-complex.
-
-bye, Roman
-
-
+Jim Houston - Concurrent Computer Corp.

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277284AbRJNTbx>; Sun, 14 Oct 2001 15:31:53 -0400
+	id <S277143AbRJNTab>; Sun, 14 Oct 2001 15:30:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277281AbRJNTbX>; Sun, 14 Oct 2001 15:31:23 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:7344 "EHLO
+	id <S277275AbRJNTaW>; Sun, 14 Oct 2001 15:30:22 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:6064 "EHLO
 	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S277275AbRJNTal>; Sun, 14 Oct 2001 15:30:41 -0400
-Date: Sun, 14 Oct 2001 20:31:07 +0100
+	id <S277143AbRJNTaI>; Sun, 14 Oct 2001 15:30:08 -0400
+Date: Sun, 14 Oct 2001 20:30:39 +0100
 From: Russell King <rmk@arm.linux.org.uk>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Patch: minor cleanup to floppy.c (3/3)
-Message-ID: <20011014203107.H32145@flint.arm.linux.org.uk>
+Subject: Patch: minor cleanup to floppy.c (2/3)
+Message-ID: <20011014203039.G32145@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,78 +21,127 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan,
 
-Here's the final part of the cleanup - we remove the useless FDC2
-declarations from the various architecture header files, as well
-as some speeling mistaks. 8)
+This patch adds support for architectures (like ARM) that need to add
+extra floppy parameters.  The ARM floppy.h already has support for
+this; this patch adds the necessary bits to the other architectures,
+and the bit floppy.c change to hook it into the table.
 
-It depends on the first patch being applied.
+This patch should be applied after the first, but the order isn't
+critical.
 
---- orig/include/asm-m68k/floppy.h	Sun Oct 14 20:23:49 2001
-+++ linux/include/asm-m68k/floppy.h	Sun Oct 14 20:23:30 2001
-@@ -36,8 +36,6 @@
+--- orig/include/asm-alpha/floppy.h	Sun Jun 18 17:11:05 2000
++++ linux/include/asm-alpha/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -116,4 +116,6 @@
+ # endif
+ #endif
  
- /* basically PC init + set use_virtual_dma */
- #define  FDC1 m68k_floppy_init()
--static int FDC2 = -1;
++#define EXTRA_FLOPPY_PARAMS
++
+ #endif /* __ASM_ALPHA_FLOPPY_H */
+--- orig/include/asm-i386/floppy.h	Fri Jan  5 01:03:52 2001
++++ linux/include/asm-i386/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -315,5 +315,6 @@
+ 
+ #define AUTO_DMA
+ 
++#define EXTRA_FLOPPY_PARAMS
+ 
+ #endif /* __ASM_I386_FLOPPY_H */
+--- orig/include/asm-m68k/floppy.h	Wed Jul  4 19:54:07 2001
++++ linux/include/asm-m68k/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -254,5 +254,4 @@
+ #endif
+ }
+ 
 -
- 
- #define N_FDC 1
- #define N_DRIVE 8
---- orig/include/asm-mips/floppy.h	Sun Oct 14 20:23:49 2001
-+++ linux/include/asm-mips/floppy.h	Sun Oct 14 20:23:30 2001
-@@ -79,14 +79,6 @@
- 
- #define FDC1			fd_ops->fd_getfdaddr1();
- 
--/*
-- * Hack: The floppy drivrer defines this, before including fdreg.h.  We use
-- * to define FDC2 only one and keep it a static variable in floppy.c.
-- */
--#ifdef FDPATCHES
--static int FDC2 = -1;
--#endif
 -
- #define N_FDC 1			/* do you *really* want a second controller? */
- #define N_DRIVE 8
- 
---- orig/include/asm-mips64/floppy.h	Sun Oct 14 20:23:49 2001
-+++ linux/include/asm-mips64/floppy.h	Sun Oct 14 20:23:30 2001
-@@ -77,14 +77,6 @@
- 
- #define FDC1			fd_ops->fd_getfdaddr1();
- 
--/*
-- * Hack: The floppy drivrer defines this, before including fdreg.h.  We use
-- * to define FDC2 only one and keep it a static variable in floppy.c.
-- */
--#ifdef FDPATCHES
--static int FDC2=-1;
--#endif
--
- #define N_FDC 1			/* do you *really* want a second controller? */
- #define N_DRIVE 8
- 
---- orig/include/asm-sparc/floppy.h	Sun Oct 14 20:23:49 2001
-+++ linux/include/asm-sparc/floppy.h	Sun Oct 14 20:23:30 2001
-@@ -96,8 +96,6 @@
++#define EXTRA_FLOPPY_PARAMS
+--- orig/include/asm-mips/floppy.h	Mon Jul 10 21:56:30 2000
++++ linux/include/asm-mips/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -107,4 +107,6 @@
   */
- #define FDC1                      sun_floppy_init()
+ #define CROSS_64KB(a,s) ((unsigned long)(a)/K_64 != ((unsigned long)(a) + (s) - 1) / K_64)
  
--static int FDC2=-1;
--
- #define N_FDC    1
- #define N_DRIVE  8
++#define EXTRA_FLOPPY_PARAMS
++
+ #endif /* _ASM_FLOPPY_H */
+--- orig/include/asm-mips64/floppy.h	Mon Jul 10 21:56:31 2000
++++ linux/include/asm-mips64/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -105,4 +105,6 @@
+  */
+ #define CROSS_64KB(a,s) ((unsigned long)(a)/K_64 != ((unsigned long)(a) + (s) - 1) / K_64)
  
---- orig/include/asm-sparc64/floppy.h	Sun Oct 14 20:23:50 2001
-+++ linux/include/asm-sparc64/floppy.h	Sun Oct 14 20:23:30 2001
-@@ -104,7 +104,6 @@
- #define FLOPPY1_TYPE		sun_floppy_types[1]
++#define EXTRA_FLOPPY_PARAMS
++
+ #endif /* _ASM_FLOPPY_H */
+--- orig/include/asm-ppc/floppy.h	Fri May 25 20:06:28 2001
++++ linux/include/asm-ppc/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -58,4 +58,7 @@
+ #define CROSS_64KB(a,s)	(0)
  
- #define FDC1			((unsigned long)sun_fdc)
--static int FDC2 =		-1;
+ #endif /* __ASM_PPC_FLOPPY_H */
++
++#define EXTRA_FLOPPY_PARAMS
++
+ #endif /* __KERNEL__ */
+--- orig/include/asm-ppc64/floppy.h	Thu Oct 11 10:17:21 2001
++++ linux/include/asm-ppc64/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -100,4 +100,6 @@
+  */
+ #define CROSS_64KB(a,s)	(0)
  
- #define N_FDC    1
- #define N_DRIVE  8
++#define EXTRA_FLOPPY_PARAMS
++
+ #endif /* __ASM_PPC64_FLOPPY_H */
+--- orig/include/asm-sparc/floppy.h	Fri Sep  8 21:58:02 2000
++++ linux/include/asm-sparc/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -366,4 +366,6 @@
+ 
+ #define fd_eject(drive) sparc_eject()
+ 
++#define EXTRA_FLOPPY_PARAMS
++
+ #endif /* !(__ASM_SPARC_FLOPPY_H) */
+--- orig/include/asm-sparc64/floppy.h	Mon Oct  1 23:11:32 2001
++++ linux/include/asm-sparc64/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -884,4 +884,6 @@
+ 	return sun_floppy_types[0];
+ }
+ 
++#define EXTRA_FLOPPY_PARAMS
++
+ #endif /* !(__ASM_SPARC64_FLOPPY_H) */
+--- orig/include/asm-um/floppy.h	Thu Oct 11 10:17:25 2001
++++ linux/include/asm-um/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -3,4 +3,8 @@
+ 
+ #include "asm/arch/floppy.h"
+ 
++#ifndef EXTRA_FLOPPY_PARAMS
++#define EXTRA_FLOPPY_PARAMS
++#endif
++
+ #endif
+--- orig/include/asm-x86_64/floppy.h	Thu Oct 11 10:17:26 2001
++++ linux/include/asm-x86_64/floppy.h	Sat Oct 13 13:08:56 2001
+@@ -281,5 +281,6 @@
+ 
+ #define AUTO_DMA
+ 
++#define EXTRA_FLOPPY_PARAMS
+ 
+ #endif /* __ASM_X86_64_FLOPPY_H */
+--- orig/drivers/block/floppy.c	Sun Oct 14 20:17:18 2001
++++ linux/drivers/block/floppy.c	Sat Oct 13 13:25:04 2001
+@@ -4104,6 +4104,8 @@
+ 	{ "unexpected_interrupts", 0, &print_unex, 1, 0 },
+ 	{ "no_unexpected_interrupts", 0, &print_unex, 0, 0 },
+ 	{ "L40SX", 0, &print_unex, 0, 0 }
++
++	EXTRA_FLOPPY_PARAMS
+ };
+ 
+ static int __init floppy_setup(char *str)
 
 
 --

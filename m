@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbUCHHo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 02:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUCHHo2
+	id S262429AbUCHHpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 02:45:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUCHHpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 02:44:28 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:43974 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262422AbUCHHoY convert rfc822-to-8bit (ORCPT
+	Mon, 8 Mar 2004 02:45:21 -0500
+Received: from mail.tpgi.com.au ([203.12.160.58]:37085 "EHLO mail2.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S262423AbUCHHpM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 02:44:24 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] fix PCI interrupt setting for ia64
-Date: Mon, 8 Mar 2004 15:44:16 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8401B1A017@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] fix PCI interrupt setting for ia64
-Thread-Index: AcQE1vfzwKg8SNN1QV+SivHm8tzP3wAAoR7A
-From: "Liu, Benjamin" <benjamin.liu@intel.com>
-To: "Grant Grundler" <iod00d@hp.com>,
-       "Kenji Kaneshige" <kaneshige.kenji@jp.fujitsu.com>
-Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Mar 2004 07:44:16.0827 (UTC) FILETIME=[2895B8B0:01C404E1]
+	Mon, 8 Mar 2004 02:45:12 -0500
+Subject: Re: Some highmem pages still in use after shrink_all_memory()?
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Reply-To: ncunningham@users.sourceforge.net
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040308063639.GA20793@hexapodia.org>
+References: <20040307144921.GA189@elf.ucw.cz>
+	 <20040307164052.0c8a212b.akpm@osdl.org>
+	 <20040308063639.GA20793@hexapodia.org>
+Content-Type: text/plain
+Message-Id: <1078724500.21062.7.camel@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk 
+Date: Mon, 08 Mar 2004 18:41:40 +1300
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant,
+Hi.
 
-Both ISA and PCI device drivers would call arch/ia64/kernel/irq.c:request_irq()-->arch/ia64/kernel/irq.c:setup_irq() -->arch/ia64/kernel/iosapic.c:iosapic_startup_level_irq() or  arch/ia64/kernel/iosapic.c:iosapic_startup_edge_irq() function to unmask the IRQ. I believe the ISA can be handled gracefully, if any.
+On Mon, 2004-03-08 at 19:36, Andy Isaacson wrote:
+> Note that there are some applications for which it is a *bug* if an
+> mlocked page gets written out to magnetic media.  (gpg, for example.)
+> I imagine that they'd rather lose the mapping and get a page fault on
+> the next reference (which they can then fix up with a new mmap and
+> mlock) than have precious key material written to disk.
 
-ISA is legacy to IA64. The configuration script of 2.4.23 has CONFIG_ISA off explicitly for IA64, 2.6.2 doesn't have this option for IA64. I just wonder whether the legacy probing method still exists on IA64.
+For such an application, we'd have to provide a mechanism to allow an
+application to set/clear a page's Nosave flag. We'd probably also want
+to be able to notify user space that a suspend cycle has just occurred
+and the page contents are invalid.
 
-Thanks,
-Pingping (Benjamin) Liu
-Intel China Software Center
+> However, I don't see how to implement a cryptographically secure swsusp.
 
+It would be possible with Suspend2 - one could implement a backend (page
+transformer or writer) that implemented encryption and required the user
+to enter a passphrase at resume time.
 
->-----Original Message-----
->From: linux-ia64-owner@vger.kernel.org 
->[mailto:linux-ia64-owner@vger.kernel.org] On Behalf Of Grant Grundler
->Sent: 2004Äê3ÔÂ8ÈÕ 14:31
->To: Kenji Kaneshige
->Cc: linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] fix PCI interrupt setting for ia64
->
->
->On Mon, Mar 08, 2004 at 11:49:10AM +0900, Kenji Kaneshige wrote:
->> In ia64 kernel, IOSAPIC's RTEs for PCI interrupts are unmasked at the
->> boot time before installing device drivers. I think it is 
->very dangerous.
->
->Hi Kenji,
->I think this behavior exists to support "legacy" IRQ probing.
->I'm wondering if it would be sufficient to wrap the patch in
->"#ifndef CONFIG_ISA" or something like that.
->
->grant
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-ia64" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+> (The importance of this behavior is obviously dependent on your threat
+> model.  Perhaps the Sufficiently Paranoid gpg users will simply need to
+> avoid using swsusp.)
+
+Yes. Or close all gpg apps before suspending?
+
+Nigel
+
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

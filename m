@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265979AbUFDU3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265986AbUFDUa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265979AbUFDU3W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 16:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUFDU3W
+	id S265986AbUFDUa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 16:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUFDUa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 16:29:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34778 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265979AbUFDU3S (ORCPT
+	Fri, 4 Jun 2004 16:30:58 -0400
+Received: from mail.kroah.org ([65.200.24.183]:64389 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265986AbUFDU3x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 16:29:18 -0400
-Date: Fri, 4 Jun 2004 13:28:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: wli@holomorphy.com, pj@sgi.com, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net, miltonm@bga.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040604132819.44c4e7b5.akpm@osdl.org>
-In-Reply-To: <20040604190803.GA6651@krispykreme>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-	<40BFD839.7060101@yahoo.com.au>
-	<20040603221854.25d80f5a.pj@sgi.com>
-	<16576.16748.771295.988065@alkaid.it.uu.se>
-	<20040604090314.56d64f4d.pj@sgi.com>
-	<20040604165601.GC21007@holomorphy.com>
-	<20040604190803.GA6651@krispykreme>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Jun 2004 16:29:53 -0400
+Date: Fri, 4 Jun 2004 13:26:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-bk4: empty-named directory in /sys
+Message-ID: <20040604202653.GA13311@kroah.com>
+References: <200406042253.23428.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406042253.23428.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
->
->  
-> > This is patently ridiculous. Make a compat_sched_getaffinity(), and
-> > likewise for whatever else is copying unsigned long arrays to userspace.
+On Fri, Jun 04, 2004 at 10:53:23PM +0300, Denis Vlasenko wrote:
+> # ls /sys
+>    block  bus  class  devices  firmware  module
+> # ls -l /sys
+> total 0
+> drwxr-xr-x   9 root     root            0 Jun  5  2004
+> drwxr-xr-x  29 root     root            0 Jun  5  2004 block
+> drwxr-xr-x  10 root     root            0 Jun  5  2004 bus
+> drwxr-xr-x  16 root     root            0 Jun  5  2004 class
+> drwxr-xr-x   7 root     root            0 Jun  5  2004 devices
+> drwxr-xr-x   2 root     root            0 Jun  5  2004 firmware
+> drwxr-xr-x  30 root     root            0 Jun  5  2004 module
 > 
-> Did someone say compat_sched_getaffinity?
+> I cannot enter that directory. Actually, it looks more like
+> directory named " ", because I get similar ls outputs when
+> I create regular directory named " ". However, I can enter into
+> regular directory named " ", unlike /sys one.
 > 
-
-aargh!  It's back!
-
+> # mkdir " " a b c
+> # ls
+>    a  b  c
+> # ls -l
+> total 0
+> drwxr-xr-x   2 root     root           48 Jun  4 22:45
+> drwxr-xr-x   2 root     root           48 Jun  4 22:45 a
+> drwxr-xr-x   2 root     root           48 Jun  4 22:45 b
+> drwxr-xr-x   2 root     root           48 Jun  4 22:45 c
 > 
-> --
-> 
-> Patch from Milton Miller that adds the sched_affinity syscalls into the
-> compat layer. 
+> .config and boot messages are attached
 
-There's something about this patch which make me break out in hives.  Does
-it *really* need to be that complicated?
+Hm, is the hostap code in the main kernel tree now?  That's the only
+thing odd that I see from your messages.  Does this happen with
+2.6.7-rc2 with no extra patches?
 
-iirc, the last time I looked through this I was unable to convince myself
-that it was endianness-correct.  Is it?
+thanks,
 
+greg k-h

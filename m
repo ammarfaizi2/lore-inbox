@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbUKXPqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbUKXPqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbUKXPqn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 10:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbUKXPpz
+	id S262724AbUKXPqp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 10:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbUKXPpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 10:45:55 -0500
+	Wed, 24 Nov 2004 10:45:08 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:42400 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262737AbUKXPnW (ORCPT
+	by vger.kernel.org with ESMTP id S262760AbUKXPnb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 10:43:22 -0500
-To: linux-kernel@vger.kernel.org
-From: Eric Sharkey <sharkey@netrics.com>
-X-Eric-Conspiracy: There is no conspiracy
-Subject: Audio problems on AMD64 with Via K8T800 chipset
-Date: Wed, 24 Nov 2004 10:12:24 -0500
-Message-Id: <E1CWyoi-00070L-00@mastermind.netrics.internal>
+	Wed, 24 Nov 2004 10:43:31 -0500
+Date: Wed, 24 Nov 2004 16:05:20 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: status of cdrom patches for 2.4 ?
+Message-ID: <20041124150520.GG13847@suse.de>
+References: <41A3C391.8070609@ttnet.net.tr> <20041124074336.GB8718@logos.cnet> <20041124125319.GB13847@suse.de> <41A49DA5.9090900@ttnet.net.tr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41A49DA5.9090900@ttnet.net.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 24 2004, O.Sezer wrote:
+> Jens Axboe wrote:
+> >On Wed, Nov 24 2004, Marcelo Tosatti wrote:
+> >
+> >>On Wed, Nov 24, 2004 at 01:11:13AM +0200, O.Sezer wrote:
+> >>
+> >>>Hi all:
+> >>>
+> >>>What are the status of the cdrom patches for 2.4 series?
+> >>>Namely the dvd patches which are dropped while in the
+> >>>27-rc era, and the cd-mrw patch which never had a chance
+> >>>trying to go in to 2.4. Jens? Mancelo?
+> >>
+> >>There were problems with the DVD-RW patches so I reverted them.
+> 
+> Yup.  Pat then posted a patch which supposedly fixed it by placing
+> something like
+> 	else if (CDROM_CAN(CDC_DVD_RAM))
+> 		ret = 0;
+> in cdrom_open_write():
+> http://marc.theaimsgroup.com/?t=109156838400001&r=1&w=2
+> http://marc.theaimsgroup.com/?l=linux-scsi&m=109156820507518&w=2
+> 
+> Jens' MRW patch also introduces a new function: cdrom_dvdram_open_write
+> (which, in turn, calls cdrom_media_erasable), CDROM_CAN(CDC_DVD_RAM)
+> check in cdrom_open_write() is assigned to it; which again is supposed
+> to fix it.
 
-I've posted about this problem earlier on the Alsa lists, but
-Takashi Iwai has suggested I post here, since he thinks this is
-a kernel issue.
+Fix that issue. More might crop up.
 
+> >>Jens, what do you think?
+> >
+> >
+> >I don't think it's worth the bother, the support is in 2.6. And I don't
+> >want to maintain new atapi stuff for 2.4. Pat used to care about the
+> >patches, but as he is no longer with Iomega I don't think there's anyone
+> >to look after it.
+> 
+> Which is truly a pity. Yes I can understand that a maintainer needs
+> to concentrate on new trees etc, but it's pity.  Especially hearing
+> the pre-recorded "Hey 2.6 already has it, upgrade to it" message is
+> always nice ;)
 
-There seems to be a problem with Alsa when running on the AMD64
-architecture on motherboards with the Via K8T800 chipset.  The sound
-is highly irregular, with lots of drop-outs, but also speed-ups,
-slow-downs and weird volume changes.
+You conveniently ignore that 2.4 is in bug fix mode, and a strict one
+now even. And then you want to add new features to a driver that is both
+used on almost every machine and also drives the most picky and buggy
+hardware out there? So please can the 'pre-recorded' message crap. You
+are not the one that will have to pick up the pieces if something
+breaks.
 
-I've got this problem on an Asus K8V SE motherboard.  Rod Smith
-has the same problem on an MSI Neo-FSR.
-(http://groups.google.com/groups?q=%22asus+k8v%22+alsa&hl=en&lr=&c2coff=1&selm=1et59c-90v.ln%40speaker.rodsbooks.com&rnum=4)
-
-In that post, Rod thought the problem was the Alsa driver for the
-on-board sound (VIA VT8237), but this is not the case, as I've installed
-a PCI Trident 4DWave NX, and it shows exactly the same behavior.
-The problem appears not to be in the low level driver code.
-
-The degree of the problem is highly sensitive to the load on the
-CPU at the time.  Games like bumprace, which use multiple threads
-and never sleep (giving load values around 8), sound awful.  Most
-games like tuxkart, which keep the load under 1, sound perfectly fine.
-
-And yet, some things sound bad even when the CPU isn't loaded.
-timidity++ is a good example.
-
-This happens with both 64 and 32 bit kernels, and no amount of
-twiddling with kernel parameters (ACPI/CPU frequency scaling, apic,
-preemption, etc.) seems to make any difference.
-
-Can anyone here offer a suggestion?
-
-(Currently, I'm running 2.6 series kernels.  I haven't yet tried
-older versions.)
-
-Eric
+-- 
+Jens Axboe
 

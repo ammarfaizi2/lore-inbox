@@ -1,39 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315111AbSDWIeI>; Tue, 23 Apr 2002 04:34:08 -0400
+	id <S315112AbSDWIpy>; Tue, 23 Apr 2002 04:45:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315113AbSDWIeH>; Tue, 23 Apr 2002 04:34:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62689 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315111AbSDWIeG>;
-	Tue, 23 Apr 2002 04:34:06 -0400
-Date: Tue, 23 Apr 2002 01:14:32 -0700 (PDT)
-Message-Id: <20020423.011432.86512016.davem@redhat.com>
-To: paulus@samba.org
-Cc: peterson@austin.ibm.com, anton@au.ibm.com, mj@suse.cz,
-        linux-kernel@vger.kernel.org
-Subject: Re: PowerPC Linux and PCI
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15557.5295.921549.964163@argo.ozlabs.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S315117AbSDWIpx>; Tue, 23 Apr 2002 04:45:53 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54281 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315112AbSDWIpx>; Tue, 23 Apr 2002 04:45:53 -0400
+Subject: Re: [SECURITY] FDs 0, 1, 2 for SUID/SGID programs
+To: Weimer@CERT.Uni-Stuttgart.DE (Florian Weimer)
+Date: Tue, 23 Apr 2002 10:04:20 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87662jiz3b.fsf@CERT.Uni-Stuttgart.DE> from "Florian Weimer" at Apr 22, 2002 04:31:52 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16zwDk-0008BH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Paul Mackerras <paulus@samba.org>
-   Date: Tue, 23 Apr 2002 18:00:47 +1000 (EST)
-   
-   Doesn't the fact that people have been successfully using PCI devices
-   in PowerPC machines since 1995 or 1996 suggest to you that it might be
-   your understanding that is faulty rather than the code? :)
+> http://www.pine.nl/advisories/pine-cert-20020401.html probably affects
+> Linux, too (if a SUID/SGID program is invoked with FD 2 closed, error
+> messages might be written to a file opened by the program ).
 
-And sparc64 :-)
-
-An important point to mention is that big endian systems need to do
-byte twisting in the PCI controller for all the byte-lane issues to
-work out properly.
-
-Maybe this guys box has a broken PCI host bridge implementation that
-doesn't do the byte-twisting and we should consider that in our
-analysis of his problems :-)
+Unix requires this behaviour. Its an old and common bug to get it
+wrong. glibc intentionally provides some cover

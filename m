@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136133AbRASBAq>; Thu, 18 Jan 2001 20:00:46 -0500
+	id <S136437AbRASBDq>; Thu, 18 Jan 2001 20:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136503AbRASBAh>; Thu, 18 Jan 2001 20:00:37 -0500
-Received: from phoenix.nanospace.com ([209.213.199.19]:52490 "HELO
-	phoenix.nanospace.com") by vger.kernel.org with SMTP
-	id <S136133AbRASBA0>; Thu, 18 Jan 2001 20:00:26 -0500
-Date: Thu, 18 Jan 2001 17:00:23 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Documenting stat(2)
-Message-ID: <20010118170023.A3694@thune.yy.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3A66D93C.8090500@AnteFacto.com> <Pine.LNX.4.21.0101182150060.27730-100000@server.serve.me.nl>
+	id <S136332AbRASBDg>; Thu, 18 Jan 2001 20:03:36 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:63503 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S136536AbRASBD3>;
+	Thu, 18 Jan 2001 20:03:29 -0500
+Date: Fri, 19 Jan 2001 01:51:01 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: multi-queue scheduler update
+Message-ID: <20010119015101.A6687@gruyere.muc.suse.de>
+In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com> <20010119012616.D32087@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.6i
-In-Reply-To: <Pine.LNX.4.21.0101182150060.27730-100000@server.serve.me.nl>; from maillist@chello.nl on Thu, Jan 18, 2001 at 09:52:02PM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010119012616.D32087@athlon.random>; from andrea@suse.de on Fri, Jan 19, 2001 at 01:26:16AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 09:52:02PM +0100, Igmar Palsenberg wrote:
-> I use lstat to check if a config file is a symlink, and if it is, it
-> refuses to open it. 
+On Fri, Jan 19, 2001 at 01:26:16AM +0100, Andrea Arcangeli wrote:
+> I remeber the O(1) scheduler from Davide Libenzi was beating the mainline O(N)
+> scheduler with over 7 tasks in the runqueue (actually I'm not sure if the
+> number was 7 but certainly it was under 10). So if you also use a O(1)
+> scheduler too as I guess (since you have a chance to run fast on the lots of
+> tasks running case) the most interesting thing is how you score with 2/4/8
+> tasks in the runqueue (I think the tests on the O(1) scheduler patch was done
+> at max on a 2-way SMP btw). (the argument for which Davide's patch wasn't
+> included is that most machines have less than 4/5 tasks in the runqueue at the
+> same time)
 
-Nice race condition.
+They seem to have tried that in a separate patch:
+http://lse.sourceforge.net/scheduling/PrioScheduler.html
 
-mrc
--- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+Very nice literate programming style btw @-)
+
+
+-Andi 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,68 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268286AbRHDDJg>; Fri, 3 Aug 2001 23:09:36 -0400
+	id <S269768AbRHDDNg>; Fri, 3 Aug 2001 23:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269766AbRHDDJ2>; Fri, 3 Aug 2001 23:09:28 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:64904 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S268286AbRHDDJQ>;
-	Fri, 3 Aug 2001 23:09:16 -0400
-Message-ID: <3B6B6934.262D382A@randomlogic.com>
-Date: Fri, 03 Aug 2001 20:17:08 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
-Subject: Re: Kernel 2.4.7 Source Code Documentation
-In-Reply-To: <3B6A2CC8.7D17F96F@randomlogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269769AbRHDDN1>; Fri, 3 Aug 2001 23:13:27 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:6 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S269768AbRHDDNO>; Fri, 3 Aug 2001 23:13:14 -0400
+Date: Sat, 4 Aug 2001 05:13:20 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010804051320.B16516@emma1.emma.line.org>
+Mail-Followup-To: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <01080317471707.01827@starship> <20010803121638.A28194@cs.cmu.edu> <0108031854120A.01827@starship> <Pine.LNX.4.33L.0107301320370.11893-100000@imladris.rielhome.conectiva> <s5gvgkacqlm.fsf@egghead.curl.com> <200107301711.f6UHBWHE001945@acap-dev.nas.cmu.edu> <20010803132457.A30127@cs.cmu.edu> <s5g3d78261g.fsf@egghead.curl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <s5g3d78261g.fsf@egghead.curl.com>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A slight change in plans:
+On Fri, 03 Aug 2001, Patrick J. LoPresti wrote:
 
-www.randomlogic.com was out of disk space, so I now have a second site at http://www2.randomlogic.com. I am uploading the tar now and will uncompress the HTML
-to:
-
-http://www2.randomlogic.com/linuxkernel/
-
-BIG NOTE READ THIS:
-
-
-Anyone wishing to mirror this can download it from here:
-
-http://www.randomlogic.com/files/linux-2.4.7_html.tar.gz
-
-The file is in the neighborhood of 150MB and uncompressed is ~1GB. You have been forewarned. Please, no Wget on www2.randomlogic.com. :/
-
-I'm still hoping for a better place to put it, but we'll see.
-
-PGA
-
-"Paul G. Allen" wrote:
+> To fill in more of the table, Qmail does:
 > 
-> I am attempting to get my slow UP PIII 800 here at work to parse the 2.4.7 source and annotate it so that I can put it up on my other web server. When it is
-> done, I will upload it to the server and it should be available at this URL:
+>   fd = open(tmp)
+>   write(fd)
+>   fsync(fd)
+>   link(tmp,final)
+>   close(fd)
+
+http://cr.yp.to/qmail/faq/reliability.html
+
+> ...and Postfix does:
 > 
-> http://www.randomlogic.com/kernel/
+>   fd = open(final)
+>   write(fd)
+>   (should be an "fsync(fd)" here, but I cannot find it)
+>   fchmod(fd,+execute)
+>   fsync(fd)
+>   close(fd)
+
+> Postfix apparently uses the execute bit to indicate that delivery is
+> complete.  I am probably misreading the source (version 20010228
+> Patchlevel 3), but I do not see any fsync() between the write and the
+> fchmod.  Surely it is there or this delivery scheme is not reliable on
+> any system, since without an intervening fsync() the writes to the
+> data and the permissions can happen out of order.
+
+Not really. The error code if fsync() or close failed are propagated
+back to the caller who then decides what to do. smtpd.c nukes the file.
+postdrop.c/sendmail.c do not, but the pickup daemon will see that the
+file had problems on sync and discard it.
+
+I'm asking Wietse off-list how reliable this approach is and will report
+back privately. It should be fairly reliable.
+
+> Anyway, it is certainly true that it is largely useless to have
+> fsync() commit only one path to a file; many applications expect to be
+> able to force a simple link(x,y) to be committed to disk.
+
+BSD FFS + softupdates sync all file names, traversing from the mount
+point down to the actual directory entries that need to be synched.
+
+>   1) People disagree about what SuS mandates, but at least a few
+>      critical developers (e.g., sct) say it definitely does not
+>      require synchronizing directory entries for fsync().
 > 
-> This may or may not happen tonight since this machine is nowhere near as fast as my K7 at home and the K7 takes a few hours to do it all, but the U/L bandwidth
-> is much better here (DS3 compared to cable). I do expect to have it up before the weekend.
+>   2) It would be fairly easy and efficient for fsync() to chase one
+>      chain of directory entries up to the root, but a lot harder and
+>      slower to find and commit all of them.
+
+For BSD FFS + softupdates, this is already done.
+
+>   3) Most (?) core developers, including Linus (?), would not object
+>      to "dirsync" as a mount option and/or directory attribute, but
+>      somebody has to rise to the occasion and create the patches.
 > 
-> (NOTE: I compared kernel compile times between the two, no official numbers, just compiling on both machines. I started the PIII 800 about 1 min before the K7
-> Thunder. The K7 Thunder was done with make dep, bzImage, modules, and modules_install before the PIII was 50% complete with bzImage. The K7 was running 2
-> SETI@Home sessions as well as compiling, the PIII was doing nothing else.)
-> 
-> I plan to update the documentation with every stable kernel release. (So please, don't crank them out too fast, I'd hate to spend my life U/L 1GB+ of HTML every
-> other day!! ;-)
-> 
+> Is this an accurate summary?
+
+It looks so to me. After the MTA behaviour has been dug up, the dirsync
+option could be even weaker if fsync() behaved like FFS + softupdates:
+sync the directory entries, including those of link and rename, as well.
+
+The only things to consider would be unlink and symlink. symlinks are
+tough since you cannot open() them. Not sure about unlink, looks as if
+there's really no way apart from fsync(2)ing the directory or sync(2)ing
+the world for these two unless there's a dirsync option coming up.
 
 -- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+Matthias Andree

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317415AbSHHJOg>; Thu, 8 Aug 2002 05:14:36 -0400
+	id <S317419AbSHHJOi>; Thu, 8 Aug 2002 05:14:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317419AbSHHJOg>; Thu, 8 Aug 2002 05:14:36 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:45578 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S317415AbSHHJOf>;
-	Thu, 8 Aug 2002 05:14:35 -0400
-Date: Thu, 8 Aug 2002 11:18:15 +0200 (CEST)
-From: venom@sns.it
-To: Filip Van Raemdonck <filipvr@xs4all.be>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libc4 4.7.6
-In-Reply-To: <20020808091643.GC8975@debian>
-Message-ID: <Pine.LNX.4.43.0208081117240.25339-100000@cibs9.sns.it>
+	id <S317421AbSHHJOi>; Thu, 8 Aug 2002 05:14:38 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:55561 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S317419AbSHHJOh>; Thu, 8 Aug 2002 05:14:37 -0400
+Message-ID: <3D52377B.F3CAE80@aitel.hist.no>
+Date: Thu, 08 Aug 2002 11:18:51 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.30 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: ethtool documentation
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote: 
+>Jonathan Lundell wrote:
+>> Ha! Just wait until the jack-booted IEEE enforcers kick down *your* 
+>> door in the middle of the night to nab you for MAC-address trespass. 
+>> THEN we'll see who' protesting too much.
+>
+> Just don't use it to go around proprietary software license managers,
+> because if so the fbi might just do that...
 
-I did, there is sound support, then, but I was unable to listen the music
-(it think is just a midi format)
+I wouldn't worry aboyt that.  A licence manager depending on
+MAC addresses simply isn't doing its job.  
+Moving a ethernet card from one computer to another is
+perfectly legal if you own both of them.  So it is the
+licence manager that is broken.  
 
+I know no law that require IEEE conformant networks either.
+If I want to run a net with crazy MAC addresses then I
+can do so -  and deal with interoperability problems myself.
 
+Piracy is still illegal of course, but nobody can force
+me to keep a broken licence manager in working order. :-)
 
-On Thu, 8 Aug 2002, Filip Van Raemdonck wrote:
-
-> Date: Thu, 8 Aug 2002 11:16:43 +0200
-> From: Filip Van Raemdonck <filipvr@xs4all.be>
-> To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: libc4 4.7.6
->
-> On Thu, Aug 08, 2002 at 11:06:09AM +0200, venom@sns.it wrote:
-> >
-> > I still have it, to play sdoom with full sound and music ;), since
-> > the elf binary has no patch to support music.
->
-> You do realize that you can grab the Doom sources and recompile your own,
-> or don't you?
->
->
-> Regards,
->
-> Filip
->
-> --
-> "The man who trades freedom for security does not deserve nor will he ever
->  receive either."
-> 	-- Benjamin Franklin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Helge Hafting

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263368AbTJFRp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 13:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263222AbTJFRo6
+	id S263136AbTJFRok (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 13:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263222AbTJFRoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 13:44:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32157 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263828AbTJFRoi (ORCPT
+	Mon, 6 Oct 2003 13:44:39 -0400
+Received: from mail.kroah.org ([65.200.24.183]:38349 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263136AbTJFRoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 13:44:38 -0400
-Date: Mon, 6 Oct 2003 10:36:02 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lib/parser: Not recognize nul string as "%s" (6/6)
-Message-Id: <20031006103602.4cf8f5d7.rddunlap@osdl.org>
-In-Reply-To: <87wubinvzs.fsf@devron.myhome.or.jp>
-References: <87wubinvzs.fsf@devron.myhome.or.jp>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 6 Oct 2003 13:44:32 -0400
+Date: Mon, 6 Oct 2003 10:41:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Christian Borntraeger <CBORNTRA@de.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031006174128.GA4460@kroah.com>
+References: <OF6873DDE8.877C0EE8-ONC1256DB7.005F0935-C1256DB7.0060DEDC@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF6873DDE8.877C0EE8-ONC1256DB7.005F0935-C1256DB7.0060DEDC@de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Oct 2003 01:58:47 +0900 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+On Mon, Oct 06, 2003 at 07:38:06PM +0200, Christian Borntraeger wrote:
+> Greg KH wrote:
+> 
+> > On Mon, Oct 06, 2003 at 02:29:15PM +0530, Maneesh Soni wrote:
+> >> 
+> >> 2.6.0-test6          With patches.
+> >> -----------------
+> >> dentry_cache (active)                2520                    2544
+> >> inode_cache (active)         1058                    1050
+> >> LowFree                      875032 KB               874748 KB
+> > 
+> > So with these patches we actually eat up more LowFree if all sysfs
+> > entries are searched, and make the dentry_cache bigger?  That's not good
+> > :(
+> [...]
+> > information for that kobject.  So I don't see any savings in these
+> > patches, do you?
+> 
+> I do. As stated earlier, with 20000 devices on a S390 guest I have around 
+> 350MB slab memory after rebooting. 
+> With this patch, the slab memory reduces to 60MB. 
 
-| Hi,
-| 
-| Current match_token recognize "foo=" as "foo=%s". So this change the
-| nul string does not recognize as "%s".
-| 
-| (Umm... this should be check by caller?)
+That's good.  But what happens after you run a find over the sysfs tree?
+Which is essencially what udev will be doing :)
 
-I like the check here.
+thanks,
 
-And thanks for doing all of these updates.
-
-
-|  linux-2.6.0-test6-hirofumi/lib/parser.c |    4 +++-
-|  1 files changed, 3 insertions(+), 1 deletion(-)
-
-
---
-~Randy
+greg k-h

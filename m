@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132741AbRDDDTv>; Tue, 3 Apr 2001 23:19:51 -0400
+	id <S132672AbRDDEEu>; Wed, 4 Apr 2001 00:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132743AbRDDDTk>; Tue, 3 Apr 2001 23:19:40 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:47625 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S132741AbRDDDT1>; Tue, 3 Apr 2001 23:19:27 -0400
-From: dth@HoHo.nl (Danny ter Haar)
-Subject: Re: Linux 2.4.3-ac2
-Date: Wed, 4 Apr 2001 03:18:43 +0000 (UTC)
-Organization: Holland Hosting
-Message-ID: <9ae3qj$pc9$1@voyager.cistron.net>
-In-Reply-To: <E14kbMB-0000r8-00@the-village.bc.nu> <3ACA615C.6010308@megapathdsl.net>
-X-Trace: voyager.cistron.net 986354323 25993 195.64.82.84 (4 Apr 2001 03:18:43 GMT)
-X-Complaints-To: abuse@cistron.nl
+	id <S132693AbRDDEEk>; Wed, 4 Apr 2001 00:04:40 -0400
+Received: from mailgw2.netvision.net.il ([194.90.1.9]:15033 "EHLO
+	mailgw2.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S132672AbRDDEE3>; Wed, 4 Apr 2001 00:04:29 -0400
+Message-ID: <3ACA9E89.2ECC89A0@netvision.net.il>
+Date: Wed, 04 Apr 2001 06:09:45 +0200
+From: Amir Hardon <a_hardon@netvision.net.il>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
+Subject: Can't boot with the 2.4.3 kernel.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane  <miles@megapathdsl.net> wrote:
->You still have the URL for www.bzimage.org in this announcement,
->but there are no incremental patches there for either 2.4.3-ac1
->or 2.4.3-ac2.
+Hello all,
+I'm using slackware 7.1 with the 2.2.16 kernel,
+And I'm trying to install the 2.4.3 kernel.
 
-They're made as i type ;-)
-It's still done manually, and now with the 2.4.3 series we
-have to adjust the scripts a bit. For now look at the "overview"
-link and follow the 2.4.3 link.
+I configured and build it, and all looked OK.
+But when I'm trying to load the new kernel from LILO,
+It uncompressing the kernel, then says Ok, now booting the kernel gives
+some dots,
+and the it gets stucked... nothing happens.
 
-Regards,
+Does anyone knows what can cause this?
 
-Danny
+I'm not a member of this mailing list,
+so please respond to my personal mail(a_hardon@netvision.net.il).
 
--- 
-Holland Hosting
-www.hoho.nl      info@hoho.nl
-
+Thanks allot!
+	-Amir.

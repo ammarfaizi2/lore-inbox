@@ -1,99 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270703AbTHSRxt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272688AbTHSRIE
+	id S272747AbTHSRxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272602AbTHSRvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:08:04 -0400
-Received: from granite.aspectgroup.co.uk ([212.187.249.254]:52978 "EHLO
-	letters.pc.aspectgroup.co.uk") by vger.kernel.org with ESMTP
-	id S272602AbTHSQy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:54:28 -0400
-Message-ID: <353568DCBAE06148B70767C1B1A93E625EAB5B@post.pc.aspectgroup.co.uk>
-From: Richard Underwood <richard@aspectgroup.co.uk>
-To: "'David S. Miller'" <davem@redhat.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>
-Cc: willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
-       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
-Date: Tue, 19 Aug 2003 17:54:26 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain
+	Tue, 19 Aug 2003 13:51:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62091 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270772AbTHSRn6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 13:43:58 -0400
+Date: Tue, 19 Aug 2003 10:36:13 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: bloemsaa@xs4all.nl, richard@aspectgroup.co.uk, skraw@ithnet.com,
+       willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, davidsen@tmr.com, marcelo@conectiva.com.br,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-Id: <20030819103613.4485e549.davem@redhat.com>
+In-Reply-To: <20030819173920.GA3301@marowsky-bree.de>
+References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
+	<070c01c36653$7f3c1ab0$c801a8c0@llewella>
+	<20030819083438.26c985b9.davem@redhat.com>
+	<20030819173920.GA3301@marowsky-bree.de>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Tue, 19 Aug 2003 19:39:20 +0200
+Lars Marowsky-Bree <lmb@suse.de> wrote:
+
+> On 2003-08-19T08:34:38,
+>    "David S. Miller" <davem@redhat.com> said:
 > 
-> It means that systems (like Linux) that make IP addresses owned by the
-> host instead of specific interfaces cannot correctly interoperate with
-> such remote systems.
+> > There are two valid ways the RFCs allow systems to handle
+> > IP addresses.
+> > 
+> > 1) IP addresses are owned by "the host"
+> > 2) IP addresses are owned by "the interface"
+> > 
+> > Linux does #1, many systems do #2, both are correct.
 > 
-	This makes sense for replies, but not for requests.
+> Yes, both are "correct" in the sense that the RFC allows this
+> interpretation. The _sensible_ interpretation for practical networking
+> however is #2, and the only persons who seem to believe differently are
+> those in charge of the Linux network code...
 
-	When a HOST sends out an ARP request, it's NOT associated with a
-single connection, it's associated with the host. Why should it pick a
-"random" IP number to send as the source address?
+And, as Alan said, we provide a way for one to obtain your networking
+religion of week.
 
-	The way the network code is currently, you're reducing your
-connectivity to chance. There should be a defined process for making a
-connection to another host. As it stands, this process is simply not
-predictable.
-
-	If you insist that an ARP request IS directly associated with a
-connection, then you are required to have one ARP cache per source IP
-address. It'd be predictable again ... but I don't think anyone wants to go
-there.
-
-> It is also the case that a host cannot possibly be aware of all
-> subnets present on a given LAN, therefore is should be liberal in it's
-> replies to ARP requests.
-> 
-	Well, actually, I know exactly which IP subnets are on which LAN
-segments - they're defined by the IP address and subnet of the interface. I
-think you'll find that this a pretty basic feature of most hosts.
-
-> Finally, it violates the most basic rule of IP networking:
-> 
-> "Be liberal in what you accept, and conservative in what you send"
-> -Jon Postel
-> 
-	I'm sorry, but Linux simply isn't being conservative in what it
-sends. It's being bloody awkward.
-
-	Look at it this way - when a host sends out an ARP request, it WANTS
-a reply, it's not doing it for fun. If it uses the IP number of the
-interface it's sending the ARP request on, it will ALWAYS get a reply
-(assuming there's one to get.) If it uses the IP number of another
-interface, it MAY get a reply, but it MAY NOT.
-
-	Are there any cases when this is reversed? I don't think so! Linux
-is being intentionally difficult, and as far as I can tell, for no good
-reason.
-
-> In general, when a host posses the information necessary to allow
-> other hosts to communicate, it should provide that information
-> whenever possible.
-> 
-	No, it should follow the rules for letting traffic pass through it.
-Just because a host can see two networks, doesn't mean it should route
-between them - it possesses information, but there have to be rules to
-determine how this information is used.
-
-	Compare it to IP: If a firewall sees a packet come in on an
-interface it shouldn't, it'll probably drop it - it's called anti-spoofing.
-Should the firewall forward the packet on just because it can?
-
-	So at the lower layer, a router sees an ARP packet with what looks
-like a "spoofed" source address. Should it trust it implicitly and place it
-in its cache, or should it drop it?
-
-	No one yet has given one single example of a network that relies on
-Linux's current behaviour. I've given two examples of networks that break
-because of it. I would kindly suggest that the default should be changed.
-
-	Thanks,
-
-		Richard
+Changing the default is not an option, that would undoubtedly
+break things.

@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275406AbTHIVOV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 17:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275407AbTHIVOV
+	id S275407AbTHIVO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 17:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275411AbTHIVO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 17:14:21 -0400
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:45696 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S275406AbTHIVOT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 17:14:19 -0400
-Date: Sat, 9 Aug 2003 23:14:16 +0200
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net, oliver@neukum.name
-Subject: Re: Linux 2.6.0-test3
-Message-ID: <20030809211416.GA2105@finwe.eu.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-usb-devel@lists.sourceforge.net, oliver@neukum.name
-References: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
-Mime-Version: 1.0
+	Sat, 9 Aug 2003 17:14:28 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:16645 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S275407AbTHIVOZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 17:14:25 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test3 and earlier] no keyboard
+References: <87ptjebwb8.fsf@deneb.enyo.de>
+	<20030809203852.A9000@pclin040.win.tue.nl>
+	<874r0qaazr.fsf@deneb.enyo.de>
+	<20030809214818.A9019@pclin040.win.tue.nl>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sat, 09 Aug 2003 23:14:23 +0200
+In-Reply-To: <20030809214818.A9019@pclin040.win.tue.nl> (Andries Brouwer's
+ message of "Sat, 9 Aug 2003 21:48:18 +0200")
+Message-ID: <87u18q5ya8.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Andries Brouwer <aebr@win.tue.nl> writes:
 
-[...]
+>> serio: i8042 AUX port at 0x60,0x64 irq 12
+>> serio: i8042 KBD port at 0x60,0x64 irq 1
+>> 
+>> I hope these lines are the correct ones.
+>
+> But no lines like
+>
+> input: AT Set 2 keyboard on isa0060/serio0
+>
+> ?
 
-> Oliver Neukum:
->   o USB: error return codes in usblp
->   o USB: cleanup of usblp (release and poll)
->   o USB: fix race condition in usblp_write
+I suppose such a line would follow the serio ones?
 
-[...]
-
-Well, I cannot finish printing anything now and I believe, that one of
-above is responsible. 
-It looks as if printer gets some amount of data but then communication 
-'stops' and printer waits for more data (usually I have about 2cm 
-of page printed, paper locked and later printer error leds start
-blinking happily :)
-
-Not sure, if it's directly related, but system seems to be less 
-responsive later.
-
-Version of usblp.c from 2.6.0-test2 compiled with 2.6.0-test3 does
-not work as I expected (I can load module, but printer is not 
-detected - no usual 'usblp0: USB Unidirectional printer dev 3 if 0 alt 1
-proto 2 vid 0x03F0 pid' message in logs).
-
-I traced my problem down to -test2-bk2 (with bk1 everything works
-correctly).
-
-o Printer is connected to /dev/usb/lp0; it's HP840c
-o ver_linux output: http://zeus.polsl.gliwice.pl/kernel/2.6.0-test3/ver_linux
-o config: http://zeus.polsl.gliwice.pl/kernel/2.6.0-test3/config
-o dmesg: http://zeus.polsl.gliwice.pl/kernel/2.6.0-test3/dmesg
-o /proc/bus/usb/devices: http://zeus.polsl.gliwice.pl/kernel/2.6.0-test3/devices
-o some related logs: http://zeus.polsl.gliwice.pl/kernel/2.6.0-test3/logs
-
-Any suggestions are welcome :)
-
-jk
-
--- 
-Jacek Kawa
+Then the answer is no.  However, the string is conained into the
+vmlinux binary, so I guess the feature has been compiled into the
+kernel.

@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264658AbSJ3Kim>; Wed, 30 Oct 2002 05:38:42 -0500
+	id <S264659AbSJ3Kie>; Wed, 30 Oct 2002 05:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264663AbSJ3Kim>; Wed, 30 Oct 2002 05:38:42 -0500
-Received: from k100-23.bas1.dbn.dublin.eircom.net ([159.134.100.23]:39693 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S264658AbSJ3Kik>;
-	Wed, 30 Oct 2002 05:38:40 -0500
-Message-ID: <3DBFB7AE.6030306@corvil.com>
-Date: Wed, 30 Oct 2002 10:42:54 +0000
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Khalid Aziz <khalid_aziz@hp.com>
-CC: Paul.Clements@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] Retrieve configuration information from kernel
-References: <Pine.LNX.4.10.10210291204590.28595-100000@clements.sc.steeleye.com> <3DBED111.96A3A1E8@hp.com>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S264661AbSJ3Kie>; Wed, 30 Oct 2002 05:38:34 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:61451 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S264659AbSJ3Kid>;
+	Wed, 30 Oct 2002 05:38:33 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: TCP hangs in 2.4 - blocking write() in wait_for_tcp_memory
+Date: Wed, 30 Oct 2002 10:44:20 +0000 (UTC)
+Organization: Cistron
+Message-ID: <apod64$sv5$1@ncc1701.cistron.net>
+References: <apme9u$n2n$1@ncc1701.cistron.net>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1035974660 29669 62.216.29.67 (30 Oct 2002 10:44:20 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Khalid Aziz wrote:
-> Paul Clements wrote:
-> 
->>Have you considered compressing the config info in order to reduce
->>the space wastage in the loaded kernel image? Could easily be 10's of KB
->>(not that that's a lot these days). The info would then be retrieved via
->>"gunzip -c", et al. instead of a simple "cat".
-> 
-> I wanted to start with a simple implementation first. There are a couple
-> of things that can be done in future to further improve meory usage: (1)
-> Drop "CONFIG_" and "# CONFIG_" from each line and add it back when
-> printing from /proc/ikconfig and extract-ikconfig script, (2) Compress
-> the resulting configuration. Something to do in near future :)
+In article <apme9u$n2n$1@ncc1701.cistron.net>,
+Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>On the gateway machine, the proxy consistantly hangs in a write().
+>I've replaced the squid proxy with a simple perl script + nc to
+>make sure it isn't a squid-related problem..
 
-$ wc -c /usr/src/linux-2.4/.config
-   38092 /usr/src/linux-2.4/.config
-$ gzip -c /usr/src/linux-2.4/.config | wc -c
-   10305
-$ sed '/^ *$/d;/^#/d;s/^CONFIG_//'  /usr/src/linux-2.4/.config | wc -c
-   17267
-$ sed '/^ *$/d;/^#/d;s/^CONFIG_//'  /usr/src/linux-2.4/.config | gzip | wc -c
-    6155
+Right, I found the cause of the problem, but I'm not sure if the
+application of the kernel is wrong here.
 
-Also it seems like it would be more useful to have the config in the
-kernel image rather than (just) proc?
+On 2 machines do this:
 
-Pádraig.
+machine1# socket -s 12345 < /dev/zero > /dev/null		# server
+machine2# socket -w machine1 12345 < /dev/zero			# client
+
+The first command starts a listening process on port 12345, that
+sends an infinite stream of zeros to the remote side and sinks
+all data received.
+
+The second command connects to the first machine, sends an
+infinite stream of zeros, but never does a read() on the socket
+(the '-w' option).
+
+The 'socket' program doesn't make the sockets non-blocking, it just
+does a select() loop to find out readability/writeability on the
+file descriptors.
+
+This makes both socket programs hang in write(), in wait_for_tcp_memory.
+Shouldn't the kernel return a short write, instead of hanging
+both processes ? select() returned writeability.
+
+As I described in my first mail, this happens in the real world
+as well - an application is writing lots of data to the remote
+side, while the remote side is sending data too - hang.
+
+Oh, tested it on 2.4.19 and 2.4.20-pre11
+
+Mike.
 

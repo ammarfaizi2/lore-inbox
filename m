@@ -1,105 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316786AbSG1OTf>; Sun, 28 Jul 2002 10:19:35 -0400
+	id <S316837AbSG1O3x>; Sun, 28 Jul 2002 10:29:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316797AbSG1OTf>; Sun, 28 Jul 2002 10:19:35 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:16875 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S316786AbSG1OTd>; Sun, 28 Jul 2002 10:19:33 -0400
-Date: Sun, 28 Jul 2002 17:17:50 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] add num_possible_cpus() to fix 2.5.29 apm.c compilation
-Message-ID: <20020728141750.GB9573@alhambra.actcom.co.il>
+	id <S316831AbSG1O3x>; Sun, 28 Jul 2002 10:29:53 -0400
+Received: from [210.78.134.243] ([210.78.134.243]:16144 "EHLO 210.78.134.243")
+	by vger.kernel.org with ESMTP id <S316797AbSG1O3w>;
+	Sun, 28 Jul 2002 10:29:52 -0400
+Date: Sun, 28 Jul 2002 22:35:19 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: Zhang Fuxin <fxzhang@ict.ac.cn>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Re: problem with eepro100 NAPI driver
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200207282238830.SM00792@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i applied the patch0708, but i still met the problem. 
+when i tested the 64bytes frame with smartbits, in the beginning both the RX and TX of the system are OK. but after a while,the network card would not receive and transmit packets any more.
+i checked the proc/ params, and found that when soft_reset_count increased one, the system would stop to receive packets for a while.  
+the code after patched is as follows. at what condition will soft_reset_count increase? and  is there something  incorrect when dealing with that?  maybe the sp->cur_rx should be dealt?
 
---IrhDeMKUP4DT/M7F
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+      if (!(status & RxComplete)) {
+         int intr_status;
+         unsigned long ioaddr = dev->base_addr;
+         unsigned long flags;
 
-This patch fixes the apm.c breakage in 2.5.29 by providing definitions
-for num_possible_cpus() for UP and SMP. There were several patches
-posted to fix it, but I think this is what the author intended. Rusty?
+         spin_lock_irqsave(&sp->lock,flags);
+         intr_status = inw(ioaddr + SCBStatus);
+         /* We check receiver state here because if
+          * we have to do soft reset,sp->cur_rx should
+          * point to an empty entry or something
+          * unexpected will happen
+          */
+         if ((intr_status & 0x3c) != 0x10) {
+            if (speedo_debug > 4)
+               printk("No resource,reset\n");
+            speedo_rx_soft_reset(dev);
+            sp->soft_reset_count++;
+         }
+         spin_unlock_irqrestore(&sp->lock,flags);
+         break;
+      }
 
-Patch against latest bitkeeper, compiles fine on UP and SMP. Don't
-have an SMP machine to test it own.=20
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.477   -> 1.478 =20
-#	include/asm-i386/smp.h	1.11    -> 1.12  =20
-#	arch/i386/kernel/apm.c	1.34    -> 1.35  =20
-#	 include/linux/smp.h	1.12    -> 1.13  =20
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/28	mulix@alhambra.merseine.nu	1.478
-# fix compilation failure in apm.c due to missing num_possible_cpus()
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
---- a/arch/i386/kernel/apm.c	Sun Jul 28 17:07:57 2002
-+++ b/arch/i386/kernel/apm.c	Sun Jul 28 17:07:57 2002
-@@ -214,6 +214,7 @@
- #include <linux/sched.h>
- #include <linux/pm.h>
- #include <linux/kernel.h>
-+#include <linux/smp.h>
- #include <linux/smp_lock.h>
-=20
- #include <asm/system.h>
-diff -Nru a/include/asm-i386/smp.h b/include/asm-i386/smp.h
---- a/include/asm-i386/smp.h	Sun Jul 28 17:07:57 2002
-+++ b/include/asm-i386/smp.h	Sun Jul 28 17:07:57 2002
-@@ -93,6 +93,11 @@
- 	return hweight32(cpu_online_map);
- }
-=20
-+extern inline unsigned int num_possible_cpus(void)
-+{
-+	return hweight32(phys_cpu_present_map);
-+}
-+
- extern inline int any_online_cpu(unsigned int mask)
- {
- 	if (mask & cpu_online_map)
-diff -Nru a/include/linux/smp.h b/include/linux/smp.h
---- a/include/linux/smp.h	Sun Jul 28 17:07:57 2002
-+++ b/include/linux/smp.h	Sun Jul 28 17:07:57 2002
-@@ -96,6 +96,7 @@
- #define cpu_online_map				1
- #define cpu_online(cpu)				({ cpu; 1; })
- #define num_online_cpus()			1
-+#define num_possible_cpus()                     1
- #define __per_cpu_data
- #define per_cpu(var, cpu)			var
- #define this_cpu(var)				var
 
---=20
-http://vipe.technion.ac.il/~mulix/
-http://syscalltrack.sf.net/
+>  I don't know which version you get.The ealier versions do have
+>serious problems. The latest one(6.19) on NAPI website works
+>well for me,but someone report problem of it too.Since i get no
+>environment and time to investigate it,the problem is pending now.
+>I will send you the latest patch in case you can't find it in other mail.
+>
+>zhengchuanbo wrote:
+>
+>>i tried ehe eepro100 NAPI driver on linux2.4.19. the kernel was compiled successfully. but when i tested the throughput of the system,i met some problem.
+>>i tested the system with smartbits. when the frame size is 64bytes, in the beginning the system can receive and transmit packets. but after a while, the network card would not receive and transmit packets any more. 
+>>then with frame size bigger than 128bytes, it worked well. the throughput was improved. (but sometimes it also has some problem just like 64bytes frames).
+>>so what's the problem? is there something wrong with the driver?
+>>please cc. thanks.
+>>
+>>
+>>zhengchuanbo  
+>>
+>>
+>>
 
---IrhDeMKUP4DT/M7F
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE9Q/0OKRs727/VN8sRAq6MAKCgPa9aIZU98LLfw0rWPVHJzVcIHwCgkc48
-/RGiNYxtiYrCdVwhzLxV0eM=
-=PNKM
------END PGP SIGNATURE-----
-
---IrhDeMKUP4DT/M7F--

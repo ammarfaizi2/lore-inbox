@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288327AbSAUBIc>; Sun, 20 Jan 2002 20:08:32 -0500
+	id <S285692AbSAUBMM>; Sun, 20 Jan 2002 20:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285692AbSAUBIW>; Sun, 20 Jan 2002 20:08:22 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:18830 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S288327AbSAUBIM>; Sun, 20 Jan 2002 20:08:12 -0500
-Date: Sun, 20 Jan 2002 20:07:12 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Frank van de Pol <fvdpol@home.nl>, Keith Owens <kaos@ocs.com.au>,
-        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <5.1.0.14.2.20020121010328.02672020@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.44.0201202004440.914-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288851AbSAUBMD>; Sun, 20 Jan 2002 20:12:03 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:8256 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S285692AbSAUBLm>; Sun, 20 Jan 2002 20:11:42 -0500
+Date: Mon, 21 Jan 2002 02:12:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: performance of O_DIRECT on md/lvm
+Message-ID: <20020121021224.O21279@athlon.random>
+In-Reply-To: <200201181743.g0IHhO226012@street-vision.com.suse.lists.linux.kernel> <3C48607C.35D3DDFF@redhat.com.suse.lists.linux.kernel> <20020120201603.L21279@athlon.random.suse.lists.linux.kernel> <p734rlg90ga.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <p734rlg90ga.fsf@oldwotan.suse.de>; from ak@suse.de on Sun, Jan 20, 2002 at 10:28:21PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 20, 2002 at 10:28:21PM +0100, Andi Kleen wrote:
+> Andrea Arcangeli <andrea@suse.de> writes:
+> > 
+> > if you read in chunks of a few mbytes per read syscall, the lack of
+> > readahead shouldn't make much difference (this is true for both raid and
+> > standalone device). If there's a relevant difference it's more liekly an
+> > issue with the blocksize.
+> 
+> The problem with that is that doing overlapping IO requires much more
+> effort (you need threads in user space). If you don't do overlapping
+> IO you add a latency bubble for each round trip to user space after you
+> read one big chunk and submitting the request for the next big chunk.
+> Your disk will not be constantly streaming, because of these pauses where
+> it doesn't have an request to process. 
 
-	Hello Anton ,
+correct, we can't keep the pipeline always full, the larger the size of
+the read/write, the lower it will matter, this is the only way to hide
+the pipeline stall at the moment (like with rawio).
 
-On Mon, 21 Jan 2002, Anton Altaparmakov wrote:
-> At 23:20 20/01/02, Frank van de Pol wrote:
-> >On Sat, Jan 19, 2002 at 10:22:43AM +1100, Keith Owens wrote:
-> > > On Fri, 18 Jan 2002 17:20:02 -0500 (EST),
-> > > "Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
-> > > >     Linux doesn't have a method to load encrypted & signed modules at
-> > > >     this time .
-> > > And never will.  Who loads the module - root.  Who maintains the list
-> > > of signatures - root.  Who controls the code that verifies the
-> > > signature - root.
-> > > Your task Jim, should you choose to accept it, is to make the kernel
-> > > distinguish between a good use of root and a malicious use by some who
-> > > has broken in and got root privileges.  When you can do that, then we
-> > > can add signed modules.
-> >If you want to secure your box, why don't you simply put a lock on it and
-> >throw away the key? Really, what might help the paranoid admins in this case
-> >is a setting in the kernel which basically disables the ability to load or
-> >unload modules. Of course once set this setting can not been turned with
-> >rebooting the box.
+> The application could do it using some aio setup, but it gets rather
+> complicated and the kernel already knows how to do that well.
 
-> Er that sounds like just disabling modules in the kernel altogether (kernel
-> compile option exists for this since the beginning of time)... I do that on
-> all servers I control. Not only for security reasons but also because I
-> suspect it produces smaller and probably faster kernels (I haven't tested
-> this in any way, just a guess).
-	This is just what the Heads are trying to do away with .  There
-	will only be module enabled kernels .  JimL
+yes, in short the API to allow the userspace to keep the I/O pipeline
+full with a ring of user buffers is not available at the moment.
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+As you say one could try to workaround it by threading the I/O in
+userspace but it would get rather dirty (and with a scheduling
+overhead).
 
+> 
+> I think an optional readahead mode for O_DIRECT would be useful. 
+
+to do transparent readahead we'll need to use the pagecache, so we'd need
+to make copies of pages with the cpu between usermemory and pagecache,
+but the nicer part of O_DIRECT is that it skips the costly copies
+with the cpu on the membus, so I usually disagree about trying to allow
+O_DIRECT to support readahead. I believe if you need readahead, you
+probably shouldn't use O_DIRECT in the first place.
+
+Andrea

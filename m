@@ -1,70 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261476AbTCGJ6r>; Fri, 7 Mar 2003 04:58:47 -0500
+	id <S261475AbTCGJ6m>; Fri, 7 Mar 2003 04:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261478AbTCGJ6q>; Fri, 7 Mar 2003 04:58:46 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:56705 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id <S261477AbTCGJ6c>;
-	Fri, 7 Mar 2003 04:58:32 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Fri, 7 Mar 2003 11:03:31 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Tom Rini <trini@kernel.crashing.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       randy.dunlap@verizon.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] move SWAP option in menu
-Message-ID: <20030307100330.GA4758@iram.es>
-References: <3E657EBD.59E167D6@verizon.net> <20030305181748.GA11729@iram.es> <20030305131444.1b9b0cf2.rddunlap@osdl.org> <20030306184332.GA23580@ip68-0-152-218.tc.ph.cox.net> <20030306193344.GA29166@iram.es> <1046984808.18158.115.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046984808.18158.115.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S261476AbTCGJ6l>; Fri, 7 Mar 2003 04:58:41 -0500
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:50338 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id <S261475AbTCGJ63>; Fri, 7 Mar 2003 04:58:29 -0500
+Message-ID: <3E686FDB.430FD684@Bull.Net>
+Date: Fri, 07 Mar 2003 11:09:31 +0100
+From: Eric Piel <Eric.Piel@Bull.Net>
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: george anzinger <george@mvista.com>
+CC: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, jim.houston@ccur.com
+Subject: Re: POSIX timer syscalls
+References: <200303062306.h26N6hrd008442@napali.hpl.hp.com>	<3E67DF8E.9080005@mvista.com>	<15975.62823.5398.712934@napali.hpl.hp.com>	<3E67F844.2090902@mvista.com> <15975.63734.837748.29150@napali.hpl.hp.com> <3E68573A.4020206@mvista.com>
+Content-Type: multipart/mixed;
+ boundary="------------09C11DA3B3F16F31308037ED"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 09:06:49PM +0000, Alan Cox wrote:
-> On Thu, 2003-03-06 at 19:33, Gabriel Paubert wrote:
-> > I'd be very surprised if it were possible to have swap on a MMU-less 
-> > machine (no virtual memory, page faults, etc.). Except for this nitpick, 
-> > the patch looks fine, but my knowledge of MM is close to zero (and 
-> > also of the new config language, but I'll have to learn it soon).
+This is a multi-part message in MIME format.
+--------------09C11DA3B3F16F31308037ED
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+george anzinger wrote:
 > 
-> You can, and people have had swapping long before virtual memory. 
+> The patch to fix idr is attached.  Cleans up the int/long confusion
+> and also rearranges a couple of structures to honor the sizes involved.
+> 
+I definitly agree with you George. However, in order to avoid hardcoding
+the size of an int to 32 I used a constant called BITS_PER_INT (that's
+really just for cleanness):
 
-Indeed, I was unclear. A long time ago some OS I used distinguished between 
-swapping (getting rid of a whole process' address space) and paging. The
-former one you can implement on any machine (with restrictions), the second 
-one needs an MMU and that's what CONFIG_SWAP means AFAICT.
+ #endif
+ 
+ #define IDR_MASK ((1 << IDR_BITS)-1)
+ 
+-/* Leave the possibility of an incomplete final layer */
+-#define MAX_LEVEL (BITS_PER_LONG - RESERVED_ID_BITS + IDR_BITS - 1) /
+IDR_BITS
+-#define MAX_ID_SHIFT (BITS_PER_LONG - RESERVED_ID_BITS)
++/* Define the size of the id's */
++#define BITS_PER_INT (sizeof(int)*8)
++
++#define MAX_ID_SHIFT (BITS_PER_INT - RESERVED_ID_BITS)
+ #define MAX_ID_BIT (1 << MAX_ID_SHIFT)
+ #define MAX_ID_MASK (MAX_ID_BIT - 1)
+ 
++/* Leave the possibility of an incomplete final layer */
++#define MAX_LEVEL (MAX_ID_SHIFT + IDR_BITS - 1) / IDR_BITS
++
+ /* Number of id_layer structs to leave in free list */
+ #define IDR_FREE_MAX MAX_LEVEL + MAX_LEVEL
 
-> Most ucLinux platforms can't swap because they can't dynamically relocate code.
 
-I believe that dynamically relocating code is fairly easy (PIC may help too), 
-but data is not: how do you relocate pointers of a swapped out process when
-you swap it in at a different address?
+> > Sure, except I don't have a test-program. ;-)
+> >
+> That is why you should visit the High-res-timers web site (see URL
+> below) and get the "support" patch.  It installs in you kernel tree at
+> .../Documentation/high-res-timers/ and has test programs as well as
+> man pages, readme files etc.
+> 
+I used the test programs and they are really good to test the interface.
+To have them working on IA64 I had to slightly modify the file
+syscall_timer.c in the lib. This is due to the fact only a function
+syscall() is used under ia64 instead of _syscall{1,2,3,4}(). I've
+attached a patch that does the trick, it's a bit "raw" but it works and
+that's only until glibc is upgraded to support those syscalls :-)
 
-I have fuzzy memories of a system in which you had a pair of
-privileged registers (base and limit) which allowed you to implement
-swapping and moving programs around in physical memories: all addresses
-were checked against the limit and the base was added to perform
-physical accesses. I might be wrong: it was about 20 years ago and I've
-used so many different systems since then. But there is no such
-mechanism on a 68000 for example (you could add it externally) and
-it has its own problems (no easy way of sharing library code).
+Eric
+--------------09C11DA3B3F16F31308037ED
+Content-Type: text/plain; charset=us-ascii;
+ name="hrtimers-support-ia64.patch"
+Content-Disposition: inline;
+ filename="hrtimers-support-ia64.patch"
+Content-Transfer-Encoding: 7bit
 
-(Yes we're drifting way off-topic.)
+--- high-res-timers.diff/lib/syscall_timer.c	2003-02-25 11:00:30.000000000 +0100
++++ high-res-timers/lib/syscall_timer.c	2003-03-07 10:48:34.000000000 +0100
+@@ -11,69 +11,6 @@
+ #ifndef __set_errno
+ #define __set_errno(val)       (errno = (val))
+ #endif
+-#if defined(__ia64__)
+-
+-//#include <unistd.h>
+-
+-
+-int timer_create(clockid_t which_clock, 
+-                        struct sigevent *timer_event_spec,
+-                        timer_t *created_timer_id)
+-{
+-	return syscall(__NR_timer_create, which_clock, timer_event_spec, created_timer_id);
+-}
+- 
+-int timer_gettime(timer_t timer_id, struct itimerspec *setting)
+-{
+-	return syscall(__NR_timer_gettime, timer_id, setting);
+-}
+-
+-int timer_settime(timer_t timer_id,
+-                         int flags,
+-                         const struct itimerspec *new_setting,
+-                         struct itimerspec *old_setting) 
+-{
+-	return syscall(__NR_timer_settime, timer_id, flags, new_setting, old_setting);
+-}
+-
+-int timer_getoverrun(timer_t timer_id)
+-{
+-	return syscall(__NR_timer_getoverrun, timer_id);
+-}
+-
+-int timer_delete(timer_t timer_id) 
+-{
+-	return syscall(__NR_timer_delete, timer_id);
+-}
+-
+-int clock_gettime(clockid_t which_clock, struct timespec *ts) 
+-{
+-	return syscall(__NR_clock_gettime, which_clock, ts);
+-}
+-
+-int clock_settime(clockid_t which_clock, 
+-                         const struct timespec *setting) 
+-{
+-	return syscall(__NR_clock_settime, which_clock, setting);
+-}
+-
+-int clock_getres(clockid_t which_clock, 
+-                        struct timespec *resolution) 
+-{
+-	return syscall(__NR_clock_getres, which_clock, resolution);
+-}
+-
+-int clock_nanosleep(clockid_t which_clock,
+-                    int flags,
+-                    const struct timespec *new_setting, 
+-                    struct timespec *old_setting) 
+-{
+-	return syscall(__NR_clock_nanosleep, which_clock, flags, new_setting, old_setting);
+-}
+-
+-
+-
+-#else /*! __ia64__ */ 
+ 
+ #define __NR___timer_create     __NR_timer_create
+ #define __NR___timer_gettime    __NR_timer_gettime
+@@ -161,4 +98,4 @@
+           int, flags,
+           const struct timespec *,rqtp,
+           struct timespec *,rmtp)
+-#endif /*ia64*/
++
 
-> Linux 8086 can swap because it can use CS/DS updates to relocate code/data.
+--------------09C11DA3B3F16F31308037ED--
 
-Unless I miss a subtle trick, that's using the segment registers as a
-poor man's MMU. You can share library code with far calls but you can't 
-use "far" data pointers, can you?
-
-> The way it worked on older systems is that you never run a program which
-> isnt entirely in memory. With that constraint you know it won't suddenely
-> want data you don't have.
-
-Oh yes, I've used such systems a loooong time ago. But I can't remember
-the details well enough. 
-
-	Gabriel.

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269840AbUJHL0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269848AbUJHLYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269840AbUJHL0J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269852AbUJHLZ2
+	id S269848AbUJHLYv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269845AbUJHLX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:25:28 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:1201 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S269839AbUJHLWB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:22:01 -0400
-Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
-       lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
-       Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org
-In-Reply-To: <20041008093154.GA5089@lkcl.net>
-References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu>
-	 <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil>
-	 <20041008093154.GA5089@lkcl.net>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1097234322.16641.3.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 8 Oct 2004 07:23:59 -0400
+Received: from holomorphy.com ([207.189.100.168]:9942 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269842AbUJHLXc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 07:23:32 -0400
+Date: Fri, 8 Oct 2004 04:23:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm3
+Message-ID: <20041008112322.GG9106@holomorphy.com>
+References: <20041007015139.6f5b833b.akpm@osdl.org> <200410071041.20723.sandersn@btinternet.com> <20041007025007.77ec1a44.akpm@osdl.org> <20041007114040.GV9106@holomorphy.com> <1097184341l.10532l.0l@werewolf.able.es> <1097185597l.10532l.1l@werewolf.able.es> <20041007150708.5d60e1c3.akpm@osdl.org> <1097188883l.6408l.1l@werewolf.able.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 08 Oct 2004 07:18:42 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097188883l.6408l.1l@werewolf.able.es>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 05:31, Luke Kenneth Casson Leighton wrote:
->  an alternative possible solution is to get the packet _out_ from
->  the interrupt context and have the aux pid comm exe information added.
+On 2004.10.08, Andrew Morton wrote: "J.A. Magallon" <jamagallon@able.es> wrote:
+>> Yes, there seems to be a mingo/wli bunfight over prof_cpu_mask.
+>> Something like this, I think:
 
-No, the network permission checks are intentionally layered to match the
-network protocol implementation.  There is a process-to-socket check
-performed in process context when the data is received from the socket
-by an actual process, but there is also the socket-to-netif/node/port
-check performed in softirq context when the packet is received on the
-socket from the network.
+On Thu, Oct 07, 2004 at 10:41:23PM +0000, J.A. Magallon wrote:
+> Thanks, that made it work again !!
+> Total set of patches to boot:
+> - your latest fix
+> - revert optimize profile + Andi's patch
+> - uhci fix (still needed ?)
+> - e100 fix (only thing I have seen at the moment...)
+> - 1Gb lowmem
+> How about including the last one in -mm, for testing ? I use it in a server
+> and in my home workstation and it works fine (even with nvidia drivers ;) ).
+> Everything attached (they are really small...)
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Would have been nice if you had tried my replacement since you went so
+far as to cc: me on its post, the primary reason being I expect it to
+have an actual observable effect toward the end the patches are supposed
+to have, though if whoever wants it insists, they can do it their own
+way; I merely expect the internal function call bits to be ineffective.
 
+-- wli

@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUGTUPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUGTT5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUGTUPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 16:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUGTUMp
+	id S266143AbUGTT5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUGTTnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 16:12:45 -0400
-Received: from cantor.suse.de ([195.135.220.2]:19637 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266252AbUGTUKq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 16:10:46 -0400
-To: davidm@hpl.hp.com
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: fix for unkillable zombie task
-References: <16632.21429.257483.650452@napali.hpl.hp.com>
-	<jesmbr3pfl.fsf@sykes.suse.de>
-	<16636.7969.396569.877226@napali.hpl.hp.com>
-	<jevfgjulx7.fsf@sykes.suse.de>
-	<16637.17254.121371.640514@napali.hpl.hp.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: ..  If I had heart failure right now, I couldn't be a more fortunate
- man!!
-Date: Tue, 20 Jul 2004 22:10:44 +0200
-In-Reply-To: <16637.17254.121371.640514@napali.hpl.hp.com> (David
- Mosberger's message of "Tue, 20 Jul 2004 09:08:06 -0700")
-Message-ID: <jeoemaqw1n.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 20 Jul 2004 15:43:10 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:43095 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266147AbUGTSjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:39:44 -0400
+Date: Tue, 20 Jul 2004 20:39:42 +0200
+Message-Id: <200407201839.i6KIdgEQ015495@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] depends on PCI: ATI Rage 128 and Radeon DRM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> writes:
+ATI Rage 128 and Radeon DRM unconditionally depend on PCI
 
->>>>>> On Tue, 20 Jul 2004 10:23:32 +0200, Andreas Schwab <schwab@suse.de> said:
->
->   Andreas> David Mosberger <davidm@napali.hpl.hp.com> writes:
->   >>>>>>> On Sat, 17 Jul 2004 12:20:46 +0200, Andreas Schwab
->   >>>>>>> <schwab@suse.de> said:
->   >>
->   Andreas> Could this be the same problem as discussed in the thread
->   Andreas> at
->   Andreas> <http://marc.theaimsgroup.com/?t=108857537300002&r=1&w=2>?
->
->   >>  It appears the "final" patch never made it into Linus' tree?
->
->   Andreas> And it appears to be a different issue, your patch doesn't
->   Andreas> fix that.
->
-> Do you have a simple test-case?
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-See the thread.
-<http://marc.theaimsgroup.com/?l=linux-kernel&m=108858649619256> has mine,
-I don't know whether the one in
-<http://marc.theaimsgroup.com/?l=linux-kernel&m=108866581316414> tests the
-same.
+--- linux-2.6.8-rc2/drivers/char/drm/Kconfig	2004-07-15 23:14:12.000000000 +0200
++++ linux-m68k-2.6.8-rc2/drivers/char/drm/Kconfig	2004-07-19 18:15:58.000000000 +0200
+@@ -31,7 +31,7 @@
+ 
+ config DRM_R128
+ 	tristate "ATI Rage 128"
+-	depends on DRM
++	depends on DRM && PCI
+ 	help
+ 	  Choose this option if you have an ATI Rage 128 graphics card.  If M
+ 	  is selected, the module will be called r128.  AGP support for
+@@ -39,7 +39,7 @@
+ 
+ config DRM_RADEON
+ 	tristate "ATI Radeon"
+-	depends on DRM
++	depends on DRM && PCI
+ 	help
+ 	  Choose this option if you have an ATI Radeon graphics card.  There
+ 	  are both PCI and AGP versions.  You don't need to choose this to
 
-Andreas.
+Gr{oetje,eeting}s,
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

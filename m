@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbUBYMwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 07:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUBYMwf
+	id S261311AbUBYNB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 08:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUBYM7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 07:52:35 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:3013 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S261176AbUBYMwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 07:52:34 -0500
-Date: Wed, 25 Feb 2004 07:52:32 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Grigor Gatchev <grigor@zadnik.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A Layered Kernel: Proposal
-In-Reply-To: <Pine.LNX.4.44.0402251103470.16939-100000@lugburz.zadnik.org>
-Message-ID: <Pine.LNX.4.44.0402250751140.30721-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Feb 2004 07:59:47 -0500
+Received: from post.tau.ac.il ([132.66.16.11]:41645 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S261312AbUBYM72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 07:59:28 -0500
+Date: Wed, 25 Feb 2004 14:58:40 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: linux-kernel@vger.kernel.org
+Subject: Re: OpenGL in the kernel
+Message-ID: <20040225125840.GI5546@luna.mooo.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <403D2953.7080909@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403D2953.7080909@mail.ru>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.24.0.4; VDF: 6.24.0.17; host: localhost)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Feb 2004, Grigor Gatchev wrote:
-
-> > I'm all for cleaning up the badly written code so it fits
-> > in better with the rest of the kernel ;)
+On Thu, Feb 26, 2004 at 02:01:39AM +0300, Dmitry M Shatrov wrote:
+> I think this is the right place to ask it for, sorry if not.
+> I heard a few about future OpenGL implementation in the Linux kernel, 
+> but failed to find any resource on this question. I also remember a 
+> message from this list about its author's experiments with Mesa in this 
+> key..
+> Does anybody work on the subject now? Could you help me with (if there 
+> are any) some links or just explain what's this really about?
 > 
-> Unhappily, cleaning up would not be enough. A separation of the kernel
-> layers, to the extent that one may be able to use them independently,
-> and to plug modules between them (having the appropriate access) may be
-> better.
 
-Some parts of the kernel (eg. the VFS or the device driver
-layers) can already do that, while others still have layering
-violations.
+You are probably thinking of dri which is the kernel side support for
+graphic acceleration, not opengl. opengl is a userland thing not kernel.
 
-I suspect that the least destabilising way of moving to a
-more modular model would be to gradually clean up the layering
-violations in the rest of the code, until things are modular.
+dri-devel or dri-user is probably a better place. Try dri.sf.net.
 
-Yes, I know it's a lot of work ...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+> With best regards, Dmitry M. Shatrov
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

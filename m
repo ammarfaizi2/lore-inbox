@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264965AbSJWNDu>; Wed, 23 Oct 2002 09:03:50 -0400
+	id <S264969AbSJWNHs>; Wed, 23 Oct 2002 09:07:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264967AbSJWNDu>; Wed, 23 Oct 2002 09:03:50 -0400
-Received: from rth.ninka.net ([216.101.162.244]:11414 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S264965AbSJWNDt>;
-	Wed, 23 Oct 2002 09:03:49 -0400
-Subject: Re: [RESEND] tuning linux for high network performance?
-From: "David S. Miller" <davem@rth.ninka.net>
-To: bert hubert <ahu@ds9a.nl>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, netdev@oss.sgi.com,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021023130101.GA646@outpost.ds9a.nl>
-References: <200210231218.18733.roy@karlsbakk.net>
-	<200210231306.18422.roy@karlsbakk.net> 
-	<20021023130101.GA646@outpost.ds9a.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 23 Oct 2002 06:21:48 -0700
-Message-Id: <1035379308.5950.3.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S264971AbSJWNHr>; Wed, 23 Oct 2002 09:07:47 -0400
+Received: from realityfailure.org ([209.150.103.212]:29888 "EHLO
+	mail.realityfailure.org") by vger.kernel.org with ESMTP
+	id <S264969AbSJWNHp>; Wed, 23 Oct 2002 09:07:45 -0400
+Date: Wed, 23 Oct 2002 09:13:51 -0400 (EDT)
+From: John Jasen <jjasen@realityfailure.org>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: One for the Security Guru's
+In-Reply-To: <20021023130251.GF25422@rdlg.net>
+Message-ID: <Pine.LNX.4.44.0210230912120.6754-100000@geisha.realityfailure.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 06:01, bert hubert wrote:
-> Also mention that you have an e1000 card which
-> does not do outgoing checksumming.
+On Wed, 23 Oct 2002, Robert L. Harris wrote:
 
-The e1000 can very well do hardware checksumming on transmit.
+>   I'd like it from the guru's on exactly how bad a hole this really is
+> and if there is a method in the kernel that will prevent such exploits.
+> For example, if I disable CONFIG_MODVERSIONS is the kernel less likely
+> to accept a module we didn't build?  Are there plans to implement some
+> form of finger printing on modules down the road?
 
-The missing piece of the puzzle is that his application is not
-using sendfile(), without which no transmit checksum offload
-can take place.
+I seem to recall that there are rootkits with kernel modules out in the 
+wild. If I recall correctly, there is a kernel capabilities patch that 
+will disallow loading modules after some point.
+
+Its been something I've been meaning to look into more, but with a million 
+other projects on the platter ...
+
+-- 
+-- John E. Jasen (jjasen@realityfailure.org)
+-- User Error #2361: Please insert coffee and try again.
+
 

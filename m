@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264871AbRFYQff>; Mon, 25 Jun 2001 12:35:35 -0400
+	id <S264874AbRFYQoP>; Mon, 25 Jun 2001 12:44:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264874AbRFYQfZ>; Mon, 25 Jun 2001 12:35:25 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:784 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264871AbRFYQfK>;
-	Mon, 25 Jun 2001 12:35:10 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: joeja@mindspring.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD thunderbird oops 
-In-Reply-To: Your message of "Mon, 25 Jun 2001 12:24:11 -0400."
-             <Springmail.105.993486251.0.81762700@www.springmail.com> 
-Mime-Version: 1.0
+	id <S264875AbRFYQoF>; Mon, 25 Jun 2001 12:44:05 -0400
+Received: from hermes-3.bizonline.net ([212.95.128.7]:55813 "HELO
+	thefreeinternet.co.uk") by vger.kernel.org with SMTP
+	id <S264874AbRFYQnz>; Mon, 25 Jun 2001 12:43:55 -0400
+Message-ID: <3B376A53.422A824@qub.ac.uk>
+Date: Mon, 25 Jun 2001 17:44:03 +0100
+From: Sam Halliday <10226982@qub.ac.uk>
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: supermount
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 26 Jun 2001 02:35:04 +1000
-Message-ID: <1633.993486904@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001 12:24:11 -0400, 
-joeja@mindspring.com wrote:
->   The oops says something like 'kernel null pointer at address
->0x000000'.  How do I 'catch' the output of an oops when the filesystem
->goes and I get ext2fs errors and am forced to reboot and manually run
->e2fsck?
+This email was delivered to you by The Free Internet,
+a Business Online Group company. http://www.thefreeinternet.net
+---------------------------------------------------------------
+hello, i have only been using linux for about a year, i am a physicist
+and i need its fast number crunching for my programs, i have recently
+become interrested in the kernel (i believe everyone should have some
+understanding of their tools),
 
-Read linux/Documentation/oops-tracing.txt.
+i have noticed supermount is not a standard part of this project, is
+there a good reason why this is? i apologise if this is a very silly
+question as i am sure it is, but it really does seem to me to be an
+essential feature, are there any plans to include it as a standard
+feature or is this due to man-power? i know patches do exist out there
+(all beit, really hard to find for recent 2.4.5)
+
+anyways, keep up the good work, i wish i knew enough about the whole
+thing to help out in some way,
+
+Sam, Ireland
 

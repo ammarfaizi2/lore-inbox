@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284541AbRLESDQ>; Wed, 5 Dec 2001 13:03:16 -0500
+	id <S284537AbRLESIQ>; Wed, 5 Dec 2001 13:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284537AbRLESDH>; Wed, 5 Dec 2001 13:03:07 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:31885 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S284533AbRLESC6>; Wed, 5 Dec 2001 13:02:58 -0500
-Message-ID: <00ba01c17db6$e6963c90$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: <erich@uruk.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Larry McVoy" <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16BY3e-0005S9-00@the-village.bc.nu>
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-Date: Wed, 5 Dec 2001 11:01:44 -0700
+	id <S284545AbRLESIG>; Wed, 5 Dec 2001 13:08:06 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1038 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S284540AbRLESH4>; Wed, 5 Dec 2001 13:07:56 -0500
+Date: Wed, 5 Dec 2001 14:51:13 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
+In-Reply-To: <Pine.LNX.4.30.0112051713200.2297-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.21.0112051450310.20481-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: <erich@uruk.org>
-Cc: "Larry McVoy" <lm@bitmover.com>; <linux-kernel@vger.kernel.org>
-Sent: Wednesday, December 05, 2001 2:09 AM
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
 
+On Wed, 5 Dec 2001, Roy Sigurd Karlsbakk wrote:
 
-> > For example, there should be no reason that most drivers or any other
-> > random kernel module should know anything about SMP.  Under Linux, it
-> > annoys me to no end that I have to ever know (and yes, I count compiling
-> > against "SMP" configuration having to know)...  more and more sources of
-> > error.
->
-> Unfortunately the progression with processors seems to be going the
-> wrong way. Spin locks are getting more not less expensive. That makes
-> CONFIG_SMP=n a meaningful optimisation for the 99%+ of people not running
-> SMP
+> hi all
+> 
+> I've just upgraded to 2.4.16 to get /proc/sys/vm/(max|min)-readahead
+> available. I've got this idea...
+> 
+> If lots of files (some hundered) are read simultaously, I waste all the
+> i/o time in seeks. However, if I increase the readahead, it'll read more
+> data at a time, and end up with seeking a lot less.
+> 
+> The harddrive I'm testing this with, is a cheap 20G IDE drive. It can give
+> me a peak thoughput of about 28 MB/s (reading).
+> When running 10 simultanous dd jobs ('dd if=filenr of=/dev/null bs=4m'), I
+> peaks at some 8,5 MB/s no matter what I set the min/max readahead to!!
+> 
+> Is this correct?
 
-Amen.
-
-Jeff
-
->
->
-> Alan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Do you also have VM pressure going on or do you have lots of free memory ? 
 

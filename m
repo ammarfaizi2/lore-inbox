@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbUAFCIU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 21:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265252AbUAFCIU
+	id S265255AbUAFCPg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 21:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbUAFCPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 21:08:20 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:11440 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S265248AbUAFCIT (ORCPT
+	Mon, 5 Jan 2004 21:15:36 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:46047 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S265255AbUAFCPP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 21:08:19 -0500
-Date: Tue, 6 Jan 2004 09:43:50 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Hugang <hugang@soulinfo.com>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       Bastiaan Spandaw <lkml@becobaf.com>,
-       Tomas Szepe <szepe@pinerecords.com>, Max Valdez <maxvalde@fis.unam.mx>
-Subject: Re: 2.6.1-rc1 affected?
-Message-Id: <20040106094350.4528f242@localhost>
-In-Reply-To: <20040106093145.0fd0d4b5@localhost>
-References: <1073351377.2690.1.camel@garaged.homeip.net>
-	<Pine.LNX.4.56.0401060221170.7597@jju_lnx.backbone.dif.dk>
-	<20040106093145.0fd0d4b5@localhost>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Mon, 5 Jan 2004 21:15:15 -0500
+Subject: RE: [ACPI] ACPI battery issue - Dell Inspiron 4150 - 2.6.1-rc1-mm2
+From: Dax Kelson <dax@gurulabs.com>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       "Brown, Len" <len.brown@intel.com>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720C78@PDSMSX403.ccr.corp.intel.com>
+References: <3ACA40606221794F80A5670F0AF15F8401720C78@PDSMSX403.ccr.corp.intel.com>
+Content-Type: text/plain
+Message-Id: <1073356057.2687.2.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 05 Jan 2004 19:27:38 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004 09:31:45 +0800
-Hugang <hugang@soulinfo.com> wrote:
-
-> do nothing in my laptop.
+On Mon, 2004-01-05 at 18:03, Yu, Luming wrote:
+> >Subject: [ACPI] ACPI battery issue - Dell Inspiron 4150 - 2.6.1-rc1-mm2
+> >
+> >Found at boot: 
+> >ACPI: Battery Slot [BAT0] (battery present)
+> >ACPI: Battery Slot [BAT1] (battery present)
+> >But no run-time information:
 > 
-> [hugang@:build]$ ./mremap_poc 
-> Trace/breakpoint trap
+> Some DELL battery issues in recent kernel are solved by
+> patch filed at http://bugzilla.kernel.org/show_bug.cgi?id=1766 .
 > 
-> powerpc G4, PowerBook G4, 2.6.0-test11-wli + laptop mode path
+> Is it worthy to have it a try?
 
-Sorry, My fault, it let my kernel oops.
+Seems to work ... is it normal to have the "unknown" values below when
+plugged in?
 
-kernel BUG in exit_mmap at mm/mmap.c:1468!
-Oops: Exception in kernel mode, sig: 5 [#14]
-NIP: C00490E0 LR: C00490B0 SP: C094DED0 REGS: c094de20 TRAP: 0700    Not tainted
-MSR: 00029032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-TASK = c1c83160[2783] 'mremap_poc' Last syscall: 1 
-GPR00: 00000001 C094DED0 C1C83160 0000000A 00000000 0A89DFFC C01C6740 00009032 
-GPR08: 0000AF9F C01F247C FFFFFFCB C01F0000 82000002 100187B8 00000000 100D7B78 
-GPR16: 100D6BE8 10060000 10060000 00000000 00000000 100C8558 100D6BE8 00000000 
-GPR24: 00000000 0FFE6BB0 0FFD9590 0FFD9590 00000000 00000000 C1C83160 C95384C0 
-Call trace:
- [c0016914] mmput+0x7c/0xbc
- [c001a9e8] do_exit+0x19c/0x380
- [c001ac08] do_group_exit+0x0/0x98
- [c000602c] ret_from_syscall+0x0/0x4c
+$ cat /proc/acpi/battery/BAT0/state
+present:                 yes
+capacity state:          ok
+charging state:          unknown
+present rate:            unknown
+remaining capacity:      66000 mWh
+present voltage:         16501 mV
+
+$ cat /proc/acpi/battery/BAT1/info
+present:                 yes
+design capacity:         65120 mWh
+last full capacity:      54980 mWh
+battery technology:      rechargeable
+design voltage:          14800 mV
+design capacity warning: 3000 mWh
+design capacity low:     1000 mWh
+capacity granularity 1:  200 mWh
+capacity granularity 2:  200 mWh
+model number:            LIP8120DL
+serial number:           5122
+battery type:            LION
+OEM info:                Sony C
+
+When unplugged:
+
+$ cat /proc/acpi/battery/BAT0/state
+present:                 yes
+capacity state:          ok
+charging state:          discharging
+present rate:            2743 mW
+remaining capacity:      52340 mWh
+present voltage:         16526 mV
 
 
--- 
-Hu Gang / Steve
-RLU#          : 204016 [1999] (Registered Linux user)
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

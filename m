@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317511AbSGTUwd>; Sat, 20 Jul 2002 16:52:33 -0400
+	id <S317506AbSGTUt5>; Sat, 20 Jul 2002 16:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317512AbSGTUwc>; Sat, 20 Jul 2002 16:52:32 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:12024 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S317511AbSGTUwa>;
-	Sat, 20 Jul 2002 16:52:30 -0400
-Date: Sat, 20 Jul 2002 22:55:20 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Austin Gonyou <austin@digitalroadkill.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Peloquin <peloquin@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020720205520.GX29001@khan.acc.umu.se>
-References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com> <1027199147.16819.39.camel@irongate.swansea.linux.org.uk> <1027197028.26159.2.camel@UberGeek.digitalroadkill.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1027197028.26159.2.camel@UberGeek.digitalroadkill.net>
-User-Agent: Mutt/1.4i
+	id <S317508AbSGTUt5>; Sat, 20 Jul 2002 16:49:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:5579 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317506AbSGTUtz>;
+	Sat, 20 Jul 2002 16:49:55 -0400
+Date: Sat, 20 Jul 2002 22:51:55 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] preempt-safe load_LDT
+In-Reply-To: <Pine.LNX.4.44.0207201340450.1492-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0207202244060.24934-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 20, 2002 at 03:30:29PM -0500, Austin Gonyou wrote:
-> On Sat, 2002-07-20 at 16:05, Alan Cox wrote:
-> ...
-> > > > Do you think the breakdown is realistic?
-> > > >
-> > > > -- Guillaume
-> > > 
-> > > o EVMS (Enterprise Volume Management System)      (EVMS team)
-> > 
-> > or LVM2, which already appears to be scrubbed down and clean
-> 
-> Just IMHO, LVM2 makes better sense as there currently is no "stable"
-> module for XFS in EVMS, AFAIK.
-> Also, LVM is currently in 2.4 and a lot of peopel use it, LVM2 seems to
-> be the proper progression for 2.6. My $0.02
 
-I'd rather see the EVMS go in, if a choice has to be made between the
-two. EVMS seems to have a lot of effort put in it, and has the
-experience from the (very good) volume-managers that IBM have in OS/2
-and AIX.
+On Sat, 20 Jul 2002, Linus Torvalds wrote:
 
-Afaik, EVMS supports LVM volumes. As for XFS, I'm sure an XFS module can
-be produced for EVMS (then again, XFS isn't merged yet either...)
+> It's buggy. It calls smp_processor_id() outside the preemption window,
+> see "load_LDT()".
 
+oops. Correct patch that uses get_cpu()/put_cpu() is attached, against
+2.5.27. I was wrong when sending the initial fix: there are no header file
+dependency issues in 2.5.27 anymore. It compiles & boots.
 
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+	Ingo
+
+--- linux/include/asm-i386/mmu_context.h.orig	Sun Jun  9 07:26:26 2002
++++ linux/include/asm-i386/mmu_context.h	Sat Jul 20 22:48:37 2002
+@@ -44,7 +44,7 @@
+ 		 * has a non-default LDT.
+ 		 */
+ 		if (next->context.size+prev->context.size)
+-			load_LDT(&next->context);
++			load_LDT_no_preempt(&next->context, cpu);
+ 	}
+ #ifdef CONFIG_SMP
+ 	else {
+@@ -56,7 +56,7 @@
+ 			 * tlb flush IPI delivery. We must reload %cr3.
+ 			 */
+ 			load_cr3(next->pgd);
+-			load_LDT(&next->context);
++			load_LDT_no_preempt(&next->context, cpu);
+ 		}
+ 	}
+ #endif
+--- linux/include/asm-i386/desc.h.orig	Sun Jun  9 07:26:24 2002
++++ linux/include/asm-i386/desc.h	Sat Jul 20 22:49:04 2002
+@@ -90,9 +90,8 @@
+ /*
+  * load one particular LDT into the current CPU
+  */
+-static inline void load_LDT (mm_context_t *pc)
++static inline void load_LDT_no_preempt (mm_context_t *pc, int cpu)
+ {
+-	int cpu = smp_processor_id();
+ 	void *segments = pc->ldt;
+ 	int count = pc->size;
+ 
+@@ -103,6 +102,13 @@
+ 		
+ 	set_ldt_desc(cpu, segments, count);
+ 	__load_LDT(cpu);
++}
++static inline void load_LDT (mm_context_t *pc)
++{
++	int cpu = get_cpu();
++
++	load_LDT_no_preempt(pc, cpu);
++	put_cpu();
+ }
+ 
+ #endif /* !__ASSEMBLY__ */
+

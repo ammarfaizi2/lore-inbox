@@ -1,113 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUH3XMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUH3XMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUH3XMT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 19:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUH3XMT
+	id S265211AbUH3XMe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 19:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUH3XMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 19:12:19 -0400
-Received: from web52305.mail.yahoo.com ([206.190.39.100]:30844 "HELO
-	web52305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265161AbUH3XMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 19:12:15 -0400
-Message-ID: <20040830231214.8697.qmail@web52305.mail.yahoo.com>
-Date: Tue, 31 Aug 2004 01:12:14 +0200 (CEST)
-From: =?iso-8859-1?q?Albert=20Herranz?= <albert_herranz@yahoo.es>
-Subject: [PATCH] 2.6.9-rc1-mm1: kexec ppc KEXEC Kconfig misplacement
-To: ebiederm@xmission.com, akpm@osdl.org
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-81601550-1093907534=:8575"
-Content-Transfer-Encoding: 8bit
+	Mon, 30 Aug 2004 19:12:34 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:51864
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S265211AbUH3XMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 19:12:31 -0400
+Date: Mon, 30 Aug 2004 16:11:26 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Brian Somers <brian.somers@sun.com>
+Cc: Michael.Waychison@sun.com, linux-kernel@vger.kernel.org
+Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
+Message-Id: <20040830161126.585a6b62.davem@davemloft.net>
+In-Reply-To: <412DC055.4070401@sun.com>
+References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
+	<200408162049.FFF09413.8592816B@anet.ne.jp>
+	<20040816143824.15238e42.davem@redhat.com>
+	<412CD101.4050406@sun.com>
+	<20040825120831.55a20c57.davem@redhat.com>
+	<412CF0E9.2010903@sun.com>
+	<20040825175805.6807014c.davem@redhat.com>
+	<412DC055.4070401@sun.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-81601550-1093907534=:8575
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
 
-Hi,
+Michael Chan at Broadcom spotted the bug.
 
-The following patch places KEXEC Kconfig ppc option in
-a more convenient menu, like in the i386 tree.
-It seems that it got again misplaced (in the current
--mm tree it appears within the IBM 40x options menu).
+Things are totally broken if the switch/hub does not support
+autonegotiation.  Checking for the MAC_STATUS_SIGNAL_DET bit
+in the tg3 polling timer fixes the problem.
 
-Patch against 2.6.9-rc1-mm1, available here:
+This is probably why it worked for you and doesn't with the
+IBM blades as blades are more likely to be connected to
+non-autoneg'ing devices.
 
-http://www.gc-linux.org/down/isobel/kexec/2.6.9-rc1-mm1/broken-out/kexec-kexecppc-kconfig-fix.patch
-
-Cheers,
-Albert
-
-
-
-		
-______________________________________________
-Renovamos el Correo Yahoo!: ¡100 MB GRATIS!
-Nuevos servicios, más seguridad
-http://correo.yahoo.es
---0-81601550-1093907534=:8575
-Content-Type: text/plain; name="kexec-kexecppc-kconfig-fix.patch"
-Content-Description: kexec-kexecppc-kconfig-fix.patch
-Content-Disposition: inline; filename="kexec-kexecppc-kconfig-fix.patch"
-
---- a/arch/ppc/Kconfig	2004-08-30 10:42:09.000000000 +0200
-+++ b/arch/ppc/Kconfig	2004-08-31 00:49:41.000000000 +0200
-@@ -245,6 +245,26 @@ config NOT_COHERENT_CACHE
- 
- source "drivers/perfctr/Kconfig"
- 
-+config KEXEC
-+	bool "kexec system call (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	help
-+	  kexec is a system call that implements the ability to shutdown your
-+	  current kernel, and to start another kernel.  It is like a reboot
-+	  but it is indepedent of the system firmware.   And like a reboot
-+	  you can start any kernel with it, not just Linux.
-+
-+	  The name comes from the similiarity to the exec system call.
-+
-+	  It is an ongoing process to be certain the hardware in a machine
-+	  is properly shutdown, so do not be surprised if this code does not
-+	  initially work for you.  It may help to enable device hotplugging
-+	  support.  As of this writing the exact hardware interface is
-+	  strongly in flux, so no good recommendation can be made.
-+
-+	  In the GameCube implementation, kexec allows you to load and
-+	  run DOL files, including kernel and homebrew DOLs.
-+
- endmenu
- 
- menu "Platform options"
-@@ -1222,26 +1242,6 @@ config SERIAL_SICC_CONSOLE
- 	depends on SERIAL_SICC && UART0_TTYS1
- 	default y
- 
--config KEXEC
--	bool "kexec system call (EXPERIMENTAL)"
--	depends on EXPERIMENTAL
--	help
--	  kexec is a system call that implements the ability to shutdown your
--	  current kernel, and to start another kernel.  It is like a reboot
--	  but it is indepedent of the system firmware.   And like a reboot
--	  you can start any kernel with it, not just Linux.
--
--	  The name comes from the similiarity to the exec system call.
--
--	  It is an ongoing process to be certain the hardware in a machine
--	  is properly shutdown, so do not be surprised if this code does not
--	  initially work for you.  It may help to enable device hotplugging
--	  support.  As of this writing the exact hardware interface is
--	  strongly in flux, so no good recommendation can be made.
--
--	  In the GAMECUBE implementation, kexec allows you to load and
--	  run DOL files, including kernel and homebrew DOLs.
--
- endmenu
- 
- source "lib/Kconfig"
-
---0-81601550-1093907534=:8575--
+===== drivers/net/tg3.c 1.199 vs edited =====
+--- 1.199/drivers/net/tg3.c	2004-08-18 19:52:35 -07:00
++++ edited/drivers/net/tg3.c	2004-08-30 15:08:07 -07:00
+@@ -5602,7 +5602,8 @@
+ 				need_setup = 1;
+ 			}
+ 			if (! netif_carrier_ok(tp->dev) &&
+-			    (mac_stat & MAC_STATUS_PCS_SYNCED)) {
++			    (mac_stat & (MAC_STATUS_PCS_SYNCED |
++					 MAC_STATUS_SIGNAL_DET))) {
+ 				need_setup = 1;
+ 			}
+ 			if (need_setup) {

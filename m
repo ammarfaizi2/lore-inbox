@@ -1,91 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S381520AbUKBCVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266081AbUKBDXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S381520AbUKBCVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 21:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S287505AbUKAXOY
+	id S266081AbUKBDXT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 22:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S516105AbUKBDVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:14:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:8356 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S284626AbUKAV7V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 16:59:21 -0500
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-In-Reply-To: <10993462761856@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Mon, 1 Nov 2004 13:57:56 -0800
-Message-Id: <1099346276148@kroah.com>
+	Mon, 1 Nov 2004 22:21:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32389 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S515027AbUKBDUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 22:20:01 -0500
+Date: Mon, 1 Nov 2004 20:18:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IA64 build broken... cond_syscall()... Fixes?
+Message-Id: <20041101201808.58a559a5.akpm@osdl.org>
+In-Reply-To: <200411020239.iA22dsQl026520@mail23.syd.optusnet.com.au>
+References: <200411020239.iA22dsQl026520@mail23.syd.optusnet.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2446, 2004/11/01 13:04:46-08:00, akpm@osdl.org
+Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
+>
+> 
+> Hi Folks,
+>    The kernel 2.6 IA64 build has been broken for several days (see
+> http://www.gelato.unsw.edu.au/kerncomp )
+> 
+> The reason is that cond_syscall() for IA64 is defined as:
+> 
+>   #define cond_syscall(x) asmlinkage long x (void) \
+> 	__attribute__((weak,alias("sys_ni_syscall")))   
+> 
+> which of course doesn't work if there's a prototype in scope for x,
+> unless the type of x just happens to be the same as for sys_ni_syscall.
+> 
+> Changing to the type-safe version
+>    #define cond_syscall(x) __typeof__ (x) x \
+> 	   __attribute__((weak,alias("sys_ni_syscall")));
+> gives an error, e.g., 
+>  error: `compat_sys_futex' defined both normally and as an alias
 
-[PATCH] Possible race in sysfs_read_file() and sysfs_write_file()
+Yeah, it's a real bitch, that.
 
-From: Simon Derr <Simon.Derr@bull.net>
+> Most architectures use inline assembly language which avoids the
+> problem.  However, we don't want to do this for IA64, to allow
+> compilers other than gcc to be used (in general, gcc generated code
+> for IA64 is extremely poor).
+> 
+> There are several ways to fix this.  The simple way is to ensure that
+> there are no prototypes for any system calls included in kernel/sys.c
+> (the only place where cond_syscall is used).  That's what this patch
+> does:
 
-Add a `needs_read_fill' field in sysfs_buffer so that reading after a write in
-a sysfs file returns valid data.
+But I bet it introduces various nasty warnings or type-unsafety on other
+architectures.
 
-(instead of the data that have been written, that may be invalid or at the
-wrong offset)
-
-Signed-off-by: Simon Derr <simon.derr@bull.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- fs/sysfs/file.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
-
-
-diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
---- a/fs/sysfs/file.c	2004-11-01 13:36:42 -08:00
-+++ b/fs/sysfs/file.c	2004-11-01 13:36:42 -08:00
-@@ -55,6 +55,7 @@
- 	char			* page;
- 	struct sysfs_ops	* ops;
- 	struct semaphore	sem;
-+	int			needs_read_fill;
- };
- 
- 
-@@ -82,6 +83,7 @@
- 		return -ENOMEM;
- 
- 	count = ops->show(kobj,attr,buffer->page);
-+	buffer->needs_read_fill = 0;
- 	BUG_ON(count > (ssize_t)PAGE_SIZE);
- 	if (count >= 0)
- 		buffer->count = count;
-@@ -146,7 +148,7 @@
- 	ssize_t retval = 0;
- 
- 	down(&buffer->sem);
--	if ((!*ppos) || (!buffer->page)) {
-+	if (buffer->needs_read_fill) {
- 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
- 			goto out;
- 	}
-@@ -182,6 +184,7 @@
- 	if (count >= PAGE_SIZE)
- 		count = PAGE_SIZE - 1;
- 	error = copy_from_user(buffer->page,buf,count);
-+	buffer->needs_read_fill = 1;
- 	return error ? -EFAULT : count;
- }
- 
-@@ -299,6 +302,7 @@
- 	if (buffer) {
- 		memset(buffer,0,sizeof(struct sysfs_buffer));
- 		init_MUTEX(&buffer->sem);
-+		buffer->needs_read_fill = 1;
- 		buffer->ops = ops;
- 		file->private_data = buffer;
- 	} else
-
+Shouldn't we just bite the bullet and hoist all that cond_syscall stuff out
+into its own .c file?

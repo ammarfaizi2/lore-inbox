@@ -1,47 +1,339 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265509AbRF1D7O>; Wed, 27 Jun 2001 23:59:14 -0400
+	id <S265512AbRF1EBy>; Thu, 28 Jun 2001 00:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265512AbRF1D7E>; Wed, 27 Jun 2001 23:59:04 -0400
-Received: from four.malevolentminds.com ([216.177.76.238]:60935 "EHLO
-	four.malevolentminds.com") by vger.kernel.org with ESMTP
-	id <S265509AbRF1D6u>; Wed, 27 Jun 2001 23:58:50 -0400
-Date: Wed, 27 Jun 2001 20:58:42 -0700 (PDT)
-From: Khyron <khyron@khyron.com>
-X-X-Sender: <khyron@four.malevolentminds.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.x features
-Message-ID: <Pine.BSF.4.33.0106270043100.26485-100000@four.malevolentminds.com>
+	id <S265515AbRF1EBp>; Thu, 28 Jun 2001 00:01:45 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:23049 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265512AbRF1EBc>; Thu, 28 Jun 2001 00:01:32 -0400
+Date: Wed, 27 Jun 2001 21:02:06 -0700 (PDT)
+From: Patrick Mochel <mochel@transmeta.com>
+To: linux-kernel@vger.kernel.org, linux-pm-devel@lists.sourceforge.net
+Subject: RFC: PCI Power Management Documentation
+Message-ID: <Pine.LNX.4.10.10106272055270.32646-100000@nobelium.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking for information, either in documentation (!) or
-however its available, about the following features in the
-2.4.x series kernels:
 
-1. wake-one
-2. _syscall4
-3. process ID table resizing
+I've rewritten the PCI Power Management documentation that I was going to
+submit to Linus. I figured I would submit it here to get some proactive
+feedback on it.
 
-Where can I find these documented (no, "the source" isn't a
-good answer AFAIAC, even though its true)? Or better, can
-anyone answer the following questions about each of these:
+My thought was to create a Documentation/power/ directory with various
+documents describing the way that the kernel implements power management,
+as well as the interfaces for implementing it at both a system-wide and
+driver level.
 
-A. How do I activate these features? Are they kernel config
-   time parameters or standard?
-B. How robust is the code implementing these features?
+Comments gladly welcomed.
 
-Please feel free to let me know if I have been misled if
-#3 isn't an actual feature.
+	-pat
 
-Thanks in advance!
 
-////////////////////////////////////////////////////////////////////
-Khyron					    mailto:khyron@khyron.com
-Key fingerprint = 53BB 08CA 6A4B 8AF8 DF9B  7E71 2D20 AD30 6684 E82D
-			"Drama free in 2001!"
-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+PCI Power Management
+~~~~~~~~~~~~~~~~~~~~
+
+An overview of the concepts and the related functions in the Linux kernel
+
+Patrick Mochel <mochel@transmeta.com>
+
+---------------------------------------------------------------------------
+
+1. Overview
+2. How the PCI Subsystem Does Power Management
+3. PCI Utility Functions
+4. PCI Device Drivers
+5. Resources
+
+1. Overview
+~~~~~~~~~~~
+
+The PCI Power Management Specification was introduced between the PCI 2.1 and
+PCI 2.2 Specifications. It a standard interface for controlling various 
+power management operations.
+
+Implementation of the PCI PM Spec is optional, as are several sub-components of
+it. If a device supports the PCI PM Spec, the device will have an 8 byte 
+capability field in its PCI configuration space. This field is used to describe
+and control the standard PCI power management features.
+
+The PCI PM spec defines 4 operating states for devices (D0 - D3) and for buses
+(B0 - B3). The higher the number, the less power the device consumes. However,
+the higher the number, the longer the latency is for the device to return to 
+an operational state (D0).
+
+Bus power management is not covered in this version of this document.
+
+Note that all PCI devices support D0 and D3 by default, regardless of whether or
+not they implement any of the PCI PM spec.
+
+The possible state transitions that a device can undergo are:
+
++---------------------------+
+| Current State | New State |
++---------------------------+
+| D0            | D1, D2, D3|
++---------------------------+
+| D1            | D2, D3    |
++---------------------------+
+| D2            | D3        |
++---------------------------+
+| D1, D2, D3    | D0        |
++---------------------------+
+
+Note that when the system is entering a global suspend state, all devices will be 
+placed into D3 and when resuming, all devices will be placed into D0. However, 
+when the system is running, other state transitions are possible.
+
+2. How The PCI Subsystem Handles Power Management
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The PCI suspend/resume functionality is accessed indirectly via the Power Management 
+subsystem. At boot, the PCI driver registers a power management callback with that layer.
+Upon entering a suspend state, the PM layer iterates through all of its registered 
+callbacks. This currently takes place only during APM state transitions.
+
+Upon going to sleep, the PCI subsystem walks its device tree twice. Both times, it does
+a depth first walk of the device tree. The first walk saves  each of the device's state 
+and checks for devices that will prevent the system from entering a global power state. 
+The next walk then places the devices in a low power state.
+
+The first walk allows a graceful recovery in the event of a failure, since none of the 
+devices have actually been powered down.
+
+In both walks, in particular the second, all children of a bridge are touched before the
+actual bridge itself. This allows the bridge to retain power while its children are being
+accessed.
+
+Upon resuming from sleep, just the opposite must be true: all bridges must be powered on
+and restored before their children are powered on. This is easily accomplished with a
+breadth-first walk of the PCI device tree.
+
+
+3. PCI Utility Functions
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+These are helper functions designed to be called by individual device drivers.
+Assuming that a device behaves as advertised, these should be applicable in most
+cases. However, results may vary.
+
+Note that these functions are never implicitly called for the driver. The driver is always
+responsible for deciding when and if to call these.
+
+
+pci_save_state
+--------------
+
+Usage:
+	pci_save_state(dev, buffer);
+
+Description:
+	Save first 64 bytes of PCI config space. Buffer must be allocated by caller.
+
+
+pci_restore_state
+-----------------
+
+Usage:
+	pci_restore_state(dev,buffer);
+
+Description:
+	Restore previously saved config space. (First 64 bytes only);
+
+	If buffer is NULL, then restore what information we know about the device
+	from bootup: BARs and interrupt line.
+
+
+pci_set_power_state
+-------------------
+
+Usage:
+	pci_set_power_state(dev,state);
+
+Description:
+	Transition device to low power state using PCI PM Capabilities registers.
+
+	Will fail under one of the following conditions:
+	- If state is less than current state, but not D0 (illegal transition)
+	- Device doesn't support PM Capabilities
+	- Device does not support requested state
+
+
+pci_enable_wake
+---------------
+
+Usage:
+	pci_enable_wake(dev,state,enable);
+
+Description:
+	Enable device to generate PME# during low power state using PCI PM 
+	Capabilities.
+
+	Checks whether if device supports generating PME# from requested state and fail
+	if it does not, unless enable == 0 (request is to disable wake events, which
+	is implicit if it doesn't even support it in the first place).
+
+	Note that the PMC Register in the device's PM Capabilties has a bitmask of
+	the states it supports generating PME# from. D3hot is bit 3 and D3cold is bit
+	4. So, while a value of 4 as the state may not seem semantically correct, it
+	is. 
+
+
+4. PCI Device Drivers
+~~~~~~~~~~~~~~~~~~~~~
+
+These functions are intended for use by individual drivers, and are defined in 
+struct pci_driver:
+
+        int  (*save_state) (struct pci_dev *dev, u32 state);
+        int  (*suspend)(struct pci_dev *dev, u32 state);
+        int  (*resume) (struct pci_dev *dev);
+        int  (*enable_wake) (struct pci_dev *dev, u32 state, int enable);
+
+
+save_state
+----------
+
+Usage:
+
+if (dev->driver && dev->driver->save_state)
+	dev->driver->save_state(dev,state);
+
+The driver should use this callback to save device state. It should take into 
+account the current state of the device and the requested state in order to avoid
+any unnecessary operations.
+
+For example, a video card that supports all 4 states (D0-D3), all controller context
+is preserved when entering D1, but the screen is placed into a low power state
+(blanked). 
+
+The driver can also interpret this function as a notification that it may be entering
+a sleep state in the near future. If it knows that the device cannot enter the 
+requested state, either because of lack of support for it, or because the devices is 
+middle of some critical operation, then it should fail.
+
+This function should not be used to set any state in the device or the driver because
+the device may not actually enter the sleep state (e.g. another driver later causes
+causes a global state transition to fail).
+
+Note that in intermediate low power states, a device's I/O and memory spaces may be
+disabled and may not be available in subsequent transitions to lower power states.
+
+
+suspend
+-------
+
+Usage:
+
+if (dev->driver && dev->driver->suspend)
+	dev->driver->suspend(dev,state);
+
+A driver uses this function to actually transition the device into a low power 
+state. This may include disabling I/O, memory and bus-mastering, as well as physically
+transitioning the device to a lower power state.
+
+Bus mastering may be disabled by doing:
+
+pci_disable_device(dev);
+
+For devices that support the PCI PM Spec, this may be used to set the device's power 
+state:
+
+pci_set_power_state(dev,state);
+
+The driver is also responsible for disabling any other device-specific features
+(e.g blanking screen, turning off on-card memory, etc).
+
+The driver should be sure to track the current state of the device, as it may obviate
+the need for some operations.
+
+The driver should update the current_state field in its pci_dev structure in this 
+function.
+
+resume
+------
+
+Usage:
+
+if (dev->driver && dev->driver->suspend)
+	dev->driver->resume(dev)
+
+The resume callback may be called from any power state, and is always meant to 
+transition the device to the D0 state. 
+
+The driver is responsible for reenabling any features of the device that had 
+been disabled during previous suspend calls and restoring all state that was saved
+in previous save_state calls.
+
+If the device is currently in D3, it must be completely reinitialized, as it must be
+assumed that the device has lost all of its context (even that of its PCI config 
+space). For almost all current drivers, this means that the initialization code that
+the driver does at boot must be separated out and called again from the resume
+callback. Note that some values for the device may not have to be probed for this
+time around if they are saved before entering the low power state.
+
+If the device supports the PCI PM Spec, it can use this to physically transition the
+device to D0:
+
+pci_set_power_state(dev,0);
+
+Note that if the entire system is transitioning out of a global sleep state, all 
+devices will be placed in the D0 state, so this is not necessary. However, in the
+event that the device is placed in the D3 state during normal operation, this call
+is necessary. It is impossible to determine which of the two events is taking place
+in the driver, so it is always a good idea to make that call.
+
+The driver should take note of the state that it is resuming from in order to ensure
+correct (and speedy) operation.
+
+The driver should update the current_state field in its pci_dev structure in this 
+function.
+
+
+enable_wake
+-----------
+
+Usage:
+
+if (dev->driver && dev->driver->enable_wake)
+	dev->driver->enable_wake(dev,state,enable);
+
+This callback is generally only relevant for devices that support the PCI PM
+spec and have the ability to generate a PME# (Power Management Event Signal)
+to wake the system up. (However, it is possible that a device may support 
+some non-standard way of generating a wake event on sleep.)
+
+Bits 15:11 of the PMC (Power Mgmt Capabilities) Register in a device's
+PM Capabilties describe what power states the device supports generating a 
+wake event from:
+
++------------------+
+|  Bit  |  State   |
++------------------+
+|  15   |   D0     |
+|  14   |   D1     |
+|  13   |   D2     |
+|  12   |   D3hot  |
+|  11   |   D3cold |
++------------------+
+
+A device can use this to enable wake events:
+
+	 pci_enable_wake(dev,state,enable);
+
+Note that to enable PME# from D3cold, a value of 4 should be passed to 
+pci_enable_wake (since it uses an index into a bitmask). If a driver gets
+a request to enable wake events from D3, two calls should be made to 
+pci_enable_wake (one for both D3hot and D3cold).
+
+
+5. Resources
+~~~~~~~~~~~~
+
+PCI Local Bus Specification 
+PCI Bus Power Management Interface Specification
+
+  http://pcisig.org
 
 

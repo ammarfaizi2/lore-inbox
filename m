@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135240AbRDZJTW>; Thu, 26 Apr 2001 05:19:22 -0400
+	id <S135243AbRDZJ3c>; Thu, 26 Apr 2001 05:29:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135242AbRDZJTC>; Thu, 26 Apr 2001 05:19:02 -0400
-Received: from pipt.oz.cc.utah.edu ([155.99.2.7]:60590 "EHLO
-	pipt.oz.cc.utah.edu") by vger.kernel.org with ESMTP
-	id <S135239AbRDZJSt>; Thu, 26 Apr 2001 05:18:49 -0400
-Date: Thu, 26 Apr 2001 03:18:41 -0600 (MDT)
-From: james rich <james.rich@m.cc.utah.edu>
-To: "Andrew B. Cramer" <andrew.cramer@cramer-ts.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: routing & ipchains
-In-Reply-To: <3AE6208C.8379.146C84FE@localhost>
-Message-ID: <Pine.GSO.4.05.10104260312270.4069-100000@pipt.oz.cc.utah.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135249AbRDZJ3X>; Thu, 26 Apr 2001 05:29:23 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21772 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S135242AbRDZJ3G>; Thu, 26 Apr 2001 05:29:06 -0400
+Date: Thu, 26 Apr 2001 11:28:46 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Chris Mason <mason@suse.com>
+Cc: viro@math.psu.edu, kernel list <linux-kernel@vger.kernel.org>,
+        jack@atrey.karlin.mff.cuni.cz, torvalds@transmeta.com
+Subject: Re: [patch] linux likes to kill bad inodes
+Message-ID: <20010426112846.A2497@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010425220120.A1540@bug.ucw.cz> <466810000.988230486@tiny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <466810000.988230486@tiny>; from mason@suse.com on Wed, Apr 25, 2001 at 04:28:06PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Apr 2001, Andrew B. Cramer wrote:
+Hi!
 
-> Greetings All,
+> >> > Hi!
+> >> > 
+> >> > I had a temporary disk failure (played with acpi too much). What
+> >> > happened was that disk was not able to do anything for five minutes
+> >> > or so. When disk recovered, linux happily overwrote all inodes it
+> >> > could not read while disk was down with zeros -> massive disk
+> >> > corruption.
+> >> > 
+> >> > Solution is not to write bad inodes back to disk.
+> >> > 
+> >> 
+> >> Wouldn't we rather make it so bad inodes don't get marked dirty at all?
+> > 
+> > I guess this is cheaper: we can mark inode dirty at 1000 points, but
+> > you only write it at one point.
+> 
+> Whoops, I worded that poorly.  To me, it seems like a bug to dirty a bad
+> inode.  If this patch works, it is because somewhere, somebody did
+> something with a bad inode, and thought the operation worked (otherwise,
+> why dirty it?).  
 
-Hey Andy - haven't heard from you since work on a replacement linuxHQ (ahh
-- those were the days, lot's of free time :) )
+Would it make sense to put the check into write_inode_ with BUG() and
+return, then?
 
-> 	After upgrading from kernel 2.0.38 w/ slackware-3.4 to
-> kernel 2.2.16 w/ slackware-7.1 I have developed the following
-> routing problems.
+> So yes, even if we dirty them in a 1000 different places, we need to find
+> the one place that believes it can do something worthwhile to a bad
+> inode.
 
-When upgrading slackware (not a complete reinstall) it doesn't replace you
-rc scripts in /etc/rc.d.  2.2.x has a /proc entry to enable forwarding.
-You need to echo 1 > /proc/sys/net/ipv4/ip_forward to enable forwarding.
-Newer slackware does this in /etc/rc.d/rc.inet2.
+Could not it be something as simple as atime update?
 
-I'm not sure this is your problem.  If you installed slackware new without
-upgrading this probably isn't the answer.
-
-James Rich
-james.rich@m.cc.utah.edu
-
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

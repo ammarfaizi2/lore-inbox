@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSKHW45>; Fri, 8 Nov 2002 17:56:57 -0500
+	id <S263491AbSKHXJm>; Fri, 8 Nov 2002 18:09:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262810AbSKHW45>; Fri, 8 Nov 2002 17:56:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:9866 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262796AbSKHW45>;
-	Fri, 8 Nov 2002 17:56:57 -0500
-From: Krishna Kumar <krkumar@us.ibm.com>
-Message-Id: <200211082302.gA8N2Fv16472@eng2.beaverton.ibm.com>
-Subject: [PATCH] memory leak in ndisc_router_discovery
-To: kuznet@ms2.inr.ac.ru, davem@redhat.com
-Date: Fri, 8 Nov 2002 15:02:15 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263517AbSKHXJm>; Fri, 8 Nov 2002 18:09:42 -0500
+Received: from u195-95-94-30.goplanet.pi.be ([195.95.94.30]:62724 "EHLO
+	jebril.pi.be") by vger.kernel.org with ESMTP id <S263491AbSKHXJm>;
+	Fri, 8 Nov 2002 18:09:42 -0500
+Message-Id: <200211082316.gA8NGGEP007418@jebril.pi.be>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.46 scsi (aic7xxx?) reboot failure & kernel panic
+Date: Sat, 09 Nov 2002 00:16:16 +0100
+From: "Michel Eyckmans (MCE)" <mce@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexey & Dave,
 
-There is a bug in router advertisement handling code, where the reference
-(and memory) to the inet6_dev pointer can get leaked. Following is the patch
-to fix it (patch against 2.5.46) :
+Since a couple of releases ago my box fails to reboot, spitting out 
+scsi related errors and a kernel panic instead. At first I tought 
+this to be the double driver registration issue, but since the 
+latest kernel still has this problem...
 
-thanks,
+This is 2.5.46 smp on a box with 2 scsi drivers like so:
 
-- KK
+ CONFIG_SCSI=y
+ CONFIG_BLK_DEV_SD=y
+ CONFIG_SCSI_AHA152X=y
+ CONFIG_SCSI_AIC7XXX=y
+ CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
+ CONFIG_AIC7XXX_RESET_DELAY_MS=5000
 
-diff -ruN linux.org/net/ipv6/ndisc.c linux/net/ipv6/ndisc.c
---- linux.org/net/ipv6/ndisc.c	Fri Nov  7 10:02:11 2002
-+++ linux/net/ipv6/ndisc.c	Fri Nov  8 14:37:27 2002
-@@ -871,6 +871,7 @@
- 	}
- 
- 	if (!ndisc_parse_options(opt, optlen, &ndopts)) {
-+		in6_dev_put(in6_dev);
- 		if (net_ratelimit())
- 			ND_PRINTK2(KERN_WARNING
- 				   "ICMP6 RA: invalid ND option, ignored.\n");
+The messages look like this (scsi0 is the aic7xxx):
+
+ Rebooting.
+ <a pause of several seconds here>
+ scsi0: Dumping Card State in Data-out phase, at SEQADDR 0x0
+ ACCUM = 0x0, SINDEX = 0x0, DINDEX = 0x0, ARG_2 = 0x0
+ HCNT = 0x0
+ SCSISEQ = 0x0, SBLKCTL = 0xc0
+  DFCNTRL = 0x0, DFSTATUS = 0x29
+ LASTPHASE = 0x0, SCSISIGI = 0x0, SXFRCTL0 = 0x0
+ SSTAT0 = 0x0, SSTAT1= 0x8
+ STACK == 0x0, 0x0, 0x0, 0x0
+ SCB count = 4
+ Kernel NEXTQSCB = 2
+ Card NEXTQSCB = 0
+ QINFIFO entries: 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 ... <a lot more of these >
+ Waiting Queue entries: 0:255 1:255 2:255
+ Disconnected Queue entries: 0:255 1:255 2:255
+ QOUTFIFO entries:
+ Sequencer Free SCB List: 0 1 2
+ Pending list: 3
+ Kernel Free SCB list: 1 0
+ Untagged Q(0): 3
+ DevQ(0:0:0): 0 waiting
+ qinpos = 1, SCB index = 2
+ Kernel panic: Loop 1

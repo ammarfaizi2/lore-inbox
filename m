@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262432AbTDBHor>; Wed, 2 Apr 2003 02:44:47 -0500
+	id <S262578AbTDBHq3>; Wed, 2 Apr 2003 02:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262554AbTDBHor>; Wed, 2 Apr 2003 02:44:47 -0500
-Received: from sj-core-2.cisco.com ([171.71.177.254]:48635 "EHLO
-	sj-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S262432AbTDBHoq>; Wed, 2 Apr 2003 02:44:46 -0500
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "Christoph Rohland" <cr@sap.com>, "Daniel Egger" <degger@fhm.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-Date: Tue, 1 Apr 2003 23:55:26 -0800
-Message-ID: <CDEDIMAGFBEBKHDJPCLDCECBDGAA.hzhong@cisco.com>
+	id <S262587AbTDBHq3>; Wed, 2 Apr 2003 02:46:29 -0500
+Received: from Mail1.KONTENT.De ([81.88.34.36]:62682 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id <S262578AbTDBHq2>;
+	Wed, 2 Apr 2003 02:46:28 -0500
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: linux-kernel@vger.kernel.org
+Subject: 'rmmod ipip' kills box
+Date: Wed, 2 Apr 2003 09:57:50 +0200
+User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <ovfzp1l6cc.fsf@sap.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Content-Disposition: inline
+Message-Id: <200304020957.50704.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is at least one case that ramfs works but tmpfs doesn't.
+Hi,
 
-If you have a loopback file A, and the following will fail in 2.4:
+kernel 2.4.18 UP, compiled for 4GB highmem but not used, K6 CPU
+insmod version 2.4.12
+rmmod ipip killed the box dead. No further info, somebody had to press
+the reset button. Down time on this box is awkward.
 
-mount -t tmpfs tmpfs /mnt/tmp
-extract file A to /mnt/tmp/A
-mount -t ext2 -o loop /mnt/tmp /mnt/loopback
-
-You'll get "ioctl: LOOP_SET_FD: Invalid argument".
-
-But ramfs works great.
-
-Is this a bug or feature?
-
-> Uuh, now you are beating me with my old statements ;-)
->
-> tmpfs has the drawback that the in memory data structures are bigger
-> than ramfs'. But the core of tmpfs is always compiled in for anonymous
-> shared memory. And it has size limits. So you are probably right, that
-> tmpfs is the right choice.
->
-> But you are arguing at a corner case. tmpfs is IMHO more often used on
-> machines with swap and (at least for me) the use of swap as store for
-> temporary data is the big point to use tmpfs. So the percentile should
-> take swap into account.
->
-> Greetings
-> 		Christoph
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	Regards
+		Oliver
 

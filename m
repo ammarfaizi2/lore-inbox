@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290491AbSA3TKg>; Wed, 30 Jan 2002 14:10:36 -0500
+	id <S288086AbSA3TSQ>; Wed, 30 Jan 2002 14:18:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290488AbSA3TK2>; Wed, 30 Jan 2002 14:10:28 -0500
-Received: from smtp.acn.pl ([212.76.33.52]:42505 "EHLO mail.astercity.net")
-	by vger.kernel.org with ESMTP id <S290470AbSA3TKO>;
-	Wed, 30 Jan 2002 14:10:14 -0500
-Message-ID: <3C584532.3B64FBC@astercity.net>
-Date: Wed, 30 Jan 2002 20:10:42 +0100
-From: Marek Kassur <cmarco@astercity.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i586)
-X-Accept-Language: pl, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: fonts corruption with 3dfx drm module
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+	id <S287939AbSA3TSG>; Wed, 30 Jan 2002 14:18:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:20743 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S284902AbSA3TR7>;
+	Wed, 30 Jan 2002 14:17:59 -0500
+Date: Wed, 30 Jan 2002 20:17:57 +0100
+From: Dave Jones <davej@suse.de>
+To: =?iso-8859-1?Q?Sebastian_Dr=F6ge?= <sebastian.droege@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Oleg Drokin <green@namesys.com>
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+Message-ID: <20020130201757.Q24012@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	=?iso-8859-1?Q?Sebastian_Dr=F6ge?= <sebastian.droege@gmx.de>,
+	linux-kernel@vger.kernel.org, Oleg Drokin <green@namesys.com>
+In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de> <20020130201054.6e150f78.sebastian.droege@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020130201054.6e150f78.sebastian.droege@gmx.de>; from sebastian.droege@gmx.de on Wed, Jan 30, 2002 at 08:10:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo ask me to post to kernel list directly, so here it is.
+On Wed, Jan 30, 2002 at 08:10:54PM +0100, Sebastian Dröge wrote:
 
-I have Voodoo 3 3000 PCI on dual pentium 200MHz (MMX) so no MTRR here
-and I see occasionally font corruption with every Xfree 4.x (excluding
-4.2, because don't have it yet). I use only text console. Typically one
-or sometimes more characters are corrupted and look like upper/lower
-fragment is eaten. Always switch to X and back correct it.
+ > I have 3 partitions. Two reiserfs partitions, one mounted on /, one on /home
 
-Best regards,
-Marek Kassur.
+ Ok, my test box for reiserfs uses ext3 root, and reiser on a scratch disk.
+ It could be Oleg's earlier guess that it may be reiser-on-root related.
 
-PS. Please CC me as I'm not subscribed.
+ > It happens with the IDE layer version as in the dj tree and with
+ > acb-io-2.5.3-p2.01212002 update (why haven't you included this in your tree,
+ > Dave?)
 
+ I never saw Andre pushing it on Linux-kernel (which is unusual for Andre 8)
+ If it didn't reach my inbox, it didn't happen in my world.
+ Its possible I overlooked the thread it was mentioned, or it got
+ lost in noise.
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

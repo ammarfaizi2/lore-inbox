@@ -1,276 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136254AbREGQIG>; Mon, 7 May 2001 12:08:06 -0400
+	id <S136247AbREGQNg>; Mon, 7 May 2001 12:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136253AbREGQH5>; Mon, 7 May 2001 12:07:57 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:8197 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S136247AbREGQHt>; Mon, 7 May 2001 12:07:49 -0400
-Date: Mon, 7 May 2001 20:02:07 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Richard Henderson <rth@twiddle.net>
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: [patch] alpha rw semaphores (try #2)
-Message-ID: <20010507200207.A1634@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S136253AbREGQN1>; Mon, 7 May 2001 12:13:27 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:13184 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S136247AbREGQNQ>; Mon, 7 May 2001 12:13:16 -0400
+Date: Mon, 7 May 2001 12:12:57 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: alexander.eichhorn@rz.tu-ilmenau.de, linux-kernel@vger.kernel.org
+Subject: Re: [Question] Explanation of zero-copy networking
+In-Reply-To: <E14wlUi-0003WQ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- 'count' is 64-bit now;
-- __builtin_expect used;
-- fast non-atomic UP version;
-- some silly bits from previous patch dropped.
+On Mon, 7 May 2001, Alan Cox wrote:
 
-Ivan.
+> > documented so far) detailed description of the newly 
+> > implemented zero-copy mechanisms in the network-stack. 
+> > We are interested in how to use it (changed network-API?) 
+> > and also in the internal architecture. 
+> 
+> It is built around sendfile. Trying to do zero copy on pages with user space
+> mappings get so horribly non pretty it is better to build the API from the
+> physical side of things.
+> 
+> > Our second question: Are there any plans for contructing 
+> > a general copy-avoidance infrastructure (smth. like UVM in 
+> > NetBSD does) and new IPC-mechanisms on top of it yet??
+> 
+> Andrea Arcangeli has O_DIRECT file I/O for the ext2 file system. There are also
+> several patches for kiovec based single copy pipes have been posted too.
+> 
+> 
+
+The Networking RFCs talk about "not copying data" as they
+attempt to give pointers on improving network speed.
+
+However, PCI to memory copying runs at about 300 megabytes per
+second on modern PCs and memory to memory copying runs at over 1,000
+megabytes per second. In the future, these speeds will increase.
+
+I don't advise retrofitting network code to improve the speed of
+older machines. Instead, time should be spent to improve the
+robustness and capability of the networking speed and accommodating
+the new breeds of GHz network boards.
+
+In case anybody is interested, Networking remains a serial communications
+element. As such, it functions as a low-pass filter. The speed of
+a serial communications link is set primarily by the dominant pole
+of the links transfer function, which in the frequency domain, is
+information_rate * 2. With 100 megabits/second link we have
+200 MHz as the dominent pole. The 2 comes from Shannon, it takes
+2 carrier events to determine if anything has changed (to transfer
+information).  Therefore, if we can detect changes 100 million times
+per second, the information carrier must have been at least 200 MHz.
+This is the dominent pole.
+
+With a 300 Megabyte / second transfer via PCI, the information carrier
+must have been 300 * 8 * 2 = 4,800 MHz. This is 4,800/200 = 24 times
+the frequency of the dominent pole of the network transfer function.
+This is so far removed from the dominent pole of the system's transfer
+function that even doubling the PCI speed (66 MHz v.s. 33 MHz) will
+have no measurable affect upon networking speed. With existing kernels,
+you can perform network speed tests using "lo", removing the network
+board from the speed test. You will note that the network speed, due
+to software, is over 10 times faster, 30 times on some machines) than
+when the hardware I/O is used. This shows that the network code, alone,
+cannot be improved very much to provide an improvement in throughput.
+
+However, a new breed of GHz boards are now available. These boards
+have a dominent pole of 1000 * 2 = 2000 MHz. This is rougly one-
+half of the PCI bandwidth, and roughly the same as a 66 MHz bus.
+
+This is where some work needs to be done.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
---- 2.4.5p1/lib/rwsem.c	Sat Apr 28 00:58:28 2001
-+++ linux/lib/rwsem.c	Mon May  7 16:10:54 2001
-@@ -112,7 +112,7 @@ static inline struct rw_semaphore *__rws
-  */
- static inline struct rw_semaphore *rwsem_down_failed_common(struct rw_semaphore *sem,
- 								 struct rwsem_waiter *waiter,
--								 __s32 adjustment)
-+								 signed long adjustment)
- {
- 	struct task_struct *tsk = current;
- 	signed long count;
---- 2.4.5p1/include/asm-alpha/rwsem.h	Sun Feb  7 06:28:16 2106
-+++ linux/include/asm-alpha/rwsem.h	Mon May  7 16:07:29 2001
-@@ -0,0 +1,207 @@
-+#ifndef _ALPHA_RWSEM_H
-+#define _ALPHA_RWSEM_H
-+
-+/*
-+ * Written by Ivan Kokshaysky <ink@jurassic.park.msu.ru>, 2001.
-+ * Based on asm-alpha/semaphore.h and asm-i386/rwsem.h
-+ */
-+
-+#ifndef _LINUX_RWSEM_H
-+#error please dont include asm/rwsem.h directly, use linux/rwsem.h instead
-+#endif
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+
-+struct rwsem_waiter;
-+
-+extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
-+extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
-+
-+/*
-+ * the semaphore definition
-+ */
-+struct rw_semaphore {
-+	long			count;
-+#define RWSEM_UNLOCKED_VALUE		0x0000000000000000L
-+#define RWSEM_ACTIVE_BIAS		0x0000000000000001L
-+#define RWSEM_ACTIVE_MASK		0x00000000ffffffffL
-+#define RWSEM_WAITING_BIAS		(-0x0000000100000000L)
-+#define RWSEM_ACTIVE_READ_BIAS		RWSEM_ACTIVE_BIAS
-+#define RWSEM_ACTIVE_WRITE_BIAS		(RWSEM_WAITING_BIAS + RWSEM_ACTIVE_BIAS)
-+	spinlock_t		wait_lock;
-+	struct list_head	wait_list;
-+#if RWSEM_DEBUG
-+	int			debug;
-+#endif
-+};
-+
-+#if RWSEM_DEBUG
-+#define __RWSEM_DEBUG_INIT      , 0
-+#else
-+#define __RWSEM_DEBUG_INIT	/* */
-+#endif
-+
-+#define __RWSEM_INITIALIZER(name) \
-+	{ RWSEM_UNLOCKED_VALUE, SPIN_LOCK_UNLOCKED, \
-+	LIST_HEAD_INIT((name).wait_list) __RWSEM_DEBUG_INIT }
-+
-+#define DECLARE_RWSEM(name) \
-+	struct rw_semaphore name = __RWSEM_INITIALIZER(name)
-+
-+static inline void init_rwsem(struct rw_semaphore *sem)
-+{
-+	sem->count = RWSEM_UNLOCKED_VALUE;
-+	spin_lock_init(&sem->wait_lock);
-+	INIT_LIST_HEAD(&sem->wait_list);
-+#if RWSEM_DEBUG
-+	sem->debug = 0;
-+#endif
-+}
-+
-+static inline void __down_read(struct rw_semaphore *sem)
-+{
-+	long oldcount;
-+#ifndef	CONFIG_SMP
-+	oldcount = sem->count;
-+	sem->count += RWSEM_ACTIVE_READ_BIAS;
-+#else
-+	long temp;
-+	__asm__ __volatile__(
-+	"1:	ldq_l	%0,%1\n"
-+	"	addq	%0,%3,%2\n"
-+	"	stq_c	%2,%1\n"
-+	"	beq	%2,2f\n"
-+	"	mb\n"
-+	".subsection 2\n"
-+	"2:	br	1b\n"
-+	".previous"
-+	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
-+	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
-+#endif
-+	if (__builtin_expect(oldcount < 0, 0))
-+		rwsem_down_read_failed(sem);
-+}
-+
-+static inline void __down_write(struct rw_semaphore *sem)
-+{
-+	long oldcount;
-+#ifndef	CONFIG_SMP
-+	oldcount = sem->count;
-+	sem->count += RWSEM_ACTIVE_WRITE_BIAS;
-+#else
-+	long temp;
-+	__asm__ __volatile__(
-+	"1:	ldq_l	%0,%1\n"
-+	"	addq	%0,%3,%2\n"
-+	"	stq_c	%2,%1\n"
-+	"	beq	%2,2f\n"
-+	"	mb\n"
-+	".subsection 2\n"
-+	"2:	br	1b\n"
-+	".previous"
-+	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
-+	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
-+#endif
-+	if (__builtin_expect(oldcount, 0))
-+		rwsem_down_write_failed(sem);
-+}
-+
-+static inline void __up_read(struct rw_semaphore *sem)
-+{
-+	long oldcount;
-+#ifndef	CONFIG_SMP
-+	oldcount = sem->count;
-+	sem->count -= RWSEM_ACTIVE_READ_BIAS;
-+#else
-+	long temp;
-+	__asm__ __volatile__(
-+	"	mb\n"
-+	"1:	ldq_l	%0,%1\n"
-+	"	subq	%0,%3,%2\n"
-+	"	stq_c	%2,%1\n"
-+	"	beq	%2,2f\n"
-+	".subsection 2\n"
-+	"2:	br	1b\n"
-+	".previous"
-+	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
-+	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
-+#endif
-+	if (__builtin_expect(oldcount < 0, 0)) 
-+		if ((int)oldcount - RWSEM_ACTIVE_READ_BIAS == 0)
-+			rwsem_wake(sem);
-+}
-+
-+static inline void __up_write(struct rw_semaphore *sem)
-+{
-+	long count;
-+#ifndef	CONFIG_SMP
-+	sem->count -= RWSEM_ACTIVE_WRITE_BIAS;
-+	count = sem->count;
-+#else
-+	long temp;
-+	__asm__ __volatile__(
-+	"	mb\n"
-+	"1:	ldq_l	%0,%1\n"
-+	"	subq	%0,%3,%2\n"
-+	"	stq_c	%2,%1\n"
-+	"	beq	%2,2f\n"
-+	"	subq	%0,%3,%0\n"
-+	".subsection 2\n"
-+	"2:	br	1b\n"
-+	".previous"
-+	:"=&r" (count), "=m" (sem->count), "=&r" (temp)
-+	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
-+#endif
-+	if (__builtin_expect(count, 0))
-+		if ((int)count == 0)
-+			rwsem_wake(sem);
-+}
-+
-+static inline void rwsem_atomic_add(long val, struct rw_semaphore *sem)
-+{
-+#ifndef	CONFIG_SMP
-+	sem->count += val;
-+#else
-+	long temp;
-+	__asm__ __volatile__(
-+	"1:	ldq_l	%0,%1\n"
-+	"	addq	%0,%2,%0\n"
-+	"	stq_c	%0,%1\n"
-+	"	beq	%0,2f\n"
-+	".subsection 2\n"
-+	"2:	br	1b\n"
-+	".previous"
-+	:"=&r" (temp), "=m" (sem->count)
-+	:"Ir" (val), "m" (sem->count));
-+#endif
-+}
-+
-+static inline long rwsem_atomic_update(long val, struct rw_semaphore *sem)
-+{
-+#ifndef	CONFIG_SMP
-+	sem->count += val;
-+	return sem->count;
-+#else
-+	long ret, temp;
-+	__asm__ __volatile__(
-+	"1:	ldq_l	%0,%1\n"
-+	"	addq 	%0,%3,%2\n"
-+	"	addq	%0,%3,%0\n"
-+	"	stq_c	%2,%1\n"
-+	"	beq	%2,2f\n"
-+	".subsection 2\n"
-+	"2:	br	1b\n"
-+	".previous"
-+	:"=&r" (ret), "=m" (sem->count), "=&r" (temp)
-+	:"Ir" (val), "m" (sem->count));
-+
-+	return ret;
-+#endif
-+}
-+
-+#endif /* __KERNEL__ */
-+#endif /* _ALPHA_RWSEM_H */
---- 2.4.5p1/arch/alpha/kernel/alpha_ksyms.c	Sat Apr 21 05:26:15 2001
-+++ linux/arch/alpha/kernel/alpha_ksyms.c	Mon May  7 15:06:06 2001
-@@ -173,10 +173,6 @@ EXPORT_SYMBOL(down);
- EXPORT_SYMBOL(down_interruptible);
- EXPORT_SYMBOL(down_trylock);
- EXPORT_SYMBOL(up);
--EXPORT_SYMBOL(down_read);
--EXPORT_SYMBOL(down_write);
--EXPORT_SYMBOL(up_read);
--EXPORT_SYMBOL(up_write);
- 
- /* 
-  * SMP-specific symbols.
---- 2.4.5p1/arch/alpha/config.in	Wed Apr 18 04:19:24 2001
-+++ linux/arch/alpha/config.in	Mon May  7 15:05:07 2001
-@@ -5,8 +5,8 @@
- 
- define_bool CONFIG_ALPHA y
- define_bool CONFIG_UID16 n
--define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
--define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
-+define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
-+define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
- 
- mainmenu_name "Kernel configuration of Linux for Alpha machines"
- 

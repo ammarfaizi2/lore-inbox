@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbTDEHge (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 02:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbTDEHge (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 02:36:34 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:30227 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S261924AbTDEHgd (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 02:36:33 -0500
-Date: Sat, 5 Apr 2003 09:48:03 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Stephen Cameron <steve.cameron@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to speed up building of modules?
-Message-ID: <20030405074803.GA1076@mars.ravnborg.org>
-Mail-Followup-To: Stephen Cameron <steve.cameron@hp.com>,
-	linux-kernel@vger.kernel.org
-References: <20030404085740.GA10052@zuul.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030404085740.GA10052@zuul.cca.cpqcorp.net>
-User-Agent: Mutt/1.4i
+	id S261927AbTDEHjp (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 02:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTDEHjp (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 02:39:45 -0500
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:61200 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261927AbTDEHjp (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 02:39:45 -0500
+Message-ID: <3E8E8AA4.3070302@yahoo.com>
+Date: Fri, 04 Apr 2003 23:49:56 -0800
+From: Lars <lhofhansl@yahoo.com>
+Organization: What? Organized??
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre7 and ac97_code.c compilation problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 02:57:40PM +0600, Stephen Cameron wrote:
-> Hi
-> 
-> I'm wondering if you guys know any tricks to speed up building
-> of linux kernel modules.
+It seems prepatch 2.4.21-pre7 changes ac97_codec.c without making
+matching changes in ac97_codec.h... Just a heads up.
 
-Have you looked at: LKMB (Linux Kernel Module Builder)
-Try google at bit after it. An URL has been posted here a couple of times.
+The changes to ac97_codec.c are isolated enough so that I could easily
+reverse that part of the patch to get it to work.
 
-There is also: DKMS: Dynamic Kernel Module Support
-Gary Lerhaupt from Dell has mede this and he would be glad for any feedback.
+I'm not subscribed to this list, please CC me on any responses.
 
-In general I advice you to use:
-$ make -C path/to/kernel/src SUBDIRS=$PWD modules
-when building modules. That's the _only_ way to make sure you have correct
-CFLAGS etc.
-This should work for 2. as weel as 2.5.
+Thanks.
 
-The Makefile than has to be kbuild conformant, as described in
-Documentation/kbuild/makefiles.txt
+-- Lars
 
-	Sam

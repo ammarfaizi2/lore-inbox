@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbTEMRfm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:35:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEMRfl
+	id S262430AbTEMRj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 13:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTEMRj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:35:41 -0400
-Received: from mrelay1.cc.umr.edu ([131.151.1.120]:18317 "EHLO smtp.umr.edu")
-	by vger.kernel.org with ESMTP id S262334AbTEMRfj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:35:39 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
-Date: Tue, 13 May 2003 12:48:22 -0500
-Message-ID: <B578DAA4FD40684793C953B491D4879174D3B6@umr-mail7.umr.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
-Thread-Index: AcMZdx5fXbxsi2BIR+id222V94K2hwAAFyRw
-From: "Neulinger, Nathan" <nneul@umr.edu>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "David Howells" <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, <openafs-devel@openafs.org>
+	Tue, 13 May 2003 13:39:29 -0400
+Received: from news.cistron.nl ([62.216.30.38]:42757 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262430AbTEMRj2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 13:39:28 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: 2.6 must-fix list, v2
+Date: Tue, 13 May 2003 17:52:14 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <b9rbce$p0u$1@news.cistron.nl>
+References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk> <shsy91aonlt.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1052848334 25630 62.216.29.200 (13 May 2003 17:52:14 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Also, using a separate PAG structure means that you can 
-> lend your keys to
-> > > an SUID program and conversely it means a SUID program 
-> can't so easily
-> > > gain access to keys it didn't inherit from its caller.
-> > 
-> > "task->user" always follows uid ("real uid"), and as such 
-> you can always
-> > switch back and forth by just changing uid.
-> 
-> So anyone who has the ability to get root on a box can 
-> immediately use other
-> peoples keys with su... OTOH, the ability to get root would 
-> normally permit
-> someone sufficiently motivated to get this anyway.
+In article <shsy91aonlt.fsf@charged.uio.no>,
+Trond Myklebust  <trond.myklebust@fys.uio.no> wrote:
+>[NFS]
+>any more?
 
-This isn't any good since it implies that a given uid can only have a
-single set of tokens. Users can freely authenticate to afs and get
-tokens for other afs ids at any time. As long as they are in different
-pags, they can freely coexist. Now, if you're talking about pag-less
-only, then the above is reasonable and expected. 
+NFSv3 O_EXCL support in the client ?
 
--- Nathan
+Mike.
+

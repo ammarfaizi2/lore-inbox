@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVAJTsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVAJTzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262512AbVAJTsG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 14:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVAJTrm
+	id S262522AbVAJTzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 14:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVAJTzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 14:47:42 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:3533 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262286AbVAJTcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 14:32:21 -0500
-Subject: Re: starting with 2.7
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Airlie <airlied@gmail.com>
-Cc: John Richard Moser <nigelenki@comcast.net>, znmeb@cesmail.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e99705010917281c6634b8@mail.gmail.com>
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-	 <41DD9968.7070004@comcast.net>
-	 <1105045853.17176.273.camel@localhost.localdomain>
-	 <1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net>
-	 <1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net>
-	 <1105278618.12054.37.camel@localhost.localdomain>
-	 <41E1CCB7.4030302@comcast.net>  <21d7e99705010917281c6634b8@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105361337.12054.66.camel@localhost.localdomain>
+	Mon, 10 Jan 2005 14:55:02 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:48293 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262522AbVAJTxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 14:53:19 -0500
+Subject: Re: [2.6 patch] remove SPF-using wbsd lists from MAINTAINERS
+From: Stephen Pollei <stephen_pollei@comcast.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, postmaster@list.drzeus.cx,
+       postmaster@stusta.mhn.de, spf discuss <spf-discuss@v2.listbox.com>
+In-Reply-To: <20050110184307.GB2903@stusta.de>
+References: <20050110184307.GB2903@stusta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-nw3HzEkannKaB6TqR03g"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Jan 2005 11:55:09 -0800
+Message-Id: <1105386915.980.10.camel@fury>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 10 Jan 2005 18:27:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-10 at 01:28, Dave Airlie wrote:
-> I do wonder would open source kernel drivers to work with a closed
-> source user space application be accepted into the mainline kernel...
-> say for example Nvidia or VMware GPL'ed their lower layer kernel
 
-It isnt about whether they are "accepted" but whether they are
-derivative works. The license is quite clear on this with the specific
-clarification included for the syscall interface. For the most part the
-interfaces people need are pretty generic so the problems don't arise.
+--=-nw3HzEkannKaB6TqR03g
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-We've seen that with the proposed 1Gb DMA area on x86-64 - Nvidia wanted
-a 4Gb one to fix their hardware needs and various other drivers want a
-1Gb DMA area. That happens to also sort Nvidia's problems.
+On Mon, 2005-01-10 at 10:43, Adrian Bunk wrote:
 
->From DRI experience I'd say that a mostly user space nvidia driver would
-probably be almost as problematic as a binary kernel module. It would
-make reverse engineering a lot easier though 8)
+Perhaps a better approach might be to try and resolve why your emails
+got rejected. Are there invalid spf records involved? Is something at
+list.drzeus.cx misconfigured ?
+
+> <wbsd-devel@list.drzeus.cx>:
+> Connected to 213.115.189.212 but sender was rejected.
+> Remote host said: 417 SPF error mailout.stusta.mhn.de: Address does not=20
+> pass the
+> +Sender Policy Framework
+> I'm not going to try again; this message has been in the queue too long.
+>=20
+> <drzeus-wbsd@drzeus.cx>:
+> Connected to 213.115.189.212 but sender was rejected.
+> Remote host said: 417 SPF error mailout.stusta.mhn.de: Address does not=20
+> pass the
+> +Sender Policy Framework
+> I'm not going to try again; this message has been in the queue too long.
+>=20
+> <--  snip  -->
+>=20
+>=20
+>=20
+> IMHO lists rejecting emails based on some non-standard extension don't=20
+> belong into MAINTAINERS.
+>=20
+>=20
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>=20
+> --- linux-2.6.10-mm2-full/MAINTAINERS.old	2005-01-10 19:20:32.000000000 +=
+0100
+> +++ linux-2.6.10-mm2-full/MAINTAINERS	2005-01-10 19:26:24.000000000 +0100
+> @@ -2539,8 +2539,6 @@
+> =20
+>  W83L51xD SD/MMC CARD INTERFACE DRIVER
+>  P:	Pierre Ossman
+> -M:	drzeus-wbsd@drzeus.cx
+> -L:	wbsd-devel@list.drzeus.cx
+>  W:	http://projects.drzeus.cx/wbsd
+>  S:	Maintained
+
+
+--=20
+http://dmoz.org/profiles/pollei.html
+http://sourceforge.net/users/stephen_pollei/
+http://www.orkut.com/Profile.aspx?uid=3D2455954990164098214
+http://stephen_pollei.home.comcast.net/
+GPG Key fingerprint =3D EF6F 1486 EC27 B5E7 E6E1  3C01 910F 6BB5 4A7D 9677
+
+--=-nw3HzEkannKaB6TqR03g
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQBB4t2ckQ9rtUp9lncRArgNAJ9f0ZO0Lm1ks4ciQSDK2bo0H8FOKwCfeF4f
+u5daZTZVfkvvtlzW9Bp8b0I=
+=ymAh
+-----END PGP SIGNATURE-----
+
+--=-nw3HzEkannKaB6TqR03g--
 

@@ -1,240 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282348AbRK2Djz>; Wed, 28 Nov 2001 22:39:55 -0500
+	id <S282343AbRK2DoP>; Wed, 28 Nov 2001 22:44:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282343AbRK2Djs>; Wed, 28 Nov 2001 22:39:48 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:17169 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282348AbRK2Dji>; Wed, 28 Nov 2001 22:39:38 -0500
-Message-ID: <3C05ADC8.23503BFC@zip.com.au>
-Date: Wed, 28 Nov 2001 19:38:48 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S282353AbRK2DoF>; Wed, 28 Nov 2001 22:44:05 -0500
+Received: from mail.iis.com.br ([200.202.96.2]:4266 "EHLO home.iis.com.br")
+	by vger.kernel.org with ESMTP id <S282350AbRK2Dn4>;
+	Wed, 28 Nov 2001 22:43:56 -0500
+Message-ID: <3C05AEAF.2050402@iis.com.br>
+Date: Thu, 29 Nov 2001 01:42:39 -0200
+From: Osvaldo Marques Junior <dis@iis.com.br>
+Organization: dis
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.16 i686; en-US; rv:0.9.1) Gecko/20010622
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "Stephen C. Tweedie" <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] remove buffer_head.b_inode
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Ide /dev/hda turned off during intensive write on /dev/hdc using kernel 2.4.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: Antivirus for sendmail by Petr Rehor
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's only ever used as a boolean, so we can use the list_emptiness
-of buffer_head.b_inode_buffers for the same thing.
+Gentlemen,
 
-This code does assume that a list_del on an empty list_head
-is safe - I think Red Hat kernels have a list_head poisoning
-trick which will explode over this.  Easily fixed, if desired.
+I,m using 2.4 kernels since 2.4.0. Very often, in a system with more
+than one hard disk, the first drive shuts off while the kernel is still
+running.
+In a configuration where I had a Seagate ST320413A (20GB) as /dev/hda
+and an ancient scsi seagate ST52160N (2GB) as the second drive
+(/dev/sda), just for data backup, running on an AMD500 64MB, my 
+suspicion went to the drive and I started to work with the PC without 
+case. When the drive stoped, I would unplug the power conector from it, 
+plug it again and the system would recover without any problem. When I 
+bought a new drive, I got a 40GB and then I didn't need the scsi, so the 
+problem was apparently solved.
+
+Now, I am configuring a Pentium III (Coppermine) 1GHz with 512MB memory
+and I return to use 2 disks, now both IDE, one QUANTUM FIREBALLct20
+(20GB) as /dev/hda and the same Seagate ST320413A (20GB) removed from
+the other machine.
+I have to say this two disks are "my laptop" since I carry them in my
+suitcase for use at home, bring them to the office and to my customers
+any time I need to do a local assistance.
+I started suspecting of the Pentium III when doing an "rsync copy" from
+the other machine ("the prime suspect"). It was a copy of a 3GB
+partition for backup purposes to the /dev/hdcx, throw a 10Mb coaxial 
+lan. One of each 3 copies put the /dev/hda off. I could hear the noise 
+of the heads being moved to the safe position. The "rsync" continued to 
+the end, but I had no way to do any command, even halt, shutdown or
+Ctrl/Alt/Del. All the commands got "command not found". I ran like a
+crazy behind the Ext3 patches, because after a power down, it means 40GB
+of fsck.
+My suspicion were to the machine, because I have forgotten the first
+problem here reported and with this same disks, my "home pc", an AMD 500
+with 128MB ran smoothly. Until last week end! This week end I altered
+the configuration of my home pc, which I used to put this disks as
+/dev/hda and /dev/hdb to the same assembly of the office, /dev/hda and
+/dev/hdc. When I started to compile the 2.4.16-pre1, with the sources on
+the /dev/hdc, the problem happened at home.
+On monday, I changed the PIII by another with the same configuration and
+the problem still happens.
+Today I got 3 occurencies, simply copying the root partition to a
+partition in the second disk using a couple of piped cpio's.
+The difference between the first configuration, where I suspect from the
+drive and the last is: I can't recover from the problem, unplugging the
+drive and plugging it again.
+
+Please, excuse my syntax mistakes, the lack of more specific info and 
+guide me to collect more data to solve this problem.
+
+Many thanks in advance,
+
+Osvaldo.
 
 
-
---- linux-2.5.1-pre3/fs/buffer.c	Wed Nov 28 15:54:42 2001
-+++ 25/fs/buffer.c	Wed Nov 28 19:26:19 2001
-@@ -574,38 +574,32 @@ struct buffer_head * get_hash_table(kdev
- 	return bh;
- }
- 
--void buffer_insert_inode_queue(struct buffer_head *bh, struct inode *inode)
-+static inline void
-+__buffer_insert_inode_queue(struct buffer_head *bh, struct inode *inode)
- {
--	spin_lock(&lru_list_lock);
--	if (bh->b_inode)
--		list_del(&bh->b_inode_buffers);
--	bh->b_inode = inode;
-+	list_del(&bh->b_inode_buffers);
- 	list_add(&bh->b_inode_buffers, &inode->i_dirty_buffers);
--	spin_unlock(&lru_list_lock);
- }
- 
--void buffer_insert_inode_data_queue(struct buffer_head *bh, struct inode *inode)
-+void buffer_insert_inode_queue(struct buffer_head *bh, struct inode *inode)
- {
- 	spin_lock(&lru_list_lock);
--	if (bh->b_inode)
--		list_del(&bh->b_inode_buffers);
--	bh->b_inode = inode;
--	list_add(&bh->b_inode_buffers, &inode->i_dirty_data_buffers);
-+	__buffer_insert_inode_queue(bh, inode);
- 	spin_unlock(&lru_list_lock);
- }
- 
--/* The caller must have the lru_list lock before calling the 
--   remove_inode_queue functions.  */
--static void __remove_inode_queue(struct buffer_head *bh)
-+void buffer_insert_inode_data_queue(struct buffer_head *bh, struct inode *inode)
- {
--	bh->b_inode = NULL;
-+	spin_lock(&lru_list_lock);
- 	list_del(&bh->b_inode_buffers);
-+	list_add(&bh->b_inode_buffers, &inode->i_dirty_data_buffers);
-+	spin_unlock(&lru_list_lock);
- }
- 
--static inline void remove_inode_queue(struct buffer_head *bh)
-+/* lru_list_lock must be held */
-+static inline void __remove_inode_queue(struct buffer_head *bh)
- {
--	if (bh->b_inode)
--		__remove_inode_queue(bh);
-+	list_del_init(&bh->b_inode_buffers);
- }
- 
- int inode_has_buffers(struct inode *inode)
-@@ -690,7 +684,7 @@ void invalidate_bdev(struct block_device
- 				printk("invalidate: dirty buffer\n");
- 			if (!atomic_read(&bh->b_count)) {
- 				if (destroy_dirty_buffers || !buffer_dirty(bh)) {
--					remove_inode_queue(bh);
-+					__remove_inode_queue(bh);
- 				}
- 			} else
- 				printk("invalidate: busy buffer\n");
-@@ -831,12 +825,9 @@ int fsync_inode_buffers(struct inode *in
- 
- 	while (!list_empty(&inode->i_dirty_buffers)) {
- 		bh = BH_ENTRY(inode->i_dirty_buffers.next);
--		list_del(&bh->b_inode_buffers);
--		if (!buffer_dirty(bh) && !buffer_locked(bh))
--			bh->b_inode = NULL;
--		else {
--			bh->b_inode = &tmp;
--			list_add(&bh->b_inode_buffers, &tmp.i_dirty_buffers);
-+		__remove_inode_queue(bh);
-+		if (buffer_dirty(bh) || buffer_locked(bh)) {
-+			__buffer_insert_inode_queue(bh, &tmp);
- 			if (buffer_dirty(bh)) {
- 				get_bh(bh);
- 				spin_unlock(&lru_list_lock);
-@@ -849,7 +840,7 @@ int fsync_inode_buffers(struct inode *in
- 
- 	while (!list_empty(&tmp.i_dirty_buffers)) {
- 		bh = BH_ENTRY(tmp.i_dirty_buffers.prev);
--		remove_inode_queue(bh);
-+		__remove_inode_queue(bh);
- 		get_bh(bh);
- 		spin_unlock(&lru_list_lock);
- 		wait_on_buffer(bh);
-@@ -880,12 +871,9 @@ int fsync_inode_data_buffers(struct inod
- 
- 	while (!list_empty(&inode->i_dirty_data_buffers)) {
- 		bh = BH_ENTRY(inode->i_dirty_data_buffers.next);
--		list_del(&bh->b_inode_buffers);
--		if (!buffer_dirty(bh) && !buffer_locked(bh))
--			bh->b_inode = NULL;
--		else {
--			bh->b_inode = &tmp;
--			list_add(&bh->b_inode_buffers, &tmp.i_dirty_data_buffers);
-+		__remove_inode_queue(bh);
-+		if (buffer_dirty(bh) || buffer_locked(bh)) {
-+			__buffer_insert_inode_queue(bh, &tmp);
- 			if (buffer_dirty(bh)) {
- 				get_bh(bh);
- 				spin_unlock(&lru_list_lock);
-@@ -898,7 +886,7 @@ int fsync_inode_data_buffers(struct inod
- 
- 	while (!list_empty(&tmp.i_dirty_data_buffers)) {
- 		bh = BH_ENTRY(tmp.i_dirty_data_buffers.prev);
--		remove_inode_queue(bh);
-+		__remove_inode_queue(bh);
- 		get_bh(bh);
- 		spin_unlock(&lru_list_lock);
- 		wait_on_buffer(bh);
-@@ -998,9 +986,9 @@ void invalidate_inode_buffers(struct ino
- 	
- 	spin_lock(&lru_list_lock);
- 	while ((entry = inode->i_dirty_buffers.next) != &inode->i_dirty_buffers)
--		remove_inode_queue(BH_ENTRY(entry));
-+		__remove_inode_queue(BH_ENTRY(entry));
- 	while ((entry = inode->i_dirty_data_buffers.next) != &inode->i_dirty_data_buffers)
--		remove_inode_queue(BH_ENTRY(entry));
-+		__remove_inode_queue(BH_ENTRY(entry));
- 	spin_unlock(&lru_list_lock);
- }
- 
-@@ -1126,7 +1114,7 @@ static void __refile_buffer(struct buffe
- 		__remove_from_lru_list(bh);
- 		bh->b_list = dispose;
- 		if (dispose == BUF_CLEAN)
--			remove_inode_queue(bh);
-+			__remove_inode_queue(bh);
- 		__insert_into_lru_list(bh, dispose);
- 	}
- }
-@@ -1189,7 +1177,7 @@ struct buffer_head * bread(kdev_t dev, i
-  */
- static void __put_unused_buffer_head(struct buffer_head * bh)
- {
--	if (bh->b_inode)
-+	if (!list_empty(&bh->b_inode_buffers))
- 		BUG();
- 	if (nr_unused_buffer_heads >= MAX_UNUSED_BUFFERS) {
- 		kmem_cache_free(bh_cachep, bh);
-@@ -1219,7 +1207,7 @@ EXPORT_SYMBOL(put_unused_buffer_head);
-  */ 
- struct buffer_head * get_unused_buffer_head(int async)
- {
--	struct buffer_head * bh;
-+	struct buffer_head *bh;
- 
- 	spin_lock(&unused_list_lock);
- 	if (nr_unused_buffer_heads > NR_RESERVED) {
-@@ -1227,7 +1215,7 @@ struct buffer_head * get_unused_buffer_h
- 		unused_list = bh->b_next_free;
- 		nr_unused_buffer_heads--;
- 		spin_unlock(&unused_list_lock);
--		return bh;
-+		goto ret_bh;
- 	}
- 	spin_unlock(&unused_list_lock);
- 
-@@ -1238,7 +1226,7 @@ struct buffer_head * get_unused_buffer_h
- 	if((bh = kmem_cache_alloc(bh_cachep, SLAB_NOFS)) != NULL) {
- 		bh->b_blocknr = -1;
- 		bh->b_this_page = NULL;
--		return bh;
-+		goto ret_bh;
- 	}
- 
- 	/*
-@@ -1251,12 +1239,15 @@ struct buffer_head * get_unused_buffer_h
- 			unused_list = bh->b_next_free;
- 			nr_unused_buffer_heads--;
- 			spin_unlock(&unused_list_lock);
--			return bh;
-+			goto ret_bh;
- 		}
- 		spin_unlock(&unused_list_lock);
- 	}
- 
- 	return NULL;
-+ret_bh:
-+	INIT_LIST_HEAD(&bh->b_inode_buffers);
-+	return bh;
- }
- EXPORT_SYMBOL(get_unused_buffer_head);
- 
-@@ -2390,7 +2381,7 @@ cleaned_buffers_try_again:
- 
- 		if (p->b_dev == B_FREE) BUG();
- 
--		remove_inode_queue(p);
-+		__remove_inode_queue(p);
- 		__remove_from_queues(p);
- 		__put_unused_buffer_head(p);
- 	} while (tmp != bh);
---- linux-2.5.1-pre3/include/linux/fs.h	Wed Nov 28 15:54:42 2001
-+++ 25/include/linux/fs.h	Wed Nov 28 19:26:19 2001
-@@ -261,8 +261,9 @@ struct buffer_head {
- 
- 	wait_queue_head_t b_wait;
- 
--	struct inode *	     b_inode;
--	struct list_head     b_inode_buffers;	/* doubly linked list of inode dirty buffers */
-+	/* Dirty buffers against an inode.  Must be in list_empty()
-+	 * state when this buffer is not on an inode's i_dirty_buffers */
-+	struct list_head     b_inode_buffers;
- };
- 
- typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);

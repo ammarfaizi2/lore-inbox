@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289923AbSAQXDo>; Thu, 17 Jan 2002 18:03:44 -0500
+	id <S289936AbSAQXKP>; Thu, 17 Jan 2002 18:10:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289936AbSAQXDZ>; Thu, 17 Jan 2002 18:03:25 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:61197 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S289923AbSAQXDS>; Thu, 17 Jan 2002 18:03:18 -0500
-Date: Thu, 17 Jan 2002 15:02:45 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Tim Pepper <tpepper@vato.org>
-cc: Hans Reiser <reiser@namesys.com>,
-        Jose Luis Domingo Lopez <jdomingo@internautas.org>,
-        Guillaume Boissiere <boissiere@mediaone.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  January 17, 2001
-In-Reply-To: <20020117143923.C11402@vato.org>
-Message-ID: <Pine.LNX.4.10.10201171458490.3503-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289949AbSAQXKG>; Thu, 17 Jan 2002 18:10:06 -0500
+Received: from zero.tech9.net ([209.61.188.187]:21765 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289936AbSAQXJ6>;
+	Thu, 17 Jan 2002 18:09:58 -0500
+Subject: Re: [PATCH] 2.5.3-pre1 ata-253p1-2
+From: Robert Love <rml@tech9.net>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Jens Axboe <axboe@suse.de>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10201171455360.344-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10201171455360.344-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 17 Jan 2002 18:13:35 -0500
+Message-Id: <1011309216.2668.205.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-01-17 at 17:59, Andre Hedrick wrote:
 
-> > Have you heard anything about when Linus intends to code freeze?  In my 
-> > planning I am assuming Sept. 30 is way earlier than 2.6 would ship.  I 
-> > remember how long 2.4 took, and I simply assume 2.6 will be the same. 
-> 
-> I recall in June of 1999 Linus gave a kernel talk at BALUG and said he was
-> aiming for a year end release of 2.4 (but I think he meant that year ;) and
-> hoped to get the cycle down towards 6 months.  Is that type of timeline still
-> the target?
+> This kernel is totally ACB-IO or Taskfile Driven, the Config.in Option is
+> to allow user-space access for diagnostics, forensics and OEM feature
+> sets.
 
-6 months. Never! I think we can do one year. I think this because for 2.5.X
-we see a bunch of projects working on different things for a long period
-of time. So it is just a matter of making everything work together. 
+Oh, OK -- 2.5.3-pre1 doesn't have Configure.help entries ;)
+But I think Anton sent them, so hopefully we will see them.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+I guess the configure option just enables the ioctl, then, eh?  Gotcha.
 
+> You have to give Jens the credit for gluing it togather, because there was
+> no way I would have figured out the suttle issues of BIO.  There are
+> serveral additions need to fix all the archs so hope to have something
+> today.
+
+Well, good work to both of you.  It is an excellent driver.  Please
+submit it for pre2.
+
+FYI, I am having no problems with the above and preempt-kernel, which
+I've heard reported otherwise.  If it works with preemption and SMP ...
+
+	Robert Love
 

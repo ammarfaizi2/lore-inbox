@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129475AbRAaWnK>; Wed, 31 Jan 2001 17:43:10 -0500
+	id <S129471AbRAaWqU>; Wed, 31 Jan 2001 17:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129477AbRAaWnA>; Wed, 31 Jan 2001 17:43:00 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:43527 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S129475AbRAaWmr>;
-	Wed, 31 Jan 2001 17:42:47 -0500
-Date: Wed, 31 Jan 2001 20:42:42 -0200
-From: Rogerio Brito <rbrito@iname.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-Message-ID: <20010131204242.A3402@iname.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCD6@zcard00g.ca.nortel.com> <m3d7dc62ui.fsf@shookay.e-steel.com>
-Mime-Version: 1.0
+	id <S129472AbRAaWqL>; Wed, 31 Jan 2001 17:46:11 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8459 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129471AbRAaWqA>; Wed, 31 Jan 2001 17:46:00 -0500
+Subject: Re: VT82C686A corruption with 2.4.x
+To: safemode@voicenet.com (safemode)
+Date: Wed, 31 Jan 2001 22:46:07 +0000 (GMT)
+Cc: tori@tellus.mine.nu (Tobias Ringstrom),
+        hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
+        david@fortyoz.org (David Raufeisen), vojtech@suse.cz (Vojtech Pavlik),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A78945F.C82E7CAF@voicenet.com> from "safemode" at Jan 31, 2001 05:40:31 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <m3d7dc62ui.fsf@shookay.e-steel.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14O60w-0003IO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 24 2001, Mathieu Chouquet-Stringer wrote:
-> Moreover, few ethernet cards are able to compute the ip checksum so
-> linux doesn't need anymore to do that.
+> better than i ever got with 2.4 even when only one drive was on a channel.
+> Right now my k7-2 750 is at 849mhz with a FSB of 114Mhz and PCI at 34Mhz.
 
-	I'm very ignorant when it comes to Ethernet, but I'd like to
-	know which cards have this feature, as I'm planning on buying
-	a new one for my small home LAN (if they aren't expensive
-	enough). And, of course, cards whose Linux drivers are able to
-	use this feature...
+Hint: people who overclock machines get suprising odd results and bad stuff
+happens. Please dont waste developers time unless you can reproduce it at
+the intended speed for the components
 
-	Any comments are more than welcome.
-
-
-	Thanks in advance, Roger...
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267577AbTBRDoH>; Mon, 17 Feb 2003 22:44:07 -0500
+	id <S267581AbTBRDvt>; Mon, 17 Feb 2003 22:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267578AbTBRDoG>; Mon, 17 Feb 2003 22:44:06 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:64320
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267577AbTBRDoG>; Mon, 17 Feb 2003 22:44:06 -0500
-Date: Mon, 17 Feb 2003 22:52:35 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH][2.5] IRQ distribution patch for 2.5.58
-In-Reply-To: <20030217181614.GP29983@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0302172244270.25630-100000@montezuma.mastecende.com>
-References: <E88224AA79D2744187E7854CA8D9131DA5CE8D@fmsmsx407.fm.intel.com>
- <20030217181614.GP29983@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267583AbTBRDvt>; Mon, 17 Feb 2003 22:51:49 -0500
+Received: from dp.samba.org ([66.70.73.150]:2180 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267581AbTBRDvs>;
+	Mon, 17 Feb 2003 22:51:48 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, tridge@samba.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cyeoh@samba.org, sfr@canb.auug.org.au, anton@samba.org,
+       paulus@samba.org, drepper@redhat.com
+Subject: Re: [PATCH] Prevent setting 32 uids/gids in the error range 
+In-reply-to: Your message of "17 Feb 2003 14:55:20 -0000."
+             <1045493720.19397.4.camel@irongate.swansea.linux.org.uk> 
+Date: Tue, 18 Feb 2003 15:01:29 +1100
+Message-Id: <20030218040149.17A5D2C04B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Feb 2003, William Lee Irwin III wrote:
-
-> On Thu, Jan 16, 2003 at 01:08:55PM -0800, Kamble, Nitin A wrote:
-> > +		spin_lock(&desc->lock);
-> > +		irq_balance_mask[selected_irq] = target_cpu_mask;
-> > +		spin_unlock(&desc->lock);
+In message <1045493720.19397.4.camel@irongate.swansea.linux.org.uk> you write:
+> On Mon, 2003-02-17 at 07:41, Rusty Russell wrote:
+> > Tridge noticed that getegid() was returning EPERM.
+> > 
+> > I used -1000 since that's what PTR_ERR uses, but i386 _syscall macros
+> > use -125: I don't suppose it really matters.
 > 
-> Wrong.
+> Thats a bug in the interface. getegid/getgid/setegid/setuid() is not permitted to fail.
+> If libc is setting errno and returning -1 the libc wrapper is wrong.
 
-The desc locking for irq_balance_mask looks very strange,  what made you 
-put it in?
+OK, thanks.  Note that out asm-i386/unistd.h syscallX macros do it
+wrong, too.
 
-	Zwane
--- 
-function.linuxpower.ca
+AFAICT, glibc (2.3.1) gets this wrong, and interprets 0xffffffff
+return from geteuid() as an error (ie. it's not just an strace bug).
+Tested by Tridge.
+
+Paulus points out that this also means special handling on archs (PPC
+and PPC64 that I know of) which set a condition code on error: this
+can be sidestepped in glibc, as well.
+
+Other archs beware.
+
+Thanks for the clarification,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

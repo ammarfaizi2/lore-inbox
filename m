@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278795AbRJZRnA>; Fri, 26 Oct 2001 13:43:00 -0400
+	id <S278800AbRJZRnA>; Fri, 26 Oct 2001 13:43:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278798AbRJZRmu>; Fri, 26 Oct 2001 13:42:50 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:31264 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278795AbRJZRmj>; Fri, 26 Oct 2001 13:42:39 -0400
-Date: Fri, 26 Oct 2001 19:43:01 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Christopher S. Swingley" <cswingle@iarc.uaf.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.13-ac1
-Message-ID: <20011026194301.M30905@athlon.random>
-In-Reply-To: <20011026092359.A9384@iarc.uaf.edu> <E15xAso-0000mW-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S278795AbRJZRmv>; Fri, 26 Oct 2001 13:42:51 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:43004 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S278797AbRJZRmk>; Fri, 26 Oct 2001 13:42:40 -0400
+Message-ID: <3BD9AE9D.53D53936@resilience.com>
+Date: Fri, 26 Oct 2001 11:42:37 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.12-ac3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock with linux kernel
+In-Reply-To: <Pine.LNX.4.33L.0110261537170.22127-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E15xAso-0000mW-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Oct 26, 2001 at 06:35:02PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 06:35:02PM +0100, Alan Cox wrote:
-> > Does this mean the ac tree now uses the AA VM, or is this a merge
-> > with everything but the VM, like the earlier 2.4.1x-ac trees?
+Rik van Riel wrote:
 > 
-> It still uses buffer cache based raw disk access (so things like DVD players
+> On Fri, 26 Oct 2001, Jeff Golds wrote:
+> 
+> > I've been having this problem since 2.4.6 and just attributed it to VM
+> > issues.  However, I've been trying all the latest kernels (2.4.9-acXX,
+> > 2.4.10-acXX, 2.4.12-acXX and 2.4.13) and am still getting a deadlock
+> > scenario someplace.  In fact, my system hung up in about 2 minutes after
+> > booting the 2.4.13 kernel.
+> 
+> Since your system hangs just after boot, while you still
+> have free ram and tons of swap, in kernels with 3 different
+> VM subsystems ... I'm pretty sure this isn't a VM problem.
 
-btw, AFIK the fact dvd player can hang some millisecond across a
-close/open cycle, isn't really because of the blkdev in pagecache but
-simply because the <2.4.10 buffer cache layer wasn't able to do proper
-readahead on the blkdev. Now we do readahead properly and so in turn
-the the lack of media-change trust of the vfs shows up. So as far I can
-tell the right fix have no influence on the blkdev in pagecache, but it
-only consists in resurrecting the media-change detection with a
-per-device bitflag whitelist. I cannot see other source of stalls across
-a close/open cycle.
+No, it only hung just after boot one time.  However, I was doing a
+kernel build when it hung (I was trying to make a new kernel to try out
+as I had just rebooted).
 
-Andrea
+Most times, the machine will stay up for a day or two then lock during a
+kernel build.
+
+-Jeff
+
+-- 
+Jeff Golds
+Sr. Software Engineer
+jgolds@resilience.com

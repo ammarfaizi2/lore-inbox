@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288956AbSANTBf>; Mon, 14 Jan 2002 14:01:35 -0500
+	id <S288902AbSANTAF>; Mon, 14 Jan 2002 14:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288896AbSANTAi>; Mon, 14 Jan 2002 14:00:38 -0500
-Received: from bitmover.com ([192.132.92.2]:26497 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S288922AbSANS7l>;
-	Mon, 14 Jan 2002 13:59:41 -0500
-Date: Mon, 14 Jan 2002 10:59:40 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: esr@thyrsus.com, Eli Carter <eli.carter@inet.com>,
-        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020114105940.H27433@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
-	Eli Carter <eli.carter@inet.com>,
-	"Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020114132618.G14747@thyrsus.com> <E16QCL7-0002Xs-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16QCL7-0002Xs-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 14, 2002 at 07:00:13PM +0000
+	id <S288932AbSANS6p>; Mon, 14 Jan 2002 13:58:45 -0500
+Received: from racine.noos.net ([212.198.2.71]:50292 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id <S288923AbSANS6N>;
+	Mon, 14 Jan 2002 13:58:13 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Jeremy Lumbroso <j.lumbroso@noos.fr>
+To: salvador@inti.gov.ar
+Subject: Re: Driver via ac97 sound problem (VT82C686B)
+Date: Mon, 14 Jan 2002 19:56:03 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E16PZOe-0003fZ-00@the-village.bc.nu> <1010956965.3260.0.camel@raul> <3C4311BC.A99CEF31@inti.gov.ar>
+In-Reply-To: <3C4311BC.A99CEF31@inti.gov.ar>
+Cc: Raul Sanchez Sanchez <raul@dif.um.es>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Paul Lorenz <p1orenz@yahoo.com>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020114185833Z288923-13996+5546@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 07:00:13PM +0000, Alan Cox wrote:
-> Secondly we've established we can pick the right CPU for the kernel reliably
-> that is seperate to modules. 
+hi 
+i apply the patch and compile with the two values but i still heard no sound .
+Did someone got this driver works ?
+thx 
 
-Yup, I noticed this when I did a RH 7.2 install recently, pretty spiffy.
-And it seems to work, 7.2 "feels" faster, especially groff for some reason
-I don't understand.
+
+Le Lundi 14 Janvier 2002 18:13, salvador a écrit :
+> As Alan says: "The VIA driver doesnt appear to support the ac97 ops."
+> Here I'm attaching a brut force test, I created a small function that turns
+> ON the EAPD and another to turn it OFF. Note that according to dataseets a
+> 1 will disable the external amplifier, but you should try with the two
+> values. I attached the modified code. It have a 1886 entry that will
+> initialize the codec setting EAPD output to 0. The code have a commented
+> entry that does the reverse, try both.
+> I also attached the diffs so Alan can check if that could work.
+> Note: I didn't compile it so watch for typos ;-)
+>
+> SET
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+__________________________
+Lumbroso Jeremy
+188 bd malesherbes 
+75017 PARIS
+01,47,64,07,94
+06,19,77,01,25
+__________________________

@@ -1,96 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287005AbSACBEY>; Wed, 2 Jan 2002 20:04:24 -0500
+	id <S287946AbSACBGE>; Wed, 2 Jan 2002 20:06:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287915AbSACBEQ>; Wed, 2 Jan 2002 20:04:16 -0500
-Received: from mxzilla1.xs4all.nl ([194.109.6.54]:26891 "EHLO
-	mxzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S287005AbSACBEA>; Wed, 2 Jan 2002 20:04:00 -0500
-Date: Thu, 3 Jan 2002 02:03:58 +0100
-From: jtv <jtv@xs4all.nl>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Momchil Velikov <velco@fadata.bg>, paulus@samba.org,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020103020358.G19933@xs4all.nl>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <15411.37817.753683.914033@argo.ozlabs.ibm.com> <877kr0uyc5.fsf@fadata.bg> <20020102233452.GQ1803@cpe-24-221-152-185.az.sprintbbd.net> <20020103011905.D19933@xs4all.nl> <20020103002935.GT1803@cpe-24-221-152-185.az.sprintbbd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020103002935.GT1803@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 02, 2002 at 05:29:35PM -0700
+	id <S287915AbSACBF4>; Wed, 2 Jan 2002 20:05:56 -0500
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:42184 "EHLO
+	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S288046AbSACBFq>; Wed, 2 Jan 2002 20:05:46 -0500
+Date: Thu, 03 Jan 2002 01:04:11 UTC
+From: Bill <billnvd@hotpop.com>
+Subject: Slowdowns and Systems Pauses with 2.4.x.
+To: linux-kernel@vger.kernel.org
+Message-ID: <TradeClient.0.9.0.Linux-2.4.7.020102190411FFFFFFFC.1007@gx100.localhost.localdomain>
+Organization: 
+X-Mailer: TradeClient 0.9.0 [en] Linux 2.4.7
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+Importance: Normal
+X-Accept-Language: en
+Sensitivity: Public-Document
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 05:29:35PM -0700, Tom Rini wrote:
->
-> > Which it may do with another function *or expression* as well, because
-> > the real bug has already happened before the function call comes into
-> > the issue.
-> 
-> What's the bug?  The 'funny' arithmetic?
- 
-That depends on your definition of bug--symptom, "sighting" (thank you
-Intel), or underlying problem.  The funny arithmetic, in C terms, is
-the underlying problem.  The symptom is obvious.  The sighting involves
-calls to what appear to be calls to the standard library, but in this
-case happen not to be.  We'd still have the same problem if this really 
-were the standard C library.
+I have seen a lot of reports about 2.4.x having all sorts of slowdowns
+and VM issues.  While way out of my league here, I wanted to comment on
+some good behavior I noticed.  During my most recent recompile of 2.4.7,
+my system performance went way up.  Responsiveness is excellent nearly
+regardless of what I throw at it.  I am no programmer and I am not sure
+if any information I can provide would be useful to anyone, but I would
+be willing to offer whatever I can to aid kernel hackers in tracking
+down what seems to be hitting a lot of people with 2.4.x.
 
+System: Dell GX100
+566 Celeron w/192meg, 184meg swap
+ATA66 10gig WD 102BB (ext2fs)
+ATAPI CDROM (not sure of brand)
+onboard i810 4meg agp
+onboard 3com905c
+ES 1371
 
-> > As far as I'm concerned the options are: fix RELOC;
-> 
-> How?
+Linux version 2.4.7(no patches), (gcc version 2.95.3 19991030
+(prerelease))
+XFree86 4.0.1, IceWM 1.0.4. 
 
-That's the EUR 64 * 10^6 question, isn't it?  It's likely to cost some
-performance, but I suspect this would be the easiest solution.
+This compile was with no module support(first time I tried it that way)
+and no devfs.  I really don't know what information to supply without
+posting huge amounts of potentially worthless data, but let me give an
+example of the responsiveness.
 
+Simultaneous user processes:
+cp a 675meg file to new dir in xterm(bash),
+ftp to remote system via ethernet averaging about 4MB/s, file size
+>600meg,
+accept incoming ftp using inetd/wuftpd via ethernet averaging about
+4MB/s, file size > 600meg,
+edge enhance a 5000 x 4000 jpg with gimp
+xmms playing ogg files
+cdparanoia ripping cd at 1x (the rip was successful)
+Opera and Netscape both up with lkml archives, several pages each.
+licq online
+tradeclient email - retrieving from 3 servers
+launched a second gimp and opened a 400x400 jpg
 
-> > obviate RELOC; use
-> > an appropriate gcc option if available (-fPIC might be it, -ffreestanding
-> > certainly isn't--see above);
-> 
-> Maybe for 2.5.  Too invasive for 2.4.x (initially at least).
- 
-I'm not saying these are attractive or even feasible, just prioritizing
-the options I see.  I'm sure I'll have forgotten some, but I'm convinced
--ffreestanding isn't among them.
+and finally ogg encoder kicked in via grip
 
-Let's say RELOC also broke in other places, for the exact same reason but
-without (names familiar from) the standard library come into play.  How
-would one recognize those cases?  And once diagnosed, how to go about
-working around them?  Even worse, what if gcc tries to help but still
-uses the stricter assumptions in some forgotten case?
+Until the ogg encoder kicked in the cpu load was about 5.5 and the xmms
+was playing perfect.  The encoder started to cause a skip and the mouse
+picked up a occasional, very short pause <1/4sec, but the the system
+remained very useable.  During the slightly over 3 minutes of ftp in
+both directions, switching desktops, opening new xterms, command line
+access, scrolling and changing pages in browerrs, etc were all
+responsive.  Slower of course, but considering the load was now over 7
+it was not even near painful.  Average delays were maybe 1/2 - 3/4
+second.
 
-Those would take time, and I can't see why none of these would arise
-at some point.  That's why I feel -ffreestanding is too brittle as a
-workaround.
+Based on previous configs with this system using 2.2.17, 2.2.19, 2.4.7
+and 2.4.17, the above would have made this thing roll over and die for
+10 minutes.  I don't know what I changed that caused this, but I like
+it.
 
+During this process, the system also swapped over 80 meg to disk with
+all the other reads and writes going on.  Again, if any of my config
+would be useful, please request whatever info/tests you need.
 
-> > *extend* (not fix, extend) gcc; or work
-> > around all individual cases.  In rough descending order of preference.
-> 
-> Er, say what?
+Bill
 
-In rough descending order of _my_ preference, that is--falls within the
-scope of the "as far as I'm concerned."  :)
-
-But yes, requiring gcc to support RELOC through anything else than an
-existing option (and once again, -ffreestanding only works around one 
-instance where it breaks) would be an extension to gcc.  If it didn't
-break in the past, that was essentially a coincidence.  Unless it's in 
-some forgotten corner of the docs: possible, but not probable AFAICS.
-
-Optimizing C is hard to do.  Pointer arithmetic is hell on an optimizer,
-and the rules were made to give the latter a fair chance of doing a
-good job.  I'm not arguing against having some specific option to relax 
-those rules--kernels need to be written, and written in C.  But that 
-option is by definition a compiler-specific extension to the language.
-
-
-Jeroen
-
+Best Regards,
+Bill

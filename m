@@ -1,66 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267218AbTAPUGT>; Thu, 16 Jan 2003 15:06:19 -0500
+	id <S267221AbTAPUJy>; Thu, 16 Jan 2003 15:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267228AbTAPUGT>; Thu, 16 Jan 2003 15:06:19 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:46738 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S267218AbTAPUGS>;
-	Thu, 16 Jan 2003 15:06:18 -0500
-Date: Thu, 16 Jan 2003 21:19:22 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [PATCH 2.5.58] new NUMA scheduler: fix
-In-Reply-To: <115000000.1042746190@flay>
-Message-ID: <Pine.LNX.4.44.0301162110480.10526-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267222AbTAPUJy>; Thu, 16 Jan 2003 15:09:54 -0500
+Received: from packet.digeo.com ([12.110.80.53]:49364 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267221AbTAPUJx>;
+	Thu, 16 Jan 2003 15:09:53 -0500
+Date: Thu, 16 Jan 2003 12:18:37 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Make prof_counter use per-cpu areas patch 1/4 -- x86
+ arch
+Message-Id: <20030116121837.19846346.akpm@digeo.com>
+In-Reply-To: <20030116120608.GD13013@in.ibm.com>
+References: <20030113122835.GC2714@in.ibm.com>
+	<200301131210.47318.akpm@digeo.com>
+	<20030116120608.GD13013@in.ibm.com>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Jan 2003 20:18:44.0072 (UTC) FILETIME=[77B56680:01C2BD9C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
+>
+> Even cpu_possible does not seem to be setup this early.  Seems like 
+> reinitialisation of prof_counter/prof_multiplier et al is redundant.
+> Here's a newer patch which removes this initialisation at smp_boot_cpus.
+> Works fine for me (tested same on a 4 way with difft profiling multipliers..
+> LOC interrupts seem to fire at the right intervals).
 
-On Thu, 16 Jan 2003, Martin J. Bligh wrote:
+Things still look a bit fishy to me.
 
-> > complex. It's the one that is aware of the global scheduling picture. For
-> > NUMA i'd suggest two asynchronous frequencies: one intra-node frequency,
-> > and an inter-node frequency - configured by the architecture and roughly
-> > in the same proportion to each other as cachemiss latencies.
-> 
-> That's exactly what's in the latest set of patches - admittedly it's a
-> multiplier of when we run load_balance, not the tick multiplier, but
-> that's very easy to fix. Can you check out the stuff I posted last
-> night? I think it's somewhat cleaner ...
+In apic.c:
 
-yes, i saw it, it has the same tying between idle-CPU-rebalance and
-inter-node rebalance, as Erich's patch. You've put it into
-cpus_to_balance(), but that still makes rq->nr_balanced a 'synchronously'
-coupled balancing act. There are two synchronous balancing acts currently:
-the 'CPU just got idle' event, and the exec()-balancing (*) event. Neither
-must involve any 'heavy' balancing, only local balancing. The inter-node
-balancing (which is heavier than even the global SMP balancer), should
-never be triggered from the high-frequency path. [whether it's high
-frequency or not depends on the actual workload, but it can be potentially
-_very_ high frequency, easily on the order of 1 million times a second -
-then you'll call the inter-node balancer 100K times a second.]
+	int prof_multiplier[NR_CPUS] = { 1, };
+	int prof_old_multiplier[NR_CPUS] = { 1, };
+	DEFINE_PER_CPU(int, prof_counter) = 1;
 
-I'd strongly suggest to decouple the heavy NUMA load-balancing code from
-the fastpath and re-check the benchmark numbers.
+This means that all the prof_counter values are set to 1, but the multiplier
+arrays have 1 in the zeroeth entry, and zero in the remaining entries.
 
-	Ingo
+The zero multipliers remain in place until someone runs
+setup_profiling_timer().
 
-(*) whether sched_balance_exec() is a high-frequency path or not is up to
-debate. Right now it's not possible to get much more than a couple of
-thousand exec()'s per second on fast CPUs. Hopefully that will change in
-the future though, so exec() events could become really fast. So i'd
-suggest to only do local (ie. SMP-alike) balancing in the exec() path, and
-only do NUMA cross-node balancing with a fixed frequency, from the timer
-tick. But exec()-time is really special, since the user task usually has
-zero cached state at this point, so we _can_ do cheap cross-node balancing
-as well. So it's a boundary thing - probably doing the full-blown
-balancing is the right thing.
+One approach would be to initialise all members:
+
+	int prof_multiplier[NR_CPUS] = { [ 0 ... NR_CPUS-1 ] = 1 };
+
+But I think it would be better to put the multipliers into per-cpu memory as
+well.  Something like:
+
+struct profiling_info {
+	int multiplier;
+	int old_multiplier;
+	int counter;
+};
+
+DEFINE_PER_CPU(struct profiling_info, profiling_info) = {1, 1, 1};
+
+Perhaps?
+
+Also bits and pieces of the profiling code seem to be randomly splattered all
+over the place.  Consolidating it all into the one .c file would be nice.
+
 

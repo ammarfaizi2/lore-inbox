@@ -1,127 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265402AbUFHXoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265431AbUFHXvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265402AbUFHXoW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 19:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUFHXoW
+	id S265431AbUFHXvw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 19:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUFHXv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 19:44:22 -0400
-Received: from ozlabs.org ([203.10.76.45]:19900 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265402AbUFHXoR (ORCPT
+	Tue, 8 Jun 2004 19:51:29 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:38248 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265424AbUFHXv1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 19:44:17 -0400
-MIME-Version: 1.0
+	Tue, 8 Jun 2004 19:51:27 -0400
+Date: Wed, 9 Jun 2004 09:51:09 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andy <genanr@emsphone.com>, cattelan@sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: NFS corruption (duplicated data)
+Message-ID: <20040609095109.E1200131@wobbly.melbourne.sgi.com>
+References: <20040608154422.GA3946@thumper2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16582.20441.569108.903222@cargo.ozlabs.ibm.com>
-Date: Wed, 9 Jun 2004 09:46:33 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-       benh@kernel.crashing.org, olh@suse.de
-Subject: [PATCH][PPC32] serial console autodetection
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040608154422.GA3946@thumper2>; from genanr@emsphone.com on Tue, Jun 08, 2004 at 10:44:22AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Olaf Hering <olh@suse.de>:
+Hi Andy,
 
-We have something like this in our kernel since many months.
-It sets the console device to what OF uses. ppc64 does the same, and it
-works ok. serial is found on CHRP, ch-a is used on all powermacs.
+Be good to try this with files served from ext2/3 as well,
+to try isolate it to XFS/NFS.  We have a known issue thats
+possibly related to this in XFS - Russell, does this sound
+like that problem you've been looking at?
 
-diff -p -purN linux-2.6.6-bk8/arch/ppc/kernel/setup.c linux-2.6.6-bk8.autoconsole/arch/ppc/kernel/setup.c
---- linux-2.6.6-bk8/arch/ppc/kernel/setup.c	2004-05-22 09:18:42.000000000 +0200
-+++ linux-2.6.6-bk8.autoconsole/arch/ppc/kernel/setup.c	2004-05-22 09:29:18.000000000 +0200
-@@ -16,6 +16,7 @@
- #include <linux/seq_file.h>
- #include <linux/root_dev.h>
- #include <linux/cpu.h>
-+#include <linux/console.h>
- 
- #include <asm/residual.h>
- #include <asm/io.h>
-@@ -474,6 +475,60 @@ platform_init(unsigned long r3, unsigned
- 		break;
- 	}
- }
-+
-+#ifdef CONFIG_SERIAL_CORE_CONSOLE
-+extern char *of_stdout_device;
-+
-+static int __init set_preferred_console(void)
-+{
-+	struct device_node *prom_stdout;
-+	char *name;
-+	int offset;
-+
-+	/* The user has requested a console so this is already set up. */
-+	if (strstr(saved_command_line, "console="))
-+		return -EBUSY;
-+
-+	prom_stdout = find_path_device(of_stdout_device);
-+	if (!prom_stdout)
-+		return -ENODEV;
-+
-+	name = (char *)get_property(prom_stdout, "name", NULL);
-+	if (!name)
-+		return -ENODEV;
-+
-+	if (strcmp(name, "serial") == 0) {
-+		int i;
-+		u32 *reg = (u32 *)get_property(prom_stdout, "reg", &i);
-+		if (i > 8) {
-+			switch (reg[1]) {
-+				case 0x3f8:
-+					offset = 0;
-+					break;
-+				case 0x2f8:
-+					offset = 1;
-+					break;
-+				case 0x898:
-+					offset = 2;
-+					break;
-+				case 0x890:
-+					offset = 3;
-+					break;
-+				default:
-+					/* We dont recognise the serial port */
-+					return -ENODEV;
-+			}
-+		}
-+	} else if (strcmp(name, "ch-a") == 0)
-+		offset = 0;
-+	else if (strcmp(name, "ch-b") == 0)
-+		offset = 1;
-+	else
-+		return -ENODEV;
-+	return add_preferred_console("ttyS", offset, NULL);
-+}
-+console_initcall(set_preferred_console);
-+#endif /* CONFIG_SERIAL_CORE_CONSOLE */
- #endif /* CONFIG_PPC_MULTIPLATFORM */
- 
- struct bi_record *find_bootinfo(void)
-diff -p -purN linux-2.6.6-bk8/arch/ppc/syslib/prom_init.c linux-2.6.6-bk8.autoconsole/arch/ppc/syslib/prom_init.c
---- linux-2.6.6-bk8/arch/ppc/syslib/prom_init.c	2004-05-22 09:18:42.000000000 +0200
-+++ linux-2.6.6-bk8.autoconsole/arch/ppc/syslib/prom_init.c	2004-05-22 09:26:54.000000000 +0200
-@@ -118,7 +118,7 @@ ihandle prom_stdout __initdata = 0;
- char *prom_display_paths[FB_MAX] __initdata = { 0, };
- phandle prom_display_nodes[FB_MAX] __initdata;
- unsigned int prom_num_displays __initdata = 0;
--static char *of_stdout_device __initdata = 0;
-+char *of_stdout_device __initdata = 0;
- static ihandle prom_disp_node __initdata = 0;
- 
- unsigned int rtas_data;   /* physical pointer */
-@@ -880,6 +880,11 @@ prom_init(int r3, int r4, prom_entry pp)
- 	for (i = 0; i < prom_num_displays; ++i)
- 		prom_display_paths[i] = PTRUNRELOC(prom_display_paths[i]);
- 
-+#ifdef CONFIG_SERIAL_CORE_CONSOLE
-+	/* Relocate the of stdout for console autodetection */
-+	of_stdout_device = PTRUNRELOC(of_stdout_device);
-+#endif
-+
- 	prom_print("returning 0x");
- 	prom_print_hex(phys);
- 	prom_print("from prom_init\n");
+If you have a simple test case to reproduce it (we have an
+extremely complex test case to reproduce that other issue,
+but from your description I'm not sure its the same), that
+would be very helpful Andy.
+
+thanks.
+
+On Tue, Jun 08, 2004 at 10:44:22AM -0500, Andy wrote:
+> I really don't understand what could be causing this, but it happens on
+> several machine and at least on kernels 2.4.22, 2.4.25, 2.4.26.
+> NFS v3 : hard, udp, rsize=8192,wsize=8192
+> local filesystems are XFS
+> 
+> Trond, this is data corruption not dropped packets so the protocol
+> being UDP is not the problem.
+> 
+> Here is what is happening :
+> 
+> Copying a file of offsets from machine A to machine B over NFS and then
+> comparing the file on B with the file on A over NFS, the file on machine B
+> is corrupted in the following ways. 
+> 
+> Usually, data earlier in the file will show up again later.
+> For example :
+> 
+> 57344 bytes of data from 672190464-672247807 is also in positions
+> 1449664512-1449721855
+> 
+> sometimes, data later in the file is dupped to a position before it
+> should be
+> 
+> 53248 bytes of data from 1197158400-1197211647 is also in positions
+> 1036660736-1036713983
+> 
+> Any ideas
+> 
+> Andy
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Nathan

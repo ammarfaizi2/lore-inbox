@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbRHHSyV>; Wed, 8 Aug 2001 14:54:21 -0400
+	id <S267532AbRHHSzV>; Wed, 8 Aug 2001 14:55:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267233AbRHHSyM>; Wed, 8 Aug 2001 14:54:12 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58498 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265844AbRHHSxz>;
-	Wed, 8 Aug 2001 14:53:55 -0400
-Date: Wed, 8 Aug 2001 11:53:28 -0700
-Message-Id: <200108081853.LAA02747@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: lm@bitmover.com
-CC: torvalds@transmeta.com, frankeh@us.ibm.com, mkravetz@beaverton.ibm.com,
-        linux-kernel@vger.kernel.org, wscott@bitmover.com
-In-Reply-To: <20010808111844.S23718@work.bitmover.com> (message from Larry
-	McVoy on Wed, 8 Aug 2001 11:18:44 -0700)
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-In-Reply-To: <Pine.LNX.4.33.0108081041260.8047-100000@penguin.transmeta.com> <Pine.LNX.4.33.0108081058420.8103-100000@penguin.transmeta.com> <20010808111844.S23718@work.bitmover.com>
+	id <S266941AbRHHSzM>; Wed, 8 Aug 2001 14:55:12 -0400
+Received: from mta1n.bluewin.ch ([195.186.1.210]:14760 "EHLO mta1n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S266559AbRHHSzA>;
+	Wed, 8 Aug 2001 14:55:00 -0400
+Message-ID: <3B6E44EE000F26DC@mta1n.bluewin.ch> (added by postmaster@bluewin.ch)
+From: "Per Jessen" <per@computer.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Mark H. Wood" <mwood@IUPUI.Edu>
+Date: Wed, 08 Aug 2001 21:03:14 +0200
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Re: how to tell Linux *not* to share IRQs ?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Wed, 8 Aug 2001 11:18:44 -0700
-   From: Larry McVoy <lm@bitmover.com>
+On Wed, 8 Aug 2001 12:13:40 -0500 (EST), Mark H. Wood wrote:
 
-   Someobdy really ought to take the time to make a cache miss counter program
-   that works like /bin/time.  So I could do
+>On Wed, 8 Aug 2001, Andrew McNamara wrote:
+>[snippage]
+>> The problem is largely historical - each interrupt traditionally had a
+>> physically line associated with it, and lines on your backplane were a
+>> limited resource.
+>>
+>> If you were to do it again these days, you might have some sort of
+>> shared serial bus, so devices could give detailed data to the cpu
+>> (not only to uniquely identify the interrupting device, but also
+>> identify sub-devices - say a USB peripheral).
+>
+>See for example "vectored interrupts" on the PDP10.  The device driver
+>tells the device where the driver's ISR is, and when the device
+>interrupts, it puts that address on the bus.  The interrupt logic jumps
+>directly to the ISR, which "knows" it is the only driver that would be
+>interested in this interrupt.  (You could set up a jump table if you
+>wanted to, so that each device of the same type could identify itself
+>uniquely, but that typically wasn't a big problem in '10 installations
+>where multiples were most likely in a PDP11 on the other side of a DTE20,
+>or Massbus devices on a single RH20.)
+>
+>Apparently this idea is now so old that it is new. :-)
 
-	   $ cachemiss lat_ctx 2
-	   10123 instruction, 22345 data, 50432 TLB flushes
+Yeah - I believe the same was possible on the Z80 - though I'd have to 
+go read the manual to be certain.
 
-   Has anyone done that?  If so, then what would be cool is if each of these
-   wonderful new features that people propose come with cachemiss results for
-   the related part of LMbench or some other benchmark.
 
-On some platforms, such an app can basically be written already.
+regards,
+Per Jessen, Zurich
 
-The kernel support is there for sparc64 wrt. the cache
-miss stuff.  It uses the cpu performance counter stuff.
-Have a look at linux/include/asm-sparc64/perfctr.h to see
-what I mean.
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
 
-The performance counters are fancy enough that you can
-ask them to do stuff like:
 
-1) tell me D-cache misses in user and/or kernel mode
-2) tell me D-cache misses that hit the E-cache
-   in user and/or kernel mode
-3) tell me I-cache misses, but only those which actually
-   ended up stalling the pipeline
-4) tell me E-cache misses, where the chip was not able
-   to get granted to memory bus immediately
-5) Same as #4, but how many total bus cycles were spent
-   waiting for bus grant for the E-cache miss
 
-Later,
-David S. Miller
-davem@redhat.com
+
+regards,
+Per Jessen, Zurich
+http://www.enidan.com - home of the J1 serial console.
+
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+
+

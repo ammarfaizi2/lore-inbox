@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbTISWYN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 18:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTISWYN
+	id S261802AbTISW6M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 18:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTISW6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 18:24:13 -0400
-Received: from mail.kroah.org ([65.200.24.183]:51946 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261797AbTISWYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 18:24:10 -0400
-Date: Fri, 19 Sep 2003 15:24:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Brownell <david-b@pacbell.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: USB APM suspend
-Message-ID: <20030919222427.GA7808@kroah.com>
-References: <Pine.LNX.4.44L0.0309191755590.763-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0309191755590.763-100000@ida.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Sep 2003 18:58:11 -0400
+Received: from primary.dns.nitric.com ([64.81.197.236]:48390 "EHLO
+	primary.mx.nitric.com") by vger.kernel.org with ESMTP
+	id S261802AbTISW6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 18:58:09 -0400
+To: amartin@nvidia.com
+Cc: linux-kernel@vger.kernel.org
+From: Merlin Hughes <lnx@merlin.org>
+Subject: RE: [PATCH] 2.4.23-pre4 add support for udma6 to nForce IDE driver
+Date: Fri, 19 Sep 2003 18:58:06 -0400
+Message-Id: <20030919225808.6DE87338D7@primary.mx.nitric.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19, 2003 at 06:14:29PM -0400, Alan Stern wrote:
-> 
-> P.S.: Greg, what on Earth does "GREG: gregindex = 0" mean?
 
-Heh, using the linuxusb.bkbits.net/usb-2.5 tree are ya?  :)
+Hi Allen,
 
-It's some debugging code left in by me for some module loading code
-changes I've been working on in my spare time.  It's to implement only
-loading signed kernel modules.  That message means that the "gregindex"
-section in the elf records of the kernel module was not found.  It if
-is, lots of other code gets kicked off.  I'll try to clean it all up
-into a reasonable state next week and make a patch available for those
-that want to play with it.
+Do you know if an expected side-effect of this patch would
+be increased stability? I see that the code does more than
+just adding in a new UDMA number, I'm just wondering if the
+other changes could be the deliberate cause of the reliability
+I'm now seeing.
 
-Sorry about leaving that in there, I'll go delete it.  I try to make all
-my debugging code start with GREG: so I'll never send it off for
-inclusion in someone else's tree.
+I have an nforce2 motherboard (Shuttle) with a Maxtor
+UDMA133 drive. Operations such as dd if=/dev/hda of=/dev/null
+would reliably freeze the machine under 2.4.23-pre4 at
+UDMA100; I had to drop to UDMA44 to overcome this.
 
-greg k-h
+Since applying your patch, however, I've managed to run such
+a dd, with zcav thrown in, with complete relability at UDMA133
+for several hours without problems.
+
+Thanks, Merlin

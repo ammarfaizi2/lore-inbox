@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280658AbRKBLzt>; Fri, 2 Nov 2001 06:55:49 -0500
+	id <S280661AbRKBL57>; Fri, 2 Nov 2001 06:57:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280661AbRKBLz3>; Fri, 2 Nov 2001 06:55:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19716 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280658AbRKBLzX>; Fri, 2 Nov 2001 06:55:23 -0500
-Subject: Re: 3.0.2 fails to build linux-2.4.13-ac5, 8139.c
-To: _deepfire@mail.ru (Samium Gromoff)
-Date: Fri, 2 Nov 2001 12:02:00 +0000 (GMT)
-Cc: gcc-bugs@gcc.gnu.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200111020921.fA29LP718803@vegae.deep.net> from "Samium Gromoff" at Nov 02, 2001 12:21:19 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280666AbRKBL5t>; Fri, 2 Nov 2001 06:57:49 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54246 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S280661AbRKBL5c>;
+	Fri, 2 Nov 2001 06:57:32 -0500
+Date: Fri, 2 Nov 2001 06:57:31 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: dalecki@evision.ag
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+In-Reply-To: <3BE29401.157394A5@evision-ventures.com>
+Message-ID: <Pine.GSO.4.21.0111020652070.12621-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15zd1M-00024u-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 8139too.c:2432: Internal compiler error in reload_cse_simplify_operands, at reload1.c:8364
-> Please submit a full bug report,
-> with preprocessed source if appropriate.
-> See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
 
-You reported the bug to the wrong place. Its a compiler bug not a kernel
-bug. See the URL given for gcc bug reporting info
+
+On Fri, 2 Nov 2001, Martin Dalecki wrote:
+
+> Bull shit. Standard policy is currently to keep crude old
+> interfaces until no end of time. Here are some examples:
+
+[snip]
+
+Again, standard procedure for removal of user-visible API:
+	* next devel and following stable branch - use of that API is
+possible but produces a warning
+	* devel branch after that - API removed.
+
+The fact that nobody had even started that with procfs is a separate story.
+But no matter what user-visible API changes we start now, the earliest point
+when the old stuff can be removed is 2.7.
 

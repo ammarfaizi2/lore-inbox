@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263149AbTJKPwO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 11:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTJKPwO
+	id S262274AbTJKQGY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 12:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTJKQGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 11:52:14 -0400
-Received: from mail.gmx.de ([213.165.64.20]:51357 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263149AbTJKPwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 11:52:12 -0400
-X-Authenticated: #7204266
-Date: Sat, 11 Oct 2003 16:52:24 +0100
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: How can I trace ACPI events?
-From: Martin Aspeli <optilude@gmx.net>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
+	Sat, 11 Oct 2003 12:06:24 -0400
+Received: from web13006.mail.yahoo.com ([216.136.174.16]:6930 "HELO
+	web13006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262274AbTJKQGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 12:06:22 -0400
+Message-ID: <20031011160621.22378.qmail@web13006.mail.yahoo.com>
+Date: Sat, 11 Oct 2003 09:06:21 -0700 (PDT)
+From: asdfd esadd <retu834@yahoo.com>
+Subject: Re: 2.7 thoughts: common well-architected object model 
+To: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <200310111430.h9BEUX6s019836@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <oprwvydmtg9y0cdf@mail.gmx.net>
-User-Agent: Opera7.20/Win32 M2 build 3144
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I'm having trouble with ACPI on my Centrino notebook; if ACPI is disabled, 
-a lot of my PCI devices (e.g. onboard sound) don't get any IRQ. If ACPI is 
-enabled, the system boots fine, but about a minute after startup, for no 
-obvious reason keventd ("events/0", PID 3) starts chewing 99.9% CPU and 
-the fan starts spinning at maximum. This is with 2.6.0-test7, although 
-I've had the same problem in all kernels I've tried on this box (from 
-2.4.22-ac through from 2.6.0-test5 to -test7). Chris Wright suggested 
-runaway ACPI events could cause events/0 to chew CPU, which seems 
-consistent with what I'm seeing here.
+the other OS has an at this stage highly consistent
+object model user along the lines of COM+ from the
+kernel up encompassing a single event, thread etc.
+model. Things are quite consistently wrapped, user
+mode exposed if needed etc. If people were to fully
+draw on it and the simpler .net BCL and not ride win32
+that would (will be) a killer.  
 
-If I am to diagnose it further, though, I'll have to figure out what ACPI 
-events (if any) are causing the massive spikes in CPU usage. How can I 
-trace this? I've had acpid running, but the log in /var/log/acpid only 
-shows simple messages (started service, registered 1 rule). Nothing 
-particularly interesting from dmesg or TTY 12, either.
+So let me restate the need:
 
-CC'd replies would be appreciated.
+* a unified well architected core component model
+which is extensible from OS services to application
+objects
 
-Thanks,
-Martin
+* the object model should be defined from the kernel
+layer for process/events/devices etc. up and not
+started at the application layer
 
+
+--- Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 10 Oct 2003 21:45:14 PDT, asdfd esadd said:
+> 
+> > * a unified well architected core component model
+> > which is extensible
+> 
+> OK.. now for the terminally dense readers of the
+> list like myself, could
+> you repeat that in terms that people who have more
+> experience in
+> slinging C code than buzzwords will understand and
+> rally behind?
+> 
+> Most of the time when I hear "component", somebody's
+> trying to invent
+> yet another message-passing paradigm.  And although
+> there's certainly
+> a place where things like CORBA and the dbus stuff
+> solve problems,
+> you have to remember that this is a Linux kernel,
+> not Mach....
+> 
+> Alternatively, explain to me what this component
+> model will do for us
+> that updating the docs on the kernel API won't?
+> 
+
+> ATTACHMENT part 2 application/pgp-signature 
+
+
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

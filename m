@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288748AbSBUIeE>; Thu, 21 Feb 2002 03:34:04 -0500
+	id <S289813AbSBUI4y>; Thu, 21 Feb 2002 03:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289813AbSBUIdo>; Thu, 21 Feb 2002 03:33:44 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:52471 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S288748AbSBUIdm>; Thu, 21 Feb 2002 03:33:42 -0500
-Date: Thu, 21 Feb 2002 09:29:24 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-rc2
-In-Reply-To: <Pine.LNX.4.21.0202181815480.25479-100000@freak.distro.conectiva>
-Message-ID: <Pine.NEB.4.44.0202210924450.3462-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S290587AbSBUI4n>; Thu, 21 Feb 2002 03:56:43 -0500
+Received: from vaak.stack.nl ([131.155.140.140]:62479 "HELO mailhost.stack.nl")
+	by vger.kernel.org with SMTP id <S289813AbSBUI4c>;
+	Thu, 21 Feb 2002 03:56:32 -0500
+Date: Thu, 21 Feb 2002 09:56:30 +0100 (CET)
+From: Jos Hulzink <josh@stack.nl>
+To: peter@hoeg.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: misdetection of pentium2 - very strange
+In-Reply-To: <1014276172.3c74a04c7565e@www.hoeg.home>
+Message-ID: <20020221094949.A86349-100000@toad.stack.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
 
-as discussed in the thread of your 2.4.18-rc1 announcement (see [1] and
-[2]) 2.4.18 adds CONFIG_FB_TRIDENT but the code doesn't compile.  It's
-IMHO not a good a idea to add a new option that doesn't compile to a
-stable kernel. Please apply the patch below that disables this option as a
-workaround to 2.4.18:
+On Thu, 21 Feb 2002 peter@hoeg.com wrote:
 
+> dmesg:
+>
+> Linux version 2.4.18-rc2 (peter@asilog-linux2) (gcc version 2.95.4 (Debian
+> prerelease)) #3 Thu Feb 21 19:21:37 SGT 2002
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+>  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+>  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+>  BIOS-e820: 0000000000100000 - 000000000c000000 (usable)
+>  BIOS-e820: 00000000fffc0000 - 0000000100000000 (reserved)
+> On node 0 totalpages: 49152
+> zone(0): 4096 pages.
+> zone(1): 45056 pages.
+> zone(2): 0 pages.
+> Kernel command line: auto BOOT_IMAGE=linux ro root=301 devfs=mount
+> video=atyfb:1024x768@8
+> Initializing CPU#0
+> Detected 133.225 MHz processor.
+> Console: colour VGA+ 132x44
+> Calibrating delay loop... 265.42 BogoMIPS
 
---- drivers/video/Config.in.old	Thu Feb 21 00:18:54 2002
-+++ drivers/video/Config.in	Thu Feb 21 00:20:02 2002
-@@ -145,7 +145,7 @@
- 	 fi
- 	 tristate '  3Dfx Banshee/Voodoo3 display support (EXPERIMENTAL)' CONFIG_FB_3DFX
- 	 tristate '  3Dfx Voodoo Graphics (sst1) support (EXPERIMENTAL)' CONFIG_FB_VOODOO1
--	 tristate '  Trident support (EXPERIMENTAL)' CONFIG_FB_TRIDENT
-+#	 tristate '  Trident support (EXPERIMENTAL)' CONFIG_FB_TRIDENT
-       fi
-    fi
-    if [ "$ARCH" = "sparc" -o "$ARCH" = "sparc64" ]; then
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+It seems your CPU is actually running at 133 MHz. If I am right, the
+bogomips value should be about 2x the clock frequency on this CPU and
+kernel. Is the bogomips calculation influenced by the detected CPU speed ?
+Can't check now.
 
-TIA
-Adrian
+Can it be your system runs in a low-power mode, or that the linux kernel
+triggers a low-power mode ?
 
-[1] http://www.lib.uaa.alaska.edu/linux-kernel/archive/2002-Week-06/0985.html
-[2] http://www.lib.uaa.alaska.edu/linux-kernel/archive/2002-Week-06/0988.html
-
+Jos
 

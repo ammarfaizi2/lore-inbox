@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261460AbSJUQEg>; Mon, 21 Oct 2002 12:04:36 -0400
+	id <S261476AbSJUQQ0>; Mon, 21 Oct 2002 12:16:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261462AbSJUQEg>; Mon, 21 Oct 2002 12:04:36 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:57780 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261460AbSJUQEf>; Mon, 21 Oct 2002 12:04:35 -0400
-Subject: Re: [PATCH] work around duff ABIs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021021144845.H5285@parcelfarce.linux.theplanet.co.uk>
-References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
-	<1035202419.27318.60.camel@irongate.swansea.linux.org.uk> 
-	<20021021144845.H5285@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 17:26:25 +0100
-Message-Id: <1035217585.28189.200.camel@irongate.swansea.linux.org.uk>
+	id <S261464AbSJUQQ0>; Mon, 21 Oct 2002 12:16:26 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33509 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261463AbSJUQQZ>; Mon, 21 Oct 2002 12:16:25 -0400
+Date: Mon, 21 Oct 2002 12:23:21 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: andy barlak <andyb@island.net>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.5.43 scsi _eh_ buslogic
+Message-ID: <20021021162321.GC28914@redhat.com>
+Mail-Followup-To: andy barlak <andyb@island.net>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <Pine.LNX.4.30.0210181201060.29276-100000@tosko.alm.com> <20021018224311.GB1066@beaverton.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021018224311.GB1066@beaverton.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-21 at 14:48, Matthew Wilcox wrote:
-> On Mon, Oct 21, 2002 at 01:13:39PM +0100, Alan Cox wrote:
-> > On Sun, 2002-10-20 at 05:31, Matthew Wilcox wrote:
-> > > 
-> > > *sigh*.  i hate this kind of bullshit.  please, don't anyone ever try
-> > > to pass 64-bit args through the syscall interface again.
-> > 
-> > Please bury this crap in arch/hppa/
-> 
-> and arch/mips?
+On Fri, Oct 18, 2002 at 03:43:12PM -0700, Mike Anderson wrote:
+> Andy,
+> 	From looking at the driver it looks like the locking had been
+> update to 2.5, but that the driver error handling has not been updated.
+> scsi_obsolete.c has not existed in the 2.5 view for a while.
 
-IMHO yes
+Actually, I sent a patch to Linus for this driver that I think made it 
+into 2.5.44.  Andy, could you let me know if 2.5.44 works?  If not, then 
+I'll see what I can find.  Side note: Mike's right about the error 
+handling being horked, but that shouldn't really make any difference in 
+bootup since it shouldn't be needing error recovery.
 
+
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

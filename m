@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbTAIQuh>; Thu, 9 Jan 2003 11:50:37 -0500
+	id <S266840AbTAIRD5>; Thu, 9 Jan 2003 12:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266848AbTAIQuh>; Thu, 9 Jan 2003 11:50:37 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:33541 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S266810AbTAIQug>;
-	Thu, 9 Jan 2003 11:50:36 -0500
-Date: Thu, 9 Jan 2003 17:59:15 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Justin Cormack <justin@street-vision.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: APIC with SIS
-Message-Id: <20030109175915.1c9dd425.skraw@ithnet.com>
-In-Reply-To: <1042130749.25527.5.camel@lotte>
-References: <20021230170822.1b79ebb3.skraw@ithnet.com>
-	<1041267723.13956.24.camel@irongate.swansea.linux.org.uk>
-	<20021230173333.5f28edb9.skraw@ithnet.com>
-	<1041268709.13684.28.camel@irongate.swansea.linux.org.uk>
-	<20030109170948.7f8d4a42.skraw@ithnet.com>
-	<1042130749.25527.5.camel@lotte>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266841AbTAIRD5>; Thu, 9 Jan 2003 12:03:57 -0500
+Received: from robur.slu.se ([130.238.98.12]:33554 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S266840AbTAIRD4>;
+	Thu, 9 Jan 2003 12:03:56 -0500
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15901.44924.430586.886@robur.slu.se>
+Date: Thu, 9 Jan 2003 18:21:00 +0100
+To: "David S. Miller" <davem@redhat.com>
+Cc: Steffen Persvold <sp@scali.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Robert Olsson <Robert.Olsson@data.slu.se>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NAPI and tg3
+In-Reply-To: <Pine.LNX.4.44.0301080059060.1128-100000@sp-laptop.isdn.scali.no>
+References: <15899.21204.884559.523678@robur.slu.se>
+	<Pine.LNX.4.44.0301080059060.1128-100000@sp-laptop.isdn.scali.no>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09 Jan 2003 16:45:44 +0000
-Justin Cormack <justin@street-vision.com> wrote:
 
-> > > Current ACPI is on sourceforge. The SIS APIC workaround bits haven't yet
-> > > been backported to 2.4, so you either do the backport or wait 8)
-> > 
-> > Ok, so I took ACPI from sf and voila: it works now! I took the patch for
-> > 2.4.20 and it does fine. Are there chances to include this in the
-> > mainstream? Without my SIS-based motherboards do not work at all with
-> > shared interrupts (which you actually cannot prevent due to lacking bios
-> > support for pci-irq mapping).
-> > 
-> > BTW: I tried 2.4.21-pre[1-3] and none did work, of course.
-> 
-> You may be able to disable the APIC in the BIOS. One of my new Sis
-> boards gave this option and it is an ok workaround for now at least.
+Before it's get forgotten...
 
-Unfortunately it is not. Shared interrupts do _not_ work with APIC disabled.
-They _only_ work with APIC enabled in BIOS _and_ APIC support patch from sf.
-I tested every other combination and none did work.
+Cheers.
+						--ro
 
--- 
-Regards,
-Stephan
+
+--- NAPI_HOWTO.txt.orig	2002-12-24 06:20:31.000000000 +0100
++++ NAPI_HOWTO.txt	2003-01-09 13:25:30.000000000 +0100
+@@ -721,6 +721,23 @@
+ 
+ 
+ 
++
++APPENDIX 3: Scheduling issues.
++==============================
++As seen NAPI moves processing to softirq level. Linux uses the ksoftirqd as the 
++general solution to schedule softirq's to run before next interrupt and by putting 
++them under scheduler control. Also this prevents consecutive softirq's from 
++monopolize the CPU. This also have the effect that the priority of ksoftirq needs 
++to be considered when running very CPU-intensive applications and networking to
++get the proper balance of softirq/user balance. Increasing ksoftirq priority to 0 
++(eventually more) is reported cure problems with low network performance at high 
++CPU load.
++
++Most used processes in a GIGE router:
++USER       PID %CPU %MEM  SIZE   RSS TTY STAT START   TIME COMMAND
++root         3  0.2  0.0     0     0  ?  RWN Aug 15 602:00 (ksoftirqd_CPU0)
++root       232  0.0  7.9 41400 40884  ?  S   Aug 15  74:12 gated 
++
+ --------------------------------------------------------------------
+ 
+ relevant sites:

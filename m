@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270961AbUJVDwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270812AbUJVD5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270961AbUJVDwI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 23:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270960AbUJVDvy
+	id S270812AbUJVD5w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 23:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270937AbUJVD5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 23:51:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:45976 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S270858AbUJVDtk (ORCPT
+	Thu, 21 Oct 2004 23:57:47 -0400
+Received: from ozlabs.org ([203.10.76.45]:23193 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S270812AbUJVD5J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 23:49:40 -0400
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
-Date: Thu, 21 Oct 2004 22:49:36 -0500
-User-Agent: KMail/1.7
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@novell.com>,
-       linux-kernel@vger.kernel.org
-References: <20041021011714.GQ24619@dualathlon.random> <200410212155.52264.jbarnes@sgi.com> <417880C3.4000807@yahoo.com.au>
-In-Reply-To: <417880C3.4000807@yahoo.com.au>
+	Thu, 21 Oct 2004 23:57:09 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410212249.36535.jbarnes@sgi.com>
+Message-ID: <16760.34275.675065.538997@cargo.ozlabs.ibm.com>
+Date: Fri, 22 Oct 2004 14:00:35 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com,
+       gnb@sgi.com, akepner@sgi.com
+Subject: Re: [PATCH] use mmiowb in tg3.c
+In-Reply-To: <200410212201.35430.jbarnes@sgi.com>
+References: <200410211613.19601.jbarnes@engr.sgi.com>
+	<200410211628.06906.jbarnes@engr.sgi.com>
+	<20041021164007.4933b10b.davem@davemloft.net>
+	<200410212201.35430.jbarnes@sgi.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, October 21, 2004 10:38 pm, Nick Piggin wrote:
-> That problem shouldn't exist any more, so your one zone per node (?)
-> NUMA systems, incremental min won't have any effect at all.
+Jesse Barnes writes:
 
-Well, it used to affect us, since as the allocator iterated over nodes, the 
-incremental min would increase, and so by the time we hit the 3rd or so node, 
-we were leaving quite a bit of memory unused.  I just don't want to return to 
-the bad old days.
+> On Thursday, October 21, 2004 6:40 pm, David S. Miller wrote:
+> > On Thu, 21 Oct 2004 16:28:06 -0700
+> >
+> > Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> > > This patch originally from Greg Banks.  Some parts of the tg3 driver
+> > > depend on PIO writes arriving in order.  This patch ensures that in two
+> > > key places using the new mmiowb macro.  This not only prevents bugs (the
+> > > queues can be corrupted), but is much faster than ensuring ordering using
+> > > PIO reads (which involve a few round trips to the target bus on some
+> > > platforms).
+> >
+> > Do other PCI systems which post PIO writes also potentially reorder
+> > them just like this SGI system does?  Just trying to get this situation
+> > straight in my head.
+> 
+> The HP guys claim that theirs don't, but PPC does, afaik.  And clearly any 
+> large system that posts PCI writes has the *potential* of reordering them.
 
-> That said, it isn't something that we should just turn on and see
-> who yells.
+No, PPC systems don't reorder writes to PCI devices.  Provided you use
+inl/outl/readl/writel et al., all PCI accesses from one processor are
+strictly ordered, and if you use a spinlock, that gives you strict
+access ordering between processors.
 
-Agreed.
+Our barrier instructions mostly order cacheable accesses separately
+from non-cacheable accesses, except for the strongest barrier
+instruction, which orders everything.  Thus it would be useful for us
+to have an explicit indication of when a cacheable write (i.e. to main
+memory) has to be completed (from a PCI device's point of view) before
+a non-cacheable device read or write (e.g. to kick off DMA).
 
-Thanks,
-Jesse
+Paul.

@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314747AbSEHQ6I>; Wed, 8 May 2002 12:58:08 -0400
+	id <S314621AbSEHRA2>; Wed, 8 May 2002 13:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314748AbSEHQ6H>; Wed, 8 May 2002 12:58:07 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19217 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314747AbSEHQ6H>; Wed, 8 May 2002 12:58:07 -0400
-Date: Wed, 8 May 2002 12:54:14 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Clifford White <ctwhite@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86 question: Can a process have > 3GB memory?
-In-Reply-To: <E175ESI-0000PX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020508124801.3449C-100000@gatekeeper.tmr.com>
+	id <S314755AbSEHRA1>; Wed, 8 May 2002 13:00:27 -0400
+Received: from mta23-acc.tin.it ([212.216.176.76]:27333 "EHLO fep23-svc.tin.it")
+	by vger.kernel.org with ESMTP id <S314621AbSEHRAZ> convert rfc822-to-8bit;
+	Wed, 8 May 2002 13:00:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Johnny Mnemonic <johnny@themnemonic.org>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: Re: bug in tmpfs
+Date: Wed, 8 May 2002 19:03:29 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020508170024.RTDY6993.fep23-svc.tin.it@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002, Alan Cox wrote:
 
-> Remember DOS and EMM memory expansion. Basically that is what you come
-> down to. Allocate multiple large shared memory segments, attach the one
-> you need each time and implement software segment swapping.
 
-  I remember doing bank switching on IEEE-696 (S-100) system for both
-programs and "ramdisk," when 64K (sic) was a lot of memory.
- 
-> That should have you diving for an AMD hammer or IA64 box as soon as they
-> come out 8)
+----------  Forwarded Message  ----------
 
-  At the moment Itanium is shipping, it makes up for being expensive by
-also being slow ;-) However, Sun will sell you a 64bit UltraSPARC system
-with everything but monitor for <$1K. Add a few GB and load Linux. I
-*think* you can order with Linux preloaded now, but don't quote me on
-that. It's not blindingly fast but it's blindingly cheap.
+Subject: Re: bug in tmpfs
+Date: 08 May 2002 09:17:21 +0200
+From: Christoph Rohland <cr@sap.com>
+To: Johnny Mnemonic <johnny@themnemonic.org>
+
+> I've noticed the following wrong behaviour on tmpfs:
+>
+> (running kernel 2.4.18)
+>
+> [johnny@revenge johnny]$ cd /mnt/shm
+> [johnny@revenge shm]$ rm -rf W
+> [johnny@revenge shm]$ mkdir W
+> [johnny@revenge shm]$ cd W
+> [johnny@revenge W]$ touch MYFILE
+> [johnny@revenge W]$ ln -s X Y
+> [johnny@revenge W]$ ls -l
+> total 0
+> -rw-rw-r--    1 johnny   johnny          0 May  7 19:37 MYFILE
+> -rw-rw-r--    1 johnny   johnny          0 May  7 19:37 MYFILE
+> lrwxrwxrwx    1 johnny   johnny          1 May  7 19:37 Y -> X
+> [johnny@revenge W]$ ls -l
+> total 0
+> -rw-rw-r--    1 johnny   johnny          0 May  7 19:37 MYFILE
+> lrwxrwxrwx    1 johnny   johnny          1 May  7 19:37 Y -> X
+> [johnny@revenge W]$
+>
+> This bug is reproducible in most ways, when you create a
+> non-existent symlink, the first ls will always show up two "MYFILE",
+> while the second and further one won't.
+
+This is probably a misbehaviour of the general cfs layer on which the
+tmpfs directory handling relies. Further on my time nowaday is totally
+sucked up by my job. So I can't look into this myself.
+
+Please report this bug to the Linux Kernel Mailing list.
+
+Greetings
+                Christoph
+
+-------------------------------------------------------
+
+Anyone would like to track this bug before 2.4.19 release?
+
+Regards
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Johnny

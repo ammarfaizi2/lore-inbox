@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317876AbSIOGsr>; Sun, 15 Sep 2002 02:48:47 -0400
+	id <S317887AbSIOG4w>; Sun, 15 Sep 2002 02:56:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317887AbSIOGsr>; Sun, 15 Sep 2002 02:48:47 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:22798 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317876AbSIOGsq>;
-	Sun, 15 Sep 2002 02:48:46 -0400
-Date: Sat, 14 Sep 2002 23:49:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Brad Hards <bhards@bigpond.net.au>
-Cc: oliver@neukum.name, Brian Craft <bcboy@thecraftstudio.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: delay before open() works
-Message-ID: <20020915064944.GA727@kroah.com>
-References: <20020914094225.A1267@porky.localdomain> <200209151525.01920.bhards@bigpond.net.au> <20020915061026.GA484@kroah.com> <200209151638.32883.bhards@bigpond.net.au>
-Mime-Version: 1.0
+	id <S317888AbSIOG4w>; Sun, 15 Sep 2002 02:56:52 -0400
+Received: from packet.digeo.com ([12.110.80.53]:22406 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S317887AbSIOG4w>;
+	Sun, 15 Sep 2002 02:56:52 -0400
+Message-ID: <3D84340A.25ED4C69@digeo.com>
+Date: Sun, 15 Sep 2002 00:17:30 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH] add vmalloc stats to meminfo
+References: <3D8422BB.5070104@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209151638.32883.bhards@bigpond.net.au>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Sep 2002 07:01:40.0315 (UTC) FILETIME=[BDB7F2B0:01C25C85]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 15, 2002 at 04:38:32PM +1000, Brad Hards wrote:
-> On Sun, 15 Sep 2002 16:10, Greg KH wrote:
-> > This "second" hotplug event will happen when the driver registers with
-> > the "class".  So for the example of the USB scanner driver, it registers
-> > itself with the USB "class" to set up the file_ops structure (this is
-> > done in usb_register_dev().  At that point in time, /sbin/hotplug will
-> > be called again.
-> This is too soon, at least for the scanner driver. Look at how much code runs 
-> in scanner_probe() between the fops registration and the devfs registration.
+Dave Hansen wrote:
 > 
-> Hmmm, that is probably a race anyway. Oliver?
+> Some workloads like to eat up a lot of vmalloc space.
 
-You're right, that is a race.  And is due to the historical fact that
-usb_register() used to also register the fops structure at the same
-time.  Now that the functions are split apart, the call to
-usb_register_dev() should be done at the same place as the call to
-devfs_register().  Patches gladly accepted :)
+Which workloads are those?
 
-thanks,
+>  It is often hard to tell
+> whether this is because the area is too small, or just too fragmented.  This
+> makes it easy to determine.
 
-greg k-h
+I do not recall ever having seen any bug/problem reports which this patch
+would have helped to solve.  Could you explain in more detai why is it useful?

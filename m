@@ -1,81 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263504AbTIBFaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 01:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263508AbTIBFaq
+	id S263502AbTIBFeV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 01:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263515AbTIBFeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 01:30:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22681 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263504AbTIBFao (ORCPT
+	Tue, 2 Sep 2003 01:34:21 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:8842 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S263502AbTIBFeS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 01:30:44 -0400
-Date: Mon, 1 Sep 2003 22:30:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
-Subject: Re: [OOPS][RESEND] 2.6.0-test4-mm4
-Message-Id: <20030901223056.2700543d.akpm@osdl.org>
-In-Reply-To: <20030902064223.7a6dc372.bonganilinux@mweb.co.za>
-References: <E19tuSv-00059A-00@rammstein.mweb.co.za>
-	<20030901153647.1ff6bf1d.akpm@osdl.org>
-	<20030902064223.7a6dc372.bonganilinux@mweb.co.za>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 2 Sep 2003 01:34:18 -0400
+Date: Tue, 2 Sep 2003 06:34:15 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030902053415.GA7619@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <1062188787.4062.21.camel@elenuial.steamballoon.com> <20030901091524.A15370@flint.arm.linux.org.uk> <20030901101224.GB1638@mail.jlokier.co.uk> <20030901151710.A22682@flint.arm.linux.org.uk> <20030901165239.GB3556@mail.jlokier.co.uk> <20030901181148.C22682@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030901181148.C22682@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bongani Hlope <bonganilinux@mweb.co.za> wrote:
->
-> > Is it repeatable?  Exactly which modules were you attempting to load at the
->  > time?  And please send your .config.
->  > 
->  > Thanks.
+Russell King wrote:
+> >    1. That's not necessary when the virtual addresses are separated
+> >       by some multiple, is it?
 > 
+> Incorrect - with a VIVT, you have alias hell.  There is no multiple
+> which makes it safe.
+
+Ok.  I guess I was thinking of VIPT, but by now I am just guessing :)
+
+> > > I've tested on several silicon revisions of StrongARM-110's:
+> > > - H appears buggy (reports as rev. 2)
+> > > - K appears fine (reports as rev. 2)
+> > > - S appears buggy (reports as rev. 3)
+> > 
+> > It's possible that all of them are buggy, but the write buffer test
+> > doesn't manage to get writes into the buffer with the exact timing
+> > needed to trigger it.
 > 
->  This is repeatable, each time it tries to load the alsa snd module.
+> Well, I've just generated a kernel test which does more or less the
+> same thing (write to one mapping, write to other, read from first.)
+> This indicates the same result.
+> 
+> If you take a moment to think about what should be going on -
+> 
+> - first write gets translated to physical address, and the address with
+>   the data is placed in the write buffer.
+> - second write gets translated to the same physical address, and the
+>   address and data is placed into the write buffer such that we store
+>   the first write then the second write to the same physical memory.
+> - reading from the first mapping should return the second writes value
+>   no matter what.
 
-OK, it's a straightforward use-after-free in kobject_cleanup().  I snarfed
-a patch from Pat which allows arbitrary-length kobject names.  Maybe it
-wasn't quite ready yet.
+That is an incomplete explanation, because it should never be possible
+for reads to access data from the write buffer which isn't the most
+recent.  That would break ordinary programs which don't have alias mappings.
 
-t->release points at cdev_dynamic_release(), which frees the kobj.
+> > Unfortunately, while the write buffer test does
+> > pretty much guarantee a store/store/load instruction sequence, because
+> > it's generic it can't guarantee how those are executed in a
+> > superscalar or out of order pipeline.
+> 
+> ARM doesn't do any of those tricks.
 
-This should fix it up.
+Don't some of the ARMs executed two instructions concurrently, like
+the original Pentium?  The simple test is only valid if a
+store/store/load sequence is guaranteed to pass through the buggy part
+of the pipeline in exactly the same way, no matter which programs it
+appears in.
 
- lib/kobject.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+> > > So it seems your test program finds problems which DaveM's aliastest
+> > > program fails to detect...  Gah. ;(
+> > 
+> > Well, it's good to know it was useful :/
+> 
+> Well, we now have a kernel test to detect the problem, which alters our
+> behaviour appropriately.  Thanks.
 
-diff -puN lib/kobject.c~kobject-unlimited-name-lengths-use-after-free-fix lib/kobject.c
---- 25/lib/kobject.c~kobject-unlimited-name-lengths-use-after-free-fix	2003-09-01 22:20:27.000000000 -0700
-+++ 25-akpm/lib/kobject.c	2003-09-01 22:28:00.000000000 -0700
-@@ -443,15 +443,22 @@ void kobject_cleanup(struct kobject * ko
- {
- 	struct kobj_type * t = get_ktype(kobj);
- 	struct kset * s = kobj->kset;
-+	char *name = NULL;
- 
- 	pr_debug("kobject %s: cleaning up\n",kobject_name(kobj));
-+
-+	if (kobj->k_name != kobj->name)
-+		name = kobj->k_name;
-+
- 	if (t && t->release)
- 		t->release(kobj);
- 	if (s)
- 		kset_put(s);
--	if (kobj->k_name != kobj->name)
--		kfree(kobj->k_name);
--	kobj->k_name = NULL;
-+
-+	if (name)
-+		kfree(name);
-+	else
-+		kobj->k_name = NULL;
- }
- 
- /**
+Fwiw, PA-RISC shows a similar problem.
 
-_
-
+-- Jamie

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266112AbTFWTKc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 15:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266113AbTFWTKc
+	id S266109AbTFWTIk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 15:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbTFWTIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 15:10:32 -0400
-Received: from relay1.enom.com ([66.150.5.205]:2310 "EHLO Relay1.enom.com")
-	by vger.kernel.org with ESMTP id S266112AbTFWTK2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 15:10:28 -0400
-Message-ID: <20030623122434-034400041>
-Message-ID: <3EF753EC.9080807@homemail.com>
-Date: Tue, 24 Jun 2003 05:24:28 +1000
-From: "D. Sen" <dsen@homemail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en-us, en
+	Mon, 23 Jun 2003 15:08:40 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:65287 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266109AbTFWTIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 15:08:37 -0400
+Date: Mon, 23 Jun 2003 15:21:22 -0400 (EDT)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] nbd driver for 2.5.72
+In-Reply-To: <E19Tbyp-0004mi-00@calista.inka.de>
+Message-ID: <Pine.LNX.4.10.10306231515130.28273-100000@clements.sc.steeleye.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ide-scsi on 2.4.21 (on IBM Thinkpad T30)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Jun 2003 19:24:35.0553 (UTC) FILETIME=[14B53D10:01C339BD]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.21 causes hangs and/or ooops during boot up if I have a 
-"probeall scsi_hostadapter ide-scsi" in my /etc/modules.conf. If I take 
-out that line and manually load the module after the laptop has booted, 
-everything is fine.
 
-There were no such problems in 2.4.20 or earlier kernels.
 
-Please cc me any responses as I am not on the mailing list.
+On Sat, 21 Jun 2003, Bernd Eckenfels wrote:
 
-DS
+> Is anybody aware of a journalling nbd, which keeps track of unsynced
+> changes, so a fast reintegration is possible?
+> 
+> Well perhaps this is a property of the md device, instead... hmm. Is there
+> such a function available? Could be some left over from snapshot code.
 
+Assuming that you use raid1 over nbd, you could try Peter T Breuer's patches 
+for raid1 (called fr1) that allow the use of a bitmap for resyncing. I am 
+also currently working on expanding on his patches to make the bitmap 
+persistent (stored in a file) and to allow asynchronous writing to the 
+"backup" (in this case, nbd) device.
+
+Stay tuned...more details on linux-raid about this...
+
+--
+Paul
 

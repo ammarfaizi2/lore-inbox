@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbUCIW0G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 17:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbUCIW0G
+	id S262235AbUCIWZW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 17:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262250AbUCIWZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 17:26:06 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:33736 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S262238AbUCIW0A convert rfc822-to-8bit
+	Tue, 9 Mar 2004 17:25:21 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:46875 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262235AbUCIWZS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 17:26:00 -0500
-Date: Tue, 9 Mar 2004 23:25:59 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Print function names during do_initcall debugging
-Message-ID: <20040309222559.GX17857@lug-owl.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Tue, 9 Mar 2004 17:25:18 -0500
+Date: Tue, 9 Mar 2004 23:26:24 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kliment Yanev <Kliment.Yanev@helsinki.fi>
+Cc: Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Nokia c110 driver
+Message-ID: <20040309222624.GA2046@mars.ravnborg.org>
+Mail-Followup-To: Kliment Yanev <Kliment.Yanev@helsinki.fi>,
+	Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
 	linux-kernel@vger.kernel.org
+References: <404C8A35.3020308@helsinki.fi> <20040308090640.2d557f9e.rddunlap@osdl.org> <404CF77A.2050301@helsinki.fi> <20040308150907.4db68831.rddunlap@osdl.org> <404D0032.1000807@helsinki.fi> <20040308153602.331f079e.rddunlap@osdl.org> <404DC622.7020300@helsinki.fi> <20040309080409.49fc0358.rddunlap@osdl.org> <20040309192713.GA2182@mars.ravnborg.org> <404E4006.5020604@helsinki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Operating-System: Linux mail 2.4.18
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <404E4006.5020604@helsinki.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus!
+> 
+> Is there some kbuild howto somewhere? If not, one is definitely
+> necessary I think. I had never heard about the _shipped thing (and I did
+> look around a bit and read and reread the driver porting guide chapter
+> on kbuild).
+>From Documentation/kbuild/makefiles.txt:
 
-Please merge the following patch. It prints __init function names while
-all calls are executed at do_initcalls().
+=== 10 TODO
 
---- a/init/main.c	23 Feb 2004 22:50:26 -0000	1.1.1.51
-+++ b/init/main.c	9 Mar 2004 22:00:19 -0000
-@@ -36,6 +36,7 @@
- #include <linux/profile.h>
- #include <linux/rcupdate.h>
- #include <linux/moduleparam.h>
-+#include <linux/kallsyms.h>
- #include <linux/writeback.h>
- #include <linux/cpu.h>
- #include <linux/efi.h>
-@@ -495,8 +496,10 @@
- 	for (call = &__initcall_start; call < &__initcall_end; call++) {
- 		char *msg;
- 
--		if (initcall_debug)
--			printk("calling initcall 0x%p\n", *call);
-+		if (initcall_debug) {
-+			printk(KERN_DEBUG "Calling initcall 0x%p: ", *call);
-+			print_symbol("%s()\n", (unsigned long) *call);
-+		}
- 
- 		(*call)();
- 
+- Describe how kbuild support shipped files with _shipped.
 
-MfG, JBG
+I'm slowly writing something with main focus on external modules.
+This text will include the trick with _shipped.
+But until this is finished no luck.
 
--- 
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!
-   ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));
+	Sam

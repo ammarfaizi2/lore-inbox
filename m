@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbUJWTOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbUJWXHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbUJWTOj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 15:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbUJWTOj
+	id S261335AbUJWXHh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUJWXHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 15:14:39 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:14044 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261279AbUJWTOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 15:14:37 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-From: Lee Revell <rlrevell@joe-job.com>
-To: paulmck@us.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-In-Reply-To: <20041023185132.GA1268@us.ibm.com>
-References: <20041015102633.GA20132@elte.hu>
-	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
-	 <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
-	 <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
-	 <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>
-	 <20041022175633.GA1864@elte.hu>  <20041023185132.GA1268@us.ibm.com>
-Content-Type: text/plain
-Date: Sat, 23 Oct 2004 15:14:35 -0400
-Message-Id: <1098558876.13176.54.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 19:07:35 -0400
+Received: from zamok.crans.org ([138.231.136.6]:32968 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261336AbUJWXGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:06:06 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-mm1: LVM stopped working
+From: Mathieu Segaud <matt@minas-morgul.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+Date: Sun, 24 Oct 2004 01:06:07 +0200
+Message-ID: <87oeitdogw.fsf@barad-dur.crans.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 11:51 -0700, Paul E. McKenney wrote:
-> On Fri, Oct 22, 2004 at 07:56:33PM +0200, Ingo Molnar wrote:
-> > 
-> > i have released the -U10.2 Real-Time Preemption patch, which can be
-> > downloaded from:
-> > 
-> >   http://redhat.com/~mingo/realtime-preempt/
-> 
-> On realtime-preempt-2.6.9-mm1-U10.3:
-> 
-> o	In rcupdate.h, I believe that the:
-> 
-> 	+# define rcu_read_unlock_nort()                rcu_read_lock_nort()
-> 
-> 	should instead be:
-> 
-> 	+# define rcu_read_unlock_nort()                rcu_read_unlock()
-> 
 
-Oh no!  That would explain a lot... the typical report is it works fine
-until people go to use the network :-P
+Well, I gave a try to last -mm tree. The bot seemed good till it got to
+LVM stuff. Vgchange does not find any volume groups. I can't say much because
+lvm is pretty "early stuff" on this box; so it is pretty unusable. All I know
+for now, as I changed a little my boot scripts to be more verbose, is that
+vgchange -avvv y returns this kind of message: 
+hdXN: cannot read LABEL
+and this message for all parts it can test....
+As I need this box up and running, I came back to 2.6.9-rc3-mm3 (it works
+pretty well). I will be able to run more tests on it, tomorrow but for now
+that's all I can provide.
 
-Lee
+Oh and dmesg didn't have any oops or BUG in it, and seemed quite usual,
+in IDE detection and settings messages and device-mapper messages.
+
+However, I use dm-crypt to encrypt my / (no initrd, just initramfs) and
+it works under 2.6.9-mm1, so the bug is likely to be in IDE stuff.
+
+Sorry, for not being able to provide more infos. I will see if I can try on
+another LVM'ed box but not for critical stuff.
+
+Mathieu
+
+-- 
+Lots of luck ... please pass your crack pipe arounds so the rest of us
+idiots can see your vision or lack of ... 
+
+	- Andre Hedrick on linux-kernel
 

@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbTFLCDj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 22:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbTFLCDj
+	id S264671AbTFLCJY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 22:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbTFLCJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 22:03:39 -0400
-Received: from netmail01.services.quay.plus.net ([212.159.14.219]:54156 "HELO
-	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264668AbTFLCDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 22:03:38 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Andrew Morton" <akpm@digeo.com>, "Steve French" <smfrench@austin.rr.com>
-Cc: <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: Compiling kernel with SuSE 8.2/gcc 3.3
-Date: Thu, 12 Jun 2003 03:17:22 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAAEMEEEAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 11 Jun 2003 22:09:24 -0400
+Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:21684 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S264671AbTFLCJX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 22:09:23 -0400
+Subject: Re: [PATCH] io stalls
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+In-Reply-To: <20030612012951.GG1500@dualathlon.random>
+References: <20030611003356.GN26270@dualathlon.random>
+	 <1055292839.24111.180.camel@tiny.suse.com>
+	 <20030611010628.GO26270@dualathlon.random>
+	 <1055296630.23697.195.camel@tiny.suse.com>
+	 <20030611021030.GQ26270@dualathlon.random>
+	 <1055353360.23697.235.camel@tiny.suse.com>
+	 <20030611181217.GX26270@dualathlon.random>
+	 <1055356032.24111.240.camel@tiny.suse.com>
+	 <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au>
+	 <20030612012951.GG1500@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055384547.24111.322.camel@tiny.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 11 Jun 2003 22:22:28 -0400
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <20030611184045.21f1fc83.akpm@digeo.com>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew.
+On Wed, 2003-06-11 at 21:29, Andrea Arcangeli wrote:
 
- >> Although it fixes it for building on 32 bit architectures, 
- >> won't changing
- >>
- >>	__u64 uid = 0xFFFFFFFFFFFFFFFF;
- >>
- >> to
- >>
- >>	__u64 uid = 0xFFFFFFFFFFFFFFFFULL;
- >>
- >> generate a type mismatch warning on ppc64 and similar 64
- >> bit architectures since __u64 is not a unsigned long long
- >> on ppc64 (it is unsigned long)?
+> this will avoid get_request_wait_wakeup to mess the wakeup, so we can
+> wakep_nr(rq.count) safely.
+> 
+> then there's the last issue raised by Chris, that is if we get request
+> released faster than the tasks can run, still we can generate a not
+> perfect fairness. My solution to that is to change wake_up to have a
+> nr_exclusive not obeying to the try_to_wakeup retval. that should
+> guarantee exact FIFO then, but it's a minor issue because the requests
+> shouldn't be released systematically in a flood. So I'm leaving it
+> opened for now, the others already addressed should be the major ones.
 
- >	u64 uid = -1;
- >
- > will work just nicely.
+I think the only time we really need to wakeup more than one waiter is
+when we hit the q->batch_request mark.  After that, each new request
+that is freed can be matched with a single waiter, and we know that any
+previously finished requests have probably already been matched to their
+own waiter.
 
-Won't that generate a warning about assigning a signed quantity
-to an unsigned variable?
+-chris
 
-What's really needed is a set of definitions along the lines of
 
-	#define MAX_U32	((__u32) 0xFFFFFFFFUL)
-	#define MAX_U64	((__u64) 0xFFFFFFFFFFFFFFFFULL)
-
-but as an intermediate measure, how about...
-
-	__u64 uid = ((__u64) 0xFFFFFFFFFFFFFFFFULL);
-
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.488 / Virus Database: 287 - Release Date: 5-Jun-2003
 

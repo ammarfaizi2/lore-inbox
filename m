@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264952AbSKERJd>; Tue, 5 Nov 2002 12:09:33 -0500
+	id <S265013AbSKERV1>; Tue, 5 Nov 2002 12:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264955AbSKERHy>; Tue, 5 Nov 2002 12:07:54 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:46088 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S264952AbSKERHg>;
-	Tue, 5 Nov 2002 12:07:36 -0500
-Date: Tue, 5 Nov 2002 18:14:06 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Jim Paris <jim@jtan.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: time() glitch on 2.4.18: solved
-Message-ID: <20021105171406.GC879@alpha.home.local>
-References: <20021102013704.A24684@neurosis.mit.edu> <20021103143216.A27147@neurosis.mit.edu> <1036355418.30679.28.camel@irongate.swansea.linux.org.uk> <20021105113020.A5210@neurosis.mit.edu>
-Mime-Version: 1.0
+	id <S264990AbSKERV1>; Tue, 5 Nov 2002 12:21:27 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:22958 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S265013AbSKERVV>;
+	Tue, 5 Nov 2002 12:21:21 -0500
+Message-ID: <3DC7FF9B.AFC268E5@hp.com>
+Date: Tue, 05 Nov 2002 10:27:55 -0700
+From: Khalid Aziz <khalid_aziz@hp.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Paul.Clements@steeleye.com, Khalid Aziz <khalid@fc.hp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Retrieve configuration information from kernel
+References: <Pine.LNX.4.10.10210291204590.28595-100000@clements.sc.steeleye.com> <3DBED111.96A3A1E8@hp.com> <3DBEE1CE.2060200@nortelnetworks.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021105113020.A5210@neurosis.mit.edu>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, why not trying to resync, with something like :
+Chris Friesen wrote:
+> 
+> Khalid Aziz wrote:
+> > Paul Clements wrote:
+> >
+> >>Have you considered compressing the config info in order to reduce
+> >>the space wastage in the loaded kernel image? Could easily be 10's of KB
+> >>(not that that's a lot these days). The info would then be retrieved via
+> >>"gunzip -c", et al. instead of a simple "cat".
+> >>
+> >
+> > I wanted to start with a simple implementation first. There are a couple
+> > of things that can be done in future to further improve meory usage: (1)
+> > Drop "CONFIG_" and "# CONFIG_" from each line and add it back when
+> > printing from /proc/ikconfig and extract-ikconfig script, (2) Compress
+> > the resulting configuration. Something to do in near future :)
+> 
+> Do we really need to store the ones that are not actually set to
+> something?  You'll get a bunch of queries when doing a "make oldconfig",
+> but saying N to all of them should just work...after all its the ones
+> that are actually *set* that we care about.
+> 
 
-   if (count >= LATCH)
-	count = (count >> 8) | inb(0x40) << 8;
+It is annoying to have to answer a lots of questions when running "make
+oldconfig". This also makes your life a little difficult when you are
+using the config file from an earlier kernel version to build a newer
+kernel. You will get lots of questions to answer including questions for
+the new features in the new kernel and you can no longer blindly answer
+"N" to every question.
 
-Cheers,
-Willy
+--
+Khalid 
 
->  		count = inb_p(0x40);    /* read the latched count */
->  		count |= inb(0x40) << 8;
-> +
-> +		/* Any unpaired read will cause the above to swap MSB/LSB
-> +		   forever.  Try to detect this and reset the counter. */
-> +		if (count > LATCH) {
-> +			outb_p(0x34, 0x43);
-> +			outb_p(LATCH & 0xff, 0x40);
-> +			outb(LATCH >> 8, 0x40);
-> +			count = LATCH - 1;
-> +		}
-> +
->  		spin_unlock(&i8253_lock);
->  
->  		count = ((LATCH-1) - count) * TICK_SIZE;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+====================================================================
+Khalid Aziz                                Linux and Open Source Lab
+(970)898-9214                                        Hewlett-Packard
+khalid@hp.com                                       Fort Collins, CO
+
+"The Linux kernel is subject to relentless development" 
+				- Alessandro Rubini

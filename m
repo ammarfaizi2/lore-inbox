@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267364AbTAGJqd>; Tue, 7 Jan 2003 04:46:33 -0500
+	id <S267358AbTAGJpf>; Tue, 7 Jan 2003 04:45:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267365AbTAGJqd>; Tue, 7 Jan 2003 04:46:33 -0500
-Received: from mx15.sac.fedex.com ([199.81.197.54]:65292 "EHLO
-	mx15.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S267364AbTAGJqb>; Tue, 7 Jan 2003 04:46:31 -0500
-Date: Tue, 7 Jan 2003 17:52:55 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Tomas Szepe <szepe@pinerecords.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.20 IDE for 2.4.21-pre3
-In-Reply-To: <Pine.LNX.4.10.10301062354120.421-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.51.0301071752230.14880@boston.corp.fedex.com>
-References: <Pine.LNX.4.10.10301062354120.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/07/2003
- 05:55:01 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/07/2003
- 05:55:04 PM,
-	Serialize complete at 01/07/2003 05:55:04 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267362AbTAGJpf>; Tue, 7 Jan 2003 04:45:35 -0500
+Received: from [212.71.168.94] ([212.71.168.94]:48371 "EHLO
+	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
+	id <S267358AbTAGJpe>; Tue, 7 Jan 2003 04:45:34 -0500
+Date: Tue, 7 Jan 2003 10:54:06 +0100
+From: Jan Hudec <bulb@ucw.cz>
+To: Kaleb Pederson <kibab@icehouse.net>
+Cc: Lkml <linux-kernel@vger.kernel.org>
+Subject: Re: windows=stable, linux=5 reboots/50 min
+Message-ID: <20030107095406.GH2141@vagabond>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
+	Kaleb Pederson <kibab@icehouse.net>,
+	Lkml <linux-kernel@vger.kernel.org>
+References: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 06, 2003 at 10:57:03PM -0800, Kaleb Pederson wrote:
+> After a recent hard drive crash, I re-installed Linux to a new hard drive.
+> After about 2 weeks, my system now spontaneously reboots about once per 10
+> minutes (on avg.).  I'm assuming I messed up something in my kernel
+> configuration as Windows is still stable. To verify that it wasn't the new
+> hard drive (or use of different controller) I formatted a segment of it
+> under Windows and copied 7+ gb of data onto it while doing other things
+> without problem.
+> 
+> The system will reboot as early as after detecting the hard drives and
+> before loading the root filesystem or anytime thereafter - sometimes in
+> logging into the console, sometimes in X.
+> 
+> My system configuration is as follows:
+> 
+> Microstar 694D-Pro-AR
+> Dual PIII - 800's - not overclocked
+> Nice 450 Watt PS
+> Onboard Promise PDC20265
+> Onboard AC97Audio - Disabled
+> Soundblaster Live
+> 2 Hard drives
+>  - 1=IBM-40gb on Promise Controller
+>  - 1=WD-80gb on onboard UDMA/66 controller (previous configuration was also
+> on promise)
+> USB Keyboard/Mouse/Scanner
+> Intel EEPro100
+> NVidia TNT2 Utlra (considering the system sometimes crashes before I enter X
+> and before the NVidia driver is loaded, my kernel has not been tainted at
+> this point).
+> 
+> I don't get any messages is /var/log/... nor do I get an oops.  I have tried
+> this under 2.4.19, 2.4.20, and 2.4.21-pre2 (all compiled with gcc-2.95.3)
+> and I get the same behavior.  I have noticed no similarities between the
+> crashes.  At this point, I have no idea how to isolate it other than to
+> start removing every single unnecessary kernel module/option from my .config
+> and recompiling.  Any suggestions?  Want to see a grep of my .config?
 
-Just to let you know that the patch works.
+I have just replaced a power-source (the new one has higher power) and
+the machine started crashing.  Until I increased voltages for CPU in
+bios. Maybe playing with bios in ways like changing core and IO voltage,
+changing various timings etc. could help. You could also try disabling
+the SCSI and IDE controlers in turn if one of them - or the linux driver
+for one of them - is to blame.
 
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
-On Mon, 6 Jan 2003, Andre Hedrick wrote:
-
->
-> Not a problem!
->
-> I am distracted with other issues :-/
->
-> I would ask that you do it into sends.
-> One to lkml and a second direct to me.
->
-> All lkml from/to/cc/bcc traffic drops into procmailrc's ${}/KERNEL
->
-> Only direct email not effected by the list of procmail rules goes straight
-> to a first read directory.
->
-> Cheers,
->
-> On Tue, 7 Jan 2003, Tomas Szepe wrote:
->
-> > > [andre@linux-ide.org]
-> > >
-> > > I placed this on k.o for you and listed this email as the origin of the
-> > > work.  I am assuming this is okay.  If not please let me know.
-> >
-> > Thanks a lot, Andre.  Can I send further diffs of this kind to you?
-> >
-> > I'm removing the patch from my web now, as it's available from
-> > http://www.[country].kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.21/
-> >
-> > --
-> > Tomas Szepe <szepe@pinerecords.com>
-> >
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVCIAXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVCIAJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbVCIAXz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:23:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCIAXo
+	id S262427AbVCIAJh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:09:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVCIAE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:23:44 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59660 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262251AbVCIAUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 19:20:49 -0500
-Date: Wed, 9 Mar 2005 01:20:46 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Christophe Lucas <c.lucas@ifrance.com>,
-       Domen Puncer <domen@coderock.org>
-Cc: linux-kernel@vger.kernel.org, Karsten Keil <kkeil@suse.de>
-Subject: Re: 2.6.11-mm2
-Message-ID: <20050309002046.GD3146@stusta.de>
-References: <20050308033846.0c4f8245.akpm@osdl.org>
+	Tue, 8 Mar 2005 19:04:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:62097 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262414AbVCIACK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 19:02:10 -0500
+Date: Tue, 8 Mar 2005 15:58:07 -0800
+From: Greg KH <greg@kroah.com>
+To: Wen Xiong <wendyx@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
+Message-ID: <20050308235807.GA11807@kroah.com>
+References: <42225A47.3060206@us.ltcfwd.linux.ibm.com> <20050228063954.GB23595@kroah.com> <4228CE41.2000102@us.ltcfwd.linux.ibm.com> <20050304220116.GA1201@kroah.com> <422CD9DB.10103@us.ltcfwd.linux.ibm.com> <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050308033846.0c4f8245.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <422DF525.8030606@us.ltcfwd.linux.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 03:38:46AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.11-mm1:
->...
-> +drivers-isdn-tpam-convert-to-pci_register_driver.patch
->...
->  Little code tweaks.
->...
+On Tue, Mar 08, 2005 at 01:55:33PM -0500, Wen Xiong wrote:
+> +static ssize_t jsm_driver_boards_show(struct device_driver *ddp, char *buf)
+> +{
+> +	int adapter_count = 0;
+> +	adapter_count = jsm_total_boardnum();
+> +	return snprintf(buf, PAGE_SIZE, "%d\n", adapter_count);
+> +}
+> +static DRIVER_ATTR(boards, S_IRUSR, jsm_driver_boards_show, NULL);
 
-Please drop this patch.
+Why is this file even needed?  You can just look at the number of sysfs
+directories attached to this device, right?
 
-Karsten has a patch ready to remove this driver (because the hardware it 
-was supposed to drive never went into production), and such patches only 
-cause needless rediffs.
+thanks,
 
-@Karsten:
-Could you submit your patch to remove tpam to Andrew?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

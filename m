@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUEJWA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUEJWDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUEJWA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 18:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUEJWAN
+	id S261951AbUEJWDl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 18:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUEJWBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:00:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43668 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261654AbUEJV7c (ORCPT
+	Mon, 10 May 2004 18:01:31 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:64710 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S261987AbUEJWBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 17:59:32 -0400
-Date: Mon, 10 May 2004 15:02:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-Id: <20040510150203.3257ccac.akpm@osdl.org>
-In-Reply-To: <20040510223755.A7773@infradead.org>
-References: <20040510024506.1a9023b6.akpm@osdl.org>
-	<20040510223755.A7773@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 10 May 2004 18:01:09 -0400
+Message-ID: <409FFB44.5030304@keyaccess.nl>
+Date: Mon, 10 May 2004 23:59:32 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+References: <409F4944.4090501@keyaccess.nl> <200405102125.51947.bzolnier@elka.pw.edu.pl> <409FF068.30902@keyaccess.nl>
+In-Reply-To: <409FF068.30902@keyaccess.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> > +hugetlb_shm_group-sysctl-patch.patch
-> > 
-> >  Add /proc/sys/vm/hugetlb_shm_group: this holds the group ID of users who may
-> >  allocate hugetlb shm segments without CAP_IPC_LOCK.  For Oracle.
-> > 
-> > +mlock_group-sysctl.patch
-> > 
-> >  /proc/sys/vm/mlock_group: group ID of users who can do mlock() without
-> >  CAP_IPC_LOCK.  Not sure that we need this.
-> 
-> These two just introduced a subtile behaviour change during stable series,
-> possibly (not likely) leading to DoS opportunities from applications running
-> as gid 0.
+Rene Herman wrote:
 
-mlock_group is likely to go away.
+> With this one, the cache flushing noise is no more, but still a problem 
+> unfortunately. With or without these patches, 2.6.6 powers down the 
+> drive during reboot. This is very annoying, seeing as how it immediately 
+> needs to spin up again for POST.
 
-Is an unprivileged user likely to have gid 0?   Easy enough to fix, anyway.
+Sorry, mistaken. This only happens _with_ your change. Without, 2.6.6 
+just complains.
 
---- 25/fs/hugetlbfs/inode.c~hugetlb_shm_group-sysctl-gid-0-fix	Mon May 10 14:57:31 2004
-+++ 25-akpm/fs/hugetlbfs/inode.c	Mon May 10 14:58:59 2004
-@@ -722,8 +722,11 @@ static unsigned long hugetlbfs_counter(v
- 
- static int can_do_hugetlb_shm(void)
- {
--	return likely(capable(CAP_IPC_LOCK) ||
--			in_group_p(sysctl_hugetlb_shm_group));
-+	if (capable(CAP_IPC_LOCK))
-+		return 1;
-+	if (sysctl_hugetlb_shm_group == 0)
-+		return 0;
-+	return in_group_p(sysctl_hugetlb_shm_group);
- }
- 
- struct file *hugetlb_zero_setup(size_t size)
-
->  Really, with capabilities first and now selinux we have moved
-> away from treating uid 0 special, so introducing special casing of a gid
-> now is more than just braindead.
-
-Capabilities are broken and don't work.  Nobody has a clue how to provide
-the required services with SELinux and nobody has any code and we need the
-feature *now* before vendors go shipping even more ghastly stuff.
-
+Rene.

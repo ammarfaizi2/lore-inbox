@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUEKShP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbUEKShc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUEKShP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 14:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUEKShP
+	id S263149AbUEKShc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 14:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUEKShb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 14:37:15 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:35023 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263147AbUEKShJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 14:37:09 -0400
-Message-ID: <00c001c43786$f1805000$ff0da8c0@amr.corp.intel.com>
-From: "Geoff Gustafson" <geoff@linux.jf.intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Cc: "Ken Chen" <kenneth.w.chen@intel.com>
-References: <409FFF3B.3090506@linux.intel.com> <20040511004551.7c7af44d.akpm@osdl.org>
-Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
-Date: Tue, 11 May 2004 11:36:58 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 11 May 2004 14:37:31 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:36759 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263149AbUEKShY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 14:37:24 -0400
+Subject: Re: [patch] really-ptrace-single-step
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0405111036320.25232@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0405111007440.25232@bigblue.dev.mdolabs.com>
+	 <1084297014.1729.10.camel@slack.domain.invalid>
+	 <Pine.LNX.4.58.0405111036320.25232@bigblue.dev.mdolabs.com>
+Content-Type: text/plain
+Message-Id: <1084300801.1729.7.camel@slack.domain.invalid>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 11 May 2004 15:40:02 -0300
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Geoff Gustafson <geoff@linux.jf.intel.com> wrote:
->> 
->> I started this patch based on profiling an enterprise database
->>  application on a 32p IA64 NUMA machine, where del_timer_sync was
->>  one of the top few functions taking CPU time in the kernel.
+On Tue, 2004-05-11 at 14:38, Davide Libenzi wrote:
+> On Tue, 11 May 2004, Fabiano Ramos wrote:
 > 
-> Do you know where it's being called from?
+> > It would not work against 2.6.5, since
+> > 
+> > do_syscall_trace()
+> > 
+> > makes the check
+> > 
+> > if (!test_thread_flag(TIF_SYSCALL_TRACE))
+> > 		return;
+> > 
+> > Simply removing it would do?
+> 
+> No no. You need to OR it with the single-step. Try:
+> 
+> if (!test_thread_flag(TIF_SYSCALL_TRACE) && 
+>     !test_thread_flag(TIF_SINGLESTEP))
+> 	return;
+> 
+> 
+> - Davide
 
-OK, the main sources were:
+Still not working. :(
+Correct me if I am wrong: is TIF_SINGLESTEP asserted whenever a process
+is being singlestepped? I do not see where it is done.
 
-sys_semtimedop() -> schedule_timeout()
-
-sys_io_getevents() -> read_events() -> clear_timeout()
-
-- Geoff
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

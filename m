@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbUKGGsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbUKGHCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbUKGGsc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 01:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbUKGGsc
+	id S261549AbUKGHCh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 02:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbUKGHCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 01:48:32 -0500
-Received: from quechua.inka.de ([193.197.184.2]:63419 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261547AbUKGGsa (ORCPT
+	Sun, 7 Nov 2004 02:02:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50369 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261549AbUKGHCf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 01:48:30 -0500
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: OT: cron filling process table (was: deadlock with 2.6.9)
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <200411070058_MC3-1-8E27-AAEF@compuserve.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CQgqi-0006iS-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sun, 07 Nov 2004 07:48:28 +0100
+	Sun, 7 Nov 2004 02:02:35 -0500
+Date: Sat, 6 Nov 2004 23:02:28 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christian Kujau <evil@g-house.de>
+cc: LKML <linux-kernel@vger.kernel.org>, alsa-devel@lists.sourceforge.net,
+       perex@suse.cz
+Subject: Re: Oops in 2.6.10-rc1
+In-Reply-To: <418D7959.4020206@g-house.de>
+Message-ID: <Pine.LNX.4.58.0411062244150.2223@ppc970.osdl.org>
+References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz>
+ <4180FDB3.8080305@g-house.de> <418A47BB.5010305@g-house.de>
+ <418D7959.4020206@g-house.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-just an thought on cron, not very kernel related:
 
-In article <200411070058_MC3-1-8E27-AAEF@compuserve.com> you wrote:
-> Why so many cron processes?  Is this normal on your system, or does it
-> look like cron keeps spawning processes because it gets no response on the
-> sockets?
+On Sun, 7 Nov 2004, Christian Kujau wrote:
+> 
+> if someone could give me a hint here what to do next or perhaps tell me
+> that the whole things was totally pointless - please say so.
+> i am somehow lost as to which is the right person to bug here.
 
-if you have a cron job which is executed very often cron will spawn a new
-child everytime the deadline is reached. if the client is stuck for some
-reason (ie. uninterruptiple sleep while accessing a broken ressource) it
-will soon fill up your systems.
+Since you seem to be a BK user, try doing a
 
-Personally thats why I prefer a cron-like system, which is configured with
-maximum concurrency (or always serialize the jobs for a given type). This
-has problems with handing jobs, but it is generally more stable for the
-system.
+	bk revtool sound/pci/ens1370.c 
 
-Greetings
-Bernd
+and see if you can find the change that caused your problem. Of course, 
+the real change might be somewhere else in the sound driver initialization 
+path, so it's not like just that one file might be the cause. Regardöess, 
+the more you can pinpoint when the problem started, the better.
+
+Also, if you enable frame pointers (under kernel debugging), the traceback
+will look a bit better. As it is, your oops looks looks like something has
+jumped off into la-la-land by jumping through a bad pointer (the value is
+still in %ecx), but it's definitely not clear _where_ that happened.  
+Your trace points to pci_enable_device_bars(), but that may well be just
+stale stack contents.
+
+		Linus

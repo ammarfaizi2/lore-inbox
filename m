@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265391AbRFVMh0>; Fri, 22 Jun 2001 08:37:26 -0400
+	id <S265395AbRFVMq5>; Fri, 22 Jun 2001 08:46:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265393AbRFVMhQ>; Fri, 22 Jun 2001 08:37:16 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:38179 "EHLO
-	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S265391AbRFVMhB>; Fri, 22 Jun 2001 08:37:01 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6BDC@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'landley@webofficenow.com'" <landley@webofficenow.com>,
-        linux-kernel@vger.kernel.org
-Subject: RE: The latest Microsoft FUD. This time from BillG, himself.
-Date: Fri, 22 Jun 2001 08:36:50 -0400
+	id <S265396AbRFVMqr>; Fri, 22 Jun 2001 08:46:47 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:22283 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S265395AbRFVMqi>; Fri, 22 Jun 2001 08:46:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: hunghochak@netscape.net (Ho Chak Hung), linux-kernel@vger.kernel.org
+Subject: Re: Using page cache without a file system
+Date: Fri, 22 Jun 2001 14:49:42 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <72AE45C3.2DE2C328.0F76C228@netscape.net>
+In-Reply-To: <72AE45C3.2DE2C328.0F76C228@netscape.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Message-Id: <01062214494203.00455@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 22 June 2001 05:33, Ho Chak Hung wrote:
+> Is it possible to allocate and add pages to the page cache without a
+> underlying file system in Linux 2.4? I know that the host pointer to inode
+> structure inside the address_space structure can be NULL, but does this
+> mean that we can still make use of page cache operations like readpage or
+> writepage if we do not back up the cache with a file system? I am currently
+> developing a driver that wants to make use of the page cache, however, I
+> want to save myself with the heavy load of kmalloc.
+>
+> Any hint would be greatly appreciated.
 
+Check out ramfs
 
->Did I mention I'm writing a book on all this?  (The history of linux and
-the 
->computer industry, going back to World War II...)  This makes me the only 
->person I know who's excited about finding ~50 issues of "Compute" and 
->"Compute's gazette" from the mid 80's at a garage sale.  An the university
-of 
->texas's library has been quite a help.  So have the used book stores...
-
-If your interested in old magazines, I had saved literally dozens of 80's
-computer magazines, Compute, Computes Gazette, and some others.  I just
-cleaned up the house, but may have some left.  I didn't think anyone was
-interested in this stuff, and threw a bunch away.  I would be happy to
-donate them if I have some left.  Let me know offline, as this sounds like
-an interesting project.
-
-B.
+--
+Daniel

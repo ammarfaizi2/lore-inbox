@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263666AbTLJQIG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 11:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263667AbTLJQIG
+	id S263622AbTLJQGv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 11:06:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTLJQGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 11:08:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39345 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263666AbTLJQIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 11:08:00 -0500
-Date: Wed, 10 Dec 2003 08:07:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Maciej Zenczykowski <maze@cela.pl>, David Schwartz <davids@webmaster.com>,
-       Jason Kingsland <Jason_Kingsland@hotmail.com>,
+	Wed, 10 Dec 2003 11:06:51 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:33458 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263622AbTLJQGu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 11:06:50 -0500
+Date: Wed, 10 Dec 2003 08:06:18 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
+       karim@opersys.com, Linus Torvalds <torvalds@osdl.org>,
+       Kendall Bennett <KendallB@scitechsoft.com>,
        linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.10.10312100538320.3805-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.58.0312100745200.29676@home.osdl.org>
-References: <Pine.LNX.4.10.10312100538320.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031210160618.GD6896@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
+	karim@opersys.com, Linus Torvalds <torvalds@osdl.org>,
+	Kendall Bennett <KendallB@scitechsoft.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10312100606510.3805-100000@master.linux-ide.org> <1071066315.5712.344.camel@hades.cambridge.redhat.com> <20031210144612.GA19357@work.bitmover.com> <1071068703.5712.398.camel@hades.cambridge.redhat.com> <20031210151110.GA6896@work.bitmover.com> <1071071955.5712.428.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071071955.5712.428.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 10, 2003 at 03:59:15PM +0000, David Woodhouse wrote:
+> On Wed, 2003-12-10 at 07:11 -0800, Larry McVoy wrote:
+> > You may license *your* work under whatever terms you want.  Those terms
+> > can't extend to things that aren't your work in a copyright license.
+> 
+> Please elaborate. We're talking about a situation in which I grant a
+> licence for you to copy and use my work, in exchange for something I
+> desire from you. In the absence of a contract, this is limited to me
+> effectively saying "You may copy and use my work if and only if you do
+> XXX".
+> 
+> If you do not do 'XXX' then you may not use my work.
+> 
+> Are you saying that there are things which I may not ask for? Could you
+> elaborate?
 
+I think at this point you need to talk to a lawyer.  I can guess where this
+conversation is going and I'm not going to be effective.
 
-On Wed, 10 Dec 2003, Andre Hedrick wrote:
->
-> Lets have some fun now and play this game.
+> I need a contract to force you to do anything; this is true.
+> 
+> Without a contract, all I can do if you don't abide by my conditions is
+> observe that you don't have my permission to copy my work, and hence
+> that if you do so you are committing a criminal offence.
 
-Sorry, you need to learn the rules before you can play.
-
-> As principle author of the "taskfile transport", any an all operations
-> using, storing, execution, transfering, copying, opening ... anything
-> may not operate with non-source-published binary modules.
-
-That's against the GPL, and you can't modify the terms of the license. At
-most, you personally can say that you will not sue even when the license
-isn't followed - you can tell people that as far as _you_ are concerned,
-you can losen the license further, and that actually puts a legal onus on
-_you_ but nobody else.
-
-But while you have the right to say "I will not sue over this" and the GPL
-doesn't care one whit, you can _not_ say "I have my own list of additional
-requirements that would trigger copyright infringement".
-
-> So everyone one with/sells a PVR, NAS, SAN, Laptop, Workstation, Server
-> which uses IDE/ATA/SATA is forbidden to operate unless written terms of
-> use are set forward.
-
-"The act of running the Program is not restricted" according to the GPL,
-and "You may not impose any further restrictions on the recipients'
-exercise of the rights granted herein."
-
-So basically you _cannot_ take rights away outside the ones the GPL
-requires (which boil down to the requirement of having source available).
-
-> We can kill Linux in minutes, shall we?
-
-Trust me, when you said that the GPL is badly written, you have no clue
-what you're talking about. It's a very solid license, and your rants about
-it have no basis in fact. I personally actually like the OSL slightly
-better in the way it was written (see opensource.org), but your arguments
-against the GPL are just fundamentally wrong.
-
-			Linus
+Huh?  I don't think that copyright violation makes you a felon.  
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268714AbUILNJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268716AbUILNX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268714AbUILNJB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 09:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268716AbUILNJA
+	id S268716AbUILNX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 09:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUILNX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 09:09:00 -0400
-Received: from mail1.smlink.com ([212.143.64.225]:55118 "EHLO
-	smmail.server.smlink.com") by vger.kernel.org with ESMTP
-	id S268714AbUILNI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 09:08:58 -0400
-Date: Sun, 12 Sep 2004 16:11:55 +0300
-From: Sasha Khapyorsky <sashak@smlink.com>
-To: Andi Kleen <ak@muc.de>
+	Sun, 12 Sep 2004 09:23:56 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:36554 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S268716AbUILNXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 09:23:55 -0400
+Date: Sun, 12 Sep 2004 17:24:22 +0200
+From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Organization: Privat.
+To: Chris Siebenmann <cks@utcc.utoronto.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97
- patch)
-Message-ID: <20040912161155.47d2c8dc@sashak.lan>
-In-Reply-To: <20040912083039.GB87823@muc.de>
-References: <2DdiX-6ye-17@gated-at.bofh.it>
-	<2Dfup-7Zv-9@gated-at.bofh.it>
-	<m3k6v0lwwq.fsf@averell.firstfloor.org>
-	<20040911230753.1c1d73de@localhost>
-	<20040912083039.GB87823@muc.de>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <41446A26.nailNA1I8439@pluto.uni-freiburg.de>
+References: <04Sep10.164541edt.6571@ugw.utcc.utoronto.ca>
+In-Reply-To: <04Sep10.164541edt.6571@ugw.utcc.utoronto.ca>
+User-Agent: nail 11.7pre 9/10/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Sep 2004 14:09:03.0555 (UTC) FILETIME=[0F01D930:01C498D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Sep 2004 10:30:39 +0200
-Andi Kleen <ak@muc.de> wrote:
+Chris Siebenmann <cks@utcc.utoronto.ca> wrote:
 
-> > > The later should be much easier to free.
-> > 
-> > There was such approach, but seems it was wrong.
-> 
-> What's the problem exactly - your kernel part is still binary only? 
+>  Note that 'cp' is already not POSIX compliant on most Linux systems,
+> thanks to GNU libc: 'cp foo -X' ought to work under the POSIX rules I've
+> seen, but most Linux systems will have cp helpfully interpret the '-X'
+> as a switch (and because it's a bad switch, explode). Evidently strict
+> POSIX compatability is not very high on people's priority lists.
 
-Current binary kernel part (slamr) is not a problem - it may be removed,
-then ALSA drivers will be finished. But user-space program still have
-binary code and there is no replacement.
+This issue is currently discussed on the Austin Group list, but in
+contrast to your assumption, there are efforts to get both sides
+closer together here, cf.
+<http://www.opengroup.org/austin/mailarchives/ag/msg07261.html>.
 
-> > 
-> > > The 64bit kernel can run 32bit programs without problems.
-> > 
-> > This should be possible (don't check yet). But the problem here was
-> > that AMD64 machines are usually based on non-Intel chipsets
-> > (VIA, NVidia), supports for those chipsets were added to ALSA just
-> > in last days. Now it may be tested with recent version of ALSA.
-> 
-> One small issue is that when you have custom ioctls there may 
-> be some need to add them to the compat layer, otherwise the user
-> space part cannot issue them. This could be even done in a separate 
-> module from your driver though.
+>  Thus I would expect that the GNU fileutils people would be reasonably
+> happy to make cp copy additional file streams and the like by default if
+> they actually caught on in Linux.
 
-Thanks for explanations.
+It is clearly preferred to have such things as extensions that do not
+violate the standard.
 
-Sasha.
-
+	Gunnar

@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264808AbUGMK6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUGMLCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264808AbUGMK6n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUGMK6m
+	id S264819AbUGMLCo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 07:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUGMLCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:58:42 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:3568 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264808AbUGMK6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:58:40 -0400
-Date: Tue, 13 Jul 2004 03:58:20 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Tim Connors <tconnors@astro.swin.edu.au>,
-       ismail d?nmez <ismail.donmez@gmail.com>
-Cc: Anton Ertl <anton@mips.complang.tuwien.ac.at>,
-       linux-kernel@vger.kernel.org, Jan Knutar <jk-lkml@sci.fi>,
-       L A Walsh <lkml@tlinx.org>
-Subject: Re: XFS: how to NOT null files on fsck?
-Message-ID: <20040713105819.GA3262@taniwha.stupidest.org>
-References: <20040713080950.GA1810@taniwha.stupidest.org> <E1BkJgc-0002Sb-O5@a4.complang.tuwien.ac.at> <20040713095300.GA2986@taniwha.stupidest.org> <slrn-0.9.7.4-25266-13316-200407132020-tc@hexane.ssi.swin.edu.au> <2a4f155d04071303384f156004@mail.gmail.com> <20040713080950.GA1810@taniwha.stupidest.org> <E1BkJgc-0002Sb-O5@a4.complang.tuwien.ac.at> <20040713095300.GA2986@taniwha.stupidest.org> <slrn-0.9.7.4-25266-13316-200407132020-tc@hexane.ssi.swin.edu.au>
+	Tue, 13 Jul 2004 07:02:44 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:12961 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264819AbUGMLCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 07:02:43 -0400
+Date: Tue, 13 Jul 2004 13:02:26 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Jesus Delgado <jdelgado@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Broken driver via-rhine.c in kernel 2.6.8-rc1
+Message-ID: <20040713110226.GB30087@k3.hellgate.ch>
+Mail-Followup-To: Jesus Delgado <jdelgado@gmail.com>,
+	Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
+References: <57861437040712220518dee67d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2a4f155d04071303384f156004@mail.gmail.com> <slrn-0.9.7.4-25266-13316-200407132020-tc@hexane.ssi.swin.edu.au>
+In-Reply-To: <57861437040712220518dee67d@mail.gmail.com>
+X-Operating-System: Linux 2.6.7-bk20 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 08:27:30PM +1000, Tim Connors wrote:
+On Tue, 13 Jul 2004 00:05:10 -0500, Jesus Delgado wrote:
+> The problems with driver via-rhine.c version v1.10-LK1.1.20-2.6
+> May-23-2004:via-rhine: probe of 0000:00:12.0 failed with error -5
+> Invalid MAC address for card #0
+> 
+> kernel 2.6.7 and kernel 2.6.7-mm7  working good via-rhine.c
 
-> KDE is a peice of shit with regards to file handling.
+I can't reproduce the bug on any of my hardware right now (it was there
+once, it's gone now). But Jesper Juhl can and he's narrowing down what
+makes the difference between those drivers.
 
-I personally would like to see KDE made more robust here (since I use
-it myself).  I'm guessing it's probably not hard but I don't have a
-good feeling as the few times I have hacked KDE I was pretty
-disappointed how bad the code is.
+Can you guys send me your .config? And btw, does using an old via-rhine
+driver (say from vanilla 2.6.7) with 2.6.8-rc1 fix the problem?
 
-That said, my guess is common code handles most of this stuff so the
-right fixes in one or two places would probably cover everything.
-
-> Makes me glad I use a much more sane WM, but I pity those 3 users in
-> the space of a few minutes who lost all of their settings.
-
-I back my .kde ever now and then as a precaution.  It's generally not
-a problem for me but as mentioned I am aware KDE could be better in
-this regard.
-
-Loosing window manager settings is a pain, loosing data from knotes
-and your bookmarks is very much more frustrating though.
-
-
-
-On Tue, Jul 13, 2004 at 01:38:40PM +0300, ismail d?nmez wrote:
-
-> Trying to start a flame war with bitching about KDE?
-
-I'm not sure he was.
-
-> How about trying to solve at least work around it?
-
-He doesn't use it, why would he bother?
-
-On the other hand, one day I might (I hope someone else does before
-me, the KDE code is scary).
-
-Since so many files are involved (I have 350 in my .kde) I suspect
-properly fixing this is going to be more involved that write, fsync,
-rename but it probably wouldn't be a bad place to start (only 43 of
-them were modified in the last day).
-
-
-  --cw
+Roger

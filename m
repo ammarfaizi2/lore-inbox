@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbUA3Rt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 12:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbUA3Rt4
+	id S263618AbUA3RxI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 12:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbUA3RxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 12:49:56 -0500
-Received: from mail.kroah.org ([65.200.24.183]:36072 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263564AbUA3Rtw (ORCPT
+	Fri, 30 Jan 2004 12:53:08 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:20097 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263618AbUA3RxF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 12:49:52 -0500
-Date: Fri, 30 Jan 2004 09:49:35 -0800
-From: Greg KH <greg@kroah.com>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 015 release
-Message-ID: <20040130174935.GC5265@kroah.com>
-References: <20040126215036.GA6906@kroah.com> <401A8A35.1020105@gmx.de> <20040130172310.GB5265@kroah.com> <401A97E0.4010704@gmx.de>
+	Fri, 30 Jan 2004 12:53:05 -0500
+Date: Fri, 30 Jan 2004 18:53:20 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.2-rc2 (BK): /proc/bus/input/devices information for joystick bogus?
+Message-ID: <20040130175320.GA1308@ucw.cz>
+References: <20040130173516.GA4517@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <401A97E0.4010704@gmx.de>
+In-Reply-To: <20040130173516.GA4517@merlin.emma.line.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 06:44:00PM +0100, Prakash K. Cheemplavam wrote:
-> >What does:
-> >	usbinfo -a -p /sys/class/usb/scanner0
-> >say?
+On Fri, Jan 30, 2004 at 06:35:16PM +0100, Matthias Andree wrote:
+
+> I see this in /proc/bus/input/devices:
 > 
-> Uhm, where to get this? I don't have it and I dunno which gentoo ebuild 
-> installs it. But I found a graphic app called "usbview". It basically 
-> gives the same infos as lsusb. Well, nevermind, I'l try what you said 
-> down. I'll try to get xsane goind with libusb.
+> I: Bus=0014 Vendor=0001 Product=000f Version=0100
+> N: Name="Analog 3-axis 4-button joystick"
+> P: Phys=<NULL>/input0
+> H: Handlers=js0 
+> B: EV=b 
+> B: KEY=1b 0 0 0 0 0 0 0 0 0 
+> B: ABS=83 
+> 
+> The <NULL> tag seems to confuse hotplug's input.rc. Where does it come
+> from? How can the kernel see the Joystick without knowing the phys
+> address?
 
-Oops, sorry, that should have been 'udevinfo' not 'usbinfo'.
+The module which implemented the gameport didn't set the phys string for
+the gameport. Check the sound driver for your sound card.
 
-Not awake yet...
+> (This was also filed as SourceForge.net bug #887724 to the linux-hotplug
+> project.)
 
-greg k-h
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRACV42>; Wed, 3 Jan 2001 16:56:28 -0500
+	id <S130032AbRACV7s>; Wed, 3 Jan 2001 16:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131161AbRACV4S>; Wed, 3 Jan 2001 16:56:18 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10161 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131155AbRACV4G>;
-	Wed, 3 Jan 2001 16:56:06 -0500
-Date: Wed, 3 Jan 2001 16:54:38 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dan Aloni <karrde@callisto.yi.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, mark@itsolve.co.uk
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
- bug exploits
-In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org>
-Message-ID: <Pine.GSO.4.21.0101031648250.17363-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130140AbRACV7i>; Wed, 3 Jan 2001 16:59:38 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:37615 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S130111AbRACV7W>; Wed, 3 Jan 2001 16:59:22 -0500
+Date: Wed, 3 Jan 2001 15:59:21 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010103225505.R32185@athlon.random>
+In-Reply-To: <20010103210714Z129267-457+17@vger.kernel.org> <20010103210714Z129267-457+17@vger.kernel.org> 
+	; from ttabi@interactivesi.com on Wed, Jan 03, 2001 at 03:07:03PM -0600
+Subject: Re: Should page->count ever be -1?
+X-Mailer: The Polarbar Mailer; version=1.19; build=71
+Message-Id: <20010103215929Z130111-458+21@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+** Reply to message from Andrea Arcangeli <andrea@suse.de> on Wed, 3 Jan 2001
+22:55:05 +0100
 
 
-On Wed, 3 Jan 2001, Dan Aloni wrote:
-
-> It is known that most remote exploits use the fact that stacks are
-> executable (in i386, at least).
+> > from page_alloc.c (this is 2.2.18pre15).  It appears that page->count is
+> > already zero when this code is executed, and after it's executed, page->count
+> > becomes -1 (or more accurately, 0xFFFFFFFF).  Is this acceptable, or is it an
+> > error condition?
 > 
-> On Linux, they use INT 80 system calls to execute functions in the kernel
-> as root, when the stack is smashed as a result of a buffer overflow bug in
-> various server software.
-> 
-> This preliminary, small patch prevents execution of system calls which
-> were executed from a writable segment. It was tested and seems to work,
-> without breaking anything. It also reports of such calls by using printk.
+> It's an error condition. Make sure you marked the page as reserved in the mmap
+> callback if it's not an mmio region outside RAM.
 
-Get real. Attacker can set whatever registers he needs and jump to one
-of the many instances of int 0x80 in libc. There goes your protection.
+I mark the page as reserved when I call ioremap and then unmark it after
+ioremap returns, but iounmap will fail if it's still reserved (the same line of
+code also checks the reserved bit):
 
-Win: 0
-Loss: cost of find_vma() (and down(&mm->mmap_sem), BTW) on every system
-call.
+ 	if (!PageReserved(page) && atomic_dec_and_test(&page->count)) {
+            ^^^^^^^^^^^^^^^^^^^
 
-And the reason to apply that patch would be...?
+Is this what you're saying?
 
+iounmap just calls vfree, which does all the work.  However, I'm confused at
+this code in vfree:
+
+	vmfree_area_pages(VMALLOC_VMADDR(tmp->addr), tmp->size);
+	kfree(tmp);
+
+What's the difference between vmfree_area_pages and kfree?
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbULMGgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbULMGmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbULMGgF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 01:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbULMGgF
+	id S262208AbULMGmx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 01:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbULMGmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 01:36:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5033 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262207AbULMGgB (ORCPT
+	Mon, 13 Dec 2004 01:42:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39852 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262208AbULMGmw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 01:36:01 -0500
-Date: Sun, 12 Dec 2004 22:32:49 -0800
+	Mon, 13 Dec 2004 01:42:52 -0500
+Date: Sun, 12 Dec 2004 22:41:33 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 Cc: paulmck@us.ibm.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org,
        dipankar@in.ibm.com, shaohua.li@intel.com, len.brown@intel.com
 Subject: Re: [PATCH] Remove RCU abuse in cpu_idle()
-Message-Id: <20041212223249.65635f9a.akpm@osdl.org>
+Message-Id: <20041212224133.0e8d001e.akpm@osdl.org>
 In-Reply-To: <Pine.LNX.4.61.0412122317380.16940@montezuma.fsmlabs.com>
 References: <20041205004557.GA2028@us.ibm.com>
 	<20041206111634.44d6d29c.sfr@canb.auug.org.au>
@@ -39,32 +39,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
 >
-> The idle thread is special in the sense that it can't get migrated so the 
->  cached values of smp_processor_id are fine.
+> > This gives me scadzillions of "using smp_procesor_id() in preemptible"
+>  > warnings.
 
-duh, knew that.
+As does the current_cpu_data evaluation in default_idle(), now we've gone
+and dropped the rcu_read_lock() from around it.  That debugging patch is a
+pain.
 
-We can use the cached value throughout, no?
-
---- 25/arch/i386/kernel/process.c~remove-rcu-abuse-in-cpu_idle-warning-fix	2004-12-12 22:30:10.200626944 -0800
-+++ 25-akpm/arch/i386/kernel/process.c	2004-12-12 22:31:22.417648288 -0800
-@@ -146,7 +146,7 @@ static void poll_idle (void)
-  */
- void cpu_idle (void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = _smp_processor_id();
- 
- 	/* endless idle loop with no priority at all */
- 	while (1) {
-@@ -161,7 +161,7 @@ void cpu_idle (void)
- 			if (!idle)
- 				idle = default_idle;
- 
--			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
-+			irq_stat[cpu].idle_timestamp = jiffies;
- 			idle();
- 		}
- 		schedule();
-_
-
+I'll switch it to boot_cpu_data.

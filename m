@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129799AbQLYRRc>; Mon, 25 Dec 2000 12:17:32 -0500
+	id <S129906AbQLYSML>; Mon, 25 Dec 2000 13:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129906AbQLYRRX>; Mon, 25 Dec 2000 12:17:23 -0500
-Received: from colorfullife.com ([216.156.138.34]:34830 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129799AbQLYRRF>;
-	Mon, 25 Dec 2000 12:17:05 -0500
-Message-ID: <3A477AF3.E76A8083@colorfullife.com>
-Date: Mon, 25 Dec 2000 17:50:59 +0100
-From: Manfred <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: alex.buell@tahallah.clara.co.uk, linux-kernel@vger.kernel.org
+	id <S130250AbQLYSMC>; Mon, 25 Dec 2000 13:12:02 -0500
+Received: from tahallah.claranet.co.uk ([212.126.138.206]:16900 "EHLO
+	tahallah.clara.co.uk") by vger.kernel.org with ESMTP
+	id <S129906AbQLYSLr>; Mon, 25 Dec 2000 13:11:47 -0500
+Date: Mon, 25 Dec 2000 17:40:26 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.clara.co.uk>
+Reply-To: <alex.buell@tahallah.clara.co.uk>
+To: Manfred <manfred@colorfullife.com>
+cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Netgear FA311
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3A477AF3.E76A8083@colorfullife.com>
+Message-ID: <Pine.LNX.4.30.0012251730020.804-100000@tahallah.clara.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex wrote:
-> In the logs I'm seeing this: 
-> 
-> Dec 25 15:25:18 tahallah last message repeated 2 times 
-> Dec 25 15:25:19 tahallah kernel: eth0: Something Wicked happened! 0783. 
-> Dec 25 15:25:19 tahallah kernel: eth0: Something Wicked happened! 0780. 
+On Mon, 25 Dec 2000, Manfred wrote:
 
-783 means:
-	Tx Underrun
-	Tx Idle
-	Tx Packet Error
-	Tx Descriptor
-	Rx Packet Error
-	Rx Descriptor
-	Rx OK.
+> Could you try this setup?
+> <<<<<<<<
+>  /* Configure the PCI bus bursts and FIFO thresholds. */
+>  /* Configure for standard, in-spec Ethernet. */
+>  np->tx_config = (1<<28) +       /* Automatic transmit padding */
+>              (1<<23) +       /* Excessive collision retry */
+>              (6<<20) +     /* Max DMA burst = 128 byte */
+>              (8<<8) +        /* fill threshold = 256 byte */
+>              8;              /* drain threshold = 256 byte */
+>  writel(np->tx_config, ioaddr + TxConfig);
+> >>>>>>>>
 
-Hmm. I download the Documentation from National
-(http://www.national.com/pf/DP/DP83815.html),
-and the the tx burst size/fill threshold/drain threshold combination is
-invalid:
+Hmm, that little change worked a lot better. However thoughput is down to
+700kb/s! Transferring files from the other machine to this machine is much
+faster - 868kb/s.
 
-<<<<<<<< from natsemi.c:
- /* Configure the PCI bus bursts and FIFO thresholds. */
- /* Configure for standard, in-spec Ethernet. */
- np->tx_config = (1<<28) +       /* Automatic transmit padding */
-             (1<<23) +       /* Excessive collision retry */
-             (0x0<<20) +     /* Max DMA burst = 512 byte */
-             (8<<8) +        /* fill threshold = 256 byte */
-             2;              /* drain threshold = 64 byte */
- writel(np->tx_config, ioaddr + TxConfig);
->>>>>>>>>>>>
+In the logs, I only got *one* message from the natsemi driver (and this
+happened when sending files from this machine to the other machine. No
+problems receiving from the other machine.
 
-But:
-<<<<<<<< page 51
-The MXDMA MUST NOT be greater than the Tx Fill Threshold 
->>>>>>>>>>
+Dec 25 17:28:12 tahallah kernel: eth0: Something Wicked happened! 0583.
 
-Could you try this setup?
-<<<<<<<<
- /* Configure the PCI bus bursts and FIFO thresholds. */
- /* Configure for standard, in-spec Ethernet. */
- np->tx_config = (1<<28) +       /* Automatic transmit padding */
-             (1<<23) +       /* Excessive collision retry */
-             (6<<20) +     /* Max DMA burst = 128 byte */
-             (8<<8) +        /* fill threshold = 256 byte */
-             8;              /* drain threshold = 256 byte */
- writel(np->tx_config, ioaddr + TxConfig);
->>>>>>>>
+But I just realised that the other machine I'm using has an 10 megabit
+ethernet card (on the hub that one is shown on 10, my machine is shown as
+100). I think this explains the throughput problem. When I get another 4
+way power socket, I'll put my other machine (which has a 100 megabit card
+in it) on the network and see if that makes a difference.
 
---
-  Manfred
+Cheers,
+Alex
+-- 
+Huffapuff!
+
+http://www.tahallah.clara.co.uk
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

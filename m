@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264830AbTK3HJY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 02:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbTK3HJY
+	id S264873AbTK3HR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 02:17:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTK3HR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 02:09:24 -0500
-Received: from smtp1.att.ne.jp ([165.76.15.137]:8845 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S264830AbTK3HJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 02:09:23 -0500
-Message-ID: <13d301c3b710$d51a3490$11ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Andrzej Krzysztofowicz" <ankry@green.mif.pg.gda.pl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Date: Sun, 30 Nov 2003 16:08:13 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 30 Nov 2003 02:17:59 -0500
+Received: from ppp-RAS1-2-81.dialup.eol.ca ([64.56.225.81]:18304 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S264873AbTK3HR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 02:17:58 -0500
+Date: Sun, 30 Nov 2003 02:17:57 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11 -- Failed to open /dev/ttyS0: No such device
+Message-ID: <20031130071757.GA9835@node1.opengeometry.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz replied to someone:
+Does anyone have modem working in 2.6.0-test11?
 
-> > The BIOS reads the MBR and jumps to the code loaded from there.
->
-> I found some PC BIOS-es refuse to read the MBR if no active partition is
-> found in the partition table...
+I have external modem connected to /dev/ttyS0 (COM1).  Kernel
+2.6.0-test11 give me
+    Failed to open /dev/modem: No such device
+where /dev/modem is symlink to /dev/ttyS0.  I've looked at
+/proc/interrupts and /proc/ioports, and I can't find any mention of
+irq=4 or io=3f8 which are the normal settings that I use.
 
-They read the MBR but refuse the execute the code contained in it.  Reading
-the MBR is the only way that they get to find out that the partition table
-includes zero or two (or more) active partitions and decide not to boot.
+No problem in kernel-2.4.23, though.
 
-SuSE 8.1 had this problem.  If you installed grub to a /boot partition but
-intended to continue using your existing active partition, the installer
-activated the /boot partition.  On the next boot, the BIOS detected two
-active partitions and refused to boot from the hard disk.
-
-Booting a floppy still works on most machines.  The BIOS still reads the MBR
-and presents the partition table in a block of information that is visible
-to the program that gets booted from the floppy disk.  In my experience, the
-only machines that refused to do this (becoming 100% unbootable) were the
-old NEC 98 architecture.
-
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+Linux solution for data management and processing. 

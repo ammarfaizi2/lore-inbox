@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315943AbSFETQC>; Wed, 5 Jun 2002 15:16:02 -0400
+	id <S316423AbSFETRg>; Wed, 5 Jun 2002 15:17:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316070AbSFETQB>; Wed, 5 Jun 2002 15:16:01 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:60040 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S315943AbSFETP7>;
-	Wed, 5 Jun 2002 15:15:59 -0400
-Date: Wed, 5 Jun 2002 12:11:56 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-cc: <linux-kernel@vger.kernel.org>,
-        <linux-hotplug-devel@lists.sourceforge.net>,
-        <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: device model documentation 2/3
-In-Reply-To: <200206051253.g55Crs331876@fachschaft.cup.uni-muenchen.de>
-Message-ID: <Pine.LNX.4.33.0206051205150.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316422AbSFETRg>; Wed, 5 Jun 2002 15:17:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:6150 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316339AbSFETRe>;
+	Wed, 5 Jun 2002 15:17:34 -0400
+Date: Wed, 5 Jun 2002 21:17:34 +0200
+From: Dave Jones <davej@suse.de>
+To: Boris Kimelman <erwin138@netvision.net.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pctel modem bug
+Message-ID: <20020605211734.F16262@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Boris Kimelman <erwin138@netvision.net.il>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3CFE6AE0.2000600@netvision.net.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 05, 2002 at 09:47:44PM +0200, Boris Kimelman wrote:
+ > Hello,
+ > you probably know about this but i'll tell you anyway. there is a bug 
+ > related to pctel modems. a very nice person made drivers for linux of 
+ > this modems and they can work on linux. the problem is that when the 
+ > modem finally dials after all the configuration, it puts out a "no 
+ > carrier" message and disconnects. please handle the problem and if it 
+ > was already fixed please reply to me and say which kernel i should download.
 
-On Wed, 5 Jun 2002, Oliver Neukum wrote:
+Ask the very nice person who made the drivers. They contain binary only
+parts that only they can fix.
 
-> 
-> > SUSPEND_DISABLE tells the device to stop I/O transactions. When it
-> > stops transactions, or what it should do with unfinished transactions
-> > is a policy of the driver. After this call, the driver should not
-> > accept any other I/O requests.
-> 
-> Does this mean that memory allocations in the suspend/resume
-> implementations must be made with GFP_NOIO respectively
-> GFP_ATOMIC ?
-> It would seem so.
+        Dave.
 
-Why would you allocate memory on a resume transition? 
-
-As for suspending, this is something that has been discussed a few times 
-before. No definitive decision has come out of it because it hasn't been 
-implemented yet. It hasn't been implemented yet because the infrastructure 
-isn't complete. It's real close, but still not quite there. 
-
-Nonetheless, you have to do one of a couple things: use GFP_NOIO or
-special case the swap device(s) so they don't stop I/O when everything
-else does. (Of course, you have to eventually stop it)
-
-Check the archives; there are lots of ideas there wrt this topic. But, 
-there are bigger fish to fry in the meantime ;)
-
-	-pat
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVAGT5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVAGT5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVAGT5S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVAGT4M
+	id S261570AbVAGT5R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 14:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVAGT42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:56:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23738 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261580AbVAGTzJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 14:56:28 -0500
+Received: from mail.joq.us ([67.65.12.105]:48838 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261548AbVAGTzJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 7 Jan 2005 14:55:09 -0500
-Date: Fri, 7 Jan 2005 15:05:14 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       torvalds@osdl.org
-Subject: Re: Fix for new elf_loader bug?
-Message-ID: <20050107170514.GJ29176@logos.cnet>
-References: <41DEAF8F.3030107@bio.ifi.lmu.de>
-Mime-Version: 1.0
+To: Martin Mares <mj@ucw.cz>
+Cc: Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
+       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050107162902.GA7097@ucw.cz>
+	<200501071636.j07Gateu018841@localhost.localdomain>
+	<20050107170603.GB7672@ucw.cz>
+	<20050107092918.B2357@build.pdx.osdl.net>
+	<20050107173229.GA9794@ucw.cz>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 07 Jan 2005 13:55:33 -0600
+In-Reply-To: <20050107173229.GA9794@ucw.cz> (Martin Mares's message of "Fri,
+ 7 Jan 2005 18:32:29 +0100")
+Message-ID: <87y8f5580a.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DEAF8F.3030107@bio.ifi.lmu.de>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 04:49:35PM +0100, Frank Steiner wrote:
-> Hi,
-> 
-> is there already a patch for the new problem with the elf loader, maybe
-> in the bitkeeper tree?
-> 
-> http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
+Martin Mares <mj@ucw.cz> writes:
 
-2.6.10-ac6 contains a fix for the problem - a similar version should hit the BK tree 
-RSN.
+>> Yes, SETPCAP became a gaping security hole.  Recall the sendmail hole.
+>
+> Hmmm, I don't remember now, could you give me some pointer, please?
 
+I already did that...
+
+> Jack O'Quin wrote:
+> > The biggest problem was CAP_SETPCAP, which for good reasons[1] is
+> > disabled in distributed kernels.  This forced every user to patch and
+> > build a custom kernel.  Worse, it opened all our systems up to the
+> > problems reported by this sendmail security advisory.
+
+ [1] http://www.securiteam.com/unixfocus/5KQ040A1RI.html
+
+-- 
+  joq

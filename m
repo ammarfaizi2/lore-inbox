@@ -1,69 +1,140 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272239AbRH3O1T>; Thu, 30 Aug 2001 10:27:19 -0400
+	id <S272235AbRH3OaJ>; Thu, 30 Aug 2001 10:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272235AbRH3O1K>; Thu, 30 Aug 2001 10:27:10 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:8188 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S272239AbRH3O04>;
-	Thu, 30 Aug 2001 10:26:56 -0400
-Importance: Normal
-Subject: Re: softirq & schedule documentation
-To: tyrius@nwlink.com
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFA942F6B2.4A7993BC-ON85256AB8.004DB874@pok.ibm.com>
-From: "Shailabh Nagar" <nagar@us.ibm.com>
-Date: Thu, 30 Aug 2001 10:27:02 -0400
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
- 08/30/2001 10:27:04 AM
+	id <S272251AbRH3O34>; Thu, 30 Aug 2001 10:29:56 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:20491 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S272247AbRH3O3o>; Thu, 30 Aug 2001 10:29:44 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15246.19874.676713.618088@gargle.gargle.HOWL>
+Date: Thu, 30 Aug 2001 18:28:50 +0400
+To: Linus Torvalds <Torvalds@Transmeta.COM>
+Cc: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: [PATCH]: reiserfs: F-reiserfs_get_block-cleanup.patch
+X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, Linus,
 
+   This patch fixes several bugs in reiserfs_get_block():
+    . race condition, when code took block number from "indirect item"
+      without re-checking that this item is still there after blocking
+      call. This causes file-system corruption on writing into hole;
+    . uses stronger condition to check whether to start new transaction;
+    . increase amount of space reserved into transaction (jbegin_count)
+      to accommodate for updating of inode on disk (reiserfs_update_sd());
+    . cast "block" to loff_t;
+    . move (block < 0) check to the top of the function;
+    . remove obsolete REISERFS_CHECK around pop_journal_writer();
+    . add warning number and \n in warning message;
 
-While porting our MultiQueue scheduler to 2.4.6 (on x86) and above, we had
-faced some problems with ksoftirqd too but it turned out to be something
-related to what our code was doing rather than ksoftirqd (an attempt was
-being made to delete a task from the runqueue when it wasn't on it).
+This patch is against 2.4.10-pre2.
+Please apply.
 
-But while debugging the error, we found that the problem was exacerbated by
-ksoftirqd trying to call schedule() before all CPU's had a chance to come
-up.A few  printk's in the spawn_ksoftirqd()/ksoftirqd() code temporarily
-"solved" the problem by introducing a slight delay. You could try the same.
-I don't remember the exact code locations in softirq.c that we put the
-printks in but it was in the initializing parts.
-
-Are you trying to boot an SMP ?
-
-Shailabh
-
-
-
-
-Hi,
- I'm in the process of trying to track down a problem with the sparc32 port
-
-not booting and believe that the problem lies somewhere in either the
-scheduling algorithm or ksoftirqd. Schedule is called by spawn_ksoftirqd,
-which then proceeds to loop infinately. I know that, eventually, prev =
-current = next = ksoftirqd. current->need_resched gets set to 0 in the
-move_rr_back block of schedule(),but at some point in recalculate: it gets
-set back to 1.
-
-Is there any sort of documentation on the softirq stuff and the scheduling
-algorithm out there that is relevant to 2.4.9? It seems that the only stuff
-I've managed to find is based off the 2.2.x kernels.
-
-Thanks,
-
-Jonathan Zimmerman
+Nikita.
+diff -rup linux/fs/reiserfs/inode.c linux.patched/fs/reiserfs/inode.c
+--- linux/fs/reiserfs/inode.c	Thu Aug 30 17:13:02 2001
++++ linux.patched/fs/reiserfs/inode.c	Thu Aug 30 16:57:50 2001
+@@ -526,16 +526,26 @@ int reiserfs_get_block (struct inode * i
+     int fs_gen;
+     int windex ;
+     struct reiserfs_transaction_handle th ;
+-    int jbegin_count = JOURNAL_PER_BALANCE_CNT * 3 ;
++    /* space reserved in transaction batch: 
++        . 3 balancings in direct->indirect conversion
++        . 1 block involved into reiserfs_update_sd()
++       XXX in practically impossible worst case direct2indirect()
++       can incur (much) more that 3 balancings. */
++    int jbegin_count = JOURNAL_PER_BALANCE_CNT * 3 + 1;
+     int version;
+     int transaction_started = 0 ;
+-    loff_t new_offset = (block << inode->i_sb->s_blocksize_bits) + 1 ;
++    loff_t new_offset = (((loff_t)block) << inode->i_sb->s_blocksize_bits) + 1 ;
+ 
+ 				/* bad.... */
+     lock_kernel() ;
+     th.t_trans_id = 0 ;
+     version = inode_items_version (inode);
+ 
++    if (block < 0) {
++	unlock_kernel();
++	return -EIO;
++    }
++
+     if (!file_capable (inode, block)) {
+ 	unlock_kernel() ;
+ 	return -EFBIG;
+@@ -553,20 +563,14 @@ int reiserfs_get_block (struct inode * i
+ 	return ret;
+     }
+ 
+-    if (block < 0) {
+-	unlock_kernel();
+-	return -EIO;
+-    }
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
+     inode->u.reiserfs_i.i_pack_on_close = 1 ;
+ 
+     windex = push_journal_writer("reiserfs_get_block") ;
+   
+     /* set the key of the first byte in the 'block'-th block of file */
+-    make_cpu_key (&key, inode,
+-		  (loff_t)block * inode->i_sb->s_blocksize + 1, // k_offset
++    make_cpu_key (&key, inode, new_offset,
+ 		  TYPE_ANY, 3/*key length*/);
+-    if ((new_offset + inode->i_sb->s_blocksize) >= inode->i_size) {
++    if ((new_offset + inode->i_sb->s_blocksize - 1) > inode->i_size) {
+ 	journal_begin(&th, inode->i_sb, jbegin_count) ;
+ 	transaction_started = 1 ;
+     }
+@@ -619,10 +623,13 @@ int reiserfs_get_block (struct inode * i
+     }
+ 
+     if (indirect_item_found (retval, ih)) {
++	b_blocknr_t unfm_ptr;
++
+ 	/* 'block'-th block is in the file already (there is
+ 	   corresponding cell in some indirect item). But it may be
+ 	   zero unformatted node pointer (hole) */
+-	if (!item[pos_in_item]) {
++	unfm_ptr = le32_to_cpu (item[pos_in_item]);
++	if (unfm_ptr == 0) {
+ 	    /* use allocated block to plug the hole */
+ 	    reiserfs_prepare_for_journal(inode->i_sb, bh, 1) ;
+ 	    if (fs_changed (fs_gen, inode->i_sb) && item_moved (&tmp_ih, &path)) {
+@@ -631,15 +638,14 @@ int reiserfs_get_block (struct inode * i
+ 	    }
+ 	    bh_result->b_state |= (1UL << BH_New);
+ 	    item[pos_in_item] = cpu_to_le32 (allocated_block_nr);
++	    unfm_ptr = allocated_block_nr;
+ 	    journal_mark_dirty (&th, inode->i_sb, bh);
+ 	    inode->i_blocks += (inode->i_sb->s_blocksize / 512) ;
+ 	    reiserfs_update_sd(&th, inode) ;
+ 	}
+-	set_block_dev_mapped(bh_result, le32_to_cpu (item[pos_in_item]), inode);
++	set_block_dev_mapped(bh_result, unfm_ptr, inode);
+ 	pathrelse (&path);
+-#ifdef REISERFS_CHECK
+ 	pop_journal_writer(windex) ;
+-#endif /* REISERFS_CHECK */
+ 	if (transaction_started)
+ 	    journal_end(&th, inode->i_sb, jbegin_count) ;
+ 
+@@ -816,8 +822,8 @@ int reiserfs_get_block (struct inode * i
+ 	    goto failure;
+ 	}
+ 	if (retval == POSITION_FOUND) {
+-	    reiserfs_warning ("vs-: reiserfs_get_block: "
+-			      "%k should not be found", &key);
++	    reiserfs_warning ("vs-825: reiserfs_get_block: "
++			      "%k should not be found\n", &key);
+ 	    retval = -EEXIST;
+ 	    if (allocated_block_nr)
+ 	        reiserfs_free_block (&th, allocated_block_nr);

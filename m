@@ -1,76 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbSKCJWo>; Sun, 3 Nov 2002 04:22:44 -0500
+	id <S261721AbSKCJgJ>; Sun, 3 Nov 2002 04:36:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbSKCJWn>; Sun, 3 Nov 2002 04:22:43 -0500
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:43076 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S261701AbSKCJWm>; Sun, 3 Nov 2002 04:22:42 -0500
-Date: Sun, 3 Nov 2002 01:34:03 -0800 (PST)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Bill Davidsen <davidsen@tmr.com>, Steven King <sxking@qwest.net>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Joel Becker <Joel.Becker@oracle.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [lkcd-devel] Re: [lkcd-general] Re: What's left over.
-In-Reply-To: <1036288145.18461.13.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211030118420.30732-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261724AbSKCJgJ>; Sun, 3 Nov 2002 04:36:09 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5033 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261721AbSKCJgI>;
+	Sun, 3 Nov 2002 04:36:08 -0500
+Date: Sun, 3 Nov 2002 10:42:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Matt Reppert <arashi@arashi.yi.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Working ide-cd burn/rip, 2.5.44
+Message-ID: <20021103094229.GJ3612@suse.de>
+References: <20021102184357.7091fd4d.arashi@arashi.yi.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ikeVEW9yuYc//A+q"
+Content-Disposition: inline
+In-Reply-To: <20021102184357.7091fd4d.arashi@arashi.yi.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Nov 2002, Alan Cox wrote:
-|>On Sun, 2002-11-03 at 01:24, Matt D. Robinson wrote:
-|>> P.S.  IBM shouldn't have signed a contact with Red Hat without
-|>>       requiring certain features in Red Hat's OS(es).  Pushing for
-|>>       LKCD, kprobes, LTT, etc., wouldn't be on this list for a whole
-|>>       variety of cases if that had been done in the first place.
-|>
-|>I would hope IBM have more intelligence than to attempt to destroy the
-|>product by trying to force all sorts of junk into it. The Linux world
-|>has a process for filterng crap, it isnt IBM applying force. That path
-|>leads to Star Office 5.2, Netscape 4 and other similar scales of horror
-|>code that become unmaintainably bad.
 
-I think you misunderstand me.  If IBM considers a feature to be useful,
-they should require distributions to put into a release from a contractual
-standpoint.  That doesn't mean Red Hat has to put it into all their
-distributions -- it just means they have to produce something that
-IBM wants.  If nobody else uses it, that's fine.  IBM gets what they
-want, and Red Hat gets what they want.  End of story.
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-You're looking at this from an engineering perspective and open source
-philosophy rather than a business unit at a company like IBM might look
-at it.  That's not a bad thing to do, but the two concepts are very
-different from each other.  The Linux world may filter "crap", which
-is great, but some of that "crap" is important to companies like IBM,
-and if they were smart they'd use their leverage ($$$) to make sure the
-"crap" ends up in the products they care to use/support.  The rest of
-Linux can do whatever it wants, doing things the "Linux world" way.
+On Sat, Nov 02 2002, Matt Reppert wrote:
+> Just FYI. I tested the ide-cd based CD burning and reading with the
+> cdrtools alpha ... kernel 2.5.44-mm6, cdrtools-1.11a39. If I boot
+> into a clean system, only load ide-cd (none of the ide-scsi-related
+> bits), and "do it", it works well.
 
-|>> P.S.  As an aside, too many engineers try and make product marketing
-|>>       decisions at Red Hat.  I personally think that's really bad for
-|>>       their business model as a whole (and I'm not referring to LKCD).
-|>
-|>You think things like EVMS are a product marketing decision. I'm very
-|>glad you don't run a Linux distro. It would turn into something like the
-|>old 3com rapops rather rapidly by your models (3com rapops btw ceased to
-|>exist and for good reasons)
+You definitely don't want anything _less_ than 2.5.45 at all, it's a
+miracle it appears to work :-)
 
-Again, I wasn't mentioning any product in particular.  Making decisions
-like GPL-only as an engineering philosophy rather than as a product
-marketing decision are more problematic than looking at EVMS vs. anything
-else as a question of which is technically better.
+Please retest 2.5.45, thanks, and you should probably add this patch to
+fix the cdb output length issue.
 
-But again, that's a complete aside and would probably open up a plethora
-of opinions from people who care about both sides of that argument, and
-would inevitably head down an rathole infinitely deep.
+-- 
+Jens Axboe
 
---Matt
 
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=idecd-cdb-size-2
+
+===== drivers/ide/ide-cd.c 1.27 vs edited =====
+--- 1.27/drivers/ide/ide-cd.c	Fri Oct 18 20:02:55 2002
++++ edited/drivers/ide/ide-cd.c	Sun Nov  3 10:33:17 2002
+@@ -310,6 +310,7 @@
+ #include <linux/completion.h>
+ 
+ #include <scsi/scsi.h>	/* For SCSI -> ATAPI command conversion */
++#include "../scsi/scsi.h"
+ 
+ #include <asm/irq.h>
+ #include <asm/io.h>
+@@ -877,10 +878,10 @@
+ 					  ide_handler_t *handler)
+ {
+ 	unsigned char *cmd_buf	= rq->cmd;
+-	int cmd_len		= sizeof(rq->cmd);
+ 	unsigned int timeout	= rq->timeout;
+ 	struct cdrom_info *info = drive->driver_data;
+ 	ide_startstop_t startstop;
++	unsigned int cmd_len;
+ 
+ 	if (CDROM_CONFIG_FLAGS(drive)->drq_interrupt) {
+ 		/* Here we should have been called after receiving an interrupt
+@@ -902,6 +903,11 @@
+ 
+ 	/* Arm the interrupt handler. */
+ 	ide_set_handler(drive, handler, timeout, cdrom_timer_expiry);
++
++	/* cdb length, pad upto the 12th byte if necessary */
++	cmd_len = COMMAND_SIZE(rq->cmd[0]);
++	if (cmd_len < 12)
++		cmd_len = 12;
+ 
+ 	/* Send the command to the device. */
+ 	HWIF(drive)->atapi_output_bytes(drive, cmd_buf, cmd_len);
+
+--ikeVEW9yuYc//A+q--

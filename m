@@ -1,71 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277724AbRJROhm>; Thu, 18 Oct 2001 10:37:42 -0400
+	id <S277727AbRJROqN>; Thu, 18 Oct 2001 10:46:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277729AbRJROhd>; Thu, 18 Oct 2001 10:37:33 -0400
-Received: from liszt-02.ednet.co.uk ([212.20.226.19]:61381 "HELO
-	liszt-02.ednet.co.uk") by vger.kernel.org with SMTP
-	id <S277725AbRJROhZ>; Thu, 18 Oct 2001 10:37:25 -0400
+	id <S277728AbRJROqD>; Thu, 18 Oct 2001 10:46:03 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46465 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S277727AbRJROpy>; Thu, 18 Oct 2001 10:45:54 -0400
+Date: Thu, 18 Oct 2001 10:46:20 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ben Collins <bcollins@debian.org>
+cc: Adrian Bunk <bunk@fs.tum.de>, Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Non-GPL modules
-From: Martin Donnelly <md@uklinux.net>
-To: "M. R. Brown" <mrbrown@0xd6.org>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011018090412.I22296@0xd6.org>
-In-Reply-To: <Pine.LNX.3.95.1011018091343.32746A-100000@chaos.analogic.com> 
-	<20011018090412.I22296@0xd6.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 18 Oct 2001 15:37:53 +0100
-Message-Id: <1003415874.4004.45.camel@inchgower>
-Mime-Version: 1.0
+In-Reply-To: <20011018101134.Q10952@visi.net>
+Message-ID: <Pine.LNX.3.95.1011018101831.603A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-18 at 15:04, M. R. Brown wrote:
->
-> As far as EXPORT_MODULE_GPL is concerned, I think that's an excellent idea.
-> There is *nothing* wrong with a copyright holder enforcing the fair use of
-> his/her software, and I'd encourage all new GPL'd modules to start
-> exporting these symbols.
->
+On Thu, 18 Oct 2001, Ben Collins wrote:
 
-It is a completely naive idea. You export some symbols as
-EXPORT_MODULE_GPL(). I write a wrapper which is GPL'd but i don't export
-my symbols as EXPORT_MODULE_GPL(), i now can interface to your code from
-a proprietry module without breach of license through my wrapper with
-very little work on my part. Your probably the same people who run about
-using ROT13 as encryption.
- 
-> There are some of us who strive to keep the kernel as "pure" as possible,
-> for a variety of reasons, the main one for me being peace of mind (knowing
-> my code base is supported, and bugfixes are cheap).  Why is this so
-> difficult for folks to grasp?
+> On Thu, Oct 18, 2001 at 09:58:33AM -0400, Richard B. Johnson wrote:
+> > On Thu, 18 Oct 2001, Adrian Bunk wrote:
+> > 
+> > > On Thu, 18 Oct 2001, Richard B. Johnson wrote:
+> > > 
+> > > >...
+> > > > In the business world, something as simple as puts("Hello World!");
+> > > > MUST be kept a trade secret. If it was written by an employee
+> > > > in the context of his or her job, the company's stockholders owns
+> > > > that line of code so no employee, even the President, is allowed
+> > > > to give it away.
+> > > >...
+> > > 
+> > > IOW: Companies like IBM, SAP, Sun and SGI that made code available under
+> > > the GPL (e.g. as part of the linux kernel or with of relicensed programs)
+> > > weren't allowed to do this???
+> > > 
+> > > 
+> > > Am I allowed to consider this a bad joke?
+> > > 
+> > > 
+> > 
+> > It's no joke. Some companies require, in the process of producing
+> > goods and services, that certain interface code and documentation
+> > be provided. For instance, if I make an Ethernet card, it's in
+> > the best interest of the company to sell as many boards as possible.
+> > Therefore, certain information must be given away to obtain those
+> > goals. So, I would provide register-level documentation, sample
+> > source-code, and maybe even drivers for the majority of the known
+> > Operating Systems.
+> > 
+> > However, If my company makes Bomb Scanners (it does), I cannot
+> > divulge to potential adversaries, either the competition or potential
+> > bombers, how it works. It's just that simple.
+> > 
+> > If your end product is a board that plugs into a PC, you have a
+> > different set of rules than if your end product is a Bomb Scanner,
+> > a Flight Management System, or a Numerical Milling Machine.
+> > Basically, embedded stuff, both hardware and software, remains hidden.
+> 
+> But that has nothing to do with stockholders claiming ownership of code
+> written by an employee. That's a much deeper policy. So your assertions
+> are way off base.
 > 
 
-That is you decision and you are free to have it, but don't try and
-force it on other people by saying if you don't have a system running
-100% GPL'd (or compatibly) licensed kernel - we reserve the right to
-ignore any bugs you try and inform us about, regardless of whether or
-not is is to do with the binary only module. It isn't exactly
-encouraging.
+The assertions are right on. Not off base. The amount of "ownership"
+exercised by the public in a publicly-held company depends upon the
+capitalization, share dilution, and amount of outstanding shares. As the
+ownership (stockholder votes) increases, the company policy becomes
+becomes more of maximizing return on investment, and less of producing
+good or services. This is Business 101. As stockholder equity increases,
+eventually everything an employee produces becomes more-and-more owned
+by the public investors, and less-and-less owned by some company
+"division" or "department". In effect, the "company" exists only for
+the convenience of its share-holders. General Electric is an example.
 
-Perhaps a less blunt tool could be used to encourage people to release
-GPL compatibly licensed code for their previously binary modules? I
-think you risk manufacturers withdrawing the support they have given by
-saying if they don't release their code we won't support anything to do
-with it. Carrots work better than sticks.
 
-Cheers
+> Now, if your driver just interfaces your hardware with userspace, then
+> that driver likely contains nothing of extreme importance for how your
+> "Bomb Scanner" works, and releasing it under GPL is not going to be a
+> problem. Your application contains those details. I don't see how you
+> are getting at the application level being considered a corrupter of the
+> kernel's GPL stringency. Do you actually see this occuring?
+>
 
-Martin
+We have a data interface that feeds high-speed data from 4,000 +
+X-Ray detectors directly to memory at RAM/Bus memory speeds. There
+is no way in hell that we are going to let the world know how this
+is done. We can't protect it by patent because there is a lot of
+"prior art" which has been confused by a Patent Examiner as something
+in the past that actually worked.
 
--- 
-A girl and a boy bump into each other -- surely an accident.
-A girl and a boy bump and her handkerchief drops -- surely another
-accident.
-But when a girl gives a boy a dead squid -- *that had to mean
-something*.
-                -- S. Morganstern, "The Silent Gondoliers"
+Review of the driver source-code by a competent hardware designer,
+who knows how to read code, will give away the trade secret. Then
+anybody, who hasn't bothered to invest the millions of dollars of
+Engineering development cost, can make one of these cheaper and
+put us out of business.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

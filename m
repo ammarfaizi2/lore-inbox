@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbULLXDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbULLXHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbULLXDq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 18:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbULLXDq
+	id S262165AbULLXHk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 18:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbULLXHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 18:03:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14513 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262167AbULLXDo (ORCPT
+	Sun, 12 Dec 2004 18:07:39 -0500
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:48815
+	"HELO fargo") by vger.kernel.org with SMTP id S262165AbULLXHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 18:03:44 -0500
-Message-ID: <41BCCD45.9090809@osdl.org>
-Date: Sun, 12 Dec 2004 14:59:17 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Danny Beaudoin <beaudoin_danny@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Typo in kernel configuration (xconfig)
-References: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
-In-Reply-To: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Dec 2004 18:07:33 -0500
+Date: Mon, 13 Dec 2004 00:06:57 +0100
+From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
+To: Simos Xenitellis <simos74@gmx.net>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Improved console UTF-8 support for the Linux kernel?
+Message-ID: <20041212230657.GA18397@fargo>
+Mail-Followup-To: Simos Xenitellis <simos74@gmx.net>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1102784797.4410.8.camel@kl> <20041211173032.GA13208@fargo> <Pine.LNX.4.53.0412112002020.30929@yvahk01.tjqt.qr> <1102803807.3183.59.camel@kl> <Pine.LNX.4.61.0412120058230.15129@yvahk01.tjqt.qr> <20041212003857.GA14844@fargo> <1102889302.3195.10.camel@kl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1102889302.3195.10.camel@kl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Danny Beaudoin wrote:
-> Hi!
-> If I'm not at the right place, please forward this to the right person.
-> 
-> In Device Drivers/Graphics Support/Support for frame buffer devices:
-> "On several non-X86 architectures, the frame buffer device is the
-> only way to use the graphics hardware."
-> 
-> This should be 'x86' instead, as in the rest of the description.
+Hi Simon ;),
 
-Are you sure?  It makes sense to me the way it currently is...
+On Dec 12 at 10:08:22, Simos Xenitellis wrote:
+> > Aaahh ;), you've should said that before. The whole problem with the
+> > kernel is with the compose tables. If you have a native key for "ö" in
+> > your keyboard you'll not have problems. I can type for example a 'n
+> > with tilde' in my keyboard because is too is a native key, but for
+> > accentuated characters, for utf-8 output is neccesary to apply the patch :-/
+> 
+> And that's the whole issue.
+> 
+> As soon as the kernel is in Unicode  mode for the console, currently
+> there is no way to input accented characters through a dead key
+> (composed).
+
+True.
+
+> Some years back when 8-bit encodings where used there was no problem,
+> however now all distros are broken with regards to this.
+
+I guess that some distros use their own patches, like it seems with
+SuSE, but it's something that it's broken in the linux console and
+should be fixed.
+
+> I do not know what is the next step to consider adding the patch.
+
+Submitting the patch to lkml to discuss about its possible 
+inclusion would be a good start. I don't know who's the console maintainer,
+Vojtech Pavlik perhaps?
+
+Regards,
 
 -- 
-~Randy
+David Gómez                                      Jabber ID: davidge@jabber.org

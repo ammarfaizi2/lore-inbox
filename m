@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbULQCHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbULQCXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262720AbULQCHz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 21:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbULQCHz
+	id S262722AbULQCXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 21:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbULQCXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 21:07:55 -0500
-Received: from roadrunner-base.egenera.com ([63.160.166.46]:55252 "EHLO
-	coyote.egenera.com") by vger.kernel.org with ESMTP id S262720AbULQCHq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 21:07:46 -0500
-Date: Thu, 16 Dec 2004 21:07:29 -0500
-From: Philip R Auld <pauld@egenera.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
-Subject: Re: arch/xen is a bad idea
-Message-ID: <20041217020729.GA17779@vienna.egenera.com>
-References: <20041216102652.6a5104d2.akpm@osdl.org> <E1Cf2k0-00069l-00@mta1.cl.cam.ac.uk> <20041216220434.GC16621@vienna.egenera.com> <Pine.LNX.4.61.0412161807400.26850@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412161807400.26850@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 16 Dec 2004 21:23:24 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:6022 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S262723AbULQCXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 21:23:13 -0500
+Message-ID: <41C2433E.4040402@metaparadigm.com>
+Date: Fri, 17 Dec 2004 10:23:58 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: automated filesystem testing for multiple Linux fs
+References: <41BDC9CD.60504@austin.rr.com> <20041213092057.5bf773fb.cliffw@osdl.org> <41BDE0B4.6020003@austin.rr.com> <41BDE2CF.9060402@austin.rr.com> <20041216121151.GH8246@logos.cnet> <1103215183.12201.39.camel@smfhome.smfdom> <41C2280C.1030009@metaparadigm.com> <41C22D93.3030101@austin.rr.com>
+In-Reply-To: <41C22D93.3030101@austin.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rumor has it that on Thu, Dec 16, 2004 at 06:08:24PM -0500 Rik van Riel said:
-> On Thu, 16 Dec 2004, Philip R Auld wrote:
-> 
-> >The boot-time switch seems to be the ideal. This would allow
-> >enterprise Linux vendors to support using Xen w/o having to
-> >deal with a whole archicture release (including install kernel
-> 
-> I have no idea how such a boot-time switch would work
-> for 3rd party device drivers, though, so don't count
-> yourself lucky just yet ;)
+Steve French wrote:
 
-I actually meant _OS_ vendors like you ;)
- 
-Cheers,
+> Michael Clark wrote:
+>
+>> Steve French wrote:
+>>
+>>> ...  Since
+>>> at present only XFS and JFS have the full combination of server
+>>> features: better quotas, DMAPI, xattr support, ACL support and
+>>> nanosecond file timestamps on disk
+>>>
+>>
+>> Does JFS have quota support now?
+>>
+>> Last I looked it was still on the To Do list.
+>>
+>> ~mc
+>>
+> I remember them adding it four months ago or so.  Looking at 
+> http://linux.bkbits.net/linux-2.5
+> it seems to be mostly in changeset 1.1803.133.1
 
-Phil
 
+Oh, that's good news. This was one reason you couldn't really consider 
+using JFS on a /home fileserver (which sort of implies quotas). It 
+perhaps it needs a lot of testing as it's quite new. Any experiences? 
+(ie. survives a highly parallel load from a lot of threads with 
+different uids).
 
-> 
-> -- 
-> "Debugging is twice as hard as writing the code in the first place.
-> Therefore, if you write the code as cleverly as possible, you are,
-> by definition, not smart enough to debug it." - Brian W. Kernighan
+~mc

@@ -1,47 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbTIRSIq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 14:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTIRSIq
+	id S261617AbTIRSHh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 14:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbTIRSHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 14:08:46 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:9990 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S262006AbTIRSIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 14:08:45 -0400
-Message-ID: <8F12FC8F99F4404BA86AC90CD0BFB04F039F7138@mail-sc-6.nvidia.com>
-From: Allen Martin <AMartin@nvidia.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: "Andre Hedrick (andre@linux-ide.org)" <andre@linux-ide.org>,
-       "LKML (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.4.23-pre4 support for new nForce IDE controllers
-Date: Thu, 18 Sep 2003 11:08:25 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 18 Sep 2003 14:07:37 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:57349 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262006AbTIRSHe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 14:07:34 -0400
+Date: Thu, 18 Sep 2003 20:07:30 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jesper Juhl <jju@dif.dk>, "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: John Cherry <cherry@osdl.org>, Randy Dunlap <rddunlap@osdl.org>,
+       reg@dwf.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5: "No module aic7xxx found for kernel 2.6.0-test5, aborting."
+Message-ID: <20030918180730.GA1112@mars.ravnborg.org>
+Mail-Followup-To: Jesper Juhl <jju@dif.dk>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>, John Cherry <cherry@osdl.org>,
+	Randy Dunlap <rddunlap@osdl.org>, reg@dwf.com,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <200309130725.h8D7PE6d019675@orion.dwf.com> <20030915095354.6f28eedd.rddunlap@osdl.org> <1063734412.20156.2.camel@cherrytest.pdx.osdl.net> <Pine.LNX.4.56.0309181535580.10528@jju_lnx.backbone.dif.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0309181535580.10528@jju_lnx.backbone.dif.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 18, 2003 at 03:44:45PM +0200, Jesper Juhl wrote:
 > 
-> Thanks will look over these.
+> While not directly related to fixing the problems building the aic7xxx
+> driver I thought you might find these patches I did recently of
+> interrest since they also deal with aic7xxx, or rather with its
+> documentation (I've submitted these to lkml before, but they seemed to get
+> lost in the sea of email - probably in part because they are very
+> trivial).
 > 
-> One first question - does the serial ata stuff need to
-> avoid cable detect too ?
+> I was hoping that since you are already working on aic7xxx you might
+> consider merging these while you where at it. If submitting the patches in
+> this manner is inappropriate I appologize.
 
-Actually cable detect is a problem even with PATA.  The driver is reading a
-register at offset 0x52 in config space of the controller (AMD_CABLE_DETECT)
-to determine cable type, but this register doesn't exist on nForce chips.
-The cable detect signal is wired to a GPIO pin on the nForce southbridge,
-unfortunately some board makers have chosen different GPIO pins to wire this
-up to, so only the BIOS knows for sure where the cable detect signal is. 
+You should send aic7xxx stuf direct to the maintainer - Justin.
+I have added him on this mail.
 
-Under Windows OS'es this isn't a problem because UDMA modes are set via an
-ACPI method, so the driver doesn't have to know anything about the registers
-or cable validation.
+	Sam
 
-I saw the driver tries to detect if this bit is not working and turn it on,
-but it only seems to happen on the primary channel.  As far as I can tell it
-doesn't prevent setting higher DMA modes though.  Even when the driver
-reports 40pin on the secondary channel I can still set dma modes >UDMA2.
+[Kept the patch so Justin can see it]
 
--Allen
+> 
+> 
+> diff -u linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic79xx linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic79xx
+> --- linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic79xx 2003-09-08 21:50:03.000000000 +0200
+> +++ linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic79xx      2003-09-15 23:32:06.000000000 +0200
+> @@ -66,7 +66,7 @@
+>         with read streaming enabled so it is disabled by default.  Read
+>         Streaming can be configured in much the same way as tagged
+> queueing
+>         using the "rd_strm" command line option.  See
+> -       drivers/scsi/aic7xxx/README.aic79xx for details.
+> +       <file:Documentation/scsi/aic79xx.txt> for details.
+> 
+>  config AIC79XX_DEBUG_ENABLE
+>         bool "Compile in Debugging Code"
+> 
+> 
+> diff -u linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic7xxx
+> linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic7xxx
+> --- linux-2.6.0-test5-orig/drivers/scsi/aic7xxx/Kconfig.aic7xxx 2003-09-08 21:50:01.000000000 +0200
+> +++ linux-2.6.0-test5/drivers/scsi/aic7xxx/Kconfig.aic7xxx      2003-09-15 22:00:34.000000000 +0200
+> @@ -36,7 +36,7 @@
+>         on some devices.  The upper bound is 253.  0 disables tagged
+> queueing.
+> 
+>         Per device tag depth can be controlled via the kernel command line
+> -       "tag_info" option.  See drivers/scsi/aic7xxx/README.aic7xxx
+> +       "tag_info" option.  See <file:Documentation/scsi/aic7xxx.txt>
+>         for details.
+> 
+>  config AIC7XXX_RESET_DELAY_MS
+> 
+> 
+> diff -u linux-2.6.0-test5-orig/Documentation/scsi/aic79xx.txt linux-2.6.0-test5/Documentation/scsi/aic79xx.txt
+> --- linux-2.6.0-test5-orig/Documentation/scsi/aic79xx.txt       2003-09-08 21:50:18.000000000 +0200
+> +++ linux-2.6.0-test5/Documentation/scsi/aic79xx.txt    2003-09-14 16:12:08.000000000 +0200
+> @@ -141,7 +141,7 @@
+>                Option: global_tag_depth
+>            Definition: Global tag depth for all targets on all busses.
+>                        This option sets the default tag depth which
+> -                      may be selectively overridden vi the tag_info
+> +                      may be selectively overridden via the tag_info
+>                        option.
+>       Possible Values: 1 - 253
+>         Default Value: 32
+> 
+> 
+> diff -u linux-2.6.0-test5-orig/Documentation/scsi/aic7xxx.txt linux-2.6.0-test5/Documentation/scsi/aic7xxx.txt
+> --- linux-2.6.0-test5-orig/Documentation/scsi/aic7xxx.txt       2003-09-08 21:49:58.000000000 +0200
+> +++ linux-2.6.0-test5/Documentation/scsi/aic7xxx.txt    2003-09-14 16:11:45.000000000 +0200
+> @@ -225,7 +225,7 @@
+>                Option: global_tag_depth:[value]
+>            Definition: Global tag depth for all targets on all busses.
+>                        This option sets the default tag depth which
+> -                      may be selectively overridden vi the tag_info
+> +                      may be selectively overridden via the tag_info
+>                        option.
+>       Possible Values: 1 - 253
+>         Default Value: 32
+> 
+> 
+> 
+> Kind regards,
+> 
+> Jesper Juhl <jju@dif.dk>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

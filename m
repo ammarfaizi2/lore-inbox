@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUG1DOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266774AbUG1DX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUG1DOw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 23:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266177AbUG1DOw
+	id S266774AbUG1DX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 23:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266775AbUG1DX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 23:14:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14316 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266163AbUG1DOu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 23:14:50 -0400
-Date: Tue, 27 Jul 2004 20:13:01 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: viro@parcelfarce.linux.theplanet.co.uk
-Subject: stat very inefficient
-Message-Id: <20040727201301.2723f5ad.davem@redhat.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 27 Jul 2004 23:23:57 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:196 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S266774AbUG1DXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 23:23:55 -0400
+Message-Id: <200407280422.i6S4M7fL008720@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.6.7-1
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 28 Jul 2004 00:22:07 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is a belated patch that updates UML to 2.6.7.  The update was the only 
+change from the 2.6.6 UML.
 
-All of the *stat*() syscall routines copy the inode attributes
-around a whopping _3_ times before they get to userspace.
+The next step will be the mm tree.  I'll get that UML fixed up, and start
+splitting it into reasonable patches that Andrew is happy to feed to Linus.
 
-1) From inode to "struct kstat"
-2) From "struct kstat" to "struct stat{,64}" on local kernel stack
-3) From local kernel stack to userspace
+The 2.6.7-1 UML patch is available at
+	http://www.user-mode-linux.org/mirror/uml-patch-2.6.7-1.bz2
 
-That's rediculious.  And also the stores into the various
-structures are not done in ascending order and thus all of
-the store buffers on various cpus never get a reasonable
-store stream for maximal store buffer compression.
+My BK tree is temporarily out of commission until I get my process feeding
+patches from quilt into it.
 
-The reason things happen this way is that each implementation
-of the various stat structures have padding in different places
-and/or have other layout issues.  The simplest thing to do
-is memset() the thing, fill in the non-pad parts, and copy
-it into user space.
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
 
-We should be able to do this with just 2 copies as I recognize
-the reason why the struct kstat abstraction exists.
+				Jeff
 
-I was about to make sparc64 specific copies of all the stat
-system calls in order to optimize this properly.  But that
-makes little sense, instead I think fs/stat.c should call
-upon arch-specific stat{,64} structure fillin routines that
-can do the magic, given a kstat struct.
-
-Comments?

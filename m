@@ -1,75 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289750AbSAWJnw>; Wed, 23 Jan 2002 04:43:52 -0500
+	id <S289752AbSAWJwN>; Wed, 23 Jan 2002 04:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289752AbSAWJnm>; Wed, 23 Jan 2002 04:43:42 -0500
-Received: from [62.245.135.174] ([62.245.135.174]:40894 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S289750AbSAWJna>;
-	Wed, 23 Jan 2002 04:43:30 -0500
-Message-ID: <3C4E85BB.FBC5C2E4@TeraPort.de>
-Date: Wed, 23 Jan 2002 10:43:23 +0100
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-pre4-J0-VM-22-preempt-lock i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Possible Idea with filesystem buffering.
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/23/2002 10:43:23 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/23/2002 10:43:29 AM,
-	Serialize complete at 01/23/2002 10:43:29 AM
+	id <S289757AbSAWJvy>; Wed, 23 Jan 2002 04:51:54 -0500
+Received: from [216.223.235.2] ([216.223.235.2]:58503 "HELO
+	inventor.gentoo.org") by vger.kernel.org with SMTP
+	id <S289752AbSAWJvg>; Wed, 23 Jan 2002 04:51:36 -0500
+Subject: Athlon/AGP issue update
+From: Daniel Robbins <drobbins@gentoo.org>
+To: linux-kernel@vger.kernel.org
+Cc: andrea@suse.de, alan@redhat.com, Andrew Morton <akpm@zip.com.au>,
+        davem@redhat.com, vherva@niksula.hut.fi,
+        Linux Weekly News <lwn@lwn.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution/1.0.1 
+Date: 23 Jan 2002 02:52:53 -0700
+Message-Id: <1011779573.9368.40.camel@inventor.gentoo.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: Possible Idea with filesystem buffering.
-> 
-> From: Richard B. Johnson (root@chaos.analogic.com)
-> Date: Tue Jan 22 2002 - 17:10:27 EST
->  
-> 
-> We need a free-RAM target, possibly based upon a percentage of
-> available RAM. The lack of such a target is what causes the
-> out-of-RAM condition we have been experiencing. Somebody thought
-> that "free RAM is wasted RAM" and the VM has been based upon
-> that theory. That theory has been proven incorrect. You need
+Hi All,
 
- Now, I think the theory itself is OK. The problem is that the stuff in
-buffer/caches is to sticky. It does not go away when "more important"
-uses for memory come up. Or at least it does not go away fast enough.
+Sorry for the delay in getting this information out.  I'll post this
+info on gentoo.org as soon as I have time and some sleep.  
 
-> free RAM, just like you need "excess horsepower" to make
-> automobiles drivable. That free RAM is the needed "rubber-band"
-> to absorb the dynamics of real-world systems.
->
+Today, I had a conference call with Sean Cleveland and Wayne Meritsky of
+AMD and Rik van Riel and William Lee Irwin of kernelhackerdom. Here is
+what we know so far.  There *is* an Athlon/AGP issue.  This issue has
+*not* been tied to a bug with the Athlon/Duron processors.  The initial
+reports of an Athlon CPU bug were based on information that I received
+from an NVIDIA employee; this information turned out to be incorrect. 
+In all fairness, he simply misunderstood the technical details of this
+issue and told me that it was due to a "Athlon CPU bug" rather than
+saying that it was a "potential cache coherency interaction between
+Athlon speculative writes and the GART".  A mistake and misundestanding
+of the details, but his heart was in the right place.  He was trying to
+get this problem out in the open so that it could be addressed by the
+Linux community.
 
- Correct. The free target would help to avoid the panic/frenzy that
-breaks out when we run out of free memory.
+AMD's educated guess is that these Athlon/AGP stability problems have to
+do with speculative writes by the CPU and how they can cause indavertent
+trashing of AGP memory if pages are mapped with indiscretion by the OS
+and drivers.  The following explanation from AMD describes the issue in
+detail:
 
- Question: what about just setting a maximum limit to the cache/buffer
-size. Either absolute, or as a fraction of total available memory? Sure,
-it maybe a waste of memory in most situations, but sometimes the
-administrator/user of a system simply "knows better" than the FVM (F ==
-Fine ? :-)
+-- AMD explanation follows ---
 
- While being there, one could also add a "guaranteed minimum" limit for
-the cache/buffer size. This way preventing a complete meltdown of IO
-performance. True64 has such limits. They are usually at 100% (max) and
-I think 20% (min), giving the cache access to all memory. But there were
-situations where a max of 10% was just the rigth thing to do.
+This note documents a subtle problem that AMD has seen in the field.
 
- I know, the tuning-knob approach is frowned upon. But sometimes there
-are workloads where even the best VM may not know how to react
-correctly.
+The operating system has created a 4MB translation that has attribute
+bits that allow it to be cacheable.  GART also contains translations to
+part of the underlying physical memory of this 4MB translation.
 
-Martin
+This situation is fundamentally illegal because GART is non-coherent and
+all translations that the processor could use to access the AGP memory
+must, therefore, be non-cacheable.  Although we have seen no intentional
+access to the AGP memory by the processor via the 4MB cacheable
+translation we have seen legitimate, speculative, accesses performed by
+the processor.
+
+The problem that has been experienced is caused by a speculative store
+instruction that is not ultimately executed.  The logical address of the
+store is through the 4MB translation to physical memory also translated
+by GART and used by the AGP processor.
+
+The effect of the store is to write-allocate a cache line in the data
+cache and fill that cache line with data from the underlying physical
+memory. Because the line was write-allocated it is subsequently written
+back to physical memory even though the bits have not been changed by
+the processor.  This write-back occurs when the cache-line is
+re-allocated based upon replacement policy and is far removed in time
+from the point at which the bits were read.
+
+Between the time of the read and the time of the write, the AGP
+processor has modified the bits in physical memory and the bits in the
+data cache are stale.  This is happens because GART, being non-coherent,
+does not snoop the processor caches for modified data.
+
+When the cache-line eviction occurs the stale data written to physical
+memory has fatal side effects.
+
+Our conclusion is that the operating system is creating coherency
+problems within the system by creating cacheable translation to AGP
+GART-mapped physical memory.
+
+-- end of AMD explanation --
+
+Best Regards,
+
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Daniel Robbins                                  <drobbins@gentoo.org>
+Chief Architect/President                       http://www.gentoo.org 
+Gentoo Technologies, Inc.
+

@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267610AbTAXJAx>; Fri, 24 Jan 2003 04:00:53 -0500
+	id <S267613AbTAXJPj>; Fri, 24 Jan 2003 04:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267612AbTAXJAx>; Fri, 24 Jan 2003 04:00:53 -0500
-Received: from mail.hometree.net ([212.34.181.120]:58518 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S267610AbTAXJAw>; Fri, 24 Jan 2003 04:00:52 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
-Date: Fri, 24 Jan 2003 09:10:02 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b0qvta$fo6$1@forge.intermeta.de>
-References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch> <20030123180653.GU910@suse.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1043399402 13267 212.34.181.4 (24 Jan 2003 09:10:02 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 24 Jan 2003 09:10:02 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S267615AbTAXJPj>; Fri, 24 Jan 2003 04:15:39 -0500
+Received: from mail.bmlv.gv.at ([193.171.152.37]:54413 "HELO mail.bmlv.gv.at")
+	by vger.kernel.org with SMTP id <S267613AbTAXJPi> convert rfc822-to-8bit;
+	Fri, 24 Jan 2003 04:15:38 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: "Ph. Marek" <philipp.marek@bmlv.gv.at>
+To: bh@sgi.com
+Subject: arch/ia64/sn/io/hcl.c debug bug
+Date: Fri, 24 Jan 2003 10:25:03 +0100
+User-Agent: KMail/1.4.3
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301241025.03955.philipp.marek@bmlv.gv.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+Hello Bent, hi Ingo,
 
->In drivers/ide/ide-cd.c:cdrom_end_request(), try to insert something
->ala:
+I found a debug bug :-)
 
->	if ((rq->flags & REQ_SENSE) && uptodate) {
->                struct request *failed = (struct request *) rq->buffer;
->                struct cdrom_info *info = drive->driver_data;
->                void *sense = &info->sense_data;
-
->+		if (failed && block_pc_request(failed))
->+			printk("%s: failed %p\n", __FUNCTION__, failed->sense);
-
->                if (failed && failed->sense)
->                        sense = failed->sense;
-
-Shouldn't this be below the 2nd if() and then just test "sense" ?
-
-Like 
-
->                if (failed && failed->sense)
->                        sense = failed->sense;
-
->+		if (failed && block_pc_request(failed))
->+			printk("%s: failed %p\n", __FUNCTION__, sense);
-
-That makes sure, that you report what is analyzed later here:
-
->                cdrom_analyze_sense_data(drive, failed, sense);
+I took this email-adresses as they are the 
+only ones in MAINTAINERS listed for an SGI.
+Sorry if I've told the wrong people.
 
 
-	Regards
-		Henning
+Regards,
+
+Phil
 
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+diff -u linux-2.5.59.orig/./arch/ia64/sn/io/hcl.c linux-2.5.59/./arch/ia64/sn/io/hcl.c
+-- linux-2.5.59.orig/./arch/ia64/sn/io/hcl.c       Fri Jan 24 10:19:44 2003
++++ linux-2.5.59/./arch/ia64/sn/io/hcl.c   Fri Jan 24 10:19:46 2003
+@@ -1257,7 +1257,7 @@
+         * It does not make any sense to call this on vertexes with multiple
+         * inventory structs chained together
+         */
+-       if ( device_inventory_get_next(device, &invplace) != NULL ) {
++       if ( device_inventory_get_next(device, &invplace) != NULL )
+                printk("Should panic here ... !\n");
+ #endif
+        return (val);
+
+
+

@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266748AbUGLHhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266751AbUGLHkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266748AbUGLHhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 03:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266751AbUGLHhJ
+	id S266751AbUGLHkv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 03:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266752AbUGLHkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 03:37:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26814 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266748AbUGLHfg (ORCPT
+	Mon, 12 Jul 2004 03:40:51 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:42949 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S266751AbUGLHku (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 03:35:36 -0400
-Date: Mon, 12 Jul 2004 00:34:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Instrumenting high latency
-Message-Id: <20040712003418.02997a12.akpm@osdl.org>
-In-Reply-To: <cone.1089613755.742689.28499.502@pc.kolivas.org>
-References: <cone.1089613755.742689.28499.502@pc.kolivas.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 12 Jul 2004 03:40:50 -0400
+Date: Mon, 12 Jul 2004 03:40:48 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] radeonfb: cleanup and little fixes
+Message-ID: <20040712074048.GA19875@havoc.gtf.org>
+References: <20040712062236.GA17610@havoc.gtf.org> <20040711233002.1ec2100f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040711233002.1ec2100f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> He hacked 
->  together this simple patch which times periods according to the preempt 
->  count.
+On Sun, Jul 11, 2004 at 11:30:02PM -0700, Andrew Morton wrote:
+> >  	if (rinfo->mon1_EDID)
+> >  	    kfree(rinfo->mon1_EDID);
+> >  	if (rinfo->mon2_EDID)
+> >  	    kfree(rinfo->mon2_EDID);
+> 
+> kfree(NULL) is legal, and this is a slow-path.  Those tests can be taken
+> out next time, unless such a thing offends you.
 
-OK, small problem.  We have code which does, effectively,
+I guess I wasn't zealous enough in my cleanup ;-)
+(changing it doesn't bother me, I just hadn't noticed it)
 
-	if (need_resched()) {
-		drop_the_lock();
-		schedule();
-		grab_the_lock();
-	}
+I really appreciate the work you put in looking through all of the
+patches you get.  Code review is a huge job, something I don't think
+James really has time for, but somehow you find it :)
 
-so if need_resched() stays false then this will hold the lock for a long
-time and bogus reports are generated:
-
-46ms non-preemptible critical section violated 1 ms preempt threshold starting at exit_mmap+0x26/0x188 and ending at exit_mmap+0x154/0x188
-
-To fix that you need to generate high scheduling pressure so that
-need_resched() is frequently true.  On all CPUs.  Modify realfeel to pin
-itself to each CPU, or something like that.
-
-This rather decreases the patch's usefulness.
-
-The way I normally do this stuff is with
-
-	http://www.zip.com.au/~akpm/linux/patches/stuff/rtc-debug.patch
-
-and `amlat', from http://www.zip.com.au/~akpm/linux/amlat.tar.gz
-
-
-It _might_ be sufficient to redefine need_resched() to just return 1 all
-the time.  If that causes the kernel to livelock then we need to fix that
-up anyway.
+-dte

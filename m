@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314210AbSEBB0B>; Wed, 1 May 2002 21:26:01 -0400
+	id <S314213AbSEBBdD>; Wed, 1 May 2002 21:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314211AbSEBB0A>; Wed, 1 May 2002 21:26:00 -0400
-Received: from dsl-213-023-038-139.arcor-ip.net ([213.23.38.139]:410 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314210AbSEBB0A>;
-	Wed, 1 May 2002 21:26:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
+	id <S314215AbSEBBdC>; Wed, 1 May 2002 21:33:02 -0400
+Received: from oss.SGI.COM ([128.167.58.27]:50065 "EHLO oss.sgi.com")
+	by vger.kernel.org with ESMTP id <S314213AbSEBBdB>;
+	Wed, 1 May 2002 21:33:01 -0400
+Date: Wed, 1 May 2002 18:32:50 -0700
+From: Ralf Baechle <ralf@uni-koblenz.de>
 To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Date: Wed, 1 May 2002 03:26:22 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E172gnj-0001pS-00@starship> <20020502024740.P11414@dualathlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E172isy-0001rL-00@starship>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: discontiguous memory platforms
+Message-ID: <20020501183250.A31464@dea.linux-mips.net>
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship> <20020429153500.B28887@dualathlon.random> <E172K9n-0001Yv-00@starship> <20020501042341.G11414@dualathlon.random> <20020501180547.GA1212440@sgi.com> <20020502011750.M11414@dualathlon.random> <20020501232343.GA1214171@sgi.com> <20020501175133.A30649@dea.linux-mips.net> <20020502032725.S11414@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 May 2002 02:47, Andrea Arcangeli wrote:
-> >   - Leads forward to interesting possibilities such as hot plug memory.
-> >     (Because pinned kernel memory can be remapped to an alternative
-> >     region of physical memory if desired)
+On Thu, May 02, 2002 at 03:27:25AM +0200, Andrea Arcangeli wrote:
+
+> >  - 256MB at physical address 0
+> >  - 512MB at physical address 0x80000000
+> >  - 256MB at physical address 0xc0000000
+> >  - The entire rest of the memory is mapped contiguously from physical
+> >    address 0x1:00000000 up.
+> >  All available memory is mapped from the lowest address up.
 > 
-> You cannot handle hot plug with nonlinear, you cannot take the mem_map
-> contigous when somebody plugins new memory, you've to allocate the
-> mem_map in the new node, discontigmem allows that, nonlinear doesn't.
+> Is this a numa? If not then you should be just perfectly fine with
+> discontigmem with this chip.
 
-You have not read and understood the patch, which this comment demonstrates.
+This is a system on a chip with memory controllers on die.  In theory
+multiple of it can be combined to brew some crude ccNUMA system but I
+don't know if people are actually doing that.
 
-For your information, the mem_map lives in *virtual* memory, it does not
-need to change location, only the kernel page tables need to be updated,
-to allow a section of kernel memory to be moved to a different physical
-location.  For user memory, this was always possible, now it is possible
-for kernel memory as well.  Naturally, it's not all you have to do to get
-hotplug memory, but it's a big step in that direction.
-
-> At the very least you should waste some tons of memory of unused mem_map
-> for all the potential memory that you're going to plugin, if you want to
-> handle hot-plug with nonlinear.
-
-Eh.  No.
-
-It's not useful for me to keep correcting you on your misunderstanding of
-what config_nonlinear actually does.  Please read Jonathan Corbet's
-excellent writeup in lwn, it's written in a very understandable fashion.
-
--- 
-Daniel
+ Ralf

@@ -1,138 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267319AbUG1Q6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267316AbUG1Q7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267319AbUG1Q6F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 12:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267320AbUG1Q6F
+	id S267316AbUG1Q7d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 12:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267320AbUG1Q6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 12:58:05 -0400
-Received: from ool-43554ab1.dyn.optonline.net ([67.85.74.177]:12163 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id S267319AbUG1Q5g
+	Wed, 28 Jul 2004 12:58:21 -0400
+Received: from ciistr2.ist.utl.pt ([193.136.128.2]:60834 "EHLO
+	ciistr2.ist.utl.pt") by vger.kernel.org with ESMTP id S267307AbUG1Q5q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 12:57:36 -0400
-Date: Wed, 28 Jul 2004 12:57:26 -0400
-From: Nick Orlov <bugfixer@list.ru>
+	Wed, 28 Jul 2004 12:57:46 -0400
+From: Claudio Martins <ctpm@ist.utl.pt>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] 2.6.8-rc2-mm1 e1000 inline fix (trivial)
-Message-ID: <20040728165726.GA2812@nikolas.hn.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bg08WKrSYDhXBjb5"
+Subject: Re: Recent 2.6 kernels can't read an entire ATAPI CD or DVD
+Date: Wed, 28 Jul 2004 17:53:45 +0100
+User-Agent: KMail/1.6.2
+Cc: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
+       Edward Angelo Dayao <edward.dayao@gmail.com>,
+       "Bryan O'Sullivan" <bos@serpentine.com>, arjanv@redhat.com
+References: <1090989052.3098.6.camel@camp4.serpentine.com> <20040728065319.GD11690@suse.de> <20040728145228.GA9316@redhat.com>
+In-Reply-To: <20040728145228.GA9316@redhat.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407281753.45199.ctpm@ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
+On Wednesday 28 July 2004 15:52, Dave Jones wrote:
+> On Wed, Jul 28, 2004 at 08:53:19AM +0200, Jens Axboe wrote:
+>  > On Wed, Jul 28 2004, Edward Angelo Dayao wrote:
+>  > > yeah i get this kind of error in my logs as well from my liteon
+>  > > dvd-rom at home. thats like 6 months old and happened on fc2 when i
+>  > > had that installed on it. haven't noticed anything on mandrake 10 (the
+>  > > current distro i use at home) with 2.6.7.
+>  > >
+>  > > i got the same error on my old notebook, a compaq presario... that was
+>  > > prior to the drive being sent to that big junk yard in the sky.  i
+>  > > forget what model that was.  but i was running then...  rh9.
+>  > >
+>  > > hope this bit helps guys resolve this.
+>  >
+>  > (dont top post!)
+>  >
+>  > Sounds like something fc2 is doing, I'd suggest filing a bug report with
+>  > them.
+>
+> Curious. The relevant code should match mainline 1:1 there unless I'm
+> mistaken. Arjan ?
 
-Andrew,
+  I'm having similar problems running vanilla 2.6.7 with Debian-amd64 on an 
+Athlon 64 using a Philips DVDR824P. It refuses to read some of my dvd+r discs 
+to the end, while some may even refuse to mount. In both cases the errors are 
+of the "attempting to access beyond end of device" type. 
 
-e1000-build-fix.patch in 2.6.8-rc2-mm1 is incomplete.
+Interestingly the same discs on my laptop with 2.6.7 and an LG GCA-4040N 
+dvd+rw writer read fine. After some time (and some cd burns later) one of the 
+discs which used to give errors on the Philips writer started to read fine 
+again, which left me a bit confused.
 
-The following hunks are missing:
+  Sorry for not being too detailed about system configuration at this time. If 
+you have interest in this, I can give more detailed system info and try to 
+report as soon as this happens again with the exact error messages. 
+Unfortunately I have not yet managed to create a test iso image or similar 
+which would reproduce the problem reliably, but I can add that something 
+similar also happenned with cdroms.
 
+Best regards
 
---- linux/drivers/net/e1000/e1000_main.c.orig	2004-07-28 10:52:57.000000000 -0400
-+++ linux/drivers/net/e1000/e1000_main.c	2004-07-28 11:39:33.000000000 -0400
-@@ -132,7 +132,7 @@
- static struct net_device_stats * e1000_get_stats(struct net_device *netdev);
- static int e1000_change_mtu(struct net_device *netdev, int new_mtu);
- static int e1000_set_mac(struct net_device *netdev, void *p);
--static inline void e1000_irq_disable(struct e1000_adapter *adapter);
-+static void e1000_irq_disable(struct e1000_adapter *adapter);
- static void e1000_irq_enable(struct e1000_adapter *adapter);
- static irqreturn_t e1000_intr(int irq, void *data, struct pt_regs *regs);
- static boolean_t e1000_clean_tx_irq(struct e1000_adapter *adapter);
-@@ -2059,7 +2059,7 @@
-  * @adapter: board private structure
-  **/
- 
--static inline void
-+static void
- e1000_irq_disable(struct e1000_adapter *adapter)
- {
- 	atomic_inc(&adapter->irq_sem);
-@@ -150,9 +150,9 @@
- void set_ethtool_ops(struct net_device *netdev);
- static void e1000_enter_82542_rst(struct e1000_adapter *adapter);
- static void e1000_leave_82542_rst(struct e1000_adapter *adapter);
--static inline void e1000_rx_checksum(struct e1000_adapter *adapter,
--                                     struct e1000_rx_desc *rx_desc,
--                                     struct sk_buff *skb);
-+static void e1000_rx_checksum(struct e1000_adapter *adapter,
-+                              struct e1000_rx_desc *rx_desc,
-+                              struct sk_buff *skb);
- static void e1000_tx_timeout(struct net_device *dev);
- static void e1000_tx_timeout_task(struct net_device *dev);
- static void e1000_smartspeed(struct e1000_adapter *adapter);
-@@ -2587,7 +2587,7 @@
-  * @sk_buff: socket buffer with received data
-  **/
- 
--static inline void
-+static void
- e1000_rx_checksum(struct e1000_adapter *adapter,
-                   struct e1000_rx_desc *rx_desc,
-                   struct sk_buff *skb)
+Claudio
 
 
-Please CC me - I'm not subscribed to the list.
-
-Thanks,
-	Nick.
--- 
-With best wishes,
-	Nick Orlov.
-
-
---bg08WKrSYDhXBjb5
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: attachment; filename="e1000-inline-fix.patch"
-
---- linux/drivers/net/e1000/e1000_main.c.orig	2004-07-28 10:52:57.000000000 -0400
-+++ linux/drivers/net/e1000/e1000_main.c	2004-07-28 11:39:33.000000000 -0400
-@@ -132,7 +132,7 @@
- static struct net_device_stats * e1000_get_stats(struct net_device *netdev);
- static int e1000_change_mtu(struct net_device *netdev, int new_mtu);
- static int e1000_set_mac(struct net_device *netdev, void *p);
--static inline void e1000_irq_disable(struct e1000_adapter *adapter);
-+static void e1000_irq_disable(struct e1000_adapter *adapter);
- static void e1000_irq_enable(struct e1000_adapter *adapter);
- static irqreturn_t e1000_intr(int irq, void *data, struct pt_regs *regs);
- static boolean_t e1000_clean_tx_irq(struct e1000_adapter *adapter);
-@@ -2059,7 +2059,7 @@
-  * @adapter: board private structure
-  **/
- 
--static inline void
-+static void
- e1000_irq_disable(struct e1000_adapter *adapter)
- {
- 	atomic_inc(&adapter->irq_sem);
-@@ -150,9 +150,9 @@
- void set_ethtool_ops(struct net_device *netdev);
- static void e1000_enter_82542_rst(struct e1000_adapter *adapter);
- static void e1000_leave_82542_rst(struct e1000_adapter *adapter);
--static inline void e1000_rx_checksum(struct e1000_adapter *adapter,
--                                     struct e1000_rx_desc *rx_desc,
--                                     struct sk_buff *skb);
-+static void e1000_rx_checksum(struct e1000_adapter *adapter,
-+                              struct e1000_rx_desc *rx_desc,
-+                              struct sk_buff *skb);
- static void e1000_tx_timeout(struct net_device *dev);
- static void e1000_tx_timeout_task(struct net_device *dev);
- static void e1000_smartspeed(struct e1000_adapter *adapter);
-@@ -2587,7 +2587,7 @@
-  * @sk_buff: socket buffer with received data
-  **/
- 
--static inline void
-+static void
- e1000_rx_checksum(struct e1000_adapter *adapter,
-                   struct e1000_rx_desc *rx_desc,
-                   struct sk_buff *skb)
-
---bg08WKrSYDhXBjb5--

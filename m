@@ -1,126 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269341AbUIBXug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269386AbUIBXxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269341AbUIBXug (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269307AbUIBXuP
+	id S269386AbUIBXxY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269371AbUIBXuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:50:15 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:60817 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269373AbUIBXtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:49:21 -0400
-Date: Fri, 03 Sep 2004 08:54:31 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [Lhms-devel] [RFC] buddy allocator without bitmap(3) [1/3]
-In-reply-to: <4136D318.9060102@jp.fujitsu.com>
-To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>
-Message-id: <4137B2B7.8080109@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
-References: <4136D318.9060102@jp.fujitsu.com>
+	Thu, 2 Sep 2004 19:50:54 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:63123 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S269377AbUIBXtf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:49:35 -0400
+Date: Fri, 3 Sep 2004 01:49:15 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <1835526621.20040903014915@tnonline.net>
+To: Paul Jakma <paul@clubi.ie>
+CC: Jamie Lokier <jamie@shareable.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+In-Reply-To: <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org>
+References: <20040826150202.GE5733@mail.shareable.org>
+ <200408282314.i7SNErYv003270@localhost.localdomain>
+ <20040901200806.GC31934@mail.shareable.org>
+ <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
+ <1094118362.4847.23.camel@localhost.localdomain>
+ <20040902161130.GA24932@mail.shareable.org>
+ <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> New function: calculate_aligned_end()
-> 
-> calculate_aligned_end() removes some pages from system for removing invalid
-> mem_map access from __free_pages_bulk() main loop.(This is in 4th patch)
-> 
-This is an illustration of the effects of calculate_aligned_end().
+  
 
-Examples for MAX_ORDER=4 is here.
-In this case, an alignment of memmap is (1 << (4-1))=8
+> On Thu, 2 Sep 2004, Jamie Lokier wrote:
 
-[unaligned end address case]
+>> Firstly, if I have to do it from a Gnome program, about the only 
+>> program where looking in a tar file is visibly useful is Nautilus. 
+>> Ironically, clicking on a tar file in Nautilus doesn't work, 
+>> despite having a dependency on gnome-vfs2. :/
 
-Consider contiguous mem_map from index 0 to index 19.
-mem_map[16-19] is unaligned.
+> Do you have file-roller installed?
 
-pfn     0           4           8          12            16 17 18 19
-         -------------------------------------------------------------
-order 0 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  -- out of range --
-         -------------------------------------------------------------
-order 1 |     |     |     |     |     |     |     |     |     |     |
-         -------------------------------------------------------------
-order 2 |           |           |           |           |           |
-         ------------------------------------------------------------
-order 3 |                       |                       |
-         -------------------------------------------------
-         <----------------------> <---------------------> <---------??? ---->
-In this case, invalid mem_map access will occur during
+> I can open tar/zip/rar/etc.. files from anywhere in gnome2, eg in 
+> Galeon I can click on a tar.gz URL (http or whatever) and have it 
+> open it in file-roller, from where i can browse the files to my 
+> hearts content.
 
-(1) coalescing page 16 with page 20 in order=2. <- this means memory access to page 20.
-
-calculate_aligned_end() removes page 19.
-
-  pfn     0           4           8          12            16 17 18 19
-         -------------------------------------------------------------
-order 0 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | X|   -- out of range --
-         -------------------------------------------------------------
-order 1 |     |     |     |     |     |     |     |     |     |
-         -------------------------------------------------------
-order 2 |           |           |           |           |
-         -------------------------------------------------
-order 3 |                       |                       |
-         -------------------------------------------------
-         <----------------------> <--------------------->
-
-         page 19 is removed.
-         -> page 18 and page 19 cannot be coalesced.
-         -> page 16 - page 19 cannot be coalesced.
-         -> accessing invalid page 20 will not occur.
-
-
-[unaligned start address case]
-Consider a mem_map begins from index 2.
-
-pfn     0     2     4           8          12           16
-               -------------------------------------------------------------------
-order 0       |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-               -------------------------------------------------------------------
-order 1       |     |     |     |     |     |     |     |     |     |     |     |
-               --------------------------------------------------------------------
-order 2             |           |           |           |           |           |
-                     -------------------------------------------------------------
-order 3                         |                       |                       |
-                                 -------------------------------------------------
-
-In this case, invalid mem_map access will occur during
-	(1) coalescing page 2 and page 0 in order=1
-	(2) coalescing page 4 and page 0 in order=2
-
-calculate_aligned_end() removes page 2 and 4.
-
-pfn     0     2     4           8          12           16
-               -------------------------------------------------------------------
-order 0       |x |  |x |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-               -------------------------------------------------------------------
-order 1                   |     |     |     |     |     |     |     |     |     |
-                           --------------------------------------------------------
-order 2                         |           |           |           |           |
-                                 -------------------------------------------------
-order 3                         |                       |                       |
-                                 -------------------------------------------------
-
-	page 2 is removed.
-	-> page 2 and page 3 cannot be coalesced in order=0
-	-> accessing invalid page 0 in order=1 will not occur.
-	
-	page 4 is removed.
-	-> page 4 and page 5 cannot be coalesced in order=0.
-	-> page 4 and page 6 cannot be coalesced in order=1.
-	-> accessing invalid page 0 in order=2 will not occur.
-
-Thanks.
---Kame
--- 
---the clue is these footmarks leading to the door.--
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+  But can you actually do things with these files? Can you run
+  applications or edit files directly, or is there need for temporary
+  unzip first?
+  
+  ~S
+  
+> regards,
 

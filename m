@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316588AbSGBAAB>; Mon, 1 Jul 2002 20:00:01 -0400
+	id <S316589AbSGBACj>; Mon, 1 Jul 2002 20:02:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316589AbSGBAAA>; Mon, 1 Jul 2002 20:00:00 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:48853 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S316588AbSGBAAA>; Mon, 1 Jul 2002 20:00:00 -0400
-Subject: Re: [announce] [patch] batch/idle priority scheduling, SCHED_BATCH
-From: Nicholas Miell <nmiell@attbi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andreas Jaeger <aj@suse.de>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0207010954420.2321-100000@e2>
-References: <Pine.LNX.4.44.0207010954420.2321-100000@e2>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Jul 2002 17:02:21 -0700
-Message-Id: <1025568143.1673.4.camel@entropy>
+	id <S316591AbSGBACi>; Mon, 1 Jul 2002 20:02:38 -0400
+Received: from pop018pub.verizon.net ([206.46.170.212]:57577 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S316589AbSGBACh>; Mon, 1 Jul 2002 20:02:37 -0400
+Message-Id: <200207020011.g620BTZ9000182@pool-141-150-241-241.delv.east.verizon.net>
+Date: Mon, 1 Jul 2002 20:11:28 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] New Console system BK
+References: <Pine.LNX.4.44.0207011232450.27788-100000@www.transvirtual.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207011232450.27788-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Mon, Jul 01, 2002 at 12:52:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-01 at 01:00, Ingo Molnar wrote:
+James Simmons wrote:
 > 
-> On Mon, 1 Jul 2002, Andreas Jaeger wrote:
-> > This can be done in glibc.  linux/sched.h should not be used by
-> > userspace applications, glibc has the define in <bits/sched.h> which is
-> > included from <sched.h> - and <sched.h> is the file defined by Posix.
+> Since 2.5.1 I have placed into the kernel part of the new console system
+> code into the DJ tree. So it has been well tested. I was hoping to have
+> all the keyboard devices ported over to the input api and the fbdev
+> drivers over to the new api. Unfortunely due to time restraints this will
+> not be the case. So here goes the first installment of the new console
+> system. Please test it yourselves and I will push it to Linus soon.
 > 
-> yes, this was my thinking too.
+>  http://www.transvirtual.com/~jsimmons/console.diff.gz
 
-OK, I can understand that line of reasoning.
+With your patch, I have to release the alt key between Fx keys to change
+VTs.  Is that intentional?
 
-Keep in mind that someday, someone who is looking for the implementation
-of the SCHED_OTHER policy will be thoroughly confused by the kernel's
-complete lack of reference to SCHED_OTHER. And they'll be asking you for
-clarification.
+Without the patch, I can hold down alt and hit F1, F2, F3, F4, then
+release the alt key and I will have switched to each of the VTs.
+With this patch, I have to press/release alt for each Fx key.
 
-Or, you could make some note in the source that SCHED_OTHER is
-SCHED_NORMAL and eliminate any source of confusion now.
-
-- Nicholas
-
+-- 
+Skip

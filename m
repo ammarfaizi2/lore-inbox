@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbUDEHse (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 03:48:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUDEHse
+	id S261792AbUDEIBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 04:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbUDEIBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 03:48:34 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:27441 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261793AbUDEHsa (ORCPT
+	Mon, 5 Apr 2004 04:01:11 -0400
+Received: from linux-bt.org ([217.160.111.169]:5806 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S261792AbUDEIBK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 03:48:30 -0400
-Date: Mon, 5 Apr 2004 00:46:46 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org, wli@holomorphy.com, haveblue@us.ibm.com,
-       colpatch@us.ibm.com
-Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-Message-Id: <20040405004646.146ae51c.pj@sgi.com>
-In-Reply-To: <20040405000528.513a4af8.pj@sgi.com>
-References: <20040329041253.5cd281a5.pj@sgi.com>
-	<1081128401.18831.6.camel@bach>
-	<20040405000528.513a4af8.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 5 Apr 2004 04:01:10 -0400
+Subject: Re: 2.6.5-mc1
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040404194037.09d67c37.akpm@osdl.org>
+References: <20040404194037.09d67c37.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1081152075.2835.7.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 05 Apr 2004 10:01:15 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my previous reply to Rusty, I wrote:
-> 	    struct cpumap { DECLARE_BITMAP(bits, NR_CPUS); };
-> 	    struct cpumask s, d1, d2;
-> 	    bitmap_or(s.bits, d1.bits, d2.bits);
+Hi Andrew,
 
-Brain dead code alert (as well as a typo alert for the 'cpumap') - that
-last line needs to be:
+>   "mc" == "merge candidate", for want of a better name.  This tree holds
+>   the patches which are slated for inclusion into Linus's tree in the
+>   short-term.
+> 
+>   As Linus is offline for a week we should expect that the contents of
+>   -mc1 will be merged into kernel bitkeeper around April 12.
+> 
+>   2.6.5-mm1 will consist of all of 2.6.5-mc1 plus other patches.  The
+>   separation point is "mc.patch" in the -mm series file - everything before
+>   mc.patch is part of both the -mc and -mm kernels and everything after
+>   mc.patch is in -mm only.
+> 
+>   The -mc series probably won't live for very long - I'm releasing it so
+>   that people can prepare patches against what Linus's kernel will look
+>   like when he returns.
 
-	    bitmap_or(s.bits, d1.bits, d2.bits, NR_CPUS);
+what about this patch?
 
-Which is why the 60 odd cpumask and nodemask specific operation macros
-exist, to avoid having to explicitly specify the bitsize on each call
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc3/2.6.5-rc3-mm4/broken-out/yenta-TI-irq-routing-fix.patch
 
-In other words, I understand that the following three possibilities
-exist for coding these masks:
+Actually I need it to make my TI PCMCIA bridge work again.
 
-    /* specify bitsize both on declarations and operations */
-    struct cpumask { DECLARE_BITMAP(bits, NR_CPUS); };
-    struct cpumask s, d1, d2;
-    bitmap_or(s.bits, d1.bits, d2.bits, NR_CPUS);	/* explicit bitsize */
+Regards
 
-or:
+Marcel
 
-    /* specify bitsize on declaration; use specialized operations */
-    struct cpumask { DECLARE_BITMAP(bits, NR_CPUS); };
-    struct cpumask s, d1, d2;
-    cpus_or(s.bits, d1.bits, d2.bits);			/* 'cpu' implies NR_CPUS */
 
-or:
-
-    /* carry the bitsize in the structure [pseudo C alert] */
-    struct mask { int nbits = NR_CPUS; DECLARE_BITMAP(bits, NR_CPUS); };
-    struct mask s, d1, d2;
-    mask_or(s.bits, d1.bits, d2.bits);			/* mask_* ops get size from struct */
-
-Am I missing any choices?  Which do you prefer?
-
-I understand that the kernel currently does the 2nd choice, encoding the
-bitsize in the operation name.
-
-My personal preference is to continue doing this 2nd choice.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

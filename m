@@ -1,91 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263273AbTDVQJm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 12:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTDVQJm
+	id S263275AbTDVQKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 12:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTDVQKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 12:09:42 -0400
-Received: from holomorphy.com ([66.224.33.161]:48795 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263273AbTDVQJj (ORCPT
+	Tue, 22 Apr 2003 12:10:09 -0400
+Received: from lucidpixels.com ([66.45.37.187]:46020 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S263275AbTDVQKD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 12:09:39 -0400
-Date: Tue, 22 Apr 2003 09:20:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-       mbligh@aracnet.com, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-ID: <20030422162055.GJ8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@digeo.com>,
-	Andrea Arcangeli <andrea@suse.de>, mbligh@aracnet.com,
-	mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030422145644.GG8978@holomorphy.com> <Pine.LNX.4.44.0304221110560.10400-100000@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304221110560.10400-100000@devserv.devel.redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 22 Apr 2003 12:10:03 -0400
+Date: Tue, 22 Apr 2003 12:22:06 -0400 (EDT)
+From: war <war@lucidpixels.com>
+X-X-Sender: war@p300
+To: linux-kernel@vger.kernel.org
+cc: copycat@jx165.net
+Subject: HPT366/368/370 IDE/SCSI-EMULATION PROBLEMS (2.4.x)
+Message-ID: <Pine.LNX.4.55.0304221213510.25378@p300>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Apr 2003, William Lee Irwin III wrote:
->> Actually it wasn't from sparse memory, it was from massive sharing.
->> Basically 10000 processes whose virtualspace was dominated by shmem
->> shared across all of them.
->> On some reflection I suspect a variety of techniques are needed here.
+war@p300:~$ find /usr/src/linux-2.4.20/Documentation/ | grep -i hpt
+war@p300:~$
 
-On Tue, Apr 22, 2003 at 11:26:21AM -0400, Ingo Molnar wrote:
-> there are two main techniques to reduce per-context pagetable-alike
-> overhead: 1) the use of pagetable sharing via CLONE_VM 2) the use of
-> bigger MMU units with a much smaller pagetable hw cost [hugetlbs].
+The top of /usr/src/linux-2.4.20/drivers/ide/hpt366.c does not offer much
+in terms of the documentation.
 
-Sharing pagetables across process contexts seems to be relatively
-effective. Reclaiming them also curtails various worst-case scenarious
-and simultaneously renders all others techniques optimizations as
-opposed to workload feasibility patches.
+Hopefully my question is simple, why does this card only seem to work with
+such a configuration?
 
-I'm having a tough time getting too interested in these today. I'll
-just add to the list for now (if you will).
+I have 3 cards, 12 HDD.
 
+If I try to boot with normal (no append), the box will sit there trying to
+find the hard drives.
 
-On Tue, Apr 22, 2003 at 11:26:21AM -0400, Ingo Molnar wrote:
-> all of this is true, and still remains valid. None of this changes the
-> fact that objrmap, as proposed, introduces a quadratic component to a
-> central piece of code. If then we should simply abort any mmap() attempt
-> that increases the sharing factor above a certain level, or something like
-> that.
+If I boot with the way most distros set it up (ie: sda=noprobe
+sdb=noprobe) and so on, this works, but then it uses SCSI-EMULATION.
 
-It does do poorly there according to benchmarks. I don't have anything
-specific to say for or against it. It's sensible as a general idea and
-has its benefits but has theoretical and practical drawbacks too. I'm
-going to have to let those involved with it address things.
+I am familiar with PROMISE BOARDS (100/133) and they do not have this
+problem.
 
+Is there something in particular one must do to achieve IDE access, to
+have the kernel see the HDD's as IDE devices and not use SCSI-EMULATION
+for HPT ROCKET ATA/100 cards?
 
-On Tue, Apr 22, 2003 at 11:26:21AM -0400, Ingo Molnar wrote:
-> using nonlinear mappings adds the overhead of pte chains, which roughly
-> doubles the pagetable overhead. (or companion pagetables, which triple the
-> pagetable overhead) Purely RAM-wise the break-even point is at around 8
-> pages, 8 pte chain entries make up for 64 bytes of vma overhead.
-> the biggest problem i can see is that we (well, the kernel) has to make a
-> judgement of RAM footprint vs. algorithmic overhead, which is apples to
-> oranges. Nonlinear vmas [or just linear vmas with pte chains installed],
-> while being only O(N), double/triple the pagetable overhead. objrmap
-> linear vmas, while having only the pagetable overhead, are O(N^2). [well,
-> it's O(N*M)]
-> RAM-footprint wise the boundary is clear: above 8 pages of granularity,
-> vmas with objrmap cost less RAM than nonlinear mappings.
-> CPU-time-wise the nonlinear mappings with pte chains always beat objrmap.
+Also, when you cat /proc/ide/hpt* it gives a segfault and the kernel
+oopses, I've sent this e-mail a week or two ago.
 
-There's definitely an argument brewing here. Large 32-bit is very space
-conscious; the rest of the world is largely oblivious to these specific
-forms of space consumption aside from those tight on space in general.
-I don't know that there can be a general answer for all systems.
+So, to summarize:
+
+Boot with IDE support only and no append, the box sits there looking for
+the other IDE hard drives (using intel i845 chipset btw).
+It looks forever, was on for 2 weeks, never found the disks.
+
+Switched over to distro method, sda=noprobe,sdb=noprobe and so on for all
+12 drives and testing with rh73/scsi-emulation/etc IS enabled, and the
+kernel does a lot of running around and sets them up as SCSI devices.
+
+Is it possible to have HPT rocket ATA/100 cards (3 of them) see hard
+drives as IDE and not SCSI?
 
 
--- wli

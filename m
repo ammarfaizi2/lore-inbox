@@ -1,84 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbUB0HJA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 02:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUB0HJA
+	id S261743AbUB0HIG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 02:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUB0HIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 02:09:00 -0500
-Received: from gate.crashing.org ([63.228.1.57]:17850 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261755AbUB0HIv (ORCPT
+	Fri, 27 Feb 2004 02:08:06 -0500
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:31640 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261743AbUB0HH6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 02:08:51 -0500
-Subject: [PATCH] ppc64: fix a bug in iSeries MMU hash management
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077865213.22232.211.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 27 Feb 2004 18:00:13 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 02:07:58 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: "Swap in" an entire process?
+Date: Fri, 27 Feb 2004 08:05:20 +0100
+User-Agent: KMail/1.6
+References: <20040225161911.22361.qmail@web21203.mail.yahoo.com>
+In-Reply-To: <20040225161911.22361.qmail@web21203.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200402270805.32965.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-iSeries HyperVisor is doing some evilery when inserting PTEs
-that I didn't properly account for when rewriting that code,
-causing iSeries box to blow up regulary.
+Hi Konstantin,
 
-Here's a fix.
+On Wednesday 25 February 2004 17:19, Konstantin Kudin wrote:
+>  I have a question. Is there some way under linux to
+> "swap in" an entire process that got partially swapped
+> out?
+> 
+>  Basically, I want all the pages for a given PID
+> returned to RAM if they were paged out.
+ 
+The process to swap in can do that with mlockall().
 
-===== arch/ppc64/kernel/pSeries_htab.c 1.11 vs edited =====
---- 1.11/arch/ppc64/kernel/pSeries_htab.c	Mon Jan 19 17:28:25 2004
-+++ edited/arch/ppc64/kernel/pSeries_htab.c	Fri Feb 27 17:05:05 2004
-@@ -103,7 +103,7 @@
- 
- 	__asm__ __volatile__ ("ptesync" : : : "memory");
- 
--	return i;
-+	return i | (secondary << 3);
- }
- 
- static long pSeries_hpte_remove(unsigned long hpte_group)
-===== arch/ppc64/kernel/pSeries_lpar.c 1.29 vs edited =====
---- 1.29/arch/ppc64/kernel/pSeries_lpar.c	Mon Feb 16 18:30:46 2004
-+++ edited/arch/ppc64/kernel/pSeries_lpar.c	Fri Feb 27 17:08:28 2004
-@@ -369,7 +369,10 @@
- 	if (lpar_rc != H_Success)
- 		return -2;
- 
--	return slot;
-+	/* Because of iSeries, we have to pass down the secondary
-+	 * bucket bit here as well
-+	 */
-+	return (slot & 7) | (secondary << 3);
- }
- 
- static spinlock_t pSeries_lpar_tlbie_lock = SPIN_LOCK_UNLOCKED;
-===== arch/ppc64/mm/hash_low.S 1.3 vs edited =====
---- 1.3/arch/ppc64/mm/hash_low.S	Thu Feb 12 15:32:56 2004
-+++ edited/arch/ppc64/mm/hash_low.S	Fri Feb 27 17:08:49 2004
-@@ -176,7 +176,6 @@
- 	beq-	htab_pte_insert_failure
- 
- 	/* Now try secondary slot */
--	ori	r30,r30,_PAGE_SECONDARY
- 	
- 	/* page number in r5 */
- 	rldicl	r5,r31,64-PTE_SHIFT,PTE_SHIFT
-@@ -215,8 +214,8 @@
- 	b	htab_insert_pte	
- 
- htab_pte_insert_ok:
--	/* Insert slot number in PTE */
--	rldimi	r30,r3,12,63-14
-+	/* Insert slot number & secondary bit in PTE */
-+	rldimi	r30,r3,12,63-15
- 		
- 	/* Write out the PTE with a normal write
- 	 * (maybe add eieio may be good still ?)
+>  And vice versa, is there a way to "swap out" a
+> process by some command?
+
+No, but munlockall will allow it to be swapped
+again. It will swap out while sleeping gradually, since it dirties no
+pages at all.
+
+But there is no external trigger mechanism for this in Linux right now.
 
 
+Regards
+
+Ingo Oeser
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAPuw8U56oYWuOrkARAicaAJ9UlEjG79mSmEhYfYgrQHeKRayHcQCg33oZ
+fxMdDl4zJ2eqkenp7oIFk0U=
+=uZpu
+-----END PGP SIGNATURE-----

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282086AbRKWJ31>; Fri, 23 Nov 2001 04:29:27 -0500
+	id <S282092AbRKWJbR>; Fri, 23 Nov 2001 04:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282089AbRKWJ3Q>; Fri, 23 Nov 2001 04:29:16 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:48650 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282086AbRKWJ3B>;
-	Fri, 23 Nov 2001 04:29:01 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: rpjday <rpjday@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is 2.4.15 really available at www.kernel.org? 
-In-Reply-To: Your message of "Fri, 23 Nov 2001 03:58:34 CDT."
-             <Pine.LNX.4.33.0111230357090.6800-100000@localhost.localdomain> 
+	id <S282089AbRKWJa7>; Fri, 23 Nov 2001 04:30:59 -0500
+Received: from holomorphy.com ([216.36.33.161]:34463 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S282091AbRKWJan>;
+	Fri, 23 Nov 2001 04:30:43 -0500
+Date: Fri, 23 Nov 2001 01:30:28 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] tree-based bootmem
+Message-ID: <20011123013028.B17332@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011117011415.B1180@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 23 Nov 2001 20:28:47 +1100
-Message-ID: <20212.1006507727@ocs3.intra.ocs.com.au>
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20011117011415.B1180@holomorphy.com>; from wli@holomorphy.com on Sat, Nov 17, 2001 at 01:14:15AM -0800
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Nov 2001 03:58:34 -0500 (EST), 
-rpjday <rpjday@mindspring.com> wrote:
->  i just tried to download linux-2.4.15.tar.bz2 and, far from being a 22M
->new kernel, it's a 155312 byte file that i suspect is really just a patch
->file, so i suspect someone mislabelled the link there.  any hints?
+On Sat, Nov 17, 2001 at 01:14:15AM -0800, William Lee Irwin III wrote:
+> This is a repost including some corrections of a bootmem allocator that
+> tracks ranges explicitly, and uses segment trees to assist in searching
+> for available memory. Perhaps it is even a new version. Some prior
+> reports indicated mail headers were munged, preventing replies and some
+> people from seeing it at all.
 
-Works for me.
+Successfully tested on mipsel without modifications to my code.
 
--rw-r--r--    1 kaos     ocs      23748963 Nov 23 17:39 linux-2.5.0.tar.bz2
--rw-r--r--    1 kaos     ocs           248 Nov 23 17:39 linux-2.5.0.tar.bz2.sign
+Two drivers required non-standard versions for the correct operation
+of 2.4.14-oss.sgi.com on diskless serial console DecStation 5000/200.
+Aside from that, nothing of the rest of the kernel, nor any of my code
+was altered. Driver issues should bear no relation to bootmem.
 
+Specifically, the 2.4.5-oss.sgi.com dz.c and a PMAD-AA-capable DEC
+Lance driver (PMAD-AA driver thanks to Dave Airlie) were needed. Further
+pursuit of those issues should and will be directed to arch maintainers.
+
+Cheers,
+Bill
+-----------------
+willir@us.ibm.com

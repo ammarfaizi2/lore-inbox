@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129364AbRBAW0m>; Thu, 1 Feb 2001 17:26:42 -0500
+	id <S129567AbRBAWfQ>; Thu, 1 Feb 2001 17:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129550AbRBAW0c>; Thu, 1 Feb 2001 17:26:32 -0500
-Received: from mserv1d.vianw.co.uk ([195.102.240.96]:23715 "EHLO
-	mserv1d.vianw.co.uk") by vger.kernel.org with ESMTP
-	id <S129364AbRBAW0b>; Thu, 1 Feb 2001 17:26:31 -0500
-From: Alan Chandler <alan@chandlerfamily.org.uk>
+	id <S129743AbRBAWfF>; Thu, 1 Feb 2001 17:35:05 -0500
+Received: from quechua.inka.de ([212.227.14.2]:17436 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S129567AbRBAWe4>;
+	Thu, 1 Feb 2001 17:34:56 -0500
+From: W1012@lina.inka.de
 To: linux-kernel@vger.kernel.org
-Subject: Re: VT82C686A corruption with 2.4.x
-Date: Thu, 01 Feb 2001 21:56:42 +0000
-Organization: [private individual]
-Message-ID: <95mj7t09q3cjo1m79r4b355upasl0h40vl@4ax.com>
-In-Reply-To: <3A794945.5F652819@voicenet.com> <Pine.LNX.4.21.0102011137590.27273-100000@winds.org> <20010201190653.H2341@suse.cz>
-In-Reply-To: <20010201190653.H2341@suse.cz>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: XFS file system Pre-Release 
+Message-Id: <E14OSJc-0000s6-00@sites.inka.de>
+Date: Thu, 1 Feb 2001 23:34:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001 19:06:53 +0100, Vojtech Pavlik wrote:
+In article <200102012138.f11LcV322920@jen.americas.sgi.com> you wrote:
+>> What support does XFS provide for clustering?
+>> 								Pavel
 
->On Thu, Feb 01, 2001 at 11:46:08AM -0500, Byron Stanoszek wrote:
->
->> Yeah, by bios does the same thing too on the Abit KT7(a).
->
->Ok, I'll remember this. This is most likely the cause of the problems
->many people had with the KT7 in the past.
->
-I've had (I now have 2.4.1 with dma off) the problems with a KT7,
-although according to the BIOS its set to 100FSB/33PCI and the option
-to tweak the clock further is set to zero
+> This statement is a little misleading, the clustering software is other
+> stuff from SGI, they just have xfs filesystems on the machines.
 
-One further thought though - 1/3 of 100 is actually 33.3333Mhz.  What
-if the flexibility in the motherboard is actually causing the bus to
-be exactly 1/3 of 100
+One reason for this is, that in a shared nothing cluster on fail over you may
+have to have a filesystem check. and that is simly taking too long if you do
+not have a log filesystem. Thats why reiser, jfs, xfs or ext3 makes sense here.
 
-Interpolating according to Byron Stanoszek's table  for UDMA-33 (where
-I have the problem) this could have a not insignificant effect on the
-paramter given the chip.
-
-
-Alan
-
-alan@chandlerfamily.org.uk
-http://www.chandler.u-net.com
+Greetings
+Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

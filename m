@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285077AbRLQKNU>; Mon, 17 Dec 2001 05:13:20 -0500
+	id <S285088AbRLQKVU>; Mon, 17 Dec 2001 05:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285087AbRLQKNK>; Mon, 17 Dec 2001 05:13:10 -0500
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:56069 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S285077AbRLQKNA>; Mon, 17 Dec 2001 05:13:00 -0500
-Subject: 2.5.1 compile error
-From: "Martin A. Brooks" <martin@jtrix.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-nUZT6xUn+yYUlaXzMVje"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 Dec 2001 10:12:58 +0000
-Message-Id: <1008583978.6860.8.camel@unhygienix>
-Mime-Version: 1.0
+	id <S285089AbRLQKVK>; Mon, 17 Dec 2001 05:21:10 -0500
+Received: from web21205.mail.yahoo.com ([216.136.131.248]:44907 "HELO
+	web21205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S285088AbRLQKU5>; Mon, 17 Dec 2001 05:20:57 -0500
+Message-ID: <20011217102056.1779.qmail@web21205.mail.yahoo.com>
+Date: Mon, 17 Dec 2001 02:20:56 -0800 (PST)
+From: vijayalakshmi krishnamurthy <linaxmi@yahoo.com>
+Subject: prblm with first module prog
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi all
+  I'm a novice ,here  I tried the first module prog 
+given in the tutorial in the link
+  http://www.linuxdoc.org/LDP/lkmpg/
+   i followed all the instructions, verfied with
+header files but on running make i get
 
---=-nUZT6xUn+yYUlaXzMVje
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+        1.fist.c: In function `init_module':
+        2.fist.c:11: warning: implicit declaration of
+function `printk_Rsmp_1b7d4074'
+        3.cc -Wall -DMODULE -D__KERNEL__ -DLINUX -c
+fist.c
+        4.echo insmod fist.o to turn it on
+        5.insmod fist.o to turn it on
+        6.echo rmmod fist to turn it off
+        7.rmmod fist to turn it off
+        8.echo
+        9.
+        10.echo X & kernel prog do not mix.
+        11.X
+        12./bin/sh: kernel: command not found
+        13.make: *** [fist.o] Error 127
 
-gcc -D__KERNEL__ -I/home/martin/kernel-a-day-club/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=3D2
--march=3Di686   -c -o init/do_mounts.o init/do_mounts.c
-init/do_mounts.c: In function `rd_load_image':
-init/do_mounts.c:491: `rd_image_start' undeclared (first use in this
-function)
-init/do_mounts.c:491: (Each undeclared identifier is reported only once
-init/do_mounts.c:491: for each function it appears in.)
-make: *** [init/do_mounts.o] Error 1
 
---=20
-Martin A. Brooks   Systems Administrator
-Jtrix Ltd          t: +44 7395 4990
-57-59 Neal Street  f: +44 7395 4991
-London, WC2H 9PP   e: martin@jtrix.com
+when I redirected my make file o/p from terminal only
+lines 4 - 11 were in the
+ redirected file. the rest were in the console. can
+somebody explain me the reason.
+ why do they echo the insmod & rmmod & other things? i
+dont getit.
 
---=-nUZT6xUn+yYUlaXzMVje
-Content-Type: application/pgp-signature
+ All kind of explanations R welcome
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+ thanx in advance
+ lakshmi
 
-iD8DBQA8HcUqwgE0gTKdDoYRArtmAJ9BjqT40Mnap0/myMsGcYQ9zQa4qQCcCxGF
-pPwFkKupM74wiXHiDpFJsmY=
-=KxRj
------END PGP SIGNATURE-----
-
---=-nUZT6xUn+yYUlaXzMVje--
-
+__________________________________________________
+Do You Yahoo!?
+Check out Yahoo! Shopping and Yahoo! Auctions for all of
+your unique holiday gifts! Buy at http://shopping.yahoo.com
+or bid at http://auctions.yahoo.com

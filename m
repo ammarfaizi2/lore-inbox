@@ -1,53 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317002AbSG1SEZ>; Sun, 28 Jul 2002 14:04:25 -0400
+	id <S317024AbSG1SLt>; Sun, 28 Jul 2002 14:11:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317005AbSG1SEZ>; Sun, 28 Jul 2002 14:04:25 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:51975 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S317002AbSG1SEY>; Sun, 28 Jul 2002 14:04:24 -0400
-Date: Sun, 28 Jul 2002 20:07:35 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: dhowells@redhat.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: linux-2.5.29 __downgrade_write() for CONFIG_RWSEM_GENERIC_SPINLOCK
-In-Reply-To: <200207281750.KAA19369@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0207282005360.8911-100000@serv>
+	id <S317030AbSG1SLt>; Sun, 28 Jul 2002 14:11:49 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51799 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S317024AbSG1SLs>; Sun, 28 Jul 2002 14:11:48 -0400
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: torvalds@transmeta.com (Linus Torvalds),
+       linux-kernel@vger.kernel.org (Linux Kernel)
+Subject: Re: [BK PATCH 2.5] fs/ntfs/dir.c: use PAGE_CACHE_MASK_LL with 64-bit values
+References: <E17YRtw-0006I7-00@storm.christs.cam.ac.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Jul 2002 12:03:01 -0600
+In-Reply-To: <E17YRtw-0006I7-00@storm.christs.cam.ac.uk>
+Message-ID: <m1sn23hgru.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Anton Altaparmakov <aia21@cantab.net> writes:
 
-On Sun, 28 Jul 2002, Adam J. Richter wrote:
+> Linus,
+> 
+> Following from previous patch which introduced PAGE_CACHE_MASK_LL, this
+> one fixes a bug in fs/ntfs/dir.c which was using PAGE_CACHE_MASK
+> on 64-bit values... It now uses PAGE_CACHE_MASK_LL.
+> 
+> Patch together with the other two patches available from:
+> 
+> 	bk pull http://linux-ntfs.bkbits.net/linux-2.5-pm
+> 
+> Best regards,
+> 
+> 	Anton
+> -- 
+> Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+> Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
+> WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+> 
+> ===================================================================
+> 
+> This will update the following files:
+> 
+>  fs/ntfs/dir.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletion(-)
+> 
+> through these ChangeSets:
+> 
+> <aia21@cantab.net> (02/07/27 1.479)
+>    fs/ntfs/dir.c: Use PAGE_CACHE_MASK_LL() on 64-bit values.
+> 
+> 
+> diff -Nru a/fs/ntfs/dir.c b/fs/ntfs/dir.c
+> --- a/fs/ntfs/dir.c	Sat Jul 27 14:24:09 2002
+> +++ b/fs/ntfs/dir.c	Sat Jul 27 14:24:09 2002
+> @@ -1232,7 +1232,8 @@
+>  	ntfs_debug("Handling index buffer 0x%Lx.",
+>  			(long long)bmp_pos + cur_bmp_pos);
+>  	/* If the current index buffer is in the same page we reuse the page. */
+> 
+> -	if ((prev_ia_pos & PAGE_CACHE_MASK) != (ia_pos & PAGE_CACHE_MASK)) {
+> +	if ((prev_ia_pos & PAGE_CACHE_MASK_LL) !=
+> +			(ia_pos & PAGE_CACHE_MASK_LL)) {
+>  		prev_ia_pos = ia_pos;
+>  		if (likely(ia_page != NULL))
+>  			ntfs_unmap_page(ia_page);
 
-> 	Although noting in 2.5.29 appears to use downgrade_write(),
-> I assume that the facility was added because it is going to be used
-> in the near future.  So, I've added what I think is an implementation
-> of __downgrade_write for lib/rwsem-spinlock.c.  It is the same as
-> __up_write, except that it sets sem->activity to 1.
 
-IMO you have to add the patch below, otherwise you may wake up a writer.
+Hmm.  Wouldn't
+prev_ia_pos >> PAGE_CACHE_SHIFT != ia_pos >> PAGE_CACHE_SHIFT
+work just as well?  And be some safer as the result could be stored in
+32bits?
 
->  Since nothing
-> uses it yet, I haven't tested it.
-
-Same problem here.
-
-bye, Roman
-
-diff -u -p -r1.1.1.1 rwsem-spinlock.c
---- lib/rwsem-spinlock.c	21 Oct 2001 23:50:13 -0000	1.1.1.1
-+++ lib/rwsem-spinlock.c	28 Jul 2002 18:04:08 -0000
-@@ -59,7 +59,7 @@ static inline struct rw_semaphore *__rws
- 	/* try to grant a single write lock if there's a writer at the front of the queue
- 	 * - we leave the 'waiting count' incremented to signify potential contention
- 	 */
--	if (waiter->flags & RWSEM_WAITING_FOR_WRITE) {
-+	if (waiter->flags & RWSEM_WAITING_FOR_WRITE && !sem->activity) {
- 		sem->activity = -1;
- 		list_del(&waiter->list);
- 		waiter->flags = 0;
-
+Eric

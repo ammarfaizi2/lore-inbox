@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268317AbTBYU4g>; Tue, 25 Feb 2003 15:56:36 -0500
+	id <S268343AbTBYU6x>; Tue, 25 Feb 2003 15:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268319AbTBYU4f>; Tue, 25 Feb 2003 15:56:35 -0500
-Received: from vbws78.voicebs.com ([66.238.160.78]:37638 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S268317AbTBYU4f>; Tue, 25 Feb 2003 15:56:35 -0500
-Message-ID: <3E5BDADC.2040606@didntduck.org>
-Date: Tue, 25 Feb 2003 16:06:36 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S268344AbTBYU6x>; Tue, 25 Feb 2003 15:58:53 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:36797 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268343AbTBYU6w>; Tue, 25 Feb 2003 15:58:52 -0500
+Date: Tue, 25 Feb 2003 12:53:44 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <417110000.1046206424@flay>
+In-Reply-To: <20030225203001.GV29467@dualathlon.random>
+References: <96700000.1045871294@w-hlinder>
+ <20030222192424.6ba7e859.akpm@digeo.com>
+ <20030225171727.GN29467@dualathlon.random>
+ <20030225174359.GA10411@holomorphy.com>
+ <20030225175928.GP29467@dualathlon.random>
+ <20030225185008.GF10396@holomorphy.com>
+ <20030225191817.GT29467@dualathlon.random> <372680000.1046201260@flay>
+ <20030225203001.GV29467@dualathlon.random>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Michael Hayes <mike@aiinc.ca>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Spelling fixes for 2.5.63 - won't
-References: <200302252031.h1PKVI824928@aiinc.aiinc.ca>
-In-Reply-To: <200302252031.h1PKVI824928@aiinc.aiinc.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Hayes wrote:
-> This fixes:
->     wont -> won't (25 occurrences)
+>> > the only solution is to do rmap lazily, i.e. to start building the rmap
+>> > during swapping by walking the pagetables, basically exactly like I
+>> > refill the lru with anonymous pages only after I start to need this
+>> > information recently in my 2.4 tree, so if you never need to pageout
+>> > heavily several giga of ram (like most of very high end numa servers),
+>> > you'll never waste a single cycle in locking or whatever other
+>> > worthless accounting overhead that hurts performance of all common
+>> > workloads
+>> 
+>> Did you see the partially object-based rmap stuff? I think that does
+>> very close to what you want already.
 > 
-> diff -ur a/arch/alpha/lib/ev6-stxcpy.S b/arch/alpha/lib/ev6-stxcpy.S
-> --- a/arch/alpha/lib/ev6-stxcpy.S	Mon Feb 24 11:05:04 2003
-> +++ b/arch/alpha/lib/ev6-stxcpy.S	Tue Feb 25 10:07:59 2003
-> @@ -128,7 +128,7 @@
->  	ldq_u	t1, 0(a1)		# L : load first src word
->  	and	a0, 7, t0		# E : take care not to load a word ...
->  	addq	a1, 8, a1		# E :
-> -	beq	t0, stxcpy_aligned	# U : ... if we wont need it (stall)
-> +	beq	t0, stxcpy_aligned	# U : ... if we won't need it (stall)
->  
->  	ldq_u	t0, 0(a0)	# L :
->  	br	stxcpy_aligned	# L0 : Latency=3
+> I don't see how it can optimize away the overhead but I didn't look at
+> it for long.
 
-Be careful with apostrophes in asm files.  Some assemblers will barf on 
-them when not in C style comments.
+Because you don't set up and tear down the rmap pte-chains for every 
+fault in / delete of any page ... it just works off the vmas.
 
---
-				Brian Gerst
-
+M.
 

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269549AbUJWB3C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269751AbUJWB2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269549AbUJWB3C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:29:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269594AbUJWB23
+	id S269751AbUJWB2O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269558AbUJWB1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:28:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20384 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269549AbUJWBZo (ORCPT
+	Fri, 22 Oct 2004 21:27:33 -0400
+Received: from mail.joq.us ([67.65.12.105]:19179 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S269333AbUJWBXq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:25:44 -0400
-Date: Fri, 22 Oct 2004 18:25:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Matt Mackall <mpm@selenic.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-In-Reply-To: <20041023011549.GK17038@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
- <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com>
+	Fri, 22 Oct 2004 21:23:46 -0400
+To: Chris Wright <chrisw@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+References: <1097272140.1442.75.camel@krustophenia.net>
+	<20041008145252.M2357@build.pdx.osdl.net>
+	<1097273105.1442.78.camel@krustophenia.net>
+	<20041008151911.Q2357@build.pdx.osdl.net>
+	<20041008152430.R2357@build.pdx.osdl.net>
+	<87zn2wbt7c.fsf@sulphur.joq.us>
+	<20041008221635.V2357@build.pdx.osdl.net>
+	<87is9jc1eb.fsf@sulphur.joq.us>
+	<20041009121141.X2357@build.pdx.osdl.net>
+	<878yafbpsj.fsf@sulphur.joq.us>
+	<20041009155339.Y2357@build.pdx.osdl.net>
+	<874qkmtibt.fsf@sulphur.joq.us>
+From: "Jack O'Quin" <joq@io.com>
+Date: 22 Oct 2004 20:23:30 -0500
+In-Reply-To: <874qkmtibt.fsf@sulphur.joq.us>
+Message-ID: <87zn2erzvx.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Chris Wright <chrisw@osdl.org> writes:
+> 
+> > - less generic variable names
+> >   - s/any/rt_any/
+> >   - s/gid/rt_gid/
+> >   - s/mlock/rt_mlock/
 
+Jack O'Quin <joq@io.com> writes:
+> Is there a compelling reason for changing all the parameter names?
+> 
+> I would prefer not to do that.  It is incompatible for our current
+> user base, and really does not seem like an improvement.  Those names
+> only appear in the context of `realtime', so the `rt_' is completely
+> redundant.
 
-Hey guys, calm down, I meant "naming wars" in a silly kind of way, not the 
-nasty kind.
+Studying his code, I see that I misunderstood what Chris had done.  
 
-The fact is, Linux naming has always sucked. Well, at least the versioning 
-I've used. Others tend to be more organized. Me, I'm the "artistic" type, 
-so I sometimes try to do something new, and invariably stupid. 
+Only the internal static variable names changed.  There is no change
+to the user interface.  
 
-The best suggestion so far has been to _just_ use another number, which
-makes sense considering my dislike for both -rc and -pre.
-
-However, for some reason four numbers just looks visually too obnoxious to
-me, so as I don't care that much, I'll just use "-rc", and we can all
-agree that it stands for "Ridiculous Count" rather than "Release
-Candidate".
-
-More importantly, maybe we could all realize that it isn't actually that 
-big of an issue ;)
-
-		Linus
+I have no objection at all to that, it's a good idea.
+-- 
+  joq

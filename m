@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268071AbRIKPXS>; Tue, 11 Sep 2001 11:23:18 -0400
+	id <S272467AbRIKP03>; Tue, 11 Sep 2001 11:26:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272464AbRIKPXH>; Tue, 11 Sep 2001 11:23:07 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:63247 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S268071AbRIKPWx>;
-	Tue, 11 Sep 2001 11:22:53 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200109111522.TAA16406@ms2.inr.ac.ru>
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Tue, 11 Sep 2001 19:22:57 +0400 (MSK DST)
-Cc: matthias.andree@gmx.de, alan@lxorguk.ukuu.org.uk, wietse@porcupine.org,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        netdev@oss.sgi.com
-In-Reply-To: <20010910221448.E30149@emma1.emma.line.org> from "Matthias Andree" at Sep 10, 1 10:14:48 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S272483AbRIKP0T>; Tue, 11 Sep 2001 11:26:19 -0400
+Received: from ns.caldera.de ([212.34.180.1]:31105 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S272467AbRIKP0H>;
+	Tue, 11 Sep 2001 11:26:07 -0400
+Date: Tue, 11 Sep 2001 17:26:21 +0200
+Message-Id: <200109111526.f8BFQLr25266@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: david.balazic@uni-mb.si (David Balazic)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBMs LVM ?
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3B9E255C.8943D6BB@uni-mb.si>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+In article <3B9E255C.8943D6BB@uni-mb.si> you wrote:
+> Hi!
 
-> Let's keep this as simple as possible.
+> I heard rumors about IBM porting their LVM code from AIX to Linux.
 
-A. No way to do the trick with SIOCSIF*.
+IBM has an OpenSource volume manager called evms, and although
+it does support AIX Volumes is has it's root in IBM's OS/2
+volume management system.  (I believe someone at IBM thinks of PCs
+when hearing Linux so all their ports start from OS/2...)
 
-B. The things does not become simpler when code does something random.
-   The things become simpler when code checks something explicitly,
-   otherwise you have to add comment: "Well, here we do this against
-   plain logic, but this does not matter because of this, this and this."
+> I guess the current LVM code is not from IBM ?
 
-Alexey
+The current code is from Heinz Maulshagen and now matained by Sistina,
+the company he works for.
+
+> Will it be replaced with the one from IBM ?
+
+ALthough the current LVM has its's issues I hope not so - the current
+EVMS is the best example on hhow to not write kernel subsystems.
+
+	Christoph
+
+-- 
+Whip me.  Beat me.  Make me maintain AIX.

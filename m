@@ -1,107 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267349AbTBKKAw>; Tue, 11 Feb 2003 05:00:52 -0500
+	id <S267359AbTBKKFa>; Tue, 11 Feb 2003 05:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267355AbTBKKAw>; Tue, 11 Feb 2003 05:00:52 -0500
-Received: from packet.digeo.com ([12.110.80.53]:37270 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267349AbTBKKAu>;
-	Tue, 11 Feb 2003 05:00:50 -0500
-Date: Tue, 11 Feb 2003 02:10:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Con Kolivas <ckolivas@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: [BENCHMARK] 2.5.60 with contest
-Message-Id: <20030211021054.0ea47494.akpm@digeo.com>
-In-Reply-To: <200302112036.38710.ckolivas@yahoo.com.au>
-References: <200302112036.38710.ckolivas@yahoo.com.au>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Feb 2003 10:10:28.0997 (UTC) FILETIME=[CDB06350:01C2D1B5]
+	id <S267434AbTBKKFa>; Tue, 11 Feb 2003 05:05:30 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:61673 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267359AbTBKKF2>;
+	Tue, 11 Feb 2003 05:05:28 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 11 Feb 2003 11:15:07 +0100 (MET)
+Message-Id: <UTC200302111015.h1BAF7u25487.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] nfs fix
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <ckolivas@yahoo.com.au> wrote:
->
-> interestingly dbench_load wouldnt give me a number because dbench never
-> quite started - a whole swag of processes visible but not doing anything
+nfs must not use MINORBITS - that fails with 32-bit dev_t
 
-Signal problems...
-
-What dbench is doing is:
-
-- Install a SIGCONT handler
-- fork N times, children drop into a pause()
-- parent does kill(0, SIGCONT);
-
-It appears that the SIGCONT is not causing the children to drop out of the
-pause().
-
-Changing it to SIGINT makes it work.
-
-The tarball is at http://samba.org/ftp/tridge/dbench/dbench-2.0.tar.gz
-
-Here's the relevant snippet:
-
-static double create_procs(int nprocs, void (*fn)(struct child_struct * ))
-{
-	int i, status;
-	int synccount;
-
-	signal(SIGCONT, sigcont);
-
-	start_timer();
-
-	synccount = 0;
-
-	if (nprocs < 1) {
-		fprintf(stderr,
-			"create %d procs?  you must be kidding.\n",
-			nprocs);
-		return 1;
-	}
-
-	children = shm_setup(sizeof(struct child_struct)*nprocs);
-	if (!children) {
-		printf("Failed to setup shared memory\n");
-		return end_timer();
-	}
-
-	memset(children, 0, sizeof(*children)*nprocs);
-
-	for (i=0;i<nprocs;i++) {
-		children[i].id = i;
-		children[i].nprocs = nprocs;
-	}
-
-	for (i=0;i<nprocs;i++) {
-		if (fork() == 0) {
-			setbuffer(stdout, NULL, 0);
-			nb_setup(&children[i]);
-			children[i].status = getpid();
-			pause();
-			fn(&children[i]);
-			_exit(0);
-		}
-	}
-
-	do {
-		synccount = 0;
-		for (i=0;i<nprocs;i++) {
-			if (children[i].status) synccount++;
-		}
-		if (synccount == nprocs) break;
-		sleep(1);
-	} while (end_timer() < 30);
-
-	if (synccount != nprocs) {
-		printf("FAILED TO START %d CLIENTS (started %d)\n", nprocs, synccount);
-		return end_timer();
-	}
-
-	start_timer();
-	kill(0, SIGCONT);
-
-
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
+--- a/fs/nfs/nfs3xdr.c	Wed Jan  1 23:54:24 2003
++++ b/fs/nfs/nfs3xdr.c	Sun Feb  2 00:57:47 2003
+@@ -146,7 +146,7 @@
+ static u32 *
+ xdr_decode_fattr(u32 *p, struct nfs_fattr *fattr)
+ {
+-	unsigned int	type;
++	unsigned int	type, major, minor;
+ 	int		fmode;
+ 
+ 	type = ntohl(*p++);
+@@ -160,9 +160,12 @@
+ 	fattr->gid = ntohl(*p++);
+ 	p = xdr_decode_hyper(p, &fattr->size);
+ 	p = xdr_decode_hyper(p, &fattr->du.nfs3.used);
++
+ 	/* Turn remote device info into Linux-specific dev_t */
+-	fattr->rdev = ntohl(*p++) << MINORBITS;
+-	fattr->rdev |= ntohl(*p++) & MINORMASK;
++	major = ntohl(*p++);
++	minor = ntohl(*p++);
++	fattr->rdev = MKDEV(major, minor);
++
+ 	p = xdr_decode_hyper(p, &fattr->fsid_u.nfs3);
+ 	p = xdr_decode_hyper(p, &fattr->fileid);
+ 	p = xdr_decode_time3(p, &fattr->atime);
+@@ -412,8 +415,8 @@
+ 	*p++ = htonl(args->type);
+ 	p = xdr_encode_sattr(p, args->sattr);
+ 	if (args->type == NF3CHR || args->type == NF3BLK) {
+-		*p++ = htonl(args->rdev >> MINORBITS);
+-		*p++ = htonl(args->rdev & MINORMASK);
++		*p++ = htonl(MAJOR(args->rdev));
++		*p++ = htonl(MINOR(args->rdev));
+ 	}
+ 
+ 	req->rq_slen = xdr_adjust_iovec(req->rq_svec, p);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+--- a/fs/nfs/nfs4xdr.c	Thu Jan  9 18:07:16 2003
++++ b/fs/nfs/nfs4xdr.c	Sun Feb  2 00:55:22 2003
+@@ -1385,13 +1385,14 @@
+                 dprintk("read_attrs: gid=%d\n", (int)nfp->gid);
+         }
+         if (bmval1 & FATTR4_WORD1_RAWDEV) {
+-                READ_BUF(8);
+-                len += 8;
+-                READ32(dummy32);
+-		nfp->rdev = (dummy32 << MINORBITS);
+-                READ32(dummy32);
+-		nfp->rdev |= (dummy32 & MINORMASK);
+-                dprintk("read_attrs: rdev=%d\n", nfp->rdev);
++		uint32_t major, minor;
++
++		READ_BUF(8);
++		len += 8;
++		READ32(major);
++		READ32(minor);
++		nfp->rdev = MKDEV(major, minor);
++		dprintk("read_attrs: rdev=0x%x\n", nfp->rdev);
+         }
+         if (bmval1 & FATTR4_WORD1_SPACE_AVAIL) {
+                 READ_BUF(8);

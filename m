@@ -1,48 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130501AbRBNVq6>; Wed, 14 Feb 2001 16:46:58 -0500
+	id <S129161AbRBNVv2>; Wed, 14 Feb 2001 16:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131281AbRBNVqs>; Wed, 14 Feb 2001 16:46:48 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:21996 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S130501AbRBNVqj>;
-	Wed, 14 Feb 2001 16:46:39 -0500
-Date: Wed, 14 Feb 2001 22:47:44 +0000
-From: José Luis Domingo López 
-	<jldomingo@crosswinds.net>
-To: linux-kernel@vger.kernel.org
-Subject: Are the sysctl and ptrace bugs already fixed ?
-Message-ID: <20010214224744.A1302@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	id <S129541AbRBNVvT>; Wed, 14 Feb 2001 16:51:19 -0500
+Received: from ns-inetext.inet.com ([199.171.211.140]:53967 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S129243AbRBNVvL>; Wed, 14 Feb 2001 16:51:11 -0500
+Message-ID: <3A8AFD5B.FE981F4A@inet.com>
+Date: Wed, 14 Feb 2001 15:49:15 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Richard B. Johnson" <root@chaos.analogic.com>, tsbogend@alpha.franken.de,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, Eli Carter <eli.carter@inet.com>
+Subject: [PATCH] pcnet32.c: MAC address may be in CSR registers
+Content-Type: multipart/mixed;
+ boundary="------------5226C666C17FF9F02667ED83"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone:
+This is a multi-part message in MIME format.
+--------------5226C666C17FF9F02667ED83
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Last week there was some advisories on the Bugtraq mailing list about
-three problems with respect to both kernel series 2.2.x and 2.4.x. They
-were about two possible local exploits trough sysctl and ptrace, and a
-minor bug about machines with Pentium III processors (any local user could
-potentially halt the CPU). At least RedHat and Caldera released patched
-kernel packages for their distributions.
+All,
 
-It seems that Alan Cox included a patch that fixes the sysctl()
-vulnerability in 2.2.18-pre9 (I suppose it was really 2.2.19-pre9). But
-with respect to the other two vulnerabilities on 2.2.x and the whole three
-in kernel series 2.4.x haven't been able to find any information in
-neither Bugtraq, nor in the Linux kernel development archives.
+<aside>
+Thomas Bogendoerfer is listed as maintainer. 
+Richard, I know you've done some work with this driver so I thought you
+might be interested.
+Alan, I'd like to see this find its way into the official version(s), so
+feedback would be appreciated if you don't apply it.  (In your copious
+spare time, of course. ;) )
+</aside>
 
-Am I missing something here ?.
+I'm dealing with an AMD chip that does not have the station address in
+the PROM at the base address, but resides in the "Physical Address
+Registers" in the chip (thanks to the bootloader in my case).  This
+patch makes the driver try those registers if the station address read
+from the PROM is 00:00:00:00:00:00.
+I think others dealing with similar setups may find this helpful.  The
+other lance-derived drivers might benefit from a similar patch, but I
+don't have that hardware for testing.
 
-PS: first message on the list. Don't be too cruel with me :)
+(The diff is against 2.2.18 and applies cleanly.)
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
+If this is not acceptible or could be improved, please reply with
+feedback.
+
+TIA,
+
+Eli 
+--------------------.              Rule of Accuracy: When working toward
+Eli Carter          |               the solution of a problem, it always 
+eli.carter@inet.com `--------------------- helps if you know the answer.
+--------------5226C666C17FF9F02667ED83
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-pcnet32-mac"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-pcnet32-mac"
+
+diff -u -r1.1.1.6 pcnet32.c
+--- linux/drivers/net/pcnet32.c	2001/01/20 11:10:30	1.1.1.6
++++ linux/drivers/net/pcnet32.c	2001/02/14 21:43:28
+@@ -648,10 +648,32 @@
  
-jdomingo AT internautas DOT   org  => Spam at your own risk
+     printk(KERN_INFO "%s: %s at %#3lx,", dev->name, chipname, ioaddr);
+ 
+-    /* There is a 16 byte station address PROM at the base address.
+-     The first six bytes are the station address. */
+-    for (i = 0; i < 6; i++)
+-      printk(" %2.2x", dev->dev_addr[i] = inb(ioaddr + i));
++    /* In most chips, there is a station address PROM at the base address.
++     * However, if that does not have a valid address, try the "Physical
++     * Address Registers" CSR12-CSR14
++     * Currently, we only check for 00:00:00:00:00:00 as invalid.
++     */
++    {
++    int valid_station=0;
++	/* There is a 16 byte station address PROM at the base address.
++	 The first six bytes are the station address. */
++	for (i = 0; i < 6; i++) {
++	    unsigned int addr = inb(ioaddr + i);
++	    valid_station |= addr;
++	    dev->dev_addr[i] = addr;
++	}
++	if( !valid_station ) {
++	    for (i = 0; i < 3; i++) {
++		unsigned int v;
++		v = a->read_csr(ioaddr, i+12);
++		/* There may be endianness issues here. */
++		dev->dev_addr[2*i] = v & 0x0ff;
++		dev->dev_addr[2*i+1] = (v >> 8) & 0x0ff;
++	    }
++	}
++	for (i = 0; i < 6; i++)
++	    printk(" %2.2x", dev->dev_addr[i] );
++    }
+ 
+     if (((chip_version + 1) & 0xfffe) == 0x2624) { /* Version 0x2623 or 0x2624 */
+         i = a->read_csr(ioaddr, 80) & 0x0C00;  /* Check tx_start_pt */
+
+--------------5226C666C17FF9F02667ED83--
 

@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUGHPgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUGHPiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUGHPgt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 11:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUGHPgs
+	id S263815AbUGHPiB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 11:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUGHPhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 11:36:48 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:35016 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S264389AbUGHPgm convert rfc822-to-8bit (ORCPT
+	Thu, 8 Jul 2004 11:37:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36578 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263107AbUGHPhq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 11:36:42 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: Power Management in Linux
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Thu, 8 Jul 2004 21:03:31 +0530
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB34811038B3B@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Power Management in Linux
-Thread-Index: AcRlAOysyB+cqPsmS2K2GZxWwSUz2Q==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Surendra I." <surendrai@esntechnologies.co.in>,
-       "Subramanyam B." <subramanyamb@esntechnologies.co.in>
+	Thu, 8 Jul 2004 11:37:46 -0400
+Date: Thu, 8 Jul 2004 08:37:08 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: bert hubert <ahu@ds9a.nl>
+Cc: jamie@shareable.org, shemminger@osdl.org, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       ALESSANDRO.SUARDI@ORACLE.COM
+Subject: Re: window tracking firewall involved, was: Re: preliminary
+ conclusions regarding window size issues
+Message-Id: <20040708083708.5f63bc71.davem@redhat.com>
+In-Reply-To: <20040708063700.GA23496@outpost.ds9a.nl>
+References: <20040707232757.GA14471@outpost.ds9a.nl>
+	<20040708014443.GE17266@mail.shareable.org>
+	<20040708060326.GA22258@outpost.ds9a.nl>
+	<20040708063700.GA23496@outpost.ds9a.nl>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 8 Jul 2004 08:37:00 +0200
+bert hubert <ahu@ds9a.nl> wrote:
 
-I have installed SuSe linux 9.1 on my HP Laptop. I was wondering if
-Hibernation is supported in SuSe linux 9.1.  If yes, how to enable it?
-Please instruct me the steps to enable Hibernation.
+> On Thu, Jul 08, 2004 at 08:03:26AM +0200, bert hubert wrote:
+> 
+> [ theory that a window tracking firewall drops packets for which it thinks
+>   the intended recipient has no room, as they are larger than the window size
+>   it sees, where it neglects to scale that window size ]
+> 
+> > We could verify this assumption by checking if lowering the MTU to say 700
+> > allows wscale=3 to work. 
+> 
+> This has now been confirmed with the packages.gentoo.org firewall!
 
-Also, I am developing a block driver for a PCI device under kernel
-2.6.x.x. I would like to add PM features like Suspend, Wakeup and
-Hibernation in Block driver. I have seen few character drivers
-implementing PM features using pci_module_init()function. Will this
-function work for Block devices? Also, there is no callback for
-Hibernation, why?
+It's the netfilter patches added to the gentoo WOLK kernel running
+on packages.gentoo.org
 
-Thanks
-Srinivas G
+Specifically, it's the tcp-window-tracking patch from netfilter's
+patch-o-matic.  There's some bug in there wrt. it's window scaling
+support.
+
+I bet if the tcp-window-scaling diff is removed from the kernel running
+there, the problem will totally go away.
+
+I note that it is using a very old version of the tcp-window-tracking
+patch, the current version is 2.2 and probably fixes this bug.  The
+gentoo linux-2.4.20-wolk-4.14 kernel is using version 1.7

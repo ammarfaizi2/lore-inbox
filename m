@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289040AbSAOEAX>; Mon, 14 Jan 2002 23:00:23 -0500
+	id <S289106AbSAOEGM>; Mon, 14 Jan 2002 23:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289076AbSAOEAM>; Mon, 14 Jan 2002 23:00:12 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:9096 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289040AbSAOEAF>; Mon, 14 Jan 2002 23:00:05 -0500
-Date: Mon, 14 Jan 2002 20:59:52 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: John Levon <movement@marcelothewonderpenguin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020115035952.GC3814@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020115013954.GB3814@cpe-24-221-152-185.az.sprintbbd.net> <20020115020758.GA59418@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115020758.GA59418@compsoc.man.ac.uk>
-User-Agent: Mutt/1.3.25i
+	id <S289394AbSAOEFw>; Mon, 14 Jan 2002 23:05:52 -0500
+Received: from waste.org ([209.173.204.2]:43175 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S289106AbSAOEFn>;
+	Mon, 14 Jan 2002 23:05:43 -0500
+Date: Mon, 14 Jan 2002 22:05:28 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Theodore Tso <tytso@mit.edu>, Juan Quintela <quintela@mandrakesoft.com>,
+        Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+        <felix-dietlibc@fefe.de>, <andersen@codepoet.org>
+Subject: Re: [RFC] klibc requirements, round 2
+In-Reply-To: <20020114204830.E26688@lynx.adilger.int>
+Message-ID: <Pine.LNX.4.44.0201142151410.12435-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 02:07:58AM +0000, John Levon wrote:
-> On Mon, Jan 14, 2002 at 06:39:54PM -0700, Tom Rini wrote:
-> 
-> > Wrong.  She needs to compile a new module for her kernel.  What might be
-> > useful is some automagic tool that will find the vendor-provided kernel
-> > source tree and config (which is usually /boot/config-`uname -r`, but
-> > still findable anyhow)
-> 
-> autoconf code already exists for this, it's a non-problem.
+On Mon, 14 Jan 2002, Andreas Dilger wrote:
 
-Er, why on earth is it 'autoconf' tho?  This isn't something that's
-necessaryily a CONFIG_xxx issue, it's a 'compile this for me' issue.
+> > Interesting point. Modulo any existing LVM brokenness, we can do this with
+> > a read-only snapshot and pivot_root afterwards. Alternately, a read-only
+> > /bootsupport or something of the sort which contains *fsck. What we don't
+> > want is initramfs to get big.
+>
+> Err, you think putting the necessary LVM tools in initramfs (vgscan,
+> vgchange, lvcreate, liblvm) will be _smaller_ than e2fsck???
 
-> Note they must use
-> the config in the header file of the vendor-provided kernel source tree, not
-> /boot/config-`uname -r`
+No, I forgot about that dependency entirely. Doh.
 
-And why wouldn't the two match?  If you're running a vendor-provided
-kernel, /boot/config-`uname -r` should be the config for the
-vendor-provided kernel (and its source tree)...
+> Your "modulo" is also a very big one - I'd rather trust e2fsck than LVM
+> in my boot environment any day.
 
-> There are two cases:
-> 
-> 1) the vendor source tree is installed and set up with the right config -> use header file
-> 
-> 2) it's installed and the config has changed. -> use header file
+Fair enough. The deeper point is that the purpose of initramfs is to move
+stuff out of the kernel in to userland. Ergo, this all becomes a
+non-kernel issue. We do not want to be in the business here of packaging
+things into the ramfs archives, we rather want to give external tools and
+distros all the info they need to make intelligent choices about how to
+make the kernel bootable.
 
-2) should never happen.  I'm not talking about a patch (like said what
-i2c does traditionally), I'm talking about driver.[ch].
-
-> I don't see a point in ever looking at /boot/config-`uname -r` instead of
-> the source tree, given that we must compile against a tree configured like the
-> eventual running kernel anyway.
-
-Because they should be the same thing?  And why do you mention 'eventual
-running kernel'.  There is a running kernel.  Compile the module, load
-the module, work.  No reboot (or kernel recompile) needed.
+Let's just try to focus on what we're taking out of the kernel in this
+process and not on all the nifty stuff that can now be added to the
+initial boot process.
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

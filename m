@@ -1,85 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQK3VHK>; Thu, 30 Nov 2000 16:07:10 -0500
+	id <S129345AbQK3VJk>; Thu, 30 Nov 2000 16:09:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQK3VHB>; Thu, 30 Nov 2000 16:07:01 -0500
-Received: from zmamail01.zma.compaq.com ([161.114.64.101]:17418 "HELO
-	zmamail01.zma.compaq.com") by vger.kernel.org with SMTP
-	id <S129226AbQK3VGt>; Thu, 30 Nov 2000 16:06:49 -0500
-Message-ID: <3A26BA85.1060805@zk3.dec.com>
-Date: Thu, 30 Nov 2000 15:37:25 -0500
-From: Peter Rival <frival@zk3.dec.com>
-Organization: Tru64 QMG Performance Engineering
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S129932AbQK3VJb>; Thu, 30 Nov 2000 16:09:31 -0500
+Received: from unimur.um.es ([155.54.1.1]:22164 "EHLO unimur.um.es")
+	by vger.kernel.org with ESMTP id <S129345AbQK3VJU>;
+	Thu, 30 Nov 2000 16:09:20 -0500
+Message-ID: <3A26BAB5.C61930D6@ditec.um.es>
+Date: Thu, 30 Nov 2000 21:38:14 +0100
+From: Juan <piernas@ditec.um.es>
+X-Mailer: Mozilla 4.76 [es] (X11; U; Linux 2.2.18pre24 i686)
+X-Accept-Language: es-ES, en
 MIME-Version: 1.0
-To: Phillip Ezolt <ezolt@perf.zko.dec.com>
-Cc: ink@jurassic.park.msu.ru, rth@twiddle.net, axp-list@redhat.com,
-        Jay.Estabrook@COMPAQ.com, linux-kernel@vger.kernel.org,
-        clinux@zk3.dec.com, wcarr@perf.zko.dec.com
-Subject: Re: Alpha SCSI error on 2.4.0-test11
-In-Reply-To: <Pine.OSF.3.96.1001130145721.15171B-100000@perf.zko.dec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Serial port hangs my computer in 2.4.0test12-3
+Content-Type: multipart/mixed;
+ boundary="------------F3C2B892192DE6ED89C9119C"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Phil,
+Este es un mensaje multipartes en formato MIME.
+--------------F3C2B892192DE6ED89C9119C
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Phillip Ezolt wrote:
+Hi!
 
-> Hi All,
-> 
-> Qlogic SCSI support seems broken on 2.4.0-test11 on a Miata (Digital Personal WorkStation 600au).
-> 
-> When starting up, we get a machine check after initialing the qlogic SCSI code. 
-> 
-> Using the Alpha kgdb, we figured out that the code is dying in scsi_wait_request().
+It seems that there is a conflict between my ethernet card and my serial
+port.
 
-Wow, I'm impressed!  I didn't realize that kgdb worked on Alpha...Were 
-you using the remote kgdb?  (You can answer me offline to save 
-bandwidth.)  This would be a _huge_ help in trying to figure out why my 
-Wildfire^WGS160 is crashing with the DISCONTIGMEM code that I stole from 
-Jay and have been hacking on.
+I'm using RedHat 7.0 and my ethernet card is a "Kingston EtheRx KNE20
+Plug and Play ISA Adapter". I'm unable to access the Internet because
+the ethernet card doesn't work :-(. Besides, the card uses two
+interrupts (?) and there are two interfaces (eth0 y eth1) when I have
+only one (?).
 
-Speaking of that system, it has two QLogic adapters in it (both 1040Bs, 
-like the Miata), and they are working just fine under 2.4.0-test11 
-(obviously, without my changes ;).  It looks like it's probably the 
-platform code that's busted.  I can't remember...are those Pyxis or 
-CIA?  Anyway, could this have something to do with the PCI & PCI bridge 
-work that Richard and Ivan just submitted?
+The "gpm" program doesn't work if the ethernet card modules is loaded.
+When I unload the ethernet card module and restart gpm, my computer
+hangs.
 
-- Pete
+I hope next files can help you.
 
-> 
-> Here's the backtrace: 
-> 
-> scsi_wait_req (SRpnt=0xfffffc0001f9b480, cmnd=0xfffffc890000a078, 
->     buffer=0x100, bufflen=2, timeout=17891584, retries=6144)
->     at /usr/src/linux/include/asm/atomic.h:85
-> (gdb) where
-> #0  scsi_wait_req (SRpnt=0xfffffc0001f9b480, cmnd=0xfffffc890000a078, 
->     buffer=0x100, bufflen=2, timeout=17891584, retries=6144)
->     at /usr/src/linux/include/asm/atomic.h:85
-> #1  0xfffffc00004107f0 in scan_scsis_single (channel=0, dev=41080, lun=0, 
->     max_dev_lun=0xfffffc00001efa30, sparse_lun=0xfffffc00001efa34, 
->     SDpnt2=0xfffffc00001efa38, shpnt=0xfffffc00005ff800, 
->     scsi_result=0xfffffc00001ef930 "\001") at scsi_scan.c:516
-> #2  0xfffffc0000410548 in scan_scsis (shpnt=0xfffffc00005ff800, hardcoded=1, 
->     hchannel=0, hid=0, hlun=0) at scsi_scan.c:403
-> #3  0xfffffc0000404f58 in scsi_register_host (tpnt=0xfffffc000058fb80)
->     at scsi.c:1904
-> #4  0xfffffc00004dac50 in init_this_scsi_driver ()
-> #5  0xfffffc00004c2bec in do_initcalls ()
-> #6  0xfffffc00004c2c6c in do_basic_setup ()
-> #7  0xfffffc0000310078 in init (unused=0x0) at init/main.c:775
->   
-> 
-> Note: On the working kernels, the two controllers are 0x800 apart, but
-> on the broken kernels, they are only 0x400.  Could the overlap
-> cause problems? 
-> 
-> 
+Bye!
+-- 
+D. Juan Piernas Cánovas
+Departamento de Ingeniería y Tecnología de Computadores
+Facultad de Informática. Universidad de Murcia
+Campus de Espinardo - 30080 Murcia (SPAIN)
+Tel.: +34968367657    Fax: +34968364151
+email: piernas@ditec.um.es
+PGP public key:
+http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
+--------------F3C2B892192DE6ED89C9119C
+Content-Type: text/plain; charset=us-ascii;
+ name="interrupts.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="interrupts.txt"
+
+           CPU0       
+  0:      11683          XT-PIC  timer
+  1:        258          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:          1          XT-PIC  NE2000
+ 10:          0          XT-PIC  es1371
+ 12:          0          XT-PIC  NE2000
+ 14:       3047          XT-PIC  ide0
+ 15:          6          XT-PIC  ide1
+NMI:          0 
+LOC:          0 
+ERR:          0
+
+
+--------------F3C2B892192DE6ED89C9119C
+Content-Type: text/plain; charset=us-ascii;
+ name="ioports.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ioports.txt"
+
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0213-0213 : isapnp read
+0240-025f : eth1
+02f8-02ff : serial(auto)
+0300-031f : eth0
+0376-0376 : ide1
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0a79-0a79 : isapnp write
+0cf8-0cff : PCI conf1
+e000-e00f : VIA Technologies, Inc. Bus Master IDE
+  e000-e007 : ide0
+  e008-e00f : ide1
+e800-e83f : Ensoniq ES1371 [AudioPCI-97]
+  e800-e83f : es1371
+
+
+--------------F3C2B892192DE6ED89C9119C
+Content-Type: text/plain; charset=us-ascii;
+ name="isapnp.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="isapnp.txt"
+
+Card 1 'KTC2000:Kingston EtheRx KNE20 Plug and Play ISA Adapter' PnP version 1.0 Product version 1.0
+  Logical device 0 'RTL8019:Unknown'
+    Supported registers 0x2
+    Compatible device PNP80d6
+    Device is active
+    Active port 0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff
+    Active IRQ 255 [0xff],255 [0xff]
+    Active DMA 255,255
+    Active memory 0xffffffff,0xffffffff,0xffffffff,0xffffffff
+    Resources 0
+      Priority preferred
+      Port 0x240-0x380, align 0x1f, size 0x20, 10-bit address decoding
+      IRQ 3,4,5,2/9,10,11,12,15 High-Edge
+
+
+--------------F3C2B892192DE6ED89C9119C--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

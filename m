@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbUAHAe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 19:34:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbUAHAe7
+	id S262784AbUAHAmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 19:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUAHAmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 19:34:59 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:10600 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262767AbUAHAe5 (ORCPT
+	Wed, 7 Jan 2004 19:42:09 -0500
+Received: from mail.kroah.org ([65.200.24.183]:40577 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262784AbUAHAmH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 19:34:57 -0500
-Date: Wed, 7 Jan 2004 16:34:49 -0800
-To: Greg KH <greg@kroah.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, jeremy@sgi.com
-Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
-Message-ID: <20040108003449.GA7586@sgi.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Grant Grundler <grundler@parisc-linux.org>,
-	Matthew Wilcox <willy@debian.org>,
-	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-	jeremy@sgi.com
-References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com> <20040107232754.GA2807@kroah.com> <20040107235633.GA7312@sgi.com>
+	Wed, 7 Jan 2004 19:42:07 -0500
+Date: Wed, 7 Jan 2004 16:41:24 -0800
+From: Greg KH <greg@kroah.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Message-ID: <20040108004124.GA3388@kroah.com>
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040107185656.GB31827@kroah.com> <Pine.LNX.4.58.0401071123490.12602@home.osdl.org> <20040107195032.GB823@kroah.com> <14870000.1073521945@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040107235633.GA7312@sgi.com>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+In-Reply-To: <14870000.1073521945@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 03:56:33PM -0800, Jesse Barnes wrote:
-> On Wed, Jan 07, 2004 at 03:27:54PM -0800, Greg KH wrote:
-> > On Wed, Jan 07, 2004 at 03:07:12PM -0800, Jesse Barnes wrote:
-> > > 
-> > >   1) add pcix_enable_relaxed() and read_relaxed() (read() would always be
-> > >      ordered)
+On Wed, Jan 07, 2004 at 04:32:26PM -0800, Martin J. Bligh wrote:
+> >> NOTE! We do have an alternative: if we were to just make block device 
+> >> nodes support "readdir" and "lookup", you could just do
+> >> 
+> >> 	open("/dev/sda/1" ...)
+> >> 
+> >> and it magically works right. I've wanted to do this for a long time, but 
+> >> every time I suggest allowing it, people scream.
 > > 
-> > This probably preserves the current situation best, enabling driver
-> > writers to be explicit in knowing what is happening.
+> > Hm, that would be nice.  I don't remember seeing it being proposed
+> > before, what are the main complaints people have with this?
+> 
+> Couldn't the partitions go under "/dev/sdaX/{1,2,3}" and solve the same
+> problem without doing magic on the devices?
 
-This is also the easiest solution to implement for the sn2 platform.
-Honestly, I haven't used any PCI-X chipsets (nor do I know of any) that
-exploit this new relaxed ordering feature, so I'm only guessing at how
-it might be usefully exported to the driver API.
+No, that's not the point.  As discussed on irc, I think you now
+understand the issue (partitions not being present, media changed
+without kernel knowing about it, etc.)
 
-The sn2 platform actually _always_ behaves as though relaxed ordering
-were enabled, so all we really need to implement this correctly is a
-read_relaxed(), which will be a read() but without the software
-workaround we put in place to conform to the PCI PIO/DMA semantics.
+thanks,
 
-Maybe we can just add read_relaxed() for now and deal with other
-chipsets that allow relaxed ordering as they appear?
-
-Thanks,
-Jesse
+greg k-h

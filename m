@@ -1,172 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293602AbSCSD0z>; Mon, 18 Mar 2002 22:26:55 -0500
+	id <S293603AbSCSDdh>; Mon, 18 Mar 2002 22:33:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293603AbSCSD0g>; Mon, 18 Mar 2002 22:26:36 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:14854 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S293602AbSCSD0b>; Mon, 18 Mar 2002 22:26:31 -0500
-Date: Tue, 19 Mar 2002 14:28:42 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: martin.wirth@dlr.de, pwaechtler@loewe-komp.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Message-Id: <20020319142842.0d9291c2.rusty@rustcorp.com.au>
-In-Reply-To: <1016412720.2194.16.camel@myware.mynet>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S293604AbSCSDd2>; Mon, 18 Mar 2002 22:33:28 -0500
+Received: from relay03.valueweb.net ([216.219.253.237]:29715 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S293603AbSCSDdM>; Mon, 18 Mar 2002 22:33:12 -0500
+Message-ID: <3C96B437.A972B15F@opersys.com>
+Date: Mon, 18 Mar 2002 22:44:55 -0500
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16-rthal5-TRACE i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] LTT 0.9.5pre6: MIPS, RTAI and many fixes.
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Mar 2002 16:52:00 -0800
-Ulrich Drepper <drepper@redhat.com> wrote:
 
-> On Sat, 2002-03-16 at 22:50, Rusty Russell wrote:
-> 
-> > Only vs. pthread_cond_broadcast.
-> 
-> No.  pthread_barrier_wait has the same problem.  It has to wake up lots
-> of thread.
+LTT 0.9.5pre6 is now out. This is the last of the 0.9.5preX series.
+I will wait a week or two for feedback on this release and will be
+releasing 0.9.5 final with any necessary bugfixes.
 
-Hmmm....
+LTT now supports 5 architectures: i386, PPC, S/390, SuperH and MIPS.
+Still a couple more to go ... Anyone want to port to ia64, ARM or Sparc?
 
-What do you WANT in a kernel primitive then?  Given that we now have mutexes,
-what else do we need to make pthreads relatively painless?
+Here's the list of changes since the last release:
+1)  Support for MIPS (Thx Takuzo O'Hara, Sony corp.). This port needs some work
+    however since many trace statements in the arch/mips directory are commented
+    in order not to crash the machine. I don't have a MIPS-based system
+    available, but if you've got one please test this and let me know what you get.
+2)  Fixed support for RTAI, works with 24.1.8 and 2.4.16 (A great deal of thanks
+    to Jörg Hermann from Multilink for his patches and all the new icons.)
+    Both trace drawing and cross-platform reading capabilities work fine now and
+    should not brake any time soon :)
+3)  Build fix => Added -L../LibLTT/ for Visualizer (Thx Klaas Gadeyne, Leuven university)
+4)  Enable Solaris build (Thx Frank Rowand, MontaVista)
+5)  Missing braces in sys_write and sys_read (Thx Michel Dagenais, Ecole Polytechnique
+    de Montréal, and Frank Rowand, MontaVista)
+6)  Visualizer and DB bug fixes (Thx Andreas Heppel, SYSGO RT-Solutions)
+7)  Kernel s390 bitops fixes (Thx Theresa Halloran, IBM)
+8)  Fix kernel compile with no trace support (Thx Vamsi Krishna, IBM)
+9)  Update of syscall names (Thx Frank Rowand, MontaVista)
+10) Load/unload/trace SMP race condition fix (Thx Corey Minyard, MontaVista)
 
-> > And if you're using that you probably
-> > have some other performance issues anyway?
-> 
-> Why?  Conditional variables are of use in situations with loosely
-> coupled threads.
+As always, LTT is available from the project's website at:
+http://www.opersys.com/LTT
 
-I meant vs. pthread_cond_signal.
+Have fun,
 
-Look, here is an example implementation.  Please suggest:
-1) Where this is flawed,
-2) Where this is suboptimal,
-3) What kernel primitive would help to resolve these?
+Karim
 
-Thanks,
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-/* Assume we have the following semaphore operations:
-
-   futex_down(futex);
-   futex_down_time(futex, relative timeout);
-   futex_up(futex, count);
-*/
-typedef struct
-{
-	struct futex futex;
-} pthread_mutex_t;
-
-typedef struct 
-{
-	int num_waiting;
-	struct futex wait, ack;
-} pthread_cond_t;
-
-typedef struct
-{
-	unsigned int num_left;
-	struct futex wait;
-	unsigned int initial_count;
-} pthread_barrier_t;
-
-#define PTHREAD_MUTEX_INITIALIZER { { 1 } }
-#define PTHREAD_COND_INITIALIZER { 0, { 0 }, { 0 } }
-
-int pthread_barrier_init(struct pthread_barrier_t *barrier,
-			 void *addr,
-			 unsigned int count)
-{
-	barrier->num_left = barrier->initial_count = count;
-	barrier->wait.count = 0;
-}
-
-int pthread_barrier_wait(struct pthread_barrier_t *barrier)
-{
-	if (atomic_dec_and_test(&barrier->num_left)) {
-		/* Restore barrier. */
-		barrier->num_left = barrier->initial_count;
-		/* Wake the other threads */
-		futex_up(&barrier->wait, barrier->initial_count-1);
-		return 0; /* PTHREAD_BARRIER_SERIAL_THREAD */
-	}
-	while (futex_down(&barrier->wait) == 0 || errno == EINTR);
-	return 1;
-}
-
-int pthread_cond_signal(pthread_cond_t *cond)
-{
-	if (cond->num_waiters)
-		return futex_up(&cond->futex, 1);
-	return 0;
-}
-
-int pthread_cond_broadcast(pthread_cond_t *cond)
-{
-	unsigned int waiters = cond->num_waiting;
-
-	if (waiters) {
-		/* Re-initialize ACK.  Could have been upped by
-                   pthread_cond_signal and pthread_cond_wait. */
-		cond->ack.count = 0;
-		futex_up(&cond->futex, waiters);
-		/* Wait for ack before returning. */
-		futex_down(&cond->ack);
-	}
-	return 0;
-}
-
-static int __pthread_cond_wait(pthread_cond_t *cond,
-			       pthread_mutex_t *mutex,
-			       const struct timespec *reltime)
-{
-	int ret;
-
-	/* Increment first so broadcaster knows we are waiting. */
-	atomic_inc(cond->num_waiting);
-	futex_up(&mutex, 1);
-	do {
-		ret = futex_down_time(&cond, reltime);
-	} while (ret < 0 && errno == EINTR);
-	if (atomic_dec_and_test(cond->num_waiting))
-		futex_up(&cond->ack);
-	futex_down(&mutex->futex);
-	return ret;
-}
-
-int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
-{
-	return __pthread_cond_wait(cond, mutex, NULL);
-}
-
-int pthread_cond_timedwait(pthread_cond_t *cond,
-			   pthread_mutex_t *mutex,
-			   const struct timespec *abstime)
-{
-	struct timeval _now;
-	struct timespec now, rel;
-
-	/* Absolute to relative */
-	gettimeofday(&_now, NULL);
-	TIMEVAL_TO_TIMESPEC(&_now, &now);
-	if (now.tv_sec > abstime->tv_sec
-	    || (now.tv_sec == abstime->tv_sec
-		&& now.tv_nsec > abstime->tv_nsec))
-		return ETIMEDOUT;
-
-	rel.tv_sec = now.tv_sec - abstime->tv_sec;
-	rel.tv_nsec = now.tv_usec - abstime->tv_usec;
-	if (rel.tv_nsec < 0) {
-		--rel.tv_sec;
-		rel.tv_nsec += 1000000000;
-	}
-	return __pthread_cond_wait(cond, mutex, &rel);
-}
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

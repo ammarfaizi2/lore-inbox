@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266470AbUBQTCb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 14:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUBQTCa
+	id S266465AbUBQTEf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 14:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUBQTEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 14:02:30 -0500
-Received: from pooh.lsc.hu ([195.56.172.131]:44516 "EHLO pooh.lsc.hu")
-	by vger.kernel.org with ESMTP id S266470AbUBQTCW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 14:02:22 -0500
-Date: Tue, 17 Feb 2004 19:45:43 +0100
-From: GCS <gcs@lsc.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.3-rc4
-Message-ID: <20040217184543.GA18495@lsc.hu>
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Tue, 17 Feb 2004 14:04:35 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:11712 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266465AbUBQTE0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 14:04:26 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alex Bennee <kernel-hacker@bennee.com>
+Subject: Re: Any guides for adding new IDE chipset drivers?
+Date: Tue, 17 Feb 2004 20:10:34 +0100
+User-Agent: KMail/1.5.3
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+References: <1077028026.31892.153.camel@cambridge.braddahead.com>
+In-Reply-To: <1077028026.31892.153.camel@cambridge.braddahead.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-X-Operating-System: GNU/Linux
-User-Agent: Mutt/1.5.4i
+Message-Id: <200402172010.34114.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tuesday 17 of February 2004 15:27, Alex Bennee wrote:
+> On Monday 16 of Febuary 2004 09:40:21 PST, Bart wrote:
+> >On Monday 16 of February 2004 18:04, Alex Bennee wrote:
+> >> Is there a driver that can be held of as an example of good taste and
+> >> the "right" way to implement a chipset driver?
+> >
+> >Yep.  Please take a look at drivers/ide/arm/icside.c.
+> >It is well written, quite simple and has DMA support.
+>
+> Thanks. I'll base my driver on this one as it does seem quite easy
+> to follow. However I'm wondering what the point of the begin/end functions
+> are. The dma_read/write functions just seem to call dma_count which starts
+> the dma requests going.
 
-On Mon, Feb 16, 2004 at 07:51:08PM -0800, Linus Torvalds <torvalds@osdl.org> wrote:
->  I'm planning on doing the final 2.6.3 tomorrow, so please test this 
-> final -rc.
-> 
-> Most notably, this should support ppc/ppc64 out-of-the-box, complete with
-> G5 support (64-bit). Special thanks to BenH who made sure the new radeonfb
-> driver works on a wide variety of hardware (a number of the fixes here
-> relative to -rc3 was making sure the driver works on regular x86 laptops).
- For me on a laptop with integrated Radeon Mobility card:
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0xb2a03): In function `radeon_setup_i2c_bus':
-: undefined reference to `i2c_bit_add_bus'
-drivers/built-in.o(.text+0xb2b7a): In function `radeon_delete_i2c_busses':
-: undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o(.text+0xb2b8a): In function `radeon_delete_i2c_busses':
-: undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o(.text+0xb2b9a): In function `radeon_delete_i2c_busses':
-: undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o(.text+0xb2baa): In function `radeon_delete_i2c_busses':
-: undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o(.text+0xb2c44): In function `radeon_do_probe_i2c_edid':
-: undefined reference to `i2c_transfer'
-make: *** [.tmp_vmlinux1] Error 1
+hwif->ide_dma_count() is gone in 2.6.3-rc4.
 
-.config snippshet:
-# CONFIG_FB_RADEON_OLD is not set
-CONFIG_FB_RADEON=y
-CONFIG_FB_RADEON_I2C=y
-CONFIG_FB_RADEON_DEBUG=y
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
+ATAPI drivers (ie. ide-cd.c) and TCQ code (ide-tcq.c)
+use ->ide_dma_begin() and ->ide_dma_end() directly.
 
-Distribution: Debian Sid, gcc is gcc version 3.3.3 20040214 (prerelease)
-(Debian)
+DMA timeout recovery functions also call ->ide_dma_end().
 
-AFAICR -rc3 was the first version with this problem.
+> Am I missing something here? Is all that required from the higher level a
+> single call to dma_read/write or should I be expecting a series of calls to
+> setup a transfer?
 
-Cheers,
-GCS
+To setup a DMA transfer:
+
+ATA: ->ide_dma_{read,write}() (they call ->ide_dma_begin()) or
+     __ide_dma_queued_{read,write}() (they may call ->ide_dma_begin())
+
+ATAPI: ->ide_dma_{read,write}() + ->ide_dma_begin()
+
+Hope this helps.
+

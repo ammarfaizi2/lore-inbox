@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265212AbRGAQrm>; Sun, 1 Jul 2001 12:47:42 -0400
+	id <S265035AbRGARld>; Sun, 1 Jul 2001 13:41:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265214AbRGAQrd>; Sun, 1 Jul 2001 12:47:33 -0400
-Received: from rillanon.amristar.com.au ([202.181.77.23]:45581 "HELO
-	amristar.com.au") by vger.kernel.org with SMTP id <S265212AbRGAQrU>;
-	Sun, 1 Jul 2001 12:47:20 -0400
-From: "Daniel Harvey" <daniel@amristar.com.au>
-To: "Chris Wedgwood" <cw@f00f.org>
-Cc: <linux-laptop@mobilix.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux SLOW on Compaq Armada 110 PIII Speedstep
-Date: Mon, 2 Jul 2001 00:50:27 +0800
-Message-ID: <NEBBJDBLILDEDGICHAGACENHCFAA.daniel@amristar.com.au>
+	id <S265232AbRGARlY>; Sun, 1 Jul 2001 13:41:24 -0400
+Received: from gc-nas-01-s24.cinergycom.net ([216.135.20.56]:21379 "EHLO
+	kmw.yi.org") by vger.kernel.org with ESMTP id <S265035AbRGARlP>;
+	Sun, 1 Jul 2001 13:41:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kurt Maxwell Weber <kmw@rowsw.com>
+Reply-To: kmw@rowsw.com
+Organization: ROW Software and Web Design
+To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Subject: Re: Uncle Sam Wants YOU!
+Date: Sun, 1 Jul 2001 12:41:38 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010701131254.A9116@tabris.domedata.com>
+In-Reply-To: <20010701131254.A9116@tabris.domedata.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
-In-Reply-To: <20010702044252.B14170@weta.f00f.org>
+Message-Id: <01070112413801.14899@zaphodbeeblebrox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris/Adam/Mark,
-
-Have just sucked down the SRPM of the kernel that sees to run OK. As per you
-suggestions, checking out the config and patches ...
-
-Thanks,
-Daniel.
-
-> -----Original Message-----
+On Sunday 01 July 2001 12:12, you wrote:
+> > I'm going to take a break from lurking to point out that I am not
+> > dissatisfied with Windows.  It has its uses, as do Linux (and NetBSD, and
+> > Solaris, and the other operating systems I have installed at home). 
+> > Frankly, I don't have a problem with Microsoft.  If I don't like their
+> > product, I'm free to choose not to use it.
 >
->
-> Download the source-RPM for the 'fast' kernel, and also the virgin
-> version of the same kernel, and then diff them to see what changes
-> have been made.
->
-> If you are lucky, the RPM itself my have the virgin data and diffs, I
-> don't know much about RPMS, but I'm pretty sure this is possible.
->
->
-> You are looking for changes outside of linux/drivers/, probably in
-> linux/archo/i386 or linux/kernel. Hopefully there aren't too many of
-> these.
->
-> Also, you want the .config file that was used, try using that against
-> a virgin kernel first, and see if that changes anything, if not, then
-> do diff the above (diff -Nur virgin-kernel/ redhat-kernel/) and see
-> what falls out.
->
+> So as a user you are free to not use M$ products.
+> What if you are IT. Then you do not have a choice.
 >
 
+You can choose to work somewhere else, or choose to enter a different field.
+-- 
+Regards,
+Kurt Weber
+kmw@rowsw.com

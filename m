@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267316AbUHSTaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267340AbUHSTeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267316AbUHSTaU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUHSTaU
+	id S267340AbUHSTeD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUHSTeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:30:20 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:36309 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S267306AbUHST15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:27:57 -0400
-Message-ID: <4124FF3C.6080108@acm.org>
-Date: Thu, 19 Aug 2004 14:27:56 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Patch to 2.6.8.1-mm2 to allow multiple NMI handlers to be registered
-References: <4124BACB.30100@acm.org> <20040819164049.GS8967@schnapps.adilger.int>
-In-Reply-To: <20040819164049.GS8967@schnapps.adilger.int>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Aug 2004 15:34:02 -0400
+Received: from thunk.org ([140.239.227.29]:59561 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S267365AbUHSTbE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:31:04 -0400
+Date: Thu, 19 Aug 2004 15:30:49 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+Message-ID: <20040819193049.GA13070@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	Florian Schmidt <mista.tapas@gmx.net>
+References: <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <1092374851.3450.13.camel@mindpipe> <1092375673.3450.15.camel@mindpipe> <20040813103151.GH8135@elte.hu> <1092699974.13981.95.camel@krustophenia.net> <20040817074826.GA1238@elte.hu> <20040817191819.GA19449@thunk.org> <1092914397.830.3.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092914397.830.3.camel@krustophenia.net>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Thu, Aug 19, 2004 at 07:19:58AM -0400, Lee Revell wrote:
+> > I doubt SHA_CODE_SIZE will make a sufficient difference to avoid the
+> > latency problems.  What we would need to do is to change the code so
+> > that the rekey operation in __check_and_rekey takes place in a
+> > workqueue.  Say, something like this (warning, I haven't tested this
+> > patch; if it breaks, you get to keep both pieces):
+> > 
+> 
+> Tested, works for me.  This should probably be pushed upstream, as well
+> as added to -P5, correct?  Is there any disadvantage to doing it this
+> way?
 
->On Aug 19, 2004  09:35 -0500, Corey Minyard wrote:
->  
->
->>* Allow multiple handlers to be registered and return if they have 
->>handled the NMI or not.  oprofile and nmi_watchdog are modified to use this.
->>    
->>
->
->Why not use a notifier call chain as is done with panic & friends instead
->of implementing the same thing specifically for NMI?
->
->  
->
-A couple of reasons:
+Great, I will be pushing this upstream very shortly.
 
-* The "handled" value needs to be passed around so handler know if 
-previous handlers have already handled the NMI.
-* It allows the list of registered NMI handlers to be dumped in 
-/proc/interrupts
-
-I thought that the notifiers callout used locks (which would be a 
-no-go), but it doesn't.  So I can scratch that one from my list.
-
-Thanks,
-
--Corey
+						- Ted

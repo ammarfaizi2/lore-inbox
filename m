@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUF0PXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUF0PXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbUF0PXN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 11:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUF0PXN
+	id S263095AbUF0PXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 11:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUF0PXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 11:23:13 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:33287 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S263040AbUF0PXK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 11:23:10 -0400
-Date: Sun, 27 Jun 2004 11:23:10 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: Pete Zaitcev <zaitcev@redhat.com>, <arjanv@redhat.com>,
-       <jgarzik@redhat.com>, <tburke@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <mdharm-usb@one-eyed-alien.net>,
-       <david-b@pacbell.net>, <oliver@neukum.org>
+	Sun, 27 Jun 2004 11:23:30 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:61195 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263095AbUF0PX0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 11:23:26 -0400
+Date: Sun, 27 Jun 2004 17:23:21 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Pete Zaitcev <zaitcev@redhat.com>,
+       greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
+       david-b@pacbell.net
 Subject: Re: drivers/block/ub.c
-In-Reply-To: <20040627050201.GA24788@kroah.com>
-Message-ID: <Pine.LNX.4.44L0.0406271120520.10357-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040627152321.GH5526@pclin040.win.tue.nl>
+References: <20040626130645.55be13ce@lembas.zaitcev.lan> <200406270704.36063.oliver@neukum.org> <20040627140847.GG5526@pclin040.win.tue.nl> <200406271624.18984.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200406271624.18984.oliver@neukum.org>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Jun 2004, Greg KH wrote:
+On Sun, Jun 27, 2004 at 04:24:18PM +0200, Oliver Neukum wrote:
 
-> On Sun, Jun 27, 2004 at 12:05:22AM -0400, Alan Stern wrote:
-> > It look like you are targeting ub for Linux 2.4.  Do you intend to use it 
-> > with 2.6?  An important difference between the two kernel versions is that 
-> > in 2.6 we do not try to make devices persistent across disconnections by 
-> > recognizing some type of unique ID.
+> > > > The above writes clearly and simply what one wants.
+> > > > I expect that you propose writing
+> > > > 
+> > > >         *((u32 *)(cmd->cdb + 2)) = cpu_to_be32(block);
+> > > > 
+> > > > or some similar unspeakable ugliness.
+> > > > If you had something else in mind, please reveal what.
+> > > 
+> > > That "ugliness" has the unspeakable advantage of producing sane code
+> > > on big endian architectures.
+> > 
+> > I am not so sure. It tells the compiler to do a 4-byte access
+> > on an address that possibly is not 4-byte aligned.
 > 
-> The patch was against 2.6.7.  Why do you think this is for 2.4?
+> We also have the unaligned family of macro. Probably the cleanest
+> solution would be a union to do away with the ugly casts that would
+> be needed.
 
-So it is.  I was mistaken because it was late at night, and I read this 
-entry in the to-do list:
+You see what is happening. Pete writes simple straightforward correct
+code.  You want to replace it by ugly code that is perhaps not 100%
+correct.  Then the ugliness spreads - not only a local cast, but
+globally the data structures must be adapted. And would it help? What
+padding do you get in that union? Do the details depend on the gcc
+version? On the compilation flags?
 
-+ * -- use serial numbers to hook onto same hosts (same minor) after
-disconnect
+Always write simple direct obvious code. Avoid all casts.
+Uglifying code burdens maintenance. It endangers correctness.
+It is reasonable only when efficiency is really important,
+when every nanosecond counts (and the ugly code is really faster).
+That is not the case here.
 
-That feature is present in usb-storage for 2.4 but not 2.6, so I assumed 
-there would be no reason to add it to ub for 2.6 either.
 
-Alan Stern
+Andries
 

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270931AbRHXEhL>; Fri, 24 Aug 2001 00:37:11 -0400
+	id <S269777AbRHXEqe>; Fri, 24 Aug 2001 00:46:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269777AbRHXEhB>; Fri, 24 Aug 2001 00:37:01 -0400
-Received: from [24.130.1.15] ([24.130.1.15]:48774 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S270905AbRHXEgt>; Fri, 24 Aug 2001 00:36:49 -0400
-Message-ID: <3B85D9E9.7BF8415C@kegel.com>
-Date: Thu, 23 Aug 2001 21:36:57 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S270905AbRHXEqZ>; Fri, 24 Aug 2001 00:46:25 -0400
+Received: from shaker.worfie.net ([203.8.161.33]:22034 "HELO mail.worfie.net")
+	by vger.kernel.org with SMTP id <S269777AbRHXEqO>;
+	Fri, 24 Aug 2001 00:46:14 -0400
+Date: Fri, 24 Aug 2001 12:46:26 +0800 (WST)
+From: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
+X-X-Sender: <ender@shaker.worfie.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: From 2.2.19 to 2.4.8ac8 - serial console no longer works
+Message-ID: <Pine.LNX.4.31.0108241240240.3903-100000@shaker.worfie.net>
 MIME-Version: 1.0
-To: Pete Marvin King <pmking@ntsp.nec.co.jp>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: re: socket problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it possible to increase the maximum sockets that can be opened
-> simultaneously?
-> I'd like it to reach 1024, is it possible?
-> 
->     I'm currently doing a stress test on postgres. we created a dummy
-> client that would connect to it 1024 times. But is just stops at 324,
-> postgres reports : " postmaster: StreamConnection: accept: Too many open
-> files in system".
-> 
->     I don't think the problem is not with the file descriptors. Is it
-> the max num of sockets?
-> or maybe the maximum number of files that can be opened?
+Hey all.
 
-see http://www.kegel.com/c10k.html#limits.filehandles
+Recently I've been PXE booting a lot of Linux boxen from a remote
+location, and accessing them through a Perle CS9000 console server.
 
-You may need to raise ulimit, or perhaps /proc/sys/fs/file-max
-- Dan
+Under 2.2.19 I've had absolutely no probs, but I upgraded the image to
+2.4.8 last night. It all appeared to work, except that nothing I TYPE
+appears to hit the machine.
 
--- 
-"I have seen the future, and it licks itself clean." -- Bucky Katt
+I suspect it's because the CS9000 is operating with no flow control.
+But I've got no idea what's changed between 2.2.19 and 2.4.8 that could
+affect it :)
+
+Anyone have any ideas?
+
+Regards,	| If I must have computer systems with publically
+	 Ender  | available terminals, the maps they display of my complex
+  (James Brown)	| will have a room clearly marked as the Main Control Room.
+		| That room will be the Execution Chamber. The actual main
+		| control room will be marked as Sewage Overflow Containment.
+

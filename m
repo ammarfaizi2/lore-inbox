@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129770AbQKEKwP>; Sun, 5 Nov 2000 05:52:15 -0500
+	id <S129792AbQKEKyZ>; Sun, 5 Nov 2000 05:54:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129799AbQKEKwF>; Sun, 5 Nov 2000 05:52:05 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:26263 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129770AbQKEKwA>;
-	Sun, 5 Nov 2000 05:52:00 -0500
-Date: Sun, 5 Nov 2000 10:52:38 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Naren Devaiah <naren@cs.pdx.edu>
+	id <S129799AbQKEKyQ>; Sun, 5 Nov 2000 05:54:16 -0500
+Received: from magician.bunzy.net ([206.245.168.220]:44817 "HELO
+	magician.bunzy.net") by vger.kernel.org with SMTP
+	id <S129792AbQKEKyL>; Sun, 5 Nov 2000 05:54:11 -0500
+Date: Sun, 5 Nov 2000 05:54:09 -0500 (EST)
+From: tc lewis <tcl@bunzy.net>
+To: Samar Sharma <ssharma@cisco.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Where is __this_module actually defined?
-In-Reply-To: <Pine.GSO.4.21.0011050245280.2808-100000@antares.cs.pdx.edu>
-Message-ID: <Pine.LNX.4.21.0011051050320.1171-100000@saturn.homenet>
+Subject: Re: NFS over TCP in linux 
+In-Reply-To: <4.3.2.7.2.20001105023453.00bcfa70@mira-sjcd-3.cisco.com>
+Message-ID: <Pine.LNX.4.10.10011050553170.3396-100000@magician.bunzy.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Nov 2000, Naren Devaiah wrote:
+
+check http://nfs.sourceforge.net/ for the latest linux nfs info.
+
+-tcl.
+
+
+On Sun, 5 Nov 2000, Samar Sharma wrote:
 
 > 
-> Does this mean that the module structure (struct module) and it's various
-> substructures are filled in by insmod?
+> Is there a version of the linux code that supports NFS over TCP ?
+> Could you please send me a pointer.
 > 
-> Regards,
-> Naren
-
-Yes, partially, i.e. have a look at sys_create_module() and
-sys_init_module() system calls, they are in kernel/module.c
-
-sys_create_module() just allocates the space and links the module into the
-list but sys_init_module() is passed a 'struct module' from userspace
-whose content is harshly validated (trust no one!) and then installed into
-a real kernel 'struct module' and module's init_module() routine is
-invoked.
-
-Regards,
-Tigran
+> Thanks.
+> Samar
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

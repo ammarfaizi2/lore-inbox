@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262807AbUC2LEE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 06:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbUC2LEE
+	id S262812AbUC2LUv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 06:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbUC2LUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 06:04:04 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:41983 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262807AbUC2LEA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 06:04:00 -0500
-Subject: Re: [PATCH] s390 (8/10): zfcp fixes.
-To: Greg KH <greg@kroah.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OF2D02D7FE.D57DABBB-ONC1256E66.0036A8C5-C1256E66.00373A2C@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Mon, 29 Mar 2004 12:03:13 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
- 29/03/2004 13:03:12
+	Mon, 29 Mar 2004 06:20:51 -0500
+Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:41066 "HELO
+	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262812AbUC2LUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 06:20:23 -0500
+Message-ID: <4068066C.507@yahoo.com.au>
+Date: Mon, 29 Mar 2004 21:20:12 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+To: Andi Kleen <ak@suse.de>
+CC: Ingo Molnar <mingo@elte.hu>, jun.nakajima@intel.com, ricklind@us.ibm.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
+       mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu> <20040325162121.5942df4f.ak@suse.de> <20040325193913.GA14024@elte.hu> <20040325203032.GA15663@elte.hu> <20040329084531.GB29458@wotan.suse.de>
+In-Reply-To: <20040329084531.GB29458@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> On Thu, Mar 25, 2004 at 09:30:32PM +0100, Ingo Molnar wrote:
+> 
+>>* Andi Kleen <ak@suse.de> wrote:
+>>
+>>
+>>>That won't help for threaded programs that use clone(). OpenMP is such
+>>>a case.
+>>
+>>this patch:
+>>
+>>        redhat.com/~mingo/scheduler-patches/sched-2.6.5-rc2-mm3-A4
+>>
+>>does balancing at wake_up_forked_process()-time.
+>>
+>>but it's a hard issue. Especially after fork() we do have a fair amount
+>>of cache context, and migrating at this point can be bad for
+>>performance.
+> 
+> 
+> I ported it by hand to the -mm4 scheduler now and tested it. While
+> it works marginally better than the standard -mm scheduler 
+> (you get 1 1/2 the bandwidth of one CPU instead of one) it's still
+> still much worse than the optimum of nearly 4 CPUs archived by
+> 2.4 or the standard scheduler.
+> 
 
+OK there must be some pretty simple reason why this is happening.
+I guess being OpenMP it is probably a bit complicated for you to
+try your own scheduling in userspace using CPU affinities?
+Otherwise could you trace what gets scheduled where for both
+good and bad kernels? It should help us work out what is going
+on.
 
+I wonder if using one CPU from each quad of the NUMAQ would be
+give at all comparable behaviour...
 
-
-Hi Greg,
-
-> > This is not ok.  If you have to do something like this, I really suggest
-> > that you not allow the "sub modules" be able to unload before the upper
-> > module can.  In fact, why would you want to do such a thing?
-> How do sub modules help with the release function problem? The unit/port
-> objects get unregistered in zfcp_unit_dequeue. This happens e.g. when
-> a zfcp adapter gets removed because of a detach. After the last zfcp
-> adapter got removed the module is in principle ready to be removed.
-> Now there are two cases. 1) The module count of the zfcp module (or one
-> of the non-existent sub-modules) is NOT increase because of the outstanding
-> call to the release function. It obvious that the release function can't
-> be part of the zfcp module(s) in this case. 2) The module count of the
-> zfcp module(s) is elevated because of the outstanding call to release.
-> Who does the module_put in this case? The release function only can do it
-> if it is not part of ANY of the modules. If it is part of a zfcp module
-> the cpu doing the module_put might not be able to get out of the release
-> function fast enough before another cpu has removed the module(s)
-> (including the sub-modules).
-> Did I miss something ?
->
-> > I still really strongly object to this patch.  If it's a scsi problem,
-> > fix it there, but odds are it's your driver's problem as no other scsi
-> > driver needs this.
-> If we can move the port/unit objects to the scsi mid layer that would
-> "solve" the problem for the zfcp module. But the problem itself doesn't
-> go away. It's just moved one step up the ladder.
-
-Did I manage to convince you or are you just fed up with the discussion?
-I'll ask because the zfcp patches are still pending and I want to get this
-issue resolved before the next try to get them integrated.
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
-
-
+If it isn't a big problem, could you test with -mm5 with the
+generic sched domain? STREAM doesn't take long, does it?
+I don't expect much difference, but the code is in flux while
+Ingo and I try to sort things out.

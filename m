@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUJAPnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUJAPm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUJAPnG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 11:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUJAPnG
+	id S261375AbUJAPm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 11:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUJAPm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 11:43:06 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5542 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263769AbUJAPl7 (ORCPT
+	Fri, 1 Oct 2004 11:42:59 -0400
+Received: from [142.176.159.6] ([142.176.159.6]:59869 "EHLO smtp.amirix.com")
+	by vger.kernel.org with ESMTP id S264503AbUJAPkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 11:41:59 -0400
-Date: Fri, 1 Oct 2004 08:40:09 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Robert Love <rml@novell.com>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] inotify: make user visible types portable
-Message-Id: <20041001084009.6b33c1a1.pj@sgi.com>
-In-Reply-To: <1096616399.4803.26.camel@localhost>
-References: <1096410792.4365.3.camel@vertex>
-	<1096583108.4203.86.camel@betsy.boston.ximian.com>
-	<20040930155704.16d71cec.pj@sgi.com>
-	<1096608925.4803.2.camel@localhost>
-	<20040930234436.097e6dfe.pj@sgi.com>
-	<1096616399.4803.26.camel@localhost>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 1 Oct 2004 11:40:52 -0400
+Message-ID: <415D7A73.6060205@amirix.com>
+Date: Fri, 01 Oct 2004 12:40:35 -0300
+From: Frank Smith <frank.smith@amirix.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Frank Smith <frank.smith@amirix.com>
+Subject: __d_lookup in 2.6.6
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert wrote:
-> 
-> but sharing a header (or at least generating
-> user-space's version of the header from the kernel header) is the only
-> way to ensure that both kernel and user-space speak the same language.
 
-Ok - your understanding is clearly stated.  So be it.
+Hello,
 
-For now, I will remain in the alternative school that says the "other"
-way to keep the kernel and user interfaces aligned is to have two
-separate header files, one tuned for each space, using the human brain
-to keep them aligned, and keeping things simple enough that the brain
-can do so reliably.  I find that optimizing the human readability of
-this code is more valuable than automatable header sharing across the
-kernel-user boundary.  In some cases, such as RPC or CORBA, automatic
-header sharing is damn near essential, but not here.
+Are there any known issues with fs/dcache in kernel 2.6.6 that
+would cause oopses like the following in __d_lookup to happen
+occasionally?  I've done lots of googling on this, and it appears
+that there is a lot of flux in this code, so I'm wondering how
+solid fs/dcache is in 2.6.6.
 
-I have no delusions of having sufficient standing in the community, or
-confidence of my position, to cause you to change your understanding.
+This is on a 74xx PPC board, using an NFS root filesystem.
 
-Good luck.  Thanks for replying.
+-Frank.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+---------
+Oops: kernel access of bad area, sig: 11 [#2]
+PREEMPT
+NIP: C007FD68 LR: C0074694 SP: CE4E7E10 REGS: ce4e7d60 TRAP: 0301    Not tainted
+MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+DAR: 2CC7FFFE, DSISR: 40000000
+TASK = cfb92740[494] 'split-include' THREAD: ce4e6000Last syscall: 5
+GPR00: 00001008 CE4E7E10 CFB92740 CDE8B4CC CE4E7ED8 00000000 00000004 CE4E6000
+GPR08: CFF80000 C0290000 00000001 000132F4 24000428
+NIP [c007fd68] __d_lookup+0x80/0x1c8
+LR [c0074694] __lookup_hash+0x88/0x174
+Call trace:
+  [c0074694] __lookup_hash+0x88/0x174
+  [c0074f7c] open_namei+0x160/0x4b0
+  [c0061044] filp_open+0x3c/0x84
+  [c0061438] sys_open+0x6c/0xbc
+  [c0006740] ret_from_syscall+0x0/0x44
+

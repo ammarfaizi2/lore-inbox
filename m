@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261987AbSI3JjE>; Mon, 30 Sep 2002 05:39:04 -0400
+	id <S261986AbSI3JoK>; Mon, 30 Sep 2002 05:44:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261989AbSI3JjE>; Mon, 30 Sep 2002 05:39:04 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:1920 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261987AbSI3JjD> convert rfc822-to-8bit; Mon, 30 Sep 2002 05:39:03 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BENCHMARK] 2.5.39-mm1
-Date: Mon, 30 Sep 2002 19:41:37 +1000
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209301941.41627.conman@kolivas.net>
+	id <S261989AbSI3JoJ>; Mon, 30 Sep 2002 05:44:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45069 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261986AbSI3JoJ>; Mon, 30 Sep 2002 05:44:09 -0400
+Date: Mon, 30 Sep 2002 10:49:28 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Tim Waugh <twaugh@redhat.com>
+Cc: Marek Michalkiewicz <marekm@amelek.gda.pl>, serial24@macrolink.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pre8)
+Message-ID: <20020930104928.C5119@flint.arm.linux.org.uk>
+References: <E17uesu-0002dE-00@mm.lan.amelek.gda.pl> <20020930094012.GC20605@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020930094012.GC20605@redhat.com>; from twaugh@redhat.com on Mon, Sep 30, 2002 at 10:40:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Sep 30, 2002 at 10:40:12AM +0100, Tim Waugh wrote:
+> On Thu, Sep 26, 2002 at 10:05:16PM +0200, Marek Michalkiewicz wrote:
+> > below is a patch that moves parport_serial.c from drivers/parport/
+> > to drivers/char/ - this fixes the wrong link order when the drivers
+> > are compiled into the kernel.
+> 
+> What was wrong with the original, much smaller patch that you sent me
+> previously (below)?
+> 
+> I'm happy to accept whichever patch is the better.
 
-Here follow the contest v0.41 (http://contest.kolivas.net) results for 
-2.5.39-mm1:
+Other than it's a gross hack rather than a fix.  However, for 2.4, I
+think this is probably the best solution without creating a risk of
+other init ordering problems.  Ed, any comments?
 
-noload:
-Kernel                  Time            CPU             Ratio
-2.4.19                  67.71           98%             1.00
-2.5.38                  72.38           94%             1.07
-2.5.38-mm3              73.00           93%             1.08
-2.5.39                  73.17           93%             1.08
-2.5.39-mm1              72.97           94%             1.08
+In 2.5, its easier to solve; we just need to make sure serial is
+initialised before parport.  This is easy, since serial now has its
+own drivers/serial subdirectory.
 
-process_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  110.75          57%             1.64
-2.5.38                  85.71           79%             1.27
-2.5.38-mm3              96.32           72%             1.42
-2.5.39                  88.9            75%             1.33*
-2.5.39-mm1              99.0            69%             1.45*
 
-io_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  216.05          33%             3.19
-2.5.38                  887.76          8%              13.11
-2.5.38-mm3              105.17          70%             1.55
-2.5.39                  229.4           34%             3.4
-2.5.39-mm1              239.5           33%             3.4
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-mem_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  105.40          70%             1.56
-2.5.38                  107.89          73%             1.59
-2.5.38-mm3              117.09          63%             1.73
-2.5.39                  103.72          72%             1.53
-2.5.39-mm1              104.61          73%             1.54
-
-process_load and io_load results are averages of 6 runs.
-
-Statistical significance in process_load performance (p=0.017), with mm1 
-slower. The other changes did not show statistical significance, with trends 
-as noted above.
-
-note: these were done with the temporary fix for the reiserfs breakage but as 
-far as I'm aware it shouldn't affect this test
-
-Hardware: 1133MhzP3, 224Mb Ram, IDE-ATA100 5400rpm drive with io_load tested 
-on same disk, reiserFS. Preempt=N for all kernels.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9mBxUF6dfvkL3i1gRAr4kAJ47cICW0qIXLmswyBL9t1ZsiyxgVwCfaHCN
-bXOSrZtwTjJsSibiBm5KrRo=
-=XWpt
------END PGP SIGNATURE-----

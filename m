@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316666AbSE1Oui>; Tue, 28 May 2002 10:50:38 -0400
+	id <S316668AbSE1Oy0>; Tue, 28 May 2002 10:54:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316668AbSE1Ouh>; Tue, 28 May 2002 10:50:37 -0400
-Received: from mx1.mail.ru ([194.67.57.11]:7953 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id <S316666AbSE1Oug>;
-	Tue, 28 May 2002 10:50:36 -0400
-Date: Tue, 28 May 2002 18:46:43 +0400
-From: Dmitry Volkoff <vdb@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Memory management in Kernel 2.4.x
-Message-ID: <20020528184643.A796@localhost>
+	id <S316677AbSE1Oy0>; Tue, 28 May 2002 10:54:26 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:54010 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316668AbSE1OyY>; Tue, 28 May 2002 10:54:24 -0400
+Subject: Re: A reply on the RTLinux discussion.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0205281522050.17583-100000@serv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 May 2002 16:57:05 +0100
+Message-Id: <1022601425.4123.102.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-> Unfortunately, the memory management of kernel 2.4.x didn't get better until 
-> today. It is very easy to make a machine dead. Take the following script: 
+On Tue, 2002-05-28 at 15:37, Roman Zippel wrote:
+> On Tue, 28 May 2002 yodaiken@fsmlabs.com wrote:
 > 
-> http://groups.google.com/groups?q=malloc+bestie&hl=de&lr=&selm=slrn8aiglm.tqd.pfk@c.zeiss.de&rnum=2 
+> > 	Our resellers and OEM partners include some of the most serious
+> > 	players in the embedded Linux business:  LynuxWorks, RedSonic, and
+> > 	Red Hat. 
 > 
-> The result with kernel 2.4.19pre8ac4: 
+> I looked at the Red Hat site and didn't found a single mention of RTLinux.
 
-What about results with latest -aa kernels? 
-I'm writing this letter while running your killer-test ;)
-My machine is perfectly responsive.
+If you look through the older Red Hat news you will find info on this.
+You didn't look very hard did you
 
-$ uname -a
-Linux localhost 2.4.19-pre6vm33 #2 Sat Apr 13 00:56:55 MSD 2002 i686 unknown
-This is vanilla 2.4.19-pre6 + vm33 from Andrea Arcangelly.
-
-Funny stats:
-
-bash-2.05$ free
-total       used       free     shared    buffers     cached
-Mem:        516496     512804       3692          0       2080      10064
--/+ buffers/cache:     500660      15836
-Swap:      1028120    1028120          0
-
-I'm running X, netscape, mutt, top, 5 xterms, web, mysql, ftp, samba etc.
-Lots of "0-order allocation failed" in the log. Anyway it is usable!
-The good thing is VM is killing right process most of the time: 
-
-VM: killing process memory-killer
-
-Netscape got killed. Big deal, I can start it again and it works... 
-
-P.S. Running it already for 20 minutes.
-
--- 
-
-    DV

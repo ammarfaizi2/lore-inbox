@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132435AbRCZNT2>; Mon, 26 Mar 2001 08:19:28 -0500
+	id <S132440AbRCZOI3>; Mon, 26 Mar 2001 09:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132436AbRCZNTS>; Mon, 26 Mar 2001 08:19:18 -0500
-Received: from danielle.hinet.hr ([195.29.254.157]:36875 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S132435AbRCZNTL>; Mon, 26 Mar 2001 08:19:11 -0500
-Date: Mon, 26 Mar 2001 15:22:43 +0200
-From: Mario Mikocevic <mozgy@hinet.hr>
+	id <S132442AbRCZOIT>; Mon, 26 Mar 2001 09:08:19 -0500
+Received: from mail.xmission.com ([198.60.22.22]:43787 "EHLO mail.xmission.com")
+	by vger.kernel.org with ESMTP id <S132440AbRCZOII>;
+	Mon, 26 Mar 2001 09:08:08 -0500
+Message-ID: <3ABF4D3D.2070401@xmission.com>
+Date: Mon, 26 Mar 2001 07:07:57 -0700
+From: Frank Jacobberger <f1j@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-pre7 i686; en-US; 0.8.1) Gecko/20010322
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: kernel 243p8 problems
-Message-ID: <20010326152243.A10386@danielle.hinet.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+Subject: 2.4.3-pre8 problem with 8139too - failure to load
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Something has changed regarding the 8139too driver in pre8.
 
-1st :
+I worked on it all morning long trying to resolve why the sucker
+failed to load. There are new configuration options that need to
+be addressed. As you recall there were zippo options in the pre7.
 
-# depmod -a 2.4.3-pre8
-depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre8/kernel/drivers/net/dummy.o
-depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre8/kernel/drivers/net/eepro100.o
+There are now:
 
-the rest :
+RealTek RTL-8139 PCI Fast Ethernet Adapter support      [M]      
+  Use PIO instead of MMIO                                               
+      [*]    
+  Support for automatic channel equalization (EXPERIMENTAL)   [ ]    
+  Support for older RTL-8129/8130 boards                            [*]
 
-it's Compaq PL 6500 with 4 penguins and 2 gig RAM
-Compaq SMART2 hardware RAID and DLT are also bundled ! :)
+Doing any combination of the above netted no positive result here.
 
-Well, there is a problem with cpqarray driver. If I boot without noapic
-it hangs right after
+I have run every kernel patch since 2.4.0 blah and
+have never seen this driver fail to load or perform to some degree.
 
-cpqarray: Device e11 has been found at 5 0
-Compaq SMART2 Driver (v 2.4.2)
-Found 1 controller(s)
-cpqarray: Finding drives on ida0 (Smart Array 3200)
-cpqarray ida/c0d0: blksz=512 nr_blks=17764320
-cpqarray ida/c0d1: blksz=512 nr_blks=17764320
-Partition check:
- ida/c0d0
+Trying to do insmod 8139too.o from the :
+/lib/modules/2.4.3-pre8/kernel/drivers/net directory show these
+unresolved symbols:
 
-but if I put noapic I get only _one_ CPU usable ->
+8139too.o: unresolved symbol alloc_etherdev
+8139too.o: unresolved symbol unregister_netdev
+8139too.o: unresolved symbol register_netdev
 
-]# cat /proc/interrupts 
-           CPU0       CPU1       CPU2       CPU3       
-  0:     926630          0          0          0          XT-PIC  timer
-  1:         11          0          0          0          XT-PIC  keyboard
-  2:          0          0          0          0          XT-PIC  cascade
-  8:          1          0          0          0          XT-PIC  rtc
-  9:         34          0          0          0          XT-PIC  sym53c8xx
- 10:         30          0          0          0          XT-PIC  sym53c8xx
- 11:       2522          0          0          0          XT-PIC  ida0
- 14:          3          0          0          0          XT-PIC  ide0
- 15:       7547          0          0          0          XT-PIC  eth1
-NMI:          0          0          0          0 
-LOC:     926548     926547     926546     926545 
-ERR:          0
+Maybe Jeff can shed more light on these changes....
 
+Thanks,
 
-any patches to take/patch/slap !?
+Frank
 
-ps
-	any other required info available on request
-
--- 
-Mario Mikoèeviæ (Mozgy)
-My favourite FUBAR ...

@@ -1,33 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVAXGCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVAXGOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVAXGCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 01:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVAXGCL
+	id S261448AbVAXGOh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 01:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVAXGOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 01:02:11 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:52115 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261446AbVAXGCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 01:02:09 -0500
-Date: Sun, 23 Jan 2005 22:02:01 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Ram?n Rey Vicente <rrey@usuarios.retecal.es>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.11-rc2] Badness in local_bh_enable at kernel/softirq.c:140
-Message-ID: <20050124060201.GA2250@taniwha.stupidest.org>
-References: <41F443BE.1030108@usuarios.retecal.es>
+	Mon, 24 Jan 2005 01:14:37 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:19986 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261448AbVAXGO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 01:14:26 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH][1/12] InfiniBand/core: compat_ioctl conversion minor fixes
+In-Reply-To: <20051232214.Ndv3rt3gl8fJimFA@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Sun, 23 Jan 2005 22:14:23 -0800
+Message-Id: <20051232214.3xuiAqAqwBM4Tlb4@topspin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F443BE.1030108@usuarios.retecal.es>
+Content-Type: text/plain; charset=US-ASCII
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Roland Dreier <roland@topspin.com>
+X-OriginalArrivalTime: 24 Jan 2005 06:14:24.0981 (UTC) FILETIME=[F3CED050:01C501DB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 01:39:26AM +0100, Ram?n Rey Vicente wrote:
+Slightly tidy up Andi Kleen's compat_ioctl conversion for the
+InfiniBand MAD driver by removing the no-longer-needed include of
+ioctl32.h, killing unreachable code and doing some really anal
+whitespace fixing.
 
-> Badness in local_bh_enable at kernel/softirq.c:140
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-The cause of this was reverted earlier today.
+--- linux-bk.orig/drivers/infiniband/core/user_mad.c	2005-01-23 21:48:45.709546808 -0800
++++ linux-bk/drivers/infiniband/core/user_mad.c	2005-01-23 21:49:32.872376968 -0800
+@@ -43,7 +43,6 @@
+ #include <linux/poll.h>
+ #include <linux/rwsem.h>
+ #include <linux/kref.h>
+-#include <linux/ioctl32.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -502,14 +501,14 @@
+ }
+ 
+ static struct file_operations umad_fops = {
+-	.owner 	 = THIS_MODULE,
+-	.read 	 = ib_umad_read,
+-	.write 	 = ib_umad_write,
+-	.poll 	 = ib_umad_poll,
++	.owner 	        = THIS_MODULE,
++	.read 	        = ib_umad_read,
++	.write 	        = ib_umad_write,
++	.poll 	        = ib_umad_poll,
+ 	.unlocked_ioctl = ib_umad_ioctl,
+-	.compat_ioctl = ib_umad_ioctl,
+-	.open 	 = ib_umad_open,
+-	.release = ib_umad_close
++	.compat_ioctl   = ib_umad_ioctl,
++	.open 	        = ib_umad_open,
++	.release        = ib_umad_close
+ };
+ 
+ static struct ib_client umad_client = {
+@@ -705,8 +704,6 @@
+ 
+ 	return 0;
+ 
+-	ib_unregister_client(&umad_client);
+-
+ out_class:
+ 	class_unregister(&umad_class);
+ 
 
-
-  --cw

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbRGCRTw>; Tue, 3 Jul 2001 13:19:52 -0400
+	id <S265405AbRGCRTM>; Tue, 3 Jul 2001 13:19:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265412AbRGCRTm>; Tue, 3 Jul 2001 13:19:42 -0400
-Received: from adsl-dynamic2-173.milwaukee.wi.ameritech.net ([64.108.133.173]:49657
-	"HELO alphaflight.0xd6.org") by vger.kernel.org with SMTP
-	id <S265402AbRGCRT0>; Tue, 3 Jul 2001 13:19:26 -0400
-Date: Tue, 3 Jul 2001 12:18:24 -0500
-From: "M. R. Brown" <mrbrown@0xd6.org>
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cross-reference analysis reveals problems in 2.4.6pre9
-Message-ID: <20010703121824.B16450@0xd6.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107031642.f63GgEG25604@snark.thyrsus.com>
-User-Agent: Mutt/1.3.18i
+	id <S265402AbRGCRTC>; Tue, 3 Jul 2001 13:19:02 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26118 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265405AbRGCRS7>; Tue, 3 Jul 2001 13:18:59 -0400
+Date: Tue, 3 Jul 2001 12:46:22 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: Removal of PG_marker scheme from 2.4.6-pre
+In-Reply-To: <Pine.LNX.4.33L.0107012301460.19985-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.21.0107031245590.2868-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Eric S. Raymond <esr@snark.thyrsus.com> on Tue, Jul 03, 2001:
 
-> According to my cross-reference generator, the following symbols have
-> missing help in 2.4.6-pre9:
+
+On Sun, 1 Jul 2001, Rik van Riel wrote:
+
+> On Sat, 30 Jun 2001, Marcelo Tosatti wrote:
 > 
-[...]
-> CONFIG_MAPLE
-> CONFIG_MAPLE_KEYBOARD
-> CONFIG_MAPLE_MOUSE
+> > In pre7:
+> >
+> > "me: undo page_launder() LRU changes, they have nasty side effects"
+> >
+> > Can you be more verbose about this ?
+> 
+> I think this was fixed by the GFP_BUFFER vs. GFP_CAN_FS + GFP_CAN_IO
+> thing and Linus accidentally backed out the wrong code ;)
+> 
+> cheers,
+> Rik
 
-These three are for the Dreamcast driver port.  I can write help entries
-for them, but I don't think NIIBE has sent SuperH updates in awhile, the
-only missing symbol is CONFIG_INPUT_MAPLE_CONTROL, I'll write that one as
-well.
+Nope.
 
-M. R.
+-ac also freezes and it does not have the GFP_BUFFER changes. 
+

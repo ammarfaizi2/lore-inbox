@@ -1,95 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTDWTtC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:49:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbTDWTtC
+	id S264208AbTDWTyr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264227AbTDWTyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:49:02 -0400
-Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:44306 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S263573AbTDWTs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:48:59 -0400
-Date: Wed, 23 Apr 2003 15:01:04 -0500
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Replace const to remove warnings
-Message-ID: <20030423200104.GA9189@debian>
+	Wed, 23 Apr 2003 15:54:47 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:910 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264208AbTDWTyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 15:54:44 -0400
+Date: Wed, 23 Apr 2003 13:05:31 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andrew Kirilenko <icedank@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Searching for string problems
+Message-Id: <20030423130531.0a7cbcc6.rddunlap@osdl.org>
+In-Reply-To: <200304232248.35985.icedank@gmx.net>
+References: <200304231958.43235.icedank@gmx.net>
+	<200304232200.20028.icedank@gmx.net>
+	<Pine.LNX.4.53.0304231529320.25963@chaos>
+	<200304232248.35985.icedank@gmx.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 23 Apr 2003 22:48:35 +0300 Andrew Kirilenko <icedank@gmx.net> wrote:
 
-I'd posted a patch a day or two ago which removed some __const__
-declarations that GCC said were not needed. A reply to the posting
-suggested that using __attribute__((const)) was the correct approach.
-The attached patch adds the attribute.
+| Hello!
+| 
+| Big thanks to all of you. Now I'm starting to understand how it's working. 
+| Here is current version of my code:
+| 
+| -->
+|        jmp         cl_start
+| cl_id_str:      .string "STRING"
+| cl_start:
+|         cld
+|         movw    %cs, %ax
+|         movw    %ax, %ds
+|         movw    $0xe000, %ax
+|         movw    %ax, %es
+|         movb    $0, %al
+|         xor         %bx, %bx  # start of segment
+| cl_compare:
+|         movw    $cl_id_str, %si
+|         movw    $cl_start, %cx
+|         subw    %si, %cx
+|         decw    %cx
+|         movw    %bx, %di
+|         repz    cmpsb
+|         je      cl_compare_done_good
+|         incw    %bx
+|         cmpw    $0xffff, %bx  # are we at the end of segment
+|         je      cl_compare_done
+|         jmp     cl_compare
+| cl_compare_done_good:
+|        movb $1, %al
+| cl_compare_done:
 
-Here's the initial mail for reference ...
+# here the code needs to do something like this,
+# to check the second 64 KB block of memory:
+	movw	%es, %bx
+	cmpw	%bx, $0xe000
+	je	all_done
+	movw	$0xf000, %bx
+	movw	%bx, %es
+	xor	%bx, %bx
+	jmp	cl_compare
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0304.2/1440.html
 
-I've built a kernel with this patch and it's running now - 2.5.68-bk?
-from April 23
+| <--
+| 
+| And this code won't work as well :(
 
-Art Haas
+Do you understand x86 real-mode segment registers?
+They can only address a "segment" of 64 KB (roughly).
 
-===== include/asm-i386/byteorder.h 1.2 vs edited =====
---- 1.2/include/asm-i386/byteorder.h	Fri Oct 11 12:15:35 2002
-+++ edited/include/asm-i386/byteorder.h	Wed Apr 23 10:28:43 2003
-@@ -10,7 +10,7 @@
- #include <linux/config.h>
- #endif
- 
--static __inline__ __const__ __u32 ___arch__swab32(__u32 x)
-+static __inline__ __attribute__((const)) __u32 ___arch__swab32(__u32 x)
- {
- #ifdef CONFIG_X86_BSWAP
- 	__asm__("bswap %0" : "=r" (x) : "0" (x));
-@@ -26,7 +26,7 @@
- 
- /* gcc should generate this for open coded C now too. May be worth switching to 
-    it because inline assembly cannot be scheduled. -AK */
--static __inline__ __const__ __u16 ___arch__swab16(__u16 x)
-+static __inline__ __attribute__((const)) __u16 ___arch__swab16(__u16 x)
- {
- 	__asm__("xchgb %b0,%h0"		/* swap bytes		*/
- 		: "=q" (x)
-===== include/linux/byteorder/swab.h 1.2 vs edited =====
---- 1.2/include/linux/byteorder/swab.h	Tue Feb  5 01:43:00 2002
-+++ edited/include/linux/byteorder/swab.h	Wed Apr 23 10:28:01 2003
-@@ -128,7 +128,7 @@
- #endif /* OPTIMIZE */
- 
- 
--static __inline__ __const__ __u16 __fswab16(__u16 x)
-+static __inline__ __attribute__((const)) __u16 __fswab16(__u16 x)
- {
- 	return __arch__swab16(x);
- }
-@@ -141,7 +141,7 @@
- 	__arch__swab16s(addr);
- }
- 
--static __inline__ __const__ __u32 __fswab32(__u32 x)
-+static __inline__ __attribute__((const)) __u32 __fswab32(__u32 x)
- {
- 	return __arch__swab32(x);
- }
-@@ -155,7 +155,7 @@
- }
- 
- #ifdef __BYTEORDER_HAS_U64__
--static __inline__ __const__ __u64 __fswab64(__u64 x)
-+static __inline__ __attribute__((const)) __u64 __fswab64(__u64 x)
- {
- #  ifdef __SWAB_64_THRU_32__
- 	__u32 h = x >> 32;
--- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
- -- Theodore Roosevelt, Kansas City Star, 1918
+| Unfortunately, I can't start DOS and check, cause there is no video and 
+| keyboard controller on that PC.
+
+oh yes.
+
+--
+~Randy

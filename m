@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUJLUUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267739AbUJLU0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267734AbUJLUUk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 16:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUJLUUk
+	id S267739AbUJLU0q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 16:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUJLU0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 16:20:40 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:52173 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267734AbUJLUUi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 16:20:38 -0400
-Date: Tue, 12 Oct 2004 13:20:27 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Rik van Riel <riel@redhat.com>
-cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, linux-mm@kvack.org
-Subject: Re: NUMA: Patch for node based swapping
-In-Reply-To: <Pine.LNX.4.44.0410121151220.13693-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0410121319510.5785@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0410121151220.13693-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Oct 2004 16:26:46 -0400
+Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:3518 "EHLO
+	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S267739AbUJLU0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 16:26:43 -0400
+Date: Tue, 12 Oct 2004 15:24:04 -0500
+From: Andy Warner <andyw@pobox.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Tom Dickson <tdickson@inostor.com>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Andy Warner <andyw@pobox.com>
+Subject: Re: Who is working on the Marvell SATA Chipset?
+Message-ID: <20041012152404.A14245@florence.linkmargin.com>
+References: <416C2BD6.10802@inostor.com> <416C3378.6000001@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <416C3378.6000001@pobox.com>; from jgarzik@pobox.com on Tue, Oct 12, 2004 at 03:41:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Oct 2004, Rik van Riel wrote:
+Jeff Garzik wrote:
+> Tom Dickson wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > Who is in charge of the "in progress" driver for the Marvell 88SX5040?
+> 
+> I have a skeleton driver locally, need to get on to finishing it.
 
-> On Tue, 12 Oct 2004, Christoph Lameter wrote:
->
-> > Any other suggestions?
->
-> Since this is meant as a stop gap patch, waiting for a real
-> solution, and is only relevant for big (and rare) systems,
-> it would be an idea to at least leave it off by default.
->
-> I think it would be safe to assume that a $100k system has
-> a system administrator looking after it, while a $5k AMD64
-> whitebox might not have somebody watching its performance.
+Marvell also have drivers for 2.4 and 2.6, but they are under NDA
+etc etc, and ignore libata (they also pre-date libata), so if
+you have hardware that you _must_ get working; they might be
+a useful stopgap.
 
-Ok. Will do that then. Should I submit the patch to Andrew?
+I'll repeat my eagerness to test anything for the 88SX50xx or 88SX60xx,
+regardless of how primitive it is. My benchmarking with the Marvell
+driver shows the throughput to be excellent.
+-- 
+andyw@pobox.com
+
+Andy Warner		Voice: (612) 801-8549	Fax: (208) 575-5634

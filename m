@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266994AbTGGM6o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 08:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266998AbTGGM6n
+	id S264956AbTGGMyl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 08:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266994AbTGGMyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 08:58:43 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:55488 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S266994AbTGGM6m
+	Mon, 7 Jul 2003 08:54:41 -0400
+Received: from us02smtp1.synopsys.com ([198.182.60.75]:38786 "EHLO
+	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S264956AbTGGMyk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 08:58:42 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
-Date: Mon, 7 Jul 2003 23:14:18 +1000
-User-Agent: KMail/1.5.2
-Cc: Nick Sanders <sandersn@btinternet.com>, Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200307070317.11246.kernel@kolivas.org> <200307071151.12553.sandersn@btinternet.com> <200307071343.26318.m.c.p@wolk-project.de>
-In-Reply-To: <200307071343.26318.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jul 2003 08:54:40 -0400
+Date: Mon, 7 Jul 2003 15:09:05 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.74-mm1
+Message-ID: <20030707130905.GA13611@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: Daniel Phillips <phillips@arcor.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030703023714.55d13934.akpm@osdl.org> <200307060414.34827.phillips@arcor.de> <Pine.LNX.4.53.0307071042470.743@skynet> <200307071424.06393.phillips@arcor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307072314.18258.kernel@kolivas.org>
+In-Reply-To: <200307071424.06393.phillips@arcor.de>
+Organization: Synopsys, Inc.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jul 2003 22:19, Marc-Christian Petersen wrote:
-> On Monday 07 July 2003 12:51, Nick Sanders wrote:
->
-> Hi Con, Hi Andrew,
->
-> > > Thanks to Felipe who picked this up I was able to find the one bug
-> > > causing me grief. The idle detection code was allowing the sleep_avg to
-> > > get to ridiculously high levels. This is corrected in the following
-> > > replacement O3int patch. Note this fixes the mozilla issue too. Kick
-> > > arse!!
-> >
-> > Just booted with patch-O3int-0307071315 on top of 2.5.74-mm2 and the
-> > mouse stuttering under high CPU load has gone and no audio skipping.
-> > Truly brilliant work
-> > Thank you
-> > Nick
->
-> Hmm, this becomes better and better, but it's still not perfect [tm].
+Daniel Phillips, Mon, Jul 07, 2003 14:24:06 +0200:
+> > Alternatively, how about using PAM to grant the CAP_SYS_NICE capability to
+> > known interactive users that require it. Presumably the number of users
+> > that require it is very small (in the case of the music player, only one)
+> > so it wouldn't be a major security issue.
+> 
+> And set up distros to grant it by default.  Yes.
+> 
+> The problem I see is that it lets user space priorities invade the range of 
+> priorities used by root processes.  What's really needed is a range of 
+> negative priorities available to normal users that are not normally used by 
+> root.
+> 
+> In retrospect, the idea of renicing all the applications but the
+> realtime one  doesn't work, because it doesn't take care of
+> applications started afterwards. 
+> 
 
-Thanks for feedback. I will keep working on it while I still have ideas and 
-direction based on the feedback. 
-
-> - An Xterm needs ~30 seconds to open up while "make -j16 bzImage modules"
-> - An Xterm needs ~15 seconds to open up while "make -j8 bzImage modules"
-> - XMMS does _not_ skip mp3's while above.
-> - Kmail is almost unusable while above (stops for about 5 secs every 15-20
->   secs). KMail is also very slow while the machine is doing nothing.
-> - X runs with nice 0, prio 15 (nice -11 is prio 4, does not make
-> difference)
-
-Noted; and considered the next major hurdle (was also the most notable 
-complaint from Mike).
-
-Con
+start login niced to -X ?
 

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289670AbSBJPGd>; Sun, 10 Feb 2002 10:06:33 -0500
+	id <S289532AbSBJPUI>; Sun, 10 Feb 2002 10:20:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289671AbSBJPGX>; Sun, 10 Feb 2002 10:06:23 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55570 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289670AbSBJPGM>; Sun, 10 Feb 2002 10:06:12 -0500
-Subject: Re: 2.5.4-pre5 fails to build (sounddrivers.o/pcmcia_net.o)
-To: pierre.rousselet@wanadoo.fr (Pierre Rousselet)
-Date: Sun, 10 Feb 2002 15:19:29 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        alessandro.suardi@oracle.com (Alessandro Suardi),
-        linux-kernel@vger.kernel.org, zab@zabbo.net
-In-Reply-To: <3C65E916.9000306@wanadoo.fr> from "Pierre Rousselet" at Feb 10, 2002 04:29:26 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZvlJ-0003md-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S289657AbSBJPT6>; Sun, 10 Feb 2002 10:19:58 -0500
+Received: from 1Cust172.tnt15.sfo3.da.uu.net ([67.218.75.172]:32273 "EHLO
+	morrowfield.home") by vger.kernel.org with ESMTP id <S289532AbSBJPTt>;
+	Sun, 10 Feb 2002 10:19:49 -0500
+Date: Sun, 10 Feb 2002 10:27:53 -0800 (PST)
+Message-Id: <200202101827.KAA10439@morrowfield.home>
+From: Tom Lord <lord@regexps.com>
+To: rmk@arm.linux.org.uk
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <20020210095312.A12674@flint.arm.linux.org.uk> (message from
+	Russell King on Sun, 10 Feb 2002 09:53:12 +0000)
+Subject: Re: a new arch feature "for Linus"
+In-Reply-To: <200202100913.BAA29987@morrowfield.home> <20020210095312.A12674@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> es1370.c is using pci_alloc_consistent. However insmod es1370 gives this 
-> message :
-> /lib/modules/2.5.4-pre5/kernel/drivers/sound/es1370.o: unresolved symbol 
-> virt_to_bus_not_defined_use_pci_map_R2278fef8
-> 
-> It comes from a workaround for the "phantom write" bug. A workaround for 
-> the workaround might be in this case isa_virt_to_bus
 
-Thats actually a real bug (2.4 included) the bugbuf should be allocated
-as part of the pci_alloc_consistent space. 2.4 also wants fixing for this
-problem since if es1370 is modular bugbuf is vmalloc and virt_to_bus won't
-do the right thing
+
+       > The command is:
+       > 
+       > 	  % arch touched-files-prereqs REVISION
+       'arch' really isn't a good choice of command name:
+
+Not it isn't. But the announcment I cut and pasted the example from is
+out of date.  In 1.0pre7 the command has been renamed "larch".  The 
+command is really:
+
+       > 	  % larch touched-files-prereqs REVISION
+
+Also in the latest NEWS file and worth mentioning since some kernel
+maintainers have complained:
+
+  * NOT DONE IN THIS RELEASE, BUT MUCH REQUESTED AND LIKELY TO HAPPEN
+
+  The directory "{arch}" in project trees should, at least optionally,
+  have a different name -- but this is slightly tricky to do in an 
+  upward compatible way so I'm putting it off for now.
+
+-t
+
+

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265619AbUFCR1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265680AbUFCRsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265619AbUFCR1A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 13:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUFCRSY
+	id S265680AbUFCRsF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 13:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264225AbUFCR2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 13:18:24 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:46819 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265624AbUFCRMk (ORCPT
+	Thu, 3 Jun 2004 13:28:14 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:17883 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264344AbUFCRKg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 13:12:40 -0400
-Date: Thu, 3 Jun 2004 10:11:15 -0700
+	Thu, 3 Jun 2004 13:10:36 -0400
+Date: Thu, 3 Jun 2004 10:05:59 -0700
 From: Paul Jackson <pj@sgi.com>
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Cc: Andi Kleen <ak@muc.de>, Ashok Raj <ashok.raj@intel.com>,
@@ -21,8 +21,8 @@ Cc: Andi Kleen <ak@muc.de>, Ashok Raj <ashok.raj@intel.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, Paul Jackson <pj@sgi.com>,
        Rusty Russell <rusty@rustcorp.com.au>, Simon Derr <Simon.Derr@bull.net>,
        William Lee Irwin III <wli@holomorphy.com>
-Subject: [PATCH] cpumask 10/10 optimize various uses of new cpumasks
-Message-Id: <20040603101115.7f746d98.pj@sgi.com>
+Subject: [PATCH] cpumask 1/10 cpu_present_map real even on non-smp
+Message-Id: <20040603100559.32c6db27.pj@sgi.com>
 In-Reply-To: <20040603094339.03ddfd42.pj@sgi.com>
 References: <20040603094339.03ddfd42.pj@sgi.com>
 Organization: SGI
@@ -33,257 +33,120 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cpumask 10/10 optimize various uses of new cpumasks
+cpumask 1/10 cpu_present_map real even on non-smp
 
-        Make use of for_each_cpu_mask() macro to simplify and optimize
-        a couple of sparc64 per-CPU loops.
+	This patch makes cpu_present_map a real map for all
+	configurations, instead of a constant for non-SMP.
+	It also moves the definition of cpu_present_map out of
+	kernel/cpu.c into kernel/sched.c, because cpu.c isn't
+	compiled into non-SMP kernels.
+	
+	The pattern is that each of the possible, present and
+	online cpu maps are actual kernel global cpumask_t
+	variables, for all configurations.  They are documented
+	in include/linux/cpumask.h.  Some of the UP (NR_CPUS=1)
+	code cheats, and hardcodes the assumption that the single
+	bit position of these maps is always set, as an optimization.
 
-        Optimize a bit of cpumask code for asm-i386/mach-es7000
 
-        Convert physids_complement() to use both args in the files
-	include/asm-i386/mpspec.h, include/asm-x86_64/mpspec.h.
-
-        Remove cpumask hack from asm-x86_64/topology.h routine
-	pcibus_to_cpumask().
-
-        Clarify and slightly optimize several cpumask manipulations
-	in kernel/sched.c
-
- arch/sparc64/kernel/smp.c               |   66 +++-------
- include/asm-i386/mach-es7000/mach_ipi.h |    5 
- include/asm-i386/mpspec.h               |    2 
- include/asm-x86_64/mpspec.h             |    2 
- include/asm-x86_64/topology.h           |    6 
- kernel/sched.c                          |   18 +-
- 6 files changed, 39 insertions(+), 60 deletions(-)
+ include/linux/cpumask.h |   13 +++++--------
+ kernel/cpu.c            |    8 --------
+ kernel/sched.c          |   10 ++++++++++
+ 3 files changed, 15 insertions(+), 16 deletions(-)
 
 Signed-off-by: Paul Jackson <pj@sgi.com>
 
+Index: 2.6.7-rc2-mm2/include/linux/cpumask.h
+===================================================================
+--- 2.6.7-rc2-mm2.orig/include/linux/cpumask.h	2004-06-03 05:39:37.000000000 -0700
++++ 2.6.7-rc2-mm2/include/linux/cpumask.h	2004-06-03 05:56:00.000000000 -0700
+@@ -10,15 +10,12 @@
+ 
+ extern cpumask_t cpu_online_map;
+ extern cpumask_t cpu_possible_map;
+-extern cpumask_t cpu_present_map;
+ 
+ #define num_online_cpus()		cpus_weight(cpu_online_map)
+ #define num_possible_cpus()		cpus_weight(cpu_possible_map)
+-#define num_present_cpus()		cpus_weight(cpu_present_map)
+ 
+ #define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
+ #define cpu_possible(cpu)		cpu_isset(cpu, cpu_possible_map)
+-#define cpu_present(cpu)		cpu_isset(cpu, cpu_present_map)
+ 
+ #define for_each_cpu_mask(cpu, mask)					\
+ 	for (cpu = first_cpu_const(mk_cpumask_const(mask));		\
+@@ -27,25 +24,25 @@
+ 
+ #define for_each_cpu(cpu) for_each_cpu_mask(cpu, cpu_possible_map)
+ #define for_each_online_cpu(cpu) for_each_cpu_mask(cpu, cpu_online_map)
+-#define for_each_present_cpu(cpu) for_each_cpu_mask(cpu, cpu_present_map)
+ #else
+ #define	cpu_online_map			cpumask_of_cpu(0)
+ #define	cpu_possible_map		cpumask_of_cpu(0)
+-#define	cpu_present_map			cpumask_of_cpu(0)
+ 
+ #define num_online_cpus()		1
+ #define num_possible_cpus()		1
+-#define num_present_cpus()		1
+ 
+ #define cpu_online(cpu)			({ BUG_ON((cpu) != 0); 1; })
+ #define cpu_possible(cpu)		({ BUG_ON((cpu) != 0); 1; })
+-#define cpu_present(cpu)		({ BUG_ON((cpu) != 0); 1; })
+ 
+ #define for_each_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
+ #define for_each_online_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
+-#define for_each_present_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
+ #endif
+ 
++extern cpumask_t cpu_present_map;
++#define num_present_cpus()		cpus_weight(cpu_present_map)
++#define cpu_present(cpu)		cpu_isset(cpu, cpu_present_map)
++#define for_each_present_cpu(cpu) for_each_cpu_mask(cpu, cpu_present_map)
++
+ #define cpumask_scnprintf(buf, buflen, map)				\
+ 	bitmap_scnprintf(buf, buflen, cpus_addr(map), NR_CPUS)
+ 
+Index: 2.6.7-rc2-mm2/kernel/cpu.c
+===================================================================
+--- 2.6.7-rc2-mm2.orig/kernel/cpu.c	2004-06-03 05:39:46.000000000 -0700
++++ 2.6.7-rc2-mm2/kernel/cpu.c	2004-06-03 05:56:00.000000000 -0700
+@@ -20,14 +20,6 @@
+ DECLARE_MUTEX(cpucontrol);
+ 
+ static struct notifier_block *cpu_chain;
+-/*
+- * Represents all cpu's present in the system
+- * In systems capable of hotplug, this map could dynamically grow
+- * as new cpu's are detected in the system via any platform specific
+- * method, such as ACPI for e.g.
+- */
+-cpumask_t	cpu_present_map;
+-EXPORT_SYMBOL(cpu_present_map);
+ 
+ /* Need to know about CPUs going up/down? */
+ int register_cpu_notifier(struct notifier_block *nb)
 Index: 2.6.7-rc2-mm2/kernel/sched.c
 ===================================================================
---- 2.6.7-rc2-mm2.orig/kernel/sched.c	2004-06-03 06:42:03.000000000 -0700
-+++ 2.6.7-rc2-mm2/kernel/sched.c	2004-06-03 07:08:09.000000000 -0700
-@@ -802,10 +802,9 @@
- 		return cpu;
- 
- 	cpus_and(tmp, sd->span, cpu_online_map);
--	for_each_cpu_mask(i, tmp) {
--		if (!cpu_isset(i, p->cpus_allowed))
--			continue;
-+	cpus_and(tmp, tmp, p->cpus_allowed);
- 
-+	for_each_cpu_mask(i, tmp) {
- 		if (idle_cpu(i))
- 			return i;
- 	}
-@@ -3506,7 +3505,7 @@
- 	perfctr_set_cpus_allowed(p, new_mask);
- 
- 	rq = task_rq_lock(p, &flags);
--	if (any_online_cpu(new_mask) == NR_CPUS) {
-+	if (!cpus_intersects(new_mask, cpu_online_map)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -3682,8 +3681,7 @@
- 		if (dest_cpu == NR_CPUS)
- 			dest_cpu = any_online_cpu(tsk->cpus_allowed);
- 		if (dest_cpu == NR_CPUS) {
--			cpus_clear(tsk->cpus_allowed);
--			cpus_complement(tsk->cpus_allowed);
-+			cpus_setall(tsk->cpus_allowed);
- 			dest_cpu = any_online_cpu(tsk->cpus_allowed);
- 
- 			/* Don't tell them about moving exiting tasks
-@@ -3999,7 +3997,7 @@
- 			int j;
- 			char str[NR_CPUS];
- 			struct sched_group *group = sd->groups;
--			cpumask_t groupmask, tmp;
-+			cpumask_t groupmask;
- 
- 			cpumask_scnprintf(str, NR_CPUS, sd->span);
- 			cpus_clear(groupmask);
-@@ -4029,8 +4027,7 @@
- 				if (!cpus_weight(group->cpumask))
- 					printk(" ERROR empty group:");
- 
--				cpus_and(tmp, groupmask, group->cpumask);
--				if (cpus_weight(tmp) > 0)
-+				if (cpus_intersects(groupmask, group->cpumask))
- 					printk(" ERROR repeated CPUs:");
- 
- 				cpus_or(groupmask, groupmask, group->cpumask);
-@@ -4049,8 +4046,7 @@
- 			sd = sd->parent;
- 
- 			if (sd) {
--				cpus_and(tmp, groupmask, sd->span);
--				if (!cpus_equal(tmp, groupmask))
-+				if (!cpus_subset(groupmask, sd->span))
- 					printk(KERN_DEBUG "ERROR parent span is not a superset of domain->span\n");
- 			}
- 
-Index: 2.6.7-rc2-mm2/arch/sparc64/kernel/smp.c
-===================================================================
---- 2.6.7-rc2-mm2.orig/arch/sparc64/kernel/smp.c	2004-06-03 06:42:03.000000000 -0700
-+++ 2.6.7-rc2-mm2/arch/sparc64/kernel/smp.c	2004-06-03 07:08:09.000000000 -0700
-@@ -406,14 +406,8 @@
- 	int i;
- 
- 	__asm__ __volatile__("rdpr %%pstate, %0" : "=r" (pstate));
--	for (i = 0; i < NR_CPUS; i++) {
--		if (cpu_isset(i, mask)) {
--			spitfire_xcall_helper(data0, data1, data2, pstate, i);
--			cpu_clear(i, mask);
--			if (cpus_empty(mask))
--				break;
--		}
--	}
-+	for_each_cpu_mask(i, mask)
-+		spitfire_xcall_helper(data0, data1, data2, pstate, i);
+--- 2.6.7-rc2-mm2.orig/kernel/sched.c	2004-06-03 05:46:32.000000000 -0700
++++ 2.6.7-rc2-mm2/kernel/sched.c	2004-06-03 05:56:00.000000000 -0700
+@@ -3109,6 +3109,16 @@
+ 	return retval;
  }
  
- /* Cheetah now allows to send the whole 64-bytes of data in the interrupt
-@@ -456,25 +450,19 @@
- 
- 	nack_busy_id = 0;
- 	{
--		cpumask_t work_mask = mask;
- 		int i;
- 
--		for (i = 0; i < NR_CPUS; i++) {
--			if (cpu_isset(i, work_mask)) {
--				u64 target = (i << 14) | 0x70;
--
--				if (!is_jalapeno)
--					target |= (nack_busy_id << 24);
--				__asm__ __volatile__(
--					"stxa	%%g0, [%0] %1\n\t"
--					"membar	#Sync\n\t"
--					: /* no outputs */
--					: "r" (target), "i" (ASI_INTR_W));
--				nack_busy_id++;
-- 				cpu_clear(i, work_mask);
--				if (cpus_empty(work_mask))
--					break;
--			}
-+		for_each_cpu_mask(i, mask) {
-+			u64 target = (i << 14) | 0x70;
++/*
++ * Represents all cpu's present in the system
++ * In systems capable of hotplug, this map could dynamically grow
++ * as new cpu's are detected in the system via any platform specific
++ * method, such as ACPI for e.g.
++ */
 +
-+			if (!is_jalapeno)
-+				target |= (nack_busy_id << 24);
-+			__asm__ __volatile__(
-+				"stxa	%%g0, [%0] %1\n\t"
-+				"membar	#Sync\n\t"
-+				: /* no outputs */
-+				: "r" (target), "i" (ASI_INTR_W));
-+			nack_busy_id++;
- 		}
- 	}
- 
-@@ -507,7 +495,6 @@
- 			printk("CPU[%d]: mondo stuckage result[%016lx]\n",
- 			       smp_processor_id(), dispatch_stat);
- 		} else {
--			cpumask_t work_mask = mask;
- 			int i, this_busy_nack = 0;
- 
- 			/* Delay some random time with interrupts enabled
-@@ -518,22 +505,17 @@
- 			/* Clear out the mask bits for cpus which did not
- 			 * NACK us.
- 			 */
--			for (i = 0; i < NR_CPUS; i++) {
--				if (cpu_isset(i, work_mask)) {
--					u64 check_mask;
--
--					if (is_jalapeno)
--						check_mask = (0x2UL << (2*i));
--					else
--						check_mask = (0x2UL <<
--							      this_busy_nack);
--					if ((dispatch_stat & check_mask) == 0)
--						cpu_clear(i, mask);
--					this_busy_nack += 2;
--					cpu_clear(i, work_mask);
--					if (cpus_empty(work_mask))
--						break;
--				}
-+			for_each_cpu_mask(i, mask) {
-+				u64 check_mask;
++cpumask_t cpu_present_map;
++EXPORT_SYMBOL(cpu_present_map);
 +
-+				if (is_jalapeno)
-+					check_mask = (0x2UL << (2*i));
-+				else
-+					check_mask = (0x2UL <<
-+						      this_busy_nack);
-+				if ((dispatch_stat & check_mask) == 0)
-+					cpu_clear(i, mask);
-+				this_busy_nack += 2;
- 			}
- 
- 			goto retry;
-Index: 2.6.7-rc2-mm2/include/asm-i386/mach-es7000/mach_ipi.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-i386/mach-es7000/mach_ipi.h	2004-06-03 06:42:03.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-i386/mach-es7000/mach_ipi.h	2004-06-03 07:08:09.000000000 -0700
-@@ -10,9 +10,8 @@
- 
- static inline void send_IPI_allbutself(int vector)
- {
--	cpumask_t mask = cpumask_of_cpu(smp_processor_id());
--	cpus_complement(mask);
--	cpus_and(mask, mask, cpu_online_map);
-+	cpumask_t mask = cpu_online_map;
-+	cpu_clear(smp_processor_id(), mask);
- 	if (!cpus_empty(mask))
- 		send_IPI_mask(mask, vector);
- }
-Index: 2.6.7-rc2-mm2/include/asm-i386/mpspec.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-i386/mpspec.h	2004-06-03 06:42:03.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-i386/mpspec.h	2004-06-03 07:08:09.000000000 -0700
-@@ -53,7 +53,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_zero((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
-+#define physids_complement(dst, src)		bitmap_complement((dst).mask,(src).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
-Index: 2.6.7-rc2-mm2/include/asm-x86_64/mpspec.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-x86_64/mpspec.h	2004-06-03 06:42:03.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-x86_64/mpspec.h	2004-06-03 07:08:09.000000000 -0700
-@@ -212,7 +212,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_zero((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
-+#define physids_complement(dst, src)		bitmap_complement((dst).mask, (src).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
-Index: 2.6.7-rc2-mm2/include/asm-x86_64/topology.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/asm-x86_64/topology.h	2004-06-03 06:42:03.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/asm-x86_64/topology.h	2004-06-03 07:08:09.000000000 -0700
-@@ -20,9 +20,11 @@
- #define node_to_first_cpu(node) 	(__ffs(node_to_cpumask[node]))
- #define node_to_cpumask(node)		(node_to_cpumask[node])
- 
--static inline unsigned long pcibus_to_cpumask(int bus)
-+static inline cpumask_t pcibus_to_cpumask(int bus)
- {
--	return mp_bus_to_cpumask[bus] & cpu_online_map; 
-+	cpumask_t tmp;
-+	cpus_and(tmp, mp_bus_to_cpumask[bus], cpu_online_map);
-+	return tmp;
- }
- 
- #define NODE_BALANCE_RATE 30	/* CHECKME */ 
+ /**
+  * sys_sched_getaffinity - get the cpu affinity of a process
+  * @pid: pid of the process
 
 
 -- 

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317581AbSG2TEc>; Mon, 29 Jul 2002 15:04:32 -0400
+	id <S317791AbSG2TJy>; Mon, 29 Jul 2002 15:09:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317590AbSG2TEc>; Mon, 29 Jul 2002 15:04:32 -0400
-Received: from mail.wolnet.de ([213.178.16.8]:27328 "HELO wolnet.de")
-	by vger.kernel.org with SMTP id <S317581AbSG2TEa>;
-	Mon, 29 Jul 2002 15:04:30 -0400
-From: Peter <pk@q-leap.com>
+	id <S317815AbSG2TJy>; Mon, 29 Jul 2002 15:09:54 -0400
+Received: from acd.ufrj.br ([146.164.3.7]:57357 "EHLO acd.ufrj.br")
+	by vger.kernel.org with ESMTP id <S317791AbSG2TJx>;
+	Mon, 29 Jul 2002 15:09:53 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Scorpion <scorpionlab@ieg.com.br>
+Reply-To: scorpionlab@ieg.com.br
+Organization: ScorpionLAB
+To: linux-kernel@vger.kernel.org
+Subject: IO-APIC in SMP dual Athlon XP1800
+Date: Mon, 29 Jul 2002 16:12:32 -0300
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15685.37510.23176.149164@gargle.gargle.HOWL>
-Date: Mon, 29 Jul 2002 21:07:50 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Peter <pk@q-leap.com>,
-       linux-kernel@vger.kernel.org, johannes@erdfelt.com
-Subject: Re: oops with usb-serial converter
-In-Reply-To: <1027969112.4101.16.camel@irongate.swansea.linux.org.uk>
-References: <S.0001006613@wolnet.de>
-	<20020729173724.GA10153@kroah.com>
-	<1027969112.4101.16.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: pk@q-leap.com
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207291612.38473.scorpionlab@ieg.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > On Mon, 2002-07-29 at 18:37, Greg KH wrote:
- > > Can you see if the 2.5.29 kernel fixes this problem?  The usb-serial
- > > close() call has been modified to hopefully prevent this from happening
- > > in the 2.5 tree.
- > 
- > If you do - make a backup before you try it
- > 
 
-Thx for the hint, since I'll need the laptop tomorrow at a customer,
-I can try this the day after.
+Hi follows,
+I'm getting in troubles with a A7M266-D motherboard with two
+Athlon XP 1800 cpus (yes, XP not MP!).
+Following the screen shot of my problem:
+^-------cut here---------^
+EIP:    0010:[<c0111686>]    Not tainted
+EFLAGS: 00011046
+<4>CPU:    1
+<4>CPU:    1
+EIP:    0010:[<c0111686>]    Not tainted
+EFLAGS:  00011046
+ `u!wisuu`m aeesess 7eg111eg
+ printing eip:
+ printing eip:
+*pde = 11111010
+Stuck ??
+CPU #1 not responding - cannot use it.
+Error: only one processor found.
+ENABLING IO-APIC IRQs
+Setting 2 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
+init IO_APIC IRQs
+ IO-APIC (apicid-pin) 2-10, 2-11, 2-12, 2-13, 2-16, 2-17, 2-20, 2-21, 2-22, 
+2-23 not connected.
+..TIMER: vector=0x31 pin1=2 pin2=0
+^-----cut here-----^
 
-cheers,
+After spend some times put printk's in kernel source like "Reach this point!"
+I was trying disable IO_APIC in .config file but some link erros ocurred. 
+Has any way to turn IO_APIC disable? Or its extreme necessary?
 
-	Peter
-
--- 
-Peter Kruse <pk@q-leap.com>
-Q-Leap Networks GmbH
-+497071-703171
-
+Thanks,
+Ricardo.

@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTK2UTa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 15:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbTK2UTa
+	id S262730AbTK2UUo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 15:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTK2UUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 15:19:30 -0500
-Received: from cs2417481-26.houston.rr.com ([24.174.81.26]:32137 "EHLO
-	dmdtech.org") by vger.kernel.org with ESMTP id S262714AbTK2UT2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 15:19:28 -0500
-Message-ID: <012301c3b6b6$2feb9fe0$1e01a8c0@dmdtech2>
-From: "Darren Dupre" <darren@dmdtech.org>
-To: "Adam Kropelin" <akropel1@rochester.rr.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <009201c3b6a6$f8e7e800$1e01a8c0@dmdtech2> <20031129163806.A14451@mail.kroptech.com>
-Subject: Re: "DV failed to configure device" for Quantum DLT4000 tape drive on Adaptec 2940UW, 2.6.0-test11
-Date: Sat, 29 Nov 2003 14:20:09 -0600
+	Sat, 29 Nov 2003 15:20:44 -0500
+Received: from gw-undead3.tht.net ([216.126.84.18]:47488 "HELO mail.undead.cc")
+	by vger.kernel.org with SMTP id S262730AbTK2UUm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 15:20:42 -0500
+Message-ID: <3FC8FF94.3040106@undead.cc>
+Date: Sat, 29 Nov 2003 15:20:36 -0500
+From: John Zielinski <grim@undead.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: John Zielinski <grim@undead.cc>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: Rootfs mounted from user space - problem with umount
+References: <3FC82D8F.9030100@undead.cc> <20031129053128.GF8039@holomorphy.com> <3FC8394A.7010702@undead.cc> <20031129062136.GH8039@holomorphy.com> <3FC869A3.8070809@undead.cc> <20031129094435.GS14258@holomorphy.com> <3FC8FB58.6080708@undead.cc>
+In-Reply-To: <3FC8FB58.6080708@undead.cc>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm. That does reflect exactly what happened in my situation. I turned on
-the tape drive, inserted a tape, and while it was busy rewinding, I inserted
-the aic7xxx module.
+John Zielinski wrote:
 
-I just tried inserting the module again, this time with no tape in the drive
-as I turned it on and it initializes just fine and loads the st module. It
-works fine doing everything else AFAIK.
+> +      +config RAMFS_ROOTFS
+> +    bool +    depends on !SHM_ROOTFS
+> +    default y
+> +    select RAMFS
+> +
+>  
+>  
+>
+> -config RAMFS
+> -    bool
+> +config RAMFS +    tristate "Ramfs file system support"
+>     default y
 
-But it still complains when I unload the modules..
 
-Adam Kropelin <akropel1@rochester.rr.com>
->
-> I've seen this same issue with my Quantum DLT4000 & 2940UW as well. It
-> seems to have to do with there being a tape in the drive when the
-> aic7xxx driver initializes. It looks to me like the DLT4000 does not
-> respond to the DV configuration attempt when it is in the middle of
-> rewinding a tape. If the rewind takes long enough, aic7xxx times out the
-> configuration and gives the message you saw.
->
-> I run a completely static kernel so in my case the problem happens when
-> I reboot the machine with a tape still in the drive and the tape is
-> positioned near the end. When the 2940UW BIOS initializes it triggers
-> the DLT4000 to start rewinding the tape and if the tape is positioned
-> far enough along it can still be rewinding when the kernel boots and
-> aic7xxx tries to perform the DV configuration.
->
-> --Adam
->
->
+Doh.  Looks like my mailer combined a few lines when I pasted the patch 
+into my message.   There's three places shown above where the + is not 
+at the start of the line.   Just edit that before applying the patch.
+
+John
+
+
 
